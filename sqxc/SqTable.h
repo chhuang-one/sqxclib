@@ -1,0 +1,322 @@
+/*
+ *   Copyright (C) 2020 by C.H. Huang
+ *   plushuang.tw@gmail.com
+ *
+ * sqxc is licensed under Mulan PSL v2.
+ * You can use this software according to the terms and conditions of the Mulan PSL v2.
+ * You may obtain a copy of Mulan PSL v2 at:
+ *          http://license.coscl.org.cn/MulanPSL2
+ * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+ * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+ * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+ * See the Mulan PSL v2 for more details.
+ */
+
+
+/*	DataBase object - [Server Name].[DataBase Name].[Schema].[Table Name]
+
+	SqField
+	|
+	+--- SqTable
+	|
+	`--- SqColumn
+ */
+
+#ifndef SQ_TABLE_H
+#define SQ_TABLE_H
+
+#include <stddef.h>     // size_t
+#include <stdint.h>
+
+#include <SqField.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct SqTable        SqTable;
+typedef struct SqColumn       SqColumn;
+
+// --------------------------------------------------------
+// SqTable C functions
+
+SqTable*  sq_table_new(const char* name, const SqType* type_info);
+void      sq_table_free(SqTable* table_pub);
+
+// create new SqTable and copy data from static one.
+SqTable*  sq_table_copy_static(const SqTable* table_src);
+
+bool      sq_table_has_column(SqTable* table, const char* column_name);
+void      sq_table_drop_column(SqTable* table, const char* column_name);
+void      sq_table_rename_column(SqTable* table, const char* from, const char* to);
+
+SqColumn* sq_table_get_primary(SqTable* table);
+
+// TODO: static declared SqColumn
+// int    sq_table_add_static(SqTable* table, const SqColumn* columns,
+//                            int  n_columns);
+
+SqColumn* sq_table_add_integer(SqTable* table, const char* column_name,
+                               size_t offset);
+SqColumn* sq_table_add_int64(SqTable* table, const char* column_name,
+                             size_t offset);
+SqColumn* sq_table_add_double(SqTable* table, const char* column_name,
+                              size_t offset);
+SqColumn* sq_table_add_string(SqTable* table, const char* column_name,
+                              size_t offset, int length);
+SqColumn* sq_table_add_custom(SqTable* table, const char* column_name,
+                              size_t offset, const SqType* sqtype);
+
+/*
+// UNIQUE (C_Id)
+// CONSTRAINT "u_Customer_Id" UNIQUE ("C_Id", "Name")
+// ADD CONSTRAINT "u_Customer_Id" UNIQUE ("C_Id", "Name");
+SqColumn* sq_table_add_unique(SqTable* table,
+                              const char* index_name,
+                              const char* column1_name, ...);
+
+// MySQL: ALTER TABLE "table" DROP INDEX "u_Customer_Id";
+// other: ALTER TABLE "table" DROP CONSTRAINT "u_Customer_Id";
+void      sq_table_drop_unique(SqTable* table, const char* name);
+
+// CONSTRAINT "pk_Customer_Id" PRIMARY KEY ("C_Id", "Name");
+// ADD CONSTRAINT "u_Customer_Id" PRIMARY KEY ("C_Id", "Name");
+//
+// auto generate primary_name if primary_name == NULL
+// "tableName_columnName_primary"
+SqColumn* sq_table_add_primary(SqTable* table,
+                               const char* primary_name,
+                               const char* column1_name, ...);
+// MySQL: ALTER TABLE "customer" DROP PRIMARY KEY;
+// other: ALTER TABLE "customer" DROP CONSTRAINT "pk_PersonID";
+void      sq_table_drop_primary(SqTable* table, const char* name);
+
+// CREATE INDEX "index_name" ON "table" ("column");
+// CREATE INDEX "index_name" ON "table" ("column1", "column2");
+SqColumn* sq_table_add_index(SqTable* table,
+                             const char* index_name,
+                             const char* column1_name, ...);
+
+// MySQL: ALTER TABLE table_name DROP INDEX index_name;
+// DROP INDEX index_name
+// DROP INDEX table_name.index_name;
+void      sq_table_drop_index(SqTable* table, const char* name);
+ */
+
+// FOREIGN KEY (C_Id) REFERENCES customers(C_Id);
+// ADD FOREIGN KEY (C_Id) REFERENCES customers(C_Id);
+SqColumn* sq_table_add_foreign(SqTable* table, const char* name);
+void      sq_table_drop_foreign(SqTable* table, const char* name);
+
+// This used by migration. It may steal columns from table_src
+int       sq_table_accumulate(SqTable* table, SqTable* table_src);
+
+// unique('column_name')
+// index('column_name')
+// index('column_name', 'name2')
+// primary('column_name');
+// primary('column_name', 'name2');
+
+// integer(...)->foreign("users", "id")->onDelete('cascade');
+// ->onDelete('SET NULL')->onDelete('RESTRICT')->onDelete("no action");
+
+// $table->dropPrimary('users_id_primary');	從「users」資料表移除主鍵。
+// $table->dropUnique('users_email_unique'); 從「users」資料表移除唯一索引。
+// $table->dropIndex('state');
+// $table->dropForeign(['user_id']);
+
+int  sq_table_cmp_str__old_name(const char* str, SqTable** table);
+
+// --------------------------------------------------------
+// SqColumn C functions
+
+SqColumn*  sq_column_new(const char* name, const SqType* type_info);
+void       sq_column_free(SqColumn* column);
+
+// create new SqColumn and copy data from static one.
+SqColumn*  sq_column_copy_static(const SqColumn* column_src);
+
+// foreign key references
+void       sq_column_reference(SqColumn* column,
+                               const char* foreign_table_name,
+                               const char* foreign_column_name);
+// foreign key on delete
+void       sq_column_on_delete(SqColumn* column, const char* act);
+// foreign key on update
+void       sq_column_on_update(SqColumn* column, const char* act);
+
+// the last argument must be NULL
+// sq_column_set_constraint(column, colume_name1, column_name2, NULL);
+void       sq_column_set_constraint(SqColumn* column, ...);
+void       sq_column_set_constraint_va(SqColumn* column, va_list arg_list);
+
+int  sq_column_cmp_str__old_name(const char* str, SqColumn** column);
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
+// ----------------------------------------------------------------------------
+// Sq C++ functions
+
+#ifdef __cplusplus
+template<class Store, class Type>
+inline size_t sq_offset(Type Store::*member) {
+	static Store obj;
+	return size_t(&(obj.*member)) - size_t(&obj);
+}
+#endif  // __cplusplus
+
+/* ----------------------------------------------------------------------------
+	SqTable
+
+	Migration - Alter Column : table->bit_field & SQB_CHANGED
+	Migration - Drop   : table->name = NULL
+	Migration - Rename : table->name = new_name
+*/
+
+struct SqTable
+{
+	SQ_FIELD_MEMBERS;
+/*	// ------ SqField members ------
+	SqType*      type;     // type information for this field
+	char*        name;
+	size_t       offset;
+	unsigned int bit_field;
+ */
+
+	// if table->name is NULL, it will drop table->old_name
+	// if table->name is NOT NULL, it will rename from table->old_name to table->name
+	char*        old_name;    // rename or drop
+
+#ifdef __cplusplus
+	// C++11 standard-layout
+	// ----------------------------------------------------
+	// Laravel-Eloquent-like API
+
+	SqColumn& integer(const char* column_name, size_t offset)
+		{ return *sq_table_add_integer(this, column_name, offset); }
+	SqColumn& int64(const char* column_name, size_t offset)
+		{ return *sq_table_add_int64(this, column_name, offset); }
+	SqColumn& double_(const char* column_name, size_t offset)
+		{ return *sq_table_add_double(this, column_name, offset); }
+	SqColumn& string(const char* column_name, size_t offset, int length = -1)
+		{ return *sq_table_add_string(this, column_name, offset, length); }
+
+	template<class Store, class Type>
+	SqColumn& integer(const char* column_name, Type Store::*member) {
+		return *sq_table_add_integer(this, column_name, sq_offset(member));
+	};
+	template<class Store, class Type>
+	SqColumn& int64(const char* column_name, Type Store::*member) {
+		return *sq_table_add_int64(this, column_name, sq_offset(member));
+	};
+	template<class Store, class Type>
+	SqColumn& double_(const char* column_name, Type Store::*member) {
+		return *sq_table_add_double(this, column_name, sq_offset(member));
+	};
+	template<class Store, class Type>
+	SqColumn& string(const char* column_name, Type Store::*member, int length = -1) {
+		return *sq_table_add_string(this, column_name, sq_offset(member), length);
+	};
+
+/*
+	void addColumn(SqColumn* column, int n_column = 1)
+		{ sq_table_add_column(this, column, n_column); }
+	bool hasColumn(const char* column_name)
+		{ return sq_table_has_column(this, column_name); }	
+	void dropColumn(const char* column_name)
+		{ sq_table_drop_column(this, column_name); }
+*/
+#endif  // __cplusplus
+};
+
+
+/* ----------------------------------------------------------------------------
+	SqColumn
+
+	Migration - Alter Type : column->bit_field & SQB_CHANGED
+	Migration - Drop   : column->name = NULL, column->old_name = column_name
+	Migration - Rename : column->name = new_name, column->old_name = old_name
+*/
+
+
+struct SqColumn
+{
+	SQ_FIELD_MEMBERS;
+/*	// ------ SqField members ------
+	SqType*      type;     // type information for this field
+	char*        name;
+	size_t       offset;
+	unsigned int bit_field;
+ */
+
+	// size  : total number of digits is specified in size or length of string
+	// digits: number of digits after the decimal point.
+	int16_t      size;             // total digits or length of string
+	int16_t      digits;           // decimal digits
+
+	char*        default_value;    // create
+	char*        check;            // CHECK (condition)
+//	char*        comment;          // create
+
+	/*	foreign[0] = foreign table
+		foreign[1] = foreign column
+		foreign[2] = on delete
+		foreign[3] = on update     */
+	char**       foreign;          // string array
+	char**       constraint;       // Null-terminated string array
+
+	char*        old_name;         // rename or drop
+
+	// ----------------------------------------------------
+	// for internal use only
+
+	SqPtrArray   strings;          // dynamic foreign + constraint
+
+	// if column->name is NULL, it will drop column->old_name
+	// if column->name is NOT NULL, it will rename from column->old_name to column->name
+
+#ifdef __cplusplus
+	// C++11 standard-layout
+
+	SqColumn* operator->()
+		{ return this; }
+
+	// ----------------------------------------------------
+	// Laravel-Eloquent-like API
+
+	SqColumn& reference(const char* table_name, const char* column_name)
+		{ sq_column_reference(this, table_name, column_name); return *this; }
+	SqColumn& onDelete(const char* act)
+		{ sq_column_on_delete(this, act); return *this; }
+	SqColumn& onUpdate(const char* act)
+		{ sq_column_on_update(this, act); return *this; }
+
+	SqColumn& primary()
+		{ bit_field |= SQB_PRIMARY;   return *this; }
+	SqColumn& unique()
+		{ bit_field |= SQB_UNIQUE;    return *this; }
+	SqColumn& increment()
+		{ bit_field |= SQB_INCREMENT; return *this; }
+	SqColumn& nullable()
+		{ bit_field |= SQB_NULLABLE;  return *this; }
+	SqColumn& change()
+		{ bit_field |= SQB_CHANGE;    return *this; }
+#endif  // __cplusplus
+};
+
+// ----------------------------------------------------------------------------
+// C++ namespace
+
+#ifdef __cplusplus
+namespace Sq
+{
+// These are for directly use only. You can NOT derived it.
+typedef struct SqTable     Table;
+typedef struct SqColumn    Column;
+};  // namespace Sq
+#endif  // __cplusplus
+
+
+#endif  // SQ_TABLE_H
