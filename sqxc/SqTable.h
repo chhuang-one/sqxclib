@@ -36,6 +36,7 @@ extern "C" {
 
 typedef struct SqTable        SqTable;
 typedef struct SqColumn       SqColumn;
+typedef struct SqForeign      SqForeign;
 
 // --------------------------------------------------------
 // SqTable C functions
@@ -233,6 +234,17 @@ struct SqTable
 
 
 /* ----------------------------------------------------------------------------
+	SqForeign: foreign key data
+ */
+struct SqForeign
+{
+	char*  table;
+	char*  column;
+	char*  on_delete;
+	char*  on_update;
+};
+
+/* ----------------------------------------------------------------------------
 	SqColumn
 
 	Migration - Alter Type : column->bit_field & SQB_CHANGED
@@ -260,19 +272,10 @@ struct SqColumn
 	char*        check;            // CHECK (condition)
 //	char*        comment;          // create
 
-	/*	foreign[0] = foreign table
-		foreign[1] = foreign column
-		foreign[2] = on delete
-		foreign[3] = on update     */
-	char**       foreign;          // string array
+	SqForeign*   foreign;          // foreign key
 	char**       constraint;       // Null-terminated string array
 
 	char*        old_name;         // rename or drop
-
-	// ----------------------------------------------------
-	// for internal use only
-
-	SqPtrArray   strings;          // dynamic foreign + constraint
 
 	// if column->name is NULL, it will drop column->old_name
 	// if column->name is NOT NULL, it will rename from column->old_name to column->name

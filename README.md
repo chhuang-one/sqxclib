@@ -37,7 +37,7 @@ uGet3 use SQL database to solve this problem.
 		&(SqColumn) {SQ_TYPE_STRING, "name",    offsetof(User, name)   },
 		&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email)  },
 		&(SqColumn) {SQ_TYPE_INT,    "city_id", offsetof(User, city_id),
-		             .foreign = (char *[]) {"cities", "id", NULL, NULL} },
+		             .foreign = &(SqForeign) {"cities", "id", NULL, NULL} },
 	};
 
  use C function to declare table/column (dynamic)

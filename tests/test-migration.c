@@ -46,14 +46,13 @@ struct City {
 static const SqColumn  *UserColumns[] = {
 	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE set null ON UPDATE cascade
 	&(SqColumn) {SQ_TYPE_INT,    "city_id", offsetof(User, city_id), SQB_HIDDEN,
-	             .foreign = (char *[]) {"cities", "id",    "set null",  "cascade"} },
-//	             .foreign = (char *[]) {"table", "column", "on delete", "on update"}
+	             .foreign = &(SqForeign) {"cities", "id",    "set null",  "cascade"} },
 	// "email"  VARCHAR
 	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
 
 	// CONSTRAINT FOREIGN KEY
 	&(SqColumn) {.name = "fk_cities_id",
-	             .foreign = (char *[]) {"cities", "id", "no action", "cascade"},
+	             .foreign = &(SqForeign) {"cities", "id", "no action", "cascade"},
 	             .constraint = (char *[]) {"city_id", NULL} },
 	// COLUMN
 	&(SqColumn) {SQ_TYPE_INT,    "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
@@ -87,7 +86,7 @@ static const SqColumn  *UserColumnsChange[] = {
 
 	// DROP CONSTRAINT FOREIGN KEY "fk_cities_id"
 	&(SqColumn) {.old_name = "fk_cities_id",  .name = NULL,
-	             .constraint = (char**)"",  .foreign = (char**)""},
+	             .constraint = (char**)"",  .foreign = (SqForeign*)""},
 	// DROP COLUMN "name"
 	&(SqColumn) {.old_name = "name",   .name = NULL},
 
@@ -136,7 +135,7 @@ SqTable* create_user_table_by_c(SqSchema* schema)
 //	column = sq_table_add_integer_as(table, User, city_id);
 	sq_column_reference(column, "cities", "id");
 //	column = sq_table_add_primary(table, "pk_name_email", "name", "email", NULL);
-//	sq_column_set_constraint(column, "name", "email", NULL);
+	sq_column_set_constraint(column, "name", "email", NULL);
 
 	return table;
 }

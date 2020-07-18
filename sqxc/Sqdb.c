@@ -354,7 +354,7 @@ static bool drop_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuf
 
 	sq_buffer_write(buffer, "DROP");
 	// DROP CONSTRAINT
-	if (column->constraint) {
+	if (column->constraint || column->bit_field & SQB_CONSTRAINT) {
 		if (db->info->column.mysql) {
 			if (column->bit_field & SQB_FOREIGN || column->foreign)
 				sq_buffer_write(buffer, " FOREIGN KEY");
@@ -491,21 +491,21 @@ static void foreign_ref_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
 {
 	// REFERENCES "foreign table name"("foreign column name")
 	sq_buffer_write(buffer, " REFERENCES \"");
-	sq_buffer_write(buffer, column->foreign[0]);    // foreign table name
+	sq_buffer_write(buffer, column->foreign->table);    // foreign table name
 	sq_buffer_write(buffer, "\"(\"");
-	sq_buffer_write(buffer, column->foreign[1]);    // foreign column name
+	sq_buffer_write(buffer, column->foreign->column);   // foreign column name
 	sq_buffer_alloc(buffer, 2);
 	buffer->buf[buffer->writed -2] = '"';
 	buffer->buf[buffer->writed -1] = ')';
 	// ON DELETE
-	if (column->foreign[2]) {
+	if (column->foreign->on_delete) {
 		sq_buffer_write(buffer, " ON DELETE ");
-		sq_buffer_write(buffer, column->foreign[2]);
+		sq_buffer_write(buffer, column->foreign->on_delete);
 	}
 	// ON UPDATE
-	if (column->foreign[3]) {
+	if (column->foreign->on_update) {
 		sq_buffer_write(buffer, " ON UPDATE ");
-		sq_buffer_write(buffer, column->foreign[3]);
+		sq_buffer_write(buffer, column->foreign->on_update);
 	}
 }
 

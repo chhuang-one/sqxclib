@@ -19,7 +19,7 @@
 #include <SqError.h>
 #include <SqTable.h>
 
-#define N_FOREIGN_DATA    4
+#define N_CONSTRAINT_LEN    4
 
 SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 {
@@ -332,6 +332,35 @@ int  sq_table_cmp_str__old_name(const char* str, SqTable** table)
 }
 
 // ----------------------------------------------------------------------------
+//
+
+static void  sq_foreign_free(SqForeign* foreign)
+{
+	free(foreign->table);
+	free(foreign->column);
+	free(foreign->on_delete);
+	free(foreign->on_update);
+	free(foreign);
+}
+
+static SqForeign* sq_foreign_copy(SqForeign* src)
+{
+	SqForeign*  foreign;
+
+	foreign = malloc(sizeof(SqForeign));
+	foreign->table  = strdup(src->table);
+	foreign->column = strdup(src->column);
+	foreign->on_delete = strdup(src->on_delete);
+	foreign->on_update = strdup(src->on_update);
+	return foreign;
+}
+
+#define sq_constraint_allocated(constraint)    *( (intptr_t*) ((constraint)-1) )
+#define sq_constraint_alloc(n)                 ( (char**)malloc(sizeof(char*) *(n+1)) +1)
+#define sq_constraint_realloc(constraint, n)   ( (char**)realloc((constraint)-1, sizeof(char*) *(n+1)) +1)
+#define sq_constraint_free(constraint)         free((constraint)-1)
+
+// ----------------------------------------------------------------------------
 // SqColumn C functions
 
 SqColumn*  sq_column_new(const char* name, const SqType* typeinfo)
@@ -353,7 +382,14 @@ void  sq_column_free(SqColumn* column)
 		// clear SqField
 		sq_field_final((SqField*)column);
 		// free SqColumn
-		sq_ptr_array_final(&column->strings);
+		free(column->default_value);
+		free(column->check);
+//		free(column->comment);
+		free(column->old_name);
+		if (column->foreign)
+			sq_foreign_free(column->foreign);
+		if (column->constraint)
+			sq_constraint_free(column->constraint);
 		free(column);
 	}
 }
@@ -361,7 +397,7 @@ void  sq_column_free(SqColumn* column)
 SqColumn* sq_column_copy_static(const SqColumn* column_src)
 {
 	SqColumn* column;
-	int       index;
+	int       index, length;
 
 	column = malloc(sizeof(SqColumn));
 	column->type      = column_src->type;
@@ -369,8 +405,6 @@ SqColumn* sq_column_copy_static(const SqColumn* column_src)
 	column->bit_field = column_src->bit_field | SQB_DYNAMIC;
 	column->size      = column_src->size;
 	column->digits    = column_src->digits;
-	column->strings.data   = NULL;
-	column->strings.length = 0;
 
 	column->name          = column_src->name ? strdup(column_src->name) : NULL;
 	column->default_value = column_src->default_value ? strdup(column_src->default_value) : NULL;
@@ -378,21 +412,22 @@ SqColumn* sq_column_copy_static(const SqColumn* column_src)
 //	column->comment       = column_src->comment ? strdup(column_src->comment) : NULL;
 	column->old_name      = column_src->old_name ? strdup(column_src->old_name) : NULL;
 
-	column->foreign = NULL;
-	if (column_src->foreign) {
-		sq_column_reference(column, column_src->foreign[0], column_src->foreign[1]);
-		column->foreign[2] = column_src->foreign[2] ? strdup(column_src->foreign[2]) : NULL;
-		column->foreign[3] = column_src->foreign[3] ? strdup(column_src->foreign[3]) : NULL;
-	}
+	if (column_src->foreign)
+		column->foreign = sq_foreign_copy(column_src->foreign);
+	else
+		column->foreign = NULL;
 
 	column->constraint = NULL;
 	if (column_src->constraint) {
-		if (column->strings.data == NULL)
-			sq_ptr_array_init(&column->strings, 8, free);
 		for (index = 0;  column_src->constraint[index];  index++)
-			sq_ptr_array_append(&column->strings, column_src->constraint[index]);
-		sq_ptr_array_append(&column->strings, NULL);
-		column->constraint = (char**)column->strings.data + (column_src->foreign ? N_FOREIGN_DATA : 0);
+			;
+		if (index > 0) {
+			length = index + 1;
+			column->constraint = sq_constraint_alloc(length);
+			column->constraint[index] = NULL;
+			for (index = 0;  index < length;  index++)
+				column->constraint[index] = strdup(column_src->constraint[index]);
+		}
 	}
 	return column;
 }
@@ -404,31 +439,27 @@ void  sq_column_reference(SqColumn* column,
 {
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
+
 	// remove foreign key if foreign_table_name == NULL
 	if (foreign_table_name == NULL) {
-		sq_ptr_array_erase(&column->strings, 0, N_FOREIGN_DATA);
+		if (column)
+			sq_foreign_free(column->foreign);
 		column->foreign = NULL;
-		column->constraint = (char**)column->strings.data;
 		return;
 	}
-	// allocate 4 string
+
 	if (column->foreign == NULL) {
-		if (column->strings.data == NULL)
-			sq_ptr_array_init(&column->strings, 8, free);
-		// insert 4 strings at index 0
-		column->foreign = (char**)sq_ptr_array_alloc_at(&column->strings, 0, N_FOREIGN_DATA);
-		if (column->constraint)
-			column->constraint = column->foreign + N_FOREIGN_DATA;
-		column->foreign[2] = NULL;
-		column->foreign[3] = NULL;
+		column->foreign = malloc(sizeof(SqForeign));
+		column->foreign->on_delete = NULL;
+		column->foreign->on_update = NULL;
 	}
 	else {
-		free(column->foreign[0]);
-		free(column->foreign[1]);
+		free(column->foreign->table);
+		free(column->foreign->column);
 	}
 
-	column->foreign[0] = strdup(foreign_table_name);
-	column->foreign[1] = strdup(foreign_column_name);
+	column->foreign->table = strdup(foreign_table_name);
+	column->foreign->column = strdup(foreign_column_name);
 }
 
 // foreign key on delete
@@ -437,7 +468,7 @@ void  sq_column_on_delete(SqColumn* column, const char* act)
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
 	if (column->foreign)
-		column->foreign[2] = strdup(act);
+		column->foreign->on_delete = strdup(act);
 }
 
 // foreign key on update
@@ -446,7 +477,7 @@ void  sq_column_on_update(SqColumn* column, const char* act)
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
 	if (column->foreign)
-		column->foreign[3] = strdup(act);
+		column->foreign->on_update = strdup(act);
 }
 
 void  sq_column_set_constraint(SqColumn* column, ...)
@@ -461,24 +492,32 @@ void  sq_column_set_constraint(SqColumn* column, ...)
 void  sq_column_set_constraint_va(SqColumn* column, va_list arg_list)
 {
 	const char*  name;
+	int   index, allocated;
 
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
-	if (column->strings.data == NULL)
-		sq_ptr_array_init(&column->strings, 8, free);
 
+	if (column->constraint == NULL) {
+		column->constraint = sq_constraint_alloc(N_CONSTRAINT_LEN);
+		allocated = N_CONSTRAINT_LEN;
+	}
+	else {
+		allocated = sq_constraint_allocated(column->constraint);
+		for (index = 0;  column->constraint[index];  index++)
+			free(column->constraint[index]);
+	}
+
+	index = 0;
 	do {
 		// add string to null terminated string array 
 		name = va_arg(arg_list, const char*);
-		*sq_ptr_array_alloc(&column->strings, 1) = name ? strdup(name) : NULL;
+		if (index == allocated) {
+			allocated *= 2;
+			column->constraint = sq_constraint_realloc(column->constraint, allocated);
+			sq_constraint_allocated(column->constraint) = allocated;
+		}
+		column->constraint[index++] = name ? strdup(name) : NULL;
 	} while (name);
-
-	if (column->foreign == NULL)
-		column->constraint = (char**)column->strings.data;
-	else {
-		column->foreign    = (char**)column->strings.data;
-		column->constraint = (char**)column->strings.data + N_FOREIGN_DATA;
-	}
 }
 
 int  sq_column_cmp_str__old_name(const char* str, SqColumn** column)
@@ -490,3 +529,4 @@ int  sq_column_cmp_str__old_name(const char* str, SqColumn** column)
 	name2 = (*column) ? (*column)->old_name : "";
 	return strcasecmp(name1, name2);
 }
+

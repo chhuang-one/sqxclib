@@ -45,7 +45,7 @@ sqxc = static_library('sqxc',
                       include_directories: sqxc_inc,
                       install: true)
 
-#					  dependencies : [json-c, sqlite3],
+#                     dependencies : [json-c, sqlite3],
 
 
 # sqxc_dep = declare_dependency(
