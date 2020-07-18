@@ -337,13 +337,17 @@ struct XcMethod
 	SqxcType     type;     \
 	const char*  name;     \
 	union {                \
-		bool     boolean;  \
-		int      integer;  \
-		int64_t  int64;    \
-		double   fraction; \
-		double   double_;  \
-		char*    string;   \
-		void*    pointer;  \
+		bool          boolean;  \
+		int           integer;  \
+		int           int_;     \
+		unsigned int  uinteger; \
+		unsigned int  uint;     \
+		int64_t       int64;    \
+		uint64_t      uint64;   \
+		double        fraction; \
+		double        double_;  \
+		char*         string;   \
+		void*         pointer;  \
 	} value;               \
 	SqField*     field;    \
 	void**       error;    \
@@ -401,13 +405,17 @@ struct Sqxc
 	SqxcType     type;     // if src->code = SQCODE_TYPE_NOT_MATCH, set required type in dest->type
 	const char*  name;
 	union {
-		bool     boolean;
-		int      integer;
-		int64_t  int64;
-		double   fraction;
-		double   double_;
-		char*    string;
-		void*    pointer;
+		bool          boolean;
+		int           integer;
+		int           int_;
+		unsigned int  uinteger;
+		unsigned int  uint;
+		int64_t       int64;
+		int64_t       uint64;
+		double        fraction;
+		double        double_;
+		char*         string;
+		void*         pointer;
 	} value;
 
 	// input arguments - optional.  this one can be NULL.

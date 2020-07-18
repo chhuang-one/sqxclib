@@ -63,6 +63,41 @@ int  sq_type_int_write(void* instance, SqType* fieldtype, Sqxc* src)
 }
 
 // ------------------------------------
+// SqType* SQ_TYPE_UINT functions
+
+int  sq_type_uint_parse(void* instance, SqType* fieldtype, Sqxc* src)
+{
+	switch (src->type) {
+	case SQXC_TYPE_UINT:
+		*(unsigned int*)instance = src->value.uinteger;
+		break;
+
+	case SQXC_TYPE_BOOL:
+		*(unsigned int*)instance = src->value.boolean;
+		break;
+
+	case SQXC_TYPE_STRING:
+		*(unsigned int*)instance = strtoul(src->value.string, NULL, 10);
+		break;
+
+	default:
+		src->dest->type = SQXC_TYPE_UINT;    // set required type in dest->type
+		return (src->code = SQCODE_TYPE_NOT_MATCH);
+	}
+
+	return (src->code = SQCODE_OK);
+}
+
+int  sq_type_uint_write(void* instance, SqType* fieldtype, Sqxc* src)
+{
+//	sqxc_send_int(src, src->name, *(unsigned int*)instance);
+	src->type = SQXC_TYPE_UINT;
+//	src->name = src->name;    // "name" was set by caller of this function
+	src->value.uinteger = *(unsigned int*)instance;
+	return sqxc_send(src);
+}
+
+// ------------------------------------
 // SqType* SQ_TYPE_INTPTR functions
 
 int  sq_type_intptr_parse(void* instance, SqType* fieldtype, Sqxc* src)
@@ -115,6 +150,41 @@ int  sq_type_int64_write(void* instance, SqType* fieldtype, Sqxc* src)
 	src->type = SQXC_TYPE_INT64;
 //	src->name = src->name;    // "name" was set by caller of this function
 	src->value.int64 = *(int64_t*)instance;
+	return sqxc_send(src);
+}
+
+// ------------------------------------
+// SqType* SQ_TYPE_UINT64 functions
+
+int  sq_type_uint64_parse(void* instance, SqType* fieldtype, Sqxc* src)
+{
+	switch (src->type) {
+	case SQXC_TYPE_UINT:
+		*(uint64_t*)instance = src->value.integer;
+		break;
+
+	case SQXC_TYPE_UINT64:
+		*(uint64_t*)instance = src->value.int64;
+		break;
+
+	case SQXC_TYPE_STRING:
+		*(uint64_t*)instance = strtoull(src->value.string, NULL, 10);
+		break;
+
+	default:
+		src->dest->type = SQXC_TYPE_UINT64;    // set required type in dest->type
+		return (src->code = SQCODE_TYPE_NOT_MATCH);
+	}
+
+	return (src->code = SQCODE_OK);
+}
+
+int  sq_type_uint64_write(void* instance, SqType* fieldtype, Sqxc* src)
+{
+//	sqxc_send_uint64(src, src->name, *(uint64_t*)instance);
+	src->type = SQXC_TYPE_UINT64;
+//	src->name = src->name;    // "name" was set by caller of this function
+	src->value.uint64 = *(uint64_t*)instance;
 	return sqxc_send(src);
 }
 
@@ -273,6 +343,14 @@ const SqType SqType_BuiltIn_[] = {
 		sq_type_int_parse,
 		sq_type_int_write,
 	},
+	// SQ_TYPE_UINT
+	{
+		sizeof(unsigned int),
+		NULL,
+		NULL,
+		sq_type_uint_parse,
+		sq_type_uint_write,
+	},
 	// SQ_TYPE_INTPTR
 	{
 		sizeof(intptr_t),
@@ -288,6 +366,14 @@ const SqType SqType_BuiltIn_[] = {
 		NULL,
 		sq_type_int64_parse,
 		sq_type_int64_write,
+	},
+	// SQ_TYPE_UINT64
+	{
+		sizeof(uint64_t),
+		NULL,
+		NULL,
+		sq_type_uint64_parse,
+		sq_type_uint64_write,
 	},
 	// SQ_TYPE_DOUBLE
 	{

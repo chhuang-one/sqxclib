@@ -29,9 +29,9 @@ struct User {
 	char*  email;
 	int    city_id;
 
-	SqPtrArray  posts;
+	SqPtrArray   posts;
 
-	int    test_add;
+	unsigned int test_add;
 };
 
 struct City {
@@ -79,7 +79,7 @@ const SqType UserType = {
 */
 static const SqColumn  *UserColumnsChange[] = {
 	// ADD COLUMN "test_add"
-	&(SqColumn) {SQ_TYPE_INT,  "test_add", offsetof(User, test_add), SQB_NULLABLE},
+	&(SqColumn) {SQ_TYPE_UINT, "test_add", offsetof(User, test_add), SQB_NULLABLE},
 
 	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGE)
 	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGE},

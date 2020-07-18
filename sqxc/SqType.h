@@ -108,20 +108,24 @@ typedef int  (*SqTypeCxFunc)(void* instance, SqType* type, Sqxc* cx);
 
 enum {
 	SQ_TYPE_INDEX_INT,
+	SQ_TYPE_INDEX_UINT,
 	SQ_TYPE_INDEX_INTPTR,
 	SQ_TYPE_INDEX_INT64,
+	SQ_TYPE_INDEX_UINT64,
 	SQ_TYPE_INDEX_DOUBLE,
 	SQ_TYPE_INDEX_STRING,
 };
 
 #define SQ_TYPE_INT        ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INT])
+#define SQ_TYPE_UINT       ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_UINT])
 #define SQ_TYPE_INTPTR     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INTPTR])
 #define SQ_TYPE_INT64      ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INT64])
+#define SQ_TYPE_UINT64     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_UINT64])
 #define SQ_TYPE_DOUBLE     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_DOUBLE])
 #define SQ_TYPE_STRING     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_STRING])
 
 #define SQ_TYPE_INTEGER_BEG       SQ_TYPE_INT
-#define SQ_TYPE_INTEGER_END       SQ_TYPE_INT64
+#define SQ_TYPE_INTEGER_END       SQ_TYPE_UINT64
 
 // std::is_arithmetic<Type> == true
 #define SQ_TYPE_ARITHMETIC_BEG    SQ_TYPE_INT
@@ -255,8 +259,14 @@ int      sq_type_decide_size(SqType* type, const SqField* inner_field);
 int  sq_type_int_parse(void* instance, SqType* type, Sqxc* xcsrc);
 int  sq_type_int_write(void* instance, SqType* type, Sqxc* xcsrc);
 
+int  sq_type_uint_parse(void* instance, SqType* type, Sqxc* xcsrc);
+int  sq_type_uint_write(void* instance, SqType* type, Sqxc* xcsrc);
+
 int  sq_type_int64_parse(void* instance, SqType* type, Sqxc* xcsrc);
 int  sq_type_int64_write(void* instance, SqType* type, Sqxc* xcsrc);
+
+int  sq_type_uint64_parse(void* instance, SqType* type, Sqxc* xcsrc);
+int  sq_type_uint64_write(void* instance, SqType* type, Sqxc* xcsrc);
 
 int  sq_type_double_parse(void* instance, SqType* type, Sqxc* xcsrc);
 int  sq_type_double_write(void* instance, SqType* type, Sqxc* xcsrc);

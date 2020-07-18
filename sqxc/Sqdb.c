@@ -396,20 +396,26 @@ static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
 
 	switch (SQ_TYPE_BUILTIN_INDEX(type)) {
 	case SQ_TYPE_INDEX_INT:
+	case SQ_TYPE_INDEX_UINT:
 	case SQ_TYPE_INDEX_INTPTR:
 		sq_buffer_write(buffer, "INT");
 		if (size > 0) {
 			len = snprintf(NULL, 0, "(%d)", size);
 			sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
 		}
+		if (column->type == SQ_TYPE_UINT)  // || column->type == SQ_TYPE_UINTPTR
+			sq_buffer_write(buffer, " UNSIGNED");
 		break;
 
 	case SQ_TYPE_INDEX_INT64:
+	case SQ_TYPE_INDEX_UINT64:
 		sq_buffer_write(buffer, "BIGINT");
 		if (size > 0) {
 			len = snprintf(NULL, 0, "(%d)", size);
 			sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
 		}
+		if (column->type == SQ_TYPE_UINT64)
+			sq_buffer_write(buffer, " UNSIGNED");
 		break;
 
 	case SQ_TYPE_INDEX_DOUBLE:
