@@ -131,8 +131,8 @@ SqTable* create_user_table_by_c(SqSchema* schema)
 	column->bit_field |= SQB_PRIMARY;
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
-	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
-//	column = sq_table_add_integer_as(table, User, city_id);
+	column = sq_table_add_int(table, "city_id", offsetof(User, city_id));
+//	column = sq_table_add_int_as(table, User, city_id);
 	sq_column_reference(column, "cities", "id");
 //	column = sq_table_add_primary(table, "pk_name_email", "name", "email", NULL);
 	sq_column_set_constraint(column, "name", "email", NULL);
@@ -186,7 +186,7 @@ SqTable*  change_user_table_by_macro(SqSchema* schema)
 
 	SQ_SCHEMA_ALTER(schema, "users", {
 		table = SQT_CUR;
-		SQT_INTEGER_AS(User, test_add);
+		SQT_UINT_AS(User, test_add);
 		SQT_INTEGER_AS(User, city_id);  SQC_CHANGE();
 		SQT_DROP("name");
 		SQT_RENAME("email", "email2");

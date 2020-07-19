@@ -57,16 +57,45 @@ SqColumn* sq_table_get_primary(SqTable* table);
 // int    sq_table_add_static(SqTable* table, const SqColumn* columns,
 //                            int  n_columns);
 
-SqColumn* sq_table_add_integer(SqTable* table, const char* column_name,
-                               size_t offset);
+#define sq_table_add_integer    sq_table_add_int
+
+SqColumn* sq_table_add_int(SqTable* table, const char* column_name,
+                           size_t offset);
+SqColumn* sq_table_add_uint(SqTable* table, const char* column_name,
+                            size_t offset);
 SqColumn* sq_table_add_int64(SqTable* table, const char* column_name,
                              size_t offset);
+SqColumn* sq_table_add_uint64(SqTable* table, const char* column_name,
+                              size_t offset);
 SqColumn* sq_table_add_double(SqTable* table, const char* column_name,
                               size_t offset);
 SqColumn* sq_table_add_string(SqTable* table, const char* column_name,
                               size_t offset, int length);
 SqColumn* sq_table_add_custom(SqTable* table, const char* column_name,
                               size_t offset, const SqType* sqtype);
+
+/*
+#define sq_table_add_int_as(table, structure, member)    \
+		sq_table_add_int(table, #member, offsetof(structure, member))
+
+#define sq_table_add_uint_as(table, structure, member)    \
+		sq_table_add_uint(table, #member, offsetof(structure, member))
+
+#define sq_table_add_int64_as(table, structure, member)    \
+		sq_table_add_int64(table, #member, offsetof(structure, member))
+
+#define sq_table_add_uint64_as(table, structure, member)    \
+		sq_table_add_uint64(table, #member, offsetof(structure, member))
+
+#define sq_table_add_double_as(table, structure, member)    \
+		sq_table_add_double(table, #member, offsetof(structure, member))
+
+#define sq_table_add_string_as(table, structure, member, length)    \
+		sq_table_add_string(table, #member, offsetof(structure, member), length)
+
+#define sq_table_add_custom_as(table, structure, member, type)    \
+		sq_table_add_custom(table, #member, offsetof(structure, member), type)
+ */
 
 /*
 // UNIQUE (C_Id)
@@ -196,9 +225,15 @@ struct SqTable
 	// Laravel-Eloquent-like API
 
 	SqColumn& integer(const char* column_name, size_t offset)
-		{ return *sq_table_add_integer(this, column_name, offset); }
+		{ return *sq_table_add_int(this, column_name, offset); }
+	SqColumn& int_(const char* column_name, size_t offset)
+		{ return *sq_table_add_int(this, column_name, offset); }
+	SqColumn& uint(const char* column_name, size_t offset)
+		{ return *sq_table_add_uint(this, column_name, offset); }
 	SqColumn& int64(const char* column_name, size_t offset)
 		{ return *sq_table_add_int64(this, column_name, offset); }
+	SqColumn& uint64(const char* column_name, size_t offset)
+		{ return *sq_table_add_uint64(this, column_name, offset); }
 	SqColumn& double_(const char* column_name, size_t offset)
 		{ return *sq_table_add_double(this, column_name, offset); }
 	SqColumn& string(const char* column_name, size_t offset, int length = -1)
@@ -206,11 +241,23 @@ struct SqTable
 
 	template<class Store, class Type>
 	SqColumn& integer(const char* column_name, Type Store::*member) {
-		return *sq_table_add_integer(this, column_name, sq_offset(member));
+		return *sq_table_add_int(this, column_name, sq_offset(member));
+	};
+	template<class Store, class Type>
+	SqColumn& int_(const char* column_name, Type Store::*member) {
+		return *sq_table_add_int(this, column_name, sq_offset(member));
+	};
+	template<class Store, class Type>
+	SqColumn& uint(const char* column_name, Type Store::*member) {
+		return *sq_table_add_uint(this, column_name, sq_offset(member));
 	};
 	template<class Store, class Type>
 	SqColumn& int64(const char* column_name, Type Store::*member) {
 		return *sq_table_add_int64(this, column_name, sq_offset(member));
+	};
+	template<class Store, class Type>
+	SqColumn& uint64(const char* column_name, Type Store::*member) {
+		return *sq_table_add_uint64(this, column_name, sq_offset(member));
 	};
 	template<class Store, class Type>
 	SqColumn& double_(const char* column_name, Type Store::*member) {

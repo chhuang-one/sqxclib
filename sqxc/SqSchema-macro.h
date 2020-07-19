@@ -97,16 +97,34 @@ typedef struct Company
 
 
 #define SQT_INTEGER(column_name, structure, member)   \
-		(column_cur_ = sq_table_add_integer(table_cur_, column_name, offsetof(structure, member)))
+		(column_cur_ = sq_table_add_int(table_cur_, column_name, offsetof(structure, member)))
 
 #define SQT_INTEGER_AS(structure, member)   \
-		(column_cur_ = sq_table_add_integer(table_cur_, #member, offsetof(structure, member)))
+		(column_cur_ = sq_table_add_int(table_cur_, #member, offsetof(structure, member)))
+
+#define SQT_INT(column_name, structure, member)   \
+		(column_cur_ = sq_table_add_int(table_cur_, column_name, offsetof(structure, member)))
+
+#define SQT_INT_AS(structure, member)   \
+		(column_cur_ = sq_table_add_int(table_cur_, #member, offsetof(structure, member)))
+
+#define SQT_UINT(column_name, structure, member)   \
+		(column_cur_ = sq_table_add_uint(table_cur_, column_name, offsetof(structure, member)))
+
+#define SQT_UINT_AS(structure, member)   \
+		(column_cur_ = sq_table_add_uint(table_cur_, #member, offsetof(structure, member)))
 
 #define SQT_INT64(column_name, structure, member)   \
 		(column_cur_ = sq_table_add_int64(table_cur_, column_name, offsetof(structure, member)))
 
 #define SQT_INT64_AS(structure, member)   \
 		(column_cur_ = sq_table_add_int64(table_cur_, #member, offsetof(structure, member)))
+
+#define SQT_UINT64(column_name, structure, member)   \
+		(column_cur_ = sq_table_add_uint64(table_cur_, column_name, offsetof(structure, member)))
+
+#define SQT_UINT64_AS(structure, member)   \
+		(column_cur_ = sq_table_add_uint64(table_cur_, #member, offsetof(structure, member)))
 
 #define SQT_DOUBLE(column_name, structure, member)    \
 		(column_cur_ = sq_table_add_double(table_cur_, column_name, offsetof(structure, member)))

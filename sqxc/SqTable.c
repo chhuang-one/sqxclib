@@ -117,11 +117,21 @@ SqColumn* sq_table_get_primary(SqTable* table)
 	return NULL;
 }
 
-SqColumn* sq_table_add_integer(SqTable* table, const char* name, size_t offset)
+SqColumn* sq_table_add_int(SqTable* table, const char* name, size_t offset)
 {
 	SqColumn* column;
 
 	column = sq_column_new(name, SQ_TYPE_INT);
+	column->offset = offset;
+	sq_type_insert_field(table->type, (SqField*)column);
+	return column;
+}
+
+SqColumn* sq_table_add_uint(SqTable* table, const char* name, size_t offset)
+{
+	SqColumn* column;
+
+	column = sq_column_new(name, SQ_TYPE_UINT);
 	column->offset = offset;
 	sq_type_insert_field(table->type, (SqField*)column);
 	return column;
@@ -132,6 +142,16 @@ SqColumn* sq_table_add_int64(SqTable* table, const char* name, size_t offset)
 	SqColumn* column;
 
 	column = sq_column_new(name, SQ_TYPE_INT64);
+	column->offset = offset;
+	sq_type_insert_field(table->type, (SqField*)column);
+	return column;
+}
+
+SqColumn* sq_table_add_uint64(SqTable* table, const char* name, size_t offset)
+{
+	SqColumn* column;
+
+	column = sq_column_new(name, SQ_TYPE_UINT64);
 	column->offset = offset;
 	sq_type_insert_field(table->type, (SqField*)column);
 	return column;
