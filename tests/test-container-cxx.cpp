@@ -12,6 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <time.h>
 #include <stdio.h>
 #include <type_traits>  // is_standard_layout<>
 #include <iostream>     // cout
@@ -110,6 +111,7 @@ int main(void)
 	test_ptr_array();
 	test_buffer();
 
+	cout << "is_arithmetic : " << std::is_arithmetic<time_t>::value << endl;
 //	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 	return 0;
 }

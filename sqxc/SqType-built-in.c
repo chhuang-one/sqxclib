@@ -12,10 +12,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <time.h>     // time_t
 #include <stdio.h>    // sprintf()
 #include <stdlib.h>   // realloc(), strtol()
 #include <string.h>   // strdup()
 
+#include <SqUtil.h>   // sq_time_to_string(), sq_time_from_string()
 #include <SqError.h>
 #include <SqPtrArray.h>
 #include <SqType.h>
@@ -210,6 +212,38 @@ int  sq_type_double_write(void* instance, SqType* fieldtype, Sqxc* src)
 }
 
 // ------------------------------------
+// SqType* SQ_TYPE_TIME functions
+
+int  sq_type_time_parse(void* instance, SqType* fieldtype, Sqxc* src)
+{
+	if (src->type == SQXC_TYPE_STRING) {
+		*(time_t*)instance = sq_time_from_string(src->value.string);
+		if (*(time_t*)instance == -1)
+			*(time_t*)instance = time(NULL);
+	}
+	else if (src->type == SQXC_TYPE_INT)
+		*(time_t*)instance = src->value.int_;
+	else if (src->type == SQXC_TYPE_INT64)
+		*(time_t*)instance = src->value.int64;
+	return (src->code = SQCODE_OK);
+}
+
+int  sq_type_time_write(void* instance, SqType* fieldtype, Sqxc* src)
+{
+	int   result;
+	char* timestr;
+
+	timestr = sq_time_to_string(*(time_t*)instance);
+//	sqxc_send_string(src, src->name, timestr);
+	src->type = SQXC_TYPE_STRING;
+//	src->name = src->name;    // "name" was set by caller of this function
+	src->value.string = timestr;
+	result = sqxc_send(src);
+	free(timestr);
+	return result;
+}
+
+// ------------------------------------
 // SqType* SQ_TYPE_STRING functions
 
 void sq_type_string_final(void* instance, SqType* fieldtype)
@@ -382,6 +416,14 @@ const SqType SqType_BuiltIn_[] = {
 		NULL,
 		sq_type_double_parse,
 		sq_type_double_write,
+	},
+	// SQ_TYPE_TIME
+	{
+		sizeof(time_t),
+		NULL,
+		NULL,
+		sq_type_time_parse,
+		sq_type_time_write,
 	},
 	// SQ_TYPE_STRING
 	{

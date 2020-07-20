@@ -113,6 +113,7 @@ enum {
 	SQ_TYPE_INDEX_INT64,
 	SQ_TYPE_INDEX_UINT64,
 	SQ_TYPE_INDEX_DOUBLE,
+	SQ_TYPE_INDEX_TIME,
 	SQ_TYPE_INDEX_STRING,
 };
 
@@ -122,14 +123,15 @@ enum {
 #define SQ_TYPE_INT64      ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INT64])
 #define SQ_TYPE_UINT64     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_UINT64])
 #define SQ_TYPE_DOUBLE     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_DOUBLE])
+#define SQ_TYPE_TIME       ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_TIME])
 #define SQ_TYPE_STRING     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_STRING])
 
 #define SQ_TYPE_INTEGER_BEG       SQ_TYPE_INT
 #define SQ_TYPE_INTEGER_END       SQ_TYPE_UINT64
 
-// std::is_arithmetic<Type> == true
+// std::is_arithmetic<Type>::value == true
 #define SQ_TYPE_ARITHMETIC_BEG    SQ_TYPE_INT
-#define SQ_TYPE_ARITHMETIC_END    SQ_TYPE_DOUBLE
+#define SQ_TYPE_ARITHMETIC_END    SQ_TYPE_TIME
 
 #define SQ_TYPE_BUILTIN_BEG       SQ_TYPE_INT
 #define SQ_TYPE_BUILTIN_END       SQ_TYPE_STRING

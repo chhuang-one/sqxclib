@@ -179,6 +179,11 @@ uGet3 use SQL database to solve this problem.
 		SQQ_WHERE("age > 5");
 	});
 
+## Licensing
+
+sqcx is licensed under the Mulan PSL v2.
+
+
 ---
 
 觀察者網觀察觀察者，認同者眾推廣認同者。

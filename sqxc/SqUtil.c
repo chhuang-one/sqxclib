@@ -12,7 +12,15 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#if defined(_MSC_VER)
+#define _CRT_SECURE_NO_WARNINGS
+#define strtoll		_strtoi64
+#define snprintf	_snprintf
+#endif
+
+#include <time.h>     // struct tm, time_t
 #include <ctype.h>    // tolower(), toupper()
+#include <stdio.h>    // sscanf()
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>   // malloc()
@@ -20,9 +28,126 @@
 
 #include <SqUtil.h>
 
-#ifdef SQ_HAVE_NAMING_CONVENTION
+/* ----------------------------------------------------------------------------
+	Time string converter
+
+	YYYY/MM/DD HH:MM:SS
+
+	SQLite time string can be in any of the following formats:
+
+	YYYY-MM-DD
+	YYYY-MM-DD HH:MM
+	YYYY-MM-DD HH:MM:SS
+	YYYY-MM-DD HH:MM:SS.SSS
+	YYYY-MM-DDTHH:MM
+	YYYY-MM-DDTHH:MM:SS
+	YYYY-MM-DDTHH:MM:SS.SSS
+	HH:MM
+	HH:MM:SS
+	HH:MM:SS.SSS
+	now                           // 
+	DDDDDDDDDD                    // Julian day number expressed as a floating point value.
+ */
+
+static int sq_tm_hms(struct tm* timeinfo, const char* timestr)
+{
+	int  hour, minute, second = 0;
+	int  result;
+
+	result = sscanf(timestr, "%d:%d:%d", &hour, &minute, &second);
+	if (result < 2)
+		return 0;
+	timeinfo->tm_hour = hour;
+	timeinfo->tm_min  = minute;
+	timeinfo->tm_sec  = second;
+	return result;
+}
+
+static int sq_tm_ymd(struct tm* timeinfo, const char* timestr)
+{
+	int  year, month, day;
+
+	if (sscanf(timestr, "%d-%d-%d", &year, &month, &day) != 3) {
+		if (sscanf(timestr, "%d/%d/%d", &year, &month, &day) != 3)
+			return 0;
+	}
+	timeinfo->tm_year = year  - 1900;
+	timeinfo->tm_mon  = month - 1;
+	timeinfo->tm_mday = day;
+	return 3;
+}
+
+// return UTC time
+// return -1 if error
+time_t  sq_time_from_string(const char* timestr)
+{
+	struct tm  timeinfo = {0};
+	char  *cur;
+
+	cur = strpbrk(timestr, " T:n.");
+	if (cur == NULL)
+		cur = strpbrk(timestr, "-/");    // YYYY-MM-DD  or  YYYY/MM/DD
+	if (cur == NULL)
+		return -1;
+
+	switch(cur[0]) {
+	case ' ':
+	case 'T':
+		if (sq_tm_hms(&timeinfo, cur +1) == 0)
+			return -1;
+	case '-':
+	case '/':
+		if (sq_tm_ymd(&timeinfo, timestr) == 0)
+			return -1;
+		break;
+
+	case ':':    // HH:MM  or  HH:MM:SS
+		// 2000-01-01
+		timeinfo.tm_year = 2000 - 1900;
+		timeinfo.tm_mon  = 1    - 1;
+		timeinfo.tm_mday = 1;
+		if (sq_tm_hms(&timeinfo, timestr) == 0)
+			return -1;
+		break;
+
+	case 'n':    // now
+		return -1;
+
+	case '.':    // Julian day number
+	default:
+		return -1;
+	}
+
+	return mktime(&timeinfo);
+}
+// return NULL if error
+char*   sq_time_to_string(time_t timeraw)
+{
+	struct tm*  timeinfo;
+	char*       timestr;
+
+	timeinfo = localtime((time_t*) &timeraw);
+//	timeinfo = gmtime((time_t*) &timeraw);
+	if (timeinfo == NULL)
+		return NULL;
+
+	timestr = malloc(32);
+	// output format : "2013-02-05 21:25:15"
+	snprintf(timestr, 32, "%.4d-%.2d-%.2d %.2d:%.2d:%.2d",
+	         timeinfo->tm_year + 1900,
+	         timeinfo->tm_mon  + 1,
+	         timeinfo->tm_mday,
+	         timeinfo->tm_hour,
+	         timeinfo->tm_min,
+	         timeinfo->tm_sec);
+	return timestr;
+}
 
 // ----------------------------------------------------------------------------
+
+#ifdef SQ_HAVE_NAMING_CONVENTION
+
+// ------------------------------------
 // camel case and snake case
 
 int  sq_camel_from_snake(char* camel_name, const char* snake_name, bool prev_underline)
@@ -73,14 +198,16 @@ int  sq_snake_from_camel(char* snake_name, const char* camel_name)
 	return length;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------
 //	singular and plural
 
-struct {
+struct
+{
 	int16_t offset;
 	int16_t length;
 	char*   string;
-} plural_[4] = {
+} plural_[4] =
+{
 	{-1, 3, "ies"},
 	{0,  2, "es"},
 	{0,  1, "s"},
@@ -154,7 +281,7 @@ int sq_noun2singular(char* dest, const char* src)
 	return length - plural_[index].length - plural_[index].offset;
 }
 
-// ----------------------------------------------------------------------------
+// ------------------------------------
 //	table name and type name
 
 char* sq_name2table(const char* type_name)

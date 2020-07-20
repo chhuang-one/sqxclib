@@ -21,9 +21,17 @@
 extern "C" {
 #endif
 
-#define SQ_HAVE_NAMING_CONVENTION
+#define SQ_HAVE_NAMING_CONVENTION     1
 
-#ifdef SQ_HAVE_NAMING_CONVENTION
+/* ----------------------------------------------------------------------------
+	time_t convert from/to string
+ */
+
+// return -1 if error
+time_t  sq_time_from_string(const char* timestr);
+
+// return NULL if error
+char*   sq_time_to_string(time_t time);
 
 /* ----------------------------------------------------------------------------
 	camel case and snake case
@@ -32,6 +40,8 @@ extern "C" {
 	     lower camel case : questionMark
 	     upper camel case : QuestionMark
  */
+
+#ifdef SQ_HAVE_NAMING_CONVENTION
 
 // pass NULL to "camel_name" to calculate length
 // return length of camel_name
