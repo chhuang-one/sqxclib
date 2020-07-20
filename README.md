@@ -3,13 +3,6 @@
 sqxc is a library to convert SQL (or JSON...etc) data to/from C language.
 This is developed using 'C' language. It also provides C++ wrapper.
 
-## Current features:
-1. It can use C99 designated initializer to declare SQL table/column/migration.
-   You can also use C/C++ function to do these.
-
-2. All declared table/column can use to parse JSON object/field.
-   Program can also parse JSON object/array from SQL column. (experiment)
-
 ## Plans
 - support more SQL database.
 - complete SQL ORM features.
@@ -20,8 +13,14 @@ In new Android system, app must store data in limited time.
 uGet for Android usually lost data because it spend much time to save ALL record at one time.
 uGet3 use SQL database to solve this problem.
 
+## Current features:
+1. It can use C99 designated initializer to declare SQL table/column/migration.
+   You can also use C/C++ function to do these.
 
-## 1. database schema
+2. All declared table/column can use to parse JSON object/field.
+   Program can also parse JSON object/array from SQL column. (experiment)
+
+## Database schema
 
 	struct User {
 		int    id;
@@ -73,7 +72,7 @@ uGet3 use SQL database to solve this problem.
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
 
 
-## 2. migration
+## Migration
 
  use C99 designated initializer to change table/column (static)
 
@@ -118,7 +117,7 @@ uGet3 use SQL database to solve this problem.
 	table->rename("email", "email2");
 
 
-## 3. CRUD
+## CRUD
 
  use C function
 
@@ -130,13 +129,13 @@ uGet3 use SQL database to solve this problem.
 	sq_storage_remove(storage, "users", NULL, 5);
 
 
-## 4. JSON support
+## JSON support
 
 - all declared table/column can use to parse JSON object/field
 - program can also parse JSON object/array that store in column.
 
 
-## 5. Query builder
+## Query builder
 
  SQL statement
 

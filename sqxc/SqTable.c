@@ -167,6 +167,16 @@ SqColumn* sq_table_add_double(SqTable* table, const char* name, size_t offset)
 	return column;
 }
 
+SqColumn* sq_table_add_timestamp(SqTable* table, const char* name, size_t offset)
+{
+	SqColumn* column;
+
+	column = sq_column_new(name, SQ_TYPE_TIME);
+	column->offset = offset;
+	sq_type_insert_field(table->type, (SqField*)column);
+	return column;
+}
+
 SqColumn* sq_table_add_string(SqTable* table, const char* name, size_t offset, int length)
 {
 	SqColumn* column;

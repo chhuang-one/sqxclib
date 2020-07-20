@@ -69,6 +69,8 @@ SqColumn* sq_table_add_uint64(SqTable* table, const char* column_name,
                               size_t offset);
 SqColumn* sq_table_add_double(SqTable* table, const char* column_name,
                               size_t offset);
+SqColumn* sq_table_add_timestamp(SqTable* table, const char* column_name,
+                                 size_t offset);
 SqColumn* sq_table_add_string(SqTable* table, const char* column_name,
                               size_t offset, int length);
 SqColumn* sq_table_add_custom(SqTable* table, const char* column_name,
@@ -234,6 +236,8 @@ struct SqTable
 		{ return *sq_table_add_int64(this, column_name, offset); }
 	SqColumn& uint64(const char* column_name, size_t offset)
 		{ return *sq_table_add_uint64(this, column_name, offset); }
+	SqColumn& timestamp(const char* column_name, size_t offset)
+		{ return *sq_table_add_timestamp(this, column_name, offset); }
 	SqColumn& double_(const char* column_name, size_t offset)
 		{ return *sq_table_add_double(this, column_name, offset); }
 	SqColumn& string(const char* column_name, size_t offset, int length = -1)
@@ -258,6 +262,10 @@ struct SqTable
 	template<class Store, class Type>
 	SqColumn& uint64(const char* column_name, Type Store::*member) {
 		return *sq_table_add_uint64(this, column_name, sq_offset(member));
+	};
+	template<class Store, class Type>
+	SqColumn& timestamp(const char* column_name, Type Store::*member) {
+		return *sq_table_add_timestamp(this, column_name, sq_offset(member));
 	};
 	template<class Store, class Type>
 	SqColumn& double_(const char* column_name, Type Store::*member) {

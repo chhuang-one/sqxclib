@@ -270,6 +270,9 @@ int  sq_type_int64_write(void* instance, SqType* type, Sqxc* xcsrc);
 int  sq_type_uint64_parse(void* instance, SqType* type, Sqxc* xcsrc);
 int  sq_type_uint64_write(void* instance, SqType* type, Sqxc* xcsrc);
 
+int  sq_type_time_parse(void* instance, SqType* type, Sqxc* xcsrc);
+int  sq_type_time_write(void* instance, SqType* type, Sqxc* xcsrc);
+
 int  sq_type_double_parse(void* instance, SqType* type, Sqxc* xcsrc);
 int  sq_type_double_write(void* instance, SqType* type, Sqxc* xcsrc);
 

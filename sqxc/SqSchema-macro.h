@@ -132,6 +132,12 @@ typedef struct Company
 #define SQT_DOUBLE_AS(structure, member)    \
 		(column_cur_ = sq_table_add_double(table_cur_, #member, offsetof(structure, member)))
 
+#define SQT_TIMESTAMP(column_name, structure, member)    \
+		(column_cur_ = sq_table_add_timestamp(table_cur_, column_name, offsetof(structure, member)))
+
+#define SQT_TIMESTAMP_AS(structure, member)    \
+		(column_cur_ = sq_table_add_timestamp(table_cur_, #member, offsetof(structure, member)))
+
 #define SQT_STRING(column_name, structure, member, length)   \
 		(column_cur_ = sq_table_add_string(table_cur_, column_name, offsetof(structure, member), length))
 

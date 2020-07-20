@@ -418,6 +418,10 @@ static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
 			sq_buffer_write(buffer, " UNSIGNED");
 		break;
 
+	case SQ_TYPE_INDEX_TIME:
+		sq_buffer_write(buffer, "TIMESTAMP");
+		break;
+
 	case SQ_TYPE_INDEX_DOUBLE:
 		sq_buffer_write(buffer, "DOUBLE");    // FLOAT
 		if (size > 0 || digits > 0) {
