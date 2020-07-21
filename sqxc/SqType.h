@@ -99,6 +99,47 @@ typedef struct SqField       SqField;
 typedef void (*SqTypeFunc)(void* instance, SqType* type);
 typedef int  (*SqTypeCxFunc)(void* instance, SqType* type, Sqxc* cx);
 
+/* ----------------------------------------------------------------------------
+	initializer macro for field->type
+
+	// sample 1:
+	typedef struct User    User;
+
+	const SqField *UserFields[] = {...};
+	const SqType   UserType1 = SQ_TYPE_INITIALIZER(User, UserFields, 0);
+
+	// sample 2: initializer with init/final func
+	void  user_init(User* user);
+	void  user_final(User* user);
+
+	const SqType   UserType2 = SQ_TYPE_INITIALIZER_FULL(User, UserFields, 0, user_init, user_final);
+ */
+
+#define SQ_TYPE_INITIALIZER(StructType, FieldPtrArray, bit_value)  \
+{                                                                  \
+	.size  = sizeof(StructType),                                   \
+	.parse = sq_type_object_parse,                                 \
+	.write = sq_type_object_write,                                 \
+	.name  = SQ_GET_TYPE_NAME(StructType),                         \
+	.map   = (SqField**) FieldPtrArray,                            \
+	.map_length = sizeof(FieldPtrArray) / sizeof(SqField*),        \
+	.bit_field  = bit_value,                                       \
+}
+
+#define SQ_TYPE_INITIALIZER_FULL(StructType, FieldPtrArray, bit_value, init_func, final_func) \
+{                                                                  \
+	.size  = sizeof(StructType),                                   \
+	.init  = (SqTypeFunc) init_func,                               \
+	.final = (SqTypeFunc) final_func,                              \
+	.parse = sq_type_object_parse,                                 \
+	.write = sq_type_object_write,                                 \
+	.name  = SQ_GET_TYPE_NAME(StructType),                         \
+	.map   = (SqField**) FieldPtrArray,                            \
+	.map_length = sizeof(FieldPtrArray) / sizeof(SqField*),        \
+	.bit_field  = bit_value,                                       \
+}
+
+// ----------------------------------------------------------------------------
 // SqType::bit_field - SQB_TYPE_xxxx
 #define SQB_TYPE_DYNAMIC     (1<<0)    // for internal use only
 #define SQB_TYPE_SORTED      (1<<1)
