@@ -208,6 +208,10 @@ enum {
 #define SQ_TYPE_PTR_ARRAY     ((SqType*)&SqType_PtrArray_)
 
 /* implement array by SqPtrArray (SqType-PtrArray.c)
+   User can use SQ_TYPE_STRING_ARRAY directly. */
+#define SQ_TYPE_STRING_ARRAY  ((SqType*)&SqType_StringArray_)
+
+/* implement array by SqPtrArray (SqType-PtrArray.c)
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
 #define SQ_TYPE_INTPTR_ARRAY  ((SqType*)&SqType_IntptrArray_)
 
@@ -254,6 +258,7 @@ struct SqType
 // extern
 extern  const  SqType      SqType_BuiltIn_[];
 extern  const  SqType      SqType_PtrArray_;
+extern  const  SqType      SqType_StringArray_;
 extern  const  SqType      SqType_IntptrArray_;
 
 // create/destroy dynamic SqType.

@@ -32,6 +32,9 @@ struct User {
 	int    id;
 	char*  name;
 	char*  email;
+
+	SqStringArray  strs;
+	SqIntptrArray  ints;
 };
 
 // ----------------------------------------------------------------------------
@@ -39,25 +42,42 @@ struct User {
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
-	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), 0},
-	&(SqColumn) {SQ_TYPE_INT,    "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
-	&(SqColumn) {SQ_TYPE_STRING, "name",    offsetof(User, name),  0},
+	&(SqColumn) {SQ_TYPE_STRING,       "email",   offsetof(User, email), 0},
+	&(SqColumn) {SQ_TYPE_INT,          "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
+	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "ints",    offsetof(User, ints),  0},
+	&(SqColumn) {SQ_TYPE_STRING,       "name",    offsetof(User, name),  0},
+	&(SqColumn) {SQ_TYPE_STRING_ARRAY, "strs",    offsetof(User, strs),  0},
 };
 
 // --- UserType use sorted UserColumns
 const SqType UserType = {
-	sizeof(User),                              // size
-	NULL,                                      // init
-	NULL,                                      // final
-	sq_type_object_parse,                      // parse
-	sq_type_object_write,                      // write
-	SQ_GET_TYPE_NAME(User),                    // name
-	(SqField**) UserColumns,                   // map
-	sizeof(UserColumns) / sizeof(SqColumn*),   // map_length
-	SQB_TYPE_SORTED                            // bit_field (UserColumns is sorted)
+	.size  = sizeof(User),
+	.parse = sq_type_object_parse,
+	.write = sq_type_object_write,
+	.name  = SQ_GET_TYPE_NAME(User),
+	.map   = (SqField**) UserColumns,
+	.map_length = sizeof(UserColumns) / sizeof(SqColumn*),
+	.bit_field  = SQB_TYPE_SORTED                            // UserColumns is sorted
 };
 
 // ------------------------------------
+
+void print_user(User* user)
+{
+	int  index;
+
+	printf("User" "\n"
+	       "  id = %d" "\n"
+	       "  name = %s" "\n"
+	       "  email = %s" "\n",
+		   user->id, user->name, user->email);
+
+	for (index = 0;  index < user->strs.length;  index++)
+		printf("  strs[%d] = %s\n", index, user->strs.data[index]);
+	for (index = 0;  index < user->ints.length;  index++)
+		printf("  ints[%d] = %d\n", index, (int)user->ints.data[index]);
+	puts("\n");
+}
 
 SqTable* create_user_table_by_type(SqSchema* schema)
 {
@@ -66,7 +86,25 @@ SqTable* create_user_table_by_type(SqSchema* schema)
 }
 
 // ----------------------------------------------------------------------------
-// Sqxc - Output
+// Sqxc - Input
+
+char* json_array_string =
+"["
+	"{"
+		"\"id\": 10,"
+		"\"email\": \"guest@\","
+		"\"strs\": [\"first\", \"second\"],"
+		"\"ints\": [1, 2]"
+	"}"
+"]";
+
+char* json_object_string =
+"{"
+	"\"id\": 10,"
+	"\"email\": \"guest@\","
+	"\"strs\": [\"first\", \"second\"],"
+	"\"ints\": [1, 2]"
+"}";
 
 void test_sqxc_jsonc_input()
 {
@@ -77,11 +115,40 @@ void test_sqxc_jsonc_input()
 
 	xcjsonc->type = SQXC_TYPE_STRING;
 	xcjsonc->name = NULL;
-	xcjsonc->value.string = "[ { \"id\": 10, \"email\": \"guest@\" } ]";
+	xcjsonc->value.string = json_array_string;
 	xcjsonc->send(xcjsonc, xcjsonc);
 
 	sqxc_finish(xcjsonc, NULL);
 }
+
+User* test_sqxc_jsonc_input_user()
+{
+	Sqxc* xcjsonc;
+	Sqxc* xcvalue;
+	User* user;
+
+	xcjsonc = sqxc_new_input(SQXC_INFO_JSONC, SQXC_INFO_VALUE);
+	xcvalue = sqxc_get(xcjsonc, SQXC_INFO_VALUE, 0);
+	sqxc_value_type(xcvalue) = (SqType*)&UserType;
+	sqxc_value_container(xcvalue) = NULL;
+
+	sqxc_ready(xcjsonc, NULL);
+
+	xcjsonc->type = SQXC_TYPE_STRING;
+	xcjsonc->name = NULL;
+	xcjsonc->value.string = json_object_string;
+	xcjsonc->send(xcjsonc, xcjsonc);
+
+	sqxc_finish(xcjsonc, NULL);
+
+	user = sqxc_value_instance(xcvalue);
+	print_user(user);
+
+	return user;
+}
+
+// ----------------------------------------------------------------------------
+// Sqxc - Output
 
 void test_sqxc_jsonc_output(User* instance)
 {
@@ -155,10 +222,15 @@ int  main(void)
 	user->id = 10;
 	user->name = "Bob";
 	user->email = "guest@";
+	sq_ptr_array_init(&user->strs, 8, NULL);
+	sq_ptr_array_append(&user->strs, strdup("first"));
+	sq_ptr_array_init(&user->ints, 8, NULL);
+	sq_ptr_array_append(&user->ints, (void*)(intptr_t)1);
 
 //	test_sqxc_output(schema, user);
 	test_sqxc_jsonc_output(user);
 	test_sqxc_jsonc_input();
+	test_sqxc_jsonc_input_user();
 
 //	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 	return 0;

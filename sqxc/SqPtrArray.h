@@ -74,11 +74,11 @@ extern "C" {
 
 // void sq_ptr_array_insert(void* array, int index, void* value);
 #define sq_ptr_array_insert(array, index, value)  \
-		*sq_ptr_array_alloc_at(array, index, 1) = (value)
+		*sq_ptr_array_alloc_at(array, index, 1) = (void*)(value)
 
 // void sq_ptr_array_append(void* array, void* value);
 #define sq_ptr_array_append(array, value)  \
-		*sq_ptr_array_alloc_at(array, sq_ptr_array_length(array), 1) = (value)
+		*sq_ptr_array_alloc_at(array, sq_ptr_array_length(array), 1) = (void*)(value)
 
 // bool sq_ptr_array_empty(void* array)
 #define sq_ptr_array_empty(array)  \
@@ -287,6 +287,7 @@ struct SqPtrArrayTemplate : Sq::PtrArrayMethod<Type>
 #endif  // __cplusplus
 
 typedef SQ_PTR_ARRAY(void*)      SqPtrArray;
+typedef SQ_PTR_ARRAY(char*)      SqStringArray;
 typedef SQ_PTR_ARRAY(intptr_t)   SqIntptrArray;
 
 // ----------------------------------------------------------------------------

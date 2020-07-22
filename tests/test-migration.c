@@ -29,7 +29,7 @@ struct User {
 	char*  email;
 	int    city_id;
 
-	SqPtrArray   posts;
+	SqIntptrArray   posts;
 
 	unsigned int test_add;
 };
@@ -61,6 +61,8 @@ static const SqColumn  *UserColumns[] = {
 };
 
 // --- UserType use sorted UserColumns
+const SqType UserType = SQ_TYPE_INITIALIZER(User, UserColumns, SQB_TYPE_SORTED);
+/*
 const SqType UserType = {
 	sizeof(User),                              // size
 	NULL,                                      // init
@@ -72,6 +74,7 @@ const SqType UserType = {
 	sizeof(UserColumns) / sizeof(SqColumn*),   // map_length
 	SQB_TYPE_SORTED                            // bit_field (UserColumns is sorted)
 };
+ */
 
 /* ----------------------------------------------------------------------------
    use struct initialization to declare table/column changed (migration)
@@ -132,10 +135,10 @@ SqTable* create_user_table_by_c(SqSchema* schema)
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 	column = sq_table_add_int(table, "city_id", offsetof(User, city_id));
-//	column = sq_table_add_int_as(table, User, city_id);
 	sq_column_reference(column, "cities", "id");
 //	column = sq_table_add_primary(table, "pk_name_email", "name", "email", NULL);
 	sq_column_set_constraint(column, "name", "email", NULL);
+	column = sq_table_add_custom(table, "posts", offsetof(User, posts), SQ_TYPE_INTPTR_ARRAY);
 
 	return table;
 }
@@ -166,14 +169,17 @@ SqTable*  create_user_table_by_macro(SqSchema* schema)
 		SQT_INTEGER_AS(User, id);  SQC_PRIMARY();  SQC_HIDDEN();
 		SQT_STRING_AS(User, name, -1);
 		SQT_STRING_AS(User, email, -1);
-		SQT_INTEGER_AS(User, city_id);
+		SQT_INTEGER_AS(User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
+		SQT_CUSTOM_AS(User, posts, SQ_TYPE_INTPTR_ARRAY);
 	});
 
 /*
 	SQ_SCHEMA_CREATE(schema, "users", User, {
-		SQT_INTEGER("id", User, id); SQC_PRIMARY();
+		SQT_INTEGER("id", User, id);  SQC_PRIMARY();  SQC_HIDDEN();
 		SQT_STRING("name", User, name, -1);
 		SQT_STRING("email", User, email, -1);
+		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
+		SQT_CUSTOM("posts", User, posts, SQ_TYPE_INTPTR_ARRAY);
 	});
  */
 

@@ -142,7 +142,89 @@ const SqType SqType_PtrArray_ =
 };
 
 /* ----------------------------------------------------------------------------
-	SQ_TYPE_INT_ARRAY
+	SQ_TYPE_STRING_ARRAY
+ */
+
+static int  sq_type_string_array_parse(void* array, SqType* type, Sqxc* src)
+{
+	SqxcValue*  dest;
+	SqxcNested* nested;
+	void*       element;
+
+	dest = (SqxcValue*) src->dest;
+	// Start of Array - Frist time to call this function to parse array
+	nested = dest->nested;
+	if (nested->data != array) {
+		if (src->type != SQXC_TYPE_ARRAY) {
+			dest->type = SQXC_TYPE_ARRAY;    // set required type in dest->type
+			return (src->code = SQCODE_TYPE_NOT_MATCH);
+		}
+		nested = sqxc_push_nested((Sqxc*)dest);
+		nested->data = array;
+		nested->data2 = type;
+		return (src->code = SQCODE_OK);
+	}
+	/*
+	// End of Array : sqxc_value_send_in() have done it.
+	else if (src->type == SQXC_TYPE_ARRAY_END) {
+		sqxc_pop_nested(dest);
+		return SQCODE_OK;
+	}
+	 */
+
+	element = sq_ptr_array_alloc(array, 1);
+	src->name = NULL;    // set "name" before calling parse()
+	src->code = SQ_TYPE_STRING->parse(element, SQ_TYPE_STRING, src);
+	return src->code;
+}
+
+static int  sq_type_string_array_write(void* array, SqType* type, Sqxc* src)
+{
+//	SqxcValue*  src;
+	Sqxc*       dest;
+	const char* array_name = src->name;
+
+	dest = src->dest;
+	// Begin of SQXC_TYPE_ARRAY
+	src->nested_count++;
+//	sqxc_send_array_beg(src, array_name);
+	src->type = SQXC_TYPE_ARRAY;
+//	src->name = array_name;    // "name" was set by caller of this function
+//	src->value.pointer = NULL;
+	src->code = dest->send(dest, src);
+	if (src->code != SQCODE_OK)
+		return src->code;
+
+	// output elements
+	sq_ptr_array_foreach_addr(array, element) {
+		src->name = NULL;      // set "name" before calling write()
+		src->code = SQ_TYPE_STRING->write(element, SQ_TYPE_STRING, src);
+		if (src->code != SQCODE_OK)
+			return src->code;
+	}
+
+	// End of SQXC_TYPE_ARRAY
+	src->nested_count--;
+//	sqxc_send_array_end(src, array_name);
+	src->type = SQXC_TYPE_ARRAY_END;
+	src->name = array_name;
+//	src->value.pointer = NULL;
+	src->code = dest->send(dest, src);
+	return src->code;
+}
+
+// extern
+const SqType SqType_StringArray_ =
+{
+	sizeof(SqPtrArray),
+	sq_type_ptr_array_init,
+	sq_type_ptr_array_final,
+	sq_type_string_array_parse,
+	sq_type_string_array_write,
+};
+
+/* ----------------------------------------------------------------------------
+	SQ_TYPE_INTPTR_ARRAY
  */
 
 static int  sq_type_intptr_array_parse(void* array, SqType* type, Sqxc* src)
@@ -222,3 +304,4 @@ const SqType SqType_IntptrArray_ =
 	sq_type_intptr_array_parse,
 	sq_type_intptr_array_write,
 };
+

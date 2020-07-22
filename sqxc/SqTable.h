@@ -242,6 +242,8 @@ struct SqTable
 		{ return *sq_table_add_double(this, column_name, offset); }
 	SqColumn& string(const char* column_name, size_t offset, int length = -1)
 		{ return *sq_table_add_string(this, column_name, offset, length); }
+	SqColumn& custom(const char* column_name, size_t offset, SqType* type)
+		{ return *sq_table_add_custom(this, column_name, offset, type); }
 
 	template<class Store, class Type>
 	SqColumn& integer(const char* column_name, Type Store::*member) {
@@ -274,6 +276,10 @@ struct SqTable
 	template<class Store, class Type>
 	SqColumn& string(const char* column_name, Type Store::*member, int length = -1) {
 		return *sq_table_add_string(this, column_name, sq_offset(member), length);
+	};
+	template<class Store, class Type>
+	SqColumn& custom(const char* column_name, Type Store::*member, SqType* type) {
+		return *sq_table_add_custom(this, column_name, sq_offset(member), type);
 	};
 
 /*
