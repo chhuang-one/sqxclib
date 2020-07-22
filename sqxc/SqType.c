@@ -94,12 +94,11 @@ void* sq_type_init_instance(SqType* fieldtype, void* instance, int is_pointer)
 		sq_ptr_array_foreach_addr(array, element_addr) {
 			SqField* field = *element_addr;
 			fieldtype = field->type;
-			if (fieldtype < SQ_TYPE_BUILTIN_BEG ||
-			    fieldtype > SQ_TYPE_BUILTIN_END)
-				continue;
-			sq_type_init_instance(fieldtype, 
-					instance + field->offset,
-					field->bit_field & SQB_POINTER);
+			if (SQ_TYPE_NOT_BUILTIN(fieldtype)) {
+				sq_type_init_instance(fieldtype, 
+						instance + field->offset,
+						field->bit_field & SQB_POINTER);
+			}
 		}
 	}
 	return instance;
@@ -126,11 +125,11 @@ void  sq_type_final_instance(SqType* fieldtype, void* instance, int is_pointer)
 		sq_ptr_array_foreach_addr(array, element_addr) {
 			SqField* field = *element_addr;
 			fieldtype = field->type;
-			if (SQ_TYPE_NOT_ARITHMETIC(fieldtype))
-				continue;
-			sq_type_final_instance(fieldtype,
-					instance + field->offset,
-					field->bit_field & SQB_POINTER);
+			if (SQ_TYPE_NOT_ARITHMETIC(fieldtype)) {
+				sq_type_final_instance(fieldtype,
+						instance + field->offset,
+						field->bit_field & SQB_POINTER);
+			}
 		}
 	}
 
