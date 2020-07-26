@@ -40,7 +40,7 @@ struct City {
 };
 
 // ----------------------------------------------------------------------------
-// use struct initialization to declare table/column
+// use C99 designated initializer to declare table/column
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
@@ -64,21 +64,18 @@ static const SqColumn  *UserColumns[] = {
 const SqType UserType = SQ_TYPE_INITIALIZER(User, UserColumns, SQB_TYPE_SORTED);
 /*
 const SqType UserType = {
-	sizeof(User),                              // size
-	NULL,                                      // init
-	NULL,                                      // final
-	sq_type_object_parse,                      // parse
-	sq_type_object_write,                      // write
-	SQ_GET_TYPE_NAME(User),                    // name
-	(SqField**) UserColumns,                   // map
-	sizeof(UserColumns) / sizeof(SqColumn*),   // map_length
-	SQB_TYPE_SORTED                            // bit_field (UserColumns is sorted)
+	.size  = sizeof(User),
+	.parse = sq_type_object_parse,
+	.write = sq_type_object_write,
+	.name  = SQ_GET_TYPE_NAME(User),
+	.map   = (SqField**) UserColumns,
+	.map_length = sizeof(UserColumns) / sizeof(SqColumn*),
+	.bit_field  = SQB_TYPE_SORTED                           // UserColumns is sorted
 };
  */
 
 /* ----------------------------------------------------------------------------
-   use struct initialization to declare table/column changed (migration)
-   *** C99 designated initializer ***
+   use C99 designated initializer to declare table/column changed (migration)
 */
 static const SqColumn  *UserColumnsChange[] = {
 	// ADD COLUMN "test_add"
@@ -114,7 +111,7 @@ SqTable* create_user_table_by_type(SqSchema* schema)
 //	return sq_schema_create_full(schema, "users", &UserType, NULL, 0);
 }
 
-SqTable* change_user_table_table_by_type(SqSchema* schema)
+SqTable* change_user_table_change_by_type(SqSchema* schema)
 {
 	return sq_schema_alter(schema, "users", &UserTypeChange);
 }
@@ -254,7 +251,7 @@ int  main(void)
 //	table = create_user_table_by_macro(schema);
 //	table = create_user_table_by_c(schema);
 
-	table2 = change_user_table_table_by_type(schema);
+	table2 = change_user_table_change_by_type(schema);
 	tablex = sq_table_new("users", NULL);
 	sq_table_accumulate(tablex, table);
 	sq_table_accumulate(tablex, table2);

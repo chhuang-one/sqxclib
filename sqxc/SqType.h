@@ -15,7 +15,7 @@
 #ifndef SQ_TYPE_H
 #define SQ_TYPE_H
 
-/*	e.g. declare static unsorted SqType
+/*	e.g. use C99 designated initializer to declare static unsorted SqType
 
 	typedef struct User     User;
 
@@ -34,19 +34,17 @@
 
 	// --- UserType use unsorted UserFields
 	const SqType UserType = {
-		sizeof(User),                          // size
-		NULL,                                  // init
-		NULL,                                  // final
-		sq_type_object_parse,                  // parse
-		sq_type_object_write,                  // write
-		SQ_GET_TYPE_NAME(User),                // name
-		UserFields,                            // map
-		sizeof(UserFields)/sizeof(SqField*),   // map_length
-		0                                      // bit_field
+		.size  = sizeof(User),
+		.parse = sq_type_object_parse,
+		.write = sq_type_object_write,
+		.name  = SQ_GET_TYPE_NAME(User),
+		.map   = UserFields,
+		.map_length = sizeof(UserFields)/sizeof(SqField*),
+		.bit_field  = 0
 	};
  */
 
-/*	e.g. declare static sorted SqType
+/*	e.g. use C99 designated initializer to declare static sorted SqType
 
 	// *** Note:
 	// * If UserFields is sorted by SqField::name,
@@ -141,7 +139,7 @@ typedef int  (*SqTypeCxFunc)(void* instance, SqType* type, Sqxc* cx);
 
 // ----------------------------------------------------------------------------
 // SqType::bit_field - SQB_TYPE_xxxx
-#define SQB_TYPE_DYNAMIC     (1<<0)    // for internal use only
+#define SQB_TYPE_DYNAMIC     (1<<0)    // equal SQB_DYNAMIC, for internal use only
 #define SQB_TYPE_SORTED      (1<<1)
 
 // --------------------------------------------------------
@@ -177,6 +175,9 @@ enum {
 #define SQ_TYPE_BUILTIN_BEG       SQ_TYPE_INT
 #define SQ_TYPE_BUILTIN_END       SQ_TYPE_STRING
 
+#define SQ_TYPE_BUILTIN_INDEX(type)  (type - SQ_TYPE_BUILTIN_BEG)
+
+// condition
 #define SQ_TYPE_IS_INT(type)     \
 		( (type)<=SQ_TYPE_INTEGER_END && (type)>=SQ_TYPE_INTEGER_BEG )
 #define SQ_TYPE_NOT_INT(type)    \
@@ -191,8 +192,6 @@ enum {
 		( (type)<=SQ_TYPE_BUILTIN_END && (type)>=SQ_TYPE_BUILTIN_BEG )
 #define SQ_TYPE_NOT_BUILTIN(type)    \
 		( (type)> SQ_TYPE_BUILTIN_END || (type)< SQ_TYPE_BUILTIN_BEG )
-
-#define SQ_TYPE_BUILTIN_INDEX(type)  (type - SQ_TYPE_BUILTIN_BEG)
 
 /* TODO: use std::string to implement SQ_TYPE_STD_STRING
 #define SQ_TYPE_STD_STRING    NULL
