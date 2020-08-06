@@ -339,6 +339,7 @@ struct SqColumn
 	SqForeign*   foreign;          // foreign key
 	char**       constraint;       // Null-terminated string array
 
+	char*        extra;            // raw SQL column property
 	char*        old_name;         // rename or drop
 
 	// if column->name is NULL, it will drop column->old_name

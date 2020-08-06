@@ -551,6 +551,12 @@ static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
 		sq_buffer_write(buffer, " DEFAULT ");
 		sq_buffer_write(buffer, column->default_value);
 	}
+
+	// raw SQL
+	if (column->extra) {
+		sq_buffer_write_c(buffer, ' ');
+		sq_buffer_write(buffer, column->extra);
+	}
 }
 
 static void constraint_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)

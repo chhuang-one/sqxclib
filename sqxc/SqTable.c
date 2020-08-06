@@ -427,6 +427,7 @@ void  sq_column_free(SqColumn* column)
 		free(column->default_value);
 		free(column->check);
 //		free(column->comment);
+		free(column->extra);
 		free(column->old_name);
 		if (column->foreign)
 			sq_foreign_free(column->foreign);
@@ -452,6 +453,7 @@ SqColumn* sq_column_copy_static(const SqColumn* column_src)
 	column->default_value = column_src->default_value ? strdup(column_src->default_value) : NULL;
 	column->check         = column_src->check ? strdup(column_src->check) : NULL;
 //	column->comment       = column_src->comment ? strdup(column_src->comment) : NULL;
+	column->extra         = column_src->extra ? strdup(column_src->extra) : NULL;
 	column->old_name      = column_src->old_name ? strdup(column_src->old_name) : NULL;
 
 	if (column_src->foreign)
