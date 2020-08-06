@@ -54,7 +54,7 @@ extern "C" {
 #define SQB_NULLABLE       (1 << 12)  // SQL: remove "NOT NULL"
 // #define SQB_UNSIGNED       (1 << 13)  // SQL: attribute "UNSIGNED"
 
-#define SQB_IGNORE         (1 << 30)  // SQL: ignore this field/column
+// #define SQB_IGNORE         (1 << 30)  // SQL: ignore this field/column
 
 #define SQB_COLUMN_ATTRIB  (SQB_PRIMARY | SQB_FOREIGN | SQB_UNIQUE)
 

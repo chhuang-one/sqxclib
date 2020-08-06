@@ -29,11 +29,14 @@
 
 SqSchema*  sq_schema_init(SqSchema* schema, const char* name)
 {
+	static int cur_ver = 0;
+
 	sq_field_init((SqField*)schema, NULL);
 	schema->name = name ? strdup(name) : NULL;
 	// table_type_map
 	sq_ptr_array_init(&schema->table_type_map, 8, NULL);
 	schema->table_type_sorted = false;
+	schema->version = cur_ver++;
 	return schema;
 }
 
@@ -188,11 +191,39 @@ static SqTable* sq_schema_replace_table(SqSchema* schema, SqTable* table_old, Sq
 	return table_new;
 }
 
+static int sq_schema_find_or_replace(SqSchema* schema, const char* table_name, SqTable* table_to_replace)
+{
+	int       index;
+	SqType*   type = schema->type;
+	SqTable*  table;
+
+	for (index = 0;  index < type->map_length;  index++) {
+		table = (SqTable*)type->map[index];
+		// skip "dropped record" or "renamed record"
+		if (table->old_name)
+			continue;
+		// erase if table->name == table_name
+		if (strcasecmp(table->name, table_name) == 0) {
+			if (table_to_replace)
+				sq_ptr_array_erase(sq_type_get_array(type), index, 1);
+			break;
+		}
+	}
+	// insert column to table
+	if (table_to_replace)
+		sq_type_insert_field(type, (SqField*)table_to_replace);
+
+	if (index < type->map_length)
+		return index;
+	else
+		return -1;
+}
+
 int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 {	//      *schema, *schema_src
 	SqTable *table,  *table_src, *table_new;
 	SqType  *type,   *type_src;
-	int      index,   index_src,  count;
+	int      index,   index_src;
 
 	type = schema->type;
 	type_src = schema_src->type;
@@ -200,11 +231,11 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 	for (index_src = 0;  index_src < type_src->map_length;  index_src++) {
 		table_src = (SqTable*)type_src->map[index_src];
 		if (table_src->bit_field & SQB_CHANGE) {
-			// ALTER TABLE
-			// accumulate if table->name == table_src->name
-			table = (SqTable*)sq_type_find_field(type, table_src->name,
-			                           (SqCompareFunc)sq_field_cmp_str__name);
-			if (table == NULL) {
+			// === ALTER TABLE ===
+			// find table if table->name == table_src->name
+			index = sq_schema_find_or_replace(schema, table_src->name, NULL);
+			// old table not found
+			if (index == -1) {
 				sq_type_insert_field(type, (SqField*)table_src);
 				// table_type_map
 				sq_ptr_array_append(&schema->table_type_map, table_src);
@@ -222,36 +253,24 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			}
 			if (sq_table_accumulate(table, table_src) != SQCODE_OK)
 				return SQCODE_STATIC_DATA;
+			// "altered record" doesn't need to steal table_src from schema_src
+			continue;
 		}
 		else if (table_src->name == NULL) {
-			// DROP TABLE
-			// remove if table->old_name == table_src->old_name
-			sq_type_erase_field(type, table_src->old_name,
-			                    (SqCompareFunc)sq_table_cmp_str__old_name);
-			// remove if table->name == table_src->old_name
-			sq_type_erase_field(type, table_src->old_name, NULL);
-			// steal table_src if table_src is not static.
-			if (type_src->bit_field & SQB_DYNAMIC)
-				type_src->map[index_src] = NULL;
-			// insert table_src to schema
-			sq_type_insert_field(type, (SqField*)table_src);
+			// === DROP TABLE ===
+			// replace table if table->name == table_src->old_name
+			// delete original table and append "dropped record"
+			sq_schema_find_or_replace(schema, table_src->old_name, table_src);
 		}
 		else if (table_src->old_name) {
-			// RENAME TABLE
-			count = 0;
+			// === RENAME TABLE ===
 			// find existing if table->name == table_src->old_name
-			for (index = 0;  index < type->map_length;  index++) {
-				table = (SqTable*)type->map[index];
-				// skip "drop only" table
-				if (table->name == NULL)
-					continue;
-				// skip if table->name != table_src->old_name
-				if (strcasecmp(table->name, table_src->old_name) != 0)
-					continue;
+			index = sq_schema_find_or_replace(schema, table_src->old_name, NULL);
+			if (index != -1) {
 				// rename existing table->name to table_src->name
-				if (table->old_name)   // this is "rename only" table
-					count++;
-				else if ((table->bit_field & SQB_DYNAMIC) == 0) {
+				table = (SqTable*)type->map[index];
+				if ((table->bit_field & SQB_DYNAMIC) == 0) {
+					// create dynamic table to replace static table
 					table_new = sq_table_copy_static(table);
 					type->map[index] = (SqField*)table_new;
 					sq_schema_replace_table_type(schema, table, table_new);
@@ -260,37 +279,21 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 				free(table->name);
 				table->name = strdup(table_src->name);
 			}
-
-			if (table_src->bit_field & SQB_DYNAMIC) {
-				// steal table_src if table_src is not static.
-				if (type_src->bit_field & SQB_DYNAMIC)
-					type_src->map[index_src] = NULL;
-				// insert table_src to table
-				sq_type_insert_field(type, (SqField*)table_src);
-			}
-			else {
-				// create dynamic "rename only" table to replace static one
-				table_new = calloc(1, sizeof(SqColumn));
-				table_new->name = strdup(table_src->name);
-				table_new->old_name = strdup(table->old_name);
-				table_new->bit_field = table->bit_field | SQB_DYNAMIC;
-				if (count > 0)
-					table_new->bit_field |= SQB_IGNORE;
-				sq_type_insert_field(type, (SqField*)table_new);
-			}
+			// insert table_src to table
+			sq_type_insert_field(type, (SqField*)table_src);
 		}
 		else {
-			// ADD TABLE
-			// steal table_src if table_src is not static.
-			if (type_src->bit_field & SQB_DYNAMIC)
-				type_src->map[index_src] = NULL;
+			// === ADD TABLE ===
 			// insert table_src to schema
 			sq_type_insert_field(type, (SqField*)table_src);
 		}
+
+		// steal table_src if type_src is not static.
+		if (type_src->bit_field & SQB_DYNAMIC)
+			type_src->map[index_src] = NULL;
 	}
 
 	// remove NULL table (it was stolen) if table_src is not static.
 	sq_ptr_array_remove_null(sq_type_get_array(type_src));
 	return SQCODE_OK;
 }
-

@@ -19,13 +19,91 @@
 
 #include <stdio.h>      // snprintf
 
+#include <SqError.h>
 #include <SqBuffer.h>
 #include <sqdb.h>
 
-void sqdb_create_table(Sqdb* db, SqTable* table)
+int  sqdb_open(Sqdb* db, const char* database_name)
 {
+	char* ext = db->extension;
+	char* buf;
+	int   len;
+	int   rc;
 
+	if (ext == NULL)
+		ext = "db";
+	len = snprintf(NULL, 0, "%s/%s.%s", db->folder, database_name, ext) + 1;
+	buf = malloc(len);
+	snprintf(buf, len, "%s/%s.%s", db->folder, database_name, ext);
+
+	rc = sqlite3_open(buf, &db->pdb);
+	free(buf);
+
+	if (rc != SQLITE_OK)
+		return SQCODE_OPEN_FAIL;
+	return SQCODE_OK;
 }
+
+int  sqdb_close(Sqdb* db)
+{
+	sqlite3_close(db->pdb);
+	return SQCODE_OK;
+}
+
+int  sqdb_migrate(Sqdb* db, SqSchema* schema)
+{
+//	SqBuffer* buffer;
+
+	if (schema == NULL) {
+		// db->migration
+
+//		sqdb_schema_to_sql(db, db->schema, &buffer);
+	}
+
+	// it is the newest schema if schema->version == 0
+	if (schema->version == 0) {
+		db->schema = schema;
+		return SQCODE_OK;
+	}
+	// skip old version
+	if (db->version >= schema->version)
+		return SQCODE_OK;
+
+	if (db->migration == NULL) {
+		db->migration = sq_schema_new(NULL);
+		db->migration->version = 0;
+	}
+	// skip old version
+	if (db->migration->version >= schema->version)
+		return SQCODE_OK;
+	// accumulate changes
+	sq_schema_accumulate(db->migration, schema);
+	db->migration->version = schema->version;
+	return SQCODE_OK;
+}
+
+static int callback(void *user_data, int argc, char **argv, char **columnName)
+{
+	return 0;
+}
+
+int  sqdb_statement(Sqdb* db, const char* sql)
+{
+	int  rc;
+#if 0
+	char* errorMsg;
+
+	rc = sqlite3_exec(db->pdb, sql, callback, 0, &errorMsg);
+	sqlite3_free(errorMsg);
+#else
+	rc = sqlite3_exec(db->pdb, sql, callback, 0, NULL);
+#endif
+	if (rc != SQLITE_OK)
+		return SQCODE_EXEC_ERROR;
+	return SQCODE_OK;
+}
+
+// ----------------------------------------------------------------------------
 
 SqdbInfo dbinfo_mysql = {
 	.column = {
@@ -104,10 +182,13 @@ static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	type = table->type;
 	for (index = 0;  index < type->map_length;  index++) {
 		column = (SqColumn*)type->map[index];
-		if (column->bit_field & SQB_IGNORE)
+		// skip ignore
+//		if (column->bit_field & SQB_IGNORE)
+//			continue;
+		// skip "dropped" or "renamed"
+		if (column->old_name)
 			continue;
-		if (column->old_name || column->name == NULL)
-			continue;
+		// skip constraint
 		if (column->constraint) {
 			has_constraint = true;
 			continue;
@@ -202,8 +283,8 @@ static void alter_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	type = table->type;
 	for (index = 0;  index < type->map_length;  index++) {
 		column = (SqColumn*)type->map[index];
-		if (column->bit_field & SQB_IGNORE)
-			continue;
+//		if (column->bit_field & SQB_IGNORE)
+//			continue;
 		if (column->bit_field & SQB_CHANGE) {
 			// ALTER COLUMN
 			is_ok = alter_column_to_sql(db, table, column, buffer);

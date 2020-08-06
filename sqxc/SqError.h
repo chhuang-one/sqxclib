@@ -31,6 +31,7 @@ extern "C" {
 #define SQCODE_NOT_SUPPORT           4
 #define SQCODE_EXEC_ERROR            5
 #define SQCODE_STATIC_DATA           6
+#define SQCODE_OPEN_FAIL             7
 
 // error - parser
 #define SQCODE_TYPE_NOT_MATCH        14

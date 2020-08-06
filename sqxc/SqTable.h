@@ -149,9 +149,6 @@ int       sq_table_accumulate(SqTable* table, SqTable* table_src);
 // primary('column_name');
 // primary('column_name', 'name2');
 
-// integer(...)->foreign("users", "id")->onDelete('cascade');
-// ->onDelete('SET NULL')->onDelete('RESTRICT')->onDelete("no action");
-
 // $table->dropPrimary('users_id_primary');	從「users」資料表移除主鍵。
 // $table->dropUnique('users_email_unique'); 從「users」資料表移除唯一索引。
 // $table->dropIndex('state');
@@ -177,12 +174,15 @@ void       sq_column_on_delete(SqColumn* column, const char* act);
 // foreign key on update
 void       sq_column_on_update(SqColumn* column, const char* act);
 
+#define sq_column_foreign    sq_column_reference
+
 // the last argument must be NULL
 // sq_column_set_constraint(column, colume_name1, column_name2, NULL);
 void       sq_column_set_constraint(SqColumn* column, ...);
 void       sq_column_set_constraint_va(SqColumn* column, va_list arg_list);
 
 int  sq_column_cmp_str__old_name(const char* str, SqColumn** column);
+int  sq_column_cmp_ptr(SqColumn* column, SqColumn** column_addr);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -220,6 +220,9 @@ struct SqTable
 	// if table->name is NULL, it will drop table->old_name
 	// if table->name is NOT NULL, it will rename from table->old_name to table->name
 	char*        old_name;    // rename or drop
+
+	// foreigns store columns that having foreign reference.
+	SqPtrArray   foreigns;
 
 #ifdef __cplusplus
 	// C++11 standard-layout

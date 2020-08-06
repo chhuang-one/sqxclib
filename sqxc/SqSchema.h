@@ -108,6 +108,8 @@ struct SqSchema
 	SqPtrArray   table_type_map;
 	bool         table_type_sorted;
 
+	int          version;
+
 #ifdef __cplusplus
 	// C++11 standard-layout
 	// ----------------------------------------------------
