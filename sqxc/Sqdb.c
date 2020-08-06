@@ -546,6 +546,11 @@ static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
 		else if (column->bit_field & SQB_UNIQUE)
 			sq_buffer_write(buffer, " UNIQUE");
 	}
+
+	if (column->default_value) {
+		sq_buffer_write(buffer, " DEFAULT ");
+		sq_buffer_write(buffer, column->default_value);
+	}
 }
 
 static void constraint_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
