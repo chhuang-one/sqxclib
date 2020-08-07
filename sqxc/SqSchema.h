@@ -104,9 +104,9 @@ struct SqSchema
 	unsigned int bit_field;
  */
 
-	// it sorted by table->type->name
-	SqPtrArray   table_type_map;
-	bool         table_type_sorted;
+	// table_types is sorted by SqTable.type.name
+	SqPtrArray   table_types;
+	bool         table_types_sorted;
 
 	int          version;
 

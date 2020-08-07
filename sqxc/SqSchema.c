@@ -33,9 +33,9 @@ SqSchema*  sq_schema_init(SqSchema* schema, const char* name)
 
 	sq_field_init((SqField*)schema, NULL);
 	schema->name = name ? strdup(name) : NULL;
-	// table_type_map
-	sq_ptr_array_init(&schema->table_type_map, 8, NULL);
-	schema->table_type_sorted = false;
+	// table_types
+	sq_ptr_array_init(&schema->table_types, 8, NULL);
+	schema->table_types_sorted = false;
 	schema->version = cur_ver++;
 	return schema;
 }
@@ -43,7 +43,7 @@ SqSchema*  sq_schema_init(SqSchema* schema, const char* name)
 SqSchema*  sq_schema_final(SqSchema* schema)
 {
 	sq_field_final((SqField*)schema);
-	sq_ptr_array_final(&schema->table_type_map);
+	sq_ptr_array_final(&schema->table_types);
 	return schema;
 }
 
@@ -72,8 +72,8 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 #endif
 
 	sq_type_insert_field(schema->type, (SqField*)table);
-	sq_ptr_array_append(&schema->table_type_map, table);
-	schema->table_type_sorted = false;
+	sq_ptr_array_append(&schema->table_types, table);
+	schema->table_types_sorted = false;
 	return table;
 }
 
@@ -101,10 +101,10 @@ void sq_schema_drop(SqSchema* schema, const char* name)
 		return;
 	}
 	sq_type_erase_field(schema->type, name, NULL);
-	// table_type_map
-	addr = sq_ptr_array_find(&schema->table_type_map, name,
+	// table_types
+	addr = sq_ptr_array_find(&schema->table_types, name,
 			                 (SqCompareFunc)sq_field_cmp_str__name);
-	sq_ptr_array_erase(&schema->table_type_map, addr - schema->table_type_map.data, 1);
+	sq_ptr_array_erase(&schema->table_types, addr - schema->table_types.data, 1);
 }
 
 void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
@@ -136,13 +136,13 @@ SqTable* sq_schema_find(SqSchema* schema, const char* name)
  
 SqTable* sq_schema_find_type(SqSchema* schema, const char* name)
 {
-	SqPtrArray* array = &schema->table_type_map;
+	SqPtrArray* array = &schema->table_types;
 	SqTable**   table;
 
-	if (schema->table_type_map.data == NULL)
+	if (schema->table_types.data == NULL)
 		return NULL;
-	if (schema->table_type_sorted == false) {
-		schema->table_type_sorted = true;
+	if (schema->table_types_sorted == false) {
+		schema->table_types_sorted = true;
 		sq_ptr_array_sort(array, sq_field_cmp_type_name);
 	}
 	table = sq_ptr_array_search(array, name,
@@ -157,8 +157,8 @@ static SqTable* sq_schema_replace_table_type(SqSchema* schema, SqTable* table_ol
 	SqPtrArray* array;
 	int  index;
 
-	// schema->table_type_map
-	array = &schema->table_type_map;
+	// schema->table_types
+	array = &schema->table_types;
 	for (index = 0;  index < array->length;  index++) {
 		if (array->data[index] == table_old) {
 			array->data[index]  = table_new;
@@ -167,7 +167,7 @@ static SqTable* sq_schema_replace_table_type(SqSchema* schema, SqTable* table_ol
 	}
 	if (index == array->length) {
 		sq_ptr_array_append(array, table_new);
-		schema->table_type_sorted = false;
+		schema->table_types_sorted = false;
 	}
 	return table_new;
 }
@@ -237,9 +237,9 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			// old table not found
 			if (index == -1) {
 				sq_type_insert_field(type, (SqField*)table_src);
-				// table_type_map
-				sq_ptr_array_append(&schema->table_type_map, table_src);
-				schema->table_type_sorted = false;
+				// table_types
+				sq_ptr_array_append(&schema->table_types, table_src);
+				schema->table_types_sorted = false;
 				continue;
 			}
 
