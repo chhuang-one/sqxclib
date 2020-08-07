@@ -38,9 +38,9 @@
 		.parse = sq_type_object_parse,
 		.write = sq_type_object_write,
 		.name  = SQ_GET_TYPE_NAME(User),
-		.map   = UserFields,
-		.map_length = sizeof(UserFields)/sizeof(SqField*),
-		.bit_field  = 0
+		.entry   = UserFields,
+		.n_entry = sizeof(UserFields)/sizeof(SqField*),
+		.bit_field = 0
 	};
  */
 
@@ -60,9 +60,9 @@
 	// --- SortedType use SortedFields (set SQB_TYPE_SORTED in SqType::bit_field)
 	const SqType SortedType = {
 		// Omitted above
-		.map        = SortedFields,
-		.map_length = sizeof(SortedFields)/sizeof(SqField*),
-		.bit_field  = SQB_TYPE_SORTED
+		.entry   = SortedFields,
+		.n_entry = sizeof(SortedFields)/sizeof(SqField*),
+		.bit_field = SQB_TYPE_SORTED
 	};
  */
 
@@ -119,9 +119,9 @@ typedef int  (*SqTypeCxFunc)(void* instance, SqType* type, Sqxc* cx);
 	.parse = sq_type_object_parse,                                 \
 	.write = sq_type_object_write,                                 \
 	.name  = SQ_GET_TYPE_NAME(StructType),                         \
-	.map   = (SqField**) FieldPtrArray,                            \
-	.map_length = sizeof(FieldPtrArray) / sizeof(SqField*),        \
-	.bit_field  = bit_value,                                       \
+	.entry   = (SqField**) FieldPtrArray,                          \
+	.n_entry = sizeof(FieldPtrArray) / sizeof(SqField*),           \
+	.bit_field = bit_value,                                        \
 }
 
 #define SQ_TYPE_INITIALIZER_FULL(StructType, FieldPtrArray, bit_value, init_func, final_func) \
@@ -132,9 +132,9 @@ typedef int  (*SqTypeCxFunc)(void* instance, SqType* type, Sqxc* cx);
 	.parse = sq_type_object_parse,                                 \
 	.write = sq_type_object_write,                                 \
 	.name  = SQ_GET_TYPE_NAME(StructType),                         \
-	.map   = (SqField**) FieldPtrArray,                            \
-	.map_length = sizeof(FieldPtrArray) / sizeof(SqField*),        \
-	.bit_field  = bit_value,                                       \
+	.entry   = (SqField**) FieldPtrArray,                          \
+	.n_entry = sizeof(FieldPtrArray) / sizeof(SqField*),           \
+	.bit_field = bit_value,                                        \
 }
 
 // ----------------------------------------------------------------------------
@@ -223,7 +223,7 @@ enum {
 
 // ----------------------------------------------------------------------------
 // macro for accessing variable of SqType
-#define sq_type_get_array(type)    ((SqPtrArray*)&type->map)
+#define sq_type_get_array(type)    ((SqPtrArray*)&type->entry)
 
 /* ----------------------------------------------------------------------------
 	SqType - declare how to create/free/parse/write instance
@@ -244,13 +244,13 @@ struct SqType
 	// or use macro SQ_GET_TYPE_NAME()
 	char*          name;
 
-//	SQ_PTR_ARRAY_MEMBERS(SqField*, map, map_length);
+//	SQ_PTR_ARRAY_MEMBERS(SqField*, entry, n_entry);
 //	// ------ SqPtrArray members ------
-	SqField**      map;
-	int            map_length;
+	SqField**      entry;
+	int            n_entry;
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType.
-	// SqType::bit_field has SQB_TYPE_SORTED if SqType::map is sorted.
+	// SqType::bit_field has SQB_TYPE_SORTED if SqType::entry is sorted.
 	unsigned int   bit_field;
 };
 
@@ -291,7 +291,7 @@ SqField* sq_type_remove_field(SqType* type, const void* key, SqCompareFunc cmp_f
 #define sq_type_steal_field(type, key, cmp_func)   \
 		sq_type_remove_field(type, key, cmp_func, 0)
 
-// find SqField in SqType->map.
+// find SqField in SqType->entry.
 // If cmp_func is NULL and SqType is dynamic type, it will sort fields by field's name before finding.
 SqField* sq_type_find_field(SqType* type, const void* key, SqCompareFunc cmp_func);
 

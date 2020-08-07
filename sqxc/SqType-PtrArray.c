@@ -34,9 +34,9 @@ static void sq_type_ptr_array_final(void* array, SqType* type)
 {
 	SqField*  field;
 
-	// get element type information in SqType::map and free elements
-	if (type->map_length) {
-		field = *type->map;
+	// get element type information in SqType::entry and free elements
+	if (type->n_entry) {
+		field = *type->entry;
 		sq_ptr_array_foreach(array, element) {
 			sq_type_final_instance(field->type, element, true);
 		}
@@ -54,8 +54,8 @@ static int  sq_type_ptr_array_parse(void* array, SqType* type, Sqxc* src)
 
 	dest = (SqxcValue*) src->dest;
 	// get element type information
-	if (type->map_length > 0)
-		element_type = type->map[0]->type;
+	if (type->n_entry > 0)
+		element_type = type->entry[0]->type;
 	else if (dest->nested_count < 2)
 		element_type = dest->element;
 	else
@@ -97,8 +97,8 @@ static int  sq_type_ptr_array_write(void* array, SqType* type, Sqxc* src)
 
 	dest = src->dest;
 	// get element type information.
-	if (type->map_length > 0)
-		element_type = type->map[0]->type;
+	if (type->n_entry > 0)
+		element_type = type->entry[0]->type;
 	else if (src->nested_count < 1 && ((SqxcValue*)src)->element)
 		element_type = ((SqxcValue*)src)->element;
 	else

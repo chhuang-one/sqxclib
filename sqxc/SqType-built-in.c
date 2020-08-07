@@ -320,7 +320,7 @@ int  sq_type_object_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	}
 	 */
 
-	// parse fields in map
+	// parse fields in entry
 	field = sq_type_find_field(fieldtype, src->name, NULL);
 	if (field == NULL)
 		return (src->code = SQCODE_FIELD_NOT_FOUND);
@@ -344,7 +344,7 @@ int  sq_type_object_write(void* instance, SqType* fieldtype, Sqxc* src)
 	if (src->code != SQCODE_OK)
 		return src->code;
 
-	array = (SqPtrArray*) &fieldtype->map;
+	array = (SqPtrArray*) &fieldtype->entry;
 	sq_ptr_array_foreach_addr(array, element_addr) {
 		SqField* field = *element_addr;
 		temp_type = field->type;

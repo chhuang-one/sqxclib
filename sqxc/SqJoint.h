@@ -30,7 +30,7 @@ typedef struct SqField           SqJoint;
 	|
 	`--- SqJoint
 
-	if (joint->type->map_length > 1)
+	if (joint->type->n_entry > 1)
 
 	SELECT 'T01'.'column' AS 'T01.column',
 	       'T02'.'column' AS 'T02.column'

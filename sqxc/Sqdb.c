@@ -180,8 +180,8 @@ static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	sq_buffer_write(buffer, "\" (");
 
 	type = table->type;
-	for (index = 0;  index < type->map_length;  index++) {
-		column = (SqColumn*)type->map[index];
+	for (index = 0;  index < type->n_entry;  index++) {
+		column = (SqColumn*)type->entry[index];
 		// skip ignore
 //		if (column->bit_field & SQB_IGNORE)
 //			continue;
@@ -202,8 +202,8 @@ static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	}
 
 	if (db->info->column.mysql == 1) {
-		for (index = 0;  index < type->map_length;  index++) {
-			column = (SqColumn*)type->map[index];
+		for (index = 0;  index < type->n_entry;  index++) {
+			column = (SqColumn*)type->entry[index];
 			// Don't output CONSTRAINT here
 			if (column->constraint)
 				continue;
@@ -232,8 +232,8 @@ static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	}
 
 	if (has_constraint) {
-		for (index = 0;  index < type->map_length;  index++) {
-			column = (SqColumn*)type->map[index];
+		for (index = 0;  index < type->n_entry;  index++) {
+			column = (SqColumn*)type->entry[index];
 			if (column->name == NULL)
 				continue;
 			// CONSTRAINT
@@ -281,8 +281,8 @@ static void alter_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 
 	// ALTER TABLE
 	type = table->type;
-	for (index = 0;  index < type->map_length;  index++) {
-		column = (SqColumn*)type->map[index];
+	for (index = 0;  index < type->n_entry;  index++) {
+		column = (SqColumn*)type->entry[index];
 //		if (column->bit_field & SQB_IGNORE)
 //			continue;
 		if (column->bit_field & SQB_CHANGE) {

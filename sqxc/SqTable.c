@@ -78,7 +78,7 @@ void  sq_table_drop_column(SqTable* table, const char* column_name)
 		column = calloc(1, sizeof(SqColumn));
 		column->old_name = strdup(column_name);
 		column->bit_field = SQB_DYNAMIC;
-		sq_ptr_array_append(&table->type->map, column);
+		sq_ptr_array_append(&table->type->entry, column);
 		return;
 	}
 	sq_type_erase_field(table->type, column_name, NULL);
@@ -94,7 +94,7 @@ void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
 		column->old_name = strdup(from);
 		column->name = strdup(to);
 		column->bit_field = SQB_DYNAMIC;
-		sq_ptr_array_append(&table->type->map, column);
+		sq_ptr_array_append(&table->type->entry, column);
 		return;
 	}
 
@@ -243,8 +243,8 @@ static int sq_table_find_or_replace(SqTable* table, const char* column_name, SqC
 	SqType*   type = table->type;
 	SqColumn* column;
 
-	for (index = 0;  index < type->map_length;  index++) {
-		column = (SqColumn*)type->map[index];
+	for (index = 0;  index < type->n_entry;  index++) {
+		column = (SqColumn*)type->entry[index];
 		// skip "dropped record" or "renamed record"
 		if (column->old_name)
 			continue;
@@ -267,7 +267,7 @@ static int sq_table_find_or_replace(SqTable* table, const char* column_name, SqC
 	if (column_to_replace)
 		sq_type_insert_field(type, (SqField*)column_to_replace);
 
-	if (index < type->map_length)
+	if (index < type->n_entry)
 		return index;
 	else
 		return -1;
@@ -289,21 +289,21 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 		return SQCODE_STATIC_DATA;
 	}
 	// if table is empty table
-	if (type->map_length == 0) {
+	if (type->n_entry == 0) {
 		// set SQB_CHANGE if it is "ALTER TABLE"
 		if (table_src->bit_field &  SQB_CHANGE)
 			table->bit_field |= SQB_CHANGE;
 	}
 
-	for (index_src = 0;  index_src < type_src->map_length;  index_src++) {
-		column_src = (SqColumn*)type_src->map[index_src];
+	for (index_src = 0;  index_src < type_src->n_entry;  index_src++) {
+		column_src = (SqColumn*)type_src->entry[index_src];
 		if (column_src->bit_field & SQB_CHANGE) {
 			// === ALTER COLUMN ===
 			// replace if column->name == column_src->name
 			sq_table_find_or_replace(table, column_src->name, column_src);
 			// steal column_src if type_src is not static.
 			if (type_src->bit_field & SQB_DYNAMIC)
-				type_src->map[index_src] = NULL;
+				type_src->entry[index_src] = NULL;
 		}
 		else if (column_src->name == NULL) {
 			// === DROP COLUMN / CONSTRAINT / KEY ===
@@ -311,7 +311,7 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 			sq_table_find_or_replace(table, column_src->old_name, column_src);
 			// steal column_src if type_src is not static.
 			if (type_src->bit_field & SQB_DYNAMIC)
-				type_src->map[index_src] = NULL;
+				type_src->entry[index_src] = NULL;
 			// "dropped record" doesn't need to check foreign
 			continue;
 		}
@@ -321,11 +321,11 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 			index = sq_table_find_or_replace(table, column_src->old_name, NULL);
 			// rename existing column->name to column_src->name
 			if (index != -1) {
-				column = (SqColumn*)type->map[index];
+				column = (SqColumn*)type->entry[index];
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic column to replace static one
 					column_new = sq_column_copy_static(column);
-					type->map[index] = (SqField*)column_new;
+					type->entry[index] = (SqField*)column_new;
 					column = column_new;
 				}
 				free(column->name);
@@ -333,7 +333,7 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 			}
 			// steal column_src if type_src is not static.
 			if (type_src->bit_field & SQB_DYNAMIC)
-				type_src->map[index_src] = NULL;
+				type_src->entry[index_src] = NULL;
 			// insert column_src to table
 			sq_type_insert_field(type, (SqField*)column_src);
 			// "renamed record" doesn't need to check foreign
@@ -343,7 +343,7 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 			// === ADD COLUMN / CONSTRAINT / KEY ===
 			// steal column_src if type_src is not static.
 			if (type_src->bit_field & SQB_DYNAMIC)
-				type_src->map[index_src] = NULL;
+				type_src->entry[index_src] = NULL;
 			// insert column_src to table
 			sq_type_insert_field(type, (SqField*)column_src);
 		}

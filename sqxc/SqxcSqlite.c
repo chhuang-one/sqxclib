@@ -420,8 +420,8 @@ static void sqxc_sqlite_use_insert_command(SqxcSqlite* xcsql, SqTable* table)
 	sq_buffer_write(buffer, "INSERT INTO \"");
 	sq_buffer_write(buffer, table->name);
 	sq_buffer_write(buffer, "\" (");
-	for (index = 0;  index < table->type->map_length;  index++) {
-		field = table->type->map[index];
+	for (index = 0;  index < table->type->n_entry;  index++) {
+		field = table->type->entry[index];
 		// Don't output anything if column is auto increment.
 		if (field->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(field->type)) {
 			index_beg++;

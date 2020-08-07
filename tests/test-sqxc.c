@@ -55,8 +55,8 @@ const SqType UserType = {
 	.parse = sq_type_object_parse,
 	.write = sq_type_object_write,
 	.name  = SQ_GET_TYPE_NAME(User),
-	.map   = (SqField**) UserColumns,
-	.map_length = sizeof(UserColumns) / sizeof(SqColumn*),
+	.entry   = (SqField**) UserColumns,
+	.n_entry = sizeof(UserColumns) / sizeof(SqColumn*),
 	.bit_field  = SQB_TYPE_SORTED                            // UserColumns is sorted
 };
 

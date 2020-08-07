@@ -197,8 +197,8 @@ static int sq_schema_find_or_replace(SqSchema* schema, const char* table_name, S
 	SqType*   type = schema->type;
 	SqTable*  table;
 
-	for (index = 0;  index < type->map_length;  index++) {
-		table = (SqTable*)type->map[index];
+	for (index = 0;  index < type->n_entry;  index++) {
+		table = (SqTable*)type->entry[index];
 		// skip "dropped record" or "renamed record"
 		if (table->old_name)
 			continue;
@@ -213,7 +213,7 @@ static int sq_schema_find_or_replace(SqSchema* schema, const char* table_name, S
 	if (table_to_replace)
 		sq_type_insert_field(type, (SqField*)table_to_replace);
 
-	if (index < type->map_length)
+	if (index < type->n_entry)
 		return index;
 	else
 		return -1;
@@ -228,8 +228,8 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 	type = schema->type;
 	type_src = schema_src->type;
 
-	for (index_src = 0;  index_src < type_src->map_length;  index_src++) {
-		table_src = (SqTable*)type_src->map[index_src];
+	for (index_src = 0;  index_src < type_src->n_entry;  index_src++) {
+		table_src = (SqTable*)type_src->entry[index_src];
 		if (table_src->bit_field & SQB_CHANGE) {
 			// === ALTER TABLE ===
 			// find table if table->name == table_src->name
@@ -268,11 +268,11 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			index = sq_schema_find_or_replace(schema, table_src->old_name, NULL);
 			if (index != -1) {
 				// rename existing table->name to table_src->name
-				table = (SqTable*)type->map[index];
+				table = (SqTable*)type->entry[index];
 				if ((table->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic table to replace static table
 					table_new = sq_table_copy_static(table);
-					type->map[index] = (SqField*)table_new;
+					type->entry[index] = (SqField*)table_new;
 					sq_schema_replace_table_type(schema, table, table_new);
 					table = table_new;
 				}
@@ -290,7 +290,7 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 
 		// steal table_src if type_src is not static.
 		if (type_src->bit_field & SQB_DYNAMIC)
-			type_src->map[index_src] = NULL;
+			type_src->entry[index_src] = NULL;
 	}
 
 	// remove NULL table (it was stolen) if table_src is not static.

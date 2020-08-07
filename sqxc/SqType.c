@@ -50,7 +50,7 @@ SqType* sq_type_new(int prealloc_size, SqDestroyFunc field_destroy_func)
 void  sq_type_free(SqType* fieldtype)
 {
 	if (fieldtype->bit_field & SQB_TYPE_DYNAMIC) {
-		sq_ptr_array_final(&fieldtype->map);
+		sq_ptr_array_final(&fieldtype->entry);
 		free(fieldtype);
 	}
 }
@@ -65,9 +65,9 @@ SqType*  sq_type_copy_static(const SqType* type_src)
 	type = malloc(sizeof(SqType));
 	*type = *type_src;
 	type->bit_field |= SQB_TYPE_DYNAMIC;
-	type->map = sq_ptr_array_new(type_src->map_length, func);
-	if (type_src->map_length > 0)
-		memcpy(type->map, type_src->map, sizeof(void*) * type_src->map_length);
+	type->entry = sq_ptr_array_new(type_src->n_entry, func);
+	if (type_src->n_entry > 0)
+		memcpy(type->entry, type_src->entry, sizeof(void*) * type_src->n_entry);
 	if (type_src->name)
 		type->name = strdup(type_src->name);
 	return type;
@@ -88,8 +88,8 @@ void* sq_type_init_instance(SqType* fieldtype, void* instance, int is_pointer)
 	// call init() if it exist
 	if (init)
 		init(instance, fieldtype);
-	// initialize SqField in SqFieldMap if no init() function
-	else if (fieldtype->map) {
+	// initialize SqField in SqType.entry if no init() function
+	else if (fieldtype->entry) {
 		array = sq_type_get_array(fieldtype);
 		sq_ptr_array_foreach_addr(array, element_addr) {
 			SqField* field = *element_addr;
@@ -119,8 +119,8 @@ void  sq_type_final_instance(SqType* fieldtype, void* instance, int is_pointer)
 	// call final() if it exist
 	if (final)
 		final(instance, fieldtype);
-	// finalize SqField in SqFieldMap if no final() function
-	else if (fieldtype->map) {
+	// finalize SqField in SqType.entry if no final() function
+	else if (fieldtype->entry) {
 		array = sq_type_get_array(fieldtype);
 		sq_ptr_array_foreach_addr(array, element_addr) {
 			SqField* field = *element_addr;
@@ -144,7 +144,7 @@ void  sq_type_insert_field(SqType* fieldtype, const SqField* field)
 		if (field == NULL)
 			return;
 		fieldtype->bit_field &= ~SQB_TYPE_SORTED;
-		sq_ptr_array_append(&fieldtype->map, (void*)field);
+		sq_ptr_array_append(&fieldtype->entry, (void*)field);
 		sq_type_decide_size(fieldtype, field);
 	}
 }
@@ -184,10 +184,10 @@ SqField*  sq_type_remove_field(SqType* type, const void* key, SqCompareFunc cmp_
 
 SqField* sq_type_find_field(SqType* fieldtype, const void* key, SqCompareFunc cmp_func)
 {
-	SqPtrArray* array = (SqPtrArray*) &fieldtype->map;
+	SqPtrArray* array = (SqPtrArray*) &fieldtype->entry;
 	void**      addr;
 
-	if (fieldtype->map_length == 0)
+	if (fieldtype->n_entry == 0)
 		return NULL;
 
 	if ( cmp_func == NULL &&
@@ -232,7 +232,7 @@ int   sq_type_decide_size(SqType* fieldtype, const SqField* inner_field)
 		else {
 			// recalculate size
 			fieldtype->size = 0;
-			if (fieldtype->map == NULL)
+			if (fieldtype->entry == NULL)
 				return 0;
 			array = sq_type_get_array(fieldtype);
 			sq_ptr_array_foreach_addr(array, element_addr) {
