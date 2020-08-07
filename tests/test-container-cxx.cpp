@@ -36,12 +36,37 @@ void test_intptr_array()
 	array->data[2] = 301;
 	array->data[3] = 351;
 
-	sq_ptr_array_foreach(array, element) {
-		printf(" - %d", (intptr_t)element);
+	// C++ foreach (lambda)
+	array->foreach([](intptr_t element) {
+		printf(" - %d", element);
+	});
+	puts("");
+	// C foreach
+	sq_intptr_array_foreach(array, element) {
+		printf(" - %d", element);
 	}
 	puts("");
 
 	sq_ptr_array_free(array);
+}
+
+void test_string_array()
+{
+	Sq::StringArray* array;
+	const char*  strarray[] = {"One", "Two"};
+
+	array = new Sq::StringArray();
+	array->append((char**)strarray, 2);
+	// C++ foreach (lambda)
+	array->foreach([](char* element) {
+		printf(" - %s", element);
+	});
+	puts("");
+	// C foreach
+	sq_string_array_foreach(array, element) {
+		printf(" - %s", element);
+	}
+	puts("");
 }
 
 void test_ptr_array_vp()
@@ -77,6 +102,7 @@ void test_ptr_array_vp()
 void test_ptr_array()
 {
 	test_intptr_array();
+	test_string_array();
 	test_ptr_array_vp();
 }
 

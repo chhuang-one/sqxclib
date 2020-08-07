@@ -129,12 +129,20 @@ extern "C" {
 		     element_addr < element_addr##_end;                     \
 		     element_addr++)
 
+// void sq_string_array_foreach(void* array, char* element)
+#define sq_string_array_foreach(array, element)                 \
+		for (char **element##_end  = (char**)sq_ptr_array_end(array),   \
+		          **element##_addr = (char**)sq_ptr_array_begin(array), \
+		           *element = *element##_addr;                  \
+		     element##_addr < element##_end;                    \
+		     element##_addr++, element = *element##_addr)
+
 // void sq_intptr_array_foreach(void* array, intptr_t* element_addr)
 #define sq_intptr_array_foreach(array, element)                \
 		for (intptr_t *element##_end  = (intptr_t*)sq_ptr_array_end(array),   \
 		              *element##_addr = (intptr_t*)sq_ptr_array_begin(array), \
 		               element        = *element##_addr;       \
-		     element##_addr < element_addr##_end;              \
+		     element##_addr < element##_end;                   \
 		     element##_addr++, element = *element##_addr)
 
 // void sq_uintptr_array_foreach(void* array, uintptr_t* element_addr)
@@ -142,7 +150,7 @@ extern "C" {
 		for (uintptr_t *element##_end  = (uintptr_t*)sq_ptr_array_end(array),   \
 		               *element##_addr = (uintptr_t*)sq_ptr_array_begin(array), \
 		                element        = *element##_addr;       \
-		     element##_addr < element_addr##_end;              \
+		     element##_addr < element##_end;                    \
 		     element##_addr++, element = *element##_addr)
 
 // ----------------------------------------------------------------------------
@@ -393,10 +401,10 @@ inline void  PtrArrayMethod<Type>::erase(int index, int length)
 
 template<class Type>
 inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type  element)> func)
-	{ sq_ptr_array_foreach(this, element) { func(element); } }
+	{ sq_ptr_array_foreach(this, element) { func((Type)element); } }
 template<class Type>
 inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type* address)> func)
-	{ sq_ptr_array_foreach_addr(this, address) { func(address); } }
+	{ sq_ptr_array_foreach_addr(this, address) { func((Type*)address); } }
 
 template<class Type>
 inline void  PtrArrayMethod<Type>::sort(SqCompareFunc func)
@@ -444,6 +452,14 @@ struct IntptrArray : SqPtrArrayTemplate<intptr_t>
 	IntptrArray(int allocated_length = 0, SqDestroyFunc func = NULL)
 		{ sq_ptr_array_init(this, allocated_length, func); }
 	~IntptrArray(void)
+		{ sq_ptr_array_final(this); }
+};
+
+struct StringArray : SqPtrArrayTemplate<char*>
+{
+	StringArray(int allocated_length = 0, SqDestroyFunc func = NULL)
+		{ sq_ptr_array_init(this, allocated_length, func); }
+	~StringArray(void)
 		{ sq_ptr_array_final(this); }
 };
 
