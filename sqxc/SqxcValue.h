@@ -16,7 +16,7 @@
 #define SQXC_VALUE_H
 
 #include <Sqxc.h>
-#include <SqField.h>
+#include <SqEntry.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,7 +78,7 @@ struct SqxcValue
 	// properties
 
 	unsigned int io_:1;           // Input = 1, Output = 0
-	int          supported_type;  // supported SqxcType (bit field)
+	int          supported_type;  // supported SqxcType (bit entry)
 
 	// ----------------------------------------------------
 	// stack of SqxcNested (placed in dest)
@@ -122,7 +122,7 @@ struct SqxcValue
 	} value;
 
 	// input arguments - optional.  this one can be NULL.
-	SqField*     field;
+	SqEntry*     entry;
 
 	// input - user data
 //	void*        user_data;
@@ -140,8 +140,8 @@ struct SqxcValue
 	// current pointer to container when calling get_all()
 	// current pointer to element when calling get(id)
 	SqType*      current;    // type of instance
-	SqType*      element;    // type of table or field
-	SqType*      container;  // type of array or list
+	SqType*      element;    // type of table (or entry)
+	SqType*      container;  // type of array (or list)
 };
 
 #endif  // SQXC_VALUE_H

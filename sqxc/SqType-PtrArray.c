@@ -17,12 +17,12 @@
 #include <SqError.h>
 #include <SqPtrArray.h>
 #include <SqType.h>
-#include <SqField.h>
+#include <SqEntry.h>
 #include <SqxcValue.h>
 
 /* ----------------------------------------------------------------------------
 	SQ_TYPE_PTR_ARRAY
-	User must add a SqField that declare type of element to SqType
+	User must add a SqEntry that declare type of element to SqType
  */
 
 static void sq_type_ptr_array_init(void* array, SqType* type)
@@ -32,13 +32,13 @@ static void sq_type_ptr_array_init(void* array, SqType* type)
 
 static void sq_type_ptr_array_final(void* array, SqType* type)
 {
-	SqField*  field;
+	SqEntry*  entry;
 
 	// get element type information in SqType::entry and free elements
 	if (type->n_entry) {
-		field = *type->entry;
+		entry = *type->entry;
 		sq_ptr_array_foreach(array, element) {
-			sq_type_final_instance(field->type, element, true);
+			sq_type_final_instance(entry->type, element, true);
 		}
 	}
 	// clear array

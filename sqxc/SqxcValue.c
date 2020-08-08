@@ -43,7 +43,7 @@ static int  sqxc_value_send_in(SqxcValue* xcvalue, Sqxc* src)
 			sqxc_pop_nested((Sqxc*)xcvalue);
 			return (src->code = SQCODE_OK);
 		}
-		// parse elements in array or fields in object
+		// parse elements in array or entries in object
 		src->code = type->parse(instance, type, src);
 		return src->code;
 	}
@@ -117,7 +117,7 @@ static int  sqxc_value_send_out(SqxcValue* xcvalue, Sqxc* src)
 		return (src->code = SQCODE_NO_ELEMENT_TYPE);
 	type = xcvalue->current;
 
-	xcvalue->field = NULL;
+	xcvalue->entry = NULL;
 	src->code = type->write(xcvalue->instance, type, (Sqxc*)xcvalue);
 	return src->code;
 }

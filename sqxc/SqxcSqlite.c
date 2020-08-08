@@ -268,7 +268,7 @@ static int  sqxc_sqlite_write_buffer(SqxcSqlite* xcsql, Sqxc* src)
 static int  sqxc_sqlite_send_insert_command(SqxcSqlite* xcsql, Sqxc* src)
 {
 	SqBuffer* buffer = sqxc_get_buffer(xcsql);
-	SqField*  field;
+	SqEntry*  entry;
 
 	// set required type in dest->type if return SQCODE_TYPE_NOT_MATCH to src
 	xcsql->type = SQXC_TYPE_ARITHMETIC | SQXC_TYPE_STRING;
@@ -327,8 +327,8 @@ static int  sqxc_sqlite_send_insert_command(SqxcSqlite* xcsql, Sqxc* src)
 	}
 
 	// Don't output auto increment
-	field = src->field;
-	if (field && field->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(field->type))
+	entry = src->entry;
+	if (entry && entry->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(entry->type))
 		return (src->code = SQCODE_OK);
 
 	// SQL statement multiple columns
@@ -347,7 +347,7 @@ static int  sqxc_sqlite_send_insert_command(SqxcSqlite* xcsql, Sqxc* src)
 static int  sqxc_sqlite_send_update_command(SqxcSqlite* xcsql, Sqxc* src)
 {
 	SqBuffer*  buffer = sqxc_get_buffer(xcsql);
-	SqField*   field;
+	SqEntry*   entry;
 	int        len;
 
 	// set required type in dest->type if return SQCODE_TYPE_NOT_MATCH to src
@@ -386,8 +386,8 @@ static int  sqxc_sqlite_send_update_command(SqxcSqlite* xcsql, Sqxc* src)
 	}
 
 	// Don't output primary key
-	field = src->field;
-	if (field && field->bit_field & SQB_PRIMARY) {
+	entry = src->entry;
+	if (entry && entry->bit_field & SQB_PRIMARY) {
 		return (src->code = SQCODE_OK);
 	}
 
@@ -409,7 +409,7 @@ static int  sqxc_sqlite_send_update_command(SqxcSqlite* xcsql, Sqxc* src)
 
 static void sqxc_sqlite_use_insert_command(SqxcSqlite* xcsql, SqTable* table)
 {
-	SqField*   field;
+	SqEntry*   entry;
 	SqBuffer*  buffer;
 	int        index;
 	int        index_beg = 0;
@@ -421,16 +421,16 @@ static void sqxc_sqlite_use_insert_command(SqxcSqlite* xcsql, SqTable* table)
 	sq_buffer_write(buffer, table->name);
 	sq_buffer_write(buffer, "\" (");
 	for (index = 0;  index < table->type->n_entry;  index++) {
-		field = table->type->entry[index];
+		entry = table->type->entry[index];
 		// Don't output anything if column is auto increment.
-		if (field->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(field->type)) {
+		if (entry->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(entry->type)) {
 			index_beg++;
 			continue;
 		}
 		if (index > index_beg)
 			sq_buffer_write_c(buffer, ',');
 		sq_buffer_write_c(buffer, '"');
-		sq_buffer_write(buffer, field->name);
+		sq_buffer_write(buffer, entry->name);
 		sq_buffer_write_c(buffer, '"');
 	}
 	sq_buffer_write(buffer, ") VALUES ");

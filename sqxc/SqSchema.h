@@ -13,7 +13,7 @@
  */
 
 /*
-	SqField
+	SqEntry
 	|
 	`--- SqSchema
  */
@@ -96,9 +96,9 @@ int     sq_schema_accumulate(SqSchema* schema_cur, SqSchema* schema_src);
 
 struct SqSchema
 {
-	SQ_FIELD_MEMBERS;
-/*	// ------ SqField members ------
-	SqType*      type;     // type information for this field
+	SQ_ENTRY_MEMBERS;
+/*	// ------ SqEntry members ------
+	SqType*      type;     // type information for this entry
 	char*        name;
 	size_t       offset;
 	unsigned int bit_field;

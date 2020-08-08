@@ -26,10 +26,10 @@ SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 	SqTable* table;
 
 	table = malloc(sizeof(SqTable));
-	// init SqField members
+	// init SqEntry members
 	if (typeinfo == NULL)
 		typeinfo = sq_type_new(8, (SqDestroyFunc)sq_column_free);
-	sq_field_init((SqField*)table, typeinfo);
+	sq_entry_init((SqEntry*)table, typeinfo);
 	table->name = (name) ? strdup(name) : NULL;
 	table->bit_field |= SQB_POINTER;
 	table->old_name = NULL;
@@ -40,8 +40,8 @@ SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 
 void  sq_table_free(SqTable* table)
 {
-	// clear SqField
-	sq_field_final((SqField*)table);
+	// clear SqEntry
+	sq_entry_final((SqEntry*)table);
 	free(table->old_name);
 	// free array
 	sq_ptr_array_final(&table->foreigns);
@@ -64,7 +64,7 @@ SqTable*  sq_table_copy_static(const SqTable* table_src)
 
 bool  sq_table_has_column(SqTable* table, const char* column_name)
 {
-	if (sq_type_find_field(table->type, column_name, NULL))
+	if (sq_type_find_entry(table->type, column_name, NULL))
 		return true;
 	return false;
 }
@@ -81,7 +81,7 @@ void  sq_table_drop_column(SqTable* table, const char* column_name)
 		sq_ptr_array_append(&table->type->entry, column);
 		return;
 	}
-	sq_type_erase_field(table->type, column_name, NULL);
+	sq_type_erase_entry(table->type, column_name, NULL);
 }
 
 void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
@@ -98,7 +98,7 @@ void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
 		return;
 	}
 
-	column = (SqColumn*)sq_type_find_field(table->type, from, NULL);
+	column = (SqColumn*)sq_type_find_entry(table->type, from, NULL);
 	if (column) {
 		free(column->name);
 		column->name = strdup(to);
@@ -129,7 +129,7 @@ SqColumn* sq_table_add_int(SqTable* table, const char* name, size_t offset)
 
 	column = sq_column_new(name, SQ_TYPE_INT);
 	column->offset = offset;
-	sq_type_insert_field(table->type, (SqField*)column);
+	sq_type_insert_entry(table->type, (SqEntry*)column);
 	return column;
 }
 
@@ -139,7 +139,7 @@ SqColumn* sq_table_add_uint(SqTable* table, const char* name, size_t offset)
 
 	column = sq_column_new(name, SQ_TYPE_UINT);
 	column->offset = offset;
-	sq_type_insert_field(table->type, (SqField*)column);
+	sq_type_insert_entry(table->type, (SqEntry*)column);
 	return column;
 }
 
@@ -149,7 +149,7 @@ SqColumn* sq_table_add_int64(SqTable* table, const char* name, size_t offset)
 
 	column = sq_column_new(name, SQ_TYPE_INT64);
 	column->offset = offset;
-	sq_type_insert_field(table->type, (SqField*)column);
+	sq_type_insert_entry(table->type, (SqEntry*)column);
 	return column;
 }
 
@@ -159,7 +159,7 @@ SqColumn* sq_table_add_uint64(SqTable* table, const char* name, size_t offset)
 
 	column = sq_column_new(name, SQ_TYPE_UINT64);
 	column->offset = offset;
-	sq_type_insert_field(table->type, (SqField*)column);
+	sq_type_insert_entry(table->type, (SqEntry*)column);
 	return column;
 }
 
@@ -169,7 +169,7 @@ SqColumn* sq_table_add_double(SqTable* table, const char* name, size_t offset)
 
 	column = sq_column_new(name, SQ_TYPE_DOUBLE);
 	column->offset = offset;
-	sq_type_insert_field(table->type, (SqField*)column);
+	sq_type_insert_entry(table->type, (SqEntry*)column);
 	return column;
 }
 
@@ -179,7 +179,7 @@ SqColumn* sq_table_add_timestamp(SqTable* table, const char* name, size_t offset
 
 	column = sq_column_new(name, SQ_TYPE_TIME);
 	column->offset = offset;
-	sq_type_insert_field(table->type, (SqField*)column);
+	sq_type_insert_entry(table->type, (SqEntry*)column);
 	return column;
 }
 
@@ -190,7 +190,7 @@ SqColumn* sq_table_add_string(SqTable* table, const char* name, size_t offset, i
 	column = sq_column_new(name, SQ_TYPE_STRING);
 	column->offset = offset;
 	column->size = length;
-	sq_type_insert_field(table->type, (SqField*)column);
+	sq_type_insert_entry(table->type, (SqEntry*)column);
 	return column;
 }
 
@@ -201,7 +201,7 @@ SqColumn* sq_table_add_custom(SqTable* table, const char* name,
 
 	column = sq_column_new(name, sqtype);
 	column->offset = offset;
-	sq_type_insert_field(table->type, (SqField*)column);
+	sq_type_insert_entry(table->type, (SqEntry*)column);
 	return column;
 }
 
@@ -233,7 +233,7 @@ void      sq_table_drop_foreign(SqTable* table, const char* name)
 		column->bit_field = SQB_DYNAMIC | SQB_FOREIGN;
 		return;
 	}
-	sq_type_erase_field(table->type, name, NULL);
+	sq_type_erase_entry(table->type, name, NULL);
 }
 
 static int sq_table_find_or_replace(SqTable* table, const char* column_name, SqColumn* column_to_replace)
@@ -265,7 +265,7 @@ static int sq_table_find_or_replace(SqTable* table, const char* column_name, SqC
 	}
 	// insert column to table
 	if (column_to_replace)
-		sq_type_insert_field(type, (SqField*)column_to_replace);
+		sq_type_insert_entry(type, (SqEntry*)column_to_replace);
 
 	if (index < type->n_entry)
 		return index;
@@ -325,7 +325,7 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic column to replace static one
 					column_new = sq_column_copy_static(column);
-					type->entry[index] = (SqField*)column_new;
+					type->entry[index] = (SqEntry*)column_new;
 					column = column_new;
 				}
 				free(column->name);
@@ -335,7 +335,7 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 			if (type_src->bit_field & SQB_DYNAMIC)
 				type_src->entry[index_src] = NULL;
 			// insert column_src to table
-			sq_type_insert_field(type, (SqField*)column_src);
+			sq_type_insert_entry(type, (SqEntry*)column_src);
 			// "renamed record" doesn't need to check foreign
 			continue;
 		}
@@ -345,7 +345,7 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 			if (type_src->bit_field & SQB_DYNAMIC)
 				type_src->entry[index_src] = NULL;
 			// insert column_src to table
-			sq_type_insert_field(type, (SqField*)column_src);
+			sq_type_insert_entry(type, (SqEntry*)column_src);
 		}
 
 		// ADD or ALTER COLUMN that having foreign reference
@@ -410,8 +410,8 @@ SqColumn*  sq_column_new(const char* name, const SqType* typeinfo)
 	SqColumn*  column;
 
 	column = calloc(1, sizeof(SqColumn));
-	// init SqField members
-	sq_field_init((SqField*)column, typeinfo);
+	// init SqEntry members
+	sq_entry_init((SqEntry*)column, typeinfo);
 	column->name = strdup(name);
 
 	// init SqColumn members
@@ -421,8 +421,8 @@ SqColumn*  sq_column_new(const char* name, const SqType* typeinfo)
 void  sq_column_free(SqColumn* column)
 {
 	if (column->bit_field & SQB_DYNAMIC) {
-		// clear SqField
-		sq_field_final((SqField*)column);
+		// clear SqEntry
+		sq_entry_final((SqEntry*)column);
 		// free SqColumn
 		free(column->default_value);
 		free(column->check);

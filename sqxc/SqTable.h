@@ -15,7 +15,7 @@
 
 /*	DataBase object - [Server Name].[DataBase Name].[Schema].[Table Name]
 
-	SqField
+	SqEntry
 	|
 	+--- SqTable
 	|
@@ -28,7 +28,7 @@
 #include <stddef.h>     // size_t
 #include <stdint.h>
 
-#include <SqField.h>
+#include <SqEntry.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -209,9 +209,9 @@ inline size_t sq_offset(Type Store::*member) {
 
 struct SqTable
 {
-	SQ_FIELD_MEMBERS;
-/*	// ------ SqField members ------
-	SqType*      type;     // type information for this field
+	SQ_ENTRY_MEMBERS;
+/*	// ------ SqEntry members ------
+	SqType*      type;     // type information for this entry
 	char*        name;
 	size_t       offset;
 	unsigned int bit_field;
@@ -319,9 +319,9 @@ struct SqForeign
 
 struct SqColumn
 {
-	SQ_FIELD_MEMBERS;
-/*	// ------ SqField members ------
-	SqType*      type;     // type information for this field
+	SQ_ENTRY_MEMBERS;
+/*	// ------ SqEntry members ------
+	SqType*      type;     // type information for this entry
 	char*        name;
 	size_t       offset;
 	unsigned int bit_field;

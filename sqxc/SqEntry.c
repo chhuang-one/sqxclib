@@ -13,48 +13,48 @@
  */
 
 #include <SqError.h>
-#include <SqField.h>
+#include <SqEntry.h>
 
 // ----------------------------------------------------------------------------
-// SqField
+// SqEntry
 
-SqField* sq_field_new(const SqType* type_info)
+SqEntry* sq_entry_new(const SqType* type_info)
 {
-	SqField* field;
+	SqEntry* entry;
 
-	field = malloc(sizeof(SqField));
-	sq_field_init(field, type_info);
-	return field;
+	entry = malloc(sizeof(SqEntry));
+	sq_entry_init(entry, type_info);
+	return entry;
 }
 
-void  sq_field_free(SqField* field)
+void  sq_entry_free(SqEntry* entry)
 {
-	if (field->bit_field & SQB_DYNAMIC) {
-		sq_field_final(field);
-		free(field);
+	if (entry->bit_field & SQB_DYNAMIC) {
+		sq_entry_final(entry);
+		free(entry);
 	}
 }
 
-void  sq_field_init(SqField* field, const SqType* type_info)
+void  sq_entry_init(SqEntry* entry, const SqType* type_info)
 {
-	field->name = NULL;
-	field->offset = 0;
-	field->bit_field = SQB_DYNAMIC;
+	entry->name = NULL;
+	entry->offset = 0;
+	entry->bit_field = SQB_DYNAMIC;
 
 	if (type_info)
-		field->type = (SqType*)type_info;
+		entry->type = (SqType*)type_info;
 	else {
 		// use dynamic type if type_info == NULL
-		field->type = sq_type_new(8, (SqDestroyFunc)sq_field_free);
+		entry->type = sq_type_new(8, (SqDestroyFunc)sq_entry_free);
 	}
 }
 
-void  sq_field_final(SqField* field)
+void  sq_entry_final(SqEntry* entry)
 {
-	if (field->bit_field & SQB_DYNAMIC) {
-		if (field->type)
-			sq_type_free(field->type);
-		free(field->name);
+	if (entry->bit_field & SQB_DYNAMIC) {
+		if (entry->type)
+			sq_type_free(entry->type);
+		free(entry->name);
 	}
 }
 
@@ -62,43 +62,43 @@ void  sq_field_final(SqField* field)
 // SqCompareFunc
 
 // used by find()
-int  sq_field_cmp_str__name(const char* str, SqField** field)
+int  sq_entry_cmp_str__name(const char* str, SqEntry** entry)
 {
 	const char* name1;
 	const char* name2;
 
 	name1 = (str) ? str : "";
-	name2 = (*field) ? (*field)->name : "";
+	name2 = (*entry) ? (*entry)->name : "";
 	return strcasecmp(name1, name2);
 }
 
 // used by sort()
-int  sq_field_cmp_name(SqField** field1, SqField** field2)
+int  sq_entry_cmp_name(SqEntry** entry1, SqEntry** entry2)
 {
 	const char* name1;
 	const char* name2;
 
-	name1 = (*field1) ? (*field1)->name : "";
-	name2 = (*field2) ? (*field2)->name : "";
+	name1 = (*entry1) ? (*entry1)->name : "";
+	name2 = (*entry2) ? (*entry2)->name : "";
 	return strcasecmp(name1, name2);
 }
 
-int  sq_field_cmp_str__type_name(const char* str,  SqField** field)
+int  sq_entry_cmp_str__type_name(const char* str,  SqEntry** entry)
 {
 	const char* name1;
 	const char* name2;
 
 	name1 = (str) ? str : "";
-	name2 = (*field) ? (*field)->type->name : "";
+	name2 = (*entry) ? (*entry)->type->name : "";
 	return strcmp(name1, name2);
 }
 
-int  sq_field_cmp_type_name(SqField** field1, SqField** field2)
+int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2)
 {
 	const char* name1;
 	const char* name2;
 
-	name1 = (*field1) ? (*field1)->type->name : "";
-	name2 = (*field2) ? (*field2)->type->name : "";
+	name1 = (*entry1) ? (*entry1)->type->name : "";
+	name2 = (*entry2) ? (*entry2)->type->name : "";
 	return strcmp(name1, name2);
 }

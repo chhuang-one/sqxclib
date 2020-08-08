@@ -21,12 +21,12 @@
 extern "C" {
 #endif
 
-typedef struct SqField           SqJoint;
+typedef struct SqEntry           SqJoint;
 
 /* ----------------------------------------------------------------------------
-	SqJoint - multiple field and instance (SQL joined table)
+	SqJoint - multiple entry and instance (SQL joined table)
 
-	SqField
+	SqEntry
 	|
 	`--- SqJoint
 
@@ -70,7 +70,7 @@ void sq_joint_add(SqJoint* joint, SqTable* table, const char* as_table_name);
 namespace Sq
 {
 // These are for directly use only. You can NOT derived it.
-typedef struct SqField          Joint;
+typedef struct SqEntry          Joint;
 };  // namespace Sq
 
 #endif  // __cplusplus

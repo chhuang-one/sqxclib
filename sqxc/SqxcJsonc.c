@@ -13,7 +13,7 @@
  */
 
 #include <SqError.h>
-#include <SqField.h>
+#include <SqEntry.h>
 #include <SqxcJsonc.h>
 
 /* ----------------------------------------------------------------------------
@@ -152,7 +152,7 @@ static int  sqxc_jsonc_send_out(SqxcJsonc* xcjson, Sqxc* src)
 	SqxcNested*   nested;
 	json_object*  jobject;
 
-	if (src->field && src->field->bit_field & SQB_HIDDEN)
+	if (src->entry && src->entry->bit_field & SQB_HIDDEN)
 		return (src->code = SQCODE_OK);
 
 	switch(src->type) {
@@ -174,7 +174,7 @@ static int  sqxc_jsonc_send_out(SqxcJsonc* xcjson, Sqxc* src)
 
 	case SQXC_TYPE_STRING:
 		if (src->value.string) {
-			if (src->field && src->field->bit_field & SQB_HIDDEN_NULL)
+			if (src->entry && src->entry->bit_field & SQB_HIDDEN_NULL)
 				return (src->code = SQCODE_OK);
 		}
 		jobject = json_object_new_string(src->value.string);

@@ -103,7 +103,7 @@ struct SqxcEmpty
 	} value;
 
 	// input arguments - optional.  this one can be NULL.
-	SqField*     field;
+	SqEntry*     entry;
 
 	// input - user data
 //	void*        user_data;

@@ -71,7 +71,7 @@ struct SqxcJsonc
 	// properties
 
 	unsigned int io_:1;           // Input = 1, Output = 0
-	int          supported_type;  // supported SqxcType (bit field)
+	int          supported_type;  // supported SqxcType (bit entry)
 
 	// ----------------------------------------------------
 	// stack of SqxcNested (placed in dest)
@@ -115,7 +115,7 @@ struct SqxcJsonc
 	} value;
 
 	// input arguments - optional.  this one can be NULL.
-	SqField*     field;
+	SqEntry*     entry;
 
 	// input - user data
 //	void*        user_data;
@@ -134,7 +134,7 @@ struct SqxcJsonc
 	json_object* jcur;
 	SqxcType     jcur_type;
 	/*
-	// at json field begin from SQL
+	// at json entry begin from SQL
 	cx->name = SQL column name
 
 	// at json begin from file

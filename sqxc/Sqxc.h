@@ -13,7 +13,7 @@
  */
 
 /* ----------------------------------------------------------------------------
-	Sqxc - Field and value convert C to/from X  (X = SQLite, JSON...etc)
+	Sqxc - Entry and value convert C to/from X  (X = SQLite, JSON...etc)
 	       cx is an abbreviation. (sqxc namespace "Sq" + "cx" = Sqxc)
 
 	SqxcXml    - C to/from XML     - SqxcXml.c     (TODO or not)
@@ -51,8 +51,8 @@ typedef struct Sqxc             Sqxc;
 typedef struct SqxcInfo         SqxcInfo;
 typedef struct SqxcNested       SqxcNested;
 
-// declare in <SqField.h>
-typedef struct SqField          SqField;
+// declare in <SqEntry.h>
+typedef struct SqEntry          SqEntry;
 
 // define C type convert to/from X
 typedef enum {
@@ -126,7 +126,7 @@ struct SqxcNested
 /* ----------------------------------------------------------------------------
 	Sqxc - Interface for parse or write
 
-	Field and value convert C to/from X  (X = SQLite, JSON, or XML...etc)
+	Entry and value convert C to/from X  (X = SQLite, JSON, or XML...etc)
  */
 
 Sqxc*   sqxc_new(const SqxcInfo* cxinfo, int io);
@@ -189,83 +189,83 @@ int     sqxc_send(Sqxc* src);
 	sqxc_send_array_end(sqxc_src, NULL);        //  ]
  */
 
-// void sqxc_send_bool(Sqxc* src, const char* field_name, bool value);
-#define sqxc_send_bool(sqxc_src, field_name, value_)     \
+// void sqxc_send_bool(Sqxc* src, const char* entry_name, bool value);
+#define sqxc_send_bool(sqxc_src, entry_name, value_)     \
 		{                                                \
 			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_BOOL;  \
-			((Sqxc*)(sqxc_src))->name = field_name;      \
+			((Sqxc*)(sqxc_src))->name = entry_name;      \
 			((Sqxc*)(sqxc_src))->value.boolean = value_; \
 			sqxc_send((Sqxc*)(sqxc_src));                \
 		}
 
-// void sqxc_send_int(Sqxc* src, const char* field_name, int value);
-#define sqxc_send_int(sqxc_src, field_name, value_)      \
+// void sqxc_send_int(Sqxc* src, const char* entry_name, int value);
+#define sqxc_send_int(sqxc_src, entry_name, value_)      \
 		{                                                \
 			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_INT;   \
-			((Sqxc*)(sqxc_src))->name = field_name;      \
+			((Sqxc*)(sqxc_src))->name = entry_name;      \
 			((Sqxc*)(sqxc_src))->value.integer = value_; \
 			sqxc_send((Sqxc*)(sqxc_src));                \
 		}
 
-// void sqxc_send_int64(Sqxc* src, const char* field_name, int64_t value);
-#define sqxc_send_int64(sqxc_src, field_name, value_)    \
+// void sqxc_send_int64(Sqxc* src, const char* entry_name, int64_t value);
+#define sqxc_send_int64(sqxc_src, entry_name, value_)    \
 		{                                                \
 			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_INT64; \
-			((Sqxc*)(sqxc_src))->name = field_name;      \
+			((Sqxc*)(sqxc_src))->name = entry_name;      \
 			((Sqxc*)(sqxc_src))->value.int64 = value_;   \
 			sqxc_send((Sqxc*)(sqxc_src));                \
 		}
 
-// void sqxc_send_double(Sqxc* src, const char* field_name, double value);
-#define sqxc_send_double(sqxc_src, field_name, val)      \
+// void sqxc_send_double(Sqxc* src, const char* entry_name, double value);
+#define sqxc_send_double(sqxc_src, entry_name, val)      \
 		{                                                \
 			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_DOUBLE;\
-			((Sqxc*)(sqxc_src))->name = field_name;      \
+			((Sqxc*)(sqxc_src))->name = entry_name;      \
 			((Sqxc*)(sqxc_src))->value.double_ = val;    \
 			sqxc_send((Sqxc*)(sqxc_src));                \
 		}
 
-// void sqxc_send_string(Sqxc* src, const char* field_name, const char* value);
-#define sqxc_send_string(sqxc_src, field_name, val)      \
+// void sqxc_send_string(Sqxc* src, const char* entry_name, const char* value);
+#define sqxc_send_string(sqxc_src, entry_name, val)      \
 		{                                                \
 			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_STRING;\
-			((Sqxc*)(sqxc_src))->name = field_name;      \
+			((Sqxc*)(sqxc_src))->name = entry_name;      \
 			((Sqxc*)(sqxc_src))->value.string = (char*)val;   \
 			sqxc_send((Sqxc*)(sqxc_src));                \
 		}
 
-// void sqxc_send_object_beg(Sqxc* src, const char* field_name);
-#define sqxc_send_object_beg(sqxc_src, field_name)       \
+// void sqxc_send_object_beg(Sqxc* src, const char* entry_name);
+#define sqxc_send_object_beg(sqxc_src, entry_name)       \
 		{                                                \
 			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_OBJECT;\
-			((Sqxc*)(sqxc_src))->name = field_name;      \
+			((Sqxc*)(sqxc_src))->name = entry_name;      \
 			((Sqxc*)(sqxc_src))->value.pointer = NULL;   \
 			sqxc_send((Sqxc*)(sqxc_src));                \
 		}
 
-// void sqxc_send_object_end(Sqxc* src, const char* field_name);
-#define sqxc_send_object_end(sqxc_src, field_name)       \
+// void sqxc_send_object_end(Sqxc* src, const char* entry_name);
+#define sqxc_send_object_end(sqxc_src, entry_name)       \
 		{                                                \
 			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_OBJECT_END; \
-			((Sqxc*)(sqxc_src))->name = field_name;      \
+			((Sqxc*)(sqxc_src))->name = entry_name;      \
 			((Sqxc*)(sqxc_src))->value.pointer = NULL;   \
 			sqxc_send((Sqxc*)(sqxc_src));                \
 		}
 
-// void sqxc_send_array_beg(Sqxc* src, const char* field_name);
-#define sqxc_send_array_beg(sqxc_src, field_name)        \
+// void sqxc_send_array_beg(Sqxc* src, const char* entry_name);
+#define sqxc_send_array_beg(sqxc_src, entry_name)        \
 		{                                                \
 			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_ARRAY; \
-			((Sqxc*)(sqxc_src))->name = field_name;      \
+			((Sqxc*)(sqxc_src))->name = entry_name;      \
 			((Sqxc*)(sqxc_src))->value.pointer = NULL;   \
 			sqxc_send((Sqxc*)(sqxc_src));                \
 		}
 
-// void sqxc_send_array_end(Sqxc* src, const char* field_name);
-#define sqxc_send_array_end(sqxc_src, field_name)        \
+// void sqxc_send_array_end(Sqxc* src, const char* entry_name);
+#define sqxc_send_array_end(sqxc_src, entry_name)        \
 		{                                                \
 			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_ARRAY_END;  \
-			((Sqxc*)(sqxc_src))->name = field_name;      \
+			((Sqxc*)(sqxc_src))->name = entry_name;      \
 			((Sqxc*)(sqxc_src))->value.pointer = NULL;   \
 			sqxc_send((Sqxc*)(sqxc_src));                \
 		}
@@ -298,17 +298,17 @@ struct XcMethod
 	int  finish(void* data = NULL);
 
 	int  sendFrom(Sqxc* src);
-	int  sendBool(const char* field_name, bool value);
-	int  sendInt(const char* field_name, int value);
-	int  sendInt64(const char* field_name, int64_t value);
-	int  sendDouble(const char* field_name, double value);
-	int  sendString(const char* field_name, const char* value);
+	int  sendBool(const char* entry_name, bool value);
+	int  sendInt(const char* entry_name, int value);
+	int  sendInt64(const char* entry_name, int64_t value);
+	int  sendDouble(const char* entry_name, double value);
+	int  sendString(const char* entry_name, const char* value);
 
-	int  sendObjectBeg(const char* field_name);
-	int  sendObjectEnd(const char* field_name);
+	int  sendObjectBeg(const char* entry_name);
+	int  sendObjectEnd(const char* entry_name);
 
-	int  sendArrayBeg(const char* field_name);
-	int  sendArrayEnd(const char* field_name);
+	int  sendArrayBeg(const char* entry_name);
+	int  sendArrayEnd(const char* entry_name);
 
 	SqxcNested* push(void);
 	void        pop(void);
@@ -349,7 +349,7 @@ struct XcMethod
 		char*         string;   \
 		void*         pointer;  \
 	} value;               \
-	SqField*     field;    \
+	SqEntry*     entry;    \
 	void**       error;    \
 	int          code
 
@@ -375,7 +375,7 @@ struct Sqxc
 	// properties
 
 	unsigned int io_:1;           // Input = 1, Output = 0
-	int          supported_type;  // supported SqxcType (bit field)
+	int          supported_type;  // supported SqxcType (bit entry)
 
 	// ----------------------------------------------------
 	// stack of SqxcNested (placed in dest)
@@ -419,7 +419,7 @@ struct Sqxc
 	} value;
 
 	// input arguments - optional.  this one can be NULL.
-	SqField*     field;
+	SqEntry*     entry;
 
 	// input arguments - user data
 //	void*        user_data;
@@ -455,26 +455,26 @@ int  XcMethod::finish(void* data)
 
 int  XcMethod::sendFrom(Sqxc* src)
 	{ return ((Sqxc*)this)->send((Sqxc*)this, src); }
-int  XcMethod::sendBool(const char* field_name, bool value)
-	{ sqxc_send_bool((Sqxc*)this, field_name, value);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendInt(const char* field_name, int value)
-	{ sqxc_send_int((Sqxc*)this, field_name, value);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendInt64(const char* field_name, int64_t value)
-	{ sqxc_send_int64((Sqxc*)this, field_name, value);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendDouble(const char* field_name, double value)
-	{ sqxc_send_double((Sqxc*)this, field_name, value);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendString(const char* field_name, const char* value)
-	{ sqxc_send_string((Sqxc*)this, field_name, (char*)value);  return ((Sqxc*)this)->code; }
+int  XcMethod::sendBool(const char* entry_name, bool value)
+	{ sqxc_send_bool((Sqxc*)this, entry_name, value);  return ((Sqxc*)this)->code; }
+int  XcMethod::sendInt(const char* entry_name, int value)
+	{ sqxc_send_int((Sqxc*)this, entry_name, value);  return ((Sqxc*)this)->code; }
+int  XcMethod::sendInt64(const char* entry_name, int64_t value)
+	{ sqxc_send_int64((Sqxc*)this, entry_name, value);  return ((Sqxc*)this)->code; }
+int  XcMethod::sendDouble(const char* entry_name, double value)
+	{ sqxc_send_double((Sqxc*)this, entry_name, value);  return ((Sqxc*)this)->code; }
+int  XcMethod::sendString(const char* entry_name, const char* value)
+	{ sqxc_send_string((Sqxc*)this, entry_name, (char*)value);  return ((Sqxc*)this)->code; }
 
-int  XcMethod::sendObjectBeg(const char* field_name)
-	{ sqxc_send_object_beg((Sqxc*)this, field_name);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendObjectEnd(const char* field_name)
-	{ sqxc_send_object_end((Sqxc*)this, field_name);  return ((Sqxc*)this)->code; }
+int  XcMethod::sendObjectBeg(const char* entry_name)
+	{ sqxc_send_object_beg((Sqxc*)this, entry_name);  return ((Sqxc*)this)->code; }
+int  XcMethod::sendObjectEnd(const char* entry_name)
+	{ sqxc_send_object_end((Sqxc*)this, entry_name);  return ((Sqxc*)this)->code; }
 
-int  XcMethod::sendArrayBeg(const char* field_name)
-	{ sqxc_send_array_beg((Sqxc*)this, field_name);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendArrayEnd(const char* field_name)
-	{ sqxc_send_array_end((Sqxc*)this, field_name);  return ((Sqxc*)this)->code; }
+int  XcMethod::sendArrayBeg(const char* entry_name)
+	{ sqxc_send_array_beg((Sqxc*)this, entry_name);  return ((Sqxc*)this)->code; }
+int  XcMethod::sendArrayEnd(const char* entry_name)
+	{ sqxc_send_array_end((Sqxc*)this, entry_name);  return ((Sqxc*)this)->code; }
 
 SqxcNested* XcMethod::push(void)
 	{ return sqxc_push_nested((Sqxc*)this); }

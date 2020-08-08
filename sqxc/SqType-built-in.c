@@ -21,7 +21,7 @@
 #include <SqError.h>
 #include <SqPtrArray.h>
 #include <SqType.h>
-#include <SqField.h>
+#include <SqEntry.h>
 
 #if defined(_MSC_VER)
 #define _CRT_SECURE_NO_WARNINGS
@@ -32,7 +32,7 @@
 // ------------------------------------
 // SqType* SQ_TYPE_INT functions
 
-int  sq_type_int_parse(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_int_parse(void* instance, SqType* entrytype, Sqxc* src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT:
@@ -55,7 +55,7 @@ int  sq_type_int_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_int_write(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_int_write(void* instance, SqType* entrytype, Sqxc* src)
 {
 //	sqxc_send_int(src, src->name, *(int*)instance);
 	src->type = SQXC_TYPE_INT;
@@ -67,7 +67,7 @@ int  sq_type_int_write(void* instance, SqType* fieldtype, Sqxc* src)
 // ------------------------------------
 // SqType* SQ_TYPE_UINT functions
 
-int  sq_type_uint_parse(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_uint_parse(void* instance, SqType* entrytype, Sqxc* src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_UINT:
@@ -90,7 +90,7 @@ int  sq_type_uint_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_uint_write(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_uint_write(void* instance, SqType* entrytype, Sqxc* src)
 {
 //	sqxc_send_int(src, src->name, *(unsigned int*)instance);
 	src->type = SQXC_TYPE_UINT;
@@ -102,7 +102,7 @@ int  sq_type_uint_write(void* instance, SqType* fieldtype, Sqxc* src)
 // ------------------------------------
 // SqType* SQ_TYPE_INTPTR functions
 
-int  sq_type_intptr_parse(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_intptr_parse(void* instance, SqType* entrytype, Sqxc* src)
 {
 	if (src->type == SQXC_TYPE_STRING)
 		*(intptr_t*)instance = strtol(src->value.string, NULL, 10);
@@ -111,7 +111,7 @@ int  sq_type_intptr_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_intptr_write(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_intptr_write(void* instance, SqType* entrytype, Sqxc* src)
 {
 //	sqxc_send_int(src, src->name, *(intptr_t*)instance);
 	src->type = SQXC_TYPE_INT;
@@ -123,7 +123,7 @@ int  sq_type_intptr_write(void* instance, SqType* fieldtype, Sqxc* src)
 // ------------------------------------
 // SqType* SQ_TYPE_INT64 functions
 
-int  sq_type_int64_parse(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_int64_parse(void* instance, SqType* entrytype, Sqxc* src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT:
@@ -146,7 +146,7 @@ int  sq_type_int64_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_int64_write(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_int64_write(void* instance, SqType* entrytype, Sqxc* src)
 {
 //	sqxc_send_int64(src, src->name, *(int64_t*)instance);
 	src->type = SQXC_TYPE_INT64;
@@ -158,7 +158,7 @@ int  sq_type_int64_write(void* instance, SqType* fieldtype, Sqxc* src)
 // ------------------------------------
 // SqType* SQ_TYPE_UINT64 functions
 
-int  sq_type_uint64_parse(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_uint64_parse(void* instance, SqType* entrytype, Sqxc* src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_UINT:
@@ -181,7 +181,7 @@ int  sq_type_uint64_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_uint64_write(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_uint64_write(void* instance, SqType* entrytype, Sqxc* src)
 {
 //	sqxc_send_uint64(src, src->name, *(uint64_t*)instance);
 	src->type = SQXC_TYPE_UINT64;
@@ -193,7 +193,7 @@ int  sq_type_uint64_write(void* instance, SqType* fieldtype, Sqxc* src)
 // ------------------------------------
 // SqType* SQ_TYPE_DOUBLE functions
 
-int  sq_type_double_parse(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_double_parse(void* instance, SqType* entrytype, Sqxc* src)
 {
 	if (src->type == SQXC_TYPE_STRING)
 		*(double*)instance = strtod(src->value.string, NULL);
@@ -202,7 +202,7 @@ int  sq_type_double_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_double_write(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_double_write(void* instance, SqType* entrytype, Sqxc* src)
 {
 //	sqxc_send_double(src, src->name, *(double*)instance);
 	src->type = SQXC_TYPE_DOUBLE;
@@ -214,7 +214,7 @@ int  sq_type_double_write(void* instance, SqType* fieldtype, Sqxc* src)
 // ------------------------------------
 // SqType* SQ_TYPE_TIME functions
 
-int  sq_type_time_parse(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_time_parse(void* instance, SqType* entrytype, Sqxc* src)
 {
 	if (src->type == SQXC_TYPE_STRING) {
 		*(time_t*)instance = sq_time_from_string(src->value.string);
@@ -228,7 +228,7 @@ int  sq_type_time_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_time_write(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_time_write(void* instance, SqType* entrytype, Sqxc* src)
 {
 	int   result;
 	char* timestr;
@@ -246,12 +246,12 @@ int  sq_type_time_write(void* instance, SqType* fieldtype, Sqxc* src)
 // ------------------------------------
 // SqType* SQ_TYPE_STRING functions
 
-void sq_type_string_final(void* instance, SqType* fieldtype)
+void sq_type_string_final(void* instance, SqType* entrytype)
 {
 	free(*(char**)instance);
 }
 
-int  sq_type_string_parse(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_string_parse(void* instance, SqType* entrytype, Sqxc* src)
 {
 	if (src->type == SQXC_TYPE_STRING) {
 		if (src->value.string)
@@ -268,7 +268,7 @@ int  sq_type_string_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_string_write(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_string_write(void* instance, SqType* entrytype, Sqxc* src)
 {
 //	sqxc_send_string(src, src->name, *(char**)instance);
 	src->type = SQXC_TYPE_STRING;
@@ -278,7 +278,7 @@ int  sq_type_string_write(void* instance, SqType* fieldtype, Sqxc* src)
 }
 
 // ------------------------------------
-// SqType* SQ_FIELD_OBJECT functions
+// SqType* SQ_ENTRY_OBJECT functions
 
 /*
 static const SqType SqTypeObjectStatic =
@@ -290,13 +290,13 @@ static const SqType SqTypeObjectStatic =
 	sq_type_object_write,
 };
 // extern
-const SqType*  SQ_FIELD_OBJECT = &SqTypeObjectStatic;
+const SqType*  SQ_ENTRY_OBJECT = &SqTypeObjectStatic;
  */
 
-int  sq_type_object_parse(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_object_parse(void* instance, SqType* entrytype, Sqxc* src)
 {
 	Sqxc*       dest;      // SqxcValue* dest;
-	SqField*    field;
+	SqEntry*    entry;
 	SqxcNested* nested;
 
 	// Start of Object - Frist time to call this function to parse object
@@ -309,7 +309,7 @@ int  sq_type_object_parse(void* instance, SqType* fieldtype, Sqxc* src)
 		}
 		nested = sqxc_push_nested(dest);
 		nested->data  = instance;
-		nested->data2 = fieldtype;
+		nested->data2 = entrytype;
 		return (src->code = SQCODE_OK);
 	}
 	/*
@@ -320,15 +320,15 @@ int  sq_type_object_parse(void* instance, SqType* fieldtype, Sqxc* src)
 	}
 	 */
 
-	// parse fields in entry
-	field = sq_type_find_field(fieldtype, src->name, NULL);
-	if (field == NULL)
+	// parse entries in type
+	entry = sq_type_find_entry(entrytype, src->name, NULL);
+	if (entry == NULL)
 		return (src->code = SQCODE_FIELD_NOT_FOUND);
-	fieldtype = field->type;
-	return fieldtype->parse((char*)instance + field->offset, fieldtype, src);
+	entrytype = entry->type;
+	return entrytype->parse((char*)instance + entry->offset, entrytype, src);
 }
 
-int  sq_type_object_write(void* instance, SqType* fieldtype, Sqxc* src)
+int  sq_type_object_write(void* instance, SqType* entrytype, Sqxc* src)
 {
 //	SqxcValue*  src;
 	SqType*     temp_type;
@@ -339,18 +339,18 @@ int  sq_type_object_write(void* instance, SqType* fieldtype, Sqxc* src)
 	src->type = SQXC_TYPE_OBJECT;
 //	src->name = object_name;    // "name" was set by caller of this function
 //	src->value.pointer = NULL;
-	src->field = NULL;           // SqxcSqlite will use this
+	src->entry = NULL;           // SqxcSqlite will use this
 	src->code = sqxc_send(src);
 	if (src->code != SQCODE_OK)
 		return src->code;
 
-	array = (SqPtrArray*) &fieldtype->entry;
+	array = (SqPtrArray*) &entrytype->entry;
 	sq_ptr_array_foreach_addr(array, element_addr) {
-		SqField* field = *element_addr;
-		temp_type = field->type;
-		src->name = field->name;    // set "name" before calling write()
-		src->field = field;         // SqxcSqlite will use this
-		temp_type->write((char*)instance + field->offset,
+		SqEntry* entry = *element_addr;
+		temp_type = entry->type;
+		src->name = entry->name;    // set "name" before calling write()
+		src->entry = entry;         // SqxcSqlite will use this
+		temp_type->write((char*)instance + entry->offset,
 		                 temp_type, src);
 		if (src->code != SQCODE_OK)
 			return src->code;
@@ -360,7 +360,7 @@ int  sq_type_object_write(void* instance, SqType* fieldtype, Sqxc* src)
 	src->type = SQXC_TYPE_OBJECT_END;
 	src->name = object_name;
 //	src->value.pointer = NULL;
-	src->field = NULL;
+	src->entry = NULL;
 	src->code = sqxc_send(src);
 	return src->code;
 }

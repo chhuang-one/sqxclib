@@ -25,21 +25,21 @@
 		char*  email;
 	};
 
-	// --- UserFields is unsorted
-	static const SqField  *UserFields[] = {
-		&(SqField) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
-		&(SqField) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
-		&(SqField) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
+	// --- UserEntries is unsorted
+	static const SqEntry  *UserEntries[] = {
+		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
+		&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
+		&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
 	};
 
-	// --- UserType use unsorted UserFields
+	// --- UserType use unsorted UserEntries
 	const SqType UserType = {
 		.size  = sizeof(User),
 		.parse = sq_type_object_parse,
 		.write = sq_type_object_write,
 		.name  = SQ_GET_TYPE_NAME(User),
-		.entry   = UserFields,
-		.n_entry = sizeof(UserFields)/sizeof(SqField*),
+		.entry   = UserEntries,
+		.n_entry = sizeof(UserEntries)/sizeof(SqEntry*),
 		.bit_field = 0
 	};
  */
@@ -47,21 +47,21 @@
 /*	e.g. use C99 designated initializer to declare static sorted SqType
 
 	// *** Note:
-	// * If UserFields is sorted by SqField::name,
+	// * If UserEntries is sorted by SqEntry::name,
 	// * you can set SQB_TYPE_SORTED in SqType::bit_field. See below:
 
-	// --- SortedFields is sorted UserFields (sorted by name)
-	static const SqField  *SortedFields[] = {
-		&(SqField) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
-		&(SqField) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
-		&(SqField) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
+	// --- SortedEntries is sorted UserEntries (sorted by name)
+	static const SqEntry  *SortedEntries[] = {
+		&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
+		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
+		&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
 	};
 
-	// --- SortedType use SortedFields (set SQB_TYPE_SORTED in SqType::bit_field)
+	// --- SortedType use SortedEntries (set SQB_TYPE_SORTED in SqType::bit_field)
 	const SqType SortedType = {
 		// Omitted above
-		.entry   = SortedFields,
-		.n_entry = sizeof(SortedFields)/sizeof(SqField*),
+		.entry   = SortedEntries,
+		.n_entry = sizeof(SortedEntries)/sizeof(SqEntry*),
 		.bit_field = SQB_TYPE_SORTED
 	};
  */
@@ -92,39 +92,39 @@ extern "C" {
 #endif
 
 typedef struct SqType        SqType;
-typedef struct SqField       SqField;
+typedef struct SqEntry       SqEntry;
 
 typedef void (*SqTypeFunc)(void* instance, SqType* type);
 typedef int  (*SqTypeCxFunc)(void* instance, SqType* type, Sqxc* cx);
 
 /* ----------------------------------------------------------------------------
-	initializer macro for field->type
+	initializer macro for entry->type
 
 	// sample 1:
 	typedef struct User    User;
 
-	const SqField *UserFields[] = {...};
-	const SqType   UserType1 = SQ_TYPE_INITIALIZER(User, UserFields, 0);
+	const SqEntry *UserEntries[] = {...};
+	const SqType   UserType1 = SQ_TYPE_INITIALIZER(User, UserEntries, 0);
 
 	// sample 2: initializer with init/final func
 	void  user_init(User* user);
 	void  user_final(User* user);
 
-	const SqType   UserType2 = SQ_TYPE_INITIALIZER_FULL(User, UserFields, 0, user_init, user_final);
+	const SqType   UserType2 = SQ_TYPE_INITIALIZER_FULL(User, UserEntries, 0, user_init, user_final);
  */
 
-#define SQ_TYPE_INITIALIZER(StructType, FieldPtrArray, bit_value)  \
+#define SQ_TYPE_INITIALIZER(StructType, EntryPtrArray, bit_value)  \
 {                                                                  \
 	.size  = sizeof(StructType),                                   \
 	.parse = sq_type_object_parse,                                 \
 	.write = sq_type_object_write,                                 \
 	.name  = SQ_GET_TYPE_NAME(StructType),                         \
-	.entry   = (SqField**) FieldPtrArray,                          \
-	.n_entry = sizeof(FieldPtrArray) / sizeof(SqField*),           \
+	.entry   = (SqEntry**) EntryPtrArray,                          \
+	.n_entry = sizeof(EntryPtrArray) / sizeof(SqEntry*),           \
 	.bit_field = bit_value,                                        \
 }
 
-#define SQ_TYPE_INITIALIZER_FULL(StructType, FieldPtrArray, bit_value, init_func, final_func) \
+#define SQ_TYPE_INITIALIZER_FULL(StructType, EntryPtrArray, bit_value, init_func, final_func) \
 {                                                                  \
 	.size  = sizeof(StructType),                                   \
 	.init  = (SqTypeFunc) init_func,                               \
@@ -132,8 +132,8 @@ typedef int  (*SqTypeCxFunc)(void* instance, SqType* type, Sqxc* cx);
 	.parse = sq_type_object_parse,                                 \
 	.write = sq_type_object_write,                                 \
 	.name  = SQ_GET_TYPE_NAME(StructType),                         \
-	.entry   = (SqField**) FieldPtrArray,                          \
-	.n_entry = sizeof(FieldPtrArray) / sizeof(SqField*),           \
+	.entry   = (SqEntry**) EntryPtrArray,                          \
+	.n_entry = sizeof(EntryPtrArray) / sizeof(SqEntry*),           \
 	.bit_field = bit_value,                                        \
 }
 
@@ -198,11 +198,11 @@ enum {
  */
 
 /* declare SqType for SqPtrArray (SqType-PtrArray.c)
-   User must add a SqField that declare type of element.
+   User must add a SqEntry that declare type of element.
 
 	SqType*  myPtrArray   = sq_type_copy_static(SQ_TYPE_PTR_ARRAY);
-	SqField* elementField = sq_field_new(MyObjectType);
-	sq_type_insert_field(myPtrArray, elementField);
+	SqEntry* elementEntry = sq_entry_new(MyObjectType);
+	sq_type_insert_entry(myPtrArray, elementEntry);
  */
 #define SQ_TYPE_PTR_ARRAY     ((SqType*)&SqType_PtrArray_)
 
@@ -214,7 +214,7 @@ enum {
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
 #define SQ_TYPE_INTPTR_ARRAY  ((SqType*)&SqType_IntptrArray_)
 
-/* TODO: use std::vector to implement SQ_FIELD_STD_VECTOR
+/* TODO: use std::vector to implement SQ_ENTRY_STD_VECTOR
 #define SQ_TYPE_STD_VECTOR    ((SqType*)&SqType_StdVector_)
  */
 /* TODO: use std::vector to implement SQ_TYPE_STD_LIST
@@ -227,7 +227,7 @@ enum {
 
 /* ----------------------------------------------------------------------------
 	SqType - declare how to create/free/parse/write instance
-	         User can declare dynamic or static type that used by SqField
+	         User can declare dynamic or static type that used by SqEntry
  */
 
 struct SqType
@@ -244,9 +244,9 @@ struct SqType
 	// or use macro SQ_GET_TYPE_NAME()
 	char*          name;
 
-//	SQ_PTR_ARRAY_MEMBERS(SqField*, entry, n_entry);
+//	SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry);
 //	// ------ SqPtrArray members ------
-	SqField**      entry;
+	SqEntry**      entry;
 	int            n_entry;
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType.
@@ -262,7 +262,7 @@ extern  const  SqType      SqType_IntptrArray_;
 
 // create/destroy dynamic SqType.
 // if prealloc_size is 0, allocate default size.
-SqType*  sq_type_new(int prealloc_size, SqDestroyFunc field_destroy_func);
+SqType*  sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 void     sq_type_free(SqType* type);
 
 // create dynamic SqType and copy data from static SqType
@@ -272,33 +272,33 @@ SqType*  sq_type_copy_static(const SqType* type);
 void*    sq_type_init_instance(SqType* type, void* instance, int is_pointer);
 void     sq_type_final_instance(SqType* type, void* instance, int is_pointer);
 
-// insert SqField to dynamic SqType.
-void     sq_type_insert_field(SqType* type, const SqField* field);
+// insert SqEntry to dynamic SqType.
+void     sq_type_insert_entry(SqType* type, const SqEntry* entry);
 
-/* remove SqField from dynamic SqType.
-   if cmp_func == NULL, it will compare key and field->name.
-   calling the SqField's destroy function if "do_destroy" is 1.
-   return pointer of removed (or destroyed) SqField.
+/* remove SqEntry from dynamic SqType.
+   if cmp_func == NULL, it will compare key and entry->name.
+   calling the SqEntry's destroy function if "do_destroy" is 1.
+   return pointer of removed (or destroyed) SqEntry.
    return NULL if key not found or type is static SqType.
  */
-SqField* sq_type_remove_field(SqType* type, const void* key, SqCompareFunc cmp_func, int do_destroy);
+SqEntry* sq_type_remove_entry(SqType* type, const void* key, SqCompareFunc cmp_func, int do_destroy);
 
-// SqField* sq_type_erase_field(SqType* type, const void* key, SqCompareFunc cmp_func);
-#define sq_type_erase_field(type, key, cmp_func)   \
-		sq_type_remove_field(type, key, cmp_func, 1)
+// SqEntry* sq_type_erase_entry(SqType* type, const void* key, SqCompareFunc cmp_func);
+#define sq_type_erase_entry(type, key, cmp_func)   \
+		sq_type_remove_entry(type, key, cmp_func, 1)
 
-// SqField* sq_type_steal_field(SqType* type, const void* key, SqCompareFunc cmp_func);
-#define sq_type_steal_field(type, key, cmp_func)   \
-		sq_type_remove_field(type, key, cmp_func, 0)
+// SqEntry* sq_type_steal_entry(SqType* type, const void* key, SqCompareFunc cmp_func);
+#define sq_type_steal_entry(type, key, cmp_func)   \
+		sq_type_remove_entry(type, key, cmp_func, 0)
 
-// find SqField in SqType->entry.
-// If cmp_func is NULL and SqType is dynamic type, it will sort fields by field's name before finding.
-SqField* sq_type_find_field(SqType* type, const void* key, SqCompareFunc cmp_func);
+// find SqEntry in SqType->entry.
+// If cmp_func is NULL and SqType is dynamic type, it will sort entries by entry's name before finding.
+SqEntry* sq_type_find_entry(SqType* type, const void* key, SqCompareFunc cmp_func);
 
 // calculate size for dynamic SqType.
-// if "inner_field" == NULL, it use all fields to calculate size.
-// otherwise it use "inner_field" to calculate size.
-int      sq_type_decide_size(SqType* type, const SqField* inner_field);
+// if "inner_entry" == NULL, it use all entries to calculate size.
+// otherwise it use "inner_entry" to calculate size.
+int      sq_type_decide_size(SqType* type, const SqEntry* inner_entry);
 
 // --------------------------------------------------------
 // SqType-built-in.c - SqTypeFunc and SqTypeCxFunc functions

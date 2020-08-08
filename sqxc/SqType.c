@@ -16,7 +16,7 @@
 
 #include <SqPtrArray.h>
 #include <SqType.h>
-#include <SqField.h>
+#include <SqEntry.h>
 
 
 #ifdef _MSC_VER
@@ -24,41 +24,41 @@
 #define strncasecmp  strnicmp 
 #endif
 
-SqType* sq_type_new(int prealloc_size, SqDestroyFunc field_destroy_func)
+SqType* sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
 {
-	SqType*  fieldtype;
+	SqType*  entrytype;
 	SqPtrArray*  array;
 
-	fieldtype = malloc(sizeof(SqType));
-	fieldtype->size = 0;
-	fieldtype->init = NULL;
-	fieldtype->final = NULL;
-	fieldtype->parse = sq_type_object_parse;
-	fieldtype->write = sq_type_object_write;
-	fieldtype->name = NULL;
-	fieldtype->bit_field = SQB_TYPE_DYNAMIC;
+	entrytype = malloc(sizeof(SqType));
+	entrytype->size = 0;
+	entrytype->init = NULL;
+	entrytype->final = NULL;
+	entrytype->parse = sq_type_object_parse;
+	entrytype->write = sq_type_object_write;
+	entrytype->name = NULL;
+	entrytype->bit_field = SQB_TYPE_DYNAMIC;
 
 	// if prealloc_size < 8, apply default value for small array
 	if (prealloc_size < 8)
 		prealloc_size = 8;
-	array = sq_type_get_array(fieldtype);
-	sq_ptr_array_init(array, 8, field_destroy_func);
+	array = sq_type_get_array(entrytype);
+	sq_ptr_array_init(array, 8, entry_destroy_func);
 
-	return fieldtype;
+	return entrytype;
 }
 
-void  sq_type_free(SqType* fieldtype)
+void  sq_type_free(SqType* entrytype)
 {
-	if (fieldtype->bit_field & SQB_TYPE_DYNAMIC) {
-		sq_ptr_array_final(&fieldtype->entry);
-		free(fieldtype);
+	if (entrytype->bit_field & SQB_TYPE_DYNAMIC) {
+		sq_ptr_array_final(&entrytype->entry);
+		free(entrytype);
 	}
 }
 
 SqType*  sq_type_copy_static(const SqType* type_src)
 {
 	SqType* type;
-	SqDestroyFunc func = (SqDestroyFunc)sq_field_free;
+	SqDestroyFunc func = (SqDestroyFunc)sq_entry_free;
 
 //	if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 //		func = sq_ptr_array_destroy_func(sq_type_get_array(type_src));
@@ -73,40 +73,40 @@ SqType*  sq_type_copy_static(const SqType* type_src)
 	return type;
 }
 
-void* sq_type_init_instance(SqType* fieldtype, void* instance, int is_pointer)
+void* sq_type_init_instance(SqType* entrytype, void* instance, int is_pointer)
 {
-	SqTypeFunc  init = fieldtype->init;
+	SqTypeFunc  init = entrytype->init;
 	SqPtrArray* array;
 
 	// This instance pointer to pointer
 	if (is_pointer) {
-		if (fieldtype->size > 0)
-			*(void**)instance = calloc(1, fieldtype->size);
+		if (entrytype->size > 0)
+			*(void**)instance = calloc(1, entrytype->size);
 		instance = *(void**)instance;
 	}
 
 	// call init() if it exist
 	if (init)
-		init(instance, fieldtype);
-	// initialize SqField in SqType.entry if no init() function
-	else if (fieldtype->entry) {
-		array = sq_type_get_array(fieldtype);
+		init(instance, entrytype);
+	// initialize SqEntry in SqType.entry if no init() function
+	else if (entrytype->entry) {
+		array = sq_type_get_array(entrytype);
 		sq_ptr_array_foreach_addr(array, element_addr) {
-			SqField* field = *element_addr;
-			fieldtype = field->type;
-			if (SQ_TYPE_NOT_BUILTIN(fieldtype)) {
-				sq_type_init_instance(fieldtype, 
-						instance + field->offset,
-						field->bit_field & SQB_POINTER);
+			SqEntry* entry = *element_addr;
+			entrytype = entry->type;
+			if (SQ_TYPE_NOT_BUILTIN(entrytype)) {
+				sq_type_init_instance(entrytype, 
+						instance + entry->offset,
+						entry->bit_field & SQB_POINTER);
 			}
 		}
 	}
 	return instance;
 }
 
-void  sq_type_final_instance(SqType* fieldtype, void* instance, int is_pointer)
+void  sq_type_final_instance(SqType* entrytype, void* instance, int is_pointer)
 {
-	SqTypeFunc  final = fieldtype->final;
+	SqTypeFunc  final = entrytype->final;
 	SqPtrArray* array;
 
 	// This instance pointer to pointer
@@ -118,17 +118,17 @@ void  sq_type_final_instance(SqType* fieldtype, void* instance, int is_pointer)
 
 	// call final() if it exist
 	if (final)
-		final(instance, fieldtype);
-	// finalize SqField in SqType.entry if no final() function
-	else if (fieldtype->entry) {
-		array = sq_type_get_array(fieldtype);
+		final(instance, entrytype);
+	// finalize SqEntry in SqType.entry if no final() function
+	else if (entrytype->entry) {
+		array = sq_type_get_array(entrytype);
 		sq_ptr_array_foreach_addr(array, element_addr) {
-			SqField* field = *element_addr;
-			fieldtype = field->type;
-			if (SQ_TYPE_NOT_ARITHMETIC(fieldtype)) {
-				sq_type_final_instance(fieldtype,
-						instance + field->offset,
-						field->bit_field & SQB_POINTER);
+			SqEntry* entry = *element_addr;
+			entrytype = entry->type;
+			if (SQ_TYPE_NOT_ARITHMETIC(entrytype)) {
+				sq_type_final_instance(entrytype,
+						instance + entry->offset,
+						entry->bit_field & SQB_POINTER);
 			}
 		}
 	}
@@ -138,29 +138,29 @@ void  sq_type_final_instance(SqType* fieldtype, void* instance, int is_pointer)
 		free(instance);
 }
 
-void  sq_type_insert_field(SqType* fieldtype, const SqField* field)
+void  sq_type_insert_entry(SqType* entrytype, const SqEntry* entry)
 {
-	if (fieldtype->bit_field & SQB_DYNAMIC) {
-		if (field == NULL)
+	if (entrytype->bit_field & SQB_DYNAMIC) {
+		if (entry == NULL)
 			return;
-		fieldtype->bit_field &= ~SQB_TYPE_SORTED;
-		sq_ptr_array_append(&fieldtype->entry, (void*)field);
-		sq_type_decide_size(fieldtype, field);
+		entrytype->bit_field &= ~SQB_TYPE_SORTED;
+		sq_ptr_array_append(&entrytype->entry, (void*)entry);
+		sq_type_decide_size(entrytype, entry);
 	}
 }
 
-SqField*  sq_type_remove_field(SqType* type, const void* key, SqCompareFunc cmp_func, int do_destroy)
+SqEntry*  sq_type_remove_entry(SqType* type, const void* key, SqCompareFunc cmp_func, int do_destroy)
 {
 	SqPtrArray* array;
-	SqField*    field;
+	SqEntry*    entry;
 	void**      addr;
 
 	if ((type->bit_field & SQB_DYNAMIC) == 0)
 		return NULL;
 	if (cmp_func == NULL)
-		cmp_func = (SqCompareFunc) sq_field_cmp_str__name;
+		cmp_func = (SqCompareFunc) sq_entry_cmp_str__name;
 
-	if (type->bit_field & SQB_TYPE_SORTED && cmp_func == (SqCompareFunc)sq_field_cmp_str__name)
+	if (type->bit_field & SQB_TYPE_SORTED && cmp_func == (SqCompareFunc)sq_entry_cmp_str__name)
 		addr = sq_ptr_array_search(sq_type_get_array(type), key, cmp_func);
 	else
 		addr = sq_ptr_array_find(sq_type_get_array(type), key, cmp_func);
@@ -168,39 +168,39 @@ SqField*  sq_type_remove_field(SqType* type, const void* key, SqCompareFunc cmp_
 	if (addr == NULL)
 		return NULL;
 	else {
-		field = *addr;
+		entry = *addr;
 		array = sq_type_get_array(type);
 		if (do_destroy == 1) {
 			SqDestroyFunc  destroy_func;
 			destroy_func = sq_ptr_array_destroy_func(array);
 			if (destroy_func)
-				destroy_func(field);
+				destroy_func(entry);
 		}
 		SQ_PTR_ARRAY_STEAL(array, addr - array->data, 1);
 //		sq_type_decide_size(type, NULL);
-		return field;
+		return entry;
 	}
 }
 
-SqField* sq_type_find_field(SqType* fieldtype, const void* key, SqCompareFunc cmp_func)
+SqEntry* sq_type_find_entry(SqType* entrytype, const void* key, SqCompareFunc cmp_func)
 {
-	SqPtrArray* array = (SqPtrArray*) &fieldtype->entry;
+	SqPtrArray* array = (SqPtrArray*) &entrytype->entry;
 	void**      addr;
 
-	if (fieldtype->n_entry == 0)
+	if (entrytype->n_entry == 0)
 		return NULL;
 
 	if ( cmp_func == NULL &&
-	     fieldtype->bit_field & SQB_TYPE_DYNAMIC &&
-	    (fieldtype->bit_field & SQB_TYPE_SORTED) == 0 )
+	     entrytype->bit_field & SQB_TYPE_DYNAMIC &&
+	    (entrytype->bit_field & SQB_TYPE_SORTED) == 0 )
 	{
-		fieldtype->bit_field |= SQB_TYPE_SORTED;
-		sq_ptr_array_sort(array, sq_field_cmp_name);
+		entrytype->bit_field |= SQB_TYPE_SORTED;
+		sq_ptr_array_sort(array, sq_entry_cmp_name);
 	}
 
 	if (cmp_func == NULL)
-		cmp_func = (SqCompareFunc)sq_field_cmp_str__name;
-	if (fieldtype->bit_field & SQB_TYPE_SORTED && cmp_func == (SqCompareFunc)sq_field_cmp_str__name)
+		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
+	if (entrytype->bit_field & SQB_TYPE_SORTED && cmp_func == (SqCompareFunc)sq_entry_cmp_str__name)
 		addr = sq_ptr_array_search(array, key, cmp_func);
 	else
 		addr = sq_ptr_array_find(array, key, cmp_func);
@@ -208,35 +208,35 @@ SqField* sq_type_find_field(SqType* fieldtype, const void* key, SqCompareFunc cm
 	if (addr == NULL)
 		return NULL;
 	else
-		return *(SqField**)addr;
+		return *(SqEntry**)addr;
 }
 
-int   sq_type_decide_size(SqType* fieldtype, const SqField* inner_field)
+int   sq_type_decide_size(SqType* entrytype, const SqEntry* inner_entry)
 {
 	SqPtrArray* array;
 	int   size;
 
-	if (fieldtype->bit_field & SQB_TYPE_DYNAMIC) {
-		if (inner_field) {
-			// calculate new one field 
-			if (inner_field->type == NULL)
-				return fieldtype->size;
-			else if (inner_field->bit_field & SQB_POINTER)
+	if (entrytype->bit_field & SQB_TYPE_DYNAMIC) {
+		if (inner_entry) {
+			// calculate new one entry 
+			if (inner_entry->type == NULL)
+				return entrytype->size;
+			else if (inner_entry->bit_field & SQB_POINTER)
 				size = sizeof(void*);
 			else
-				size = inner_field->type->size;
-			size += inner_field->offset;
-			if (fieldtype->size < size)
-				fieldtype->size = size;
+				size = inner_entry->type->size;
+			size += inner_entry->offset;
+			if (entrytype->size < size)
+				entrytype->size = size;
 		}
 		else {
 			// recalculate size
-			fieldtype->size = 0;
-			if (fieldtype->entry == NULL)
+			entrytype->size = 0;
+			if (entrytype->entry == NULL)
 				return 0;
-			array = sq_type_get_array(fieldtype);
+			array = sq_type_get_array(entrytype);
 			sq_ptr_array_foreach_addr(array, element_addr) {
-				SqField* inner = *element_addr;
+				SqEntry* inner = *element_addr;
 				if (inner->type == NULL)
 					continue;
 				else if (inner->bit_field & SQB_POINTER)
@@ -244,10 +244,10 @@ int   sq_type_decide_size(SqType* fieldtype, const SqField* inner_field)
 				else
 					size = inner->type->size;
 				size += inner->offset;
-				if (fieldtype->size < size)
-					fieldtype->size = size;
+				if (entrytype->size < size)
+					entrytype->size = size;
 			}
 		}
 	}
-	return fieldtype->size;
+	return entrytype->size;
 }

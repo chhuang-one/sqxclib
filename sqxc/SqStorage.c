@@ -69,7 +69,7 @@ SqQuery* sq_storage_table(SqStorage* db, const char* table_name)
 		return sq_query_new(table);
 	else
 		return NULL;
-//	sq_field_free(db->input_container_default);
+//	sq_entry_free(db->input_container_default);
 }
 
 SqQuery* sq_storage_type(SqStorage* db, const char* type_name)

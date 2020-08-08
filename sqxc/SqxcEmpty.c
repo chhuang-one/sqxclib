@@ -87,7 +87,7 @@ static int  sqxc_empty_send_in(SqxcEmpty* xcempty, Sqxc* src)
 		xcempty->type = src->type;
 		xcempty->name = src->name;
 		memcpy(&xcempty->value, &src->value, sizeof(xcempty->value));
-		xcempty->field = src->field;
+		xcempty->entry = src->entry;
 		xcempty->send(xcempty->dest, (Sqxc*)xcempty);
 	}
 	return (src->code = SQCODE_OK);

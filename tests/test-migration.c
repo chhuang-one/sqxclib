@@ -68,7 +68,7 @@ const SqType UserType = {
 	.parse = sq_type_object_parse,
 	.write = sq_type_object_write,
 	.name  = SQ_GET_TYPE_NAME(User),
-	.entry   = (SqField**) UserColumns,
+	.entry   = (SqEntry**) UserColumns,
 	.n_entry = sizeof(UserColumns) / sizeof(SqColumn*),
 	.bit_field  = SQB_TYPE_SORTED                           // UserColumns is sorted
 };
@@ -99,7 +99,7 @@ static const SqColumn  *UserColumnsChange[] = {
 
 const SqType UserTypeChange = {
 	.name  = SQ_GET_TYPE_NAME(User),
-	.entry   = (SqField**) UserColumnsChange,
+	.entry   = (SqEntry**) UserColumnsChange,
 	.n_entry = sizeof(UserColumnsChange) / sizeof(SqColumn*)
 };
 

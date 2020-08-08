@@ -25,7 +25,7 @@ SqJoint* sq_joint_new()
 {
 	SqJoint*  joint;
 
-	joint = sq_field_new(NULL);
+	joint = sq_entry_new(NULL);
 	joint->type->parse = sq_joint_parse;
 	joint->type->write = NULL;
 	return joint;
@@ -33,22 +33,22 @@ SqJoint* sq_joint_new()
 
 void     sq_joint_free(SqJoint* joint)
 {
-	sq_field_free(joint);
+	sq_entry_free(joint);
 }
 
 void sq_joint_add(SqJoint* joint, SqTable* table, const char* as_table_name)
 {
-	SqField*  jfield;
+	SqEntry*  jentry;
 
-	jfield = sq_field_new(table->type);
+	jentry = sq_entry_new(table->type);
 	if (as_table_name)
-		jfield->name = strdup(as_table_name);
+		jentry->name = strdup(as_table_name);
 	else
-		jfield->name = strdup(table->name);
-	jfield->bit_field |= SQB_POINTER;
-	jfield->offset = joint->type->n_entry * sizeof(void*);
-	sq_type_insert_field(joint->type, jfield);
-//	sq_type_decide_size(joint->type, jfield);
+		jentry->name = strdup(table->name);
+	jentry->bit_field |= SQB_POINTER;
+	jentry->offset = joint->type->n_entry * sizeof(void*);
+	sq_type_insert_entry(joint->type, jentry);
+//	sq_type_decide_size(joint->type, jentry);
 }
 
 // ----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ void sq_joint_add(SqJoint* joint, SqTable* table, const char* as_table_name)
 static int  sq_joint_parse(void* instance, SqType* type, Sqxc* src)
 {
 	SqxcNested*  nested;
-	SqField*     table;
+	SqEntry*     table;
 	Sqxc*        dest;
 	union {
 		char*    dot;
@@ -96,7 +96,7 @@ static int  sq_joint_parse(void* instance, SqType* type, Sqxc* src)
 	}
 	strncpy(dest->buf, src->name, temp.len -1);
 
-	table = sq_type_find_field(type, dest->buf, NULL);
+	table = sq_type_find_entry(type, dest->buf, NULL);
 	if (table) {
 		nested = sqxc_push_nested((Sqxc*)dest);
 		nested->data = (char*)instance + table->offset;
