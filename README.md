@@ -1,3 +1,5 @@
+[![Donate using PayPal](https://img.shields.io/badge/donate-PayPal-brightgreen.svg)](https://paypal.me/CHHUANGONE)
+
 # sqxc
 
 sqxc is a library to convert SQL (or JSON...etc) data to/from C language.
