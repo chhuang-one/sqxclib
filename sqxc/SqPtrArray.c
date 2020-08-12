@@ -52,7 +52,8 @@ void* sq_ptr_array_final(void* array)
 	destroy = sq_ptr_array_destroy_func(array);
 	if (destroy) {
 		sq_ptr_array_foreach(array, element) {
-			destroy(element);
+			if (element)
+				destroy(element);
 		}
 	}
 	free(sq_ptr_array_header(array));
@@ -98,21 +99,21 @@ void** sq_ptr_array_find(void* array, const void* key, SqCompareFunc cmpfunc)
 	return NULL;
 }
 
-void   sq_ptr_array_remove_null(void* parray)
+void sq_ptr_array_erase(void* array, int index, int count)
 {
-	SqPtrArray* array = (SqPtrArray*)parray;
-	int  index_src, index_dest;
+	SqDestroyFunc  destroy_func;
 
-	for (index_dest = 0;  index_dest < array->length;  index_dest++) {
-		if (array->data[index_dest] == NULL)
-			break;
+	// destroy elements
+	destroy_func = sq_ptr_array_destroy_func(array);
+	if (destroy_func) {
+		for (int n = 0;  n < count;  n++)
+			destroy_func(sq_ptr_array_at(array, index +n));
 	}
-	for (index_src = index_dest +1;  index_src < array->length;  index_src++) {
-		if (array->data[index_src])
-			array->data[index_dest++] = array->data[index_src];
-	}
-
-	array->length = index_dest;
+	// move data
+	memmove(sq_ptr_array_addr(array, index),
+	        sq_ptr_array_addr(array, index + count),
+	        sizeof(void*) * (sq_ptr_array_length(array) -count -index) );
+	((SqPtrArray*)(array))->length -= (count);
 }
 
 // ----------------------------------------------------------------------------
@@ -122,14 +123,14 @@ void   sq_ptr_array_remove_null(void* parray)
 // C99 or C++ inline functions in SqArray.h
 #else
 
-void  sq_ptr_array_erase(void* array, int index, int count)
-{
-	SQ_PTR_ARRAY_ERASE(array, index, count);
-}
-
 void  sq_ptr_array_steal(void* array, int index, int count)
 {
 	SQ_PTR_ARRAY_STEAL(array, index, count);
+}
+
+void  sq_ptr_array_steal_addr(void* array, void** element_addr, int count)
+{
+	SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
 }
 
 void  sq_ptr_array_insert_n(void* array, int index, const void* values, int count)

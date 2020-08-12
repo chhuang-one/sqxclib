@@ -40,16 +40,8 @@ extern "C" {
 
 typedef struct SqSchema       SqSchema;
 
-// SqSchema* sq_schema_new(const char* name);
-#define sq_schema_new(name)    \
-		sq_schema_init(malloc(sizeof(SqSchema)), name)
-
-// void sq_schema_free(SqSchema* schema);
-#define sq_schema_free(schema)  \
-		free(sq_schema_final(schema))
-
-SqSchema* sq_schema_init(SqSchema* schema, const char* name);
-SqSchema* sq_schema_final(SqSchema* schema);
+SqSchema* sq_schema_new(const char* name);
+void      sq_schema_free(SqSchema* schema);
 
 /*	sq_schema_create_full()
   if "type_info" == NULL, program will use "type_name" and "type_size" to create "type_info".
@@ -87,8 +79,9 @@ void     sq_schema_rename(SqSchema* schema, const char* from, const char* to);
 SqTable* sq_schema_find(SqSchema* schema, const char* table_name);
 SqTable* sq_schema_find_type(SqSchema* schema, const char* type_name);
 
-// This used by migration. It may steal tables from schema_src
-int     sq_schema_accumulate(SqSchema* schema_cur, SqSchema* schema_src);
+// This used by migration: accumulat changes from 'schema_src'.
+// It may move/steal tables from 'schema_src'.
+int     sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -113,7 +106,7 @@ struct SqSchema
 #ifdef __cplusplus
 	// C++11 standard-layout
 	// ----------------------------------------------------
-
+/*
 	void* operator new(size_t size)
 		{ return malloc(size); }
 	void operator delete(void* instance)
@@ -122,6 +115,7 @@ struct SqSchema
 		{ sq_schema_init(this, name); }
 	~SqSchema()
 		{ sq_schema_final(this); }
+ */
 
 	SqTable* create(const char* name,
 	                const SqType* type_info,

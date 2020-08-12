@@ -86,9 +86,6 @@ void test_ptr_array_vp()
 	sq_ptr_array_insert(&array, 2, (void*)(intptr_t)105);
 	sq_ptr_array_insert(&array, 3, (void*)(intptr_t)0);
 
-	// this will remove index 3
-	sq_ptr_array_remove_null(&array);
-
 	sq_ptr_array_foreach(&array, element) {
 		printf(" - 0x%p", element);
 	}

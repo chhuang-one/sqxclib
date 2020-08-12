@@ -27,24 +27,30 @@
 
 #define DEFAULT_STRING_LENGTH    191
 
-SqSchema*  sq_schema_init(SqSchema* schema, const char* name)
+SqSchema*  sq_schema_new(const char* name)
 {
 	static int cur_ver = 0;
+	SqSchema* schema;
+	SqType* typeinfo;
 
-	sq_entry_init((SqEntry*)schema, NULL);
+	schema = malloc(sizeof(SqSchema));
+	typeinfo = sq_type_new(8, (SqDestroyFunc)sq_column_free);
+
+	sq_entry_init((SqEntry*)schema, typeinfo);
 	schema->name = name ? strdup(name) : NULL;
 	// table_types
 	sq_ptr_array_init(&schema->table_types, 8, NULL);
 	schema->table_types_sorted = false;
+	//
 	schema->version = cur_ver++;
 	return schema;
 }
 
-SqSchema*  sq_schema_final(SqSchema* schema)
+void  sq_schema_free(SqSchema* schema)
 {
 	sq_entry_final((SqEntry*)schema);
 	sq_ptr_array_final(&schema->table_types);
-	return schema;
+	free(schema);
 }
 
 SqTable* sq_schema_create_full(SqSchema* schema,
@@ -57,7 +63,7 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 
 	table = sq_table_new(table_name, type_info);
 	// if type_info == NULL,
-	// table->type is dynamic type and table->bit_field has SQB_DYNAMIC_TYPE
+	// table->type is dynamic type and table->bit_field has SQB_TYPE_DYNAMIC
 	if (type_info == NULL) {
 		table->type->size = instance_size;
 		if (type_name)
@@ -90,6 +96,7 @@ SqTable* sq_schema_alter(SqSchema* schema, const char* name, const SqType* type_
 void sq_schema_drop(SqSchema* schema, const char* name)
 {
 	SqTable* table;
+	SqType*  schema_type = schema->type;
 	void**   addr;
 
 	if (schema->bit_field & SQB_CHANGE) {
@@ -97,14 +104,17 @@ void sq_schema_drop(SqSchema* schema, const char* name)
 		table->old_name = strdup(name);
 		table->name = NULL;
 		table->bit_field = SQB_DYNAMIC;
-		sq_type_insert_entry(schema->type, (SqEntry*)table);
+		sq_type_insert_entry(schema_type, (SqEntry*)table);
 		return;
 	}
-	sq_type_erase_entry(schema->type, name, NULL);
+
+	addr = sq_type_find_entry(schema_type, name, NULL);
+	if (addr)
+		sq_type_erase_entry_addr(schema_type, addr, 1);
 	// table_types
-	addr = sq_ptr_array_find(&schema->table_types, name,
-			                 (SqCompareFunc)sq_entry_cmp_str__name);
-	sq_ptr_array_erase(&schema->table_types, addr - schema->table_types.data, 1);
+	addr = sq_ptr_array_find(&schema->table_types, name, (SqCompareFunc)sq_entry_cmp_str__name);
+	if (addr)
+		sq_ptr_array_erase_addr(&schema->table_types, addr, 1);
 }
 
 void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
@@ -124,6 +134,7 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 //	                                     (SqCompareFunc)sq_entry_cmp_str__name);
 	table = (SqTable*)sq_type_find_entry(schema->type, from, NULL);
 	if (table) {
+		table = *(SqTable**)table;
 		free(table->name);
 		table->name = strdup(to);
 	}
@@ -131,9 +142,15 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 
 SqTable* sq_schema_find(SqSchema* schema, const char* name)
 {
-	return (SqTable*)sq_type_find_entry(schema->type, name, NULL);
+	void** addr;
+
+	addr = sq_type_find_entry(schema->type, name, NULL);
+	if (addr)
+		return *addr;
+	else
+		return NULL;
 }
- 
+
 SqTable* sq_schema_find_type(SqSchema* schema, const char* name)
 {
 	SqPtrArray* array = &schema->table_types;
@@ -141,10 +158,12 @@ SqTable* sq_schema_find_type(SqSchema* schema, const char* name)
 
 	if (schema->table_types.data == NULL)
 		return NULL;
+	// sort
 	if (schema->table_types_sorted == false) {
 		schema->table_types_sorted = true;
 		sq_ptr_array_sort(array, sq_entry_cmp_type_name);
 	}
+	// search
 	table = sq_ptr_array_search(array, name,
 			(SqCompareFunc)sq_entry_cmp_str__type_name);
 	if (table)
@@ -152,78 +171,12 @@ SqTable* sq_schema_find_type(SqSchema* schema, const char* name)
 	return NULL;
 }
 
-static SqTable* sq_schema_replace_table_type(SqSchema* schema, SqTable* table_old, SqTable* table_new)
-{
-	SqPtrArray* array;
-	int  index;
-
-	// schema->table_types
-	array = &schema->table_types;
-	for (index = 0;  index < array->length;  index++) {
-		if (array->data[index] == table_old) {
-			array->data[index]  = table_new;
-			break;
-		}
-	}
-	if (index == array->length) {
-		sq_ptr_array_append(array, table_new);
-		schema->table_types_sorted = false;
-	}
-	return table_new;
-}
-
-static SqTable* sq_schema_replace_table(SqSchema* schema, SqTable* table_old, SqTable* table_new)
-{
-	SqPtrArray* array;
-	int  index;
-
-	// schema->type
-	array = sq_type_get_array(schema->type);
-	for (index = 0;  index < array->length;  index++) {
-		if (array->data[index] == table_old) {
-			array->data[index]  = table_new;
-			break;
-		}
-	}
-	if (index == array->length)
-		sq_type_insert_entry(schema->type, (SqEntry*)table_new);
-
-	return table_new;
-}
-
-static int sq_schema_find_or_replace(SqSchema* schema, const char* table_name, SqTable* table_to_replace)
-{
-	int       index;
-	SqType*   type = schema->type;
-	SqTable*  table;
-
-	for (index = 0;  index < type->n_entry;  index++) {
-		table = (SqTable*)type->entry[index];
-		// skip "dropped record" or "renamed record"
-		if (table->old_name)
-			continue;
-		// erase if table->name == table_name
-		if (strcasecmp(table->name, table_name) == 0) {
-			if (table_to_replace)
-				sq_ptr_array_erase(sq_type_get_array(type), index, 1);
-			break;
-		}
-	}
-	// insert column to table
-	if (table_to_replace)
-		sq_type_insert_entry(type, (SqEntry*)table_to_replace);
-
-	if (index < type->n_entry)
-		return index;
-	else
-		return -1;
-}
-
 int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 {	//      *schema, *schema_src
-	SqTable *table,  *table_src, *table_new;
+	SqTable *table,  *table_src;
 	SqType  *type,   *type_src;
-	int      index,   index_src;
+	int               index_src;
+	void   **addr;
 
 	type = schema->type;
 	type_src = schema_src->type;
@@ -233,67 +186,75 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 		if (table_src->bit_field & SQB_CHANGE) {
 			// === ALTER TABLE ===
 			// find table if table->name == table_src->name
-			index = sq_schema_find_or_replace(schema, table_src->name, NULL);
-			// old table not found
-			if (index == -1) {
-				sq_type_insert_entry(type, (SqEntry*)table_src);
+			addr = sq_reentries_find_name(&type->entry, table_src->name);
+			if (addr) {
+				table = *(SqTable**)addr;
+				if ((table->bit_field & SQB_DYNAMIC) == 0) {
+					// create dynamic table to replace static one
+					table = sq_table_copy_static(table);
+					// replace table pointer in schema->table_types
+					sq_reentries_replace(&schema->table_types, *addr, table);
+					schema->table_types_sorted = false;
+					// replace table pointer in schema->type->entry
+					*addr = table;
+				}
+				if (sq_table_accumulate(table, table_src) != SQCODE_OK)
+					return SQCODE_STATIC_DATA;
+			}
+			else {
+				// old table not found
+				sq_reentries_add(&type->entry, table_src);
 				// table_types
 				sq_ptr_array_append(&schema->table_types, table_src);
 				schema->table_types_sorted = false;
-				continue;
 			}
-
-			if ((table->bit_field & SQB_DYNAMIC) == 0) {
-				// create dynamic table to replace static one
-				table_new = sq_table_copy_static(table);
-				sq_schema_replace_table(schema, table, table_new);
-				sq_schema_replace_table_type(schema, table, table_new);
-				sq_table_free(table);
-				table = table_new;
-			}
-			if (sq_table_accumulate(table, table_src) != SQCODE_OK)
-				return SQCODE_STATIC_DATA;
-			// "altered record" doesn't need to steal table_src from schema_src
+			// "altered record" doesn't need to steal 'table_src' from 'schema_src'
 			continue;
 		}
 		else if (table_src->name == NULL) {
 			// === DROP TABLE ===
-			// replace table if table->name == table_src->old_name
-			// delete original table and append "dropped record"
-			sq_schema_find_or_replace(schema, table_src->old_name, table_src);
+			// erase original table if table->name == table_src->old_name
+			sq_reentries_erase_name(&type->entry, table_src->old_name);
+			// append "dropped record"
+			sq_reentries_add(&type->entry, table_src);
 		}
 		else if (table_src->old_name) {
 			// === RENAME TABLE ===
 			// find existing if table->name == table_src->old_name
-			index = sq_schema_find_or_replace(schema, table_src->old_name, NULL);
-			if (index != -1) {
+			addr = sq_reentries_find_name(&type->entry, table_src->old_name);
+			if (addr) {
 				// rename existing table->name to table_src->name
-				table = (SqTable*)type->entry[index];
+				table = *(SqTable**)addr;
 				if ((table->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic table to replace static table
-					table_new = sq_table_copy_static(table);
-					type->entry[index] = (SqEntry*)table_new;
-					sq_schema_replace_table_type(schema, table, table_new);
-					table = table_new;
+					table = sq_table_copy_static(table);
+					// replace table pointer in schema->table_types
+					sq_reentries_replace(&schema->table_types, *addr, table);
+//					schema->table_types_sorted = false;
+					// replace table pointer in schema->type->entry
+					*addr = table;
 				}
 				free(table->name);
 				table->name = strdup(table_src->name);
 			}
-			// insert table_src to table
-			sq_type_insert_entry(type, (SqEntry*)table_src);
+			// insert 'table_src' to table
+			sq_reentries_add(&type->entry, table_src);
 		}
 		else {
 			// === ADD TABLE ===
-			// insert table_src to schema
-			sq_type_insert_entry(type, (SqEntry*)table_src);
+			// insert 'table_src' to schema
+			sq_reentries_add(&type->entry, table_src);
 		}
 
-		// steal table_src if type_src is not static.
-		if (type_src->bit_field & SQB_DYNAMIC)
+		// steal 'table_src' if 'type_src' is not static.
+		if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 			type_src->entry[index_src] = NULL;
 	}
 
-	// remove NULL table (it was stolen) if table_src is not static.
-	sq_ptr_array_remove_null(sq_type_get_array(type_src));
+	// remove NULL table (it was stolen) if 'schema_src' is not static.
+//	sq_reentries_remove_null(&type_src->entry);
+	// remove NULL record in schema
+	sq_reentries_remove_null(&type->entry);
+	type->bit_field &= ~SQB_TYPE_SORTED;
 	return SQCODE_OK;
 }

@@ -80,6 +80,10 @@ extern "C" {
 #define sq_ptr_array_append(array, value)  \
 		*sq_ptr_array_alloc_at(array, sq_ptr_array_length(array), 1) = (void*)(value)
 
+// void sq_ptr_array_erase_addr(void* array, void** element_addr, int count);
+#define sq_ptr_array_erase_addr(array, element_addr, count)    \
+		sq_ptr_array_erase(array, (void**)element_addr - sq_ptr_array_data(array), count)
+
 // bool sq_ptr_array_empty(void* array)
 #define sq_ptr_array_empty(array)  \
 		(((SqPtrArray*)(array))->data == NULL)
@@ -166,17 +170,6 @@ extern "C" {
 		memcpy(sq_ptr_array_alloc(array, count),      \
 		       values, sizeof(void*) * (count))
 
-// void sq_ptr_array_erase(void* array, int index, int count);
-#define SQ_PTR_ARRAY_ERASE(array, index, count)                \
-		{                                                      \
-		SqDestroyFunc  destroy_ = sq_ptr_array_destroy_func(array);                 \
-		if (destroy_)  destroy_(sq_ptr_array_at(array, index));                     \
-		memmove(sq_ptr_array_addr(array, (index)),             \
-		        sq_ptr_array_addr(array, (index) + (count)),   \
-		        sizeof(void*) * (sq_ptr_array_length(array) -(count) -(index)) );  \
-		((SqPtrArray*)(array))->length -= (count);             \
-		}
-
 // Removes a value from array without calling the destroy function.
 // void sq_ptr_array_steal(void* array, int index, int count);
 #define SQ_PTR_ARRAY_STEAL(array, index, count)                \
@@ -185,6 +178,14 @@ extern "C" {
 		        sq_ptr_array_addr(array, (index) + (count)),   \
 		        sizeof(void*) * (sq_ptr_array_length(array) -(count) -(index)) );  \
 		((SqPtrArray*)(array))->length -= (count);             \
+		}
+
+// void sq_ptr_array_steal_addr(void* array, void** element_addr, int count);
+#define SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count)      \
+		{                                                        \
+		memmove(element_addr, (void**)(element_addr) + (count),  \
+		        sizeof(void*) * (sq_ptr_array_length(array) -(count) -((void**)(element_addr) - sq_ptr_array_data(array))) );  \
+		((SqPtrArray*)(array))->length -= (count);               \
 		}
 
 // ----------------------------------------------------------------------------
@@ -201,8 +202,7 @@ void** sq_ptr_array_alloc_at(void* array, int index, int count);
 // find element in unsorted array
 void** sq_ptr_array_find(void* array, const void* key, SqCompareFunc cmpfunc);
 
-// remove NULL pointer in array
-void   sq_ptr_array_remove_null(void* array);
+void   sq_ptr_array_erase(void* array, int index, int count);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -237,6 +237,9 @@ struct PtrArrayMethod
 	void   append(Type* values, int length = 1);
 	void   append(Type  value);
 	void   erase(int index, int length = 1);
+	void   erase(Type* addr, int length = 1);
+	void   steal(int index, int length = 1);
+	void   steal(Type* addr, int length = 1);
 
 	// quick sort
 	void   sort(SqCompareFunc func);
@@ -309,9 +312,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_ptr_array_erase(void* array, int index, int count)
+void  sq_ptr_array_steal(void* array, int index, int count)
 {
-	SQ_PTR_ARRAY_ERASE(array, index, count);
+	SQ_PTR_ARRAY_STEAL(array, index, count);
 }
 
 #ifdef __cplusplus  // C++
@@ -319,9 +322,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_ptr_array_steal(void* array, int index, int count)
+void  sq_ptr_array_steal_addr(void* array, void** element_addr, int count)
 {
-	SQ_PTR_ARRAY_STEAL(array, index, count);
+	SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
 }
 
 #ifdef __cplusplus  // C++
@@ -347,8 +350,8 @@ void  sq_ptr_array_append_n(void* array, const void* values, int count)
 #else  // __STDC_VERSION__ || __cplusplus
 
 // C functions
-void  sq_ptr_array_erase(void* array, int index, int count);
 void  sq_ptr_array_steal(void* array, int index, int count);
+void  sq_ptr_array_steal_addr(void* array, void** element_addr, int count);
 void  sq_ptr_array_insert_n(void* array, int index, const void* values, int count);
 void  sq_ptr_array_append_n(void* array, const void* values, int count);
 
@@ -398,6 +401,15 @@ inline void  PtrArrayMethod<Type>::append(Type  value)
 template<class Type>
 inline void  PtrArrayMethod<Type>::erase(int index, int length)
 	{ sq_ptr_array_erase(this, index, length); }
+template<class Type>
+inline void  PtrArrayMethod<Type>::erase(Type* addr, int length)
+	{ sq_ptr_array_erase_addr(this, (void**)addr, length); }
+template<class Type>
+inline void  PtrArrayMethod<Type>::steal(int index, int length)
+	{ sq_ptr_array_steal(this, index, length); }
+template<class Type>
+inline void  PtrArrayMethod<Type>::steal(Type* addr, int length)
+	{ sq_ptr_array_steal_addr(this, (void**)addr, length); }
 
 template<class Type>
 inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type  element)> func)

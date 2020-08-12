@@ -25,16 +25,21 @@ extern "C" {
 #endif
 
 /* ----------------------------------------------------------------------------
+	SqEntry: declare object/field or table/column in it's extended structure.
+
 	SqEntry
 	|
-	+--- SqTable
-	|
-	`--- SqColumn
+	`--- SqReentry
+         |
+	     +--- SqTable
+	     |
+	     `--- SqColumn
 
 	See SqType.h to know how to declare static SqEntry for SqType.
  */
 
-// typedef struct SqEntry           SqEntry;
+//typedef struct SqEntry           SqEntry;
+typedef struct SqReentry        SqReentry;
 
 // SqEntry::bit_field
 #define SQB_DYNAMIC        (1 << 0)   // C: entry can be changed and freed
@@ -72,10 +77,10 @@ struct SqEntry
 {
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
-	SqType*      type;     // type information of entry
+	SqType*      type;        // type information of entry
 	char*        name;
 	size_t       offset;
-	unsigned int bit_field
+	unsigned int bit_field;
  */
 };
 
@@ -95,6 +100,75 @@ int  sq_entry_cmp_name(SqEntry** entry1, SqEntry** entry2);
 int  sq_entry_cmp_str__type_name(const char* str,  SqEntry** entry);
 int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2);
 
+/* ----------------------------------------------------------------------------
+	SqReentry: reentry previously-defined entries.
+	           add old_name in SqEntry to record changes (rename or drop).
+*/
+
+#define SQ_REENTRY_MEMBERS     \
+	SqType*      type;         \
+	char*        name;         \
+	size_t       offset;       \
+	unsigned int bit_field;    \
+	char*        old_name
+
+struct SqReentry
+{
+	SQ_REENTRY_MEMBERS;
+/*	// ------ SqReentry members ------
+	SqType*      type;        // type information of entry
+	char*        name;
+	size_t       offset;
+	unsigned int bit_field;
+	char*        old_name;    // rename or drop
+ */
+	// if name is NULL, it will drop old_name
+	// if name is NOT NULL, it will rename from old_name to name
+};
+
+// SqCompareFunc for finding unsorted array of SqReentry by name or old_name
+int  sq_reentry_cmp_str__name(const char* str, SqReentry** reentry);
+int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry);
+
+/* --------------------------------------------------------
+	SqReentries: unsorted SqReentry pointer array.
+	             It used by migration, change list...etc
+
+typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
+ */
+
+// find and delete reentry, set NULL to index of deleted reentry.
+// return address of deleted reentry pointer.
+void**  sq_reentries_erase(void* reentry_ptr_array, const void* key, SqCompareFunc cmp_func);
+
+// find and replace 'reentry' by 'reentry_new'.
+// if 'reentry' not found and 'reentry_new' != NULL, It will append 'reentry_new'.
+// if 'reentry' not found and 'reentry_new' == NULL, It will NOT add 'reentry_new'.
+// return address of 'reentry' pointer.
+void**  sq_reentries_replace(void* reentry_ptr_array, const void* reentry, const void* reentry_new);
+
+// remove all NULL pointer in array
+void    sq_reentries_remove_null(void* reentry_ptr_array);
+
+// void sq_reentries_add(void* reentry_ptr_array, void* reentry);
+#define sq_reentries_add		sq_ptr_array_append
+
+// void sq_reentries_erase_name(void* reentry_ptr_array, const char* old_name)
+#define sq_reentries_erase_name(reentry_ptr_array, name)    \
+		sq_reentries_erase((void*)(reentry_ptr_array), name, (SqCompareFunc)sq_reentry_cmp_str__name)
+
+// void sq_reentries_erase_old_name(void* reentry_ptr_array, const char* old_name)
+#define sq_reentries_erase_old_name(reentry_ptr_array, old_name)    \
+		sq_reentries_erase((void*)(reentry_ptr_array), name, (SqCompareFunc)sq_reentry_cmp_str__old_name)
+
+// void** sq_reentries_find_name(void* reentry_ptr_array, const char* name)
+#define sq_reentries_find_name(reentry_ptr_array, name)    \
+		sq_ptr_array_find((void*)(reentry_ptr_array), name, (SqCompareFunc)sq_reentry_cmp_str__name)
+
+// void** sq_reentries_find_old_name(void* reentry_ptr_array, const char* old_name)
+#define sq_reentries_find_old_name(reentry_ptr_array, old_name)    \
+		sq_ptr_array_find((void*)(reentry_ptr_array), old_name, (SqCompareFunc)sq_reentry_cmp_str__old_name)
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -108,6 +182,7 @@ namespace Sq
 {
 // These are for directly use only. You can NOT derived it.
 typedef struct SqEntry          Entry;
+typedef struct SqReentry        Reentry;
 };  // namespace Sq
 
 #endif  // __cplusplus

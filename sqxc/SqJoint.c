@@ -57,7 +57,7 @@ void sq_joint_add(SqJoint* joint, SqTable* table, const char* as_table_name)
 static int  sq_joint_parse(void* instance, SqType* type, Sqxc* src)
 {
 	SqxcNested*  nested;
-	SqEntry*     table;
+	SqTable*     table;
 	Sqxc*        dest;
 	union {
 		char*    dot;
@@ -87,7 +87,7 @@ static int  sq_joint_parse(void* instance, SqType* type, Sqxc* src)
 
 	temp.dot = strchr(src->name, '.');
 	if (temp.dot == NULL || temp.dot == src->name)
-		return (src->code = SQCODE_FIELD_NOT_FOUND);
+		return (src->code = SQCODE_ENTRY_NOT_FOUND);
 	temp.len = temp.dot - src->name + 1;
 	if (dest->buf_size < temp.len) {
 		dest->buf_size = temp.len * 2;
@@ -96,8 +96,9 @@ static int  sq_joint_parse(void* instance, SqType* type, Sqxc* src)
 	}
 	strncpy(dest->buf, src->name, temp.len -1);
 
-	table = sq_type_find_entry(type, dest->buf, NULL);
+	table = (SqTable*)sq_type_find_entry(type, dest->buf, NULL);
 	if (table) {
+		table = *(SqTable**)table;
 		nested = sqxc_push_nested((Sqxc*)dest);
 		nested->data = (char*)instance + table->offset;
 		nested->data2 = table->type;

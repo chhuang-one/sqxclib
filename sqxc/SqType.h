@@ -15,7 +15,7 @@
 #ifndef SQ_TYPE_H
 #define SQ_TYPE_H
 
-/*	e.g. use C99 designated initializer to declare static unsorted SqType
+/*	e.g. use C99 designated initializer to declare static 'unsorted' entries in SqType.
 
 	typedef struct User     User;
 
@@ -25,14 +25,14 @@
 		char*  email;
 	};
 
-	// --- UserEntries is unsorted
+	// --- UserEntries is 'unsorted'
 	static const SqEntry  *UserEntries[] = {
 		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
 		&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
 		&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
 	};
 
-	// --- UserType use unsorted UserEntries
+	// --- UserType use 'unsorted' UserEntries
 	const SqType UserType = {
 		.size  = sizeof(User),
 		.parse = sq_type_object_parse,
@@ -44,13 +44,13 @@
 	};
  */
 
-/*	e.g. use C99 designated initializer to declare static sorted SqType
+/*	e.g. use C99 designated initializer to declare static 'sorted' entries in SqType.
 
 	// *** Note:
-	// * If UserEntries is sorted by SqEntry::name,
+	// * If UserEntries is 'sorted' by SqEntry::name,
 	// * you can set SQB_TYPE_SORTED in SqType::bit_field. See below:
 
-	// --- SortedEntries is sorted UserEntries (sorted by name)
+	// --- SortedEntries is 'sorted' UserEntries (sorted by name)
 	static const SqEntry  *SortedEntries[] = {
 		&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
 		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
@@ -95,7 +95,7 @@ typedef struct SqType        SqType;
 typedef struct SqEntry       SqEntry;
 
 typedef void (*SqTypeFunc)(void* instance, SqType* type);
-typedef int  (*SqTypeCxFunc)(void* instance, SqType* type, Sqxc* cx);
+typedef int  (*SqTypeXcFunc)(void* instance, SqType* type, Sqxc* cx);
 
 /* ----------------------------------------------------------------------------
 	initializer macro for entry->type
@@ -237,8 +237,8 @@ struct SqType
 	SqTypeFunc     init;        // initialize instance
 	SqTypeFunc     final;       // finalize instance
 
-	SqTypeCxFunc   parse;       // parse SQL/JSON data to instance
-	SqTypeCxFunc   write;       // write instance data tp SQL/JSON
+	SqTypeXcFunc   parse;       // parse SQL/JSON data to instance
+	SqTypeXcFunc   write;       // write instance data to SQL/JSON
 
 	// In C++, you must use typeid(TypeName).name() to assign "name"
 	// or use macro SQ_GET_TYPE_NAME()
@@ -275,33 +275,55 @@ void     sq_type_final_instance(SqType* type, void* instance, int is_pointer);
 // insert SqEntry to dynamic SqType.
 void     sq_type_insert_entry(SqType* type, const SqEntry* entry);
 
-/* remove SqEntry from dynamic SqType.
-   if cmp_func == NULL, it will compare key and entry->name.
-   calling the SqEntry's destroy function if "do_destroy" is 1.
-   return pointer of removed (or destroyed) SqEntry.
-   return NULL if key not found or type is static SqType.
- */
-SqEntry* sq_type_remove_entry(SqType* type, const void* key, SqCompareFunc cmp_func, int do_destroy);
-
-// SqEntry* sq_type_erase_entry(SqType* type, const void* key, SqCompareFunc cmp_func);
-#define sq_type_erase_entry(type, key, cmp_func)   \
-		sq_type_remove_entry(type, key, cmp_func, 1)
-
-// SqEntry* sq_type_steal_entry(SqType* type, const void* key, SqCompareFunc cmp_func);
-#define sq_type_steal_entry(type, key, cmp_func)   \
-		sq_type_remove_entry(type, key, cmp_func, 0)
-
 // find SqEntry in SqType->entry.
 // If cmp_func is NULL and SqType is dynamic type, it will sort entries by entry's name before finding.
-SqEntry* sq_type_find_entry(SqType* type, const void* key, SqCompareFunc cmp_func);
+void**   sq_type_find_entry(SqType* type, const void* key, SqCompareFunc cmp_func);
 
 // calculate size for dynamic SqType.
 // if "inner_entry" == NULL, it use all entries to calculate size.
 // otherwise it use "inner_entry" to calculate size.
 int      sq_type_decide_size(SqType* type, const SqEntry* inner_entry);
 
+// ----------------------------------------------------------------------------
+// C/C++ inline functions
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// C99 or C++ inline functions
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_type_erase_entry_addr(SqType* type, void** element_addr, int count)
+{
+	if (type->bit_field & SQB_TYPE_DYNAMIC)
+		sq_ptr_array_erase(&type->entry, (SqEntry**)element_addr - type->entry, count);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_type_steal_entry_addr(SqType* type, void** element_addr, int count)
+{
+	void* array = &type->entry;
+
+	if (type->bit_field & SQB_TYPE_DYNAMIC)
+		SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
+}
+
+#else  // __STDC_VERSION__ || __cplusplus
+
+// C functions
+void  sq_type_erase_entry_addr(SqType* type, void** element_addr, int count);
+void  sq_type_steal_entry_addr(SqType* type, void** element_addr, int count);
+
+#endif  // __STDC_VERSION__ || __cplusplus
+
 // --------------------------------------------------------
-// SqType-built-in.c - SqTypeFunc and SqTypeCxFunc functions
+// SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions
 
 int  sq_type_int_parse(void* instance, SqType* type, Sqxc* xcsrc);
 int  sq_type_int_write(void* instance, SqType* type, Sqxc* xcsrc);

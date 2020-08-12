@@ -17,9 +17,11 @@
 
 	SqEntry
 	|
-	+--- SqTable
-	|
-	`--- SqColumn
+	`--- SqReentry
+         |
+	     +--- SqTable
+	     |
+	     `--- SqColumn
  */
 
 #ifndef SQ_TABLE_H
@@ -36,7 +38,7 @@ extern "C" {
 
 typedef struct SqTable        SqTable;
 typedef struct SqColumn       SqColumn;
-typedef struct SqForeign      SqForeign;
+typedef struct SqForeign      SqForeign;    // used by SqColumn
 
 // --------------------------------------------------------
 // SqTable C functions
@@ -140,7 +142,8 @@ void      sq_table_drop_index(SqTable* table, const char* name);
 SqColumn* sq_table_add_foreign(SqTable* table, const char* name);
 void      sq_table_drop_foreign(SqTable* table, const char* name);
 
-// This used by migration. It may steal columns from table_src
+// This used by migration: accumulate changes from 'table_src'.
+// It may move/steal columns from 'table_src'.
 int       sq_table_accumulate(SqTable* table, SqTable* table_src);
 
 // unique('column_name')
@@ -153,8 +156,6 @@ int       sq_table_accumulate(SqTable* table, SqTable* table_src);
 // $table->dropUnique('users_email_unique'); 從「users」資料表移除唯一索引。
 // $table->dropIndex('state');
 // $table->dropForeign(['user_id']);
-
-int  sq_table_cmp_str__old_name(const char* str, SqTable** table);
 
 // --------------------------------------------------------
 // SqColumn C functions
@@ -181,9 +182,6 @@ void       sq_column_on_update(SqColumn* column, const char* act);
 void       sq_column_set_constraint(SqColumn* column, ...);
 void       sq_column_set_constraint_va(SqColumn* column, va_list arg_list);
 
-int  sq_column_cmp_str__old_name(const char* str, SqColumn** column);
-int  sq_column_cmp_ptr(SqColumn* column, SqColumn** column_addr);
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -209,17 +207,16 @@ inline size_t sq_offset(Type Store::*member) {
 
 struct SqTable
 {
-	SQ_ENTRY_MEMBERS;
+	SQ_REENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
-	SqType*      type;     // type information for this entry
+	SqType*      type;        // type information for this entry
 	char*        name;
 	size_t       offset;
 	unsigned int bit_field;
- */
-
-	// if table->name is NULL, it will drop table->old_name
-	// if table->name is NOT NULL, it will rename from table->old_name to table->name
 	char*        old_name;    // rename or drop
+ */
+	// if name is NULL, it will drop old_name
+	// if name is NOT NULL, it will rename from old_name to name
 
 	// foreigns store columns that having foreign reference.
 	SqPtrArray   foreigns;
@@ -319,12 +316,13 @@ struct SqForeign
 
 struct SqColumn
 {
-	SQ_ENTRY_MEMBERS;
+	SQ_REENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
-	SqType*      type;     // type information for this entry
+	SqType*      type;        // type information for this entry
 	char*        name;
 	size_t       offset;
 	unsigned int bit_field;
+	char*        old_name;    // rename or drop
  */
 
 	// size  : total number of digits is specified in size or length of string
@@ -340,7 +338,6 @@ struct SqColumn
 	char**       constraint;       // Null-terminated string array
 
 	char*        extra;            // raw SQL column property
-	char*        old_name;         // rename or drop
 
 	// if column->name is NULL, it will drop column->old_name
 	// if column->name is NOT NULL, it will rename from column->old_name to column->name

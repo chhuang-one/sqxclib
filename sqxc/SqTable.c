@@ -26,7 +26,7 @@ SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 	SqTable* table;
 
 	table = malloc(sizeof(SqTable));
-	// init SqEntry members
+	// create dynamic SqType
 	if (typeinfo == NULL)
 		typeinfo = sq_type_new(8, (SqDestroyFunc)sq_column_free);
 	sq_entry_init((SqEntry*)table, typeinfo);
@@ -40,14 +40,15 @@ SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 
 void  sq_table_free(SqTable* table)
 {
-	// clear SqEntry
-	sq_entry_final((SqEntry*)table);
-	free(table->old_name);
-	// free array
-	sq_ptr_array_final(&table->foreigns);
-	// free SqTable
-	if (table->bit_field & SQB_DYNAMIC)
+	if (table->bit_field & SQB_DYNAMIC) {
+		// clear SqEntry
+		sq_entry_final((SqEntry*)table);
+		free(table->old_name);
+		// free array
+		sq_ptr_array_final(&table->foreigns);
+		// free SqTable
 		free(table);
+	}
 }
 
 SqTable*  sq_table_copy_static(const SqTable* table_src)
@@ -59,6 +60,7 @@ SqTable*  sq_table_copy_static(const SqTable* table_src)
 	table->name = table_src->name ? strdup(table_src->name) : NULL;
 	table->offset = table_src->offset;
 	table->bit_field = table_src->bit_field | SQB_DYNAMIC;
+	table->old_name = table_src->old_name ? strdup(table_src->old_name) : NULL;
 	return table;
 }
 
@@ -69,8 +71,23 @@ bool  sq_table_has_column(SqTable* table, const char* column_name)
 	return false;
 }
 
+static void sq_table_free_column(SqTable* table, SqColumn* column)
+{
+	void**    addr;
+
+	// if column has foreign reference, remove it's pointer from table->foreigns.
+	if (column->foreign && table->foreigns.data) {
+		addr = sq_reentries_replace(&table->foreigns, column, NULL);
+		if (addr)
+			sq_ptr_array_steal(&table->foreigns, addr - table->foreigns.data, 1);
+	}
+	// free column
+	sq_column_free(column);
+}
+
 void  sq_table_drop_column(SqTable* table, const char* column_name)
 {
+	SqType* table_type = table->type;
 	SqColumn*  column;
 
 	if (table->bit_field & SQB_CHANGE) {
@@ -78,14 +95,20 @@ void  sq_table_drop_column(SqTable* table, const char* column_name)
 		column = calloc(1, sizeof(SqColumn));
 		column->old_name = strdup(column_name);
 		column->bit_field = SQB_DYNAMIC;
-		sq_ptr_array_append(&table->type->entry, column);
+		sq_ptr_array_append(&table_type->entry, column);
 		return;
 	}
-	sq_type_erase_entry(table->type, column_name, NULL);
+
+	column = (SqColumn*)sq_type_find_entry(table_type, column_name, NULL);
+	if (column) {
+		sq_table_free_column(table, *(SqColumn**)column);
+		sq_type_steal_entry_addr(table_type, (void**)column, 1);
+	}
 }
 
 void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
 {
+	SqType* table_type = table->type;
 	SqColumn*  column;
 
 	if (table->bit_field & SQB_CHANGE) {
@@ -94,14 +117,16 @@ void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
 		column->old_name = strdup(from);
 		column->name = strdup(to);
 		column->bit_field = SQB_DYNAMIC;
-		sq_ptr_array_append(&table->type->entry, column);
+		sq_ptr_array_append(&table_type->entry, column);
 		return;
 	}
 
-	column = (SqColumn*)sq_type_find_entry(table->type, from, NULL);
+	column = (SqColumn*)sq_type_find_entry(table_type, from, NULL);
 	if (column) {
+		column = *(SqColumn**)column;
 		free(column->name);
 		column->name = strdup(to);
+		table_type->bit_field &= ~SQB_TYPE_SORTED;
 	}
 }
 
@@ -222,9 +247,10 @@ SqColumn* sq_table_add_foreign(SqTable* table, const char* name)
 	return column;
 }
 
-void      sq_table_drop_foreign(SqTable* table, const char* name)
+void   sq_table_drop_foreign(SqTable* table, const char* name)
 {
 	SqColumn* column;
+	void**    addr;
 
 	if (table->bit_field & SQB_CHANGE) {
 		// migration
@@ -233,58 +259,25 @@ void      sq_table_drop_foreign(SqTable* table, const char* name)
 		column->bit_field = SQB_DYNAMIC | SQB_FOREIGN;
 		return;
 	}
-	sq_type_erase_entry(table->type, name, NULL);
-}
 
-static int sq_table_find_or_replace(SqTable* table, const char* column_name, SqColumn* column_to_replace)
-{
-	int       index;
-	void**    addr;
-	SqType*   type = table->type;
-	SqColumn* column;
-
-	for (index = 0;  index < type->n_entry;  index++) {
-		column = (SqColumn*)type->entry[index];
-		// skip "dropped record" or "renamed record"
-		if (column->old_name)
-			continue;
-		// erase if column->name == column_name
-		if (strcasecmp(column->name, column_name) == 0) {
-			if (column_to_replace) {
-				// drop foreign
-				if (column->foreign && table->foreigns.data) {
-					addr = sq_ptr_array_find(&table->foreigns, column,
-							(SqCompareFunc)sq_column_cmp_ptr);
-					sq_ptr_array_steal(&table->foreigns,
-							addr - table->foreigns.data, 1);
-				}
-				sq_ptr_array_erase(sq_type_get_array(type), index, 1);
-			}
-			break;
-		}
-	}
-	// insert column to table
-	if (column_to_replace)
-		sq_type_insert_entry(type, (SqEntry*)column_to_replace);
-
-	if (index < type->n_entry)
-		return index;
-	else
-		return -1;
+	addr = sq_type_find_entry(table->type, name, NULL);
+	if (addr)
+		sq_type_erase_entry_addr(table->type, addr, 1);
 }
 
 // This used by migration. It will steal columns from table_src
 int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 {	//       *table,  *table_src
-	SqColumn *column, *column_src, *column_new;
+	SqColumn *column, *column_src;
 	SqType   *type,   *type_src;
-	int       index,   index_src;
+	int                index_src;
+	void    **addr;
 
 	type = table->type;
 	type_src = table_src->type;
 
 	if ((table->bit_field & SQB_DYNAMIC) == 0 ||
-	    (type->bit_field  & SQB_DYNAMIC) == 0)
+	    (type->bit_field  & SQB_TYPE_DYNAMIC) == 0)
 	{
 		return SQCODE_STATIC_DATA;
 	}
@@ -299,18 +292,28 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 		column_src = (SqColumn*)type_src->entry[index_src];
 		if (column_src->bit_field & SQB_CHANGE) {
 			// === ALTER COLUMN ===
-			// replace if column->name == column_src->name
-			sq_table_find_or_replace(table, column_src->name, column_src);
-			// steal column_src if type_src is not static.
-			if (type_src->bit_field & SQB_DYNAMIC)
+			// free column if column->name == column_src->name
+			addr = sq_reentries_find_name(&type->entry, column_src->name);
+			if (addr) {
+				sq_table_free_column(table, *addr);
+				*addr = NULL;
+			}
+			sq_reentries_add(&type->entry, column_src);
+			// steal 'column_src' if 'type_src' is not static.
+			if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 				type_src->entry[index_src] = NULL;
 		}
 		else if (column_src->name == NULL) {
 			// === DROP COLUMN / CONSTRAINT / KEY ===
-			// replace if column->name == column_src->old_name
-			sq_table_find_or_replace(table, column_src->old_name, column_src);
-			// steal column_src if type_src is not static.
-			if (type_src->bit_field & SQB_DYNAMIC)
+			// free column if column->name == column_src->old_name
+			addr = sq_reentries_find_name(&type->entry, column_src->old_name);
+			if (addr) {
+				sq_table_free_column(table, *addr);
+				*addr = NULL;
+			}
+			sq_reentries_add(&type->entry, column_src);
+			// steal 'column_src' if 'type_src' is not static.
+			if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 				type_src->entry[index_src] = NULL;
 			// "dropped record" doesn't need to check foreign
 			continue;
@@ -318,34 +321,34 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 		else if (column_src->old_name) {
 			// === RENAME COLUMN ===
 			// find column if column->name == column_src->old_name
-			index = sq_table_find_or_replace(table, column_src->old_name, NULL);
+			addr = sq_reentries_find_name(&type->entry, column_src->old_name);
 			// rename existing column->name to column_src->name
-			if (index != -1) {
-				column = (SqColumn*)type->entry[index];
+			if (addr) {
+				column = *(SqColumn**)addr;
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic column to replace static one
-					column_new = sq_column_copy_static(column);
-					type->entry[index] = (SqEntry*)column_new;
-					column = column_new;
+					sq_table_free_column(table, column);
+					column = sq_column_copy_static(column);
+					*addr  = column;
 				}
 				free(column->name);
 				column->name = strdup(column_src->name);
 			}
-			// steal column_src if type_src is not static.
-			if (type_src->bit_field & SQB_DYNAMIC)
+			// steal 'column_src' if 'type_src' is not static.
+			if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 				type_src->entry[index_src] = NULL;
-			// insert column_src to table
-			sq_type_insert_entry(type, (SqEntry*)column_src);
+			// append column_src to table
+			sq_reentries_add(&type->entry, column_src);
 			// "renamed record" doesn't need to check foreign
 			continue;
 		}
 		else {
 			// === ADD COLUMN / CONSTRAINT / KEY ===
-			// steal column_src if type_src is not static.
-			if (type_src->bit_field & SQB_DYNAMIC)
+			// steal 'column_src' if 'type_src' is not static.
+			if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 				type_src->entry[index_src] = NULL;
-			// insert column_src to table
-			sq_type_insert_entry(type, (SqEntry*)column_src);
+			// append 'column_src' to table
+			sq_reentries_add(&type->entry, column_src);
 		}
 
 		// ADD or ALTER COLUMN that having foreign reference
@@ -357,20 +360,12 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 	}
 
 	// remove NULL column (it was stolen) if table_src is not static.
-	if (type_src->bit_field & SQB_DYNAMIC)
-		sq_ptr_array_remove_null(sq_type_get_array(type_src));
+//	if (type_src->bit_field & SQB_TYPE_DYNAMIC)
+//		sq_reentries_remove_null(&type_src->entry);
+	// remove NULL record in table
+	sq_reentries_remove_null(&type->entry);
+	type->bit_field &= ~SQB_TYPE_SORTED;
 	return SQCODE_OK;
-}
-
-int  sq_table_cmp_str__old_name(const char* str, SqTable** table)
-{
-	const char* name1;
-	const char* name2;
-
-	name1 = (str) ? str : "";
-	name2 = (*table) ? (*table)->old_name : "";
-	name2 = name2 ? name2 : "";
-	return strcasecmp(name1, name2);
 }
 
 // ----------------------------------------------------------------------------
@@ -562,19 +557,4 @@ void  sq_column_set_constraint_va(SqColumn* column, va_list arg_list)
 		}
 		column->constraint[index++] = name ? strdup(name) : NULL;
 	} while (name);
-}
-
-int  sq_column_cmp_str__old_name(const char* str, SqColumn** column)
-{
-	const char* name1;
-	const char* name2;
-
-	name1 = (str) ? str : "";
-	name2 = (*column) ? (*column)->old_name : "";
-	return strcasecmp(name1, name2);
-}
-
-int  sq_column_cmp_ptr(SqColumn* column, SqColumn** column_addr)
-{
-	return column - *column_addr;
 }

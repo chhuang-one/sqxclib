@@ -149,43 +149,9 @@ void  sq_type_insert_entry(SqType* entrytype, const SqEntry* entry)
 	}
 }
 
-SqEntry*  sq_type_remove_entry(SqType* type, const void* key, SqCompareFunc cmp_func, int do_destroy)
-{
-	SqPtrArray* array;
-	SqEntry*    entry;
-	void**      addr;
-
-	if ((type->bit_field & SQB_DYNAMIC) == 0)
-		return NULL;
-	if (cmp_func == NULL)
-		cmp_func = (SqCompareFunc) sq_entry_cmp_str__name;
-
-	if (type->bit_field & SQB_TYPE_SORTED && cmp_func == (SqCompareFunc)sq_entry_cmp_str__name)
-		addr = sq_ptr_array_search(sq_type_get_array(type), key, cmp_func);
-	else
-		addr = sq_ptr_array_find(sq_type_get_array(type), key, cmp_func);
-
-	if (addr == NULL)
-		return NULL;
-	else {
-		entry = *addr;
-		array = sq_type_get_array(type);
-		if (do_destroy == 1) {
-			SqDestroyFunc  destroy_func;
-			destroy_func = sq_ptr_array_destroy_func(array);
-			if (destroy_func)
-				destroy_func(entry);
-		}
-		SQ_PTR_ARRAY_STEAL(array, addr - array->data, 1);
-//		sq_type_decide_size(type, NULL);
-		return entry;
-	}
-}
-
-SqEntry* sq_type_find_entry(SqType* entrytype, const void* key, SqCompareFunc cmp_func)
+void** sq_type_find_entry(SqType* entrytype, const void* key, SqCompareFunc cmp_func)
 {
 	SqPtrArray* array = (SqPtrArray*) &entrytype->entry;
-	void**      addr;
 
 	if (entrytype->n_entry == 0)
 		return NULL;
@@ -201,14 +167,9 @@ SqEntry* sq_type_find_entry(SqType* entrytype, const void* key, SqCompareFunc cm
 	if (cmp_func == NULL)
 		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
 	if (entrytype->bit_field & SQB_TYPE_SORTED && cmp_func == (SqCompareFunc)sq_entry_cmp_str__name)
-		addr = sq_ptr_array_search(array, key, cmp_func);
+		return sq_ptr_array_search(array, key, cmp_func);
 	else
-		addr = sq_ptr_array_find(array, key, cmp_func);
-
-	if (addr == NULL)
-		return NULL;
-	else
-		return *(SqEntry**)addr;
+		return sq_ptr_array_find(array, key, cmp_func);
 }
 
 int   sq_type_decide_size(SqType* entrytype, const SqEntry* inner_entry)
@@ -251,3 +212,26 @@ int   sq_type_decide_size(SqType* entrytype, const SqEntry* inner_entry)
 	}
 	return entrytype->size;
 }
+
+// ----------------------------------------------------------------------------
+// If compiler doesn't support C99 inline functions
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions in SqArray.h
+#else
+
+void  sq_type_erase_entry_addr(SqType* type, void** element_addr, int count)
+{
+	if (type->bit_field & SQB_TYPE_DYNAMIC)
+		sq_ptr_array_erase(&type->entry, (SqEntry**)element_addr - type->entry, count);
+}
+
+void  sq_type_steal_entry_addr(SqType* type, void** element_addr, int count)
+{
+	void* array = &type->entry;
+
+	if (type->bit_field & SQB_TYPE_DYNAMIC)
+		SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
+}
+
+#endif  // __STDC_VERSION__

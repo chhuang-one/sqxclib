@@ -58,18 +58,16 @@ void  sq_entry_final(SqEntry* entry)
 	}
 }
 
-// ----------------------------------------------------------------------------
-// SqCompareFunc
+// ------------------------------------
+// SqEntry SqCompareFunc
 
 // used by find()
 int  sq_entry_cmp_str__name(const char* str, SqEntry** entry)
 {
-	const char* name1;
-	const char* name2;
+	const char* name;
 
-	name1 = (str) ? str : "";
-	name2 = (*entry) ? (*entry)->name : "";
-	return strcasecmp(name1, name2);
+	name = (*entry) ? (*entry)->name : "";
+	return strcasecmp(str, name);
 }
 
 // used by sort()
@@ -85,12 +83,10 @@ int  sq_entry_cmp_name(SqEntry** entry1, SqEntry** entry2)
 
 int  sq_entry_cmp_str__type_name(const char* str,  SqEntry** entry)
 {
-	const char* name1;
-	const char* name2;
+	const char* name;
 
-	name1 = (str) ? str : "";
-	name2 = (*entry) ? (*entry)->type->name : "";
-	return strcmp(name1, name2);
+	name = (*entry) ? (*entry)->type->name : "";
+	return strcmp(str, name);
 }
 
 int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2)
@@ -101,4 +97,73 @@ int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2)
 	name1 = (*entry1) ? (*entry1)->type->name : "";
 	name2 = (*entry2) ? (*entry2)->type->name : "";
 	return strcmp(name1, name2);
+}
+
+// ----------------------------------------------------------------------------
+// SqReentry functions for SqPtrArray
+
+void**  sq_reentries_erase(void* reentry_ptr_array, const void* key, SqCompareFunc cmp_func)
+{
+	SqDestroyFunc destroy;
+	void **addr;
+
+	addr = sq_ptr_array_find(reentry_ptr_array, key, cmp_func);
+	if (addr) {
+		destroy = sq_ptr_array_destroy_func(reentry_ptr_array);
+		destroy(*addr);
+		*addr = NULL;
+		return addr;
+	}
+	return NULL;
+}
+
+void**  sq_reentries_replace(void* reentry_ptr_array, const void* reentry, const void* reentry_new)
+{
+	// find reentry in array
+	sq_ptr_array_foreach_addr(reentry_ptr_array, addr) {
+		if (*addr == reentry) {
+			*addr  = (void*)reentry_new;
+			return addr;
+		}
+	}
+	// append reentry_new if not found
+	if (reentry_new)
+		sq_ptr_array_append(reentry_ptr_array, reentry_new);
+	return NULL;
+}
+
+void  sq_reentries_remove_null(void* reentry_ptr_array)
+{
+	SqPtrArray* array = (SqPtrArray*)reentry_ptr_array;
+	int  index_src, index_dest;
+
+	// find first NULL pointer
+	for (index_dest = 0;  index_dest < array->length;  index_dest++) {
+		if (array->data[index_dest] == NULL)
+			break;
+	}
+	// move non-NULL pointer to overwrite NULL pointer
+	for (index_src = index_dest +1;  index_src < array->length;  index_src++) {
+		if (array->data[index_src])
+			array->data[index_dest++] = array->data[index_src];
+	}
+
+	array->length = index_dest;
+}
+
+// ------------------------------------
+// SqReentry SqCompareFunc
+
+int  sq_reentry_cmp_str__name(const char* str, SqReentry** reentry)
+{
+	if (*reentry == NULL || reentry[0]->old_name)
+		return -1;
+	return strcasecmp(str, (*reentry)->name);
+}
+
+int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry)
+{
+	if (*reentry == NULL || reentry[0]->old_name == NULL)
+		return -1;
+	return strcasecmp(str, (*reentry)->old_name);
 }

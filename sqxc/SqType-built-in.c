@@ -321,11 +321,13 @@ int  sq_type_object_parse(void* instance, SqType* entrytype, Sqxc* src)
 	 */
 
 	// parse entries in type
-	entry = sq_type_find_entry(entrytype, src->name, NULL);
-	if (entry == NULL)
-		return (src->code = SQCODE_FIELD_NOT_FOUND);
-	entrytype = entry->type;
-	return entrytype->parse((char*)instance + entry->offset, entrytype, src);
+	entry = (SqEntry*)sq_type_find_entry(entrytype, src->name, NULL);
+	if (entry) {
+		entry = *(SqEntry**)entry;
+		entrytype = entry->type;
+		return entrytype->parse((char*)instance + entry->offset, entrytype, src);
+	}
+	return (src->code = SQCODE_ENTRY_NOT_FOUND);
 }
 
 int  sq_type_object_write(void* instance, SqType* entrytype, Sqxc* src)

@@ -64,7 +64,7 @@ void test_schema()
 	Sq::Schema* schema;
 	Sq::Table*  table;
 
-	schema = new Sq::Schema("uGetSchema");
+	schema = sq_schema_new("uGetSchema");
 
 //	table = schema->create("companies", NULL);
 	table = schema->create<Company>("companies");
