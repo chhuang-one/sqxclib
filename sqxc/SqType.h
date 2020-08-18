@@ -266,7 +266,7 @@ SqType*  sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 void     sq_type_free(SqType* type);
 
 // create dynamic SqType and copy data from static SqType
-SqType*  sq_type_copy_static(const SqType* type);
+SqType*  sq_type_copy_static(const SqType* type, SqDestroyFunc entry_free_func);
 
 // initialize/finalize instance
 void*    sq_type_init_instance(SqType* type, void* instance, int is_pointer);

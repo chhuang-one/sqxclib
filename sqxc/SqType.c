@@ -55,17 +55,16 @@ void  sq_type_free(SqType* entrytype)
 	}
 }
 
-SqType*  sq_type_copy_static(const SqType* type_src)
+SqType*  sq_type_copy_static(const SqType* type_src, SqDestroyFunc entry_free_func)
 {
 	SqType* type;
-	SqDestroyFunc func = (SqDestroyFunc)sq_entry_free;
 
 //	if (type_src->bit_field & SQB_TYPE_DYNAMIC)
-//		func = sq_ptr_array_destroy_func(sq_type_get_array(type_src));
+//		entry_free_func = sq_ptr_array_destroy_func(sq_type_get_array(type_src));
 	type = malloc(sizeof(SqType));
 	memcpy(type, type_src, sizeof(SqType));
 	type->bit_field |= SQB_TYPE_DYNAMIC;
-	type->entry = sq_ptr_array_new(type_src->n_entry, func);
+	type->entry = sq_ptr_array_new(type_src->n_entry, entry_free_func);
 	if (type_src->n_entry > 0)
 		memcpy(type->entry, type_src->entry, sizeof(void*) * type_src->n_entry);
 	if (type_src->name)

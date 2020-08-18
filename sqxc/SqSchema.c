@@ -34,7 +34,7 @@ SqSchema*  sq_schema_new(const char* name)
 	SqType* typeinfo;
 
 	schema = malloc(sizeof(SqSchema));
-	typeinfo = sq_type_new(8, (SqDestroyFunc)sq_column_free);
+	typeinfo = sq_type_new(8, (SqDestroyFunc)sq_table_free);
 
 	sq_entry_init((SqEntry*)schema, typeinfo);
 	schema->name = name ? strdup(name) : NULL;
@@ -215,16 +215,16 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 #endif   // SQ_SUPPORT_STATIC_TABLE
 				if (sq_table_accumulate(table, table_src) != SQCODE_OK)
 					return SQCODE_STATIC_DATA;
+				// It doesn't need to steal 'table_src' from 'schema_src'
+				continue;
 			}
 			else {
-				// old table not found
+				// If original table not found, add it.
 				sq_reentries_add(&type->entry, table_src);
 				// table_types
 				sq_ptr_array_append(&schema->table_types, table_src);
 				schema->table_types_sorted = false;
 			}
-			// "altered record" doesn't need to steal 'table_src' from 'schema_src'
-			continue;
 		}
 		else if (table_src->name == NULL) {
 			// === DROP TABLE ===
@@ -261,6 +261,9 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			// === ADD TABLE ===
 			// insert 'table_src' to schema
 			sq_reentries_add(&type->entry, table_src);
+			// table_types
+			sq_ptr_array_append(&schema->table_types, table_src);
+			schema->table_types_sorted = false;
 		}
 
 		// steal 'table_src' if 'type_src' is not static.

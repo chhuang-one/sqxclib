@@ -85,10 +85,9 @@ static void  sq_table_append_column(SqTable* table, SqColumn* column)
 	SqType* table_type = table->type;
 
 	if ((table_type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
-		table_type  = sq_type_copy_static(table_type);
+		table_type  = sq_type_copy_static(table_type, (SqDestroyFunc)sq_column_free);
 		table->type = table_type;
 	}
-	table->bit_field |= SQB_CHANGE;
 
 	sq_type_insert_entry(table_type, (SqEntry*)column);
 //	sq_ptr_array_append(&table_type->entry, column);
@@ -117,6 +116,7 @@ void  sq_table_drop_column(SqTable* table, const char* column_name)
 	column->old_name = strdup(column_name);
 
 	sq_table_append_column(table, column);
+	table->bit_field |= SQB_CHANGE;
 
 #if 0
 	column = (SqColumn*)sq_type_find_entry(table->type, column_name, NULL);
@@ -137,6 +137,8 @@ void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
 	column->bit_field = SQB_DYNAMIC;
 
 	sq_table_append_column(table, column);
+	table->bit_field |= SQB_CHANGE;
+
 #if 0
 	column = (SqColumn*)sq_type_find_entry(table->type, from, NULL);
 	if (column) {
@@ -304,7 +306,7 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 		return SQCODE_STATIC_DATA;
 #endif
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
-		table->type = sq_type_copy_static(table->type);
+		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
 
 	type = table->type;
 	type_src = table_src->type;
@@ -479,21 +481,28 @@ SqColumn* sq_column_copy_static(const SqColumn* column_src)
 	column->extra         = column_src->extra ? strdup(column_src->extra) : NULL;
 	column->old_name      = column_src->old_name ? strdup(column_src->old_name) : NULL;
 
-	if (column_src->foreign)
-		column->foreign = sq_foreign_copy(column_src->foreign);
-	else
-		column->foreign = NULL;
+	column->foreign = NULL;
+	if (column_src->foreign) {
+		if (column_src->old_name)
+			column->bit_field |= SQB_FOREIGN;  // DROP or RENAME
+		else
+			column->foreign = sq_foreign_copy(column_src->foreign);
+	}
 
 	column->constraint = NULL;
 	if (column_src->constraint) {
-		for (index = 0;  column_src->constraint[index];  index++)
-			;
-		if (index > 0) {
-			length = index + 1;
-			column->constraint = sq_constraint_alloc(length);
-			column->constraint[index] = NULL;
-			for (index = 0;  index < length;  index++)
-				column->constraint[index] = strdup(column_src->constraint[index]);
+		if (column_src->old_name)
+			column->bit_field |= SQB_CONSTRAINT;  // DROP or RENAME
+		else {
+			for (index = 0;  column_src->constraint[index];  index++)
+				;
+			if (index > 0) {
+				length = index + 1;
+				column->constraint = sq_constraint_alloc(length);
+				column->constraint[index] = NULL;
+				for (index = 0;  index < length;  index++)
+					column->constraint[index] = strdup(column_src->constraint[index]);
+			}
 		}
 	}
 	return column;
