@@ -46,8 +46,10 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 SqTable*  sq_table_new(const char* name, const SqType* type_info);
 void      sq_table_free(SqTable* table_pub);
 
+#ifdef SQ_SUPPORT_STATIC_TABLE
 // create new SqTable and copy data from static one.
 SqTable*  sq_table_copy_static(const SqTable* table_src);
+#endif   // SQ_SUPPORT_STATIC_TABLE
 
 bool      sq_table_has_column(SqTable* table, const char* column_name);
 void      sq_table_drop_column(SqTable* table, const char* column_name);
@@ -198,11 +200,11 @@ inline size_t sq_offset(Type Store::*member) {
 #endif  // __cplusplus
 
 /* ----------------------------------------------------------------------------
-	SqTable
+	SqTable: SQL Table
 
-	Migration - Alter Column : table->bit_field & SQB_CHANGED
-	Migration - Drop   : table->name = NULL
-	Migration - Rename : table->name = new_name
+	Migration - Alter Table : table->bit_field & SQB_CHANGED
+	Migration - Drop   : table->name = NULL, table->old_name = column_name
+	Migration - Rename : table->name = new_name, table->old_name = old_name
 */
 
 struct SqTable
@@ -306,13 +308,12 @@ struct SqForeign
 };
 
 /* ----------------------------------------------------------------------------
-	SqColumn
+	SqColumn: SQL Column
 
 	Migration - Alter Type : column->bit_field & SQB_CHANGED
 	Migration - Drop   : column->name = NULL, column->old_name = column_name
 	Migration - Rename : column->name = new_name, column->old_name = old_name
 */
-
 
 struct SqColumn
 {

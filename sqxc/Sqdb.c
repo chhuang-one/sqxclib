@@ -147,25 +147,38 @@ static void constraint_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer);
 static void foreign_ref_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer);
 
 
-void sqdb_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
+void sqdb_schema_to_sql(Sqdb* db, SqSchema* schema, SqBuffer* buffer)
 {
-	if (table->bit_field & SQB_CHANGE) {
-		// ALTER TABLE
-		alter_table_to_sql(db, table, buffer);
-	}
-	else if (table->name == NULL) {
-		// DROP TABLE
-		drop_table_to_sql(db, table, buffer);
-	}
-	else if (table->old_name) {
-		// RENAME TABLE
-		rename_table_to_sql(db, table, buffer);
-	}
-	else {
-		// CREATE TABLE
-		create_table_to_sql(db, table, buffer);
+	SqType*  schema_type = schema->type;
+	SqTable* table;
+
+	for (int index = 0;  index < schema_type->n_entry;  index++) {
+		table = (SqTable*)schema_type->entry[index];
+
+		if (index > 0)
+			sq_buffer_write_c(buffer, ' ');
+
+		if (table->bit_field & SQB_CHANGE) {
+			// ALTER TABLE
+			alter_table_to_sql(db, table, buffer);
+		}
+		else if (table->name == NULL) {
+			// DROP TABLE
+			drop_table_to_sql(db, table, buffer);
+		}
+		else if (table->old_name) {
+			// RENAME TABLE
+			rename_table_to_sql(db, table, buffer);
+		}
+		else {
+			// CREATE TABLE
+			create_table_to_sql(db, table, buffer);
+		}
 	}
 }
+
+// ------------------------------------
+// SqTable
 
 
 static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
@@ -253,7 +266,7 @@ static void drop_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 {
 	// DROP TABLE "name";
 	sq_buffer_write(buffer, "DROP TABLE \"");
-	strcpy(sq_buffer_alloc(buffer, strlen(table->name) +2), table->name);
+	strcpy(sq_buffer_alloc(buffer, strlen(table->old_name) +2), table->old_name);
 	buffer->buf[buffer->writed -2] = '"';
 	buffer->buf[buffer->writed -1] = ';';
 }
@@ -266,8 +279,8 @@ static void rename_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 //	sq_buffer_write_c(buffer, '"');
 	buffer->buf[buffer->writed++] = '"';
 
-	sq_buffer_write(buffer, "RENAME \"");
-	strcpy(sq_buffer_alloc(buffer, strlen(table->old_name) +2), table->old_name);
+	sq_buffer_write(buffer, " RENAME \"");
+	strcpy(sq_buffer_alloc(buffer, strlen(table->name) +2), table->name);
 	buffer->buf[buffer->writed -2] = '"';
 	buffer->buf[buffer->writed -1] = ';';
 }
@@ -376,26 +389,6 @@ static bool add_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuff
 	return true;
 }
 
-static bool rename_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer)
-{
-	int  len;
-
-	if (db->info->column.sqlite) {
-		// SQLite doesn't support rename column
-		return false;
-	}
-	sq_buffer_write(buffer, "ALTER TABLE \"");
-	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" ");
-
-	sq_buffer_write(buffer, "RENAME COLUMN ");
-	len = snprintf(NULL, 0, "\"%s\" TO \"%s\"",
-	               column->old_name, column->name);
-	sprintf(sq_buffer_alloc(buffer, len), "\"%s\" TO \"%s\"",
-	        column->old_name, column->name);
-	return true;
-}
-
 static bool alter_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer)
 {
 	if (db->info->column.sqlite) {
@@ -419,6 +412,26 @@ static bool alter_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBu
 //		sq_buffer_write(buffer, "MODIFY ");
 		column_type_to_sql(db, column, buffer);
 	}
+	return true;
+}
+
+static bool rename_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer)
+{
+	int  len;
+
+	if (db->info->column.sqlite) {
+		// SQLite doesn't support rename column
+		return false;
+	}
+	sq_buffer_write(buffer, "ALTER TABLE \"");
+	sq_buffer_write(buffer, table->name);
+	sq_buffer_write(buffer, "\" ");
+
+	sq_buffer_write(buffer, "RENAME COLUMN ");
+	len = snprintf(NULL, 0, "\"%s\" TO \"%s\"",
+	               column->old_name, column->name);
+	sprintf(sq_buffer_alloc(buffer, len), "\"%s\" TO \"%s\"",
+	        column->old_name, column->name);
 	return true;
 }
 
@@ -453,11 +466,10 @@ static bool drop_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuf
 	}
 
 	sq_buffer_write(buffer, " \"");
-	sq_buffer_write(buffer, column->name ? column->name : column->old_name );
+	sq_buffer_write(buffer, column->old_name);
 	sq_buffer_write_c(buffer, '"');
 	return true;
 }
-
 
 static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
 {

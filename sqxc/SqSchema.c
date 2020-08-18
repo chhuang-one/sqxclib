@@ -77,9 +77,12 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 		table->type->name = sq_name2type(table->name);
 #endif
 
-	sq_type_insert_entry(schema->type, (SqEntry*)table);
+	// add table in table_types
 	sq_ptr_array_append(&schema->table_types, table);
 	schema->table_types_sorted = false;
+	// add table in schema->type
+	sq_type_insert_entry(schema->type, (SqEntry*)table);
+	schema->bit_field |= SQB_CHANGE;
 	return table;
 }
 
@@ -89,47 +92,49 @@ SqTable* sq_schema_alter(SqSchema* schema, const char* name, const SqType* type_
 
 	table = sq_table_new(name, type_info);
 	table->bit_field |= SQB_CHANGE;
+
 	sq_type_insert_entry(schema->type, (SqEntry*)table);
+	schema->bit_field |= SQB_CHANGE;
 	return table;
 }
 
 void sq_schema_drop(SqSchema* schema, const char* name)
 {
 	SqTable* table;
-	SqType*  schema_type = schema->type;
-	void**   addr;
 
-	if (schema->bit_field & SQB_CHANGE) {
-		table = calloc(1, sizeof(SqTable));
-		table->old_name = strdup(name);
-		table->name = NULL;
-		table->bit_field = SQB_DYNAMIC;
-		sq_type_insert_entry(schema_type, (SqEntry*)table);
-		return;
-	}
+	table = calloc(1, sizeof(SqTable));
+	table->old_name = strdup(name);
+	table->name = NULL;
+	table->bit_field = SQB_DYNAMIC;
 
-	addr = sq_type_find_entry(schema_type, name, NULL);
-	if (addr)
-		sq_type_erase_entry_addr(schema_type, addr, 1);
-	// table_types
-	addr = sq_ptr_array_find(&schema->table_types, name, (SqCompareFunc)sq_entry_cmp_str__name);
+	sq_type_insert_entry(schema->type, (SqEntry*)table);
+	schema->bit_field |= SQB_CHANGE;
+
+#if 0
+	// remove table in table_types
+	void** addr = sq_ptr_array_find(&schema->table_types, name, (SqCompareFunc)sq_entry_cmp_str__type_name);
 	if (addr)
 		sq_ptr_array_erase_addr(&schema->table_types, addr, 1);
+	// remove table in schema->type
+	addr = sq_type_find_entry(schema->type, name, NULL);
+	if (addr)
+		sq_type_erase_entry_addr(schema->type, addr, 1);
+#endif
 }
 
 void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 {
 	SqTable* table;
 
-	if (schema->bit_field & SQB_CHANGE) {
-		table = calloc(1, sizeof(SqTable));
-		table->old_name = strdup(from);
-		table->name = strdup(to);
-		table->bit_field = SQB_DYNAMIC;
-		sq_type_insert_entry(schema->type, (SqEntry*)table);
-		return;
-	}
+	table = calloc(1, sizeof(SqTable));
+	table->old_name = strdup(from);
+	table->name = strdup(to);
+	table->bit_field = SQB_DYNAMIC;
 
+	sq_type_insert_entry(schema->type, (SqEntry*)table);
+	schema->bit_field |= SQB_CHANGE;
+
+#if 0
 //	table = (SqTable*)sq_type_find_entry(schema->type, from,
 //	                                     (SqCompareFunc)sq_entry_cmp_str__name);
 	table = (SqTable*)sq_type_find_entry(schema->type, from, NULL);
@@ -138,13 +143,21 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 		free(table->name);
 		table->name = strdup(to);
 	}
+#endif
 }
 
 SqTable* sq_schema_find(SqSchema* schema, const char* name)
 {
+	SqCompareFunc cmp_func;
 	void** addr;
 
-	addr = sq_type_find_entry(schema->type, name, NULL);
+	// if cmp_func == NULL, sq_type_find_entry() will sort entry before finding.
+	if (schema->bit_field & SQB_CHANGE)
+		cmp_func = (SqCompareFunc)sq_reentry_cmp_str__name;
+	else
+		cmp_func = NULL;
+
+	addr = sq_type_find_entry(schema->type, name, cmp_func);
 	if (addr)
 		return *addr;
 	else
@@ -189,6 +202,7 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			addr = sq_reentries_find_name(&type->entry, table_src->name);
 			if (addr) {
 				table = *(SqTable**)addr;
+#ifdef SQ_SUPPORT_STATIC_TABLE
 				if ((table->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic table to replace static one
 					table = sq_table_copy_static(table);
@@ -198,6 +212,7 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 					// replace table pointer in schema->type->entry
 					*addr = table;
 				}
+#endif   // SQ_SUPPORT_STATIC_TABLE
 				if (sq_table_accumulate(table, table_src) != SQCODE_OK)
 					return SQCODE_STATIC_DATA;
 			}
@@ -225,6 +240,7 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			if (addr) {
 				// rename existing table->name to table_src->name
 				table = *(SqTable**)addr;
+#ifdef SQ_SUPPORT_STATIC_TABLE
 				if ((table->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic table to replace static table
 					table = sq_table_copy_static(table);
@@ -234,6 +250,7 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 					// replace table pointer in schema->type->entry
 					*addr = table;
 				}
+#endif   // SQ_SUPPORT_STATIC_TABLE
 				free(table->name);
 				table->name = strdup(table_src->name);
 			}

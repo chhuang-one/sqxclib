@@ -157,12 +157,9 @@ SqTable* change_user_table_by_c(SqSchema* schema)
 // ----------------------------------------------------------------------------
 // use C macro to declare dynamic table/column
 
-SqTable*  create_user_table_by_macro(SqSchema* schema)
+void  create_user_table_by_macro(SqSchema* schema)
 {
-	SqTable* table;
-
 	SQ_SCHEMA_CREATE(schema, "users", User, {
-		table = table_cur_;
 		SQT_INTEGER_AS(User, id);  SQC_PRIMARY();  SQC_HIDDEN();
 		SQT_STRING_AS(User, name, -1);
 		SQT_STRING_AS(User, email, -1);
@@ -170,7 +167,7 @@ SqTable*  create_user_table_by_macro(SqSchema* schema)
 		SQT_CUSTOM_AS(User, posts, SQ_TYPE_INTPTR_ARRAY);
 	});
 
-/*
+#if 0
 	SQ_SCHEMA_CREATE(schema, "users", User, {
 		SQT_INTEGER("id", User, id);  SQC_PRIMARY();  SQC_HIDDEN();
 		SQT_STRING("name", User, name, -1);
@@ -178,24 +175,34 @@ SqTable*  create_user_table_by_macro(SqSchema* schema)
 		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
 		SQT_CUSTOM("posts", User, posts, SQ_TYPE_INTPTR_ARRAY);
 	});
- */
-
-	return table;
+#endif
 }
 
-SqTable*  change_user_table_by_macro(SqSchema* schema)
+void  change_user_table_by_macro(SqSchema* schema)
 {
-	SqTable* table;
-
 	SQ_SCHEMA_ALTER(schema, "users", {
-		table = SQT_CUR;
 		SQT_UINT_AS(User, test_add);
 		SQT_INTEGER_AS(User, city_id);  SQC_CHANGE();
 		SQT_DROP("name");
 		SQT_RENAME("email", "email2");
 	});
+}
 
-	return table;
+// ----------------------------------------------------------------------------
+
+void change_schema(SqSchema* schema)
+{
+	SqTable*  table;
+	SqColumn* column;
+
+	// use C function to change schema
+	table = sq_schema_create(schema, "cities", City);
+	column = sq_table_add_integer(table, "id", offsetof(City, id));
+	column->bit_field |= SQB_PRIMARY;
+	column = sq_table_add_string(table, "name", offsetof(City, name), 0);
+
+	sq_schema_rename(schema, "cities", "cities2");
+	sq_schema_drop(schema, "cities2");
 }
 
 // ----------------------------------------------------------------------------
@@ -219,8 +226,7 @@ void create_migration_table(SqSchema* schema)
 	});
 }
 
-
-void test_db(SqTable* table)
+void test_db(SqSchema* schema)
 {
 	Sqdb     db;
 	SqdbInfo dbinfo;
@@ -231,7 +237,7 @@ void test_db(SqTable* table)
 //	sqdb_info_init_mysql(db.info);
 
 	buffer = (SqBuffer){NULL, 0, 0};
-	sqdb_table_to_sql(&db, table, &buffer);
+	sqdb_schema_to_sql(&db, schema, &buffer);
 	sq_buffer_write_c(&buffer, '\0');
 	puts(buffer.buf);
 
@@ -242,21 +248,21 @@ void test_db(SqTable* table)
 int  main(void)
 {
 	SqSchema*   schema;
-	SqTable*    table;
-	SqTable*    table2;
-	SqTable*    tablex;
+	SqSchema*   schema2;
 
-	schema = sq_schema_new("default");
-	table = create_user_table_by_type(schema);
-//	table = create_user_table_by_macro(schema);
-//	table = create_user_table_by_c(schema);
+	schema  = sq_schema_new("default");
+	schema2 = sq_schema_new("de2");
 
-	table2 = change_user_table_change_by_type(schema);
-	tablex = sq_table_new("users", NULL);
-	sq_table_accumulate(tablex, table);
-	sq_table_accumulate(tablex, table2);
+	create_user_table_by_type(schema);
+//	create_user_table_by_macro(schema);
+//	create_user_table_by_c(schema);
 
-	test_db(tablex);
+	change_user_table_change_by_type(schema2);
+
+	sq_schema_accumulate(schema, schema2);
+	change_schema(schema);
+
+	test_db(schema);
 
 	return 0;
 }

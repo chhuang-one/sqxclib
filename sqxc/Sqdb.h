@@ -67,7 +67,6 @@ struct SqdbInfo {
 
 void sqdb_info_init_sqlite(SqdbInfo* dbinfo);
 void sqdb_info_init_mysql(SqdbInfo* dbinfo);
-void sqdb_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer);
 void sqdb_schema_to_sql(Sqdb* db, SqSchema* schema, SqBuffer* buffer);
 
 // sqdb_use database_name

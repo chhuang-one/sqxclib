@@ -61,6 +61,12 @@ typedef struct Company
 #define SQ_SCHEMA_C_SET(current_table_value)         \
 		table_cur_ = current_table_value
 
+#define SQ_SCHEMA(schema, lambda)           \
+		{                                   \
+			SqTable*  table_cur_;           \
+			SqColumn* column_cur_;          \
+		}
+
 #define SQ_SCHEMA_CREATE(schema, table_name, StructType, lambda)  \
 		{                                   \
 			SqTable*  table_cur_;           \
@@ -95,6 +101,13 @@ typedef struct Company
 
 #define SQT_RENAME(from, to)     sq_table_rename_column(table_cur_, from, to)
 
+#define SQT_CREATE(table_name, StructType)    \
+		table_cur_ = sq_schema_create_full(schema, table_name, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType));
+
+#ifdef SQ_HAVE_NAMING_CONVENTION
+#define SQT_CREATE_AS(StructType)    \
+		table_cur_ = sq_schema_create_full(schema, NULL, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType));
+#endif
 
 #define SQT_INTEGER(column_name, structure, member)   \
 		(column_cur_ = sq_table_add_int(table_cur_, column_name, offsetof(structure, member)))

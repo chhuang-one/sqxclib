@@ -63,7 +63,7 @@ SqType*  sq_type_copy_static(const SqType* type_src)
 //	if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 //		func = sq_ptr_array_destroy_func(sq_type_get_array(type_src));
 	type = malloc(sizeof(SqType));
-	*type = *type_src;
+	memcpy(type, type_src, sizeof(SqType));
 	type->bit_field |= SQB_TYPE_DYNAMIC;
 	type->entry = sq_ptr_array_new(type_src->n_entry, func);
 	if (type_src->n_entry > 0)
@@ -156,16 +156,16 @@ void** sq_type_find_entry(SqType* entrytype, const void* key, SqCompareFunc cmp_
 	if (entrytype->n_entry == 0)
 		return NULL;
 
-	if ( cmp_func == NULL &&
-	     entrytype->bit_field & SQB_TYPE_DYNAMIC &&
-	    (entrytype->bit_field & SQB_TYPE_SORTED) == 0 )
-	{
-		entrytype->bit_field |= SQB_TYPE_SORTED;
-		sq_ptr_array_sort(array, sq_entry_cmp_name);
+	if (cmp_func == NULL) {
+		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
+		if ( entrytype->bit_field & SQB_TYPE_DYNAMIC &&
+		    (entrytype->bit_field & SQB_TYPE_SORTED) == 0 )
+		{
+			entrytype->bit_field |= SQB_TYPE_SORTED;
+			sq_ptr_array_sort(array, sq_entry_cmp_name);
+		}
 	}
 
-	if (cmp_func == NULL)
-		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
 	if (entrytype->bit_field & SQB_TYPE_SORTED && cmp_func == (SqCompareFunc)sq_entry_cmp_str__name)
 		return sq_ptr_array_search(array, key, cmp_func);
 	else
