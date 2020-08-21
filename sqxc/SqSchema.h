@@ -83,6 +83,9 @@ SqTable* sq_schema_find_type(SqSchema* schema, const char* type_name);
 // It may move/steal tables from 'schema_src'.
 int     sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src);
 
+// This trace renamed table/column to update foreign references
+int     sq_schema_trace_foreign(SqSchema* schema);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

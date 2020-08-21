@@ -278,3 +278,54 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 	type->bit_field &= ~SQB_TYPE_SORTED;
 	return SQCODE_OK;
 }
+
+int     sq_schema_trace_foreign(SqSchema* schema)
+{
+	SqType     *schema_type = schema->type;
+	SqTable    *table, *table_tmp;
+	SqColumn   *column;
+	const char *name;
+	int         result = SQCODE_OK;
+
+	sq_ptr_array_foreach(&schema_type->entry, element) {
+		table = (SqTable*)element;
+		if (table->tempcols.data == NULL)
+			continue;
+
+		sq_ptr_array_foreach(&table->tempcols, element) {
+			column = (SqColumn*)element;
+			// trace renamed table
+			name = sq_reentries_trace_renamed(&schema_type->entry, column->foreign->table, 0);
+			if (name == NULL) {
+				// table dropped.
+				result = SQCODE_REENTRY_DROPPED;
+				continue;   // error...
+			}
+			else if (name != column->foreign->table) {
+				// table renamed. name = the newest table name
+				free(column->foreign->table);
+				column->foreign->table = strdup(name);
+			}
+			// find referenced table
+			table_tmp = (SqTable*)sq_reentries_find_name(&schema_type->entry, column->foreign->table);
+			if (table_tmp == NULL) {
+				// table not found. dropped?
+				result = SQCODE_ENTRY_NOT_FOUND;
+				continue;  // error...
+			}
+			// trace renamed column
+			name = sq_reentries_trace_renamed(&table_tmp->type->entry, column->foreign->column, 0);
+			if (name == NULL) {
+				// column dropped.
+				result = SQCODE_REENTRY_DROPPED;
+				continue;   // error...
+			}
+			else if (name != column->foreign->column) {
+				// column renamed. name = newest column name
+				free(column->foreign->column);
+				column->foreign->column = strdup(name);
+			}
+		}
+	}
+	return result;
+}

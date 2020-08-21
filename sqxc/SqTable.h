@@ -56,6 +56,7 @@ void      sq_table_drop_column(SqTable* table, const char* column_name);
 void      sq_table_rename_column(SqTable* table, const char* from, const char* to);
 
 SqColumn* sq_table_get_primary(SqTable* table);
+int       sq_table_get_foreigns(SqTable* table, SqPtrArray* array);
 
 // TODO: static declared SqColumn
 // int    sq_table_add_static(SqTable* table, const SqColumn* columns,
@@ -210,7 +211,7 @@ inline size_t sq_offset(Type Store::*member) {
 struct SqTable
 {
 	SQ_REENTRY_MEMBERS;
-/*	// ------ SqEntry members ------
+/*	// ------ SqReentry members ------
 	SqType*      type;        // type information for this entry
 	char*        name;
 	size_t       offset;
@@ -220,8 +221,9 @@ struct SqTable
 	// if name is NULL, it will drop old_name
 	// if name is NOT NULL, it will rename from old_name to name
 
-	// foreigns store columns that having foreign reference.
-	SqPtrArray   foreigns;
+	// SqColumn's array for temporary use.
+	// it store columns that having foreign reference.
+	SqPtrArray   tempcols;
 
 #ifdef __cplusplus
 	// C++11 standard-layout
@@ -318,7 +320,7 @@ struct SqForeign
 struct SqColumn
 {
 	SQ_REENTRY_MEMBERS;
-/*	// ------ SqEntry members ------
+/*	// ------ SqReentry members ------
 	SqType*      type;        // type information for this entry
 	char*        name;
 	size_t       offset;

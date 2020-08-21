@@ -82,7 +82,7 @@ static const SqColumn  *UserColumnsChange[] = {
 	&(SqColumn) {SQ_TYPE_UINT, "test_add", offsetof(User, test_add), SQB_NULLABLE},
 
 	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGE)
-	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGE},
+//	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGE},
 
 	// DROP CONSTRAINT FOREIGN KEY "fk_cities_id"
 	&(SqColumn) {.old_name = "fk_cities_id",  .name = NULL,
@@ -190,7 +190,7 @@ void  change_user_table_by_macro(SqSchema* schema)
 
 // ----------------------------------------------------------------------------
 
-void change_schema(SqSchema* schema)
+void change_schema_by_c(SqSchema* schema)
 {
 	SqTable*  table;
 	SqColumn* column;
@@ -202,7 +202,7 @@ void change_schema(SqSchema* schema)
 	column = sq_table_add_string(table, "name", offsetof(City, name), 0);
 
 	sq_schema_rename(schema, "cities", "cities2");
-	sq_schema_drop(schema, "cities2");
+//	sq_schema_drop(schema, "cities2");
 }
 
 // ----------------------------------------------------------------------------
@@ -247,20 +247,28 @@ void test_db(SqSchema* schema)
 
 int  main(void)
 {
+	SqTable*    table;
 	SqSchema*   schema;
 	SqSchema*   schema2;
+	SqSchema*   schema3;
 
 	schema  = sq_schema_new("default");
 	schema2 = sq_schema_new("de2");
+	schema3 = sq_schema_new("de3");
 
-	create_user_table_by_type(schema);
+	table = create_user_table_by_type(schema);
+	sq_ptr_array_init(&table->tempcols, 4, NULL);
+	sq_table_get_foreigns(table, &table->tempcols);
+
 //	create_user_table_by_macro(schema);
 //	create_user_table_by_c(schema);
 
 	change_user_table_change_by_type(schema2);
+	change_schema_by_c(schema3);
 
 	sq_schema_accumulate(schema, schema2);
-	change_schema(schema);
+	sq_schema_accumulate(schema, schema3);
+	sq_schema_trace_foreign(schema);
 
 	test_db(schema);
 
