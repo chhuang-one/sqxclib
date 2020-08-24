@@ -79,11 +79,12 @@ void     sq_schema_rename(SqSchema* schema, const char* from, const char* to);
 SqTable* sq_schema_find(SqSchema* schema, const char* table_name);
 SqTable* sq_schema_find_type(SqSchema* schema, const char* type_name);
 
-// This used by migration: accumulat changes from 'schema_src'.
-// It may move/steal tables from 'schema_src'.
+// This used by migration: accumulate changes from 'schema_src'.
+// It may move/steal tables and column from 'schema_src'.
 int     sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src);
 
-// This trace renamed table/column to update foreign references
+// This used by sq_schema_accumulate()
+// It trace renamed table/column to update foreign references.
 int     sq_schema_trace_foreign(SqSchema* schema);
 
 #ifdef __cplusplus
@@ -94,9 +95,9 @@ struct SqSchema
 {
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
-	SqType*      type;     // type information for this entry
+	SqType*      type;        // type information for this entry
 	char*        name;
-	size_t       offset;
+	size_t       offset;      // sq_schema_trace_foreign() use this
 	unsigned int bit_field;
  */
 

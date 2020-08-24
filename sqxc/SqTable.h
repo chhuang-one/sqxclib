@@ -214,7 +214,7 @@ struct SqTable
 /*	// ------ SqReentry members ------
 	SqType*      type;        // type information for this entry
 	char*        name;
-	size_t       offset;
+	size_t       offset;      // sq_schema_trace_foreign() use this
 	unsigned int bit_field;
 	char*        old_name;    // rename or drop
  */

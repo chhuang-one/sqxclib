@@ -46,7 +46,7 @@ struct City {
 static const SqColumn  *UserColumns[] = {
 	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE set null ON UPDATE cascade
 	&(SqColumn) {SQ_TYPE_INT,    "city_id", offsetof(User, city_id), SQB_HIDDEN,
-	             .foreign = &(SqForeign) {"cities", "id",    "set null",  "cascade"} },
+	             .foreign = &(SqForeign) {"cities", "id",  "set null",  "cascade"} },
 	// "email"  VARCHAR
 	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
 
@@ -247,28 +247,23 @@ void test_db(SqSchema* schema)
 
 int  main(void)
 {
-	SqTable*    table;
 	SqSchema*   schema;
-	SqSchema*   schema2;
-	SqSchema*   schema3;
+	SqSchema*   schema_v1;
+	SqSchema*   schema_v2;
 
 	schema  = sq_schema_new("default");
-	schema2 = sq_schema_new("de2");
-	schema3 = sq_schema_new("de3");
-
-	table = create_user_table_by_type(schema);
-	sq_ptr_array_init(&table->tempcols, 4, NULL);
-	sq_table_get_foreigns(table, &table->tempcols);
-
+	create_user_table_by_type(schema);
 //	create_user_table_by_macro(schema);
 //	create_user_table_by_c(schema);
 
-	change_user_table_change_by_type(schema2);
-	change_schema_by_c(schema3);
+	schema_v1 = sq_schema_new("ver1");
+	change_user_table_change_by_type(schema_v1);
 
-	sq_schema_accumulate(schema, schema2);
-	sq_schema_accumulate(schema, schema3);
-	sq_schema_trace_foreign(schema);
+	schema_v2 = sq_schema_new("ver2");
+	change_schema_by_c(schema_v2);
+
+	sq_schema_accumulate(schema, schema_v1);
+	sq_schema_accumulate(schema, schema_v2);
 
 	test_db(schema);
 

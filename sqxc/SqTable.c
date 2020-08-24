@@ -331,7 +331,7 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 	// if table is empty table
 	if (type->n_entry == 0) {
 		// set SQB_CHANGE if it is "ALTER TABLE"
-		if (table_src->bit_field &  SQB_CHANGE)
+		if (table_src->bit_field & SQB_CHANGE)
 			table->bit_field |= SQB_CHANGE;
 	}
 
@@ -409,9 +409,13 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 	// remove NULL column (it was stolen) if table_src is not static.
 //	if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 //		sq_reentries_remove_null(&type_src->entry);
-	// remove NULL record in table
-	sq_reentries_remove_null(&type->entry);
+
+	// remove NULL record in table (Do it in sq_schema_accumulate() now)
+//	sq_reentries_remove_null(&type->entry);
+
+	// update other data in SqTable
 	type->bit_field &= ~SQB_TYPE_SORTED;
+
 	return SQCODE_OK;
 }
 

@@ -132,6 +132,7 @@ int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry);
 
 /* --------------------------------------------------------
 	SqReentries: unsorted SqReentry pointer array.
+	             element can be NULL in array.
 	             It used by migration, change list...etc
 
 typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
@@ -140,6 +141,10 @@ typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
 // find and delete reentry, set NULL to index of deleted reentry.
 // return address of deleted reentry pointer.
 void**  sq_reentries_erase(void* reentry_ptr_array, const void* key, SqCompareFunc cmp_func);
+
+// find and delete all change record (reentry->old_name != NULL), set NULL to index of deleted reentry.
+// return address of deleted reentry pointer.
+void    sq_reentries_erase_changes(void* reentry_ptr_array);
 
 // find and replace 'reentry' by 'reentry_new'.
 // if 'reentry' not found and 'reentry_new' != NULL, It will append 'reentry_new'.

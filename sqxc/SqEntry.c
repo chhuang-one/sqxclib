@@ -117,6 +117,23 @@ void**  sq_reentries_erase(void* reentry_ptr_array, const void* key, SqCompareFu
 	return NULL;
 }
 
+void  sq_reentries_erase_changes(void* reentry_ptr_array)
+{
+	SqDestroyFunc destroy;
+	SqReentry*    reentry;
+
+	destroy = sq_ptr_array_destroy_func(reentry_ptr_array);
+	for (int index = 0;  index < ((SqPtrArray*)reentry_ptr_array)->length; index++) {
+		reentry = ((SqPtrArray*)reentry_ptr_array)->data[index];
+		if (reentry == NULL || (reentry->bit_field & SQB_DYNAMIC) == 0 )
+			continue;
+		if (reentry->old_name) {
+			destroy(reentry);
+			((SqPtrArray*)reentry_ptr_array)->data[index] = NULL;
+		}
+	}
+}
+
 void**  sq_reentries_replace(void* reentry_ptr_array, const void* reentry, const void* reentry_new)
 {
 	// find reentry in array
@@ -159,7 +176,7 @@ const char*  sq_reentries_trace_renamed(void* reentries, const char* old_name, i
 
 	for (int index = index_beg;  index < sq_ptr_array_length(reentries);  index++) {
 		reentry = sq_ptr_array_at(reentries, index);
-		if (reentry->old_name == NULL)
+		if (reentry == NULL || reentry->old_name == NULL)
 			continue;
 		if (strcasecmp(reentry->old_name, cur_name) == 0) {
 			if (reentry->name == NULL)

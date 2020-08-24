@@ -29,7 +29,7 @@
 
 SqSchema*  sq_schema_new(const char* name)
 {
-	static int cur_ver = 0;
+	static int cur_version = 0;
 	SqSchema* schema;
 	SqType* typeinfo;
 
@@ -42,7 +42,7 @@ SqSchema*  sq_schema_new(const char* name)
 	sq_ptr_array_init(&schema->table_types, 8, NULL);
 	schema->table_types_sorted = false;
 	//
-	schema->version = cur_ver++;
+	schema->version = cur_version++;
 	return schema;
 }
 
@@ -188,14 +188,25 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 {	//      *schema, *schema_src
 	SqTable *table,  *table_src;
 	SqType  *type,   *type_src;
-	int               index_src;
+	// other variable
+	int      index;
 	void   **addr;
 
 	type = schema->type;
 	type_src = schema_src->type;
 
-	for (index_src = 0;  index_src < type_src->n_entry;  index_src++) {
-		table_src = (SqTable*)type_src->entry[index_src];
+	// run sq_schema_accumulate() first time for sq_schema_trace_foreign()
+	if (schema->offset == 0) {
+		for (index = 0;  index < type->n_entry;  index++) {
+			table = (SqTable*)type->entry[index];
+			if (table->tempcols.data == NULL)
+				sq_ptr_array_init(&table->tempcols, 4, NULL);
+			sq_table_get_foreigns(table, &table->tempcols);
+		}
+	}
+
+	for (index = 0;  index < type_src->n_entry;  index++) {
+		table_src = (SqTable*)type_src->entry[index];
 		if (table_src->bit_field & SQB_CHANGE) {
 			// === ALTER TABLE ===
 			// find table if table->name == table_src->name
@@ -268,14 +279,30 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 
 		// steal 'table_src' if 'type_src' is not static.
 		if (type_src->bit_field & SQB_TYPE_DYNAMIC)
-			type_src->entry[index_src] = NULL;
+			type_src->entry[index] = NULL;
 	}
 
-	// remove NULL table (it was stolen) if 'schema_src' is not static.
-//	sq_reentries_remove_null(&type_src->entry);
-	// remove NULL record in schema
+	// trace dropped or renamed table/column
+	sq_schema_trace_foreign(schema);
+
+	// erase changes and remove NULL table in schema (schema->type->entry)
+	sq_reentries_erase_changes(&type->entry);
 	sq_reentries_remove_null(&type->entry);
+	schema->offset = type->n_entry;    // update 'offset' for sq_schema_trace_foreign()
+	// update other data in SqSchema
+	schema->version = schema_src->version;
 	type->bit_field &= ~SQB_TYPE_SORTED;
+
+	// erase changes and remove NULL column in tables (table->type->entry)
+	for (index = 0;  index < type->n_entry;  index++) {
+		table = (SqTable*)type->entry[index];
+		sq_reentries_erase_changes(&table->type->entry);
+		sq_reentries_remove_null(&table->type->entry);
+		table->offset = table->type->n_entry;	// update 'offset' for sq_schema_trace_foreign()
+		// update other data in SqTable
+		table->bit_field &= ~SQB_CHANGE;        // table has completed changes
+	}
+
 	return SQCODE_OK;
 }
 
@@ -289,13 +316,14 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 
 	sq_ptr_array_foreach(&schema_type->entry, element) {
 		table = (SqTable*)element;
-		if (table->tempcols.data == NULL)
+		if (table == NULL || table->tempcols.data == NULL)
 			continue;
 
 		sq_ptr_array_foreach(&table->tempcols, element) {
 			column = (SqColumn*)element;
 			// trace renamed table
-			name = sq_reentries_trace_renamed(&schema_type->entry, column->foreign->table, 0);
+			name = sq_reentries_trace_renamed(&schema_type->entry,
+					column->foreign->table, schema->offset);
 			if (name == NULL) {
 				// table dropped.
 				result = SQCODE_REENTRY_DROPPED;
@@ -307,14 +335,16 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 				column->foreign->table = strdup(name);
 			}
 			// find referenced table
-			table_tmp = (SqTable*)sq_reentries_find_name(&schema_type->entry, column->foreign->table);
+			table_tmp = (SqTable*)sq_reentries_find_name(&schema_type->entry,
+					column->foreign->table);
 			if (table_tmp == NULL) {
 				// table not found. dropped?
 				result = SQCODE_ENTRY_NOT_FOUND;
 				continue;  // error...
 			}
 			// trace renamed column
-			name = sq_reentries_trace_renamed(&table_tmp->type->entry, column->foreign->column, 0);
+			name = sq_reentries_trace_renamed(&table_tmp->type->entry,
+					column->foreign->column, table_tmp->offset);
 			if (name == NULL) {
 				// column dropped.
 				result = SQCODE_REENTRY_DROPPED;
