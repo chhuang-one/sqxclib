@@ -248,22 +248,22 @@ void test_db(SqSchema* schema)
 int  main(void)
 {
 	SqSchema*   schema;
-	SqSchema*   schema_v1;
 	SqSchema*   schema_v2;
+	SqSchema*   schema_v3;
 
 	schema  = sq_schema_new("default");
 	create_user_table_by_type(schema);
 //	create_user_table_by_macro(schema);
 //	create_user_table_by_c(schema);
 
-	schema_v1 = sq_schema_new("ver1");
-	change_user_table_change_by_type(schema_v1);
-
 	schema_v2 = sq_schema_new("ver2");
-	change_schema_by_c(schema_v2);
+	change_user_table_change_by_type(schema_v2);
 
-	sq_schema_accumulate(schema, schema_v1);
+	schema_v3 = sq_schema_new("ver3");
+	change_schema_by_c(schema_v3);
+
 	sq_schema_accumulate(schema, schema_v2);
+	sq_schema_accumulate(schema, schema_v3);
 
 	test_db(schema);
 

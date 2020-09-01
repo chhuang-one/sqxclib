@@ -48,7 +48,9 @@ typedef struct SqReentry        SqReentry;
 #define SQB_HIDDEN         (1 << 3)   // JSON: hidden entry
 #define SQB_HIDDEN_NULL    (1 << 4)   // JSON: hidden entry if value is NULL
 #define SQB_RESERVE_1      (1 << 5)   // reserve
+#define SQB_ENTRY_END      SQB_RESERVE_1
 
+// SqColumn::bit_field
 #define SQB_PRIMARY        (1 << 6)   // SQL: PRIMARY KEY
 #define SQB_FOREIGN        (1 << 7)   // SQL: FOREIGN KEY
 #define SQB_UNIQUE         (1 << 8)   // SQL: UNIQUE

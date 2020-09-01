@@ -40,6 +40,21 @@ typedef struct SqTable        SqTable;
 typedef struct SqColumn       SqColumn;
 typedef struct SqForeign      SqForeign;    // used by SqColumn
 
+// SqTable::bit_field for SQLite
+#define SQB_TABLE_COL_ALTERED             (1 << 16)
+#define SQB_TABLE_COL_RENAMED             (1 << 17)
+#define SQB_TABLE_COL_DROPPED             (1 << 18)
+#define SQB_TABLE_COL_ADDED               (1 << 19)
+#define SQB_TABLE_COL_ADDED_CONSTRAINT    (1 << 20)
+#define SQB_TABLE_COL_FOREIGN             (1 << 21)
+
+#define SQB_TABLE_COL_ATTRIB              (SQB_TABLE_COL_ALTERED | \
+                                           SQB_TABLE_COL_RENAMED | \
+                                           SQB_TABLE_COL_DROPPED | \
+                                           SQB_TABLE_COL_ADDED   | \
+                                           SQB_TABLE_COL_ADDED_CONSTRAINT | \
+										   SQB_TABLE_COL_FOREIGN )
+
 // --------------------------------------------------------
 // SqTable C functions
 
@@ -222,8 +237,8 @@ struct SqTable
 	// if name is NOT NULL, it will rename from old_name to name
 
 	// SqColumn's array for temporary use.
-	// it store columns that having foreign reference.
-	SqPtrArray   tempcols;
+	// 1. sq_table_accumulate() and sq_schema_accumulate() store columns that having foreign reference.
+	SqPtrArray   arranged;
 
 #ifdef __cplusplus
 	// C++11 standard-layout

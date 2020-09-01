@@ -33,7 +33,7 @@ SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 	table->name = (name) ? strdup(name) : NULL;
 	table->bit_field |= SQB_POINTER;
 	table->old_name = NULL;
-	table->tempcols = (SqPtrArray){NULL, 0};
+	table->arranged = (SqPtrArray){NULL, 0};
 
 	return (SqTable*)table;
 }
@@ -45,26 +45,11 @@ void  sq_table_free(SqTable* table)
 		sq_entry_final((SqEntry*)table);
 		free(table->old_name);
 		// free array
-		sq_ptr_array_final(&table->tempcols);
+		sq_ptr_array_final(&table->arranged);
 		// free SqTable
 		free(table);
 	}
 }
-
-#ifdef SQ_SUPPORT_STATIC_TABLE
-SqTable*  sq_table_copy_static(const SqTable* table_src)
-{
-	SqTable* table;
-
-	table = malloc(sizeof(SqTable));
-	table->type = table_src->type;
-	table->name = table_src->name ? strdup(table_src->name) : NULL;
-	table->offset = table_src->offset;
-	table->bit_field = table_src->bit_field | SQB_DYNAMIC;
-	table->old_name = table_src->old_name ? strdup(table_src->old_name) : NULL;
-	return table;
-}
-#endif   // SQ_SUPPORT_STATIC_TABLE
 
 bool  sq_table_has_column(SqTable* table, const char* column_name)
 {
@@ -98,11 +83,11 @@ static void sq_table_free_column(SqTable* table, SqColumn* column)
 {
 	void**    addr;
 
-	// if column has foreign reference, remove it's pointer from table->tempcols.
-	if (column->foreign && table->tempcols.data) {
-		addr = sq_reentries_replace(&table->tempcols, column, NULL);
+	// if column has foreign reference, remove it's pointer from table->arranged.
+	if (column->foreign && table->arranged.data) {
+		addr = sq_reentries_replace(&table->arranged, column, NULL);
 		if (addr)
-			sq_ptr_array_steal(&table->tempcols, addr - table->tempcols.data, 1);
+			sq_ptr_array_steal(&table->arranged, addr - table->arranged.data, 1);
 	}
 	// free column
 	sq_column_free(column);
@@ -170,8 +155,8 @@ int   sq_table_get_foreigns(SqTable* table, SqPtrArray* array)
 	SqColumn*   column;
 	int         count = 0;
 
-//	if (array && array->data == NULL)
-//		sq_ptr_array_init(array, 4, NULL);
+	if (array && array->data == NULL)
+		sq_ptr_array_init(array, 4, NULL);
 
 	colarray = sq_type_get_array(table->type);
 	for (int index = 0;  index < colarray->length;  index++) {
@@ -315,13 +300,10 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 {	//       *table,  *table_src
 	SqColumn *column, *column_src;
 	SqType   *type,   *type_src;
-	int                index_src;
+	// other variable
+	int       index;
 	void    **addr;
 
-#ifdef SQ_SUPPORT_STATIC_TABLE
-	if ((table->bit_field & SQB_DYNAMIC) == 0)
-		return SQCODE_STATIC_DATA;
-#endif
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
 		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
 
@@ -335,8 +317,8 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 			table->bit_field |= SQB_CHANGE;
 	}
 
-	for (index_src = 0;  index_src < type_src->n_entry;  index_src++) {
-		column_src = (SqColumn*)type_src->entry[index_src];
+	for (index = 0;  index < type_src->n_entry;  index++) {
+		column_src = (SqColumn*)type_src->entry[index];
 		if (column_src->bit_field & SQB_CHANGE) {
 			// === ALTER COLUMN ===
 			// free column if column->name == column_src->name
@@ -345,10 +327,8 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 				sq_table_free_column(table, *addr);
 				*addr = NULL;
 			}
-			sq_reentries_add(&type->entry, column_src);
-			// steal 'column_src' if 'type_src' is not static.
-			if (type_src->bit_field & SQB_TYPE_DYNAMIC)
-				type_src->entry[index_src] = NULL;
+			// set bit_field: column altered
+			table->bit_field |= SQB_TABLE_COL_ALTERED;
 		}
 		else if (column_src->name == NULL) {
 			// === DROP COLUMN / CONSTRAINT / KEY ===
@@ -358,12 +338,8 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 				sq_table_free_column(table, *addr);
 				*addr = NULL;
 			}
-			sq_reentries_add(&type->entry, column_src);
-			// steal 'column_src' if 'type_src' is not static.
-			if (type_src->bit_field & SQB_TYPE_DYNAMIC)
-				type_src->entry[index_src] = NULL;
-			// "dropped record" doesn't need to check foreign
-			continue;
+			// set bit_field: column dropped
+			table->bit_field |= SQB_TABLE_COL_DROPPED;
 		}
 		else if (column_src->old_name) {
 			// === RENAME COLUMN ===
@@ -381,37 +357,35 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 				free(column->name);
 				column->name = strdup(column_src->name);
 			}
-			// steal 'column_src' if 'type_src' is not static.
-			if (type_src->bit_field & SQB_TYPE_DYNAMIC)
-				type_src->entry[index_src] = NULL;
-			// append column_src to table
-			sq_reentries_add(&type->entry, column_src);
-			// "renamed record" doesn't need to check foreign
-			continue;
+			// set bit_field: column renamed
+			table->bit_field |= SQB_TABLE_COL_RENAMED;
 		}
 		else {
 			// === ADD COLUMN / CONSTRAINT / KEY ===
-			// steal 'column_src' if 'type_src' is not static.
-			if (type_src->bit_field & SQB_TYPE_DYNAMIC)
-				type_src->entry[index_src] = NULL;
-			// append 'column_src' to table
-			sq_reentries_add(&type->entry, column_src);
+			// set bit_field: column added
+			if (column_src->constraint)
+				table->bit_field |= SQB_TABLE_COL_ADDED_CONSTRAINT;
+			else
+				table->bit_field |= SQB_TABLE_COL_ADDED;
 		}
 
+		// steal 'column_src' if 'type_src' is not static.
+		if (type_src->bit_field & SQB_TYPE_DYNAMIC)
+			type_src->entry[index] = NULL;
+		// append 'column_src' to table
+		sq_reentries_add(&type->entry, column_src);
+
 		// ADD or ALTER COLUMN that having foreign reference
-		if (column_src->foreign) {
-			if (table->tempcols.data == NULL)
-				sq_ptr_array_init(&table->tempcols, 4, NULL);
-			sq_ptr_array_append(&table->tempcols, column_src);
+		if (column_src->foreign && column_src->old_name == NULL) {
+			if (table->arranged.data == NULL)
+				sq_ptr_array_init(&table->arranged, 4, NULL);
+			sq_ptr_array_append(&table->arranged, column_src);
 		}
 	}
 
 	// remove NULL column (it was stolen) if table_src is not static.
 //	if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 //		sq_reentries_remove_null(&type_src->entry);
-
-	// remove NULL record in table (Do it in sq_schema_accumulate() now)
-//	sq_reentries_remove_null(&type->entry);
 
 	// update other data in SqTable
 	type->bit_field &= ~SQB_TYPE_SORTED;

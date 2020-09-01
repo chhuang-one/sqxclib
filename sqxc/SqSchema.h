@@ -100,12 +100,11 @@ struct SqSchema
 	size_t       offset;      // sq_schema_trace_foreign() use this
 	unsigned int bit_field;
  */
+	int          version;
 
 	// table_types is sorted by SqTable.type.name
 	SqPtrArray   table_types;
 	bool         table_types_sorted;
-
-	int          version;
 
 #ifdef __cplusplus
 	// C++11 standard-layout

@@ -24,12 +24,12 @@
 #include <SqUtil.h>
 #include <SqSchema.h>
 
-
+#define SCHEMA_INITIAL_VERSION     1
 #define DEFAULT_STRING_LENGTH    191
 
 SqSchema*  sq_schema_new(const char* name)
 {
-	static int cur_version = 0;
+	static int cur_version = SCHEMA_INITIAL_VERSION;
 	SqSchema* schema;
 	SqType* typeinfo;
 
@@ -199,9 +199,7 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 	if (schema->offset == 0) {
 		for (index = 0;  index < type->n_entry;  index++) {
 			table = (SqTable*)type->entry[index];
-			if (table->tempcols.data == NULL)
-				sq_ptr_array_init(&table->tempcols, 4, NULL);
-			sq_table_get_foreigns(table, &table->tempcols);
+			sq_table_get_foreigns(table, &table->arranged);
 		}
 	}
 
@@ -213,25 +211,15 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			addr = sq_reentries_find_name(&type->entry, table_src->name);
 			if (addr) {
 				table = *(SqTable**)addr;
-#ifdef SQ_SUPPORT_STATIC_TABLE
-				if ((table->bit_field & SQB_DYNAMIC) == 0) {
-					// create dynamic table to replace static one
-					table = sq_table_copy_static(table);
-					// replace table pointer in schema->table_types
-					sq_reentries_replace(&schema->table_types, *addr, table);
-					schema->table_types_sorted = false;
-					// replace table pointer in schema->type->entry
-					*addr = table;
-				}
-#endif   // SQ_SUPPORT_STATIC_TABLE
-				if (sq_table_accumulate(table, table_src) != SQCODE_OK)
-					return SQCODE_STATIC_DATA;
+				sq_table_accumulate(table, table_src);
+				// append changed table to tail
+				*addr = NULL;
+				sq_reentries_add(&type->entry, table);
 				// It doesn't need to steal 'table_src' from 'schema_src'
 				continue;
 			}
 			else {
-				// If original table not found, add it.
-				sq_reentries_add(&type->entry, table_src);
+				sq_table_get_foreigns(table_src, &table_src->arranged);
 				// table_types
 				sq_ptr_array_append(&schema->table_types, table_src);
 				schema->table_types_sorted = false;
@@ -241,8 +229,6 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			// === DROP TABLE ===
 			// erase original table if table->name == table_src->old_name
 			sq_reentries_erase_name(&type->entry, table_src->old_name);
-			// append "dropped record"
-			sq_reentries_add(&type->entry, table_src);
 		}
 		else if (table_src->old_name) {
 			// === RENAME TABLE ===
@@ -251,56 +237,44 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			if (addr) {
 				// rename existing table->name to table_src->name
 				table = *(SqTable**)addr;
-#ifdef SQ_SUPPORT_STATIC_TABLE
-				if ((table->bit_field & SQB_DYNAMIC) == 0) {
-					// create dynamic table to replace static table
-					table = sq_table_copy_static(table);
-					// replace table pointer in schema->table_types
-					sq_reentries_replace(&schema->table_types, *addr, table);
-//					schema->table_types_sorted = false;
-					// replace table pointer in schema->type->entry
-					*addr = table;
-				}
-#endif   // SQ_SUPPORT_STATIC_TABLE
 				free(table->name);
 				table->name = strdup(table_src->name);
 			}
-			// insert 'table_src' to table
-			sq_reentries_add(&type->entry, table_src);
 		}
 		else {
 			// === ADD TABLE ===
-			// insert 'table_src' to schema
-			sq_reentries_add(&type->entry, table_src);
+			sq_table_get_foreigns(table_src, &table_src->arranged);
 			// table_types
 			sq_ptr_array_append(&schema->table_types, table_src);
 			schema->table_types_sorted = false;
 		}
 
-		// steal 'table_src' if 'type_src' is not static.
-		if (type_src->bit_field & SQB_TYPE_DYNAMIC)
-			type_src->entry[index] = NULL;
+		// steal 'table_src' from 'type_src'.
+		type_src->entry[index] = NULL;
+		// add 'table_src' to schema->type->entry.
+		sq_reentries_add(&type->entry, table_src);
 	}
 
 	// trace dropped or renamed table/column
 	sq_schema_trace_foreign(schema);
-
-	// erase changes and remove NULL table in schema (schema->type->entry)
-	sq_reentries_erase_changes(&type->entry);
+	// remove NULL record in schema (schema->type->entry)
 	sq_reentries_remove_null(&type->entry);
-	schema->offset = type->n_entry;    // update 'offset' for sq_schema_trace_foreign()
+	// update 'offset' for sq_schema_trace_foreign()
+	schema->offset = type->n_entry;
 	// update other data in SqSchema
 	schema->version = schema_src->version;
 	type->bit_field &= ~SQB_TYPE_SORTED;
 
-	// erase changes and remove NULL column in tables (table->type->entry)
+	// update all table->offset for sq_schema_trace_foreign()
 	for (index = 0;  index < type->n_entry;  index++) {
 		table = (SqTable*)type->entry[index];
-		sq_reentries_erase_changes(&table->type->entry);
+		// skip renamed and dropped
+		if (table->old_name)
+			continue;
+		// remove NULL record in table
 		sq_reentries_remove_null(&table->type->entry);
-		table->offset = table->type->n_entry;	// update 'offset' for sq_schema_trace_foreign()
-		// update other data in SqTable
-		table->bit_field &= ~SQB_CHANGE;        // table has completed changes
+		// update 'offset' for sq_schema_trace_foreign()
+		table->offset = table->type->n_entry;
 	}
 
 	return SQCODE_OK;
@@ -314,13 +288,13 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 	const char *name;
 	int         result = SQCODE_OK;
 
-	sq_ptr_array_foreach(&schema_type->entry, element) {
-		table = (SqTable*)element;
-		if (table == NULL || table->tempcols.data == NULL)
+	for (int index = 0;  index < schema_type->n_entry;  index++) {
+		table = (SqTable*)schema_type->entry[index];
+		if (table == NULL || table->arranged.data == NULL)
 			continue;
 
-		sq_ptr_array_foreach(&table->tempcols, element) {
-			column = (SqColumn*)element;
+		for (int i = 0;  i < table->arranged.length;  i++) {
+			column = (SqColumn*)table->arranged.data[i];
 			// trace renamed table
 			name = sq_reentries_trace_renamed(&schema_type->entry,
 					column->foreign->table, schema->offset);
