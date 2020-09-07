@@ -22,12 +22,14 @@
 
 typedef struct User     User;
 typedef struct City     City;
+typedef struct Company  Company;
 
 struct User {
 	int    id;
 	char*  name;
 	char*  email;
 	int    city_id;
+	int    company_id;
 
 	SqIntptrArray   posts;
 
@@ -39,14 +41,24 @@ struct City {
 	char*  name;
 };
 
+struct Company {
+	int    id;
+	char*  name;
+	int    city_id;
+};
+
 // ----------------------------------------------------------------------------
 // use C99 designated initializer to declare table/column
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
 	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE set null ON UPDATE cascade
-	&(SqColumn) {SQ_TYPE_INT,    "city_id", offsetof(User, city_id), SQB_HIDDEN,
+	&(SqColumn) {SQ_TYPE_INT,    "city_id", offsetof(User, city_id),    SQB_HIDDEN,
 	             .foreign = &(SqForeign) {"cities", "id",  "set null",  "cascade"} },
+	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE cascade ON UPDATE set null
+	&(SqColumn) {SQ_TYPE_INT, "company_id", offsetof(User, company_id), SQB_HIDDEN,
+	             .foreign = &(SqForeign) {"companies", "id",  "cascade",  "set null"} },
+
 	// "email"  VARCHAR
 	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
 
@@ -190,7 +202,22 @@ void  change_user_table_by_macro(SqSchema* schema)
 
 // ----------------------------------------------------------------------------
 
-void change_schema_by_c(SqSchema* schema)
+void create_company_table_by_c(SqSchema* schema)
+{
+	SqTable*  table;
+	SqColumn* column;
+
+	// use C function to change schema
+	table = sq_schema_create(schema, "companies", Company);
+	column = sq_table_add_integer(table, "id", offsetof(Company, id));
+	column->bit_field |= SQB_PRIMARY;
+	column = sq_table_add_string(table, "name", offsetof(Company, name), 0);
+	column = sq_table_add_integer(table, "city_id", offsetof(Company, city_id));
+	sq_column_foreign(column, "cities", "id");
+//	sq_column_on_delete(column, "set null");
+}
+
+void create_city_table_and_rename_by_c(SqSchema* schema)
 {
 	SqTable*  table;
 	SqColumn* column;
@@ -226,7 +253,7 @@ void create_migration_table(SqSchema* schema)
 	});
 }
 
-void test_db(SqSchema* schema)
+void test_db(SqSchema* schema, SqPtrArray* entries)
 {
 	Sqdb     db;
 	SqdbInfo dbinfo;
@@ -237,10 +264,16 @@ void test_db(SqSchema* schema)
 //	sqdb_info_init_mysql(db.info);
 
 	buffer = (SqBuffer){NULL, 0, 0};
-	sqdb_schema_to_sql(&db, schema, &buffer);
+
+	if (entries)
+		sqdb_tables_to_sql(&db, entries, &buffer);
+	else
+		sqdb_schema_to_sql(&db, schema, &buffer);
+
 	sq_buffer_write_c(&buffer, '\0');
 	puts(buffer.buf);
 
+	sq_buffer_final(&buffer);
 }
 
 // ----------------------------------------------------------------------------
@@ -250,6 +283,8 @@ int  main(void)
 	SqSchema*   schema;
 	SqSchema*   schema_v2;
 	SqSchema*   schema_v3;
+	SqSchema*   schema_v4;
+	SqPtrArray  entries;
 
 	schema  = sq_schema_new("default");
 	create_user_table_by_type(schema);
@@ -260,12 +295,22 @@ int  main(void)
 	change_user_table_change_by_type(schema_v2);
 
 	schema_v3 = sq_schema_new("ver3");
-	change_schema_by_c(schema_v3);
+	create_company_table_by_c(schema_v3);
+
+	schema_v4 = sq_schema_new("ver4");
+	create_city_table_and_rename_by_c(schema_v4);
 
 	sq_schema_accumulate(schema, schema_v2);
 	sq_schema_accumulate(schema, schema_v3);
+	sq_schema_accumulate(schema, schema_v4);
 
-	test_db(schema);
+	// clear changed records before calling sq_schema_arrange()
+	sq_schema_clear_changes(schema);
+
+	sq_ptr_array_init(&entries, 8, NULL);
+	sq_schema_arrange(schema, &entries);
+
+	test_db(schema, &entries);
 
 	return 0;
 }

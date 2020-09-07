@@ -33,7 +33,7 @@ SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 	table->name = (name) ? strdup(name) : NULL;
 	table->bit_field |= SQB_POINTER;
 	table->old_name = NULL;
-	table->arranged = (SqPtrArray){NULL, 0};
+	table->extra = NULL;
 
 	return (SqTable*)table;
 }
@@ -44,10 +44,28 @@ void  sq_table_free(SqTable* table)
 		// clear SqEntry
 		sq_entry_final((SqEntry*)table);
 		free(table->old_name);
-		// free array
-		sq_ptr_array_final(&table->arranged);
+		// free temporary data
+		sq_table_final_extra(table);
 		// free SqTable
 		free(table);
+	}
+}
+
+void  sq_table_init_extra(SqTable* table)
+{
+	if (table->extra == NULL) {
+		table->extra = malloc(sizeof(*table->extra));
+		sq_ptr_array_init(&table->extra->foreigns,  4, NULL);
+		sq_ptr_array_init(&table->extra->arranged, 16, NULL);
+	}
+}
+
+void  sq_table_final_extra(SqTable* table)
+{
+	if (table->extra) {
+		sq_ptr_array_final(&table->extra->foreigns);
+		sq_ptr_array_final(&table->extra->arranged);
+		free(table->extra);
 	}
 }
 
@@ -81,13 +99,15 @@ static void  sq_table_append_column(SqTable* table, SqColumn* column)
 
 static void sq_table_free_column(SqTable* table, SqColumn* column)
 {
-	void**    addr;
+	void**      addr;
+	SqPtrArray* foreigns;
 
-	// if column has foreign reference, remove it's pointer from table->arranged.
-	if (column->foreign && table->arranged.data) {
-		addr = sq_reentries_replace(&table->arranged, column, NULL);
+	// if column has foreign reference, remove it's pointer from table->extra->foreigns.
+	if (column->foreign && table->extra) {
+		foreigns = &table->extra->foreigns;
+		addr = sq_reentries_replace(foreigns, column, NULL);
 		if (addr)
-			sq_ptr_array_steal(&table->arranged, addr - table->arranged.data, 1);
+			sq_ptr_array_steal(foreigns, addr - foreigns->data, 1);
 	}
 	// free column
 	sq_column_free(column);
@@ -140,7 +160,7 @@ SqColumn* sq_table_get_primary(SqTable* table)
 	SqPtrArray* array;
 	SqColumn*   column;
 
-	array = sq_type_get_array(table->type);
+	array = sq_type_get_ptr_array(table->type);
 	for (int index = 0;  index < array->length;  index++) {
 		column = array->data[index];
 		if (column->bit_field & SQB_PRIMARY && SQ_TYPE_IS_INT(column->type))
@@ -158,7 +178,7 @@ int   sq_table_get_foreigns(SqTable* table, SqPtrArray* array)
 	if (array && array->data == NULL)
 		sq_ptr_array_init(array, 4, NULL);
 
-	colarray = sq_type_get_array(table->type);
+	colarray = sq_type_get_ptr_array(table->type);
 	for (int index = 0;  index < colarray->length;  index++) {
 		column = colarray->data[index];
 		if (column->bit_field & SQB_FOREIGN || column->foreign) {
@@ -295,7 +315,6 @@ void   sq_table_drop_foreign(SqTable* table, const char* name)
 #endif
 }
 
-// This used by migration. It will steal columns from table_src
 int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 {	//       *table,  *table_src
 	SqColumn *column, *column_src;
@@ -306,6 +325,7 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
 		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
+	sq_table_init_extra(table);
 
 	type = table->type;
 	type_src = table_src->type;
@@ -376,21 +396,31 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 		sq_reentries_add(&type->entry, column_src);
 
 		// ADD or ALTER COLUMN that having foreign reference
-		if (column_src->foreign && column_src->old_name == NULL) {
-			if (table->arranged.data == NULL)
-				sq_ptr_array_init(&table->arranged, 4, NULL);
-			sq_ptr_array_append(&table->arranged, column_src);
-		}
+		if (column_src->foreign && column_src->old_name == NULL)
+			sq_ptr_array_append(&table->extra->foreigns, column_src);
 	}
 
 	// remove NULL column (it was stolen) if table_src is not static.
 //	if (type_src->bit_field & SQB_TYPE_DYNAMIC)
 //		sq_reentries_remove_null(&type_src->entry);
 
-	// update other data in SqTable
+	// update other data in table->type
 	type->bit_field &= ~SQB_TYPE_SORTED;
 
 	return SQCODE_OK;
+}
+
+void  sq_table_arrange(SqTable* table, SqPtrArray* entries)
+{
+	SqPtrArray* columns = sq_type_get_ptr_array(table->type);
+
+	// copy column pointers from table->type->entry
+	if (entries->length < columns->length)
+		sq_ptr_array_alloc(entries, columns->length - entries->length);
+	memcpy(entries->data, columns->data, sizeof(void*) * columns->length);
+	entries->length = columns->length;
+
+	sq_ptr_array_sort(entries, (SqCompareFunc)sq_column_cmp_attrib);
 }
 
 // ----------------------------------------------------------------------------
@@ -589,4 +619,30 @@ void  sq_column_set_constraint_va(SqColumn* column, va_list arg_list)
 		}
 		column->constraint[index++] = name ? strdup(name) : NULL;
 	} while (name);
+}
+
+// used by sq_table_arrange()
+// primary key = 0
+// foreign key = 1
+// normal      = 2
+// constraint  = 3
+int  sq_column_cmp_attrib(SqColumn** column1, SqColumn** column2)
+{
+	int  var1 = 0, var2 = 0;
+
+	if ((*column1)->constraint)
+		var1 += 3;
+	if ((*column1)->foreign || (*column1)->bit_field & SQB_FOREIGN)
+		var1 += 1;
+	else if (((*column1)->bit_field & SQB_PRIMARY) == 0)
+		var1 += 2;
+
+	if ((*column2)->constraint)
+		var2 += 3;
+	if ((*column2)->foreign || (*column2)->bit_field & SQB_FOREIGN)
+		var2 += 1;
+	else if (((*column2)->bit_field & SQB_PRIMARY) == 0)
+		var2 += 2;
+
+	return var1 - var2;
 }

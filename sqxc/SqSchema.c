@@ -18,6 +18,7 @@
 #endif
 
 #include <stdio.h>      // snprintf
+#include <limits.h>     // MAX_INT
 
 #include <SqError.h>
 #include <SqBuffer.h>
@@ -199,7 +200,8 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 	if (schema->offset == 0) {
 		for (index = 0;  index < type->n_entry;  index++) {
 			table = (SqTable*)type->entry[index];
-			sq_table_get_foreigns(table, &table->arranged);
+			sq_table_init_extra(table);
+			sq_table_get_foreigns(table, &table->extra->foreigns);
 		}
 	}
 
@@ -219,7 +221,8 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 				continue;
 			}
 			else {
-				sq_table_get_foreigns(table_src, &table_src->arranged);
+				sq_table_init_extra(table_src);
+				sq_table_get_foreigns(table_src, &table_src->extra->foreigns);
 				// table_types
 				sq_ptr_array_append(&schema->table_types, table_src);
 				schema->table_types_sorted = false;
@@ -243,7 +246,8 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 		}
 		else {
 			// === ADD TABLE ===
-			sq_table_get_foreigns(table_src, &table_src->arranged);
+			sq_table_init_extra(table_src);
+			sq_table_get_foreigns(table_src, &table_src->extra->foreigns);
 			// table_types
 			sq_ptr_array_append(&schema->table_types, table_src);
 			schema->table_types_sorted = false;
@@ -290,11 +294,11 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 
 	for (int index = 0;  index < schema_type->n_entry;  index++) {
 		table = (SqTable*)schema_type->entry[index];
-		if (table == NULL || table->arranged.data == NULL)
+		if (table == NULL || table->extra == NULL)
 			continue;
 
-		for (int i = 0;  i < table->arranged.length;  i++) {
-			column = (SqColumn*)table->arranged.data[i];
+		for (int i = 0;  i < table->extra->foreigns.length;  i++) {
+			column = (SqColumn*)table->extra->foreigns.data[i];
 			// trace renamed table
 			name = sq_reentries_trace_renamed(&schema_type->entry,
 					column->foreign->table, schema->offset);
@@ -332,4 +336,121 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 		}
 	}
 	return result;
+}
+
+void  sq_schema_clear_changes(SqSchema* schema)
+{
+	SqTable *table;
+	SqType  *type;
+	int      index;
+
+	// erase changes and remove NULL record in schema
+	type = schema->type;
+	sq_reentries_erase_changes(&type->entry);
+	sq_reentries_remove_null(&type->entry);
+	// update 'offset' for sq_schema_trace_foreign()
+	schema->offset = type->n_entry;
+
+	// erase changes and remove NULL record in tables (table->type->entry)
+	for (index = 0;  index < type->n_entry;  index++) {
+		table = (SqTable*)type->entry[index];
+		sq_reentries_erase_changes(&table->type->entry);
+		sq_reentries_remove_null(&table->type->entry);
+		// update 'offset' for sq_schema_trace_foreign()
+		table->offset = table->type->n_entry;
+		// all change records have removed
+		table->bit_field &= ~SQB_CHANGE;
+	}
+}
+
+// trace column reference and count order
+// before calling this function:
+// 1. sort schema->type->entry by table->name
+// 2. sort table->extra->foreigns by column->foreign->table
+// 3. reset all table->offset = 0
+static int  count_table_order(SqSchema* schema, SqTable* table)
+{
+	SqPtrArray* foreigns;
+	SqColumn*  column;
+	SqTable*   fore_table;
+	SqTable*   prev_table = NULL;
+
+	if (table->offset > 0)
+		return table->offset;
+	table->offset = 1;
+	table->bit_field |= SQB_TABLE_CHECKING;
+	foreigns = &table->extra->foreigns;
+
+	for (int index = 0;  index < foreigns->length;  index++) {
+ 		column = (SqColumn*)foreigns->data[index];
+		if (column == NULL)
+			continue;
+
+		fore_table = sq_ptr_array_search(&schema->type->entry, column->foreign->table,
+		                                 (SqCompareFunc)sq_entry_cmp_str__name);
+		if (fore_table == NULL) {
+			// error...
+			continue;
+		}
+		fore_table = *(SqTable**)fore_table;
+
+		if (fore_table->bit_field & SQB_TABLE_CHECKING) {
+			// tables reference each other
+			// retain current column for future use.
+			continue;
+		}
+		else {
+			// not reference each other
+			if (prev_table != fore_table)
+				table->offset += count_table_order(schema, fore_table);
+			// steal column. this NULL will be removed by sq_reentries_remove_null()
+			foreigns->data[index] = NULL;
+		}
+		prev_table = fore_table;
+	}
+
+	sq_reentries_remove_null(foreigns);
+	table->bit_field &= ~SQB_TABLE_CHECKING;
+	return table->offset;
+}
+
+static int  sq_entry_cmp_offset(SqEntry** entry1, SqEntry** entry2)
+{
+	return (*entry1)->offset - (*entry2)->offset;
+}
+
+static int  sq_column_cmp_foreign_table(SqColumn** column1, SqColumn** column2)
+{
+	return strcasecmp((*column1)->foreign->table, (*column2)->foreign->table);
+}
+
+void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
+{
+	SqPtrArray* tables = sq_type_get_ptr_array(schema->type);
+	SqTable*    table1;
+
+	// copy table pointers from schema->type->entry
+	if (entries->length < tables->length)
+		sq_ptr_array_alloc(entries, tables->length - entries->length);
+	memcpy(entries->data, tables->data, sizeof(void*) * tables->length);
+	entries->length = tables->length;
+
+	// sort 'tables' (schema->type->entry) by table->name before calling count_table_order()
+	sq_ptr_array_sort(tables, (SqCompareFunc)sq_entry_cmp_name);
+	// setup all tables before calling count_table_order()
+	for (int index = 0;  index < tables->length;  index++) {
+		table1 = (SqTable*)tables->data[index];
+		// reset table->offset before calling count_table_order()
+		table1->offset = 0;
+		// sort column in tables before calling count_table_order()
+		sq_ptr_array_sort(&table1->extra->foreigns, (SqCompareFunc)sq_column_cmp_foreign_table);
+		// arrange columns in table
+//		sq_table_arrange(table1, &table1->extra->arranged);
+	}
+	// count order number and set it in table->offset
+	for (int index = 0;  index < tables->length;  index++)
+		count_table_order(schema, (SqTable*)tables->data[index]);
+
+	// sort entries by table->offset
+	sq_ptr_array_sort(entries, (SqCompareFunc)sq_entry_cmp_offset);
 }

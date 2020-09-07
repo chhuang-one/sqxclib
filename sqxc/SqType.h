@@ -223,7 +223,7 @@ enum {
 
 // ----------------------------------------------------------------------------
 // macro for accessing variable of SqType
-#define sq_type_get_array(type)    ((SqPtrArray*)&type->entry)
+#define sq_type_get_ptr_array(type)    ((SqPtrArray*)&type->entry)
 
 /* ----------------------------------------------------------------------------
 	SqType - declare how to create/free/parse/write instance

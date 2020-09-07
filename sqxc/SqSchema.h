@@ -87,6 +87,16 @@ int     sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src);
 // It trace renamed table/column to update foreign references.
 int     sq_schema_trace_foreign(SqSchema* schema);
 
+// clear changed records after calling sq_schema_accumulate()
+void    sq_schema_clear_changes(SqSchema* schema);
+
+// call this function before creating table.
+// if table has no foreign key, this function move it to front.
+// if table references most tables, this function move it to end.
+// if table references each other, table->extra->foreigns.length > 0
+// output sorted tables in 'entries'
+void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

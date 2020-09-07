@@ -40,20 +40,20 @@ typedef struct SqTable        SqTable;
 typedef struct SqColumn       SqColumn;
 typedef struct SqForeign      SqForeign;    // used by SqColumn
 
+// SqTable::bit_field
+#define SQB_TABLE_CHECKING                (1 << 15)
 // SqTable::bit_field for SQLite
 #define SQB_TABLE_COL_ALTERED             (1 << 16)
 #define SQB_TABLE_COL_RENAMED             (1 << 17)
 #define SQB_TABLE_COL_DROPPED             (1 << 18)
 #define SQB_TABLE_COL_ADDED               (1 << 19)
 #define SQB_TABLE_COL_ADDED_CONSTRAINT    (1 << 20)
-#define SQB_TABLE_COL_FOREIGN             (1 << 21)
 
 #define SQB_TABLE_COL_ATTRIB              (SQB_TABLE_COL_ALTERED | \
                                            SQB_TABLE_COL_RENAMED | \
                                            SQB_TABLE_COL_DROPPED | \
                                            SQB_TABLE_COL_ADDED   | \
-                                           SQB_TABLE_COL_ADDED_CONSTRAINT | \
-										   SQB_TABLE_COL_FOREIGN )
+                                           SQB_TABLE_COL_ADDED_CONSTRAINT )
 
 // --------------------------------------------------------
 // SqTable C functions
@@ -61,10 +61,9 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 SqTable*  sq_table_new(const char* name, const SqType* type_info);
 void      sq_table_free(SqTable* table_pub);
 
-#ifdef SQ_SUPPORT_STATIC_TABLE
-// create new SqTable and copy data from static one.
-SqTable*  sq_table_copy_static(const SqTable* table_src);
-#endif   // SQ_SUPPORT_STATIC_TABLE
+// for internal use only
+void      sq_table_init_extra(SqTable* table);
+void      sq_table_final_extra(SqTable* table);
 
 bool      sq_table_has_column(SqTable* table, const char* column_name);
 void      sq_table_drop_column(SqTable* table, const char* column_name);
@@ -164,6 +163,11 @@ void      sq_table_drop_foreign(SqTable* table, const char* name);
 // It may move/steal columns from 'table_src'.
 int       sq_table_accumulate(SqTable* table, SqTable* table_src);
 
+// call this function before creating table
+// It move primary key to front and move constraint to end.
+// output sorted columns in 'entries'
+void      sq_table_arrange(SqTable* table, SqPtrArray* entries);
+
 // unique('column_name')
 // index('column_name')
 // index('column_name', 'name2')
@@ -199,6 +203,13 @@ void       sq_column_on_update(SqColumn* column, const char* act);
 // sq_column_set_constraint(column, colume_name1, column_name2, NULL);
 void       sq_column_set_constraint(SqColumn* column, ...);
 void       sq_column_set_constraint_va(SqColumn* column, va_list arg_list);
+
+// used by sq_table_arrange()
+// primary key = 0
+// foreign key = 1
+// normal      = 2
+// constraint  = 3
+int  sq_column_cmp_attrib(SqColumn** column1, SqColumn** column2);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -237,8 +248,13 @@ struct SqTable
 	// if name is NOT NULL, it will rename from old_name to name
 
 	// SqColumn's array for temporary use.
-	// 1. sq_table_accumulate() and sq_schema_accumulate() store columns that having foreign reference.
-	SqPtrArray   arranged;
+	// sq_table_accumulate() and sq_schema_accumulate() store columns that having foreign reference.
+	// sq_table_arrange() arrange columns before creating table.
+	struct {
+	    SqPtrArray  foreigns;
+	    SqPtrArray  arranged;
+	} *extra;
+
 
 #ifdef __cplusplus
 	// C++11 standard-layout
@@ -350,12 +366,19 @@ struct SqColumn
 
 	char*        default_value;    // create
 	char*        check;            // CHECK (condition)
-//	char*        comment;          // create
+//	char*        comment;
 
 	SqForeign*   foreign;          // foreign key
 	char**       constraint;       // Null-terminated string array
 
 	char*        extra;            // raw SQL column property
+
+	/*
+	struct SqExtra {
+		char*    comment;          // create
+		char*    raw;              // raw SQL column property
+	} *extra;
+	 */
 
 	// if column->name is NULL, it will drop column->old_name
 	// if column->name is NOT NULL, it will rename from column->old_name to column->name

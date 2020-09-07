@@ -55,30 +55,26 @@ int  sqdb_migrate(Sqdb* db, SqSchema* schema)
 //	SqBuffer* buffer;
 
 	if (schema == NULL) {
+		if (db->version < db->schema->version) {
+			// do ...
+		}
 		// db->migration
 
 //		sqdb_schema_to_sql(db, db->schema, &buffer);
 	}
-
+/*
 	// it is the newest schema if schema->version == 0
 	if (schema->version == 0) {
 		db->schema = schema;
 		return SQCODE_OK;
 	}
-	// skip old version
-	if (db->version >= schema->version)
-		return SQCODE_OK;
+ */
 
-	if (db->migration == NULL) {
-		db->migration = sq_schema_new(NULL);
-		db->migration->version = 0;
-	}
-	// skip old version
-	if (db->migration->version >= schema->version)
-		return SQCODE_OK;
 	// accumulate changes
-	sq_schema_accumulate(db->migration, schema);
-	db->migration->version = schema->version;
+	sq_schema_accumulate(db->schema, schema);
+	if (db->version == schema->version)
+		sq_schema_clear_changes(db->schema);
+
 	return SQCODE_OK;
 }
 
@@ -146,6 +142,36 @@ static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer);
 static void constraint_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer);
 static void foreign_ref_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer);
 
+
+void sqdb_tables_to_sql(Sqdb* db, SqPtrArray* tables, SqBuffer* buffer)
+{
+	SqTable* table;
+
+	for (int index = 0;  index < tables->length;  index++) {
+		table = (SqTable*)tables->data[index];
+
+		if (index > 0)
+			sq_buffer_write_c(buffer, ' ');
+
+		if (table->bit_field & SQB_CHANGE) {
+			// ALTER TABLE
+			alter_table_to_sql(db, table, buffer);
+		}
+		else if (table->name == NULL) {
+			// DROP TABLE
+			drop_table_to_sql(db, table, buffer);
+		}
+		else if (table->old_name) {
+			// RENAME TABLE
+			rename_table_to_sql(db, table, buffer);
+		}
+		else {
+			// CREATE TABLE
+			create_table_to_sql(db, table, buffer);
+		}
+	}
+
+}
 
 void sqdb_schema_to_sql(Sqdb* db, SqSchema* schema, SqBuffer* buffer)
 {

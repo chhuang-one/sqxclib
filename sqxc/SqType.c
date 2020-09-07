@@ -41,7 +41,7 @@ SqType* sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
 	// if prealloc_size < 8, apply default value for small array
 	if (prealloc_size < 8)
 		prealloc_size = 8;
-	array = sq_type_get_array(entrytype);
+	array = sq_type_get_ptr_array(entrytype);
 	sq_ptr_array_init(array, 8, entry_destroy_func);
 
 	return entrytype;
@@ -60,7 +60,7 @@ SqType*  sq_type_copy_static(const SqType* type_src, SqDestroyFunc entry_free_fu
 	SqType* type;
 
 //	if (type_src->bit_field & SQB_TYPE_DYNAMIC)
-//		entry_free_func = sq_ptr_array_destroy_func(sq_type_get_array(type_src));
+//		entry_free_func = sq_ptr_array_destroy_func(sq_type_get_ptr_array(type_src));
 	type = malloc(sizeof(SqType));
 	memcpy(type, type_src, sizeof(SqType));
 	type->bit_field |= SQB_TYPE_DYNAMIC;
@@ -89,7 +89,7 @@ void* sq_type_init_instance(SqType* entrytype, void* instance, int is_pointer)
 		init(instance, entrytype);
 	// initialize SqEntry in SqType.entry if no init() function
 	else if (entrytype->entry) {
-		array = sq_type_get_array(entrytype);
+		array = sq_type_get_ptr_array(entrytype);
 		sq_ptr_array_foreach_addr(array, element_addr) {
 			SqEntry* entry = *element_addr;
 			entrytype = entry->type;
@@ -120,7 +120,7 @@ void  sq_type_final_instance(SqType* entrytype, void* instance, int is_pointer)
 		final(instance, entrytype);
 	// finalize SqEntry in SqType.entry if no final() function
 	else if (entrytype->entry) {
-		array = sq_type_get_array(entrytype);
+		array = sq_type_get_ptr_array(entrytype);
 		sq_ptr_array_foreach_addr(array, element_addr) {
 			SqEntry* entry = *element_addr;
 			entrytype = entry->type;
@@ -194,7 +194,7 @@ int   sq_type_decide_size(SqType* entrytype, const SqEntry* inner_entry)
 			entrytype->size = 0;
 			if (entrytype->entry == NULL)
 				return 0;
-			array = sq_type_get_array(entrytype);
+			array = sq_type_get_ptr_array(entrytype);
 			sq_ptr_array_foreach_addr(array, element_addr) {
 				SqEntry* inner = *element_addr;
 				if (inner->type == NULL)

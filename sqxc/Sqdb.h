@@ -33,7 +33,6 @@ struct Sqdb {
 
 	int            version;      // schema_version
 	SqSchema*      schema;
-	SqSchema*      migration;
 
 	// SQLite config
 	sqlite3*       pdb;
@@ -67,7 +66,10 @@ struct SqdbInfo {
 
 void sqdb_info_init_sqlite(SqdbInfo* dbinfo);
 void sqdb_info_init_mysql(SqdbInfo* dbinfo);
+
+// for testing
 void sqdb_schema_to_sql(Sqdb* db, SqSchema* schema, SqBuffer* buffer);
+void sqdb_tables_to_sql(Sqdb* db, SqPtrArray* tables, SqBuffer* buffer);
 
 // sqdb_use database_name
 int  sqdb_open(Sqdb* db, const char* database_name);
