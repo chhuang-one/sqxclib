@@ -128,77 +128,48 @@ void sqdb_info_init_mysql(SqdbInfo* dbinfo)
 
 #define DEFAULT_STRING_LENGTH    191
 
-static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer);
-static void rename_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer);
-static void alter_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer);
-static void drop_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer);
+static void create_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqPtrArray* arranged_columns);
+static void rename_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table);
+static void alter_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqPtrArray* arranged_columns);
+static void drop_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table);
 
-static bool add_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer);
-static bool rename_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer);
-static bool alter_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer);
-static bool drop_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer);
+static bool add_column_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column);
+static bool rename_column_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column);
+static bool alter_column_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column);
+static bool drop_column_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column);
 
-static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer);
-static void constraint_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer);
-static void foreign_ref_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer);
+static void column_type_to_sql(Sqdb* db, SqBuffer* buffer, SqColumn* column);
+static void constraint_to_sql(Sqdb* db, SqBuffer* buffer, SqColumn* column);
+static void foreign_ref_to_sql(Sqdb* db, SqBuffer* buffer, SqColumn* column);
 
 
-void sqdb_tables_to_sql(Sqdb* db, SqPtrArray* tables, SqBuffer* buffer)
+void sqdb_schema_to_sql(Sqdb* db, SqBuffer* buffer, SqSchema* schema, SqPtrArray* arranged_tables)
 {
 	SqTable* table;
 
-	for (int index = 0;  index < tables->length;  index++) {
-		table = (SqTable*)tables->data[index];
+	if (arranged_tables == NULL)
+		arranged_tables = sq_type_get_ptr_array(schema->type);
+	for (int index = 0;  index < arranged_tables->length;  index++) {
+		table = (SqTable*)arranged_tables->data[index];
 
 		if (index > 0)
 			sq_buffer_write_c(buffer, ' ');
 
 		if (table->bit_field & SQB_CHANGE) {
 			// ALTER TABLE
-			alter_table_to_sql(db, table, buffer);
+			alter_table_to_sql(db, buffer, table, NULL);
 		}
 		else if (table->name == NULL) {
 			// DROP TABLE
-			drop_table_to_sql(db, table, buffer);
+			drop_table_to_sql(db, buffer, table);
 		}
 		else if (table->old_name) {
 			// RENAME TABLE
-			rename_table_to_sql(db, table, buffer);
+			rename_table_to_sql(db, buffer, table);
 		}
 		else {
 			// CREATE TABLE
-			create_table_to_sql(db, table, buffer);
-		}
-	}
-
-}
-
-void sqdb_schema_to_sql(Sqdb* db, SqSchema* schema, SqBuffer* buffer)
-{
-	SqType*  schema_type = schema->type;
-	SqTable* table;
-
-	for (int index = 0;  index < schema_type->n_entry;  index++) {
-		table = (SqTable*)schema_type->entry[index];
-
-		if (index > 0)
-			sq_buffer_write_c(buffer, ' ');
-
-		if (table->bit_field & SQB_CHANGE) {
-			// ALTER TABLE
-			alter_table_to_sql(db, table, buffer);
-		}
-		else if (table->name == NULL) {
-			// DROP TABLE
-			drop_table_to_sql(db, table, buffer);
-		}
-		else if (table->old_name) {
-			// RENAME TABLE
-			rename_table_to_sql(db, table, buffer);
-		}
-		else {
-			// CREATE TABLE
-			create_table_to_sql(db, table, buffer);
+			create_table_to_sql(db, buffer, table, NULL);
 		}
 	}
 }
@@ -207,9 +178,8 @@ void sqdb_schema_to_sql(Sqdb* db, SqSchema* schema, SqBuffer* buffer)
 // SqTable
 
 
-static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
+static void create_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqPtrArray* arranged_columns)
 {
-	SqType*   type;
 	SqColumn* column;
 	int       index;
 	bool      has_constraint = false;
@@ -218,9 +188,10 @@ static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	sq_buffer_write(buffer, table->name);
 	sq_buffer_write(buffer, "\" (");
 
-	type = table->type;
-	for (index = 0;  index < type->n_entry;  index++) {
-		column = (SqColumn*)type->entry[index];
+	if (arranged_columns == NULL)
+		arranged_columns = sq_type_get_ptr_array(table->type);
+	for (index = 0;  index < arranged_columns->length;  index++) {
+		column = (SqColumn*)arranged_columns->data[index];
 		// skip ignore
 //		if (column->bit_field & SQB_IGNORE)
 //			continue;
@@ -237,12 +208,12 @@ static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 			buffer->buf[buffer->writed -2] = ',';
 			buffer->buf[buffer->writed -1] = ' ';
 		}
-		column_type_to_sql(db, column, buffer);
+		column_type_to_sql(db, buffer, column);
 	}
 
 	if (db->info->column.mysql == 1) {
-		for (index = 0;  index < type->n_entry;  index++) {
-			column = (SqColumn*)type->entry[index];
+		for (index = 0;  index < arranged_columns->length;  index++) {
+			column = (SqColumn*)arranged_columns->data[index];
 			// Don't output CONSTRAINT here
 			if (column->constraint)
 				continue;
@@ -266,19 +237,19 @@ static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 
 			// FOREIGN KEY REFERENCES
 			if (column->foreign)
-				foreign_ref_to_sql(db, column, buffer);
+				foreign_ref_to_sql(db, buffer, column);
 		}
 	}
 
 	if (has_constraint) {
-		for (index = 0;  index < type->n_entry;  index++) {
-			column = (SqColumn*)type->entry[index];
+		for (index = 0;  index < arranged_columns->length;  index++) {
+			column = (SqColumn*)arranged_columns->data[index];
 			if (column->name == NULL)
 				continue;
 			// CONSTRAINT
 			if (column->constraint) {
 				sq_buffer_write_c(buffer, ',');
-				constraint_to_sql(db, column, buffer);
+				constraint_to_sql(db, buffer, column);
 			}
 		}
 	}
@@ -288,7 +259,7 @@ static void create_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	buffer->buf[buffer->writed -1] = ';';
 }
 
-static void drop_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
+static void drop_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table)
 {
 	// DROP TABLE "name";
 	sq_buffer_write(buffer, "DROP TABLE \"");
@@ -297,7 +268,7 @@ static void drop_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	buffer->buf[buffer->writed -1] = ';';
 }
 
-static void rename_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
+static void rename_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table)
 {
 	// ALTER TABLE "old_name" RENAME "new_name";
 	sq_buffer_write(buffer, "ALTER TABLE \"");
@@ -311,34 +282,34 @@ static void rename_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	buffer->buf[buffer->writed -1] = ';';
 }
 
-static void alter_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
+static void alter_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqPtrArray* arranged_columns)
 {
-	SqType*   type;
 	SqColumn* column;
 	int       index;
 	bool      is_ok;
 
+	if (arranged_columns == NULL)
+		arranged_columns = sq_type_get_ptr_array(table->type);
 	// ALTER TABLE
-	type = table->type;
-	for (index = 0;  index < type->n_entry;  index++) {
-		column = (SqColumn*)type->entry[index];
+	for (index = 0;  index < arranged_columns->length;  index++) {
+		column = (SqColumn*)arranged_columns->data[index];
 //		if (column->bit_field & SQB_IGNORE)
 //			continue;
 		if (column->bit_field & SQB_CHANGE) {
 			// ALTER COLUMN
-			is_ok = alter_column_to_sql(db, table, column, buffer);
+			is_ok = alter_column_to_sql(db, buffer, table, column);
 		}
 		else if (column->name == NULL) {
 			// DROP COLUMN / CONSTRAINT / KEY
-			is_ok = drop_column_to_sql(db, table, column, buffer);
+			is_ok = drop_column_to_sql(db, buffer, table, column);
 		}
 		else if (column->old_name) {
 			// RENAME COLUMN
-			is_ok = rename_column_to_sql(db, table, column, buffer);
+			is_ok = rename_column_to_sql(db, buffer, table, column);
 		}
 		else {
 			// ADD COLUMN / CONSTRAINT / KEY
-			is_ok = add_column_to_sql(db, table, column, buffer);
+			is_ok = add_column_to_sql(db, buffer, table, column);
 		}
 
 		if (is_ok)
@@ -350,7 +321,7 @@ static void alter_table_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 // ------------------------------------
 // column
 
-static void alter_table_add_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
+static void alter_table_add_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table)
 {
 	sq_buffer_write(buffer, "ALTER TABLE \"");
 	sq_buffer_write(buffer, table->name);
@@ -359,15 +330,15 @@ static void alter_table_add_to_sql(Sqdb* db, SqTable* table, SqBuffer* buffer)
 	sq_buffer_write(buffer, "ADD ");
 }
 
-static bool add_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer)
+static bool add_column_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
 	// ADD CONSTRAINT
 	if (column->constraint) {
 		// SQLite doesn't support this
 		if (db->info->column.sqlite == 0)
 			return false;
-		alter_table_add_to_sql(db, table, buffer);
-		constraint_to_sql(db, column, buffer);
+		alter_table_add_to_sql(db, buffer, table);
+		constraint_to_sql(db, buffer, column);
 		return true;
 	}
 	// ADD FOREIGN KEY
@@ -375,7 +346,7 @@ static bool add_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuff
 		// SQLite doesn't support this
 		if (db->info->column.sqlite == 0)
 			return false;
-		alter_table_add_to_sql(db, table, buffer);
+		alter_table_add_to_sql(db, buffer, table);
 		sq_buffer_write(buffer, "FOREIGN KEY");
 	}
 	// ADD PRIMARY KEY
@@ -383,7 +354,7 @@ static bool add_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuff
 		// SQLite doesn't support this
 		if (db->info->column.sqlite == 0)
 			return false;
-		alter_table_add_to_sql(db, table, buffer);
+		alter_table_add_to_sql(db, buffer, table);
 		sq_buffer_write(buffer, "PRIMARY KEY");
 	}
 	// ADD UNIQUE
@@ -391,13 +362,13 @@ static bool add_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuff
 		// SQLite doesn't support this
 		if (db->info->column.sqlite == 0)
 			return false;
-		alter_table_add_to_sql(db, table, buffer);
+		alter_table_add_to_sql(db, buffer, table);
 		sq_buffer_write(buffer, "UNIQUE");
 	}
 	// ADD COLUMN
 	else {
-		alter_table_add_to_sql(db, table, buffer);
-		column_type_to_sql(db, column, buffer);
+		alter_table_add_to_sql(db, buffer, table);
+		column_type_to_sql(db, buffer, column);
 		return true;
 	}
 
@@ -410,12 +381,12 @@ static bool add_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuff
 
 	// ADD FOREIGN KEY REFERENCES
 	if (column->foreign)
-		foreign_ref_to_sql(db, column, buffer);
+		foreign_ref_to_sql(db, buffer, column);
 
 	return true;
 }
 
-static bool alter_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer)
+static bool alter_column_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
 	if (db->info->column.sqlite) {
 		// SQLite doesn't support alter
@@ -429,19 +400,19 @@ static bool alter_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBu
 	if (db->info->column.can_alter) {
 		// SQL Server / MS Access:
 		sq_buffer_write(buffer, "ALTER COLUMN ");
-		column_type_to_sql(db, column, buffer);
+		column_type_to_sql(db, buffer, column);
 	}
 	else if (db->info->column.can_modify) {
 		// My SQL / Oracle (prior version 10G):
 		sq_buffer_write(buffer, "MODIFY COLUMN ");
 		// Oracle 10G and later:
 //		sq_buffer_write(buffer, "MODIFY ");
-		column_type_to_sql(db, column, buffer);
+		column_type_to_sql(db, buffer, column);
 	}
 	return true;
 }
 
-static bool rename_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer)
+static bool rename_column_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
 	int  len;
 
@@ -461,7 +432,7 @@ static bool rename_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqB
 	return true;
 }
 
-static bool drop_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuffer* buffer)
+static bool drop_column_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
 	if (db->info->column.sqlite) {
 		// SQLite doesn't support DROP
@@ -497,7 +468,7 @@ static bool drop_column_to_sql(Sqdb* db, SqTable* table, SqColumn* column, SqBuf
 	return true;
 }
 
-static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
+static void column_type_to_sql(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 {
 	SqType* type;
 	int     len;
@@ -575,7 +546,7 @@ static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
 		// "FOREIGN KEY"
 		if (column->foreign) {
 			sq_buffer_write(buffer, " FOREIGN KEY");
-			foreign_ref_to_sql(db, column, buffer);
+			foreign_ref_to_sql(db, buffer, column);
 		}
 		// "PRIMARY KEY"
 		else if (column->bit_field & SQB_PRIMARY)
@@ -597,7 +568,7 @@ static void column_type_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
 	}
 }
 
-static void constraint_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
+static void constraint_to_sql(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 {
 	char** constraint;
 
@@ -624,10 +595,10 @@ static void constraint_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
 
 	// FOREIGN KEY REFERENCES
 	if (column->foreign)
-		foreign_ref_to_sql(db, column, buffer);
+		foreign_ref_to_sql(db, buffer, column);
 }
 
-static void foreign_ref_to_sql(Sqdb* db, SqColumn* column, SqBuffer* buffer)
+static void foreign_ref_to_sql(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 {
 	// REFERENCES "foreign table name"("foreign column name")
 	sq_buffer_write(buffer, " REFERENCES \"");

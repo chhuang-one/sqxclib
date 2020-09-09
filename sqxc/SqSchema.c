@@ -18,7 +18,6 @@
 #endif
 
 #include <stdio.h>      // snprintf
-#include <limits.h>     // MAX_INT
 
 #include <SqError.h>
 #include <SqBuffer.h>
@@ -368,7 +367,7 @@ void  sq_schema_clear_changes(SqSchema* schema)
 // 1. sort schema->type->entry by table->name
 // 2. sort table->extra->foreigns by column->foreign->table
 // 3. reset all table->offset = 0
-static int  count_table_order(SqSchema* schema, SqTable* table)
+static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 {
 	SqPtrArray* foreigns;
 	SqColumn*  column;
@@ -388,21 +387,31 @@ static int  count_table_order(SqSchema* schema, SqTable* table)
 
 		fore_table = sq_ptr_array_search(&schema->type->entry, column->foreign->table,
 		                                 (SqCompareFunc)sq_entry_cmp_str__name);
-		if (fore_table == NULL) {
+		if (fore_table)
+			fore_table = *(SqTable**)fore_table;
+		else {
 			// error...
 			continue;
 		}
-		fore_table = *(SqTable**)fore_table;
 
 		if (fore_table->bit_field & SQB_TABLE_CHECKING) {
-			// tables reference each other
-			// retain current column for future use.
+			// if tables reference each other, retain current column for future use.
+			if (is_reo)
+				*is_reo = 1;
 			continue;
 		}
 		else {
+			if (prev_table != fore_table) {
+				int  ref_each_other = 0;
+				table->offset += count_table_order(schema, fore_table, &ref_each_other);
+				// if tables reference each other, retain current column for future use.
+				if (ref_each_other == 1) {
+					if (is_reo)
+						*is_reo = 1;
+					continue;
+				}
+			}
 			// not reference each other
-			if (prev_table != fore_table)
-				table->offset += count_table_order(schema, fore_table);
 			// steal column. this NULL will be removed by sq_reentries_remove_null()
 			foreigns->data[index] = NULL;
 		}
@@ -449,7 +458,7 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 	}
 	// count order number and set it in table->offset
 	for (int index = 0;  index < tables->length;  index++)
-		count_table_order(schema, (SqTable*)tables->data[index]);
+		count_table_order(schema, (SqTable*)tables->data[index], NULL);
 
 	// sort entries by table->offset
 	sq_ptr_array_sort(entries, (SqCompareFunc)sq_entry_cmp_offset);

@@ -265,10 +265,7 @@ void test_db(SqSchema* schema, SqPtrArray* entries)
 
 	buffer = (SqBuffer){NULL, 0, 0};
 
-	if (entries)
-		sqdb_tables_to_sql(&db, entries, &buffer);
-	else
-		sqdb_schema_to_sql(&db, schema, &buffer);
+	sqdb_schema_to_sql(&db, &buffer, schema, entries);
 
 	sq_buffer_write_c(&buffer, '\0');
 	puts(buffer.buf);
