@@ -185,37 +185,38 @@ SqTable* sq_schema_find_type(SqSchema* schema, const char* name)
 }
 
 int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
-{	//      *schema, *schema_src
-	SqTable *table,  *table_src;
-	SqType  *type,   *type_src;
+{	//         *schema,    *schema_src
+	SqTable    *table,     *table_src;
+	SqPtrArray *reentries, *reentries_src;
 	// other variable
 	int      index;
 	void   **addr;
 
-	type = schema->type;
-	type_src = schema_src->type;
+	reentries = sq_type_get_ptr_array(schema->type);
+	reentries_src = sq_type_get_ptr_array(schema_src->type);
 
-	// run sq_schema_accumulate() first time for sq_schema_trace_foreign()
-	if (schema->offset == 0) {
-		for (index = 0;  index < type->n_entry;  index++) {
-			table = (SqTable*)type->entry[index];
+	// run sq_schema_accumulate() first time.
+	if ((schema->bit_field & SQB_SCHEMA_ACCUMULATED) == 0) {
+		// get foreign keys before calling sq_schema_trace_foreign()
+		for (index = 0;  index < reentries->length;  index++) {
+			table = (SqTable*)reentries->data[index];
 			sq_table_init_extra(table);
 			sq_table_get_foreigns(table, &table->extra->foreigns);
 		}
 	}
 
-	for (index = 0;  index < type_src->n_entry;  index++) {
-		table_src = (SqTable*)type_src->entry[index];
+	for (index = 0;  index < reentries_src->length;  index++) {
+		table_src = (SqTable*)reentries_src->data[index];
 		if (table_src->bit_field & SQB_CHANGE) {
 			// === ALTER TABLE ===
 			// find table if table->name == table_src->name
-			addr = sq_reentries_find_name(&type->entry, table_src->name);
+			addr = sq_reentries_find_name(reentries, table_src->name);
 			if (addr) {
 				table = *(SqTable**)addr;
 				sq_table_accumulate(table, table_src);
 				// append changed table to tail
 				*addr = NULL;
-				sq_reentries_add(&type->entry, table);
+				sq_reentries_add(reentries, table);
 				// It doesn't need to steal 'table_src' from 'schema_src'
 				continue;
 			}
@@ -230,12 +231,12 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 		else if (table_src->name == NULL) {
 			// === DROP TABLE ===
 			// erase original table if table->name == table_src->old_name
-			sq_reentries_erase_name(&type->entry, table_src->old_name);
+			sq_reentries_erase_name(reentries, table_src->old_name);
 		}
 		else if (table_src->old_name) {
 			// === RENAME TABLE ===
 			// find existing if table->name == table_src->old_name
-			addr = sq_reentries_find_name(&type->entry, table_src->old_name);
+			addr = sq_reentries_find_name(reentries, table_src->old_name);
 			if (addr) {
 				// rename existing table->name to table_src->name
 				table = *(SqTable**)addr;
@@ -252,54 +253,37 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			schema->table_types_sorted = false;
 		}
 
-		// steal 'table_src' from 'type_src'.
-		type_src->entry[index] = NULL;
+		// steal 'table_src' from 'schema_src->type->entry'.
+		reentries_src->data[index] = NULL;
 		// add 'table_src' to schema->type->entry.
-		sq_reentries_add(&type->entry, table_src);
+		sq_reentries_add(reentries, table_src);
 	}
 
-	// trace dropped or renamed table/column
-	sq_schema_trace_foreign(schema);
-	// remove NULL record in schema (schema->type->entry)
-	sq_reentries_remove_null(&type->entry);
-	// update 'offset' for sq_schema_trace_foreign()
-	schema->offset = type->n_entry;
 	// update other data in SqSchema
 	schema->version = schema_src->version;
-	type->bit_field &= ~SQB_TYPE_SORTED;
-
-	// update all table->offset for sq_schema_trace_foreign()
-	for (index = 0;  index < type->n_entry;  index++) {
-		table = (SqTable*)type->entry[index];
-		// skip renamed and dropped
-		if (table->old_name)
-			continue;
-		// remove NULL record in table
-		sq_reentries_remove_null(&table->type->entry);
-		// update 'offset' for sq_schema_trace_foreign()
-		table->offset = table->type->n_entry;
-	}
+	schema->bit_field |= SQB_SCHEMA_ACCUMULATED;
+	schema->type->bit_field &= ~SQB_TYPE_SORTED;
 
 	return SQCODE_OK;
 }
 
 int     sq_schema_trace_foreign(SqSchema* schema)
 {
-	SqType     *schema_type = schema->type;
+	SqPtrArray *reentries = sq_type_get_ptr_array(schema->type);
 	SqTable    *table, *table_tmp;
 	SqColumn   *column;
 	const char *name;
 	int         result = SQCODE_OK;
 
-	for (int index = 0;  index < schema_type->n_entry;  index++) {
-		table = (SqTable*)schema_type->entry[index];
+	for (int index = 0;  index < reentries->length;  index++) {
+		table = (SqTable*)reentries->data[index];
 		if (table == NULL || table->extra == NULL)
 			continue;
 
 		for (int i = 0;  i < table->extra->foreigns.length;  i++) {
 			column = (SqColumn*)table->extra->foreigns.data[i];
 			// trace renamed table
-			name = sq_reentries_trace_renamed(&schema_type->entry,
+			name = sq_reentries_trace_renamed(reentries,
 					column->foreign->table, schema->offset);
 			if (name == NULL) {
 				// table dropped.
@@ -312,7 +296,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 				column->foreign->table = strdup(name);
 			}
 			// find referenced table
-			table_tmp = (SqTable*)sq_reentries_find_name(&schema_type->entry,
+			table_tmp = (SqTable*)sq_reentries_find_name(reentries,
 					column->foreign->table);
 			if (table_tmp == NULL) {
 				// table not found. dropped?
@@ -339,25 +323,31 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 
 void  sq_schema_clear_changes(SqSchema* schema)
 {
+	SqPtrArray* reentries;
 	SqTable *table;
-	SqType  *type;
 	int      index;
 
-	// erase changes and remove NULL record in schema
-	type = schema->type;
-	sq_reentries_erase_changes(&type->entry);
-	sq_reentries_remove_null(&type->entry);
-	// update 'offset' for sq_schema_trace_foreign()
-	schema->offset = type->n_entry;
+	// erase changed records and remove NULL records in schema
+	reentries = sq_type_get_ptr_array(schema->type);    // schema->type->entry
+	sq_reentries_erase_changes(reentries);
+	sq_reentries_remove_null(reentries);
+	// update 'offset' for sq_schema_trace_foreign() and migration
+	schema->offset = reentries->length;
+	// all changed records have removed
+	schema->bit_field &= ~SQB_CHANGE;
 
-	// erase changes and remove NULL record in tables (table->type->entry)
-	for (index = 0;  index < type->n_entry;  index++) {
-		table = (SqTable*)type->entry[index];
-		sq_reentries_erase_changes(&table->type->entry);
-		sq_reentries_remove_null(&table->type->entry);
-		// update 'offset' for sq_schema_trace_foreign()
-		table->offset = table->type->n_entry;
-		// all change records have removed
+	// erase changed records and remove NULL records in tables
+	for (index = 0;  index < reentries->length;  index++) {
+		table = (SqTable*)reentries->data[index];
+		reentries = sq_type_get_ptr_array(table->type);    // table->type->entry
+		//  table->type maybe static
+		if (table->type->bit_field & SQB_TYPE_DYNAMIC) {
+			sq_reentries_erase_changes(reentries);
+			sq_reentries_remove_null(reentries);
+		}
+		// update 'offset' for sq_schema_trace_foreign() and migration
+		table->offset = reentries->length;
+		// all changed records have removed
 		table->bit_field &= ~SQB_CHANGE;
 	}
 }

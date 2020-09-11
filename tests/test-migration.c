@@ -123,7 +123,7 @@ SqTable* create_user_table_by_type(SqSchema* schema)
 //	return sq_schema_create_full(schema, "users", &UserType, NULL, 0);
 }
 
-SqTable* change_user_table_change_by_type(SqSchema* schema)
+SqTable* change_user_table_by_c_type(SqSchema* schema)
 {
 	return sq_schema_alter(schema, "users", &UserTypeChange);
 }
@@ -289,7 +289,7 @@ int  main(void)
 //	create_user_table_by_c(schema);
 
 	schema_v2 = sq_schema_new("ver2");
-	change_user_table_change_by_type(schema_v2);
+	change_user_table_by_c_type(schema_v2);
 
 	schema_v3 = sq_schema_new("ver3");
 	create_company_table_by_c(schema_v3);
@@ -301,6 +301,8 @@ int  main(void)
 	sq_schema_accumulate(schema, schema_v3);
 	sq_schema_accumulate(schema, schema_v4);
 
+	// trace renamed (or dropped) table/column that was referenced by others
+	sq_schema_trace_foreign(schema);
 	// clear changed records before calling sq_schema_arrange()
 	sq_schema_clear_changes(schema);
 

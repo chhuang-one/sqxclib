@@ -40,6 +40,10 @@ extern "C" {
 
 typedef struct SqSchema       SqSchema;
 
+// SqSchema::bit_field for internal use only
+#define SQB_SCHEMA_ACCUMULATED                (1 << 15)
+
+
 SqSchema* sq_schema_new(const char* name);
 void      sq_schema_free(SqSchema* schema);
 
@@ -83,11 +87,10 @@ SqTable* sq_schema_find_type(SqSchema* schema, const char* type_name);
 // It may move/steal tables and column from 'schema_src'.
 int     sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src);
 
-// This used by sq_schema_accumulate()
-// It trace renamed table/column to update foreign references.
+// It trace renamed (or dropped) table/column that was referenced by others and update others references.
 int     sq_schema_trace_foreign(SqSchema* schema);
 
-// clear changed records after calling sq_schema_accumulate()
+// clear changed records after calling sq_schema_accumulate() and sq_schema_trace_foreign()
 void    sq_schema_clear_changes(SqSchema* schema);
 
 // call this function before creating table.
@@ -107,7 +110,7 @@ struct SqSchema
 /*	// ------ SqEntry members ------
 	SqType*      type;        // type information for this entry
 	char*        name;
-	size_t       offset;      // sq_schema_trace_foreign() use this
+	size_t       offset;      // sq_schema_trace_foreign() and migration use this
 	unsigned int bit_field;
  */
 	int          version;

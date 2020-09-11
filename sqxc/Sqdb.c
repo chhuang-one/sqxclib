@@ -55,25 +55,25 @@ int  sqdb_migrate(Sqdb* db, SqSchema* schema)
 //	SqBuffer* buffer;
 
 	if (schema == NULL) {
-		if (db->version < db->schema->version) {
-			// do ...
-		}
-		// db->migration
+		// trace renamed (or dropped) table/column that was referenced by others
+		sq_schema_trace_foreign(db->schema);
 
-//		sqdb_schema_to_sql(db, db->schema, &buffer);
-	}
-/*
-	// it is the newest schema if schema->version == 0
-	if (schema->version == 0) {
-		db->schema = schema;
+		// SQL command...
+		// drop, rename, alter, or recreate table
+
+		// erase changed records and remove NULL records in schema
+		sq_schema_clear_changes(db->schema);
 		return SQCODE_OK;
 	}
- */
 
 	// accumulate changes
 	sq_schema_accumulate(db->schema, schema);
-	if (db->version == schema->version)
+	if (db->version == schema->version) {
+		// trace renamed (or dropped) table/column that was referenced by others
+		sq_schema_trace_foreign(db->schema);
+		// erase changed records and remove NULL records in schema
 		sq_schema_clear_changes(db->schema);
+	}
 
 	return SQCODE_OK;
 }

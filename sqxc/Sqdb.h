@@ -31,7 +31,7 @@ typedef struct SqdbInfo         SqdbInfo;
 struct Sqdb {
 	SqdbInfo*      info;
 
-	int            version;      // schema_version
+	int            version;      // schema_version in database
 	SqSchema*      schema;
 
 	// SQLite config
