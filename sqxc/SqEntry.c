@@ -125,10 +125,11 @@ void  sq_reentries_erase_changes(void* reentry_ptr_array)
 	destroy = sq_ptr_array_destroy_func(reentry_ptr_array);
 	for (int index = 0;  index < ((SqPtrArray*)reentry_ptr_array)->length; index++) {
 		reentry = ((SqPtrArray*)reentry_ptr_array)->data[index];
-		if (reentry == NULL || (reentry->bit_field & SQB_DYNAMIC) == 0 )
+		if (reentry == NULL)
 			continue;
 		if (reentry->old_name) {
-			destroy(reentry);
+			if (destroy)
+				destroy(reentry);
 			((SqPtrArray*)reentry_ptr_array)->data[index] = NULL;
 		}
 	}
