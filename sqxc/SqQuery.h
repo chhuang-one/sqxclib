@@ -207,7 +207,7 @@ void    sq_query_delete(SqQuery* query);
 // SQL: TRUNCATE TABLE
 void    sq_query_truncate(SqQuery* query);
 
-// SQL statments
+// SQL statements
 char*   sq_query_to_sql(SqQuery* query);
 
 // va_list

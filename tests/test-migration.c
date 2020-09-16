@@ -304,7 +304,7 @@ int  main(void)
 	// trace renamed (or dropped) table/column that was referenced by others
 	sq_schema_trace_foreign(schema);
 	// clear changed records before calling sq_schema_arrange()
-	sq_schema_clear_changes(schema);
+	sq_schema_clear_changes(schema, 0, 0);
 
 	sq_ptr_array_init(&entries, 8, NULL);
 	sq_schema_arrange(schema, &entries);

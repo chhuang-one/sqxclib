@@ -406,16 +406,35 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 	return SQCODE_OK;
 }
 
-void  sq_table_arrange(SqTable* table, SqPtrArray* entries)
+void  sq_table_arrange(SqTable* table, SqPtrArray* entries, SqPtrArray* exclude_foreign)
 {
-	SqPtrArray* columns = sq_type_get_ptr_array(table->type);
+	SqPtrArray* array = sq_type_get_ptr_array(table->type);
+	SqColumn*   column;
+	int         index_e = 0;    // index of entries
 
-	// copy column pointers from table->type->entry
-	if (entries->length < columns->length)
-		sq_ptr_array_alloc(entries, columns->length - entries->length);
-	memcpy(entries->data, columns->data, sizeof(void*) * columns->length);
-	entries->length = columns->length;
+	// allocate enough space
+	if (entries->length < array->length)
+		sq_ptr_array_alloc(entries, array->length - entries->length);
 
+	for (int index = 0;  index < array->length;  index++) {
+		column = (SqColumn*)array->data[index];
+		if (column->foreign == NULL && (column->bit_field & SQB_FOREIGN) == 0) {
+			entries->data[index_e++] = column;
+			continue;
+		}
+		// don't copy column to 'entries' if it in exclude list
+		if (exclude_foreign) {
+			for (int index_x = 0;  ;  index_x++) {
+				if (index_x == exclude_foreign->length)
+					entries->data[index_e++] = (SqEntry*)column;
+				if (column == (SqColumn*)exclude_foreign->data[index_x])
+					break;
+			}
+		}
+	}
+	entries->length = index_e;
+
+	// sort column by it's attribute
 	sq_ptr_array_sort(entries, (SqCompareFunc)sq_column_cmp_attrib);
 }
 

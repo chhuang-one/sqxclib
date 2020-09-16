@@ -41,8 +41,11 @@ typedef struct SqColumn       SqColumn;
 typedef struct SqForeign      SqForeign;    // used by SqColumn
 
 // SqTable::bit_field
-#define SQB_TABLE_CHECKING                (1 << 15)
-// SqTable::bit_field for SQLite
+#define SQB_TABLE_SQL_CREATED             (1 << 13)
+#define SQB_TABLE_CHECKING                (1 << 14)
+// SqTable::bit_field for SQLite (constraint reference each other)
+#define SQB_TABLE_CONSTRAINT_REO          (1 << 15)
+// SqTable::bit_field for SQLite (decide to recreate)
 #define SQB_TABLE_COL_ALTERED             (1 << 16)
 #define SQB_TABLE_COL_RENAMED             (1 << 17)
 #define SQB_TABLE_COL_DROPPED             (1 << 18)
@@ -159,6 +162,10 @@ void      sq_table_drop_index(SqTable* table, const char* name);
 SqColumn* sq_table_add_foreign(SqTable* table, const char* name);
 void      sq_table_drop_foreign(SqTable* table, const char* name);
 
+/* --------------------------------------------------------
+	migration functions
+ */
+
 // This used by migration: accumulate changes from 'table_src'.
 // It may move/steal columns from 'table_src'.
 int       sq_table_accumulate(SqTable* table, SqTable* table_src);
@@ -166,7 +173,7 @@ int       sq_table_accumulate(SqTable* table, SqTable* table_src);
 // call this function before creating table
 // It move primary key to front and move constraint to end.
 // output sorted columns in 'entries'
-void      sq_table_arrange(SqTable* table, SqPtrArray* entries);
+void      sq_table_arrange(SqTable* table, SqPtrArray* entries, SqPtrArray* exclude_foreign);
 
 // unique('column_name')
 // index('column_name')

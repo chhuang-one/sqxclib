@@ -321,7 +321,9 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 	return result;
 }
 
-void  sq_schema_clear_changes(SqSchema* schema)
+void  sq_schema_clear_changes(SqSchema* schema,
+                              unsigned int clear_table_bit_field,
+                              unsigned int set_table_bit_field)
 {
 	SqPtrArray* reentries;
 	SqTable *table;
@@ -349,6 +351,9 @@ void  sq_schema_clear_changes(SqSchema* schema)
 		table->offset = reentries->length;
 		// all changed records have removed
 		table->bit_field &= ~SQB_CHANGE;
+		// set/clear table->bit_field
+		table->bit_field &= ~clear_table_bit_field;
+		table->bit_field |= set_table_bit_field;
 	}
 }
 
@@ -388,6 +393,9 @@ static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 			// if tables reference each other, retain current column for future use.
 			if (is_reo)
 				*is_reo = 1;
+			// for SQLite (constraint reference each other)
+			if (column->constraint)
+				table->bit_field |= SQB_TABLE_CONSTRAINT_REO;
 			continue;
 		}
 		else {
@@ -398,6 +406,9 @@ static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 				if (ref_each_other == 1) {
 					if (is_reo)
 						*is_reo = 1;
+					// for SQLite (constraint reference each other)
+					if (column->constraint)
+						table->bit_field |= SQB_TABLE_CONSTRAINT_REO;
 					continue;
 				}
 			}
@@ -436,6 +447,7 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 
 	// sort 'tables' (schema->type->entry) by table->name before calling count_table_order()
 	sq_ptr_array_sort(tables, (SqCompareFunc)sq_entry_cmp_name);
+	schema->type->bit_field |= SQB_TYPE_SORTED;
 	// setup all tables before calling count_table_order()
 	for (int index = 0;  index < tables->length;  index++) {
 		table1 = (SqTable*)tables->data[index];
@@ -443,8 +455,6 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 		table1->offset = 0;
 		// sort column in tables before calling count_table_order()
 		sq_ptr_array_sort(&table1->extra->foreigns, (SqCompareFunc)sq_column_cmp_foreign_table);
-		// arrange columns in table
-//		sq_table_arrange(table1, &table1->extra->arranged);
 	}
 	// count order number and set it in table->offset
 	for (int index = 0;  index < tables->length;  index++)
