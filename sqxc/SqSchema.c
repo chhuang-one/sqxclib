@@ -270,7 +270,7 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 int     sq_schema_trace_foreign(SqSchema* schema)
 {
 	SqPtrArray *reentries = sq_type_get_ptr_array(schema->type);
-	SqTable    *table, *table_tmp;
+	SqTable    *table, *table_fore;
 	SqColumn   *column;
 	const char *name;
 	int         result = SQCODE_OK;
@@ -296,16 +296,18 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 				column->foreign->table = strdup(name);
 			}
 			// find referenced table
-			table_tmp = (SqTable*)sq_reentries_find_name(reentries,
+			table_fore = (SqTable*)sq_reentries_find_name(reentries,
 					column->foreign->table);
-			if (table_tmp == NULL) {
+			if (table_fore)
+				table_fore = *(SqTable**)table_fore;
+			else {
 				// table not found. dropped?
 				result = SQCODE_ENTRY_NOT_FOUND;
 				continue;  // error...
 			}
 			// trace renamed column
-			name = sq_reentries_trace_renamed(&table_tmp->type->entry,
-					column->foreign->column, table_tmp->offset);
+			name = sq_reentries_trace_renamed(&table_fore->type->entry,
+					column->foreign->column, table_fore->offset);
 			if (name == NULL) {
 				// column dropped.
 				result = SQCODE_REENTRY_DROPPED;
