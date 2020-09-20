@@ -135,21 +135,6 @@ void  sq_reentries_erase_changes(void* reentry_ptr_array)
 	}
 }
 
-void**  sq_reentries_replace(void* reentry_ptr_array, const void* reentry, const void* reentry_new)
-{
-	// find reentry in array
-	sq_ptr_array_foreach_addr(reentry_ptr_array, addr) {
-		if (*addr == reentry) {
-			*addr  = (void*)reentry_new;
-			return addr;
-		}
-	}
-	// append reentry_new if not found
-	if (reentry_new)
-		sq_ptr_array_append(reentry_ptr_array, reentry_new);
-	return NULL;
-}
-
 void  sq_reentries_remove_null(void* reentry_ptr_array)
 {
 	SqPtrArray* array = (SqPtrArray*)reentry_ptr_array;

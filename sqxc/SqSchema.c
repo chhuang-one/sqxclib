@@ -200,8 +200,9 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 		// get foreign keys before calling sq_schema_trace_foreign()
 		for (index = 0;  index < reentries->length;  index++) {
 			table = (SqTable*)reentries->data[index];
-			sq_table_init_extra(table);
-			sq_table_get_foreigns(table, &table->extra->foreigns);
+			if (table->foreigns.data == NULL)
+				sq_ptr_array_init(&table->foreigns, 4, NULL);
+			sq_table_get_foreigns(table, &table->foreigns);
 		}
 	}
 
@@ -221,8 +222,9 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 				continue;
 			}
 			else {
-				sq_table_init_extra(table_src);
-				sq_table_get_foreigns(table_src, &table_src->extra->foreigns);
+				if (table_src->foreigns.data == NULL)
+					sq_ptr_array_init(&table_src->foreigns, 4, NULL);
+				sq_table_get_foreigns(table_src, &table_src->foreigns);
 				// table_types
 				sq_ptr_array_append(&schema->table_types, table_src);
 				schema->table_types_sorted = false;
@@ -246,8 +248,9 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 		}
 		else {
 			// === ADD TABLE ===
-			sq_table_init_extra(table_src);
-			sq_table_get_foreigns(table_src, &table_src->extra->foreigns);
+			if (table_src->foreigns.data == NULL)
+				sq_ptr_array_init(&table_src->foreigns, 4, NULL);			
+			sq_table_get_foreigns(table_src, &table_src->foreigns);
 			// table_types
 			sq_ptr_array_append(&schema->table_types, table_src);
 			schema->table_types_sorted = false;
@@ -277,11 +280,15 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 
 	for (int index = 0;  index < reentries->length;  index++) {
 		table = (SqTable*)reentries->data[index];
-		if (table == NULL || table->extra == NULL)
+		if (table == NULL || table->foreigns.data == NULL)
 			continue;
 
-		for (int i = 0;  i < table->extra->foreigns.length;  i++) {
-			column = (SqColumn*)table->extra->foreigns.data[i];
+		for (int i = 0;  i < table->foreigns.length;  i++) {
+			column = (SqColumn*)table->foreigns.data[i];
+			if (column == NULL)
+				continue;
+
+			// --------------------------------------------
 			// trace renamed table
 			name = sq_reentries_trace_renamed(reentries,
 					column->foreign->table, schema->offset);
@@ -291,20 +298,30 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 				continue;   // error...
 			}
 			else if (name != column->foreign->table) {
-				// table renamed. name = the newest table name
+				// reference table was renamed.
+				if ((column->bit_field & SQB_DYNAMIC) == 0) {
+					// create dynamic column to replace static one
+					column = sq_column_copy_static(column);
+					sq_table_replace_column(table, NULL,
+							(SqColumn**)&table->foreigns.data[i], column);
+				}
 				free(column->foreign->table);
-				column->foreign->table = strdup(name);
+				column->foreign->table = strdup(name);    // name = the newest table name
 			}
+
+			// --------------------------------------------
 			// find referenced table
 			table_fore = (SqTable*)sq_reentries_find_name(reentries,
 					column->foreign->table);
 			if (table_fore)
 				table_fore = *(SqTable**)table_fore;
 			else {
-				// table not found. dropped?
-				result = SQCODE_ENTRY_NOT_FOUND;
+				// (renamed) table not found. dropped?
+				result = SQCODE_REFERENCE_NOT_FOUND;
 				continue;  // error...
 			}
+
+			// --------------------------------------------
 			// trace renamed column
 			name = sq_reentries_trace_renamed(&table_fore->type->entry,
 					column->foreign->column, table_fore->offset);
@@ -314,21 +331,25 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 				continue;   // error...
 			}
 			else if (name != column->foreign->column) {
-				// column renamed. name = newest column name
+				// reference column renamed.
+				if ((column->bit_field & SQB_DYNAMIC) == 0) {
+					// create dynamic column to replace static one
+					column = sq_column_copy_static(column);
+					sq_table_replace_column(table, NULL,
+							(SqColumn**)&table->foreigns.data[i], column);
+				}
 				free(column->foreign->column);
-				column->foreign->column = strdup(name);
+				column->foreign->column = strdup(name);    // name = newest column name
 			}
 		}
 	}
 	return result;
 }
 
-void  sq_schema_clear_changes(SqSchema* schema,
-                              unsigned int clear_table_bit_field,
-                              unsigned int set_table_bit_field)
+void  sq_schema_reset_changes(SqSchema* schema, int reset_offset, unsigned int set_table_bit_field)
 {
 	SqPtrArray* reentries;
-	SqTable *table;
+	SqTable* table;
 	int      index;
 
 	// erase changed records and remove NULL records in schema
@@ -353,12 +374,14 @@ void  sq_schema_clear_changes(SqSchema* schema,
 		table->offset = reentries->length;
 		// all changed records have removed
 		table->bit_field &= ~SQB_CHANGE;
-		// set/clear table->bit_field
-		table->bit_field &= ~clear_table_bit_field;
+		// set/reset table data
 		table->bit_field |= set_table_bit_field;
+		if (reset_offset)
+			table->offset = 0;
 	}
 }
 
+// used by sq_schema_arrange()
 // trace column reference and count order
 // before calling this function:
 // 1. sort schema->type->entry by table->name
@@ -367,21 +390,21 @@ void  sq_schema_clear_changes(SqSchema* schema,
 static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 {
 	SqPtrArray* foreigns;
-	SqColumn*  column;
-	SqTable*   fore_table;
-	SqTable*   prev_table = NULL;
+	SqColumn*   column;
+	SqTable*    fore_table;
 
 	if (table->offset > 0)
 		return table->offset;
 	table->offset = 1;
-	table->bit_field |= SQB_TABLE_CHECKING;
-	foreigns = &table->extra->foreigns;
+	table->bit_field |= SQB_TABLE_REO_CHECKING;
+	foreigns = &table->foreigns;
 
 	for (int index = 0;  index < foreigns->length;  index++) {
  		column = (SqColumn*)foreigns->data[index];
 		if (column == NULL)
 			continue;
 
+//		fore_table = sq_type_find_entry(schema->type, column->foreign->table, NULL);
 		fore_table = sq_ptr_array_search(&schema->type->entry, column->foreign->table,
 		                                 (SqCompareFunc)sq_entry_cmp_str__name);
 		if (fore_table)
@@ -391,55 +414,48 @@ static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 			continue;
 		}
 
-		if (fore_table->bit_field & SQB_TABLE_CHECKING) {
+		if (fore_table->bit_field & SQB_TABLE_REO_CHECKING) {
 			// if tables reference each other, retain current column for future use.
 			if (is_reo)
 				*is_reo = 1;
 			// for SQLite (constraint reference each other)
 			if (column->constraint)
-				table->bit_field |= SQB_TABLE_CONSTRAINT_REO;
+				table->bit_field |= SQB_TABLE_REO_CONSTRAINT;
 			continue;
 		}
 		else {
-			if (prev_table != fore_table) {
-				int  ref_each_other = 0;
-				table->offset += count_table_order(schema, fore_table, &ref_each_other);
-				// if tables reference each other, retain current column for future use.
-				if (ref_each_other == 1) {
-					if (is_reo)
-						*is_reo = 1;
-					// for SQLite (constraint reference each other)
-					if (column->constraint)
-						table->bit_field |= SQB_TABLE_CONSTRAINT_REO;
-					continue;
-				}
+			int  ref_each_other = 0;
+
+			table->offset += count_table_order(schema, fore_table, &ref_each_other);
+			// if tables reference each other, retain current column for future use.
+			if (ref_each_other == 1) {
+				if (is_reo)
+					*is_reo = 1;
+				// for SQLite (constraint reference each other)
+				if (column->constraint)
+					table->bit_field |= SQB_TABLE_REO_CONSTRAINT;
+				continue;
 			}
 			// not reference each other
 			// steal column. this NULL will be removed by sq_reentries_remove_null()
 			foreigns->data[index] = NULL;
 		}
-		prev_table = fore_table;
 	}
 
-	sq_reentries_remove_null(foreigns);
-	table->bit_field &= ~SQB_TABLE_CHECKING;
+	table->bit_field &= ~SQB_TABLE_REO_CHECKING;
 	return table->offset;
 }
 
+// used by sq_schema_arrange()
 static int  sq_entry_cmp_offset(SqEntry** entry1, SqEntry** entry2)
 {
 	return (*entry1)->offset - (*entry2)->offset;
 }
 
-static int  sq_column_cmp_foreign_table(SqColumn** column1, SqColumn** column2)
-{
-	return strcasecmp((*column1)->foreign->table, (*column2)->foreign->table);
-}
-
 void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 {
 	SqPtrArray* tables = sq_type_get_ptr_array(schema->type);
-	SqTable*    table1;
+	SqTable*    table_one;
 
 	// copy table pointers from schema->type->entry
 	if (entries->length < tables->length)
@@ -450,17 +466,17 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 	// sort 'tables' (schema->type->entry) by table->name before calling count_table_order()
 	sq_ptr_array_sort(tables, (SqCompareFunc)sq_entry_cmp_name);
 	schema->type->bit_field |= SQB_TYPE_SORTED;
-	// setup all tables before calling count_table_order()
-	for (int index = 0;  index < tables->length;  index++) {
-		table1 = (SqTable*)tables->data[index];
-		// reset table->offset before calling count_table_order()
-		table1->offset = 0;
-		// sort column in tables before calling count_table_order()
-		sq_ptr_array_sort(&table1->extra->foreigns, (SqCompareFunc)sq_column_cmp_foreign_table);
-	}
+
+	// reset all table->offset before calling count_table_order()
+//	for (int index = 0;  index < tables->length;  index++)
+//		((SqTable*)tables->data[index])->offset = 0;
+
 	// count order number and set it in table->offset
-	for (int index = 0;  index < tables->length;  index++)
-		count_table_order(schema, (SqTable*)tables->data[index], NULL);
+	for (int index = 0;  index < tables->length;  index++) {
+		table_one = (SqTable*)tables->data[index];
+		count_table_order(schema, table_one, NULL);
+		sq_reentries_remove_null(&table_one->foreigns);
+	}
 
 	// sort entries by table->offset
 	sq_ptr_array_sort(entries, (SqCompareFunc)sq_entry_cmp_offset);

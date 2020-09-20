@@ -62,7 +62,7 @@ int  sqdb_migrate(Sqdb* db, SqSchema* schema)
 		// drop, rename, alter, or recreate table
 
 		// erase changed records and remove NULL records in schema
-		sq_schema_clear_changes(db->schema, 0, 0);
+		sq_schema_reset_changes(db->schema, 1, 0);
 		return SQCODE_OK;
 	}
 
@@ -72,7 +72,7 @@ int  sqdb_migrate(Sqdb* db, SqSchema* schema)
 		// trace renamed (or dropped) table/column that was referenced by others
 		sq_schema_trace_foreign(db->schema);
 		// erase changed records and remove NULL records in schema
-		sq_schema_clear_changes(db->schema, 0, SQB_TABLE_SQL_CREATED);
+		sq_schema_reset_changes(db->schema, 0, SQB_TABLE_SQL_CREATED);
 	}
 
 	return SQCODE_OK;

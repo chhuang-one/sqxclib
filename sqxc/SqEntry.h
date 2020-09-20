@@ -148,12 +148,6 @@ void**  sq_reentries_erase(void* reentry_ptr_array, const void* key, SqCompareFu
 // return address of deleted reentry pointer.
 void    sq_reentries_erase_changes(void* reentry_ptr_array);
 
-// find and replace 'reentry' by 'reentry_new'.
-// if 'reentry' not found and 'reentry_new' != NULL, It will append 'reentry_new'.
-// if 'reentry' not found and 'reentry_new' == NULL, It will NOT add 'reentry_new'.
-// return address of 'reentry' pointer.
-void**  sq_reentries_replace(void* reentry_ptr_array, const void* reentry, const void* reentry_new);
-
 // remove all NULL pointer in array
 void    sq_reentries_remove_null(void* reentry_ptr_array);
 

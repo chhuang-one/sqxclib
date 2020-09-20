@@ -86,7 +86,7 @@ SqTable* sq_schema_find_type(SqSchema* schema, const char* type_name);
 	sq_schema_accumulate(schema, schema_v2);
 	sq_schema_accumulate(schema, schema_v3);
 	sq_schema_trace_foreign(schema);
-	sq_schema_clear_changes(schema, 0, SQB_TABLE_SQL_CREATED);
+	sq_schema_reset_changes(schema, 0, SQB_TABLE_CREATED);
 
 	// --- if the latest schema_version is 5, migrate to schema_v5
 	// migrate schema_v4 and schema_v5 by SQL statement
@@ -95,7 +95,7 @@ SqTable* sq_schema_find_type(SqSchema* schema, const char* type_name);
 	sq_schema_trace_foreign(schema);
 	// SQLite must try to rename, drop, or create table
 	//                    rename, add column here
-	sq_schema_clear_changes(schema, 0, 0);
+	sq_schema_reset_changes(schema, 1, 0);
 
 	sq_schema_arrange(schema, entries);
 	// create table by SQL statement
@@ -110,11 +110,9 @@ int     sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src);
 int     sq_schema_trace_foreign(SqSchema* schema);
 
 // clear changed records after calling sq_schema_accumulate() and sq_schema_trace_foreign()
-void    sq_schema_clear_changes(SqSchema* schema,
-                                unsigned int clear_table_bit_field,
-                                unsigned int set_table_bit_field);
+void    sq_schema_reset_changes(SqSchema* schema, int reset_offset, unsigned int set_table_bit_field);
 
-// call this function before creating SQL table after sq_schema_clear_changes().
+// call this function before creating SQL table after sq_schema_reset_changes(schema, 1, 0)
 // if table has no foreign key, this function move it to front.
 // if table references most tables, this function move it to end.
 // if table references each other, table->extra->foreigns.length > 0

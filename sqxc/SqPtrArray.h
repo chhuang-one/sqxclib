@@ -33,8 +33,14 @@ extern "C" {
 // default length of header
 #define SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH     3
 
-// ----------------------------------------------------------------------------
-// macro for accessing variable of array
+/* ----------------------------------------------------------------------------
+	macro for accessing variable of array
+
+	Header field of SqPtrArray
+	ptr_array->data[-1]: (intptr_t) header length
+	ptr_array->data[-2]: (intptr_t) allocated length
+	ptr_array->data[-3]: (SqDestroyFunc*) destroy function
+ */
 
 #define sq_ptr_array_data(array)    \
 		((SqPtrArray*)(array))->data

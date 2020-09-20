@@ -41,10 +41,13 @@ typedef struct SqColumn       SqColumn;
 typedef struct SqForeign      SqForeign;    // used by SqColumn
 
 // SqTable::bit_field
+// REO = reference each other
+// COL = column
 #define SQB_TABLE_SQL_CREATED             (1 << 13)
-#define SQB_TABLE_CHECKING                (1 << 14)
+// SqTable::bit_field for checking foreign reference each other (avoid infinite recursive)
+#define SQB_TABLE_REO_CHECKING            (1 << 14)
 // SqTable::bit_field for SQLite (constraint reference each other)
-#define SQB_TABLE_CONSTRAINT_REO          (1 << 15)
+#define SQB_TABLE_REO_CONSTRAINT          (1 << 15)
 // SqTable::bit_field for SQLite (decide to recreate)
 #define SQB_TABLE_COL_ALTERED             (1 << 16)
 #define SQB_TABLE_COL_RENAMED             (1 << 17)
@@ -63,10 +66,6 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 
 SqTable*  sq_table_new(const char* name, const SqType* type_info);
 void      sq_table_free(SqTable* table_pub);
-
-// for internal use only
-void      sq_table_init_extra(SqTable* table);
-void      sq_table_final_extra(SqTable* table);
 
 bool      sq_table_has_column(SqTable* table, const char* column_name);
 void      sq_table_drop_column(SqTable* table, const char* column_name);
@@ -166,14 +165,22 @@ void      sq_table_drop_foreign(SqTable* table, const char* name);
 	migration functions
  */
 
+// function will free old column and replace it by 'new_one'
+// if 'new_one' is NULL, it set NULL in address of old column.
+void      sq_table_replace_column(SqTable*   table,
+                                  SqColumn** old_in_type,
+                                  SqColumn** old_in_foreigns,
+                                  SqColumn*  new_one);
+
 // This used by migration: accumulate changes from 'table_src'.
 // It may move/steal columns from 'table_src'.
 int       sq_table_accumulate(SqTable* table, SqTable* table_src);
 
-// call this function before creating table
-// It move primary key to front and move constraint to end.
-// output sorted columns in 'entries'
-void      sq_table_arrange(SqTable* table, SqPtrArray* entries, SqPtrArray* exclude_foreign);
+// table->type->entry remove columns found in 'excluded_columns', remained columns output to 'result'.
+void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray* result);
+
+// sort column by it's attribute
+//	sq_ptr_array_sort(result, (SqCompareFunc)sq_column_cmp_attrib);
 
 // unique('column_name')
 // index('column_name')
@@ -256,11 +263,9 @@ struct SqTable
 
 	// SqColumn's array for temporary use.
 	// sq_table_accumulate() and sq_schema_accumulate() store columns that having foreign reference.
-	// sq_table_arrange() arrange columns before creating table.
-	struct {
-	    SqPtrArray  foreigns;
-	    SqPtrArray  arranged;
-	} *extra;
+	// sq_schema_arrange() will remove foreign columns without reference each other.
+	// finalize it after creating table in SQL
+	SqPtrArray   foreigns;
 
 
 #ifdef __cplusplus

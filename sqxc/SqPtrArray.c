@@ -70,6 +70,10 @@ void** sq_ptr_array_alloc_at(void* array, int index, int count)
 	int   new_length;
 	int   allocated;
 
+	// it doesn't initialize.
+//	if (sq_ptr_array_data(array) == NULL)
+//		sq_ptr_array_init_full(array, count*2, SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH, NULL);
+
 	allocated  = sq_ptr_array_allocated(array);
 	new_length = sq_ptr_array_length(array) + count;
 	if (allocated < new_length) {
@@ -102,6 +106,10 @@ void** sq_ptr_array_find(void* array, const void* key, SqCompareFunc cmpfunc)
 void sq_ptr_array_erase(void* array, int index, int count)
 {
 	SqDestroyFunc  destroy_func;
+
+	// it doesn't initialize.
+//	if (sq_ptr_array_data(array) == NULL)
+//		return;
 
 	// destroy elements
 	destroy_func = sq_ptr_array_destroy_func(array);

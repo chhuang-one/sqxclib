@@ -46,6 +46,10 @@ extern "C" {
 #define SQCODE_NO_MORE_DATA          25
 #define SQCODE_UNCOMPLETED_JSON      26
 
+// error - migration
+#define SQCODE_REFERENCE_NOT_FOUND   100
+#define SQCODE_REFERENCE_EACH_OTHER  101
+
 #ifdef __cplusplus
 }
 #endif
