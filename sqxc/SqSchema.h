@@ -94,7 +94,7 @@ SqTable* sq_schema_find_type(SqSchema* schema, const char* type_name);
 	sq_schema_accumulate(schema, schema_v5);
 	sq_schema_trace_foreign(schema);
 	// SQLite must try to rename, drop, or create table
-	//                    rename, add column here
+	//                    rename, or add column here
 	sq_schema_reset_changes(schema, 1, 0);
 
 	sq_schema_arrange(schema, entries);
@@ -110,7 +110,7 @@ int     sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src);
 int     sq_schema_trace_foreign(SqSchema* schema);
 
 // clear changed records after calling sq_schema_accumulate() and sq_schema_trace_foreign()
-void    sq_schema_reset_changes(SqSchema* schema, int reset_offset, unsigned int set_table_bit_field);
+void    sq_schema_reset_changes(SqSchema* schema, int reset_table_offset, unsigned int set_table_bit_field);
 
 // call this function before creating SQL table after sq_schema_reset_changes(schema, 1, 0)
 // if table has no foreign key, this function move it to front.

@@ -381,6 +381,8 @@ int   sq_table_accumulate(SqTable* table, SqTable* table_src)
 			// set bit_field: column added
 			if (column_src->constraint)
 				table->bit_field |= SQB_TABLE_COL_ADDED_CONSTRAINT;
+			else if (column->bit_field & (SQB_UNIQUE | SQB_PRIMARY))
+				table->bit_field |= SQB_TABLE_COL_ADDED_UNIQUE;
 			else
 				table->bit_field |= SQB_TABLE_COL_ADDED;
 		}

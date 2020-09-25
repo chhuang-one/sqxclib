@@ -35,6 +35,8 @@ SqSchema*  sq_schema_new(const char* name)
 
 	schema = malloc(sizeof(SqSchema));
 	typeinfo = sq_type_new(8, (SqDestroyFunc)sq_table_free);
+	typeinfo->parse = NULL;
+	typeinfo->write = NULL;
 
 	sq_entry_init((SqEntry*)schema, typeinfo);
 	schema->name = name ? strdup(name) : NULL;
@@ -346,7 +348,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 	return result;
 }
 
-void  sq_schema_reset_changes(SqSchema* schema, int reset_offset, unsigned int set_table_bit_field)
+void  sq_schema_reset_changes(SqSchema* schema, int reset_table_offset, unsigned int set_table_bit_field)
 {
 	SqPtrArray* reentries;
 	SqTable* table;
@@ -371,13 +373,11 @@ void  sq_schema_reset_changes(SqSchema* schema, int reset_offset, unsigned int s
 			sq_reentries_remove_null(reentries);
 		}
 		// update 'offset' for sq_schema_trace_foreign() and migration
-		table->offset = reentries->length;
+		table->offset = (reset_table_offset) ? 0 : reentries->length;
 		// all changed records have removed
 		table->bit_field &= ~SQB_CHANGE;
 		// set/reset table data
 		table->bit_field |= set_table_bit_field;
-		if (reset_offset)
-			table->offset = 0;
 	}
 }
 
@@ -436,8 +436,8 @@ static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 					table->bit_field |= SQB_TABLE_REO_CONSTRAINT;
 				continue;
 			}
-			// not reference each other
-			// steal column. this NULL will be removed by sq_reentries_remove_null()
+			// if tables doesn't reference each other, remove current column from 'foreigns'.
+			// these NULL will be removed by sq_reentries_remove_null()
 			foreigns->data[index] = NULL;
 		}
 	}

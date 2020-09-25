@@ -53,7 +53,8 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 #define SQB_TABLE_COL_RENAMED             (1 << 17)
 #define SQB_TABLE_COL_DROPPED             (1 << 18)
 #define SQB_TABLE_COL_ADDED               (1 << 19)
-#define SQB_TABLE_COL_ADDED_CONSTRAINT    (1 << 20)
+#define SQB_TABLE_COL_ADDED_UNIQUE        (1 << 20)    // UNIQUE or PRIMARY KEY
+#define SQB_TABLE_COL_ADDED_CONSTRAINT    (1 << 21)
 
 #define SQB_TABLE_COL_ATTRIB              (SQB_TABLE_COL_ALTERED | \
                                            SQB_TABLE_COL_RENAMED | \
@@ -166,7 +167,7 @@ void      sq_table_drop_foreign(SqTable* table, const char* name);
  */
 
 // function will free old column and replace it by 'new_one'
-// if 'new_one' is NULL, it set NULL in address of old column.
+// if 'new_one' is NULL, it remove old column and set NULL in it's address.
 void      sq_table_replace_column(SqTable*   table,
                                   SqColumn** old_in_type,
                                   SqColumn** old_in_foreigns,
