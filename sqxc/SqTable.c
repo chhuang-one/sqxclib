@@ -317,7 +317,7 @@ void  sq_table_replace_column(SqTable*   table,
 	sq_column_free(column);
 }
 
-int   sq_table_accumulate(SqTable* table, SqTable* table_src)
+int   sq_table_include(SqTable* table, SqTable* table_src)
 {	//         *table,     *table_src
 	SqColumn   *column,    *column_src;
 	SqPtrArray *reentries, *reentries_src;

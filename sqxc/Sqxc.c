@@ -27,41 +27,41 @@ static SqxcNested sqxc_nested_root = {0};
 // ----------------------------------------------------------------------------
 // Sqxc functions
 
-Sqxc*  sqxc_new(const SqxcInfo* cxinfo, int io)
+Sqxc*  sqxc_new(const SqxcInfo* xcinfo, int io)
 {
-	Sqxc* cx;
+	Sqxc* xc;
 	SqInitFunc init;
 
 	io &= 1;    // 0 or 1
-	cx = (Sqxc*)calloc(1, cxinfo[io].size);
-	cx->nested = NESTED_OUTER_ROOT;
-	init = cxinfo[io].init;
+	xc = (Sqxc*)calloc(1, xcinfo[io].size);
+	xc->nested = NESTED_OUTER_ROOT;
+	init = xcinfo[io].init;
 	if (init)
-		init(cx);
-	cx->info = cxinfo;
-	cx->io_ = io;
-	return cx;
+		init(xc);
+	xc->info = xcinfo;
+	xc->io_ = io;
+	return xc;
 }
 
-void  sqxc_free(Sqxc* cx)
+void  sqxc_free(Sqxc* xc)
 {
 	SqFinalFunc final;
 
-	final = cx->info[cx->io_].final;
+	final = xc->info[xc->io_].final;
 	if (final)
-		final(cx);
+		final(xc);
 	// free memory
-	while (cx->nested != NESTED_OUTER_ROOT)
-		sqxc_pop_nested(cx);
-	free(cx->buf);
-	free(cx);
+	while (xc->nested != NESTED_OUTER_ROOT)
+		sqxc_pop_nested(xc);
+	free(xc->buf);
+	free(xc);
 }
 
 Sqxc* sqxc_new_chain(int io, ...)
 {
 	va_list    arg_list;
 	SqxcInfo*  info;
-	Sqxc*      cx = NULL;
+	Sqxc*      xc = NULL;
 	Sqxc*      cur;
 
 	va_start(arg_list, io);
@@ -71,8 +71,8 @@ Sqxc* sqxc_new_chain(int io, ...)
 		if (info == NULL)
 			break;
 		// create Sqxc chain
-		if (cx == NULL)
-			cur = cx = sqxc_new(info, io);
+		if (xc == NULL)
+			cur = xc = sqxc_new(info, io);
 		else {
 			cur->next = sqxc_new(info, io);
 			cur->next->prev = cur;
@@ -82,41 +82,41 @@ Sqxc* sqxc_new_chain(int io, ...)
 	va_end(arg_list);
 
 	// set Sqxc.dest
-	cx->dest = cur;
-	for (cur = cx->next;  cur;  cur = cur->next) {
-//		cur->src = cx;
-		cur->dest = cx->dest;
+	xc->dest = cur;
+	for (cur = xc->next;  cur;  cur = cur->next) {
+//		cur->src = xc;
+		cur->dest = xc->dest;
 	}
-	return cx;
+	return xc;
 }
 
-void  sqxc_free_chain(Sqxc* cx)
+void  sqxc_free_chain(Sqxc* xc)
 {
 	Sqxc*  next;
 
 	// first Sqxc
-	for (;  cx->prev;  cx = cx->prev)
+	for (;  xc->prev;  xc = xc->prev)
 		;
 	// free Sqxc from first to last.
-	for (;  cx;  cx = next) {
-		next = cx->next;
-		sqxc_free(cx);
+	for (;  xc;  xc = next) {
+		next = xc->next;
+		sqxc_free(xc);
 	}
 }
 
-Sqxc*   sqxc_get(Sqxc* cx, const SqxcInfo* info, int nth)
+Sqxc*   sqxc_get(Sqxc* xc, const SqxcInfo* info, int nth)
 {
 	Sqxc* cur;
 //	Sqxc* prev = NULL;
 	int   count;
 
-	for (count = 0, cur = cx;  cur;  cur = cur->next, count++) {
-		// find sqcx by info
+	for (count = 0, cur = xc;  cur;  cur = cur->next, count++) {
+		// find sqxc by info
 		if (info) {
 			if (info == cur->info)
 				return cur;
 		}
-		// get nth sqcx
+		// get nth sqxc
 		else if (count == nth)
 			return cur;
 //		prev = cur;
@@ -124,42 +124,42 @@ Sqxc*   sqxc_get(Sqxc* cx, const SqxcInfo* info, int nth)
 	return NULL;
 }
 
-Sqxc*   sqxc_insert(Sqxc* cx, int position, Sqxc* cxdata)
+Sqxc*   sqxc_insert(Sqxc* xc, int position, Sqxc* xcdata)
 {
 	Sqxc* cur;
 	Sqxc* prev = NULL;
 	int   count;
 
-	for (count = 0, cur = cx;  cur;  cur = cur->next, count++) {
+	for (count = 0, cur = xc;  cur;  cur = cur->next, count++) {
 		if (count == position)
 			return cur;
 		prev = cur;
 	}
 	if (prev)
-		prev->next = cxdata;
+		prev->next = xcdata;
 	if (cur)
-		cur->prev = cxdata;
-	if (cx)
-		cxdata->dest = cx->dest;
-	cxdata->prev = prev;
-	cxdata->next = cur;
+		cur->prev = xcdata;
+	if (xc)
+		xcdata->dest = xc->dest;
+	xcdata->prev = prev;
+	xcdata->next = cur;
 
-	return (prev) ? cx : cxdata;
+	return (prev) ? xc : xcdata;
 }
 
-int   sqxc_broadcast(Sqxc* cx, int id, void* data)
+int   sqxc_broadcast(Sqxc* xc, int id, void* data)
 {
 	int   code = SQCODE_OK;
 
 	// first Sqxc
-	for (;  cx->prev;  cx = cx->prev)
+	for (;  xc->prev;  xc = xc->prev)
 		;
 	// call Sqxc.notify() from first(src) to last(dest).
-	for (;  cx;  cx = cx->next) {
-		if (cx->ctrl) {
-			cx->code = cx->ctrl(cx, id, data);
-			if (cx->code != SQCODE_OK)
-				code = cx->code;
+	for (;  xc;  xc = xc->next) {
+		if (xc->ctrl) {
+			xc->code = xc->ctrl(xc, id, data);
+			if (xc->code != SQCODE_OK)
+				code = xc->code;
 		}
 	}
 
@@ -204,46 +204,46 @@ int  sqxc_send(Sqxc* src)
 #define NESTED_CHUNK_SIZE    (1 << 3)    // 8
 #define NESTED_CHUNK_MASK    (NESTED_CHUNK_SIZE -1)
 
-SqxcNested* sqxc_push_nested(Sqxc* cx)
+SqxcNested* sqxc_push_nested(Sqxc* xc)
 {
-	SqxcNested* outer = cx->nested;
+	SqxcNested* outer = xc->nested;
 	SqxcNested* nested;
 
 /*	// every outer has one inner at the same time
 	if (outer != NESTED_OUTER_ROOT && outer->inner) {
-		cx->code = SQCODE_TOO_MANY_NESTED;
+		xc->code = SQCODE_TOO_MANY_NESTED;
 		return NULL;
 	}
  */
 
 	// alloc multiple SqxcNested each time
-	if ((cx->nested_count & NESTED_CHUNK_MASK) == 0)
+	if ((xc->nested_count & NESTED_CHUNK_MASK) == 0)
 		nested = (SqxcNested*)malloc(sizeof(SqxcNested) * NESTED_CHUNK_SIZE);
 	else
-		nested = cx->nested +1;
-	cx->nested_count++;
+		nested = xc->nested +1;
+	xc->nested_count++;
 
 	// link
 	if (outer != NESTED_OUTER_ROOT)
 		outer->inner = nested;
 	nested->outer = outer;
 	nested->inner = NULL;
-	cx->nested = nested;
+	xc->nested = nested;
 	return nested;
 }
 
-void sqxc_pop_nested(Sqxc* cx)
+void sqxc_pop_nested(Sqxc* xc)
 {
 	SqxcNested* outer;
 
-	if (cx->nested != NESTED_OUTER_ROOT) {
-		outer = cx->nested->outer;
+	if (xc->nested != NESTED_OUTER_ROOT) {
+		outer = xc->nested->outer;
 		if (outer != NESTED_OUTER_ROOT)
 			outer->inner = NULL;
 		// free multiple SqxcNested each time
-		cx->nested_count--;
-		if ((cx->nested_count & NESTED_CHUNK_MASK) == 0)
-			free(cx->nested);
-		cx->nested = outer;
+		xc->nested_count--;
+		if ((xc->nested_count & NESTED_CHUNK_MASK) == 0)
+			free(xc->nested);
+		xc->nested = outer;
 	}
 }

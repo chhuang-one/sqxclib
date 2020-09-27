@@ -53,7 +53,7 @@ SqStorage* create_storage(sqlite3 *db)
 
 	storage = sq_storage_new();
 	storage->db = db;
-	storage->cx[1].sql->db = db;
+	storage->xc[1].sql->db = db;
 	create_company_table(storage->schema);
 	return storage;
 }

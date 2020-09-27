@@ -19,6 +19,7 @@
 
 //#include <SqPtrArray.h>
 #include <SqSchema.h>
+#include <Sqxc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,68 +27,87 @@ extern "C" {
 
 typedef struct Sqdb             Sqdb;
 typedef struct SqdbInfo         SqdbInfo;
-//typedef struct SqdbConfig       SqdbConfig;
+typedef struct SqdbConfig       SqdbConfig;
+typedef enum   SqdbProduct      SqdbProduct;
 
-struct Sqdb {
-	SqdbInfo*      info;
-
-	int            version;      // schema_version in database
-	SqSchema*      schema;
-
-	// SQLite config
-	sqlite3*       pdb;
-	char*          folder;
-	char*          extension;    // optional
-
-	/* otherSQL
-	char* server_name;
-	char* user;
-	char* password;
-	 */
+enum SqdbProduct {
+	SQDB_PRODUCT_UNKNOWN,
+	SQDB_PRODUCT_SQLITE,
+	SQDB_PRODUCT_MYSQL,
 };
 
+// ----------------------------------------------------------------------------
+// SqdbInfo
 
 struct SqdbInfo {
-	struct {
-		unsigned int mysql:1;
-		unsigned int sqlite:1;
+	uintptr_t      size;       // instance size
+	SqdbProduct    product;    // SqdbProduct product = SQLite, MySQL...etc
+	SqxcInfo*      xcinfo;
 
-		unsigned int can_alter:1;        // ALTER COLUMN
-		unsigned int can_modify:1;       // MODIFY COLUMN
+	struct {
+		unsigned int use_alter:1;        // ALTER COLUMN
+		unsigned int use_modify:1;       // MODIFY COLUMN
 	} column;
 
-	SqxcInfo*  xcinfo;
+	void (*init)(Sqdb* db, SqdbConfig* config);
+	void (*final)(Sqdb* db);
 
 	int  (*open)(Sqdb* db, const char* name);
 	int  (*close)(Sqdb* db);
-	int  (*migrate)(Sqdb* db, SqSchema* schema);
-	int  (*statement)(Sqdb* db, const char* sql);
+	int  (*exec)(Sqdb* db, const char* sql, Sqxc* xc);
+	int  (*migrate)(Sqdb* db, SqSchema* schema_cur, SqSchema* schema_next);
 };
 
-void sqdb_info_init_sqlite(SqdbInfo* dbinfo);
-void sqdb_info_init_mysql(SqdbInfo* dbinfo);
+// ----------------------------------------------------------------------------
+// Sqdb
+
+#define SQDB_MEMBERS           \
+	SqdbInfo*      info
+
+struct Sqdb {
+	SQDB_MEMBERS;
+/*	// ------ Sqdb members ------
+	SqdbInfo*      info;
+ */
+};
+
+// ----------------------------------------------------------------------------
+// SqdbConfig - setting of SQL product
+
+#define SQDB_CONFIG_MEMBERS    \
+	SqdbInfo*      info;       \
+	unsigned int   bit_field
+
+struct SqdbConfig {
+	SQDB_CONFIG_MEMBERS;
+/*	// ------ SqdbConfig members ------
+	SqdbInfo*      info;
+	unsigned int   bit_field;    // reserve
+ */
+};
+
+// ----------------------------------------------------------------------------
+// C Functions
+
+Sqdb*   sqdb_new(SqdbInfo* info, SqdbConfig* config);
+void    sqdb_free(Sqdb* db);
+
+// int  sqdb_open(Sqdb* db, const char* database_name);
+#define sqdb_open(db, database_name)    (db)->info->open(db, database_name)
+
+// int  sqdb_close(Sqdb* db);
+#define sqdb_close(db)                  (db)->info->close(db)
+
+// int  sqdb_migrate(Sqdb* db, SqSchema* schema_cur, SqSchema* schema_next);
+#define sqdb_migrate(db, schema_cur, schema_next)    \
+		(db)->info->migrate(db, schema_cur, schema_next)
+
+// int  sqdb_exec(Sqdb* db, const char* sql);
+#define sqdb_exec(db, sql)              (db)->info->exec(db, sql)
 
 // for testing
 void sqdb_schema_to_sql(Sqdb* db, SqBuffer* buffer, SqSchema* schema, SqPtrArray* arranged_tables);
 
-// sqdb_use database_name
-int  sqdb_open(Sqdb* db, const char* database_name);
-int  sqdb_close(Sqdb* db);
-int  sqdb_migrate(Sqdb* db, SqSchema* schema);
-int  sqdb_statement(Sqdb* db, const char* sql);
-
-
-/*
-void sqdb_create_table(Sqdb* db, SqTable* table);
-void sqdb_rename_table(Sqdb* db, SqTable* table);
-void sqdb_drop_table(Sqdb* db, SqTable* table);
-void sqdb_alter_table(Sqdb* db, SqTable* table);
-void sqdb_exec(Sqdb* db, const char* sql, void** error);
-
-void sqdb_open();
-void sqdb_connect();
-void sqdb_close();
- */
 
 #ifdef __cplusplus
 }  // extern "C"

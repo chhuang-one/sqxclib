@@ -186,7 +186,7 @@ SqTable* sq_schema_find_type(SqSchema* schema, const char* name)
 	return NULL;
 }
 
-int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
+int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 {	//         *schema,    *schema_src
 	SqTable    *table,     *table_src;
 	SqPtrArray *reentries, *reentries_src;
@@ -197,8 +197,8 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 	reentries = sq_type_get_ptr_array(schema->type);
 	reentries_src = sq_type_get_ptr_array(schema_src->type);
 
-	// run sq_schema_accumulate() first time.
-	if ((schema->bit_field & SQB_SCHEMA_ACCUMULATED) == 0) {
+	// run sq_schema_include() first time.
+	if ((schema->bit_field & SQB_SCHEMA_INCLUDED) == 0) {
 		// get foreign keys before calling sq_schema_trace_foreign()
 		for (index = 0;  index < reentries->length;  index++) {
 			table = (SqTable*)reentries->data[index];
@@ -216,7 +216,7 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 			addr = sq_reentries_find_name(reentries, table_src->name);
 			if (addr) {
 				table = *(SqTable**)addr;
-				sq_table_accumulate(table, table_src);
+				sq_table_include(table, table_src);
 				// append changed table to tail
 				*addr = NULL;
 				sq_reentries_add(reentries, table);
@@ -266,7 +266,7 @@ int   sq_schema_accumulate(SqSchema* schema, SqSchema* schema_src)
 
 	// update other data in SqSchema
 	schema->version = schema_src->version;
-	schema->bit_field |= SQB_SCHEMA_ACCUMULATED;
+	schema->bit_field |= SQB_SCHEMA_INCLUDED;
 	schema->type->bit_field &= ~SQB_TYPE_SORTED;
 
 	return SQCODE_OK;
@@ -348,7 +348,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 	return result;
 }
 
-void  sq_schema_reset_changes(SqSchema* schema, int reset_table_offset, unsigned int set_table_bit_field)
+void  sq_schema_clear_records(SqSchema* schema, int reset_traced_position, unsigned int set_table_bit_field)
 {
 	SqPtrArray* reentries;
 	SqTable* table;
@@ -358,8 +358,8 @@ void  sq_schema_reset_changes(SqSchema* schema, int reset_table_offset, unsigned
 	reentries = sq_type_get_ptr_array(schema->type);    // schema->type->entry
 	sq_reentries_erase_changes(reentries);
 	sq_reentries_remove_null(reentries);
-	// update 'offset' for sq_schema_trace_foreign() and migration
-	schema->offset = reentries->length;
+	// set schema->offset for sq_schema_trace_foreign() or sq_schema_arrange()
+	schema->offset = (reset_traced_position) ? 0 : reentries->length;
 	// all changed records have removed
 	schema->bit_field &= ~SQB_CHANGE;
 
@@ -372,11 +372,11 @@ void  sq_schema_reset_changes(SqSchema* schema, int reset_table_offset, unsigned
 			sq_reentries_erase_changes(reentries);
 			sq_reentries_remove_null(reentries);
 		}
-		// update 'offset' for sq_schema_trace_foreign() and migration
-		table->offset = (reset_table_offset) ? 0 : reentries->length;
+		// set table->offset for sq_schema_trace_foreign() or sq_schema_arrange()
+		table->offset = (reset_traced_position) ? 0 : reentries->length;
 		// all changed records have removed
 		table->bit_field &= ~SQB_CHANGE;
-		// set/reset table data
+		// set table bit-field
 		table->bit_field |= set_table_bit_field;
 	}
 }
@@ -480,4 +480,18 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 
 	// sort entries by table->offset
 	sq_ptr_array_sort(entries, (SqCompareFunc)sq_entry_cmp_offset);
+}
+
+void    sq_schema_complete(SqSchema* schema)
+{
+	SqPtrArray* entries = sq_type_get_ptr_array(schema->type);
+	SqTable*    table;
+
+	for (int index = 0;  index < entries->length;  index++) {
+		table = entries->data[index];
+//		table->offset = 0;
+		sq_ptr_array_final(&table->foreigns);
+	}
+
+	schema->bit_field &= ~SQB_SCHEMA_INCLUDED;
 }

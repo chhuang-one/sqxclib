@@ -260,9 +260,9 @@ void test_db(SqSchema* schema, SqPtrArray* entries)
 	SqBuffer buffer;
 
 	db.info = &dbinfo;
-	sqdb_info_init_sqlite(db.info);
-//	sqdb_info_init_mysql(db.info);
-
+	db.info->product = SQDB_PRODUCT_SQLITE;
+	db.info->column.use_alter = 1;
+	db.info->column.use_modify = 0;
 	buffer = (SqBuffer){NULL, 0, 0};
 
 	sqdb_schema_to_sql(&db, &buffer, schema, entries);
@@ -297,14 +297,14 @@ int  main(void)
 	schema_v4 = sq_schema_new("ver4");
 	create_city_table_and_rename_by_c(schema_v4);
 
-	sq_schema_accumulate(schema, schema_v2);
-	sq_schema_accumulate(schema, schema_v3);
-	sq_schema_accumulate(schema, schema_v4);
+	sq_schema_include(schema, schema_v2);
+	sq_schema_include(schema, schema_v3);
+	sq_schema_include(schema, schema_v4);
 
 	// trace renamed (or dropped) table/column that was referenced by others
 	sq_schema_trace_foreign(schema);
-	// reset changed records before calling sq_schema_arrange()
-	sq_schema_reset_changes(schema, 1, 0);
+	// clear changed records before calling sq_schema_arrange()
+	sq_schema_clear_records(schema, 1, 0);
 
 	sq_ptr_array_init(&entries, 8, NULL);
 	sq_schema_arrange(schema, &entries);

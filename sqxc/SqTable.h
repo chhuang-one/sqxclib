@@ -173,9 +173,9 @@ void      sq_table_replace_column(SqTable*   table,
                                   SqColumn** old_in_foreigns,
                                   SqColumn*  new_one);
 
-// This used by migration: accumulate changes from 'table_src'.
+// This used by migration: include and apply changes from 'table_src'.
 // It may move/steal columns from 'table_src'.
-int       sq_table_accumulate(SqTable* table, SqTable* table_src);
+int       sq_table_include(SqTable* table, SqTable* table_src);
 
 // table->type->entry remove columns found in 'excluded_columns', remained columns output to 'result'.
 void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray* result);
@@ -263,8 +263,7 @@ struct SqTable
 	// if name is NOT NULL, it will rename from old_name to name
 
 	// SqColumn's array for temporary use.
-	// sq_table_accumulate() and sq_schema_accumulate() store columns that having foreign reference.
-	// sq_schema_arrange() will remove foreign columns without reference each other.
+	// sq_table_include() and sq_schema_include() store columns that having foreign reference.
 	// finalize it after creating table in SQL
 	SqPtrArray   foreigns;
 

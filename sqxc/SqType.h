@@ -95,7 +95,7 @@ typedef struct SqType        SqType;
 typedef struct SqEntry       SqEntry;
 
 typedef void (*SqTypeFunc)(void* instance, SqType* type);
-typedef int  (*SqTypeXcFunc)(void* instance, SqType* type, Sqxc* cx);
+typedef int  (*SqTypeXcFunc)(void* instance, SqType* type, Sqxc* xc);
 
 /* ----------------------------------------------------------------------------
 	initializer macro for entry->type

@@ -71,7 +71,7 @@ struct SqxcJsonc
 	// properties
 
 	unsigned int io_:1;           // Input = 1, Output = 0
-	int          supported_type;  // supported SqxcType (bit entry)
+	unsigned int supported_type;  // supported SqxcType (bit entry)
 
 	// ----------------------------------------------------
 	// stack of SqxcNested (placed in dest)

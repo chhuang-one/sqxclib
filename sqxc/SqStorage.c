@@ -40,16 +40,16 @@ SqStorage* sq_storage_new()
 
 	db->container_default = SQ_TYPE_PTR_ARRAY;
 	// SqxcInfo
-	db->cxinfo.sql   = SQXC_INFO_SQLITE;
-	db->cxinfo.value = SQXC_INFO_VALUE;
+	db->xcinfo.sql   = SQXC_INFO_SQLITE;
+	db->xcinfo.value = SQXC_INFO_VALUE;
 	// Sqxc - Output
-	db->cx[0].src = sqxc_new_output(SQXC_INFO_VALUE, SQXC_INFO_SQLITE);
-	db->cx[0].sql = (SqxcSqlite*)sqxc_get(db->cx[0].src, SQXC_INFO_SQLITE, 0);
-	db->cx[0].value = (SqxcValue*)db->cx[0].src;
+	db->xc[0].src = sqxc_new_output(SQXC_INFO_VALUE, SQXC_INFO_SQLITE);
+	db->xc[0].sql = (SqxcSqlite*)sqxc_get(db->xc[0].src, SQXC_INFO_SQLITE, 0);
+	db->xc[0].value = (SqxcValue*)db->xc[0].src;
 	// Sqxc - Input
-	db->cx[1].src = sqxc_new_input(SQXC_INFO_SQLITE, SQXC_INFO_VALUE);
-	db->cx[1].sql = (SqxcSqlite*)db->cx[1].src;
-	db->cx[1].value = (SqxcValue*)sqxc_get(db->cx[1].src, SQXC_INFO_VALUE, 0);
+	db->xc[1].src = sqxc_new_input(SQXC_INFO_SQLITE, SQXC_INFO_VALUE);
+	db->xc[1].sql = (SqxcSqlite*)db->xc[1].src;
+	db->xc[1].value = (SqxcValue*)sqxc_get(db->xc[1].src, SQXC_INFO_VALUE, 0);
 
 	return db;
 }
@@ -94,7 +94,7 @@ int   sq_storage_open(SqStorage* storage, const char* path_or_name)
 	if(rc != SQLITE_OK)
 		return 0;
 	storage->db = db;
-	storage->cx[1].sql->db = db;
+	storage->xc[1].sql->db = db;
 	return 1;
 }
 
@@ -105,7 +105,7 @@ void* sq_storage_get(SqStorage* storage,
 	SqColumn* column;
 	SqTable*  table;
 	Sqxc*     xcsql;
-	Sqxc*     cxvalue;
+	Sqxc*     xcvalue;
 	void*     instance;
 
 	if (table_name)
@@ -116,13 +116,13 @@ void* sq_storage_get(SqStorage* storage,
 		return NULL;
 
 	// destination of input
-	cxvalue = (Sqxc*)storage->cx[1].value;
-	sqxc_value_type(cxvalue) = table->type;
-	sqxc_value_container(cxvalue) = NULL;
+	xcvalue = (Sqxc*)storage->xc[1].value;
+	sqxc_value_type(xcvalue) = table->type;
+	sqxc_value_container(xcvalue) = NULL;
 
 	column = sq_table_get_primary(table);
 	// source of input
-	xcsql = (Sqxc*)storage->cx[1].sql;
+	xcsql = (Sqxc*)storage->xc[1].sql;
 	xcsql->buf_writed = snprintf(NULL, 0, "SELECT * FROM \"%s\" WHERE \"%s\"=%d",
 	                             table->name, column->name, id) +1;
 	if (xcsql->buf_size < xcsql->buf_writed) {
@@ -141,7 +141,7 @@ void* sq_storage_get(SqStorage* storage,
 	if (xcsql->code != SQCODE_OK)
 		return NULL;
 
-	instance = sqxc_value_instance(cxvalue);
+	instance = sqxc_value_instance(xcvalue);
 	return instance;
 }
 
@@ -152,7 +152,7 @@ void* sq_storage_get_all(SqStorage* storage,
 {
 	SqTable* table;
 	Sqxc*    xcsql;
-	Sqxc*    cxvalue;
+	Sqxc*    xcvalue;
 	void*    instance;
 
 	if (table_name)
@@ -165,12 +165,12 @@ void* sq_storage_get_all(SqStorage* storage,
 		container = (SqType*)storage->container_default;
 
 	// destination of input
-	cxvalue = (Sqxc*) storage->cx[1].value;
-	sqxc_value_type(cxvalue) = table->type;
-	sqxc_value_container(cxvalue) = container;
+	xcvalue = (Sqxc*) storage->xc[1].value;
+	sqxc_value_type(xcvalue) = table->type;
+	sqxc_value_container(xcvalue) = container;
 
 	// source of input
-	xcsql = (Sqxc*)storage->cx[1].sql;
+	xcsql = (Sqxc*)storage->xc[1].sql;
 	xcsql->buf_writed = snprintf(NULL, 0, "SELECT * FROM \"%s\"", table->name) +1;
 	if (xcsql->buf_size < xcsql->buf_writed) {
 		xcsql->buf_size = xcsql->buf_writed;
@@ -187,7 +187,7 @@ void* sq_storage_get_all(SqStorage* storage,
 	if (xcsql->code != SQCODE_OK)
 		return NULL;
 
-	instance = sqxc_value_instance(cxvalue);
+	instance = sqxc_value_instance(xcvalue);
 	return instance;
 }
 
@@ -197,7 +197,7 @@ int   sq_storage_insert(SqStorage* storage,
                         void* instance)
 {
 	Sqxc*      xcsql;
-	Sqxc*      cxvalue;
+	Sqxc*      xcvalue;
 	SqTable*   table;
 	int        id = -1;
 
@@ -207,21 +207,21 @@ int   sq_storage_insert(SqStorage* storage,
 		table = sq_schema_find_type(storage->schema, type_name);
 
 	// destination of output
-	xcsql = (Sqxc*)storage->cx[0].sql;
+	xcsql = (Sqxc*)storage->xc[0].sql;
 	sqxc_sqlite_db(xcsql) = storage->db;
 	xcsql->ctrl(xcsql, SQXC_SQL_USE_INSERT, table);
 
 	// source of output
-	cxvalue = (Sqxc*)storage->cx[0].value;
-	sqxc_value_type(cxvalue) = table->type;
-	sqxc_value_container(cxvalue) = NULL;
+	xcvalue = (Sqxc*)storage->xc[0].value;
+	sqxc_value_type(xcvalue) = table->type;
+	sqxc_value_container(xcvalue) = NULL;
 
-	sqxc_ready(cxvalue, NULL);
-	cxvalue->type  = SQXC_TYPE_OBJECT;
-	cxvalue->name  = NULL;
-	cxvalue->value.pointer = instance;
-	cxvalue->code = cxvalue->send(cxvalue, cxvalue);
-	sqxc_finish(cxvalue, NULL);
+	sqxc_ready(xcvalue, NULL);
+	xcvalue->type  = SQXC_TYPE_OBJECT;
+	xcvalue->name  = NULL;
+	xcvalue->value.pointer = instance;
+	xcvalue->code = xcvalue->send(xcvalue, xcvalue);
+	sqxc_finish(xcvalue, NULL);
 
 	return (id = sqxc_sqlite_id(xcsql));
 }
@@ -232,7 +232,7 @@ void  sq_storage_update(SqStorage* storage,
                         void* instance)
 {
 	Sqxc*      xcsql;
-	Sqxc*      cxvalue;
+	Sqxc*      xcvalue;
 	SqTable*   table;
 	char*      where;
 
@@ -246,23 +246,23 @@ void  sq_storage_update(SqStorage* storage,
 		return;
 
 	// destination of output
-	xcsql = (Sqxc*)storage->cx[0].sql;
+	xcsql = (Sqxc*)storage->xc[0].sql;
 	xcsql->ctrl(xcsql, SQXC_SQL_USE_UPDATE, table);
 	xcsql->ctrl(xcsql, SQXC_SQL_USE_WHERE, where);
 	sqxc_sqlite_db(xcsql) = storage->db;
 	free(where);
 
 	// source of output
-	cxvalue = (Sqxc*)storage->cx[0].value;
-	sqxc_value_type(cxvalue) = table->type;
-	sqxc_value_container(cxvalue) = NULL;
+	xcvalue = (Sqxc*)storage->xc[0].value;
+	sqxc_value_type(xcvalue) = table->type;
+	sqxc_value_container(xcvalue) = NULL;
 
-	sqxc_ready(cxvalue, NULL);
-	cxvalue->type  = SQXC_TYPE_OBJECT;
-	cxvalue->name  = NULL;
-	cxvalue->value.pointer = instance;
-	cxvalue->code = cxvalue->send(cxvalue, cxvalue);
-	sqxc_finish(cxvalue, NULL);
+	sqxc_ready(xcvalue, NULL);
+	xcvalue->type  = SQXC_TYPE_OBJECT;
+	xcvalue->name  = NULL;
+	xcvalue->value.pointer = instance;
+	xcvalue->code = xcvalue->send(xcvalue, xcvalue);
+	sqxc_finish(xcvalue, NULL);
 }
 
 void  sq_storage_remove(SqStorage* storage,
@@ -282,7 +282,7 @@ void  sq_storage_remove(SqStorage* storage,
 
 	column = sq_table_get_primary(table);
 
-	xcsql = (Sqxc*)storage->cx[0].sql;
+	xcsql = (Sqxc*)storage->xc[0].sql;
 	xcsql->buf_writed = snprintf(NULL, 0, "DELETE FROM \"%s\" WHERE \"%s\"=%d",
 	                             table->name, column->name, id) + 1;
 	if (xcsql->buf_size < xcsql->buf_writed) {

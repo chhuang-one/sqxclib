@@ -116,13 +116,13 @@ struct SqStorage
 		SqxcSqlite* sql;
 		Sqxc*       json;
 		SqxcValue*  value;
-	} cx[2];   // output cx[0], input cx[1]
+	} xc[2];   // output xc[0], input xc[1]
 
 	struct {
 		const SqxcInfo*  sql;     // sqlite, mysql...etc
 		const SqxcInfo*  json;    // json-c
 		const SqxcInfo*  value;   // value
-	} cxinfo;
+	} xcinfo;
 
 	sqlite3*       db;
 

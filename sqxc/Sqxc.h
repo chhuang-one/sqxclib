@@ -14,7 +14,7 @@
 
 /* ----------------------------------------------------------------------------
 	Sqxc - Entry and value convert C to/from X  (X = SQLite, JSON...etc)
-	       cx is an abbreviation. (sqxc namespace "Sq" + "cx" = Sqxc)
+	       xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
 	SqxcXml    - C to/from XML     - SqxcXml.c     (TODO or not)
 	SqxcJson   - C to/from JSON    - SqxcJson.c
@@ -89,7 +89,7 @@ typedef enum {
 	SQXC_SQL_USE_WHERE,      // char*    condition
 } SqxcCtrlId;
 
-typedef int   (*SqxcCtrlFunc)(Sqxc* cx, int id, void* data);
+typedef int   (*SqxcCtrlFunc)(Sqxc* xc, int id, void* data);
 typedef int   (*SqxcSendFunc)(Sqxc* dest, Sqxc* src);
 
 /* ----------------------------------------------------------------------------
@@ -97,10 +97,10 @@ typedef int   (*SqxcSendFunc)(Sqxc* dest, Sqxc* src);
 
 	Any Sqxc must has 2 SqxcInfo for output/input, for example:
 
-	SqxcInfo MyCxInfo[2];
+	SqxcInfo MyXcInfo[2];
 
-	// MyCxInfo[0] for Output
-	// MyCxInfo[1] for Input
+	// MyXcInfo[0] for Output
+	// MyXcInfo[1] for Input
  */
 
 struct SqxcInfo
@@ -129,8 +129,8 @@ struct SqxcNested
 	Entry and value convert C to/from X  (X = SQLite, JSON, or XML...etc)
  */
 
-Sqxc*   sqxc_new(const SqxcInfo* cxinfo, int io);
-void    sqxc_free(Sqxc* cx);
+Sqxc*   sqxc_new(const SqxcInfo* xcinfo, int io);
+void    sqxc_free(Sqxc* xc);
 
 // create Sqxc chain for input/output
 // parameter order from src to dest, return src
@@ -148,26 +148,26 @@ Sqxc*   sqxc_new_chain(int io_, ...);
 #define sqxc_new_output(...)    sqxc_new_chain(0, __VA_ARGS__, NULL)
 
 // free Sqxc chain
-void    sqxc_free_chain(Sqxc* cx);
+void    sqxc_free_chain(Sqxc* xc);
 
-Sqxc*   sqxc_get(Sqxc* cx, const SqxcInfo* info, int nth);
-Sqxc*   sqxc_insert(Sqxc* cx, int position, Sqxc* cxdata);
+Sqxc*   sqxc_get(Sqxc* xc, const SqxcInfo* info, int nth);
+Sqxc*   sqxc_insert(Sqxc* xc, int position, Sqxc* xcdata);
 
-#define sqxc_get_buffer(cx)    (SqBuffer*)(&((Sqxc*)(cx))->buf)
+#define sqxc_get_buffer(xc)    (SqBuffer*)(&((Sqxc*)(xc))->buf)
 
 // sqxc_broadcast() broadcast Sqxc chain.
 // It will call Sqxc.ctrl() from src to dest in chain of Sqxc.
-int     sqxc_broadcast(Sqxc* cx, int id, void* data);
+int     sqxc_broadcast(Sqxc* xc, int id, void* data);
 
 // sqxc_ready() broadcast Sqxc chain to ready
-// void sqxc_ready(Sqxc* cx, void* data);
-#define sqxc_ready(cx, data)    \
-		sqxc_broadcast((Sqxc*)cx, SQXC_CTRL_READY, data);
+// void sqxc_ready(Sqxc* xc, void* data);
+#define sqxc_ready(xc, data)    \
+		sqxc_broadcast((Sqxc*)xc, SQXC_CTRL_READY, data);
 
 // sqxc_finish() broadcast Sqxc chain to flush data
-// void sqxc_finish(Sqxc* cx, void* error);
-#define sqxc_finish(cx, data)   \
-		sqxc_broadcast((Sqxc*)cx, SQXC_CTRL_FINISH, data);
+// void sqxc_finish(Sqxc* xc, void* error);
+#define sqxc_finish(xc, data)   \
+		sqxc_broadcast((Sqxc*)xc, SQXC_CTRL_FINISH, data);
 
 /* sqxc_send(src) send data from src to src->dest
    It try to match type in Sqxc chain.
@@ -273,8 +273,8 @@ int     sqxc_send(Sqxc* src);
 // --------------------------------------------------------
 // functions for nested object/array
 
-SqxcNested* sqxc_push_nested(Sqxc* cx);
-void        sqxc_pop_nested(Sqxc* cx);
+SqxcNested* sqxc_push_nested(Sqxc* xc);
+void        sqxc_pop_nested(Sqxc* xc);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -326,7 +326,7 @@ struct XcMethod
 	Sqxc*        prev;     \
 	Sqxc*        dest;     \
 	unsigned int io_:1;    \
-	int          supported_type;   \
+	unsigned int supported_type;   \
 	SqxcNested*  nested;           \
 	int          nested_count;     \
 	char*        buf;              \
@@ -334,9 +334,9 @@ struct XcMethod
 	int          buf_writed;       \
 	SqxcCtrlFunc ctrl;     \
 	SqxcSendFunc send;     \
-	SqxcType     type;     \
-	const char*  name;     \
-	union {                \
+	SqxcType     type;          \
+	const char*  name;          \
+	union {                     \
 		bool          boolean;  \
 		int           integer;  \
 		int           int_;     \
@@ -348,7 +348,7 @@ struct XcMethod
 		double        double_;  \
 		char*         string;   \
 		void*         pointer;  \
-	} value;               \
+	} value;                    \
 	SqEntry*     entry;    \
 	void**       error;    \
 	int          code
@@ -375,7 +375,7 @@ struct Sqxc
 	// properties
 
 	unsigned int io_:1;           // Input = 1, Output = 0
-	int          supported_type;  // supported SqxcType (bit entry)
+	unsigned int supported_type;  // supported SqxcType (bit entry)
 
 	// ----------------------------------------------------
 	// stack of SqxcNested (placed in dest)
@@ -482,11 +482,11 @@ void        XcMethod::pop(void)
 	{ sqxc_pop_nested((Sqxc*)this); }
 
 // These are for directly use only. You can NOT derived it.
-typedef struct Sqxc             Cx;
-typedef struct SqxcInfo         CxInfo;
-typedef struct SqxcNested       CxNested;
+typedef struct Sqxc             Xc;
+typedef struct SqxcInfo         XcInfo;
+typedef struct SqxcNested       XcNested;
 
-typedef        SqxcType         CxType;
+typedef        SqxcType         XcType;
 
 };  // namespace Sq
 
