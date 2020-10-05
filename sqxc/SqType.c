@@ -148,27 +148,31 @@ void  sq_type_insert_entry(SqType* entrytype, const SqEntry* entry)
 	}
 }
 
-void** sq_type_find_entry(SqType* entrytype, const void* key, SqCompareFunc cmp_func)
+void** sq_type_find_entry(const SqType* entrytype, const void* key, SqCompareFunc cmp_func)
 {
 	SqPtrArray* array = (SqPtrArray*) &entrytype->entry;
 
 	if (entrytype->n_entry == 0)
 		return NULL;
-
-	if (cmp_func == NULL) {
+	if (cmp_func == NULL)
 		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
-		if ( entrytype->bit_field & SQB_TYPE_DYNAMIC &&
-		    (entrytype->bit_field & SQB_TYPE_SORTED) == 0 )
-		{
-			entrytype->bit_field |= SQB_TYPE_SORTED;
-			sq_ptr_array_sort(array, sq_entry_cmp_name);
-		}
-	}
 
 	if (entrytype->bit_field & SQB_TYPE_SORTED && cmp_func == (SqCompareFunc)sq_entry_cmp_str__name)
 		return sq_ptr_array_search(array, key, cmp_func);
 	else
 		return sq_ptr_array_find(array, key, cmp_func);
+}
+
+void  sq_type_sort_entry(SqType *type)
+{
+	SqPtrArray* array = (SqPtrArray*)&type->entry;
+
+	if ( type->bit_field & SQB_TYPE_DYNAMIC &&
+	    (type->bit_field & SQB_TYPE_SORTED) == 0 )
+	{
+		type->bit_field |= SQB_TYPE_SORTED;
+		sq_ptr_array_sort(array, sq_entry_cmp_name);
+	}
 }
 
 int   sq_type_decide_size(SqType* entrytype, const SqEntry* inner_entry)

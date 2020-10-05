@@ -275,9 +275,12 @@ void     sq_type_final_instance(SqType* type, void* instance, int is_pointer);
 // insert SqEntry to dynamic SqType.
 void     sq_type_insert_entry(SqType* type, const SqEntry* entry);
 
-// find SqEntry in SqType->entry.
-// If cmp_func is NULL and SqType is dynamic type, it will sort entries by entry's name before finding.
-void**   sq_type_find_entry(SqType* type, const void* key, SqCompareFunc cmp_func);
+// find SqEntry in SqType.entry.
+// If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
+void**   sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc cmp_func);
+
+// sort SqType.entry by name if SqType is dynamic.
+void     sq_type_sort_entry(SqType *type);
 
 // calculate size for dynamic SqType.
 // if "inner_entry" == NULL, it use all entries to calculate size.
