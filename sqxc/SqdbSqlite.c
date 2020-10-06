@@ -20,7 +20,7 @@
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
-#include <Sqdb-SQlite.h>
+#include <SqdbSqlite.h>
 
 /* ----------------------------------------------------------------------------
     SqdbSqlite
