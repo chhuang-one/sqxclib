@@ -20,7 +20,7 @@ uGet3 use SQL database to solve this problem.
    You can also use C/C++ function to do these.
 
 2. All declared table/column can use to parse JSON object/field.
-   Program can also parse JSON object/array from SQL column. (experiment)
+   Program can also parse JSON object/array from SQL column. (beta)
 
 ## Database schema
 

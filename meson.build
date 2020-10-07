@@ -1,6 +1,6 @@
 project('sqxc', 'c', 'cpp',
         default_options : ['c_std=c99', 'cpp_std=c++11'],
-        version: '0.01')
+        version: '0.02')
 
 sqxc_inc = include_directories('sqxc')
 
