@@ -31,7 +31,7 @@ executable('test-sqxc',
 executable('test-storage',
            'test-storage.c',
            include_directories : sqxc_inc,
-		   dependencies : sqlite,
+		   dependencies : [sqlite, jsonc],
            link_with : sqxc)
 
 executable('test-util',

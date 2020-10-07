@@ -132,10 +132,6 @@ SqQuery* sq_query_init(SqQuery* query, SqTable* table)
 {
 	memset(query, 0, sizeof(SqQuery));
 	query->table_ = table;
-	if (sq_storage_global_) {
-		query->database = sq_storage_global_;
-		query->schema = sq_storage_global_->schema;
-	}
 
 	if (table)
 		sq_query_from(query, table->name);

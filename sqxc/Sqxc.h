@@ -13,24 +13,26 @@
  */
 
 /* ----------------------------------------------------------------------------
-	Sqxc - Entry and value convert C to/from X  (X = SQLite, JSON...etc)
+	Sqxc - Entry and value convert X to/from C  (X = SQL, JSON...etc)
 	       xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
-	SqxcXml    - C to/from XML     - SqxcXml.c     (TODO or not)
-	SqxcJson   - C to/from JSON    - SqxcJson.c
-	SqxcSqlite - C to/from SQLite  - SqxcSqlite.c
-	SqxcValue  - X to/from Memory  - SqxcValue.c
+	SqxcXml    - C to/from XML   - SqxcXml.c     (TODO or not)
+	SqxcJsonc  - C to/from JSON  - SqxcJsonc.c
+	SqxcSql    - C to SQL (Sqdb) - SqxcSql.c
+	SqxcValue  - X to C struct   - SqxcValue.c
 
-	-----------> input ----------->  send()   -----------> output ---------->
+	                 +-> SqxcJsonParser --+
+	( input )        |                    |
+	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
+	                 |                    |
+	                 +--> SqxcXmlParser --+
 
-	             +-> SqxcJson --+               +-> SqxcJson --+
-	             |              |               |              |
-	SqxcSqlite --+--------------+-> SqxcValue --+--------------+-> SqxcSqlite
-	             |              |               |              |
-	             +--> SqxcXml --+               +--> SqxcXml --+
 
-    (src) prev <---------> (dest) next     (src) prev <---------> (dest) next
-
+                     +-> SqxcJsonWriter --+
+    ( output )       |                    |
+    SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
+                     |                    |
+                     +--> SqxcXmlWriter --+
  */
 
 #ifndef SQXC_H
@@ -54,27 +56,34 @@ typedef struct SqxcNested       SqxcNested;
 // declare in <SqEntry.h>
 typedef struct SqEntry          SqEntry;
 
+// ----------------------------------------------------------------------------
 // define C type convert to/from X
+
 typedef enum {
 	SQXC_TYPE_NONE     =  0,
-	SQXC_TYPE_BOOL     = (1 << 0),    // 0x001
-	SQXC_TYPE_INT      = (1 << 1),    // 0x002
-	SQXC_TYPE_UINT     = (1 << 2),    // 0x004
-	SQXC_TYPE_INT64    = (1 << 3),    // 0x008
-	SQXC_TYPE_UINT64   = (1 << 4),    // 0x010
-	SQXC_TYPE_DOUBLE   = (1 << 5),    // 0x020
+	SQXC_TYPE_BOOL     = (1 << 0),    // 0x0001
+	SQXC_TYPE_INT      = (1 << 1),    // 0x0002
+	SQXC_TYPE_UINT     = (1 << 2),    // 0x0004
+	SQXC_TYPE_INT64    = (1 << 3),    // 0x0008
+	SQXC_TYPE_UINT64   = (1 << 4),    // 0x0010
+	SQXC_TYPE_DOUBLE   = (1 << 5),    // 0x0020
+	SQXC_TYPE_ARITHMETIC = 0x3F,
 
-	SQXC_TYPE_ARITHMETIC = 0x3F,      // 0x03F
+	SQXC_TYPE_STRING   = (1 << 6),    // 0x0040
+	SQXC_TYPE_OBJECT   = (1 << 7),    // 0x0080
+	SQXC_TYPE_ARRAY    = (1 << 8),    // 0x0100    // array or other storage structure
+	SQXC_TYPE_BASIC    =  0x1FF,
 
-	SQXC_TYPE_STRING   = (1 << 6),    // 0x040
-//	SQXC_TYPE_POINTER  = (1 << 7),    // 0x080    // reserve
-	SQXC_TYPE_OBJECT   = (1 << 8),    // 0x100
-	SQXC_TYPE_ARRAY    = (1 << 9),    // 0x200    // other storage structure
+	// Text stream must be null-terminated string
+	SQXC_TYPE_STREAM   = (1 << 9),    // 0x0200    // e.g. file stream
 	SQXC_TYPE_ALL      =  0x3FF,
-//	SQXC_TYPE_AUTO     = (1 << 14),
-	SQXC_TYPE_END      = (1 << 15),   // End of SQXC_TYPE_OBJECT or SQXC_TYPE_ARRAY
+
+	// End of SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY, or SQXC_TYPE_STREAM
+	SQXC_TYPE_END      = (1 << 15),   // 0x8000
+
 	SQXC_TYPE_OBJECT_END = SQXC_TYPE_END | SQXC_TYPE_OBJECT,
 	SQXC_TYPE_ARRAY_END  = SQXC_TYPE_END | SQXC_TYPE_ARRAY,
+	SQXC_TYPE_STREAM_END = SQXC_TYPE_END | SQXC_TYPE_STREAM,
 } SqxcType;
 
 typedef enum {
@@ -89,18 +98,109 @@ typedef enum {
 	SQXC_SQL_USE_WHERE,      // char*    condition
 } SqxcCtrlId;
 
-typedef int   (*SqxcCtrlFunc)(Sqxc* xc, int id, void* data);
-typedef int   (*SqxcSendFunc)(Sqxc* dest, Sqxc* src);
+typedef int   (*SqxcCtrlFunc)(Sqxc* xc, int ctrl_id, void* data);
+typedef int   (*SqxcSendFunc)(Sqxc* xc, Sqxc* arguments_src);
+
+/* ----------------------------------------------------------------------------
+   macro for maintaining C/C++ inline functions easily
+
+   These macro send data from data source side
+
+	[ {"id": 100, "name": "Bob"} ]
+
+	SQXC_SEND_ARRAY_BEG(sqxc, NULL);        //  [
+
+	SQXC_SEND_OBJECT_BEG(sqxc, NULL);       //  {
+	SQXC_SEND_INT(sqxc, "id", 100);         //  "id": 100
+	SQXC_SEND_STRING(sqxc, "name", "Bob");  //  "name": "Bob"
+	SQXC_SEND_OBJECT_END(sqxc, NULL);       //  }
+
+	SQXC_SEND_ARRAY_END(sqxc, NULL);        //  ]
+ */
+
+// void sqxc_send_bool(Sqxc* sqxc, const char* entry_name, bool value);
+#define SQXC_SEND_BOOL(sqxc, entry_name, value_)         \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_BOOL;      \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.boolean = value_;     \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_int(Sqxc** sqxc, const char* entry_name, int value);
+#define SQXC_SEND_INT(sqxc, entry_name, value_)          \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_INT;       \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.integer = value_;     \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_int64(Sqxc** sqxc, const char* entry_name, int64_t value);
+#define SQXC_SEND_INT64(sqxc, entry_name, value_)        \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_INT64;     \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.int64 = value_;       \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_double(Sqxc** sqxc, const char* entry_name, double value);
+#define SQXC_SEND_DOUBLE(sqxc, entry_name, val)          \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_DOUBLE;    \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.double_ = val;        \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_string(Sqxc** sqxc, const char* entry_name, const char* value);
+#define SQXC_SEND_STRING(sqxc, entry_name, val)          \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_STRING;    \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.string = (char*)val;  \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_object_beg(Sqxc** sqxc, const char* entry_name);
+#define SQXC_SEND_OBJECT_BEG(sqxc, entry_name)           \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_OBJECT;    \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.pointer = NULL;       \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_object_end(Sqxc** sqxc, const char* entry_name);
+#define SQXC_SEND_OBJECT_END(sqxc, entry_name)           \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_OBJECT_END;\
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.pointer = NULL;       \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_array_beg(Sqxc** sqxc, const char* entry_name);
+#define SQXC_SEND_ARRAY_BEG(sqxc, entry_name)            \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_ARRAY;     \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.pointer = NULL;       \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_array_end(Sqxc** sqxc, const char* entry_name);
+#define SQXC_SEND_ARRAY_END(sqxc, entry_name)            \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_ARRAY_END; \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.pointer = NULL;       \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
 
 /* ----------------------------------------------------------------------------
 	SqxcInfo
-
-	Any Sqxc must has 2 SqxcInfo for output/input, for example:
-
-	SqxcInfo MyXcInfo[2];
-
-	// MyXcInfo[0] for Output
-	// MyXcInfo[1] for Input
  */
 
 struct SqxcInfo
@@ -108,6 +208,9 @@ struct SqxcInfo
 	size_t       size;
 	SqInitFunc   init;
 	SqFinalFunc  final;
+
+	SqxcCtrlFunc ctrl;
+	SqxcSendFunc send;
 };
 
 /* ----------------------------------------------------------------------------
@@ -124,34 +227,35 @@ struct SqxcNested
 };
 
 /* ----------------------------------------------------------------------------
-	Sqxc - Interface for parse or write
+	Sqxc - Interface for data parse or write
 
-	Entry and value convert C to/from X  (X = SQLite, JSON, or XML...etc)
+	Entry and value convert C to/from X  (X = SQL, JSON, or XML...etc)
  */
 
-Sqxc*   sqxc_new(const SqxcInfo* xcinfo, int io);
+Sqxc*   sqxc_new(const SqxcInfo *xcinfo);
 void    sqxc_free(Sqxc* xc);
 
 // create Sqxc chain for input/output
-// parameter order from src to dest, return src
-// sqxc_new_input(SQXC_INFO_SQLITE, SQXC_INFO_JSON, SQXC_INFO_VALUE, NULL);
-// sqxc_new_output(SQXC_INFO_VALUE, SQXC_INFO_JSON, SQXC_INFO_SQLITE, NULL);
-
-Sqxc*   sqxc_new_chain(int io_, ...);
-
-// create Sqxc chain for input
-// Sqxc* sqxc_new_input(SqxcInfo* src, ...);
-#define sqxc_new_input(...)     sqxc_new_chain(1, __VA_ARGS__, NULL)
-
-// create Sqxc chain for output
-// Sqxc* sqxc_new_output(SqxcInfo* src, ...);
-#define sqxc_new_output(...)    sqxc_new_chain(0, __VA_ARGS__, NULL)
-
+// parameter order from destination to source, return destination Sqxc element.
+Sqxc*   sqxc_new_chain(const SqxcInfo *dest_xc_info, ...);
 // free Sqxc chain
 void    sqxc_free_chain(Sqxc* xc);
 
-Sqxc*   sqxc_get(Sqxc* xc, const SqxcInfo* info, int nth);
-Sqxc*   sqxc_insert(Sqxc* xc, int position, Sqxc* xcdata);
+// insert a new Sqxc element into the chain at the given position.
+// If position is negative, or is larger than the number of element in the Sqxc chain, 'xc_element ' is appended to the Sqxc chain.
+// if 'xc_element' is NULL, return Sqxc element at the given position.
+// Return the new start of the Sqxc chain
+Sqxc*   sqxc_insert(Sqxc* xc, Sqxc* xc_element, int position);
+
+// steal 'xc_element' from 'xc' chain, it doesn't free 'xc_element'
+// Return the new start of the Sqxc chain
+Sqxc*   sqxc_steal(Sqxc* xc, Sqxc* xc_element);
+
+// Return the found Sqxc element, or NULL if it is not found
+Sqxc*   sqxc_find(Sqxc* xc, const SqxcInfo *info);
+
+//Sqxc* sqxc_nth(Sqxc* sqxc, int position);
+#define sqxc_nth(sqxc, position)    sqxc_insert(sqxc, NULL, position)
 
 #define sqxc_get_buffer(xc)    (SqBuffer*)(&((Sqxc*)(xc))->buf)
 
@@ -169,106 +273,13 @@ int     sqxc_broadcast(Sqxc* xc, int id, void* data);
 #define sqxc_finish(xc, data)   \
 		sqxc_broadcast((Sqxc*)xc, SQXC_CTRL_FINISH, data);
 
-/* sqxc_send(src) send data from src to src->dest
-   It try to match type in Sqxc chain.
+/* sqxc_send() is called by data source side.
+   It send data to Sqxc element and try to match type in Sqxc chain.
+
+   Because difference data type is processed by difference Sqxc element,
+   It returns current Sqxc elements.
  */
-int     sqxc_send(Sqxc* src);
-
-/* --------------------------------------------------------
-   These macro send data from src to src->dest
-
-	[ {"id": 100, "name": "Bob"} ]
-
-	sqxc_send_array_beg(sqxc_src, NULL);        //  [
-
-	sqxc_send_object_beg(sqxc_src, NULL);       //  {
-	sqxc_send_int(sqxc_src, "id", 100);         //  "id": 100
-	sqxc_send_string(sqxc_src, "name", "Bob");  //  "name": "Bob"
-	sqxc_send_object_end(sqxc_src, NULL);       //  }
-
-	sqxc_send_array_end(sqxc_src, NULL);        //  ]
- */
-
-// void sqxc_send_bool(Sqxc* src, const char* entry_name, bool value);
-#define sqxc_send_bool(sqxc_src, entry_name, value_)     \
-		{                                                \
-			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_BOOL;  \
-			((Sqxc*)(sqxc_src))->name = entry_name;      \
-			((Sqxc*)(sqxc_src))->value.boolean = value_; \
-			sqxc_send((Sqxc*)(sqxc_src));                \
-		}
-
-// void sqxc_send_int(Sqxc* src, const char* entry_name, int value);
-#define sqxc_send_int(sqxc_src, entry_name, value_)      \
-		{                                                \
-			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_INT;   \
-			((Sqxc*)(sqxc_src))->name = entry_name;      \
-			((Sqxc*)(sqxc_src))->value.integer = value_; \
-			sqxc_send((Sqxc*)(sqxc_src));                \
-		}
-
-// void sqxc_send_int64(Sqxc* src, const char* entry_name, int64_t value);
-#define sqxc_send_int64(sqxc_src, entry_name, value_)    \
-		{                                                \
-			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_INT64; \
-			((Sqxc*)(sqxc_src))->name = entry_name;      \
-			((Sqxc*)(sqxc_src))->value.int64 = value_;   \
-			sqxc_send((Sqxc*)(sqxc_src));                \
-		}
-
-// void sqxc_send_double(Sqxc* src, const char* entry_name, double value);
-#define sqxc_send_double(sqxc_src, entry_name, val)      \
-		{                                                \
-			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_DOUBLE;\
-			((Sqxc*)(sqxc_src))->name = entry_name;      \
-			((Sqxc*)(sqxc_src))->value.double_ = val;    \
-			sqxc_send((Sqxc*)(sqxc_src));                \
-		}
-
-// void sqxc_send_string(Sqxc* src, const char* entry_name, const char* value);
-#define sqxc_send_string(sqxc_src, entry_name, val)      \
-		{                                                \
-			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_STRING;\
-			((Sqxc*)(sqxc_src))->name = entry_name;      \
-			((Sqxc*)(sqxc_src))->value.string = (char*)val;   \
-			sqxc_send((Sqxc*)(sqxc_src));                \
-		}
-
-// void sqxc_send_object_beg(Sqxc* src, const char* entry_name);
-#define sqxc_send_object_beg(sqxc_src, entry_name)       \
-		{                                                \
-			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_OBJECT;\
-			((Sqxc*)(sqxc_src))->name = entry_name;      \
-			((Sqxc*)(sqxc_src))->value.pointer = NULL;   \
-			sqxc_send((Sqxc*)(sqxc_src));                \
-		}
-
-// void sqxc_send_object_end(Sqxc* src, const char* entry_name);
-#define sqxc_send_object_end(sqxc_src, entry_name)       \
-		{                                                \
-			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_OBJECT_END; \
-			((Sqxc*)(sqxc_src))->name = entry_name;      \
-			((Sqxc*)(sqxc_src))->value.pointer = NULL;   \
-			sqxc_send((Sqxc*)(sqxc_src));                \
-		}
-
-// void sqxc_send_array_beg(Sqxc* src, const char* entry_name);
-#define sqxc_send_array_beg(sqxc_src, entry_name)        \
-		{                                                \
-			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_ARRAY; \
-			((Sqxc*)(sqxc_src))->name = entry_name;      \
-			((Sqxc*)(sqxc_src))->value.pointer = NULL;   \
-			sqxc_send((Sqxc*)(sqxc_src));                \
-		}
-
-// void sqxc_send_array_end(Sqxc* src, const char* entry_name);
-#define sqxc_send_array_end(sqxc_src, entry_name)        \
-		{                                                \
-			((Sqxc*)(sqxc_src))->type = SQXC_TYPE_ARRAY_END;  \
-			((Sqxc*)(sqxc_src))->name = entry_name;      \
-			((Sqxc*)(sqxc_src))->value.pointer = NULL;   \
-			sqxc_send((Sqxc*)(sqxc_src));                \
-		}
+Sqxc*   sqxc_send(Sqxc* xc);
 
 // --------------------------------------------------------
 // functions for nested object/array
@@ -281,7 +292,7 @@ void        sqxc_pop_nested(Sqxc* xc);
 #endif
 
 // ----------------------------------------------------------------------------
-// SqxcMethod : a template C++ struct is used by Sqxc and it's children.
+// XcMethod : a template C++ struct is used by Sqxc and it's children.
 
 #ifdef __cplusplus
 
@@ -292,66 +303,76 @@ struct XcMethod
 {
 	SqBuffer* buffer(void);
 
-	Sqxc*  get(const SqxcInfo* info, int nth);
+	Sqxc*  insert(Sqxc* xc_element, int position);
+	Sqxc*  steal(Sqxc* xc_element);
+	Sqxc*  find(const SqxcInfo *info);
+	Sqxc*  nth(int position);
 
-	int  ready(void* data = NULL);
-	int  finish(void* data = NULL);
+	int    broadcast(int id, void* data);
+	int    ready(void* data = NULL);
+	int    finish(void* data = NULL);
 
-	int  sendFrom(Sqxc* src);
-	int  sendBool(const char* entry_name, bool value);
-	int  sendInt(const char* entry_name, int value);
-	int  sendInt64(const char* entry_name, int64_t value);
-	int  sendDouble(const char* entry_name, double value);
-	int  sendString(const char* entry_name, const char* value);
-
-	int  sendObjectBeg(const char* entry_name);
-	int  sendObjectEnd(const char* entry_name);
-
-	int  sendArrayBeg(const char* entry_name);
-	int  sendArrayEnd(const char* entry_name);
+	int    send(Sqxc* arguments_src);
 
 	SqxcNested* push(void);
 	void        pop(void);
+
+	// ----------------------------------------------------
+	// These are called by data source side.
+
+	Sqxc*  send(void);
+	Sqxc*  sendBool(const char* entry_name, bool value);
+	Sqxc*  sendInt(const char* entry_name, int value);
+	Sqxc*  sendInt64(const char* entry_name, int64_t value);
+	Sqxc*  sendDouble(const char* entry_name, double value);
+	Sqxc*  sendString(const char* entry_name, const char* value);
+
+	Sqxc*  sendObjectBeg(const char* entry_name);
+	Sqxc*  sendObjectEnd(const char* entry_name);
+
+	Sqxc*  sendArrayBeg(const char* entry_name);
+	Sqxc*  sendArrayEnd(const char* entry_name);
 };
 
 };  // namespace Sq
+
 #endif  // __cplusplus
 
-// ----------------------------------------------------------------------------
-// Sqxc
+/* ----------------------------------------------------------------------------
+	Sqxc
+ */
 
-#define SQXC_MEMBERS       \
-	const SqxcInfo*  info; \
-	Sqxc*        next;     \
-	Sqxc*        prev;     \
-	Sqxc*        dest;     \
-	unsigned int io_:1;    \
-	unsigned int supported_type;   \
-	SqxcNested*  nested;           \
-	int          nested_count;     \
-	char*        buf;              \
-	int          buf_size;         \
-	int          buf_writed;       \
-	SqxcCtrlFunc ctrl;     \
-	SqxcSendFunc send;     \
-	SqxcType     type;          \
-	const char*  name;          \
-	union {                     \
-		bool          boolean;  \
-		int           integer;  \
-		int           int_;     \
-		unsigned int  uinteger; \
-		unsigned int  uint;     \
-		int64_t       int64;    \
-		uint64_t      uint64;   \
-		double        fraction; \
-		double        double_;  \
-		char*         string;   \
-		void*         pointer;  \
-	} value;                    \
-	SqEntry*     entry;    \
-	void**       error;    \
-	int          code
+#define SQXC_MEMBERS    \
+	const SqxcInfo  *info;    \
+	Sqxc*            peer;    \
+	Sqxc*            dest;    \
+	SqxcNested*  nested;          \
+	int          nested_count;    \
+	char*        buf;             \
+	int          buf_size;        \
+	int          buf_writed;      \
+	SqEntry*     entry;             \
+	uint16_t     supported_type;    \
+/*	uint16_t     outputable_type; */\
+/*	uint16_t     required_type;   */\
+	uint16_t     code;              \
+	uint16_t     type;              \
+	const char*  name;              \
+	union {                         \
+		bool          boolean;      \
+		int           integer;      \
+		int           int_;         \
+		unsigned int  uinteger;     \
+		unsigned int  uint;         \
+		int64_t       int64;        \
+		uint64_t      uint64;       \
+		double        fraction;     \
+		double        double_;      \
+		char*         string;       \
+		char*         stream;       \
+		void*         pointer;      \
+	} value;                        \
+	void**       error
 
 #ifdef __cplusplus
 struct Sqxc : Sq::XcMethod
@@ -361,25 +382,13 @@ struct Sqxc
 {
 //	SQXC_MEMBERS;
 /*	// ------ Sqxc members ------  */
-	const SqxcInfo*  info;
+	const SqxcInfo  *info;
 
 	// Sqxc chain
-	Sqxc*        next;     // next destination
-	Sqxc*        prev;     // previous source
-
-	// source and destination
-//	Sqxc*        src;      // pointer to current source in Sqxc chain
+	Sqxc*        peer;     // pointer to other Sqxc elements
 	Sqxc*        dest;     // pointer to current destination in Sqxc chain
 
-	// ----------------------------------------------------
-	// properties
-
-	unsigned int io_:1;           // Input = 1, Output = 0
-	unsigned int supported_type;  // supported SqxcType (bit entry)
-
-	// ----------------------------------------------------
-	// stack of SqxcNested (placed in dest)
-
+	// stack of SqxcNested
 	SqxcNested*  nested;          // current nested object/array
 	int          nested_count;
 
@@ -392,17 +401,19 @@ struct Sqxc
 	int          buf_size;
 	int          buf_writed;
 
-	// ====================================================
-	// functions
-
-	SqxcCtrlFunc ctrl;
-	SqxcSendFunc send;
-
 	// ----------------------------------------------------
-	// function arguments
+	// arguments that used by SqxcInfo->send()
+
+	// special arguments
+	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	uint16_t     supported_type;  // supported SqxcType (bit field) for inputting, it can change at runtime.
+//	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
+	// output arguments
+//	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCH
+	uint16_t     code;            // error code (SQCODE_xxxx)
 
 	// input arguments
-	SqxcType     type;     // if src->code = SQCODE_TYPE_NOT_MATCH, set required type in dest->type
+	uint16_t     type;            // input SqxcType
 	const char*  name;
 	union {
 		bool          boolean;
@@ -415,21 +426,12 @@ struct Sqxc
 		double        fraction;
 		double        double_;
 		char*         string;
+		char*         stream;     // Text stream must be null-terminated string
 		void*         pointer;
 	} value;
 
-	// input arguments - optional.  this one can be NULL.
-	SqEntry*     entry;
-
-	// input arguments - user data
-//	void*        user_data;
-//	void*        user_data2;
-
 	// input / output arguments
 	void**       error;
-
-	// output arguments
-	int          code;     // error code (SQCODE_xxxx)
 };
 
 // ----------------------------------------------------------------------------
@@ -445,41 +447,51 @@ namespace Sq
 SqBuffer* XcMethod::buffer(void)
 	{ return sqxc_get_buffer(this); }
 
-Sqxc*  XcMethod::get(const SqxcInfo* info, int nth)
-	{ return sqxc_get((Sqxc*)this, info, nth); }
+Sqxc*  XcMethod::insert(Sqxc* xc_element, int position)
+	{ return sqxc_insert((Sqxc*)this, xc_element, position); }
+Sqxc*  XcMethod::steal(Sqxc* xc_element)
+	{ return sqxc_steal((Sqxc*)this, xc_element); }
+Sqxc*  XcMethod::find(const SqxcInfo *info)
+	{ return sqxc_find((Sqxc*)this, info); }
+Sqxc*  XcMethod::nth(int position)
+	{ return sqxc_nth((Sqxc*)this, position); }
 
+int  XcMethod::broadcast(int id, void* data)
+	{ return sqxc_broadcast((Sqxc*)this, id, data); }
 int  XcMethod::ready(void* data)
 	{ return sqxc_ready((Sqxc*)this, data); }
 int  XcMethod::finish(void* data)
 	{ return sqxc_finish((Sqxc*)this, data); }
-
-int  XcMethod::sendFrom(Sqxc* src)
-	{ return ((Sqxc*)this)->send((Sqxc*)this, src); }
-int  XcMethod::sendBool(const char* entry_name, bool value)
-	{ sqxc_send_bool((Sqxc*)this, entry_name, value);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendInt(const char* entry_name, int value)
-	{ sqxc_send_int((Sqxc*)this, entry_name, value);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendInt64(const char* entry_name, int64_t value)
-	{ sqxc_send_int64((Sqxc*)this, entry_name, value);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendDouble(const char* entry_name, double value)
-	{ sqxc_send_double((Sqxc*)this, entry_name, value);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendString(const char* entry_name, const char* value)
-	{ sqxc_send_string((Sqxc*)this, entry_name, (char*)value);  return ((Sqxc*)this)->code; }
-
-int  XcMethod::sendObjectBeg(const char* entry_name)
-	{ sqxc_send_object_beg((Sqxc*)this, entry_name);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendObjectEnd(const char* entry_name)
-	{ sqxc_send_object_end((Sqxc*)this, entry_name);  return ((Sqxc*)this)->code; }
-
-int  XcMethod::sendArrayBeg(const char* entry_name)
-	{ sqxc_send_array_beg((Sqxc*)this, entry_name);  return ((Sqxc*)this)->code; }
-int  XcMethod::sendArrayEnd(const char* entry_name)
-	{ sqxc_send_array_end((Sqxc*)this, entry_name);  return ((Sqxc*)this)->code; }
+int  XcMethod::send(Sqxc* arguments_src)
+	{ return ((Sqxc*)this)->info->send((Sqxc*)this, arguments_src); }
 
 SqxcNested* XcMethod::push(void)
 	{ return sqxc_push_nested((Sqxc*)this); }
 void        XcMethod::pop(void)
 	{ sqxc_pop_nested((Sqxc*)this); }
+
+Sqxc* XcMethod::send(void)
+	{ return sqxc_send((Sqxc*)this); }
+Sqxc* XcMethod::sendBool(const char* entry_name, bool value)
+	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_BOOL(xc, entry_name, value);  return xc; }
+Sqxc* XcMethod::sendInt(const char* entry_name, int value)
+	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_INT(xc, entry_name, value);  return xc; }
+Sqxc* XcMethod::sendInt64(const char* entry_name, int64_t value)
+	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_INT64(xc, entry_name, value);  return xc; }
+Sqxc* XcMethod::sendDouble(const char* entry_name, double value)
+	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_DOUBLE(xc, entry_name, value);  return xc; }
+Sqxc* XcMethod::sendString(const char* entry_name, const char* value)
+	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_STRING(xc, entry_name, (char*)value);  return xc; }
+
+Sqxc* XcMethod::sendObjectBeg(const char* entry_name)
+	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_OBJECT_BEG(xc, entry_name);  return xc; }
+Sqxc* XcMethod::sendObjectEnd(const char* entry_name)
+	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_OBJECT_END(xc, entry_name);  return xc; }
+
+Sqxc* XcMethod::sendArrayBeg(const char* entry_name)
+	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_ARRAY_BEG(xc, entry_name);  return xc; }
+Sqxc* XcMethod::sendArrayEnd(const char* entry_name)
+	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_ARRAY_END(xc, entry_name);  return xc; }
 
 // These are for directly use only. You can NOT derived it.
 typedef struct Sqxc             Xc;

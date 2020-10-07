@@ -22,10 +22,13 @@
 #include <SqQuery.h>
 #include <SqQuery-macro.h>
 
+#include <SqxcEmpty.h>
+
 using namespace std;
 
 
 // ----------------------------------------------------------------------------
+// SqSchema
 
 typedef struct User       User;
 typedef struct Company    Company;
@@ -78,6 +81,7 @@ void test_schema()
 }
 
 // ----------------------------------------------------------------------------
+// SqQuery
 
 void test_query_cpp()
 {
@@ -116,6 +120,50 @@ void test_query()
 	test_query_cpp();
 }
 
+// ----------------------------------------------------------------------------
+// Sqxc
+
+void test_sqxc(void)
+{
+	SqxcEmpty* xcempty;
+	Sqxc* xc;
+	Sqxc* xc2;
+	Sqxc* xc3;
+	Sqxc* cur;
+
+	xc  = sqxc_new(SQXC_INFO_EMPTY);
+	xc2 = sqxc_new(SQXC_INFO_EMPTY);
+	xc3 = sqxc_new(SQXC_INFO_EMPTY);
+
+	xc->insert(xc2, -1);
+	xc->insert(xc3, -1);
+
+	xcempty = (SqxcEmpty*)xc;
+	xcempty->not_matched_type = SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY;
+	xcempty->tag = "L1";
+
+	xcempty = (SqxcEmpty*)xc2;
+	xcempty->not_matched_type = SQXC_TYPE_OBJECT;
+	xcempty->tag = "L2";
+
+	xcempty = (SqxcEmpty*)xc3;
+	xcempty->not_matched_type = 0;
+	xcempty->tag = "L3";
+
+	xc->ready();
+	cur = xc;
+	cur = cur->sendBool("is_cpp", 1);
+	cur = cur->sendString("name", "Lee");
+	cur = cur->sendArrayBeg("Cities");
+	cur = cur->sendObjectBeg("User");
+	cur = cur->sendInt("id", 2);
+	cur = cur->sendInt("company_id", 3);
+	cur = cur->sendObjectEnd("User");
+	cur = cur->sendArrayEnd("Cities");
+	xc->finish();
+
+	sqxc_free_chain(xc);
+}
 
 // ----------------------------------------------------------------------------
 
@@ -123,5 +171,6 @@ int main(void)
 {
 	test_schema();
 	test_query();
+	test_sqxc();
 	return 0;
 }

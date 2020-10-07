@@ -12,75 +12,60 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef SQXC_SQLITE_H
-#define SQXC_SQLITE_H
-
-#include <sqlite3.h>
+#ifndef SQXC_SQL_H
+#define SQXC_SQL_H
 
 #include <SqPtrArray.h>
 #include <Sqxc.h>
+#include <Sqdb.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* ----------------------------------------------------------------------------
+	SqxcSql - Sqxc data convert to SQL statement. (destination of output chain)
+
 	Sqxc
 	|
-	`--- SqxcSqlite
+	`--- SqxcSql
 
-	Sqxc data to/from SQLite
-
-	*** In input chain:
-	SQL command ------> SqxcSqlite ---> SQXC_TYPE_xxxx
-	               send            send
-
-	*** In output chain:
-	SQXC_TYPE_xxxx ---> SqxcSqlite ---> SQL command
-	               send            send
+                     +-> SqxcJsonWriter --+
+    ( output )       |                    |       (SQL statement)
+    SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
+                     |                    |
+                     +--> SqxcXmlWriter --+
  */
 
-typedef struct SqxcSqlite     SqxcSqlite;
+typedef struct SqxcSql        SqxcSql;
 
-extern const SqxcInfo SQXC_INFO_SQLITE[2];
+extern const SqxcInfo *SQXC_INFO_SQL;
 
 // ----------------------------------------------------------------------------
 // macro for accessing variable of SqxcSqlite
 
-#define sqxc_sqlite_db(xcsqlite)    ((SqxcSqlite*)xcsqlite)->db
-#define sqxc_sqlite_id(xcsqlite)    ((SqxcSqlite*)xcsqlite)->id
+#define sqxc_sql_db(xcsql)    ((SqxcSql*)xcsql)->db
+#define sqxc_sql_id(xcsql)    ((SqxcSql*)xcsql)->id
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
 #ifdef __cplusplus
-struct SqxcSqlite : Sq::XcMethod
+struct SqxcSql : Sq::XcMethod
 #else
-struct SqxcSqlite
+struct SqxcSql
 #endif
 {
 	SQXC_MEMBERS;
 /*	// ------ Sqxc members ------
-	const SqxcInfo*  info;
+	const SqxcInfo  *info;
 
 	// Sqxc chain
-	Sqxc*        next;     // next destination
-	Sqxc*        prev;     // previous source
-
-	// source and destination
-//	Sqxc*        src;      // pointer to current source in Sqxc chain
+	Sqxc*        peer;     // pointer to other Sqxc elements
 	Sqxc*        dest;     // pointer to current destination in Sqxc chain
 
-	// ----------------------------------------------------
-	// properties
-
-	unsigned int io_:1;           // Input = 1, Output = 0
-	unsigned int supported_type;  // supported SqxcType (bit entry)
-
-	// ----------------------------------------------------
-	// stack of SqxcNested (placed in dest)
-
+	// stack of SqxcNested
 	SqxcNested*  nested;          // current nested object/array
 	int          nested_count;
 
@@ -93,17 +78,19 @@ struct SqxcSqlite
 	int          buf_size;
 	int          buf_writed;
 
-	// ====================================================
-	// functions
-
-	SqxcCtrlFunc ctrl;
-	SqxcSendFunc send;
-
 	// ----------------------------------------------------
-	// function parameter
+	// arguments that used by SqxcInfo->send()
 
-	// input
-	SqxcType     type;     // if code = SQCODE_TYPE_NOT_MATCH, set required type in dest->type->type
+	// special arguments
+	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	uint16_t     supported_type;  // supported SqxcType (bit field) for inputting, it can change at runtime.
+//	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
+	// output arguments
+//	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCH
+	uint16_t     code;            // error code (SQCODE_xxxx)
+
+	// input arguments
+	uint16_t     type;            // input SqxcType
 	const char*  name;
 	union {
 		bool          boolean;
@@ -116,40 +103,27 @@ struct SqxcSqlite
 		double        fraction;
 		double        double_;
 		char*         string;
+		char*         stream;     // Text stream must be null-terminated string
 		void*         pointer;
 	} value;
 
-	// input arguments - optional.  this one can be NULL.
-	SqEntry*     entry;
-
-	// input - user data
-//	void*        user_data;
-//	void*        user_data2;
-
-	// input / output
+	// input / output arguments
 	void**       error;
-
-	// output
-	int          code;     // error code (SQCODE_xxxx)
  */
 
-	// --- common ---
+	// output
+	Sqdb*        db;
 
-	sqlite3* db;
-	char*    errorMsg;
+	// controlled variable
+	unsigned int mode;        // 1 == INSERT, 0 == UPDATE
+	int          id;          // inserted id; update id if 'condition' == NULL
+	char*        condition;   // WHERE condition if mode == 0 (UPDATE)
 
-	const char*    table_name;  // table-name
-	const char*    row_name;    // row
-	char*          where_condition;  // where condition
-
-	int   id;
-
-	// --- source input / destination output ---
-	SqxcType       outer_type;    // SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY or SQXC_TYPE_NONE
-
-	// --- destination output ---
-	int    row_count;
-	int    col_count;
+	// runtime variable
+	uint16_t     outer_type;  // SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY or SQXC_TYPE_NONE
+	int          row_count;   // used by INSERT
+	int          col_count;   // used by INSERT and UPDATE
+	int          buf_reuse;   // used by INSERT and UPDATE
 };
 
-#endif  // SQXC_SQLITE_H
+#endif  // SQXC_SQL_H

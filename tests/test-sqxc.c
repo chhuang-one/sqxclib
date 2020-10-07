@@ -17,7 +17,7 @@
 #include <SqxcValue.h>
 #include <SqxcJsonc.h>
 #include <SqxcEmpty.h>
-#include <SqxcSqlite.h>
+#include <SqxcSql.h>
 #include <SqPtrArray.h>
 #include <SqSchema-macro.h>
 
@@ -88,7 +88,7 @@ SqTable* create_user_table_by_type(SqSchema* schema)
 // ----------------------------------------------------------------------------
 // Sqxc - Input
 
-char* json_array_string =
+const char* json_array_string =
 "["
 	"{"
 		"\"id\": 10,"
@@ -98,7 +98,7 @@ char* json_array_string =
 	"}"
 "]";
 
-char* json_object_string =
+const char* json_object_string =
 "{"
 	"\"id\": 10,"
 	"\"email\": \"guest@\","
@@ -109,16 +109,19 @@ char* json_object_string =
 void test_sqxc_jsonc_input()
 {
 	Sqxc* xcjsonc;
+	Sqxc* xcchain;
 
-	xcjsonc = sqxc_new_input(SQXC_INFO_JSONC, SQXC_INFO_EMPTY);
-	sqxc_ready(xcjsonc, NULL);
+	xcchain = sqxc_new_chain(SQXC_INFO_EMPTY, SQXC_INFO_JSONC_PARSER, NULL);
+	xcjsonc = sqxc_find(xcchain, SQXC_INFO_JSONC_PARSER);
 
+	sqxc_ready(xcchain, NULL);
 	xcjsonc->type = SQXC_TYPE_STRING;
 	xcjsonc->name = NULL;
-	xcjsonc->value.string = json_array_string;
-	xcjsonc->send(xcjsonc, xcjsonc);
+	xcjsonc->value.string = (char*)json_array_string;
+	xcjsonc->info->send(xcjsonc, xcjsonc);
+	sqxc_finish(xcchain, NULL);
 
-	sqxc_finish(xcjsonc, NULL);
+	sqxc_free_chain(xcchain);
 }
 
 User* test_sqxc_jsonc_input_user()
@@ -127,21 +130,21 @@ User* test_sqxc_jsonc_input_user()
 	Sqxc* xcvalue;
 	User* user;
 
-	xcjsonc = sqxc_new_input(SQXC_INFO_JSONC, SQXC_INFO_VALUE);
-	xcvalue = sqxc_get(xcjsonc, SQXC_INFO_VALUE, 0);
-	sqxc_value_type(xcvalue) = (SqType*)&UserType;
+	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
+	xcjsonc = sqxc_find(xcvalue, SQXC_INFO_JSONC_PARSER);
+	sqxc_value_type(xcvalue) = &UserType;
 	sqxc_value_container(xcvalue) = NULL;
 
-	sqxc_ready(xcjsonc, NULL);
+	sqxc_ready(xcvalue, NULL);
 
 	xcjsonc->type = SQXC_TYPE_STRING;
 	xcjsonc->name = NULL;
-	xcjsonc->value.string = json_object_string;
-	xcjsonc->send(xcjsonc, xcjsonc);
+	xcjsonc->value.string = (char*)json_object_string;
+	xcjsonc->info->send(xcjsonc, xcjsonc);
 
-	sqxc_finish(xcjsonc, NULL);
+	sqxc_finish(xcvalue, NULL);
 
-	user = sqxc_value_instance(xcvalue);
+	user = (User*)sqxc_value_instance(xcvalue);
 	print_user(user);
 
 	return user;
@@ -153,62 +156,109 @@ User* test_sqxc_jsonc_input_user()
 void test_sqxc_jsonc_output(User* instance)
 {
 	Sqxc* xcjsonc;
+	Sqxc* xcchain;
 
-	xcjsonc = sqxc_new_output(SQXC_INFO_JSONC, SQXC_INFO_EMPTY);
-	sqxc_ready(xcjsonc, NULL);
+	xcchain = sqxc_new_chain(SQXC_INFO_EMPTY, SQXC_INFO_JSONC_WRITER, NULL);
+	xcjsonc = sqxc_find(xcchain, SQXC_INFO_JSONC_WRITER);
+	sqxc_ready(xcchain, NULL);
 
 	xcjsonc->type = SQXC_TYPE_OBJECT;
 	xcjsonc->name = NULL;
 	xcjsonc->value.pointer = NULL;
-	xcjsonc->send(xcjsonc, xcjsonc);
+	xcjsonc->info->send(xcjsonc, xcjsonc);
 
 	xcjsonc->type = SQXC_TYPE_INT;
 	xcjsonc->name = "id";
 	xcjsonc->value.integer = instance->id;
-	xcjsonc->send(xcjsonc, xcjsonc);
+	xcjsonc->info->send(xcjsonc, xcjsonc);
+
+	xcjsonc->type = SQXC_TYPE_STRING;
+	xcjsonc->name = "name";
+	xcjsonc->value.string = instance->name;
+	xcjsonc->info->send(xcjsonc, xcjsonc);
 
 	xcjsonc->type = SQXC_TYPE_STRING;
 	xcjsonc->name = "email";
 	xcjsonc->value.string = instance->email;
-	xcjsonc->send(xcjsonc, xcjsonc);
+	xcjsonc->info->send(xcjsonc, xcjsonc);
 
 	xcjsonc->type = SQXC_TYPE_OBJECT_END;
 	xcjsonc->name = NULL;
 	xcjsonc->value.pointer = NULL;
-	xcjsonc->send(xcjsonc, xcjsonc);
+	xcjsonc->info->send(xcjsonc, xcjsonc);
 
-	sqxc_finish(xcjsonc, NULL);
+	sqxc_finish(xcchain, NULL);
+
+	sqxc_free_chain(xcchain);
 }
 
-void test_sqxc_output(SqSchema* schema, User* instance)
+void test_sqxc_sql_output(bool use_update)
 {
-	Sqxc*    cxchain;
-	Sqxc*    xcsql;
-	Sqxc*    cxvalue;
 	SqTable* table;
+	Sqxc* xcchain;
+	Sqxc* xcsql;
+	Sqxc* xccur;
 
-	table = sq_schema_find(schema, "users");
+	table = sq_table_new("User", &UserType);
 
-	cxchain = sqxc_new_output(SQXC_INFO_VALUE, SQXC_INFO_SQLITE);
-	xcsql   = sqxc_get(cxchain, SQXC_INFO_SQLITE, -1);
-	cxvalue = sqxc_get(cxchain, SQXC_INFO_VALUE, -1);
+	xcchain = sqxc_new_chain(SQXC_INFO_SQL, SQXC_INFO_JSONC_WRITER, NULL);
+	xcsql = sqxc_find(xcchain, SQXC_INFO_SQL);
+	if (use_update) {
+		sqxc_sql_id(xcsql) = 2333;
+		xcsql->info->ctrl(xcsql, SQXC_SQL_USE_UPDATE, table);
+	}
+	else
+		xcsql->info->ctrl(xcsql, SQXC_SQL_USE_INSERT, table);
 
-	sqxc_value_type(cxvalue) = table->type;
-	xcsql->ctrl(xcsql, SQXC_SQL_USE_UPDATE, table);
-	xcsql->ctrl(xcsql, SQXC_SQL_USE_WHERE, "id=1");
+	sqxc_ready(xcchain, NULL);
 
-	sqxc_ready(cxvalue, NULL);
-	cxvalue->type = SQXC_TYPE_OBJECT;
-	cxvalue->name = table->name;
-	cxvalue->value.pointer = instance;
-	cxvalue->code = cxvalue->send(cxvalue, cxvalue);
-	sqxc_finish(cxvalue, NULL);
+	xccur = xcchain;
+	xccur->type = SQXC_TYPE_OBJECT;
+	xccur->name = NULL;
+	xccur->value.pointer = NULL;
+	xccur = sqxc_send(xccur);
+
+	xccur->type = SQXC_TYPE_STRING;
+	xccur->name = "email";
+	xccur->value.string = (char*)"guest@";
+	xccur = sqxc_send(xccur);
+
+	xccur->type = SQXC_TYPE_INT;
+	xccur->name = "id";
+	xccur->value.integer = 2333;
+	xccur = sqxc_send(xccur);
+
+	xccur->type = SQXC_TYPE_ARRAY;
+	xccur->name = "ints";
+	xccur = sqxc_send(xccur);
+	xccur->type = SQXC_TYPE_ARRAY_END;
+	xccur->name = "ints";
+	xccur = sqxc_send(xccur);
+
+	xccur->type = SQXC_TYPE_STRING;
+	xccur->name = "name";
+	xccur->value.string = (char*)"Bob";
+	xccur = sqxc_send(xccur);
+
+	xccur->type = SQXC_TYPE_ARRAY;
+	xccur->name = "strs";
+	xccur = sqxc_send(xccur);
+	xccur->type = SQXC_TYPE_ARRAY_END;
+	xccur->name = "strs";
+	xccur = sqxc_send(xccur);
+
+	xccur->type = SQXC_TYPE_OBJECT_END;
+	xccur->name = NULL;
+	xccur->value.pointer = NULL;
+	xccur = sqxc_send(xccur);
 
 	puts(xcsql->buf);
+	sqxc_finish(xcchain, NULL);
+
+	sqxc_free_chain(xcchain);
 }
 
 // ----------------------------------------------------------------------------
-
 
 int  main(void)
 {
@@ -227,10 +277,10 @@ int  main(void)
 	sq_ptr_array_init(&user->ints, 8, NULL);
 	sq_ptr_array_append(&user->ints, (void*)(intptr_t)1);
 
-//	test_sqxc_output(schema, user);
-	test_sqxc_jsonc_output(user);
 	test_sqxc_jsonc_input();
 	test_sqxc_jsonc_input_user();
+	test_sqxc_jsonc_output(user);
+	test_sqxc_sql_output(true);
 
 //	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 	return 0;

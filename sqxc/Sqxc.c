@@ -27,19 +27,17 @@ static SqxcNested sqxc_nested_root = {0};
 // ----------------------------------------------------------------------------
 // Sqxc functions
 
-Sqxc*  sqxc_new(const SqxcInfo* xcinfo, int io)
+Sqxc*  sqxc_new(const SqxcInfo* xcinfo)
 {
 	Sqxc* xc;
 	SqInitFunc init;
 
-	io &= 1;    // 0 or 1
-	xc = (Sqxc*)calloc(1, xcinfo[io].size);
+	xc = (Sqxc*)calloc(1, xcinfo->size);
 	xc->nested = NESTED_OUTER_ROOT;
-	init = xcinfo[io].init;
+	init = xcinfo->init;
 	if (init)
 		init(xc);
 	xc->info = xcinfo;
-	xc->io_ = io;
 	return xc;
 }
 
@@ -47,7 +45,7 @@ void  sqxc_free(Sqxc* xc)
 {
 	SqFinalFunc final;
 
-	final = xc->info[xc->io_].final;
+	final = xc->info->final;
 	if (final)
 		final(xc);
 	// free memory
@@ -57,145 +55,137 @@ void  sqxc_free(Sqxc* xc)
 	free(xc);
 }
 
-Sqxc* sqxc_new_chain(int io, ...)
+Sqxc* sqxc_new_chain(const SqxcInfo* info, ...)
 {
 	va_list    arg_list;
-	SqxcInfo*  info;
 	Sqxc*      xc = NULL;
 	Sqxc*      cur;
 
-	va_start(arg_list, io);
-	io &= 1;    // 0 or 1
+	cur = xc = sqxc_new(info);
+
+	va_start(arg_list, info);
 	for (;;) {
 		info = va_arg(arg_list, SqxcInfo*);
 		if (info == NULL)
 			break;
-		// create Sqxc chain
-		if (xc == NULL)
-			cur = xc = sqxc_new(info, io);
-		else {
-			cur->next = sqxc_new(info, io);
-			cur->next->prev = cur;
-			cur = cur->next;
-		}
+		// append new element
+		cur->peer = sqxc_new(info);
+		cur->peer->dest = xc;
+		cur = cur->peer;
 	};
 	va_end(arg_list);
 
-	// set Sqxc.dest
-	xc->dest = cur;
-	for (cur = xc->next;  cur;  cur = cur->next) {
-//		cur->src = xc;
-		cur->dest = xc->dest;
-	}
 	return xc;
 }
 
 void  sqxc_free_chain(Sqxc* xc)
 {
-	Sqxc*  next;
+	Sqxc*  peer;
 
-	// first Sqxc
-	for (;  xc->prev;  xc = xc->prev)
-		;
 	// free Sqxc from first to last.
-	for (;  xc;  xc = next) {
-		next = xc->next;
+	for (;  xc;  xc = peer) {
+		peer = xc->peer;
 		sqxc_free(xc);
 	}
 }
 
-Sqxc*   sqxc_get(Sqxc* xc, const SqxcInfo* info, int nth)
-{
-	Sqxc* cur;
-//	Sqxc* prev = NULL;
-	int   count;
-
-	for (count = 0, cur = xc;  cur;  cur = cur->next, count++) {
-		// find sqxc by info
-		if (info) {
-			if (info == cur->info)
-				return cur;
-		}
-		// get nth sqxc
-		else if (count == nth)
-			return cur;
-//		prev = cur;
-	}
-	return NULL;
-}
-
-Sqxc*   sqxc_insert(Sqxc* xc, int position, Sqxc* xcdata)
+Sqxc*   sqxc_insert(Sqxc* xc, Sqxc* xc_element, int position)
 {
 	Sqxc* cur;
 	Sqxc* prev = NULL;
-	int   count;
 
-	for (count = 0, cur = xc;  cur;  cur = cur->next, count++) {
-		if (count == position)
-			return cur;
+	for (cur = xc;  cur;  cur = cur->peer, position--) {
+		if (position == 0)
+			break;
 		prev = cur;
 	}
-	if (prev)
-		prev->next = xcdata;
-	if (cur)
-		cur->prev = xcdata;
-	if (xc)
-		xcdata->dest = xc->dest;
-	xcdata->prev = prev;
-	xcdata->next = cur;
 
-	return (prev) ? xc : xcdata;
+	// if 'xc_element' is NULL, return Sqxc element at the given position.
+	if (xc_element == NULL)
+		return cur;
+	// insert a new Sqxc element into the chain
+	if (prev)
+		prev->peer = xc_element;
+	if (cur)
+		xc_element->peer = cur;
+	// set default destination
+	xc_element->dest = xc;
+	return (prev) ? xc : xc_element;
+}
+
+Sqxc*   sqxc_steal(Sqxc* xc, Sqxc* xc_element)
+{
+	Sqxc* cur;
+	Sqxc* prev = NULL;
+
+	for (cur = xc;  cur;  cur = cur->peer) {
+		if (cur == xc_element) {
+			if (prev)
+				prev->peer = cur->peer;
+			cur->peer = NULL;
+		}
+		prev = cur;
+	}
+	return (prev) ? xc : xc->peer;
+}
+
+Sqxc*   sqxc_find(Sqxc* xc, const SqxcInfo* info)
+{
+	for (;  xc;  xc = xc->peer) {
+		if (xc->info == info)
+			return xc;
+	}
+	return NULL;
 }
 
 int   sqxc_broadcast(Sqxc* xc, int id, void* data)
 {
 	int   code = SQCODE_OK;
 
-	// first Sqxc
-	for (;  xc->prev;  xc = xc->prev)
-		;
-	// call Sqxc.notify() from first(src) to last(dest).
-	for (;  xc;  xc = xc->next) {
-		if (xc->ctrl) {
-			xc->code = xc->ctrl(xc, id, data);
+	// call SqxcInfo.ctrl()
+	for (;  xc;  xc = xc->peer) {
+		if (xc->info->ctrl) {
+			xc->code = xc->info->ctrl(xc, id, data);
 			if (xc->code != SQCODE_OK)
 				code = xc->code;
 		}
 	}
-
 	return code;
 }
 
-int  sqxc_send(Sqxc* src)
+Sqxc*  sqxc_send(Sqxc* xc)
 {
 	Sqxc*    cur;
-	Sqxc*    dest;
-	SqxcType require_type;
+	uint16_t code;
 
-	dest = src->dest;
-	src->code = dest->send(dest, src);
-	if (src->code == SQCODE_OK && dest->nested_count == 0)
-		src->dest = dest->dest;
-	// try to use other Sqxc if type not match
-	else if (src->code == SQCODE_TYPE_NOT_MATCH) {
-		require_type = dest->type;
-		for (cur = dest;  cur != src;  cur = cur->prev) {
-			if ((cur->supported_type & require_type) == 0)
-				continue;
-			// try to send data to previous Sqxc
-			cur->dest = src->dest;
-			src->dest = cur;
-			if (cur->send(cur, src) == SQCODE_OK) {
-				if(cur->nested_count == 0)
-					src->dest = cur->dest;
-				return (src->code = SQCODE_OK);
-			}
-		}
-		// No Sqxc support required type
-		src->code = SQCODE_TYPE_NOT_SUPPORT;
+/*	if (xc->error == ERROR_MUST_STOP) {
+		xc->code = error_code;
+		return xc;
 	}
+ */
 
-	return src->code;
+/*	xc->required_type = SQXC_TYPE_ALL;  */
+	for (cur = xc;  cur;  cur = cur->peer) {
+		if ((cur->supported_type & xc->type) == 0)
+			continue;
+/*		if ((cur->outputable_type & xc->required_type) == 0)
+			continue;
+ */
+		// change destination before calling send()
+		if (cur != xc)
+			cur->dest = xc;
+		code = cur->info->send(cur, xc);
+		if (code == SQCODE_OK) {
+			// change current Sqxc element
+			if (cur->nested_count == 0 && cur->dest)
+				cur = cur->dest;
+			cur->code = code;    // set code for convenient
+			return cur;
+		}
+	}
+	// No Sqxc element support required type
+	xc->code = SQCODE_TYPE_NOT_SUPPORT;
+	return xc;
 }
 
 // ----------------------------------------------------------------------------

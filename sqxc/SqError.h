@@ -19,6 +19,7 @@
 extern "C" {
 #endif
 
+// error code type is uint16_t
 
 #define SQCODE_OK                    0
 #define SQCODE_WARNING               0x1000

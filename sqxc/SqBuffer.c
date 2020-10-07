@@ -79,9 +79,10 @@ void  sq_buffer_insert_n(SqBuffer* buffer, int position, const char* string, int
 	SQ_BUFFER_INSERT_N(buffer, position, string, length);
 }
 
-void  sq_buffer_require(SqBuffer* buffer, int length)
+char* sq_buffer_require(SqBuffer* buffer, int length)
 {
 	SQ_BUFFER_REQUIRE(buffer, length);
+	return buffer->buf;
 }
 
 #endif  // __STDC_VERSION__

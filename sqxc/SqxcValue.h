@@ -23,33 +23,32 @@ extern "C" {
 #endif
 
 /* ----------------------------------------------------------------------------
+	SqxcValue - convert data to C Language Value. (destination of input chain)
+
 	Sqxc
 	|
 	`--- SqxcValue
 
-	Sqxc data to/from C language Value
-
-	*** In input chain:
-	SQXC_TYPE_xxxx ---> SqxcValue ---> C instance
-	               send           send
-
-	*** In output chain:
-	C instance -------> SqxcValue ---> SQXC_TYPE_xxxx
-	               send           send
-
+	                 +-> SqxcJsonParser --+
+	( input )        |                    |
+	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
+	                 |                    |
+	                 +--> SqxcXmlParser --+
  */
 
 typedef struct SqxcValue        SqxcValue;
 
-extern const SqxcInfo SQXC_INFO_VALUE[2];
+extern const SqxcInfo *SQXC_INFO_VALUE;
 
 // ----------------------------------------------------------------------------
 // macro for accessing variable of SqxcValue
 
-#define sqxc_value_type(xcvalue)          ((SqxcValue*)xcvalue)->element
-#define sqxc_value_container(xcvalue)     ((SqxcValue*)xcvalue)->container
-#define sqxc_value_element(xcvalue)       ((SqxcValue*)xcvalue)->element
 #define sqxc_value_instance(xcvalue)      ((SqxcValue*)xcvalue)->instance
+// type
+#define sqxc_value_type(xcvalue)          ((SqxcValue*)xcvalue)->element
+#define sqxc_value_current(xcvalue)       ((SqxcValue*)xcvalue)->current
+#define sqxc_value_element(xcvalue)       ((SqxcValue*)xcvalue)->element
+#define sqxc_value_container(xcvalue)     ((SqxcValue*)xcvalue)->container
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -64,25 +63,13 @@ struct SqxcValue
 {
 	SQXC_MEMBERS;
 /*	// ------ Sqxc members ------
-	const SqxcInfo*  info;
+	const SqxcInfo  *info;
 
 	// Sqxc chain
-	Sqxc*        next;     // next destination
-	Sqxc*        prev;     // previous source
-
-	// source and destination
-//	Sqxc*        src;      // pointer to current source in Sqxc chain
+	Sqxc*        peer;     // pointer to other Sqxc elements
 	Sqxc*        dest;     // pointer to current destination in Sqxc chain
 
-	// ----------------------------------------------------
-	// properties
-
-	unsigned int io_:1;           // Input = 1, Output = 0
-	unsigned int supported_type;  // supported SqxcType (bit entry)
-
-	// ----------------------------------------------------
-	// stack of SqxcNested (placed in dest)
-
+	// stack of SqxcNested
 	SqxcNested*  nested;          // current nested object/array
 	int          nested_count;
 
@@ -95,17 +82,19 @@ struct SqxcValue
 	int          buf_size;
 	int          buf_writed;
 
-	// ====================================================
-	// functions
-
-	SqxcCtrlFunc ctrl;
-	SqxcSendFunc send;
-
 	// ----------------------------------------------------
-	// function parameter
+	// arguments that used by SqxcInfo->send()
 
-	// input
-	SqxcType     type;     // if code = SQCODE_TYPE_NOT_MATCH, set required type in dest->type->type
+	// special arguments
+	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	uint16_t     supported_type;  // supported SqxcType (bit field) for inputting, it can change at runtime.
+//	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
+	// output arguments
+//	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCH
+	uint16_t     code;            // error code (SQCODE_xxxx)
+
+	// input arguments
+	uint16_t     type;            // input SqxcType
 	const char*  name;
 	union {
 		bool          boolean;
@@ -118,30 +107,21 @@ struct SqxcValue
 		double        fraction;
 		double        double_;
 		char*         string;
+		char*         stream;     // Text stream must be null-terminated string
 		void*         pointer;
 	} value;
 
-	// input arguments - optional.  this one can be NULL.
-	SqEntry*     entry;
-
-	// input - user data
-//	void*        user_data;
-//	void*        user_data2;
-
-	// input / output
+	// input / output arguments
 	void**       error;
-
-	// output
-	int          code;     // error code (SQCODE_xxxx)
  */
 
 	void*        instance;
 
 	// current pointer to container when calling get_all()
 	// current pointer to element when calling get(id)
-	SqType*      current;    // type of instance
-	SqType*      element;    // type of table (or entry)
-	SqType*      container;  // type of array (or list)
+	const SqType *current;    // type of instance
+	const SqType *element;    // type of table (or entry)
+	const SqType *container;  // type of array (or list)
 };
 
 #endif  // SQXC_VALUE_H

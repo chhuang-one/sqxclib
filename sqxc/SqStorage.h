@@ -20,10 +20,8 @@
 #define SQ_STORAGE
 
 #include <sqlite3.h>
-#include <SqxcSqlite.h>
-
+#include <Sqdb.h>
 #include <SqSchema.h>
-#include <SqxcValue.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,48 +30,44 @@ extern "C" {
 typedef struct SqQuery           SqQuery;
 typedef struct SqStorage         SqStorage;
 
-extern SqStorage*  sq_storage_global_;
-
 // ----------------------------------------------------------------------------
 // SqStorage C Functions
 
-SqStorage* sq_storage_new();
+SqStorage* sq_storage_new(Sqdb* db);
 void       sq_storage_free(SqStorage* storage);
 
-SqQuery* sq_storage_table(SqStorage* storage, const char* table_name);
-SqQuery* sq_storage_type(SqStorage* storage, const char* type_name);
+int   sq_storage_open(SqStorage* storage, const char *database_name);
+int   sq_storage_close(SqStorage* storage);
+
+SqQuery* sq_storage_table(SqStorage* storage, const char *table_name);
+SqQuery* sq_storage_type(SqStorage* storage, const char *type_name);
 
 void* sq_storage_get(SqStorage* storage,
-                     const char* table_name,
-                     const char* type_name,
+                     const char *table_name,
+                     const char *type_name,
                      int   id);
 
 void* sq_storage_get_all(SqStorage* storage,
-                         const char* table_name,
-                         const char* type_name,
+                         const char *table_name,
+                         const char *type_name,
                          SqType* container);
 
 // TODO return id
 int   sq_storage_insert(SqStorage* storage,
-                        const char* table_name,
-                        const char* type_name,
+                        const char *table_name,
+                        const char *type_name,
                         void* instance);
 
 void  sq_storage_update(SqStorage* storage,
-                        const char* table_name,
-                        const char* type_name,
+                        const char *table_name,
+                        const char *type_name,
                         void* instance);
 
 void  sq_storage_remove(SqStorage* storage,
-                        const char* table_name,
-                        const char* type_name,
+                        const char *table_name,
+                        const char *type_name,
                         int   id);
 
-int   sq_storage_open(SqStorage* storage, const char* path_or_name);
-
-int   sq_storage_exec(SqStorage* storage, const char* sql);
-
-void  sq_storage_prepare(SqStorage* storage, SqQuery* query);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -104,27 +98,18 @@ struct StorageMethod
 
 struct SqStorage
 {
-	SqSchema*  schema;    // default schema
+	Sqdb*      db;
 
-	char*      name;
-//	Migration
+	SqSchema*    schema;    // default schema
+	// types is sorted by Sqtype.name
+//	SqPtrArray   types;
+//	bool         types_sorted;
+
+	// 1 thread use 1 Sqxc chain
+	Sqxc*      xc_input;    // SqxcValue
+	Sqxc*      xc_output;   // SqxcSql
+
 	const SqType*   container_default;
-
-	// 1 thread 1 Sqxc chain
-	struct {
-		Sqxc*       src;
-		SqxcSqlite* sql;
-		Sqxc*       json;
-		SqxcValue*  value;
-	} xc[2];   // output xc[0], input xc[1]
-
-	struct {
-		const SqxcInfo*  sql;     // sqlite, mysql...etc
-		const SqxcInfo*  json;    // json-c
-		const SqxcInfo*  value;   // value
-	} xcinfo;
-
-	sqlite3*       db;
 
 #ifdef __cplusplus
 	// C++11 standard-layout

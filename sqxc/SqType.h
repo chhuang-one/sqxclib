@@ -94,8 +94,9 @@ extern "C" {
 typedef struct SqType        SqType;
 typedef struct SqEntry       SqEntry;
 
-typedef void (*SqTypeFunc)(void* instance, SqType* type);
-typedef int  (*SqTypeXcFunc)(void* instance, SqType* type, Sqxc* xc);
+typedef void  (*SqTypeFunc)(void* instance, const SqType* type);
+typedef int   (*SqTypeParseFunc)(void* instance, const SqType* type, Sqxc* xc_src);
+typedef Sqxc* (*SqTypeWriteFunc)(void* instance, const SqType* type, Sqxc* xc_dest);
 
 /* ----------------------------------------------------------------------------
 	initializer macro for entry->type
@@ -237,8 +238,8 @@ struct SqType
 	SqTypeFunc     init;        // initialize instance
 	SqTypeFunc     final;       // finalize instance
 
-	SqTypeXcFunc   parse;       // parse SQL/JSON data to instance
-	SqTypeXcFunc   write;       // write instance data to SQL/JSON
+	SqTypeParseFunc   parse;       // parse Sqxc(SQL/JSON) data to instance
+	SqTypeWriteFunc   write;       // write instance data to Sqxc(SQL/JSON)
 
 	// In C++, you must use typeid(TypeName).name() to assign "name"
 	// or use macro SQ_GET_TYPE_NAME()
@@ -266,14 +267,14 @@ SqType*  sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 void     sq_type_free(SqType* type);
 
 // create dynamic SqType and copy data from static SqType
-SqType*  sq_type_copy_static(const SqType* type, SqDestroyFunc entry_free_func);
+SqType*  sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
 
 // initialize/finalize instance
-void*    sq_type_init_instance(SqType* type, void* instance, int is_pointer);
-void     sq_type_final_instance(SqType* type, void* instance, int is_pointer);
+void*    sq_type_init_instance(const SqType *type, void* instance, int is_pointer);
+void     sq_type_final_instance(const SqType *type, void* instance, int is_pointer);
 
 // insert SqEntry to dynamic SqType.
-void     sq_type_insert_entry(SqType* type, const SqEntry* entry);
+void     sq_type_insert_entry(SqType* type, const SqEntry *entry);
 
 // find SqEntry in SqType.entry.
 // If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
@@ -285,7 +286,7 @@ void     sq_type_sort_entry(SqType *type);
 // calculate size for dynamic SqType.
 // if "inner_entry" == NULL, it use all entries to calculate size.
 // otherwise it use "inner_entry" to calculate size.
-int      sq_type_decide_size(SqType* type, const SqEntry* inner_entry);
+int      sq_type_decide_size(SqType* type, const SqEntry *inner_entry);
 
 // ----------------------------------------------------------------------------
 // C/C++ inline functions
@@ -328,30 +329,30 @@ void  sq_type_steal_entry_addr(SqType* type, void** element_addr, int count);
 // --------------------------------------------------------
 // SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions
 
-int  sq_type_int_parse(void* instance, SqType* type, Sqxc* xcsrc);
-int  sq_type_int_write(void* instance, SqType* type, Sqxc* xcsrc);
+int   sq_type_int_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_int_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
-int  sq_type_uint_parse(void* instance, SqType* type, Sqxc* xcsrc);
-int  sq_type_uint_write(void* instance, SqType* type, Sqxc* xcsrc);
+int   sq_type_uint_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_uint_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
-int  sq_type_int64_parse(void* instance, SqType* type, Sqxc* xcsrc);
-int  sq_type_int64_write(void* instance, SqType* type, Sqxc* xcsrc);
+int   sq_type_int64_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_int64_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
-int  sq_type_uint64_parse(void* instance, SqType* type, Sqxc* xcsrc);
-int  sq_type_uint64_write(void* instance, SqType* type, Sqxc* xcsrc);
+int   sq_type_uint64_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_uint64_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
-int  sq_type_time_parse(void* instance, SqType* type, Sqxc* xcsrc);
-int  sq_type_time_write(void* instance, SqType* type, Sqxc* xcsrc);
+int   sq_type_time_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_time_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
-int  sq_type_double_parse(void* instance, SqType* type, Sqxc* xcsrc);
-int  sq_type_double_write(void* instance, SqType* type, Sqxc* xcsrc);
+int   sq_type_double_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_double_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
-void sq_type_string_final(void* instance, SqType* type);
-int  sq_type_string_parse(void* instance, SqType* type, Sqxc* xcsrc);
-int  sq_type_string_write(void* instance, SqType* type, Sqxc* xcsrc);
+void  sq_type_string_final(void* instance, const SqType *type);
+int   sq_type_string_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_string_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
-int  sq_type_object_parse(void* instance, SqType* type, Sqxc* xcsrc);
-int  sq_type_object_write(void* instance, SqType* type, Sqxc* xcsrc);
+int   sq_type_object_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_object_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
 #ifdef __cplusplus
 }  // extern "C"

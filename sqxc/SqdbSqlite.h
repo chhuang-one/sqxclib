@@ -23,9 +23,32 @@
 extern "C" {
 #endif
 
+typedef struct SqdbSqlite          SqdbSqlite;
 typedef struct SqdbConfigSqlite    SqdbConfigSqlite;
 
 extern const SqdbInfo*    SQDB_INFO_SQLITE;
+
+/* ----------------------------------------------------------------------------
+    SqdbSqlite
+
+    Sqdb
+    |
+    `--- SqdbSqlite
+ */
+
+struct SqdbSqlite
+{
+	SQDB_MEMBERS;
+/*	// ------ Sqdb members ------
+	const SqdbInfo *info;
+ */
+
+	// ------ SqdbSqlite members ------
+    sqlite3*        self;
+	int             version;     // schema version in SQL database
+	char*           folder;
+	char*           extension;   // optional
+};
 
 /* ----------------------------------------------------------------------------
     SqdbConfigSqlite
@@ -37,15 +60,14 @@ extern const SqdbInfo*    SQDB_INFO_SQLITE;
 struct SqdbConfigSqlite {
 	SQDB_CONFIG_MEMBERS;
 /*	// ------ SqdbConfig members ------
-	SqdbInfo*      info;
-	unsigned int   bit_field;    // reserve
+	const SqdbInfo *info;
+	unsigned int    bit_field;   // reserve
  */
 
 	// ------ SqdbConfigSqlite members ------
-	char*          folder;
-	char*          extension;    // optional
+	char*           folder;
+	char*           extension;   // optional
 };
-
 
 
 #ifdef __cplusplus

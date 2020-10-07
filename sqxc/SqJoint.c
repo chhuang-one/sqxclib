@@ -19,7 +19,7 @@
 #include <SqxcValue.h>
 #include <SqJoint.h>
 
-static int  sq_joint_parse(void* instance, SqType* type, Sqxc* src);
+static int  sq_joint_parse(void* instance, const SqType *type, Sqxc* src);
 
 SqJoint* sq_joint_new()
 {
@@ -36,7 +36,7 @@ void     sq_joint_free(SqJoint* joint)
 	sq_entry_free(joint);
 }
 
-void sq_joint_add(SqJoint* joint, SqTable* table, const char* as_table_name)
+void sq_joint_add(SqJoint* joint, SqTable* table, const char *as_table_name)
 {
 	SqEntry*  jentry;
 
@@ -54,33 +54,31 @@ void sq_joint_add(SqJoint* joint, SqTable* table, const char* as_table_name)
 // ----------------------------------------------------------------------------
 // static function
 
-static int  sq_joint_parse(void* instance, SqType* type, Sqxc* src)
+static int  sq_joint_parse(void* instance, const SqType *type, Sqxc* src)
 {
 	SqxcNested*  nested;
 	SqTable*     table;
-	Sqxc*        dest;
 	union {
 		char*    dot;
 		int      len;
 	} temp;
 
-	dest = src->dest;
 	// Start of Object - Frist time to call this function to parse object
-	nested = dest->nested;
+	nested = src->nested;
 	if (nested->data != instance) {
 		if (src->type != SQXC_TYPE_OBJECT) {
-			dest->type = SQXC_TYPE_OBJECT;    // set required type in dest->type
+//			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested(dest);
+		nested = sqxc_push_nested(src);
 		nested->data = instance;
-		nested->data2 = type;
+		nested->data2 = (void*)type;
 		return (src->code = SQCODE_OK);
 	}
 	/*
-	// End of Object : sqxc_value_send_in() have done it.
+	// End of Object : sqxc_value_send() have done it.
 	else if (src->type == SQXC_TYPE_OBJECT_END) {
-		sqxc_pop_nested(dest);
+		sqxc_pop_nested(src);
 		return (src->code = SQCODE_OK);
 	}
 	 */
@@ -89,23 +87,23 @@ static int  sq_joint_parse(void* instance, SqType* type, Sqxc* src)
 	if (temp.dot == NULL || temp.dot == src->name)
 		return (src->code = SQCODE_ENTRY_NOT_FOUND);
 	temp.len = temp.dot - src->name + 1;
-	if (dest->buf_size < temp.len) {
-		dest->buf_size = temp.len * 2;
-		dest->buf = realloc(dest->buf, dest->buf_size);
-		dest->buf[temp.len -1] = 0;
+	if (src->buf_size < temp.len) {
+		src->buf_size = temp.len * 2;
+		src->buf = realloc(src->buf, src->buf_size);
+		src->buf[temp.len -1] = 0;
 	}
-	strncpy(dest->buf, src->name, temp.len -1);
+	strncpy(src->buf, src->name, temp.len -1);
 
-	table = (SqTable*)sq_type_find_entry(type, dest->buf, NULL);
+	table = (SqTable*)sq_type_find_entry(type, src->buf, NULL);
 	if (table) {
 		table = *(SqTable**)table;
-		nested = sqxc_push_nested((Sqxc*)dest);
+		nested = sqxc_push_nested(src);
 		nested->data = (char*)instance + table->offset;
 		nested->data2 = table->type;
 		src->name += temp.len;
 		src->code  = table->type->parse(nested->data, nested->data2, src);
 		src->name -= temp.len;
-		sqxc_pop_nested((Sqxc*)dest);
+		sqxc_pop_nested(src);
 	}
 	return src->code;
 }

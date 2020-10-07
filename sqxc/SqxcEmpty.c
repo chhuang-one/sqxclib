@@ -17,93 +17,128 @@
 #include <SqError.h>
 #include <SqxcEmpty.h>
 
-/* ----------------------------------------------------------------------------
-   source of input chain
- */
+// ----------------------------------------------------------------------------
+// SqxcInfo functions
 
-static int  sqxc_empty_send_in(SqxcEmpty* xcempty, Sqxc* src)
+static int  sqxc_empty_send(SqxcEmpty* xcempty, Sqxc* args_src)
 {
-	switch (src->type) {
+	if (args_src->type & xcempty->not_matched_type) {
+//		src->required_type = args_src->type;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		return SQCODE_TYPE_NOT_MATCH;
+	}
+
+	switch (args_src->type) {
 	case SQXC_TYPE_BOOL:
-		printf("%*c BOOL %s = %s\n", xcempty->nested_count, ' ',
-		       src->name, (src->value.boolean) ? "true" : "false");
+		printf("%s  %2d  BOOL  %s = %s\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.boolean ? "true" : "false");
 		break;
 
 	case SQXC_TYPE_INT:
-		printf("%*c INT  %s = %d\n", xcempty->nested_count, ' ',
-		       src->name, src->value.integer);
+		printf("%s  %2d  INT  %s = %d\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.integer);
 		break;
 
 	case SQXC_TYPE_INT64:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
-		printf("%*c INT64  %s = %I64d\n", xcempty->nested_count, ' ',
-		       src->name, src->value.int64);
+		printf("%s  %2d  INT64  %s = %I64d\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.int64);
 #else
-		printf("%*c INT64  %s = %lld\n", xcempty->nested_count, ' ',
-		       src->name, src->value.int64);
+		printf("%s  %2d  INT64  %s = %lld\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.int64);
 #endif
 		break;
 
 	case SQXC_TYPE_DOUBLE:
-		printf("%*c DOUBLE  %s = %lf\n", xcempty->nested_count, ' ',
-		       src->name, src->value.double_);
+		printf("%s  %2d  DOUBLE  %s = %lf\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.double_);
 		break;
 
 	case SQXC_TYPE_STRING:
-		printf("%*c STRING  %s = %s\n", xcempty->nested_count, ' ',
-		       src->name, src->value.string);
+		printf("%s  %2d  STRING  %s = %s\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.string);
 		break;
 
 	case SQXC_TYPE_OBJECT:
-		printf("%*c OBJECT  %s\n", xcempty->nested_count, ' ',
-		       src->name);
 		xcempty->nested_count++;
+		printf("%s  %2d  OBJECT  %s\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name);
 		break;
 
 	case SQXC_TYPE_OBJECT_END:
 		xcempty->nested_count--;
-		printf("%*c OBJECT_END  %s\n", xcempty->nested_count, ' ',
-		       src->name);
+		printf("%s  %2d  OBJECT_END  %s\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name);
 		break;
 
 	case SQXC_TYPE_ARRAY:
-		printf("%*c ARRAY  %s\n", xcempty->nested_count, ' ',
-		       src->name);
 		xcempty->nested_count++;
+		printf("%s  %2d  ARRAY  %s\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name);
 		break;
 
 	case SQXC_TYPE_ARRAY_END:
 		xcempty->nested_count--;
-		printf("%*c ARRAY_END  %s\n", xcempty->nested_count, ' ',
-		       src->name);
+		printf("%s  %2d  ARRAY_END  %s\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name);
 		break;
 
 	default:
 		break;
 	}
 
-	// send to dest
-	if (xcempty != (SqxcEmpty*)xcempty->dest && xcempty->dest) {
-		xcempty->type = src->type;
-		xcempty->name = src->name;
-		memcpy(&xcempty->value, &src->value, sizeof(xcempty->value));
-		xcempty->entry = src->entry;
-		xcempty->send(xcempty->dest, (Sqxc*)xcempty);
+	// send result to xcempty->dest if xcempty->nested_count is 0
+	if (xcempty->nested_count == 0 && xcempty->send_to_dest_if_no_nested) {
+		if (xcempty != (SqxcEmpty*)xcempty->dest && xcempty->dest) {
+			xcempty->type = args_src->type;
+			xcempty->name = args_src->name;
+			memcpy(&xcempty->value, &args_src->value, sizeof(xcempty->value));
+			xcempty->entry = args_src->entry;
+			xcempty->info->send(xcempty->dest, (Sqxc*)xcempty);
+		}
 	}
-	return (src->code = SQCODE_OK);
+
+	return (args_src->code = SQCODE_OK);
 }
 
-static int  sqxc_empty_ctrl_in(SqxcEmpty* xcempty, int id, void* data)
+static int  sqxc_empty_ctrl(SqxcEmpty* xcempty, int id, void* data)
 {
 	switch(id) {
 	case SQXC_CTRL_READY:
-		xcempty->nested_count = 1;
-		puts("SqxcEmpty: ready");
+		xcempty->nested_count = xcempty->nested_count_when_ready;
+		printf("%s  " "SqxcEmpty: ready" "\n",
+		       xcempty->tag ? xcempty->tag : "");
 		break;
 
 	case SQXC_CTRL_FINISH:
 		xcempty->nested_count = 0;
-		puts("SqxcEmpty: finish");
+		printf("%s  " "SqxcEmpty: finish" "\n",
+		       xcempty->tag ? xcempty->tag : "");
 		break;
 
 	default:
@@ -113,69 +148,27 @@ static int  sqxc_empty_ctrl_in(SqxcEmpty* xcempty, int id, void* data)
 	return SQCODE_OK;
 }
 
-static void  sqxc_empty_init_in(SqxcEmpty* xcempty)
+static void  sqxc_empty_init(SqxcEmpty* xcempty)
 {
 //	memset(xcempty, 0, sizeof(SqxcEmpty));
-	xcempty->ctrl = (SqxcCtrlFunc)sqxc_empty_ctrl_in;
-	xcempty->send = (SqxcSendFunc)sqxc_empty_send_in;
 	xcempty->supported_type = SQXC_TYPE_ALL;
 }
 
-static void  sqxc_empty_final_in(SqxcEmpty* xcempty)
+static void  sqxc_empty_final(SqxcEmpty* xcempty)
 {
 
 }
 
 // ----------------------------------------------------------------------------
-// destination of output chain
+// SqxcInfo
 
-/*
-static int  sqxc_empty_send_out(SqxcEmpty* xcempty, Sqxc* src)
+static const SqxcInfo sqxc_info_empty =
 {
-	if (src->type == SQXC_TYPE_STRING)
-		puts(src->value.string);
-	return (src->code = SQCODE_OK);
-}
-
-static int  sqxc_empty_ctrl_out(SqxcEmpty* xcempty, int id, void* data)
-{
-	switch(id) {
-	case SQXC_CTRL_READY:
-		puts("SqxcEmpty: ready");
-		break;
-
-	case SQXC_CTRL_FINISH:
-		puts("SqxcEmpty: finish");
-		break;
-
-	default:
-		return SQCODE_NOT_SUPPORT;
-	}
-
-	return SQCODE_OK;
-}
-
-static void  sqxc_empty_init_out(SqxcEmpty* xcempty)
-{
-//	memset(xcempty, 0, sizeof(SqxcEmpty));
-	xcempty->ctrl = (SqxcCtrlFunc)sqxc_empty_ctrl_in;
-	xcempty->send = (SqxcSendFunc)sqxc_empty_send_in;
-	xcempty->supported_type = SQXC_TYPE_ALL;
-}
-
-static void  sqxc_empty_final_out(SqxcEmpty* xcempty)
-{
-
-}
- */
-
-/* ----------------------------------------------------------------------------
-   C to/from empty
-   SQXC_INFO_EMPTY[0] for Output
-   SQXC_INFO_EMPTY[1] for Input
- */
-const SqxcInfo SQXC_INFO_EMPTY[2] =
-{
-	{sizeof(SqxcEmpty), (SqInitFunc)sqxc_empty_init_in, (SqFinalFunc)sqxc_empty_final_in},
-	{sizeof(SqxcEmpty), (SqInitFunc)sqxc_empty_init_in, (SqFinalFunc)sqxc_empty_final_in},
+	sizeof(SqxcEmpty),
+	(SqInitFunc)sqxc_empty_init,
+	(SqFinalFunc)sqxc_empty_final,
+	(SqxcCtrlFunc)sqxc_empty_ctrl,
+	(SqxcSendFunc)sqxc_empty_send,
 };
+
+const SqxcInfo *SQXC_INFO_EMPTY = &sqxc_info_empty;

@@ -22,194 +22,313 @@
 #include <SqError.h>
 #include <SqBuffer.h>
 #include <SqTable.h>
-#include <SqxcSqlite.h>
+#include <SqxcSql.h>
 
 /*
 	Because SQL table == C struct (object),
-	SqxcSqlite must "support" SQXC_TYPE_OBJECT at startup.
-	                unsupport SQXC_TYPE_OBJECT while parsing/writing column.
+	SqxcSql must "support" SQXC_TYPE_OBJECT at startup.
+	             unsupport SQXC_TYPE_OBJECT while parsing/writing column.
 
 	multiple row == array of object
-	SqxcSqlite must "support" SQXC_TYPE_ARRAY at startup.
-	                unsupport SQXC_TYPE_ARRAY while parsing/writing object.
+	SqxcSql must "support" SQXC_TYPE_ARRAY at startup.
+	             unsupport SQXC_TYPE_ARRAY while parsing/writing object.
  */
+
+static void sqxc_sql_use_insert_command(SqxcSql* xcsql, SqTable* table);
+static void sqxc_sql_use_update_command(SqxcSql* xcsql, SqTable* table);
+static void sqxc_sql_use_where_condition(SqxcSql* xcsql, const char *condition);
+static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src);
 
 /* ----------------------------------------------------------------------------
-   source of input chain
+	SqxcInfo functions - destination of output chain
 
-	SQL command ---> SqxcSqlit ---> SQXC_TYPE_xxxx
-	            send           send
+	SQXC_TYPE_xxx ---> SqxcSql ---> Sqdb.exec()
  */
 
-static int sqxc_sqlite_callback_in(void *user_data, int argc, char **argv, char **columnName)
-{
-	SqxcSqlite* xcsql = user_data;
-	int   index;
-
-	if (xcsql->supported_type & SQXC_TYPE_ARRAY) {
-		sqxc_send_array_beg(xcsql, xcsql->table_name);
-		// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
-		if (xcsql->code != SQCODE_OK)
-			return 1;
-		// call sqxc_send_array_end() in sqxc_sqlite_send_in()
-		xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
-		xcsql->outer_type |= SQXC_TYPE_ARRAY;
-	}
-
-	sqxc_send_object_beg(xcsql, xcsql->row_name);
-	xcsql->supported_type &= ~(SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY);
-	// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
-	if (xcsql->code != SQCODE_OK)
-		return 1;
-	// columns
-	for (index = 0;  index < argc;  index++) {
-		sqxc_send_string(xcsql, columnName[index], argv[index]);
-		if (xcsql->code != SQCODE_OK)
-			break;
-	}
-	sqxc_send_object_end(xcsql, xcsql->row_name);
-	xcsql->supported_type |= SQXC_TYPE_OBJECT;
-
-	return 0;
-}
-
-static int  sqxc_sqlite_send_in(SqxcSqlite* xcsql, Sqxc* src)
-{
-	int    rc = SQLITE_OK;
-/*
-	// SQXC_TYPE_OBJECT_END or SQXC_TYPE_ARRAY_END
-	if (src->type & SQXC_TYPE_END)
-		return (src->code = SQCODE_OK);
-	// SQXC_TYPE_OBJECT or SQXC_TYPE_ARRAY
-	if (src->type != SQXC_TYPE_OBJECT && src->type != SQXC_TYPE_ARRAY) {
-	    // set required type in dest->type
-		dest->type = SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY;
-		return (src->code = SQCODE_TYPE_NOT_MATCH);
-	}
- */
-
-	if (src->type == SQXC_TYPE_OBJECT)
-		xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
-
-	if (src->name == NULL) {
-		// src->value.pointer = prepared statements
-	}
-	else // if (src->name == src->value)
-	{
-		// src->value.string = SQL statements
-		rc = sqlite3_exec(xcsql->db, src->value.string,
-		                  sqxc_sqlite_callback_in,
-		                  xcsql, &xcsql->errorMsg);
-		// call sqxc_send_array_beg() in sqxc_sqlite_callback_in()
-		if (xcsql->outer_type & SQXC_TYPE_ARRAY)
-			sqxc_send_array_end(src, xcsql->table_name);
-	}
-
-	xcsql->supported_type |= SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY;
-	xcsql->outer_type = SQXC_TYPE_NONE;
-	if (rc != SQLITE_OK)
-		return (src->code = SQCODE_EXEC_ERROR);
-	return (src->code = SQCODE_OK);
-}
-
-static void sqxc_sqlite_set_select_command(SqxcSqlite* xcsql, SqTable* table)
-{
-	SqBuffer* buffer;
-
-	buffer = sqxc_get_buffer(xcsql);
-	buffer->writed = 0;
-	// SELECT * FROM 'table_name'
-	sq_buffer_write(buffer, "SELECT * FROM \"");
-	sq_buffer_write(buffer, table->name);
-	sq_buffer_write_c(buffer, '"');
-
-	if (xcsql->where_condition) {
-		// WHERE condition
-		sq_buffer_write(buffer, " WHERE ");
-		sq_buffer_write(buffer, xcsql->where_condition);
-	}
-}
-
-static void sqxc_sqlite_set_where_command(SqxcSqlite* xcsql, char* data)
+static int  sqxc_sql_send_insert_command(SqxcSql* xcsql, Sqxc* src)
 {
 	SqBuffer* buffer = sqxc_get_buffer(xcsql);
+	SqEntry*  entry;
 
-	if (data &&
-	    ((xcsql->where_condition == data) ||
-		 (xcsql->send == (SqxcSendFunc)sqxc_sqlite_send_in && buffer->writed > 0)) )
-	{
-		// WHERE condition
-		sq_buffer_write_n(buffer, " WHERE ", 7);
-		sq_buffer_write(buffer, data);
-		data = NULL;
+	switch (src->type) {
+	case SQXC_TYPE_ARRAY:
+//		src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		if (xcsql->outer_type & (SQXC_TYPE_ARRAY | SQXC_TYPE_OBJECT))
+			return (src->code = SQCODE_TYPE_NOT_MATCH);
+		xcsql->outer_type |= SQXC_TYPE_ARRAY;
+		xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
+		xcsql->supported_type |= SQXC_TYPE_END;
+		// --- Begin of Array ---
+		xcsql->row_count = 0;
+		return (src->code = SQCODE_OK);
+
+	case SQXC_TYPE_OBJECT:
+//		src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		if (xcsql->outer_type & SQXC_TYPE_OBJECT)
+			return (src->code = SQCODE_TYPE_NOT_MATCH);
+		xcsql->outer_type |= SQXC_TYPE_OBJECT;
+		xcsql->supported_type &= ~(SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY);
+		xcsql->supported_type |= SQXC_TYPE_END;
+		// --- Begin of row ---
+		if (xcsql->row_count)
+			sq_buffer_write_c(buffer, ',');
+		sq_buffer_write_c(buffer, '(');
+		xcsql->row_count++;
+		xcsql->col_count = 0;
+		return (src->code = SQCODE_OK);
+
+	case SQXC_TYPE_OBJECT_END:
+		if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
+			return (src->code = SQCODE_TYPE_END_ERROR);
+		xcsql->outer_type &= ~SQXC_TYPE_OBJECT;
+		xcsql->supported_type |= SQXC_TYPE_OBJECT;
+		// --- End of row ---
+		sq_buffer_write_c(buffer, ')');
+		if ((xcsql->outer_type & SQXC_TYPE_ARRAY) == 0) {
+			sq_buffer_write_c(buffer, 0);    // null-terminated
+			// SQL statement has written in xcsql->buf
+		}
+		return (src->code = SQCODE_OK);
+
+	case SQXC_TYPE_ARRAY_END:
+		if ((xcsql->outer_type & SQXC_TYPE_ARRAY) == 0)
+			return (src->code = SQCODE_TYPE_END_ERROR);
+		xcsql->outer_type &= ~SQXC_TYPE_ARRAY;
+		xcsql->supported_type |= SQXC_TYPE_ARRAY;
+		// --- End of Array ---
+		sq_buffer_write_c(buffer, 0);    // null-terminated
+		// SQL statement has written in xcsql->buf
+		return (src->code = SQCODE_OK);
+
+	default:
+		break;
 	}
-	free(xcsql->where_condition);
-	xcsql->where_condition = (data) ? strdup(data) : NULL;
+
+	// Don't output auto increment
+	entry = src->entry;
+	if (entry && entry->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(entry->type))
+		return (src->code = SQCODE_OK);
+
+	// SQL statement multiple columns
+	if (xcsql->col_count)
+		sq_buffer_write_c(buffer, ',');
+	// value
+	if (sqxc_sql_write_value(xcsql, src) != SQCODE_OK) {
+		if (xcsql->col_count)
+			buffer->writed--;
+	}
+
+	xcsql->col_count++;
+	return src->code;
 }
 
-static int  sqxc_sqlite_ctrl_in(SqxcSqlite* xcsql, int id, void* data)
+static int  sqxc_sql_send_update_command(SqxcSql* xcsql, Sqxc* src)
 {
-	switch(id) {
+	SqBuffer*  buffer = sqxc_get_buffer(xcsql);
+	SqEntry*   entry;
+	int        len;
+
+	switch (src->type) {
+	case SQXC_TYPE_ARRAY:
+//		if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
+//			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		return (src->code = SQCODE_TYPE_NOT_MATCH);
+
+	case SQXC_TYPE_ARRAY_END:
+		return (src->code = SQCODE_TYPE_END_ERROR);
+
+	case SQXC_TYPE_OBJECT:
+//		src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		if (xcsql->outer_type & SQXC_TYPE_OBJECT)
+			return (src->code = SQCODE_TYPE_NOT_MATCH);
+		xcsql->outer_type |= SQXC_TYPE_OBJECT;
+		xcsql->supported_type &= ~(SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY);
+		xcsql->supported_type |= SQXC_TYPE_END;
+		xcsql->col_count = 0;
+		return (src->code = SQCODE_OK);
+
+	case SQXC_TYPE_OBJECT_END:
+		if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
+			return (src->code = SQCODE_TYPE_END_ERROR);
+		xcsql->outer_type &= ~SQXC_TYPE_OBJECT;
+		xcsql->supported_type |= SQXC_TYPE_OBJECT;
+		// SQL statement
+		sqxc_sql_use_where_condition(xcsql, xcsql->condition);
+		sq_buffer_write_c(buffer, 0);    // null-terminated
+		return (src->code = SQCODE_OK);
+
+	default:
+		break;
+	}
+
+	// Don't output primary key
+	entry = src->entry;
+	if (entry && entry->bit_field & SQB_PRIMARY) {
+		// get primary key id if possible
+		if (SQ_TYPE_IS_INT(entry->type) && xcsql->id == -1)
+			xcsql->id = src->value.integer;
+		return (src->code = SQCODE_OK);
+	}
+
+	// SQL statement multiple columns
+	if (xcsql->col_count)
+		sq_buffer_write_c(buffer, ',');
+	// "name"=value
+	len = snprintf(NULL, 0, "\"%s\"=", src->name);
+	sprintf(sq_buffer_alloc(buffer, len), "\"%s\"=", src->name);
+	if (sqxc_sql_write_value(xcsql, src) != SQCODE_OK) {
+		buffer->writed -= len;
+		if (xcsql->col_count)
+			buffer->writed--;
+	}
+
+	xcsql->col_count++;
+	return src->code;
+}
+
+static int  sqxc_sql_send(SqxcSql* xcsql, Sqxc* src)
+{
+	// 1 == INSERT, 0 == UPDATE
+	if (xcsql->mode == 1)
+		return sqxc_sql_send_insert_command(xcsql, src);
+	else
+		return sqxc_sql_send_update_command(xcsql, src);
+}
+
+static int  sqxc_sql_ctrl(SqxcSql* xcsql, int id, void* data)
+{
+	int  code;
+
+	switch (id) {
 	case SQXC_CTRL_READY:
 		xcsql->supported_type = SQXC_TYPE_ALL;
 		xcsql->outer_type = SQXC_TYPE_NONE;
 		break;
 
 	case SQXC_CTRL_FINISH:
-		free(xcsql->where_condition);
-		xcsql->where_condition = NULL;
+		free(xcsql->condition);
+		xcsql->condition = NULL;
+		// SQL statement has written in xcsql->buf
+		if (xcsql->db && xcsql->buf_writed > 0) {
+			code = sqdb_exec(xcsql->db, xcsql->buf, (Sqxc*)xcsql, NULL);
+			if (code != SQCODE_OK)
+				return (xcsql->code = SQCODE_EXEC_ERROR);
+		}
+		// reset buffer
+		xcsql->buf_writed = 0;
 		break;
 
-	case SQXC_SQL_USE_SELECT:
-		sqxc_sqlite_set_select_command(xcsql, data);
+	case SQXC_SQL_USE_INSERT:
+		xcsql->mode = 1;
+		xcsql->row_count = 0;
+//		xcsql->col_count = 0;
+		sqxc_sql_use_insert_command(xcsql, (SqTable*)data);
+		break;
+
+	case SQXC_SQL_USE_UPDATE:
+		xcsql->mode = 0;
+//		xcsql->row_count = 0;
+		xcsql->col_count = 0;
+		sqxc_sql_use_update_command(xcsql, (SqTable*)data);
 		break;
 
 	case SQXC_SQL_USE_WHERE:
-		sqxc_sqlite_set_where_command(xcsql, data);
+		free(xcsql->condition);
+		if (data)
+			xcsql->condition = strdup((char*)data);
+		else
+			xcsql->condition = NULL;
 		break;
 
 	default:
-		return SQCODE_NOT_SUPPORT;
+		return (xcsql->code = SQCODE_NOT_SUPPORT);
 	}
 
 	return SQCODE_OK;
 }
 
-static void  sqxc_sqlite_init_in(SqxcSqlite* xcsql)
+static void  sqxc_sql_init(SqxcSql* xcsql)
 {
-//	memset(xcsql, 0, sizeof(SqxcSqlite));
-	xcsql->ctrl = (SqxcCtrlFunc)sqxc_sqlite_ctrl_in;
-	xcsql->send = (SqxcSendFunc)sqxc_sqlite_send_in;
-	xcsql->supported_type = SQXC_TYPE_ALL;
+//	memset(xcsql, 0, sizeof(SqxcSql));
+	xcsql->supported_type  = SQXC_TYPE_ALL;
 	xcsql->outer_type = SQXC_TYPE_NONE;
-	xcsql->row_name = "row";
+	xcsql->id = -1;
 }
 
-static void  sqxc_sqlite_final_in(SqxcSqlite* xcsql)
+static void  sqxc_sql_final(SqxcSql* xcsql)
 {
 
 }
 
-/* ----------------------------------------------------------------------------
-   destination of output chain
+// ----------------------------------------------------------------------------
+// others functions
 
-	SQXC_TYPE_xxxx ---> SqxcSqlite ---> SQL command
-	               send            send
- */
-
-static int sqxc_sqlite_callback_out(void *user_data, int argc, char **argv, char **columnName)
+static void sqxc_sql_use_insert_command(SqxcSql* xcsql, SqTable* table)
 {
-	SqxcSqlite* xcsql = user_data;
-	int   index;
+	SqEntry*   entry;
+	SqBuffer*  buffer;
+	int        index;
+	int        index_beg = 0;
 
-	for (index = 0;  index < argc;  index++) {
-		xcsql->id = strtol(argv[index], NULL, 10);
+	buffer = sqxc_get_buffer(xcsql);
+	buffer->writed = 0;
+	// "INSERT INTO 'table_name' ('column1','column2') OUTPUT Inserted.id VALUES "
+	sq_buffer_write(buffer, "INSERT INTO \"");
+	sq_buffer_write(buffer, table->name);
+	sq_buffer_write(buffer, "\" (");
+	for (index = 0;  index < table->type->n_entry;  index++) {
+		entry = table->type->entry[index];
+		// Don't output anything if column is auto increment.
+		if (entry->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(entry->type)) {
+			index_beg++;
+			continue;
+		}
+		if (index > index_beg)
+			sq_buffer_write_c(buffer, ',');
+		sq_buffer_write_c(buffer, '"');
+		sq_buffer_write(buffer, entry->name);
+		sq_buffer_write_c(buffer, '"');
 	}
-
-	return 0;
+	sq_buffer_write(buffer, ") VALUES ");
+	// reuse after running Sqdb.exec() if buffer size too large
+	xcsql->buf_reuse = xcsql->buf_writed;
 }
 
-static int  sqxc_sqlite_write_buffer(SqxcSqlite* xcsql, Sqxc* src)
+static void sqxc_sql_use_update_command(SqxcSql* xcsql, SqTable* table)
+{
+	SqBuffer*  buffer;
+
+	buffer = sqxc_get_buffer(xcsql);
+	buffer->writed = 0;
+	// "UPDATE 'table_name' SET "
+	sq_buffer_write(buffer, "UPDATE \"");
+	sq_buffer_write(buffer, table->name);
+	sq_buffer_write(buffer, "\" SET ");
+
+	xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
+	// reuse after running Sqdb.exec()
+	xcsql->buf_reuse = xcsql->buf_writed;
+}
+
+static void sqxc_sql_use_where_condition(SqxcSql* xcsql, const char *condition)
+{
+	SqBuffer* buffer = sqxc_get_buffer(xcsql);
+	int       len;
+
+	// UPDATE (mode == 0)
+	if (xcsql->mode == 0) {
+		// WHERE condition
+		sq_buffer_write_n(buffer, " WHERE ", 7);
+		if (xcsql->condition)
+			sq_buffer_write(buffer, condition);
+		else {
+			len = snprintf(NULL, 0, "id=%d", xcsql->id);
+			sprintf(sq_buffer_alloc(buffer, len), "id=%d", xcsql->id);
+		}
+	}
+}
+
+static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src)
 {
 	SqBuffer* buffer = sqxc_get_buffer(xcsql);
 	int       len, idx;
@@ -265,261 +384,16 @@ static int  sqxc_sqlite_write_buffer(SqxcSqlite* xcsql, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-static int  sqxc_sqlite_send_insert_command(SqxcSqlite* xcsql, Sqxc* src)
+// ----------------------------------------------------------------------------
+// SqxcInfo
+
+const SqxcInfo sqxc_info_sql =
 {
-	SqBuffer* buffer = sqxc_get_buffer(xcsql);
-	SqEntry*  entry;
-
-	// set required type in dest->type if return SQCODE_TYPE_NOT_MATCH to src
-	xcsql->type = SQXC_TYPE_ARITHMETIC | SQXC_TYPE_STRING;
-
-	switch (src->type) {
-	case SQXC_TYPE_ARRAY:
-		if (xcsql->outer_type & SQXC_TYPE_ARRAY) {
-			if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
-				xcsql->type = SQXC_TYPE_OBJECT;    // set required type in dest->type
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
-		}
-		xcsql->outer_type |= SQXC_TYPE_ARRAY;
-		xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
-		// --- Begin of Array ---
-		xcsql->row_count = 0;
-		return (src->code = SQCODE_OK);
-
-	case SQXC_TYPE_OBJECT:
-		if (xcsql->outer_type & SQXC_TYPE_OBJECT)
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
-		xcsql->outer_type |= SQXC_TYPE_OBJECT;
-		xcsql->supported_type &= ~(SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY);
-		// --- Begin of row ---
-		if (xcsql->row_count)
-			sq_buffer_write_c(buffer, ',');
-		sq_buffer_write_c(buffer, '(');
-		xcsql->row_count++;
-		xcsql->col_count = 0;
-		return (src->code = SQCODE_OK);
-
-	case SQXC_TYPE_OBJECT_END:
-		if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
-			return (src->code = SQCODE_TYPE_END_ERROR);
-		xcsql->outer_type &= ~SQXC_TYPE_OBJECT;
-		xcsql->supported_type |= SQXC_TYPE_OBJECT;
-		// --- End of row ---
-		sq_buffer_write_c(buffer, ')');
-		if ((xcsql->outer_type & SQXC_TYPE_ARRAY) == 0) {
-			sq_buffer_write_c(buffer, 0);    // null-terminated
-			// SQL statement has written in xcsql->buf
-		}
-		return (src->code = SQCODE_OK);
-
-	case SQXC_TYPE_ARRAY_END:
-		if ((xcsql->outer_type & SQXC_TYPE_ARRAY) == 0)
-			return (src->code = SQCODE_TYPE_END_ERROR);
-		xcsql->outer_type &= ~SQXC_TYPE_ARRAY;
-		xcsql->supported_type |= SQXC_TYPE_ARRAY;
-		// --- End of Array ---
-		sq_buffer_write_c(buffer, 0);    // null-terminated
-		// SQL statement has written in xcsql->buf
-		return (src->code = SQCODE_OK);
-
-	default:
-		break;
-	}
-
-	// Don't output auto increment
-	entry = src->entry;
-	if (entry && entry->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(entry->type))
-		return (src->code = SQCODE_OK);
-
-	// SQL statement multiple columns
-	if (xcsql->col_count)
-		sq_buffer_write_c(buffer, ',');
-	// value
-	if (sqxc_sqlite_write_buffer(xcsql, src) != SQCODE_OK) {
-		if (xcsql->col_count)
-			buffer->writed--;
-	}
-
-	xcsql->col_count++;
-	return src->code;
-}
-
-static int  sqxc_sqlite_send_update_command(SqxcSqlite* xcsql, Sqxc* src)
-{
-	SqBuffer*  buffer = sqxc_get_buffer(xcsql);
-	SqEntry*   entry;
-	int        len;
-
-	// set required type in dest->type if return SQCODE_TYPE_NOT_MATCH to src
-	xcsql->type = SQXC_TYPE_ARITHMETIC | SQXC_TYPE_STRING;
-
-	switch (src->type) {
-	case SQXC_TYPE_ARRAY:
-		if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
-			xcsql->type = SQXC_TYPE_OBJECT;    // set required type in dest->type
-		return (src->code = SQCODE_TYPE_NOT_MATCH);
-
-	case SQXC_TYPE_ARRAY_END:
-		return (src->code = SQCODE_TYPE_END_ERROR);
-
-	case SQXC_TYPE_OBJECT:
-		if (xcsql->outer_type & SQXC_TYPE_OBJECT)
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
-		xcsql->outer_type |= SQXC_TYPE_OBJECT;
-		xcsql->supported_type &= ~(SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY);
-		xcsql->col_count = 0;
-		return (src->code = SQCODE_OK);
-
-	case SQXC_TYPE_OBJECT_END:
-		if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
-			return (src->code = SQCODE_TYPE_END_ERROR);
-		xcsql->outer_type &= ~SQXC_TYPE_OBJECT;
-		xcsql->supported_type |= SQXC_TYPE_OBJECT;
-		// SQL statement
-		sqxc_sqlite_set_where_command(xcsql, xcsql->where_condition);
-		sq_buffer_write_c(buffer, 0);    // null-terminated
-		// SQL statement has written in xcsql->buf
-		return (src->code = SQCODE_OK);
-
-	default:
-		break;
-	}
-
-	// Don't output primary key
-	entry = src->entry;
-	if (entry && entry->bit_field & SQB_PRIMARY) {
-		return (src->code = SQCODE_OK);
-	}
-
-	// SQL statement multiple columns
-	if (xcsql->col_count)
-		sq_buffer_write_c(buffer, ',');
-	// "name"=value
-	len = snprintf(NULL, 0, "\"%s\"=", src->name);
-	sprintf(sq_buffer_alloc(buffer, len), "\"%s\"=", src->name);
-	if (sqxc_sqlite_write_buffer(xcsql, src) != SQCODE_OK) {
-		buffer->writed -= len;
-		if (xcsql->col_count)
-			buffer->writed--;
-	}
-
-	xcsql->col_count++;
-	return src->code;
-}
-
-static void sqxc_sqlite_use_insert_command(SqxcSqlite* xcsql, SqTable* table)
-{
-	SqEntry*   entry;
-	SqBuffer*  buffer;
-	int        index;
-	int        index_beg = 0;
-
-	buffer = sqxc_get_buffer(xcsql);
-	buffer->writed = 0;
-	// "INSERT INTO 'table_name' ('column1','column2') OUTPUT Inserted.id VALUES "
-	sq_buffer_write(buffer, "INSERT INTO \"");
-	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" (");
-	for (index = 0;  index < table->type->n_entry;  index++) {
-		entry = table->type->entry[index];
-		// Don't output anything if column is auto increment.
-		if (entry->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(entry->type)) {
-			index_beg++;
-			continue;
-		}
-		if (index > index_beg)
-			sq_buffer_write_c(buffer, ',');
-		sq_buffer_write_c(buffer, '"');
-		sq_buffer_write(buffer, entry->name);
-		sq_buffer_write_c(buffer, '"');
-	}
-	sq_buffer_write(buffer, ") VALUES ");
-}
-
-static void sqxc_sqlite_use_update_command(SqxcSqlite* xcsql, SqTable* table)
-{
-	SqBuffer*  buffer;
-
-	buffer = sqxc_get_buffer(xcsql);
-	buffer->writed = 0;
-	// "UPDATE 'table_name' SET "
-	sq_buffer_write(buffer, "UPDATE \"");
-	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" SET ");
-
-	xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
-}
-
-static int  sqxc_sqlite_ctrl_out(SqxcSqlite* xcsql, int id, void* data)
-{
-	int  rc;
-
-	switch (id) {
-	case SQXC_CTRL_READY:
-		xcsql->supported_type = SQXC_TYPE_ALL;
-		xcsql->outer_type = SQXC_TYPE_NONE;
-		xcsql->id = -1;
-		break;
-
-	case SQXC_CTRL_FINISH:
-		if (xcsql->buf_writed > 0) {
-			// SQL statement has written in xcsql->buf
-			rc = sqlite3_exec(xcsql->db, xcsql->buf,
-			                  sqxc_sqlite_callback_out, xcsql,
-			                  &xcsql->errorMsg);
-			if (rc != SQLITE_OK)
-				return (xcsql->code = SQCODE_EXEC_ERROR);
-		}
-//		free(xcsql->where_condition);
-//		xcsql->where_condition = NULL;
-		break;
-
-	case SQXC_SQL_USE_INSERT:
-		xcsql->send = (SqxcSendFunc)sqxc_sqlite_send_insert_command;
-		xcsql->row_count = 0;
-//		xcsql->col_count = 0;
-		sqxc_sqlite_use_insert_command(xcsql, data);
-		break;
-
-	case SQXC_SQL_USE_UPDATE:
-		xcsql->send = (SqxcSendFunc)sqxc_sqlite_send_update_command;
-//		xcsql->row_count = 0;
-		xcsql->col_count = 0;
-		sqxc_sqlite_use_update_command(xcsql, data);
-		break;
-
-	case SQXC_SQL_USE_WHERE:
-		sqxc_sqlite_set_where_command(xcsql, data);
-		break;
-
-	default:
-		return (xcsql->code = SQCODE_NOT_SUPPORT);
-	}
-
-	return SQCODE_OK;
-}
-
-static void  sqxc_sqlite_init_out(SqxcSqlite* xcsql)
-{
-//	memset(xcsql, 0, sizeof(SqxcSqlite));
-	xcsql->ctrl = (SqxcCtrlFunc)sqxc_sqlite_ctrl_out;
-	xcsql->send = (SqxcSendFunc)sqxc_sqlite_send_insert_command;
-	xcsql->supported_type  = SQXC_TYPE_ALL;
-	xcsql->outer_type = SQXC_TYPE_NONE;
-}
-
-static void  sqxc_sqlite_final_out(SqxcSqlite* xcsql)
-{
-
-}
-
-/* ----------------------------------------------------------------------------
-   C to/from SQLite
-   SQXC_INFO_SQLITE[0] for Output
-   SQXC_INFO_SQLITE[1] for Input
- */
-const SqxcInfo SQXC_INFO_SQLITE[2] =
-{
-	{sizeof(SqxcSqlite), (SqInitFunc)sqxc_sqlite_init_out, (SqFinalFunc)sqxc_sqlite_final_out},
-	{sizeof(SqxcSqlite), (SqInitFunc)sqxc_sqlite_init_in,  (SqFinalFunc)sqxc_sqlite_final_in},
+	sizeof(SqxcSql),
+	(SqInitFunc)sqxc_sql_init,
+	(SqFinalFunc)sqxc_sql_final,
+	(SqxcCtrlFunc)sqxc_sql_ctrl,
+	(SqxcSendFunc)sqxc_sql_send,
 };
+
+const SqxcInfo *SQXC_INFO_SQL = &sqxc_info_sql;

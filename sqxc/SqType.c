@@ -72,7 +72,7 @@ SqType*  sq_type_copy_static(const SqType* type_src, SqDestroyFunc entry_free_fu
 	return type;
 }
 
-void* sq_type_init_instance(SqType* entrytype, void* instance, int is_pointer)
+void* sq_type_init_instance(const SqType* entrytype, void* instance, int is_pointer)
 {
 	SqTypeFunc  init = entrytype->init;
 	SqPtrArray* array;
@@ -103,7 +103,7 @@ void* sq_type_init_instance(SqType* entrytype, void* instance, int is_pointer)
 	return instance;
 }
 
-void  sq_type_final_instance(SqType* entrytype, void* instance, int is_pointer)
+void  sq_type_final_instance(const SqType* entrytype, void* instance, int is_pointer)
 {
 	SqTypeFunc  final = entrytype->final;
 	SqPtrArray* array;
@@ -137,7 +137,7 @@ void  sq_type_final_instance(SqType* entrytype, void* instance, int is_pointer)
 		free(instance);
 }
 
-void  sq_type_insert_entry(SqType* entrytype, const SqEntry* entry)
+void  sq_type_insert_entry(SqType* entrytype, const SqEntry *entry)
 {
 	if (entrytype->bit_field & SQB_DYNAMIC) {
 		if (entry == NULL)
@@ -175,7 +175,7 @@ void  sq_type_sort_entry(SqType *type)
 	}
 }
 
-int   sq_type_decide_size(SqType* entrytype, const SqEntry* inner_entry)
+int   sq_type_decide_size(SqType* entrytype, const SqEntry *inner_entry)
 {
 	SqPtrArray* array;
 	int   size;

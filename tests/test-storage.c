@@ -22,7 +22,8 @@
 #include <SqTable.h>
 #include <SqSchema-macro.h>
 #include <SqStorage.h>
-#include <SqxcSqlite.h>
+#include <SqdbSqlite.h>
+#include <SqxcSql.h>
 #include <SqxcValue.h>
 
 typedef struct Company    Company;
@@ -47,13 +48,15 @@ void create_company_table(SqSchema* schema)
 	});
 }
 
-SqStorage* create_storage(sqlite3 *db)
+SqStorage* create_storage(sqlite3 *sqlitedb)
 {
+	Sqdb*       db;
 	SqStorage*  storage;
 
-	storage = sq_storage_new();
-	storage->db = db;
-	storage->xc[1].sql->db = db;
+	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+	((SqdbSqlite*)db)->self = sqlitedb;
+
+	storage = sq_storage_new(db);
 	create_company_table(storage->schema);
 	return storage;
 }
@@ -171,10 +174,14 @@ int main (int argc, char* argv[])
 	free(company->name);
 	company->name = strdup("Allen's");
 	company->age = 59;
-//	company->id = 5;
-//	sq_storage_insert(storage, "COMPANY", NULL, company);
+#if 1
+	company->id = 5;
+	sq_storage_insert(storage, "COMPANY", NULL, company);
+#elif 1
+	sq_storage_remove(storage, "COMPANY", NULL, 5);
+#else
 	sq_storage_update(storage, "COMPANY", NULL, company);
-//	sq_storage_remove(storage, "COMPANY", NULL, 5);
+#endif
 	free(company);
 
 //  "DELETE from COMPANY where ID='2'; "

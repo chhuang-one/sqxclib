@@ -15,8 +15,8 @@ sources = ['SqPtrArray.c',
            'SqxcValue.c',
            'SqxcJsonc.c',
            'SqxcEmpty.c',
-           'SqxcSqlite.c',
-           'SqQuery.c'
+           'SqxcSql.c',
+           'SqQuery.c',
           ]
 
 headers = ['SqPtrArray.h',
@@ -36,8 +36,8 @@ headers = ['SqPtrArray.h',
            'SqxcValue.h',
            'SqxcJsonc.h',
            'SqxcEmpty.h',
-           'SqxcSqlite.h',
-           'SqQuery.h', 'SqQuery-macro.h'
+           'SqxcSql.h',
+           'SqQuery.h', 'SqQuery-macro.h',
           ]
 
 # install_headers(headers)

@@ -32,7 +32,7 @@
 // ------------------------------------
 // SqType* SQ_TYPE_INT functions
 
-int  sq_type_int_parse(void* instance, SqType* entrytype, Sqxc* src)
+int  sq_type_int_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT:
@@ -48,26 +48,25 @@ int  sq_type_int_parse(void* instance, SqType* entrytype, Sqxc* src)
 		break;
 
 	default:
-		src->dest->type = SQXC_TYPE_INT;    // set required type in dest->type
+//		src->required_type = SQXC_TYPE_INT;    // set required type if return SQCODE_TYPE_NOT_MATCH
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_int_write(void* instance, SqType* entrytype, Sqxc* src)
+Sqxc* sq_type_int_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-//	sqxc_send_int(src, src->name, *(int*)instance);
-	src->type = SQXC_TYPE_INT;
-//	src->name = src->name;    // "name" was set by caller of this function
-	src->value.integer = *(int*)instance;
-	return sqxc_send(src);
+	dest->type = SQXC_TYPE_INT;
+//	dest->name = dest->name;    // "name" was set by caller of this function
+	dest->value.integer = *(int*)instance;
+	return sqxc_send(dest);
 }
 
 // ------------------------------------
 // SqType* SQ_TYPE_UINT functions
 
-int  sq_type_uint_parse(void* instance, SqType* entrytype, Sqxc* src)
+int  sq_type_uint_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_UINT:
@@ -83,26 +82,25 @@ int  sq_type_uint_parse(void* instance, SqType* entrytype, Sqxc* src)
 		break;
 
 	default:
-		src->dest->type = SQXC_TYPE_UINT;    // set required type in dest->type
+//		src->required_type = SQXC_TYPE_UINT;    // set required type if return SQCODE_TYPE_NOT_MATCH
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_uint_write(void* instance, SqType* entrytype, Sqxc* src)
+Sqxc* sq_type_uint_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-//	sqxc_send_int(src, src->name, *(unsigned int*)instance);
-	src->type = SQXC_TYPE_UINT;
-//	src->name = src->name;    // "name" was set by caller of this function
-	src->value.uinteger = *(unsigned int*)instance;
-	return sqxc_send(src);
+	dest->type = SQXC_TYPE_UINT;
+//	dest->name = dest->name;    // "name" was set by caller of this function
+	dest->value.uinteger = *(unsigned int*)instance;
+	return sqxc_send(dest);
 }
 
 // ------------------------------------
 // SqType* SQ_TYPE_INTPTR functions
 
-int  sq_type_intptr_parse(void* instance, SqType* entrytype, Sqxc* src)
+int  sq_type_intptr_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
 	if (src->type == SQXC_TYPE_STRING)
 		*(intptr_t*)instance = strtol(src->value.string, NULL, 10);
@@ -111,19 +109,18 @@ int  sq_type_intptr_parse(void* instance, SqType* entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_intptr_write(void* instance, SqType* entrytype, Sqxc* src)
+Sqxc* sq_type_intptr_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-//	sqxc_send_int(src, src->name, *(intptr_t*)instance);
-	src->type = SQXC_TYPE_INT;
-//	src->name = src->name;    // "name" was set by caller of this function
-	src->value.integer = *(intptr_t*)instance;
-	return sqxc_send(src);
+	dest->type = SQXC_TYPE_INT;
+//	dest->name = dest->name;    // "name" was set by caller of this function
+	dest->value.integer = *(intptr_t*)instance;
+	return sqxc_send(dest);
 }
 
 // ------------------------------------
 // SqType* SQ_TYPE_INT64 functions
 
-int  sq_type_int64_parse(void* instance, SqType* entrytype, Sqxc* src)
+int  sq_type_int64_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT:
@@ -139,26 +136,25 @@ int  sq_type_int64_parse(void* instance, SqType* entrytype, Sqxc* src)
 		break;
 
 	default:
-		src->dest->type = SQXC_TYPE_INT64;    // set required type in dest->type
+//		src->required_type = SQXC_TYPE_INT64;    // set required type if return SQCODE_TYPE_NOT_MATCH
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_int64_write(void* instance, SqType* entrytype, Sqxc* src)
+Sqxc* sq_type_int64_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-//	sqxc_send_int64(src, src->name, *(int64_t*)instance);
-	src->type = SQXC_TYPE_INT64;
-//	src->name = src->name;    // "name" was set by caller of this function
-	src->value.int64 = *(int64_t*)instance;
-	return sqxc_send(src);
+	dest->type = SQXC_TYPE_INT64;
+//	dest->name = dest->name;    // "name" was set by caller of this function
+	dest->value.int64 = *(int64_t*)instance;
+	return sqxc_send(dest);
 }
 
 // ------------------------------------
 // SqType* SQ_TYPE_UINT64 functions
 
-int  sq_type_uint64_parse(void* instance, SqType* entrytype, Sqxc* src)
+int  sq_type_uint64_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_UINT:
@@ -174,26 +170,25 @@ int  sq_type_uint64_parse(void* instance, SqType* entrytype, Sqxc* src)
 		break;
 
 	default:
-		src->dest->type = SQXC_TYPE_UINT64;    // set required type in dest->type
+//		src->required_type = SQXC_TYPE_UINT64;    // set required type if return SQCODE_TYPE_NOT_MATCH
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_uint64_write(void* instance, SqType* entrytype, Sqxc* src)
+Sqxc* sq_type_uint64_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-//	sqxc_send_uint64(src, src->name, *(uint64_t*)instance);
-	src->type = SQXC_TYPE_UINT64;
-//	src->name = src->name;    // "name" was set by caller of this function
-	src->value.uint64 = *(uint64_t*)instance;
-	return sqxc_send(src);
+	dest->type = SQXC_TYPE_UINT64;
+//	dest->name = dest->name;    // "name" was set by caller of this function
+	dest->value.uint64 = *(uint64_t*)instance;
+	return sqxc_send(dest);
 }
 
 // ------------------------------------
 // SqType* SQ_TYPE_DOUBLE functions
 
-int  sq_type_double_parse(void* instance, SqType* entrytype, Sqxc* src)
+int  sq_type_double_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
 	if (src->type == SQXC_TYPE_STRING)
 		*(double*)instance = strtod(src->value.string, NULL);
@@ -202,19 +197,18 @@ int  sq_type_double_parse(void* instance, SqType* entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_double_write(void* instance, SqType* entrytype, Sqxc* src)
+Sqxc* sq_type_double_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-//	sqxc_send_double(src, src->name, *(double*)instance);
-	src->type = SQXC_TYPE_DOUBLE;
-//	src->name = src->name;    // "name" was set by caller of this function
-	src->value.double_ = *(double*)instance;
-	return sqxc_send(src);
+	dest->type = SQXC_TYPE_DOUBLE;
+//	dest->name = dest->name;    // "name" was set by caller of this function
+	dest->value.double_ = *(double*)instance;
+	return sqxc_send(dest);
 }
 
 // ------------------------------------
 // SqType* SQ_TYPE_TIME functions
 
-int  sq_type_time_parse(void* instance, SqType* entrytype, Sqxc* src)
+int  sq_type_time_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
 	if (src->type == SQXC_TYPE_STRING) {
 		*(time_t*)instance = sq_time_from_string(src->value.string);
@@ -228,30 +222,28 @@ int  sq_type_time_parse(void* instance, SqType* entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_time_write(void* instance, SqType* entrytype, Sqxc* src)
+Sqxc* sq_type_time_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-	int   result;
 	char* timestr;
 
 	timestr = sq_time_to_string(*(time_t*)instance);
-//	sqxc_send_string(src, src->name, timestr);
-	src->type = SQXC_TYPE_STRING;
-//	src->name = src->name;    // "name" was set by caller of this function
-	src->value.string = timestr;
-	result = sqxc_send(src);
+	dest->type = SQXC_TYPE_STRING;
+//	dest->name = dest->name;    // "name" was set by caller of this function
+	dest->value.string = timestr;
+	dest = sqxc_send(dest);
 	free(timestr);
-	return result;
+	return dest;
 }
 
 // ------------------------------------
 // SqType* SQ_TYPE_STRING functions
 
-void sq_type_string_final(void* instance, SqType* entrytype)
+void sq_type_string_final(void* instance, const SqType *entrytype)
 {
 	free(*(char**)instance);
 }
 
-int  sq_type_string_parse(void* instance, SqType* entrytype, Sqxc* src)
+int  sq_type_string_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
 	if (src->type == SQXC_TYPE_STRING) {
 		if (src->value.string)
@@ -261,20 +253,19 @@ int  sq_type_string_parse(void* instance, SqType* entrytype, Sqxc* src)
 	}
 	else {
 		// TODO: convert to string
-		src->dest->type = SQXC_TYPE_STRING;    // set required type in dest->type
+//		src->required_type = SQXC_TYPE_STRING;    // set required type if return SQCODE_TYPE_NOT_MATCH
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
 	return (src->code = SQCODE_OK);
 }
 
-int  sq_type_string_write(void* instance, SqType* entrytype, Sqxc* src)
+Sqxc* sq_type_string_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-//	sqxc_send_string(src, src->name, *(char**)instance);
-	src->type = SQXC_TYPE_STRING;
-//	src->name = src->name;    // "name" was set by caller of this function
-	src->value.string = *(char**)instance;
-	return sqxc_send(src);
+	dest->type = SQXC_TYPE_STRING;
+//	dest->name = dest->name;    // "name" was set by caller of this function
+	dest->value.string = *(char**)instance;
+	return sqxc_send(dest);
 }
 
 // ------------------------------------
@@ -293,29 +284,27 @@ static const SqType SqTypeObjectStatic =
 const SqType*  SQ_ENTRY_OBJECT = &SqTypeObjectStatic;
  */
 
-int  sq_type_object_parse(void* instance, SqType* entrytype, Sqxc* src)
+int  sq_type_object_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
-	Sqxc*       dest;      // SqxcValue* dest;
 	SqEntry*    entry;
 	SqxcNested* nested;
 
 	// Start of Object - Frist time to call this function to parse object
-	dest = src->dest;
-	nested = dest->nested;
+	nested = src->nested;
 	if (nested->data != instance) {
 		if (src->type != SQXC_TYPE_OBJECT) {
-			dest->type = SQXC_TYPE_OBJECT;    // set required type in dest
+//			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested(dest);
+		nested = sqxc_push_nested(src);
 		nested->data  = instance;
-		nested->data2 = entrytype;
+		nested->data2 = (SqType*)entrytype;
 		return (src->code = SQCODE_OK);
 	}
 	/*
-	// End of Object : sqxc_value_send_in() have done it.
+	// End of Object : sqxc_value_send() have done it.
 	else if (src->type == SQXC_TYPE_OBJECT_END) {
-		sqxc_pop_nested(dest);
+		sqxc_pop_nested(src);
 		return (src->code = SQCODE_OK);
 	}
 	 */
@@ -330,41 +319,37 @@ int  sq_type_object_parse(void* instance, SqType* entrytype, Sqxc* src)
 	return (src->code = SQCODE_ENTRY_NOT_FOUND);
 }
 
-int  sq_type_object_write(void* instance, SqType* entrytype, Sqxc* src)
+Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-//	SqxcValue*  src;
 	SqType*     temp_type;
 	SqPtrArray* array;
-	const char* object_name = src->name;
+	const char* object_name = dest->name;
 
-//	sqxc_send_object_beg(src, object_name);
-	src->type = SQXC_TYPE_OBJECT;
-//	src->name = object_name;    // "name" was set by caller of this function
-//	src->value.pointer = NULL;
-	src->entry = NULL;           // SqxcSqlite will use this
-	src->code = sqxc_send(src);
-	if (src->code != SQCODE_OK)
-		return src->code;
+	dest->type = SQXC_TYPE_OBJECT;
+//	dest->name = object_name;     // "name" was set by caller of this function
+//	dest->value.pointer = NULL;
+	dest->entry = NULL;           // SqxcSql and SqxcJsonc will use this
+	dest = sqxc_send(dest);
+	if (dest->code != SQCODE_OK)
+		return dest;
 
 	array = (SqPtrArray*) &entrytype->entry;
 	sq_ptr_array_foreach_addr(array, element_addr) {
 		SqEntry* entry = *element_addr;
 		temp_type = entry->type;
-		src->name = entry->name;    // set "name" before calling write()
-		src->entry = entry;         // SqxcSqlite will use this
-		temp_type->write((char*)instance + entry->offset,
-		                 temp_type, src);
-		if (src->code != SQCODE_OK)
-			return src->code;
+		dest->name = entry->name;    // set "name" before calling write()
+		dest->entry = entry;         // SqxcSql and SqxcJsonc will use this
+		dest = temp_type->write((char*)instance + entry->offset,
+		                        temp_type, dest);
+		if (dest->code != SQCODE_OK)
+			return dest;
 	}
 
-//	sqxc_send_object_end(src, object_name);
-	src->type = SQXC_TYPE_OBJECT_END;
-	src->name = object_name;
-//	src->value.pointer = NULL;
-	src->entry = NULL;
-	src->code = sqxc_send(src);
-	return src->code;
+	dest->type = SQXC_TYPE_OBJECT_END;
+	dest->name = object_name;
+//	dest->value.pointer = NULL;
+	dest->entry = NULL;
+	return sqxc_send(dest);
 }
 
 // ----------------------------------------------------------------------------

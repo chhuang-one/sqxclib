@@ -55,7 +55,7 @@ typedef struct SqEntry           SqJoint;
 SqJoint* sq_joint_new();
 void     sq_joint_free(SqJoint* joint);
 
-void sq_joint_add(SqJoint* joint, SqTable* table, const char* as_table_name);
+void sq_joint_add(SqJoint* joint, SqTable* table, const char *as_table_name);
 
 
 #ifdef __cplusplus

@@ -12,8 +12,6 @@
  * See the Mulan PSL v2 for more details.
  */
 
-// json-c
-
 #ifndef SQXC_JSONC_H
 #define SQXC_JSONC_H
 
@@ -26,24 +24,25 @@ extern "C" {
 #endif
 
 /* ----------------------------------------------------------------------------
+	SqxcJsonc - Middleware of input/output chain. It use json-c to implement.
+
 	Sqxc
 	|
 	`--- SqxcJsonc
 
-	Sqxc data to/from JSON
-
 	*** In input chain:
-	SQXC_TYPE_STRING ---> SqxcJsonc ---> SQXC_TYPE_xxxx
-	 (JSON string)   send           send
+	SQXC_TYPE_STRING ---> SqxcJsonc Parser ---> SQXC_TYPE_xxxx
+	 (JSON string)
 
 	*** In output chain:
-	SQXC_TYPE_xxxx -----> SqxcJsonc ---> SQXC_TYPE_STRING
-	                 send           send   (JSON string)
+	SQXC_TYPE_xxxx -----> SqxcJsonc Writer ---> SQXC_TYPE_STRING
+	                                              (JSON string)
  */
 
 typedef struct SqxcJsonc        SqxcJsonc;
 
-extern const SqxcInfo SQXC_INFO_JSONC[2];
+extern const SqxcInfo *SQXC_INFO_JSONC_PARSER;
+extern const SqxcInfo *SQXC_INFO_JSONC_WRITER;
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -57,25 +56,13 @@ struct SqxcJsonc
 {
 	SQXC_MEMBERS;
 /*	// ------ Sqxc members ------
-	const SqxcInfo*  info;
+	const SqxcInfo  *info;
 
 	// Sqxc chain
-	Sqxc*        next;     // next destination
-	Sqxc*        prev;     // previous source
-
-	// source and destination
-//	Sqxc*        src;      // pointer to current source in Sqxc chain
+	Sqxc*        peer;     // pointer to other Sqxc elements
 	Sqxc*        dest;     // pointer to current destination in Sqxc chain
 
-	// ----------------------------------------------------
-	// properties
-
-	unsigned int io_:1;           // Input = 1, Output = 0
-	unsigned int supported_type;  // supported SqxcType (bit entry)
-
-	// ----------------------------------------------------
-	// stack of SqxcNested (placed in dest)
-
+	// stack of SqxcNested
 	SqxcNested*  nested;          // current nested object/array
 	int          nested_count;
 
@@ -88,17 +75,19 @@ struct SqxcJsonc
 	int          buf_size;
 	int          buf_writed;
 
-	// ====================================================
-	// functions
-
-	SqxcCtrlFunc ctrl;
-	SqxcSendFunc send;
-
 	// ----------------------------------------------------
-	// function parameter
+	// arguments that used by SqxcInfo->send()
 
-	// input
-	SqxcType     type;     // if code = SQCODE_TYPE_NOT_MATCH, set required type in dest->type->type
+	// special arguments
+	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	uint16_t     supported_type;  // supported SqxcType (bit field) for inputting, it can change at runtime.
+//	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
+	// output arguments
+//	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCH
+	uint16_t     code;            // error code (SQCODE_xxxx)
+
+	// input arguments
+	uint16_t     type;            // input SqxcType
 	const char*  name;
 	union {
 		bool          boolean;
@@ -111,28 +100,19 @@ struct SqxcJsonc
 		double        fraction;
 		double        double_;
 		char*         string;
+		char*         stream;     // Text stream must be null-terminated string
 		void*         pointer;
 	} value;
 
-	// input arguments - optional.  this one can be NULL.
-	SqEntry*     entry;
-
-	// input - user data
-//	void*        user_data;
-//	void*        user_data2;
-
-	// input / output
+	// input / output arguments
 	void**       error;
-
-	// output
-	int          code;     // error code (SQCODE_xxxx)
  */
 
 	// --- output ---
 	const char*  jroot_name;
 	json_object* jroot;
 	json_object* jcur;
-	SqxcType     jcur_type;
+	int16_t      jcur_type;    // SqxcType
 	/*
 	// at json entry begin from SQL
 	cx->name = SQL column name
@@ -140,8 +120,6 @@ struct SqxcJsonc
 	// at json begin from file
 	cx->name = NULL
 	 */
-
-
 };
 
 

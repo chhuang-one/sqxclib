@@ -22,7 +22,7 @@
 #include <SqError.h>
 #include <sqdb.h>
 
-Sqdb*   sqdb_new(SqdbInfo* info, SqdbConfig* config)
+Sqdb*   sqdb_new(const SqdbInfo *info, SqdbConfig* config)
 {
 	void (*init)(Sqdb* db, SqdbConfig* conf);
 	Sqdb* db;

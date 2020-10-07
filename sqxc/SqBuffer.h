@@ -116,8 +116,8 @@ struct SqBuffer
 	char*  alloc(int size)
 		{ return sq_buffer_alloc_at(this, this->writed, size); }
 
-	void   require(int size)
-		{ SQ_BUFFER_REQUIRE(this, size); }
+	char*  require(int size)
+		{ SQ_BUFFER_REQUIRE(this, size);  return buf; }
 
 	void   write(char character)
 		{ sq_buffer_write_c(this, character); }
@@ -186,9 +186,10 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_buffer_require(SqBuffer* buffer, int length)
+char* sq_buffer_require(SqBuffer* buffer, int length)
 {
 	SQ_BUFFER_REQUIRE(buffer, length);
+	return buffer->buf;
 }
 
 #else  // __STDC_VERSION__ || __cplusplus
@@ -199,7 +200,7 @@ void  sq_buffer_write(SqBuffer* buffer, const char* string);
 void  sq_buffer_write_n(SqBuffer* buffer, const char* string, int length);
 void  sq_buffer_insert(SqBuffer* buffer, int position, const char* string);
 void  sq_buffer_insert_n(SqBuffer* buffer, int position, const char* string, int length);
-void  sq_buffer_require(SqBuffer* buffer, int length);
+char* sq_buffer_require(SqBuffer* buffer, int length);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 

@@ -22,16 +22,16 @@ extern "C" {
 #endif
 
 /* ----------------------------------------------------------------------------
+	SqxcEmpty - A sample of Sqxc element.
+
 	Sqxc
 	|
 	`--- SqxcEmpty
-
-	Sqxc data to/from JSON
  */
 
 typedef struct SqxcEmpty        SqxcEmpty;
 
-extern const SqxcInfo SQXC_INFO_EMPTY[2];
+extern const SqxcInfo *SQXC_INFO_EMPTY;
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -45,25 +45,13 @@ struct SqxcEmpty
 {
 	SQXC_MEMBERS;
 /*	// ------ Sqxc members ------
-	const SqxcInfo*  info;
+	const SqxcInfo *info;
 
 	// Sqxc chain
-	Sqxc*        next;     // next destination
-	Sqxc*        prev;     // previous source
-
-	// source and destination
-//	Sqxc*        src;      // pointer to current source in Sqxc chain
+	Sqxc*        peer;     // pointer to other Sqxc elements
 	Sqxc*        dest;     // pointer to current destination in Sqxc chain
 
-	// ----------------------------------------------------
-	// properties
-
-	unsigned int io_:1;           // Input = 1, Output = 0
-	unsigned int supported_type;  // supported SqxcType (bit field)
-
-	// ----------------------------------------------------
-	// stack of SqxcNested (placed in dest)
-
+	// stack of SqxcNested
 	SqxcNested*  nested;          // current nested object/array
 	int          nested_count;
 
@@ -76,17 +64,19 @@ struct SqxcEmpty
 	int          buf_size;
 	int          buf_writed;
 
-	// ====================================================
-	// functions
-
-	SqxcCtrlFunc ctrl;
-	SqxcSendFunc send;
-
 	// ----------------------------------------------------
-	// function parameter
+	// arguments that used by SqxcInfo->send()
 
-	// input
-	SqxcType     type;     // if code = SQCODE_TYPE_NOT_MATCH, set required type in dest->type->type
+	// special arguments
+	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	uint16_t     supported_type;  // supported SqxcType (bit field) for inputting, it can change at runtime.
+//	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
+	// output arguments
+//	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCH
+	uint16_t     code;            // error code (SQCODE_xxxx)
+
+	// input arguments
+	uint16_t     type;            // input SqxcType
 	const char*  name;
 	union {
 		bool          boolean;
@@ -99,25 +89,18 @@ struct SqxcEmpty
 		double        fraction;
 		double        double_;
 		char*         string;
+		char*         stream;     // Text stream must be null-terminated string
 		void*         pointer;
 	} value;
 
-	// input arguments - optional.  this one can be NULL.
-	SqEntry*     entry;
-
-	// input - user data
-//	void*        user_data;
-//	void*        user_data2;
-
-	// input / output
+	// input / output arguments
 	void**       error;
-
-	// output
-	int          code;     // error code (SQCODE_xxxx)
  */
 
-	int    reverse;
-
+	const char*  tag;
+	int          nested_count_when_ready;
+	int          send_to_dest_if_no_nested;    // boolean, 
+	uint16_t     not_matched_type;             // SqxcType (bit field)
 };
 
 

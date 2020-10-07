@@ -25,12 +25,12 @@
 	User must add a SqEntry that declare type of element to SqType
  */
 
-static void sq_type_ptr_array_init(void* array, SqType* type)
+static void sq_type_ptr_array_init(void* array, const SqType *type)
 {
 	sq_ptr_array_init(array, 8, NULL);
 }
 
-static void sq_type_ptr_array_final(void* array, SqType* type)
+static void sq_type_ptr_array_final(void* array, const SqType *type)
 {
 	SqEntry*  entry;
 
@@ -45,39 +45,37 @@ static void sq_type_ptr_array_final(void* array, SqType* type)
 	sq_ptr_array_final(array);
 }
 
-static int  sq_type_ptr_array_parse(void* array, SqType* type, Sqxc* src)
+static int  sq_type_ptr_array_parse(void* array, const SqType *type, Sqxc* src)
 {
-	SqxcNested* nested;
-	SqType*     element_type;
-	SqxcValue*  dest;
-	void*       element;
+	const SqType* element_type;
+	SqxcNested*   nested;
+	void*         element;
 
-	dest = (SqxcValue*) src->dest;
 	// get element type information
 	if (type->n_entry > 0)
 		element_type = type->entry[0]->type;
-	else if (dest->nested_count < 2)
-		element_type = dest->element;
+	else if (src->info == SQXC_INFO_VALUE && src->nested_count < 2)
+		element_type = ((SqxcValue*)src)->element;
 	else
 		return (src->code = SQCODE_NO_ELEMENT_TYPE);
 
 	// Start of Array - Frist time to call this function to parse array
-	nested = dest->nested;
+	nested = src->nested;
 	if (nested->data != array) {
 		if (src->type != SQXC_TYPE_ARRAY) {
-			dest->type = SQXC_TYPE_ARRAY;    // set required type in dest->type
+//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested((Sqxc*)dest);
+		nested = sqxc_push_nested(src);
 		nested->data = array;
-		nested->data2 = type;
+		nested->data2 = (SqType*)type;
 		return (src->code = SQCODE_OK);
 	}
 	/*
-	// End of Array : sqxc_value_send_in() have done it.
+	// End of Array : sqxc_value_send() have done it.
 	else if (src->type == SQXC_TYPE_ARRAY_END) {
-		sqxc_pop_nested(dest);
-		return SQCODE_OK;
+		sqxc_pop_nested(src);
+		return (src->code = SQCODE_OK);
 	}
 	 */
 
@@ -88,47 +86,43 @@ static int  sq_type_ptr_array_parse(void* array, SqType* type, Sqxc* src)
 	return src->code;
 }
 
-static int  sq_type_ptr_array_write(void* array, SqType* type, Sqxc* src)
+static Sqxc* sq_type_ptr_array_write(void* array, const SqType *type, Sqxc* dest)
 {
-//	SqxcValue*  src;
-	Sqxc*       dest;
-	SqType*     element_type;
-	const char* array_name = src->name;
+	const SqType* element_type;
+	const char*   array_name = dest->name;
 
-	dest = src->dest;
 	// get element type information.
 	if (type->n_entry > 0)
 		element_type = type->entry[0]->type;
-	else if (src->nested_count < 1 && ((SqxcValue*)src)->element)
-		element_type = ((SqxcValue*)src)->element;
-	else
-		return (src->code = SQCODE_NO_ELEMENT_TYPE);
+	else if (dest->info == SQXC_INFO_VALUE && dest->nested_count < 1)
+		element_type = ((SqxcValue*)dest)->element;
+	else {
+		dest->code = SQCODE_NO_ELEMENT_TYPE;
+		return dest;
+	}
 
 	// Begin of SQXC_TYPE_ARRAY
-	src->nested_count++;
-//	sqxc_send_array_beg(src, array_name);
-	src->type = SQXC_TYPE_ARRAY;
-//	src->name = array_name;    // "name" was set by caller of this function
-//	src->value.pointer = NULL;
-	src->code = dest->send(dest, (Sqxc*)src);
-	if (src->code != SQCODE_OK)
-		return src->code;
+	dest->nested_count++;
+	dest->type = SQXC_TYPE_ARRAY;
+//	dest->name = array_name;    // "name" was set by caller of this function
+//	dest->value.pointer = NULL;
+	dest = sqxc_send(dest);
+	if (dest->code != SQCODE_OK)
+		return dest;
 
 	// output elements
 	sq_ptr_array_foreach(array, element) {
-		src->code = element_type->write(element, element_type, src);
-		if (src->code != SQCODE_OK)
-			return src->code;
+		dest = element_type->write(element, element_type, dest);
+		if (dest->code != SQCODE_OK)
+			return dest;
 	}
 
 	// End of SQXC_TYPE_ARRAY
-	src->nested_count--;
-//	sqxc_send_array_end(src, array_name);
-	src->type = SQXC_TYPE_ARRAY_END;
-	src->name = array_name;
-//	src->value.pointer = NULL;
-	src->code = dest->send(dest, src);
-	return src->code;
+	dest->nested_count--;
+	dest->type = SQXC_TYPE_ARRAY_END;
+	dest->name = array_name;
+	dest = sqxc_send(dest);
+	return dest;
 }
 
 // extern
@@ -145,30 +139,28 @@ const SqType SqType_PtrArray_ =
 	SQ_TYPE_STRING_ARRAY
  */
 
-static int  sq_type_string_array_parse(void* array, SqType* type, Sqxc* src)
+static int  sq_type_string_array_parse(void* array, const SqType *type, Sqxc* src)
 {
-	SqxcValue*  dest;
 	SqxcNested* nested;
 	void*       element;
 
-	dest = (SqxcValue*) src->dest;
 	// Start of Array - Frist time to call this function to parse array
-	nested = dest->nested;
+	nested = src->nested;
 	if (nested->data != array) {
 		if (src->type != SQXC_TYPE_ARRAY) {
-			dest->type = SQXC_TYPE_ARRAY;    // set required type in dest->type
+//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested((Sqxc*)dest);
+		nested = sqxc_push_nested(src);
 		nested->data = array;
-		nested->data2 = type;
+		nested->data2 = (void*)type;
 		return (src->code = SQCODE_OK);
 	}
 	/*
-	// End of Array : sqxc_value_send_in() have done it.
+	// End of Array : sqxc_value_send() have done it.
 	else if (src->type == SQXC_TYPE_ARRAY_END) {
-		sqxc_pop_nested(dest);
-		return SQCODE_OK;
+		sqxc_pop_nested(src);
+		return (src->code = SQCODE_OK);
 	}
 	 */
 
@@ -178,39 +170,35 @@ static int  sq_type_string_array_parse(void* array, SqType* type, Sqxc* src)
 	return src->code;
 }
 
-static int  sq_type_string_array_write(void* array, SqType* type, Sqxc* src)
+static Sqxc* sq_type_string_array_write(void* array, const SqType *type, Sqxc* dest)
 {
-//	SqxcValue*  src;
-	Sqxc*       dest;
-	const char* array_name = src->name;
+	const char *array_name = dest->name;
 
-	dest = src->dest;
 	// Begin of SQXC_TYPE_ARRAY
-	src->nested_count++;
+	dest->nested_count++;
 //	sqxc_send_array_beg(src, array_name);
-	src->type = SQXC_TYPE_ARRAY;
-//	src->name = array_name;    // "name" was set by caller of this function
-//	src->value.pointer = NULL;
-	src->code = dest->send(dest, src);
-	if (src->code != SQCODE_OK)
-		return src->code;
+	dest->type = SQXC_TYPE_ARRAY;
+//	dest->name = array_name;    // "name" was set by caller of this function
+	dest = sqxc_send(dest);
+	if (dest->code != SQCODE_OK)
+		return dest;
 
 	// output elements
 	sq_ptr_array_foreach_addr(array, element) {
-		src->name = NULL;      // set "name" before calling write()
-		src->code = SQ_TYPE_STRING->write(element, SQ_TYPE_STRING, src);
-		if (src->code != SQCODE_OK)
-			return src->code;
+		dest->name = NULL;      // set "name" before calling write()
+		dest = SQ_TYPE_STRING->write(element, SQ_TYPE_STRING, dest);
+		if (dest->code != SQCODE_OK)
+			return dest;
 	}
 
 	// End of SQXC_TYPE_ARRAY
-	src->nested_count--;
+	dest->nested_count--;
 //	sqxc_send_array_end(src, array_name);
-	src->type = SQXC_TYPE_ARRAY_END;
-	src->name = array_name;
-//	src->value.pointer = NULL;
-	src->code = dest->send(dest, src);
-	return src->code;
+	dest->type = SQXC_TYPE_ARRAY_END;
+	dest->name = array_name;
+//	dest->value.pointer = NULL;
+	dest = sqxc_send(dest);
+	return dest;
 }
 
 // extern
@@ -227,30 +215,28 @@ const SqType SqType_StringArray_ =
 	SQ_TYPE_INTPTR_ARRAY
  */
 
-static int  sq_type_intptr_array_parse(void* array, SqType* type, Sqxc* src)
+static int  sq_type_intptr_array_parse(void* array, const SqType *type, Sqxc* src)
 {
-	SqxcValue*  dest;
 	SqxcNested* nested;
 	void*       element;
 
-	dest = (SqxcValue*) src->dest;
 	// Start of Array - Frist time to call this function to parse array
-	nested = dest->nested;
+	nested = src->nested;
 	if (nested->data != array) {
 		if (src->type != SQXC_TYPE_ARRAY) {
-			dest->type = SQXC_TYPE_ARRAY;    // set required type in dest->type
+//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested((Sqxc*)dest);
+		nested = sqxc_push_nested(src);
 		nested->data = array;
-		nested->data2 = type;
+		nested->data2 = (void*)type;
 		return (src->code = SQCODE_OK);
 	}
 	/*
-	// End of Array : sqxc_value_send_in() have done it.
+	// End of Array : sqxc_value_send() have done it.
 	else if (src->type == SQXC_TYPE_ARRAY_END) {
-		sqxc_pop_nested(dest);
-		return SQCODE_OK;
+		sqxc_pop_nested(src);
+		return (src->code = SQCODE_OK);
 	}
 	 */
 
@@ -260,39 +246,34 @@ static int  sq_type_intptr_array_parse(void* array, SqType* type, Sqxc* src)
 	return src->code;
 }
 
-static int  sq_type_intptr_array_write(void* array, SqType* type, Sqxc* src)
+static Sqxc* sq_type_intptr_array_write(void* array, const SqType *type, Sqxc* dest)
 {
-//	SqxcValue*  src;
-	Sqxc*       dest;
-	const char* array_name = src->name;
+	const char* array_name = dest->name;
 
-	dest = src->dest;
 	// Begin of SQXC_TYPE_ARRAY
-	src->nested_count++;
-//	sqxc_send_array_beg(src, array_name);
-	src->type = SQXC_TYPE_ARRAY;
-//	src->name = array_name;    // "name" was set by caller of this function
-//	src->value.pointer = NULL;
-	src->code = dest->send(dest, src);
-	if (src->code != SQCODE_OK)
-		return src->code;
+	dest->nested_count++;
+	dest->type = SQXC_TYPE_ARRAY;
+//	dest->name = array_name;    // "name" was set by caller of this function
+//	dest->value.pointer = NULL;
+	dest = sqxc_send(dest);
+	if (dest->code != SQCODE_OK)
+		return dest;
 
 	// output elements
 	sq_ptr_array_foreach_addr(array, element) {
-		src->name = NULL;      // set "name" before calling write()
-		src->code = SQ_TYPE_INTPTR->write(element, SQ_TYPE_INTPTR, src);
-		if (src->code != SQCODE_OK)
-			return src->code;
+		dest->name = NULL;      // set "name" before calling write()
+		dest = SQ_TYPE_INTPTR->write(element, SQ_TYPE_INTPTR, dest);
+		if (dest->code != SQCODE_OK)
+			return dest;
 	}
 
 	// End of SQXC_TYPE_ARRAY
-	src->nested_count--;
-//	sqxc_send_array_end(src, array_name);
-	src->type = SQXC_TYPE_ARRAY_END;
-	src->name = array_name;
-//	src->value.pointer = NULL;
-	src->code = dest->send(dest, src);
-	return src->code;
+	dest->nested_count--;
+	dest->type = SQXC_TYPE_ARRAY_END;
+	dest->name = array_name;
+//	dest->value.pointer = NULL;
+	dest = sqxc_send(dest);
+	return dest;
 }
 
 // extern

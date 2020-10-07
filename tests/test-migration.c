@@ -259,10 +259,10 @@ void test_db(SqSchema* schema, SqPtrArray* entries)
 	SqdbInfo dbinfo;
 	SqBuffer buffer;
 
+	dbinfo.product = SQDB_PRODUCT_SQLITE;
+	dbinfo.column.use_alter = 1;
+	dbinfo.column.use_modify = 0;
 	db.info = &dbinfo;
-	db.info->product = SQDB_PRODUCT_SQLITE;
-	db.info->column.use_alter = 1;
-	db.info->column.use_modify = 0;
 	buffer = (SqBuffer){NULL, 0, 0};
 
 	sqdb_schema_to_sql(&db, &buffer, schema, entries);
