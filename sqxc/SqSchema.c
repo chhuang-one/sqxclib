@@ -40,10 +40,7 @@ SqSchema*  sq_schema_new(const char* name)
 
 	sq_entry_init((SqEntry*)schema, typeinfo);
 	schema->name = name ? strdup(name) : NULL;
-	// table_types
-	sq_ptr_array_init(&schema->table_types, 8, NULL);
-	schema->table_types_sorted = false;
-	//
+	// version count
 	schema->version = cur_version++;
 	return schema;
 }
@@ -51,7 +48,6 @@ SqSchema*  sq_schema_new(const char* name)
 void  sq_schema_free(SqSchema* schema)
 {
 	sq_entry_final((SqEntry*)schema);
-	sq_ptr_array_final(&schema->table_types);
 	free(schema);
 }
 
@@ -79,9 +75,6 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 		table->type->name = sq_name2type(table->name);
 #endif
 
-	// add table in table_types
-	sq_ptr_array_append(&schema->table_types, table);
-	schema->table_types_sorted = false;
 	// add table in schema->type
 	sq_type_insert_entry(schema->type, (SqEntry*)table);
 	schema->bit_field |= SQB_CHANGE;
@@ -113,10 +106,6 @@ void sq_schema_drop(SqSchema* schema, const char* name)
 	schema->bit_field |= SQB_CHANGE;
 
 #if 0
-	// remove table in table_types
-	void** addr = sq_ptr_array_find(&schema->table_types, name, (SqCompareFunc)sq_entry_cmp_str__type_name);
-	if (addr)
-		sq_ptr_array_erase_addr(&schema->table_types, addr, 1);
 	// remove table in schema->type
 	addr = sq_type_find_entry(schema->type, name, NULL);
 	if (addr)
@@ -166,26 +155,6 @@ SqTable* sq_schema_find(SqSchema* schema, const char* name)
 		return NULL;
 }
 
-SqTable* sq_schema_find_type(SqSchema* schema, const char* name)
-{
-	SqPtrArray* array = &schema->table_types;
-	SqTable**   table;
-
-	if (schema->table_types.data == NULL)
-		return NULL;
-	// sort
-	if (schema->table_types_sorted == false) {
-		schema->table_types_sorted = true;
-		sq_ptr_array_sort(array, sq_entry_cmp_type_name);
-	}
-	// search
-	table = sq_ptr_array_search(array, name,
-			(SqCompareFunc)sq_entry_cmp_str__type_name);
-	if (table)
-		return *table;
-	return NULL;
-}
-
 int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 {	//         *schema,    *schema_src
 	SqTable    *table,     *table_src;
@@ -227,9 +196,6 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 				if (table_src->foreigns.data == NULL)
 					sq_ptr_array_init(&table_src->foreigns, 4, NULL);
 				sq_table_get_foreigns(table_src, &table_src->foreigns);
-				// table_types
-				sq_ptr_array_append(&schema->table_types, table_src);
-				schema->table_types_sorted = false;
 			}
 		}
 		else if (table_src->name == NULL) {
@@ -253,9 +219,6 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 			if (table_src->foreigns.data == NULL)
 				sq_ptr_array_init(&table_src->foreigns, 4, NULL);			
 			sq_table_get_foreigns(table_src, &table_src->foreigns);
-			// table_types
-			sq_ptr_array_append(&schema->table_types, table_src);
-			schema->table_types_sorted = false;
 		}
 
 		// steal 'table_src' from 'schema_src->type->entry'.

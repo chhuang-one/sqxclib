@@ -13,9 +13,6 @@
  */
 
 
-// sqxc - Structured Query (Language) Library
-// DataBase object - [Server Name].[DataBase Name].[Schema].[Table Name]
-
 #ifndef SQ_STORAGE
 #define SQ_STORAGE
 
@@ -27,8 +24,9 @@
 extern "C" {
 #endif
 
-typedef struct SqQuery           SqQuery;
 typedef struct SqStorage         SqStorage;
+
+typedef struct SqQuery           SqQuery;    // declare in SqQuery.h
 
 // ----------------------------------------------------------------------------
 // SqStorage C Functions
@@ -39,9 +37,6 @@ void       sq_storage_free(SqStorage* storage);
 int   sq_storage_open(SqStorage* storage, const char *database_name);
 int   sq_storage_close(SqStorage* storage);
 
-SqQuery* sq_storage_table(SqStorage* storage, const char *table_name);
-SqQuery* sq_storage_type(SqStorage* storage, const char *type_name);
-
 void* sq_storage_get(SqStorage* storage,
                      const char *table_name,
                      const char *type_name,
@@ -50,9 +45,9 @@ void* sq_storage_get(SqStorage* storage,
 void* sq_storage_get_all(SqStorage* storage,
                          const char *table_name,
                          const char *type_name,
-                         SqType* container);
+                         const SqType *container);
 
-// TODO return id
+// return -1 if error occurred
 int   sq_storage_insert(SqStorage* storage,
                         const char *table_name,
                         const char *type_name,
@@ -68,30 +63,13 @@ void  sq_storage_remove(SqStorage* storage,
                         const char *type_name,
                         int   id);
 
+// ------------------------------------
+SqQuery* sq_storage_table(SqStorage* storage, const char *table_name);
+SqQuery* sq_storage_type(SqStorage* storage, const char *type_name);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
-
-// ----------------------------------------------------------------------------
-// StorageMethod : C++ struct is used by SqStorage and it's children.
-
-#ifdef __cplusplus
-
-namespace Sq
-{
-
-struct StorageMethod
-{
-	SqTable* table(const char* table_name);
-
-	template<class Type>
-	SqTable* table();
-};
-
-};  // namespace Sq
-
-#endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
 // SqStorage
@@ -100,10 +78,11 @@ struct SqStorage
 {
 	Sqdb*      db;
 
-	SqSchema*    schema;    // default schema
-	// types is sorted by Sqtype.name
-//	SqPtrArray   types;
-//	bool         types_sorted;
+	SqSchema*  schema;      // current schema
+
+	// tables is sorted by SqTable.type.name
+	SqPtrArray tables;
+    int        tables_version;
 
 	// 1 thread use 1 Sqxc chain
 	Sqxc*      xc_input;    // SqxcValue

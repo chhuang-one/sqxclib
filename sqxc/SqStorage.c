@@ -28,7 +28,8 @@
 #include <SqxcJsonc.h>
 #include <SqStorage.h>
 
-static char*  get_primary_key_string(void* instance, SqTable* type);
+static SqTable* find_table_by_type_name(SqStorage* storage, const char *type_name);
+static char*    get_primary_key_string(void* instance, SqTable* type);
 
 SqStorage* sq_storage_new(Sqdb* db)
 {
@@ -36,9 +37,9 @@ SqStorage* sq_storage_new(Sqdb* db)
 
 	storage = malloc(sizeof(SqStorage));
 	storage->db = db;
-	storage->schema = sq_schema_new("default");
-//	storage->types_sorted = false;
-//	sq_ptr_array_init(&storage->types, 16, NULL);
+	storage->schema = sq_schema_new("current");
+	storage->tables_version = 0;
+	sq_ptr_array_init(&storage->tables, 16, NULL);
 
 	storage->container_default = SQ_TYPE_PTR_ARRAY;
 #if 1
@@ -80,7 +81,7 @@ SqQuery* sq_storage_type(SqStorage* storage, const char *type_name)
 {
 	SqTable* table;
 
-	table = sq_schema_find_type(storage->schema, type_name);
+	table = find_table_by_type_name(storage, type_name);
 	if (table)
 		return sq_query_new(table);
 	else
@@ -107,10 +108,11 @@ void* sq_storage_get(SqStorage* storage,
 	Sqxc*     xcvalue;
 	void*     instance;
 
+	// find SqTable by table_name or type_name
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = sq_schema_find_type(storage->schema, type_name);
+		table = find_table_by_type_name(storage, type_name);
 	if (table == NULL)
 		return NULL;
 
@@ -139,17 +141,18 @@ void* sq_storage_get(SqStorage* storage,
 void* sq_storage_get_all(SqStorage* storage,
                          const char *table_name,
                          const char *type_name,
-                         SqType* container)
+                         const SqType *container)
 {
 	SqBuffer* buf;
 	SqTable*  table;
 	Sqxc*     xcvalue;
 	void*     instance;
 
+	// find SqTable by table_name or type_name
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = sq_schema_find_type(storage->schema, type_name);
+		table = find_table_by_type_name(storage, type_name);
 	if (table == NULL)
 		return NULL;
 	if (container == NULL)
@@ -182,10 +185,13 @@ int   sq_storage_insert(SqStorage* storage,
 	SqTable*   table;
 	int        id = -1;
 
+	// find SqTable by table_name or type_name
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = sq_schema_find_type(storage->schema, type_name);
+		table = find_table_by_type_name(storage, type_name);
+	if (table == NULL)
+		return -1;
 
 	// destination of output
 	xcsql = storage->xc_output;
@@ -208,10 +214,13 @@ void  sq_storage_update(SqStorage* storage,
 	SqTable*   table;
 	char*      where;
 
+	// find SqTable by table_name or type_name
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = sq_schema_find_type(storage->schema, type_name);
+		table = find_table_by_type_name(storage, type_name);
+	if (table == NULL)
+		return;
 
 	where = get_primary_key_string(instance, table);
 	if (where == NULL)
@@ -237,12 +246,15 @@ void  sq_storage_remove(SqStorage* storage,
 	SqBuffer*  buf;
 	SqTable*   table;
 	SqColumn*  column;
-//	int    code;
+//	int        code;
 
+	// find SqTable by table_name or type_name
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = sq_schema_find_type(storage->schema, type_name);
+		table = find_table_by_type_name(storage, type_name);
+	if (table == NULL)
+		return;
 
 	column = sq_table_get_primary(table);
 
@@ -257,6 +269,31 @@ void  sq_storage_remove(SqStorage* storage,
 
 // ----------------------------------------------------------------------------
 // static function
+
+static SqTable*  find_table_by_type_name(SqStorage* storage, const char *type_name)
+{
+	SqPtrArray* tables = &storage->tables;
+	SqPtrArray* schema_tables = sq_type_get_ptr_array(storage->schema->type);
+	SqTable**   table_addr;
+	int         count;
+
+	// if version is not the same
+	if (storage->tables_version != storage->schema->version) {
+		storage->tables_version  = storage->schema->version;
+		count = schema_tables->length - tables->length;
+		if (count > 0)
+			sq_ptr_array_alloc(tables, count);
+		memcpy(tables->data, schema_tables->data, sizeof(void*) * schema_tables->length);
+		// sort storage->tables by SqTable.type.name
+		sq_ptr_array_sort(tables, sq_entry_cmp_type_name);
+	}
+	// search storage->tables by SqTable.type.name
+	table_addr = sq_ptr_array_search(tables, type_name,
+	             (SqCompareFunc)sq_entry_cmp_str__type_name);
+	if (table_addr)
+		return *table_addr;
+	return NULL;
+}
 
 static char*  get_primary_key_string(void* instance, SqTable* table)
 {

@@ -25,9 +25,6 @@
 #include <SqPtrArray.h>
 #include <SqTable.h>
 
-/*	DataBase object - [Server Name].[DataBase Name].[Schema].[Table Name]
- */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -77,7 +74,6 @@ void     sq_schema_drop(SqSchema* schema, const char* name);
 void     sq_schema_rename(SqSchema* schema, const char* from, const char* to);
 
 SqTable* sq_schema_find(SqSchema* schema, const char* table_name);
-SqTable* sq_schema_find_type(SqSchema* schema, const char* type_name);
 
 /* --------------------------------------------------------
 	migration functions
@@ -154,10 +150,6 @@ struct SqSchema
 	unsigned int bit_field;
  */
 	int          version;
-
-	// table_types is sorted by SqTable.type.name
-	SqPtrArray   table_types;
-	bool         table_types_sorted;
 
 #ifdef __cplusplus
 	// C++11 standard-layout
