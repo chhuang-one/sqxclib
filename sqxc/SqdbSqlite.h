@@ -29,7 +29,7 @@ typedef struct SqdbConfigSqlite    SqdbConfigSqlite;
 extern const SqdbInfo*    SQDB_INFO_SQLITE;
 
 /* ----------------------------------------------------------------------------
-    SqdbSqlite
+    SqdbSqlite - Sqdb for SQLite
 
     Sqdb
     |
@@ -51,7 +51,7 @@ struct SqdbSqlite
 };
 
 /* ----------------------------------------------------------------------------
-    SqdbConfigSqlite
+    SqdbConfigSqlite - SqdbSqlite use this configure
 
     SqdbConfig
     |

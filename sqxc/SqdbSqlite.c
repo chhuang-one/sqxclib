@@ -103,6 +103,7 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 {
 //	SqBuffer* buffer;
 
+	// End of migration
 	if (schema_next == NULL) {
 		// trace renamed (or dropped) table/column that was referenced by others
 		sq_schema_trace_foreign(schema);
@@ -117,6 +118,8 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 
 	// include and apply changes
 	sq_schema_include(schema, schema_next);
+
+	// current database schema
 	if (sqdb->version == schema->version) {
 		// trace renamed (or dropped) table/column that was referenced by others
 		sq_schema_trace_foreign(schema);
@@ -178,8 +181,7 @@ static int insert_callback(void *user_data, int argc, char **argv, char **column
 			row[index] = strtol(argv[index], NULL, 10);
 	}
 #else
-	if (xc)
-		sqxc_sql_id(xc) = strtol(argv[0], NULL, 10);
+	sqxc_sql_id(xc) = strtol(argv[0], NULL, 10);
 #endif
 
 	return 0;
@@ -190,39 +192,45 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 	int   rc;
 //	char* errorMsg;
 
-	switch (sql[0]) {
-	case 'S':    // SELECT
-	case 's':    // select
+	if (xc == NULL) {
+		// no callback if xc is NULL
+		rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, NULL);
+	}
+	else {
+		switch (sql[0]) {
+		case 'S':    // SELECT
+		case 's':    // select
 #ifdef DEBUG
-		if (xc == NULL || xc->info != SQXC_INFO_VALUE)
-			return SQCODE_EXEC_ERROR;
+			if (xc == NULL || xc->info != SQXC_INFO_VALUE)
+				return SQCODE_EXEC_ERROR;
 #endif
-		// if Sqxc element prepare for multiple row
-		if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
-			xc->type = SQXC_TYPE_ARRAY;
-			xc->name = NULL;
-			xc->value.pointer = NULL;
-			xc = sqxc_send(xc);
-		}
-		rc = sqlite3_exec(sqdb->self, sql, query_callback, &xc, NULL);
-		// if Sqxc element prepare for multiple row
-		if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
-			xc->type = SQXC_TYPE_ARRAY_END;
-			xc->name = NULL;
-//			xc->value.pointer = NULL;
-			xc = sqxc_send(xc);
-		}
-		break;
+			// if Sqxc element prepare for multiple row
+			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
+				xc->type = SQXC_TYPE_ARRAY;
+				xc->name = NULL;
+				xc->value.pointer = NULL;
+				xc = sqxc_send(xc);
+			}
+			rc = sqlite3_exec(sqdb->self, sql, query_callback, &xc, NULL);
+			// if Sqxc element prepare for multiple row
+			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
+				xc->type = SQXC_TYPE_ARRAY_END;
+				xc->name = NULL;
+//				xc->value.pointer = NULL;
+				xc = sqxc_send(xc);
+			}
+			break;
 
-	case 'I':    // INSERT
-	case 'i':    // insert
+		case 'I':    // INSERT
+		case 'i':    // insert
 #ifdef DEBUG
-		if (xc == NULL || xc->info != SQXC_INFO_SQL)
-			return SQCODE_EXEC_ERROR;
+			if (xc == NULL || xc->info != SQXC_INFO_SQL)
+				return SQCODE_EXEC_ERROR;
 #endif
-	default:
-		rc = sqlite3_exec(sqdb->self, sql, insert_callback, xc, NULL);
-		break;
+		default:
+			rc = sqlite3_exec(sqdb->self, sql, insert_callback, xc, NULL);
+			break;
+		}
 	}
 
 //	sqlite3_free(errorMsg);
