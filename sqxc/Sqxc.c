@@ -48,9 +48,9 @@ void  sqxc_free(Sqxc* xc)
 	final = xc->info->final;
 	if (final)
 		final(xc);
+	// clear nested
+	sqxc_clear_nested(xc);
 	// free memory
-	while (xc->nested != NESTED_OUTER_ROOT)
-		sqxc_pop_nested(xc);
 	free(xc->buf);
 	free(xc);
 }
@@ -193,6 +193,12 @@ Sqxc*  sqxc_send(Sqxc* xc)
 
 #define NESTED_CHUNK_SIZE    (1 << 3)    // 8
 #define NESTED_CHUNK_MASK    (NESTED_CHUNK_SIZE -1)
+
+void  sqxc_clear_nested(Sqxc* xc)
+{
+	while (xc->nested != NESTED_OUTER_ROOT)
+		sqxc_pop_nested(xc);
+}
 
 SqxcNested* sqxc_push_nested(Sqxc* xc)
 {

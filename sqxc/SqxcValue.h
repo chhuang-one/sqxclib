@@ -83,12 +83,14 @@ struct SqxcValue
 	int          buf_writed;
 
 	// ----------------------------------------------------
-	// arguments that used by SqxcInfo->send()
+	// properties
 
-	// special arguments
-	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
 	uint16_t     supported_type;  // supported SqxcType (bit field) for inputting, it can change at runtime.
 //	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
+
+	// ----------------------------------------------------
+	// arguments that used by SqxcInfo->send()
+
 	// output arguments
 //	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCH
 	uint16_t     code;            // error code (SQCODE_xxxx)
@@ -111,10 +113,14 @@ struct SqxcValue
 		void*         pointer;
 	} value;
 
+	// special input arguments
+	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+
 	// input / output arguments
 	void**       error;
  */
 
+	// ------ SqxcValue members ------
 	void*        instance;
 
 	// current pointer to container when calling get_all()

@@ -214,6 +214,8 @@ static int  sqxc_sql_ctrl(SqxcSql* xcsql, int id, void* data)
 			if (code != SQCODE_OK)
 				return (xcsql->code = SQCODE_EXEC_ERROR);
 		}
+		// clear SqxcNested if problem occurred during processing
+		sqxc_clear_nested((Sqxc*)xcsql);
 		// reset buffer
 		xcsql->buf_writed = 0;
 		break;

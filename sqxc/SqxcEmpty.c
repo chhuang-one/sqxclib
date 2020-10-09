@@ -139,6 +139,8 @@ static int  sqxc_empty_ctrl(SqxcEmpty* xcempty, int id, void* data)
 		xcempty->nested_count = 0;
 		printf("%s  " "SqxcEmpty: finish" "\n",
 		       xcempty->tag ? xcempty->tag : "");
+		// clear SqxcNested if problem occurred during processing
+		sqxc_clear_nested((Sqxc*)xcempty);
 		break;
 
 	default:

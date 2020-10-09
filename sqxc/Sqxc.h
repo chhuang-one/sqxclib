@@ -53,8 +53,7 @@ typedef struct Sqxc             Sqxc;
 typedef struct SqxcInfo         SqxcInfo;
 typedef struct SqxcNested       SqxcNested;
 
-// declare in <SqEntry.h>
-typedef struct SqEntry          SqEntry;
+typedef struct SqEntry          SqEntry;    // declare in SqEntry.h
 
 // ----------------------------------------------------------------------------
 // define C type convert to/from X
@@ -284,6 +283,7 @@ Sqxc*   sqxc_send(Sqxc* xc);
 // --------------------------------------------------------
 // functions for nested object/array
 
+void        sqxc_clear_nested(Sqxc* xc);
 SqxcNested* sqxc_push_nested(Sqxc* xc);
 void        sqxc_pop_nested(Sqxc* xc);
 
@@ -314,6 +314,7 @@ struct XcMethod
 
 	int    send(Sqxc* arguments_src);
 
+	void        clearNested(void);
 	SqxcNested* push(void);
 	void        pop(void);
 
@@ -351,7 +352,6 @@ struct XcMethod
 	char*        buf;             \
 	int          buf_size;        \
 	int          buf_writed;      \
-	SqEntry*     entry;             \
 	uint16_t     supported_type;    \
 /*	uint16_t     outputable_type; */\
 /*	uint16_t     required_type;   */\
@@ -372,6 +372,7 @@ struct XcMethod
 		char*         stream;       \
 		void*         pointer;      \
 	} value;                        \
+	SqEntry*     entry;             \
 	void**       error
 
 #ifdef __cplusplus
@@ -402,12 +403,14 @@ struct Sqxc
 	int          buf_writed;
 
 	// ----------------------------------------------------
-	// arguments that used by SqxcInfo->send()
+	// properties
 
-	// special arguments
-	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
 	uint16_t     supported_type;  // supported SqxcType (bit field) for inputting, it can change at runtime.
 //	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
+
+	// ----------------------------------------------------
+	// arguments that used by SqxcInfo->send()
+
 	// output arguments
 //	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCH
 	uint16_t     code;            // error code (SQCODE_xxxx)
@@ -429,6 +432,9 @@ struct Sqxc
 		char*         stream;     // Text stream must be null-terminated string
 		void*         pointer;
 	} value;
+
+	// special input arguments
+	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
 
 	// input / output arguments
 	void**       error;
@@ -465,6 +471,8 @@ int  XcMethod::finish(void* data)
 int  XcMethod::send(Sqxc* arguments_src)
 	{ return ((Sqxc*)this)->info->send((Sqxc*)this, arguments_src); }
 
+void        XcMethod::clearNested(void)
+	{ sqxc_clear_nested((Sqxc*)this); }
 SqxcNested* XcMethod::push(void)
 	{ return sqxc_push_nested((Sqxc*)this); }
 void        XcMethod::pop(void)

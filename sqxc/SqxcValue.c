@@ -61,6 +61,8 @@ static int  sqxc_value_ctrl(SqxcValue* xcvalue, int id, void* data)
 		break;
 
 	case SQXC_CTRL_FINISH:
+		// clear SqxcNested if problem occurred during processing
+		sqxc_clear_nested((Sqxc*)xcvalue);
 		break;
 
 	default:

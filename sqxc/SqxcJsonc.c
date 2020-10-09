@@ -128,6 +128,8 @@ static int  sqxc_jsonc_ctrl_in(SqxcJsonc* xcjson, int id, void* data)
 		break;
 
 	case SQXC_CTRL_FINISH:
+		// clear SqxcNested if problem occurred during processing
+		sqxc_clear_nested((Sqxc*)xcjson);
 		break;
 
 	default:
@@ -251,6 +253,8 @@ static int  sqxc_jsonc_ctrl_out(SqxcJsonc* xcjson, int id, void* data)
 			json_object_put(xcjson->jroot);
 			xcjson->jroot = NULL;
 		}
+		// clear SqxcNested if problem occurred during processing
+		sqxc_clear_nested((Sqxc*)xcjson);
 		break;
 
 	default:
