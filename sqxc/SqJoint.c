@@ -57,7 +57,9 @@ void sq_joint_add(SqJoint* joint, SqTable* table, const char *as_table_name)
 static int  sq_joint_parse(void* instance, const SqType *type, Sqxc* src)
 {
 	SqxcNested*  nested;
-	SqTable*     table;
+	SqEntry*     table;
+	SqBuffer*    buf;
+	int          buf_beg;
 	union {
 		char*    dot;
 		int      len;
@@ -83,28 +85,34 @@ static int  sq_joint_parse(void* instance, const SqType *type, Sqxc* src)
 	}
 	 */
 
+	// get table name from "table.column" string
 	temp.dot = strchr(src->name, '.');
 	if (temp.dot == NULL || temp.dot == src->name)
 		return (src->code = SQCODE_ENTRY_NOT_FOUND);
-	temp.len = temp.dot - src->name + 1;
-	if (src->buf_size < temp.len) {
-		src->buf_size = temp.len * 2;
-		src->buf = realloc(src->buf, src->buf_size);
-		src->buf[temp.len -1] = 0;
-	}
-	strncpy(src->buf, src->name, temp.len -1);
+	temp.len = temp.dot - src->name;
+	// use tail of src->buf to find entry
+	buf = sqxc_get_buffer(src);
+	buf_beg = buf->writed;             // save buf->writed
+	strncpy(sq_buffer_alloc(buf, temp.len*2), src->name, temp.len);   // alloc(buf, (temp.len+1)*2)
+	buf->buf[buf_beg + temp.len] = 0;  // null-terminated
+	buf->writed = buf_beg;             // restore buf->writed
+	temp.len++;                        // + '.'
 
-	table = (SqTable*)sq_type_find_entry(type, src->buf, NULL);
+	table = (SqEntry*)sq_type_find_entry(type, buf->buf +buf_beg, NULL);
 	if (table) {
-		table = *(SqTable**)table;
+		table = *(SqEntry**)table;
+		// push nested for parser of 'table'
 		nested = sqxc_push_nested(src);
-		nested->data = (char*)instance + table->offset;
+		nested->data = *(void**)((char*)instance +table->offset);
 		nested->data2 = table->type;
+		// call parser of 'table'
 		src->name += temp.len;
 		src->code  = table->type->parse(nested->data, nested->data2, src);
 		src->name -= temp.len;
+		// pop nested for 'table'
 		sqxc_pop_nested(src);
+		return src->code;
 	}
-	return src->code;
-}
 
+	return SQCODE_ENTRY_NOT_FOUND;
+}

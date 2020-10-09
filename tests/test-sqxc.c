@@ -20,8 +20,7 @@
 #include <SqxcSql.h>
 #include <SqPtrArray.h>
 #include <SqSchema-macro.h>
-
-#include <Sqdb.h>
+#include <SqJoint.h>
 
 // ----------------------------------------------------------------------------
 // declare C structure
@@ -87,6 +86,54 @@ SqTable* create_user_table_by_type(SqSchema* schema)
 
 // ----------------------------------------------------------------------------
 // Sqxc - Input
+
+void test_sqxc_joint_input()
+{
+	SqJoint*  joint;
+	SqTable*  table;
+	Sqxc*     xc;
+	User*     user;
+	void**    instance;
+
+	table = sq_table_new("users", &UserType);
+	joint = sq_joint_new();
+	sq_joint_add(joint, table, "tb1");
+	sq_joint_add(joint, table, "tb2");
+
+	xc = sqxc_new(SQXC_INFO_VALUE);
+	sqxc_value_type(xc) = joint->type;
+
+	sqxc_ready(xc, NULL);
+
+	xc->name = NULL;
+	xc->type = SQXC_TYPE_OBJECT;
+	sqxc_send(xc);
+
+	xc->name = "tb1.id";
+	xc->type = SQXC_TYPE_INT;
+	xc->value.int_ = 1233;
+	sqxc_send(xc);
+
+	xc->name = "tb2.id";
+	xc->type = SQXC_TYPE_INT;
+	xc->value.int_ = 233;
+	sqxc_send(xc);
+
+	xc->name = NULL;
+	xc->type = SQXC_TYPE_OBJECT_END;
+	sqxc_send(xc);
+
+	sqxc_finish(xc, NULL);
+	instance = sqxc_value_instance(xc);
+	user = instance[0];
+	printf("tb1.id = %d\n", user->id);
+	user = instance[1];
+	printf("tb2.id = %d\n", user->id);
+
+	sqxc_free(xc);
+	sq_joint_free(joint);
+	sq_table_free(table);
+}
 
 const char* json_array_string =
 "["
@@ -277,6 +324,7 @@ int  main(void)
 	sq_ptr_array_init(&user->ints, 8, NULL);
 	sq_ptr_array_append(&user->ints, (void*)(intptr_t)1);
 
+	test_sqxc_joint_input();
 	test_sqxc_jsonc_input();
 	test_sqxc_jsonc_input_user();
 	test_sqxc_jsonc_output(user);

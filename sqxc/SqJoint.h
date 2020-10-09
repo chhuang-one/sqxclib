@@ -30,26 +30,36 @@ typedef struct SqEntry           SqJoint;
 	|
 	`--- SqJoint
 
-	if (joint->type->n_entry > 1)
 
+	-- SQL statement
 	SELECT 'T01'.'column' AS 'T01.column',
 	       'T02'.'column' AS 'T02.column'
 	FROM table1 AS T01
 	JOIN table2 AS T02 ON T02.table1_id = T01.id
 	WHERE T01.column > 100
 
+	// --- C code ---
 	sq_joint_add(joint, table1, "T01");
 	sq_joint_add(joint, table2, "T02");
 
-
+	-- SQL statement
 	SELECT 'table1'.'column' AS 'table1.column',
 	       'table2'.'column' AS 'table2.column'
 	FROM table1
 	JOIN table2 ON table2.table1_id = table1.id
 	WHERE table1.column > 100
 
+	// --- C code ---
 	sq_joint_add(joint, table1, NULL);
 	sq_joint_add(joint, table2, NULL);
+
+	---------------------------------------------
+	// SqxcValue will get below data structure:
+
+	void **instance = sqxc_value_instance(xcvalue);
+
+	table1 = instance[0];
+	table1 = instance[1];
  */
 
 SqJoint* sq_joint_new();
