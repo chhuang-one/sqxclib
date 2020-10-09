@@ -31,11 +31,8 @@
 static SqTable* find_table_by_type_name(SqStorage* storage, const char *type_name);
 static char*    get_primary_key_string(void* instance, SqTable* type);
 
-SqStorage* sq_storage_new(Sqdb* db)
+void  sq_storage_init(SqStorage* storage, Sqdb* db)
 {
-	SqStorage* storage;
-
-	storage = malloc(sizeof(SqStorage));
 	storage->db = db;
 	storage->schema = sq_schema_new("current");
 	storage->tables_version = 0;
@@ -50,11 +47,9 @@ SqStorage* sq_storage_new(Sqdb* db)
 	storage->xc_input = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
 	storage->xc_output = sqxc_new_chain(SQXC_INFO_SQL, SQXC_INFO_JSONC_WRITER, NULL);
 #endif
-
-	return storage;
 }
 
-void  sq_storage_free(SqStorage* storage)
+void  sq_storage_final(SqStorage* storage)
 {
 //	sq_type_free(storage->container_default);
 	sq_schema_free(storage->schema);
@@ -62,30 +57,22 @@ void  sq_storage_free(SqStorage* storage)
 
 	sqxc_free_chain(storage->xc_input);
 	sqxc_free_chain(storage->xc_output);
+}
+
+SqStorage* sq_storage_new(Sqdb* db)
+{
+	SqStorage* storage;
+
+	storage = malloc(sizeof(SqStorage));
+	sq_storage_init(storage, db);
+
+	return storage;
+}
+
+void  sq_storage_free(SqStorage* storage)
+{
+	sq_storage_final(storage);
 	free(storage);
-}
-
-SqQuery* sq_storage_table(SqStorage* storage, const char *table_name)
-{
-	SqTable* table;
-
-	table = sq_schema_find(storage->schema, table_name);
-	if (table)
-		return sq_query_new(table);
-	else
-		return NULL;
-//	sq_entry_free(db->input_container_default);
-}
-
-SqQuery* sq_storage_type(SqStorage* storage, const char *type_name)
-{
-	SqTable* table;
-
-	table = find_table_by_type_name(storage, type_name);
-	if (table)
-		return sq_query_new(table);
-	else
-		return NULL;
 }
 
 int   sq_storage_open(SqStorage* storage, const char *database_name)
@@ -265,6 +252,31 @@ void  sq_storage_remove(SqStorage* storage,
 	snprintf(buf->buf, buf->size, "DELETE FROM \"%s\" WHERE \"%s\"=%d",
 	         table->name, column->name, id);
 	sqdb_exec(storage->db, buf->buf, NULL, NULL);
+}
+
+// ------------------------------------
+
+SqQuery* sq_storage_table(SqStorage* storage, const char *table_name)
+{
+	SqTable* table;
+
+	table = sq_schema_find(storage->schema, table_name);
+	if (table)
+		return sq_query_new(table);
+	else
+		return NULL;
+//	sq_entry_free(db->input_container_default);
+}
+
+SqQuery* sq_storage_type(SqStorage* storage, const char *type_name)
+{
+	SqTable* table;
+
+	table = find_table_by_type_name(storage, type_name);
+	if (table)
+		return sq_query_new(table);
+	else
+		return NULL;
 }
 
 // ----------------------------------------------------------------------------

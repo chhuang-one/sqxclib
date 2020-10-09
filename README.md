@@ -123,12 +123,36 @@ uGet3 use SQL database to solve this problem.
 
  use C function
 
-	array    = sq_storage_get_all(storage, "users", NULL, NULL);
-	user_ptr = sq_storage_get(storage, "users", NULL, 2);
+	User*  user;
 
-	sq_storage_insert(storage, "users", NULL, user_ptr);
-	sq_storage_update(storage, "users", NULL, user_ptr);
+	array = sq_storage_get_all(storage, "users", NULL, NULL);
+	user  = sq_storage_get(storage, "users", NULL, 2);
+
+	sq_storage_insert(storage, "users", NULL, user);
+	sq_storage_update(storage, "users", NULL, user);
 	sq_storage_remove(storage, "users", NULL, 5);
+
+ use C++ function
+
+	User*  user;
+
+	array = storage->get_all("users", NULL);
+	user  = storage->get("users", 2);
+
+	storage->insert("users", user);
+	storage->update("users", user);
+	storage->remove("users", 5);
+
+ use C++ template function
+
+	User*  user;
+
+	array = storage->get_all<User>(NULL);
+	user  = storage->get<User>(2);
+
+	storage->insert<User>(user);
+	storage->update<User>(user);
+	storage->remove<User>(5);
 
 
 ## JSON support
@@ -182,7 +206,7 @@ uGet3 use SQL database to solve this problem.
 
 ## Licensing
 
-sqcx is licensed under the Mulan PSL v2.
+sqxc is licensed under the Mulan PSL v2.
 
 
 ---
