@@ -28,6 +28,10 @@ typedef struct SqdbConfigSqlite    SqdbConfigSqlite;
 
 extern const SqdbInfo*    SQDB_INFO_SQLITE;
 
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
 /* ----------------------------------------------------------------------------
     SqdbSqlite - Sqdb for SQLite
 
@@ -36,7 +40,11 @@ extern const SqdbInfo*    SQDB_INFO_SQLITE;
     `--- SqdbSqlite
  */
 
+#ifdef __cplusplus
+struct SqdbSqlite : Sq::DbMethod
+#else
 struct SqdbSqlite
+#endif
 {
 	SQDB_MEMBERS;
 /*	// ------ Sqdb members ------
@@ -57,7 +65,8 @@ struct SqdbSqlite
     |
     `--- SqdbConfigSqlite
  */
-struct SqdbConfigSqlite {
+struct SqdbConfigSqlite
+{
 	SQDB_CONFIG_MEMBERS;
 /*	// ------ SqdbConfig members ------
 	const SqdbInfo *info;
@@ -69,9 +78,5 @@ struct SqdbConfigSqlite {
 	char*           extension;   // optional
 };
 
-
-#ifdef __cplusplus
-}  // extern "C"
-#endif
 
 #endif  // SQDB_SQLITE_H

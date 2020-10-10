@@ -149,11 +149,6 @@ struct SqStorage
 namespace Sq
 {
 
-void  StorageMethod::init(Sqdb* db)
-	{ sq_storage_init((SqStorage*)this, db); }
-void  StorageMethod::final(void)
-	{ sq_storage_final((SqStorage*)this); }
-
 int   StorageMethod::open(const char *database_name)
 	{ return sq_storage_open((SqStorage*)this, database_name); }
 int   StorageMethod::close(void)

@@ -590,16 +590,17 @@ void  sq_column_on_update(SqColumn* column, const char* act)
 
 void  sq_column_set_constraint(SqColumn* column, ...)
 {
+	const char* first;
 	va_list  arg_list;
 
 	va_start(arg_list, column);
-	sq_column_set_constraint_va(column, arg_list);
+	first = va_arg(arg_list, const char*);
+	sq_column_set_constraint_va(column, first, arg_list);
 	va_end(arg_list);
 }
 
-void  sq_column_set_constraint_va(SqColumn* column, va_list arg_list)
+void  sq_column_set_constraint_va(SqColumn* column, const char *name, va_list arg_list)
 {
-	const char*  name;
 	int   index, allocated;
 
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
@@ -615,17 +616,20 @@ void  sq_column_set_constraint_va(SqColumn* column, va_list arg_list)
 			free(column->constraint[index]);
 	}
 
-	index = 0;
-	do {
+	for (index = 0;  ;  index++) {
 		// add string to null terminated string array 
-		name = va_arg(arg_list, const char*);
 		if (index == allocated) {
 			allocated *= 2;
 			column->constraint = sq_constraint_realloc(column->constraint, allocated);
 			sq_constraint_allocated(column->constraint) = allocated;
 		}
-		column->constraint[index++] = name ? strdup(name) : NULL;
-	} while (name);
+		column->constraint[index] = name ? strdup(name) : NULL;
+		// break if name is NULL
+		if (name)
+			name = va_arg(arg_list, const char*);
+		else
+			break;
+	}
 }
 
 // used by sq_table_arrange()

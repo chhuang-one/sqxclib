@@ -149,6 +149,8 @@ struct SqSchema
 	size_t       offset;      // sq_schema_trace_foreign() and migration use this
 	unsigned int bit_field;
  */
+
+	// ------ SqSchema members ------
 	int          version;
 
 #ifdef __cplusplus
@@ -177,6 +179,24 @@ struct SqSchema
 
 	SqTable* alter(const char* name, const SqType* type_info = NULL)
 		{ return sq_schema_alter(this, name, type_info); }
+	void  drop(const char* name)
+		{ sq_schema_drop(this, name); }
+	void  rename(const char* from, const char* to)
+		{ sq_schema_rename(this, from, to); }
+
+	SqTable* find(const char* table_name)
+		{ return sq_schema_find(this, table_name); }
+
+	int   include(SqSchema* schema_src)
+		{ return sq_schema_include(this, schema_src); }
+	int   traceForeign(void)
+		{ return sq_schema_trace_foreign(this); }
+	void  clearRecords(int reset_traced_position, unsigned int set_table_bit_field)
+		{ sq_schema_clear_records(this, reset_traced_position, set_table_bit_field); }
+	void  arrange(SqPtrArray* entries)
+		{ sq_schema_arrange(this, entries); }
+	void  complete(void)
+		{ sq_schema_complete(this); }
 #endif  // __cplusplus
 };
 

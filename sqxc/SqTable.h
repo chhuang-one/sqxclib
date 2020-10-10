@@ -13,8 +13,7 @@
  */
 
 
-/*	DataBase object - [Server Name].[DataBase Name].[Schema].[Table Name]
-
+/*
 	SqEntry
 	|
 	`--- SqReentry
@@ -29,6 +28,7 @@
 
 #include <stddef.h>     // size_t
 #include <stdint.h>
+#include <stdarg.h>
 
 #include <SqEntry.h>
 
@@ -189,8 +189,8 @@ void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrAr
 // primary('column_name');
 // primary('column_name', 'name2');
 
-// $table->dropPrimary('users_id_primary');	從「users」資料表移除主鍵。
-// $table->dropUnique('users_email_unique'); 從「users」資料表移除唯一索引。
+// $table->dropPrimary('users_id_primary');	 // remove primary key from table "users"
+// $table->dropUnique('users_email_unique'); // remove unique      from table "users"
 // $table->dropIndex('state');
 // $table->dropForeign(['user_id']);
 
@@ -217,7 +217,7 @@ void       sq_column_on_update(SqColumn* column, const char* act);
 // the last argument must be NULL
 // sq_column_set_constraint(column, colume_name1, column_name2, NULL);
 void       sq_column_set_constraint(SqColumn* column, ...);
-void       sq_column_set_constraint_va(SqColumn* column, va_list arg_list);
+void       sq_column_set_constraint_va(SqColumn* column, const char *name, va_list arg_list);
 
 // used by sq_table_arrange()
 // primary key = 0
@@ -259,8 +259,8 @@ struct SqTable
 	unsigned int bit_field;
 	char*        old_name;    // rename or drop
  */
-	// if name is NULL, it will drop old_name
-	// if name is NOT NULL, it will rename from old_name to name
+
+	// ------ SqTable members ------
 
 	// SqColumn's array for temporary use.
 	// sq_table_include() and sq_schema_include() store columns that having foreign reference.
@@ -270,8 +270,6 @@ struct SqTable
 
 #ifdef __cplusplus
 	// C++11 standard-layout
-	// ----------------------------------------------------
-	// Laravel-Eloquent-like API
 
 	SqColumn& integer(const char* column_name, size_t offset)
 		{ return *sq_table_add_int(this, column_name, offset); }
@@ -329,14 +327,17 @@ struct SqTable
 		return *sq_table_add_custom(this, column_name, sq_offset(member), type);
 	};
 
-/*
-	void addColumn(SqColumn* column, int n_column = 1)
-		{ sq_table_add_column(this, column, n_column); }
-	bool hasColumn(const char* column_name)
-		{ return sq_table_has_column(this, column_name); }	
-	void dropColumn(const char* column_name)
-		{ sq_table_drop_column(this, column_name); }
-*/
+	// ----------------------------------------------------
+
+	SqColumn* addForeign(const char* name)
+		{ return sq_table_add_foreign(this, name); }
+	void  dropForeign(const char* name)
+		{ sq_table_drop_foreign(this, name); }
+
+	int  include(SqTable* table_src)
+		{ return sq_table_include(this, table_src); }
+	void exclude(SqPtrArray* excluded_columns, SqPtrArray* result)
+		{ sq_table_exclude(this, excluded_columns, result); }
 #endif  // __cplusplus
 };
 
@@ -371,6 +372,8 @@ struct SqColumn
 	char*        old_name;    // rename or drop
  */
 
+	// ------ SqColumn members ------
+
 	// size  : total number of digits is specified in size or length of string
 	// digits: number of digits after the decimal point.
 	int16_t      size;             // total digits or length of string
@@ -402,14 +405,20 @@ struct SqColumn
 		{ return this; }
 
 	// ----------------------------------------------------
-	// Laravel-Eloquent-like API
 
-	SqColumn& reference(const char* table_name, const char* column_name)
+	SqColumn& reference(const char *table_name, const char *column_name)
 		{ sq_column_reference(this, table_name, column_name); return *this; }
-	SqColumn& onDelete(const char* act)
+	SqColumn& onDelete(const char *act)
 		{ sq_column_on_delete(this, act); return *this; }
-	SqColumn& onUpdate(const char* act)
+	SqColumn& onUpdate(const char *act)
 		{ sq_column_on_update(this, act); return *this; }
+	SqColumn& setConstraint(const char *name, ...) {
+		va_list  arg_list;
+		va_start(arg_list, name);
+		sq_column_set_constraint_va(this, name, arg_list);
+		va_end(arg_list);
+		return *this;
+	}
 
 	SqColumn& primary()
 		{ bit_field |= SQB_PRIMARY;   return *this; }
