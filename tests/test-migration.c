@@ -93,8 +93,8 @@ static const SqColumn  *UserColumnsChange[] = {
 	// ADD COLUMN "test_add"
 	&(SqColumn) {SQ_TYPE_UINT, "test_add", offsetof(User, test_add), SQB_NULLABLE},
 
-	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGE)
-//	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGE},
+	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGED)
+//	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
 
 	// DROP CONSTRAINT FOREIGN KEY "fk_cities_id"
 	&(SqColumn) {.old_name = "fk_cities_id",  .name = NULL,
@@ -304,7 +304,8 @@ int  main(void)
 	// trace renamed (or dropped) table/column that was referenced by others
 	sq_schema_trace_foreign(schema);
 	// clear changed records before calling sq_schema_arrange()
-	sq_schema_clear_records(schema, 1, 0);
+	// database schema version < current schema version
+	sq_schema_clear_records(schema, '<');
 
 	sq_ptr_array_init(&entries, 8, NULL);
 	sq_schema_arrange(schema, &entries);

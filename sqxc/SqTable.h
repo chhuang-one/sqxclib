@@ -41,13 +41,15 @@ typedef struct SqColumn       SqColumn;
 typedef struct SqForeign      SqForeign;    // used by SqColumn
 
 // SqTable::bit_field
-// REO = reference each other
-// COL = column
 #define SQB_TABLE_SQL_CREATED             (1 << 13)
+
+// REO = reference each other
 // SqTable::bit_field for checking foreign reference each other (avoid infinite recursive)
 #define SQB_TABLE_REO_CHECKING            (1 << 14)
 // SqTable::bit_field for SQLite (constraint reference each other)
 #define SQB_TABLE_REO_CONSTRAINT          (1 << 15)
+
+// COL = column
 // SqTable::bit_field for SQLite (decide to recreate)
 #define SQB_TABLE_COL_ALTERED             (1 << 16)
 #define SQB_TABLE_COL_RENAMED             (1 << 17)
@@ -56,10 +58,11 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 #define SQB_TABLE_COL_ADDED_UNIQUE        (1 << 20)    // UNIQUE or PRIMARY KEY
 #define SQB_TABLE_COL_ADDED_CONSTRAINT    (1 << 21)
 
-#define SQB_TABLE_COL_ATTRIB              (SQB_TABLE_COL_ALTERED | \
+#define SQB_TABLE_COL_CHANGED             (SQB_TABLE_COL_ALTERED | \
                                            SQB_TABLE_COL_RENAMED | \
                                            SQB_TABLE_COL_DROPPED | \
                                            SQB_TABLE_COL_ADDED   | \
+                                           SQB_TABLE_COL_ADDED_UNIQUE | \
                                            SQB_TABLE_COL_ADDED_CONSTRAINT )
 
 // --------------------------------------------------------
@@ -264,6 +267,7 @@ struct SqTable
 
 	// SqColumn's array for temporary use.
 	// sq_table_include() and sq_schema_include() store columns that having foreign reference.
+	// sq_schema_trace_foreign() use these to trace renamed (or dropped) column that was referenced by others.
 	// finalize it after creating table in SQL
 	SqPtrArray   foreigns;
 
@@ -429,7 +433,7 @@ struct SqColumn
 	SqColumn& nullable()
 		{ bit_field |= SQB_NULLABLE;  return *this; }
 	SqColumn& change()
-		{ bit_field |= SQB_CHANGE;    return *this; }
+		{ bit_field |= SQB_CHANGED;   return *this; }
 #endif  // __cplusplus
 };
 

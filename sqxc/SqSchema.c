@@ -77,7 +77,7 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 
 	// add table in schema->type
 	sq_type_insert_entry(schema->type, (SqEntry*)table);
-	schema->bit_field |= SQB_CHANGE;
+	schema->bit_field |= SQB_CHANGED;
 	return table;
 }
 
@@ -86,10 +86,10 @@ SqTable* sq_schema_alter(SqSchema* schema, const char* name, const SqType* type_
 	SqTable*  table;
 
 	table = sq_table_new(name, type_info);
-	table->bit_field |= SQB_CHANGE;
+	table->bit_field |= SQB_CHANGED;
 
 	sq_type_insert_entry(schema->type, (SqEntry*)table);
-	schema->bit_field |= SQB_CHANGE;
+	schema->bit_field |= SQB_CHANGED;
 	return table;
 }
 
@@ -103,7 +103,7 @@ void sq_schema_drop(SqSchema* schema, const char* name)
 	table->bit_field = SQB_DYNAMIC;
 
 	sq_type_insert_entry(schema->type, (SqEntry*)table);
-	schema->bit_field |= SQB_CHANGE;
+	schema->bit_field |= SQB_CHANGED;
 
 #if 0
 	// remove table in schema->type
@@ -123,7 +123,7 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 	table->bit_field = SQB_DYNAMIC;
 
 	sq_type_insert_entry(schema->type, (SqEntry*)table);
-	schema->bit_field |= SQB_CHANGE;
+	schema->bit_field |= SQB_CHANGED;
 
 #if 0
 //	table = (SqTable*)sq_type_find_entry(schema->type, from,
@@ -131,8 +131,15 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 	table = (SqTable*)sq_type_find_entry(schema->type, from, NULL);
 	if (table) {
 		table = *(SqTable**)table;
-		free(table->name);
+#if 0
+		if (table->old_name == NULL)
+			table->old_name = table->name;
+		else
+#endif
+			free(table->name);
 		table->name = strdup(to);
+		table->bit_field |= SQB_RENAMED;
+		schema->type->bit_field &= ~SQB_TYPE_SORTED;
 	}
 #endif
 }
@@ -143,7 +150,7 @@ SqTable* sq_schema_find(SqSchema* schema, const char* name)
 	void** addr;
 
 	// if cmp_func == NULL, sq_type_find_entry() will sort entry before finding.
-	if (schema->bit_field & SQB_CHANGE)
+	if (schema->bit_field & SQB_CHANGED)
 		cmp_func = (SqCompareFunc)sq_reentry_cmp_str__name;
 	else
 		cmp_func = NULL;
@@ -179,7 +186,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 
 	for (index = 0;  index < reentries_src->length;  index++) {
 		table_src = (SqTable*)reentries_src->data[index];
-		if (table_src->bit_field & SQB_CHANGE) {
+		if (table_src->bit_field & SQB_CHANGED) {
 			// === ALTER TABLE ===
 			// find table if table->name == table_src->name
 			addr = sq_reentries_find_name(reentries, table_src->name);
@@ -210,8 +217,14 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 			if (addr) {
 				// rename existing table->name to table_src->name
 				table = *(SqTable**)addr;
-				free(table->name);
+#if 0
+				if (table->old_name == NULL)
+					table->old_name = table->name;
+				else
+#endif
+					free(table->name);
 				table->name = strdup(table_src->name);
+				table->bit_field |= SQB_RENAMED;
 			}
 		}
 		else {
@@ -311,7 +324,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 	return result;
 }
 
-void  sq_schema_clear_records(SqSchema* schema, int reset_traced_position, unsigned int set_table_bit_field)
+void  sq_schema_clear_records(SqSchema* schema, char ver_comparison)
 {
 	SqPtrArray* reentries;
 	SqTable* table;
@@ -319,12 +332,13 @@ void  sq_schema_clear_records(SqSchema* schema, int reset_traced_position, unsig
 
 	// erase changed records and remove NULL records in schema
 	reentries = sq_type_get_ptr_array(schema->type);    // schema->type->entry
-	sq_reentries_erase_changes(reentries);
+	sq_reentries_clear_records(reentries, ver_comparison);
 	sq_reentries_remove_null(reentries);
 	// set schema->offset for sq_schema_trace_foreign() or sq_schema_arrange()
-	schema->offset = (reset_traced_position) ? 0 : reentries->length;
-	// all changed records have removed
-	schema->bit_field &= ~SQB_CHANGE;
+	// if database schema version < current schema version, reset schema->offset for sq_schema_arrange()
+	schema->offset = (ver_comparison == '<') ? 0 : reentries->length;
+	// clear SQB_CHANGED and SQB_RENAMED
+	schema->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
 
 	// erase changed records and remove NULL records in tables
 	for (index = 0;  index < reentries->length;  index++) {
@@ -332,15 +346,18 @@ void  sq_schema_clear_records(SqSchema* schema, int reset_traced_position, unsig
 		reentries = sq_type_get_ptr_array(table->type);    // table->type->entry
 		//  table->type maybe static
 		if (table->type->bit_field & SQB_TYPE_DYNAMIC) {
-			sq_reentries_erase_changes(reentries);
+			sq_reentries_clear_records(reentries, ver_comparison);
 			sq_reentries_remove_null(reentries);
 		}
-		// set table->offset for sq_schema_trace_foreign() or sq_schema_arrange()
-		table->offset = (reset_traced_position) ? 0 : reentries->length;
-		// all changed records have removed
-		table->bit_field &= ~SQB_CHANGE;
-		// set table bit-field
-		table->bit_field |= set_table_bit_field;
+		// if database schema version < current schema version, reset table->offset for sq_schema_arrange()
+		table->offset = (ver_comparison == '<') ? 0 : reentries->length;
+		// clear SQB_CHANGED and SQB_RENAMED
+		table->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
+		// if database schema version == current schema version
+		if (ver_comparison == '=') {
+			table->bit_field |= SQB_TABLE_SQL_CREATED;
+			table->bit_field &= ~(SQB_TABLE_COL_CHANGED);
+		}
 	}
 }
 

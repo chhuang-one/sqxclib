@@ -105,14 +105,22 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 
 	// End of migration
 	if (schema_next == NULL) {
+		// Don't migrate if database schema version equal the latest schema version
+		if (sqdb->version == schema->version)
+			return SQCODE_OK;
+
 		// trace renamed (or dropped) table/column that was referenced by others
 		sq_schema_trace_foreign(schema);
 
-		// SQL command...
-		// drop, rename, alter, or recreate table
+		// run SQL statement: rename/drop table
 
-		// erase changed records and remove NULL records in schema
-		sq_schema_clear_records(schema, 1, 0);
+		// clear changed records and remove NULL records in schema
+		// database schema version < (less than) current schema version
+		sq_schema_clear_records(schema, '<');
+
+		// run SQL statement: create/recreate table
+
+		sq_schema_complete(schema);
 		return SQCODE_OK;
 	}
 
@@ -123,8 +131,9 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 	if (sqdb->version == schema->version) {
 		// trace renamed (or dropped) table/column that was referenced by others
 		sq_schema_trace_foreign(schema);
-		// erase changed records and remove NULL records in schema
-		sq_schema_clear_records(schema, 0, SQB_TABLE_SQL_CREATED);
+		// clear changed records and remove NULL records in schema
+		// database schema version = (equal) current schema version
+		sq_schema_clear_records(schema, '=');
 	}
 
 	return SQCODE_OK;

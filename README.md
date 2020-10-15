@@ -83,12 +83,12 @@ uGet3 use SQL database to solve this problem.
 		&(SqColumn) {SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
 
 		// ALTER COLUMN "city_id"
-		&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGE},
+		&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
 
 		// DROP COLUMN "name"
 		&(SqColumn) {.old_name = "name",   .name = NULL},
 
-		// RENAME COLUMN "email"  TO "email2"
+		// RENAME COLUMN "email" TO "email2"
 		&(SqColumn) {.old_name = "email",  .name = "email2"},
 	};
 
@@ -97,7 +97,7 @@ uGet3 use SQL database to solve this problem.
 	table = sq_schema_alter(schema, "users");
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
-	column->bit_field |= SQB_CHANGE;
+	column->bit_field |= SQB_CHANGED;
 	sq_table_drop_column(table, "name");
 	sq_table_rename_column(table, "email", "email2");
 

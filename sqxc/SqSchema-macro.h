@@ -200,6 +200,6 @@ typedef struct Company
 
 
 #define SQC_CHANGE()   \
-		column_cur_->bit_field   |= SQB_CHANGE
+		column_cur_->bit_field   |= SQB_CHANGED
 
 #endif  // SQ_SCHEMA_MACRO_H

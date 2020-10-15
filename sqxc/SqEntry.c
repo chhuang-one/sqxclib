@@ -117,7 +117,7 @@ void**  sq_reentries_erase(void* reentry_ptr_array, const void* key, SqCompareFu
 	return NULL;
 }
 
-void  sq_reentries_erase_changes(void* reentry_ptr_array)
+void  sq_reentries_clear_records(void* reentry_ptr_array, char ver_comparison)
 {
 	SqDestroyFunc destroy;
 	SqReentry*    reentry;
@@ -125,13 +125,18 @@ void  sq_reentries_erase_changes(void* reentry_ptr_array)
 	destroy = sq_ptr_array_destroy_func(reentry_ptr_array);
 	for (int index = 0;  index < ((SqPtrArray*)reentry_ptr_array)->length; index++) {
 		reentry = ((SqPtrArray*)reentry_ptr_array)->data[index];
-		if (reentry == NULL)
+		if (reentry == NULL || reentry->old_name == NULL)
 			continue;
-		if (reentry->old_name) {
-			if (destroy)
-				destroy(reentry);
-			((SqPtrArray*)reentry_ptr_array)->data[index] = NULL;
+		// try to clear altered and renamed status
+		if (ver_comparison != '<' && reentry->bit_field & SQB_DYNAMIC) {
+			free(reentry->old_name);
+			reentry->old_name = NULL;
+			reentry->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
 		}
+		// erase dropped and renamed records
+		if (destroy)
+			destroy(reentry);
+		((SqPtrArray*)reentry_ptr_array)->data[index] = NULL;
 	}
 }
 
@@ -162,8 +167,9 @@ const char*  sq_reentries_trace_renamed(void* reentries, const char* old_name, i
 
 	for (int index = index_beg;  index < sq_ptr_array_length(reentries);  index++) {
 		reentry = sq_ptr_array_at(reentries, index);
-		if (reentry == NULL || reentry->old_name == NULL)
+		if (reentry == NULL || reentry->old_name == NULL || reentry->bit_field & SQB_RENAMED)
 			continue;
+		// trace dropped and renamed records
 		if (strcasecmp(reentry->old_name, cur_name) == 0) {
 			if (reentry->name == NULL)
 				cur_name = old_name;         // dropped, reset 'cur_name'
@@ -184,16 +190,24 @@ const char*  sq_reentries_trace_renamed(void* reentries, const char* old_name, i
 // ------------------------------------
 // SqReentry SqCompareFunc
 
-int  sq_reentry_cmp_str__name(const char* str, SqReentry** reentry)
+int  sq_reentry_cmp_str__name(const char* str, SqReentry** reentry_addr)
 {
-	if (*reentry == NULL || reentry[0]->old_name)
-		return -1;
-	return strcasecmp(str, (*reentry)->name);
+	SqReentry* reentry = *reentry_addr;
+
+	if (reentry) {
+		if (reentry->old_name == NULL || reentry->bit_field & SQB_RENAMED)
+			return strcasecmp(str, reentry->name);
+	}
+	return -1;
 }
 
-int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry)
+int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry_addr)
 {
-	if (*reentry == NULL || reentry[0]->old_name == NULL)
-		return -1;
-	return strcasecmp(str, (*reentry)->old_name);
+	SqReentry* reentry = *reentry_addr;
+
+	if (reentry) {
+		if (reentry->old_name == NULL || reentry->bit_field & SQB_RENAMED)
+			return -1;
+	}
+	return strcasecmp(str, reentry->old_name);
 }

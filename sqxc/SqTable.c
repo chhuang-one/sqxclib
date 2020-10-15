@@ -55,7 +55,7 @@ bool  sq_table_has_column(SqTable* table, const char* column_name)
 {
 	SqCompareFunc cmp_func;
 
-	if (table->bit_field & SQB_CHANGE)
+	if (table->bit_field & SQB_CHANGED)
 		cmp_func = (SqCompareFunc)sq_reentry_cmp_str__name;
 	else
 		cmp_func = NULL;
@@ -87,7 +87,7 @@ void  sq_table_drop_column(SqTable* table, const char* column_name)
 	column->old_name = strdup(column_name);
 
 	sq_table_append_column(table, column);
-	table->bit_field |= SQB_CHANGE;
+	table->bit_field |= SQB_CHANGED;
 
 #if 0
 	column = (SqColumn*)sq_type_find_entry(table->type, column_name, NULL);
@@ -108,14 +108,18 @@ void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
 	column->bit_field = SQB_DYNAMIC;
 
 	sq_table_append_column(table, column);
-	table->bit_field |= SQB_CHANGE;
+	table->bit_field |= SQB_CHANGED;
 
 #if 0
 	column = (SqColumn*)sq_type_find_entry(table->type, from, NULL);
 	if (column) {
 		column = *(SqColumn**)column;
-		free(column->name);
+		if (column->old_name == NULL)
+			column->old_name = column->name;
+		else
+			free(column->name);
 		column->name = strdup(to);
+		column->bit_field |= SQB_RENAMED;
 		table->type->bit_field &= ~SQB_TYPE_SORTED;
 	}
 #endif
@@ -333,14 +337,14 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 
 	// if table is empty table
 	if (reentries->length == 0) {
-		// set SQB_CHANGE if it is "ALTER TABLE"
-		if (table_src->bit_field & SQB_CHANGE)
-			table->bit_field |= SQB_CHANGE;
+		// set SQB_CHANGED if it is "ALTER TABLE"
+		if (table_src->bit_field & SQB_CHANGED)
+			table->bit_field |= SQB_CHANGED;
 	}
 
 	for (index = 0;  index < reentries_src->length;  index++) {
 		column_src = (SqColumn*)reentries_src->data[index];
-		if (column_src->bit_field & SQB_CHANGE) {
+		if (column_src->bit_field & SQB_CHANGED) {
 			// === ALTER COLUMN ===
 			// free column if column->name == column_src->name
 			addr = sq_reentries_find_name(reentries, column_src->name);
@@ -370,8 +374,13 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 					column = sq_column_copy_static(column);
 					sq_table_replace_column(table, (SqColumn**)addr, NULL, column);
 				}
-				free(column->name);
+				// store old_name temporary, program use it when SQLite recreate
+				if (column->old_name == NULL)
+					column->old_name = column->name;
+				else
+					free(column->name);
 				column->name = strdup(column_src->name);
+				column->bit_field |= SQB_RENAMED;
 			}
 			// set bit_field: column renamed
 			table->bit_field |= SQB_TABLE_COL_RENAMED;
@@ -401,7 +410,7 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 		}
 	}
 
-	// update other data in table->type
+	// SqTable.type.entry must sort again
 	table->type->bit_field &= ~SQB_TYPE_SORTED;
 
 	return SQCODE_OK;

@@ -82,7 +82,7 @@ SqTable* sq_schema_find(SqSchema* schema, const char* table_name);
 	sq_schema_include(schema, schema_v2);
 	sq_schema_include(schema, schema_v3);
 	sq_schema_trace_foreign(schema);
-	sq_schema_clear_records(schema, 0, SQB_TABLE_CREATED);
+	sq_schema_clear_records(schema, '=');
 
 	// --- if the latest schema_version is 5, migrate to schema_v5
 	// migrate schema_v4 and schema_v5 by SQL statement
@@ -91,7 +91,7 @@ SqTable* sq_schema_find(SqSchema* schema, const char* table_name);
 	sq_schema_trace_foreign(schema);
 	// SQLite must try to rename, drop, or create table
 	//                    rename, or add column here
-	sq_schema_clear_records(schema, 1, 0);
+	sq_schema_clear_records(schema, '<');
 
 	sq_schema_arrange(schema, entries);
 	// create table by SQL statement
@@ -105,16 +105,20 @@ SqTable* sq_schema_find(SqSchema* schema, const char* table_name);
 int     sq_schema_include(SqSchema* schema, SqSchema* schema_src);
 
 // It trace renamed (or dropped) table/column that was referenced by others and update others references.
+// use this function after calling sq_schema_include()
 int     sq_schema_trace_foreign(SqSchema* schema);
 
 /* clear changed records after calling sq_schema_include() and sq_schema_trace_foreign()
-   To pass 1 (or TRUE) to 'reset_traced_position':
+   if database schema version <  current schema version, pass 'ver_comparison' = '<'
+   if database schema version == current schema version, pass 'ver_comparison' = '='
+
+   To pass '<' to 'ver_comparison':
    1. If you don't need calling sq_schema_trace_foreign() any more
    2. before you call sq_schema_arrange()
 
-   If you pass 1 (TRUE) to 'reset_traced_position', it will affect performance of sq_schema_trace_foreign().
+   If you pass '<' to 'ver_comparison' , it will affect performance of sq_schema_trace_foreign().
  */
-void    sq_schema_clear_records(SqSchema* schema, int reset_traced_position, unsigned int set_table_bit_field);
+void    sq_schema_clear_records(SqSchema* schema, char ver_comparison);
 
 /* call this function before creating SQL table after sq_schema_clear_records(schema, 1, 0)
    if table has no foreign key, this function move it to front.
@@ -191,8 +195,8 @@ struct SqSchema
 		{ return sq_schema_include(this, schema_src); }
 	int   traceForeign(void)
 		{ return sq_schema_trace_foreign(this); }
-	void  clearRecords(int reset_traced_position, unsigned int set_table_bit_field)
-		{ sq_schema_clear_records(this, reset_traced_position, set_table_bit_field); }
+	void  clearRecords(char ver_comparison)
+		{ sq_schema_clear_records(this, ver_comparison); }
 	void  arrange(SqPtrArray* entries)
 		{ sq_schema_arrange(this, entries); }
 	void  complete(void)

@@ -59,14 +59,17 @@ typedef struct SqReentry        SqReentry;
 #define SQB_INCREMENT      (1 << 11)  // SQL: AUTOINCREMENT == SQB_AUTOINCREMENT
 #define SQB_AUTOINCREMENT  (1 << 11)  // SQL: AUTOINCREMENT == SQB_INCREMENT
 #define SQB_NULLABLE       (1 << 12)  // SQL: remove "NOT NULL"
-// #define SQB_UNSIGNED       (1 << 13)  // SQL: attribute "UNSIGNED"
 
-// #define SQB_IGNORE         (1 << 30)  // SQL: ignore this entry/column
+// #define SQB_UNSIGNED       (1 << 13)  // SQL: attribute "UNSIGNED"
+// #define SQB_IGNORE         (1 << 14)  // SQL: ignore this entry/column
+// #define SQB_CURRENT_TIMESTAMP
 
 #define SQB_COLUMN_ATTRIB  (SQB_PRIMARY | SQB_FOREIGN | SQB_UNIQUE)
 
-//#define SQB_CURRENT_TIMESTAMP
-#define SQB_CHANGE         (1 << 31)  // SQL: alter/modify
+// SQL common bit_field (for internal use only. use it when SQLite recreate)
+#define SQB_RENAMED        (1 << 30)  // SQL: rename. column/table has been renamed.
+// SQL common bit_field
+#define SQB_CHANGED        (1 << 31)  // SQL: alter/modify. column/table has been altered.
 
 
 #define SQ_ENTRY_MEMBERS       \
@@ -144,9 +147,10 @@ typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
 // return address of deleted reentry pointer.
 void**  sq_reentries_erase(void* reentry_ptr_array, const void* key, SqCompareFunc cmp_func);
 
-// find and delete all change record (reentry->old_name != NULL), set NULL to index of deleted reentry.
-// return address of deleted reentry pointer.
-void    sq_reentries_erase_changes(void* reentry_ptr_array);
+// find and delete renamed & dropped records, set NULL to index of deleted reentry.
+// if database schema version <  current schema version, pass 'ver_comparison' = '<'
+// if database schema version == current schema version, pass 'ver_comparison' = '='
+void    sq_reentries_clear_records(void* reentry_ptr_array, char ver_comparison);
 
 // remove all NULL pointer in array
 void    sq_reentries_remove_null(void* reentry_ptr_array);

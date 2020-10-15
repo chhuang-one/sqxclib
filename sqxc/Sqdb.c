@@ -83,7 +83,7 @@ void sqdb_schema_to_sql(Sqdb* db, SqBuffer* buffer, SqSchema* schema, SqPtrArray
 		if (index > 0)
 			sq_buffer_write_c(buffer, ' ');
 
-		if (table->bit_field & SQB_CHANGE) {
+		if (table->bit_field & SQB_CHANGED) {
 			// ALTER TABLE
 			alter_table_to_sql(db, buffer, table, NULL);
 		}
@@ -91,7 +91,7 @@ void sqdb_schema_to_sql(Sqdb* db, SqBuffer* buffer, SqSchema* schema, SqPtrArray
 			// DROP TABLE
 			drop_table_to_sql(db, buffer, table);
 		}
-		else if (table->old_name) {
+		else if (table->old_name && (table->bit_field & SQB_RENAMED) == 0) {
 			// RENAME TABLE
 			rename_table_to_sql(db, buffer, table);
 		}
@@ -196,7 +196,7 @@ static void create_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqPt
 //		if (column->bit_field & SQB_IGNORE)
 //			continue;
 		// skip "dropped" or "renamed"
-		if (column->old_name)
+		if (column->old_name && (column->bit_field & SQB_RENAMED) == 0)
 			continue;
 		// skip constraint
 		if (column->constraint) {
@@ -295,7 +295,7 @@ static void alter_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqPtr
 		column = (SqColumn*)arranged_columns->data[index];
 //		if (column->bit_field & SQB_IGNORE)
 //			continue;
-		if (column->bit_field & SQB_CHANGE) {
+		if (column->bit_field & SQB_CHANGED) {
 			// ALTER COLUMN
 			is_ok = alter_column_to_sql(db, buffer, table, column);
 		}
@@ -303,7 +303,7 @@ static void alter_table_to_sql(Sqdb* db, SqBuffer* buffer, SqTable* table, SqPtr
 			// DROP COLUMN / CONSTRAINT / KEY
 			is_ok = drop_column_to_sql(db, buffer, table, column);
 		}
-		else if (column->old_name) {
+		else if (column->old_name && (column->bit_field & SQB_RENAMED) == 0) {
 			// RENAME COLUMN
 			is_ok = rename_column_to_sql(db, buffer, table, column);
 		}
