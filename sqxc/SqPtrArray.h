@@ -52,13 +52,13 @@ extern "C" {
 		(((SqPtrArray*)(array))->data - (intptr_t)((SqPtrArray*)(array))->data[-1])
 
 #define sq_ptr_array_header_length(array)  \
-		((intptr_t*)((SqPtrArray*)(array))->data)[-1]
+		*(intptr_t*)(((SqPtrArray*)(array))->data -1)
 
 #define sq_ptr_array_allocated(array)  \
-		((intptr_t*)((SqPtrArray*)(array))->data)[-2]
+		*(intptr_t*)(((SqPtrArray*)(array))->data -2)
 
 #define sq_ptr_array_destroy_func(array)  \
-		((SqDestroyFunc*)((SqPtrArray*)(array))->data)[-3]
+		*(SqDestroyFunc*)(((SqPtrArray*)(array))->data -3)
 
 // ----------------------------------------------------------------------------
 // macro functions - parameter used only once in macro (except parameter 'array')

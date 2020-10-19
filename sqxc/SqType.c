@@ -64,9 +64,11 @@ SqType*  sq_type_copy_static(const SqType* type_src, SqDestroyFunc entry_free_fu
 	type = malloc(sizeof(SqType));
 	memcpy(type, type_src, sizeof(SqType));
 	type->bit_field |= SQB_TYPE_DYNAMIC;
-	type->entry = sq_ptr_array_new(type_src->n_entry, entry_free_func);
+	// alloc & copy SqEntry pointer array
+	sq_ptr_array_init(sq_type_get_ptr_array(type), type_src->n_entry, entry_free_func);
 	if (type_src->n_entry > 0)
 		memcpy(type->entry, type_src->entry, sizeof(void*) * type_src->n_entry);
+	// copy name string
 	if (type_src->name)
 		type->name = strdup(type_src->name);
 	return type;

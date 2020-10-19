@@ -20,10 +20,6 @@ void* sq_ptr_array_init_full(void* array,
 {
 	int   size;
 
-	// it has been initialized
-//	if (sq_ptr_array_data(array))
-//		return array;
-
 	if (header_length < SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH)
 		header_length = SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH;
 	if (allocated_length == 0)
