@@ -200,6 +200,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 				continue;
 			}
 			else {
+				// It must steal 'table_src' from 'schema_src' if table not found.
 				if (table_src->foreigns.data == NULL)
 					sq_ptr_array_init(&table_src->foreigns, 4, NULL);
 				sq_table_get_foreigns(table_src, &table_src->foreigns);
@@ -208,7 +209,12 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 		else if (table_src->name == NULL) {
 			// === DROP TABLE ===
 			// erase original table if table->name == table_src->old_name
-			sq_reentries_erase_name(reentries, table_src->old_name);
+			addr = sq_reentries_find_name(reentries, table_src->old_name);
+			if (addr) {
+				table = *(SqTable**)addr;
+				sq_table_free(table);
+				*addr = NULL;
+			}
 		}
 		else if (table_src->old_name) {
 			// === RENAME TABLE ===

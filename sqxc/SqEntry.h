@@ -143,10 +143,6 @@ int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry);
 typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
  */
 
-// find and delete reentry, set NULL to index of deleted reentry.
-// return address of deleted reentry pointer.
-void**  sq_reentries_erase(void* reentry_ptr_array, const void* key, SqCompareFunc cmp_func);
-
 // find and delete renamed & dropped records, set NULL to index of deleted reentry.
 // if database schema version <  current schema version, pass 'ver_comparison' = '<'
 // if database schema version == current schema version, pass 'ver_comparison' = '='
@@ -157,14 +153,6 @@ void    sq_reentries_remove_null(void* reentry_ptr_array);
 
 // void sq_reentries_add(void* reentry_ptr_array, void* reentry);
 #define sq_reentries_add		sq_ptr_array_append
-
-// void sq_reentries_erase_name(void* reentry_ptr_array, const char* old_name)
-#define sq_reentries_erase_name(reentry_ptr_array, name)    \
-		sq_reentries_erase((void*)(reentry_ptr_array), name, (SqCompareFunc)sq_reentry_cmp_str__name)
-
-// void sq_reentries_erase_old_name(void* reentry_ptr_array, const char* old_name)
-#define sq_reentries_erase_old_name(reentry_ptr_array, old_name)    \
-		sq_reentries_erase((void*)(reentry_ptr_array), name, (SqCompareFunc)sq_reentry_cmp_str__old_name)
 
 // void** sq_reentries_find_name(void* reentry_ptr_array, const char* name)
 #define sq_reentries_find_name(reentry_ptr_array, name)    \

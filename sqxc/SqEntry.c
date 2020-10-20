@@ -102,21 +102,6 @@ int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2)
 // ----------------------------------------------------------------------------
 // SqReentry functions for SqPtrArray
 
-void**  sq_reentries_erase(void* reentry_ptr_array, const void* key, SqCompareFunc cmp_func)
-{
-	SqDestroyFunc destroy;
-	void **addr;
-
-	addr = sq_ptr_array_find(reentry_ptr_array, key, cmp_func);
-	if (addr) {
-		destroy = sq_ptr_array_destroy_func(reentry_ptr_array);
-		destroy(*addr);
-		*addr = NULL;
-		return addr;
-	}
-	return NULL;
-}
-
 void  sq_reentries_clear_records(void* reentry_ptr_array, char ver_comparison)
 {
 	SqDestroyFunc destroy;
