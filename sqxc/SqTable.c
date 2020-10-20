@@ -304,12 +304,18 @@ void  sq_table_replace_column(SqTable*   table,
 	}
 	// table->foreigns
 	if (old_in_foreigns == NULL) {
-		if (column->foreign)
+		if (column->foreign) {
 			reentries = &table->foreigns;
+			if (new_one && new_one->foreign == NULL)
+				new_one = NULL;
+		}
 	}
 	else {
 		column = *old_in_foreigns;
-		*old_in_foreigns = new_one;
+		if (new_one && new_one->foreign == NULL)
+			*old_in_foreigns = NULL;
+		else
+			*old_in_foreigns = new_one;
 	}
 	// replace old column by new_one
 	if (reentries) {
