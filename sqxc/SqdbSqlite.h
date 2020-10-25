@@ -69,7 +69,7 @@ struct SqdbConfigSqlite
 {
 	SQDB_CONFIG_MEMBERS;
 /*	// ------ SqdbConfig members ------
-	const SqdbInfo *info;
+	unsigned int    product;
 	unsigned int    bit_field;   // reserve
  */
 

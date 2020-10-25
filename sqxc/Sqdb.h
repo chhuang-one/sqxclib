@@ -62,8 +62,25 @@ typedef enum SqdbProduct {
 Sqdb*   sqdb_new(const SqdbInfo *info, SqdbConfig* config);
 void    sqdb_free(Sqdb* db);
 
-// for testing
-void sqdb_schema_to_sql(Sqdb* db, SqBuffer* buffer, SqSchema* schema, SqPtrArray* arranged_tables);
+// SQL statement
+void sqdb_sql_write_schema(Sqdb* db, SqBuffer* sql_buf, SqSchema* schema, SqPtrArray* arranged_tables);
+int  sqdb_sql_create_tables_reo(Sqdb* db, SqBuffer* sql_buf, SqSchema* schema, SqTable* table);
+
+int  sqdb_sql_rename_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table);
+int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
+int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns);
+int  sqdb_sql_alter_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
+int  sqdb_sql_drop_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table);
+
+int  sqdb_sql_rename_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+int  sqdb_sql_add_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+int  sqdb_sql_alter_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+int  sqdb_sql_drop_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+
+void sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns, bool old_name);
+void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
+void sqdb_sql_write_constraint(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
+void sqdb_sql_write_foreign_ref(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -138,14 +155,14 @@ struct Sqdb
 // SqdbConfig - setting of SQL product
 
 #define SQDB_CONFIG_MEMBERS    \
-	const SqdbInfo *info;      \
+	unsigned int    product;   \
 	unsigned int    bit_field
 
 struct SqdbConfig
 {
 	SQDB_CONFIG_MEMBERS;
 /*	// ------ SqdbConfig members ------
-	const SqdbInfo *info;
+	unsigned int    product;
 	unsigned int    bit_field;    // reserve
  */
 };

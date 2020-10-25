@@ -15,6 +15,7 @@
 #include <stdio.h>
 
 #include <Sqdb.h>
+#include <SqdbSqlite.h>
 #include <SqSchema-macro.h>
 
 // ----------------------------------------------------------------------------
@@ -59,6 +60,10 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_INT, "company_id", offsetof(User, company_id), SQB_HIDDEN,
 	             .foreign = &(SqForeign) {"companies", "id",  "cascade",  "set null"} },
 
+	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE cascade ON UPDATE set null
+	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_HIDDEN,
+	             .foreign = &(SqForeign) {"companies", "id",  "cascade",  "set null"} },
+
 	// "email"  VARCHAR
 	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
 
@@ -95,6 +100,9 @@ static const SqColumn  *UserColumnsChange[] = {
 
 	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGED)
 //	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
+
+	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE cascade ON UPDATE set null
+	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_CHANGED },
 
 	// DROP CONSTRAINT FOREIGN KEY "fk_cities_id"
 	&(SqColumn) {.old_name = "fk_cities_id",  .name = NULL,
@@ -233,27 +241,8 @@ void create_city_table_and_rename_by_c(SqSchema* schema)
 }
 
 // ----------------------------------------------------------------------------
-typedef struct Migration    Migration;
 
-struct Migration
-{
-	int   id;
-	char* migration;
-	int   batch;
-};
-
-// ----------------------------------------------------------------------------
-
-void create_migration_table(SqSchema* schema)
-{
-	SQ_SCHEMA_CREATE(schema, "migrations", NULL, {
-		SQT_INTEGER_AS(Migration, id); SQC_PRIMARY();
-		SQT_STRING_AS(Migration, migration, -1);
-		SQT_INTEGER_AS(Migration, batch);
-	});
-}
-
-void test_db(SqSchema* schema, SqPtrArray* entries)
+void test_schema_to_sql(SqSchema* schema, SqPtrArray* entries)
 {
 	Sqdb     db;
 	SqdbInfo dbinfo;
@@ -265,7 +254,7 @@ void test_db(SqSchema* schema, SqPtrArray* entries)
 	db.info = &dbinfo;
 	buffer = (SqBuffer){NULL, 0, 0};
 
-	sqdb_schema_to_sql(&db, &buffer, schema, entries);
+	sqdb_sql_write_schema(&db, &buffer, schema, entries);
 
 	sq_buffer_write_c(&buffer, '\0');
 	puts(buffer.buf);
@@ -273,9 +262,7 @@ void test_db(SqSchema* schema, SqPtrArray* entries)
 	sq_buffer_final(&buffer);
 }
 
-// ----------------------------------------------------------------------------
-
-int  main(void)
+void test_schema_migration(void)
 {
 	SqSchema*   schema;
 	SqSchema*   schema_v2;
@@ -283,7 +270,7 @@ int  main(void)
 	SqSchema*   schema_v4;
 	SqPtrArray  entries;
 
-	schema  = sq_schema_new("default");
+	schema  = sq_schema_new("current");
 	create_user_table_by_type(schema);
 //	create_user_table_by_macro(schema);
 //	create_user_table_by_c(schema);
@@ -310,7 +297,62 @@ int  main(void)
 	sq_ptr_array_init(&entries, 8, NULL);
 	sq_schema_arrange(schema, &entries);
 
-	test_db(schema, &entries);
+	test_schema_to_sql(schema, &entries);
+
+	sq_ptr_array_final(&entries);
+	sq_schema_free(schema);
+	sq_schema_free(schema_v2);
+	sq_schema_free(schema_v3);
+	sq_schema_free(schema_v4);
+}
+
+// ----------------------------------------------------------------------------
+
+void test_sqdb(void)
+{
+	Sqdb* db;
+	SqSchema*   schema;
+	SqSchema*   schema_v1;
+	SqSchema*   schema_v2;
+	SqSchema*   schema_v3;
+	SqSchema*   schema_v4;
+
+	schema  = sq_schema_new("current");
+	schema->version = 0;
+
+	schema_v1  = sq_schema_new("ver1");
+	schema_v1->version = 1;
+	create_user_table_by_type(schema);
+//	create_user_table_by_macro(schema);
+//	create_user_table_by_c(schema);
+
+	schema_v2 = sq_schema_new("ver2");
+	schema_v2->version = 2;
+	change_user_table_by_c_type(schema_v2);
+
+	schema_v3 = sq_schema_new("ver3");
+	schema_v3->version = 3;
+	create_company_table_by_c(schema_v3);
+
+	schema_v4 = sq_schema_new("ver4");
+	schema_v4->version = 4;
+	create_city_table_and_rename_by_c(schema_v4);
+
+	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+	((SqdbSqlite*)db)->version = 1;
+	sqdb_migrate(db, schema, schema_v1);
+	sqdb_migrate(db, schema, schema_v2);
+	sqdb_migrate(db, schema, schema_v3);
+	sqdb_migrate(db, schema, schema_v4);
+	sqdb_migrate(db, schema, NULL);
+}
+
+// ----------------------------------------------------------------------------
+
+int  main(void)
+{
+	test_schema_migration();
+	test_sqdb();
 
 	return 0;
 }
