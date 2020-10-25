@@ -91,7 +91,6 @@ typedef enum {
 	SQXC_CTRL_FINISH,        // flush data
 
 	// SqxcSql
-	SQXC_SQL_USE_SELECT,     // SqTable* data
 	SQXC_SQL_USE_INSERT,     // SqTable* data
 	SQXC_SQL_USE_UPDATE,     // SqTable* data
 	SQXC_SQL_USE_WHERE,      // char*    condition
