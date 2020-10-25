@@ -259,7 +259,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 	SqPtrArray *reentries = sq_type_get_ptr_array(schema->type);
 	SqTable    *table, *table_fore;
 	SqColumn   *column;
-	const char *name;
+	SqReentry  *reentry;
 	int         result = SQCODE_OK;
 
 	for (int index = 0;  index < reentries->length;  index++) {
@@ -274,14 +274,15 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 
 			// --------------------------------------------
 			// trace renamed table
-			name = sq_reentries_trace_renamed(reentries,
-					column->foreign->table, schema->offset);
-			if (name == NULL) {
-				// table dropped.
-				result = SQCODE_REENTRY_DROPPED;
-				continue;   // error...
-			}
-			else if (name != column->foreign->table) {
+			reentry = (SqReentry*)sq_reentries_trace_renamed(reentries,
+					column->foreign->table, schema->offset, false);
+			if (reentry) {
+				reentry = *(SqReentry**)reentry;
+				if (reentry->name == NULL) {
+					// table dropped.
+					result = SQCODE_REENTRY_DROPPED;
+					continue;   // error...
+				}
 				// reference table was renamed.
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic column to replace static one
@@ -290,7 +291,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 							(SqColumn**)&table->foreigns.data[i], column);
 				}
 				free(column->foreign->table);
-				column->foreign->table = strdup(name);    // name = the newest table name
+				column->foreign->table = strdup(reentry->name);    // name = the newest table name
 			}
 
 			// --------------------------------------------
@@ -307,14 +308,15 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 
 			// --------------------------------------------
 			// trace renamed column
-			name = sq_reentries_trace_renamed(&table_fore->type->entry,
-					column->foreign->column, table_fore->offset);
-			if (name == NULL) {
-				// column dropped.
-				result = SQCODE_REENTRY_DROPPED;
-				continue;   // error...
-			}
-			else if (name != column->foreign->column) {
+			reentry = (SqReentry*)sq_reentries_trace_renamed(&table_fore->type->entry,
+					column->foreign->column, table_fore->offset, false);
+			if (reentry) {
+				reentry = *(SqReentry**)reentry;
+				if (reentry->name == NULL) {
+					// column dropped.
+					result = SQCODE_REENTRY_DROPPED;
+					continue;   // error...
+				}
 				// reference column renamed.
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic column to replace static one
@@ -323,7 +325,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 							(SqColumn**)&table->foreigns.data[i], column);
 				}
 				free(column->foreign->column);
-				column->foreign->column = strdup(name);    // name = newest column name
+				column->foreign->column = strdup(reentry->name);    // name = newest column name
 			}
 		}
 	}

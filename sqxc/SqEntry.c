@@ -144,11 +144,13 @@ void  sq_reentries_remove_null(void* reentry_ptr_array)
 	array->length = index_dest;
 }
 
-const char*  sq_reentries_trace_renamed(void* reentries, const char* old_name, int index_beg)
+void**  sq_reentries_trace_renamed(void* reentries, const char* old_name,
+                                   int   index_beg, bool  erase_renamed)
 {
 	SqReentry*  reentry;
 	const char* cur_name = old_name;
-	bool        cur_found = false;
+	void**      addr = NULL;
+	SqDestroyFunc  destroy = sq_ptr_array_destroy_func(reentries);
 
 	for (int index = index_beg;  index < sq_ptr_array_length(reentries);  index++) {
 		reentry = sq_ptr_array_at(reentries, index);
@@ -156,20 +158,24 @@ const char*  sq_reentries_trace_renamed(void* reentries, const char* old_name, i
 			continue;
 		// trace dropped and renamed records
 		if (strcasecmp(reentry->old_name, cur_name) == 0) {
-			if (reentry->name == NULL)
-				cur_name = old_name;         // dropped, reset 'cur_name'
-			else
+			// erase previous renamed reccord
+			if (erase_renamed && addr) {
+				if (destroy)
+					destroy(*addr);
+				*addr = NULL;
+			}
+			addr = sq_ptr_array_addr(reentries, index);
+
+			if (reentry->name)
 				cur_name = reentry->name;    // renamed, set 'cur_name'
-			cur_found = true;
+			else {
+				cur_name = old_name;         // dropped, reset 'cur_name'
+				if (erase_renamed)
+					break;
+			}
 		}
 	}
-
-	if (cur_found) {
-		// if reentry was dropped, return NULL.
-		if (cur_name == old_name)
-			return NULL;
-	}
-	return cur_name;
+	return addr;
 }
 
 // ------------------------------------

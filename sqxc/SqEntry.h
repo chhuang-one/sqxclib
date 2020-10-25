@@ -162,10 +162,12 @@ void    sq_reentries_remove_null(void* reentry_ptr_array);
 #define sq_reentries_find_old_name(reentry_ptr_array, old_name)    \
 		sq_ptr_array_find((void*)(reentry_ptr_array), old_name, (SqCompareFunc)sq_reentry_cmp_str__old_name)
 
-// trace all renamed record by 'old_name' and return the newest name.
-// if reentry dropped,   return NULL.
-// if reentry not found, return pointer equal 'old_name'
-const char* sq_reentries_trace_renamed(void* reentry_ptr_array, const char* old_name, int index_beg);
+// trace all renamed record by 'old_name' and return the latest record.
+// if 'erase_renamed' is true, erase tracked and renamed records and return the latest renamed or dropped record. (for SQLite)
+// if 'erase_renamed' is false, return the latest renamed record.
+// if not found, return NULL.
+void**  sq_reentries_trace_renamed(void* reentry_ptr_array, const char* old_name,
+                                   int   index_beg,         bool  erase_renamed);
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -89,14 +89,15 @@ SqTable* sq_schema_find(SqSchema* schema, const char* table_name);
 	sq_schema_include(schema, schema_v4);
 	sq_schema_include(schema, schema_v5);
 	sq_schema_trace_foreign(schema);
-	// SQLite must try to rename, drop, or create table
-	//                    rename, or add column here
+	// === SQLite must rename and drop table here
 	sq_schema_clear_records(schema, '<');
+	// === SQLite must try to recreate or create table here
 
+	// Other SQL product may need this
 	sq_schema_arrange(schema, entries);
-	// create table by SQL statement
-	// SQLite must try to recreate or create table here
+	// create table by SQL statement here
 
+	// free temporary data after migration.
 	sq_schema_complete(schema);
  */
 
