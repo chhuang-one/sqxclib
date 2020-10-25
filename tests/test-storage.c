@@ -37,6 +37,13 @@ struct Company
 	double salary;
 };
 
+void company_free(Company* company)
+{
+	free(company->name);
+	free(company->address);
+	free(company);
+}
+
 void create_company_table(SqSchema* schema)
 {
 	SQ_SCHEMA_CREATE(schema, "COMPANY", Company, {
@@ -61,7 +68,7 @@ SqStorage* create_storage(sqlite3 *sqlitedb)
 	return storage;
 }
 
-void  print_object(Company* company)
+void  company_object_print(Company* company)
 {
 	printf("company.id = %d\n"
 	       "company.name = %s\n"
@@ -72,14 +79,14 @@ void  print_object(Company* company)
 	       company->address, company->salary);
 }
 
-void  print_array(SqPtrArray* array)
+void  company_array_print(SqPtrArray* array)
 {
 	Company*   company;
 	int        index;
 
 	for (index = 0;  index < array->length;  index++) {
 		company = (Company*)(array->data[index]);
-		print_object(company);
+		company_object_print(company);
 	}
 }
 
@@ -162,14 +169,14 @@ int main (int argc, char* argv[])
 	puts("\n");
 	storage = create_storage(db);
 	array = sq_storage_get_all(storage, "COMPANY", NULL, NULL);
-	print_array(array);
+	company_array_print(array);
 	sq_ptr_array_foreach(array, element) {
-		free(element);
+		company_free((Company*)element);
 	}
 	sq_ptr_array_free(array);
 
 	company = sq_storage_get(storage, "COMPANY", NULL, 2);
-	print_object(company);
+	company_object_print(company);
 	// update after get
 	free(company->name);
 	company->name = strdup("Allen's");
@@ -182,7 +189,7 @@ int main (int argc, char* argv[])
 #else
 	sq_storage_update(storage, "COMPANY", NULL, company);
 #endif
-	free(company);
+	company_free(company);
 
 //  "DELETE from COMPANY where ID='2'; "
 	sql = "SELECT * FROM COMPANY";
