@@ -21,6 +21,8 @@
 	SqxcSql    - C to SQL (Sqdb) - SqxcSql.c
 	SqxcValue  - X to C struct   - SqxcValue.c
 
+	User can link multiple Sqxc element to convert different types of data.
+
 	                 +-> SqxcJsonParser --+
 	( input )        |                    |
 	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
@@ -225,9 +227,7 @@ struct SqxcNested
 };
 
 /* ----------------------------------------------------------------------------
-	Sqxc - Interface for data parse or write
-
-	Entry and value convert C to/from X  (X = SQL, JSON, or XML...etc)
+	Sqxc - Interface for data parse and write
  */
 
 Sqxc*   sqxc_new(const SqxcInfo *xcinfo);

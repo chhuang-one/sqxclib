@@ -94,7 +94,7 @@ uGet3 use SQL database to solve this problem.
 
  use C function to change table/column (dynamic)
 
-	table = sq_schema_alter(schema, "users");
+	table = sq_schema_alter(schema, "users", NULL);
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	column->bit_field |= SQB_CHANGED;
@@ -203,6 +203,17 @@ uGet3 use SQL database to solve this problem.
 		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
 		SQQ_WHERE("age > 5");
 	});
+
+
+## Sqdb - Database interface
+Sqdb is Database interface for SQLite, MySQL...etc
+SqdbSqlite.c implement Sqdb interface for SQLite. 
+
+
+## Sqxc - Converter interface
+Sqxc is interface for data parse and write.
+User can link multiple Sqxc element to convert different types of data.
+
 
 ## Licensing
 
