@@ -32,8 +32,13 @@ typedef struct SqBuffer    SqBuffer;
 
 #define sq_buffer_free(buf)    free(sq_buffer_resize(buf, 0))
 
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))    // C99
+#define sq_buffer_init(buffer)  \
+		*(buffer) = (SqBuffer){NULL, 0, 0}
+#else
 #define sq_buffer_init(buffer)    \
 		{ ((SqBuffer*)(buffer))->buf = NULL;  ((SqBuffer*)(buffer))->size = 0;  ((SqBuffer*)(buffer))->writed = 0; }
+#endif  // C99
 
 #define sq_buffer_final(buffer)   \
 		sq_buffer_resize((SqBuffer*)buffer, 0)
