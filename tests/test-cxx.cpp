@@ -22,6 +22,7 @@
 #include <SqQuery.h>
 #include <SqQuery-macro.h>
 
+#include <SqdbEmpty.h>
 #include <SqxcEmpty.h>
 
 using namespace std;
@@ -166,11 +167,24 @@ void test_sqxc(void)
 }
 
 // ----------------------------------------------------------------------------
+// Storage
+
+void test_storage()
+{
+	Sqdb* db = sqdb_new(SQDB_INFO_EMPTY, NULL);
+	Sq::Storage*  storage = new Sq::Storage(db);
+
+	storage->insert<Company>(NULL);
+	storage->get<Company>(1);
+}
+
+// ----------------------------------------------------------------------------
 
 int main(void)
 {
 	test_schema();
 	test_query();
 	test_sqxc();
+	test_storage();
 	return 0;
 }
