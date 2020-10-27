@@ -12,9 +12,10 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <SqConfig.h>
 #include <SqBuffer.h>
 
-#define SQ_BUFFER_DEFAULT_SIZE    128
+#define SQ_BUFFER_SIZE_DEFAULT    SQ_CONFIG_BUFFER_SIZE_DEAULT
 
 void* sq_buffer_resize(SqBuffer* buf, int size)
 {
@@ -38,7 +39,7 @@ char* sq_buffer_alloc_at(SqBuffer* buf, int position, int count)
 	int  new_length = buf->writed + count +1;  // +1 for null-terminated string
 
 	if (buf->size < new_length) {
-		buf->size = (buf->size < SQ_BUFFER_DEFAULT_SIZE) ? SQ_BUFFER_DEFAULT_SIZE : buf->size * 2;
+		buf->size = (buf->size < SQ_BUFFER_SIZE_DEFAULT) ? SQ_BUFFER_SIZE_DEFAULT : buf->size * 2;
 		if (buf->size < new_length)
 			buf->size = new_length * 2;
 		buf->buf = realloc(buf->buf, buf->size);

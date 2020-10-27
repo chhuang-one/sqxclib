@@ -49,7 +49,7 @@ typedef struct Company
 	});
 
 	// *** To use SQ_SCHEMA_CREATE_AS(), you must
-	// *** #define SQ_HAVE_NAMING_CONVENTION
+	// *** #define SQ_CONFIG_NAMING_CONVENTION
 */
 
 // SQ_SCHEMA_C_DEF() declare variable for these macro.
@@ -75,7 +75,7 @@ typedef struct Company
 			lambda;                         \
 		}
 
-#ifdef SQ_HAVE_NAMING_CONVENTION
+#ifdef SQ_CONFIG_NAMING_CONVENTION
 #define SQ_SCHEMA_CREATE_AS(schema, StructType, lambda)  \
 		{                                   \
 			SqTable*  table_cur_;           \
@@ -83,7 +83,7 @@ typedef struct Company
 			table_cur_ = sq_schema_create_full(schema, NULL, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType));  \
 			lambda;                         \
 		}
-#endif  // SQ_HAVE_NAMING_CONVENTION
+#endif  // SQ_CONFIG_NAMING_CONVENTION
 
 #define SQ_SCHEMA_ALTER(schema, name, lambda)  \
 		{                                      \
@@ -104,7 +104,7 @@ typedef struct Company
 #define SQT_CREATE(table_name, StructType)    \
 		table_cur_ = sq_schema_create_full(schema, table_name, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType));
 
-#ifdef SQ_HAVE_NAMING_CONVENTION
+#ifdef SQ_CONFIG_NAMING_CONVENTION
 #define SQT_CREATE_AS(StructType)    \
 		table_cur_ = sq_schema_create_full(schema, NULL, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType));
 #endif

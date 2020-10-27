@@ -19,8 +19,11 @@
 
 #include <stdio.h>      // snprintf
 
+#include <SqConfig.h>
 #include <SqError.h>
 #include <sqdb.h>
+
+#define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
 
 Sqdb*   sqdb_new(const SqdbInfo *info, SqdbConfig* config)
 {
@@ -49,8 +52,6 @@ void    sqdb_free(Sqdb* db)
 }
 
 // ----------------------------------------------------------------------------
-
-#define DEFAULT_STRING_LENGTH    191
 
 void sqdb_sql_write_schema(Sqdb* db, SqBuffer* buffer, SqSchema* schema, SqPtrArray* arranged_tables)
 {
@@ -523,7 +524,7 @@ void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 		break;
 
 	case SQ_TYPE_INDEX_STRING:
-		size = (size <= 0) ? DEFAULT_STRING_LENGTH : size;
+		size = (size <= 0) ? SQL_STRING_LENGTH_DEFAULT : size;
 		len = snprintf(NULL, 0, "VARCHAR(%d)", size);
 		sprintf(sq_buffer_alloc(buffer, len), "VARCHAR(%d)", size);
 		break;

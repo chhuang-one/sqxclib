@@ -20,7 +20,7 @@
 
 void test_name_convention()
 {
-#ifdef SQ_HAVE_NAMING_CONVENTION
+#ifdef SQ_CONFIG_NAMING_CONVENTION
 	const char* src;
 	char* name;
 	int   len;
@@ -67,7 +67,7 @@ void test_name_convention()
 	len = sq_noun2singular(name, name);
 	printf("sq_noun2singular() - %d, %s\n", len, name);
 	free(name);
-#endif  // SQ_HAVE_NAMING_CONVENTION
+#endif  // SQ_CONFIG_NAMING_CONVENTION
 }
 
 void test_time_string()

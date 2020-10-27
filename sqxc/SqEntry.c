@@ -12,8 +12,11 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <SqConfig.h>
 #include <SqError.h>
 #include <SqEntry.h>
+
+#define SQ_TYPE_N_ENTRY_DEFAULT    SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 
 // ----------------------------------------------------------------------------
 // SqEntry
@@ -45,7 +48,8 @@ void  sq_entry_init(SqEntry* entry, const SqType* type_info)
 		entry->type = (SqType*)type_info;
 	else {
 		// use dynamic type if type_info == NULL
-		entry->type = sq_type_new(8, (SqDestroyFunc)sq_entry_free);
+		entry->type = sq_type_new(SQ_TYPE_N_ENTRY_DEFAULT,
+		                          (SqDestroyFunc)sq_entry_free);
 	}
 }
 
@@ -67,7 +71,11 @@ int  sq_entry_cmp_str__name(const char* str, SqEntry** entry)
 	const char* name;
 
 	name = (*entry) ? (*entry)->name : "";
+#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
+	return strcmp(str, name);
+#else
 	return strcasecmp(str, name);
+#endif
 }
 
 // used by sort()
@@ -78,7 +86,11 @@ int  sq_entry_cmp_name(SqEntry** entry1, SqEntry** entry2)
 
 	name1 = (*entry1) ? (*entry1)->name : "";
 	name2 = (*entry2) ? (*entry2)->name : "";
+#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
+	return strcmp(name1, name2);
+#else
 	return strcasecmp(name1, name2);
+#endif
 }
 
 int  sq_entry_cmp_str__type_name(const char* str,  SqEntry** entry)
@@ -157,7 +169,11 @@ void**  sq_reentries_trace_renamed(void* reentries, const char* old_name,
 		if (reentry == NULL || reentry->old_name == NULL || reentry->bit_field & SQB_RENAMED)
 			continue;
 		// trace dropped and renamed records
+#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
+		if (strcmp(reentry->old_name, cur_name) == 0) {
+#else
 		if (strcasecmp(reentry->old_name, cur_name) == 0) {
+#endif
 			// erase previous renamed reccord
 			if (erase_renamed && addr) {
 				if (destroy)
@@ -187,7 +203,11 @@ int  sq_reentry_cmp_str__name(const char* str, SqReentry** reentry_addr)
 
 	if (reentry) {
 		if (reentry->old_name == NULL || reentry->bit_field & SQB_RENAMED)
+#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
+			return strcmp(str, reentry->name);
+#else
 			return strcasecmp(str, reentry->name);
+#endif
 	}
 	return -1;
 }
@@ -200,5 +220,9 @@ int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry_addr)
 		if (reentry->old_name == NULL || reentry->bit_field & SQB_RENAMED)
 			return -1;
 	}
+#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
+	return strcmp(str, reentry->old_name);
+#else
 	return strcasecmp(str, reentry->old_name);
+#endif
 }

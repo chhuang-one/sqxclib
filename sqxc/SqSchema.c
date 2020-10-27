@@ -25,7 +25,7 @@
 #include <SqSchema.h>
 
 #define SCHEMA_INITIAL_VERSION     1
-#define DEFAULT_STRING_LENGTH    191
+#define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
 
 SqSchema*  sq_schema_new(const char* name)
 {
@@ -68,7 +68,7 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 			table->type->name = strdup(type_name);
 	}
 
-#ifdef SQ_HAVE_NAMING_CONVENTION
+#ifdef SQ_CONFIG_NAMING_CONVENTION
 	if (table->name == NULL)
 		table->name = sq_name2table(table->type->name);
 	if (table->type->name == NULL)

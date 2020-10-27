@@ -14,10 +14,12 @@
 
 #include <string.h>
 
+#include <SqConfig.h>
 #include <SqPtrArray.h>
 #include <SqType.h>
 #include <SqEntry.h>
 
+#define SQ_TYPE_N_ENTRY_DEFAULT    SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 
 #ifdef _MSC_VER
 #define strcasecmp   stricmp
@@ -38,11 +40,11 @@ SqType* sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
 	entrytype->name = NULL;
 	entrytype->bit_field = SQB_TYPE_DYNAMIC;
 
-	// if prealloc_size < 8, apply default value for small array
-	if (prealloc_size < 8)
-		prealloc_size = 8;
+	// if prealloc_size < SQ_TYPE_N_ENTRY_DEFAULT, apply default value for small array
+	if (prealloc_size < SQ_TYPE_N_ENTRY_DEFAULT)
+		prealloc_size = SQ_TYPE_N_ENTRY_DEFAULT;
 	array = sq_type_get_ptr_array(entrytype);
-	sq_ptr_array_init(array, 8, entry_destroy_func);
+	sq_ptr_array_init(array, SQ_TYPE_N_ENTRY_DEFAULT, entry_destroy_func);
 
 	return entrytype;
 }

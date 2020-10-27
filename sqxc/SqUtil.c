@@ -145,7 +145,7 @@ char*   sq_time_to_string(time_t timeraw)
 
 // ----------------------------------------------------------------------------
 
-#ifdef SQ_HAVE_NAMING_CONVENTION
+#ifdef SQ_CONFIG_NAMING_CONVENTION
 
 // ------------------------------------
 // camel case and snake case
@@ -310,4 +310,4 @@ char* sq_name2type(const char* table_name)
 	return type_name;
 }
 
-#endif  // SQ_HAVE_NAMING_CONVENTION
+#endif  // SQ_CONFIG_NAMING_CONVENTION

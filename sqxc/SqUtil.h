@@ -16,12 +16,11 @@
 #define SQ_UTIL_H
 
 #include <stdbool.h>
+#include <SqConfig.h>    // SQ_CONFIG_NAMING_CONVENTION
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define SQ_HAVE_NAMING_CONVENTION     1
 
 /* ----------------------------------------------------------------------------
 	time_t convert from/to string
@@ -41,7 +40,7 @@ char*   sq_time_to_string(time_t time);
 	     upper camel case : QuestionMark
  */
 
-#ifdef SQ_HAVE_NAMING_CONVENTION
+#ifdef SQ_CONFIG_NAMING_CONVENTION
 
 // pass NULL to "camel_name" to calculate length
 // return length of camel_name
@@ -68,7 +67,7 @@ int  sq_noun2plural(char* dest, const char* src_singular_noun);
 char* sq_name2table(const char* type_name);
 char* sq_name2type(const char* table_name);
 
-#endif  // SQ_HAVE_NAMING_CONVENTION
+#endif  // SQ_CONFIG_NAMING_CONVENTION
 
 
 #ifdef __cplusplus

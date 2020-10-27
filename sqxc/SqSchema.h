@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#include <SqConfig.h>    // SQ_CONFIG_NAMING_CONVENTION
 #include <SqPtrArray.h>
 #include <SqTable.h>
 
@@ -45,11 +46,11 @@ void      sq_schema_free(SqSchema* schema);
   You can pass 0 to "type_size" because program calculate type_size automatically.
 
   C Language
-  #define SQ_HAVE_NAMING_CONVENTION to enable "table_name" <-> "type_name" converting,
+  #define SQ_CONFIG_NAMING_CONVENTION to enable "SQL_table_name" <-> "type_name" converting,
   program only need one of table_name, type_name, or type_info->name.
 
   C++ Language
-  It doesn't need #define SQ_HAVE_NAMING_CONVENTION because program
+  It doesn't need #define SQ_CONFIG_NAMING_CONVENTION because program
   use typeid(Type).name() to get "type_name".
  */
 SqTable* sq_schema_create_full(SqSchema* schema,
@@ -64,7 +65,7 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 #define sq_schema_create(schema, table_name, StructType)  \
 		sq_schema_create_full(schema, table_name, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType))
 
-#ifdef SQ_HAVE_NAMING_CONVENTION
+#ifdef SQ_CONFIG_NAMING_CONVENTION
 #define sq_schema_create_as(schema, StructType)  \
 		sq_schema_create_full(schema, NULL, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType))
 #endif

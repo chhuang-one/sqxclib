@@ -19,8 +19,6 @@
 extern "C" {
 #endif
 
-// #define SQ_HAVE_NAMING_CONVENTION
-
 typedef void  (*SqInitFunc)(void* value);
 typedef void  (*SqFinalFunc)(void* value);
 typedef void  (*SqDestroyFunc)(void* value);

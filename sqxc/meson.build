@@ -41,6 +41,8 @@ headers = ['SqPtrArray.h',
            'SqxcSql.h',
            'SqQuery.h', 'SqQuery-macro.h',
 
+           'SqConfig.h',
+
            # for testing
            'SqdbEmpty.h',
            'SqxcEmpty.h',
