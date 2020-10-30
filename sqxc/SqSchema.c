@@ -84,6 +84,20 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 	return table;
 }
 
+SqTable* sq_schema_create_by_columns(SqSchema* schema,
+                                     const char* table_name,
+                                     const char* type_name,
+                                     const SqColumn **columns,
+                                     int n_columns)
+{
+	SqTable*    table;
+
+	table = sq_schema_create_full(schema, table_name, type_name, NULL, 0);
+	sq_ptr_array_append_n(sq_type_get_ptr_array(table->type), columns, n_columns);
+	sq_type_decide_size(table->type, NULL);
+	return table;
+}
+
 SqTable* sq_schema_alter(SqSchema* schema, const char* name, const SqType* type_info)
 {
 	SqTable*  table;
