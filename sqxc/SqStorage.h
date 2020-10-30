@@ -39,6 +39,8 @@ void  sq_storage_final(SqStorage* storage);
 int   sq_storage_open(SqStorage* storage, const char *database_name);
 int   sq_storage_close(SqStorage* storage);
 
+int   sq_storage_migrate(SqStorage* storage, SqSchema* schema);
+
 // CRUD functions: user must specify one of 'table_name' or 'type_name'
 
 void* sq_storage_get(SqStorage* storage,
@@ -85,11 +87,16 @@ namespace Sq
 
 struct StorageMethod
 {
+	/*
 	void  init(Sqdb* db);
+	void  init(DbMethod* dbmethod);
 	void  final(void);
+	*/
 
 	int   open(const char *database_name);
 	int   close(void);
+
+	int   migrate(SqSchema* schema);
 
 	template <class StructType>
 	StructType* get(int id);
@@ -125,7 +132,7 @@ struct SqStorage : Sq::StorageMethod
 struct SqStorage
 #endif
 {
-	Sqdb*      db;
+	Sqdb*      db;          // database
 
 	SqSchema*  schema;      // current schema
 
@@ -150,9 +157,12 @@ namespace Sq
 {
 
 int   StorageMethod::open(const char *database_name)
-	{ return sq_storage_open((SqStorage*)this, database_name); }
+	{ return sqdb_open(((SqStorage*)this)->db, database_name); }
 int   StorageMethod::close(void)
-	{ return sq_storage_close((SqStorage*)this); }
+	{ return sqdb_close(((SqStorage*)this)->db); }
+
+int   StorageMethod::migrate(SqSchema* schema)
+	{ return sqdb_migrate(((SqStorage*)this)->db, ((SqStorage*)this)->schema, schema); }
 
 template <class StructType>
 StructType* StorageMethod::get(int id)

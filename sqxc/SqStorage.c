@@ -35,6 +35,7 @@ void  sq_storage_init(SqStorage* storage, Sqdb* db)
 {
 	storage->db = db;
 	storage->schema = sq_schema_new("current");
+	storage->schema->version = 0;
 	storage->tables_version = 0;
 	sq_ptr_array_init(&storage->tables, 16, NULL);
 
@@ -83,6 +84,11 @@ int   sq_storage_open(SqStorage* storage, const char *database_name)
 int   sq_storage_close(SqStorage* storage)
 {
 	return sqdb_close(storage->db);
+}
+
+int   sq_storage_migrate(SqStorage* storage, SqSchema* schema)
+{
+	return sqdb_migrate(storage->db, storage->schema, schema);
 }
 
 void* sq_storage_get(SqStorage* storage,
