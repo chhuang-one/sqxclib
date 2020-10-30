@@ -201,6 +201,8 @@ struct Storage : SqStorage
 		{ }
 	Storage(Sqdb* db)
 		{ sq_storage_init((SqStorage*)this, db); }
+	Storage(DbMethod* dbmethod)
+		{ sq_storage_init((SqStorage*)this, (Sqdb*)dbmethod); }
 
 	~Storage()
 		{ sq_storage_final((SqStorage*)this); }

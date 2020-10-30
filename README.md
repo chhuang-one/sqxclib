@@ -26,7 +26,7 @@ uGet3 use SQL database to solve this problem.
 
 	struct User {
 		int    id;
-		char*  name;
+		char*  full_name;
 		char*  email;
 		int    city_id;    // foreign key
 	};
@@ -34,11 +34,11 @@ uGet3 use SQL database to solve this problem.
  use C99 designated initializer to declare table/column (static)
 
 	static const SqColumn  *UserColumns[] = {
-		&(SqColumn) {SQ_TYPE_INT,    "id",      offsetof(User, id),    SQB_PRIMARY},
-		&(SqColumn) {SQ_TYPE_STRING, "name",    offsetof(User, name)   },
-		&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email)  },
-		&(SqColumn) {SQ_TYPE_INT,    "city_id", offsetof(User, city_id),
-		             .foreign = &(SqForeign) {"cities", "id", NULL, NULL} },
+		&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(User, id),    SQB_PRIMARY},
+		&(SqColumn) {SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
+		&(SqColumn) {SQ_TYPE_STRING, "email",     offsetof(User, email)      },
+		&(SqColumn) {SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
+		             .foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
 	};
 
  use C function to declare table/column (dynamic)
@@ -49,8 +49,8 @@ uGet3 use SQL database to solve this problem.
 	table = sq_schema_create(schema, "users", User);
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	column->bit_field |= SQB_PRIMARY;
-	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
-	column = sq_table_add_string(table, "email", offsetof(User, name), -1);
+	column = sq_table_add_string(table, "full_name", offsetof(User, full_name), -1);
+	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id");
 
@@ -58,7 +58,7 @@ uGet3 use SQL database to solve this problem.
 
 	SQ_SCHEMA_CREATE(schema, "users", User, {
 		SQT_INTEGER("id", User, id);  SQC_PRIMARY();
-		SQT_STRING("name", User, name, -1);
+		SQT_STRING("full_name", User, full_name, -1);
 		SQT_STRING("email", User, email, -1);
 		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");
 	});
@@ -69,8 +69,8 @@ uGet3 use SQL database to solve this problem.
 
 	table = schema->create<User>("users");
 	table->integer("id", &User::id)->primary();
-	table->string("name", &User::name);
-	table->string("name", &User::email);
+	table->string("full_name", &User::full_name);
+	table->string("email", &User::email);
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
 
 
@@ -85,11 +85,11 @@ uGet3 use SQL database to solve this problem.
 		// ALTER COLUMN "city_id"
 		&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
 
-		// DROP COLUMN "name"
-		&(SqColumn) {.old_name = "name",   .name = NULL},
+		// DROP COLUMN "full_name"
+		&(SqColumn) {.old_name = "full_name", .name = NULL},
 
 		// RENAME COLUMN "email" TO "email2"
-		&(SqColumn) {.old_name = "email",  .name = "email2"},
+		&(SqColumn) {.old_name = "email",     .name = "email2"},
 	};
 
  use C function to change table/column (dynamic)
@@ -98,7 +98,7 @@ uGet3 use SQL database to solve this problem.
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	column->bit_field |= SQB_CHANGED;
-	sq_table_drop_column(table, "name");
+	sq_table_drop_column(table, "full_name");
 	sq_table_rename_column(table, "email", "email2");
 
  use C macro to change table/column (dynamic)
@@ -106,7 +106,7 @@ uGet3 use SQL database to solve this problem.
 	SQ_SCHEMA_ALTER(schema, "users", User, {
 		SQT_INTEGER("test_add", User, test_add);
 		SQT_INTEGER("city_id", User, city_id);  SQC_CHANGE();
-		SQT_DROP("name");
+		SQT_DROP("full_name");
 		SQT_RENAME("email", "email2");
 	});
 
@@ -115,7 +115,7 @@ uGet3 use SQL database to solve this problem.
 	table = schema->alter("users");
 	table->integer("test_add", &User::test_add);
 	table->integer("city_id", &User::city_id)->change();
-	table->drop("name");
+	table->drop("full_name");
 	table->rename("email", "email2");
 
 
@@ -206,7 +206,7 @@ uGet3 use SQL database to solve this problem.
 
 
 ## Sqdb - Database interface
-Sqdb is Database interface for SQLite, MySQL...etc
+Sqdb is Database interface for SQLite, MySQL...etc.
 SqdbSqlite.c implement Sqdb interface for SQLite. 
 
 

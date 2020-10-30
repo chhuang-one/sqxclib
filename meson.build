@@ -9,4 +9,5 @@ sqlite = dependency('sqlite3', required: true)
 
 subdir('sqxc')
 subdir('tests')
+subdir('examples')
 

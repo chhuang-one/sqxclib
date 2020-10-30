@@ -24,7 +24,8 @@ extern "C" {
 #define SQCODE_OK                    0
 
 // error
-#define SQCODE_NOT_SUPPORT           1
+#define SQCODE_ERROR                 1
+#define SQCODE_NOT_SUPPORT           2
 
 // parser - warning
 #define SQCODE_ENTRY_NOT_FOUND       11
