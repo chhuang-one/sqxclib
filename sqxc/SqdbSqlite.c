@@ -25,6 +25,7 @@
 #include <SqxcValue.h>  // TODO: SqdbHelper functions
 #include <SqxcSql.h>
 
+//#define DEBUG 1
 #define NEW_TABLE_PREFIX_NAME    "new__table__"
 
 static void sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf, SqTable* table);
@@ -57,6 +58,10 @@ const SqdbInfo* SQDB_INFO_SQLITE = &dbinfo;
 // ----------------------------------------------------------------------------
 // SqdbInfo
 
+#if DEBUG
+static int debug_callback(void *user_data, int argc, char **argv, char **columnName);
+#endif
+
 static void sqdb_sqlite_init(SqdbSqlite* sqdb, SqdbConfigSqlite* config_src)
 {
 	if (config_src) {
@@ -75,6 +80,12 @@ static void sqdb_sqlite_final(SqdbSqlite* sqdb)
 	free(sqdb->folder);
 }
 
+static int int_callback(void *user_data, int argc, char **argv, char **columnName)
+{
+	*(int*)user_data = strtol(argv[0], NULL, 10);
+	return 0;
+}
+
 static int  sqdb_sqlite_open(SqdbSqlite* sqdb, const char* database_name)
 {
 	char* ext = sqdb->extension;
@@ -87,15 +98,16 @@ static int  sqdb_sqlite_open(SqdbSqlite* sqdb, const char* database_name)
 		ext = "db";
 	if (folder == NULL)
 		folder = ".";
-	len = snprintf(NULL, 0, "%s/%s.%s", sqdb->folder, database_name, ext) + 1;
+	len = snprintf(NULL, 0, "%s/%s.%s", folder, database_name, ext) + 1;
 	buf = malloc(len);
-	snprintf(buf, len, "%s/%s.%s", sqdb->folder, database_name, ext);
+	snprintf(buf, len, "%s/%s.%s", folder, database_name, ext);
 
 	rc = sqlite3_open(buf, &sqdb->self);
 	free(buf);
 
 	if (rc != SQLITE_OK)
 		return SQCODE_OPEN_FAIL;
+	rc = sqlite3_exec(sqdb->self, "PRAGMA user_version;", int_callback, &sqdb->version, NULL);
 	return SQCODE_OK;
 }
 
@@ -112,6 +124,10 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 	SqTable**   table_addr;
 	SqTable*    table;
 	SqType*     type;
+	int   rc;
+
+	if (sqdb->self == NULL)
+		return SQCODE_ERROR;
 
 	// End of migration
 	if (schema_next == NULL) {
@@ -191,8 +207,10 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #if DEBUG
 			puts(sql_buf.buf);
+			rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, NULL);
+#else
+			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
 #endif
-			sqdb_sqlite_exec(sqdb, sql_buf.buf, NULL, NULL);
 		}
 		// free RENAME and DROP records
 		sq_ptr_array_final(&reentries);
@@ -217,10 +235,25 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 			table->bit_field &= ~SQB_TABLE_COL_CHANGED;
 		}
 		sq_buffer_write(&sql_buf, " COMMIT; PRAGMA foreign_keys=on;");
-#if DEBUG
+		sq_buffer_write_c(&sql_buf, 0);  // null-terminated
+#ifdef DEBUG
 		puts(sql_buf.buf);
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, NULL);
+#else
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
 #endif
-		sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
+		// update SQLite.user_version
+		sqdb->version = schema->version;
+		sql_buf.writed = snprintf(NULL, 0, "PRAGMA user_version = %d;", sqdb->version) + 1;
+		sprintf(sql_buf.buf, "PRAGMA user_version = %d;", sqdb->version);
+//		sq_buffer_write_c(&sql_buf, 0);  // null-terminated
+#ifdef DEBUG
+		puts(sql_buf.buf);
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, NULL);
+#else
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
+#endif
+		// free buffer for SQL statement
 		sq_buffer_final(&sql_buf);
 
 		// free temporary data after migration.
