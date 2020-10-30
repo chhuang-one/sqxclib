@@ -14,11 +14,14 @@
 
 #include <stdbool.h>
 
+#include <SqConfig.h>
 #include <SqError.h>
 #include <SqPtrArray.h>
 #include <SqType.h>
 #include <SqEntry.h>
 #include <SqxcValue.h>
+
+#define SQ_TYPE_PTR_ARRAY_SIZE_DEFAULT    SQ_CONFIG_TYPE_PTR_ARRAY_SIZE_DEFAULT
 
 /* ----------------------------------------------------------------------------
 	SQ_TYPE_PTR_ARRAY
@@ -27,7 +30,7 @@
 
 static void sq_type_ptr_array_init(void* array, const SqType *type)
 {
-	sq_ptr_array_init(array, 8, NULL);
+	sq_ptr_array_init(array, SQ_TYPE_PTR_ARRAY_SIZE_DEFAULT, NULL);
 }
 
 static void sq_type_ptr_array_final(void* array, const SqType *type)

@@ -24,8 +24,9 @@
 #include <SqUtil.h>
 #include <SqSchema.h>
 
-#define SCHEMA_INITIAL_VERSION     1
+#define SCHEMA_INITIAL_VERSION       1
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
+#define SQ_TYPE_N_ENTRY_DEFAULT      SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 
 SqSchema*  sq_schema_new(const char* name)
 {
@@ -34,7 +35,7 @@ SqSchema*  sq_schema_new(const char* name)
 	SqType* typeinfo;
 
 	schema = malloc(sizeof(SqSchema));
-	typeinfo = sq_type_new(8, (SqDestroyFunc)sq_table_free);
+	typeinfo = sq_type_new(SQ_TYPE_N_ENTRY_DEFAULT, (SqDestroyFunc)sq_table_free);
 	typeinfo->parse = NULL;
 	typeinfo->write = NULL;
 

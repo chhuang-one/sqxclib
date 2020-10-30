@@ -27,17 +27,19 @@
      user only specify "SQL_table_name", program generate "C struct type_name".
      user only specify "C struct type_name", program generate "SQL_table_name".
  */
-// #define SQ_CONFIG_HAVE_NAMING_CONVENTION    1
+// #define SQ_CONFIG_NAMING_CONVENTION    1
 
 
 // ----------------------------------------------------------------------------
 // Default size
 
-/* SqEntry.c, SqType.c - SQ_TYPE_N_ENTRY_DEFAULT */
+/* SqEntry.c, SqType.c, SqSchema.c - SQ_TYPE_N_ENTRY_DEFAULT */
 #define SQ_CONFIG_TYPE_N_ENTRY_DEFAULT    16
 
 /* SqBuffer.c - SQ_BUFFER_SIZE_DEFAULT */
 #define SQ_CONFIG_BUFFER_SIZE_DEAULT     128
 
+/* SqType-PtrArray.c - SQ_TYPE_PTR_ARRAY_SIZE_DEFAULT */
+#define SQ_CONFIG_TYPE_PTR_ARRAY_SIZE_DEFAULT    16
 
 #endif  // SQ_CONFIG_H
