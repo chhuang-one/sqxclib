@@ -38,20 +38,26 @@ extern const SqdbInfo*    SQDB_INFO_SQLITE;
     Sqdb
     |
     `--- SqdbSqlite
+
+   The correct way to derive Sqdb:  (conforming C++11 standard-layout)
+   1. Use Sq::DbMethod to inherit member function(method).
+   2. Use SQDB_MEMBERS to inherit member variable.
+   3. Add variable and non-virtual function in derived struct.
+   ** This can keep std::is_standard_layout<>::value == true
  */
 
 #ifdef __cplusplus
-struct SqdbSqlite : Sq::DbMethod
+struct SqdbSqlite : Sq::DbMethod           // <-- 1. inherit member function(method)
 #else
 struct SqdbSqlite
 #endif
 {
-	SQDB_MEMBERS;
+	SQDB_MEMBERS;                          // <-- 2. inherit member variable
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
  */
 
-	// ------ SqdbSqlite members ------
+	// ------ SqdbSqlite members ------    // <-- 3. Add variable and non-virtual function in derived struct.
     sqlite3*        self;
 	int             version;     // schema version in SQL database
 	char*           folder;
@@ -70,13 +76,36 @@ struct SqdbConfigSqlite
 	SQDB_CONFIG_MEMBERS;
 /*	// ------ SqdbConfig members ------
 	unsigned int    product;
-	unsigned int    bit_field;   // reserve
+	unsigned int    bit_field;
  */
 
 	// ------ SqdbConfigSqlite members ------
 	char*           folder;
 	char*           extension;   // optional
 };
+
+
+// ----------------------------------------------------------------------------
+// C++ namespace
+
+#ifdef __cplusplus
+namespace Sq
+{
+
+typedef struct SqdbConfigSqlite    DbConfigSqlite;
+
+// conforming C++11 standard-layout
+// These are for directly use only. You can NOT derived it.
+struct DbSqlite : SqdbSqlite
+{
+	DbSqlite(SqdbConfigSqlite* config = NULL)
+		{ this->info = SQDB_INFO_SQLITE;  SQDB_INFO_SQLITE->init((Sqdb*)this, (SqdbConfig*)config); }
+	~DbSqlite()
+		{ SQDB_INFO_SQLITE->final((Sqdb*)this); }
+};
+
+};  // namespace Sq
+#endif  // __cplusplus
 
 
 #endif  // SQDB_SQLITE_H

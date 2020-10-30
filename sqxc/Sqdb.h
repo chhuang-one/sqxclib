@@ -87,7 +87,7 @@ void sqdb_sql_write_foreign_ref(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
 #endif
 
 // ----------------------------------------------------------------------------
-// DbMethod : a C++ struct is used by SqDb and it's children.
+// DbMethod : a C++ struct is used by Sqdb and it's children.
 
 #ifdef __cplusplus
 
@@ -134,21 +134,29 @@ struct SqdbInfo
    Sqdb - database interface.
 
    TODO: Sqdb should be thread safe...
+
+   The correct way to derive Sqdb:  (conforming C++11 standard-layout)
+   1. Use Sq::DbMethod to inherit member function(method).
+   2. Use SQDB_MEMBERS to inherit member variable.
+   3. Add variable and non-virtual function in derived struct.
+   ** This can keep std::is_standard_layout<>::value == true
  */
 
 #define SQDB_MEMBERS           \
 	const SqdbInfo *info
 
 #ifdef __cplusplus
-struct Sqdb : Sq::DbMethod
+struct Sqdb : Sq::DbMethod           // <-- 1. inherit member function(method)
 #else
 struct Sqdb
 #endif
 {
-	SQDB_MEMBERS;
+	SQDB_MEMBERS;                    // <-- 2. inherit member variable
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
  */
+
+	/* Add variable and function */  // <-- 3. Add variable and non-virtual function in derived struct.
 };
 
 // ----------------------------------------------------------------------------
@@ -163,7 +171,7 @@ struct SqdbConfig
 	SQDB_CONFIG_MEMBERS;
 /*	// ------ SqdbConfig members ------
 	unsigned int    product;
-	unsigned int    bit_field;    // reserve
+	unsigned int    bit_field;    // reserve. static or dynamic config data
  */
 };
 

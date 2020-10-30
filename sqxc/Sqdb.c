@@ -167,7 +167,7 @@ int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArr
 
 	sq_buffer_write(sql_buf, "CREATE TABLE \"");
 	sq_buffer_write(sql_buf, table->name);
-	sq_buffer_write_c(sql_buf,'\"');
+	sq_buffer_write(sql_buf,"\" ");
 	return sqdb_sql_create_table_params(db, sql_buf, arranged_columns);
 }
 
@@ -177,7 +177,7 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 	int       index;
 	bool      has_constraint = false;
 
-	sq_buffer_write_c(buffer, '(');
+	sq_buffer_write(buffer, "( ");
 
 	for (index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
@@ -245,9 +245,7 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 		}
 	}
 
-	sq_buffer_alloc(buffer, 2);
-	buffer->buf[buffer->writed -2] = ')';
-	buffer->buf[buffer->writed -1] = ';';
+	sq_buffer_write(buffer, " );");
 	return SQCODE_OK;
 }
 
