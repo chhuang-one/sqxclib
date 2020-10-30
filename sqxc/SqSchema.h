@@ -55,20 +55,26 @@ void      sq_schema_free(SqSchema* schema);
  */
 SqTable* sq_schema_create_full(SqSchema* schema,
                                const char* table_name,
-                               const SqType* type_info,
                                const char* type_name,
+                               const SqType* type_info,
                                size_t instance_size);
 
 #define sq_schema_create_by_type(schema, table_name, type_info)  \
-		sq_schema_create_full(schema, table_name, type_info, NULL, 0)
+		sq_schema_create_full(schema, table_name, NULL, type_info, 0)
 
 #define sq_schema_create(schema, table_name, StructType)  \
-		sq_schema_create_full(schema, table_name, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType))
+		sq_schema_create_full(schema, table_name, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType))
 
 #ifdef SQ_CONFIG_NAMING_CONVENTION
 #define sq_schema_create_as(schema, StructType)  \
-		sq_schema_create_full(schema, NULL, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType))
+		sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType))
 #endif
+
+SqTable* sq_schema_create_by_columns(SqSchema* schema,
+                                     const char* table_name,
+                                     const char* type_name,
+                                     const SqColumn **columns,
+                                     int n_columns);
 
 SqTable* sq_schema_alter(SqSchema* schema, const char* table_name, const SqType* type_info);
 void     sq_schema_drop(SqSchema* schema, const char* name);
@@ -173,15 +179,24 @@ struct SqSchema
 		{ sq_schema_final(this); }
  */
 
-	SqTable* create(const char* name,
-	                const SqType* type_info,
-	                const char* type_name = NULL,
+	SqTable* create(const char* table_name,
+	                const char* type_name,
+	                const SqType* type_info = NULL,
 	                size_t instance_size = 0)
-		{ return sq_schema_create_full(this, name, type_info, type_name, instance_size); }
+		{ return sq_schema_create_full(this, table_name, type_name, type_info, instance_size); }
+
+	SqTable* create(const char* table_name, const SqType* type_info)
+		{ return sq_schema_create_full(this, table_name, NULL, type_info, 0); }
 
 	template <class StructType>
 	SqTable* create(const char* name)
-		{ return sq_schema_create_full(this, name, NULL, typeid(StructType).name(), sizeof(StructType)); }
+		{ return sq_schema_create_full(this, name, typeid(StructType).name(), NULL, sizeof(StructType)); }
+
+	SqTable* create(const char* table_name,
+	                const char* type_name,
+	                const SqColumn** columns,
+	                int n_columns)
+		{ return sq_schema_create_by_columns(this, table_name, type_name, columns, n_columns); }
 
 	SqTable* alter(const char* name, const SqType* type_info = NULL)
 		{ return sq_schema_alter(this, name, type_info); }
@@ -210,11 +225,13 @@ struct SqSchema
 // C++ namespace
 
 #ifdef __cplusplus
+
 namespace Sq
 {
 // These are for directly use only. You can NOT derived it.
 typedef struct SqSchema     Schema;
 };  // namespace Sq
+
 #endif  // __cplusplus
 
 

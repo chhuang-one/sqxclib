@@ -54,12 +54,14 @@ void  sq_schema_free(SqSchema* schema)
 
 SqTable* sq_schema_create_full(SqSchema* schema,
                                const char* table_name,
-                               const SqType* type_info,
                                const char* type_name,
+                               const SqType* type_info,
                                size_t instance_size)
 {
 	SqTable*  table;
 
+	if (schema->version == 0)
+		schema->version++;
 	table = sq_table_new(table_name, type_info);
 	// if type_info == NULL,
 	// table->type is dynamic type and table->bit_field has SQB_TYPE_DYNAMIC

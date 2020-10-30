@@ -128,7 +128,7 @@ const SqType UserTypeChange = {
 SqTable* create_user_table_by_type(SqSchema* schema)
 {
 	return sq_schema_create_by_type(schema, "users", &UserType);
-//	return sq_schema_create_full(schema, "users", &UserType, NULL, 0);
+//	return sq_schema_create_full(schema, "users", NULL, &UserType, 0);
 }
 
 SqTable* change_user_table_by_c_type(SqSchema* schema)
@@ -145,7 +145,7 @@ SqTable* create_user_table_by_c(SqSchema* schema)
 	SqColumn* column;
 
 //	table = sq_schema_create(schema, "users", User);
-	table = sq_schema_create_full(schema, "users", NULL, SQ_GET_TYPE_NAME(User), sizeof(User));
+	table = sq_schema_create_full(schema, "users", SQ_GET_TYPE_NAME(User), NULL, sizeof(User));
 
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	column->bit_field |= SQB_PRIMARY;

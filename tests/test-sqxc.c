@@ -81,7 +81,7 @@ void print_user(User* user)
 SqTable* create_user_table_by_type(SqSchema* schema)
 {
 	return sq_schema_create_by_type(schema, "users", &UserType);
-//	return sq_schema_create_full(schema, "users", &UserType, NULL, 0);
+//	return sq_schema_create_full(schema, "users", NULL, &UserType, 0);
 }
 
 // ----------------------------------------------------------------------------

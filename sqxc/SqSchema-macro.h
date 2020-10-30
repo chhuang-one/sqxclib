@@ -71,7 +71,7 @@ typedef struct Company
 		{                                   \
 			SqTable*  table_cur_;           \
 			SqColumn* column_cur_;          \
-			table_cur_ = sq_schema_create_full(schema, table_name, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType));  \
+			table_cur_ = sq_schema_create_full(schema, table_name, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType));  \
 			lambda;                         \
 		}
 
@@ -80,7 +80,7 @@ typedef struct Company
 		{                                   \
 			SqTable*  table_cur_;           \
 			SqColumn* column_cur_;          \
-			table_cur_ = sq_schema_create_full(schema, NULL, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType));  \
+			table_cur_ = sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType));  \
 			lambda;                         \
 		}
 #endif  // SQ_CONFIG_NAMING_CONVENTION
@@ -102,11 +102,11 @@ typedef struct Company
 #define SQT_RENAME(from, to)     sq_table_rename_column(table_cur_, from, to)
 
 #define SQT_CREATE(table_name, StructType)    \
-		table_cur_ = sq_schema_create_full(schema, table_name, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType));
+		table_cur_ = sq_schema_create_full(schema, table_name, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType));
 
 #ifdef SQ_CONFIG_NAMING_CONVENTION
 #define SQT_CREATE_AS(StructType)    \
-		table_cur_ = sq_schema_create_full(schema, NULL, NULL, SQ_GET_TYPE_NAME(StructType), sizeof(StructType));
+		table_cur_ = sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType));
 #endif
 
 #define SQT_INTEGER(column_name, structure, member)   \
