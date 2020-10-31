@@ -28,13 +28,11 @@
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
 #define SQ_TYPE_N_ENTRY_DEFAULT      SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 
-SqSchema*  sq_schema_new(const char* name)
+void  sq_schema_init(SqSchema* schema, const char* name)
 {
 	static int cur_version = SCHEMA_INITIAL_VERSION;
-	SqSchema* schema;
 	SqType* typeinfo;
 
-	schema = malloc(sizeof(SqSchema));
 	typeinfo = sq_type_new(SQ_TYPE_N_ENTRY_DEFAULT, (SqDestroyFunc)sq_table_free);
 	typeinfo->parse = NULL;
 	typeinfo->write = NULL;
@@ -43,12 +41,25 @@ SqSchema*  sq_schema_new(const char* name)
 	schema->name = name ? strdup(name) : NULL;
 	// version count
 	schema->version = cur_version++;
+}
+
+void  sq_schema_final(SqSchema* schema)
+{
+	sq_entry_final((SqEntry*)schema);
+}
+
+SqSchema*  sq_schema_new(const char* name)
+{
+	SqSchema* schema;
+
+	schema = malloc(sizeof(SqSchema));
+	sq_schema_init(schema, name);
 	return schema;
 }
 
 void  sq_schema_free(SqSchema* schema)
 {
-	sq_entry_final((SqEntry*)schema);
+	sq_schema_final(schema);
 	free(schema);
 }
 

@@ -41,6 +41,9 @@ typedef struct SqSchema       SqSchema;
 SqSchema* sq_schema_new(const char* name);
 void      sq_schema_free(SqSchema* schema);
 
+void    sq_schema_init(SqSchema* schema, const char* name);
+void    sq_schema_final(SqSchema* schema);
+
 /*	sq_schema_create_full()
   if "type_info" == NULL, program will use "type_name" and "type_size" to create "type_info".
   You can pass 0 to "type_size" because program calculate type_size automatically.
@@ -173,11 +176,13 @@ struct SqSchema
 		{ return malloc(size); }
 	void operator delete(void* instance)
 		{ free(instance); }
-	SqSchema(const char* name)
-		{ sq_schema_init(this, name); }
-	~SqSchema()
-		{ sq_schema_final(this); }
  */
+	SqSchema(const char* name = NULL) {
+		sq_schema_init(this, name);
+	}
+	~SqSchema() {
+		sq_schema_final(this);
+	}
 
 	SqTable* create(const char* table_name,
 	                const char* type_name,
@@ -228,8 +233,10 @@ struct SqSchema
 
 namespace Sq
 {
+
 // These are for directly use only. You can NOT derived it.
 typedef struct SqSchema     Schema;
+
 };  // namespace Sq
 
 #endif  // __cplusplus
