@@ -237,11 +237,20 @@ int  sq_column_cmp_attrib(SqColumn** column1, SqColumn** column2);
 // Sq C++ functions
 
 #ifdef __cplusplus
+
+#if 0
 template<class Store, class Type>
-inline size_t sq_offset(Type Store::*member) {
+inline size_t sq_offsetOf(Type Store::*member) {
 	static Store obj;
 	return size_t(&(obj.*member)) - size_t(&obj);
 }
+#else
+template<typename T, typename U> constexpr size_t sq_offsetOf(U T::*member)
+{
+    return (char*)&((T*)nullptr->*member) - (char*)nullptr;
+}
+#endif
+
 #endif  // __cplusplus
 
 /* ----------------------------------------------------------------------------
@@ -296,39 +305,39 @@ struct SqTable
 
 	template<class Store, class Type>
 	SqColumn& integer(const char* column_name, Type Store::*member) {
-		return *sq_table_add_int(this, column_name, sq_offset(member));
+		return *sq_table_add_int(this, column_name, sq_offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& int_(const char* column_name, Type Store::*member) {
-		return *sq_table_add_int(this, column_name, sq_offset(member));
+		return *sq_table_add_int(this, column_name, sq_offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& uint(const char* column_name, Type Store::*member) {
-		return *sq_table_add_uint(this, column_name, sq_offset(member));
+		return *sq_table_add_uint(this, column_name, sq_offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& int64(const char* column_name, Type Store::*member) {
-		return *sq_table_add_int64(this, column_name, sq_offset(member));
+		return *sq_table_add_int64(this, column_name, sq_offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& uint64(const char* column_name, Type Store::*member) {
-		return *sq_table_add_uint64(this, column_name, sq_offset(member));
+		return *sq_table_add_uint64(this, column_name, sq_offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& timestamp(const char* column_name, Type Store::*member) {
-		return *sq_table_add_timestamp(this, column_name, sq_offset(member));
+		return *sq_table_add_timestamp(this, column_name, sq_offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& double_(const char* column_name, Type Store::*member) {
-		return *sq_table_add_double(this, column_name, sq_offset(member));
+		return *sq_table_add_double(this, column_name, sq_offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& string(const char* column_name, Type Store::*member, int length = -1) {
-		return *sq_table_add_string(this, column_name, sq_offset(member), length);
+		return *sq_table_add_string(this, column_name, sq_offsetOf(member), length);
 	};
 	template<class Store, class Type>
 	SqColumn& custom(const char* column_name, Type Store::*member, SqType* type) {
-		return *sq_table_add_custom(this, column_name, sq_offset(member), type);
+		return *sq_table_add_custom(this, column_name, sq_offsetOf(member), type);
 	};
 
 	// ----------------------------------------------------
