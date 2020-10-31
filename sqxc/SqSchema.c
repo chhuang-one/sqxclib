@@ -352,6 +352,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 void  sq_schema_clear_records(SqSchema* schema, char ver_comparison)
 {
 	SqPtrArray* reentries;
+	SqPtrArray* columns;
 	SqTable* table;
 	int      index;
 
@@ -368,14 +369,14 @@ void  sq_schema_clear_records(SqSchema* schema, char ver_comparison)
 	// erase changed records and remove NULL records in tables
 	for (index = 0;  index < reentries->length;  index++) {
 		table = (SqTable*)reentries->data[index];
-		reentries = sq_type_get_ptr_array(table->type);    // table->type->entry
+		columns = sq_type_get_ptr_array(table->type);    // table->type->entry
 		//  table->type maybe static
 		if (table->type->bit_field & SQB_TYPE_DYNAMIC) {
-			sq_reentries_clear_records(reentries, ver_comparison);
-			sq_reentries_remove_null(reentries);
+			sq_reentries_clear_records(columns, ver_comparison);
+			sq_reentries_remove_null(columns);
 		}
 		// if database schema version < current schema version, reset table->offset for sq_schema_arrange()
-		table->offset = (ver_comparison == '<') ? 0 : reentries->length;
+		table->offset = (ver_comparison == '<') ? 0 : columns->length;
 		// clear SQB_CHANGED and SQB_RENAMED
 		table->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
 		// if database schema version == current schema version
