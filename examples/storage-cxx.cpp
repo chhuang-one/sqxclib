@@ -21,7 +21,13 @@
 #include <SqStorage.h>
 #include <SqdbSqlite.h>
 
+typedef struct User       User;
 typedef struct Company    Company;
+
+struct User {
+	int    id;
+	char*  name;
+};
 
 struct Company
 {
@@ -84,11 +90,23 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 {
 	Sq::Schema*   schema_v1;
 	Sq::Schema*   schema_v2;
+	Sq::Table*    table;
 
-	schema_v1 = sq_schema_new("Ver1");
-	schema_v2 = sq_schema_new("Ver1");
+	schema_v1 = new Sq::Schema("Ver1");
+	schema_v2 = new Sq::Schema("Ver2");
 	schema_v1->version = 1;
 	schema_v2->version = 2;
+
+	table = schema_v1->create<Company>("companies");
+	table->integer("id", &Company::id)->primary();
+	table->string("name", &Company::name);
+	table->integer("age", &Company::age);
+	table->string("address", &Company::address);
+	table->double_("salary", &Company::salary);
+
+	table = schema_v2->create<User>("users");
+	table->integer("id", &User::id)->primary();
+	table->string("name", &User::name);
 
 	// migrate schema_v1, schema_v2 to storage->schema
 	storage->migrate(schema_v1);
@@ -109,13 +127,13 @@ int main (int argc, char* argv[])
 
 	storage->open("sample");
 
-	storage_make_fixed_schema(storage);
-//	storage_make_migrated_schema(storage);
+//	storage_make_fixed_schema(storage);
+	storage_make_migrated_schema(storage);
 
 	company = new Company();
 
 	company->id = 1;
-	company->name = (char*)"M&T";
+	company->name = (char*)"Mr.T";
 	company->age = 21;
 	company->address = (char*)"Norway";
 	company->salary = 1200.00;
@@ -129,10 +147,13 @@ int main (int argc, char* argv[])
 	storage->insert<Company>(company);
 
 	delete company;
-
 	company = storage->get<Company>(1);
+	company_object_print(company);
+	delete company;
 
 	storage->close();
+	delete storage;
+	delete db;
 
 	return 0;
 }
