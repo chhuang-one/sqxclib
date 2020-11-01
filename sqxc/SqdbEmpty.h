@@ -74,5 +74,30 @@ struct SqdbConfigEmpty
 	int   debug;
 };
 
+// ----------------------------------------------------------------------------
+// C++ namespace
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+typedef struct SqdbConfigEmpty    DbConfigEmpty;
+
+// conforming C++11 standard-layout
+// These are for directly use only. You can NOT derived it.
+struct DbEmpty : SqdbEmpty
+{
+	DbEmpty(SqdbConfigEmpty* config = NULL) {
+		this->info = SQDB_INFO_EMPTY;  SQDB_INFO_EMPTY->init((Sqdb*)this, (SqdbConfig*)config);
+	}
+	~DbEmpty() {
+		SQDB_INFO_EMPTY->final((Sqdb*)this);
+	}
+};
+
+};  // namespace Sq
+
+#endif  // __cplusplus
+
 
 #endif  // SQDB_EMPTY_H

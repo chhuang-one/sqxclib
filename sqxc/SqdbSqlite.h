@@ -89,8 +89,8 @@ struct SqdbConfigSqlite
 // C++ namespace
 
 #ifdef __cplusplus
-namespace Sq
-{
+
+namespace Sq {
 
 typedef struct SqdbConfigSqlite    DbConfigSqlite;
 
@@ -98,13 +98,16 @@ typedef struct SqdbConfigSqlite    DbConfigSqlite;
 // These are for directly use only. You can NOT derived it.
 struct DbSqlite : SqdbSqlite
 {
-	DbSqlite(SqdbConfigSqlite* config = NULL)
-		{ this->info = SQDB_INFO_SQLITE;  SQDB_INFO_SQLITE->init((Sqdb*)this, (SqdbConfig*)config); }
-	~DbSqlite()
-		{ SQDB_INFO_SQLITE->final((Sqdb*)this); }
+	DbSqlite(SqdbConfigSqlite* config = NULL) {
+		this->info = SQDB_INFO_SQLITE;  SQDB_INFO_SQLITE->init((Sqdb*)this, (SqdbConfig*)config);
+	}
+	~DbSqlite() {
+		SQDB_INFO_SQLITE->final((Sqdb*)this);
+	}
 };
 
 };  // namespace Sq
+
 #endif  // __cplusplus
 
 

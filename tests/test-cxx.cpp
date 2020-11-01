@@ -171,8 +171,8 @@ void test_sqxc(void)
 
 void test_storage()
 {
-	Sqdb* db = sqdb_new(SQDB_INFO_EMPTY, NULL);
-	Sq::Storage*  storage = new Sq::Storage(db);
+	Sq::DbEmpty* db = new Sq::DbEmpty();
+	Sq::Storage* storage = new Sq::Storage(db);
 
 	storage->insert<Company>(NULL);
 	storage->get<Company>(1);

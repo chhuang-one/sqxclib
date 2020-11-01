@@ -180,8 +180,7 @@ struct SqdbConfig
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
 int  DbMethod::open(const char* name)
 	{ return sqdb_open((Sqdb*)this, name); }
