@@ -126,30 +126,27 @@ void test_query()
 
 void test_sqxc(void)
 {
-	SqxcEmpty* xcempty;
-	Sqxc* xc;
-	Sqxc* xc2;
-	Sqxc* xc3;
-	Sqxc* cur;
+	Sq::XcEmpty*  xc;
+	Sq::XcEmpty*  xc2;
+	Sq::XcEmpty*  xc3;
+	Sq::XcMethod* cur;
 
-	xc  = sqxc_new(SQXC_INFO_EMPTY);
-	xc2 = sqxc_new(SQXC_INFO_EMPTY);
-	xc3 = sqxc_new(SQXC_INFO_EMPTY);
+	xc  = new Sq::XcEmpty();
+	xc  = new Sq::XcEmpty();
+	xc2 = new Sq::XcEmpty();
+	xc3 = new Sq::XcEmpty();
 
 	xc->insert(xc2, -1);
 	xc->insert(xc3, -1);
 
-	xcempty = (SqxcEmpty*)xc;
-	xcempty->not_matched_type = SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY;
-	xcempty->tag = "L1";
+	xc->not_matched_type = SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY;
+	xc->tag = "L1";
 
-	xcempty = (SqxcEmpty*)xc2;
-	xcempty->not_matched_type = SQXC_TYPE_OBJECT;
-	xcempty->tag = "L2";
+	xc2->not_matched_type = SQXC_TYPE_OBJECT;
+	xc2->tag = "L2";
 
-	xcempty = (SqxcEmpty*)xc3;
-	xcempty->not_matched_type = 0;
-	xcempty->tag = "L3";
+	xc3->not_matched_type = 0;
+	xc3->tag = "L3";
 
 	xc->ready();
 	cur = xc;
@@ -163,7 +160,7 @@ void test_sqxc(void)
 	cur = cur->sendArrayEnd("Cities");
 	xc->finish();
 
-	sqxc_free_chain(xc);
+	xc->freeChain();
 }
 
 // ----------------------------------------------------------------------------

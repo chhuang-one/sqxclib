@@ -34,6 +34,13 @@ extern "C" {
 	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
 	                 |                    |
 	                 +--> SqxcXmlParser --+
+
+
+   The correct way to derive Sqxc:  (conforming C++11 standard-layout)
+   1. Use Sq::XcMethod to inherit member function(method).
+   2. Use SQXC_MEMBERS to inherit member variable.
+   3. Add variable and non-virtual function in derived struct.
+   ** This can keep std::is_standard_layout<>::value == true
  */
 
 typedef struct SqxcValue        SqxcValue;
@@ -56,12 +63,12 @@ extern const SqxcInfo *SQXC_INFO_VALUE;
 
 
 #ifdef __cplusplus
-struct SqxcValue : Sq::XcMethod
+struct SqxcValue : Sq::XcMethod          // <-- 1. inherit member function(method)
 #else
 struct SqxcValue
 #endif
 {
-	SQXC_MEMBERS;
+	SQXC_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ Sqxc members ------
 	const SqxcInfo  *info;
 
@@ -120,7 +127,7 @@ struct SqxcValue
 	void**       error;
  */
 
-	// ------ SqxcValue members ------
+	// ------ SqxcValue members ------   // <-- 3. Add variable and non-virtual function in derived struct.
 	void*        instance;
 
 	// current pointer to container when calling get_all()
@@ -129,5 +136,28 @@ struct SqxcValue
 	const SqType *element;    // type of table (or entry)
 	const SqType *container;  // type of array (or list)
 };
+
+// ----------------------------------------------------------------------------
+// C++ namespace
+
+#ifdef __cplusplus
+namespace Sq {
+
+// conforming C++11 standard-layout
+// These are for directly use only. You can NOT derived it.
+struct XcValue : SqxcValue
+{
+	XcValue() {
+		sqxc_init((Sqxc*)this, SQXC_INFO_VALUE);
+	}
+	~XcValue() {
+		sqxc_final((Sqxc*)this);
+	}
+};
+
+};  // namespace Sq
+
+#endif  // __cplusplus
+
 
 #endif  // SQXC_VALUE_H

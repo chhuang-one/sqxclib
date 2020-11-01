@@ -35,6 +35,13 @@ extern "C" {
     SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
                      |                    |
                      +--> SqxcXmlWriter --+
+
+
+   The correct way to derive Sqxc:  (conforming C++11 standard-layout)
+   1. Use Sq::XcMethod to inherit member function(method).
+   2. Use SQXC_MEMBERS to inherit member variable.
+   3. Add variable and non-virtual function in derived struct.
+   ** This can keep std::is_standard_layout<>::value == true
  */
 
 typedef struct SqxcSql        SqxcSql;
@@ -52,12 +59,12 @@ extern const SqxcInfo *SQXC_INFO_SQL;
 #endif
 
 #ifdef __cplusplus
-struct SqxcSql : Sq::XcMethod
+struct SqxcSql : Sq::XcMethod            // <-- 1. inherit member function(method)
 #else
 struct SqxcSql
 #endif
 {
-	SQXC_MEMBERS;
+	SQXC_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ Sqxc members ------
 	const SqxcInfo  *info;
 
@@ -116,7 +123,7 @@ struct SqxcSql
 	void**       error;
  */
 
-	// ------ SqxcSql members ------
+	// ------ SqxcSql members ------     // <-- 3. Add variable and non-virtual function in derived struct.
 
 	// output
 	Sqdb*        db;
@@ -132,5 +139,29 @@ struct SqxcSql
 	int          col_count;   // used by INSERT and UPDATE
 	int          buf_reuse;   // used by INSERT and UPDATE
 };
+
+// ----------------------------------------------------------------------------
+// C++ namespace
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+// conforming C++11 standard-layout
+// These are for directly use only. You can NOT derived it.
+struct XcSql : SqxcSql
+{
+	XcSql() {
+		sqxc_init((Sqxc*)this, SQXC_INFO_SQL);
+	}
+	~XcSql() {
+		sqxc_final((Sqxc*)this);
+	}
+};
+
+};  // namespace Sq
+
+#endif  // __cplusplus
+
 
 #endif  // SQXC_SQL_H

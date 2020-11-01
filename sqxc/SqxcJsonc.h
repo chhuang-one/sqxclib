@@ -37,6 +37,13 @@ extern "C" {
 	*** In output chain:
 	SQXC_TYPE_xxxx -----> SqxcJsonc Writer ---> SQXC_TYPE_STRING
 	                                              (JSON string)
+
+
+   The correct way to derive Sqxc:  (conforming C++11 standard-layout)
+   1. Use Sq::XcMethod to inherit member function(method).
+   2. Use SQXC_MEMBERS to inherit member variable.
+   3. Add variable and non-virtual function in derived struct.
+   ** This can keep std::is_standard_layout<>::value == true
  */
 
 typedef struct SqxcJsonc        SqxcJsonc;
@@ -49,12 +56,12 @@ extern const SqxcInfo *SQXC_INFO_JSONC_WRITER;
 #endif
 
 #ifdef __cplusplus
-struct SqxcJsonc : Sq::XcMethod
+struct SqxcJsonc : Sq::XcMethod          // <-- 1. inherit member function(method)
 #else
 struct SqxcJsonc
 #endif
 {
-	SQXC_MEMBERS;
+	SQXC_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ Sqxc members ------
 	const SqxcInfo  *info;
 
@@ -113,7 +120,7 @@ struct SqxcJsonc
 	void**       error;
  */
 
-	// ------ SqxcJsonc members ------
+	// ------ SqxcJsonc members ------   // <-- 3. Add variable and non-virtual function in derived struct.
 
 	// --- output ---
 	const char*  jroot_name;
@@ -128,6 +135,39 @@ struct SqxcJsonc
 	cx->name = NULL
 	 */
 };
+
+// ----------------------------------------------------------------------------
+// C++ namespace
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+// conforming C++11 standard-layout
+// These are for directly use only. You can NOT derived it.
+struct XcJsoncParser : SqxcJsonc
+{
+	XcJsoncParser() {
+		sqxc_init((Sqxc*)this, SQXC_INFO_JSONC_PARSER);
+	}
+	~XcJsoncParser() {
+		sqxc_final((Sqxc*)this);
+	}
+};
+
+struct XcJsoncWriter : SqxcJsonc
+{
+	XcJsoncWriter() {
+		sqxc_init((Sqxc*)this, SQXC_INFO_JSONC_WRITER);
+	}
+	~XcJsoncWriter() {
+		sqxc_final((Sqxc*)this);
+	}
+};
+
+};  // namespace Sq
+
+#endif  // __cplusplus
 
 
 #endif  // SQXC_JSONC_H

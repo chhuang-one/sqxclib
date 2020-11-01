@@ -27,21 +27,19 @@ static SqxcNested sqxc_nested_root = {0};
 // ----------------------------------------------------------------------------
 // Sqxc functions
 
-Sqxc*  sqxc_new(const SqxcInfo* xcinfo)
+void   sqxc_init(Sqxc* xc, const SqxcInfo* xcinfo)
 {
-	Sqxc* xc;
 	SqInitFunc init;
 
-	xc = (Sqxc*)calloc(1, xcinfo->size);
+	memset(xc, 0, xcinfo->size);
 	xc->nested = NESTED_OUTER_ROOT;
 	init = xcinfo->init;
 	if (init)
 		init(xc);
 	xc->info = xcinfo;
-	return xc;
 }
 
-void  sqxc_free(Sqxc* xc)
+void   sqxc_final(Sqxc* xc)
 {
 	SqFinalFunc final;
 
@@ -52,6 +50,20 @@ void  sqxc_free(Sqxc* xc)
 	sqxc_clear_nested(xc);
 	// free memory
 	free(xc->buf);
+}
+
+Sqxc*  sqxc_new(const SqxcInfo* xcinfo)
+{
+	Sqxc* xc;
+
+	xc = (Sqxc*)malloc(xcinfo->size);
+	sqxc_init(xc, xcinfo);
+	return xc;
+}
+
+void  sqxc_free(Sqxc* xc)
+{
+	sqxc_final(xc);
 	free(xc);
 }
 

@@ -27,6 +27,12 @@ extern "C" {
 	Sqxc
 	|
 	`--- SqxcEmpty
+
+   The correct way to derive Sqxc:  (conforming C++11 standard-layout)
+   1. Use Sq::XcMethod to inherit member function(method).
+   2. Use SQXC_MEMBERS to inherit member variable.
+   3. Add variable and non-virtual function in derived struct.
+   ** This can keep std::is_standard_layout<>::value == true
  */
 
 typedef struct SqxcEmpty        SqxcEmpty;
@@ -38,12 +44,12 @@ extern const SqxcInfo *SQXC_INFO_EMPTY;
 #endif
 
 #ifdef __cplusplus
-struct SqxcEmpty : Sq::XcMethod
+struct SqxcEmpty : Sq::XcMethod          // <-- 1. inherit member function(method)
 #else
 struct SqxcEmpty
 #endif
 {
-	SQXC_MEMBERS;
+	SQXC_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ Sqxc members ------
 	const SqxcInfo  *info;
 
@@ -102,12 +108,35 @@ struct SqxcEmpty
 	void**       error;
  */
 
-	// ------ SqxcEmpty members ------
+	// ------ SqxcEmpty members ------   // <-- 3. Add variable and non-virtual function in derived struct.
 	const char*  tag;
 	int          nested_count_when_ready;
 	int          send_to_dest_if_no_nested;    // boolean, 
 	uint16_t     not_matched_type;             // SqxcType (bit field)
 };
+
+// ----------------------------------------------------------------------------
+// C++ namespace
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+// conforming C++11 standard-layout
+// These are for directly use only. You can NOT derived it.
+struct XcEmpty : SqxcEmpty
+{
+	XcEmpty() {
+		sqxc_init((Sqxc*)this, SQXC_INFO_EMPTY);
+	}
+	~XcEmpty() {
+		sqxc_final((Sqxc*)this);
+	}
+};
+
+};  // namespace Sq
+
+#endif  // __cplusplus
 
 
 #endif  // SQXC_EMPTY_H

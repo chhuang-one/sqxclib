@@ -227,11 +227,14 @@ struct SqxcNested
 };
 
 /* ----------------------------------------------------------------------------
-	Sqxc - Interface for data parse and write
+	Sqxc C functions
  */
 
 Sqxc*   sqxc_new(const SqxcInfo *xcinfo);
 void    sqxc_free(Sqxc* xc);
+
+void    sqxc_init(Sqxc* xc, const SqxcInfo* xcinfo);
+void    sqxc_final(Sqxc* xc);
 
 // create Sqxc chain for input/output
 // parameter order from destination to source, return destination Sqxc element.
@@ -302,8 +305,12 @@ struct XcMethod
 {
 	SqBuffer* buffer(void);
 
+	void   freeChain();
+
 	Sqxc*  insert(Sqxc* xc_element, int position);
+	Sqxc*  insert(Sq::XcMethod* xc_element, int position);
 	Sqxc*  steal(Sqxc* xc_element);
+	Sqxc*  steal(Sq::XcMethod* xc_element);
 	Sqxc*  find(const SqxcInfo *info);
 	Sqxc*  nth(int position);
 
@@ -339,7 +346,13 @@ struct XcMethod
 #endif  // __cplusplus
 
 /* ----------------------------------------------------------------------------
-	Sqxc
+	Sqxc - Interface for data parse and write
+
+   The correct way to derive Sqxc:  (conforming C++11 standard-layout)
+   1. Use Sq::XcMethod to inherit member function(method).
+   2. Use SQXC_MEMBERS to inherit member variable.
+   3. Add variable and non-virtual function in derived struct.
+   ** This can keep std::is_standard_layout<>::value == true
  */
 
 #define SQXC_MEMBERS    \
@@ -375,12 +388,12 @@ struct XcMethod
 	void**       error
 
 #ifdef __cplusplus
-struct Sqxc : Sq::XcMethod
+struct Sqxc : Sq::XcMethod               // <-- 1. inherit member function(method)
 #else
 struct Sqxc
 #endif
 {
-//	SQXC_MEMBERS;
+//	SQXC_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ Sqxc members ------  */
 	const SqxcInfo  *info;
 
@@ -444,18 +457,24 @@ struct Sqxc
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
 // XcMethod
 
 SqBuffer* XcMethod::buffer(void)
 	{ return sqxc_get_buffer(this); }
 
+void   XcMethod::freeChain()
+	{ return sqxc_free_chain((Sqxc*)this); }
+
 Sqxc*  XcMethod::insert(Sqxc* xc_element, int position)
 	{ return sqxc_insert((Sqxc*)this, xc_element, position); }
+Sqxc*  XcMethod::insert(Sq::XcMethod* xc_element, int position)
+	{ return sqxc_insert((Sqxc*)this, (Sqxc*)xc_element, position); }
 Sqxc*  XcMethod::steal(Sqxc* xc_element)
 	{ return sqxc_steal((Sqxc*)this, xc_element); }
+Sqxc*  XcMethod::steal(Sq::XcMethod* xc_element)
+	{ return sqxc_steal((Sqxc*)this, (Sqxc*)xc_element); }
 Sqxc*  XcMethod::find(const SqxcInfo *info)
 	{ return sqxc_find((Sqxc*)this, info); }
 Sqxc*  XcMethod::nth(int position)
