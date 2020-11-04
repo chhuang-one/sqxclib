@@ -54,8 +54,8 @@ void* sq_ptr_array_final(void* array)
 	}
 	free(sq_ptr_array_header(array));
 
-//	((SqPtrArray*)array)->data = NULL;
-//	((SqPtrArray*)array)->length = 0;
+	((SqPtrArray*)array)->data = NULL;
+	((SqPtrArray*)array)->length = 0;
 	return array;
 }
 
