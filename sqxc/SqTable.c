@@ -250,32 +250,95 @@ SqColumn* sq_table_add_custom(SqTable* table, const char* name,
 	return column;
 }
 
-SqColumn* sq_table_add_foreign(SqTable* table, const char* name)
+// --------------------------------------------------------
+// SqTable C functions for CONSTRAINT
+
+// ----------------------------------------------------------------------------
+// If compiler doesn't support C99 inline functions
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions in SqTable.h
+#else
+
+SqColumn* sq_table_add_constraint(SqTable* table,
+                                  unsigned int bit_field,
+                                  const char* name,
+                                  const char* column1_name, ...)
+{
+	SqColumn* column;
+
+	va_list  arg_list;
+	va_start(arg_list, column1_name);
+	column = sq_table_add_constraint_va(table, bit_field, name, column1_name, arg_list);
+	va_end(arg_list);
+	return column;
+}
+
+#endif  // __STDC_VERSION__
+
+SqColumn* sq_table_add_constraint_va(SqTable* table,
+                                     unsigned int bit_field,
+                                     const char* name,
+                                     const char* column1_name,
+                                     va_list arg_list)
 {
 	SqColumn* column;
 
 	column = calloc(1, sizeof(SqColumn));
-	column->bit_field = SQB_DYNAMIC | SQB_FOREIGN;
-	column->name = malloc(strlen(table->name) + strlen(name) + 10);  // + '_' + "_foreign" + '\0'
-	column->name[0] = 0;
-	strcat(column->name, table->name);
-	strcat(column->name, "_");
-	strcat(column->name, name);
-	strcat(column->name, "_foreign");
-	sq_column_set_constraint(column, name, NULL);
+	column->bit_field = SQB_DYNAMIC | SQB_CONSTRAINT | bit_field;
+#if 1
+	column->name = strdup(name);
+#else
+	if (name)
+		column->name = strdup(name);
+	else {
+		const char* post_string;
+		int  name_length;
 
+		switch(bit_field) {
+		case SQB_INDEX:
+			post_string = "_index";
+			name_length = 5;
+			break;
+		case SQB_UNIQUE:
+			post_string = "_unique";
+			name_length = 7;
+			break;
+		case SQB_PRIMARY:
+			post_string = "_primary";
+			name_length = 8;
+			break;
+		case SQB_FOREIGN:
+			post_string = "_foreign";
+			name_length = 8;
+			break;
+		default:
+			post_string = "";
+			name_length = 0;
+			break;
+		}
+		column->name = malloc(strlen(table->name) + strlen(column1_name) + name_length +2);  // + '_' + '\0'
+		column->name[0] = 0;
+		strcat(column->name, table->name);
+		strcat(column->name, "_");
+		strcat(column->name, column1_name);
+		strcat(column->name, post_string);
+	}
+#endif
+	sq_column_set_constraint_va(column, column1_name, arg_list);
 	sq_table_append_column(table, column);
 	return column;
 }
 
-void   sq_table_drop_foreign(SqTable* table, const char* name)
+void      sq_table_drop_constraint(SqTable* table,
+                                   unsigned int bit_field,
+                                   const char* name)
 {
 	SqColumn* column;
 
 	column = calloc(1, sizeof(SqColumn));
+	column->bit_field = SQB_DYNAMIC | SQB_CONSTRAINT | bit_field;
 	column->old_name = strdup(name);
-	column->bit_field = SQB_DYNAMIC | SQB_FOREIGN;
-
 	sq_table_append_column(table, column);
 
 #if 0
@@ -284,6 +347,75 @@ void   sq_table_drop_foreign(SqTable* table, const char* name)
 		sq_type_erase_entry_addr(table->type, addr, 1);
 #endif
 }
+
+/*
+SqColumn* sq_table_add_index(SqTable* table,
+                             const char* index_name,
+                             const char* column1_name, ...)
+{
+	SqColumn* column;
+
+	va_list  arg_list;
+	va_start(arg_list, column1_name);
+	column = sq_table_add_constraint_va(table, SQB_INDEX, index_name, column1_name, arg_list);
+	va_end(arg_list);
+	return column;
+}
+
+void   sq_table_drop_index(SqTable* table, const char* index_name)
+{
+	sq_table_drop_constraint(table, SQB_INDEX, index_name);
+}
+ */
+
+SqColumn* sq_table_add_unique(SqTable* table,
+                              const char* unique_name,
+                              const char* column1_name, ...)
+{
+	SqColumn* column;
+
+	va_list  arg_list;
+	va_start(arg_list, column1_name);
+	column = sq_table_add_constraint_va(table, SQB_UNIQUE, unique_name, column1_name, arg_list);
+	va_end(arg_list);
+	return column;
+}
+
+void   sq_table_drop_unique(SqTable* table, const char* unique_name)
+{
+	sq_table_drop_constraint(table, SQB_UNIQUE, unique_name);
+}
+
+SqColumn* sq_table_add_primary(SqTable* table,
+                               const char* primary_name,
+                               const char* column1_name, ...)
+{
+	SqColumn* column;
+
+	va_list  arg_list;
+	va_start(arg_list, column1_name);
+	column = sq_table_add_constraint_va(table, SQB_PRIMARY, primary_name, column1_name, arg_list);
+	va_end(arg_list);
+	return column;
+}
+
+void   sq_table_drop_primary(SqTable* table, const char* primary_name)
+{
+	sq_table_drop_constraint(table, SQB_PRIMARY, primary_name);
+}
+
+SqColumn* sq_table_add_foreign(SqTable* table, const char* name, const char* column_name)
+{
+	return sq_table_add_constraint(table, SQB_FOREIGN, name, column_name, NULL);
+}
+
+void   sq_table_drop_foreign(SqTable* table, const char* name)
+{
+	sq_table_drop_constraint(table, SQB_FOREIGN, name);
+}
+
+// --------------------------------------------------------
+// migration functions
 
 void  sq_table_replace_column(SqTable*   table,
                               SqColumn** old_in_type,

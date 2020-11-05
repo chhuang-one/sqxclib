@@ -27,6 +27,7 @@ typedef struct Company    Company;
 struct User {
 	int    id;
 	char*  name;
+	int    companies_id;
 };
 
 struct Company
@@ -74,43 +75,54 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	Sq::Schema*   schema;
 	Sq::Table*    table;
 
-	// Fixed schema
+	// create table in storage->schema
 	schema = storage->schema;
+
 	table = schema->create<Company>("companies");
 	table->integer("id", &Company::id)->primary();
 	table->string("name", &Company::name);
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
+
+	table = schema->create<User>("users");
+	table->integer("id", &User::id)->primary();
+	table->string("name", &User::name);
+	table->integer("companies_id", &User::companies_id);
+	table->addForeign("fk_companies_id", "companies_id")->reference("companies", "id");
+
 	// End of migration. create SQL tables based on storage->schema
 	storage->migrate(NULL);
 }
 
 void  storage_make_migrated_schema(Sq::Storage* storage)
 {
-	Sq::Schema*   schema_v1;
-	Sq::Schema*   schema_v2;
+	Sq::Schema*   schemaVer1;
+	Sq::Schema*   schemaVer2;
 	Sq::Table*    table;
 
-	schema_v1 = new Sq::Schema("Ver1");
-	schema_v2 = new Sq::Schema("Ver2");
-	schema_v1->version = 1;
-	schema_v2->version = 2;
+	// create table in schemaVer1 and schemaVer2
+	schemaVer1 = new Sq::Schema("Ver1");
+	schemaVer2 = new Sq::Schema("Ver2");
+	schemaVer1->version = 1;
+	schemaVer2->version = 2;
 
-	table = schema_v1->create<Company>("companies");
+	table = schemaVer1->create<Company>("companies");
 	table->integer("id", &Company::id)->primary();
 	table->string("name", &Company::name);
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
 
-	table = schema_v2->create<User>("users");
+	table = schemaVer2->create<User>("users");
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
+	table->integer("companies_id", &User::companies_id);
+	table->addForeign("fk_companies_id", "companies_id")->reference("companies", "id");
 
-	// migrate schema_v1, schema_v2 to storage->schema
-	storage->migrate(schema_v1);
-	storage->migrate(schema_v2);
+	// migrate schemaVer1, schemaVer2 to storage->schema
+	storage->migrate(schemaVer1);
+	storage->migrate(schemaVer2);
 	// End of migration. create SQL tables based on storage->schema
 	storage->migrate(NULL);
 }
@@ -149,7 +161,7 @@ int main (int argc, char* argv[])
 	delete company;
 	company = storage->get<Company>(1);
 	company_object_print(company);
-	delete company;
+	company_free(company);
 
 	storage->close();
 	delete storage;

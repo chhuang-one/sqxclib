@@ -124,32 +124,22 @@ SqColumn* sq_table_add_custom(SqTable* table, const char* column_name,
 		sq_table_add_custom(table, #member, offsetof(structure, member), type)
  */
 
+// --------------------------------------------------------
+// SqTable C functions for CONSTRAINT
+
+SqColumn* sq_table_add_constraint_va(SqTable* table,
+                                     unsigned int bit_field,
+                                     const char* name,
+                                     const char* column1_name,
+                                     va_list arg_list);
+
+void      sq_table_drop_constraint(SqTable* table,
+                                   unsigned int bit_field,
+                                   const char* name);
 /*
-// UNIQUE (C_Id)
-// CONSTRAINT "u_Customer_Id" UNIQUE ("C_Id", "Name")
-// ADD CONSTRAINT "u_Customer_Id" UNIQUE ("C_Id", "Name");
-SqColumn* sq_table_add_unique(SqTable* table,
-                              const char* index_name,
-                              const char* column1_name, ...);
-
-// MySQL: ALTER TABLE "table" DROP INDEX "u_Customer_Id";
-// other: ALTER TABLE "table" DROP CONSTRAINT "u_Customer_Id";
-void      sq_table_drop_unique(SqTable* table, const char* name);
-
-// CONSTRAINT "pk_Customer_Id" PRIMARY KEY ("C_Id", "Name");
-// ADD CONSTRAINT "u_Customer_Id" PRIMARY KEY ("C_Id", "Name");
-//
-// auto generate primary_name if primary_name == NULL
-// "tableName_columnName_primary"
-SqColumn* sq_table_add_primary(SqTable* table,
-                               const char* primary_name,
-                               const char* column1_name, ...);
-// MySQL: ALTER TABLE "customer" DROP PRIMARY KEY;
-// other: ALTER TABLE "customer" DROP CONSTRAINT "pk_PersonID";
-void      sq_table_drop_primary(SqTable* table, const char* name);
-
 // CREATE INDEX "index_name" ON "table" ("column");
 // CREATE INDEX "index_name" ON "table" ("column1", "column2");
+// the last argument must be NULL
 SqColumn* sq_table_add_index(SqTable* table,
                              const char* index_name,
                              const char* column1_name, ...);
@@ -157,12 +147,36 @@ SqColumn* sq_table_add_index(SqTable* table,
 // MySQL: ALTER TABLE table_name DROP INDEX index_name;
 // DROP INDEX index_name
 // DROP INDEX table_name.index_name;
-void      sq_table_drop_index(SqTable* table, const char* name);
+void      sq_table_drop_index(SqTable* table, const char* index_name);
  */
 
-// FOREIGN KEY (C_Id) REFERENCES customers(C_Id);
-// ADD FOREIGN KEY (C_Id) REFERENCES customers(C_Id);
-SqColumn* sq_table_add_foreign(SqTable* table, const char* name);
+// CONSTRAINT "unique_name" UNIQUE ("column1_name", "column2_name")
+// ADD CONSTRAINT "unique_name" UNIQUE ("column1_name", "column2_name")
+// the last argument must be NULL
+SqColumn* sq_table_add_unique(SqTable* table,
+                              const char* unique_name,
+                              const char* column1_name, ...);
+
+// MySQL: ALTER TABLE "table" DROP INDEX "unique_name";
+// other: ALTER TABLE "table" DROP CONSTRAINT "unique_name";
+void      sq_table_drop_unique(SqTable* table, const char* unique_name);
+
+// CONSTRAINT "primary_name" PRIMARY KEY ("column1_name", "column2_name");
+// ADD CONSTRAINT "primary_name" PRIMARY KEY ("column1_name", "column2_name");
+// the last argument must be NULL
+SqColumn* sq_table_add_primary(SqTable* table,
+                               const char* primary_name,
+                               const char* column1_name, ...);
+
+// MySQL: ALTER TABLE "customer" DROP PRIMARY KEY;
+// other: ALTER TABLE "customer" DROP CONSTRAINT "name";
+void      sq_table_drop_primary(SqTable* table, const char* name);
+
+// CONSTRAINT "name" FOREIGN KEY (column_name) REFERENCES customers(id);
+// ADD CONSTRAINT "name" FOREIGN KEY (column_name) REFERENCES customers(id);
+SqColumn* sq_table_add_foreign(SqTable* table,
+                               const char* foreign_name,
+                               const char* column_name);
 void      sq_table_drop_foreign(SqTable* table, const char* name);
 
 /* --------------------------------------------------------
@@ -185,17 +199,6 @@ void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrAr
 
 // sort column by it's attribute
 //	sq_ptr_array_sort(result, (SqCompareFunc)sq_column_cmp_attrib);
-
-// unique('column_name')
-// index('column_name')
-// index('column_name', 'name2')
-// primary('column_name');
-// primary('column_name', 'name2');
-
-// $table->dropPrimary('users_id_primary');	 // remove primary key from table "users"
-// $table->dropUnique('users_email_unique'); // remove unique      from table "users"
-// $table->dropIndex('state');
-// $table->dropForeign(['user_id']);
 
 // --------------------------------------------------------
 // SqColumn C functions
@@ -233,23 +236,63 @@ int  sq_column_cmp_attrib(SqColumn** column1, SqColumn** column2);
 }  // extern "C"
 #endif
 
+
+// ----------------------------------------------------------------------------
+// C/C++ inline functions
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// C99 or C++ inline functions
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+SqColumn* sq_table_add_constraint(SqTable* table,
+                                  unsigned int bit_field,
+                                  const char* name,
+                                  const char* column1_name, ...)
+{
+	SqColumn* column;
+
+	va_list  arg_list;
+	va_start(arg_list, column1_name);
+	column = sq_table_add_constraint_va(table, bit_field, name, column1_name, arg_list);
+	va_end(arg_list);
+	return column;
+}
+
+#else  // __STDC_VERSION__ || __cplusplus
+
+// C functions
+SqColumn* sq_table_add_constraint(SqTable* table,
+                                  unsigned int bit_field,
+                                  const char* name,
+                                  const char* column1_name, ...);
+
+#endif  // __STDC_VERSION__ || __cplusplus
+
 // ----------------------------------------------------------------------------
 // Sq C++ functions
 
 #ifdef __cplusplus
 
+namespace Sq {
+
 #if 0
 template<class Store, class Type>
-inline size_t sq_offsetOf(Type Store::*member) {
+inline size_t offsetOf(Type Store::*member) {
 	static Store obj;
 	return size_t(&(obj.*member)) - size_t(&obj);
 }
 #else
-template<typename T, typename U> constexpr size_t sq_offsetOf(U T::*member)
+template<typename T, typename U> constexpr size_t offsetOf(U T::*member)
 {
     return (char*)&((T*)nullptr->*member) - (char*)nullptr;
 }
 #endif
+
+};
 
 #endif  // __cplusplus
 
@@ -305,47 +348,104 @@ struct SqTable
 
 	template<class Store, class Type>
 	SqColumn& integer(const char* column_name, Type Store::*member) {
-		return *sq_table_add_int(this, column_name, sq_offsetOf(member));
+		return *sq_table_add_int(this, column_name, Sq::offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& int_(const char* column_name, Type Store::*member) {
-		return *sq_table_add_int(this, column_name, sq_offsetOf(member));
+		return *sq_table_add_int(this, column_name, Sq::offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& uint(const char* column_name, Type Store::*member) {
-		return *sq_table_add_uint(this, column_name, sq_offsetOf(member));
+		return *sq_table_add_uint(this, column_name, Sq::offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& int64(const char* column_name, Type Store::*member) {
-		return *sq_table_add_int64(this, column_name, sq_offsetOf(member));
+		return *sq_table_add_int64(this, column_name, Sq::offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& uint64(const char* column_name, Type Store::*member) {
-		return *sq_table_add_uint64(this, column_name, sq_offsetOf(member));
+		return *sq_table_add_uint64(this, column_name, Sq::offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& timestamp(const char* column_name, Type Store::*member) {
-		return *sq_table_add_timestamp(this, column_name, sq_offsetOf(member));
+		return *sq_table_add_timestamp(this, column_name, Sq::offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& double_(const char* column_name, Type Store::*member) {
-		return *sq_table_add_double(this, column_name, sq_offsetOf(member));
+		return *sq_table_add_double(this, column_name, Sq::offsetOf(member));
 	};
 	template<class Store, class Type>
 	SqColumn& string(const char* column_name, Type Store::*member, int length = -1) {
-		return *sq_table_add_string(this, column_name, sq_offsetOf(member), length);
+		return *sq_table_add_string(this, column_name, Sq::offsetOf(member), length);
 	};
 	template<class Store, class Type>
 	SqColumn& custom(const char* column_name, Type Store::*member, SqType* type) {
-		return *sq_table_add_custom(this, column_name, sq_offsetOf(member), type);
+		return *sq_table_add_custom(this, column_name, Sq::offsetOf(member), type);
 	};
 
 	// ----------------------------------------------------
+	// constraint
+/*
+	SqColumn* addIndex(const char* name, const char* column1_name, ...) {
+		SqColumn* column;
+		va_list  arg_list;
+		va_start(arg_list, column1_name);
+		column = sq_table_add_constraint_va(this, SQB_INDEX, name, column1_name, arg_list);
+		va_end(arg_list);
+		return column;
+	}
+	void  dropIndex(const char* name) {
+		sq_table_drop_constraint(this, SQB_INDEX, name);
+	}
+ */
+	SqColumn* addUnique(const char* name, const char* column1_name, ...) {
+		SqColumn* column;
+		va_list  arg_list;
+		va_start(arg_list, column1_name);
+		column = sq_table_add_constraint_va(this, SQB_UNIQUE, name, column1_name, arg_list);
+		va_end(arg_list);
+		return column;
+	}
+	void  dropUnique(const char* name) {
+		sq_table_drop_constraint(this, SQB_UNIQUE, name);
+	}
+	SqColumn* addPrimary(const char* name, const char* column1_name, ...) {
+		SqColumn* column;
+		va_list  arg_list;
+		va_start(arg_list, column1_name);
+		column = sq_table_add_constraint_va(this, SQB_PRIMARY, name, column1_name, arg_list);
+		va_end(arg_list);
+		return column;
+	}
+	void  dropPrimary(const char* name) {
+		sq_table_drop_constraint(this, SQB_PRIMARY, name);
+	}
+	SqColumn* addForeign(const char* name, const char* column_name) {
+		return sq_table_add_constraint(this, SQB_FOREIGN, name, column_name, NULL);
+	}
+	void  dropForeign(const char* name) {
+		sq_table_drop_constraint(this, SQB_FOREIGN, name);
+	}
 
-	SqColumn* addForeign(const char* name)
-		{ return sq_table_add_foreign(this, name); }
-	void  dropForeign(const char* name)
-		{ sq_table_drop_foreign(this, name); }
+/*
+	template<int N>
+	SqColumn* index(const char* (&column_array)[N], const char* name = NULL)
+	SqColumn* index(const char* column1_name, ...);
+
+	template<int N>
+	SqColumn* unique(const char* (&column_array)[N], const char* name = NULL);
+	SqColumn* unique(const char* column1_name, ...);
+
+	template<int N>
+	SqColumn* primary(const char* (&column_array)[N], const char* name = NULL);
+	SqColumn* primary(const char* column1_name, ...);
+
+	SqColumn* foreign(const char* column, const char* name = NULL) {
+		sq_table_add_constraint(this, SQB_FOREIGN, name, column, NULL);
+	}
+ */
+
+	// ----------------------------------------------------
 
 	int  include(SqTable* table_src)
 		{ return sq_table_include(this, table_src); }
