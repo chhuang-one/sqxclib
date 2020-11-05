@@ -30,8 +30,8 @@
 extern "C" {
 #endif
 
-// default length of header
-#define SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH     3
+// default
+#define SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT     3
 
 /* ----------------------------------------------------------------------------
 	macro for accessing variable of array
@@ -65,11 +65,11 @@ extern "C" {
 
 //void  sq_ptr_array_init(void* array, int allocated_length, SqDestroyFunc func);
 #define sq_ptr_array_init(array, allocated_length, func)  \
-		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH, func)
+		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, func)
 
 //void* sq_ptr_array_new(int allocated_length, SqDestroyFunc func);
 #define sq_ptr_array_new(allocated_length, func)  \
-		sq_ptr_array_init_full(NULL, allocated_length, SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH, func)
+		sq_ptr_array_init_full(NULL, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, func)
 
 //void  sq_ptr_array_free(void* array);
 #define sq_ptr_array_free(array)    free(sq_ptr_array_final(array))
@@ -276,7 +276,7 @@ struct PtrArrayMethod
 #endif // __cplusplus
 
 // ----------------------------------------------------------------------------
-// SqPtrArray - each size of members in PtrArray must be the same
+// SqPtrArray - pointer array
 
 #define SQ_PTR_ARRAY_MEMBERS(Type, data_name, length_name)   \
 		Type*     data_name;    \
@@ -364,7 +364,7 @@ void  sq_ptr_array_append_n(void* array, const void* values, int count);
 #endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------
-// Sq::Array and it's C++ template 
+// Sq::PtrArray and it's C++ template 
 
 #ifdef __cplusplus
 
@@ -380,7 +380,7 @@ inline Type* PtrArrayMethod<Type>::addr(int index)
 
 template<class Type>
 inline void  PtrArrayMethod<Type>::init(int allocated_length, SqDestroyFunc func)
-	{ sq_ptr_array_init_full(this, allocated_length, SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH, func); }
+	{ sq_ptr_array_init_full(this, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, func); }
 template<class Type>
 inline void  PtrArrayMethod<Type>::final(void)
 	{ sq_ptr_array_final(this); }

@@ -20,8 +20,8 @@ void* sq_ptr_array_init_full(void* array,
 {
 	int   size;
 
-	if (header_length < SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH)
-		header_length = SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH;
+	if (header_length < SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT)
+		header_length = SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT;
 	if (allocated_length == 0)
 		allocated_length  = 8;
 	size = (header_length + allocated_length) * sizeof(void*);
@@ -68,7 +68,7 @@ void** sq_ptr_array_alloc_at(void* array, int index, int count)
 
 	// it doesn't initialize.
 //	if (sq_ptr_array_data(array) == NULL)
-//		sq_ptr_array_init_full(array, count*2, SQ_PTR_ARRAY_HEADER_DEFAULT_LENGTH, NULL);
+//		sq_ptr_array_init_full(array, count*2, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL);
 
 	allocated  = sq_ptr_array_allocated(array);
 	new_length = sq_ptr_array_length(array) + count;
