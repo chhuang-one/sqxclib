@@ -89,7 +89,8 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->integer("companies_id", &User::companies_id);
-	table->addForeign("fk_companies_id", "companies_id")->reference("companies", "id");
+	table->addForeign("users_companies_id_foreign", "companies_id")->reference("companies", "id");
+	table->addIndex("users_id_index", "index", NULL);
 
 	// End of migration. create SQL tables based on storage->schema
 	storage->migrate(NULL);
@@ -118,7 +119,8 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->integer("companies_id", &User::companies_id);
-	table->addForeign("fk_companies_id", "companies_id")->reference("companies", "id");
+	table->addForeign("users_companies_id_foreign", "companies_id")->reference("companies", "id");
+	table->addIndex("users_id_index", "id", NULL);
 
 	// migrate schemaVer1, schemaVer2 to storage->schema
 	storage->migrate(schemaVer1);

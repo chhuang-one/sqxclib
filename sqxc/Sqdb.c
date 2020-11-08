@@ -162,13 +162,26 @@ int  sqdb_sql_create_tables_reo(Sqdb* db, SqBuffer* buffer, SqSchema* schema, Sq
 
 int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns)
 {
+	SqPtrArray  indexes;
+
 	if (arranged_columns == NULL)
 		arranged_columns = sq_type_get_ptr_array(table->type);
 
-	sq_buffer_write(sql_buf, "CREATE TABLE \"");
-	sq_buffer_write(sql_buf, table->name);
-	sq_buffer_write(sql_buf,"\" ");
-	return sqdb_sql_create_table_params(db, sql_buf, arranged_columns);
+	sq_ptr_array_init(&indexes, 4, NULL);
+	sq_table_get_columns(table, &indexes, SQB_INDEX);    // get record of "CREATE INDEX"
+	// CREATE TABLE
+	if (indexes.length < table->type->n_entry) {
+		sq_buffer_write(sql_buf, "CREATE TABLE \"");
+		sq_buffer_write(sql_buf, table->name);
+		sq_buffer_write(sql_buf,"\" ");
+		sqdb_sql_create_table_params(db, sql_buf, arranged_columns);
+	}
+
+	// CREATE INDEX
+	for (int i = 0;  i < indexes.length;  i++)
+		sqdb_sql_create_index(db, sql_buf, table, (SqColumn*)indexes.data[i]);
+	sq_ptr_array_final(&indexes);
+	return SQCODE_OK;
 }
 
 int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arranged_columns)
@@ -191,6 +204,8 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 			continue;
 		// skip constraint
 		if (column->constraint) {
+			if (column->bit_field & SQB_INDEX)
+				continue;
 			has_constraint = true;
 			continue;
 		}
@@ -205,11 +220,11 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 	if (db->info->product == SQDB_PRODUCT_MYSQL) {
 		for (index = 0;  index < arranged_columns->length;  index++) {
 			column = (SqColumn*)arranged_columns->data[index];
-			// Don't output CONSTRAINT here
+			// Don't output CONSTRAINT (INDEX) here
 			if (column->constraint)
 				continue;
 			// FOREIGN KEY
-			if (column->foreign)
+			if (column->foreign)    // column->bit_field & SQB_FOREIGN
 				sq_buffer_write(buffer, ", FOREIGN KEY");
 			// PRIMARY KEY
 			else if (column->bit_field & SQB_PRIMARY)
@@ -235,7 +250,11 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 	if (has_constraint) {
 		for (index = 0;  index < arranged_columns->length;  index++) {
 			column = (SqColumn*)arranged_columns->data[index];
+			// DROP COLUMN
 			if (column->name == NULL)
+				continue;
+			// CREATE INDEX
+			if (column->bit_field & SQB_INDEX)
 				continue;
 			// CONSTRAINT
 			if (column->constraint) {
@@ -324,8 +343,13 @@ static void sqdb_sql_alter_table_add(Sqdb* db, SqBuffer* buffer, SqTable* table)
 
 int  sqdb_sql_add_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
+	// CREATE INDEX
+	if (column->bit_field & SQB_INDEX) {
+		sqdb_sql_create_index(db, buffer, table, column);
+		return SQCODE_OK;
+	}
 	// ADD CONSTRAINT
-	if (column->constraint) {
+	else if (column->constraint) {
 		// SQLite doesn't support this
 		if (db->info->product != SQDB_PRODUCT_SQLITE)
 			return SQCODE_NOT_SUPPORT;
@@ -427,6 +451,10 @@ int  sqdb_sql_rename_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn
 
 int  sqdb_sql_drop_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
+	if (column->bit_field & SQB_INDEX) {
+		sqdb_sql_drop_index(db, buffer, table, column);
+		return SQCODE_OK;
+	}
 	if (db->info->product == SQDB_PRODUCT_SQLITE) {
 		// SQLite doesn't support DROP
 		return SQCODE_NOT_SUPPORT;
@@ -436,29 +464,55 @@ int  sqdb_sql_drop_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* 
 	sq_buffer_write(buffer, table->name);
 	sq_buffer_write(buffer, "\" ");
 
-	sq_buffer_write(buffer, "DROP");
+	sq_buffer_write(buffer, "DROP ");
 	// DROP CONSTRAINT
 	if (column->constraint || column->bit_field & SQB_CONSTRAINT) {
 		if (db->info->product == SQDB_PRODUCT_MYSQL) {
 			if (column->bit_field & SQB_FOREIGN || column->foreign)
-				sq_buffer_write(buffer, " FOREIGN KEY");
+				sq_buffer_write(buffer, "FOREIGN KEY");
 			else if (column->bit_field & SQB_PRIMARY)
-				sq_buffer_write(buffer, " PRIMARY KEY");
+				sq_buffer_write(buffer, "PRIMARY KEY");
 			else if (column->bit_field & SQB_UNIQUE)
-				sq_buffer_write(buffer, " INDEX");
+				sq_buffer_write(buffer, "INDEX");
 		}
 		else
-			sq_buffer_write(buffer, " CONSTRAINT");
+			sq_buffer_write(buffer, "CONSTRAINT");
 	}
 	// DROP COLUMN
 	else {
-		sq_buffer_write(buffer, " COLUMN");
+		sq_buffer_write(buffer, "COLUMN");
 	}
 
 	sq_buffer_write(buffer, " \"");
 	sq_buffer_write(buffer, column->old_name);
 	sq_buffer_write_c(buffer, '"');
 	return SQCODE_OK;
+}
+
+void sqdb_sql_create_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column)
+{
+	sq_buffer_write(sql_buf, "CREATE INDEX \"");
+	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write(sql_buf,"\" ON \"");
+	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write_c(sql_buf,'"');
+	sqdb_sql_write_constraint_columns(db, sql_buf, column);
+	sq_buffer_write_c(sql_buf,';');
+}
+
+void sqdb_sql_drop_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column)
+{
+	if (db->info->product == SQDB_PRODUCT_MYSQL) {
+		sq_buffer_write(sql_buf, "ALTER TABLE \"");
+		sq_buffer_write(sql_buf, table->name);
+		sq_buffer_write(sql_buf, "\" ");
+	}
+	sq_buffer_write(sql_buf, "DROP INDEX \"");
+	sq_buffer_write(sql_buf, column->name);
+
+//	sq_buffer_write(sql_buf, "\" ON \"");
+//	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, "\";");
 }
 
 void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* buffer, SqColumn* column)
@@ -563,8 +617,6 @@ void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 
 void sqdb_sql_write_constraint(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 {
-	char** constraint;
-
 	// CONSTRAINT "column name" PRIMARY KEY ("col1", "col2")
 	sq_buffer_write(buffer, " CONSTRAINT \"");
 	sq_buffer_write(buffer, column->name);
@@ -577,18 +629,25 @@ void sqdb_sql_write_constraint(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 	else if (column->bit_field & SQB_UNIQUE)
 		sq_buffer_write(buffer, " UNIQUE");
 
-	sq_buffer_write(buffer, " (\"");
-	for (constraint = column->constraint;  *constraint;  constraint++) {
-		if (constraint != column->constraint)
-			sq_buffer_write(buffer, ",\"");
-	 	sq_buffer_write(buffer, *constraint);
-		sq_buffer_write_c(buffer, '"');
-	}
-	sq_buffer_write_c(buffer, ')');
+	sqdb_sql_write_constraint_columns(db, buffer, column);
 
 	// FOREIGN KEY REFERENCES
 	if (column->foreign)
 		sqdb_sql_write_foreign_ref(db, buffer, column);
+}
+
+void sqdb_sql_write_constraint_columns(Sqdb* db, SqBuffer* sql_buf, SqColumn* column)
+{
+	char** constraint;
+
+	sq_buffer_write(sql_buf, " (\"");
+	for (constraint = column->constraint;  *constraint;  constraint++) {
+		if (constraint != column->constraint)
+			sq_buffer_write(sql_buf, ",\"");
+	 	sq_buffer_write(sql_buf, *constraint);
+		sq_buffer_write_c(sql_buf, '"');
+	}
+	sq_buffer_write_c(sql_buf, ')');
 }
 
 void sqdb_sql_write_foreign_ref(Sqdb* db, SqBuffer* buffer, SqColumn* column)

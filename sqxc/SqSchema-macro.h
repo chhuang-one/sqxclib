@@ -39,12 +39,10 @@ typedef struct Company
 	// --- or ---
 
 	SQ_SCHEMA_CREATE_AS(schema, Company, {
-		SQT_INTEGER_AS(Company, id);
-			SQC_PRIMARY(); SQC_HIDDEN();
+		SQT_INTEGER_AS(Company, id);  SQC_PRIMARY(); SQC_HIDDEN();
 		SQT_STRING_AS(Company, name, -1);
 		SQT_INTEGER_AS(Company, age);
-		SQT_STRING_AS(Company, address, 50);
-			SQC_HIDDEN_NULL();
+		SQT_STRING_AS(Company, address, 50);  SQC_HIDDEN_NULL();
 		SQT_DOUBLE_AS(Company, salary);
 	});
 
@@ -162,6 +160,32 @@ typedef struct Company
 
 #define SQT_CUSTOM_AS(structure, member, sqtype)   \
 		(column_cur_ = sq_table_add_custom(table_cur_, #member, offsetof(structure, member), sqtype))
+
+// ----------------------------------------------------------------------------
+
+#define SQT_ADD_INDEX(index_name, column1_name, ...)    \
+		(column_cur_ = sq_table_add_index(table_cur_, index_name, column1_name, ##__VA_ARGS__, NULL))
+
+#define SQT_DROP_INDEX(index_name)    \
+		sq_table_drop_index(table_cur_, index_name)
+
+#define SQT_ADD_UNIQUE(unique_name, column1_name, ...)    \
+		(column_cur_ = sq_table_add_unique(table_cur_, unique_name, column1_name, ##__VA_ARGS__, NULL))
+
+#define SQT_DROP_UNIQUE(unique_name)    \
+		sq_table_drop_unique(table_cur_, unique_name)
+
+#define SQT_ADD_PRIMARY(primary_name, column1_name, ...)    \
+		(column_cur_ = sq_table_add_primary(table_cur_, primary_name, column1_name, ##__VA_ARGS__, NULL))
+
+#define SQT_DROP_PRIMARY(primary_name)    \
+		sq_table_drop_primary(table_cur_, primary_name)
+
+#define SQT_ADD_FOREIGN(foreign_name, column_name)    \
+		(column_cur_ = sq_table_add_foreign(table_cur_, foreign_name, column_name))
+
+#define SQT_DROP_FOREIGN(foreign_name)    \
+		sq_table_drop_foreign(table_cur_, foreign_name)
 
 // ----------------------------------------------------------------------------
 

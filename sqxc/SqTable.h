@@ -75,8 +75,8 @@ bool      sq_table_has_column(SqTable* table, const char* column_name);
 void      sq_table_drop_column(SqTable* table, const char* column_name);
 void      sq_table_rename_column(SqTable* table, const char* from, const char* to);
 
+int       sq_table_get_columns(SqTable* table, SqPtrArray* ptr_array, unsigned int bit_field);
 SqColumn* sq_table_get_primary(SqTable* table);
-int       sq_table_get_foreigns(SqTable* table, SqPtrArray* array);
 
 // TODO: static declared SqColumn
 // int    sq_table_add_static(SqTable* table, const SqColumn* columns,
@@ -136,7 +136,7 @@ SqColumn* sq_table_add_constraint_va(SqTable* table,
 void      sq_table_drop_constraint(SqTable* table,
                                    unsigned int bit_field,
                                    const char* name);
-/*
+
 // CREATE INDEX "index_name" ON "table" ("column");
 // CREATE INDEX "index_name" ON "table" ("column1", "column2");
 // the last argument must be NULL
@@ -148,7 +148,6 @@ SqColumn* sq_table_add_index(SqTable* table,
 // DROP INDEX index_name
 // DROP INDEX table_name.index_name;
 void      sq_table_drop_index(SqTable* table, const char* index_name);
- */
 
 // CONSTRAINT "unique_name" UNIQUE ("column1_name", "column2_name")
 // ADD CONSTRAINT "unique_name" UNIQUE ("column1_name", "column2_name")
@@ -196,6 +195,8 @@ int       sq_table_include(SqTable* table, SqTable* table_src);
 
 // table->type->entry remove columns found in 'excluded_columns', remained columns output to 'result'.
 void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray* result);
+
+void      sq_table_complete(SqTable* table);
 
 // sort column by it's attribute
 //	sq_ptr_array_sort(result, (SqCompareFunc)sq_column_cmp_attrib);
@@ -385,7 +386,7 @@ struct SqTable
 
 	// ----------------------------------------------------
 	// constraint
-/*
+
 	SqColumn* addIndex(const char* name, const char* column1_name, ...) {
 		SqColumn* column;
 		va_list  arg_list;
@@ -397,7 +398,7 @@ struct SqTable
 	void  dropIndex(const char* name) {
 		sq_table_drop_constraint(this, SQB_INDEX, name);
 	}
- */
+
 	SqColumn* addUnique(const char* name, const char* column1_name, ...) {
 		SqColumn* column;
 		va_list  arg_list;
@@ -409,6 +410,7 @@ struct SqTable
 	void  dropUnique(const char* name) {
 		sq_table_drop_constraint(this, SQB_UNIQUE, name);
 	}
+
 	SqColumn* addPrimary(const char* name, const char* column1_name, ...) {
 		SqColumn* column;
 		va_list  arg_list;
@@ -420,6 +422,7 @@ struct SqTable
 	void  dropPrimary(const char* name) {
 		sq_table_drop_constraint(this, SQB_PRIMARY, name);
 	}
+
 	SqColumn* addForeign(const char* name, const char* column_name) {
 		return sq_table_add_constraint(this, SQB_FOREIGN, name, column_name, NULL);
 	}

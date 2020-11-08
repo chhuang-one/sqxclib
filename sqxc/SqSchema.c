@@ -208,7 +208,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 			table = (SqTable*)reentries->data[index];
 			if (table->foreigns.data == NULL)
 				sq_ptr_array_init(&table->foreigns, 4, NULL);
-			sq_table_get_foreigns(table, &table->foreigns);
+			sq_table_get_columns(table, &table->foreigns, SQB_FOREIGN);
 		}
 	}
 
@@ -231,7 +231,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 				// It must steal 'table_src' from 'schema_src' if table not found.
 				if (table_src->foreigns.data == NULL)
 					sq_ptr_array_init(&table_src->foreigns, 4, NULL);
-				sq_table_get_foreigns(table_src, &table_src->foreigns);
+				sq_table_get_columns(table_src, &table_src->foreigns, SQB_FOREIGN);
 			}
 		}
 		else if (table_src->name == NULL) {
@@ -265,7 +265,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 			// === ADD TABLE ===
 			if (table_src->foreigns.data == NULL)
 				sq_ptr_array_init(&table_src->foreigns, 4, NULL);			
-			sq_table_get_foreigns(table_src, &table_src->foreigns);
+			sq_table_get_columns(table_src, &table_src->foreigns, SQB_FOREIGN);
 		}
 
 		// steal 'table_src' from 'schema_src->type->entry'.
@@ -507,7 +507,7 @@ void    sq_schema_complete(SqSchema* schema)
 	for (int index = 0;  index < entries->length;  index++) {
 		table = entries->data[index];
 //		table->offset = 0;
-		sq_ptr_array_final(&table->foreigns);
+		sq_table_complete(table);
 	}
 
 	schema->bit_field &= ~SQB_SCHEMA_INCLUDED;

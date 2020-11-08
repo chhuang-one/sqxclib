@@ -125,6 +125,32 @@ void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
 #endif
 }
 
+int  sq_table_get_columns(SqTable* table, SqPtrArray* ptrarray, unsigned int bit_field)
+{
+	SqPtrArray* colarray;
+	SqColumn*   column;
+	int         count = 0;
+
+	if (ptrarray && ptrarray->data == NULL)
+		sq_ptr_array_init(ptrarray, 4, NULL);
+
+	colarray = sq_type_get_ptr_array(table->type);
+	for (int index = 0;  index < colarray->length;  index++) {
+		column = colarray->data[index];
+		if ((column->bit_field & bit_field) == 0) {
+			if ((bit_field & SQB_FOREIGN    && column->foreign) ||
+			    (bit_field & SQB_CONSTRAINT && column->constraint) )
+				;
+			else
+				continue;
+		}
+		if (ptrarray)
+			sq_ptr_array_append(ptrarray, column);
+		count++;
+	}
+	return count;
+}
+
 SqColumn* sq_table_get_primary(SqTable* table)
 {
 	SqPtrArray* array;
@@ -137,27 +163,6 @@ SqColumn* sq_table_get_primary(SqTable* table)
 			return column;
 	}
 	return NULL;
-}
-
-int   sq_table_get_foreigns(SqTable* table, SqPtrArray* array)
-{
-	SqPtrArray* colarray;
-	SqColumn*   column;
-	int         count = 0;
-
-	if (array && array->data == NULL)
-		sq_ptr_array_init(array, 4, NULL);
-
-	colarray = sq_type_get_ptr_array(table->type);
-	for (int index = 0;  index < colarray->length;  index++) {
-		column = colarray->data[index];
-		if (column->bit_field & SQB_FOREIGN || column->foreign) {
-			if (array)
-				sq_ptr_array_append(array, column);
-			count++;
-		}
-	}
-	return count;
 }
 
 SqColumn* sq_table_add_int(SqTable* table, const char* name, size_t offset)
@@ -348,7 +353,6 @@ void      sq_table_drop_constraint(SqTable* table,
 #endif
 }
 
-/*
 SqColumn* sq_table_add_index(SqTable* table,
                              const char* index_name,
                              const char* column1_name, ...)
@@ -366,7 +370,6 @@ void   sq_table_drop_index(SqTable* table, const char* index_name)
 {
 	sq_table_drop_constraint(table, SQB_INDEX, index_name);
 }
- */
 
 SqColumn* sq_table_add_unique(SqTable* table,
                               const char* unique_name,
@@ -575,6 +578,33 @@ void  sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray*
 		}
 	}
 	result->length = index_r;
+}
+
+void   sq_table_complete(SqTable* table)
+{
+	SqPtrArray* reentries;
+	SqColumn*   column;
+	bool        has_null = false;
+
+	sq_ptr_array_final(&table->foreigns);
+
+	if (table->type->bit_field & SQB_DYNAMIC) {
+		reentries = sq_type_get_ptr_array(table->type);
+		for (int index = 0;  index < reentries->length;  index++) {
+			column = reentries->data[index];
+			if (column->bit_field & (SQB_INDEX | SQB_CONSTRAINT) || column->constraint) {
+				sq_column_free(column);
+				reentries->data[index] = NULL;
+				has_null = true;
+			}
+			if (column->bit_field & (SQB_RENAMED | SQB_DYNAMIC))
+				free(column->old_name);
+		}
+		if (has_null)
+			sq_reentries_remove_null(reentries);
+		// sort columns by name
+		sq_type_sort_entry(table->type);
+	}
 }
 
 // ----------------------------------------------------------------------------
