@@ -661,8 +661,11 @@ void  sq_column_free(SqColumn* column)
 		free(column->old_name);
 		if (column->foreign)
 			sq_foreign_free(column->foreign);
-		if (column->composite)
+		if (column->composite) {
+			for (char** cur = column->composite;  *cur;  cur++)
+				free(*cur);
 			sq_composite_free(column->composite);
+		}
 		free(column);
 	}
 }
