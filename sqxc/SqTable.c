@@ -19,8 +19,6 @@
 #include <SqError.h>
 #include <SqTable.h>
 
-#define N_CONSTRAINT_LEN    4
-
 SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 {
 	SqTable* table;
@@ -138,10 +136,7 @@ int  sq_table_get_columns(SqTable* table, SqPtrArray* ptrarray, unsigned int bit
 	for (int index = 0;  index < colarray->length;  index++) {
 		column = colarray->data[index];
 		if ((column->bit_field & bit_field) == 0) {
-			if ((bit_field & SQB_FOREIGN    && column->foreign) ||
-			    (bit_field & SQB_CONSTRAINT && column->constraint) )
-				;
-			else
+			if (column->foreign == NULL || (bit_field & SQB_FOREIGN) == 0)
 				continue;
 		}
 		if (ptrarray)
@@ -265,7 +260,7 @@ SqColumn* sq_table_add_custom(SqTable* table, const char* name,
 // C99 or C++ inline functions in SqTable.h
 #else
 
-SqColumn* sq_table_add_constraint(SqTable* table,
+SqColumn* sq_table_add_composite(SqTable* table,
                                   unsigned int bit_field,
                                   const char* name,
                                   const char* column1_name, ...)
@@ -274,14 +269,14 @@ SqColumn* sq_table_add_constraint(SqTable* table,
 
 	va_list  arg_list;
 	va_start(arg_list, column1_name);
-	column = sq_table_add_constraint_va(table, bit_field, name, column1_name, arg_list);
+	column = sq_table_add_composite_va(table, bit_field, name, column1_name, arg_list);
 	va_end(arg_list);
 	return column;
 }
 
 #endif  // __STDC_VERSION__
 
-SqColumn* sq_table_add_constraint_va(SqTable* table,
+SqColumn* sq_table_add_composite_va(SqTable* table,
                                      unsigned int bit_field,
                                      const char* name,
                                      const char* column1_name,
@@ -290,7 +285,7 @@ SqColumn* sq_table_add_constraint_va(SqTable* table,
 	SqColumn* column;
 
 	column = calloc(1, sizeof(SqColumn));
-	column->bit_field = SQB_DYNAMIC | SQB_CONSTRAINT | bit_field;
+	column->bit_field = SQB_DYNAMIC | bit_field;
 #if 1
 	column->name = strdup(name);
 #else
@@ -330,19 +325,19 @@ SqColumn* sq_table_add_constraint_va(SqTable* table,
 		strcat(column->name, post_string);
 	}
 #endif
-	sq_column_set_constraint_va(column, column1_name, arg_list);
+	sq_column_set_composite_va(column, column1_name, arg_list);
 	sq_table_append_column(table, column);
 	return column;
 }
 
-void      sq_table_drop_constraint(SqTable* table,
+void      sq_table_drop_composite(SqTable* table,
                                    unsigned int bit_field,
                                    const char* name)
 {
 	SqColumn* column;
 
 	column = calloc(1, sizeof(SqColumn));
-	column->bit_field = SQB_DYNAMIC | SQB_CONSTRAINT | bit_field;
+	column->bit_field = SQB_DYNAMIC | bit_field;
 	column->old_name = strdup(name);
 	sq_table_append_column(table, column);
 
@@ -361,14 +356,14 @@ SqColumn* sq_table_add_index(SqTable* table,
 
 	va_list  arg_list;
 	va_start(arg_list, column1_name);
-	column = sq_table_add_constraint_va(table, SQB_INDEX, index_name, column1_name, arg_list);
+	column = sq_table_add_composite_va(table, SQB_INDEX, index_name, column1_name, arg_list);
 	va_end(arg_list);
 	return column;
 }
 
 void   sq_table_drop_index(SqTable* table, const char* index_name)
 {
-	sq_table_drop_constraint(table, SQB_INDEX, index_name);
+	sq_table_drop_composite(table, SQB_INDEX, index_name);
 }
 
 SqColumn* sq_table_add_unique(SqTable* table,
@@ -379,14 +374,14 @@ SqColumn* sq_table_add_unique(SqTable* table,
 
 	va_list  arg_list;
 	va_start(arg_list, column1_name);
-	column = sq_table_add_constraint_va(table, SQB_UNIQUE, unique_name, column1_name, arg_list);
+	column = sq_table_add_composite_va(table, SQB_UNIQUE | SQB_CONSTRAINT, unique_name, column1_name, arg_list);
 	va_end(arg_list);
 	return column;
 }
 
 void   sq_table_drop_unique(SqTable* table, const char* unique_name)
 {
-	sq_table_drop_constraint(table, SQB_UNIQUE, unique_name);
+	sq_table_drop_composite(table, SQB_UNIQUE | SQB_CONSTRAINT, unique_name);
 }
 
 SqColumn* sq_table_add_primary(SqTable* table,
@@ -397,24 +392,24 @@ SqColumn* sq_table_add_primary(SqTable* table,
 
 	va_list  arg_list;
 	va_start(arg_list, column1_name);
-	column = sq_table_add_constraint_va(table, SQB_PRIMARY, primary_name, column1_name, arg_list);
+	column = sq_table_add_composite_va(table, SQB_PRIMARY | SQB_CONSTRAINT, primary_name, column1_name, arg_list);
 	va_end(arg_list);
 	return column;
 }
 
 void   sq_table_drop_primary(SqTable* table, const char* primary_name)
 {
-	sq_table_drop_constraint(table, SQB_PRIMARY, primary_name);
+	sq_table_drop_composite(table, SQB_PRIMARY | SQB_CONSTRAINT, primary_name);
 }
 
 SqColumn* sq_table_add_foreign(SqTable* table, const char* name, const char* column_name)
 {
-	return sq_table_add_constraint(table, SQB_FOREIGN, name, column_name, NULL);
+	return sq_table_add_composite(table, SQB_FOREIGN | SQB_CONSTRAINT, name, column_name, NULL);
 }
 
 void   sq_table_drop_foreign(SqTable* table, const char* name)
 {
-	sq_table_drop_constraint(table, SQB_FOREIGN, name);
+	sq_table_drop_composite(table, SQB_FOREIGN | SQB_CONSTRAINT, name);
 }
 
 // --------------------------------------------------------
@@ -529,7 +524,7 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 		else {
 			// === ADD COLUMN / CONSTRAINT / KEY ===
 			// set bit_field: column added
-			if (column_src->constraint)
+			if (column_src->bit_field & SQB_CONSTRAINT)
 				table->bit_field |= SQB_TABLE_COL_ADDED_CONSTRAINT;
 			else if (column->bit_field & (SQB_UNIQUE | SQB_PRIMARY))
 				table->bit_field |= SQB_TABLE_COL_ADDED_UNIQUE;
@@ -592,7 +587,7 @@ void   sq_table_complete(SqTable* table)
 		reentries = sq_type_get_ptr_array(table->type);
 		for (int index = 0;  index < reentries->length;  index++) {
 			column = reentries->data[index];
-			if (column->bit_field & (SQB_INDEX | SQB_CONSTRAINT) || column->constraint) {
+			if (column->bit_field & (SQB_INDEX | SQB_CONSTRAINT)) {
 				sq_column_free(column);
 				reentries->data[index] = NULL;
 				has_null = true;
@@ -631,13 +626,15 @@ static SqForeign* sq_foreign_copy(SqForeign* src)
 	return foreign;
 }
 
-#define sq_constraint_allocated(constraint)    *( (intptr_t*) ((constraint)-1) )
-#define sq_constraint_alloc(n)                 ( (char**)malloc(sizeof(char*) *(n+1)) +1)
-#define sq_constraint_realloc(constraint, n)   ( (char**)realloc((constraint)-1, sizeof(char*) *(n+1)) +1)
-#define sq_constraint_free(constraint)         free((constraint)-1)
-
 // ----------------------------------------------------------------------------
 // SqColumn C functions
+
+#define SQ_COMPOSITE_LENGTH_DEFAULT    4
+
+#define sq_composite_allocated(constraint)    *( (intptr_t*) ((constraint)-1) )
+#define sq_composite_alloc(n)                 ( (char**)malloc(sizeof(char*) *(n+1)) +1)
+#define sq_composite_realloc(constraint, n)   ( (char**)realloc((constraint)-1, sizeof(char*) *(n+1)) +1)
+#define sq_composite_free(constraint)         free((constraint)-1)
 
 SqColumn*  sq_column_new(const char* name, const SqType* typeinfo)
 {
@@ -660,13 +657,12 @@ void  sq_column_free(SqColumn* column)
 		// free SqColumn
 		free(column->default_value);
 		free(column->check);
-//		free(column->comment);
 		free(column->extra);
 		free(column->old_name);
 		if (column->foreign)
 			sq_foreign_free(column->foreign);
-		if (column->constraint)
-			sq_constraint_free(column->constraint);
+		if (column->composite)
+			sq_composite_free(column->composite);
 		free(column);
 	}
 }
@@ -692,26 +688,20 @@ SqColumn* sq_column_copy_static(const SqColumn* column_src)
 
 	column->foreign = NULL;
 	if (column_src->foreign) {
-		if (column_src->old_name)
-			column->bit_field |= SQB_FOREIGN;  // DROP or RENAME
-		else
-			column->foreign = sq_foreign_copy(column_src->foreign);
+		column->foreign = sq_foreign_copy(column_src->foreign);
+		column->bit_field |= SQB_FOREIGN;
 	}
 
-	column->constraint = NULL;
-	if (column_src->constraint) {
-		if (column_src->old_name)
-			column->bit_field |= SQB_CONSTRAINT;  // DROP or RENAME
-		else {
-			for (index = 0;  column_src->constraint[index];  index++)
-				;
-			if (index > 0) {
-				length = index + 1;
-				column->constraint = sq_constraint_alloc(length);
-				column->constraint[index] = NULL;
-				for (index = 0;  index < length;  index++)
-					column->constraint[index] = strdup(column_src->constraint[index]);
-			}
+	column->composite = NULL;
+	if (column_src->composite) {
+		for (index = 0;  column_src->composite[index];  index++)
+			;
+		if (index > 0) {
+			length = index + 1;
+			column->composite = sq_composite_alloc(length);
+			column->composite[index] = NULL;
+			for (index = 0;  index < length;  index++)
+				column->composite[index] = strdup(column_src->composite[index]);
 		}
 	}
 	return column;
@@ -765,42 +755,42 @@ void  sq_column_on_update(SqColumn* column, const char* act)
 		column->foreign->on_update = strdup(act);
 }
 
-void  sq_column_set_constraint(SqColumn* column, ...)
+void  sq_column_set_composite(SqColumn* column, ...)
 {
 	const char* first;
 	va_list  arg_list;
 
 	va_start(arg_list, column);
 	first = va_arg(arg_list, const char*);
-	sq_column_set_constraint_va(column, first, arg_list);
+	sq_column_set_composite_va(column, first, arg_list);
 	va_end(arg_list);
 }
 
-void  sq_column_set_constraint_va(SqColumn* column, const char *name, va_list arg_list)
+void  sq_column_set_composite_va(SqColumn* column, const char *name, va_list arg_list)
 {
 	int   index, allocated;
 
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
 
-	if (column->constraint == NULL) {
-		column->constraint = sq_constraint_alloc(N_CONSTRAINT_LEN);
-		allocated = N_CONSTRAINT_LEN;
+	if (column->composite == NULL) {
+		column->composite = sq_composite_alloc(SQ_COMPOSITE_LENGTH_DEFAULT);
+		allocated = SQ_COMPOSITE_LENGTH_DEFAULT;
 	}
 	else {
-		allocated = sq_constraint_allocated(column->constraint);
-		for (index = 0;  column->constraint[index];  index++)
-			free(column->constraint[index]);
+		allocated = sq_composite_allocated(column->composite);
+		for (index = 0;  column->composite[index];  index++)
+			free(column->composite[index]);
 	}
 
 	for (index = 0;  ;  index++) {
 		// add string to null terminated string array 
 		if (index == allocated) {
 			allocated *= 2;
-			column->constraint = sq_constraint_realloc(column->constraint, allocated);
-			sq_constraint_allocated(column->constraint) = allocated;
+			column->composite = sq_composite_realloc(column->composite, allocated);
+			sq_composite_allocated(column->composite) = allocated;
 		}
-		column->constraint[index] = name ? strdup(name) : NULL;
+		column->composite[index] = name ? strdup(name) : NULL;
 		// break if name is NULL
 		if (name)
 			name = va_arg(arg_list, const char*);
@@ -818,14 +808,14 @@ int  sq_column_cmp_attrib(SqColumn** column1, SqColumn** column2)
 {
 	int  var1 = 0, var2 = 0;
 
-	if ((*column1)->constraint)
+	if ((*column1)->bit_field & (SQB_CONSTRAINT | SQB_INDEX))
 		var1 += 3;
 	if ((*column1)->foreign || (*column1)->bit_field & SQB_FOREIGN)
 		var1 += 1;
 	else if (((*column1)->bit_field & SQB_PRIMARY) == 0)
 		var1 += 2;
 
-	if ((*column2)->constraint)
+	if ((*column2)->bit_field & (SQB_CONSTRAINT | SQB_INDEX))
 		var2 += 3;
 	if ((*column2)->foreign || (*column2)->bit_field & SQB_FOREIGN)
 		var2 += 1;

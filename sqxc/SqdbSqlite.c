@@ -25,7 +25,7 @@
 #include <SqxcValue.h>  // TODO: SqdbHelper functions
 #include <SqxcSql.h>
 
-//#define DEBUG 1
+#define DEBUG 1
 #define NEW_TABLE_PREFIX_NAME    "new__table__"
 
 static void sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf, SqTable* table);

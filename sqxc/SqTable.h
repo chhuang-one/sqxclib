@@ -127,15 +127,15 @@ SqColumn* sq_table_add_custom(SqTable* table, const char* column_name,
 // --------------------------------------------------------
 // SqTable C functions for CONSTRAINT
 
-SqColumn* sq_table_add_constraint_va(SqTable* table,
-                                     unsigned int bit_field,
-                                     const char* name,
-                                     const char* column1_name,
-                                     va_list arg_list);
+SqColumn* sq_table_add_composite_va(SqTable* table,
+                                    unsigned int bit_field,
+                                    const char* name,
+                                    const char* column1_name,
+                                    va_list arg_list);
 
-void      sq_table_drop_constraint(SqTable* table,
-                                   unsigned int bit_field,
-                                   const char* name);
+void      sq_table_drop_composite(SqTable* table,
+                                  unsigned int bit_field,
+                                  const char* name);
 
 // CREATE INDEX "index_name" ON "table" ("column");
 // CREATE INDEX "index_name" ON "table" ("column1", "column2");
@@ -222,9 +222,9 @@ void       sq_column_on_update(SqColumn* column, const char* act);
 #define sq_column_foreign    sq_column_reference
 
 // the last argument must be NULL
-// sq_column_set_constraint(column, colume_name1, column_name2, NULL);
-void       sq_column_set_constraint(SqColumn* column, ...);
-void       sq_column_set_constraint_va(SqColumn* column, const char *name, va_list arg_list);
+// sq_column_set_composite(column, colume_name1, column_name2, NULL);
+void       sq_column_set_composite(SqColumn* column, ...);
+void       sq_column_set_composite_va(SqColumn* column, const char *name, va_list arg_list);
 
 // used by sq_table_arrange()
 // primary key = 0
@@ -249,16 +249,16 @@ inline
 #else               // C99
 static inline
 #endif
-SqColumn* sq_table_add_constraint(SqTable* table,
-                                  unsigned int bit_field,
-                                  const char* name,
-                                  const char* column1_name, ...)
+SqColumn* sq_table_add_composite(SqTable* table,
+                                 unsigned int bit_field,
+                                 const char* name,
+                                 const char* column1_name, ...)
 {
 	SqColumn* column;
 
 	va_list  arg_list;
 	va_start(arg_list, column1_name);
-	column = sq_table_add_constraint_va(table, bit_field, name, column1_name, arg_list);
+	column = sq_table_add_composite_va(table, bit_field, name, column1_name, arg_list);
 	va_end(arg_list);
 	return column;
 }
@@ -266,10 +266,10 @@ SqColumn* sq_table_add_constraint(SqTable* table,
 #else  // __STDC_VERSION__ || __cplusplus
 
 // C functions
-SqColumn* sq_table_add_constraint(SqTable* table,
-                                  unsigned int bit_field,
-                                  const char* name,
-                                  const char* column1_name, ...);
+SqColumn* sq_table_add_composite(SqTable* table,
+                                 unsigned int bit_field,
+                                 const char* name,
+                                 const char* column1_name, ...);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -385,49 +385,49 @@ struct SqTable
 	};
 
 	// ----------------------------------------------------
-	// constraint
+	// composite (constraint)
 
 	SqColumn* addIndex(const char* name, const char* column1_name, ...) {
 		SqColumn* column;
 		va_list  arg_list;
 		va_start(arg_list, column1_name);
-		column = sq_table_add_constraint_va(this, SQB_INDEX, name, column1_name, arg_list);
+		column = sq_table_add_composite_va(this, SQB_INDEX, name, column1_name, arg_list);
 		va_end(arg_list);
 		return column;
 	}
 	void  dropIndex(const char* name) {
-		sq_table_drop_constraint(this, SQB_INDEX, name);
+		sq_table_drop_composite(this, SQB_INDEX, name);
 	}
 
 	SqColumn* addUnique(const char* name, const char* column1_name, ...) {
 		SqColumn* column;
 		va_list  arg_list;
 		va_start(arg_list, column1_name);
-		column = sq_table_add_constraint_va(this, SQB_UNIQUE, name, column1_name, arg_list);
+		column = sq_table_add_composite_va(this, SQB_UNIQUE | SQB_CONSTRAINT, name, column1_name, arg_list);
 		va_end(arg_list);
 		return column;
 	}
 	void  dropUnique(const char* name) {
-		sq_table_drop_constraint(this, SQB_UNIQUE, name);
+		sq_table_drop_composite(this, SQB_UNIQUE | SQB_CONSTRAINT, name);
 	}
 
 	SqColumn* addPrimary(const char* name, const char* column1_name, ...) {
 		SqColumn* column;
 		va_list  arg_list;
 		va_start(arg_list, column1_name);
-		column = sq_table_add_constraint_va(this, SQB_PRIMARY, name, column1_name, arg_list);
+		column = sq_table_add_composite_va(this, SQB_PRIMARY | SQB_CONSTRAINT, name, column1_name, arg_list);
 		va_end(arg_list);
 		return column;
 	}
 	void  dropPrimary(const char* name) {
-		sq_table_drop_constraint(this, SQB_PRIMARY, name);
+		sq_table_drop_composite(this, SQB_PRIMARY | SQB_CONSTRAINT, name);
 	}
 
 	SqColumn* addForeign(const char* name, const char* column_name) {
-		return sq_table_add_constraint(this, SQB_FOREIGN, name, column_name, NULL);
+		return sq_table_add_composite(this, SQB_FOREIGN | SQB_CONSTRAINT, name, column_name, NULL);
 	}
 	void  dropForeign(const char* name) {
-		sq_table_drop_constraint(this, SQB_FOREIGN, name);
+		sq_table_drop_composite(this, SQB_FOREIGN | SQB_CONSTRAINT, name);
 	}
 
 /*
@@ -444,7 +444,7 @@ struct SqTable
 	SqColumn* primary(const char* column1_name, ...);
 
 	SqColumn* foreign(const char* column, const char* name = NULL) {
-		sq_table_add_constraint(this, SQB_FOREIGN, name, column, NULL);
+		sq_table_add_composite(this, SQB_FOREIGN | SQB_CONSTRAINT, name, column, NULL);
 	}
  */
 
@@ -497,10 +497,9 @@ struct SqColumn
 
 	char*        default_value;    // create
 	char*        check;            // CHECK (condition)
-//	char*        comment;
 
 	SqForeign*   foreign;          // foreign key
-	char**       constraint;       // Null-terminated string array
+	char**       composite;        // Null-terminated (column-name) string array
 
 	char*        extra;            // raw SQL column property
 
@@ -528,10 +527,10 @@ struct SqColumn
 		{ sq_column_on_delete(this, act); return *this; }
 	SqColumn& onUpdate(const char *act)
 		{ sq_column_on_update(this, act); return *this; }
-	SqColumn& setConstraint(const char *name, ...) {
+	SqColumn& setComposite(const char *name, ...) {
 		va_list  arg_list;
 		va_start(arg_list, name);
-		sq_column_set_constraint_va(this, name, arg_list);
+		sq_column_set_composite_va(this, name, arg_list);
 		va_end(arg_list);
 		return *this;
 	}
@@ -553,12 +552,15 @@ struct SqColumn
 // C++ namespace
 
 #ifdef __cplusplus
-namespace Sq
-{
+namespace Sq {
+
 // These are for directly use only. You can NOT derived it.
 typedef struct SqTable     Table;
 typedef struct SqColumn    Column;
+typedef struct SqForeign   Foreign;
+
 };  // namespace Sq
+
 #endif  // __cplusplus
 
 

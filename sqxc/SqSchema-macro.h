@@ -39,7 +39,7 @@ typedef struct Company
 	// --- or ---
 
 	SQ_SCHEMA_CREATE_AS(schema, Company, {
-		SQT_INTEGER_AS(Company, id);  SQC_PRIMARY(); SQC_HIDDEN();
+		SQT_INTEGER_AS(Company, id);  SQC_PRIMARY();  SQC_HIDDEN();
 		SQT_STRING_AS(Company, name, -1);
 		SQT_INTEGER_AS(Company, age);
 		SQT_STRING_AS(Company, address, 50);  SQC_HIDDEN_NULL();

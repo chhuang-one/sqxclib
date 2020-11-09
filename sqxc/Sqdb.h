@@ -83,7 +83,7 @@ void sqdb_sql_drop_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* 
 void sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns, bool old_name);
 void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
 void sqdb_sql_write_constraint(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
-void sqdb_sql_write_constraint_columns(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
+void sqdb_sql_write_composite_columns(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
 void sqdb_sql_write_foreign_ref(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
 
 #ifdef __cplusplus

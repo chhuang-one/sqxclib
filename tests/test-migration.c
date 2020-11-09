@@ -68,9 +68,10 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
 
 	// CONSTRAINT FOREIGN KEY
-	&(SqColumn) {.name = "fk_cities_id",
+	&(SqColumn) {.bit_field = SQB_CONSTRAINT | SQB_FOREIGN,
+	             .name = "fk_cities_id",
 	             .foreign = &(SqForeign) {"cities", "id", "no action", "cascade"},
-	             .constraint = (char *[]) {"city_id", NULL} },
+	             .composite = (char *[]) {"city_id", NULL} },
 	// COLUMN
 	&(SqColumn) {SQ_TYPE_INT,    "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
 	&(SqColumn) {SQ_TYPE_STRING, "name",    offsetof(User, name),  0},
@@ -106,7 +107,8 @@ static const SqColumn  *UserColumnsChange[] = {
 
 	// DROP CONSTRAINT FOREIGN KEY "fk_cities_id"
 	&(SqColumn) {.old_name = "fk_cities_id",  .name = NULL,
-	             .constraint = (char**)"",  .foreign = (SqForeign*)""},
+	             .bit_field = SQB_CONSTRAINT | SQB_FOREIGN},
+
 	// DROP COLUMN "name"
 	&(SqColumn) {.old_name = "name",   .name = NULL},
 
@@ -147,14 +149,23 @@ SqTable* create_user_table_by_c(SqSchema* schema)
 //	table = sq_schema_create(schema, "users", User);
 	table = sq_schema_create_full(schema, "users", SQ_GET_TYPE_NAME(User), NULL, sizeof(User));
 
-	column = sq_table_add_integer(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;
-	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
-	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 	column = sq_table_add_int(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id");
-//	column = sq_table_add_primary(table, "pk_name_email", "name", "email", NULL);
-	sq_column_set_constraint(column, "name", "email", NULL);
+
+	column = sq_table_add_int(table, "company_id", offsetof(User, city_id));
+	sq_column_reference(column, "companies", "id");
+	sq_column_on_delete(column, "cascade");
+
+	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
+
+	column = sq_table_add_foreign(table, "fk_cities_id", "city_id");
+	sq_column_reference(column, "cities", "id");
+	sq_column_on_delete(column, "no action");
+
+	column = sq_table_add_integer(table, "id", offsetof(User, id));
+	column->bit_field |= SQB_PRIMARY;
+
+	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_custom(table, "posts", offsetof(User, posts), SQ_TYPE_INTPTR_ARRAY);
 
 	return table;

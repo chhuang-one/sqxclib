@@ -27,7 +27,7 @@ typedef struct Company    Company;
 struct User {
 	int    id;
 	char*  name;
-	int    companies_id;
+	int    company_id;
 };
 
 struct Company
@@ -88,8 +88,8 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	table = schema->create<User>("users");
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
-	table->integer("companies_id", &User::companies_id);
-	table->addForeign("users_companies_id_foreign", "companies_id")->reference("companies", "id");
+	table->integer("company_id", &User::company_id);
+	table->addForeign("users_companies_id_foreign", "company_id")->reference("companies", "id");
 	table->addIndex("users_id_index", "index", NULL);
 
 	// End of migration. create SQL tables based on storage->schema
@@ -118,8 +118,8 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	table = schemaVer2->create<User>("users");
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
-	table->integer("companies_id", &User::companies_id);
-	table->addForeign("users_companies_id_foreign", "companies_id")->reference("companies", "id");
+	table->integer("company_id", &User::company_id);
+	table->addForeign("users_companies_id_foreign", "company_id")->reference("companies", "id");
 	table->addIndex("users_id_index", "id", NULL);
 
 	// migrate schemaVer1, schemaVer2 to storage->schema

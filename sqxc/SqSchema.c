@@ -436,7 +436,7 @@ static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 			if (is_reo)
 				*is_reo = 1;
 			// for SQLite (constraint reference each other)
-			if (column->constraint)
+			if (column->bit_field & SQB_CONSTRAINT)
 				table->bit_field |= SQB_TABLE_REO_CONSTRAINT;
 			continue;
 		}
@@ -449,7 +449,7 @@ static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 				if (is_reo)
 					*is_reo = 1;
 				// for SQLite (constraint reference each other)
-				if (column->constraint)
+				if (column->bit_field & SQB_CONSTRAINT)
 					table->bit_field |= SQB_TABLE_REO_CONSTRAINT;
 				continue;
 			}

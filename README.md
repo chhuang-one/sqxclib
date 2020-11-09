@@ -25,7 +25,7 @@ uGet3 use SQL database to solve this problem.
 ## Database schema
 
 	struct User {
-		int    id;
+		int    id;         // primary key
 		char*  full_name;
 		char*  email;
 		int    city_id;    // foreign key
@@ -39,6 +39,17 @@ uGet3 use SQL database to solve this problem.
 		&(SqColumn) {SQ_TYPE_STRING, "email",     offsetof(User, email)      },
 		&(SqColumn) {SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
 		             .foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
+
+		// CONSTRAINT FOREIGN KEY
+		&(SqColumn) {.bit_field = SQB_CONSTRAINT | SQB_FOREIGN,
+		             .name = "users_city_id_foreign",
+		             .foreign = &(SqForeign) {"cities", "id", "no action", "no action"},
+		             .composite = (char *[]) {"city_id", NULL} },
+
+		// CREATE INDEX
+		&(SqColumn) {.bit_field = SQB_INDEX,
+		             .name = "users_id_index",
+		             .composite = (char *[]) {"id", NULL} },
 	};
 
  use C function to declare table/column (dynamic)
@@ -53,6 +64,11 @@ uGet3 use SQL database to solve this problem.
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id");
+	// CONSTRAINT FOREIGN KEY
+	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
+	sq_column_reference(column, "cities", "id");
+	// CREATE INDEX
+	column = sq_table_add_index(table, "users_id_index", "id", NULL);
 
  use C macro to declare table/column (dynamic)
 
@@ -61,6 +77,10 @@ uGet3 use SQL database to solve this problem.
 		SQT_STRING("full_name", User, full_name, -1);
 		SQT_STRING("email", User, email, -1);
 		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");
+		// CONSTRAINT FOREIGN KEY
+		SQT_ADD_FOREIGN("users_city_id_foreign", "city_id");  SQC_REFERENCE("cities", "id");
+		// CREATE INDEX
+		SQT_ADD_INDEX("users_id_index", "id");
 	});
 
  use C++ function to declare table/column (dynamic)
@@ -72,6 +92,10 @@ uGet3 use SQL database to solve this problem.
 	table->string("full_name", &User::full_name);
 	table->string("email", &User::email);
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
+	// CONSTRAINT FOREIGN KEY
+	table->addForeign("users_city_id_foreign", "city_id")->reference("cities", "id");
+	// CREATE INDEX
+	table->addIndex("users_id_index", "id", NULL);
 
 
 ## Migration
