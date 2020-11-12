@@ -7,7 +7,7 @@ executable('test-container-cxx',
 executable('test-cxx',
            'test-cxx.cpp',
            include_directories : sqxc_inc,
-		   dependencies : sqlite,
+		   dependencies : [sqlite, jsonc],
            link_with : sqxc)
 
 executable('test-migration',

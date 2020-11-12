@@ -135,6 +135,8 @@ void test_sqxc_joint_input()
 	sq_table_free(table);
 }
 
+#ifdef SQ_CONFIG_JSON_SUPPORT
+
 const char* json_array_string =
 "["
 	"{"
@@ -305,6 +307,8 @@ void test_sqxc_sql_output(bool use_update)
 	sqxc_free_chain(xcchain);
 }
 
+#endif  // SQ_CONFIG_JSON_SUPPORT
+
 // ----------------------------------------------------------------------------
 
 int  main(void)
@@ -325,10 +329,12 @@ int  main(void)
 	sq_ptr_array_append(&user->ints, (void*)(intptr_t)1);
 
 	test_sqxc_joint_input();
+#ifdef SQ_CONFIG_JSON_SUPPORT
 	test_sqxc_jsonc_input();
 	test_sqxc_jsonc_input_user();
 	test_sqxc_jsonc_output(user);
 	test_sqxc_sql_output(true);
+#endif  // SQ_CONFIG_JSON_SUPPORT
 
 //	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 	return 0;

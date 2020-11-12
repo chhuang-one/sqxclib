@@ -22,6 +22,9 @@
 /* Sqdb.c, SqSchema.c - SQL_STRING_LENGTH_DEFAULT */
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT    191
 
+/* SqxcJsonc.c, SqxcJsonc.h, SqStorage.c */
+#define SQ_CONFIG_JSON_SUPPORT
+
 /* Enable "SQL_table_name" <-> "C struct type_name" converting. (SqSchema.h, SqUtil.h)
    When calling sq_schema_create_xxx():
      user only specify "SQL_table_name", program generate "C struct type_name".

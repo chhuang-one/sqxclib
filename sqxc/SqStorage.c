@@ -40,13 +40,13 @@ void  sq_storage_init(SqStorage* storage, Sqdb* db)
 	sq_ptr_array_init(&storage->tables, 16, NULL);
 
 	storage->container_default = SQ_TYPE_PTR_ARRAY;
-#if 1
+
 	storage->xc_input = sqxc_new(SQXC_INFO_VALUE);
 	storage->xc_output = sqxc_new(SQXC_INFO_SQL);
-#else
-	// add JSON support
-	storage->xc_input = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
-	storage->xc_output = sqxc_new_chain(SQXC_INFO_SQL, SQXC_INFO_JSONC_WRITER, NULL);
+
+#ifdef SQ_CONFIG_JSON_SUPPORT
+	sqxc_insert(storage->xc_input,  sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
+	sqxc_insert(storage->xc_output, sqxc_new(SQXC_INFO_JSONC_WRITER), -1);
 #endif
 }
 
