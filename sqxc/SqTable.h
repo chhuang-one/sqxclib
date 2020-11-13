@@ -99,7 +99,8 @@ SqColumn* sq_table_add_timestamp(SqTable* table, const char* column_name,
 SqColumn* sq_table_add_string(SqTable* table, const char* column_name,
                               size_t offset, int length);
 SqColumn* sq_table_add_custom(SqTable* table, const char* column_name,
-                              size_t offset, const SqType* sqtype);
+                              size_t offset, const SqType* sqtype,
+                              int  length);
 
 /*
 #define sq_table_add_int_as(table, structure, member)    \
@@ -344,8 +345,12 @@ struct SqTable
 		{ return *sq_table_add_double(this, column_name, offset); }
 	SqColumn& string(const char* column_name, size_t offset, int length = -1)
 		{ return *sq_table_add_string(this, column_name, offset, length); }
-	SqColumn& custom(const char* column_name, size_t offset, SqType* type)
-		{ return *sq_table_add_custom(this, column_name, offset, type); }
+	SqColumn& custom(const char* column_name, size_t offset, SqType* type, int length = -1)
+		{ return *sq_table_add_custom(this, column_name, offset, type, length); }
+
+	SqColumn& stdstring(const char* column_name, size_t offset, int length = -1) {
+		return *sq_table_add_custom(this, column_name, offset, SQ_TYPE_STD_STRING, length);
+	}
 
 	template<class Store, class Type>
 	SqColumn& integer(const char* column_name, Type Store::*member) {
@@ -380,8 +385,13 @@ struct SqTable
 		return *sq_table_add_string(this, column_name, Sq::offsetOf(member), length);
 	};
 	template<class Store, class Type>
-	SqColumn& custom(const char* column_name, Type Store::*member, SqType* type) {
-		return *sq_table_add_custom(this, column_name, Sq::offsetOf(member), type);
+	SqColumn& custom(const char* column_name, Type Store::*member, SqType* type, int length = -1) {
+		return *sq_table_add_custom(this, column_name, Sq::offsetOf(member), type, length);
+	};
+
+	template<class Store, class Type>
+	SqColumn& stdstring(const char* column_name, Type Store::*member, int length = -1) {
+		return *sq_table_add_custom(this, column_name, offset, SQ_TYPE_STD_STRING, length);
 	};
 
 	// ----------------------------------------------------

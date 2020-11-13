@@ -66,17 +66,6 @@
 	};
  */
 
-/*	We can call C++ constructor/destructor in init()/final()
-
-	// ==== C++ constructor + C malloc()
-	buffer = malloc(size);
-	object = new (buffer) MyClass();
-
-	// ==== C++ destructor  + C free()
-	object->~MyClass();
-	free(buffer);
- */
-
 #ifdef __cplusplus
 #include <typeinfo>
 #define SQ_GET_TYPE_NAME(Type)        ( (char*)typeid(Type).name() )
@@ -194,10 +183,6 @@ enum {
 #define SQ_TYPE_NOT_BUILTIN(type)    \
 		( (type)> SQ_TYPE_BUILTIN_END || (type)< SQ_TYPE_BUILTIN_BEG )
 
-/* TODO: use std::string to implement SQ_TYPE_STD_STRING
-#define SQ_TYPE_STD_STRING    NULL
- */
-
 /* declare SqType for SqPtrArray (SqType-PtrArray.c)
    User must add a SqEntry that declare type of element.
 
@@ -214,13 +199,6 @@ enum {
 /* implement array by SqPtrArray (SqType-PtrArray.c)
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
 #define SQ_TYPE_INTPTR_ARRAY  ((SqType*)&SqType_IntptrArray_)
-
-/* TODO: use std::vector to implement SQ_ENTRY_STD_VECTOR
-#define SQ_TYPE_STD_VECTOR    ((SqType*)&SqType_StdVector_)
- */
-/* TODO: use std::vector to implement SQ_TYPE_STD_LIST
-#define SQ_TYPE_STD_LIST      ((SqType*)&SqType_StdList_)
- */
 
 // ----------------------------------------------------------------------------
 // macro for accessing variable of SqType
@@ -288,6 +266,38 @@ void     sq_type_sort_entry(SqType *type);
 // otherwise it use "inner_entry" to calculate size.
 int      sq_type_decide_size(SqType* type, const SqEntry *inner_entry);
 
+// --------------------------------------------------------
+// SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions
+
+int   sq_type_int_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_int_write(void* instance, const SqType *type, Sqxc* xc_dest);
+
+int   sq_type_uint_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_uint_write(void* instance, const SqType *type, Sqxc* xc_dest);
+
+int   sq_type_int64_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_int64_write(void* instance, const SqType *type, Sqxc* xc_dest);
+
+int   sq_type_uint64_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_uint64_write(void* instance, const SqType *type, Sqxc* xc_dest);
+
+int   sq_type_time_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_time_write(void* instance, const SqType *type, Sqxc* xc_dest);
+
+int   sq_type_double_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_double_write(void* instance, const SqType *type, Sqxc* xc_dest);
+
+void  sq_type_string_final(void* instance, const SqType *type);
+int   sq_type_string_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_string_write(void* instance, const SqType *type, Sqxc* xc_dest);
+
+int   sq_type_object_parse(void* instance, const SqType *type, Sqxc* xc_src);
+Sqxc* sq_type_object_write(void* instance, const SqType *type, Sqxc* xc_dest);
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
 // ----------------------------------------------------------------------------
 // C/C++ inline functions
 
@@ -326,36 +336,35 @@ void  sq_type_steal_entry_addr(SqType* type, void** element_addr, int count);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
-// --------------------------------------------------------
-// SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions
+/* ----------------------------------------------------------------------------
+   C++ type
 
-int   sq_type_int_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_int_write(void* instance, const SqType *type, Sqxc* xc_dest);
+	We can call C++ constructor/destructor in init()/final()
 
-int   sq_type_uint_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_uint_write(void* instance, const SqType *type, Sqxc* xc_dest);
+	// ==== C++ constructor + C malloc()
+	buffer = malloc(size);
+	object = new (buffer) MyClass();
 
-int   sq_type_int64_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_int64_write(void* instance, const SqType *type, Sqxc* xc_dest);
-
-int   sq_type_uint64_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_uint64_write(void* instance, const SqType *type, Sqxc* xc_dest);
-
-int   sq_type_time_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_time_write(void* instance, const SqType *type, Sqxc* xc_dest);
-
-int   sq_type_double_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_double_write(void* instance, const SqType *type, Sqxc* xc_dest);
-
-void  sq_type_string_final(void* instance, const SqType *type);
-int   sq_type_string_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_string_write(void* instance, const SqType *type, Sqxc* xc_dest);
-
-int   sq_type_object_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_object_write(void* instance, const SqType *type, Sqxc* xc_dest);
+	// ==== C++ destructor  + C free()
+	object->~MyClass();
+	free(buffer);
+ */
 
 #ifdef __cplusplus
-}  // extern "C"
-#endif
+
+extern  const  SqType      SqType_StdString_;    // C++ std::string
+
+#define SQ_TYPE_STD_STRING    ((SqType*)&SqType_StdString_)
+
+/* TODO: use std::vector to implement SQ_ENTRY_STD_VECTOR
+#define SQ_TYPE_STD_VECTOR    ((SqType*)&SqType_StdVector_)
+ */
+
+/* TODO: use std::vector to implement SQ_TYPE_STD_LIST
+#define SQ_TYPE_STD_LIST      ((SqType*)&SqType_StdList_)
+ */
+
+#endif  // __cplusplus
+
 
 #endif  // SQ_TYPE_H

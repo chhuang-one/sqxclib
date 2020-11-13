@@ -239,12 +239,14 @@ SqColumn* sq_table_add_string(SqTable* table, const char* name, size_t offset, i
 }
 
 SqColumn* sq_table_add_custom(SqTable* table, const char* name,
-                              size_t offset, const SqType* sqtype)
+                              size_t offset, const SqType* sqtype,
+                              int  length)
 {
 	SqColumn* column;
 
 	column = sq_column_new(name, sqtype);
 	column->offset = offset;
+	column->size = length;
 
 	sq_table_append_column(table, column);
 	return column;

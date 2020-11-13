@@ -155,11 +155,11 @@ typedef struct Company
 #define SQT_STRING_AS(structure, member, length)   \
 		(column_cur_ = sq_table_add_string(table_cur_, #member, offsetof(structure, member), length))
 
-#define SQT_CUSTOM(column_name, structure, member, sqtype)  \
-		(column_cur_ = sq_table_add_custom(table_cur_, column_name, offsetof(structure, member), sqtype))
+#define SQT_CUSTOM(column_name, structure, member, sqtype, length)  \
+		(column_cur_ = sq_table_add_custom(table_cur_, column_name, offsetof(structure, member), sqtype, length))
 
-#define SQT_CUSTOM_AS(structure, member, sqtype)   \
-		(column_cur_ = sq_table_add_custom(table_cur_, #member, offsetof(structure, member), sqtype))
+#define SQT_CUSTOM_AS(structure, member, sqtype, length)   \
+		(column_cur_ = sq_table_add_custom(table_cur_, #member, offsetof(structure, member), sqtype, length))
 
 // ----------------------------------------------------------------------------
 

@@ -166,7 +166,7 @@ SqTable* create_user_table_by_c(SqSchema* schema)
 	column->bit_field |= SQB_PRIMARY;
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
-	column = sq_table_add_custom(table, "posts", offsetof(User, posts), SQ_TYPE_INTPTR_ARRAY);
+	column = sq_table_add_custom(table, "posts", offsetof(User, posts), SQ_TYPE_INTPTR_ARRAY, -1);
 
 	return table;
 }
@@ -195,7 +195,7 @@ void  create_user_table_by_macro(SqSchema* schema)
 		SQT_STRING_AS(User, name, -1);
 		SQT_STRING_AS(User, email, -1);
 		SQT_INTEGER_AS(User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
-		SQT_CUSTOM_AS(User, posts, SQ_TYPE_INTPTR_ARRAY);
+		SQT_CUSTOM_AS(User, posts, SQ_TYPE_INTPTR_ARRAY, -1);
 	});
 
 #if 0
