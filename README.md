@@ -25,10 +25,12 @@ uGet3 use SQL database to solve this problem.
 ## Database schema
 
 	struct User {
-		int    id;         // primary key
+		int    id;          // primary key
 		char*  full_name;
 		char*  email;
-		int    city_id;    // foreign key
+		int    city_id;     // foreign key
+
+		std::string  sstr;  // C++ only
 	};
 
  use C99 designated initializer to declare table/column (static)
@@ -37,18 +39,15 @@ uGet3 use SQL database to solve this problem.
 		&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(User, id),    SQB_PRIMARY},
 		&(SqColumn) {SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
 		&(SqColumn) {SQ_TYPE_STRING, "email",     offsetof(User, email)      },
+		// FOREIGN KEY
 		&(SqColumn) {SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
 		             .foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
-
 		// CONSTRAINT FOREIGN KEY
-		&(SqColumn) {.bit_field = SQB_CONSTRAINT | SQB_FOREIGN,
-		             .name = "users_city_id_foreign",
+		&(SqColumn) {NULL,  "users_city_id_foreign",  0,  SQB_CONSTRAINT,
 		             .foreign = &(SqForeign) {"cities", "id", "no action", "no action"},
 		             .composite = (char *[]) {"city_id", NULL} },
-
 		// CREATE INDEX
-		&(SqColumn) {.bit_field = SQB_INDEX,
-		             .name = "users_id_index",
+		&(SqColumn) {NULL,  "users_id_index",         0,  SQB_INDEX,
 		             .composite = (char *[]) {"id", NULL} },
 	};
 
@@ -62,6 +61,7 @@ uGet3 use SQL database to solve this problem.
 	column->bit_field |= SQB_PRIMARY;
 	column = sq_table_add_string(table, "full_name", offsetof(User, full_name), -1);
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
+	// FOREIGN KEY
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id");
 	// CONSTRAINT FOREIGN KEY
@@ -76,6 +76,7 @@ uGet3 use SQL database to solve this problem.
 		SQT_INTEGER("id", User, id);  SQC_PRIMARY();
 		SQT_STRING("full_name", User, full_name, -1);
 		SQT_STRING("email", User, email, -1);
+		// FOREIGN KEY
 		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");
 		// CONSTRAINT FOREIGN KEY
 		SQT_ADD_FOREIGN("users_city_id_foreign", "city_id");  SQC_REFERENCE("cities", "id");
@@ -91,6 +92,8 @@ uGet3 use SQL database to solve this problem.
 	table->integer("id", &User::id)->primary();
 	table->string("full_name", &User::full_name);
 	table->string("email", &User::email);
+	table->stdstring("sstr", &User::sstr);    // C++ std::string
+	// FOREIGN KEY
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
 	// CONSTRAINT FOREIGN KEY
 	table->addForeign("users_city_id_foreign", "city_id")->reference("cities", "id");

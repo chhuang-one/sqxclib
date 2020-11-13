@@ -14,6 +14,7 @@
 
 
 #include <iostream>
+#include <string>
 #include <stdio.h>
 
 #include <SqConfig.h>
@@ -40,18 +41,19 @@ struct Company
 	char*  address;
 	double salary;
 
+	std::string      sstr;    // C++ type
 	Sq::IntptrArray  ints;
 
 	// --------------------------------
 	// internal member
-	bool   dynamicString;
+	bool   staticString;
 
-	Company(bool dynamicString = true) {
-		this->dynamicString = dynamicString;
+	Company(bool staticString = false) {
+		this->staticString = staticString;
 		ints.init(4);
 	}
 	~Company() {
-		if (dynamicString) {
+		if (staticString == false) {
 			free(name);
 			free(address);
 		}
@@ -64,7 +66,8 @@ struct Company
 		          << "company.name = "    << this->name    << std::endl
 		          << "company.age = "     << this->age     << std::endl
 		          << "company.address = " << this->address << std::endl
-		          << "company.salary = "  << this->salary  << std::endl;
+		          << "company.salary = "  << this->salary  << std::endl
+		          << "company.sstr = "    << this->sstr    << std::endl;
 		std::cout << "company.ints[] = ";
 		for (int index = 0;  index < this->ints.length;  index++) {
 			if (index > 0)
@@ -102,6 +105,7 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
+	table->stdstring("sstr", &Company::sstr);
 #ifdef SQ_CONFIG_JSON_SUPPORT
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
 #endif
@@ -135,6 +139,7 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
+	table->stdstring("sstr", &Company::sstr);
 #ifdef SQ_CONFIG_JSON_SUPPORT
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
 #endif
@@ -170,13 +175,14 @@ int main (int argc, char* argv[])
 //	storage_make_fixed_schema(storage);
 	storage_make_migrated_schema(storage);
 
-	company = new Company(false);
+	company = new Company(true);
 
 	company->id = 1;
 	company->name = (char*)"Mr.T";
 	company->age = 21;
 	company->address = (char*)"Norway";
 	company->salary = 1200.00;
+	company->sstr = "test std::string 1";
 	company->ints.append(array1, 4);
 	storage->insert<Company>(company);
 	company->ints.length = 0;
@@ -186,6 +192,7 @@ int main (int argc, char* argv[])
 	company->age = 32;
 	company->address = (char*)"Texas";
 	company->salary = 3300.00;
+	company->sstr = "test std::string 2";
 	company->ints.append(array2, 4);
 	storage->insert<Company>(company);
 	company->ints.length = 0;
