@@ -267,8 +267,8 @@ struct PtrArrayMethod
 	int    size();
 	Type*  begin();
 	Type*  end();
-    Type&  at(int index);
-    Type&  operator[](int index);
+    Type   at(int index);
+    Type   operator[](int index);
 };
 
 };  // namespace Sq
@@ -447,10 +447,10 @@ template<class Type>
 inline Type* PtrArrayMethod<Type>::end()
 	{ return (Type*)sq_ptr_array_end(this); }
 template<class Type>
-inline Type& PtrArrayMethod<Type>::at(int index)
+inline Type  PtrArrayMethod<Type>::at(int index)
 	{ return (Type)sq_ptr_array_at(this, index); }
 template<class Type>
-inline Type& PtrArrayMethod<Type>::operator[](int index)
+inline Type  PtrArrayMethod<Type>::operator[](int index)
 	{ return (Type)sq_ptr_array_at(this, index); }
 
 // ----------------------------------------------------------------------------
