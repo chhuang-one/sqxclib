@@ -105,7 +105,6 @@ static Sqxc* sq_type_ptr_array_write(void* array, const SqType *type, Sqxc* dest
 	}
 
 	// Begin of SQXC_TYPE_ARRAY
-	dest->nested_count++;
 	dest->type = SQXC_TYPE_ARRAY;
 //	dest->name = array_name;    // "name" was set by caller of this function
 //	dest->value.pointer = NULL;
@@ -121,7 +120,6 @@ static Sqxc* sq_type_ptr_array_write(void* array, const SqType *type, Sqxc* dest
 	}
 
 	// End of SQXC_TYPE_ARRAY
-	dest->nested_count--;
 	dest->type = SQXC_TYPE_ARRAY_END;
 	dest->name = array_name;
 	dest = sqxc_send(dest);
@@ -178,7 +176,6 @@ static Sqxc* sq_type_string_array_write(void* array, const SqType *type, Sqxc* d
 	const char *array_name = dest->name;
 
 	// Begin of SQXC_TYPE_ARRAY
-	dest->nested_count++;
 //	sqxc_send_array_beg(src, array_name);
 	dest->type = SQXC_TYPE_ARRAY;
 //	dest->name = array_name;    // "name" was set by caller of this function
@@ -195,7 +192,6 @@ static Sqxc* sq_type_string_array_write(void* array, const SqType *type, Sqxc* d
 	}
 
 	// End of SQXC_TYPE_ARRAY
-	dest->nested_count--;
 //	sqxc_send_array_end(src, array_name);
 	dest->type = SQXC_TYPE_ARRAY_END;
 	dest->name = array_name;
@@ -254,7 +250,6 @@ static Sqxc* sq_type_intptr_array_write(void* array, const SqType *type, Sqxc* d
 	const char* array_name = dest->name;
 
 	// Begin of SQXC_TYPE_ARRAY
-	dest->nested_count++;
 	dest->type = SQXC_TYPE_ARRAY;
 //	dest->name = array_name;    // "name" was set by caller of this function
 //	dest->value.pointer = NULL;
@@ -271,7 +266,6 @@ static Sqxc* sq_type_intptr_array_write(void* array, const SqType *type, Sqxc* d
 	}
 
 	// End of SQXC_TYPE_ARRAY
-	dest->nested_count--;
 	dest->type = SQXC_TYPE_ARRAY_END;
 	dest->name = array_name;
 //	dest->value.pointer = NULL;
