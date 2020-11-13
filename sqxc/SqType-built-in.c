@@ -22,6 +22,7 @@
 #include <SqPtrArray.h>
 #include <SqType.h>
 #include <SqEntry.h>
+#include <SqxcValue.h>
 
 #if defined(_MSC_VER)
 #define _CRT_SECURE_NO_WARNINGS
@@ -286,17 +287,18 @@ const SqType*  SQ_ENTRY_OBJECT = &SqTypeObjectStatic;
 
 int  sq_type_object_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
-	SqEntry*    entry;
+	SqxcValue*  xc_value = (SqxcValue*)src->dest;
 	SqxcNested* nested;
+	SqEntry*    entry;
 
 	// Start of Object - Frist time to call this function to parse object
-	nested = src->nested;
+	nested = xc_value->nested;
 	if (nested->data != instance) {
 		if (src->type != SQXC_TYPE_OBJECT) {
 //			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested(src);
+		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data  = instance;
 		nested->data2 = (SqType*)entrytype;
 		return (src->code = SQCODE_OK);

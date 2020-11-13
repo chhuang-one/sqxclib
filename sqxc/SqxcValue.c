@@ -27,13 +27,13 @@ static int  sqxc_value_send(SqxcValue* xcvalue, Sqxc* src)
 	SqxcNested* nested;
 	void*       instance;
 
-	nested = src->nested;
+	nested = xcvalue->nested;
 	if (nested->data != NULL) {
 		instance = nested->data;
 		type     = nested->data2;
 		// End of Array or Object
 		if (src->type & SQXC_TYPE_END) {
-			sqxc_pop_nested(src);
+			sqxc_pop_nested((Sqxc*)xcvalue);
 			return (src->code = SQCODE_OK);
 		}
 		// parse elements in array or entries in object
@@ -76,6 +76,8 @@ static void  sqxc_value_init(SqxcValue* xcvalue)
 {
 //	memset(xcvalue, 0, sizeof(SqxcValue));
 	xcvalue->supported_type = SQXC_TYPE_ALL;
+	// SqTypeWriteFunc like sq_type_object_write(), sq_type_xxx_array_write() need this line
+	xcvalue->dest = (Sqxc*)xcvalue;
 }
 
 static void  sqxc_value_final(SqxcValue* xcvalue)

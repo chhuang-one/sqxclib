@@ -51,25 +51,26 @@ static void sq_type_ptr_array_final(void* array, const SqType *type)
 static int  sq_type_ptr_array_parse(void* array, const SqType *type, Sqxc* src)
 {
 	const SqType* element_type;
+	SqxcValue*    xc_value = (SqxcValue*)src->dest;
 	SqxcNested*   nested;
 	void*         element;
 
 	// get element type information
 	if (type->n_entry > 0)
 		element_type = type->entry[0]->type;
-	else if (src->info == SQXC_INFO_VALUE && src->nested_count < 2)
-		element_type = ((SqxcValue*)src)->element;
+	else if (xc_value->nested_count < 2)
+		element_type = xc_value->element;
 	else
 		return (src->code = SQCODE_NO_ELEMENT_TYPE);
 
 	// Start of Array - Frist time to call this function to parse array
-	nested = src->nested;
+	nested = xc_value->nested;
 	if (nested->data != array) {
 		if (src->type != SQXC_TYPE_ARRAY) {
 //			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested(src);
+		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data = array;
 		nested->data2 = (SqType*)type;
 		return (src->code = SQCODE_OK);
@@ -142,17 +143,18 @@ const SqType SqType_PtrArray_ =
 
 static int  sq_type_string_array_parse(void* array, const SqType *type, Sqxc* src)
 {
+	SqxcValue*  xc_value = (SqxcValue*)src->dest;
 	SqxcNested* nested;
 	void*       element;
 
 	// Start of Array - Frist time to call this function to parse array
-	nested = src->nested;
+	nested = xc_value->nested;
 	if (nested->data != array) {
 		if (src->type != SQXC_TYPE_ARRAY) {
 //			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested(src);
+		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data = array;
 		nested->data2 = (void*)type;
 		return (src->code = SQCODE_OK);
@@ -216,17 +218,18 @@ const SqType SqType_StringArray_ =
 
 static int  sq_type_intptr_array_parse(void* array, const SqType *type, Sqxc* src)
 {
+	SqxcValue*  xc_value = (SqxcValue*)src->dest;
 	SqxcNested* nested;
 	void*       element;
 
 	// Start of Array - Frist time to call this function to parse array
-	nested = src->nested;
+	nested = xc_value->nested;
 	if (nested->data != array) {
 		if (src->type != SQXC_TYPE_ARRAY) {
 //			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested(src);
+		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data = array;
 		nested->data2 = (void*)type;
 		return (src->code = SQCODE_OK);
