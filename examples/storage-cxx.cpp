@@ -13,8 +13,10 @@
  */
 
 
+#include <iostream>
 #include <stdio.h>
 
+#include <SqConfig.h>
 #include <SqError.h>
 #include <SqPtrArray.h>
 #include <SqTable.h>
@@ -37,25 +39,41 @@ struct Company
 	int    age;
 	char*  address;
 	double salary;
+
+	Sq::IntptrArray  ints;
+
+	// --------------------------------
+	// internal member
+	bool   dynamicString;
+
+	Company(bool dynamicString = true) {
+		this->dynamicString = dynamicString;
+		ints.init(4);
+	}
+	~Company() {
+		if (dynamicString) {
+			free(name);
+			free(address);
+		}
+		ints.final();
+	}
+
+	void print() {
+		std::cout << std::endl
+		          << "company.id = "      << this->id      << std::endl
+		          << "company.name = "    << this->name    << std::endl
+		          << "company.age = "     << this->age     << std::endl
+		          << "company.address = " << this->address << std::endl
+		          << "company.salary = "  << this->salary  << std::endl;
+		std::cout << "company.ints[] = ";
+		for (int index = 0;  index < this->ints.length;  index++) {
+			if (index > 0)
+				std::cout << ",";
+			std::cout << (int)this->ints[index];
+		}
+		std::cout << std::endl;
+	}
 };
-
-void company_free(Company* company)
-{
-	free(company->name);
-	free(company->address);
-	free(company);
-}
-
-void  company_object_print(Company* company)
-{
-	printf("company.id = %d\n"
-	       "company.name = %s\n"
-	       "company.age = %d\n"
-	       "company.address = %s\n"
-	       "company.salary = %lf\n\n",
-	       company->id, company->name, company->age,
-	       company->address, company->salary);
-}
 
 void  company_array_print(SqPtrArray* array)
 {
@@ -64,7 +82,7 @@ void  company_array_print(SqPtrArray* array)
 
 	for (index = 0;  index < array->length;  index++) {
 		company = (Company*)(array->data[index]);
-		company_object_print(company);
+		company->print();
 	}
 }
 
@@ -84,6 +102,9 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
+#ifdef SQ_CONFIG_JSON_SUPPORT
+	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
+#endif
 
 	table = schema->create<User>("users");
 	table->integer("id", &User::id)->primary();
@@ -114,6 +135,9 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
+#ifdef SQ_CONFIG_JSON_SUPPORT
+	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
+#endif
 
 	table = schemaVer2->create<User>("users");
 	table->integer("id", &User::id)->primary();
@@ -135,6 +159,8 @@ int main (int argc, char* argv[])
 	Sq::DbSqlite* db;
 	Sq::Storage*  storage;
 	Company*      company;
+	intptr_t      array1[4] = {1, 3, 5, 7};
+	intptr_t      array2[4] = {2, 4, 6, 8};
 
 	db = new Sq::DbSqlite(NULL);
 	storage = new Sq::Storage(db);
@@ -144,26 +170,31 @@ int main (int argc, char* argv[])
 //	storage_make_fixed_schema(storage);
 	storage_make_migrated_schema(storage);
 
-	company = new Company();
+	company = new Company(false);
 
 	company->id = 1;
 	company->name = (char*)"Mr.T";
 	company->age = 21;
 	company->address = (char*)"Norway";
 	company->salary = 1200.00;
+	company->ints.append(array1, 4);
 	storage->insert<Company>(company);
+	company->ints.length = 0;
 
 	company->id = 2;
 	company->name = (char*)"Paul";
 	company->age = 32;
 	company->address = (char*)"Texas";
 	company->salary = 3300.00;
+	company->ints.append(array2, 4);
 	storage->insert<Company>(company);
+	company->ints.length = 0;
 
 	delete company;
+
 	company = storage->get<Company>(1);
-	company_object_print(company);
-	company_free(company);
+	company->print();
+	delete company;
 
 	storage->close();
 	delete storage;
