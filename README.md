@@ -20,7 +20,7 @@ uGet3 use SQL database to solve this problem.
    You can also use C/C++ function to do these.
 
 2. All declared table/column can use to parse JSON object/field.
-   Program can also parse JSON object/array from SQL column. (beta)
+   Program can also parse JSON object/array from SQL column. (testing)
 
 ## Database schema
 
@@ -230,13 +230,13 @@ uGet3 use SQL database to solve this problem.
 
 
 ## Sqdb - Database interface
-Sqdb is Database interface for SQLite, MySQL...etc.
-SqdbSqlite.c implement Sqdb interface for SQLite. 
+ Sqdb is Database interface for SQLite, MySQL...etc.
+ SqdbSqlite.c implement Sqdb interface for SQLite. 
 
 
 ## Sqxc - Converter interface
-Sqxc is interface for data parse and write.
-User can link multiple Sqxc element to convert different types of data.
+ Sqxc is interface for data parse and write.
+ User can link multiple Sqxc element to convert different types of data.
 
 
 ## Licensing
