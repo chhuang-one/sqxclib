@@ -153,46 +153,58 @@ struct SqStorage
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
-int   StorageMethod::open(const char *database_name)
-	{ return sqdb_open(((SqStorage*)this)->db, database_name); }
-int   StorageMethod::close(void)
-	{ return sqdb_close(((SqStorage*)this)->db); }
+inline int   StorageMethod::open(const char *database_name) {
+	return sqdb_open(((SqStorage*)this)->db, database_name);
+}
+inline int   StorageMethod::close(void) {
+	return sqdb_close(((SqStorage*)this)->db);
+}
 
-int   StorageMethod::migrate(SqSchema* schema)
-	{ return sqdb_migrate(((SqStorage*)this)->db, ((SqStorage*)this)->schema, schema); }
-
-template <class StructType>
-StructType* StorageMethod::get(int id)
-	{ return (StructType*)sq_storage_get((SqStorage*)this, NULL, typeid(StructType).name(), id); }
-void*       StorageMethod::get(const char *table_name, int id)
-	{ return (void*)sq_storage_get((SqStorage*)this, table_name, NULL, id); }
+inline int   StorageMethod::migrate(SqSchema* schema) {
+	return sqdb_migrate(((SqStorage*)this)->db, ((SqStorage*)this)->schema, schema);
+}
 
 template <class StructType>
-void* StorageMethod::get_all(const SqType *container)
-	{ return (StructType*)sq_storage_get_all((SqStorage*)this, NULL, typeid(StructType).name(), container); }
-void* StorageMethod::get_all(const char *table_name, const SqType *container)
-	{ return (void*)sq_storage_get_all((SqStorage*)this, table_name, NULL, container); }
+inline StructType* StorageMethod::get(int id) {
+	return (StructType*)sq_storage_get((SqStorage*)this, NULL, typeid(StructType).name(), id);
+}
+inline void*       StorageMethod::get(const char *table_name, int id) {
+	return (void*)sq_storage_get((SqStorage*)this, table_name, NULL, id);
+}
 
 template <class StructType>
-int   StorageMethod::insert(void* instance)
-	{ return sq_storage_insert((SqStorage*)this, NULL, typeid(StructType).name(), instance); }
-int   StorageMethod::insert(const char *table_name, void* instance)
-	{ return sq_storage_insert((SqStorage*)this, table_name, NULL, instance); }
+inline void* StorageMethod::get_all(const SqType *container) {
+	return (StructType*)sq_storage_get_all((SqStorage*)this, NULL, typeid(StructType).name(), container);
+}
+inline void* StorageMethod::get_all(const char *table_name, const SqType *container) {
+	return (void*)sq_storage_get_all((SqStorage*)this, table_name, NULL, container);
+}
 
 template <class StructType>
-void  StorageMethod::update(void* instance)
-	{ sq_storage_update((SqStorage*)this, NULL, typeid(StructType).name(), instance); }
-void  StorageMethod::update(const char *table_name, void* instance)
-	{ sq_storage_update((SqStorage*)this, table_name, NULL, instance); }
+inline int   StorageMethod::insert(void* instance) {
+	return sq_storage_insert((SqStorage*)this, NULL, typeid(StructType).name(), instance);
+}
+inline int   StorageMethod::insert(const char *table_name, void* instance) {
+	return sq_storage_insert((SqStorage*)this, table_name, NULL, instance);
+}
 
 template <class StructType>
-void StorageMethod::remove(int id)
-	{ sq_storage_remove((SqStorage*)this, NULL, typeid(StructType).name(), id); }
-void StorageMethod::remove(const char *table_name, int id)
-	{ sq_storage_remove((SqStorage*)this, table_name, NULL, id); }
+inline void  StorageMethod::update(void* instance) {
+	sq_storage_update((SqStorage*)this, NULL, typeid(StructType).name(), instance);
+}
+inline void  StorageMethod::update(const char *table_name, void* instance) {
+	sq_storage_update((SqStorage*)this, table_name, NULL, instance);
+}
+
+template <class StructType>
+inline void StorageMethod::remove(int id) {
+	sq_storage_remove((SqStorage*)this, NULL, typeid(StructType).name(), id);
+}
+inline void StorageMethod::remove(const char *table_name, int id) {
+	sq_storage_remove((SqStorage*)this, table_name, NULL, id);
+}
 
 // This is for directly use only. You can NOT derived it.
 struct Storage : SqStorage

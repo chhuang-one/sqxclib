@@ -186,14 +186,18 @@ struct SqdbConfig
 
 namespace Sq {
 
-int  DbMethod::open(const char* name)
-	{ return sqdb_open((Sqdb*)this, name); }
-int  DbMethod::close(void)
-	{ return sqdb_close((Sqdb*)this); }
-int  DbMethod::exec(const char* sql, Sqxc* xc, void* reserve)
-	{ return sqdb_exec((Sqdb*)this, sql, xc, reserve); }
-int  DbMethod::migrate(SqSchema* schema_cur, SqSchema* schema_next)
-	{ return sqdb_migrate((Sqdb*)this, schema_cur, schema_next); }
+inline int  DbMethod::open(const char* name) {
+	return sqdb_open((Sqdb*)this, name);
+}
+inline int  DbMethod::close(void) {
+	return sqdb_close((Sqdb*)this);
+}
+inline int  DbMethod::exec(const char* sql, Sqxc* xc, void* reserve) {
+	return sqdb_exec((Sqdb*)this, sql, xc, reserve);
+}
+inline int  DbMethod::migrate(SqSchema* schema_cur, SqSchema* schema_next) {
+	return sqdb_migrate((Sqdb*)this, schema_cur, schema_next);
+}
 
 // ----------------------------------------------------------------------------
 // Db is C++11 standard-layout

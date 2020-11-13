@@ -298,8 +298,7 @@ void        sqxc_pop_nested(Sqxc* xc);
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
 struct XcMethod
 {
@@ -461,63 +460,88 @@ namespace Sq {
 
 // XcMethod
 
-SqBuffer* XcMethod::buffer(void)
-	{ return sqxc_get_buffer(this); }
+inline SqBuffer* XcMethod::buffer(void) {
+	return sqxc_get_buffer(this);
+}
 
-void   XcMethod::freeChain()
-	{ return sqxc_free_chain((Sqxc*)this); }
+inline void   XcMethod::freeChain() {
+	return sqxc_free_chain((Sqxc*)this);
+}
 
-Sqxc*  XcMethod::insert(Sqxc* xc_element, int position)
-	{ return sqxc_insert((Sqxc*)this, xc_element, position); }
-Sqxc*  XcMethod::insert(Sq::XcMethod* xc_element, int position)
-	{ return sqxc_insert((Sqxc*)this, (Sqxc*)xc_element, position); }
-Sqxc*  XcMethod::steal(Sqxc* xc_element)
-	{ return sqxc_steal((Sqxc*)this, xc_element); }
-Sqxc*  XcMethod::steal(Sq::XcMethod* xc_element)
-	{ return sqxc_steal((Sqxc*)this, (Sqxc*)xc_element); }
-Sqxc*  XcMethod::find(const SqxcInfo *info)
-	{ return sqxc_find((Sqxc*)this, info); }
-Sqxc*  XcMethod::nth(int position)
-	{ return sqxc_nth((Sqxc*)this, position); }
+inline Sqxc*  XcMethod::insert(Sqxc* xc_element, int position) {
+	return sqxc_insert((Sqxc*)this, xc_element, position);
+}
+inline Sqxc*  XcMethod::insert(Sq::XcMethod* xc_element, int position) {
+	return sqxc_insert((Sqxc*)this, (Sqxc*)xc_element, position);
+}
+inline Sqxc*  XcMethod::steal(Sqxc* xc_element) {
+	return sqxc_steal((Sqxc*)this, xc_element);
+}
+inline Sqxc*  XcMethod::steal(Sq::XcMethod* xc_element) {
+	return sqxc_steal((Sqxc*)this, (Sqxc*)xc_element);
+}
+inline Sqxc*  XcMethod::find(const SqxcInfo *info) {
+	return sqxc_find((Sqxc*)this, info);
+}
+inline Sqxc*  XcMethod::nth(int position) {
+	return sqxc_nth((Sqxc*)this, position);
+}
 
-int  XcMethod::broadcast(int id, void* data)
-	{ return sqxc_broadcast((Sqxc*)this, id, data); }
-int  XcMethod::ready(void* data)
-	{ return sqxc_ready((Sqxc*)this, data); }
-int  XcMethod::finish(void* data)
-	{ return sqxc_finish((Sqxc*)this, data); }
-int  XcMethod::send(Sqxc* arguments_src)
-	{ return ((Sqxc*)this)->info->send((Sqxc*)this, arguments_src); }
+inline int  XcMethod::broadcast(int id, void* data) {
+	return sqxc_broadcast((Sqxc*)this, id, data);
+}
+inline int  XcMethod::ready(void* data) {
+	return sqxc_ready((Sqxc*)this, data);
+}
+inline int  XcMethod::finish(void* data) {
+	return sqxc_finish((Sqxc*)this, data);
+}
+inline int  XcMethod::send(Sqxc* arguments_src) {
+	return ((Sqxc*)this)->info->send((Sqxc*)this, arguments_src);
+}
 
-void        XcMethod::clearNested(void)
-	{ sqxc_clear_nested((Sqxc*)this); }
-SqxcNested* XcMethod::push(void)
-	{ return sqxc_push_nested((Sqxc*)this); }
-void        XcMethod::pop(void)
-	{ sqxc_pop_nested((Sqxc*)this); }
+inline void        XcMethod::clearNested(void) {
+	sqxc_clear_nested((Sqxc*)this);
+}
+inline SqxcNested* XcMethod::push(void) {
+	return sqxc_push_nested((Sqxc*)this);
+}
+inline void        XcMethod::pop(void) {
+	sqxc_pop_nested((Sqxc*)this);
+}
 
-Sqxc* XcMethod::send(void)
-	{ return sqxc_send((Sqxc*)this); }
-Sqxc* XcMethod::sendBool(const char* entry_name, bool value)
-	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_BOOL(xc, entry_name, value);  return xc; }
-Sqxc* XcMethod::sendInt(const char* entry_name, int value)
-	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_INT(xc, entry_name, value);  return xc; }
-Sqxc* XcMethod::sendInt64(const char* entry_name, int64_t value)
-	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_INT64(xc, entry_name, value);  return xc; }
-Sqxc* XcMethod::sendDouble(const char* entry_name, double value)
-	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_DOUBLE(xc, entry_name, value);  return xc; }
-Sqxc* XcMethod::sendString(const char* entry_name, const char* value)
-	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_STRING(xc, entry_name, (char*)value);  return xc; }
+inline Sqxc* XcMethod::send(void) {
+	return sqxc_send((Sqxc*)this);
+}
+inline Sqxc* XcMethod::sendBool(const char* entry_name, bool value) {
+	Sqxc* xc = (Sqxc*)this;  SQXC_SEND_BOOL(xc, entry_name, value);  return xc;
+}
+inline Sqxc* XcMethod::sendInt(const char* entry_name, int value) {
+	Sqxc* xc = (Sqxc*)this;  SQXC_SEND_INT(xc, entry_name, value);  return xc;
+}
+inline Sqxc* XcMethod::sendInt64(const char* entry_name, int64_t value) {
+	Sqxc* xc = (Sqxc*)this;  SQXC_SEND_INT64(xc, entry_name, value);  return xc;
+}
+inline Sqxc* XcMethod::sendDouble(const char* entry_name, double value) {
+	Sqxc* xc = (Sqxc*)this;  SQXC_SEND_DOUBLE(xc, entry_name, value);  return xc;
+}
+inline Sqxc* XcMethod::sendString(const char* entry_name, const char* value) {
+	Sqxc* xc = (Sqxc*)this;  SQXC_SEND_STRING(xc, entry_name, (char*)value);  return xc;
+}
 
-Sqxc* XcMethod::sendObjectBeg(const char* entry_name)
-	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_OBJECT_BEG(xc, entry_name);  return xc; }
-Sqxc* XcMethod::sendObjectEnd(const char* entry_name)
-	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_OBJECT_END(xc, entry_name);  return xc; }
+inline Sqxc* XcMethod::sendObjectBeg(const char* entry_name) {
+	Sqxc* xc = (Sqxc*)this;  SQXC_SEND_OBJECT_BEG(xc, entry_name);  return xc;
+}
+inline Sqxc* XcMethod::sendObjectEnd(const char* entry_name) {
+	Sqxc* xc = (Sqxc*)this;  SQXC_SEND_OBJECT_END(xc, entry_name);  return xc;
+}
 
-Sqxc* XcMethod::sendArrayBeg(const char* entry_name)
-	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_ARRAY_BEG(xc, entry_name);  return xc; }
-Sqxc* XcMethod::sendArrayEnd(const char* entry_name)
-	{ Sqxc* xc = (Sqxc*)this;  SQXC_SEND_ARRAY_END(xc, entry_name);  return xc; }
+inline Sqxc* XcMethod::sendArrayBeg(const char* entry_name) {
+	Sqxc* xc = (Sqxc*)this;  SQXC_SEND_ARRAY_BEG(xc, entry_name);  return xc;
+}
+inline Sqxc* XcMethod::sendArrayEnd(const char* entry_name) {
+	Sqxc* xc = (Sqxc*)this;  SQXC_SEND_ARRAY_END(xc, entry_name);  return xc;
+}
 
 // These are for directly use only. You can NOT derived it.
 typedef struct Sqxc             Xc;
