@@ -391,7 +391,7 @@ struct SqTable
 
 	template<class Store, class Type>
 	SqColumn& stdstring(const char* column_name, Type Store::*member, int length = -1) {
-		return *sq_table_add_custom(this, column_name, offset, SQ_TYPE_STD_STRING, length);
+		return *sq_table_add_custom(this, column_name, Sq::offsetOf(member), SQ_TYPE_STD_STRING, length);
 	};
 
 	// ----------------------------------------------------
