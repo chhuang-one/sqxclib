@@ -210,6 +210,7 @@ void  sqxc_clear_nested(Sqxc* xc)
 {
 	while (xc->nested != NESTED_OUTER_ROOT)
 		sqxc_pop_nested(xc);
+	xc->nested_count = 0;
 }
 
 SqxcNested* sqxc_push_nested(Sqxc* xc)
