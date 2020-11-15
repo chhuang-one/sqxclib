@@ -173,7 +173,7 @@ enum {
 #define SQ_TYPE_NOT_INT(type)    \
 		( (type)> SQ_TYPE_INTEGER_END || (type)< SQ_TYPE_INTEGER_BEG )
 
-#define SQ_TYPE_IS_ARITHMETIC(type)    \
+#define SQ_TYPE_IS_ARITHMETIC(type)     \
 		( (type)<=SQ_TYPE_BUILTIN_END && (type)>=SQ_TYPE_ARITHMETIC_BEG )
 #define SQ_TYPE_NOT_ARITHMETIC(type)    \
 		( (type)> SQ_TYPE_BUILTIN_END || (type)< SQ_TYPE_ARITHMETIC_BEG )

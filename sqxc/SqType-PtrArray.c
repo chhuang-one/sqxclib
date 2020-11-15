@@ -98,7 +98,7 @@ static Sqxc* sq_type_ptr_array_write(void* array, const SqType *type, Sqxc* dest
 	// get element type information.
 	if (type->n_entry > 0)
 		element_type = type->entry[0]->type;
-	else if (dest->info == SQXC_INFO_VALUE && dest->nested_count < 1)
+	else if (dest->nested_count < 1)
 		element_type = ((SqxcValue*)dest)->element;
 	else {
 		dest->code = SQCODE_NO_ELEMENT_TYPE;

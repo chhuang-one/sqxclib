@@ -288,8 +288,7 @@ inline size_t offsetOf(Type Store::*member) {
 	return size_t(&(obj.*member)) - size_t(&obj);
 }
 #else
-template<typename T, typename U> constexpr size_t offsetOf(U T::*member)
-{
+template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
     return (char*)&((T*)nullptr->*member) - (char*)nullptr;
 }
 #endif

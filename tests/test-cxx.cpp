@@ -132,7 +132,6 @@ void test_sqxc(void)
 	Sq::XcMethod* cur;
 
 	xc  = new Sq::XcEmpty();
-	xc  = new Sq::XcEmpty();
 	xc2 = new Sq::XcEmpty();
 	xc3 = new Sq::XcEmpty();
 
