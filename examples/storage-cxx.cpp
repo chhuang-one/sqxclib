@@ -184,7 +184,8 @@ int main (int argc, char* argv[])
 	company->salary = 1200.00;
 	company->sstr = "test std::string 1";
 	company->ints.append(array1, 4);
-	storage->insert<Company>(company);
+//	storage->insert<Company>(company);
+	storage->insert(company);
 	company->ints.length = 0;
 
 	company->id = 2;
@@ -194,7 +195,8 @@ int main (int argc, char* argv[])
 	company->salary = 3300.00;
 	company->sstr = "test std::string 2";
 	company->ints.append(array2, 4);
-	storage->insert<Company>(company);
+//	storage->insert<Company>(company);
+	storage->insert(company);
 	company->ints.length = 0;
 
 	delete company;

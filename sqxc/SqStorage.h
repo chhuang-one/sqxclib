@@ -107,9 +107,17 @@ struct StorageMethod
 	void* get_all(const char *table_name, const SqType *container);
 
 	template <class StructType>
+	int   insert(StructType& instance);
+	template <class StructType>
+	int   insert(StructType* instance);
+	template <class StructType>
 	int   insert(void* instance);
 	int   insert(const char *table_name, void* instance);
 
+	template <class StructType>
+	void  update(StructType& instance);
+	template <class StructType>
+	void  update(StructType* instance);
 	template <class StructType>
 	void  update(void* instance);
 	void  update(const char *table_name, void* instance);
@@ -183,6 +191,14 @@ inline void* StorageMethod::get_all(const char *table_name, const SqType *contai
 }
 
 template <class StructType>
+inline int   StorageMethod::insert(StructType& instance) {
+	return sq_storage_insert((SqStorage*)this, NULL, typeid(StructType).name(), &instance);
+}
+template <class StructType>
+inline int   StorageMethod::insert(StructType* instance) {
+	return sq_storage_insert((SqStorage*)this, NULL, typeid(StructType).name(), instance);
+}
+template <class StructType>
 inline int   StorageMethod::insert(void* instance) {
 	return sq_storage_insert((SqStorage*)this, NULL, typeid(StructType).name(), instance);
 }
@@ -190,6 +206,14 @@ inline int   StorageMethod::insert(const char *table_name, void* instance) {
 	return sq_storage_insert((SqStorage*)this, table_name, NULL, instance);
 }
 
+template <class StructType>
+inline void  StorageMethod::update(StructType& instance) {
+	sq_storage_update((SqStorage*)this, NULL, typeid(StructType).name(), &instance);
+}
+template <class StructType>
+inline void  StorageMethod::update(StructType* instance) {
+	sq_storage_update((SqStorage*)this, NULL, typeid(StructType).name(), instance);
+}
 template <class StructType>
 inline void  StorageMethod::update(void* instance) {
 	sq_storage_update((SqStorage*)this, NULL, typeid(StructType).name(), instance);

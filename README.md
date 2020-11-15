@@ -177,9 +177,13 @@ uGet3 use SQL database to solve this problem.
 	array = storage->get_all<User>(NULL);
 	user  = storage->get<User>(2);
 
+	storage->remove<User>(5);
+
 	storage->insert<User>(user);
 	storage->update<User>(user);
-	storage->remove<User>(5);
+	// or
+	storage->insert(user);
+	storage->update(user);
 
 
 ## JSON support
