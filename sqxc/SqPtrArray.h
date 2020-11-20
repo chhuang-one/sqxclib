@@ -57,6 +57,9 @@ extern "C" {
 #define sq_ptr_array_allocated(array)  \
 		*(intptr_t*)(((SqPtrArray*)(array))->data -2)
 
+#define sq_ptr_array_capacity(array)  \
+		*(intptr_t*)(((SqPtrArray*)(array))->data -2) 
+
 #define sq_ptr_array_destroy_func(array)  \
 		*(SqDestroyFunc*)(((SqPtrArray*)(array))->data -3)
 
@@ -265,6 +268,7 @@ struct PtrArrayMethod
 	typedef const Type*  const_iterator;
 
 	int    size();
+	int    capacity();
 	Type*  begin();
 	Type*  end();
     Type   at(int index);
@@ -368,8 +372,7 @@ void  sq_ptr_array_append_n(void* array, const void* values, int count);
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
 // ----------------------------------------------------------------------------
 // PtrArrayMethod template functions
@@ -435,23 +438,32 @@ inline Type* PtrArrayMethod<Type>::find(Type key, SqCompareFunc func)
 	{ return (Type*)sq_ptr_array_find(this, &key, func); }
 
 // --------------------------------------------------------
-// PtrArrayMethod iterator
+// PtrArrayMethod iterator (uncompleted)
 
 template<class Type>
-inline int   PtrArrayMethod<Type>::size()
-	{ return sq_ptr_array_length(this); }
+inline int   PtrArrayMethod<Type>::size() {
+	return sq_ptr_array_length(this);
+}
 template<class Type>
-inline Type* PtrArrayMethod<Type>::begin()
-	{ return (Type*)sq_ptr_array_begin(this); }
+inline int   PtrArrayMethod<Type>::capacity() {
+	return sq_ptr_array_capacity(this);
+}
 template<class Type>
-inline Type* PtrArrayMethod<Type>::end()
-	{ return (Type*)sq_ptr_array_end(this); }
+inline Type* PtrArrayMethod<Type>::begin() {
+	return (Type*)sq_ptr_array_begin(this);
+}
 template<class Type>
-inline Type  PtrArrayMethod<Type>::at(int index)
-	{ return (Type)sq_ptr_array_at(this, index); }
+inline Type* PtrArrayMethod<Type>::end() {
+	return (Type*)sq_ptr_array_end(this);
+}
 template<class Type>
-inline Type  PtrArrayMethod<Type>::operator[](int index)
-	{ return (Type)sq_ptr_array_at(this, index); }
+inline Type  PtrArrayMethod<Type>::at(int index) {
+	return (Type)sq_ptr_array_at(this, index);
+}
+template<class Type>
+inline Type  PtrArrayMethod<Type>::operator[](int index) {
+	return (Type)sq_ptr_array_at(this, index);
+}
 
 // ----------------------------------------------------------------------------
 // PtrArray is C++11 standard-layout
