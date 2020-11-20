@@ -2,13 +2,13 @@
 executable('test-container-cxx',
            'test-container-cxx.cpp',
            include_directories : sqxc_inc,
-           link_with : sqxc)
+           link_with : [sqxc, sqxcpp])
 
 executable('test-cxx',
            'test-cxx.cpp',
            include_directories : sqxc_inc,
 		   dependencies : [sqlite, jsonc],
-           link_with : sqxc)
+           link_with : [sqxc, sqxcpp])
 
 executable('test-migration',
            'test-migration.c',

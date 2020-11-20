@@ -4,7 +4,6 @@ sources = ['SqPtrArray.c',
            'SqType.c',
            'SqType-built-in.c',
            'SqType-PtrArray.c',
-           'SqType-std-string.cpp',
            'SqEntry.c',
            'SqTable.c',
            'SqJoint.c',
@@ -49,12 +48,28 @@ headers = ['SqPtrArray.h',
            'SqxcEmpty.h',
           ]
 
-# install_headers(headers)
+# C++ sources & headers
+
+sources_cpp = [
+               'SqType-std-string.cpp',
+              ]
+
+headers_cpp = [
+               'SqType-stl-cpp.h',
+              ]
+
+# install_headers(headers, subdir : 'sqxc')
+# install_headers(headers_cpp, subdir : 'sqxc')
 
 sqxc = static_library('sqxc',
                       sources,
                       include_directories: sqxc_inc,
                       install: true)
+
+sqxcpp = static_library('sqxcpp',
+                        sources_cpp,
+                        include_directories: sqxc_inc,
+                        install: true)
 
 #                     dependencies : [json-c, sqlite3],
 

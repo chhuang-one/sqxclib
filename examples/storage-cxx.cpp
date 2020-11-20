@@ -14,15 +14,21 @@
 
 
 #include <iostream>
+#include <vector>
 #include <string>
 #include <stdio.h>
 
 #include <SqConfig.h>
 #include <SqError.h>
 #include <SqPtrArray.h>
+#include <SqType-stl-cpp.h>
 #include <SqTable.h>
 #include <SqStorage.h>
 #include <SqdbSqlite.h>
+
+// C++ std::vector<int>
+Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);
+#define SQ_TYPE_INT_VECTOR    &SqTypeIntVector
 
 typedef struct User       User;
 typedef struct Company    Company;
@@ -42,6 +48,7 @@ struct Company
 	double salary;
 
 	std::string      sstr;    // C++ type
+	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
 	Sq::IntptrArray  ints;
 
 	// --------------------------------
@@ -68,6 +75,13 @@ struct Company
 		          << "company.address = " << this->address << std::endl
 		          << "company.salary = "  << this->salary  << std::endl
 		          << "company.sstr = "    << this->sstr    << std::endl;
+		std::cout << "company.intsCpp[] = ";
+		for (int index = 0;  index < this->ints.length;  index++) {
+			if (index > 0)
+				std::cout << ",";
+			std::cout << intsCpp[index];
+		}
+		std::cout << std::endl;
 		std::cout << "company.ints[] = ";
 		for (int index = 0;  index < this->ints.length;  index++) {
 			if (index > 0)
@@ -107,6 +121,7 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	table->double_("salary", &Company::salary);
 	table->stdstring("sstr", &Company::sstr);
 #ifdef SQ_CONFIG_JSON_SUPPORT
+	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
 #endif
 
@@ -141,6 +156,7 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	table->double_("salary", &Company::salary);
 	table->stdstring("sstr", &Company::sstr);
 #ifdef SQ_CONFIG_JSON_SUPPORT
+	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
 #endif
 
@@ -184,6 +200,7 @@ int main (int argc, char* argv[])
 	company->salary = 1200.00;
 	company->sstr = "test std::string 1";
 	company->ints.append(array1, 4);
+	company->intsCpp.assign(array2, array2+4);
 //	storage->insert<Company>(company);
 	storage->insert(company);
 	company->ints.length = 0;
@@ -195,6 +212,7 @@ int main (int argc, char* argv[])
 	company->salary = 3300.00;
 	company->sstr = "test std::string 2";
 	company->ints.append(array2, 4);
+	company->intsCpp.assign(array1, array1+4);
 //	storage->insert<Company>(company);
 	storage->insert(company);
 	company->ints.length = 0;

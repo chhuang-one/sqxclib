@@ -356,14 +356,9 @@ extern  const  SqType      SqType_StdString_;    // C++ std::string
 
 #define SQ_TYPE_STD_STRING    ((SqType*)&SqType_StdString_)
 
-/* TODO: use std::vector to implement SQ_ENTRY_STD_VECTOR
-#define SQ_TYPE_STD_VECTOR    ((SqType*)&SqType_StdVector_)
+/* 
+#include <SqType-stl-cpp.h>
  */
-
-/* TODO: use std::vector to implement SQ_TYPE_STD_LIST
-#define SQ_TYPE_STD_LIST      ((SqType*)&SqType_StdList_)
- */
-
 #endif  // __cplusplus
 
 
