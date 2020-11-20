@@ -236,6 +236,9 @@ check_nested_0:
 		xcjson->name = xcjson->jroot_name;
 		xcjson->value.string = (char*)json_object_to_json_string(xcjson->jroot);
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
+		// End of JSON string
+		json_object_put(xcjson->jroot);
+		xcjson->jroot = NULL;
 	}
 
 	return (src->code = SQCODE_OK);
