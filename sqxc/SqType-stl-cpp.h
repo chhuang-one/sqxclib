@@ -17,6 +17,7 @@
 
 #include <type_traits>    // std::is_pointer
 
+#include <SqError.h>
 #include <SqType.h>
 #include <SqxcValue.h>
 
@@ -73,8 +74,8 @@ struct TypeStl : SqType {
 		const SqType* element_type = type->entry[0]->type;
 		const char*   array_name = dest->name;
 		void*         element;
-		std::vector<void*>* container = (std::vector<void*>*)instance;
-		std::vector<void*>::iterator cur, end;
+		Container* container = (Container*)instance;
+		typename Container::iterator cur, end;
 
 		// Begin of SQXC_TYPE_ARRAY
 		dest->type = SQXC_TYPE_ARRAY;
