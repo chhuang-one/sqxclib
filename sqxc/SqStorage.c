@@ -28,7 +28,6 @@
 #include <SqxcJsonc.h>
 #include <SqStorage.h>
 
-static SqTable* find_table_by_type_name(SqStorage* storage, const char *type_name);
 static char*    get_primary_key_string(void* instance, SqTable* type);
 
 void  sq_storage_init(SqStorage* storage, Sqdb* db)
@@ -105,7 +104,7 @@ void* sq_storage_get(SqStorage* storage,
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = find_table_by_type_name(storage, type_name);
+		table = sq_storage_find_by_type_name(storage, type_name);
 	if (table == NULL)
 		return NULL;
 
@@ -145,7 +144,7 @@ void* sq_storage_get_all(SqStorage* storage,
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = find_table_by_type_name(storage, type_name);
+		table = sq_storage_find_by_type_name(storage, type_name);
 	if (table == NULL)
 		return NULL;
 	if (container == NULL)
@@ -182,7 +181,7 @@ int   sq_storage_insert(SqStorage* storage,
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = find_table_by_type_name(storage, type_name);
+		table = sq_storage_find_by_type_name(storage, type_name);
 	if (table == NULL)
 		return -1;
 
@@ -211,7 +210,7 @@ void  sq_storage_update(SqStorage* storage,
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = find_table_by_type_name(storage, type_name);
+		table = sq_storage_find_by_type_name(storage, type_name);
 	if (table == NULL)
 		return;
 
@@ -245,7 +244,7 @@ void  sq_storage_remove(SqStorage* storage,
 	if (table_name)
 		table = sq_schema_find(storage->schema, table_name);
 	else
-		table = find_table_by_type_name(storage, type_name);
+		table = sq_storage_find_by_type_name(storage, type_name);
 	if (table == NULL)
 		return;
 
@@ -262,33 +261,7 @@ void  sq_storage_remove(SqStorage* storage,
 
 // ------------------------------------
 
-SqQuery* sq_storage_table(SqStorage* storage, const char *table_name)
-{
-	SqTable* table;
-
-	table = sq_schema_find(storage->schema, table_name);
-	if (table)
-		return sq_query_new(table);
-	else
-		return NULL;
-//	sq_entry_free(db->input_container_default);
-}
-
-SqQuery* sq_storage_type(SqStorage* storage, const char *type_name)
-{
-	SqTable* table;
-
-	table = find_table_by_type_name(storage, type_name);
-	if (table)
-		return sq_query_new(table);
-	else
-		return NULL;
-}
-
-// ----------------------------------------------------------------------------
-// static function
-
-static SqTable*  find_table_by_type_name(SqStorage* storage, const char *type_name)
+SqTable*  sq_storage_find_by_type_name(SqStorage* storage, const char *type_name)
 {
 	SqPtrArray* tables = &storage->tables;
 	SqPtrArray* schema_tables = sq_type_get_ptr_array(storage->schema->type);
@@ -312,6 +285,32 @@ static SqTable*  find_table_by_type_name(SqStorage* storage, const char *type_na
 		return *table_addr;
 	return NULL;
 }
+
+SqQuery* sq_storage_table(SqStorage* storage, const char *table_name)
+{
+	SqTable* table;
+
+	table = sq_schema_find(storage->schema, table_name);
+	if (table)
+		return sq_query_new(table);
+	else
+		return NULL;
+//	sq_entry_free(db->input_container_default);
+}
+
+SqQuery* sq_storage_type(SqStorage* storage, const char *type_name)
+{
+	SqTable* table;
+
+	table = sq_storage_find_by_type_name(storage, type_name);
+	if (table)
+		return sq_query_new(table);
+	else
+		return NULL;
+}
+
+// ----------------------------------------------------------------------------
+// static function
 
 static char*  get_primary_key_string(void* instance, SqTable* table)
 {

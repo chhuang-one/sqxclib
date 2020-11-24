@@ -53,6 +53,7 @@ void* sq_storage_get_all(SqStorage* storage,
                          const char *type_name,
                          const SqType *container);
 
+// return id if no error
 // return -1 if error occurred
 int   sq_storage_insert(SqStorage* storage,
                         const char *table_name,
@@ -70,6 +71,10 @@ void  sq_storage_remove(SqStorage* storage,
                         int   id);
 
 // ------------------------------------
+
+// find SqTable by SqType.name
+SqTable* sq_storage_find_by_type_name(SqStorage* storage, const char *type_name);
+
 SqQuery* sq_storage_table(SqStorage* storage, const char *table_name);
 SqQuery* sq_storage_type(SqStorage* storage, const char *type_name);
 
