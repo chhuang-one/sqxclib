@@ -297,6 +297,14 @@ struct SqPtrArrayTemplate : Sq::PtrArrayMethod<Type>
 	void**         data;
 	int            length;
  */
+
+	// ------ SqPtrArrayTemplate constructor/destructor ------
+	SqPtrArrayTemplate(int allocated_length = 0, SqDestroyFunc func = NULL);
+	~SqPtrArrayTemplate(void);
+	// copy constructor
+	SqPtrArrayTemplate(SqPtrArrayTemplate& src);
+	// move constructor
+	SqPtrArrayTemplate(SqPtrArrayTemplate&& src);
 };
 #define SQ_PTR_ARRAY(Type)     struct SqPtrArrayTemplate<Type>
 
@@ -368,9 +376,38 @@ void  sq_ptr_array_append_n(void* array, const void* values, int count);
 #endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------
-// Sq::PtrArray and it's C++ template 
+// C++ template
 
 #ifdef __cplusplus
+
+// ----------------------------------------------------------------------------
+// SqPtrArrayTemplate
+
+template<class Type>
+SqPtrArrayTemplate<Type>::SqPtrArrayTemplate(int allocated_length, SqDestroyFunc func) {
+	sq_ptr_array_init(this, allocated_length, func);
+}
+template<class Type>
+SqPtrArrayTemplate<Type>::~SqPtrArrayTemplate(void) {
+	sq_ptr_array_final(this);
+}
+// copy constructor
+template<class Type>
+SqPtrArrayTemplate<Type>::SqPtrArrayTemplate(SqPtrArrayTemplate& src) {
+	SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
+//	sq_ptr_array_destroy_func(this) = sq_ptr_array_destroy_func(&src);
+}
+// move constructor
+template<class Type>
+SqPtrArrayTemplate<Type>::SqPtrArrayTemplate(SqPtrArrayTemplate&& src) {
+	data = src.data;
+	length = src.length;
+	src.data = NULL;
+	src.length = 0;
+}
+
+// ----------------------------------------------------------------------------
+// Sq::PtrArray and it's C++ template
 
 namespace Sq {
 
@@ -466,31 +503,29 @@ inline Type  PtrArrayMethod<Type>::operator[](int index) {
 }
 
 // ----------------------------------------------------------------------------
-// PtrArray is C++11 standard-layout
+// C++11 standard-layout
 
-// This one is for directly use only. You can NOT derived it.
+// All derived struct/class must be C++11 standard-layout.
 template<class Type> struct PtrArray : SqPtrArrayTemplate<Type>
 {
-	PtrArray<Type>(int allocated_length = 0, SqDestroyFunc func = NULL)
-		{ sq_ptr_array_init(this, allocated_length, func); }
-	~PtrArray<Type>(void)
-		{ sq_ptr_array_final(this); }
+	using SqPtrArrayTemplate<Type>::SqPtrArrayTemplate;
 };
 
-struct IntptrArray : SqPtrArrayTemplate<intptr_t>
-{
-	IntptrArray(int allocated_length = 0, SqDestroyFunc func = NULL)
-		{ sq_ptr_array_init(this, allocated_length, func); }
-	~IntptrArray(void)
-		{ sq_ptr_array_final(this); }
-};
+typedef struct SqPtrArrayTemplate<intptr_t>    IntptrArray;
 
 struct StringArray : SqPtrArrayTemplate<char*>
 {
-	StringArray(int allocated_length = 0, SqDestroyFunc func = NULL)
-		{ sq_ptr_array_init(this, allocated_length, func); }
-	~StringArray(void)
-		{ sq_ptr_array_final(this); }
+	using SqPtrArrayTemplate<char*>::SqPtrArrayTemplate;
+
+	// copy constructor
+	StringArray(StringArray& src) {
+		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
+		for (int i = 0;  i < length;  i++)
+			data[i] = strdup(data[i]);
+		sq_ptr_array_destroy_func(this) = sq_ptr_array_destroy_func(&src);
+		if (sq_ptr_array_destroy_func(this) == NULL)
+			sq_ptr_array_destroy_func(this) = free;
+	}
 };
 
 };  // namespace Sq
