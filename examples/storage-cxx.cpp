@@ -27,8 +27,8 @@
 #include <SqdbSqlite.h>
 
 // C++ std::vector<int>
-Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);
 #define SQ_TYPE_INT_VECTOR    &SqTypeIntVector
+Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);
 
 typedef struct User       User;
 typedef struct Company    Company;
@@ -47,25 +47,12 @@ struct Company
 	char*  address;
 	double salary;
 
-	std::string      sstr;    // C++ type
+	Sq::IntptrArray  ints;    // C array for intptr_t
 	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
-	Sq::IntptrArray  ints;
+	std::string      sstr;    // C++ type
 
 	// --------------------------------
-	// internal member
-	bool   staticString;
-
-	Company(bool staticString = false) {
-		this->staticString = staticString;
-		ints.init(4);
-	}
-	~Company() {
-		if (staticString == false) {
-			free(name);
-			free(address);
-		}
-		ints.final();
-	}
+	// member functions
 
 	void print() {
 		std::cout << std::endl
@@ -174,14 +161,63 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	storage->migrate(NULL);
 }
 
-int main (int argc, char* argv[])
+void  storage_ptr_array_get_all(Sq::Storage* storage)
+{
+	SqPtrArray* array;
+	Company*    company;
+
+//	array = (SqPtrArray*)storage->get_all<Company>(NULL);    // deprecated
+	array = (SqPtrArray*)storage->getAll<Company>(NULL);
+	for (int i = 0;  i < array->length;  i++) {
+		company = (Company*)array->data[i];
+		company->print();
+		delete company;
+	}
+}
+
+void  storage_vector_get_all(Sq::Storage* storage)
+{
+	std::vector<Company>* vectorComp;
+	std::vector<Company>::iterator cur, end;
+
+//	vectorComp = storage->get_all<std::vector<Company>>();    // deprecated
+	vectorComp = storage->getAll<std::vector<Company>>();
+	cur = vectorComp->begin();
+	end = vectorComp->end();
+	for (;  cur != end;  cur++)
+		(*cur).print();
+
+	// free
+	delete vectorComp;
+}
+
+// ----------------------------------------------------------------------------
+
+intptr_t  intptrArray1[] = { 1,  3,  5,  7};
+intptr_t  intptrArray2[] = { 9, 11, 13, 15};
+int       intArray1[]    = { 2,  4,  6,  8};
+int       intArray2[]    = {10, 12, 14, 16};
+
+void check_standard_layout()
+{
+	std::cout << "Sq::IntptrArray is standard layout = "
+	          << std::is_standard_layout<Sq::IntptrArray>::value << std::endl;
+	std::cout << "Sq::StringArray is standard layout = "
+	          << std::is_standard_layout<Sq::StringArray>::value << std::endl;
+	std::cout << "Sq::TypeStl<std::vector<int>> is standard layout = "
+	          << std::is_standard_layout< Sq::TypeStl<std::vector<int>> >::value << std::endl;
+	std::cout << "Company is standard layout = "
+	          << std::is_standard_layout<Company>::value << std::endl;
+}
+
+int  main(int argc, char* argv[])
 {
 //	Sq::DbConfigSqlite* dbconfig;
 	Sq::DbSqlite* db;
 	Sq::Storage*  storage;
 	Company*      company;
-	intptr_t      array1[4] = {1, 3, 5, 7};
-	intptr_t      array2[4] = {2, 4, 6, 8};
+
+	check_standard_layout();
 
 	db = new Sq::DbSqlite(NULL);
 	storage = new Sq::Storage(db);
@@ -191,7 +227,7 @@ int main (int argc, char* argv[])
 //	storage_make_fixed_schema(storage);
 	storage_make_migrated_schema(storage);
 
-	company = new Company(true);
+	company = new Company();
 
 	company->id = 1;
 	company->name = (char*)"Mr.T";
@@ -199,8 +235,8 @@ int main (int argc, char* argv[])
 	company->address = (char*)"Norway";
 	company->salary = 1200.00;
 	company->sstr = "test std::string 1";
-	company->ints.append(array1, 4);
-	company->intsCpp.assign(array2, array2+4);
+	company->ints.append(intptrArray1, 4);
+	company->intsCpp.assign(intArray1, intArray1+4);
 //	storage->insert<Company>(company);
 	storage->insert(company);
 	company->ints.length = 0;
@@ -211,17 +247,23 @@ int main (int argc, char* argv[])
 	company->address = (char*)"Texas";
 	company->salary = 3300.00;
 	company->sstr = "test std::string 2";
-	company->ints.append(array2, 4);
-	company->intsCpp.assign(array1, array1+4);
+	company->ints.append(intptrArray2, 4);
+	company->intsCpp.assign(intArray2, intArray2+4);
 //	storage->insert<Company>(company);
 	storage->insert(company);
 	company->ints.length = 0;
 
+	company->name = NULL;       // company->name    is static string currently
+	company->address = NULL;    // company->address is static string currently
 	delete company;
 
 	company = storage->get<Company>(1);
 	company->print();
 	delete company;
+
+	// call Sq::Storage.getAll()
+	storage_ptr_array_get_all(storage);
+	storage_vector_get_all(storage);
 
 	storage->close();
 	delete storage;

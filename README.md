@@ -30,7 +30,10 @@ uGet3 use SQL database to solve this problem.
 		char*  email;
 		int    city_id;     // foreign key
 
-		std::string  sstr;  // C++ only
+	#ifdef __cplusplus      // C++ Only
+		std::string       sstr;
+		std::vector<int>  intsCpp;
+	#endif
 	};
 
  use C99 designated initializer to declare table/column (static)
@@ -87,12 +90,14 @@ uGet3 use SQL database to solve this problem.
  use C++ function to declare table/column (dynamic)
 
 	SqTable* table;
+	Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
 	table = schema->create<User>("users");
 	table->integer("id", &User::id)->primary();
 	table->string("full_name", &User::full_name);
 	table->string("email", &User::email);
-	table->stdstring("sstr", &User::sstr);    // C++ std::string
+	table->stdstring("sstr", &User::sstr);                         // C++ std::string
+	table->custom("intsCpp", &User::intsCpp, &SqTypeIntVector);    // C++ std::vector
 	// FOREIGN KEY
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
 	// CONSTRAINT FOREIGN KEY
@@ -174,8 +179,11 @@ uGet3 use SQL database to solve this problem.
 
 	User*  user;
 
-	array = storage->get_all<User>(NULL);
-	user  = storage->get<User>(2);
+	vector = storage->getAll<std::vector<User>>();
+	// or
+	array  = storage->getAll<User>(NULL);
+
+	user = storage->get<User>(2);
 
 	storage->remove<User>(5);
 
