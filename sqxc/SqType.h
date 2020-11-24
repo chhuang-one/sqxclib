@@ -228,6 +228,9 @@ struct SqType
 	SqEntry**      entry;
 	int            n_entry;
 
+//	SqType.entry is array of SqEntry pointer if current SqType is for C struct.
+//	SqType.entry can't be freed if SqType.n_entry == -1
+
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType.
 	// SqType::bit_field has SQB_TYPE_SORTED if SqType::entry is sorted.
 	unsigned int   bit_field;

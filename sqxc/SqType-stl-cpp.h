@@ -36,7 +36,7 @@ struct TypeStl : SqType {
 	}
 
 	static int   cxxParse(void* instance, const SqType* type, Sqxc* src) {
-		const SqType* element_type = type->entry[0]->type;
+		SqType*     element_type = (SqType*)type->entry;    // TypeStl use SqType.entry to store element type
 		SqxcValue*  xc_value = (SqxcValue*)src->dest;
 		SqxcNested* nested;
 		void*       element;
@@ -71,9 +71,9 @@ struct TypeStl : SqType {
 	}
 
 	static Sqxc* cxxWrite(void* instance, const SqType* type, Sqxc* dest) {
-		const SqType* element_type = type->entry[0]->type;
-		const char*   array_name = dest->name;
-		void*         element;
+		SqType*     element_type = (SqType*)type->entry;    // TypeStl use SqType.entry to store element type
+		const char* array_name = dest->name;
+		void*       element;
 		Container* container = (Container*)instance;
 		typename Container::iterator cur, end;
 
@@ -103,16 +103,14 @@ struct TypeStl : SqType {
 	}
 
 	TypeStl(SqType* element_type) {
-		static SqEntry  entry = {element_type, NULL, 0, 0};
-		static SqEntry* entry_addr = &entry;
-
-		this->size = sizeof(Container);
-		this->init = cxxInit;
+		this->size  = sizeof(Container);
+		this->init  = cxxInit;
 		this->final = cxxFinal;
 		this->parse = cxxParse;
 		this->write = cxxWrite;
-		this->entry = &entry_addr;
-		this->n_entry = 1;
+		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
+		this->n_entry = -1;                       // SqType.entry can't be freed if SqType.n_entry == -1
+		this->bit_field = SQB_DYNAMIC;
 	}
 };
 

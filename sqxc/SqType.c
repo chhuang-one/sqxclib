@@ -52,7 +52,9 @@ SqType* sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
 void  sq_type_free(SqType* entrytype)
 {
 	if (entrytype->bit_field & SQB_TYPE_DYNAMIC) {
-		sq_ptr_array_final(&entrytype->entry);
+		// SqType.entry can't be freed if SqType.n_entry == -1
+		if (entrytype->n_entry != -1)
+			sq_ptr_array_final(&entrytype->entry);
 		free(entrytype);
 	}
 }
