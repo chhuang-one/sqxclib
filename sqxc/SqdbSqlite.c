@@ -21,8 +21,7 @@
 
 #include <SqError.h>
 #include <SqdbSqlite.h>
-
-#include <SqxcValue.h>  // TODO: SqdbHelper functions
+#include <SqxcValue.h>
 #include <SqxcSql.h>
 
 #define NEW_TABLE_PREFIX_NAME    "new__table__"

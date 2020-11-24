@@ -58,8 +58,8 @@ headers_cpp = [
                'SqType-stl-cpp.h',
               ]
 
-# install_headers(headers, subdir : 'sqxc')
-# install_headers(headers_cpp, subdir : 'sqxc')
+# install_headers(headers, subdir: 'sqxc')
+# install_headers(headers_cpp, subdir: 'sqxc')
 
 sqxc = static_library('sqxc',
                       sources,

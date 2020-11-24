@@ -168,7 +168,7 @@ uGet3 use SQL database to solve this problem.
 
 	User*  user;
 
-	array = storage->get_all("users", NULL);
+	array = storage->getAll("users", NULL);
 	user  = storage->get("users", 2);
 
 	storage->insert("users", user);
