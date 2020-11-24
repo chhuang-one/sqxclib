@@ -56,8 +56,8 @@ static int  sq_type_ptr_array_parse(void* array, const SqType *type, Sqxc* src)
 	void*         element;
 
 	// get element type information
-	if (type->n_entry > 0)
-		element_type = type->entry[0]->type;
+	if (type->n_entry == -1)    // SqType.entry can't be freed if SqType.n_entry == -1
+		element_type = (SqType*)type->entry;
 	else if (xc_value->nested_count < 2)
 		element_type = xc_value->element;
 	else
@@ -72,7 +72,7 @@ static int  sq_type_ptr_array_parse(void* array, const SqType *type, Sqxc* src)
 		}
 		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data = array;
-		nested->data2 = (SqType*)type;
+		nested->data2 = (void*)type;
 		return (src->code = SQCODE_OK);
 	}
 	/*
@@ -85,7 +85,7 @@ static int  sq_type_ptr_array_parse(void* array, const SqType *type, Sqxc* src)
 
 	element = sq_ptr_array_alloc(array, 1);
 	element = sq_type_init_instance(element_type, element, true);
-	src->name = NULL;
+	src->name = NULL;    // set "name" before calling parse()
 	src->code = element_type->parse(element, element_type, src);
 	return src->code;
 }
@@ -96,8 +96,8 @@ static Sqxc* sq_type_ptr_array_write(void* array, const SqType *type, Sqxc* dest
 	const char*   array_name = dest->name;
 
 	// get element type information.
-	if (type->n_entry > 0)
-		element_type = type->entry[0]->type;
+	if (type->n_entry == -1)    // SqType.entry can't be freed if SqType.n_entry == -1
+		element_type = (SqType*)type->entry;
 //	else if (dest->nested_count < 1)
 //		element_type = ((SqxcValue*)dest)->element;
 	else {
@@ -115,6 +115,7 @@ static Sqxc* sq_type_ptr_array_write(void* array, const SqType *type, Sqxc* dest
 
 	// output elements
 	sq_ptr_array_foreach(array, element) {
+		dest->name = NULL;      // set "name" before calling write()
 		dest = element_type->write(element, element_type, dest);
 		if (dest->code != SQCODE_OK)
 			return dest;
@@ -138,14 +139,18 @@ const SqType SqType_PtrArray_ =
 };
 
 /* ----------------------------------------------------------------------------
-	SQ_TYPE_STRING_ARRAY
+	SQ_TYPE_STRING_ARRAY and SQ_TYPE_INTPTR_ARRAY
  */
 
-static int  sq_type_string_array_parse(void* array, const SqType *type, Sqxc* src)
+static int  sq_type_notptr_array_parse(void* array, const SqType *type, Sqxc* src)
 {
-	SqxcValue*  xc_value = (SqxcValue*)src->dest;
-	SqxcNested* nested;
-	void*       element;
+	const SqType* element_type;
+	SqxcValue*    xc_value = (SqxcValue*)src->dest;
+	SqxcNested*   nested;
+	void*         element;
+
+	// get element type information. different from sq_type_ptr_array_parse()
+	element_type = (SqType*)type->entry;    // SqPtrArray use SqType.entry to store element type
 
 	// Start of Array - Frist time to call this function to parse array
 	nested = xc_value->nested;
@@ -167,34 +172,38 @@ static int  sq_type_string_array_parse(void* array, const SqType *type, Sqxc* sr
 	}
 	 */
 
+	// different from sq_type_ptr_array_parse()
 	element = sq_ptr_array_alloc(array, 1);
 	src->name = NULL;    // set "name" before calling parse()
-	src->code = SQ_TYPE_STRING->parse(element, SQ_TYPE_STRING, src);
+	src->code = element_type->parse(element, element_type, src);
 	return src->code;
 }
 
-static Sqxc* sq_type_string_array_write(void* array, const SqType *type, Sqxc* dest)
+static Sqxc* sq_type_notptr_array_write(void* array, const SqType *type, Sqxc* dest)
 {
-	const char *array_name = dest->name;
+	const SqType* element_type;
+	const char*   array_name = dest->name;
+
+	// get element type information. different from sq_type_ptr_array_write()
+	element_type = (SqType*)type->entry;    // SqPtrArray use SqType.entry to store element type
 
 	// Begin of SQXC_TYPE_ARRAY
-//	sqxc_send_array_beg(src, array_name);
 	dest->type = SQXC_TYPE_ARRAY;
 //	dest->name = array_name;    // "name" was set by caller of this function
+//	dest->value.pointer = NULL;
 	dest = sqxc_send(dest);
 	if (dest->code != SQCODE_OK)
 		return dest;
 
-	// output elements
+	// output elements. different from sq_type_ptr_array_write()
 	sq_ptr_array_foreach_addr(array, element) {
 		dest->name = NULL;      // set "name" before calling write()
-		dest = SQ_TYPE_STRING->write(element, SQ_TYPE_STRING, dest);
+		dest = element_type->write(element, element_type, dest);
 		if (dest->code != SQCODE_OK)
 			return dest;
 	}
 
 	// End of SQXC_TYPE_ARRAY
-//	sqxc_send_array_end(src, array_name);
 	dest->type = SQXC_TYPE_ARRAY_END;
 	dest->name = array_name;
 //	dest->value.pointer = NULL;
@@ -208,73 +217,12 @@ const SqType SqType_StringArray_ =
 	sizeof(SqPtrArray),
 	sq_type_ptr_array_init,
 	sq_type_ptr_array_final,
-	sq_type_string_array_parse,
-	sq_type_string_array_write,
+	sq_type_notptr_array_parse,
+	sq_type_notptr_array_write,
+	NULL,                          // name
+	(SqEntry**) SQ_TYPE_STRING,    // entry      // SqPtrArray use SqType.entry to store element type
+	-1,                            // n_entry    // SqType.entry can't be freed if SqType.n_entry == -1
 };
-
-/* ----------------------------------------------------------------------------
-	SQ_TYPE_INTPTR_ARRAY
- */
-
-static int  sq_type_intptr_array_parse(void* array, const SqType *type, Sqxc* src)
-{
-	SqxcValue*  xc_value = (SqxcValue*)src->dest;
-	SqxcNested* nested;
-	void*       element;
-
-	// Start of Array - Frist time to call this function to parse array
-	nested = xc_value->nested;
-	if (nested->data != array) {
-		if (src->type != SQXC_TYPE_ARRAY) {
-//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
-		}
-		nested = sqxc_push_nested((Sqxc*)xc_value);
-		nested->data = array;
-		nested->data2 = (void*)type;
-		return (src->code = SQCODE_OK);
-	}
-	/*
-	// End of Array : sqxc_value_send() have done it.
-	else if (src->type == SQXC_TYPE_ARRAY_END) {
-		sqxc_pop_nested(src);
-		return (src->code = SQCODE_OK);
-	}
-	 */
-
-	element = sq_ptr_array_alloc(array, 1);
-	src->name = NULL;    // set "name" before calling parse()
-	src->code = SQ_TYPE_INTPTR->parse(element, SQ_TYPE_INTPTR, src);
-	return src->code;
-}
-
-static Sqxc* sq_type_intptr_array_write(void* array, const SqType *type, Sqxc* dest)
-{
-	const char* array_name = dest->name;
-
-	// Begin of SQXC_TYPE_ARRAY
-	dest->type = SQXC_TYPE_ARRAY;
-//	dest->name = array_name;    // "name" was set by caller of this function
-//	dest->value.pointer = NULL;
-	dest = sqxc_send(dest);
-	if (dest->code != SQCODE_OK)
-		return dest;
-
-	// output elements
-	sq_ptr_array_foreach_addr(array, element) {
-		dest->name = NULL;      // set "name" before calling write()
-		dest = SQ_TYPE_INTPTR->write(element, SQ_TYPE_INTPTR, dest);
-		if (dest->code != SQCODE_OK)
-			return dest;
-	}
-
-	// End of SQXC_TYPE_ARRAY
-	dest->type = SQXC_TYPE_ARRAY_END;
-	dest->name = array_name;
-//	dest->value.pointer = NULL;
-	dest = sqxc_send(dest);
-	return dest;
-}
 
 // extern
 const SqType SqType_IntptrArray_ =
@@ -282,7 +230,10 @@ const SqType SqType_IntptrArray_ =
 	sizeof(SqPtrArray),
 	sq_type_ptr_array_init,
 	sq_type_ptr_array_final,
-	sq_type_intptr_array_parse,
-	sq_type_intptr_array_write,
+	sq_type_notptr_array_parse,
+	sq_type_notptr_array_write,
+	NULL,                          // name
+	(SqEntry**) SQ_TYPE_INTPTR,    // entry      // SqPtrArray use SqType.entry to store element type
+	-1,                            // n_entry    // SqType.entry can't be freed if SqType.n_entry == -1
 };
 
