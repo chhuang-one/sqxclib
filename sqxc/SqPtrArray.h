@@ -515,16 +515,53 @@ typedef struct SqPtrArrayTemplate<intptr_t>    IntptrArray;
 
 struct StringArray : SqPtrArrayTemplate<char*>
 {
-	using SqPtrArrayTemplate<char*>::SqPtrArrayTemplate;
+	// for internal use only
+	void duplicateElement(int index, int length) {
+		for (int end = index+length;  index < end;  index++) {
+			data[index] = strdup(data[index]);
+		}
+	}
 
+	// ------ StringArray constructor/destructor ------
+	StringArray(int allocated_length = 0, SqDestroyFunc func = free) {
+		sq_ptr_array_init(this, allocated_length, func);
+	}
+	~StringArray(void) {
+		sq_ptr_array_final(this);
+	}
 	// copy constructor
 	StringArray(StringArray& src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
-		for (int i = 0;  i < length;  i++)
-			data[i] = strdup(data[i]);
+		duplicateElement(0, length);
 		sq_ptr_array_destroy_func(this) = sq_ptr_array_destroy_func(&src);
 		if (sq_ptr_array_destroy_func(this) == NULL)
 			sq_ptr_array_destroy_func(this) = free;
+	}
+	// move constructor
+	StringArray(StringArray&& src) {
+		this->data = src.data;
+		this->length = src.length;
+		src.data = NULL;
+		src.length = 0;
+	}
+
+	// ------ StringArray method ------
+	void  insert(int index, const char** values, int length) {
+		SQ_PTR_ARRAY_INSERT_N(this, index, (void*)values, length);
+		duplicateElement(index, length);
+	}
+	void  insert(int index, const char*  value) {
+		sq_ptr_array_insert(this, index, (void*)value);
+		duplicateElement(index, 1);
+	}
+
+	void  append(const char** values, int length) {
+		SQ_PTR_ARRAY_APPEND_N(this, (void*)values, length);
+		duplicateElement(this->length -length, length);
+	}
+	void  append(const char*  value) {
+		sq_ptr_array_append(this, (void*)value);
+		duplicateElement(this->length -length, 1);
 	}
 };
 

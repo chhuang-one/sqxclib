@@ -56,7 +56,7 @@ void test_string_array()
 	const char*  strarray[] = {"One", "Two"};
 
 	array = new Sq::StringArray();
-	array->append((char**)strarray, 2);
+	array->append(strarray, 2);
 	// C++ foreach (lambda)
 	array->foreach([](char* element) {
 		printf(" - %s", element);

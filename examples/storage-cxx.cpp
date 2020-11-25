@@ -13,9 +13,10 @@
  */
 
 
-#include <iostream>
+#include <list>
 #include <vector>
 #include <string>
+#include <iostream>
 #include <stdio.h>
 
 #include <SqConfig.h>
@@ -48,8 +49,9 @@ struct Company
 	double salary;
 
 	Sq::IntptrArray  ints;    // C array for intptr_t
+	Sq::StringArray  strs;    // C array for char*
 	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
-	std::string      sstr;    // C++ type
+	std::string      strCpp;  // C++ type
 
 	// --------------------------------
 	// member functions
@@ -61,9 +63,16 @@ struct Company
 		          << "company.age = "     << this->age     << std::endl
 		          << "company.address = " << this->address << std::endl
 		          << "company.salary = "  << this->salary  << std::endl
-		          << "company.sstr = "    << this->sstr    << std::endl;
+		          << "company.strCpp = "  << this->strCpp  << std::endl;
+		std::cout << "company.strs[] = ";
+		for (int index = 0;  index < this->strs.length;  index++) {
+			if (index > 0)
+				std::cout << ",";
+			std::cout << strs[index];
+		}
+		std::cout << std::endl;
 		std::cout << "company.intsCpp[] = ";
-		for (int index = 0;  index < this->ints.length;  index++) {
+		for (int index = 0;  index < (int)this->intsCpp.size();  index++) {
 			if (index > 0)
 				std::cout << ",";
 			std::cout << intsCpp[index];
@@ -106,8 +115,9 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
-	table->stdstring("sstr", &Company::sstr);
+	table->stdstring("strCpp", &Company::strCpp);
 #ifdef SQ_CONFIG_JSON_SUPPORT
+	table->custom("strs", &Company::strs, SQ_TYPE_STRING_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
 #endif
@@ -141,8 +151,9 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
-	table->stdstring("sstr", &Company::sstr);
+	table->stdstring("strCpp", &Company::strCpp);
 #ifdef SQ_CONFIG_JSON_SUPPORT
+	table->custom("strs", &Company::strs, SQ_TYPE_STRING_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
 #endif
@@ -175,20 +186,22 @@ void  storage_ptr_array_get_all(Sq::Storage* storage)
 	}
 }
 
-void  storage_vector_get_all(Sq::Storage* storage)
+void  storage_stl_container_get_all(Sq::Storage* storage)
 {
-	std::vector<Company>* vectorComp;
-	std::vector<Company>::iterator cur, end;
+	std::list<Company>* container;
+	std::list<Company>::iterator cur, end;
+//	std::vector<Company>* container;
+//	std::vector<Company>::iterator cur, end;
 
-//	vectorComp = storage->get_all<std::vector<Company>>();    // deprecated
-	vectorComp = storage->getAll<std::vector<Company>>();
-	cur = vectorComp->begin();
-	end = vectorComp->end();
+	container = storage->getAll<std::list<Company>>();
+//	container = storage->getAll<std::vector<Company>>();
+	cur = container->begin();
+	end = container->end();
 	for (;  cur != end;  cur++)
 		(*cur).print();
 
 	// free
-	delete vectorComp;
+	delete container;
 }
 
 // ----------------------------------------------------------------------------
@@ -228,33 +241,33 @@ int  main(int argc, char* argv[])
 	storage_make_migrated_schema(storage);
 
 	company = new Company();
-
 	company->id = 1;
-	company->name = (char*)"Mr.T";
+	company->name = strdup("Mr.T");
 	company->age = 21;
-	company->address = (char*)"Norway";
+	company->address = strdup("Norway");
 	company->salary = 1200.00;
-	company->sstr = "test std::string 1";
+	company->strCpp = "test std::string 1";
+	company->strs.append("str1");
+	company->strs.append("str2");
 	company->ints.append(intptrArray1, 4);
 	company->intsCpp.assign(intArray1, intArray1+4);
 //	storage->insert<Company>(company);
 	storage->insert(company);
-	company->ints.length = 0;
+	delete company;
 
+	company = new Company();
 	company->id = 2;
-	company->name = (char*)"Paul";
+	company->name = strdup("Paul");
 	company->age = 32;
-	company->address = (char*)"Texas";
+	company->address = strdup("Texas");
 	company->salary = 3300.00;
-	company->sstr = "test std::string 2";
+	company->strCpp = "test std::string 2";
+	company->strs.append("str3");
+	company->strs.append("str4");
 	company->ints.append(intptrArray2, 4);
 	company->intsCpp.assign(intArray2, intArray2+4);
 //	storage->insert<Company>(company);
 	storage->insert(company);
-	company->ints.length = 0;
-
-	company->name = NULL;       // company->name    is static string currently
-	company->address = NULL;    // company->address is static string currently
 	delete company;
 
 	company = storage->get<Company>(1);
@@ -263,7 +276,7 @@ int  main(int argc, char* argv[])
 
 	// call Sq::Storage.getAll()
 	storage_ptr_array_get_all(storage);
-	storage_vector_get_all(storage);
+	storage_stl_container_get_all(storage);
 
 	storage->close();
 	delete storage;
