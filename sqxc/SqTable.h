@@ -78,9 +78,8 @@ void      sq_table_rename_column(SqTable* table, const char* from, const char* t
 int       sq_table_get_columns(SqTable* table, SqPtrArray* ptr_array, unsigned int bit_field);
 SqColumn* sq_table_get_primary(SqTable* table);
 
-// TODO: static declared SqColumn
-// int    sq_table_add_static(SqTable* table, const SqColumn* columns,
-//                            int  n_columns);
+void      sq_table_add_columns(SqTable* table, const SqColumn** columns,
+                               int  n_columns);
 
 #define sq_table_add_integer    sq_table_add_int
 
@@ -102,28 +101,29 @@ SqColumn* sq_table_add_custom(SqTable* table, const char* column_name,
                               size_t offset, const SqType* sqtype,
                               int  length);
 
-/*
-#define sq_table_add_int_as(table, structure, member)    \
-		sq_table_add_int(table, #member, offsetof(structure, member))
+#define sq_table_add_integer_as(table, Structure, Member)    \
+		sq_table_add_int(table, #Member, offsetof(Structure, Member))
 
-#define sq_table_add_uint_as(table, structure, member)    \
-		sq_table_add_uint(table, #member, offsetof(structure, member))
+#define sq_table_add_int_as(table, Structure, Member)    \
+		sq_table_add_int(table, #Member, offsetof(Structure, Member))
 
-#define sq_table_add_int64_as(table, structure, member)    \
-		sq_table_add_int64(table, #member, offsetof(structure, member))
+#define sq_table_add_uint_as(table, Structure, Member)    \
+		sq_table_add_uint(table, #Member, offsetof(Structure, Member))
 
-#define sq_table_add_uint64_as(table, structure, member)    \
-		sq_table_add_uint64(table, #member, offsetof(structure, member))
+#define sq_table_add_int64_as(table, Structure, Member)    \
+		sq_table_add_int64(table, #Member, offsetof(Structure, Member))
 
-#define sq_table_add_double_as(table, structure, member)    \
-		sq_table_add_double(table, #member, offsetof(structure, member))
+#define sq_table_add_uint64_as(table, Structure, Member)    \
+		sq_table_add_uint64(table, #Member, offsetof(Structure, Member))
 
-#define sq_table_add_string_as(table, structure, member, length)    \
-		sq_table_add_string(table, #member, offsetof(structure, member), length)
+#define sq_table_add_double_as(table, Structure, Member)    \
+		sq_table_add_double(table, #Member, offsetof(Structure, Member))
 
-#define sq_table_add_custom_as(table, structure, member, type)    \
-		sq_table_add_custom(table, #member, offsetof(structure, member), type)
- */
+#define sq_table_add_string_as(table, Structure, Member, length)    \
+		sq_table_add_string(table, #Member, offsetof(Structure, Member), length)
+
+#define sq_table_add_custom_as(table, Structure, Member, type, length)    \
+		sq_table_add_custom(table, #Member, offsetof(Structure, Member), type, length)
 
 // --------------------------------------------------------
 // SqTable C functions for CONSTRAINT
