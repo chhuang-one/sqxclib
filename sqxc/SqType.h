@@ -73,6 +73,11 @@
 #define SQ_GET_TYPE_NAME(Type)        #Type
 #endif
 
+// get size of pointer array. for example:
+//	SqEntry *FooEntries[] = {...};
+//	int n_entry = SQ_N_ENTRY(FooEntries);
+#define SQ_N_ENTRY(EntryPointerArray) ( sizeof(EntryPointerArray)/sizeof(SqEntry*) )
+
 #include <SqPtrArray.h>
 #include <Sqxc.h>
 
@@ -184,19 +189,19 @@ enum {
 		( (type)> SQ_TYPE_BUILTIN_END || (type)< SQ_TYPE_BUILTIN_BEG )
 
 /* declare SqType for SqPtrArray (SqType-PtrArray.c)
-   User must add a SqEntry that declare type of element.
+   User must assign element type in SqType.entry and set SqType.n_entry to -1.
 
-	SqType*  myPtrArray   = sq_type_copy_static(SQ_TYPE_PTR_ARRAY);
-	SqEntry* elementEntry = sq_entry_new(MyObjectType);
-	sq_type_insert_entry(myPtrArray, elementEntry);
+	SqType* myPtrArray = sq_type_copy_static(SQ_TYPE_PTR_ARRAY);
+	myPtrArray.entry = (SqEntry**) element_SqType;
+	myPtrArray.n_entry = -1;
  */
 #define SQ_TYPE_PTR_ARRAY     ((SqType*)&SqType_PtrArray_)
 
-/* implement array by SqPtrArray (SqType-PtrArray.c)
+/* implement string (char*) array by SqPtrArray (SqType-PtrArray.c)
    User can use SQ_TYPE_STRING_ARRAY directly. */
 #define SQ_TYPE_STRING_ARRAY  ((SqType*)&SqType_StringArray_)
 
-/* implement array by SqPtrArray (SqType-PtrArray.c)
+/* implement intptr_t array by SqPtrArray (SqType-PtrArray.c)
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
 #define SQ_TYPE_INTPTR_ARRAY  ((SqType*)&SqType_IntptrArray_)
 
