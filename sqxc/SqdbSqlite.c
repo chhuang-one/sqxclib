@@ -122,6 +122,7 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 	SqTable**   table_addr;
 	SqTable*    table;
 	SqType*     type;
+	char*       errorMsg = NULL;
 	int   rc;
 
 	if (sqdb->self == NULL)
@@ -205,16 +206,18 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #if DEBUG
 			puts(sql_buf.buf);
-			rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, NULL);
+			rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
 #else
-			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
+			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
 #endif
+			if (rc != SQLITE_OK) {
+				fprintf(stderr, "SQL error: %s\n", errorMsg);
+				sqlite3_free(errorMsg);
+			}
 		}
 		// free RENAME and DROP records
 		sq_ptr_array_final(&reentries);
-#if DEBUG
-		puts("\n");
-#endif
+
 		sql_buf.writed = 0;
 		sq_buffer_write(&sql_buf, "PRAGMA foreign_keys=off; BEGIN TRANSACTION; ");
 		// run SQL statement: create/recreate table
@@ -236,10 +239,14 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 		sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #ifdef DEBUG
 		puts(sql_buf.buf);
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, NULL);
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
 #else
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
 #endif
+		if (rc != SQLITE_OK) {
+			fprintf(stderr, "SQL error: %s\n", errorMsg);
+			sqlite3_free(errorMsg);
+		}
 		// update SQLite.user_version
 		sqdb->version = schema->version;
 		sql_buf.writed = snprintf(NULL, 0, "PRAGMA user_version = %d;", sqdb->version) + 1;
@@ -247,10 +254,14 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 //		sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #ifdef DEBUG
 		puts(sql_buf.buf);
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, NULL);
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
 #else
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
 #endif
+		if (rc != SQLITE_OK) {
+			fprintf(stderr, "SQL error: %s\n", errorMsg);
+			sqlite3_free(errorMsg);
+		}
 		// free buffer for SQL statement
 		sq_buffer_final(&sql_buf);
 
