@@ -218,7 +218,7 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 		sqdb_sql_write_column_type(db, buffer, column);
 	}
 
-	if (db->info->product == SQDB_PRODUCT_MYSQL) {
+//	if (db->info->product == SQDB_PRODUCT_MYSQL) {
 		for (index = 0;  index < arranged_columns->length;  index++) {
 			column = (SqColumn*)arranged_columns->data[index];
 			// Don't output CONSTRAINT and INDEX here
@@ -246,7 +246,7 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 			if (column->foreign)
 				sqdb_sql_write_foreign_ref(db, buffer, column);
 		}
-	}
+//	}
 
 	if (has_constraint) {
 		for (index = 0;  index < arranged_columns->length;  index++) {
@@ -589,7 +589,7 @@ void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 	// "NOT NULL"
 	if ((column->bit_field & SQB_NULLABLE) == 0)
 		sq_buffer_write(buffer, " NOT NULL");
-
+/*
 	if (db->info->product != SQDB_PRODUCT_MYSQL) {
 		// "FOREIGN KEY"
 		if (column->foreign) {
@@ -603,7 +603,7 @@ void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 		else if (column->bit_field & SQB_UNIQUE)
 			sq_buffer_write(buffer, " UNIQUE");
 	}
-
+ */
 	if (column->default_value) {
 		sq_buffer_write(buffer, " DEFAULT ");
 		sq_buffer_write(buffer, column->default_value);
