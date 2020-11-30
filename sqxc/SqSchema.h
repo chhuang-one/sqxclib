@@ -45,8 +45,8 @@ void    sq_schema_init(SqSchema* schema, const char* name);
 void    sq_schema_final(SqSchema* schema);
 
 /*	sq_schema_create_full()
-  if "type_info" == NULL, program will use "type_name" and "type_size" to create "type_info".
-  You can pass 0 to "type_size" because program calculate type_size automatically.
+  if 'type_info' == NULL, program will use 'type_name' and 'instance_size' to create 'type_info'.
+  You can pass 0 to 'instance_size' because program calculate 'instance_size' automatically.
 
   C Language
   #define SQ_CONFIG_NAMING_CONVENTION to enable "SQL_table_name" <-> "type_name" converting,
@@ -73,11 +73,11 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 		sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType))
 #endif
 
-SqTable* sq_schema_create_by_columns(SqSchema* schema,
-                                     const char* table_name,
-                                     const char* type_name,
-                                     const SqColumn **columns,
-                                     int n_columns);
+SqTable* sq_schema_create_from_columns(SqSchema* schema,
+                                       const char* table_name,
+                                       const char* type_name,
+                                       const SqColumn **columns,
+                                       int n_columns);
 
 SqTable* sq_schema_alter(SqSchema* schema, const char* table_name, const SqType* type_info);
 void     sq_schema_drop(SqSchema* schema, const char* name);
@@ -197,11 +197,13 @@ struct SqSchema
 	SqTable* create(const char* name)
 		{ return sq_schema_create_full(this, name, typeid(StructType).name(), NULL, sizeof(StructType)); }
 
-	SqTable* create(const char* table_name,
-	                const char* type_name,
-	                const SqColumn** columns,
-	                int n_columns)
-		{ return sq_schema_create_by_columns(this, table_name, type_name, columns, n_columns); }
+	SqTable* create(const char* table_name, const char* type_name, const SqColumn** columns, int n_columns) {
+		return sq_schema_create_from_columns(this, table_name, type_name, columns, n_columns);
+	}
+	template <class StructType>
+	SqTable* create(const char* table_name, const SqColumn** columns, int n_columns) {
+		return sq_schema_create_from_columns(this, table_name, typeid(StructType).name(), columns, n_columns);
+	}
 
 	SqTable* alter(const char* name, const SqType* type_info = NULL)
 		{ return sq_schema_alter(this, name, type_info); }
