@@ -203,36 +203,6 @@ inline void*       StorageMethod::get(const char *table_name, int id) {
 	return (void*)sq_storage_get((SqStorage*)this, table_name, NULL, id);
 }
 
-// deprecated
-template <class StlContainer>
-inline StlContainer* StorageMethod::get_all() {
-	SqTable* table = sq_storage_find_by_type_name((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
-	if (table == NULL)
-		return NULL;
-	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
-	StlContainer* instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, NULL, containerType);
-	delete containerType;
-	return instance;
-}
-template <class ElementType, class StlContainer>
-inline StlContainer* StorageMethod::get_all() {
-	SqTable* table = sq_storage_find_by_type_name((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
-	if (table == NULL)
-		return NULL;
-	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
-	StlContainer* instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, NULL, containerType);
-	delete containerType;
-	return instance;
-}
-// deprecated
-template <class StructType>
-inline void* StorageMethod::get_all(const SqType *container) {
-	return (StructType*)sq_storage_get_all((SqStorage*)this, NULL, typeid(StructType).name(), container);
-}
-inline void* StorageMethod::get_all(const char *table_name, const SqType *container) {
-	return (void*)sq_storage_get_all((SqStorage*)this, table_name, NULL, container);
-}
-
 template <class StlContainer>
 inline StlContainer* StorageMethod::getAll() {
 	SqTable* table = sq_storage_find_by_type_name((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());

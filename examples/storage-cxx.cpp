@@ -27,9 +27,9 @@
 #include <SqStorage.h>
 #include <SqdbSqlite.h>
 
-// C++ std::vector<int>
+// SqType for C++ std::vector<int>
+Sq::TypeStl<std::vector<int>>  SqTypeIntVector(SQ_TYPE_INT);
 #define SQ_TYPE_INT_VECTOR    &SqTypeIntVector
-Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);
 
 typedef struct User       User;
 typedef struct Company    Company;
@@ -170,6 +170,10 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	storage->migrate(schemaVer2);
 	// End of migration. create SQL tables based on storage->schema
 	storage->migrate(NULL);
+
+	// free migrated schema
+	delete schemaVer1;
+	delete schemaVer2;
 }
 
 void  storage_ptr_array_get_all(Sq::Storage* storage)
@@ -177,7 +181,6 @@ void  storage_ptr_array_get_all(Sq::Storage* storage)
 	SqPtrArray* array;
 	Company*    company;
 
-//	array = (SqPtrArray*)storage->get_all<Company>(NULL);    // deprecated
 	array = (SqPtrArray*)storage->getAll<Company>(NULL);
 	for (int i = 0;  i < array->length;  i++) {
 		company = (Company*)array->data[i];
