@@ -115,7 +115,7 @@ static int  sqdb_sqlite_close(SqdbSqlite* sqdb)
 	return SQCODE_OK;
 }
 
-static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* schema_next)
+static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* schema_next)
 {
 	SqBuffer    sql_buf;
 	SqPtrArray  reentries;
@@ -125,150 +125,158 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 	char*       errorMsg = NULL;
 	int   rc;
 
+	// Don't migrate if database schema version equal the latest schema version
+	if (sqdb->version == schema->version)
+		return SQCODE_OK;
+
+	// trace renamed (or dropped) table/column that was referenced by others
+	sq_schema_trace_foreign(schema);
+
+	type = schema->type;
+	sq_ptr_array_init(&reentries, type->n_entry - schema->offset, (SqDestroyFunc)sq_table_free);
+	// move renamed and dropped (table's)record from schema->type->entry to another array
+	for (int index = schema->offset;  index < type->n_entry;  index++) {
+		table = (SqTable*)type->entry[index];
+		if (table && table->old_name) {    // (table->bit_field & SQB_RENAMED) == 0
+			sq_ptr_array_append(&reentries, table);
+			type->entry[index] = NULL;
+		}
+	}
+	// clear all renamed and dropped records
+	// database schema version < (less than) current schema version
+	sq_schema_clear_records(schema, '<');
+	// sort schema->type->entry
+	sq_type_sort_entry(type);
+
+	// buffer for SQL statement
+	sq_buffer_init(&sql_buf);
+
+	// run SQL statement: rename and drop table
+	for (int index = 0;  index < reentries.length;  index++) {
+		table = reentries.data[index];
+		if (table->name == NULL) {
+			// this is dropped record
+			table_addr = (SqTable**)reentries.data + index;
+		}
+		else {
+			// this is renamed record
+			table_addr = (SqTable**)sq_reentries_trace_renamed(&reentries, table->name, index+1, true);
+			// if table doesn't rename again.
+			if (table_addr == NULL)
+				table_addr = (SqTable**)reentries.data + index;
+		}
+
+		sql_buf.writed = 0;
+		// === DROP TABLE ===
+		// if table has been dropped or dropped after renaming
+		if (table_addr[0]->name == NULL)
+			sqdb_sql_drop_table((Sqdb*)sqdb, &sql_buf, table);
+		// === RENAME TABLE ===
+		else {
+			sq_buffer_write(&sql_buf, "ALTER TABLE \"");
+			sq_buffer_write(&sql_buf, table->old_name);
+			sq_buffer_write_c(&sql_buf, '"');
+
+			sq_buffer_write(&sql_buf, " RENAME \"");
+			sq_buffer_write(&sql_buf, table_addr[0]->name);
+			sq_buffer_alloc(&sql_buf, 2);
+			sql_buf.buf[sql_buf.writed -2] = '"';
+			sql_buf.buf[sql_buf.writed -1] = ';';
+			// check table existence
+			table = (SqTable*)sq_type_find_entry(type, table_addr[0]->name, NULL);
+			if (table) {
+				table = *(SqTable**)table;
+				// don't rename if table doesn't exist in database
+				if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0) {
+					sq_table_free(table_addr[0]);
+					table_addr[0] = NULL;
+					continue;
+				}
+			}
+		}
+		sq_table_free(table_addr[0]);
+		table_addr[0] = NULL;
+
+		// exec SQL statement
+		sq_buffer_write_c(&sql_buf, 0);  // null-terminated
+#if DEBUG
+		puts(sql_buf.buf);
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
+#else
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+#endif
+		// error occurred
+		if (rc != SQLITE_OK)
+			goto atError;
+	}
+	// free RENAME and DROP records
+	sq_ptr_array_final(&reentries);
+
+	sql_buf.writed = 0;
+	sq_buffer_write(&sql_buf, "PRAGMA foreign_keys=off; BEGIN TRANSACTION; ");
+	// run SQL statement: create/recreate table
+	type = schema->type;
+	for (int index = 0;  index < type->n_entry;  index++) {
+		table = (SqTable*)type->entry[index];
+		if (table == NULL)
+			continue;
+		// === CREATE TABLE ===
+		if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0)
+			sqdb_sql_create_table((Sqdb*)sqdb, &sql_buf, table, NULL);
+		// === RECREATE TABLE ===
+		else if (table->bit_field & SQB_TABLE_COL_CHANGED)
+			sqdb_sqlite_recreate_table(sqdb, &sql_buf, table);
+		table->bit_field |=  SQB_TABLE_SQL_CREATED;
+		table->bit_field &= ~SQB_TABLE_COL_CHANGED;
+	}
+	sq_buffer_write(&sql_buf, " COMMIT; PRAGMA foreign_keys=on;");
+	sq_buffer_write_c(&sql_buf, 0);  // null-terminated
+#ifdef DEBUG
+	puts(sql_buf.buf);
+	rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
+#else
+	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+#endif
+	// error occurred
+	if (rc != SQLITE_OK)
+		goto atError;
+	// update SQLite.user_version
+	sqdb->version = schema->version;
+	sql_buf.writed = snprintf(NULL, 0, "PRAGMA user_version = %d;", sqdb->version) + 1;
+	sprintf(sql_buf.buf, "PRAGMA user_version = %d;", sqdb->version);
+//	sq_buffer_write_c(&sql_buf, 0);  // null-terminated
+#ifdef DEBUG
+	puts(sql_buf.buf);
+	rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
+#else
+	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+#endif
+	// error occurred
+	if (rc != SQLITE_OK)
+		goto atError;
+	// free temporary data after migration.
+	sq_schema_complete(schema);
+	// free buffer for SQL statement
+	sq_buffer_final(&sql_buf);
+	return SQCODE_OK;
+
+atError:
+	// free buffer for SQL statement
+	sq_buffer_final(&sql_buf);
+	// print error message
+	fprintf(stderr, "SQL error: %s\n", errorMsg);
+	sqlite3_free(errorMsg);
+	return SQCODE_ERROR;
+}
+
+static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* schema_next)
+{
 	if (sqdb->self == NULL)
 		return SQCODE_ERROR;
 
 	// End of migration
-	if (schema_next == NULL) {
-		// Don't migrate if database schema version equal the latest schema version
-		if (sqdb->version == schema->version)
-			return SQCODE_OK;
-
-		// trace renamed (or dropped) table/column that was referenced by others
-		sq_schema_trace_foreign(schema);
-
-		type = schema->type;
-		sq_ptr_array_init(&reentries, type->n_entry - schema->offset, (SqDestroyFunc)sq_table_free);
-		// move renamed and dropped (table's)record from schema->type->entry to another array
-		for (int index = schema->offset;  index < type->n_entry;  index++) {
-			table = (SqTable*)type->entry[index];
-			if (table && table->old_name) {    // (table->bit_field & SQB_RENAMED) == 0
-				sq_ptr_array_append(&reentries, table);
-				type->entry[index] = NULL;
-			}
-		}
-		// clear all renamed and dropped records
-		// database schema version < (less than) current schema version
-		sq_schema_clear_records(schema, '<');
-		// sort schema->type->entry
-		sq_type_sort_entry(type);
-
-		// buffer for SQL statement
-		sq_buffer_init(&sql_buf);
-
-		// run SQL statement: rename and drop table
-		for (int index = 0;  index < reentries.length;  index++) {
-			table = reentries.data[index];
-			if (table->name == NULL) {
-				// this is dropped record
-				table_addr = (SqTable**)reentries.data + index;
-			}
-			else {
-				// this is renamed record
-				table_addr = (SqTable**)sq_reentries_trace_renamed(&reentries, table->name, index+1, true);
-				// if table doesn't rename again.
-				if (table_addr == NULL)
-					table_addr = (SqTable**)reentries.data + index;
-			}
-
-			sql_buf.writed = 0;
-			// === DROP TABLE ===
-			// if table has been dropped or dropped after renaming
-			if (table_addr[0]->name == NULL)
-				sqdb_sql_drop_table((Sqdb*)sqdb, &sql_buf, table);
-			// === RENAME TABLE ===
-			else {
-				sq_buffer_write(&sql_buf, "ALTER TABLE \"");
-				sq_buffer_write(&sql_buf, table->old_name);
-				sq_buffer_write_c(&sql_buf, '"');
-
-				sq_buffer_write(&sql_buf, " RENAME \"");
-				sq_buffer_write(&sql_buf, table_addr[0]->name);
-				sq_buffer_alloc(&sql_buf, 2);
-				sql_buf.buf[sql_buf.writed -2] = '"';
-				sql_buf.buf[sql_buf.writed -1] = ';';
-				// check table existence
-				table = (SqTable*)sq_type_find_entry(type, table_addr[0]->name, NULL);
-				if (table) {
-					table = *(SqTable**)table;
-					// don't rename if table doesn't exist in database
-					if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0) {
-						sq_table_free(table_addr[0]);
-						table_addr[0] = NULL;
-						continue;
-					}
-				}
-			}
-			sq_table_free(table_addr[0]);
-			table_addr[0] = NULL;
-
-			// exec SQL statement
-			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
-#if DEBUG
-			puts(sql_buf.buf);
-			rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
-#else
-			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
-#endif
-			if (rc != SQLITE_OK) {
-				fprintf(stderr, "SQL error: %s\n", errorMsg);
-				sqlite3_free(errorMsg);
-			}
-		}
-		// free RENAME and DROP records
-		sq_ptr_array_final(&reentries);
-
-		sql_buf.writed = 0;
-		sq_buffer_write(&sql_buf, "PRAGMA foreign_keys=off; BEGIN TRANSACTION; ");
-		// run SQL statement: create/recreate table
-		type = schema->type;
-		for (int index = 0;  index < type->n_entry;  index++) {
-			table = (SqTable*)type->entry[index];
-			if (table == NULL)
-				continue;
-			// === CREATE TABLE ===
-			if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0)
-				sqdb_sql_create_table((Sqdb*)sqdb, &sql_buf, table, NULL);
-			// === RECREATE TABLE ===
-			else if (table->bit_field & SQB_TABLE_COL_CHANGED)
-				sqdb_sqlite_recreate_table(sqdb, &sql_buf, table);
-			table->bit_field |=  SQB_TABLE_SQL_CREATED;
-			table->bit_field &= ~SQB_TABLE_COL_CHANGED;
-		}
-		sq_buffer_write(&sql_buf, " COMMIT; PRAGMA foreign_keys=on;");
-		sq_buffer_write_c(&sql_buf, 0);  // null-terminated
-#ifdef DEBUG
-		puts(sql_buf.buf);
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
-#else
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
-#endif
-		if (rc != SQLITE_OK) {
-			fprintf(stderr, "SQL error: %s\n", errorMsg);
-			sqlite3_free(errorMsg);
-		}
-		// update SQLite.user_version
-		sqdb->version = schema->version;
-		sql_buf.writed = snprintf(NULL, 0, "PRAGMA user_version = %d;", sqdb->version) + 1;
-		sprintf(sql_buf.buf, "PRAGMA user_version = %d;", sqdb->version);
-//		sq_buffer_write_c(&sql_buf, 0);  // null-terminated
-#ifdef DEBUG
-		puts(sql_buf.buf);
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
-#else
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
-#endif
-		if (rc != SQLITE_OK) {
-			fprintf(stderr, "SQL error: %s\n", errorMsg);
-			sqlite3_free(errorMsg);
-		}
-		// free buffer for SQL statement
-		sq_buffer_final(&sql_buf);
-
-		// free temporary data after migration.
-		sq_schema_complete(schema);
-		return SQCODE_OK;
-	}
+	if (schema_next == NULL)
+		return sqdb_sqlite_migrate_end(sqdb, schema, schema_next);
 
 	// include and apply changes
 	sq_schema_include(schema, schema_next);
@@ -357,14 +365,14 @@ static int debug_callback(void *user_data, int argc, char **argv, char **columnN
 static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* reserve)
 {
 	int   rc;
-//	char* errorMsg;
+	char* errorMsg;
 
 	if (xc == NULL) {
 #ifdef DEBUG
-		rc = sqlite3_exec(sqdb->self, sql, debug_callback, NULL, NULL);
+		rc = sqlite3_exec(sqdb->self, sql, debug_callback, NULL, &errorMsg);
 #else
 		// no callback if xc is NULL
-		rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, NULL);
+		rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
 #endif
 	}
 	else {
@@ -382,7 +390,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 				xc->value.pointer = NULL;
 				xc = sqxc_send(xc);
 			}
-			rc = sqlite3_exec(sqdb->self, sql, query_callback, &xc, NULL);
+			rc = sqlite3_exec(sqdb->self, sql, query_callback, &xc, &errorMsg);
 			// if Sqxc element prepare for multiple row
 			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
 				xc->type = SQXC_TYPE_ARRAY_END;
@@ -399,14 +407,17 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 				return SQCODE_EXEC_ERROR;
 #endif
 		default:
-			rc = sqlite3_exec(sqdb->self, sql, insert_callback, xc, NULL);
+			rc = sqlite3_exec(sqdb->self, sql, insert_callback, xc, &errorMsg);
 			break;
 		}
 	}
 
-//	sqlite3_free(errorMsg);
-	if (rc != SQLITE_OK)
+	// check return value of sqlite3_exec()
+	if (rc != SQLITE_OK) {
+		fprintf(stderr, "SQL error: %s\n", errorMsg);
+		sqlite3_free(errorMsg);
 		return SQCODE_EXEC_ERROR;
+	}
 	return SQCODE_OK;
 }
 
