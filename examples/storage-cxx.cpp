@@ -17,13 +17,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <stdio.h>
 
-#include <SqConfig.h>
-#include <SqError.h>
-#include <SqPtrArray.h>
-#include <SqType-stl-cpp.h>
-#include <SqTable.h>
+#include <SqType-stl-cpp.h>    // Sq::TypeStl<StlContainer>
 #include <SqStorage.h>
 #include <SqdbSqlite.h>
 
@@ -48,6 +43,7 @@ struct Company
 	char*  address;
 	double salary;
 
+	// make sure that SQ_CONFIG_JSON_SUPPORT is enabled if you want to store array (vector) in SQL column
 	Sq::IntptrArray  ints;    // C array for intptr_t
 	Sq::StringArray  strs;    // C array for char*
 	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
@@ -187,6 +183,8 @@ void  storage_ptr_array_get_all(Sq::Storage* storage)
 		company->print();
 		delete company;
 	}
+
+	delete array;
 }
 
 void  storage_stl_container_get_all(Sq::Storage* storage)

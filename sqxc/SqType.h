@@ -73,7 +73,7 @@
 #define SQ_GET_TYPE_NAME(Type)        #Type
 #endif
 
-// get size of pointer array. for example:
+// SQ_N_ENTRY() calculate number of pointer in array. for example:
 //	SqEntry *FooEntries[] = {...};
 //	int n_entry = SQ_N_ENTRY(FooEntries);
 #define SQ_N_ENTRY(EntryPointerArray) ( sizeof(EntryPointerArray)/sizeof(SqEntry*) )
