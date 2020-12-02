@@ -35,16 +35,17 @@ static void sq_type_ptr_array_init(void* array, const SqType *type)
 
 static void sq_type_ptr_array_final(void* array, const SqType *type)
 {
-	SqEntry*  entry;
+	SqType*  element_type;
 
-	// get element type information in SqType::entry and free elements
-	if (type->n_entry) {
-		entry = *type->entry;
+	// get element type information in SqType.entry and free elements
+	if (sq_ptr_array_destroy_func(array) == NULL && type->entry) {
+		// User must assign element type in SqType.entry and set SqType.n_entry to -1.
+		element_type = (SqType*)type->entry;
 		sq_ptr_array_foreach(array, element) {
-			sq_type_final_instance(entry->type, element, true);
+			sq_type_final_instance(element_type, element, true);
 		}
 	}
-	// clear array
+	// free memory that allocated by array
 	sq_ptr_array_final(array);
 }
 
@@ -216,7 +217,7 @@ const SqType SqType_StringArray_ =
 {
 	sizeof(SqPtrArray),
 	sq_type_ptr_array_init,
-	sq_type_ptr_array_final,
+	(SqTypeFunc)sq_ptr_array_final,
 	sq_type_notptr_array_parse,
 	sq_type_notptr_array_write,
 	NULL,                          // name
@@ -229,7 +230,7 @@ const SqType SqType_IntptrArray_ =
 {
 	sizeof(SqPtrArray),
 	sq_type_ptr_array_init,
-	sq_type_ptr_array_final,
+	(SqTypeFunc)sq_ptr_array_final,
 	sq_type_notptr_array_parse,
 	sq_type_notptr_array_write,
 	NULL,                          // name
