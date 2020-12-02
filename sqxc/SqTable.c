@@ -540,8 +540,10 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 		// steal 'column_src' if 'table_src->type' is not static.
 		if (table_src->type->bit_field & SQB_TYPE_DYNAMIC)
 			reentries_src->data[index] = NULL;
-		// append 'column_src' to table->type->entry
+		// append 'column_src' to table->type->entry and calculate new size
 		sq_reentries_add(reentries, column_src);
+		if (column_src->type)
+			sq_type_decide_size(table->type, (SqEntry*)column_src);
 
 		// ADD or ALTER COLUMN that having foreign reference
 		if (column_src->foreign && column_src->old_name == NULL) {
