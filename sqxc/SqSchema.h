@@ -79,6 +79,11 @@ SqTable* sq_schema_create_from_columns(SqSchema* schema,
                                        const SqColumn **columns,
                                        int n_columns);
 
+SqTable* sq_schema_alter_from_columns(SqSchema* schema,
+                                      const char* table_name,
+                                      const SqColumn **columns,
+                                      int n_columns);
+
 SqTable* sq_schema_alter(SqSchema* schema, const char* table_name, const SqType* type_info);
 void     sq_schema_drop(SqSchema* schema, const char* name);
 void     sq_schema_rename(SqSchema* schema, const char* from, const char* to);
@@ -203,6 +208,10 @@ struct SqSchema
 	template <class StructType>
 	SqTable* create(const char* table_name, const SqColumn** columns, int n_columns) {
 		return sq_schema_create_from_columns(this, table_name, typeid(StructType).name(), columns, n_columns);
+	}
+
+	SqTable* alter(const char* name, const SqColumn** columns, int n_columns) {
+		return sq_schema_alter_from_columns(this, name, columns, n_columns);
 	}
 
 	SqTable* alter(const char* name, const SqType* type_info = NULL)
