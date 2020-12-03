@@ -236,7 +236,7 @@ int  main(int argc, char* argv[])
 	db = new Sq::DbSqlite(NULL);
 	storage = new Sq::Storage(db);
 
-	storage->open("sample");
+	storage->open("sample-cxx");
 
 //	storage_make_fixed_schema(storage);
 	storage_make_migrated_schema(storage);

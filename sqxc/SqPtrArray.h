@@ -319,6 +319,9 @@ typedef SQ_PTR_ARRAY(void*)      SqPtrArray;
 typedef SQ_PTR_ARRAY(char*)      SqStringArray;
 typedef SQ_PTR_ARRAY(intptr_t)   SqIntptrArray;
 
+#define sq_intptr_array_init(array, allocated_length)    \
+		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL)
+
 // ----------------------------------------------------------------------------
 // C/C++ inline functions
 
