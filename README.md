@@ -4,6 +4,7 @@
 
 sqxc is a library to convert SQL (or JSON...etc) data to/from C language.
 This is developed using 'C' language. It also provides C++ wrapper.
+It currently completes basic functions, the program may still have bugs.
 
 ## Plans
 - support more SQL database.
@@ -31,7 +32,7 @@ uGet3 use SQL database to solve this problem.
 		int    city_id;     // foreign key
 
 	#ifdef __cplusplus      // C++ Only
-		std::string       sstr;
+		std::string       strCpp;
 		std::vector<int>  intsCpp;
 	#endif
 	};
@@ -96,7 +97,7 @@ uGet3 use SQL database to solve this problem.
 	table->integer("id", &User::id)->primary();
 	table->string("full_name", &User::full_name);
 	table->string("email", &User::email);
-	table->stdstring("sstr", &User::sstr);                         // C++ std::string
+	table->stdstring("strCpp", &User::strCpp);                     // C++ std::string
 	table->custom("intsCpp", &User::intsCpp, &SqTypeIntVector);    // C++ std::vector
 	// FOREIGN KEY
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
