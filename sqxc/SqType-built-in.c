@@ -316,15 +316,19 @@ int  sq_type_object_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	if (entry) {
 		entry = *(SqEntry**)entry;
 		entrytype = entry->type;
-		return entrytype->parse((char*)instance + entry->offset, entrytype, src);
+		instance = (char*)instance + entry->offset;
+		if (entry->bit_field & SQB_POINTER)
+			instance = sq_type_init_instance(entrytype, instance, true);
+		return entrytype->parse(instance, entrytype, src);
 	}
 	return (src->code = SQCODE_ENTRY_NOT_FOUND);
 }
 
 Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
-	SqType*     temp_type;
-	SqPtrArray* array;
+	void*       member;
+	SqType*     member_type;
+	SqPtrArray* entries;
 	const char* object_name = dest->name;
 
 	dest->type = SQXC_TYPE_OBJECT;
@@ -335,14 +339,16 @@ Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 	if (dest->code != SQCODE_OK)
 		return dest;
 
-	array = (SqPtrArray*) &entrytype->entry;
-	sq_ptr_array_foreach_addr(array, element_addr) {
+	entries = sq_type_get_ptr_array(entrytype);
+	sq_ptr_array_foreach_addr(entries, element_addr) {
 		SqEntry* entry = *element_addr;
-		temp_type = entry->type;
 		dest->name = entry->name;    // set "name" before calling write()
 		dest->entry = entry;         // SqxcSql and SqxcJsonc will use this
-		dest = temp_type->write((char*)instance + entry->offset,
-		                        temp_type, dest);
+		member_type = entry->type;
+		member = (char*)instance + entry->offset;
+		if (entry->bit_field & SQB_POINTER)
+			member = *(void**)member;
+		dest = member_type->write(member, member_type, dest);
 		if (dest->code != SQCODE_OK)
 			return dest;
 	}
