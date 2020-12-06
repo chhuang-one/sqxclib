@@ -21,8 +21,14 @@
 #include <SqdbSqlite.h>
 #include <SqStorage.h>
 
+typedef struct Post     Post;
 typedef struct City     City;
 typedef struct User     User;
+
+struct Post {
+	char*  title;
+	char*  desc;
+};
 
 struct City {
 	int    id;
@@ -35,14 +41,26 @@ struct User {
 	char*  email;
 	int    city_id;    // foreign key
 
-	// make sure that SQ_CONFIG_JSON_SUPPORT is enabled if you want to store array in SQL column
-	SqIntptrArray  ints;    // intptr_t array
+	// make sure that SQ_CONFIG_JSON_SUPPORT is enabled if you want to store array/object in SQL column
+	SqIntptrArray  ints;    // intptr_t array (JSON array  in SQL column)
+	Post*          post;    // object pointer (JSON object in SQL column)
 
-    // add/drop/rename
+	// add, drop, and rename
 	unsigned int test_add;
-    unsigned int test_drop;
-    unsigned int test_rename;
+	unsigned int test_drop;
+	unsigned int test_rename;
 };
+
+// ----------------------------------------------------------------------------
+// use C99 designated initializer to declare JSON object in SQL column
+
+// SqType for structure Post. It also work if SqEntry is replaced by SqColumn.
+static const SqEntry* PostEntry[] = {
+	&(SqEntry) {SQ_TYPE_STRING, "title",      offsetof(Post, title),     0},
+	&(SqEntry) {SQ_TYPE_STRING, "desc",       offsetof(Post, desc),      0},
+};
+static SqType         type_post = SQ_TYPE_INITIALIZER(Post, PostEntry, 0);
+#define SQ_TYPE_POST &type_post
 
 // ----------------------------------------------------------------------------
 // use C99 designated initializer to declare table/column
@@ -64,6 +82,7 @@ static const SqColumn* UserColumnsVer1[] = {
 
 #ifdef SQ_CONFIG_JSON_SUPPORT
 	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "ints",offsetof(User, ints),      0},
+	&(SqColumn) {SQ_TYPE_POST,         "post",offsetof(User, post),      SQB_POINTER},    // User.post is pointer
 #endif
 
 	// This column will be deleted in Ver3
@@ -107,6 +126,9 @@ void user_free(User* user) {
 	sq_ptr_array_final(&user->ints);
 	free(user->name);
 	free(user->email);
+	free(user->post->title);
+	free(user->post->desc);
+	free(user->post);
 	free(user);
 }
 
@@ -124,7 +146,10 @@ void user_print(User* user) {
 		printf("%d", (int)user->ints.data[i]);
 	}
 	printf("\n"
-	       "user.test_add = %d\n"
+	       "user.post.title = %s\n"
+	       "user.post.desc = %s\n",
+	       user->post->title, user->post->desc);
+	printf("user.test_add = %d\n"
 	       "user.test_drop = %d\n"
 	       "user.test_rename = %d\n",
 	       user->test_add, user->test_drop, user->test_rename);
@@ -234,6 +259,9 @@ int  main(void)
 		user->email = strdup("guest@");
 		sq_ptr_array_append(&user->ints, (intptr_t)3);
 		sq_ptr_array_append(&user->ints, (intptr_t)6);
+		user->post = calloc(1, sizeof(Post));
+		user->post->title = strdup("PostTitle");
+		user->post->desc = strdup("PostDesc");
 		user->test_add = 0;
 		user->test_drop = 0;
 		user->test_rename = 0;
