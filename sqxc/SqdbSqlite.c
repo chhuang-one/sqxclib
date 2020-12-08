@@ -169,8 +169,15 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 		sql_buf.writed = 0;
 		// === DROP TABLE ===
 		// if table has been dropped or dropped after renaming
-		if (table_addr[0]->name == NULL)
+		if (table_addr[0]->name == NULL) {
 			sqdb_sql_drop_table((Sqdb*)sqdb, &sql_buf, table);
+			// exec SQL statement
+			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
+#if DEBUG
+			puts(sql_buf.buf);
+#endif
+			sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
+		}
 		// === RENAME TABLE ===
 		else {
 			sq_buffer_write(&sql_buf, "ALTER TABLE \"");
@@ -193,21 +200,20 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 					continue;
 				}
 			}
+			// exec SQL statement
+			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
+#if DEBUG
+			puts(sql_buf.buf);
+			rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
+#else
+			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+#endif
+			// error occurred
+			if (rc != SQLITE_OK)
+				goto atError;
 		}
 		sq_table_free(table_addr[0]);
 		table_addr[0] = NULL;
-
-		// exec SQL statement
-		sq_buffer_write_c(&sql_buf, 0);  // null-terminated
-#if DEBUG
-		puts(sql_buf.buf);
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
-#else
-		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
-#endif
-		// error occurred
-		if (rc != SQLITE_OK)
-			goto atError;
 	}
 	// free RENAME and DROP records
 	sq_ptr_array_final(&reentries);
@@ -382,6 +388,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 #ifdef DEBUG
 			if (xc == NULL || xc->info != SQXC_INFO_VALUE)
 				return SQCODE_EXEC_ERROR;
+			puts(sql);
 #endif
 			// if Sqxc element prepare for multiple row
 			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
@@ -405,6 +412,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 #ifdef DEBUG
 			if (xc == NULL || xc->info != SQXC_INFO_SQL)
 				return SQCODE_EXEC_ERROR;
+			puts(sql);
 #endif
 		default:
 			rc = sqlite3_exec(sqdb->self, sql, insert_callback, xc, &errorMsg);
