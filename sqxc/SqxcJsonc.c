@@ -176,8 +176,16 @@ static int  sqxc_jsonc_send_out(SqxcJsonc* xcjson, Sqxc* src)
 		jobject = json_object_new_int(src->value.integer);
 		break;
 
+	case SQXC_TYPE_UINT:
+		jobject = json_object_new_uint64(src->value.uint);
+		break;
+
 	case SQXC_TYPE_INT64:
 		jobject = json_object_new_int64(src->value.int64);
+		break;
+
+	case SQXC_TYPE_UINT64:
+		jobject = json_object_new_uint64(src->value.uint64);
 		break;
 
 	case SQXC_TYPE_DOUBLE:
@@ -212,6 +220,7 @@ static int  sqxc_jsonc_send_out(SqxcJsonc* xcjson, Sqxc* src)
 //		break;
 
 	default:
+//		jobject = json_object_new_null();
 		return (src->code = SQCODE_TYPE_NOT_SUPPORT);
 	}
 
