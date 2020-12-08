@@ -46,9 +46,9 @@ struct User {
 	Post*          post;    // object pointer (JSON object in SQL column)
 
 	// add, drop, and rename
-	unsigned int test_add;
-	unsigned int test_drop;
-	unsigned int test_rename;
+	unsigned int   test_add;
+	unsigned int   test_drop;
+	unsigned int   test_rename;
 };
 
 // ----------------------------------------------------------------------------
@@ -86,17 +86,17 @@ static const SqColumn* UserColumnsVer1[] = {
 #endif
 
 	// This column will be deleted in Ver3
-	&(SqColumn) {SQ_TYPE_INT,    "test_drop", offsetof(User, test_drop), 0},
+	&(SqColumn) {SQ_TYPE_UINT,   "test_drop", offsetof(User, test_drop), 0},
 
 	// This column will be renamed in Ver4
-	&(SqColumn) {SQ_TYPE_INT,    "test_rename", offsetof(User, test_rename), 0},
+	&(SqColumn) {SQ_TYPE_UINT,   "test_rename", offsetof(User, test_rename), 0},
 };
 
 
 // ALTER TABLE "users"
 static const SqColumn* UserColumnsVer2[] = {
     // ADD COLUMN "test_add"
-	&(SqColumn) {SQ_TYPE_INT,    "test_add",  offsetof(User, test_add),  0},
+	&(SqColumn) {SQ_TYPE_UINT,   "test_add",  offsetof(User, test_add),  0},
 };
 
 // ALTER TABLE "users"
@@ -262,9 +262,9 @@ int  main(void)
 		user->post = calloc(1, sizeof(Post));
 		user->post->title = strdup("PostTitle");
 		user->post->desc = strdup("PostDesc");
-		user->test_add = 0;
-		user->test_drop = 0;
-		user->test_rename = 0;
+		user->test_add = 1;
+		user->test_drop = 2;
+		user->test_rename = 3;
 		sq_storage_insert(storage, "users", NULL, user);
 		user_free(user);
 	}
