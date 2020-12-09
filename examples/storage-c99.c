@@ -52,7 +52,7 @@ struct User {
 };
 
 // ----------------------------------------------------------------------------
-// use C99 designated initializer to declare JSON object in SQL column
+// use C99 designated initializer to declare object (JSON object in SQL column)
 
 // SqType for structure Post. It also work if SqEntry is replaced by SqColumn.
 static const SqEntry* PostEntry[] = {
@@ -118,6 +118,7 @@ User* user_new(void) {
 	User* user;
 
 	user = calloc(1, sizeof(User));
+	user->post = calloc(1, sizeof(Post));
 	sq_intptr_array_init(&user->ints, 8);
 	return user;
 }
@@ -259,7 +260,6 @@ int  main(void)
 		user->email = strdup("guest@");
 		sq_ptr_array_append(&user->ints, (intptr_t)3);
 		sq_ptr_array_append(&user->ints, (intptr_t)6);
-		user->post = calloc(1, sizeof(Post));
 		user->post->title = strdup("PostTitle");
 		user->post->desc = strdup("PostDesc");
 		user->test_add = 1;
