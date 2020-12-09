@@ -345,6 +345,11 @@ static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src)
 		sprintf(sq_buffer_alloc(buffer, len), "%d", src->value.integer);
 		break;
 
+	case SQXC_TYPE_UINT:
+		len = snprintf(NULL, 0, "%u", src->value.uint);
+		sprintf(sq_buffer_alloc(buffer, len), "%u", src->value.uint);
+		break;
+
 	case SQXC_TYPE_INT64:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "%I64d", src->value.int64);
@@ -352,6 +357,16 @@ static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src)
 #else
 		len = snprintf(NULL, 0, "%lld", src->value.int64);
 		sprintf(sq_buffer_alloc(buffer, len), "%lld", src->value.int64);
+#endif
+		break;
+
+	case SQXC_TYPE_UINT64:
+#if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
+		len = snprintf(NULL, 0, "%I64u", src->value.uint64);
+		sprintf(sq_buffer_alloc(buffer, len), "%I64u", src->value.uint64);
+#else
+		len = snprintf(NULL, 0, "%llu", src->value.uint64);
+		sprintf(sq_buffer_alloc(buffer, len), "%llu", src->value.uint64);
 #endif
 		break;
 

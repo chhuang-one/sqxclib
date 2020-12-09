@@ -17,7 +17,7 @@
 	SqEntry
 	|
 	`--- SqReentry
-         |
+	     |
 	     +--- SqTable
 	     |
 	     `--- SqColumn

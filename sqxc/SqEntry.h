@@ -30,7 +30,7 @@ extern "C" {
 	SqEntry
 	|
 	`--- SqReentry
-         |
+	     |
 	     +--- SqTable
 	     |
 	     `--- SqColumn
