@@ -97,7 +97,7 @@ SqTable* sq_schema_find(SqSchema* schema, const char* table_name);
 	sq_schema_include(schema, schema_v2);
 	sq_schema_include(schema, schema_v3);
 	sq_schema_trace_foreign(schema);
-	sq_schema_clear_records(schema, '=');
+	sq_schema_erase_records(schema, '=');
 
 	// --- if the latest schema_version is 5, migrate to schema_v5
 	// migrate schema_v4 and schema_v5 by SQL statement
@@ -105,7 +105,7 @@ SqTable* sq_schema_find(SqSchema* schema, const char* table_name);
 	sq_schema_include(schema, schema_v5);
 	sq_schema_trace_foreign(schema);
 	// === SQLite must rename and drop table here
-	sq_schema_clear_records(schema, '<');
+	sq_schema_erase_records(schema, '<');
 	// === SQLite must try to recreate or create table here
 
 	// Other SQL product may need this
@@ -124,19 +124,21 @@ int     sq_schema_include(SqSchema* schema, SqSchema* schema_src);
 // use this function after calling sq_schema_include()
 int     sq_schema_trace_foreign(SqSchema* schema);
 
-/* clear changed records after calling sq_schema_include() and sq_schema_trace_foreign()
-   if database schema version <  current schema version, pass 'ver_comparison' = '<'
-   if database schema version == current schema version, pass 'ver_comparison' = '='
+/* erase renamed & dropped records after calling sq_schema_include() and sq_schema_trace_foreign()
+   if database schema version <  current schema version, pass 'version_comparison' = '<'
+   if database schema version == current schema version, pass 'version_comparison' = '='
 
-   To pass '<' to 'ver_comparison':
+   To pass '<' to 'version_comparison':
    1. If you don't need calling sq_schema_trace_foreign() any more
    2. before you call sq_schema_arrange()
 
-   If you pass '<' to 'ver_comparison' , it will affect performance of sq_schema_trace_foreign().
+   If you pass '<' to 'version_comparison' , it will affect performance of sq_schema_trace_foreign().
+   return number of old tables after erasing.
  */
-void    sq_schema_clear_records(SqSchema* schema, char ver_comparison);
+int     sq_schema_erase_records(SqSchema* schema, char version_comparison);
+int     sq_schema_erase_records_of_table(SqSchema* schema, char version_comparison);
 
-/* call this function before creating SQL table after sq_schema_clear_records(schema, 1, 0)
+/* call this function before creating SQL table after sq_schema_erase_records(schema, '<')
    if table has no foreign key, this function move it to front.
    if table references most tables, this function move it to end.
    if table references each other, table->extra->foreigns.length > 0
@@ -228,8 +230,10 @@ struct SqSchema
 		{ return sq_schema_include(this, schema_src); }
 	int   traceForeign(void)
 		{ return sq_schema_trace_foreign(this); }
-	void  clearRecords(char ver_comparison)
-		{ sq_schema_clear_records(this, ver_comparison); }
+	void  clearRecords(char version_comparison)
+		{ sq_schema_erase_records(this, version_comparison); }
+	void  clearRecordsOfTable(char version_comparison)
+		{ sq_schema_erase_records_of_table(this, version_comparison); }
 	void  arrange(SqPtrArray* entries)
 		{ sq_schema_arrange(this, entries); }
 	void  complete(void)

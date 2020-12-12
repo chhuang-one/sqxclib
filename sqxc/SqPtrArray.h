@@ -104,7 +104,8 @@ extern "C" {
 
 //void* sq_ptr_array_at(void* array, int index);
 #define sq_ptr_array_at(array, index)    \
-		*( ((SqPtrArray*)(array))->data + (index) )
+		((SqPtrArray*)(array))->data[index]
+//		*( ((SqPtrArray*)(array))->data + (index) )
 
 //void* sq_ptr_array_begin(void* array);
 #define sq_ptr_array_begin(array)  \

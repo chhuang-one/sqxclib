@@ -582,6 +582,31 @@ void  sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray*
 	result->length = index_r;
 }
 
+int  sq_table_erase_records(SqTable* table, char version_comparison)
+{
+	SqPtrArray* columns;
+	int  n_old_columns;
+
+	columns = sq_type_get_ptr_array(table->type);    // table->type->entry
+	// copy table->type if it is static SqType.
+	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
+		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
+	// clear records
+	sq_reentries_clear_records(columns, version_comparison);
+	n_old_columns = sq_reentries_remove_null(columns, table->offset);
+	// if database schema version < current schema version, reset table->offset for sq_schema_arrange()
+	table->offset = (version_comparison == '<') ? 0 : columns->length;
+	// clear SQB_CHANGED and SQB_RENAMED
+	table->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
+	// if database schema version == current schema version
+	if (version_comparison == '=') {
+		table->bit_field |= SQB_TABLE_SQL_CREATED;
+		table->bit_field &= ~(SQB_TABLE_COL_CHANGED);
+	}
+
+	return n_old_columns;
+}
+
 void   sq_table_complete(SqTable* table)
 {
 	SqPtrArray* reentries;
@@ -603,7 +628,7 @@ void   sq_table_complete(SqTable* table)
 				free(column->old_name);
 		}
 		if (has_null)
-			sq_reentries_remove_null(reentries);
+			sq_reentries_remove_null(reentries, 0);
 		// sort columns by name
 		sq_type_sort_entry(table->type);
 	}

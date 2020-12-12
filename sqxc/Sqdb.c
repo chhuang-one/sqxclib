@@ -133,7 +133,7 @@ int  sqdb_sql_create_tables_reo(Sqdb* db, SqBuffer* buffer, SqSchema* schema, Sq
 				table->foreigns.data[index] = NULL;
 			}
 		}
-		sq_reentries_remove_null(&table->foreigns);
+		sq_reentries_remove_null(&table->foreigns, 0);
 		// avoid infinite recursive
 		table->bit_field &= ~SQB_TABLE_REO_CHECKING;
 	}
@@ -673,12 +673,15 @@ void sqdb_sql_write_foreign_ref(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 	}
 }
 
-void  sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns, bool old_name)
+void  sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns,
+                                 int n_columns, bool old_name)
 {
 	SqColumn* column;
 	char* allocated;
 
-	for (int index = 0;  index < arranged_columns->length;  index++) {
+	if (n_columns == 0)
+		n_columns = arranged_columns->length;
+	for (int index = 0;  index < n_columns;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
 		// skip ignore
 //		if (column->bit_field & SQB_IGNORE)

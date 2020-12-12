@@ -143,13 +143,15 @@ int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry);
 typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
  */
 
-// find and delete renamed & dropped records, set NULL to index of deleted reentry.
-// if database schema version <  current schema version, pass 'ver_comparison' = '<'
-// if database schema version == current schema version, pass 'ver_comparison' = '='
-void    sq_reentries_clear_records(void* reentry_ptr_array, char ver_comparison);
+// find and delete renamed & dropped records, set index of deleted pointer to NULL.
+// if database schema version <  current schema version, pass 'version_comparison' = '<'
+// if database schema version == current schema version, pass 'version_comparison' = '='
+void    sq_reentries_clear_records(void* reentry_ptr_array, char version_comparison);
 
-// remove all NULL pointer in array
-void    sq_reentries_remove_null(void* reentry_ptr_array);
+// It remove all NULL pointer in array
+// n_old_columns: number of old columns before removing NULL
+// return:        number of old columns after  removing NULL
+int     sq_reentries_remove_null(void* reentry_ptr_array, int n_old_columns);
 
 // void sq_reentries_add(void* reentry_ptr_array, void* reentry);
 #define sq_reentries_add		sq_ptr_array_append

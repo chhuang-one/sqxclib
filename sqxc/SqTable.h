@@ -197,6 +197,19 @@ int       sq_table_include(SqTable* table, SqTable* table_src);
 // table->type->entry remove columns found in 'excluded_columns', remained columns output to 'result'.
 void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray* result);
 
+/* erase ernamed & dropped records after calling sq_schema_include() and sq_schema_trace_foreign()
+   if database schema version <  current schema version, pass 'version_comparison' = '<'
+   if database schema version == current schema version, pass 'version_comparison' = '='
+
+   To pass '<' to 'version_comparison':
+   1. If you don't need calling sq_schema_trace_foreign() any more
+   2. before you call sq_schema_arrange()
+
+   If you pass '<' to 'version_comparison' , it will affect performance of sq_schema_trace_foreign().
+   return number of old columns after erasing.
+ */
+int       sq_table_erase_records(SqTable* table, char version_comparison);
+
 void      sq_table_complete(SqTable* table);
 
 // sort column by it's attribute

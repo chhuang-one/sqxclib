@@ -114,7 +114,7 @@ int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2)
 // ----------------------------------------------------------------------------
 // SqReentry functions for SqPtrArray
 
-void  sq_reentries_clear_records(void* reentry_ptr_array, char ver_comparison)
+void  sq_reentries_clear_records(void* reentry_ptr_array, char version_comparison)
 {
 	SqDestroyFunc destroy;
 	SqReentry*    reentry;
@@ -125,19 +125,20 @@ void  sq_reentries_clear_records(void* reentry_ptr_array, char ver_comparison)
 		if (reentry == NULL || reentry->old_name == NULL)
 			continue;
 		// try to clear altered and renamed status
-		if (ver_comparison != '<' && reentry->bit_field & SQB_DYNAMIC) {
+		if (version_comparison != '<' && reentry->bit_field & SQB_DYNAMIC) {
 			free(reentry->old_name);
 			reentry->old_name = NULL;
 			reentry->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
 		}
-		// erase dropped and renamed records
+		// destory dropped & renamed records
 		if (destroy)
 			destroy(reentry);
+		// For performance reasons, It set freed pointer to NULL first and remove all NULL pointer later.
 		((SqPtrArray*)reentry_ptr_array)->data[index] = NULL;
 	}
 }
 
-void  sq_reentries_remove_null(void* reentry_ptr_array)
+int  sq_reentries_remove_null(void* reentry_ptr_array, int n_old_columns)
 {
 	SqPtrArray* array = (SqPtrArray*)reentry_ptr_array;
 	int  index_src, index_dest;
@@ -148,12 +149,16 @@ void  sq_reentries_remove_null(void* reentry_ptr_array)
 			break;
 	}
 	// move non-NULL pointer to overwrite NULL pointer
+	n_old_columns -= 1;
 	for (index_src = index_dest +1;  index_src < array->length;  index_src++) {
+		if (n_old_columns == index_src)
+			n_old_columns = index_dest;
 		if (array->data[index_src])
 			array->data[index_dest++] = array->data[index_src];
 	}
 
 	array->length = index_dest;
+	return n_old_columns +1;
 }
 
 void**  sq_reentries_trace_renamed(void* reentries, const char* old_name,

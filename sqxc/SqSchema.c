@@ -373,42 +373,36 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 	return result;
 }
 
-void  sq_schema_clear_records(SqSchema* schema, char ver_comparison)
+int   sq_schema_erase_records_of_table(SqSchema* schema, char version_comparison)
 {
 	SqPtrArray* reentries;
-	SqPtrArray* columns;
-	SqTable* table;
-	int      index;
+	int  n_old_tables;
 
-	// erase changed records and remove NULL records in schema
+	// erase renamed & dropped records in schema
 	reentries = sq_type_get_ptr_array(schema->type);    // schema->type->entry
-	sq_reentries_clear_records(reentries, ver_comparison);
-	sq_reentries_remove_null(reentries);
+	sq_reentries_clear_records(reentries, version_comparison);
+	n_old_tables = sq_reentries_remove_null(reentries, schema->offset);
 	// set schema->offset for sq_schema_trace_foreign() or sq_schema_arrange()
 	// if database schema version < current schema version, reset schema->offset for sq_schema_arrange()
-	schema->offset = (ver_comparison == '<') ? 0 : reentries->length;
+	schema->offset = (version_comparison == '<') ? 0 : reentries->length;
 	// clear SQB_CHANGED and SQB_RENAMED
 	schema->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
 
-	// erase changed records and remove NULL records in tables
-	for (index = 0;  index < reentries->length;  index++) {
-		table = (SqTable*)reentries->data[index];
-		columns = sq_type_get_ptr_array(table->type);    // table->type->entry
-		//  table->type maybe static
-		if (table->type->bit_field & SQB_TYPE_DYNAMIC) {
-			sq_reentries_clear_records(columns, ver_comparison);
-			sq_reentries_remove_null(columns);
-		}
-		// if database schema version < current schema version, reset table->offset for sq_schema_arrange()
-		table->offset = (ver_comparison == '<') ? 0 : columns->length;
-		// clear SQB_CHANGED and SQB_RENAMED
-		table->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
-		// if database schema version == current schema version
-		if (ver_comparison == '=') {
-			table->bit_field |= SQB_TABLE_SQL_CREATED;
-			table->bit_field &= ~(SQB_TABLE_COL_CHANGED);
-		}
-	}
+	return n_old_tables;
+}
+
+int   sq_schema_erase_records(SqSchema* schema, char version_comparison)
+{
+	SqPtrArray* reentries;
+	int  n_old_tables;
+
+	n_old_tables = sq_schema_erase_records_of_table(schema, version_comparison);
+	reentries = sq_type_get_ptr_array(schema->type);    // schema->type->entry
+	// erase renamed & dropped records of column in tables
+	for (int index = 0;  index < reentries->length;  index++)
+		sq_table_erase_records((SqTable*)reentries->data[index], version_comparison);
+
+	return n_old_tables;
 }
 
 // used by sq_schema_arrange()
@@ -505,7 +499,7 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 	for (int index = 0;  index < tables->length;  index++) {
 		table_one = (SqTable*)tables->data[index];
 		count_table_order(schema, table_one, NULL);
-		sq_reentries_remove_null(&table_one->foreigns);
+		sq_reentries_remove_null(&table_one->foreigns, 0);
 	}
 
 	// sort entries by table->offset

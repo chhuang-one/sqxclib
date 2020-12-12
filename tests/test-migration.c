@@ -303,7 +303,7 @@ void test_schema_migration(void)
 	sq_schema_trace_foreign(schema);
 	// clear changed records before calling sq_schema_arrange()
 	// database schema version < current schema version
-	sq_schema_clear_records(schema, '<');
+	sq_schema_erase_records(schema, '<');
 
 	sq_ptr_array_init(&entries, 8, NULL);
 	sq_schema_arrange(schema, &entries);

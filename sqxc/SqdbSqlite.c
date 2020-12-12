@@ -26,8 +26,6 @@
 
 #define NEW_TABLE_PREFIX_NAME    "new__table__"
 
-static void sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf, SqTable* table);
-
 static void sqdb_sqlite_init(SqdbSqlite* sqdb, SqdbConfigSqlite* config);
 static void sqdb_sqlite_final(SqdbSqlite* sqdb);
 static int  sqdb_sqlite_open(SqdbSqlite* sqdb, const char* database_name);
@@ -56,6 +54,8 @@ const SqdbInfo* SQDB_INFO_SQLITE = &dbinfo;
 // ----------------------------------------------------------------------------
 // SqdbInfo
 
+static void sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf,
+                                       SqTable* table, int n_old_columns);
 #if DEBUG
 static int debug_callback(void *user_data, int argc, char **argv, char **columnName);
 #endif
@@ -144,7 +144,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	}
 	// clear all renamed and dropped records
 	// database schema version < (less than) current schema version
-	sq_schema_clear_records(schema, '<');
+	sq_schema_erase_records_of_table(schema, '<');
 	// sort schema->type->entry
 	sq_type_sort_entry(type);
 
@@ -215,7 +215,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 		sq_table_free(table_addr[0]);
 		table_addr[0] = NULL;
 	}
-	// free RENAME and DROP records
+	// destroy renamed & dropped records
 	sq_ptr_array_final(&reentries);
 
 	sql_buf.writed = 0;
@@ -226,12 +226,13 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 		table = (SqTable*)type->entry[index];
 		if (table == NULL)
 			continue;
+		rc = sq_table_erase_records(table, '<');
 		// === CREATE TABLE ===
 		if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0)
 			sqdb_sql_create_table((Sqdb*)sqdb, &sql_buf, table, NULL);
 		// === RECREATE TABLE ===
 		else if (table->bit_field & SQB_TABLE_COL_CHANGED)
-			sqdb_sqlite_recreate_table(sqdb, &sql_buf, table);
+			sqdb_sqlite_recreate_table(sqdb, &sql_buf, table, rc);
 		table->bit_field |=  SQB_TABLE_SQL_CREATED;
 		table->bit_field &= ~SQB_TABLE_COL_CHANGED;
 	}
@@ -293,7 +294,7 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 		sq_schema_trace_foreign(schema);
 		// clear changed records and remove NULL records in schema
 		// database schema version = (equal) current schema version
-		sq_schema_clear_records(schema, '=');
+		sq_schema_erase_records(schema, '=');
 	}
 
 	return SQCODE_OK;
@@ -431,7 +432,8 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 
 // ----------------------------------------------------------------------------
 
-static void  sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf, SqTable* table)
+static void  sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf,
+                                        SqTable* table, int n_old_columns)
 {
 	unsigned int  col_changed;
 	SqPtrArray*   columns;
@@ -457,9 +459,9 @@ static void  sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf, SqTab
 	sq_buffer_write(sql_buf, " INSERT INTO \"" NEW_TABLE_PREFIX_NAME);
 	sq_buffer_write(sql_buf, table->name);
 	sq_buffer_write(sql_buf, "\" (");
-	sqdb_sql_write_column_list((Sqdb*)db, sql_buf, columns, false);
+	sqdb_sql_write_column_list((Sqdb*)db, sql_buf, columns, 0, false);
 	sq_buffer_write(sql_buf, ") SELECT ");
-	sqdb_sql_write_column_list((Sqdb*)db, sql_buf, columns, true);
+	sqdb_sql_write_column_list((Sqdb*)db, sql_buf, columns, 0, true);
 	sq_buffer_write(sql_buf, " FROM \"");
 	sq_buffer_write(sql_buf, table->name);
 	sq_buffer_write(sql_buf, "\"; ");
