@@ -68,8 +68,7 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
 
 	// CONSTRAINT FOREIGN KEY
-	&(SqColumn) {.bit_field = SQB_CONSTRAINT | SQB_FOREIGN,
-	             .name = "fk_cities_id",
+	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "fk_cities_id",
 	             .foreign = &(SqForeign) {"cities", "id", "no action", "cascade"},
 	             .composite = (char *[]) {"city_id", NULL} },
 	// COLUMN
@@ -106,8 +105,8 @@ static const SqColumn  *UserColumnsChange[] = {
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_CHANGED },
 
 	// DROP CONSTRAINT FOREIGN KEY "fk_cities_id"
-	&(SqColumn) {.old_name = "fk_cities_id",  .name = NULL,
-	             .bit_field = SQB_CONSTRAINT | SQB_FOREIGN},
+	&(SqColumn) {SQ_TYPE_CONSTRAINT,  .old_name = "fk_cities_id",  .name = NULL,
+	             .bit_field = SQB_FOREIGN},
 
 	// DROP COLUMN "name"
 	&(SqColumn) {.old_name = "name",   .name = NULL},
@@ -355,7 +354,7 @@ void test_sqdb(void)
 	sqdb_migrate(db, schema, schema_v2);
 	sqdb_migrate(db, schema, schema_v3);
 	sqdb_migrate(db, schema, schema_v4);
-	sqdb_migrate(db, schema, NULL);
+//	sqdb_migrate(db, schema, NULL);
 }
 
 // ----------------------------------------------------------------------------

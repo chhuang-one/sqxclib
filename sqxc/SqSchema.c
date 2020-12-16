@@ -221,7 +221,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 			table = (SqTable*)reentries->data[index];
 			if (table->foreigns.data == NULL)
 				sq_ptr_array_init(&table->foreigns, 4, NULL);
-			sq_table_get_columns(table, &table->foreigns, SQB_FOREIGN);
+			sq_table_get_columns(table, &table->foreigns, NULL, SQB_FOREIGN);
 		}
 	}
 
@@ -244,7 +244,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 				// It must steal 'table_src' from 'schema_src' if table not found.
 				if (table_src->foreigns.data == NULL)
 					sq_ptr_array_init(&table_src->foreigns, 4, NULL);
-				sq_table_get_columns(table_src, &table_src->foreigns, SQB_FOREIGN);
+				sq_table_get_columns(table_src, &table_src->foreigns, NULL, SQB_FOREIGN);
 			}
 		}
 		else if (table_src->name == NULL) {
@@ -277,8 +277,8 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 		else {
 			// === ADD TABLE ===
 			if (table_src->foreigns.data == NULL)
-				sq_ptr_array_init(&table_src->foreigns, 4, NULL);			
-			sq_table_get_columns(table_src, &table_src->foreigns, SQB_FOREIGN);
+				sq_ptr_array_init(&table_src->foreigns, 4, NULL);
+			sq_table_get_columns(table_src, &table_src->foreigns, NULL, SQB_FOREIGN);
 		}
 
 		// steal 'table_src' from 'schema_src->type->entry'.
@@ -443,7 +443,7 @@ static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 			if (is_reo)
 				*is_reo = 1;
 			// for SQLite (constraint reference each other)
-			if (column->bit_field & SQB_CONSTRAINT)
+			if (column->type == SQ_TYPE_CONSTRAINT)
 				table->bit_field |= SQB_TABLE_REO_CONSTRAINT;
 			continue;
 		}
@@ -456,7 +456,7 @@ static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 				if (is_reo)
 					*is_reo = 1;
 				// for SQLite (constraint reference each other)
-				if (column->bit_field & SQB_CONSTRAINT)
+				if (column->type == SQ_TYPE_CONSTRAINT)
 					table->bit_field |= SQB_TABLE_REO_CONSTRAINT;
 				continue;
 			}

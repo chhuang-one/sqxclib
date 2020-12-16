@@ -54,11 +54,9 @@ typedef struct SqReentry        SqReentry;
 #define SQB_PRIMARY        (1 << 6)   // SQL: PRIMARY KEY
 #define SQB_FOREIGN        (1 << 7)   // SQL: FOREIGN KEY
 #define SQB_UNIQUE         (1 << 8)   // SQL: UNIQUE
-#define SQB_CONSTRAINT     (1 << 9)   // SQL: CONSTRAINT
-#define SQB_INDEX          (1 << 10)  // SQL: INDEX
-#define SQB_INCREMENT      (1 << 11)  // SQL: AUTOINCREMENT == SQB_AUTOINCREMENT
-#define SQB_AUTOINCREMENT  (1 << 11)  // SQL: AUTOINCREMENT == SQB_INCREMENT
-#define SQB_NULLABLE       (1 << 12)  // SQL: remove "NOT NULL"
+#define SQB_INCREMENT      (1 << 9)   // SQL: AUTOINCREMENT == SQB_AUTOINCREMENT
+#define SQB_AUTOINCREMENT  (1 << 9)   // SQL: AUTOINCREMENT == SQB_INCREMENT
+#define SQB_NULLABLE       (1 << 10)  // SQL: remove "NOT NULL"
 
 // #define SQB_UNSIGNED       (1 << 13)  // SQL: attribute "UNSIGNED"
 // #define SQB_IGNORE         (1 << 14)  // SQL: ignore this entry/column

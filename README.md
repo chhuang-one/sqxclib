@@ -47,11 +47,11 @@ uGet3 use SQL database to solve this problem.
 		&(SqColumn) {SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
 		             .foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
 		// CONSTRAINT FOREIGN KEY
-		&(SqColumn) {NULL,  "users_city_id_foreign",  0,  SQB_CONSTRAINT,
-		             .foreign = &(SqForeign) {"cities", "id", "no action", "no action"},
+		&(SqColumn) {SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
+		             .foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
 		             .composite = (char *[]) {"city_id", NULL} },
 		// CREATE INDEX
-		&(SqColumn) {NULL,  "users_id_index",         0,  SQB_INDEX,
+		&(SqColumn) {SQ_TYPE_INDEX,       "users_id_index",
 		             .composite = (char *[]) {"id", NULL} },
 	};
 

@@ -105,7 +105,7 @@ int  sqdb_sql_create_tables_reo(Sqdb* db, SqBuffer* buffer, SqSchema* schema, Sq
 		// check constraint reference each other
 		for (int index = 0;  index < table->foreigns.length;  index++) {
 			column = table->foreigns.data[index];
-			if (column->bit_field & SQB_CONSTRAINT) {
+			if (column->type == SQ_TYPE_CONSTRAINT) {
 				SqTable* fore_table;
 
 //				fore_table = sq_type_find_entry(schema->type, column->foreign->table, NULL);
@@ -168,7 +168,7 @@ int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArr
 		arranged_columns = sq_type_get_ptr_array(table->type);
 
 	sq_ptr_array_init(&indexes, 4, NULL);
-	sq_table_get_columns(table, &indexes, SQB_INDEX);    // get record of "CREATE INDEX"
+	sq_table_get_columns(table, &indexes, SQ_TYPE_INDEX, 0);    // get record of "CREATE INDEX"
 	// CREATE TABLE
 	if (indexes.length < table->type->n_entry) {
 		sq_buffer_write(sql_buf, "CREATE TABLE \"");
@@ -203,10 +203,10 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 		if (column->old_name && (column->bit_field & SQB_RENAMED) == 0)
 			continue;
 		// skip INDEX
-		if (column->bit_field & SQB_INDEX)
+		if (column->type == SQ_TYPE_INDEX)
 			continue;
 		// skip CONSTRAINT
-		if (column->bit_field & SQB_CONSTRAINT) {
+		if (column->type == SQ_TYPE_CONSTRAINT) {
 			has_constraint = true;
 			continue;
 		}
@@ -222,7 +222,7 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 		for (index = 0;  index < arranged_columns->length;  index++) {
 			column = (SqColumn*)arranged_columns->data[index];
 			// Don't output CONSTRAINT and INDEX here
-			if (column->bit_field & (SQB_CONSTRAINT | SQB_INDEX))
+			if (column->type == SQ_TYPE_CONSTRAINT || column->type == SQ_TYPE_INDEX)
 				continue;
 			// FOREIGN KEY
 			if (column->foreign)    // || column->bit_field & SQB_FOREIGN
@@ -255,10 +255,10 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 			if (column->name == NULL)
 				continue;
 			// CREATE INDEX
-			if (column->bit_field & SQB_INDEX)
+			if (column->type == SQ_TYPE_INDEX)
 				continue;
 			// CONSTRAINT
-			if (column->bit_field & SQB_CONSTRAINT) {
+			if (column->type == SQ_TYPE_CONSTRAINT) {
 				sq_buffer_write_c(buffer, ',');
 				sqdb_sql_write_constraint(db, buffer, column);
 			}
@@ -345,12 +345,12 @@ static void sqdb_sql_alter_table_add(Sqdb* db, SqBuffer* buffer, SqTable* table)
 int  sqdb_sql_add_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
 	// CREATE INDEX
-	if (column->bit_field & SQB_INDEX) {
+	if (column->type == SQ_TYPE_INDEX) {
 		sqdb_sql_create_index(db, buffer, table, column);
 		return SQCODE_OK;
 	}
 	// ADD CONSTRAINT
-	else if (column->bit_field & SQB_CONSTRAINT) {
+	else if (column->type == SQ_TYPE_CONSTRAINT) {
 		// SQLite doesn't support this
 		if (db->info->product != SQDB_PRODUCT_SQLITE)
 			return SQCODE_NOT_SUPPORT;
@@ -452,7 +452,7 @@ int  sqdb_sql_rename_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn
 
 int  sqdb_sql_drop_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
-	if (column->bit_field & SQB_INDEX) {
+	if (column->type == SQ_TYPE_INDEX) {
 		sqdb_sql_drop_index(db, buffer, table, column);
 		return SQCODE_OK;
 	}
@@ -467,7 +467,7 @@ int  sqdb_sql_drop_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* 
 
 	sq_buffer_write(buffer, "DROP ");
 	// DROP CONSTRAINT
-	if (column->bit_field & SQB_CONSTRAINT) {
+	if (column->type == SQ_TYPE_CONSTRAINT) {
 		if (db->info->product == SQDB_PRODUCT_MYSQL) {
 			if (column->bit_field & SQB_FOREIGN || column->foreign)
 				sq_buffer_write(buffer, "FOREIGN KEY");
@@ -690,7 +690,7 @@ void  sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arrang
 		if (column->old_name && (column->bit_field & SQB_RENAMED) == 0)
 			continue;
 		// skip CONSTRAINT and INDEX
-		if (column->bit_field & (SQB_CONSTRAINT | SQB_INDEX))
+		if (column->type == SQ_TYPE_CONSTRAINT || column->type == SQ_TYPE_INDEX)
 			continue;
 		if (index > 0) {
 			allocated = sq_buffer_alloc(sql_buf, 2);

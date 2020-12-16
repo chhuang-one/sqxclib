@@ -85,6 +85,11 @@ static const SqColumn* UserColumnsVer1[] = {
 	&(SqColumn) {SQ_TYPE_POST,         "post",offsetof(User, post),      SQB_POINTER},    // User.post is pointer
 #endif
 
+	// CONSTRAINT FOREIGN KEY
+	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
+	             .foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
+	             .composite = (char *[]) {"city_id", NULL} },
+
 	// This column will be deleted in Ver3
 	&(SqColumn) {SQ_TYPE_UINT,   "test_drop", offsetof(User, test_drop), 0},
 

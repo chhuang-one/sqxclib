@@ -302,6 +302,31 @@ Sqxc* sq_type_string_write(void* instance, const SqType *type, Sqxc* xc_dest);
 int   sq_type_object_parse(void* instance, const SqType *type, Sqxc* xc_src);
 Sqxc* sq_type_object_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
+// ----------------------------------------------------------------------------
+// Fake type for user-defined special type (SqType-fake.c)
+
+#define SQ_TYPE_N_FAKE     6
+#define SQ_TYPE_FAKE0      ((SqType*)&SqType_Fake_.nth[0])
+#define SQ_TYPE_FAKE1      ((SqType*)&SqType_Fake_.nth[1])
+#define SQ_TYPE_FAKE2      ((SqType*)&SqType_Fake_.nth[2])
+#define SQ_TYPE_FAKE3      ((SqType*)&SqType_Fake_.nth[3])
+#define SQ_TYPE_FAKE4      ((SqType*)&SqType_Fake_.nth[4])
+#define SQ_TYPE_FAKE5      ((SqType*)&SqType_Fake_.nth[5])
+#define SQ_TYPE_FAKE6      ((SqType*)&SqType_Fake_.dummy)
+
+// condition
+#define SQ_TYPE_IS_FAKE(type)     \
+		( (type)<=SQ_TYPE_FAKE6 && (type)>=SQ_TYPE_FAKE0 )
+#define SQ_TYPE_NOT_FAKE(type)    \
+		( (type)> SQ_TYPE_FAKE6 || (type)< SQ_TYPE_FAKE0 )
+
+struct SqTypeFake {
+	SqType* nth[SQ_TYPE_N_FAKE];
+	SqType  dummy;
+};
+
+extern  const  struct SqTypeFake   SqType_Fake_;
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
