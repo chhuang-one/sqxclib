@@ -587,10 +587,11 @@ int  sq_table_erase_records(SqTable* table, char version_comparison)
 	SqPtrArray* columns;
 	int  n_old_columns;
 
-	columns = sq_type_get_ptr_array(table->type);    // table->type->entry
 	// copy table->type if it is static SqType.
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
 		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
+	// It can get columns from table->type after calling sq_type_copy_static()
+	columns = sq_type_get_ptr_array(table->type);
 	// clear records
 	sq_reentries_clear_records(columns, version_comparison);
 	n_old_columns = sq_reentries_remove_null(columns, table->offset);
