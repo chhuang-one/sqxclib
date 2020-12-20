@@ -38,12 +38,12 @@ void test_intptr_array()
 
 	// C++ foreach (lambda)
 	array->foreach([](intptr_t element) {
-		printf(" - %d", element);
+		printf(" - %d", (int)element);
 	});
 	puts("");
 	// C foreach
 	sq_intptr_array_foreach(array, element) {
-		printf(" - %d", element);
+		printf(" - %d", (int)element);
 	}
 	puts("");
 

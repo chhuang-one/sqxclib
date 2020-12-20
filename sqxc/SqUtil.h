@@ -15,7 +15,9 @@
 #ifndef SQ_UTIL_H
 #define SQ_UTIL_H
 
-#include <stdbool.h>
+#include <time.h>        // time_t, struct tm
+#include <stdbool.h>     // bool
+
 #include <SqConfig.h>    // SQ_CONFIG_NAMING_CONVENTION
 
 #ifdef __cplusplus

@@ -18,7 +18,6 @@
 #define snprintf	_snprintf
 #endif
 
-#include <time.h>     // struct tm, time_t
 #include <ctype.h>    // tolower(), toupper()
 #include <stdio.h>    // sscanf()
 #include <stddef.h>

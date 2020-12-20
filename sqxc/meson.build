@@ -62,20 +62,19 @@ headers_cpp = [
 # install_headers(headers, subdir: 'sqxc')
 # install_headers(headers_cpp, subdir: 'sqxc')
 
-sqxc = static_library('sqxc',
-                      sources,
-                      include_directories: sqxc_inc,
-                      install: true)
+sqxc_inc = include_directories('./')
 
-sqxcpp = static_library('sqxcpp',
-                        sources_cpp,
-                        include_directories: sqxc_inc,
-                        install: true)
+sqxc_lib = static_library('sqxc',
+                          sources,
+                          include_directories: sqxc_inc,
+                          dependencies : [jsonc, sqlite],
+                          install: false)
 
-#                     dependencies : [json-c, sqlite3],
+sqxcpp_lib = static_library('sqxcpp',
+                            sources_cpp,
+                            include_directories: sqxc_inc,
+                            dependencies : [jsonc, sqlite],
+                            install: false)
 
-
-# sqxc_dep = declare_dependency(
-#		include_directories : sqxc_inc
-#		link_with : sqxc)
-#
+sqxc = declare_dependency(include_directories : sqxc_inc,
+                          link_with : [sqxc_lib, sqxcpp_lib])

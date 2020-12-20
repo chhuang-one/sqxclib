@@ -13,10 +13,17 @@
  */
 
 #if defined(_MSC_VER)
+#ifdef _WIN64
+#define __WORDSIZE 64
+#else
+#define __WORDSIZE 32
+#endif
+
 #define _CRT_SECURE_NO_WARNINGS
 #define snprintf	_snprintf
 #endif
 
+#include <limits.h>     // __WORDSIZE
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
@@ -357,9 +364,12 @@ static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src)
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "%I64d", src->value.int64);
 		sprintf(sq_buffer_alloc(buffer, len), "%I64d", src->value.int64);
+#elif defined(__WORDSIZE) && (__WORDSIZE == 64)
+		len = snprintf(NULL, 0, "%ld", src->value.int64);
+		sprintf(sq_buffer_alloc(buffer, len), "%ld", src->value.int64);
 #else
-		len = snprintf(NULL, 0, "%lld", src->value.int64);
-		sprintf(sq_buffer_alloc(buffer, len), "%lld", src->value.int64);
+		len = snprintf(NULL, 0, "%lld", (long long int)src->value.int64);
+		sprintf(sq_buffer_alloc(buffer, len), "%lld", (long long int)src->value.int64);
 #endif
 		break;
 
@@ -367,9 +377,12 @@ static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src)
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "%I64u", src->value.uint64);
 		sprintf(sq_buffer_alloc(buffer, len), "%I64u", src->value.uint64);
+#elif defined(__WORDSIZE) && (__WORDSIZE == 64)
+		len = snprintf(NULL, 0, "%lu", src->value.uint64);
+		sprintf(sq_buffer_alloc(buffer, len), "%lu", src->value.uint64);
 #else
-		len = snprintf(NULL, 0, "%llu", src->value.uint64);
-		sprintf(sq_buffer_alloc(buffer, len), "%llu", src->value.uint64);
+		len = snprintf(NULL, 0, "%llu", (long long unsigned int)src->value.uint64);
+		sprintf(sq_buffer_alloc(buffer, len), "%llu", (long long unsigned int)src->value.uint64);
 #endif
 		break;
 

@@ -21,7 +21,7 @@
 
 #include <SqConfig.h>
 #include <SqError.h>
-#include <sqdb.h>
+#include <Sqdb.h>
 
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
 

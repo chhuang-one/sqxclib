@@ -19,8 +19,6 @@
 
 #include <stdio.h>      // snprintf
 
-#include <SQLite3.h>
-
 #include <SqError.h>
 #include <SqQuery.h>
 #include <SqxcSql.h>
