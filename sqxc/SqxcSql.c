@@ -336,9 +336,12 @@ static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src)
 	int       len, idx;
 
 	switch (src->type) {
-//	case SQXC_TYPE_BOOL:
-//		// TODO: write boolean
-//		break;
+	case SQXC_TYPE_BOOL:
+		if (src->value.boolean)
+			sq_buffer_write_c(buffer, '1');
+		else
+			sq_buffer_write_c(buffer, '0');
+		break;
 
 	case SQXC_TYPE_INT:
 		len = snprintf(NULL, 0, "%d", src->value.integer);
