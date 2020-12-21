@@ -13,10 +13,17 @@
  */
 
 #if defined(_MSC_VER)
-#define _CRT_SECURE_NO_WARNINGS
-#define snprintf	_snprintf
+#ifdef _WIN64
+#define __WORDSIZE 64
+#else
+#define __WORDSIZE 32
 #endif
 
+#define _CRT_SECURE_NO_WARNINGS
+#define snprintf	_snprintf
+#endif  // _MSC_VER
+
+#include <limits.h>     // __WORDSIZE
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
@@ -326,10 +333,14 @@ static char*  get_primary_key_string(void* instance, SqTable* table)
 		len = snprintf(NULL, 0, "\"%s\"=%I64d", column->name, *(int64_t*)instance) +1;
 		condition = malloc(len);
 		snprintf(condition, len, "\"%s\"=%I64d", column->name, *(int64_t*)instance);
-#else
-		len = snprintf(NULL, 0, "\"%s\"=%lld", column->name, *(int64_t*)instance) +1;
+#elif defined(__WORDSIZE) && (__WORDSIZE == 64)
+		len = snprintf(NULL, 0, "\"%s\"=%ld", column->name, *(int64_t*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%lld", column->name, *(int64_t*)instance);
+		snprintf(condition, len, "\"%s\"=%ld", column->name, *(int64_t*)instance);
+#else 
+		len = snprintf(NULL, 0, "\"%s\"=%lld", column->name, *(long long int*)instance) +1;
+		condition = malloc(len);
+		snprintf(condition, len, "\"%s\"=%lld", column->name, *(long long int*)instance);
 #endif
 	}
 	else {

@@ -21,7 +21,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 #define snprintf	_snprintf
-#endif
+#endif  // _MSC_VER
 
 #include <limits.h>     // __WORDSIZE
 #include <stdio.h>      // snprintf
