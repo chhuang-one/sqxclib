@@ -176,6 +176,17 @@ SqColumn* sq_table_get_primary(SqTable* table)
 	return NULL;
 }
 
+SqColumn* sq_table_add_bool(SqTable* table, const char* name, size_t offset)
+{
+	SqColumn* column;
+
+	column = sq_column_new(name, SQ_TYPE_BOOL);
+	column->offset = offset;
+
+	sq_table_add_columns(table, (const SqColumn**)&column, 1);
+	return column;
+}
+
 SqColumn* sq_table_add_int(SqTable* table, const char* name, size_t offset)
 {
 	SqColumn* column;

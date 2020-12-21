@@ -87,7 +87,10 @@ void      sq_table_add_columns(SqTable* table, const SqColumn** columns,
                                int  n_columns);
 
 #define sq_table_add_integer    sq_table_add_int
+#define sq_table_add_boolean    sq_table_add_bool
 
+SqColumn* sq_table_add_bool(SqTable* table, const char* column_name,
+                            size_t offset);
 SqColumn* sq_table_add_int(SqTable* table, const char* column_name,
                            size_t offset);
 SqColumn* sq_table_add_uint(SqTable* table, const char* column_name,
@@ -310,6 +313,12 @@ struct SqTable
 #ifdef __cplusplus
 	// C++11 standard-layout
 
+	SqColumn& boolean(const char* column_name, size_t offset) {
+		return *sq_table_add_bool(this, column_name, offset);
+	}
+	SqColumn& bool_(const char* column_name, size_t offset) {
+		return *sq_table_add_bool(this, column_name, offset);
+	}
 	SqColumn& integer(const char* column_name, size_t offset)
 		{ return *sq_table_add_int(this, column_name, offset); }
 	SqColumn& int_(const char* column_name, size_t offset)
@@ -333,6 +342,14 @@ struct SqTable
 		return *sq_table_add_custom(this, column_name, offset, SQ_TYPE_STD_STRING, length);
 	}
 
+	template<class Store, class Type>
+	SqColumn& boolean(const char* column_name, Type Store::*member) {
+		return *sq_table_add_bool(this, column_name, Sq::offsetOf(member));
+	};
+	template<class Store, class Type>
+	SqColumn& bool_(const char* column_name, Type Store::*member) {
+		return *sq_table_add_bool(this, column_name, Sq::offsetOf(member));
+	};
 	template<class Store, class Type>
 	SqColumn& integer(const char* column_name, Type Store::*member) {
 		return *sq_table_add_int(this, column_name, Sq::offsetOf(member));

@@ -111,6 +111,18 @@ typedef struct Company
 #define SQT_COLUMNS(columns, n_columns)    \
 		sq_table_add_columns(table_cur_, columns, n_columns)
 
+#define SQT_BOOLEAN(column_name, structure, member)   \
+		(column_cur_ = sq_table_add_bool(table_cur_, column_name, offsetof(structure, member)))
+
+#define SQT_BOOLEAN_AS(structure, member)   \
+		(column_cur_ = sq_table_add_bool(table_cur_, #member, offsetof(structure, member)))
+
+#define SQT_BOOL(column_name, structure, member)   \
+		(column_cur_ = sq_table_add_bool(table_cur_, column_name, offsetof(structure, member)))
+
+#define SQT_BOOL_AS(structure, member)   \
+		(column_cur_ = sq_table_add_bool(table_cur_, #member, offsetof(structure, member)))
+
 #define SQT_INTEGER(column_name, structure, member)   \
 		(column_cur_ = sq_table_add_int(table_cur_, column_name, offsetof(structure, member)))
 

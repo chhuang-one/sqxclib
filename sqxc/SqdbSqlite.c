@@ -37,6 +37,7 @@ static const SqdbInfo dbinfo = {
 	.size    = sizeof(SqdbSqlite),
 	.product = SQDB_PRODUCT_SQLITE,
 	.column  = {
+		.has_boolean = 1,
 	 	.use_alter  = 1,
 		.use_modify = 0,
 	},

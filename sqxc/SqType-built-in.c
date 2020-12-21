@@ -31,6 +31,46 @@
 #endif
 
 // ------------------------------------
+// SqType* SQ_TYPE_BOOL functions
+
+int  sq_type_bool_parse(void* instance, const SqType *entrytype, Sqxc* src)
+{
+	char  ch;
+
+	switch (src->type) {
+	case SQXC_TYPE_BOOL:
+		*(bool*)instance = src->value.boolean;
+		break;
+
+	case SQXC_TYPE_INT:
+		*(bool*)instance = (src->value.integer) ? true : false;
+		break;
+
+	case SQXC_TYPE_STRING:
+		ch = src->value.string[0]; 
+		if (ch == '0' || ch == 'f' || ch == 'F')    // '0', 'false', or 'FALSE'
+			*(bool*)instance = false;
+		else
+			*(bool*)instance = true;
+		break;
+
+	default:
+//		src->required_type = SQXC_TYPE_BOOL;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		return (src->code = SQCODE_TYPE_NOT_MATCH);
+	}
+
+	return (src->code = SQCODE_OK);
+}
+
+Sqxc* sq_type_bool_write(void* instance, const SqType *entrytype, Sqxc* dest)
+{
+	dest->type = SQXC_TYPE_BOOL;
+//	dest->name = dest->name;    // "name" was set by caller of this function
+	dest->value.boolean = *(bool*)instance;
+	return sqxc_send(dest);
+}
+
+// ------------------------------------
 // SqType* SQ_TYPE_INT functions
 
 int  sq_type_int_parse(void* instance, const SqType *entrytype, Sqxc* src)
@@ -103,10 +143,24 @@ Sqxc* sq_type_uint_write(void* instance, const SqType *entrytype, Sqxc* dest)
 
 int  sq_type_intptr_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
-	if (src->type == SQXC_TYPE_STRING)
-		*(intptr_t*)instance = strtol(src->value.string, NULL, 10);
-	else if (src->type == SQXC_TYPE_INT)
+	switch (src->type) {
+	case SQXC_TYPE_INT:
 		*(intptr_t*)instance = src->value.integer;
+		break;
+
+	case SQXC_TYPE_BOOL:
+		*(intptr_t*)instance = src->value.boolean;
+		break;
+
+	case SQXC_TYPE_STRING:
+		*(intptr_t*)instance = strtol(src->value.string, NULL, 10);
+		break;
+
+	default:
+//		src->required_type = SQXC_TYPE_INT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		return (src->code = SQCODE_TYPE_NOT_MATCH);
+	}
+
 	return (src->code = SQCODE_OK);
 }
 
@@ -364,6 +418,14 @@ Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 // extern SqType
 
 const SqType SqType_BuiltIn_[] = {
+	// SQ_TYPE_BOOL
+	{
+		sizeof(bool),
+		NULL,
+		NULL,
+		sq_type_bool_parse,
+		sq_type_bool_write,
+	},
 	// SQ_TYPE_INT
 	{
 		sizeof(int),
@@ -404,14 +466,6 @@ const SqType SqType_BuiltIn_[] = {
 		sq_type_uint64_parse,
 		sq_type_uint64_write,
 	},
-	// SQ_TYPE_DOUBLE
-	{
-		sizeof(double),
-		NULL,
-		NULL,
-		sq_type_double_parse,
-		sq_type_double_write,
-	},
 	// SQ_TYPE_TIME
 	{
 		sizeof(time_t),
@@ -419,6 +473,14 @@ const SqType SqType_BuiltIn_[] = {
 		NULL,
 		sq_type_time_parse,
 		sq_type_time_write,
+	},
+	// SQ_TYPE_DOUBLE
+	{
+		sizeof(double),
+		NULL,
+		NULL,
+		sq_type_double_parse,
+		sq_type_double_write,
 	},
 	// SQ_TYPE_STRING
 	{

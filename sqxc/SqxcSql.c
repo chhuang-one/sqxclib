@@ -344,10 +344,17 @@ static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src)
 
 	switch (src->type) {
 	case SQXC_TYPE_BOOL:
+#if 1
 		if (src->value.boolean)
 			sq_buffer_write_c(buffer, '1');
 		else
 			sq_buffer_write_c(buffer, '0');
+#else
+		if (src->value.boolean)
+			sq_buffer_write(buffer, "TRUE");
+		else
+			sq_buffer_write(buffer, "FALSE");
+#endif
 		break;
 
 	case SQXC_TYPE_INT:

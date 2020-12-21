@@ -23,7 +23,7 @@
 
 #ifdef _MSC_VER
 #define strcasecmp   stricmp
-#define strncasecmp  strnicmp 
+#define strncasecmp  strnicmp
 #endif
 
 SqType* sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)

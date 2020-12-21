@@ -122,6 +122,7 @@ struct SqdbInfo
 	SqdbProduct    product;    // SqdbProduct product = SQLite, MySQL...etc
 
 	struct {
+		unsigned int has_boolean:1;
 		unsigned int use_alter:1;        // ALTER COLUMN
 		unsigned int use_modify:1;       // MODIFY COLUMN
 	} column;

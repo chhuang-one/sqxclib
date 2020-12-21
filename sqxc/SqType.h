@@ -141,33 +141,36 @@ typedef Sqxc* (*SqTypeWriteFunc)(void* instance, const SqType* type, Sqxc* xc_de
 // SqType-built-in.c - built-in types
 
 enum {
+	SQ_TYPE_INDEX_BOOL,
 	SQ_TYPE_INDEX_INT,
 	SQ_TYPE_INDEX_UINT,
 	SQ_TYPE_INDEX_INTPTR,
 	SQ_TYPE_INDEX_INT64,
 	SQ_TYPE_INDEX_UINT64,
-	SQ_TYPE_INDEX_DOUBLE,
 	SQ_TYPE_INDEX_TIME,
+	SQ_TYPE_INDEX_DOUBLE,
 	SQ_TYPE_INDEX_STRING,
 };
 
+#define SQ_TYPE_BOOL       ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_BOOL])
 #define SQ_TYPE_INT        ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INT])
 #define SQ_TYPE_UINT       ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_UINT])
 #define SQ_TYPE_INTPTR     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INTPTR])
 #define SQ_TYPE_INT64      ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INT64])
 #define SQ_TYPE_UINT64     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_UINT64])
-#define SQ_TYPE_DOUBLE     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_DOUBLE])
 #define SQ_TYPE_TIME       ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_TIME])
+#define SQ_TYPE_DOUBLE     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_DOUBLE])
 #define SQ_TYPE_STRING     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_STRING])
 
-#define SQ_TYPE_INTEGER_BEG       SQ_TYPE_INT
-#define SQ_TYPE_INTEGER_END       SQ_TYPE_UINT64
+// std::is_integral<Type>::value == true
+#define SQ_TYPE_INTEGER_BEG       SQ_TYPE_BOOL
+#define SQ_TYPE_INTEGER_END       SQ_TYPE_TIME
 
 // std::is_arithmetic<Type>::value == true
-#define SQ_TYPE_ARITHMETIC_BEG    SQ_TYPE_INT
-#define SQ_TYPE_ARITHMETIC_END    SQ_TYPE_TIME
+#define SQ_TYPE_ARITHMETIC_BEG    SQ_TYPE_BOOL
+#define SQ_TYPE_ARITHMETIC_END    SQ_TYPE_DOUBLE
 
-#define SQ_TYPE_BUILTIN_BEG       SQ_TYPE_INT
+#define SQ_TYPE_BUILTIN_BEG       SQ_TYPE_BOOL
 #define SQ_TYPE_BUILTIN_END       SQ_TYPE_STRING
 
 #define SQ_TYPE_BUILTIN_INDEX(type)  (type - SQ_TYPE_BUILTIN_BEG)

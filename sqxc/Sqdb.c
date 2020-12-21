@@ -533,6 +533,13 @@ void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 	digits = column->digits;
 
 	switch (SQ_TYPE_BUILTIN_INDEX(type)) {
+	case SQ_TYPE_INDEX_BOOL:
+		if (db->info->column.has_boolean)
+			sq_buffer_write(buffer, "BOOLEAN");
+		else
+			sq_buffer_write(buffer, "TINYINT");
+		break;
+
 	case SQ_TYPE_INDEX_INT:
 	case SQ_TYPE_INDEX_UINT:
 	case SQ_TYPE_INDEX_INTPTR:
