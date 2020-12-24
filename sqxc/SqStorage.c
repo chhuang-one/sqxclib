@@ -338,9 +338,9 @@ static char*  get_primary_key_string(void* instance, SqTable* table)
 		condition = malloc(len);
 		snprintf(condition, len, "\"%s\"=%ld", column->name, *(int64_t*)instance);
 #else 
-		len = snprintf(NULL, 0, "\"%s\"=%lld", column->name, *(long long int*)instance) +1;
+		len = snprintf(NULL, 0, "\"%s\"=%lld", column->name, (long long int) *(int64_t*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%lld", column->name, *(long long int*)instance);
+		snprintf(condition, len, "\"%s\"=%lld", column->name, (long long int) *(int64_t*)instance);
 #endif
 	}
 	else {
