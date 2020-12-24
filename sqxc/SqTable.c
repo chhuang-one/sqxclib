@@ -541,7 +541,7 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 			// set bit_field: column added
 			if (column_src->type == SQ_TYPE_CONSTRAINT)
 				table->bit_field |= SQB_TABLE_COL_ADDED_CONSTRAINT;
-			else if (column->bit_field & (SQB_UNIQUE | SQB_PRIMARY))
+			else if (column_src->bit_field & (SQB_UNIQUE | SQB_PRIMARY))
 				table->bit_field |= SQB_TABLE_COL_ADDED_UNIQUE;
 			else
 				table->bit_field |= SQB_TABLE_COL_ADDED;
