@@ -61,13 +61,17 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 #define SQB_TABLE_COL_ADDED               (1 << 19)
 #define SQB_TABLE_COL_ADDED_UNIQUE        (1 << 20)    // UNIQUE or PRIMARY KEY
 #define SQB_TABLE_COL_ADDED_CONSTRAINT    (1 << 21)
+#define SQB_TABLE_COL_ADDED_EXPRESSION    (1 << 22)    // DEFAULT (expression)
+#define SQB_TABLE_COL_ADDED_CURRENT_TIME  (1 << 23)    // DEFAULT CURRENT_TIME or CURRENT_DATE...etc
 
 #define SQB_TABLE_COL_CHANGED             (SQB_TABLE_COL_ALTERED | \
                                            SQB_TABLE_COL_RENAMED | \
                                            SQB_TABLE_COL_DROPPED | \
                                            SQB_TABLE_COL_ADDED   | \
-                                           SQB_TABLE_COL_ADDED_UNIQUE | \
-                                           SQB_TABLE_COL_ADDED_CONSTRAINT )
+                                           SQB_TABLE_COL_ADDED_UNIQUE     | \
+                                           SQB_TABLE_COL_ADDED_CONSTRAINT | \
+                                           SQB_TABLE_COL_ADDED_EXPRESSION | \
+                                           SQB_TABLE_COL_ADDED_CURRENT_TIME)
 
 // --------------------------------------------------------
 // SqTable C functions

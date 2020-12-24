@@ -543,6 +543,16 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 				table->bit_field |= SQB_TABLE_COL_ADDED_CONSTRAINT;
 			else if (column_src->bit_field & (SQB_UNIQUE | SQB_PRIMARY))
 				table->bit_field |= SQB_TABLE_COL_ADDED_UNIQUE;
+			else if (column_src->default_value) {
+				// DEFAULT (expression)
+				if (column_src->default_value[0] == '(')
+					table->bit_field |= SQB_TABLE_COL_ADDED_EXPRESSION;
+				// DEFAULT CURRENT_TIME or CURRENT_DATE...etc
+				else if (column_src->default_value[0] == 'C' && column_src->default_value[7] == '_')
+					table->bit_field |= SQB_TABLE_COL_ADDED_CURRENT_TIME;
+				else
+					table->bit_field |= SQB_TABLE_COL_ADDED;
+			}
 			else
 				table->bit_field |= SQB_TABLE_COL_ADDED;
 		}
