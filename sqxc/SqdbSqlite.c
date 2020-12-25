@@ -511,6 +511,16 @@ static bool sqdb_sqlite_alter_table(SqdbSqlite* db, SqBuffer* sql_buf,
 		else {
 			// ADD COLUMN / INDEX / FOREIGN KEY
 			sqdb_sql_add_column((Sqdb*)db, sql_buf, table, column);
+#ifdef SQ_CONFIG_SQL_COLUMN_NOT_NULL_WITHOUT_DEFAULT
+			// Program can add default value if newly added column has "NOT NULL" without "DEFAULT".
+			if ((column->bit_field & SQB_NULLABLE)==0 && column->default_value == NULL) {
+				sq_buffer_write(sql_buf, " DEFAULT ");
+				if (SQ_TYPE_IS_ARITHMETIC(column->type))
+					sq_buffer_write(sql_buf, "0");
+				else
+					sq_buffer_write(sql_buf, "''");
+			}
+#endif  // SQ_CONFIG_SQL_COLUMN_NOT_NULL_WITHOUT_DEFAULT
 		}
 
 		sq_buffer_write_c(sql_buf, ';');

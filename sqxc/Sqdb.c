@@ -221,6 +221,19 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 		count++;
 		// write column
 		sqdb_sql_write_column(db, buffer, column);
+#ifdef SQ_CONFIG_SQL_COLUMN_NOT_NULL_WITHOUT_DEFAULT
+		// if column is newly "added" one
+		if (index >= n_old_columns && (column->bit_field & SQB_CHANGED) == 0) {
+			// Program can add default value if newly added column has "NOT NULL" without "DEFAULT".
+			if ((column->bit_field & SQB_NULLABLE)==0 && column->default_value == NULL) {
+				sq_buffer_write(buffer, " DEFAULT ");
+				if (SQ_TYPE_IS_ARITHMETIC(column->type))
+					sq_buffer_write(buffer, "0");
+				else
+					sq_buffer_write(buffer, "''");
+			}
+		}
+#endif  // SQ_CONFIG_SQL_COLUMN_NOT_NULL_WITHOUT_DEFAULT
 	}
 
 //	if (db->info->product == SQDB_PRODUCT_MYSQL) {
