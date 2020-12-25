@@ -174,7 +174,7 @@ int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArr
 		sq_buffer_write(sql_buf, "CREATE TABLE \"");
 		sq_buffer_write(sql_buf, table->name);
 		sq_buffer_write(sql_buf,"\" ");
-		sqdb_sql_create_table_params(db, sql_buf, arranged_columns);
+		sqdb_sql_create_table_params(db, sql_buf, arranged_columns, -1);
 	}
 
 	// CREATE INDEX
@@ -184,14 +184,15 @@ int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArr
 	return SQCODE_OK;
 }
 
-int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arranged_columns)
+int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arranged_columns, int n_old_columns)
 {
 	SqColumn* column;
-	int       index;
+	int       index, count = 0;
 	bool      has_constraint = false;
 
 	sq_buffer_write(buffer, "( ");
-
+	if (n_old_columns == -1)
+		n_old_columns = arranged_columns->length;
 	for (index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
 		if (column == NULL)
@@ -199,7 +200,7 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 		// skip ignore
 //		if (column->bit_field & SQB_IGNORE)
 //			continue;
-		// skip "dropped" or "renamed"
+		// skip "dropped" or "renamed" records
 		if (column->old_name && (column->bit_field & SQB_RENAMED) == 0)
 			continue;
 		// skip INDEX
@@ -210,12 +211,16 @@ int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* buffer, SqPtrArray* arrang
 			has_constraint = true;
 			continue;
 		}
-		if (index > 0) {
+
+		// write comma between two columns
+		if (count > 0) {
 			sq_buffer_alloc(buffer, 2);
 			buffer->buf[buffer->writed -2] = ',';
 			buffer->buf[buffer->writed -1] = ' ';
 		}
-		sqdb_sql_write_column_type(db, buffer, column);
+		count++;
+		// write column
+		sqdb_sql_write_column(db, buffer, column);
 	}
 
 //	if (db->info->product == SQDB_PRODUCT_MYSQL) {
@@ -385,7 +390,7 @@ int  sqdb_sql_add_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* c
 	// ADD COLUMN
 	else {
 		sqdb_sql_alter_table_add(db, buffer, table);
-		sqdb_sql_write_column_type(db, buffer, column);
+		sqdb_sql_write_column(db, buffer, column);
 		return SQCODE_OK;
 	}
 
@@ -417,14 +422,14 @@ int  sqdb_sql_alter_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn*
 	if (db->info->column.use_alter) {
 		// SQL Server / MS Access:
 		sq_buffer_write(buffer, "ALTER COLUMN ");
-		sqdb_sql_write_column_type(db, buffer, column);
+		sqdb_sql_write_column(db, buffer, column);
 	}
 	else if (db->info->column.use_modify) {
 		// My SQL / Oracle (prior version 10G):
 		sq_buffer_write(buffer, "MODIFY COLUMN ");
 		// Oracle 10G and later:
 //		sq_buffer_write(buffer, "MODIFY ");
-		sqdb_sql_write_column_type(db, buffer, column);
+		sqdb_sql_write_column(db, buffer, column);
 	}
 	return SQCODE_OK;
 }
@@ -516,7 +521,7 @@ void sqdb_sql_drop_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* 
 	sq_buffer_write(sql_buf, "\";");
 }
 
-void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* buffer, SqColumn* column)
+void sqdb_sql_write_column(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 {
 	SqType* type;
 	int     len;
@@ -681,29 +686,37 @@ void sqdb_sql_write_foreign_ref(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 }
 
 void  sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns,
-                                 int n_columns, bool old_name)
+                                 int n_old_columns, bool old_name)
 {
 	SqColumn* column;
 	char* allocated;
+	int   count = 0;
 
-	if (n_columns == 0)
-		n_columns = arranged_columns->length;
-	for (int index = 0;  index < n_columns;  index++) {
+	if (n_old_columns == -1)
+		n_old_columns = arranged_columns->length;
+	for (int index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
 		// skip ignore
 //		if (column->bit_field & SQB_IGNORE)
 //			continue;
-		// skip "dropped" or "renamed"
-		if (column->old_name && (column->bit_field & SQB_RENAMED) == 0)
-			continue;
 		// skip CONSTRAINT and INDEX
 		if (column->type == SQ_TYPE_CONSTRAINT || column->type == SQ_TYPE_INDEX)
 			continue;
-		if (index > 0) {
+		// skip "dropped" or "renamed" records
+		if (column->old_name && (column->bit_field & SQB_RENAMED) == 0)
+			continue;
+		// skip if column is newly "added" one
+		if (index >= n_old_columns && (column->bit_field & SQB_CHANGED) == 0)
+			continue;
+
+		// write comma between two columns
+		if (count > 0) {
 			allocated = sq_buffer_alloc(sql_buf, 2);
 			allocated[0] = ',';
 			allocated[1] = ' ';
 		}
+		count++;
+		// write column->old_name or column->name
 		sq_buffer_write_c(sql_buf, '\"');
 		if (old_name && column->old_name) {
 			sq_buffer_write(sql_buf, column->old_name);

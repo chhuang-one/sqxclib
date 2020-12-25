@@ -24,7 +24,8 @@
 #include <SqxcValue.h>
 #include <SqxcSql.h>
 
-#define NEW_TABLE_PREFIX_NAME    "new__table__"
+#define NEW_TABLE_PREFIX_NAME          "new__table__"
+#define SQLITE_VERSION_NUMBER_3_20     3020000           // 3.20.0
 
 static void sqdb_sqlite_init(SqdbSqlite* sqdb, SqdbConfigSqlite* config);
 static void sqdb_sqlite_final(SqdbSqlite* sqdb);
@@ -57,6 +58,8 @@ const SqdbInfo* SQDB_INFO_SQLITE = &dbinfo;
 
 static void sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf,
                                        SqTable* table, int n_old_columns);
+static bool sqdb_sqlite_alter_table(SqdbSqlite* db, SqBuffer* sql_buf,
+                                    SqTable* table, int n_old_columns);
 #if DEBUG
 static int debug_callback(void *user_data, int argc, char **argv, char **columnName);
 #endif
@@ -227,13 +230,16 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 		table = (SqTable*)type->entry[index];
 		if (table == NULL)
 			continue;
+		// 'rc' is number of old columns now
 		rc = sq_table_erase_records(table, '<');
 		// === CREATE TABLE ===
 		if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0)
 			sqdb_sql_create_table((Sqdb*)sqdb, &sql_buf, table, NULL);
-		// === RECREATE TABLE ===
-		else if (table->bit_field & SQB_TABLE_COL_CHANGED)
-			sqdb_sqlite_recreate_table(sqdb, &sql_buf, table, rc);
+		// === ALTER TABLE or RECREATE TABLE ===
+		else if (table->bit_field & SQB_TABLE_COL_CHANGED) {
+			if (sqdb_sqlite_alter_table(sqdb, &sql_buf, table, rc) == false)
+				sqdb_sqlite_recreate_table(sqdb, &sql_buf, table, rc);
+		}
 		table->bit_field |=  SQB_TABLE_SQL_CREATED;
 		table->bit_field &= ~SQB_TABLE_COL_CHANGED;
 	}
@@ -436,33 +442,23 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 static void  sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf,
                                         SqTable* table, int n_old_columns)
 {
-	unsigned int  col_changed;
 	SqPtrArray*   columns;
 
-	col_changed = table->bit_field & SQB_TABLE_COL_CHANGED;
 	columns = sq_type_get_ptr_array(table->type);
-
-#if 0
-	// if SQLite version > 3.20
-	if (col_changed == SQB_TABLE_COL_RENAMED) {
-		sqdb_sql_rename_column(db, sql_buf, table, column);
-		return;
-	}
-#endif
 
 	sq_buffer_write(sql_buf, "CREATE TABLE IF NOT EXISTS \"" NEW_TABLE_PREFIX_NAME);
 	sq_buffer_write(sql_buf, table->name);
 	sq_buffer_write_c(sql_buf, '\"');
-	sqdb_sql_create_table_params((Sqdb*)db, sql_buf, columns);
+	sqdb_sql_create_table_params((Sqdb*)db, sql_buf, columns, n_old_columns);
 //	sq_buffer_write_c(sql_buf, ';');
 
 	// -- copy data from the table to the new_tables
 	sq_buffer_write(sql_buf, " INSERT INTO \"" NEW_TABLE_PREFIX_NAME);
 	sq_buffer_write(sql_buf, table->name);
 	sq_buffer_write(sql_buf, "\" (");
-	sqdb_sql_write_column_list((Sqdb*)db, sql_buf, columns, 0, false);
+	sqdb_sql_write_column_list((Sqdb*)db, sql_buf, columns, n_old_columns, false);
 	sq_buffer_write(sql_buf, ") SELECT ");
-	sqdb_sql_write_column_list((Sqdb*)db, sql_buf, columns, 0, true);
+	sqdb_sql_write_column_list((Sqdb*)db, sql_buf, columns, n_old_columns, true);
 	sq_buffer_write(sql_buf, " FROM \"");
 	sq_buffer_write(sql_buf, table->name);
 	sq_buffer_write(sql_buf, "\"; ");
@@ -479,4 +475,46 @@ static void  sqdb_sqlite_recreate_table(SqdbSqlite* db, SqBuffer* sql_buf,
 	sq_buffer_write(sql_buf, "RENAME TO \"");
 	sq_buffer_write(sql_buf, table->name);
 	sq_buffer_write(sql_buf, "\"; ");
+}
+
+static bool sqdb_sqlite_alter_table(SqdbSqlite* db, SqBuffer* sql_buf,
+                                    SqTable* table, int n_old_columns)
+{
+	SqColumn*     column;
+	SqPtrArray*   array = sq_type_get_ptr_array(table->type);
+	unsigned int  unsupported = SQB_TABLE_COL_ADDED_CURRENT_TIME |
+	                            SQB_TABLE_COL_ADDED_EXPRESSION |
+		                        SQB_TABLE_COL_ADDED_CONSTRAINT |
+	                            SQB_TABLE_COL_ADDED_UNIQUE |
+	                            SQB_TABLE_COL_DROPPED |
+	                            SQB_TABLE_COL_ALTERED;
+
+	// SQlite >= 3.20.0 support RENAME COLUMN statement.
+	if (sqlite3_libversion_number() < SQLITE_VERSION_NUMBER_3_20)
+		unsupported |= SQB_TABLE_COL_RENAMED;
+	// check
+	if (table->bit_field & unsupported)
+		return false;
+
+	for (int index = n_old_columns;  index < array->length;  index++) {
+		column = array->data[index];
+		// ALTER COLUMN
+		if (column->bit_field & SQB_CHANGED)
+			continue;
+		// DROP COLUMN / CONSTRAINT / INDEX / KEY
+		else if (column->name == NULL)
+			continue;
+		else if (column->old_name && (column->bit_field & SQB_RENAMED) == 0) {
+			// RENAME COLUMN
+			sqdb_sql_rename_column((Sqdb*)db, sql_buf, table, column);
+		}
+		else {
+			// ADD COLUMN / INDEX / FOREIGN KEY
+			sqdb_sql_add_column((Sqdb*)db, sql_buf, table, column);
+		}
+
+		sq_buffer_write_c(sql_buf, ';');
+	}
+
+	return true;
 }

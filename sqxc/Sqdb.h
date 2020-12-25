@@ -68,7 +68,7 @@ int  sqdb_sql_create_tables_reo(Sqdb* db, SqBuffer* sql_buf, SqSchema* schema, S
 
 int  sqdb_sql_rename_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table);
 int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
-int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns);
+int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns, int n_old_columns);
 int  sqdb_sql_alter_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
 int  sqdb_sql_drop_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table);
 
@@ -80,12 +80,13 @@ int  sqdb_sql_drop_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn*
 void sqdb_sql_create_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
 void sqdb_sql_drop_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
 
-void sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns,
-                                int n_columns, bool old_name);
-void sqdb_sql_write_column_type(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
+void sqdb_sql_write_column(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
 void sqdb_sql_write_constraint(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
 void sqdb_sql_write_composite_columns(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
 void sqdb_sql_write_foreign_ref(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
+
+void sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns,
+                                int n_old_columns, bool use_old_name);
 
 #ifdef __cplusplus
 }  // extern "C"
