@@ -118,18 +118,23 @@ void  sq_reentries_clear_records(void* reentry_ptr_array, char version_compariso
 {
 	SqDestroyFunc destroy;
 	SqReentry*    reentry;
+	bool          is_renamed_column;
 
 	destroy = sq_ptr_array_destroy_func(reentry_ptr_array);
 	for (int index = 0;  index < ((SqPtrArray*)reentry_ptr_array)->length; index++) {
 		reentry = ((SqPtrArray*)reentry_ptr_array)->data[index];
 		if (reentry == NULL || reentry->old_name == NULL)
 			continue;
-		// try to clear altered and renamed status
+		is_renamed_column = (reentry->bit_field & SQB_RENAMED) ? true : false;
+		// clear altered and renamed status in column
 		if (version_comparison != '<' && reentry->bit_field & SQB_DYNAMIC) {
 			free(reentry->old_name);
 			reentry->old_name = NULL;
 			reentry->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
 		}
+		// Don't destroy renamed column
+		if (is_renamed_column)
+			continue;
 		// destory dropped & renamed records
 		if (destroy)
 			destroy(reentry);
