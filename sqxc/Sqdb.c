@@ -351,15 +351,6 @@ int  sqdb_sql_alter_table(Sqdb* db, SqBuffer* buffer, SqTable* table, SqPtrArray
 // ------------------------------------
 // column
 
-static void sqdb_sql_alter_table_add(Sqdb* db, SqBuffer* buffer, SqTable* table)
-{
-	sq_buffer_write(buffer, "ALTER TABLE \"");
-	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" ");
-
-	sq_buffer_write(buffer, "ADD ");
-}
-
 int  sqdb_sql_add_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
 	// CREATE INDEX
@@ -367,42 +358,31 @@ int  sqdb_sql_add_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* c
 		sqdb_sql_create_index(db, buffer, table, column);
 		return SQCODE_OK;
 	}
+
+	sq_buffer_write(buffer, "ALTER TABLE \"");
+	sq_buffer_write(buffer, table->name);
+	sq_buffer_write(buffer, "\" ");
+	sq_buffer_write(buffer, "ADD ");
+
 	// ADD CONSTRAINT
-	else if (column->type == SQ_TYPE_CONSTRAINT) {
-		// SQLite doesn't support this
-		if (db->info->product != SQDB_PRODUCT_SQLITE)
-			return SQCODE_NOT_SUPPORT;
-		sqdb_sql_alter_table_add(db, buffer, table);
+	if (column->type == SQ_TYPE_CONSTRAINT) {
 		sqdb_sql_write_constraint(db, buffer, column);
 		return SQCODE_OK;
 	}
 	// ADD FOREIGN KEY
 	else if (column->foreign) {
-		// SQLite doesn't support this
-		if (db->info->product != SQDB_PRODUCT_SQLITE)
-			return SQCODE_NOT_SUPPORT;
-		sqdb_sql_alter_table_add(db, buffer, table);
 		sq_buffer_write(buffer, "FOREIGN KEY");
 	}
 	// ADD PRIMARY KEY
 	else if (column->bit_field & SQB_PRIMARY) {
-		// SQLite doesn't support this
-		if (db->info->product != SQDB_PRODUCT_SQLITE)
-			return SQCODE_NOT_SUPPORT;
-		sqdb_sql_alter_table_add(db, buffer, table);
 		sq_buffer_write(buffer, "PRIMARY KEY");
 	}
 	// ADD UNIQUE
 	else if (column->bit_field & SQB_UNIQUE) {
-		// SQLite doesn't support this
-		if (db->info->product != SQDB_PRODUCT_SQLITE)
-			return SQCODE_NOT_SUPPORT;
-		sqdb_sql_alter_table_add(db, buffer, table);
 		sq_buffer_write(buffer, "UNIQUE");
 	}
 	// ADD COLUMN
 	else {
-		sqdb_sql_alter_table_add(db, buffer, table);
 		sqdb_sql_write_column(db, buffer, column);
 		return SQCODE_OK;
 	}
@@ -423,11 +403,6 @@ int  sqdb_sql_add_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* c
 
 int  sqdb_sql_alter_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* column)
 {
-	if (db->info->product == SQDB_PRODUCT_SQLITE) {
-		// SQLite doesn't support ALTER COLUMN
-		return SQCODE_NOT_SUPPORT;
-	}
-
 	sq_buffer_write(buffer, "ALTER TABLE \"");
 	sq_buffer_write(buffer, table->name);
 	sq_buffer_write(buffer, "\" ");
@@ -451,11 +426,6 @@ int  sqdb_sql_rename_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn
 {
 	int  len;
 
-	if (db->info->product == SQDB_PRODUCT_SQLITE) {
-		// SQLite doesn't support RENAME COLUMN statement
-		// SQlite >= 3.20.0 support it.
-		return SQCODE_NOT_SUPPORT;
-	}
 	sq_buffer_write(buffer, "ALTER TABLE \"");
 	sq_buffer_write(buffer, table->name);
 	sq_buffer_write(buffer, "\" ");
@@ -473,10 +443,6 @@ int  sqdb_sql_drop_column(Sqdb* db, SqBuffer* buffer, SqTable* table, SqColumn* 
 	if (column->type == SQ_TYPE_INDEX) {
 		sqdb_sql_drop_index(db, buffer, table, column);
 		return SQCODE_OK;
-	}
-	if (db->info->product == SQDB_PRODUCT_SQLITE) {
-		// SQLite doesn't support DROP
-		return SQCODE_NOT_SUPPORT;
 	}
 
 	sq_buffer_write(buffer, "ALTER TABLE \"");
