@@ -10,13 +10,18 @@ sources = ['SqPtrArray.c',
            'SqJoint.c',
            'SqSchema.c',
            'SqStorage.c',
+           'SqQuery.c',
+
+           # Sqdb - Database interface
            'Sqdb.c',
            'SqdbSqlite.c',
+#          'SqdbMysql.c',
+
+           # Sqxc - Converter interface
            'Sqxc.c',
            'SqxcValue.c',
            'SqxcJsonc.c',
            'SqxcSql.c',
-           'SqQuery.c',
 
            # for testing
            'SqdbEmpty.c',
@@ -34,15 +39,19 @@ headers = ['SqPtrArray.h',
            'SqJoint.h',
            'SqSchema.h', 'SqSchema-macro.h',
            'SqStorage.h',
+           'SqQuery.h', 'SqQuery-macro.h',
+           'SqConfig.h',
+
+           # Sqdb - Database interface
            'Sqdb.h',
            'SqdbSqlite.h',
+#          'SqdbMysql.h',
+
+           # Sqxc - Converter interface
            'Sqxc.h',
            'SqxcValue.h',
            'SqxcJsonc.h',
            'SqxcSql.h',
-           'SqQuery.h', 'SqQuery-macro.h',
-
-           'SqConfig.h',
 
            # for testing
            'SqdbEmpty.h',
