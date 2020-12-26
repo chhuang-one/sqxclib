@@ -230,15 +230,21 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 		table = (SqTable*)type->entry[index];
 		if (table == NULL)
 			continue;
-		// 'rc' is number of old columns now
-		rc = sq_table_erase_records(table, '<');
 		// === CREATE TABLE ===
-		if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0)
+		if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0) {
+			sq_table_erase_records(table, '<');
 			sqdb_sql_create_table((Sqdb*)sqdb, &sql_buf, table, NULL);
-		// === ALTER TABLE or RECREATE TABLE ===
+		}
 		else if (table->bit_field & SQB_TABLE_COL_CHANGED) {
-			if (sqdb_sqlite_alter_table(sqdb, &sql_buf, table, rc) == false)
+			// === ALTER TABLE ===
+			if (sqdb_sqlite_alter_table(sqdb, &sql_buf, table, table->offset))
+				sq_table_erase_records(table, '<');
+			// === RECREATE TABLE ===
+			else {
+				// 'rc' is number of old columns now
+				rc = sq_table_erase_records(table, '<');
 				sqdb_sqlite_recreate_table(sqdb, &sql_buf, table, rc);
+			}
 		}
 		table->bit_field |=  SQB_TABLE_SQL_CREATED;
 		table->bit_field &= ~SQB_TABLE_COL_CHANGED;
