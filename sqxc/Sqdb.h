@@ -66,7 +66,7 @@ void    sqdb_free(Sqdb* db);
 void sqdb_sql_write_schema(Sqdb* db, SqBuffer* sql_buf, SqSchema* schema, SqPtrArray* arranged_tables);
 int  sqdb_sql_create_tables_reo(Sqdb* db, SqBuffer* sql_buf, SqSchema* schema, SqTable* table);
 
-int  sqdb_sql_rename_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table);
+int  sqdb_sql_rename_table(Sqdb* db, SqBuffer* sql_buf, const char* old_name, const char* new_name);
 int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
 int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns, int n_old_columns);
 int  sqdb_sql_alter_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);

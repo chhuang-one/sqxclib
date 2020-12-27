@@ -75,7 +75,7 @@ void sqdb_sql_write_schema(Sqdb* db, SqBuffer* buffer, SqSchema* schema, SqPtrAr
 		}
 		else if (table->old_name && (table->bit_field & SQB_RENAMED) == 0) {
 			// RENAME TABLE
-			sqdb_sql_rename_table(db, buffer, table);
+			sqdb_sql_rename_table(db, buffer, table->old_name, table->name);
 		}
 		else {
 			// CREATE TABLE
@@ -291,24 +291,28 @@ int  sqdb_sql_drop_table(Sqdb* db, SqBuffer* buffer, SqTable* table)
 {
 	// DROP TABLE "name";
 	sq_buffer_write(buffer, "DROP TABLE \"");
-	strcpy(sq_buffer_alloc(buffer, strlen(table->old_name) +2), table->old_name);
-	buffer->buf[buffer->writed -2] = '"';
-	buffer->buf[buffer->writed -1] = ';';
+	sq_buffer_write(buffer, table->old_name);
+	sq_buffer_write(buffer, "\";");
 	return SQCODE_OK;
 }
 
-int  sqdb_sql_rename_table(Sqdb* db, SqBuffer* buffer, SqTable* table)
+int  sqdb_sql_rename_table(Sqdb* db, SqBuffer* buffer, const char* old_name, const char* new_name)
 {
-	// ALTER TABLE "old_name" RENAME "new_name";
-	sq_buffer_write(buffer, "ALTER TABLE \"");
-	sq_buffer_write(buffer, table->old_name);
-//	sq_buffer_write_c(buffer, '"');
-	buffer->buf[buffer->writed++] = '"';
+	// RENAME TABLE "old_name" TO "new_name";
+	// ALTER TABLE "old_name" RENAME TO "new_name";
+	if (db->info->product == SQDB_PRODUCT_MYSQL)
+		sq_buffer_write(buffer, "RENAME TABLE \"");
+	else
+		sq_buffer_write(buffer, "ALTER TABLE \"");
+	sq_buffer_write(buffer, old_name);
+	sq_buffer_write_c(buffer, '"');
 
-	sq_buffer_write(buffer, " RENAME \"");
-	strcpy(sq_buffer_alloc(buffer, strlen(table->name) +2), table->name);
-	buffer->buf[buffer->writed -2] = '"';
-	buffer->buf[buffer->writed -1] = ';';
+	if (db->info->product == SQDB_PRODUCT_MYSQL)
+		sq_buffer_write(buffer, " TO \"");
+	else
+		sq_buffer_write(buffer, " RENAME TO \"");
+	sq_buffer_write(buffer, new_name);
+	sq_buffer_write(buffer, "\";");
 	return SQCODE_OK;
 }
 
