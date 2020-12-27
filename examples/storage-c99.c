@@ -33,6 +33,7 @@ struct Post {
 struct City {
 	int    id;
 	char*  name;
+	bool   visited;
 };
 
 struct User {
@@ -68,7 +69,8 @@ static SqType         type_post = SQ_TYPE_INITIALIZER(Post, PostEntry, 0);
 // CREATE TABLE "cities"
 static const SqColumn* CityColumnsVer1[] = {
 	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(City, id),        SQB_PRIMARY | SQB_HIDDEN},
-	&(SqColumn) {SQ_TYPE_STRING, "name",      offsetof(City, name),      0},
+	&(SqColumn) {SQ_TYPE_STRING, "name",      offsetof(City, name),      SQB_NULLABLE},
+//	&(SqColumn) {SQ_TYPE_BOOL,   "visited",   offsetof(City, visited)},
 };
 
 // CREATE TABLE "users"
@@ -81,17 +83,17 @@ static const SqColumn* UserColumnsVer1[] = {
                  .foreign = &(SqForeign) {"cities",    "id",  "CASCADE",  "CASCADE"} },
 
 #ifdef SQ_CONFIG_JSON_SUPPORT
-	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "ints",offsetof(User, ints),      0},
-	&(SqColumn) {SQ_TYPE_POST,         "post",offsetof(User, post),      SQB_POINTER},    // User.post is pointer
+	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "ints",  offsetof(User, ints),    0},
+	&(SqColumn) {SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER},    // User.post is pointer
 #endif
 
 	// CONSTRAINT FOREIGN KEY
-	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
+	&(SqColumn) {SQ_TYPE_CONSTRAINT,   "users_city_id_foreign",
 	             .foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
 	             .composite = (char *[]) {"city_id", NULL} },
 
 	// This column will be deleted in Ver3
-	&(SqColumn) {SQ_TYPE_UINT,   "test_drop", offsetof(User, test_drop), 0},
+	&(SqColumn) {SQ_TYPE_UINT,   "test_drop",   offsetof(User, test_drop),   0},
 
 	// This column will be renamed in Ver4
 	&(SqColumn) {SQ_TYPE_UINT,   "test_rename", offsetof(User, test_rename), 0},
@@ -182,6 +184,7 @@ void city_print(City* city) {
 void storage_make_migrated_schema(SqStorage* storage, int end_version)
 {
 	SqSchema* schema;
+	SqTable*  table;
 
 	if (end_version >= 1) {
 		schema = sq_schema_new("Ver1");
@@ -226,6 +229,28 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 		sq_schema_free(schema);
 	}
 
+	if (end_version >= 5) {
+		schema = sq_schema_new("Ver5");
+//		schema->version = 5;
+		// RENAME TABLE "users" TO "users2"
+		sq_schema_rename(schema, "users", "users2");
+		// ALTER TABLE "cities" ADD COLUMN "visited"    (dynamic)
+		table = sq_schema_alter(schema, "cities", NULL);
+		sq_table_add_bool(table, "visited", offsetof(City, visited));
+		// migrate changed of "users" and "cities"
+		sq_storage_migrate(storage, schema);
+		sq_schema_free(schema);
+	}
+
+	if (end_version >= 6) {
+		schema = sq_schema_new("Ver6");
+//		schema->version = 6;
+		// DROP TABLE "users2"
+		sq_schema_drop(schema, "users2");
+		sq_storage_migrate(storage, schema);
+		sq_schema_free(schema);
+	}
+
 	// End of migration. create SQL tables based on storage->schema
 	sq_storage_migrate(storage, NULL);
 }
@@ -242,19 +267,22 @@ int  main(void)
 	storage = sq_storage_new(db);
 	sq_storage_open(storage, "sample-c99");
 
-	// This program migrate to next version every run. (from Ver1 to Ver4)
+	// This program migrate to next version every run. (from Ver1 to Ver6)
 	storage_make_migrated_schema(storage, ((SqdbSqlite*)db)->version +1);
 
 	if (storage->schema->version == 1) {
 		city = city_new();
 		city->id = 1;
 		city->name = strdup("Los Angeles");
+		city->visited = false;
 		sq_storage_insert(storage, "cities", NULL, city);
 		city_free(city);
 
 		city = city_new();
 		city->id = 2;
-		city->name = strdup("San Francisco");
+		city->name = NULL;
+//		city->name = strdup("San Francisco");
+		city->visited = true;
 		sq_storage_insert(storage, "cities", NULL, city);
 		city_free(city);
 
@@ -282,9 +310,14 @@ int  main(void)
 	}
 	sq_ptr_array_free(array);
 
-	user = sq_storage_get(storage, "users", NULL, 1);
-	user_print(user);
-	user_free(user);
+	if (((SqdbSqlite*)db)->version == 5)    // schema->version = 5
+		user = sq_storage_get(storage, "users2", NULL, 1);
+	else
+		user = sq_storage_get(storage, "users", NULL, 1);
+	if (user) {
+		user_print(user);
+		user_free(user);
+	}
 
 	sq_storage_close(storage);
 	return EXIT_SUCCESS;
