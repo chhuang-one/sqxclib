@@ -155,7 +155,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	// buffer for SQL statement
 	sq_buffer_init(&sql_buf);
 
-	// run SQL statement: rename and drop table
+	// --------- rename and drop table ---------
 	for (int index = 0;  index < reentries.length;  index++) {
 		table = reentries.data[index];
 		if (table->name == NULL) {
@@ -184,15 +184,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 		}
 		// === RENAME TABLE ===
 		else {
-			sq_buffer_write(&sql_buf, "ALTER TABLE \"");
-			sq_buffer_write(&sql_buf, table->old_name);
-			sq_buffer_write_c(&sql_buf, '"');
-
-			sq_buffer_write(&sql_buf, " RENAME \"");
-			sq_buffer_write(&sql_buf, table_addr[0]->name);
-			sq_buffer_alloc(&sql_buf, 2);
-			sql_buf.buf[sql_buf.writed -2] = '"';
-			sql_buf.buf[sql_buf.writed -1] = ';';
+			sqdb_sql_rename_table((Sqdb*)sqdb, &sql_buf, table->old_name, table_addr[0]->name);
 			// check table existence
 			table = (SqTable*)sq_type_find_entry(type, table_addr[0]->name, NULL);
 			if (table) {
@@ -221,6 +213,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	}
 	// destroy renamed & dropped records
 	sq_ptr_array_final(&reentries);
+	// --------- End of rename and drop table ---------
 
 	sql_buf.writed = 0;
 	sq_buffer_write(&sql_buf, "PRAGMA foreign_keys=off; BEGIN TRANSACTION; ");
@@ -260,6 +253,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	// error occurred
 	if (rc != SQLITE_OK)
 		goto atError;
+
 	// update SQLite.user_version
 	sqdb->version = schema->version;
 	sql_buf.writed = snprintf(NULL, 0, "PRAGMA user_version = %d;", sqdb->version) + 1;
