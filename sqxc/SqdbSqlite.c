@@ -178,7 +178,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 			// exec SQL statement
 			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #if DEBUG
-			puts(sql_buf.buf);
+			fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 #endif
 			sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
 		}
@@ -199,7 +199,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 			// exec SQL statement
 			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #if DEBUG
-			puts(sql_buf.buf);
+			fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 			rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
 #else
 			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
@@ -215,6 +215,9 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	sq_ptr_array_final(&reentries);
 	// --------- End of rename and drop table ---------
 
+#if DEBUG
+	fprintf(stderr, "SQLite: BEGIN TRANSACTION ------\n");
+#endif
 	sql_buf.writed = 0;
 	sq_buffer_write(&sql_buf, "PRAGMA foreign_keys=off; BEGIN TRANSACTION; ");
 	// run SQL statement: create/recreate table
@@ -245,7 +248,8 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	sq_buffer_write(&sql_buf, " COMMIT; PRAGMA foreign_keys=on;");
 	sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #ifdef DEBUG
-	puts(sql_buf.buf);
+	fprintf(stderr, "%s\n", sql_buf.buf);
+	fprintf(stderr, "SQLite: END TRANSACTION ------\n");
 	rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
 #else
 	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
@@ -260,7 +264,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	sprintf(sql_buf.buf, "PRAGMA user_version = %d;", sqdb->version);
 //	sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #ifdef DEBUG
-	puts(sql_buf.buf);
+	fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 	rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
 #else
 	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
@@ -275,11 +279,11 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	return SQCODE_OK;
 
 atError:
-	// free buffer for SQL statement
-	sq_buffer_final(&sql_buf);
-	// print error message
-	fprintf(stderr, "SQL error: %s\n", errorMsg);
+#ifdef DEBUG
+	fprintf(stderr, "SQLite: %s\n", errorMsg);
+#endif
 	sqlite3_free(errorMsg);
+	sq_buffer_final(&sql_buf);
 	return SQCODE_ERROR;
 }
 
@@ -369,9 +373,9 @@ static int debug_callback(void *user_data, int argc, char **argv, char **columnN
 {
 	int i;
 
-	for (i=0; i<argc; i++) {
-		printf("%s = %s\n", columnName[i], argv[i] ? argv[i] : "NULL");
-	}
+	fprintf(stderr, "SQLite callback: ");
+	for (i=0; i<argc; i++)
+		fprintf(stderr, "%s = %s\n", columnName[i], argv[i] ? argv[i] : "NULL");
 	return 0;
 }
 #endif  // DEBUG
@@ -383,6 +387,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 
 	if (xc == NULL) {
 #ifdef DEBUG
+		fprintf(stderr, "SQL: %s\n", sql);
 		rc = sqlite3_exec(sqdb->self, sql, debug_callback, NULL, &errorMsg);
 #else
 		// no callback if xc is NULL
@@ -396,7 +401,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 #ifdef DEBUG
 			if (xc == NULL || xc->info != SQXC_INFO_VALUE)
 				return SQCODE_EXEC_ERROR;
-			puts(sql);
+			fprintf(stderr, "SQL: %s\n", sql);
 #endif
 			// if Sqxc element prepare for multiple row
 			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
@@ -420,7 +425,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 #ifdef DEBUG
 			if (xc == NULL || xc->info != SQXC_INFO_SQL)
 				return SQCODE_EXEC_ERROR;
-			puts(sql);
+			fprintf(stderr, "SQL: %s\n", sql);
 #endif
 		default:
 			rc = sqlite3_exec(sqdb->self, sql, insert_callback, xc, &errorMsg);
@@ -430,8 +435,10 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 
 	// check return value of sqlite3_exec()
 	if (rc != SQLITE_OK) {
-		fprintf(stderr, "SQL error: %s\n", errorMsg);
+#if DEBUG
+		fprintf(stderr, "SQLite: %s\n", errorMsg);
 		sqlite3_free(errorMsg);
+#endif
 		return SQCODE_EXEC_ERROR;
 	}
 	return SQCODE_OK;
