@@ -317,6 +317,22 @@ struct SqTable
 #ifdef __cplusplus
 	// C++11 standard-layout
 
+	bool  hasColumn(const char* column_name) {
+		return sq_table_has_column(this, column_name);
+	}
+	void  dropColumn(const char* column_name) {
+		sq_table_drop_column(this, column_name);
+	}
+	void  renameColumn(const char* from, const char* to) {
+		sq_table_rename_column(this, from, to);
+	}
+	int   getColumns(SqPtrArray* ptr_array, const SqType* type, unsigned int bit_field) {
+		return sq_table_get_columns(this, ptr_array, type, bit_field);
+	}
+	SqColumn* getPrimary() {
+		return sq_table_get_primary(this);
+	}
+
 	SqColumn& boolean(const char* column_name, size_t offset) {
 		return *sq_table_add_bool(this, column_name, offset);
 	}
@@ -480,6 +496,12 @@ struct SqTable
 		{ return sq_table_include(this, table_src); }
 	void exclude(SqPtrArray* excluded_columns, SqPtrArray* result)
 		{ sq_table_exclude(this, excluded_columns, result); }
+	int  eraseRecords(char version_comparison) {
+		return sq_table_erase_records(this, version_comparison);
+	}
+	void complete() {
+		sq_table_complete(this);
+	}
 #endif  // __cplusplus
 };
 
