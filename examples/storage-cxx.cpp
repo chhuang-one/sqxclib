@@ -33,6 +33,8 @@ struct User {
 	int    id;
 	char*  name;
 	int    company_id;
+
+	unsigned int  test_add;
 };
 
 struct Company
@@ -133,14 +135,13 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 {
 	Sq::Schema*   schemaVer1;
 	Sq::Schema*   schemaVer2;
+	Sq::Schema*   schemaVer3;
+	Sq::Schema*   schemaVer4;
 	Sq::Table*    table;
 
-	// create table in schemaVer1 and schemaVer2
+	// --- schema version 1 ---
 	schemaVer1 = new Sq::Schema("Ver1");
-	schemaVer2 = new Sq::Schema("Ver2");
 	schemaVer1->version = 1;
-	schemaVer2->version = 2;
-
 	table = schemaVer1->create<Company>("companies");
 	table->integer("id", &Company::id)->primary();
 	table->string("name", &Company::name);
@@ -154,6 +155,9 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
 #endif
 
+	// --- schema version 2 ---
+	schemaVer2 = new Sq::Schema("Ver2");
+	schemaVer2->version = 2;
 	table = schemaVer2->create<User>("users");
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
@@ -161,15 +165,33 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	table->addForeign("users_companies_id_foreign", "company_id")->reference("companies", "id");
 	table->addIndex("users_id_index", "id", NULL);
 
-	// migrate schemaVer1, schemaVer2 to storage->schema
+	// --- schema version 3 ---
+	schemaVer3 = new Sq::Schema("Ver3");
+	schemaVer3->version = 3;
+	// ALTER TABLE ADD COLUMN
+	table = schemaVer3->alter("users");
+	table->uint("test_add", &User::test_add);
+
+	// --- schema version 4 ---
+	schemaVer4 = new Sq::Schema("Ver4");
+	schemaVer4->version = 4;
+	// ALTER TABLE ADD COLUMN
+	table = schemaVer4->alter("users");
+	table->renameColumn("test_add", "test_add2");
+
+	// migrate schema version from 1 to 4 to storage->schema
 	storage->migrate(schemaVer1);
 	storage->migrate(schemaVer2);
+	storage->migrate(schemaVer3);
+	storage->migrate(schemaVer4);
 	// End of migration. create SQL tables based on storage->schema
 	storage->migrate(NULL);
 
 	// free migrated schema
 	delete schemaVer1;
 	delete schemaVer2;
+	delete schemaVer3;
+	delete schemaVer4;
 }
 
 void  storage_ptr_array_get_all(Sq::Storage* storage)
