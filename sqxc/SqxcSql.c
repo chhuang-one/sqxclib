@@ -259,6 +259,8 @@ static int  sqxc_sql_ctrl(SqxcSql* xcsql, int id, void* data)
 static void  sqxc_sql_init(SqxcSql* xcsql)
 {
 //	memset(xcsql, 0, sizeof(SqxcSql));
+	sq_buffer_resize(sqxc_get_buffer(xcsql), SQ_CONFIG_SQXC_SQL_BUFFER_SIZE_DEAULT);
+
 	xcsql->supported_type  = SQXC_TYPE_ALL;
 	xcsql->outer_type = SQXC_TYPE_NONE;
 	xcsql->id = -1;
