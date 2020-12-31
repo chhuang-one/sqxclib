@@ -645,8 +645,10 @@ void   sq_table_complete(SqTable* table)
 				reentries->data[index] = NULL;
 				has_null = true;
 			}
-			if (column->bit_field & (SQB_RENAMED | SQB_DYNAMIC))
+			else if (column->bit_field & (SQB_RENAMED | SQB_DYNAMIC)) {
 				free(column->old_name);
+				column->old_name = NULL;
+			}
 		}
 		if (has_null)
 			sq_reentries_remove_null(reentries, 0);
