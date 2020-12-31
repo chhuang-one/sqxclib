@@ -401,6 +401,10 @@ static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src)
 		break;
 
 	case SQXC_TYPE_STRING:
+		if (src->value.string == NULL) {
+			sq_buffer_write(buffer, "NULL");
+			break;
+		}
 		// handle SQL string apostrophe (single quotes)
 		for (len = 0, idx = 0;  src->value.string[idx];  idx++, len++) {
 			// double up on the single quotes
