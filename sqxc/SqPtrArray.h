@@ -565,7 +565,7 @@ struct StringArray : SqPtrArrayTemplate<char*>
 	}
 	void  append(const char*  value) {
 		sq_ptr_array_append(this, (void*)value);
-		duplicateElement(this->length -length, 1);
+		duplicateElement(this->length -1, 1);
 	}
 };
 
