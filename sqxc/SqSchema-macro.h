@@ -107,9 +107,13 @@ typedef struct Company
 		table_cur_ = sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType));
 #endif
 
-// void SQT_COLUMNS(const SqColumn** columns, int n_columns);
-#define SQT_COLUMNS(columns, n_columns)    \
-		sq_table_add_columns(table_cur_, columns, n_columns)
+// void SQT_COLUMNS(const SqColumn** column_addr, int n_column_addr);
+#define SQT_COLUMNS(column_addr, n_column_addr)    \
+		sq_table_add_columns(table_cur_, column_addr, n_column_addr)
+
+// void SQT_COLUMN(const SqColumn* column, int n_column);
+#define SQT_COLUMN(column, n_column)    \
+		sq_table_add_column(table_cur_, column, n_column)
 
 #define SQT_BOOLEAN(column_name, structure, member)   \
 		(column_cur_ = sq_table_add_bool(table_cur_, column_name, offsetof(structure, member)))

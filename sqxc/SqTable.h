@@ -87,8 +87,8 @@ int       sq_table_get_columns(SqTable* table, SqPtrArray* ptr_array,
                                const SqType* type, unsigned int bit_field);
 SqColumn* sq_table_get_primary(SqTable* table);
 
-void      sq_table_add_columns(SqTable* table, const SqColumn** columns,
-                               int  n_columns);
+void      sq_table_add_columns(SqTable* table, const SqColumn** column_addr, int n_column_addr);
+void      sq_table_add_column(SqTable* table, const SqColumn* column, int n_column);
 
 #define sq_table_add_integer    sq_table_add_int
 #define sq_table_add_boolean    sq_table_add_bool
@@ -331,6 +331,13 @@ struct SqTable
 	}
 	SqColumn* getPrimary() {
 		return sq_table_get_primary(this);
+	}
+
+	void  addColumn(const SqColumn* columns, int n_columns = 1) {
+		sq_table_add_column(this, columns, n_columns);
+	}
+	void  addColumn(const SqColumn** column_addr, int n_column_addr = 1) {
+		sq_table_add_columns(this, column_addr, n_column_addr);
 	}
 
 	SqColumn& boolean(const char* column_name, size_t offset) {
