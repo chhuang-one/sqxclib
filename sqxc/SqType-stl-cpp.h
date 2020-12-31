@@ -110,7 +110,16 @@ struct TypeStl : SqType {
 		this->write = cxxWrite;
 		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
 		this->n_entry = -1;                       // SqType.entry can't be freed if SqType.n_entry == -1
-		this->bit_field = SQB_DYNAMIC;
+	}
+
+	// for dynamic allocated Sq::TypeStl
+	void* operator new(size_t size) {
+		void* memory = malloc(size);
+		((TypeStl*)memory)->bit_field = SQB_DYNAMIC;
+		return memory;
+	}
+	void operator delete(void* instance) {
+		free(instance);
 	}
 };
 
