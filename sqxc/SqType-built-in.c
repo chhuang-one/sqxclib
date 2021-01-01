@@ -47,11 +47,15 @@ int  sq_type_bool_parse(void* instance, const SqType *entrytype, Sqxc* src)
 		break;
 
 	case SQXC_TYPE_STRING:
-		ch = src->value.string[0]; 
-		if (ch == '0' || ch == 'f' || ch == 'F')    // '0', 'false', or 'FALSE'
-			*(bool*)instance = false;
+		if (src->value.string) {
+			ch = src->value.string[0]; 
+			if (ch == '0' || ch == 'f' || ch == 'F')    // '0', 'false', or 'FALSE'
+				*(bool*)instance = false;
+			else
+				*(bool*)instance = true;
+		}
 		else
-			*(bool*)instance = true;
+			*(bool*)instance = false;
 		break;
 
 	default:
@@ -85,7 +89,10 @@ int  sq_type_int_parse(void* instance, const SqType *entrytype, Sqxc* src)
 		break;
 
 	case SQXC_TYPE_STRING:
-		*(int*)instance = strtol(src->value.string, NULL, 10);
+		if (src->value.string)
+			*(int*)instance = strtol(src->value.string, NULL, 10);
+		else
+			*(int*)instance = 0;
 		break;
 
 	default:
@@ -119,7 +126,10 @@ int  sq_type_uint_parse(void* instance, const SqType *entrytype, Sqxc* src)
 		break;
 
 	case SQXC_TYPE_STRING:
-		*(unsigned int*)instance = strtoul(src->value.string, NULL, 10);
+		if (src->value.string)
+			*(unsigned int*)instance = strtoul(src->value.string, NULL, 10);
+		else
+			*(unsigned int*)instance = 0;
 		break;
 
 	default:
@@ -153,7 +163,10 @@ int  sq_type_intptr_parse(void* instance, const SqType *entrytype, Sqxc* src)
 		break;
 
 	case SQXC_TYPE_STRING:
-		*(intptr_t*)instance = strtol(src->value.string, NULL, 10);
+		if (src->value.string)
+			*(intptr_t*)instance = strtol(src->value.string, NULL, 10);
+		else
+			*(intptr_t*)instance = 0;
 		break;
 
 	default:
@@ -187,7 +200,10 @@ int  sq_type_int64_parse(void* instance, const SqType *entrytype, Sqxc* src)
 		break;
 
 	case SQXC_TYPE_STRING:
-		*(int64_t*)instance = strtoll(src->value.string, NULL, 10);
+		if (src->value.string)
+			*(int64_t*)instance = strtoll(src->value.string, NULL, 10);
+		else
+			*(int64_t*)instance = 0;
 		break;
 
 	default:
@@ -221,7 +237,10 @@ int  sq_type_uint64_parse(void* instance, const SqType *entrytype, Sqxc* src)
 		break;
 
 	case SQXC_TYPE_STRING:
-		*(uint64_t*)instance = strtoull(src->value.string, NULL, 10);
+		if (src->value.string)
+			*(uint64_t*)instance = strtoull(src->value.string, NULL, 10);
+		else
+			*(uint64_t*)instance = 0;
 		break;
 
 	default:
@@ -245,10 +264,27 @@ Sqxc* sq_type_uint64_write(void* instance, const SqType *entrytype, Sqxc* dest)
 
 int  sq_type_double_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
-	if (src->type == SQXC_TYPE_STRING)
-		*(double*)instance = strtod(src->value.string, NULL);
-	else if (src->type == SQXC_TYPE_INT)
+	switch (src->type) {
+	case SQXC_TYPE_INT:
+		*(double*)instance = src->value.integer;
+		break;
+
+	case SQXC_TYPE_DOUBLE:
 		*(double*)instance = src->value.double_;
+		break;
+
+	case SQXC_TYPE_STRING:
+		if (src->value.string)
+			*(double*)instance = strtod(src->value.string, NULL);
+		else
+			*(double*)instance = 0;
+		break;
+
+	default:
+//		src->required_type = SQXC_TYPE_DOUBLE;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		return (src->code = SQCODE_TYPE_NOT_MATCH);
+	}
+
 	return (src->code = SQCODE_OK);
 }
 
@@ -265,15 +301,30 @@ Sqxc* sq_type_double_write(void* instance, const SqType *entrytype, Sqxc* dest)
 
 int  sq_type_time_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
-	if (src->type == SQXC_TYPE_STRING) {
-		*(time_t*)instance = sq_time_from_string(src->value.string);
-		if (*(time_t*)instance == -1)
-			*(time_t*)instance = time(NULL);
-	}
-	else if (src->type == SQXC_TYPE_INT)
+	switch (src->type) {
+	case SQXC_TYPE_INT:
 		*(time_t*)instance = src->value.int_;
-	else if (src->type == SQXC_TYPE_INT64)
+		break;
+
+	case SQXC_TYPE_INT64:
 		*(time_t*)instance = src->value.int64;
+		break;
+
+	case SQXC_TYPE_STRING:
+		if (src->value.string) {
+			*(time_t*)instance = sq_time_from_string(src->value.string);
+			if (*(time_t*)instance == -1)
+				*(time_t*)instance = 0;  // time(NULL);
+		}
+		else
+			*(time_t*)instance = 0;  // time(NULL);
+		break;
+
+	default:
+//		src->required_type = SQXC_TYPE_INT64;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		return (src->code = SQCODE_TYPE_NOT_MATCH);
+	}
+
 	return (src->code = SQCODE_OK);
 }
 
@@ -300,14 +351,21 @@ void sq_type_string_final(void* instance, const SqType *entrytype)
 
 int  sq_type_string_parse(void* instance, const SqType *entrytype, Sqxc* src)
 {
-	if (src->type == SQXC_TYPE_STRING) {
+	switch (src->type) {
+	/* TODO: convert to string
+	case SQXC_TYPE_INT:
+	case SQXC_TYPE_INT64:
+		break;
+	 */
+
+	case SQXC_TYPE_STRING:
 		if (src->value.string)
 			*(char**)instance = strdup(src->value.string);
 		else
 			*(char**)instance = NULL;
-	}
-	else {
-		// TODO: convert to string
+		break;
+
+	default:
 //		src->required_type = SQXC_TYPE_STRING;    // set required type if return SQCODE_TYPE_NOT_MATCH
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
@@ -371,8 +429,13 @@ int  sq_type_object_parse(void* instance, const SqType *entrytype, Sqxc* src)
 		entry = *(SqEntry**)entry;
 		entrytype = entry->type;
 		instance = (char*)instance + entry->offset;
-		if (entry->bit_field & SQB_POINTER)
+		if (entry->bit_field & SQB_POINTER) {
+			if (src->type == SQXC_TYPE_STRING && src->value.string == NULL) {
+				*(void**)instance = NULL;
+				return (src->code = SQCODE_OK);
+			}
 			instance = sq_type_init_instance(entrytype, instance, true);
+		}
 		return entrytype->parse(instance, entrytype, src);
 	}
 	return (src->code = SQCODE_ENTRY_NOT_FOUND);
@@ -400,8 +463,17 @@ Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 		dest->entry = entry;         // SqxcSql and SqxcJsonc will use this
 		member_type = entry->type;
 		member = (char*)instance + entry->offset;
-		if (entry->bit_field & SQB_POINTER)
+		if (entry->bit_field & SQB_POINTER) {
 			member = *(void**)member;
+			if (member == NULL) {
+				dest->type = SQXC_TYPE_STRING;
+				dest->value.string = NULL;
+				dest = sqxc_send(dest);
+				if (dest->code != SQCODE_OK)
+					return dest;
+				continue;
+			}
+		}
 		dest = member_type->write(member, member_type, dest);
 		if (dest->code != SQCODE_OK)
 			return dest;
