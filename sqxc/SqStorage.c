@@ -322,13 +322,25 @@ static char*  get_primary_key_string(void* instance, SqTable* table)
 	SqColumn*   column;
 	char*       condition = NULL;
 	int         len;
-	int         intval;
 
 	column = sq_table_get_primary(table);
 
 	// integer
 	instance = (char*)instance + column->offset;
-	if (column->type == SQ_TYPE_INT64) {
+	switch(SQ_TYPE_BUILTIN_INDEX(column->type)) {
+	case SQ_TYPE_INDEX_INT:
+		len = snprintf(NULL, 0, "\"%s\"=%d", column->name, *(int*)instance) +1;
+		condition = malloc(len);
+		snprintf(condition, len, "\"%s\"=%d", column->name, *(int*)instance);
+		break;
+
+	case SQ_TYPE_INDEX_UINT:
+		len = snprintf(NULL, 0, "\"%s\"=%u", column->name, *(unsigned int*)instance) +1;
+		condition = malloc(len);
+		snprintf(condition, len, "\"%s\"=%u", column->name, *(unsigned int*)instance);
+		break;
+
+	case SQ_TYPE_INDEX_INT64:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "\"%s\"=%I64d", column->name, *(int64_t*)instance) +1;
 		condition = malloc(len);
@@ -337,23 +349,31 @@ static char*  get_primary_key_string(void* instance, SqTable* table)
 		len = snprintf(NULL, 0, "\"%s\"=%ld", column->name, *(int64_t*)instance) +1;
 		condition = malloc(len);
 		snprintf(condition, len, "\"%s\"=%ld", column->name, *(int64_t*)instance);
-#else 
+#else
 		len = snprintf(NULL, 0, "\"%s\"=%lld", column->name, (long long int) *(int64_t*)instance) +1;
 		condition = malloc(len);
 		snprintf(condition, len, "\"%s\"=%lld", column->name, (long long int) *(int64_t*)instance);
 #endif
-	}
-	else {
-		if (column->type == SQ_TYPE_INT)
-			intval = *(int*)instance;
-		else if (column->type == SQ_TYPE_INTPTR)
-			intval = *(intptr_t*)instance;
-		else
-			return NULL;
+		break;
 
-		len = snprintf(NULL, 0, "\"%s\"=%d", column->name, intval) +1;
+	case SQ_TYPE_INDEX_UINT64:
+#if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
+		len = snprintf(NULL, 0, "\"%s\"=%I64u", column->name, *(uint64_t*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%d", column->name, intval);
+		snprintf(condition, len, "\"%s\"=%I64u", column->name, *(uint64_t*)instance);
+#elif defined(__WORDSIZE) && (__WORDSIZE == 64)
+		len = snprintf(NULL, 0, "\"%s\"=%lu", column->name, *(uint64_t*)instance) +1;
+		condition = malloc(len);
+		snprintf(condition, len, "\"%s\"=%lu", column->name, *(uint64_t*)instance);
+#else
+		len = snprintf(NULL, 0, "\"%s\"=%llu", column->name, (long long unsigned int) *(int64_t*)instance) +1;
+		condition = malloc(len);
+		snprintf(condition, len, "\"%s\"=%llu", column->name, (long long unsigned int) *(int64_t*)instance);
+#endif
+		break;
+
+	default:
+		return NULL;
 	}
 
 	return condition;
