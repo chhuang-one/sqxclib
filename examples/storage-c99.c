@@ -84,7 +84,7 @@ static const SqColumn* UserColumnsVer1[] = {
 
 #ifdef SQ_CONFIG_JSON_SUPPORT
 	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "ints",  offsetof(User, ints),    0},
-	&(SqColumn) {SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER},    // User.post is pointer
+	&(SqColumn) {SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER | SQB_NULLABLE},    // User.post is pointer
 #endif
 
 	// CONSTRAINT FOREIGN KEY
@@ -125,7 +125,7 @@ User* user_new(void) {
 	User* user;
 
 	user = calloc(1, sizeof(User));
-	user->post = calloc(1, sizeof(Post));
+//	user->post = calloc(1, sizeof(Post));
 	sq_intptr_array_init(&user->ints, 8);
 	return user;
 }
@@ -134,9 +134,11 @@ void user_free(User* user) {
 	sq_ptr_array_final(&user->ints);
 	free(user->name);
 	free(user->email);
-	free(user->post->title);
-	free(user->post->desc);
-	free(user->post);
+	if (user->post) {
+		free(user->post->title);
+		free(user->post->desc);
+		free(user->post);
+	}
 	free(user);
 }
 
@@ -153,10 +155,12 @@ void user_print(User* user) {
 			printf(",");
 		printf("%d", (int)user->ints.data[i]);
 	}
-	printf("\n"
-	       "user.post.title = %s\n"
-	       "user.post.desc = %s\n",
-	       user->post->title, user->post->desc);
+	printf("\n" "user.post = 0x%p\n", user->post);
+	if (user->post) {
+		printf("user.post.title = %s\n"
+		       "user.post.desc = %s\n",
+		       user->post->title, user->post->desc);
+	}
 	printf("user.test_add = %d\n"
 	       "user.test_drop = %d\n"
 	       "user.test_rename = %d\n",
@@ -189,12 +193,20 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 	if (end_version >= 1) {
 		schema = sq_schema_new("Ver1");
 //		schema->version = 1;
+#if 1
 		// CREATE TABLE "cities"
 		sq_schema_create_from_columns(schema, "cities", SQ_GET_TYPE_NAME(City),
 		                              CityColumnsVer1, SQ_N_ENTRY(CityColumnsVer1));
 		// CREATE TABLE "users"
 		sq_schema_create_from_columns(schema, "users", SQ_GET_TYPE_NAME(User),
 		                              UserColumnsVer1, SQ_N_ENTRY(UserColumnsVer1));
+#else
+		// another way to CREATE TABLE "cities" and "users"
+		table = sq_schema_create(schema, "cities", City);
+		sq_table_add_columns(table, CityColumnsVer1, SQ_N_ENTRY(CityColumnsVer1));
+		table = sq_schema_create(schema, "users", User);
+		sq_table_add_columns(table, UserColumnsVer1, SQ_N_ENTRY(UserColumnsVer1));
+#endif
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
 	}
@@ -203,8 +215,14 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 		schema = sq_schema_new("Ver2");
 //		schema->version = 2;
 		// ALTER TABLE "users"
+#if 1
 		sq_schema_alter_from_columns(schema, "users", UserColumnsVer2,
 		                             SQ_N_ENTRY(UserColumnsVer2));
+#else
+		// another way to ALTER TABLE "users"
+		table = sq_schema_alter(schema, "users", NULL);
+		sq_table_add_columns(table, UserColumnsVer2, SQ_N_ENTRY(UserColumnsVer2));
+#endif
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
 	}
@@ -212,9 +230,15 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 	if (end_version >= 3) {
 		schema = sq_schema_new("Ver3");
 //		schema->version = 3;
+#if 1
 		// ALTER TABLE "users"
 		sq_schema_alter_from_columns(schema, "users", UserColumnsVer3,
 		                             SQ_N_ENTRY(UserColumnsVer3));
+#else
+		// another way to ALTER TABLE "users"
+		table = sq_schema_alter(schema, "users", NULL);
+		sq_table_add_columns(table, UserColumnsVer3, SQ_N_ENTRY(UserColumnsVer3));
+#endif
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
 	}
@@ -222,9 +246,15 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 	if (end_version >= 4) {
 		schema = sq_schema_new("Ver4");
 //		schema->version = 4;
+#if 1
 		// ALTER TABLE "users"
 		sq_schema_alter_from_columns(schema, "users", UserColumnsVer4,
 		                             SQ_N_ENTRY(UserColumnsVer4));
+#else
+		// another way to ALTER TABLE "users"
+		table = sq_schema_alter(schema, "users", NULL);
+		sq_table_add_columns(table, UserColumnsVer4, SQ_N_ENTRY(UserColumnsVer4));
+#endif
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
 	}
@@ -293,12 +323,21 @@ int  main(void)
 		user->email = strdup("guest@");
 		sq_ptr_array_append(&user->ints, (intptr_t)3);
 		sq_ptr_array_append(&user->ints, (intptr_t)6);
+#if 1
+		user->post = calloc(1, sizeof(Post));
 		user->post->title = strdup("PostTitle");
 		user->post->desc = strdup("PostDesc");
+#endif
 		user->test_add = 1;
 		user->test_drop = 2;
 		user->test_rename = 3;
 		sq_storage_insert(storage, "users", NULL, user);
+
+		// update User.email
+		free(user->email);
+		user->email = strdup("paul@sqxc");
+		sq_storage_update(storage, "users", NULL, user);
+		// free 'user' after inserting and updating
 		user_free(user);
 	}
 
@@ -310,7 +349,9 @@ int  main(void)
 	}
 	sq_ptr_array_free(array);
 
-	if (((SqdbSqlite*)db)->version == 5)    // schema->version = 5
+	// TABLE "users" was renamed to "users2" in schema version 5
+	// DROP TABLE "user2" in schema version 6
+	if (((SqdbSqlite*)db)->version >= 5)
 		user = sq_storage_get(storage, "users2", NULL, 1);
 	else
 		user = sq_storage_get(storage, "users", NULL, 1);
