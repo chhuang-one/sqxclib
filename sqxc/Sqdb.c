@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020 by C.H. Huang
+ *   Copyright (C) 2020-2021 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxc is licensed under Mulan PSL v2.
