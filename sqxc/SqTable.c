@@ -39,7 +39,13 @@ SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 void  sq_table_free(SqTable* table)
 {
 	if (table->bit_field & SQB_DYNAMIC) {
-		// clear SqEntry
+		// reduce the stack frame:
+		// sq_type_free() will not be called by below sq_entry_final()
+		if (table->type) {
+			sq_type_free(table->type);
+			table->type = NULL;
+		}
+		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)table);
 		free(table->old_name);
 		// free temporary data
@@ -729,7 +735,13 @@ SqColumn*  sq_column_new(const char* name, const SqType* typeinfo)
 void  sq_column_free(SqColumn* column)
 {
 	if (column->bit_field & SQB_DYNAMIC) {
-		// clear SqEntry
+		// reduce the stack frame:
+		// sq_type_free() will not be called by below sq_entry_final()
+		if (column->type) {
+			sq_type_free(column->type);
+			column->type = NULL;
+		}
+		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)column);
 		// free SqColumn
 		free(column->default_value);

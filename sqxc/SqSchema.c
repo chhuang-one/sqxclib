@@ -45,6 +45,11 @@ void  sq_schema_init(SqSchema* schema, const char* name)
 
 void  sq_schema_final(SqSchema* schema)
 {
+	// reduce the stack frame:
+	// sq_type_free() will not be called by below sq_entry_final()
+	sq_type_free(schema->type);
+	schema->type = NULL;
+	// finalize parent struct - SqEntry
 	sq_entry_final((SqEntry*)schema);
 }
 
