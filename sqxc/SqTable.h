@@ -550,18 +550,18 @@ struct SqColumn
 	int16_t      size;             // total digits or length of string
 	int16_t      digits;           // decimal digits
 
-	char*        default_value;    // create
+	char*        default_value;    // DEFAULT
 	char*        check;            // CHECK (condition)
 
 	SqForeign*   foreign;          // foreign key
 	char**       composite;        // Null-terminated (column-name) string array
 
-	char*        extra;            // raw SQL column property
+	char*        raw;              // raw SQL column property
 
 	/*
 	struct SqExtra {
-		char*    comment;          // create
-		char*    raw;              // raw SQL column property
+		char*    comment;          // COMMENT
+		char*    others;
 	} *extra;
 	 */
 

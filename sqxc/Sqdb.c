@@ -605,9 +605,9 @@ void sqdb_sql_write_column(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 	}
 
 	// raw SQL
-	if (column->extra) {
+	if (column->raw) {
 		sq_buffer_write_c(buffer, ' ');
-		sq_buffer_write(buffer, column->extra);
+		sq_buffer_write(buffer, column->raw);
 	}
 }
 
