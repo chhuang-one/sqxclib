@@ -121,7 +121,8 @@ struct TypeStl : SqType {
 		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
 		sq_type_ref(element_type);
 		// reset SqType.bit_field if it has not been set by operator new()
-		if ( *(uint16_t*)(((uint8_t*)this) + offsetof(SqType, bit_field)) != SQB_TYPE_DYNAMIC)
+		// cast to SqType to avoid compiling warning
+		if ( ((SqType*)this)->bit_field != SQB_TYPE_DYNAMIC )
 			this->bit_field = 0;
 	}
 	~TypeStl() {
