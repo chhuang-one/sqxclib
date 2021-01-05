@@ -25,7 +25,8 @@ extern "C" {
 #endif
 
 /* ----------------------------------------------------------------------------
-	SqEntry: declare object/field or table/column in it's extended structure.
+	SqEntry: declare object/field in structure.
+	SqColumn: declare SQL column (and object/field) in structure.
 
 	SqEntry
 	|

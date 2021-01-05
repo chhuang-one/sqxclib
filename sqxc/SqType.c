@@ -39,6 +39,7 @@ SqType* sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
 	entrytype->write = sq_type_object_write;
 	entrytype->name = NULL;
 	entrytype->bit_field = SQB_TYPE_DYNAMIC;
+	entrytype->ref_count = 1;
 
 	// if prealloc_size < SQ_TYPE_N_ENTRY_DEFAULT, apply default value for small array
 	if (prealloc_size < SQ_TYPE_N_ENTRY_DEFAULT)
@@ -49,13 +50,22 @@ SqType* sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
 	return entrytype;
 }
 
-void  sq_type_free(SqType* entrytype)
+void  sq_type_ref(SqType* type)
+{
+	if (type->bit_field & SQB_TYPE_DYNAMIC)
+		type->ref_count++;
+}
+
+void  sq_type_unref(SqType* entrytype)
 {
 	if (entrytype->bit_field & SQB_TYPE_DYNAMIC) {
-		// SqType.entry can't be freed if SqType.n_entry == -1
-		if (entrytype->n_entry != -1)
-			sq_ptr_array_final(&entrytype->entry);
-		free(entrytype);
+		entrytype->ref_count--;
+		if (entrytype->ref_count == 0) {
+			// SqType.entry can't be freed if SqType.n_entry == -1
+			if (entrytype->n_entry != -1)
+				sq_ptr_array_final(&entrytype->entry);
+			free(entrytype);
+		}
 	}
 }
 

@@ -102,21 +102,38 @@ struct TypeStl : SqType {
 		return dest;
 	}
 
+	void  ref() {
+		sq_type_ref(this);
+	}
+	void  unref() {
+		sq_type_unref(this);
+	}
+
 	TypeStl(SqType* element_type) {
 		this->size  = sizeof(Container);
 		this->init  = cxxInit;
 		this->final = cxxFinal;
 		this->parse = cxxParse;
 		this->write = cxxWrite;
-		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
+		this->name  = NULL;
+		this->ref_count = 1;
 		this->n_entry = -1;                       // SqType.entry can't be freed if SqType.n_entry == -1
+		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
+		sq_type_ref(element_type);
+		// reset SqType.bit_field if it has not been set by operator new()
+		if ( *(uint16_t*)(((uint8_t*)this) + offsetof(SqType, bit_field)) != SQB_TYPE_DYNAMIC)
+			this->bit_field = 0;
+	}
+	~TypeStl() {
+//		if (this->bit_field & SQB_TYPE_DYNAMIC)
+		sq_type_unref((SqType*)this->entry);      // TypeStl use SqType.entry to store element type
 	}
 
 	// for dynamic allocated Sq::TypeStl
 	void* operator new(size_t size) {
-		void* memory = malloc(size);
-		((TypeStl*)memory)->bit_field = SQB_DYNAMIC;
-		return memory;
+		void* instance = malloc(size);
+		((TypeStl*)instance)->bit_field = SQB_TYPE_DYNAMIC;
+		return instance;
 	}
 	void operator delete(void* instance) {
 		free(instance);

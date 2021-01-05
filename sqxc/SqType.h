@@ -194,9 +194,9 @@ enum {
 /* declare SqType for SqPtrArray (SqType-PtrArray.c)
    User must assign element type in SqType.entry and set SqType.n_entry to -1.
 
-	SqType* myPtrArray = sq_type_copy_static(SQ_TYPE_PTR_ARRAY);
-	myPtrArray.entry = (SqEntry**) element_SqType;
-	myPtrArray.n_entry = -1;
+	SqType* typePtrArray = sq_type_copy_static(SQ_TYPE_PTR_ARRAY);
+	typePtrArray->entry = (SqEntry**) element_SqType;
+	typePtrArray->n_entry = -1;
  */
 #define SQ_TYPE_PTR_ARRAY     ((SqType*)&SqType_PtrArray_)
 
@@ -239,9 +239,10 @@ struct SqType
 //	SqType.entry is array of SqEntry pointer if current SqType is for C struct.
 //	SqType.entry can't be freed if SqType.n_entry == -1
 
-	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType.
+	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
 	// SqType::bit_field has SQB_TYPE_SORTED if SqType::entry is sorted.
-	unsigned int   bit_field;
+	uint16_t       bit_field;
+	uint16_t       ref_count;    // reference count for dynamic SqType only
 };
 
 // extern
@@ -253,7 +254,10 @@ extern  const  SqType      SqType_IntptrArray_;
 // create/destroy dynamic SqType.
 // if prealloc_size is 0, allocate default size.
 SqType*  sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
-void     sq_type_free(SqType* type);
+
+// these function only work if SqType.bit_field has SQB_TYPE_DYNAMIC
+void     sq_type_ref(SqType* type);
+void     sq_type_unref(SqType* type);
 
 // create dynamic SqType and copy data from static SqType
 SqType*  sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);

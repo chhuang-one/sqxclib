@@ -40,9 +40,9 @@ void  sq_table_free(SqTable* table)
 {
 	if (table->bit_field & SQB_DYNAMIC) {
 		// reduce the stack frame:
-		// sq_type_free() will not be called by below sq_entry_final()
+		// sq_type_unref() will not be called by below sq_entry_final()
 		if (table->type) {
-			sq_type_free(table->type);
+			sq_type_unref(table->type);
 			table->type = NULL;
 		}
 		// finalize parent struct - SqEntry
@@ -736,9 +736,9 @@ void  sq_column_free(SqColumn* column)
 {
 	if (column->bit_field & SQB_DYNAMIC) {
 		// reduce the stack frame:
-		// sq_type_free() will not be called by below sq_entry_final()
+		// sq_type_unref() will not be called by below sq_entry_final()
 		if (column->type) {
-			sq_type_free(column->type);
+			sq_type_unref(column->type);
 			column->type = NULL;
 		}
 		// finalize parent struct - SqEntry

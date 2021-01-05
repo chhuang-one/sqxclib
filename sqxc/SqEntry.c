@@ -44,8 +44,10 @@ void  sq_entry_init(SqEntry* entry, const SqType* type_info)
 	entry->offset = 0;
 	entry->bit_field = SQB_DYNAMIC;
 
-	if (type_info)
+	if (type_info) {
 		entry->type = (SqType*)type_info;
+		sq_type_ref((SqType*)type_info);
+	}
 	else {
 		// use dynamic type if type_info == NULL
 		entry->type = sq_type_new(SQ_TYPE_N_ENTRY_DEFAULT,
@@ -57,7 +59,7 @@ void  sq_entry_final(SqEntry* entry)
 {
 	if (entry->bit_field & SQB_DYNAMIC) {
 		if (entry->type)
-			sq_type_free(entry->type);
+			sq_type_unref(entry->type);
 		free(entry->name);
 	}
 }
