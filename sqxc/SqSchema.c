@@ -95,7 +95,7 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 #endif
 
 	// add table in schema->type
-	sq_type_insert_entry(schema->type, (SqEntry*)table);
+	sq_type_add_entry(schema->type, (SqEntry*)table, 1);
 	schema->bit_field |= SQB_CHANGED;
 	return table;
 }
@@ -134,7 +134,7 @@ SqTable* sq_schema_alter(SqSchema* schema, const char* name, const SqType* type_
 	table = sq_table_new(name, type_info);
 	table->bit_field |= SQB_CHANGED;
 
-	sq_type_insert_entry(schema->type, (SqEntry*)table);
+	sq_type_add_entry(schema->type, (SqEntry*)table, 1);
 	schema->bit_field |= SQB_CHANGED;
 	return table;
 }
@@ -148,7 +148,7 @@ void sq_schema_drop(SqSchema* schema, const char* name)
 	table->name = NULL;
 	table->bit_field = SQB_DYNAMIC;
 
-	sq_type_insert_entry(schema->type, (SqEntry*)table);
+	sq_type_add_entry(schema->type, (SqEntry*)table, 1);
 	schema->bit_field |= SQB_CHANGED;
 
 #if 0
@@ -168,7 +168,7 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 	table->name = strdup(to);
 	table->bit_field = SQB_DYNAMIC;
 
-	sq_type_insert_entry(schema->type, (SqEntry*)table);
+	sq_type_add_entry(schema->type, (SqEntry*)table, 1);
 	schema->bit_field |= SQB_CHANGED;
 
 #if 0

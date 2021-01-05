@@ -154,14 +154,19 @@ void  sq_type_final_instance(const SqType* entrytype, void* instance, int is_poi
 		free(instance);
 }
 
-void  sq_type_insert_entry(SqType* entrytype, const SqEntry *entry)
+void  sq_type_add_entry(SqType* entrytype, const SqEntry *entry, int n_entry)
 {
-	if (entrytype->bit_field & SQB_DYNAMIC) {
-		if (entry == NULL)
-			return;
+	SqPtrArray*  array;
+	void**  entry_addr;
+
+	if (entrytype->bit_field & SQB_TYPE_DYNAMIC) {
 		entrytype->bit_field &= ~SQB_TYPE_SORTED;
-		sq_ptr_array_append(&entrytype->entry, (void*)entry);
-		sq_type_decide_size(entrytype, entry);
+		array = sq_type_get_ptr_array(entrytype);
+		entry_addr = sq_ptr_array_alloc(array, n_entry);
+		for (;  n_entry;  n_entry--, entry++, entry_addr++) {
+			*entry_addr = (void*)entry;
+			sq_type_decide_size(entrytype, entry);
+		}
 	}
 }
 

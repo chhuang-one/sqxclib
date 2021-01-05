@@ -15,68 +15,12 @@
 #ifndef SQ_TYPE_H
 #define SQ_TYPE_H
 
-/*	e.g. use C99 designated initializer to declare static 'unsorted' entries in SqType.
-
-	typedef struct User     User;
-
-	struct User {
-		int    id;
-		char*  name;
-		char*  email;
-	};
-
-	// --- UserEntries is 'unsorted'
-	static const SqEntry  *UserEntries[] = {
-		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
-		&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
-		&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
-	};
-
-	// --- UserType use 'unsorted' UserEntries
-	const SqType UserType = {
-		.size  = sizeof(User),
-		.parse = sq_type_object_parse,
-		.write = sq_type_object_write,
-		.name  = SQ_GET_TYPE_NAME(User),
-		.entry   = UserEntries,
-		.n_entry = sizeof(UserEntries)/sizeof(SqEntry*),
-		.bit_field = 0
-	};
- */
-
-/*	e.g. use C99 designated initializer to declare static 'sorted' entries in SqType.
-
-	// *** Note:
-	// * If UserEntries is 'sorted' by SqEntry::name,
-	// * you can set SQB_TYPE_SORTED in SqType::bit_field. See below:
-
-	// --- SortedEntries is 'sorted' UserEntries (sorted by name)
-	static const SqEntry  *SortedEntries[] = {
-		&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
-		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
-		&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
-	};
-
-	// --- SortedType use SortedEntries (set SQB_TYPE_SORTED in SqType::bit_field)
-	const SqType SortedType = {
-		// Omitted above
-		.entry   = SortedEntries,
-		.n_entry = sizeof(SortedEntries)/sizeof(SqEntry*),
-		.bit_field = SQB_TYPE_SORTED
-	};
- */
-
 #ifdef __cplusplus
 #include <typeinfo>
 #define SQ_GET_TYPE_NAME(Type)        ( (char*)typeid(Type).name() )
 #else
 #define SQ_GET_TYPE_NAME(Type)        #Type
 #endif
-
-// SQ_N_ENTRY() calculate number of pointer in array. for example:
-//	SqEntry *FooEntries[] = {...};
-//	int n_entry = SQ_N_ENTRY(FooEntries);
-#define SQ_N_ENTRY(EntryPointerArray) ( sizeof(EntryPointerArray)/sizeof(SqEntry*) )
 
 #include <SqPtrArray.h>
 #include <Sqxc.h>
@@ -137,7 +81,7 @@ typedef Sqxc* (*SqTypeWriteFunc)(void* instance, const SqType* type, Sqxc* xc_de
 #define SQB_TYPE_DYNAMIC     (1<<0)    // equal SQB_DYNAMIC, for internal use only
 #define SQB_TYPE_SORTED      (1<<1)
 
-// --------------------------------------------------------
+// ----------------------------------------------------------------------------
 // SqType-built-in.c - built-in types
 
 enum {
@@ -213,8 +157,8 @@ enum {
 #define sq_type_get_ptr_array(type)    ((SqPtrArray*)&type->entry)
 
 /* ----------------------------------------------------------------------------
-	SqType - declare how to create/free/parse/write instance
-	         User can declare dynamic or static type that used by SqEntry
+    SqType - declare how to create/free/parse/write instance
+             User can declare dynamic or static type that used by SqEntry
  */
 
 struct SqType
@@ -266,8 +210,8 @@ SqType*  sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
 void*    sq_type_init_instance(const SqType *type, void* instance, int is_pointer);
 void     sq_type_final_instance(const SqType *type, void* instance, int is_pointer);
 
-// insert SqEntry to dynamic SqType.
-void     sq_type_insert_entry(SqType* type, const SqEntry *entry);
+// add SqEntry to dynamic SqType.
+void     sq_type_add_entry(SqType* type, const SqEntry *entry, int n_entry);
 
 // find SqEntry in SqType.entry.
 // If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.

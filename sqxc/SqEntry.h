@@ -35,8 +35,6 @@ extern "C" {
 	     +--- SqTable
 	     |
 	     `--- SqColumn
-
-	See SqType.h to know how to declare static SqEntry for SqType.
  */
 
 //typedef struct SqEntry          SqEntry;
@@ -70,6 +68,14 @@ typedef struct SqReentry        SqReentry;
 // SQL common bit_field
 #define SQB_CHANGED        (1 << 31)  // SQL: alter/modify. column/table has been altered.
 
+// ----------------------------------------------------------------------------
+// SQ_N_ENTRY() calculate number of pointer in array. for example:
+//	SqEntry *FooEntries[] = {...};
+//	int  n_entry = SQ_N_ENTRY(FooEntries);
+#define SQ_N_ENTRY(EntryPointerArray) ( sizeof(EntryPointerArray)/sizeof(SqEntry*) )
+
+// ----------------------------------------------------------------------------
+// SqEntry: declare object/field in structure.
 
 #define SQ_ENTRY_MEMBERS       \
 	SqType*      type;         \
