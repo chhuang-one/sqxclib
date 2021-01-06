@@ -25,6 +25,7 @@ uGet3 use SQL database to solve this problem.
 
 ## Database schema
 
+```C
 	struct User {
 		int    id;          // primary key
 		char*  full_name;
@@ -36,9 +37,11 @@ uGet3 use SQL database to solve this problem.
 		std::vector<int>  intsCpp;
 	#endif
 	};
+```
 
  use C99 designated initializer to declare table/column (static)
 
+```C
 	static const SqColumn  *UserColumns[] = {
 		&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(User, id),    SQB_PRIMARY},
 		&(SqColumn) {SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
@@ -54,9 +57,11 @@ uGet3 use SQL database to solve this problem.
 		&(SqColumn) {SQ_TYPE_INDEX,       "users_id_index",
 		             .composite = (char *[]) {"id", NULL} },
 	};
+```
 
  use C function to declare table/column (dynamic)
 
+```C
 	SqTable*  table;
 	SqColumn* column;
 
@@ -73,9 +78,11 @@ uGet3 use SQL database to solve this problem.
 	sq_column_reference(column, "cities", "id");
 	// CREATE INDEX
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
+```
 
  use C macro to declare table/column (dynamic)
 
+```C
 	SQ_SCHEMA_CREATE(schema, "users", User, {
 		SQT_INTEGER("id", User, id);  SQC_PRIMARY();
 		SQT_STRING("full_name", User, full_name, -1);
@@ -87,9 +94,11 @@ uGet3 use SQL database to solve this problem.
 		// CREATE INDEX
 		SQT_ADD_INDEX("users_id_index", "id");
 	});
+```
 
  use C++ function to declare table/column (dynamic)
 
+```C++
 	SqTable* table;
 	Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
@@ -105,12 +114,13 @@ uGet3 use SQL database to solve this problem.
 	table->addForeign("users_city_id_foreign", "city_id")->reference("cities", "id");
 	// CREATE INDEX
 	table->addIndex("users_id_index", "id", NULL);
-
+```
 
 ## Migration
 
  use C99 designated initializer to change table/column (static)
 
+```C
 	static const SqColumn  *UserColumnsChange[] = {
 		// ADD COLUMN "test_add"
 		&(SqColumn) {SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
@@ -124,38 +134,45 @@ uGet3 use SQL database to solve this problem.
 		// RENAME COLUMN "email" TO "email2"
 		&(SqColumn) {.old_name = "email",     .name = "email2"},
 	};
+```
 
  use C function to change table/column (dynamic)
 
+```C
 	table = sq_schema_alter(schema, "users", NULL);
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	column->bit_field |= SQB_CHANGED;
 	sq_table_drop_column(table, "full_name");
 	sq_table_rename_column(table, "email", "email2");
+```
 
  use C macro to change table/column (dynamic)
 
+```C
 	SQ_SCHEMA_ALTER(schema, "users", User, {
 		SQT_INTEGER("test_add", User, test_add);
 		SQT_INTEGER("city_id", User, city_id);  SQC_CHANGE();
 		SQT_DROP("full_name");
 		SQT_RENAME("email", "email2");
 	});
+```
 
  use C++ function to change table/column (dynamic)
 
+```C++
 	table = schema->alter("users");
 	table->integer("test_add", &User::test_add);
 	table->integer("city_id", &User::city_id)->change();
 	table->drop("full_name");
 	table->rename("email", "email2");
-
+```
 
 ## CRUD
 
  use C function
 
+```C
 	User*  user;
 
 	array = sq_storage_get_all(storage, "users", NULL, NULL);
@@ -164,9 +181,11 @@ uGet3 use SQL database to solve this problem.
 	sq_storage_insert(storage, "users", NULL, user);
 	sq_storage_update(storage, "users", NULL, user);
 	sq_storage_remove(storage, "users", NULL, 5);
+```
 
  use C++ function
 
+```C++
 	User*  user;
 
 	array = storage->getAll("users", NULL);
@@ -175,9 +194,11 @@ uGet3 use SQL database to solve this problem.
 	storage->insert("users", user);
 	storage->update("users", user);
 	storage->remove("users", 5);
+```
 
  use C++ template function
 
+```C++
 	User*  user;
 
 	vector = storage->getAll<std::vector<User>>();
@@ -193,7 +214,7 @@ uGet3 use SQL database to solve this problem.
 	// or
 	storage->insert(user);
 	storage->update(user);
-
+```
 
 ## JSON support
 
@@ -205,13 +226,16 @@ uGet3 use SQL database to solve this problem.
 
  SQL statement
 
+```SQL
 	SELECT id, age
 	FROM companies
 	JOIN ( SELECT * FROM city WHERE id < '100' ) AS c ON c.id = companies.city_id
 	WHERE age > 5
+```
 
  use C++ function to produce query
 
+```C++
 	query->select("id", "age", NULL)
 	     ->from("companies")
 	     ->join([query] {
@@ -219,9 +243,11 @@ uGet3 use SQL database to solve this problem.
 	              ->where("id", "<", "100");
 	     })->as("c")->on("c.id = companies.city_id")
 	     ->where(age > 5);
+```
 
  use C function to produce query
 
+```C
 	sq_query_select(query, "id", "age", NULL);
 	sq_query_from(query, "companies");
 	sq_query_join(query, NULL);
@@ -231,9 +257,11 @@ uGet3 use SQL database to solve this problem.
 	sq_query_as(query, "c");
 	sq_query_on(query, "c.id = companies.city_id");
 	sq_query_where(query, "age > 5");
+```
 
  use C macro to produce query
 
+```C
 	SQ_QUERY(query, {
 		SQQ_SELECT("id", "age");
 		SQQ_FROM("companies");
@@ -243,7 +271,7 @@ uGet3 use SQL database to solve this problem.
 		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
 		SQQ_WHERE("age > 5");
 	});
-
+```
 
 ## Sqdb - Database interface
  Sqdb is Database interface for SQLite, MySQL...etc.
