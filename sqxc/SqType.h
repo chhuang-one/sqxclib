@@ -37,7 +37,7 @@ typedef int   (*SqTypeParseFunc)(void* instance, const SqType* type, Sqxc* xc_sr
 typedef Sqxc* (*SqTypeWriteFunc)(void* instance, const SqType* type, Sqxc* xc_dest);
 
 /* ----------------------------------------------------------------------------
-	initializer macro for entry->type
+	SqType initializer macro
 
 	// sample 1:
 	typedef struct User    User;
@@ -135,7 +135,7 @@ enum {
 #define SQ_TYPE_NOT_BUILTIN(type)    \
 		( (type)> SQ_TYPE_BUILTIN_END || (type)< SQ_TYPE_BUILTIN_BEG )
 
-/* declare SqType for SqPtrArray (SqType-PtrArray.c)
+/* define SqType for SqPtrArray (SqType-PtrArray.c)
    User must assign element type in SqType.entry and set SqType.n_entry to -1.
 
 	SqType* typePtrArray = sq_type_copy_static(SQ_TYPE_PTR_ARRAY);
@@ -157,8 +157,8 @@ enum {
 #define sq_type_get_ptr_array(type)    ((SqPtrArray*)&type->entry)
 
 /* ----------------------------------------------------------------------------
-    SqType - declare how to create/free/parse/write instance
-             User can declare dynamic or static type that used by SqEntry
+    SqType - define how to initialize, finalize, and convert instance.
+             User can define constant or dynamic SqType.
  */
 
 struct SqType

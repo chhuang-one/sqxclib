@@ -30,7 +30,7 @@ typedef struct Sqdb             Sqdb;
 typedef struct SqdbInfo         SqdbInfo;
 typedef struct SqdbConfig       SqdbConfig;
 
-typedef struct Sqxc             Sqxc;        // declare in Sqxc.h
+typedef struct Sqxc             Sqxc;        // define in Sqxc.h
 
 typedef enum SqdbProduct {
 	SQDB_PRODUCT_UNKNOWN,
@@ -178,7 +178,7 @@ struct SqdbConfig
 	SQDB_CONFIG_MEMBERS;
 /*	// ------ SqdbConfig members ------
 	unsigned int    product;
-	unsigned int    bit_field;    // reserve. static or dynamic config data
+	unsigned int    bit_field;    // reserve. constant or dynamic config data
  */
 };
 

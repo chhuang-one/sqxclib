@@ -25,8 +25,8 @@ extern "C" {
 #endif
 
 /* ----------------------------------------------------------------------------
-	SqEntry: declare object/field in structure.
-	SqColumn: declare SQL column (and object/field) in structure.
+	SqEntry: define field in structure/class.
+	SqColumn: define SQL column (field) in SQL table (structure/class).
 
 	SqEntry
 	|
@@ -42,7 +42,7 @@ typedef struct SqReentry        SqReentry;
 
 // SqEntry::bit_field
 #define SQB_DYNAMIC        (1 << 0)   // C: entry can be changed and freed
-#define SQB_POINTER        (1 << 1)   // C: entry is pointer
+#define SQB_POINTER        (1 << 1)   // C: entry's instance is pointer
 #define SQB_RESERVE_0      (1 << 2)   // reserve
 #define SQB_HIDDEN         (1 << 3)   // JSON: hidden entry
 #define SQB_HIDDEN_NULL    (1 << 4)   // JSON: hidden entry if value is NULL
@@ -75,7 +75,7 @@ typedef struct SqReentry        SqReentry;
 #define SQ_N_ENTRY(EntryPointerArray) ( sizeof(EntryPointerArray)/sizeof(SqEntry*) )
 
 // ----------------------------------------------------------------------------
-// SqEntry: declare object/field in structure.
+// SqEntry: define object/field in structure.
 
 #define SQ_ENTRY_MEMBERS       \
 	SqType*      type;         \

@@ -4,7 +4,6 @@
 
 sqxc is a library to convert SQL (or JSON...etc) data to/from C language.
 This is developed using 'C' language. It also provides C++ wrapper.
-It currently completes basic functions, the program may still have bugs.
 
 ## Plans
 - support more SQL database.
@@ -17,15 +16,15 @@ uGet for Android usually lost data because it spend much time to save ALL record
 uGet3 use SQL database to solve this problem.
 
 ## Current features:
-1. It can use C99 designated initializer to declare SQL table/column/migration.
+1. It can use C99 designated initializer to define SQL table/column/migration.
    You can also use C/C++ function to do these.
 
-2. All declared table/column can use to parse JSON object/field.
-   Program can also parse JSON object/array from SQL column. (testing)
+2. All defined table/column can use to parse JSON object/field.
+   Program can also parse JSON object/array from SQL column.
 
 ## Database schema
 
-```C
+```c
 	struct User {
 		int    id;          // primary key
 		char*  full_name;
@@ -39,9 +38,9 @@ uGet3 use SQL database to solve this problem.
 	};
 ```
 
- use C99 designated initializer to declare table/column (static)
+ use C99 designated initializer to define table/column (static)
 
-```C
+```c
 	static const SqColumn  *UserColumns[] = {
 		&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(User, id),    SQB_PRIMARY},
 		&(SqColumn) {SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
@@ -59,9 +58,9 @@ uGet3 use SQL database to solve this problem.
 	};
 ```
 
- use C function to declare table/column (dynamic)
+ use C function to define table/column (dynamic)
 
-```C
+```c
 	SqTable*  table;
 	SqColumn* column;
 
@@ -80,9 +79,9 @@ uGet3 use SQL database to solve this problem.
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
 ```
 
- use C macro to declare table/column (dynamic)
+ use C macro to define table/column (dynamic)
 
-```C
+```c
 	SQ_SCHEMA_CREATE(schema, "users", User, {
 		SQT_INTEGER("id", User, id);  SQC_PRIMARY();
 		SQT_STRING("full_name", User, full_name, -1);
@@ -96,9 +95,9 @@ uGet3 use SQL database to solve this problem.
 	});
 ```
 
- use C++ function to declare table/column (dynamic)
+ use C++ function to define table/column (dynamic)
 
-```C++
+```c++
 	SqTable* table;
 	Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
@@ -120,7 +119,7 @@ uGet3 use SQL database to solve this problem.
 
  use C99 designated initializer to change table/column (static)
 
-```C
+```c
 	static const SqColumn  *UserColumnsChange[] = {
 		// ADD COLUMN "test_add"
 		&(SqColumn) {SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
@@ -138,7 +137,7 @@ uGet3 use SQL database to solve this problem.
 
  use C function to change table/column (dynamic)
 
-```C
+```c
 	table = sq_schema_alter(schema, "users", NULL);
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
@@ -149,7 +148,7 @@ uGet3 use SQL database to solve this problem.
 
  use C macro to change table/column (dynamic)
 
-```C
+```c
 	SQ_SCHEMA_ALTER(schema, "users", User, {
 		SQT_INTEGER("test_add", User, test_add);
 		SQT_INTEGER("city_id", User, city_id);  SQC_CHANGE();
@@ -160,7 +159,7 @@ uGet3 use SQL database to solve this problem.
 
  use C++ function to change table/column (dynamic)
 
-```C++
+```c++
 	table = schema->alter("users");
 	table->integer("test_add", &User::test_add);
 	table->integer("city_id", &User::city_id)->change();
@@ -172,7 +171,7 @@ uGet3 use SQL database to solve this problem.
 
  use C function
 
-```C
+```c
 	User*  user;
 
 	array = sq_storage_get_all(storage, "users", NULL, NULL);
@@ -185,7 +184,7 @@ uGet3 use SQL database to solve this problem.
 
  use C++ function
 
-```C++
+```c++
 	User*  user;
 
 	array = storage->getAll("users", NULL);
@@ -198,7 +197,7 @@ uGet3 use SQL database to solve this problem.
 
  use C++ template function
 
-```C++
+```c++
 	User*  user;
 
 	vector = storage->getAll<std::vector<User>>();
@@ -218,7 +217,7 @@ uGet3 use SQL database to solve this problem.
 
 ## JSON support
 
-- all declared table/column can use to parse JSON object/field
+- all defined table/column can use to parse JSON object/field
 - program can also parse JSON object/array that store in column.
 
 
@@ -226,7 +225,7 @@ uGet3 use SQL database to solve this problem.
 
  SQL statement
 
-```SQL
+```sql
 	SELECT id, age
 	FROM companies
 	JOIN ( SELECT * FROM city WHERE id < '100' ) AS c ON c.id = companies.city_id
@@ -235,7 +234,7 @@ uGet3 use SQL database to solve this problem.
 
  use C++ function to produce query
 
-```C++
+```c++
 	query->select("id", "age", NULL)
 	     ->from("companies")
 	     ->join([query] {
@@ -247,7 +246,7 @@ uGet3 use SQL database to solve this problem.
 
  use C function to produce query
 
-```C
+```c
 	sq_query_select(query, "id", "age", NULL);
 	sq_query_from(query, "companies");
 	sq_query_join(query, NULL);
@@ -261,7 +260,7 @@ uGet3 use SQL database to solve this problem.
 
  use C macro to produce query
 
-```C
+```c
 	SQ_QUERY(query, {
 		SQQ_SELECT("id", "age");
 		SQQ_FROM("companies");

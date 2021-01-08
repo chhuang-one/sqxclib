@@ -23,7 +23,7 @@
 #include <SqJoint.h>
 
 // ----------------------------------------------------------------------------
-// declare C structure
+// C structure
 
 typedef struct User     User;
 
@@ -37,7 +37,7 @@ struct User {
 };
 
 // ----------------------------------------------------------------------------
-// declare static SqType and SqColumn.
+// define static SqType and SqColumn.
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {

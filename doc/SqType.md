@@ -3,10 +3,10 @@
 It define how to initialize, finalize, and convert C data type.
 SqEntry use it to declare data type. Sqxc use it to convert data.
 
-Build-in static SqType with it's C data type
+Built-in SqType with it's C data type
 
 | SqType          | C data type  |
-|-----------------|--------------|
+| --------------- | ------------ |
 | SQ_TYPE_BOOL    | bool         |
 | SQ_TYPE_INT     | int          |
 | SQ_TYPE_UINT    | unsigned int |
@@ -17,16 +17,18 @@ Build-in static SqType with it's C data type
 | SQ_TYPE_DOUBLE  | double       |
 | SQ_TYPE_STRING  | char*        |
 
-| SqType             | C++ data type |
-|--------------------|-------------- |
-| SQ_TYPE_STD_STRING | std::string   |
+SqType with it's C++ data type
 
+| SqType                 | C++ data type  |
+| ---------------------- | -------------- |
+| SQ_TYPE_STD_STRING     | std::string    |
+| Sq::TypeStl<Container> | STL containers |
 
-### Define SqType with custom C data type
-User can define a custom SqType statically or dynamically. for example:
+### Define SqType with custom data type
+User can define a constant or dynamic SqType. for example:
 
-First, we define a custom C data type:
-```C
+First, we define a custom data type:
+```c
 	typedef struct User     User;
 
 	struct User {
@@ -36,12 +38,11 @@ First, we define a custom C data type:
 	};
 ```
 
----
-1. Define static SqType with 'unsorted' entries
+##### 1. Define constant SqType with constant 'unsorted' entries
 
 use C99 designated initializer to define struct that has 'unsorted' entries.
 
-```C
+```c
 	// --- UserEntries is 'unsorted'
 	static const SqEntry  *UserEntries[] = {
 		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
@@ -63,12 +64,11 @@ use C99 designated initializer to define struct that has 'unsorted' entries.
 	};
 ```
 
----
-2. Define static SqType with 'sorted' entries
+##### 2. Define constant SqType with constant 'sorted' entries
 
 use C99 designated initializer to define struct that has 'sorted' entries.
 
-```C
+```c
 	// --- SortedUserEntries is 'sorted' UserEntries (sorted by name)
 	static const SqEntry  *SortedUserEntries[] = {
 		&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
@@ -89,26 +89,37 @@ use C99 designated initializer to define struct that has 'sorted' entries.
 		.entry   = SortedUserEntries,
 		.n_entry = sizeof(SortedUserEntries) / sizeof(SqEntry*),
 		.bit_field = SQB_TYPE_SORTED,
-		// You can set SQB_TYPE_SORTED in SqType::bit_field
-		// because SortedUserEntries have been 'sorted' by SqEntry::name.
+		// Because SortedUserEntries have been 'sorted' by SqEntry::name,
+		// you can set SQB_TYPE_SORTED in SqType::bit_field
 	};
 ```
 
----
-3. Define dynamic SqType with static entries
+##### 3. Define constant SqType with constant entries (use C macro)
 
-```C
+use macro SQ_TYPE_INITIALIZER() and SQ_TYPE_INITIALIZER_FULL()
+```c
+	// UserEntries is 'unsorted' entries that defined in above example.
+	const SqType  UserTypeM = SQ_TYPE_INITIALIZER(User, UserEntries, 0);
+
+	// SortedUserEntries is 'sorted' entries that defined in above example.
+	const SqType  SortedUserTypeM = SQ_TYPE_INITIALIZER(User, SortedUserEntries, SQB_TYPE_SORTED);
+```
+
+##### 4. Define dynamic SqType with constant entries
+
+use sq_type_add_entry() to add static entries.
+```c
 	SqType*  type = sq_type_new(0, NULL);
 	int   n_entry = sizeof(UserEntries) / sizeof(SqEntry*);
 
-	for(int index;  index < n_entry;  index++)
+	for (int index;  index < n_entry;  index++)
 		sq_type_add_entry(type, UserEntries[index], 1);
 ```
 
----
-4. Define dynamic SqType
+##### 5. Define dynamic SqType with dynamic entries
 
-```C
+use sq_type_add_entry() to add dynamic entries.
+```c
 	SqType*  type = sq_type_new(0, NULL);
 	SqEntry* entry;
 
@@ -131,4 +142,3 @@ use C99 designated initializer to define struct that has 'sorted' entries.
 	entry->bit_field = SQB_HIDDEN_NULL;
 	sq_type_add_entry(type, entry, 1);
 ```
-

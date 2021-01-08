@@ -19,7 +19,7 @@
 #include <SqSchema-macro.h>
 
 // ----------------------------------------------------------------------------
-// declare C structure
+// C structure
 
 typedef struct User     User;
 typedef struct City     City;
@@ -49,7 +49,7 @@ struct Company {
 };
 
 // ----------------------------------------------------------------------------
-// use C99 designated initializer to declare table/column
+// use C99 designated initializer to define table/column
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
@@ -92,7 +92,7 @@ const SqType UserType = {
  */
 
 /* ----------------------------------------------------------------------------
-   use C99 designated initializer to declare table/column changed (migration)
+   use C99 designated initializer to define table/column changed (migration)
 */
 static const SqColumn  *UserColumnsChange[] = {
 	// ADD COLUMN "test_add"
@@ -138,7 +138,7 @@ SqTable* change_user_table_by_c_type(SqSchema* schema)
 }
 
 // ----------------------------------------------------------------------------
-// use C function to declare table/column
+// use C function to define table/column
 
 SqTable* create_user_table_by_c(SqSchema* schema)
 {
@@ -185,7 +185,7 @@ SqTable* change_user_table_by_c(SqSchema* schema)
 }
 
 // ----------------------------------------------------------------------------
-// use C macro to declare dynamic table/column
+// use C macro to define dynamic table/column
 
 void  create_user_table_by_macro(SqSchema* schema)
 {

@@ -55,7 +55,7 @@ typedef struct Sqxc             Sqxc;
 typedef struct SqxcInfo         SqxcInfo;
 typedef struct SqxcNested       SqxcNested;
 
-typedef struct SqEntry          SqEntry;    // declare in SqEntry.h
+typedef struct SqEntry          SqEntry;    // define in SqEntry.h
 
 // ----------------------------------------------------------------------------
 // define C type convert to/from X

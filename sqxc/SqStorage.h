@@ -28,7 +28,7 @@ extern "C" {
 
 typedef struct SqStorage         SqStorage;
 
-typedef struct SqQuery           SqQuery;    // declare in SqQuery.h
+typedef struct SqQuery           SqQuery;    // define in SqQuery.h
 
 // ----------------------------------------------------------------------------
 // SqStorage C Functions

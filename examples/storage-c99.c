@@ -13,7 +13,7 @@
  */
 
 /*
-	This example code use C99 designated initializer to declare table/column.
+	This example code use C99 designated initializer to define table/column.
  */
 
 #include <stdio.h>
@@ -53,7 +53,7 @@ struct User {
 };
 
 // ----------------------------------------------------------------------------
-// use C99 designated initializer to declare object (JSON object in SQL column)
+// use C99 designated initializer to define object (JSON object in SQL column)
 
 // SqType for structure Post. It also work if SqEntry is replaced by SqColumn.
 static const SqEntry* PostEntry[] = {
@@ -64,7 +64,7 @@ static SqType         type_post = SQ_TYPE_INITIALIZER(Post, PostEntry, 0);
 #define SQ_TYPE_POST &type_post
 
 // ----------------------------------------------------------------------------
-// use C99 designated initializer to declare table/column
+// use C99 designated initializer to define table/column
 
 // CREATE TABLE "cities"
 static const SqColumn* CityColumnsVer1[] = {

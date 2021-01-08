@@ -50,7 +50,7 @@ typedef struct Company
 	// *** #define SQ_CONFIG_NAMING_CONVENTION
 */
 
-// SQ_SCHEMA_C_DEF() declare variable for these macro.
+// SQ_SCHEMA_C_DEF() define variable for these macro.
 #define SQ_SCHEMA_C_DEF(initial_table_value)         \
 		SqTable*  table_cur_ = initial_table_value;  \
 		SqColumn* column_cur_

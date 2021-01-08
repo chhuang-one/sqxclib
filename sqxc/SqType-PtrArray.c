@@ -25,7 +25,7 @@
 
 /* ----------------------------------------------------------------------------
 	SQ_TYPE_PTR_ARRAY
-	User must add a SqEntry that declare type of element to SqType
+	User must assign element type in SqType.entry and set SqType.n_entry to -1.
  */
 
 static void sq_type_ptr_array_init(void* array, const SqType *type)
@@ -151,7 +151,7 @@ static int  sq_type_notptr_array_parse(void* array, const SqType *type, Sqxc* sr
 	void*         element;
 
 	// get element type information. different from sq_type_ptr_array_parse()
-	element_type = (SqType*)type->entry;    // SqPtrArray use SqType.entry to store element type
+	element_type = (SqType*)type->entry;    // SqPtrArray assign element type in SqType.entry
 
 	// Start of Array - Frist time to call this function to parse array
 	nested = xc_value->nested;
@@ -186,7 +186,7 @@ static Sqxc* sq_type_notptr_array_write(void* array, const SqType *type, Sqxc* d
 	const char*   array_name = dest->name;
 
 	// get element type information. different from sq_type_ptr_array_write()
-	element_type = (SqType*)type->entry;    // SqPtrArray use SqType.entry to store element type
+	element_type = (SqType*)type->entry;    // SqPtrArray assign element type in SqType.entry
 
 	// Begin of SQXC_TYPE_ARRAY
 	dest->type = SQXC_TYPE_ARRAY;
@@ -221,7 +221,7 @@ const SqType SqType_StringArray_ =
 	sq_type_notptr_array_parse,
 	sq_type_notptr_array_write,
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE_STRING,    // entry      // SqPtrArray use SqType.entry to store element type
+	(SqEntry**) SQ_TYPE_STRING,    // entry      // SqPtrArray assign element type in SqType.entry
 	-1,                            // n_entry    // SqType.entry can't be freed if SqType.n_entry == -1
 };
 
@@ -234,7 +234,7 @@ const SqType SqType_IntptrArray_ =
 	sq_type_notptr_array_parse,
 	sq_type_notptr_array_write,
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE_INTPTR,    // entry      // SqPtrArray use SqType.entry to store element type
+	(SqEntry**) SQ_TYPE_INTPTR,    // entry      // SqPtrArray assign element type in SqType.entry
 	-1,                            // n_entry    // SqType.entry can't be freed if SqType.n_entry == -1
 };
 

@@ -52,7 +52,7 @@
 			lambda;                         \
 		}
 
-// SQ_QUERY_C_DEF() declare variable for these macro.
+// SQ_QUERY_C_DEF() define variable for these macro.
 // Because some SQL has DECLARE command, I must avoid to use SQ_QUERY_DECLARE() here.
 #define SQ_QUERY_C_DEF(initial_value)       \
 			SqQuery* query_cur_ = initial_value
