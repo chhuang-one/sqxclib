@@ -26,6 +26,8 @@ typedef struct SqdbConfigEmpty    SqdbConfigEmpty;
 
 extern const SqdbInfo*    SQDB_INFO_EMPTY;
 
+#define sqdb_empty_new(sqdb_config)    sqdb_new(SQDB_INFO_EMPTY, sqdb_config)
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

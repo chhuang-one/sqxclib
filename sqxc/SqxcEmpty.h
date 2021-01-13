@@ -39,6 +39,8 @@ typedef struct SqxcEmpty        SqxcEmpty;
 
 extern const SqxcInfo *SQXC_INFO_EMPTY;
 
+#define sqxc_empty_new()        sqxc_new(SQXC_INFO_EMPTY)
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

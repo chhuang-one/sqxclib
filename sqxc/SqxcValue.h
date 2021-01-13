@@ -47,6 +47,8 @@ typedef struct SqxcValue        SqxcValue;
 
 extern const SqxcInfo *SQXC_INFO_VALUE;
 
+#define sqxc_value_new()        sqxc_new(SQXC_INFO_VALUE)
+
 // ----------------------------------------------------------------------------
 // macro for accessing variable of SqxcValue
 

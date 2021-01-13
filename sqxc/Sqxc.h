@@ -16,10 +16,10 @@
 	Sqxc - Entry and value convert X to/from C  (X = SQL, JSON...etc)
 	       xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
-	SqxcXml    - C to/from XML   - SqxcXml.c     (TODO or not)
-	SqxcJsonc  - C to/from JSON  - SqxcJsonc.c
-	SqxcSql    - C to SQL (Sqdb) - SqxcSql.c
-	SqxcValue  - X to C struct   - SqxcValue.c
+	SqxcXml    - convert to/from XML   - SqxcXml.c     (TODO or not)
+	SqxcJsonc  - convert to/from JSON  - SqxcJsonc.c
+	SqxcSql    - convert to SQL (Sqdb) - SqxcSql.c
+	SqxcValue  - convert to C struct   - SqxcValue.c
 
 	User can link multiple Sqxc element to convert different types of data.
 
@@ -30,11 +30,11 @@
 	                 +--> SqxcXmlParser --+
 
 
-                     +-> SqxcJsonWriter --+
-    ( output )       |                    |
-    SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
-                     |                    |
-                     +--> SqxcXmlWriter --+
+	                 +-> SqxcJsonWriter --+
+	( output )       |                    |
+	SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
+	                 |                    |
+	                 +--> SqxcXmlWriter --+
  */
 
 #ifndef SQXC_H
@@ -58,7 +58,7 @@ typedef struct SqxcNested       SqxcNested;
 typedef struct SqEntry          SqEntry;    // define in SqEntry.h
 
 // ----------------------------------------------------------------------------
-// define C type convert to/from X
+// define data type for Sqxc converter
 
 typedef enum {
 	SQXC_TYPE_NONE     =  0,

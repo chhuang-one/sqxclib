@@ -48,6 +48,8 @@ typedef struct SqxcSql        SqxcSql;
 
 extern const SqxcInfo *SQXC_INFO_SQL;
 
+#define sqxc_sql_new()        sqxc_new(SQXC_INFO_SQL)
+
 // ----------------------------------------------------------------------------
 // macro for accessing variable of SqxcSqlite
 

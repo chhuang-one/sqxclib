@@ -26,6 +26,8 @@ typedef struct SqdbConfigMysql     SqdbConfigMysql;
 
 extern const SqdbInfo*    SQDB_INFO_MYSQL;
 
+#define sqdb_mysql_new(sqdb_config)    sqdb_new(SQDB_INFO_MYSQL, sqdb_config)
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
