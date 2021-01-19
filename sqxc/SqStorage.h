@@ -51,10 +51,18 @@ void* sq_storage_get(SqStorage* storage,
                      const char *type_name,
                      int   id);
 
-void* sq_storage_get_all(SqStorage* storage,
-                         const char *table_name,
-                         const char *type_name,
-                         const SqType *container);
+// void* sq_storage_get_all(SqStorage* storage,
+//                          const char *table_name,
+//                          const char *type_name,
+//                          const SqType *container);
+#define sq_storage_get_all(storage, table_name, type_name, container)    \
+		sq_storage_query_raw(storage, table_name, type_name, container, NULL);
+
+void* sq_storage_query_raw(SqStorage* storage,
+                           const char *table_name,
+                           const char *type_name,
+                           const SqType *container,
+                           const char *where_raw);
 
 // return id if no error
 // return -1 if error occurred
@@ -110,14 +118,13 @@ struct StorageMethod
 	StructType* get(int id);
 	void*       get(const char *table_name, int id);
 
-	// deprecated
 	template <class Element, class StlContainer>
-	StlContainer* get_all();
+	StlContainer* queryRaw(const char* where_raw);
 	template <class StlContainer>
-	StlContainer* get_all();
+	StlContainer* queryRaw(const char* where_raw);
 	template <class StructType>
-	void* get_all(const SqType *container);
-	void* get_all(const char *table_name, const SqType *container);
+	void* queryRaw(const SqType *container, const char* where_raw);
+	void* queryRaw(const char *table_name, const SqType *container, const char* where_raw);
 
 	template <class Element, class StlContainer>
 	StlContainer* getAll();
@@ -201,6 +208,35 @@ inline StructType* StorageMethod::get(int id) {
 }
 inline void*       StorageMethod::get(const char *table_name, int id) {
 	return (void*)sq_storage_get((SqStorage*)this, table_name, NULL, id);
+}
+
+template <class StlContainer>
+inline StlContainer* StorageMethod::queryRaw(const char* where_raw) {
+	SqTable* table = sq_storage_find_by_type_name((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
+	if (table == NULL)
+		return NULL;
+	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
+	StlContainer* instance = (StlContainer*) sq_storage_query_raw((SqStorage*)this, table->name, NULL, containerType, where_raw);
+	delete containerType;
+	return instance;
+}
+template <class ElementType, class StlContainer>
+inline StlContainer* StorageMethod::queryRaw(const char* where_raw) {
+	SqTable* table = sq_storage_find_by_type_name((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
+	if (table == NULL)
+		return NULL;
+	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
+	StlContainer* instance = (StlContainer*) sq_storage_query_raw((SqStorage*)this, table->name, NULL, containerType, where_raw);
+	delete containerType;
+	return instance;
+}
+
+template <class StructType>
+inline void* StorageMethod::queryRaw(const SqType *container, const char* where_raw) {
+	return (StructType*)sq_storage_query_raw((SqStorage*)this, NULL, typeid(StructType).name(), container, where_raw);
+}
+inline void* StorageMethod::queryRaw(const char *table_name, const SqType *container, const char* where_raw) {
+	return (void*)sq_storage_query_raw((SqStorage*)this, table_name, NULL, container, where_raw);
 }
 
 template <class StlContainer>
