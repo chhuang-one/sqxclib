@@ -56,13 +56,28 @@ extern const uintptr_t SQ_QUERYSORT_DESC;
           |              |     children |
           |              |              |
           |     children |              v      next       next
-		  |              |          "id > 40" -----> AND -----> "age < 60"
-		  |              |
+          |              |          "id > 40" -----> AND -----> "age < 60"
+          |              |
  children |              v     next     next
-		  |            "User" -----> AS -----> "c"
+          |            "User" -----> AS -----> "c"
           v
       DISTINCT -----> "name" -----> , -----> "age"
                 next          next     next
+
+   --------------------------------------------------------
+    SqQueryNode digram for nested query (subquery)
+
+    SELECT ... FROM (SELECT ... FROM ... WHERE ...) AS "t1" WHERE ...
+
+            next        next
+    SELECT -----> FROM -----> WHERE
+                   |
+          children |
+                   v    next      next
+                  NONE -----> AS -----> "t1"
+          children |
+                   v          next          next
+                   ( SELECT -------> FROM -------> WHERE )
  */
 
 struct SqQueryNode
