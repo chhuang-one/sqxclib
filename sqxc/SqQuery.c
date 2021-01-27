@@ -710,6 +710,54 @@ char* sq_query_to_sql(SqQuery* query)
 	return buf.beg;
 }
 
+static const char* get_table(SqQueryNode* parent)
+{
+	SqQueryNode*  child;
+
+	// parent->type must be SQN_FROM or SQN_JOIN
+	child = parent->children;
+	if (child->type != SQN_NONE)
+		return child->value;
+	else {
+		// nested query
+		child = sq_query_node_find(child, SQN_FROM, NULL);
+		if (child)
+			return get_table(child);
+	}
+	return NULL;
+}
+
+// array[0] = table1_name, array[1] = table1_as_name,
+// array[2] = table2_name, array[3] = table2_as_name, ...etc
+int  sq_query_get_table_as_names(SqQuery* query, SqPtrArray* table_and_as_names)
+{
+	SqQueryNode*  qnode;
+	SqQueryNode*  child;
+	const char*   table_name;
+
+	// FROM table1_name AS table1_as_name
+	// JOIN table2_name AS table2_as_name
+	for (qnode = query->root.children; qnode;  qnode = qnode->next) {
+		if (qnode->type != SQN_FROM) {
+			if (qnode->type < SQN_JOIN || qnode->type > SQN_FULL_JOIN)
+				continue;
+		}
+		// table name
+		table_name = get_table(qnode);
+		if (table_name == NULL)
+			return 0;
+		sq_ptr_array_append(table_and_as_names, table_name);
+
+		// AS name
+		child = sq_query_node_find(qnode, SQN_AS, NULL);
+		if (child && child->next)
+			sq_ptr_array_append(table_and_as_names, child->next->value);
+		else
+			sq_ptr_array_append(table_and_as_names, NULL);
+	}
+	return table_and_as_names->length / 2;
+}
+
 // ----------------------------------------------------------------------------
 // push/pop SqQueryNested
 

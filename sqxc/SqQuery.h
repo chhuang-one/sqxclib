@@ -241,6 +241,11 @@ bool    sq_query_select_va(SqQuery* query,
 void    sq_query_order_by_va(SqQuery* query,
                              const char* column, va_list arg_list);
 
+// get all of table_name and it's as_name in current SQL SELECT statement
+// array[0] = table1_name, array[1] = table1_as_name,
+// array[2] = table2_name, array[3] = table2_as_name, ...etc
+int     sq_query_get_table_as_names(SqQuery* query, SqPtrArray* table_and_as_names);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
