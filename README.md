@@ -11,9 +11,9 @@ This is developed using 'C' language. It also provides C++ wrapper.
 - It can work in low-end hardware.
 
 ## Why I develop this?
-In new Android system, app must store data in limited time.
-uGet for Android usually lost data because it spend much time to save ALL record at one time.
-uGet3 use SQL database to solve this problem.
+In the new Android system, App must store data in a limited time.
+uGet for Android usually loses data because it spends much time to save ALL records at one time.
+uGet3 uses SQL database to solve this problem.
 
 ## Current features:
 1. It can use C99 designated initializer to define SQL table/column/migration.
