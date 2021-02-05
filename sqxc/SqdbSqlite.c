@@ -130,8 +130,11 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	int   rc;
 
 	// Don't migrate if database schema version equal the latest schema version
-	if (sqdb->version == schema->version)
+	if (sqdb->version == schema->version) {
+		// free temporary data after migration.
+		sq_schema_complete(schema);
 		return SQCODE_OK;
+	}
 
 	// trace renamed (or dropped) table/column that was referenced by others
 	sq_schema_trace_foreign(schema);
