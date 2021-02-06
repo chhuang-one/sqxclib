@@ -19,41 +19,62 @@
 #include <SqxcValue.h>
 #include <SqJoint.h>
 
-static int  sq_joint_parse(void* instance, const SqType *type, Sqxc* src);
+static void sq_type_joint_init(void* instance, const SqType* type);
+static void sq_type_joint_final(void* instance, const SqType* type);
+static int  sq_type_joint_parse(void* instance, const SqType *type, Sqxc* src);
 
-SqJoint* sq_joint_new()
+SqType* sq_type_joint_new(void)
 {
-	SqJoint*  joint;
-
-	joint = sq_entry_new(NULL);
-	joint->type->parse = sq_joint_parse;
-	joint->type->write = NULL;
-	return joint;
+	SqType*  type = sq_type_new(4, (SqDestroyFunc)sq_entry_free);
+	type->init = sq_type_joint_init;
+	type->final = sq_type_joint_final;
+	type->parse = sq_type_joint_parse;
+	type->write = NULL;
+	type->size = sizeof(void*);    // default size
+	return type;
 }
 
-void     sq_joint_free(SqJoint* joint)
-{
-	sq_entry_free(joint);
-}
-
-void sq_joint_add(SqJoint* joint, SqTable* table, const char *as_table_name)
+void    sq_type_joint_add(SqType* type_joint, SqTable* table, const char *table_as_name)
 {
 	SqEntry*  jentry;
 
 	jentry = sq_entry_new(table->type);
-	if (as_table_name)
-		jentry->name = strdup(as_table_name);
+	if (table_as_name)
+		jentry->name = strdup(table_as_name);
 	else
 		jentry->name = strdup(table->name);
 	jentry->bit_field |= SQB_POINTER;
-	jentry->offset = joint->type->n_entry * sizeof(void*);
-	sq_type_add_entry(joint->type, jentry, 1);
+	jentry->offset = type_joint->n_entry * sizeof(void*);
+	sq_type_add_entry(type_joint, jentry, 1);
+	sq_type_decide_size(type_joint, jentry);
 }
 
 // ----------------------------------------------------------------------------
 // static function
 
-static int  sq_joint_parse(void* instance, const SqType *type, Sqxc* src)
+static void sq_type_joint_init(void* instance, const SqType* type)
+{
+	SqEntry*    table;
+
+	// initialize structure of joined tables
+	for (int index = 0;  index < type->n_entry;  index++) {
+		table = type->entry[index];
+		sq_type_init_instance(table->type, instance + table->offset, true);
+	}
+}
+
+static void sq_type_joint_final(void* instance, const SqType* type)
+{
+	SqEntry*    table;
+
+	// finalize structure of joined tables
+	for (int index = 0;  index < type->n_entry;  index++) {
+		table = type->entry[index];
+		sq_type_final_instance(table->type, instance + table->offset, true);
+	}
+}
+
+static int  sq_type_joint_parse(void* instance, const SqType *type, Sqxc* src)
 {
 	SqxcValue*  xc_value = (SqxcValue*)src->dest;
 	SqxcNested* nested;
@@ -71,6 +92,7 @@ static int  sq_joint_parse(void* instance, const SqType *type, Sqxc* src)
 //			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
+		// ready to parse joined tables
 		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data = instance;
 		nested->data2 = (void*)type;
@@ -89,7 +111,7 @@ static int  sq_joint_parse(void* instance, const SqType *type, Sqxc* src)
 	if (temp.dot == NULL || temp.dot == src->name)
 		return (src->code = SQCODE_ENTRY_NOT_FOUND);
 	temp.len = temp.dot - src->name;
-	// use tail of src->buf to find entry
+	// use SqxcValue.buf to find entry
 	buf = sqxc_get_buffer(xc_value);
 	buf->writed = 0;
 	strncpy(sq_buffer_alloc(buf, temp.len*2), src->name, temp.len);   // alloc(buf, (temp.len+1)*2)
@@ -114,3 +136,4 @@ static int  sq_joint_parse(void* instance, const SqType *type, Sqxc* src)
 
 	return SQCODE_ENTRY_NOT_FOUND;
 }
+

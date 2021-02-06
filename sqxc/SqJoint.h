@@ -26,6 +26,10 @@ typedef struct SqEntry           SqJoint;
 /* ----------------------------------------------------------------------------
 	SqJoint - multiple entry and instance (SQL joined table)
 
+	SqType
+	|
+	`--- SqTypeJoint
+
 	SqEntry
 	|
 	`--- SqJoint
@@ -39,8 +43,8 @@ typedef struct SqEntry           SqJoint;
 	WHERE T01.column > 100
 
 	// --- C code ---
-	sq_joint_add(joint, table1, "T01");
-	sq_joint_add(joint, table2, "T02");
+	sq_type_joint_add(type_joint, table1, "T01");
+	sq_type_joint_add(type_joint, table2, "T02");
 
 	-- SQL statement
 	SELECT 'table1'.'column' AS 'table1.column',
@@ -50,8 +54,8 @@ typedef struct SqEntry           SqJoint;
 	WHERE table1.column > 100
 
 	// --- C code ---
-	sq_joint_add(joint, table1, NULL);
-	sq_joint_add(joint, table2, NULL);
+	sq_type_joint_add(type_joint, table1, NULL);
+	sq_type_joint_add(type_joint, table2, NULL);
 
 	---------------------------------------------
 	// SqxcValue will get below data structure:
@@ -59,13 +63,21 @@ typedef struct SqEntry           SqJoint;
 	void **instance = sqxc_value_instance(xcvalue);
 
 	table1 = instance[0];
-	table1 = instance[1];
+	table2 = instance[1];
  */
 
-SqJoint* sq_joint_new();
-void     sq_joint_free(SqJoint* joint);
+SqType*  sq_type_joint_new();
+void     sq_type_joint_add(SqType* type_joint, SqTable* table, const char *table_as_name);
 
-void sq_joint_add(SqJoint* joint, SqTable* table, const char *as_table_name);
+// SqEntry* sq_joint_new();
+#define  sq_joint_new()    sq_entry_new(sq_type_joint_new())
+
+// void     sq_joint_free(SqJoint* joint);
+#define  sq_joint_free     sq_entry_free
+
+// void sq_joint_add(SqJoint* joint, SqTable* table, const char *table_as_name);
+#define sq_joint_add(joint, table, table_as_name)    \
+		sq_type_joint_add((joint)->type, table, table_as_name)
 
 
 #ifdef __cplusplus
@@ -86,3 +98,4 @@ typedef struct SqEntry          Joint;
 #endif  // __cplusplus
 
 #endif  // SQ_JOINT_H
+
