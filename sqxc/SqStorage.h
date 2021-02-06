@@ -58,6 +58,8 @@ void* sq_storage_get(SqStorage* storage,
 #define sq_storage_get_all(storage, table_name, type_name, container)    \
 		sq_storage_query_raw(storage, table_name, type_name, container, NULL);
 
+// This function will generate below SQL statement to get rows
+// SELECT * FROM table_name + 'where_raw'
 void* sq_storage_query_raw(SqStorage* storage,
                            const char *table_name,
                            const char *type_name,
@@ -83,8 +85,11 @@ void  sq_storage_remove(SqStorage* storage,
 
 // ------------------------------------
 
+// find SqTable by SqTable.name
+#define  sq_storage_find(storage, table_name)    sq_schema_find((storage)->schema, table_name)
+
 // find SqTable by SqType.name
-SqTable* sq_storage_find_by_type_name(SqStorage* storage, const char *type_name);
+SqTable* sq_storage_find_by_type(SqStorage* storage, const char *type_name);
 
 SqQuery* sq_storage_table(SqStorage* storage, const char *table_name);
 SqQuery* sq_storage_type(SqStorage* storage, const char *type_name);
@@ -174,7 +179,7 @@ struct SqStorage
 
 	// tables is sorted by SqTable.type.name
 	SqPtrArray tables;
-    int        tables_version;
+	int        tables_version;
 
 	// 1 thread use 1 Sqxc chain
 	Sqxc*      xc_input;    // SqxcValue
@@ -212,7 +217,7 @@ inline void*       StorageMethod::get(const char *table_name, int id) {
 
 template <class StlContainer>
 inline StlContainer* StorageMethod::queryRaw(const char* where_raw) {
-	SqTable* table = sq_storage_find_by_type_name((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
+	SqTable* table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
 	if (table == NULL)
 		return NULL;
 	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
@@ -222,7 +227,7 @@ inline StlContainer* StorageMethod::queryRaw(const char* where_raw) {
 }
 template <class ElementType, class StlContainer>
 inline StlContainer* StorageMethod::queryRaw(const char* where_raw) {
-	SqTable* table = sq_storage_find_by_type_name((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
+	SqTable* table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
 	if (table == NULL)
 		return NULL;
 	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
@@ -241,7 +246,7 @@ inline void* StorageMethod::queryRaw(const char *table_name, const SqType *conta
 
 template <class StlContainer>
 inline StlContainer* StorageMethod::getAll() {
-	SqTable* table = sq_storage_find_by_type_name((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
+	SqTable* table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
 	if (table == NULL)
 		return NULL;
 	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
@@ -251,7 +256,7 @@ inline StlContainer* StorageMethod::getAll() {
 }
 template <class ElementType, class StlContainer>
 inline StlContainer* StorageMethod::getAll() {
-	SqTable* table = sq_storage_find_by_type_name((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
+	SqTable* table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
 	if (table == NULL)
 		return NULL;
 	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
