@@ -474,9 +474,11 @@ Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 				continue;
 			}
 		}
-		dest = member_type->write(member, member_type, dest);
-		if (dest->code != SQCODE_OK)
-			return dest;
+		if (member_type->write) {
+			dest = member_type->write(member, member_type, dest);
+			if (dest->code != SQCODE_OK)
+				return dest;
+		}
 	}
 
 	dest->type = SQXC_TYPE_OBJECT_END;
