@@ -213,6 +213,19 @@ void  sqxc_clear_nested(Sqxc* xc)
 	xc->nested_count = 0;
 }
 
+void  sqxc_erase_nested(Sqxc* xc, SqxcNested* nested)
+{
+	SqxcNested* inner;
+
+	for (;  nested->inner;  nested = inner) {
+		inner = nested->inner;
+		nested->data  = inner->data;
+		nested->data2 = inner->data2;
+		nested->data3 = inner->data3;
+	}
+	sqxc_pop_nested(xc);
+}
+
 SqxcNested* sqxc_push_nested(Sqxc* xc)
 {
 	SqxcNested* outer = xc->nested;

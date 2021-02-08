@@ -224,6 +224,7 @@ struct SqxcNested
 
 	void*  data;    // void*    instance;
 	void*  data2;   // SqType*  type;
+	void*  data3;   // void*    data;    // other data
 };
 
 /* ----------------------------------------------------------------------------
@@ -286,6 +287,7 @@ Sqxc*   sqxc_send(Sqxc* xc);
 // functions for nested object/array
 
 void        sqxc_clear_nested(Sqxc* xc);
+void        sqxc_erase_nested(Sqxc* xc, SqxcNested* nested);
 SqxcNested* sqxc_push_nested(Sqxc* xc);
 void        sqxc_pop_nested(Sqxc* xc);
 
