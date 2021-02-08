@@ -41,20 +41,26 @@ struct TypeStl : SqType {
 		SqxcNested* nested;
 		void*       element;
 
-		// Start of Array - Frist time to call this function to parse array
+		// Start of Array (Container)
 		nested = xc_value->nested;
-		if (nested->data != instance) {
+		if (nested->data3 != instance) {
+			if (nested->data != instance) {
+				// Frist time to call this function to parse array (container)
+				nested = sqxc_push_nested((Sqxc*)xc_value);
+				nested->data = instance;
+				nested->data2 = (void*)type;
+				nested->data3 = NULL;
+			}
 			if (src->type != SQXC_TYPE_ARRAY) {
 //				src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 				return (src->code = SQCODE_TYPE_NOT_MATCH);
 			}
-			nested = sqxc_push_nested((Sqxc*)xc_value);
-			nested->data = instance;
-			nested->data2 = (void*)type;
+			// ready to parse array (container)
+			nested->data3 = instance;
 			return (src->code = SQCODE_OK);
 		}
 		/*
-		// End of Array : sqxc_value_send() have done it.
+		// End of Array (Container) : sqxc_value_send() have done it.
 		else if (src->type == SQXC_TYPE_ARRAY_END) {
 			sqxc_pop_nested(src);
 			return (src->code = SQCODE_OK);

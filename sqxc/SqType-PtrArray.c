@@ -64,16 +64,22 @@ static int  sq_type_ptr_array_parse(void* array, const SqType *type, Sqxc* src)
 	else
 		return (src->code = SQCODE_NO_ELEMENT_TYPE);
 
-	// Start of Array - Frist time to call this function to parse array
+	// Start of Array
 	nested = xc_value->nested;
-	if (nested->data != array) {
+	if (nested->data3 != array) {
+		if (nested->data != array) {
+			// Frist time to call this function to parse array
+			nested = sqxc_push_nested((Sqxc*)xc_value);
+			nested->data = array;
+			nested->data2 = (void*)type;
+			nested->data3 = NULL;
+		}
 		if (src->type != SQXC_TYPE_ARRAY) {
 //			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested((Sqxc*)xc_value);
-		nested->data = array;
-		nested->data2 = (void*)type;
+		// ready to parse array
+		nested->data3 = array;
 		return (src->code = SQCODE_OK);
 	}
 	/*
@@ -153,16 +159,22 @@ static int  sq_type_notptr_array_parse(void* array, const SqType *type, Sqxc* sr
 	// get element type information. different from sq_type_ptr_array_parse()
 	element_type = (SqType*)type->entry;    // SqPtrArray assign element type in SqType.entry
 
-	// Start of Array - Frist time to call this function to parse array
+	// Start of Array
 	nested = xc_value->nested;
-	if (nested->data != array) {
+	if (nested->data3 != array) {
+		if (nested->data != array) {
+			// Frist time to call this function to parse array
+			nested = sqxc_push_nested((Sqxc*)xc_value);
+			nested->data = array;
+			nested->data2 = (void*)type;
+			nested->data3 = NULL;
+		}
 		if (src->type != SQXC_TYPE_ARRAY) {
 //			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested((Sqxc*)xc_value);
-		nested->data = array;
-		nested->data2 = (void*)type;
+		// ready to parse array
+		nested->data3 = array;
 		return (src->code = SQCODE_OK);
 	}
 	/*

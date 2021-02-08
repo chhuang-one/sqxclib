@@ -403,16 +403,22 @@ int  sq_type_object_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	SqxcNested* nested;
 	SqEntry*    entry;
 
-	// Start of Object - Frist time to call this function to parse object
+	// Start of Object
 	nested = xc_value->nested;
-	if (nested->data != instance) {
+	if (nested->data3 != instance) {
+		if (nested->data != instance) {
+			// Frist time to call this function to parse object
+			nested = sqxc_push_nested((Sqxc*)xc_value);
+			nested->data  = instance;
+			nested->data2 = (SqType*)entrytype;
+			nested->data3 = NULL;
+		}
 		if (src->type != SQXC_TYPE_OBJECT) {
 //			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		nested = sqxc_push_nested((Sqxc*)xc_value);
-		nested->data  = instance;
-		nested->data2 = (SqType*)entrytype;
+		// ready to parse object
+		nested->data3 = instance;
 		return (src->code = SQCODE_OK);
 	}
 	/*
@@ -445,7 +451,6 @@ Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 {
 	void*       member;
 	SqType*     member_type;
-	SqPtrArray* entries;
 	const char* object_name = dest->name;
 
 	dest->type = SQXC_TYPE_OBJECT;
@@ -456,13 +461,14 @@ Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 	if (dest->code != SQCODE_OK)
 		return dest;
 
-	entries = sq_type_get_ptr_array(entrytype);
-	sq_ptr_array_foreach_addr(entries, element_addr) {
-		SqEntry* entry = *element_addr;
+	for (int index = 0;  index < entrytype->n_entry;  index++) {
+		SqEntry* entry = entrytype->entry[index];
+		member_type = entry->type;
+		if (member_type->write == NULL)  // don't write anything if function pointer is NULL
+			continue;
+		member = (char*)instance + entry->offset;
 		dest->name = entry->name;    // set "name" before calling write()
 		dest->entry = entry;         // SqxcSql and SqxcJsonc will use this
-		member_type = entry->type;
-		member = (char*)instance + entry->offset;
 		if (entry->bit_field & SQB_POINTER) {
 			member = *(void**)member;
 			if (member == NULL) {
@@ -474,11 +480,9 @@ Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 				continue;
 			}
 		}
-		if (member_type->write) {
-			dest = member_type->write(member, member_type, dest);
-			if (dest->code != SQCODE_OK)
-				return dest;
-		}
+		dest = member_type->write(member, member_type, dest);
+		if (dest->code != SQCODE_OK)
+			return dest;
 	}
 
 	dest->type = SQXC_TYPE_OBJECT_END;
