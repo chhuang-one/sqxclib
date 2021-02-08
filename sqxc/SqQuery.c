@@ -48,7 +48,7 @@ enum SqQueryNodeType {
 	SQN_TRUNCATE_TABLE,
 	SQN_INSERT_INTO,
 	SQN_UPDATE,
-	SQN_DELETE_FROM,
+	SQN_DELETE,
 	SQN_SELECT,           // INSERT INTO can use this
 
 	SQN_COMMAND_END = SQN_SELECT,
@@ -64,7 +64,7 @@ enum SqQueryNodeType {
 	SQN_OUTER_JOIN,
 	SQN_FULL_JOIN,
 	SQN_SET,       // UPDATE
-	SQN_WHERE,     // SELECT, UPDATE, DELETE FROM
+	SQN_WHERE,     // SELECT, UPDATE, DELETE
 	SQN_GROUP_BY,
 	SQN_HAVING,
 	SQN_ORDER_BY,
@@ -160,10 +160,10 @@ bool sq_query_from(SqQuery* query, const char* table)
 		return false;
 	// insert table node after command node
 	node = sq_query_node_insert(nested->parent, nested->command, sq_query_node_new(query));
-	if (nested->command && nested->command->type == SQN_SELECT)
-		node->type = SQN_FROM;
-	else
+	if (nested->command && nested->command->type < SQN_DELETE)    // not DELETE or SELECT
 		node->type = SQN_NONE;
+	else
+		node->type = SQN_FROM;
 	nested->name = node;
 	// append table name
 	node->children = sq_query_node_new(query);
@@ -238,9 +238,9 @@ bool sq_query_select_va(SqQuery* query, const char* first, va_list arg_list)
 		sub_node = sub_node->next;
 		sub_node->type = SQN_ASTERISK;
 		// FROM
-		sub_node = nested->name;
-		if (sub_node && sub_node->type != SQN_FROM)
-			sub_node->type = SQN_FROM;
+//		sub_node = nested->name;
+//		if (sub_node && sub_node->type != SQN_FROM)
+//			sub_node->type = SQN_FROM;
 	}
 	else if (select->type != SQN_SELECT)
 		return false;
@@ -502,32 +502,35 @@ void sq_query_order_sorted(SqQuery* query, uintptr_t sqn_type)
 void sq_query_delete(SqQuery* query)
 {
 	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   command = nested->command;
+	SqQueryNode*   node = nested->command;
 
-	if (command == NULL) {
-		command = sq_query_node_new(query);
-		command->type = SQN_DELETE_FROM;
-		nested->command = command;
+	if (node == NULL) {
+		node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
+		node->type = SQN_DELETE;
+		nested->command = node;
 	}
 }
 
 void sq_query_truncate(SqQuery* query)
 {
 	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   command = nested->command;
+	SqQueryNode*   node = nested->command;
 
-	if (command == NULL) {
-		command = sq_query_node_new(query);
-		command->type = SQN_TRUNCATE_TABLE;
-		nested->command = command;
+	if (node == NULL) {
+		node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
+		node->type = SQN_TRUNCATE_TABLE;
+		nested->command = node;
 	}
+	node = nested->name;
+	if (node && node->type == SQN_FROM)
+		node->type = SQN_NONE;
 }
 
 static void sq_query_column(SqQuery* query, SqQueryNode* node, const char* first, va_list arg_list)
 {
 	const char*   name;
 	uintptr_t     sqn_type;
-	SqQueryNode*   sub_node;
+	SqQueryNode*  sub_node;
 
 	// get last column
 	sub_node = sq_query_node_last(node->children);
@@ -575,7 +578,7 @@ static void sq_query_column(SqQuery* query, SqQueryNode* node, const char* first
 static SqQueryNode* sq_query_condition(SqQuery* query, const char* first, va_list arg_list)
 {
 	SqQueryNode* node;
-	const char* argv[3];
+	const char*  argv[3];
 	union {
 		int       length;
 		int       index;
@@ -948,7 +951,7 @@ static const char* sqnword[] = {
 	"TRUNCATE TABLE",    // SQN_TRUNCATE_TABLE
 	"INSERT INTO",       // SQN_INSERT_INTO
 	"UPDATE",            // SQN_UPDATE
-	"DELETE FROM",       // SQN_DELETE_FROM
+	"DELETE",            // SQN_DELETE
 	"SELECT",            // SQN_SELECT
 
 	"FROM",              // SQN_FROM
@@ -959,7 +962,7 @@ static const char* sqnword[] = {
 	"OUTER JOIN",        // SQN_OUTER_JOIN
 	"FULL JOIN",         // SQN_FULL_JOIN
 	"SET",               // SQN_SET        // UPDATE
-	"WHERE",             // SQN_WHERE      // SELECT, UPDATE, DELETE FROM
+	"WHERE",             // SQN_WHERE      // SELECT, UPDATE, DELETE
 	"GROUP BY",          // SQN_GROUP_BY
 	"HAVING",            // SQN_HAVING
 	"ORDER BY",          // SQN_ORDER_BY
