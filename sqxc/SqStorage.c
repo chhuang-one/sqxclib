@@ -135,11 +135,11 @@ void* sq_storage_get(SqStorage* storage,
 	return instance;
 }
 
-void* sq_storage_query_raw(SqStorage* storage,
-                           const char *table_name,
-                           const char *type_name,
-                           const SqType *container,
-                           const char *where_raw)
+void* sq_storage_get_by_sql(SqStorage* storage,
+                            const char *table_name,
+                            const char *type_name,
+                            const SqType *container,
+                            const char *sql_where_having)
 {
 	SqBuffer* buf;
 	SqTable*  table;
@@ -167,11 +167,11 @@ void* sq_storage_query_raw(SqStorage* storage,
 	sq_buffer_require(buf, buf->writed);
 	snprintf(buf->buf, buf->size, "SELECT * FROM \"%s\"", table->name);
 
-	// SQL where
-	if (where_raw) {
+	// SQL WHERE ... HAVING ...
+	if (sql_where_having) {
 		buf->writed--;
 		sq_buffer_write_c(buf, ' ');
-		sq_buffer_write(buf, where_raw);
+		sq_buffer_write(buf, sql_where_having);
 	}
 
 	sqxc_ready(xcvalue, NULL);

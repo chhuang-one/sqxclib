@@ -56,15 +56,15 @@ void* sq_storage_get(SqStorage* storage,
 //                          const char *type_name,
 //                          const SqType *container);
 #define sq_storage_get_all(storage, table_name, type_name, container)    \
-		sq_storage_query_raw(storage, table_name, type_name, container, NULL);
+		sq_storage_get_by_sql(storage, table_name, type_name, container, NULL);
 
 // This function will generate below SQL statement to get rows
-// SELECT * FROM table_name + 'where_raw'
-void* sq_storage_query_raw(SqStorage* storage,
-                           const char *table_name,
-                           const char *type_name,
-                           const SqType *container,
-                           const char *where_raw);
+// SELECT * FROM table_name + 'sql_where_having'
+void* sq_storage_get_by_sql(SqStorage* storage,
+                            const char *table_name,
+                            const char *type_name,
+                            const SqType *container,
+                            const char *sql_where_having);
 
 // return id if no error
 // return -1 if error occurred
@@ -124,12 +124,12 @@ struct StorageMethod
 	void*       get(const char *table_name, int id);
 
 	template <class Element, class StlContainer>
-	StlContainer* queryRaw(const char* where_raw);
+	StlContainer* getBySql(const char* sql_where_having);
 	template <class StlContainer>
-	StlContainer* queryRaw(const char* where_raw);
+	StlContainer* getBySql(const char* sql_where_having);
 	template <class StructType>
-	void* queryRaw(const SqType *container, const char* where_raw);
-	void* queryRaw(const char *table_name, const SqType *container, const char* where_raw);
+	void* getBySql(const SqType *container, const char* sql_where_having);
+	void* getBySql(const char *table_name, const SqType *container, const char* sql_where_having);
 
 	template <class Element, class StlContainer>
 	StlContainer* getAll();
@@ -216,32 +216,32 @@ inline void*       StorageMethod::get(const char *table_name, int id) {
 }
 
 template <class StlContainer>
-inline StlContainer* StorageMethod::queryRaw(const char* where_raw) {
+inline StlContainer* StorageMethod::getBySql(const char* sql_where_having) {
 	SqTable* table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
 	if (table == NULL)
 		return NULL;
 	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
-	StlContainer* instance = (StlContainer*) sq_storage_query_raw((SqStorage*)this, table->name, NULL, containerType, where_raw);
+	StlContainer* instance = (StlContainer*) sq_storage_get_by_sql((SqStorage*)this, table->name, NULL, containerType, sql_where_having);
 	delete containerType;
 	return instance;
 }
 template <class ElementType, class StlContainer>
-inline StlContainer* StorageMethod::queryRaw(const char* where_raw) {
+inline StlContainer* StorageMethod::getBySql(const char* sql_where_having) {
 	SqTable* table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
 	if (table == NULL)
 		return NULL;
 	SqType*  containerType = new Sq::TypeStl<StlContainer>(table->type);
-	StlContainer* instance = (StlContainer*) sq_storage_query_raw((SqStorage*)this, table->name, NULL, containerType, where_raw);
+	StlContainer* instance = (StlContainer*) sq_storage_get_by_sql((SqStorage*)this, table->name, NULL, containerType, sql_where_having);
 	delete containerType;
 	return instance;
 }
 
 template <class StructType>
-inline void* StorageMethod::queryRaw(const SqType *container, const char* where_raw) {
-	return (StructType*)sq_storage_query_raw((SqStorage*)this, NULL, typeid(StructType).name(), container, where_raw);
+inline void* StorageMethod::getBySql(const SqType *container, const char* sql_where_having) {
+	return (StructType*)sq_storage_get_by_sql((SqStorage*)this, NULL, typeid(StructType).name(), container, sql_where_having);
 }
-inline void* StorageMethod::queryRaw(const char *table_name, const SqType *container, const char* where_raw) {
-	return (void*)sq_storage_query_raw((SqStorage*)this, table_name, NULL, container, where_raw);
+inline void* StorageMethod::getBySql(const char *table_name, const SqType *container, const char* sql_where_having) {
+	return (void*)sq_storage_get_by_sql((SqStorage*)this, table_name, NULL, container, sql_where_having);
 }
 
 template <class StlContainer>
