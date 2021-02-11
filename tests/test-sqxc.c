@@ -89,19 +89,19 @@ SqTable* create_user_table_by_type(SqSchema* schema)
 
 void test_sqxc_joint_input()
 {
-	SqJoint*  joint;
+	SqType*   type;
 	SqTable*  table;
 	Sqxc*     xc;
 	User*     user;
 	void**    instance;
 
 	table = sq_table_new("users", &UserType);
-	joint = sq_joint_new();
-	sq_joint_add(joint, table, "tb1");
-	sq_joint_add(joint, table, "tb2");
+	type = sq_type_joint_new();
+	sq_type_joint_add(type, table, "tb1");
+	sq_type_joint_add(type, table, "tb2");
 
 	xc = sqxc_new(SQXC_INFO_VALUE);
-	sqxc_value_type(xc) = joint->type;
+	sqxc_value_type(xc) = type;
 
 	sqxc_ready(xc, NULL);
 
@@ -131,7 +131,7 @@ void test_sqxc_joint_input()
 	printf("tb2.id = %d\n", user->id);
 
 	sqxc_free(xc);
-	sq_joint_free(joint);
+	sq_type_unref(type);
 	sq_table_free(table);
 }
 

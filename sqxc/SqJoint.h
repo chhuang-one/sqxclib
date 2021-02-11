@@ -21,19 +21,12 @@
 extern "C" {
 #endif
 
-typedef struct SqEntry           SqJoint;
-
 /* ----------------------------------------------------------------------------
-	SqJoint - multiple entry and instance (SQL joined table)
+	SqTypeJoint - combine multiple table's type (SQL joined table)
 
 	SqType
 	|
 	`--- SqTypeJoint
-
-	SqEntry
-	|
-	`--- SqJoint
-
 
 	-- SQL statement
 	SELECT 'T01'.'column' AS 'T01.column',
@@ -69,17 +62,6 @@ typedef struct SqEntry           SqJoint;
 SqType*  sq_type_joint_new();
 void     sq_type_joint_add(SqType* type_joint, SqTable* table, const char *table_as_name);
 
-// SqEntry* sq_joint_new();
-#define  sq_joint_new()    sq_entry_new(sq_type_joint_new())
-
-// void     sq_joint_free(SqJoint* joint);
-#define  sq_joint_free     sq_entry_free
-
-// void sq_joint_add(SqJoint* joint, SqTable* table, const char *table_as_name);
-#define sq_joint_add(joint, table, table_as_name)    \
-		sq_type_joint_add((joint)->type, table, table_as_name)
-
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -92,10 +74,25 @@ void     sq_type_joint_add(SqType* type_joint, SqTable* table, const char *table
 namespace Sq
 {
 // These are for directly use only. You can NOT derived it.
-typedef struct SqEntry          Joint;
+template <size_t n_tables>
+struct Joint {
+	void* t[n_tables];
+};
+
 };  // namespace Sq
 
 #endif  // __cplusplus
+
+
+// ----------------------------------------------------------------------------
+// SqJoint : combine multiple table's instance (SQL joined table)
+
+#ifdef __cplusplus
+#define SQ_JOINT(n_tables)    Sq::Joint<n_tables>
+#else
+#define SQ_JOINT(n_tables)    struct { void* t[n_tables]; }
+#endif
+
 
 #endif  // SQ_JOINT_H
 
