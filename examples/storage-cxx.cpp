@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include <SqType-stl-cpp.h>    // Sq::TypeStl<StlContainer>
+#include <SqQuery.h>
 #include <SqStorage.h>
 #include <SqdbSqlite.h>
 
@@ -35,6 +36,16 @@ struct User {
 	int    company_id;
 
 	unsigned int  test_add;
+
+	// --------------------------------
+	// member functions
+	void print() {
+		std::cout << std::endl
+		          << "user.id = "         << this->id         << std::endl
+		          << "user.name = "       << this->name       << std::endl
+		          << "user.company_id = " << this->company_id << std::endl
+		          << std::endl;
+	}
 };
 
 struct Company
@@ -227,6 +238,65 @@ void  storage_stl_container_get_all(Sq::Storage* storage)
 	delete container;
 }
 
+void  storage_ptr_array_query(Sq::Storage* storage)
+{
+	SqPtrArray* array;
+	SqQuery*    query;
+	void**      element;
+	Company*    company;
+	User*       user;
+
+	query = sq_query_new(NULL);
+//	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
+	query->from("companies")->join("users",  "companies.id", "users.company_id");
+
+	array = (SqPtrArray*)storage->query(query);
+	for (int i = 0;  i < array->length;  i++) {
+		element = (void**)array->data[i];
+		company = (Company*)element[0];
+		company->print();
+		delete company;
+		user = (User*)element[1];
+		user->print();
+		delete user;
+		free(element);
+	}
+
+	delete array;
+	delete query;
+}
+
+void  storage_stl_container_query(Sq::Storage* storage)
+{
+	std::vector<Sq::Joint<2>>* j2vector;
+	std::vector<Sq::Joint<2>>::iterator cur, end;
+	SqQuery*     query;
+	Sq::Joint<2> element;
+	Company*     company;
+	User*        user;
+
+	query = sq_query_new(NULL);
+//	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
+	query->from("companies")->join("users",  "companies.id", "users.company_id");
+
+	j2vector = (std::vector<Sq::Joint<2>>*)storage->query<std::vector<Sq::Joint<2>>>(query);
+	cur = j2vector->begin();
+	end = j2vector->end();
+
+	for (;  cur != end;  cur++) {
+		element = (*cur);
+		company = (Company*)element.t[0];
+		company->print();
+		delete company;
+		user = (User*)element.t[1];
+		user->print();
+		delete user;
+	}
+
+	delete j2vector;
+	delete query;
+}
+
 // ----------------------------------------------------------------------------
 
 intptr_t  intptrArray1[] = { 1,  3,  5,  7};
@@ -252,6 +322,7 @@ int  main(int argc, char* argv[])
 	Sq::DbSqlite* db;
 	Sq::Storage*  storage;
 	Company*      company;
+	User*         user;
 
 	check_standard_layout();
 
@@ -260,9 +331,11 @@ int  main(int argc, char* argv[])
 
 	storage->open("sample-cxx");
 
+	// --- make schema
 //	storage_make_fixed_schema(storage);
 	storage_make_migrated_schema(storage);
 
+	// --- add rows to companies table
 	company = new Company();
 	company->id = 1;
 	company->name = strdup("Mr.T");
@@ -293,6 +366,23 @@ int  main(int argc, char* argv[])
 	storage->insert(company);
 	delete company;
 
+	// --- add rows to users table
+	user = new User();
+
+	user->id = 1;
+	user->name = (char*)"Bob";
+	user->company_id = 1;
+	storage->insert(user);
+
+	user->id = 2;
+	user->name = (char*)"Tom";
+	user->company_id = 2;
+	storage->insert(user);
+
+	user->name = NULL;
+	delete user;
+
+	// --- get data from database
 	company = storage->get<Company>(1);
 	company->print();
 	delete company;
@@ -300,6 +390,10 @@ int  main(int argc, char* argv[])
 	// call Sq::Storage.getAll()
 	storage_ptr_array_get_all(storage);
 	storage_stl_container_get_all(storage);
+
+	// call Sq::Storage.query()
+	storage_ptr_array_query(storage);
+	storage_stl_container_query(storage);
 
 	storage->close();
 	delete storage;
