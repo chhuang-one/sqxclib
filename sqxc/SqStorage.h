@@ -18,6 +18,7 @@
 
 #include <Sqdb.h>
 #include <SqSchema.h>
+#include <SqJoint.h>
 #ifdef __cplusplus
 #include <SqType-stl-cpp.h>
 #endif
@@ -91,8 +92,21 @@ void  sq_storage_remove(SqStorage* storage,
 // find SqTable by SqType.name
 SqTable* sq_storage_find_by_type(SqStorage* storage, const char *type_name);
 
-SqQuery* sq_storage_table(SqStorage* storage, const char *table_name);
-SqQuery* sq_storage_type(SqStorage* storage, const char *type_name);
+// ------------------------------------
+// SqStorage-query.c
+
+// sq_storage_type_from_query() is for internal use only.
+// return: table's type in query. It must call sq_type_unref() to free.
+SqType*  sq_storage_type_from_query(SqStorage* storage, SqQuery* query, int *n_tables_in_query);
+
+// 'query' must has FROM table_name or JOIN table_name
+// e.g. SELECT * FROM table1 JOIN table2 ON ... JOIN table3 ON ...
+// void **element = row;
+// element[0] = table1
+// element[1] = table2
+// element[2] = table3
+// ...etc
+void* sq_storage_query(SqStorage* storage, SqQuery* query, const SqType *container, const SqType *type);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -138,6 +152,10 @@ struct StorageMethod
 	template <class StructType>
 	void* getAll(const SqType *container);
 	void* getAll(const char *table_name, const SqType *container);
+
+	template <class StlContainer>
+	void* query(SqQuery* query);
+	void* query(SqQuery* query, const SqType *container = NULL, const SqType *type = NULL);
 
 	template <class StructType>
 	int   insert(StructType& instance);
@@ -271,6 +289,22 @@ inline void* StorageMethod::getAll(const SqType *container) {
 }
 inline void* StorageMethod::getAll(const char *table_name, const SqType *container) {
 	return (void*)sq_storage_get_all((SqStorage*)this, table_name, NULL, container);
+}
+
+template <class StlContainer>
+inline void* StorageMethod::query(SqQuery* query) {
+	void*    instance = NULL;
+	SqType*  type = sq_storage_type_from_query((SqStorage*)this, query, NULL);
+	if (type) {
+		SqType*  containerType = new Sq::TypeStl<StlContainer>(type);
+		instance = sq_storage_query((SqStorage*)this, query, containerType, type);
+		delete containerType;
+		sq_type_unref(type);
+	}
+	return instance;
+}
+inline void* StorageMethod::query(SqQuery* query, const SqType *container, const SqType *type) {
+	return sq_storage_query((SqStorage*)this, query, container, type);
 }
 
 template <class StructType>

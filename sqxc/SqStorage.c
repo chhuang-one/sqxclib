@@ -301,29 +301,6 @@ SqTable*  sq_storage_find_by_type(SqStorage* storage, const char *type_name)
 	return NULL;
 }
 
-SqQuery* sq_storage_table(SqStorage* storage, const char *table_name)
-{
-	SqTable* table;
-
-	table = sq_schema_find(storage->schema, table_name);
-	if (table)
-		return sq_query_new(table);
-	else
-		return NULL;
-//	sq_entry_free(db->input_container_default);
-}
-
-SqQuery* sq_storage_type(SqStorage* storage, const char *type_name)
-{
-	SqTable* table;
-
-	table = sq_storage_find_by_type(storage, type_name);
-	if (table)
-		return sq_query_new(table);
-	else
-		return NULL;
-}
-
 // ----------------------------------------------------------------------------
 // static function
 

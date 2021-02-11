@@ -10,6 +10,7 @@ sources = ['SqPtrArray.c',
            'SqJoint.c',
            'SqSchema.c',
            'SqStorage.c',
+           'SqStorage-query.c',
            'SqQuery.c',
 
            # Sqdb - Database interface
