@@ -20,6 +20,7 @@
 
 #include <SqdbSqlite.h>
 #include <SqStorage.h>
+#include <SqQuery.h>
 
 typedef struct Post     Post;
 typedef struct City     City;
@@ -285,6 +286,36 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 	sq_storage_migrate(storage, NULL);
 }
 
+void  storage_query(SqStorage* storage)
+{
+	SqPtrArray* array;
+	SqQuery*    query;
+	void**      element;
+	City*       city;
+	User*       user;
+
+	query = sq_query_new(NULL);
+//	sq_query_select(query, "cities.id AS 'cities.id'", "users.id AS 'users.id'", NULL);
+	sq_query_from(query, "cities");
+	sq_query_join(query, "users",  "cities.id", "users.city_id");
+
+	array = sq_storage_query(storage, query, NULL, NULL);
+	for (int i = 0;  i < array->length;  i++) {
+		element = (void**)array->data[i];
+		city = (City*)element[0];
+		city_print(city);
+		city_free(city);
+		user = (User*)element[1];
+		user_print(user);
+		user_free(user);
+		// free joint object
+		free(element);
+	}
+
+	sq_ptr_array_free(array);
+	sq_query_free(query);
+}
+
 int  main(void)
 {
 	Sqdb*       db;
@@ -359,6 +390,8 @@ int  main(void)
 		user_print(user);
 		user_free(user);
 	}
+
+	storage_query(storage);
 
 	sq_storage_close(storage);
 	return EXIT_SUCCESS;
