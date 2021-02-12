@@ -167,6 +167,26 @@ uGet3 uses SQL database to solve this problem.
 	table->rename("email", "email2");
 ```
 
+ use C++ function to migrate schema
+
+ ```c++
+	storage->migrate(schema);    // migrate schema
+	storage->migrate(schema2);   // migrate schema2
+	storage->migrate(NULL);      // End of migration
+	delete schema;               // free unused schema
+	delete schema2;              // free unused schema2
+ ```
+
+ use C function to migrate schema
+
+```c
+	sq_storage_migrate(storage, schema);    // migrate schema
+	sq_storage_migrate(storage, schema2);   // migrate schema2
+	sq_storage_migrate(storage, NULL);      // End of migration
+	sq_schema_free(schema);                 // free unused schema
+	sq_schema_free(schema2);                // free unused schema2
+```
+
 ## CRUD
 
  use C function
@@ -214,12 +234,6 @@ uGet3 uses SQL database to solve this problem.
 	storage->insert(user);
 	storage->update(user);
 ```
-
-## JSON support
-
-- all defined table/column can use to parse JSON object/field
-- program can also parse JSON object/array that store in column.
-
 
 ## Query builder
 
@@ -271,6 +285,48 @@ uGet3 uses SQL database to solve this problem.
 		SQQ_WHERE("age > 5");
 	});
 ```
+
+## JOIN support
+
+ use C function
+
+```c
+	sq_query_from(query, "cities");
+	sq_query_join(query, "users",  "cities.id", "users.city_id");
+
+	array = sq_storage_query(storage, query, NULL, NULL);
+	for (int i = 0;  i < array->length;  i++) {
+		element = (void**)array->data[i];
+		city = (City*)element[0];
+		user = (User*)element[1];
+	}
+```
+
+ use C++ function
+
+```c++
+	query->from("cities")->join("users",  "cities.id", "users.city_id");
+
+	array = (SqPtrArray*) storage->query(query);
+	for (int i = 0;  i < array->length;  i++) {
+		element = (void**)array->data[i];
+		city = (City*)element[0];    // from("cities")
+		user = (User*)element[1];    // join("users")
+	}
+	// or
+	typedef  Sq::Joint<2>  SqJoint2;
+	vector = storage->query<std::vector<SqJoint2>>(query);
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		joint = vector->at(index);
+		city = (City*)joint.t[0];
+		user = (User*)joint.t[1];
+	}
+```
+
+## JSON support
+
+- all defined table/column can use to parse JSON object/field
+- program can also parse JSON object/array that store in column.
 
 ## Sqdb - Database interface
  Sqdb is Database interface for SQLite, MySQL...etc.
