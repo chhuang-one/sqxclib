@@ -154,7 +154,7 @@ struct StorageMethod
 	void* getAll(const char *table_name, const SqType *container);
 
 	template <class StlContainer>
-	void* query(SqQuery* query);
+	StlContainer* query(SqQuery* query);
 	void* query(SqQuery* query, const SqType *container = NULL, const SqType *type = NULL);
 
 	template <class StructType>
@@ -292,7 +292,7 @@ inline void* StorageMethod::getAll(const char *table_name, const SqType *contain
 }
 
 template <class StlContainer>
-inline void* StorageMethod::query(SqQuery* query) {
+inline StlContainer* StorageMethod::query(SqQuery* query) {
 	void*    instance = NULL;
 	SqType*  type = sq_storage_type_from_query((SqStorage*)this, query, NULL);
 	if (type) {
@@ -301,7 +301,7 @@ inline void* StorageMethod::query(SqQuery* query) {
 		delete containerType;
 		sq_type_unref(type);
 	}
-	return instance;
+	return (StlContainer*)instance;
 }
 inline void* StorageMethod::query(SqQuery* query, const SqType *container, const SqType *type) {
 	return sq_storage_query((SqStorage*)this, query, container, type);

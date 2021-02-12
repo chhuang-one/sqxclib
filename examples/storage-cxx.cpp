@@ -246,7 +246,7 @@ void  storage_ptr_array_query(Sq::Storage* storage)
 	Company*    company;
 	User*       user;
 
-	query = sq_query_new(NULL);
+	query = new Sq::Query();
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
 	query->from("companies")->join("users",  "companies.id", "users.company_id");
 
@@ -279,7 +279,7 @@ void  storage_stl_container_query(Sq::Storage* storage)
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
 	query->from("companies")->join("users",  "companies.id", "users.company_id");
 
-	j2vector = (std::vector<Sq::Joint<2>>*)storage->query<std::vector<Sq::Joint<2>>>(query);
+	j2vector = storage->query<std::vector<Sq::Joint<2>>>(query);
 	cur = j2vector->begin();
 	end = j2vector->end();
 
