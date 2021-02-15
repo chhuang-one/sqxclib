@@ -24,6 +24,7 @@
 
 #include <SqdbEmpty.h>
 #include <SqxcEmpty.h>
+#include <SqStorage.h>
 
 using namespace std;
 

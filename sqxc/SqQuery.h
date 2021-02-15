@@ -21,12 +21,9 @@
 #endif
 
 #include <stdarg.h>
+#include <stdbool.h>
 
-#include <Sqxc.h>
-#include <SqJoint.h>
-#include <SqTable.h>
-#include <SqSchema.h>
-#include <SqStorage.h>
+#include <SqPtrArray.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -142,12 +139,12 @@ struct SqQueryNode
 
  */
 
-SqQuery* sq_query_init(SqQuery* query, SqTable* table);
+SqQuery* sq_query_init(SqQuery* query, const char* table_name);
 SqQuery* sq_query_final(SqQuery* query);
 
 // SqQuery* sq_query_new(SqTable* table);
 #define sq_query_new(table)     sq_query_init((SqQuery*)malloc(sizeof(SqQuery)), table)
-// void    sq_query_free(SqQuery* query);
+// void     sq_query_free(SqQuery* query);
 #define sq_query_free(query)    free(sq_query_final(query))
 
 /*
@@ -163,6 +160,7 @@ void           sq_query_pop_nested(SqQuery* query);
 // SQL: FROM
 bool    sq_query_from(SqQuery* query, const char* table);
 
+// bool sq_query_table(SqQuery* query, const char* table);
 #define sq_query_table    sq_query_from
 
 // SQL: AS
@@ -242,8 +240,11 @@ void    sq_query_order_by_va(SqQuery* query,
                              const char* column, va_list arg_list);
 
 // get all of table_name and it's as_name in current SQL SELECT statement
-// array[0] = table1_name, array[1] = table1_as_name,
-// array[2] = table2_name, array[3] = table2_as_name, ...etc
+// return number of tables in query.
+// result array 'table_and_as_names':
+//   element_0 = table1_name, element_1 = table1_as_name,
+//   element_2 = table2_name, element_3 = table2_as_name, ...etc
+//   elements are const string (const char*). User can't free elements in 'table_and_as_names'.
 int     sq_query_get_table_as_names(SqQuery* query, SqPtrArray* table_and_as_names);
 
 #ifdef __cplusplus
@@ -255,10 +256,6 @@ int     sq_query_get_table_as_names(SqQuery* query, SqPtrArray* table_and_as_nam
 
 struct SqQuery
 {
-	SqStorage*     database;
-	SqSchema*      schema;
-	SqTable*       table_;
-
 	SqQueryNode    root;
 	SqQueryNode*   node;
 	SqQueryNode*   freed;      // freed SqQueryNode.

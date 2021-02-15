@@ -129,13 +129,12 @@ const uintptr_t SQ_QUERYSORT_DESC = SQN_DESC;
 // ----------------------------------------------------------------------------
 // SqQuery
 
-SqQuery* sq_query_init(SqQuery* query, SqTable* table)
+SqQuery* sq_query_init(SqQuery* query, const char* table_name)
 {
 	memset(query, 0, sizeof(SqQuery));
-	query->table_ = table;
 
-	if (table)
-		sq_query_from(query, table->name);
+	if (table_name)
+		sq_query_from(query, table_name);
 	// push top level
 	sq_query_push_nested(query, &query->root);
 	return query;
