@@ -270,6 +270,7 @@ struct PtrArrayMethod
 
 	int    size();
 	int    capacity();
+	void   reserve(int n);
 	Type*  begin();
 	Type*  end();
     Type   at(int index);
@@ -488,6 +489,14 @@ inline int   PtrArrayMethod<Type>::size() {
 template<class Type>
 inline int   PtrArrayMethod<Type>::capacity() {
 	return sq_ptr_array_capacity(this);
+}
+template<class Type>
+inline void  PtrArrayMethod<Type>::reserve(int  n) {
+	int  length = sq_ptr_array_length(this);
+	if (n > length) {
+		sq_ptr_array_alloc_at(this, length, n - length);
+		sq_ptr_array_length(this) = length;
+	}
 }
 template<class Type>
 inline Type* PtrArrayMethod<Type>::begin() {

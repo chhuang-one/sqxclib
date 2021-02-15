@@ -65,13 +65,15 @@ void** sq_ptr_array_alloc_at(void* array, int index, int count)
 	int   header_length;
 	int   new_length;
 	int   allocated;
+	int   length;
 
 	// it doesn't initialize.
 //	if (sq_ptr_array_data(array) == NULL)
 //		sq_ptr_array_init_full(array, count*2, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL);
 
+	length     = sq_ptr_array_length(array);
 	allocated  = sq_ptr_array_allocated(array);
-	new_length = sq_ptr_array_length(array) + count;
+	new_length = length + count;
 	if (allocated < new_length) {
 		header_length = sq_ptr_array_header_length(array);
 		header = ((SqPtrArray*)array)->data - header_length;
@@ -81,11 +83,15 @@ void** sq_ptr_array_alloc_at(void* array, int index, int count)
 		header = realloc(header, (header_length + allocated) * sizeof(void*));
 		((SqPtrArray*)array)->data = (void**)header + header_length;
 	}
-	if (index < sq_ptr_array_length(array)) {
+
+	if (index < length) {
 		memmove(sq_ptr_array_addr(array, index + count),
 		        sq_ptr_array_addr(array, index),
-		        sizeof(void*) * (sq_ptr_array_length(array) -index));
+		        sizeof(void*) * (length -index));
 	}
+	else
+		index = length;
+
 	((SqPtrArray*)array)->length = new_length;
 	return ((SqPtrArray*)array)->data + index;
 }
