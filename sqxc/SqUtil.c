@@ -144,11 +144,60 @@ char*   sq_time_to_string(time_t timeraw)
 
 // ----------------------------------------------------------------------------
 
+// C string to SQL string
+int  sq_str_c2sql(char* sql_string, const char* c_string)
+{
+	int    length = 0;
+
+	if (*c_string) {
+		*sql_string++ = '\'';
+
+		for (;  *c_string;  c_string++) {
+			if (*c_string == '\'') {
+				if (sql_string)
+					*sql_string++ = '\'';
+				length++;
+			}
+			if (sql_string)
+				*sql_string++ = *c_string;
+			length++;
+		};
+
+		*sql_string++ = '\'';
+		*sql_string   = 0;
+		length += 2;
+	}
+
+	return length;
+}
+
+// SQL string to C string
+int  sq_str_sql2c(char* c_string, char* sql_string)
+{
+	int    length = 0;
+	int    prev_quote = 0;
+
+	for (;  *sql_string;  sql_string++) {
+		if (*sql_string == '\'' && prev_quote == 0) {
+			prev_quote = 1;
+			continue;
+		}
+		prev_quote = 0;
+		if (c_string)
+			*c_string++ = *sql_string;
+		length++;
+	}
+	if (c_string)
+		*c_string++ = 0;
+	return length;
+}
+
 #ifdef SQ_CONFIG_NAMING_CONVENTION
 
-// ------------------------------------
-// camel case and snake case
+// ----------------------------------------------------------------------------
+// Naming convention
 
+// camel case form snake case
 int  sq_camel_from_snake(char* camel_name, const char* snake_name, bool prev_underline)
 {
 	int  length;
@@ -167,6 +216,7 @@ int  sq_camel_from_snake(char* camel_name, const char* snake_name, bool prev_und
 	return length;
 }
 
+// snake case from camel case
 int  sq_snake_from_camel(char* snake_name, const char* camel_name)
 {
 	bool prev_upper = true;
