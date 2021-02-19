@@ -173,7 +173,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 				table_addr = (SqTable**)reentries.data + index;
 		}
 
-		sql_buf.writed = 0;
+		sql_buf.writed = 0;  // clear sql_buf
 		// === DROP TABLE ===
 		// if table has been dropped or dropped after renaming
 		if (table_addr[0]->name == NULL) {
@@ -220,15 +220,21 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 
 #if DEBUG
 	fprintf(stderr, "SQLite: BEGIN TRANSACTION ------\n");
+	rc = sqlite3_exec(sqdb->self, "PRAGMA foreign_keys=off; BEGIN TRANSACTION;", debug_callback, NULL, &errorMsg);
+#else
+	rc = sqlite3_exec(sqdb->self, "PRAGMA foreign_keys=off; BEGIN TRANSACTION;", NULL, NULL, &errorMsg);
 #endif
-	sql_buf.writed = 0;
-	sq_buffer_write(&sql_buf, "PRAGMA foreign_keys=off; BEGIN TRANSACTION; ");
+	// error occurred
+	if (rc != SQLITE_OK)
+		goto atError;
+
 	// run SQL statement: create/recreate table
 	type = schema->type;
 	for (int index = 0;  index < type->n_entry;  index++) {
 		table = (SqTable*)type->entry[index];
 		if (table == NULL)
 			continue;
+		sql_buf.writed = 0;  // clear sql_buf
 		// === CREATE TABLE ===
 		if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0) {
 			sq_table_erase_records(table, '<');
@@ -247,15 +253,25 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 		}
 		table->bit_field |=  SQB_TABLE_SQL_CREATED;
 		table->bit_field &= ~SQB_TABLE_COL_CHANGED;
-	}
-	sq_buffer_write(&sql_buf, " COMMIT; PRAGMA foreign_keys=on;");
-	sq_buffer_write_c(&sql_buf, 0);  // null-terminated
+		// exec SQL statement
+		sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #ifdef DEBUG
-	fprintf(stderr, "%s\n", sql_buf.buf);
-	fprintf(stderr, "SQLite: END TRANSACTION ------\n");
-	rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
+		fprintf(stderr, "%s\n", sql_buf.buf);
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, debug_callback, NULL, &errorMsg);
 #else
-	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+		rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+#endif
+		// error occurred
+		if (rc != SQLITE_OK) {
+			rc = sqlite3_exec(sqdb->self, "ROLLBACK;", NULL, NULL, &errorMsg);
+			goto atError;
+		}
+	}
+#ifdef DEBUG
+	fprintf(stderr, "SQLite: END TRANSACTION ------\n");
+	rc = sqlite3_exec(sqdb->self, "COMMIT; PRAGMA foreign_keys=on;", debug_callback, NULL, &errorMsg);
+#else
+	rc = sqlite3_exec(sqdb->self, "COMMIT; PRAGMA foreign_keys=on;", NULL, NULL, &errorMsg);
 #endif
 	// error occurred
 	if (rc != SQLITE_OK)
