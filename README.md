@@ -323,6 +323,34 @@ uGet3 uses SQL database to solve this problem.
 	}
 ```
 
+## Transaction
+
+ use C function
+
+```c
+	User*  user;
+
+	sq_storage_begin(storage);
+	sq_storage_insert(storage, "users", NULL, user);
+	if (abort)
+		sq_storage_rollback(storage);
+	else
+		sq_storage_commit(storage);
+```
+
+ use C++ function
+
+```c++
+	User*  user;
+
+	storage->begin();
+	storage->insert<User>(user);
+	if (abort)
+		storage->rollback();
+	else
+		storage->commit();
+```
+
 ## JSON support
 
 - all defined table/column can use to parse JSON object/field
