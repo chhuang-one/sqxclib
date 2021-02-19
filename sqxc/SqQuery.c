@@ -982,6 +982,7 @@ static const char* sqnword[] = {
 
 	"VALUES",            // SQN_VALUES     // INSERT INTO
 
+	                     // SQN_SYMBOL     // equal SQN_BRACKETS_L
 	"(",                 // SQN_BRACKETS_L
 	")",                 // SQN_BRACKETS_R
 	",",                 // SQN_COMMA

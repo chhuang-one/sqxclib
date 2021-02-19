@@ -370,9 +370,9 @@ void  sq_ptr_array_append_n(void* array, const void* values, int count)
 	SQ_PTR_ARRAY_APPEND_N(array, values, count);
 }
 
-#else  // __STDC_VERSION__ || __cplusplus
+#else   // __STDC_VERSION__ || __cplusplus
 
-// C functions
+// C functions  (If C compiler doesn't support C99 inline function.)
 void  sq_ptr_array_steal(void* array, int index, int count);
 void  sq_ptr_array_steal_addr(void* array, void** element_addr, int count);
 void  sq_ptr_array_insert_n(void* array, int index, const void* values, int count);

@@ -197,7 +197,7 @@ char* sq_buffer_require(SqBuffer* buffer, int length)
 	return buffer->buf;
 }
 
-#else  // __STDC_VERSION__ || __cplusplus
+#else   // __STDC_VERSION__ || __cplusplus
 
 // C functions  (If C compiler doesn't support C99 inline function.)
 
