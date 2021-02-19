@@ -365,3 +365,24 @@ static char*  get_primary_key_string(void* instance, SqTable* table)
 
 	return condition;
 }
+
+// ----------------------------------------------------------------------------
+// If compiler doesn't support C99 inline functions
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions in SqArray.h
+#else
+
+int  sq_storage_begin(SqStorage* storage) {
+	return SQ_STORAGE_BEGIN(storage);
+}
+
+int  sq_storage_commit(SqStorage* storage) {
+	return SQ_STORAGE_COMMIT(storage);
+}
+
+int  sq_storage_rollback(SqStorage* storage) {
+	return SQ_STORAGE_ROLLBACK(storage);
+}
+
+#endif  // __STDC_VERSION

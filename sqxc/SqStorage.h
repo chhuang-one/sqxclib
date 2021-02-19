@@ -32,6 +32,18 @@ typedef struct SqStorage         SqStorage;
 typedef struct SqQuery           SqQuery;    // define in SqQuery.h
 
 // ----------------------------------------------------------------------------
+// macro for maintaining C/C++ inline functions easily
+
+// int   sq_storage_begin(SqStorage* storage);
+#define  SQ_STORAGE_BEGIN(storage)     (storage)->db->info->exec((storage)->db, "BEGIN", NULL, NULL);
+
+// int   sq_storage_commit(SqStorage* storage);
+#define  SQ_STORAGE_COMMIT(storage)    (storage)->db->info->exec((storage)->db, "COMMIT", NULL, NULL);
+
+// int   sq_storage_rollback(SqStorage* storage);
+#define  SQ_STORAGE_ROLLBACK(storage)  (storage)->db->info->exec((storage)->db, "ROLLBACK", NULL, NULL);
+
+// ----------------------------------------------------------------------------
 // SqStorage C Functions
 
 SqStorage* sq_storage_new(Sqdb* db);
@@ -176,6 +188,10 @@ struct StorageMethod
 	template <class StructType>
 	void  remove(int id);
 	void  remove(const char *table_name, int id);
+
+	int   begin();
+	int   commit();
+	int   rollback();
 };
 
 };  // namespace Sq
@@ -206,6 +222,47 @@ struct SqStorage
 	const SqType*   container_default;
 };
 
+// ----------------------------------------------------------------------------
+// C/C++ inline functions for Transactions
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// C99 or C++ inline functions
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+int      sq_storage_begin(SqStorage* storage) {
+	return SQ_STORAGE_BEGIN(storage);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+int      sq_storage_commit(SqStorage* storage) {
+	return SQ_STORAGE_COMMIT(storage);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+int      sq_storage_rollback(SqStorage* storage) {
+	return SQ_STORAGE_ROLLBACK(storage);
+}
+
+#else   // __STDC_VERSION__ || __cplusplus
+
+// C functions
+int      sq_storage_begin(SqStorage* storage);
+int      sq_storage_commit(SqStorage* storage);
+int      sq_storage_rollback(SqStorage* storage);
+
+#endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------
 // C++ namespace
@@ -345,6 +402,16 @@ inline void StorageMethod::remove(int id) {
 }
 inline void StorageMethod::remove(const char *table_name, int id) {
 	sq_storage_remove((SqStorage*)this, table_name, NULL, id);
+}
+
+inline int  StorageMethod::begin() {
+	return SQ_STORAGE_BEGIN((SqStorage*)this);
+}
+inline int  StorageMethod::commit() {
+	return SQ_STORAGE_COMMIT((SqStorage*)this);
+}
+inline int  StorageMethod::rollback() {
+	return SQ_STORAGE_ROLLBACK((SqStorage*)this);
 }
 
 // This is for directly use only. You can NOT derived it.
