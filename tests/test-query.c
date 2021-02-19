@@ -35,12 +35,12 @@ void test_query_c1()
 	sq_query_as(query, "a");
 
 	// "WHERE salary > '1200' OR id < 9"
-//	sq_query_where(query, "salary", ">", "1200");
+//	sq_query_where(query, "salary", ">", "'1200'");
 //	sq_query_where(query, "%s %s '%d'", "salary", ">", 1200);
 	sq_query_where(query, "salary > '%d'", 1200);
 	sq_query_or_where(query, "id", "<", "9");
 
-	// "JOIN city AS c ON city.id < '100' AND city.age > '10'"
+	// "JOIN city AS c ON city.id < 100 AND city.age > 10"
 	sq_query_join(query, "city", "city.id", "<", "100");
 	sq_query_as(query, "c");
 	sq_query_on(query, "city.age", ">", "10");
@@ -70,7 +70,7 @@ void test_query_c2()
 	sq_query_from(query, "Company");
 	sq_query_where(query, "salary > %d", 2150);
 
-	// AND (id > '22' AND age < '10')
+	// AND ( id > 22 AND age < 10 )
 	sq_query_where(query, NULL);             // start of Subquery/Nested
 		sq_query_where(query, "id",  ">", "22");
 		sq_query_where(query, "age", "<", "10");
@@ -93,7 +93,7 @@ void test_query_macro()
 	/*
 		SELECT id, age
 		FROM companies
-		JOIN ( SELECT * FROM city WHERE id < '100' ) AS c ON c.id = companies.city_id
+		JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
 		WHERE age > 5
 	 */
 	SQ_QUERY(query, {
@@ -109,6 +109,13 @@ void test_query_macro()
 	sql = sq_query_to_sql(query);
 	puts(sql);
 	free(sql);
+
+	// get table name and it's as name in query.
+	SqPtrArray* table_as = sq_ptr_array_new(4, NULL);
+	sq_query_get_table_as_names(query, table_as);
+	for (int i = 0;  i < table_as->length;  i += 2)
+		printf("%s - %s\n", (char*)table_as->data[i], (char*)table_as->data[i+1]);
+	sq_ptr_array_free(table_as);
 
 	sq_query_free(query);
 }
