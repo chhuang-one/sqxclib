@@ -74,12 +74,15 @@ typedef struct SqReentry        SqReentry;
 //	int  n_entry = SQ_N_ENTRY(FooEntries);
 #define SQ_N_ENTRY(EntryPointerArray) ( sizeof(EntryPointerArray)/sizeof(SqEntry*) )
 
-// ----------------------------------------------------------------------------
-// SqEntry: define object/field in structure.
+/* ----------------------------------------------------------------------------
+	SqEntry: define object/field in structure.
+
+	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
+*/
 
 #define SQ_ENTRY_MEMBERS       \
 	SqType*      type;         \
-	char*        name;         \
+	const char*  name;         \
 	size_t       offset;       \
 	unsigned int bit_field
 
@@ -88,7 +91,7 @@ struct SqEntry
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
 	SqType*      type;        // type information of entry
-	char*        name;
+	const char*  name;
 	size_t       offset;
 	unsigned int bit_field;
  */
@@ -113,24 +116,26 @@ int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2);
 /* ----------------------------------------------------------------------------
 	SqReentry: reentry previously-defined entries.
 	           add old_name in SqEntry to record changes (rename or drop).
+
+	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
 */
 
 #define SQ_REENTRY_MEMBERS     \
 	SqType*      type;         \
-	char*        name;         \
+	const char*  name;         \
 	size_t       offset;       \
 	unsigned int bit_field;    \
-	char*        old_name
+	const char*  old_name
 
 struct SqReentry
 {
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
 	SqType*      type;        // type information of entry
-	char*        name;
+	const char*  name;
 	size_t       offset;
 	unsigned int bit_field;
-	char*        old_name;    // rename or drop
+	const char*  old_name;    // rename or drop
  */
 	// if name is NULL, it will drop old_name
 	// if name is NOT NULL, it will rename from old_name to name

@@ -47,7 +47,7 @@ void  sq_table_free(SqTable* table)
 		}
 		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)table);
-		free(table->old_name);
+		free((char*)table->old_name);
 		// free temporary data
 		sq_ptr_array_final(&table->foreigns);
 		// free SqTable
@@ -548,7 +548,7 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 				if (column->old_name == NULL)
 					column->old_name = column->name;
 				else
-					free(column->name);
+					free((char*)column->name);
 				column->name = strdup(column_src->name);
 				column->bit_field |= SQB_RENAMED;
 			}
@@ -665,7 +665,7 @@ void   sq_table_complete(SqTable* table)
 				has_null = true;
 			}
 			else if (column->bit_field & (SQB_RENAMED | SQB_DYNAMIC)) {
-				free(column->old_name);
+				free((char*)column->old_name);
 				column->old_name = NULL;
 			}
 		}
@@ -681,11 +681,11 @@ void   sq_table_complete(SqTable* table)
 
 static void  sq_foreign_free(SqForeign* foreign)
 {
-	free(foreign->table);
-	free(foreign->column);
-	free(foreign->on_delete);
-	free(foreign->on_update);
-	free(foreign);
+	free((char*)foreign->table);
+	free((char*)foreign->column);
+	free((char*)foreign->on_delete);
+	free((char*)foreign->on_update);
+	free((char*)foreign);
 }
 
 static SqForeign* sq_foreign_copy(SqForeign* src)
@@ -735,10 +735,10 @@ void  sq_column_free(SqColumn* column)
 		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)column);
 		// free SqColumn
-		free(column->default_value);
-		free(column->check);
-		free(column->raw);
-		free(column->old_name);
+		free((char*)column->default_value);
+		free((char*)column->check);
+		free((char*)column->raw);
+		free((char*)column->old_name);
 		if (column->foreign)
 			sq_foreign_free(column->foreign);
 		if (column->composite) {
@@ -811,8 +811,8 @@ void  sq_column_reference(SqColumn* column,
 		column->foreign->on_update = NULL;
 	}
 	else {
-		free(column->foreign->table);
-		free(column->foreign->column);
+		free((char*)column->foreign->table);
+		free((char*)column->foreign->column);
 	}
 
 	column->foreign->table = strdup(foreign_table_name);

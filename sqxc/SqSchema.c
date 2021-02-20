@@ -274,7 +274,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 					table->old_name = table->name;
 				else
 #endif
-					free(table->name);
+					free((char*)table->name);
 				table->name = strdup(table_src->name);
 				table->bit_field |= SQB_RENAMED;
 			}
@@ -336,7 +336,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 					sq_table_replace_column(table, NULL,
 							(SqColumn**)&table->foreigns.data[i], column);
 				}
-				free(column->foreign->table);
+				free((char*)column->foreign->table);
 				column->foreign->table = strdup(reentry->name);    // name = the newest table name
 			}
 
@@ -370,7 +370,7 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 					sq_table_replace_column(table, NULL,
 							(SqColumn**)&table->foreigns.data[i], column);
 				}
-				free(column->foreign->column);
+				free((char*)column->foreign->column);
 				column->foreign->column = strdup(reentry->name);    // name = newest column name
 			}
 		}

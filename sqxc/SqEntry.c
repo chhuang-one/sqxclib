@@ -60,7 +60,7 @@ void  sq_entry_final(SqEntry* entry)
 	if (entry->bit_field & SQB_DYNAMIC) {
 		if (entry->type)
 			sq_type_unref(entry->type);
-		free(entry->name);
+		free((char*)entry->name);
 	}
 }
 
@@ -130,7 +130,7 @@ void  sq_reentries_clear_records(void* reentry_ptr_array, char version_compariso
 		is_renamed_column = (reentry->bit_field & SQB_RENAMED) ? true : false;
 		// clear altered and renamed status in column
 		if (version_comparison != '<' && reentry->bit_field & SQB_DYNAMIC) {
-			free(reentry->old_name);
+			free((char*)reentry->old_name);
 			reentry->old_name = NULL;
 			reentry->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
 		}

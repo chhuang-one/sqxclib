@@ -292,6 +292,8 @@ template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
 	Migration - Alter Table : table->bit_field & SQB_CHANGED
 	Migration - Drop   : table->name = NULL, table->old_name = column_name
 	Migration - Rename : table->name = new_name, table->old_name = old_name
+
+	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
 */
 
 struct SqTable
@@ -299,10 +301,10 @@ struct SqTable
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
 	SqType*      type;        // type information for this entry
-	char*        name;
+	const char*  name;
 	size_t       offset;      // sq_schema_trace_foreign() and migration use this
 	unsigned int bit_field;
-	char*        old_name;    // rename or drop
+	const char*  old_name;    // rename or drop
  */
 
 	// ------ SqTable members ------
@@ -514,14 +516,16 @@ struct SqTable
 
 
 /* ----------------------------------------------------------------------------
-	SqForeign: foreign key data
+	SqForeign: foreign key data in SqColumn
  */
+
 struct SqForeign
 {
-	char*  table;
-	char*  column;
-	char*  on_delete;
-	char*  on_update;
+	// Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
+	const char*  table;
+	const char*  column;
+	const char*  on_delete;
+	const char*  on_update;
 };
 
 /* ----------------------------------------------------------------------------
@@ -530,6 +534,8 @@ struct SqForeign
 	Migration - Alter Type : column->bit_field & SQB_CHANGED
 	Migration - Drop   : column->name = NULL, column->old_name = column_name
 	Migration - Rename : column->name = new_name, column->old_name = old_name
+
+	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
 */
 
 struct SqColumn
@@ -537,10 +543,10 @@ struct SqColumn
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
 	SqType*      type;        // type information for this entry
-	char*        name;
+	const char*  name;
 	size_t       offset;
 	unsigned int bit_field;
-	char*        old_name;    // rename or drop
+	const char*  old_name;    // rename or drop
  */
 
 	// ------ SqColumn members ------
@@ -550,13 +556,13 @@ struct SqColumn
 	int16_t      size;             // total digits or length of string
 	int16_t      digits;           // decimal digits
 
-	char*        default_value;    // DEFAULT
-	char*        check;            // CHECK (condition)
+	const char*  default_value;    // DEFAULT
+	const char*  check;            // CHECK (condition)
 
 	SqForeign*   foreign;          // foreign key
 	char**       composite;        // Null-terminated (column-name) string array
 
-	char*        raw;              // raw SQL column property
+	const char*  raw;              // raw SQL column property
 
 	/*
 	struct SqExtra {

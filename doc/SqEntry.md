@@ -3,13 +3,13 @@ SqEntry define constant or dynamic field in structure/class.
 It must use SqType to declare type of field.
 
 ```c
-	struct SqEntry
-	{
-		SqType*      type;        // field type
-		char*        name;        // field name
-		size_t       offset;      // offset of field in structure/class
-		unsigned int bit_field;   // declare below
-	};
+struct SqEntry
+{
+	SqType*      type;        // field type
+	const char*  name;        // field name
+	size_t       offset;      // offset of field in structure/class
+	unsigned int bit_field;   // declare below
+};
 ```
 
 Declaring bit_field in SqEntry
@@ -28,7 +28,7 @@ When user define constant SqEntry, it usually define array of SqEntry for a stru
 Note: This is SqEntry pointer array
 
 ```c
-static const SqEntry *entry_pointers[] = {
+static const SqEntry *entry_pointers[2] = {
 	&(SqEntry) {SQ_TYPE_UINT,   "bit_field",  offsetof(SqEntry, bit_field),  SQB_HIDDEN},
 	&(SqEntry) {SQ_TYPE_STRING, "name",       offsetof(SqEntry, name),       0},
 };
@@ -40,7 +40,7 @@ const SqType type = SQ_TYPE_INITIALIZER(entry_pointers, 2, 0);
 Note: This is SqEntry array (NOT pointer array)
 
 ```c
-static const SqEntry entries[] = {
+static const SqEntry entries[2] = {
 	{SQ_TYPE_UINT,   "bit_field",  offsetof(SqEntry, bit_field),  SQB_HIDDEN},
 	{SQ_TYPE_STRING, "name",       offsetof(SqEntry, name),       0},
 };

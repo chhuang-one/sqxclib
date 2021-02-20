@@ -167,7 +167,7 @@ struct SqSchema
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
 	SqType*      type;        // type information for this entry
-	char*        name;
+	const char*  name;
 	size_t       offset;      // sq_schema_trace_foreign() and migration use this
 	unsigned int bit_field;
  */

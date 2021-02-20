@@ -704,7 +704,7 @@ void  sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arrang
 		if (old_name && column->old_name) {
 			sq_buffer_write(sql_buf, column->old_name);
 			if (column->bit_field & SQB_DYNAMIC) {
-				free(column->old_name);
+				free((char*)column->old_name);
 				column->old_name = NULL;
 			}
 		}
