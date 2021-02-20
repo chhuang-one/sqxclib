@@ -70,8 +70,9 @@ SqType*  sq_storage_type_from_query(SqStorage* storage, SqQuery* query, int *n_t
 	}
 
 	sq_ptr_array_final(&names);
-    if (n_tables_in_query)
+    if (n_tables_in_query) {
         *n_tables_in_query = n;
+	}
 	return type;
 }
 
