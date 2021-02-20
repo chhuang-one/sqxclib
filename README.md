@@ -3,7 +3,7 @@
 # sqxc
 
 sqxc is a library to convert SQL (or JSON...etc) data to/from C language.
-This is developed using 'C' language. It also provides C++ wrapper.
+It also provides C++ wrapper.
 
 ## Plans
 - support more SQL database.
@@ -25,37 +25,58 @@ uGet3 uses SQL database to solve this problem.
 ## Database schema
 
 ```c
-	struct User {
-		int    id;          // primary key
-		char*  full_name;
-		char*  email;
-		int    city_id;     // foreign key
+struct User {
+	int    id;          // primary key
+	char*  full_name;
+	char*  email;
+	int    city_id;     // foreign key
 
-	#ifdef __cplusplus      // C++ Only
-		std::string       strCpp;
-		std::vector<int>  intsCpp;
-	#endif
-	};
+#ifdef __cplusplus      // C++ Only
+	std::string       strCpp;
+	std::vector<int>  intsCpp;
+#endif
+};
 ```
 
  use C99 designated initializer to define table/column (static)
 
 ```c
-	static const SqColumn  *UserColumns[] = {
-		&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(User, id),    SQB_PRIMARY},
-		&(SqColumn) {SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
-		&(SqColumn) {SQ_TYPE_STRING, "email",     offsetof(User, email)      },
-		// FOREIGN KEY
-		&(SqColumn) {SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
-		             .foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
-		// CONSTRAINT FOREIGN KEY
-		&(SqColumn) {SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
-		             .foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
-		             .composite = (char *[]) {"city_id", NULL} },
-		// CREATE INDEX
-		&(SqColumn) {SQ_TYPE_INDEX,       "users_id_index",
-		             .composite = (char *[]) {"id", NULL} },
-	};
+static const SqColumn  *UserColumns[6] = {
+	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(User, id),       SQB_PRIMARY},
+	&(SqColumn) {SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
+	&(SqColumn) {SQ_TYPE_STRING, "email",     offsetof(User, email)      },
+	// FOREIGN KEY
+	&(SqColumn) {SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
+	             .foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
+	// CONSTRAINT FOREIGN KEY
+	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
+	             .foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
+	             .composite = (char *[]) {"city_id", NULL} },
+	// CREATE INDEX
+	&(SqColumn) {SQ_TYPE_INDEX,       "users_id_index",
+	             .composite = (char *[]) {"id", NULL} },
+};
+
+	// add columns/records to table
+	sq_table_add_columns(table, UserColumns, 6);
+```
+
+ use C++ aggregate initialization to define table/column (static)
+
+```c++
+static const SqForeign usersForeign = {"cities",    "id",  "CASCADE",  "CASCADE"};
+
+static const SqColumn  UserColumns[4] = {
+	{SQ_TYPE_INT,    "id",        offsetof(User, id),       SQB_PRIMARY},
+	{SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
+	{SQ_TYPE_STRING, "email",     offsetof(User, email)      },
+	// FOREIGN KEY
+	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
+		.foreign = (SqForeign*) &usersForeign},
+};
+
+	// add columns/records to table
+	table->addColumn(UserColumns, 4);
 ```
 
  use C function to define table/column (dynamic)
@@ -120,19 +141,22 @@ uGet3 uses SQL database to solve this problem.
  use C99 designated initializer to change table/column (static)
 
 ```c
-	static const SqColumn  *UserColumnsChange[] = {
-		// ADD COLUMN "test_add"
-		&(SqColumn) {SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
+static const SqColumn  *UserColumnsChanged[] = {
+	// ADD COLUMN "test_add"
+	&(SqColumn) {SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
 
-		// ALTER COLUMN "city_id"
-		&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
+	// ALTER COLUMN "city_id"
+	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
 
-		// DROP COLUMN "full_name"
-		&(SqColumn) {.old_name = "full_name", .name = NULL},
+	// DROP COLUMN "full_name"
+	&(SqColumn) {.old_name = "full_name", .name = NULL},
 
-		// RENAME COLUMN "email" TO "email2"
-		&(SqColumn) {.old_name = "email",     .name = "email2"},
-	};
+	// RENAME COLUMN "email" TO "email2"
+	&(SqColumn) {.old_name = "email",     .name = "email2"},
+};
+
+	// add columns/records to table
+	sq_table_add_columns(table, UserColumnsChanged, 4);
 ```
 
  use C function to change table/column (dynamic)
