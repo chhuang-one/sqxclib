@@ -110,6 +110,27 @@ void  company_array_print(SqPtrArray* array)
 
 // ----------------------------------------------------------------------------
 
+static const SqForeign users_foreign = {"companies",  "id",  "CASCADE",  "CASCADE"};
+static const char*     users_foreign_composite[] = {"company_id", NULL};
+static const char*     users_index_composite[]   = {"id", NULL};
+
+// CREATE TABLE "users"
+static const SqColumn UserColumns[] = {
+	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_HIDDEN},
+	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0},
+	// FOREIGN KEY
+	{SQ_TYPE_INT,    "company_id",   offsetof(User, company_id),   0,
+		.foreign = (SqForeign*)&users_foreign},
+	// CONSTRAINT FOREIGN KEY
+	{SQ_TYPE_CONSTRAINT,   "users_companies_id_foreign",
+		.foreign = (SqForeign*)&users_foreign,
+		.composite = (char **)  users_foreign_composite },
+	// INDEX
+	{SQ_TYPE_INDEX,  "users_id_index",
+		.composite = (char **)  users_index_composite },
+};
+
+
 void  storage_make_fixed_schema(Sq::Storage* storage)
 {
 	Sq::Schema*   schema;
@@ -132,11 +153,16 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 #endif
 
 	table = schema->create<User>("users");
+#if 0
+	// create table by static columns
+	table->addColumn(UserColumns, sizeof(UserColumns) / sizeof(SqColumn));
+#else
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->integer("company_id", &User::company_id);
 	table->addForeign("users_companies_id_foreign", "company_id")->reference("companies", "id");
-	table->addIndex("users_id_index", "index", NULL);
+	table->addIndex("users_id_index", "id", NULL);
+#endif
 
 	// End of migration. create SQL tables based on storage->schema
 	storage->migrate(NULL);
