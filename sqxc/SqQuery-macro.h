@@ -20,9 +20,9 @@
 /* C Macro functions to create SQL query easily, for example:
 
 	SELECT * FROM Company
-	WHERE salary > 2150 AND (id > '22' AND age < '10')
+	WHERE salary > 2150 AND (id > 22 AND age < 10)
 
-	SQ_QUERY(query, {
+	SQ_QUERY_DO(query, {
 		SQQ_FROM("Company");
 		SQQ_WHERE("salary > %d", 2150);
 		SQQ_WHERE_SUB({
@@ -46,7 +46,7 @@
  */
 
 
-#define SQ_QUERY(query, lambda)             \
+#define SQ_QUERY_DO(query, lambda)          \
 		{                                   \
 			SqQuery* query_cur_ = query;    \
 			lambda;                         \
@@ -58,7 +58,7 @@
 			SqQuery* query_cur_ = initial_value
 
 // SQ_QUERY_C_SET() set current query for these macro.
-// Because SQL has SET command, I must avoid to use SQ_QUERY_SET() here.
+// Because SQL has SET command, I must avoid to use SQ_QUERY_DO() here.
 #define SQ_QUERY_C_SET(query)               \
 			query_cur_ = query
 

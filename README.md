@@ -266,7 +266,7 @@ static const SqColumn  *UserColumnsChanged[] = {
 ```sql
 	SELECT id, age
 	FROM companies
-	JOIN ( SELECT * FROM city WHERE id < '100' ) AS c ON c.id = companies.city_id
+	JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
 	WHERE age > 5
 ```
 
@@ -299,7 +299,7 @@ static const SqColumn  *UserColumnsChanged[] = {
  use C macro to produce query
 
 ```c
-	SQ_QUERY(query, {
+	SQ_QUERY_DO(query, {
 		SQQ_SELECT("id", "age");
 		SQQ_FROM("companies");
 		SQQ_JOIN_SUB({

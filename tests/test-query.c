@@ -96,7 +96,7 @@ void test_query_macro()
 		JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
 		WHERE age > 5
 	 */
-	SQ_QUERY(query, {
+	SQ_QUERY_DO(query, {
 		SQQ_SELECT("id", "age");
 		SQQ_FROM("companies");
 		SQQ_JOIN_SUB({
