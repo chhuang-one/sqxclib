@@ -193,13 +193,13 @@ static const SqColumn  *UserColumnsChanged[] = {
 
  use C++ function to migrate schema
 
- ```c++
+```c++
 	storage->migrate(schema);    // migrate schema
 	storage->migrate(schema2);   // migrate schema2
 	storage->migrate(NULL);      // End of migration
 	delete schema;               // free unused schema
 	delete schema2;              // free unused schema2
- ```
+```
 
  use C function to migrate schema
 
