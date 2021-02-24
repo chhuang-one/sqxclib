@@ -69,34 +69,26 @@ bool  sq_table_has_column(SqTable* table, const char* column_name)
 	return false;
 }
 
-void  sq_table_add_columns(SqTable* table, const SqColumn** column_addr, int n_column_addr)
-{
-	SqPtrArray* array;
-	SqType* table_type = table->type;
-
-	if ((table_type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
-		table_type  = sq_type_copy_static(table_type, (SqDestroyFunc)sq_column_free);
-		table->type = table_type;
-	}
-
-	table_type->bit_field &= ~SQB_TYPE_SORTED;
-	array = sq_type_get_ptr_array(table_type);
-	SQ_PTR_ARRAY_APPEND_N(array, column_addr, n_column_addr);
-	if (n_column_addr == 1)
-		sq_type_decide_size(table_type, (SqEntry*)column_addr[0]);
-	else
-		sq_type_decide_size(table_type, NULL);    // use all entries to calculate size
-}
-
 void  sq_table_add_column(SqTable* table, const SqColumn* column, int n_column)
 {
-	SqType* table_type = table->type;
+	SqType* type = table->type;
 
-	if ((table_type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
-		table_type  = sq_type_copy_static(table_type, (SqDestroyFunc)sq_column_free);
-		table->type = table_type;
+	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
+		type = sq_type_copy_static(type, (SqDestroyFunc)sq_column_free);
+		table->type = type;
 	}
-	sq_type_add_entry(table_type, (SqEntry*)column, n_column);
+	sq_type_add_entry(type, (SqEntry*)column, n_column, sizeof(SqColumn));
+}
+
+void  sq_table_add_column_ptrs(SqTable* table, const SqColumn** column_ptrs, int n_column_ptrs)
+{
+	SqType*  type = table->type;
+
+	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
+		type = sq_type_copy_static(type, (SqDestroyFunc)sq_column_free);
+		table->type = type;
+	}
+	sq_type_add_entry_ptrs(type, (const SqEntry**)column_ptrs, n_column_ptrs);
 }
 
 void  sq_table_drop_column(SqTable* table, const char* column_name)

@@ -210,8 +210,11 @@ SqType*  sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
 void*    sq_type_init_instance(const SqType *type, void* instance, int is_pointer);
 void     sq_type_final_instance(const SqType *type, void* instance, int is_pointer);
 
-// add SqEntry to dynamic SqType.
-void     sq_type_add_entry(SqType* type, const SqEntry *entry, int n_entry);
+// add entry from SqEntry array (NOT pointer array) to dynamic SqType.
+// if 'sizeof_entry' == 0, 'sizeof_entry' will equal sizeof(SqEntry)
+void     sq_type_add_entry(SqType* type, const SqEntry *entry, int n_entry, size_t sizeof_entry);
+// add entry from SqEntry pointer array to dynamic SqType.
+void     sq_type_add_entry_ptrs(SqType* type, const SqEntry **entry_ptrs, int n_entry_ptrs);
 
 // find SqEntry in SqType.entry.
 // If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.

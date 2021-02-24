@@ -107,9 +107,9 @@ typedef struct Company
 		table_cur_ = sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType));
 #endif
 
-// void SQT_COLUMNS(const SqColumn** column_addr, int n_column_addr);
-#define SQT_COLUMNS(column_addr, n_column_addr)    \
-		sq_table_add_columns(table_cur_, column_addr, n_column_addr)
+// void SQT_COLUMN_PTRS(const SqColumn** column_ptrs, int n_column_ptrs);
+#define SQT_COLUMN_PTRS(column_ptrs, n_column_ptrs)    \
+		sq_table_add_column_ptrs(table_cur_, column_ptrs, n_column_ptrs)
 
 // void SQT_COLUMN(const SqColumn* column, int n_column);
 #define SQT_COLUMN(column, n_column)    \

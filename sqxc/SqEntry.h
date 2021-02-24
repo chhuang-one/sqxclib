@@ -69,10 +69,10 @@ typedef struct SqReentry        SqReentry;
 #define SQB_CHANGED        (1 << 31)  // SQL: alter/modify. column/table has been altered.
 
 // ----------------------------------------------------------------------------
-// SQ_N_ENTRY() calculate number of pointer in array. for example:
+// SQ_N_PTRS() calculate number of pointer in array. for example:
 //	SqEntry *FooEntries[] = {...};
-//	int  n_entry = SQ_N_ENTRY(FooEntries);
-#define SQ_N_ENTRY(EntryPointerArray) ( sizeof(EntryPointerArray)/sizeof(SqEntry*) )
+//	int  n_entry = SQ_N_PTRS(FooEntries);
+#define SQ_N_PTRS(PointerArray) ( sizeof(PointerArray)/sizeof(void*) )
 
 /* ----------------------------------------------------------------------------
 	SqEntry: define object/field in structure.

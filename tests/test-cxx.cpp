@@ -66,9 +66,11 @@ static const SqColumn  *UserColumns[] = {
 void test_schema_with_designated_initializer()
 {
 	Sq::Schema* schema;
+	Sq::Table*  table;
 
 	schema = sq_schema_new("current");
-	schema->create<Company>("companies", UserColumns, SQ_N_ENTRY(UserColumns));
+	table = schema->create<Company>("companies");
+	table->addColumn(UserColumns, SQ_N_PTRS(UserColumns));
 	delete schema;
 }
 

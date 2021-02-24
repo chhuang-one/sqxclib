@@ -194,20 +194,13 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 	if (end_version >= 1) {
 		schema = sq_schema_new("Ver1");
 //		schema->version = 1;
-#if 1
 		// CREATE TABLE "cities"
-		sq_schema_create_from_columns(schema, "cities", SQ_GET_TYPE_NAME(City),
-		                              CityColumnsVer1, SQ_N_ENTRY(CityColumnsVer1));
-		// CREATE TABLE "users"
-		sq_schema_create_from_columns(schema, "users", SQ_GET_TYPE_NAME(User),
-		                              UserColumnsVer1, SQ_N_ENTRY(UserColumnsVer1));
-#else
-		// another way to CREATE TABLE "cities" and "users"
 		table = sq_schema_create(schema, "cities", City);
-		sq_table_add_columns(table, CityColumnsVer1, SQ_N_ENTRY(CityColumnsVer1));
+		sq_table_add_column_ptrs(table, CityColumnsVer1, SQ_N_PTRS(CityColumnsVer1));
+		// CREATE TABLE "users"
 		table = sq_schema_create(schema, "users", User);
-		sq_table_add_columns(table, UserColumnsVer1, SQ_N_ENTRY(UserColumnsVer1));
-#endif
+		sq_table_add_column_ptrs(table, UserColumnsVer1, SQ_N_PTRS(UserColumnsVer1));
+		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
 	}
@@ -216,14 +209,9 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 		schema = sq_schema_new("Ver2");
 //		schema->version = 2;
 		// ALTER TABLE "users"
-#if 1
-		sq_schema_alter_from_columns(schema, "users", UserColumnsVer2,
-		                             SQ_N_ENTRY(UserColumnsVer2));
-#else
-		// another way to ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_columns(table, UserColumnsVer2, SQ_N_ENTRY(UserColumnsVer2));
-#endif
+		sq_table_add_column_ptrs(table, UserColumnsVer2, SQ_N_PTRS(UserColumnsVer2));
+		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
 	}
@@ -231,15 +219,10 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 	if (end_version >= 3) {
 		schema = sq_schema_new("Ver3");
 //		schema->version = 3;
-#if 1
 		// ALTER TABLE "users"
-		sq_schema_alter_from_columns(schema, "users", UserColumnsVer3,
-		                             SQ_N_ENTRY(UserColumnsVer3));
-#else
-		// another way to ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_columns(table, UserColumnsVer3, SQ_N_ENTRY(UserColumnsVer3));
-#endif
+		sq_table_add_column_ptrs(table, UserColumnsVer3, SQ_N_PTRS(UserColumnsVer3));
+		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
 	}
@@ -247,15 +230,10 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 	if (end_version >= 4) {
 		schema = sq_schema_new("Ver4");
 //		schema->version = 4;
-#if 1
 		// ALTER TABLE "users"
-		sq_schema_alter_from_columns(schema, "users", UserColumnsVer4,
-		                             SQ_N_ENTRY(UserColumnsVer4));
-#else
-		// another way to ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_columns(table, UserColumnsVer4, SQ_N_ENTRY(UserColumnsVer4));
-#endif
+		sq_table_add_column_ptrs(table, UserColumnsVer4, SQ_N_PTRS(UserColumnsVer4));
+		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
 	}
@@ -278,6 +256,7 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 //		schema->version = 6;
 		// DROP TABLE "users2"
 		sq_schema_drop(schema, "users2");
+		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
 	}

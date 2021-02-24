@@ -45,7 +45,7 @@ void    sq_type_joint_add(SqType* type_joint, SqTable* table, const char *table_
 		jentry->name = strdup(table->name);
 	jentry->bit_field |= SQB_POINTER;
 	jentry->offset = type_joint->n_entry * sizeof(void*);
-	sq_type_add_entry(type_joint, jentry, 1);
+	sq_type_add_entry(type_joint, jentry, 1, 0);
 	sq_type_decide_size(type_joint, jentry);
 }
 
