@@ -43,7 +43,7 @@ First, we define a custom data type:
 use C99 designated initializer to define struct that has 'unsorted' entries.
 
 ```c
-	// --- UserEntries is 'unsorted'
+	// --- UserEntries is 'unsorted' SqEntry pointer array
 	static const SqEntry  *UserEntries[] = {
 		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
 		&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
@@ -107,18 +107,17 @@ use macro SQ_TYPE_INITIALIZER() and SQ_TYPE_INITIALIZER_FULL()
 
 ##### 4. Define dynamic SqType with constant entries
 
-use sq_type_add_entry() to add static entries.
+use sq_type_add_entry_ptrs() to add static SqEntry pointer array.
 ```c
 	SqType*  type = sq_type_new(0, NULL);
 	int   n_entry = sizeof(UserEntries) / sizeof(SqEntry*);
 
-	for (int index;  index < n_entry;  index++)
-		sq_type_add_entry(type, UserEntries[index], 1);
+	sq_type_add_entry_ptrs(type, UserEntries, n_entry);
 ```
 
 ##### 5. Define dynamic SqType with dynamic entries
 
-use sq_type_add_entry() to add dynamic entries.
+use sq_type_add_entry() to add dynamic SqEntry array.
 ```c
 	SqType*  type = sq_type_new(0, NULL);
 	SqEntry* entry;
@@ -127,18 +126,18 @@ use sq_type_add_entry() to add dynamic entries.
 	entry->name = strdup("id");
 	entry->offset = offsetof(User, id);
 	entry->bit_field = SQB_PRIMARY | SQB_HIDDEN;
-	sq_type_add_entry(type, entry, 1);
+	sq_type_add_entry(type, entry, 1, 0);
 
 	entry = sq_entry_new(SQ_TYPE_STRING);
 	entry->name = strdup("name");
 	entry->offset = offsetof(User, name);
 	entry->bit_field = 0;
-	sq_type_add_entry(type, entry, 1);
+	sq_type_add_entry(type, entry, 1, 0);
 
 	entry = sq_entry_new(SQ_TYPE_STRING);
-	sq_type_add_entry(type, entry, 1);
+	sq_type_add_entry(type, entry, 1, 0);
 	entry->name = strdup("email");
 	entry->offset = offsetof(User, email);
 	entry->bit_field = SQB_HIDDEN_NULL;
-	sq_type_add_entry(type, entry, 1);
+	sq_type_add_entry(type, entry, 1, 0);
 ```

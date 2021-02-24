@@ -3,24 +3,18 @@
 # sqxc
 
 sqxc is a library to convert SQL (or JSON...etc) data to/from C language.
-It also provides C++ wrapper.
-
-## Plans
-- support more SQL database.
-- complete SQL ORM features.
-- It can work in low-end hardware.
-
-## Why I develop this?
-In the new Android system, App must store data in a limited time.
-uGet for Android usually loses data because it spends much time to save ALL records at one time.
-uGet3 uses SQL database to solve this problem.
+It provides ORM features and C++ wrapper.
 
 ## Current features:
-1. It can use C99 designated initializer to define SQL table/column/migration.
-   You can also use C/C++ function to do these.
+1. User can use C99 designated initializer (or C++ aggregate initialization) to define SQL table/column/migration statically.
+   You can also use C/C++ function to do these dynamically.
 
 2. All defined table/column can use to parse JSON object/field.
    Program can also parse JSON object/array from SQL column.
+
+3. It can work in low-end hardware.
+
+4. Supports SQLite. Supports for MySQL is working in progress.
 
 ## Database schema
 
@@ -41,42 +35,48 @@ struct User {
  use C99 designated initializer to define table/column (static)
 
 ```c
-static const SqColumn  *UserColumns[6] = {
-	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(User, id),       SQB_PRIMARY},
-	&(SqColumn) {SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
-	&(SqColumn) {SQ_TYPE_STRING, "email",     offsetof(User, email)      },
-	// FOREIGN KEY
-	&(SqColumn) {SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
-	             .foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
-	// CONSTRAINT FOREIGN KEY
-	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
-	             .foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
-	             .composite = (char *[]) {"city_id", NULL} },
-	// CREATE INDEX
-	&(SqColumn) {SQ_TYPE_INDEX,       "users_id_index",
-	             .composite = (char *[]) {"id", NULL} },
-};
-
-	// add columns/records to table
-	sq_table_add_columns(table, UserColumns, 6);
-```
-
- use C++ aggregate initialization to define table/column (static)
-
-```c++
-static const SqForeign usersForeign = {"cities",    "id",  "CASCADE",  "CASCADE"};
-
-static const SqColumn  UserColumns[4] = {
+static const SqColumn  UserColumns[6] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),       SQB_PRIMARY},
 	{SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
 	{SQ_TYPE_STRING, "email",     offsetof(User, email)      },
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
-		.foreign = (SqForeign*) &usersForeign},
+		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
+	// CONSTRAINT FOREIGN KEY
+	{SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
+		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
+		.composite = (char *[]) {"city_id", NULL} },
+	// CREATE INDEX
+	{SQ_TYPE_INDEX,       "users_id_index",
+		.composite = (char *[]) {"id", NULL} },
 };
 
 	// add columns/records to table
-	table->addColumn(UserColumns, 4);
+	sq_table_add_column(table, UserColumns, 6);
+```
+
+ use C++ aggregate initialization to define table/column (static)
+
+```c++
+Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
+
+static const SqForeign usersForeign = {"cities",    "id",  "CASCADE",  "CASCADE"};
+
+static const SqColumn  UserColumns[6] = {
+	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
+	{SQ_TYPE_STRING, "full_name",  offsetof(User, full_name)  },
+	{SQ_TYPE_STRING, "email",      offsetof(User, email)      },
+	// FOREIGN KEY
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
+		.foreign = (SqForeign*) &usersForeign},
+	// C++ std::string
+	{SQ_TYPE_STD_STRING, "strCpp", offsetof(User, strCpp)     },
+	// C++ std::vector
+	{&SqTypeIntVector,  "intsCpp", offsetof(User, intsCpp)    },
+};
+
+	// add columns/records to table
+	table->addColumn(UserColumns, 6);
 ```
 
  use C function to define table/column (dynamic)
@@ -141,22 +141,22 @@ static const SqColumn  UserColumns[4] = {
  use C99 designated initializer to change table/column (static)
 
 ```c
-static const SqColumn  *UserColumnsChanged[] = {
+static const SqColumn  UserColumnsChanged[] = {
 	// ADD COLUMN "test_add"
-	&(SqColumn) {SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
+	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
 
 	// ALTER COLUMN "city_id"
-	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
+	{SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
 
 	// DROP COLUMN "full_name"
-	&(SqColumn) {.old_name = "full_name", .name = NULL},
+	{.old_name = "full_name", .name = NULL},
 
 	// RENAME COLUMN "email" TO "email2"
-	&(SqColumn) {.old_name = "email",     .name = "email2"},
+	{.old_name = "email",     .name = "email2"},
 };
 
 	// add columns/records to table
-	sq_table_add_columns(table, UserColumnsChanged, 4);
+	sq_table_add_column(table, UserColumnsChanged, 4);
 ```
 
  use C function to change table/column (dynamic)

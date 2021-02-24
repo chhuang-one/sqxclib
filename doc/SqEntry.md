@@ -45,7 +45,7 @@ static const SqEntry entries[2] = {
 	{SQ_TYPE_STRING, "name",       offsetof(SqEntry, name),       0},
 };
 
-sq_type_add_entry(type, entries, 2);
+sq_type_add_entry(type, entries, 2, 0);
 ```
 
 ##### 3. define dynamic SqEntry that used by dynamic type
@@ -57,6 +57,6 @@ entry->name = strdup("name");
 entry->offset = offsetof(SqEntry, name);
 entry->bit_field = SQB_HIDDEN_NULL;
 
-sq_type_add_entry(type, entry, 1);
+sq_type_add_entry(type, entry, 1, 0);
 ```
 
