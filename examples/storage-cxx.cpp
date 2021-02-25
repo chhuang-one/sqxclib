@@ -23,6 +23,8 @@
 #include <SqStorage.h>
 #include <SqdbSqlite.h>
 
+#define USE_CXX_AGGREGATE_INITIALIZATION    0
+
 // SqType for C++ std::vector<int>
 Sq::TypeStl<std::vector<int>>  SqTypeIntVector(SQ_TYPE_INT);
 #define SQ_TYPE_INT_VECTOR    &SqTypeIntVector
@@ -108,7 +110,10 @@ void  company_array_print(SqPtrArray* array)
 	}
 }
 
+#if USE_CXX_AGGREGATE_INITIALIZATION == 1
+
 // ----------------------------------------------------------------------------
+// use C++ aggregate initialization to define static SqColumn
 
 static const SqForeign users_foreign = {"companies",  "id",  "CASCADE",  "CASCADE"};
 static const char*     users_foreign_composite[] = {"company_id", NULL};
@@ -129,7 +134,10 @@ static const SqColumn UserColumns[] = {
 	{SQ_TYPE_INDEX,  "users_id_index",
 		.composite = (char **)  users_index_composite },
 };
+#endif
 
+// ----------------------------------------------------------------------------
+// use C++ functions to define dynamic SqColumn
 
 void  storage_make_fixed_schema(Sq::Storage* storage)
 {
@@ -153,7 +161,7 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 #endif
 
 	table = schema->create<User>("users");
-#if 0
+#if USE_CXX_AGGREGATE_INITIALIZATION == 1
 	// create table by static columns
 	table->addColumn(UserColumns, sizeof(UserColumns) / sizeof(SqColumn));
 #else

@@ -96,15 +96,15 @@ enum {
 	SQ_TYPE_INDEX_STRING,
 };
 
-#define SQ_TYPE_BOOL       ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_BOOL])
-#define SQ_TYPE_INT        ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INT])
-#define SQ_TYPE_UINT       ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_UINT])
-#define SQ_TYPE_INTPTR     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INTPTR])
-#define SQ_TYPE_INT64      ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_INT64])
-#define SQ_TYPE_UINT64     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_UINT64])
-#define SQ_TYPE_TIME       ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_TIME])
-#define SQ_TYPE_DOUBLE     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_DOUBLE])
-#define SQ_TYPE_STRING     ((SqType*)&SqType_BuiltIn_[SQ_TYPE_INDEX_STRING])
+#define SQ_TYPE_BOOL       (&SqType_BuiltIn_[SQ_TYPE_INDEX_BOOL])
+#define SQ_TYPE_INT        (&SqType_BuiltIn_[SQ_TYPE_INDEX_INT])
+#define SQ_TYPE_UINT       (&SqType_BuiltIn_[SQ_TYPE_INDEX_UINT])
+#define SQ_TYPE_INTPTR     (&SqType_BuiltIn_[SQ_TYPE_INDEX_INTPTR])
+#define SQ_TYPE_INT64      (&SqType_BuiltIn_[SQ_TYPE_INDEX_INT64])
+#define SQ_TYPE_UINT64     (&SqType_BuiltIn_[SQ_TYPE_INDEX_UINT64])
+#define SQ_TYPE_TIME       (&SqType_BuiltIn_[SQ_TYPE_INDEX_TIME])
+#define SQ_TYPE_DOUBLE     (&SqType_BuiltIn_[SQ_TYPE_INDEX_DOUBLE])
+#define SQ_TYPE_STRING     (&SqType_BuiltIn_[SQ_TYPE_INDEX_STRING])
 
 // std::is_integral<Type>::value == true
 #define SQ_TYPE_INTEGER_BEG       SQ_TYPE_BOOL
@@ -142,15 +142,15 @@ enum {
 	typePtrArray->entry = (SqEntry**) element_SqType;
 	typePtrArray->n_entry = -1;
  */
-#define SQ_TYPE_PTR_ARRAY     ((SqType*)&SqType_PtrArray_)
+#define SQ_TYPE_PTR_ARRAY     (&SqType_PtrArray_)
 
 /* implement string (char*) array by SqPtrArray (SqType-PtrArray.c)
    User can use SQ_TYPE_STRING_ARRAY directly. */
-#define SQ_TYPE_STRING_ARRAY  ((SqType*)&SqType_StringArray_)
+#define SQ_TYPE_STRING_ARRAY  (&SqType_StringArray_)
 
 /* implement intptr_t array by SqPtrArray (SqType-PtrArray.c)
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
-#define SQ_TYPE_INTPTR_ARRAY  ((SqType*)&SqType_IntptrArray_)
+#define SQ_TYPE_INTPTR_ARRAY  (&SqType_IntptrArray_)
 
 // ----------------------------------------------------------------------------
 // macro for accessing variable of SqType

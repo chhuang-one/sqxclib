@@ -506,7 +506,7 @@ void sqdb_sql_drop_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* 
 
 void sqdb_sql_write_column(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 {
-	SqType* type;
+	const SqType* type;
 	int     len;
 	int16_t size, digits;
 

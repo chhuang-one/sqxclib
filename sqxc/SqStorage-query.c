@@ -25,7 +25,7 @@
 
 static void query_add_column_as_names(SqQuery* query, SqTable* table)
 {
-	SqType*   type = table->type;
+	SqType*   type = (SqType*)table->type;
 	SqColumn* column;
 	char*     buffer = NULL;
 	int       buf_len;
@@ -52,14 +52,14 @@ SqType*  sq_storage_type_from_query(SqStorage* storage, SqQuery* query, int *n_t
 	sq_ptr_array_init(&names, 8, NULL);
 	n = sq_query_get_table_as_names(query, &names);
 	if (n != 0) {
-        // multiple table names, query has 'FROM' and 'JOIN'.
+		// multiple table names, query has 'FROM' and 'JOIN'.
 		type = sq_type_joint_new();
 		for (int index = 0;  index < names.length;  index+=2) {
 			table = sq_schema_find(storage->schema, names.data[index]);
 			if (table == NULL) {
 				sq_type_unref(type);
 				type = NULL;
-                n = 0;
+				n = 0;
 				break;
 			}
 			sq_type_joint_add(type, table, names.data[index+1]);
@@ -70,9 +70,8 @@ SqType*  sq_storage_type_from_query(SqStorage* storage, SqQuery* query, int *n_t
 	}
 
 	sq_ptr_array_final(&names);
-    if (n_tables_in_query) {
-        *n_tables_in_query = n;
-	}
+	if (n_tables_in_query)
+		*n_tables_in_query = n;
 	return type;
 }
 

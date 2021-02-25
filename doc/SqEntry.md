@@ -3,12 +3,15 @@ SqEntry define constant or dynamic field in structure/class.
 It must use SqType to declare type of field.
 
 ```c
+// use 'const char*' to declare string and use 'const SqType*' to declare type,
+// C++ user can initialize static structure easily.
+
 struct SqEntry
 {
-	SqType*      type;        // field type
-	const char*  name;        // field name
-	size_t       offset;      // offset of field in structure/class
-	unsigned int bit_field;   // declare below
+	const SqType* type;        // field type
+	const char*   name;        // field name
+	size_t        offset;      // offset of field in structure/class
+	unsigned int  bit_field;   // declare below
 };
 ```
 
@@ -21,11 +24,14 @@ Declaring bit_field in SqEntry
 | SQB_HIDDEN      | Converter will not output value in this entry |
 | SQB_HIDDEN_NULL | Converter will not output if value is NULL    |
 
-SqEntry and it's derived structure must use with SqType.
-When user define constant SqEntry, it usually define array of SqEntry for a structure.
+* SQB_DYNAMIC is for internal use only. User should NOT set/clear this bit.
+* User can NOT change or free SqEntry if SqEntry.bit_field has NOT set SQB_DYNAMIC.
+* Dynamic SqType has reference count. It increase when dynamic SqEntry use it.
+* It is better to use constant or static SqEntry with constant or static SqType.
+* Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
-##### 1. define constant SqEntry pointer array that used by constant type
-Note: This is SqEntry pointer array
+##### 1. define constant SqEntry pointer array that used by constant SqType
+* Note: This is SqEntry pointer array. If you define constant SqType for structure, it must use with SqEntry pointer array.
 
 ```c
 static const SqEntry *entry_pointers[2] = {
@@ -36,8 +42,8 @@ static const SqEntry *entry_pointers[2] = {
 const SqType type = SQ_TYPE_INITIALIZER(entry_pointers, 2, 0);
 ```
 
-##### 2. define constant SqEntry array that used by dynamic type
-Note: This is SqEntry array (NOT pointer array)
+##### 2. define constant SqEntry array that used by dynamic SqType
+* Note: This is SqEntry array (NOT pointer array)
 
 ```c
 static const SqEntry entries[2] = {
@@ -48,7 +54,7 @@ static const SqEntry entries[2] = {
 sq_type_add_entry(type, entries, 2, 0);
 ```
 
-##### 3. define dynamic SqEntry that used by dynamic type
+##### 3. define dynamic SqEntry that used by dynamic SqType
 There is only one dynamic entry is defined here
 
 ```c

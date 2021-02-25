@@ -42,7 +42,7 @@ void  sq_table_free(SqTable* table)
 		// reduce the stack frame:
 		// sq_type_unref() will not be called by below sq_entry_final()
 		if (table->type) {
-			sq_type_unref(table->type);
+			sq_type_unref((SqType*)table->type);
 			table->type = NULL;
 		}
 		// finalize parent struct - SqEntry
@@ -71,7 +71,7 @@ bool  sq_table_has_column(SqTable* table, const char* column_name)
 
 void  sq_table_add_column(SqTable* table, const SqColumn* column, int n_column)
 {
-	SqType* type = table->type;
+	SqType* type = (SqType*)table->type;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
 		type = sq_type_copy_static(type, (SqDestroyFunc)sq_column_free);
@@ -82,7 +82,7 @@ void  sq_table_add_column(SqTable* table, const SqColumn* column, int n_column)
 
 void  sq_table_add_column_ptrs(SqTable* table, const SqColumn** column_ptrs, int n_column_ptrs)
 {
-	SqType*  type = table->type;
+	SqType*  type = (SqType*)table->type;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
 		type = sq_type_copy_static(type, (SqDestroyFunc)sq_column_free);
@@ -574,7 +574,7 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 		// append 'column_src' to table->type->entry and calculate new size
 		sq_reentries_add(reentries, column_src);
 		if (column_src->type)
-			sq_type_decide_size(table->type, (SqEntry*)column_src);
+			sq_type_decide_size((SqType*)table->type, (SqEntry*)column_src);
 
 		// ADD or ALTER COLUMN that having foreign reference
 		if (column_src->foreign && column_src->old_name == NULL) {
@@ -585,7 +585,7 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 	}
 
 	// SqTable.type.entry must sort again
-	table->type->bit_field &= ~SQB_TYPE_SORTED;
+	((SqType*)table->type)->bit_field &= ~SQB_TYPE_SORTED;
 
 	return SQCODE_OK;
 }
@@ -664,7 +664,7 @@ void   sq_table_complete(SqTable* table)
 		if (has_null)
 			sq_reentries_remove_null(reentries, 0);
 		// sort columns by name
-		sq_type_sort_entry(table->type);
+		sq_type_sort_entry((SqType*)table->type);
 	}
 }
 
@@ -721,7 +721,7 @@ void  sq_column_free(SqColumn* column)
 		// reduce the stack frame:
 		// sq_type_unref() will not be called by below sq_entry_final()
 		if (column->type) {
-			sq_type_unref(column->type);
+			sq_type_unref((SqType*)column->type);
 			column->type = NULL;
 		}
 		// finalize parent struct - SqEntry

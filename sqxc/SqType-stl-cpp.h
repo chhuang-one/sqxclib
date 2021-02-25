@@ -115,7 +115,7 @@ struct TypeStl : SqType {
 		sq_type_unref(this);
 	}
 
-	TypeStl(SqType* element_type) {
+	TypeStl(const SqType* element_type) {
 		this->size  = sizeof(Container);
 		this->init  = cxxInit;
 		this->final = cxxFinal;
@@ -125,7 +125,7 @@ struct TypeStl : SqType {
 		this->ref_count = 1;
 		this->n_entry = -1;                       // SqType.entry can't be freed if SqType.n_entry == -1
 		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
-		sq_type_ref(element_type);
+		sq_type_ref((SqType*)element_type);
 		// reset SqType.bit_field if it has not been set by operator new()
 		// cast to SqType to avoid compiling warning
 		if ( ((SqType*)this)->bit_field != SQB_TYPE_DYNAMIC )

@@ -77,23 +77,24 @@ typedef struct SqReentry        SqReentry;
 /* ----------------------------------------------------------------------------
 	SqEntry: define object/field in structure.
 
-	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
+	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
+	      C++ user can initialize static structure easily.
 */
 
-#define SQ_ENTRY_MEMBERS       \
-	SqType*      type;         \
-	const char*  name;         \
-	size_t       offset;       \
-	unsigned int bit_field
+#define SQ_ENTRY_MEMBERS        \
+	const SqType* type;         \
+	const char*   name;         \
+	size_t        offset;       \
+	unsigned int  bit_field
 
 struct SqEntry
 {
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
-	SqType*      type;        // type information of entry
-	const char*  name;
-	size_t       offset;
-	unsigned int bit_field;
+	const SqType* type;        // type information of entry
+	const char*   name;
+	size_t        offset;
+	unsigned int  bit_field;
  */
 };
 
@@ -117,25 +118,26 @@ int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2);
 	SqReentry: reentry previously-defined entries.
 	           add old_name in SqEntry to record changes (rename or drop).
 
-	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
+	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
+	      C++ user can initialize static structure easily.
 */
 
-#define SQ_REENTRY_MEMBERS     \
-	SqType*      type;         \
-	const char*  name;         \
-	size_t       offset;       \
-	unsigned int bit_field;    \
-	const char*  old_name
+#define SQ_REENTRY_MEMBERS      \
+	const SqType* type;         \
+	const char*   name;         \
+	size_t        offset;       \
+	unsigned int  bit_field;    \
+	const char*   old_name
 
 struct SqReentry
 {
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
-	SqType*      type;        // type information of entry
-	const char*  name;
-	size_t       offset;
-	unsigned int bit_field;
-	const char*  old_name;    // rename or drop
+	const SqType* type;        // type information of entry
+	const char*   name;
+	size_t        offset;
+	unsigned int  bit_field;
+	const char*   old_name;    // rename or drop
  */
 	// if name is NULL, it will drop old_name
 	// if name is NOT NULL, it will rename from old_name to name

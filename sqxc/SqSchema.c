@@ -47,7 +47,7 @@ void  sq_schema_final(SqSchema* schema)
 {
 	// reduce the stack frame:
 	// sq_type_unref() will not be called by below sq_entry_final()
-	sq_type_unref(schema->type);
+	sq_type_unref((SqType*)schema->type);
 	schema->type = NULL;
 	// finalize parent struct - SqEntry
 	sq_entry_final((SqEntry*)schema);
@@ -82,9 +82,9 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 	// if type_info == NULL,
 	// table->type is dynamic type and table->bit_field has SQB_TYPE_DYNAMIC
 	if (type_info == NULL) {
-		table->type->size = instance_size;
+		((SqType*)table->type)->size = instance_size;
 		if (type_name)
-			table->type->name = strdup(type_name);
+			((SqType*)table->type)->name = strdup(type_name);
 	}
 
 #ifdef SQ_CONFIG_NAMING_CONVENTION
@@ -95,7 +95,7 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 #endif
 
 	// add table in schema->type
-	sq_type_add_entry(schema->type, (SqEntry*)table, 1, 0);
+	sq_type_add_entry((SqType*)schema->type, (SqEntry*)table, 1, 0);
 	schema->bit_field |= SQB_CHANGED;
 	return table;
 }
@@ -107,7 +107,7 @@ SqTable* sq_schema_alter(SqSchema* schema, const char* name, const SqType* type_
 	table = sq_table_new(name, type_info);
 	table->bit_field |= SQB_CHANGED;
 
-	sq_type_add_entry(schema->type, (SqEntry*)table, 1, 0);
+	sq_type_add_entry((SqType*)schema->type, (SqEntry*)table, 1, 0);
 	schema->bit_field |= SQB_CHANGED;
 	return table;
 }
@@ -121,7 +121,7 @@ void sq_schema_drop(SqSchema* schema, const char* name)
 	table->name = NULL;
 	table->bit_field = SQB_DYNAMIC;
 
-	sq_type_add_entry(schema->type, (SqEntry*)table, 1, 0);
+	sq_type_add_entry((SqType*)schema->type, (SqEntry*)table, 1, 0);
 	schema->bit_field |= SQB_CHANGED;
 
 #if 0
@@ -141,7 +141,7 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 	table->name = strdup(to);
 	table->bit_field = SQB_DYNAMIC;
 
-	sq_type_add_entry(schema->type, (SqEntry*)table, 1, 0);
+	sq_type_add_entry((SqType*)schema->type, (SqEntry*)table, 1, 0);
 	schema->bit_field |= SQB_CHANGED;
 
 #if 0
@@ -268,7 +268,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 	// update other data in SqSchema
 	schema->version = schema_src->version;
 	schema->bit_field |= SQB_SCHEMA_INCLUDED;
-	schema->type->bit_field &= ~SQB_TYPE_SORTED;
+	((SqType*)schema->type)->bit_field &= ~SQB_TYPE_SORTED;
 
 	return SQCODE_OK;
 }
@@ -327,7 +327,8 @@ int     sq_schema_trace_foreign(SqSchema* schema)
 
 			// --------------------------------------------
 			// trace renamed column
-			reentry = (SqReentry*)sq_reentries_trace_renamed(&table_fore->type->entry,
+			reentry = (SqReentry*)sq_reentries_trace_renamed(
+					&((SqType*)table_fore->type)->entry,
 					column->foreign->column, table_fore->offset, false);
 			if (reentry) {
 				reentry = *(SqReentry**)reentry;
@@ -467,7 +468,7 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 
 	// sort 'tables' (schema->type->entry) by table->name before calling count_table_order()
 	sq_ptr_array_sort(tables, (SqCompareFunc)sq_entry_cmp_name);
-	schema->type->bit_field |= SQB_TYPE_SORTED;
+	((SqType*)schema->type)->bit_field |= SQB_TYPE_SORTED;
 
 	// reset all table->offset before calling count_table_order()
 //	for (int index = 0;  index < tables->length;  index++)

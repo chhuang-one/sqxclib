@@ -55,68 +55,72 @@ struct User {
 
 // ----------------------------------------------------------------------------
 // use C99 designated initializer to define object (JSON object in SQL column)
-
 // SqType for structure Post. It also work if SqEntry is replaced by SqColumn.
-static const SqEntry* PostEntry[] = {
+
+// If you define constant SqType for structure, it must use with SqEntry pointer array.
+static const SqEntry *PostEntryPtrs[] = {
 	&(SqEntry) {SQ_TYPE_STRING, "title",      offsetof(Post, title),     0},
 	&(SqEntry) {SQ_TYPE_STRING, "desc",       offsetof(Post, desc),      0},
 };
-static SqType         type_post = SQ_TYPE_INITIALIZER(Post, PostEntry, 0);
+
+static const SqType   type_post = SQ_TYPE_INITIALIZER(Post, PostEntryPtrs, 0);
 #define SQ_TYPE_POST &type_post
 
 // ----------------------------------------------------------------------------
 // use C99 designated initializer to define table/column
 
+// Define SqEntry array (NOT pointer array) because it use with dynamic SqType (in SqTable).
+
 // CREATE TABLE "cities"
-static const SqColumn* CityColumnsVer1[] = {
-	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(City, id),        SQB_PRIMARY | SQB_HIDDEN},
-	&(SqColumn) {SQ_TYPE_STRING, "name",      offsetof(City, name),      SQB_NULLABLE},
-//	&(SqColumn) {SQ_TYPE_BOOL,   "visited",   offsetof(City, visited)},
+static const SqColumn CityColumnsVer1[] = {
+	{SQ_TYPE_INT,    "id",        offsetof(City, id),        SQB_PRIMARY | SQB_HIDDEN},
+	{SQ_TYPE_STRING, "name",      offsetof(City, name),      SQB_NULLABLE},
+//	{SQ_TYPE_BOOL,   "visited",   offsetof(City, visited)},
 };
 
 // CREATE TABLE "users"
-static const SqColumn* UserColumnsVer1[] = {
-	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_HIDDEN},
-	&(SqColumn) {SQ_TYPE_STRING, "name",      offsetof(User, name),      0},
-	&(SqColumn) {SQ_TYPE_STRING, "email",     offsetof(User, email),     0},
-    // FOREIGN KEY
-	&(SqColumn) {SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   0,
-                 .foreign = &(SqForeign) {"cities",    "id",  "CASCADE",  "CASCADE"} },
+static const SqColumn UserColumnsVer1[] = {
+	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_HIDDEN},
+	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0},
+	{SQ_TYPE_STRING, "email",     offsetof(User, email),     0},
+	// FOREIGN KEY
+	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   0,
+		.foreign = &(SqForeign) {"cities",  "id",  "CASCADE",  "CASCADE"} },
 
 #ifdef SQ_CONFIG_JSON_SUPPORT
-	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "ints",  offsetof(User, ints),    0},
-	&(SqColumn) {SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER | SQB_NULLABLE},    // User.post is pointer
+	{SQ_TYPE_INTPTR_ARRAY, "ints",  offsetof(User, ints),    0},
+	{SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER | SQB_NULLABLE},    // User.post is pointer
 #endif
 
 	// CONSTRAINT FOREIGN KEY
-	&(SqColumn) {SQ_TYPE_CONSTRAINT,   "users_city_id_foreign",
-	             .foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
-	             .composite = (char *[]) {"city_id", NULL} },
+	{SQ_TYPE_CONSTRAINT,   "users_city_id_foreign",
+		.foreign = &(SqForeign) {"cities",  "id",  "NO ACTION",  "NO ACTION"},
+		.composite = (char *[]) {"city_id", NULL} },
 
 	// This column will be deleted in Ver3
-	&(SqColumn) {SQ_TYPE_UINT,   "test_drop",   offsetof(User, test_drop),   0},
+	{SQ_TYPE_UINT,   "test_drop",   offsetof(User, test_drop),   0},
 
 	// This column will be renamed in Ver4
-	&(SqColumn) {SQ_TYPE_UINT,   "test_rename", offsetof(User, test_rename), 0},
+	{SQ_TYPE_UINT,   "test_rename", offsetof(User, test_rename), 0},
 };
 
 
 // ALTER TABLE "users"
-static const SqColumn* UserColumnsVer2[] = {
-    // ADD COLUMN "test_add"
-	&(SqColumn) {SQ_TYPE_UINT,   "test_add",  offsetof(User, test_add),  0},
+static const SqColumn UserColumnsVer2[] = {
+	// ADD COLUMN "test_add"
+	{SQ_TYPE_UINT,   "test_add",  offsetof(User, test_add),  0},
 };
 
 // ALTER TABLE "users"
-static const SqColumn* UserColumnsVer3[] = {
-    // DROP COLUMN "test_drop"
-	&(SqColumn) {.old_name = "test_drop",     .name = NULL },
+static const SqColumn UserColumnsVer3[] = {
+	// DROP COLUMN "test_drop"
+	{.old_name = "test_drop",     .name = NULL },
 };
 
 // ALTER TABLE "users"
-static const SqColumn* UserColumnsVer4[] = {
-    // RENAME COLUMN "test_rename"  TO "test_rename2"
-	&(SqColumn) {.old_name = "test_rename",   .name = "test_rename2" },
+static const SqColumn UserColumnsVer4[] = {
+	// RENAME COLUMN "test_rename"  TO "test_rename2"
+	{.old_name = "test_rename",   .name = "test_rename2" },
 };
 
 // ----------------------------------------------------------------------------
@@ -196,10 +200,10 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 //		schema->version = 1;
 		// CREATE TABLE "cities"
 		table = sq_schema_create(schema, "cities", City);
-		sq_table_add_column_ptrs(table, CityColumnsVer1, SQ_N_PTRS(CityColumnsVer1));
+		sq_table_add_column(table, CityColumnsVer1, SQ_N_COLUMNS(CityColumnsVer1));
 		// CREATE TABLE "users"
 		table = sq_schema_create(schema, "users", User);
-		sq_table_add_column_ptrs(table, UserColumnsVer1, SQ_N_PTRS(UserColumnsVer1));
+		sq_table_add_column(table, UserColumnsVer1, SQ_N_COLUMNS(UserColumnsVer1));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -210,7 +214,7 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 //		schema->version = 2;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_column_ptrs(table, UserColumnsVer2, SQ_N_PTRS(UserColumnsVer2));
+		sq_table_add_column(table, UserColumnsVer2, SQ_N_COLUMNS(UserColumnsVer2));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -221,7 +225,7 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 //		schema->version = 3;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_column_ptrs(table, UserColumnsVer3, SQ_N_PTRS(UserColumnsVer3));
+		sq_table_add_column(table, UserColumnsVer3, SQ_N_COLUMNS(UserColumnsVer3));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -232,7 +236,7 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 //		schema->version = 4;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_column_ptrs(table, UserColumnsVer4, SQ_N_PTRS(UserColumnsVer4));
+		sq_table_add_column(table, UserColumnsVer4, SQ_N_COLUMNS(UserColumnsVer4));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);

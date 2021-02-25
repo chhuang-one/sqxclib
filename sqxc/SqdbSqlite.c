@@ -39,16 +39,16 @@ static const SqdbInfo dbinfo = {
 	.product = SQDB_PRODUCT_SQLITE,
 	.column  = {
 		.has_boolean = 1,
-	 	.use_alter  = 1,
+		.use_alter  = 1,
 		.use_modify = 0,
 	},
 
 	.init    = (void*)sqdb_sqlite_init,
 	.final   = (void*)sqdb_sqlite_final,
-    .open    = (void*)sqdb_sqlite_open,
-    .close   = (void*)sqdb_sqlite_close,
-    .exec    = (void*)sqdb_sqlite_exec,
-    .migrate = (void*)sqdb_sqlite_migrate,
+	.open    = (void*)sqdb_sqlite_open,
+	.close   = (void*)sqdb_sqlite_close,
+	.exec    = (void*)sqdb_sqlite_exec,
+	.migrate = (void*)sqdb_sqlite_migrate,
 };
 
 const SqdbInfo* SQDB_INFO_SQLITE = &dbinfo;
@@ -139,7 +139,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	// trace renamed (or dropped) table/column that was referenced by others
 	sq_schema_trace_foreign(schema);
 
-	type = schema->type;
+	type = (SqType*)schema->type;
 	sq_ptr_array_init(&reentries, type->n_entry - schema->offset, (SqDestroyFunc)sq_table_free);
 	// move renamed and dropped (table's)record from schema->type->entry to another array
 	for (int index = schema->offset;  index < type->n_entry;  index++) {
@@ -229,7 +229,7 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 		goto atError;
 
 	// run SQL statement: create/recreate table
-	type = schema->type;
+	type = (SqType*)schema->type;
 	for (int index = 0;  index < type->n_entry;  index++) {
 		table = (SqTable*)type->entry[index];
 		if (table == NULL)

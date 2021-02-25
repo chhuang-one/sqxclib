@@ -59,7 +59,7 @@ void  sq_entry_final(SqEntry* entry)
 {
 	if (entry->bit_field & SQB_DYNAMIC) {
 		if (entry->type)
-			sq_type_unref(entry->type);
+			sq_type_unref((SqType*)entry->type);
 		free((char*)entry->name);
 	}
 }

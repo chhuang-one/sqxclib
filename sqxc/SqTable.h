@@ -73,6 +73,8 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
                                            SQB_TABLE_COL_ADDED_EXPRESSION | \
                                            SQB_TABLE_COL_ADDED_CURRENT_TIME)
 
+#define SQ_N_COLUMNS(ColumnArray)    ( sizeof(ColumnArray) / sizeof(SqColumn) )
+
 // --------------------------------------------------------
 // SqTable C functions
 
@@ -295,18 +297,19 @@ template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
 	Migration - Drop   : table->name = NULL, table->old_name = column_name
 	Migration - Rename : table->name = new_name, table->old_name = old_name
 
-	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
+	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
+	      C++ user can initialize static structure easily.
 */
 
 struct SqTable
 {
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
-	SqType*      type;        // type information for this entry
-	const char*  name;
-	size_t       offset;      // sq_schema_trace_foreign() and migration use this
-	unsigned int bit_field;
-	const char*  old_name;    // rename or drop
+	const SqType* type;        // type information for this entry
+	const char*   name;
+	size_t        offset;      // sq_schema_trace_foreign() and migration use this
+	unsigned int  bit_field;
+	const char*   old_name;    // rename or drop
  */
 
 	// ------ SqTable members ------
@@ -366,7 +369,7 @@ struct SqTable
 		{ return *sq_table_add_double(this, column_name, offset); }
 	SqColumn& string(const char* column_name, size_t offset, int length = -1)
 		{ return *sq_table_add_string(this, column_name, offset, length); }
-	SqColumn& custom(const char* column_name, size_t offset, SqType* type, int length = -1)
+	SqColumn& custom(const char* column_name, size_t offset, const SqType* type, int length = -1)
 		{ return *sq_table_add_custom(this, column_name, offset, type, length); }
 
 	SqColumn& stdstring(const char* column_name, size_t offset, int length = -1) {
@@ -414,7 +417,7 @@ struct SqTable
 		return *sq_table_add_string(this, column_name, Sq::offsetOf(member), length);
 	};
 	template<class Store, class Type>
-	SqColumn& custom(const char* column_name, Type Store::*member, SqType* type, int length = -1) {
+	SqColumn& custom(const char* column_name, Type Store::*member, const SqType* type, int length = -1) {
 		return *sq_table_add_custom(this, column_name, Sq::offsetOf(member), type, length);
 	};
 
@@ -523,7 +526,7 @@ struct SqTable
 
 struct SqForeign
 {
-	// Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
+	// Note: use 'const char*' to declare string here, C++ user can initialize static structure easily.
 	const char*  table;
 	const char*  column;
 	const char*  on_delete;
@@ -537,18 +540,19 @@ struct SqForeign
 	Migration - Drop   : column->name = NULL, column->old_name = column_name
 	Migration - Rename : column->name = new_name, column->old_name = old_name
 
-	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
+	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
+	      C++ user can initialize static structure easily.
 */
 
 struct SqColumn
 {
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
-	SqType*      type;        // type information for this entry
-	const char*  name;
-	size_t       offset;
-	unsigned int bit_field;
-	const char*  old_name;    // rename or drop
+	const SqType* type;        // type information for this entry
+	const char*   name;
+	size_t        offset;
+	unsigned int  bit_field;
+	const char*   old_name;    // rename or drop
  */
 
 	// ------ SqColumn members ------

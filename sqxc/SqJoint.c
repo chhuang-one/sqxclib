@@ -129,7 +129,7 @@ static int  sq_type_joint_parse(void* instance, const SqType *type, Sqxc* src)
 		// push nested for parser of 'table'
 		nested = sqxc_push_nested(src);
 		nested->data = *(void**)((char*)instance +table->offset);
-		nested->data2 = table->type;
+		nested->data2 = (void*)table->type;
 		nested->data3 = nested->data;
 		// call parser of 'table'
 		src->name += temp.len;

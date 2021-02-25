@@ -463,7 +463,7 @@ Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 
 	for (int index = 0;  index < entrytype->n_entry;  index++) {
 		SqEntry* entry = entrytype->entry[index];
-		member_type = entry->type;
+		member_type = (SqType*)entry->type;
 		if (member_type->write == NULL)  // don't write anything if function pointer is NULL
 			continue;
 		member = (char*)instance + entry->offset;

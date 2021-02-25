@@ -60,7 +60,7 @@ static const SqColumn  UserColumns[6] = {
 ```c++
 Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
-static const SqForeign usersForeign = {"cities",    "id",  "CASCADE",  "CASCADE"};
+static const SqForeign usersForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
 
 static const SqColumn  UserColumns[6] = {
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
@@ -279,7 +279,7 @@ static const SqColumn  UserColumnsChanged[] = {
 	         query->from("city")
 	              ->where("id", "<", "100");
 	     })->as("c")->on("c.id = companies.city_id")
-	     ->where(age > 5);
+	     ->where("age > 5");
 ```
 
  use C function to produce query
