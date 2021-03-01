@@ -1,5 +1,5 @@
 # SqEntry
-SqEntry define constant or dynamic field in structure/class.
+SqEntry define constant or dynamic field in structure.
 It must use SqType to declare type of field.
 
 ```c
@@ -34,12 +34,12 @@ Declaring bit_field in SqEntry
 * Note: This is SqEntry pointer array. If you define constant SqType for structure, it must use with SqEntry pointer array.
 
 ```c
-static const SqEntry *entry_pointers[2] = {
+static const SqEntry *entryPointers[2] = {
 	&(SqEntry) {SQ_TYPE_UINT,   "bit_field",  offsetof(SqEntry, bit_field),  SQB_HIDDEN},
 	&(SqEntry) {SQ_TYPE_STRING, "name",       offsetof(SqEntry, name),       0},
 };
 
-const SqType type = SQ_TYPE_INITIALIZER(entry_pointers, 2, 0);
+const SqType type = SQ_TYPE_INITIALIZER(entryPointers, 2, 0);
 ```
 
 ##### 2. define constant SqEntry array that used by dynamic SqType

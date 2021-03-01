@@ -115,24 +115,24 @@ void  company_array_print(SqPtrArray* array)
 // ----------------------------------------------------------------------------
 // use C++ aggregate initialization to define static SqColumn
 
-static const SqForeign users_foreign = {"companies",  "id",  "CASCADE",  "CASCADE"};
-static const char*     users_foreign_composite[] = {"company_id", NULL};
-static const char*     users_index_composite[]   = {"id", NULL};
+static const SqForeign userForeign = {"companies",  "id",  "CASCADE",  "CASCADE"};
+static const char*     userForeignComposite[] = {"company_id", NULL};
+static const char*     userIndexComposite[]   = {"id", NULL};
 
 // CREATE TABLE "users"
-static const SqColumn UserColumns[] = {
+static const SqColumn userColumns[] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_HIDDEN},
 	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0},
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "company_id",   offsetof(User, company_id),   0,
-		.foreign = (SqForeign*)&users_foreign},
+		.foreign = (SqForeign*)&userForeign},
 	// CONSTRAINT FOREIGN KEY
 	{SQ_TYPE_CONSTRAINT,   "users_companies_id_foreign",
-		.foreign = (SqForeign*)&users_foreign,
-		.composite = (char **)  users_foreign_composite },
+		.foreign = (SqForeign*)&userForeign,
+		.composite = (char **)  userForeignComposite },
 	// INDEX
 	{SQ_TYPE_INDEX,  "users_id_index",
-		.composite = (char **)  users_index_composite },
+		.composite = (char **)  userIndexComposite },
 };
 #endif
 
@@ -163,7 +163,7 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	table = schema->create<User>("users");
 #if USE_CXX_AGGREGATE_INITIALIZATION == 1
 	// create table by static columns
-	table->addColumn(UserColumns, sizeof(UserColumns) / sizeof(SqColumn));
+	table->addColumn(userColumns, sizeof(userColumns) / sizeof(SqColumn));
 #else
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
@@ -172,7 +172,7 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	table->addIndex("users_id_index", "id", NULL);
 #endif
 
-	// End of migration. create SQL tables based on storage->schema
+	// synchronize schema to database. create/alter SQL tables based on storage->schema
 	storage->migrate(NULL);
 }
 
@@ -229,7 +229,7 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	storage->migrate(schemaVer2);
 	storage->migrate(schemaVer3);
 	storage->migrate(schemaVer4);
-	// End of migration. create SQL tables based on storage->schema
+	// synchronize schema to database. create/alter SQL tables based on storage->schema
 	storage->migrate(NULL);
 
 	// free migrated schema

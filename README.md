@@ -196,7 +196,7 @@ static const SqColumn  UserColumnsChanged[] = {
 ```c++
 	storage->migrate(schema);    // migrate schema
 	storage->migrate(schema2);   // migrate schema2
-	storage->migrate(NULL);      // End of migration
+	storage->migrate(NULL);      // synchronize schema to database.
 	delete schema;               // free unused schema
 	delete schema2;              // free unused schema2
 ```
@@ -206,7 +206,7 @@ static const SqColumn  UserColumnsChanged[] = {
 ```c
 	sq_storage_migrate(storage, schema);    // migrate schema
 	sq_storage_migrate(storage, schema2);   // migrate schema2
-	sq_storage_migrate(storage, NULL);      // End of migration
+	sq_storage_migrate(storage, NULL);      // synchronize schema to database.
 	sq_schema_free(schema);                 // free unused schema
 	sq_schema_free(schema2);                // free unused schema2
 ```

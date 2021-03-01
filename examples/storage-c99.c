@@ -58,13 +58,13 @@ struct User {
 // SqType for structure Post. It also work if SqEntry is replaced by SqColumn.
 
 // If you define constant SqType for structure, it must use with SqEntry pointer array.
-static const SqEntry *PostEntryPtrs[] = {
+static const SqEntry *postEntryPointers[] = {
 	&(SqEntry) {SQ_TYPE_STRING, "title",      offsetof(Post, title),     0},
 	&(SqEntry) {SQ_TYPE_STRING, "desc",       offsetof(Post, desc),      0},
 };
 
-static const SqType   type_post = SQ_TYPE_INITIALIZER(Post, PostEntryPtrs, 0);
-#define SQ_TYPE_POST &type_post
+static const SqType   typePost = SQ_TYPE_INITIALIZER(Post, postEntryPointers, 0);
+#define SQ_TYPE_POST &typePost
 
 // ----------------------------------------------------------------------------
 // use C99 designated initializer to define table/column
@@ -72,14 +72,14 @@ static const SqType   type_post = SQ_TYPE_INITIALIZER(Post, PostEntryPtrs, 0);
 // Define SqEntry array (NOT pointer array) because it use with dynamic SqType (in SqTable).
 
 // CREATE TABLE "cities"
-static const SqColumn CityColumnsVer1[] = {
+static const SqColumn cityColumnsVer1[] = {
 	{SQ_TYPE_INT,    "id",        offsetof(City, id),        SQB_PRIMARY | SQB_HIDDEN},
 	{SQ_TYPE_STRING, "name",      offsetof(City, name),      SQB_NULLABLE},
 //	{SQ_TYPE_BOOL,   "visited",   offsetof(City, visited)},
 };
 
 // CREATE TABLE "users"
-static const SqColumn UserColumnsVer1[] = {
+static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_HIDDEN},
 	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0},
 	{SQ_TYPE_STRING, "email",     offsetof(User, email),     0},
@@ -106,19 +106,19 @@ static const SqColumn UserColumnsVer1[] = {
 
 
 // ALTER TABLE "users"
-static const SqColumn UserColumnsVer2[] = {
+static const SqColumn userColumnsVer2[] = {
 	// ADD COLUMN "test_add"
 	{SQ_TYPE_UINT,   "test_add",  offsetof(User, test_add),  0},
 };
 
 // ALTER TABLE "users"
-static const SqColumn UserColumnsVer3[] = {
+static const SqColumn userColumnsVer3[] = {
 	// DROP COLUMN "test_drop"
 	{.old_name = "test_drop",     .name = NULL },
 };
 
 // ALTER TABLE "users"
-static const SqColumn UserColumnsVer4[] = {
+static const SqColumn userColumnsVer4[] = {
 	// RENAME COLUMN "test_rename"  TO "test_rename2"
 	{.old_name = "test_rename",   .name = "test_rename2" },
 };
@@ -200,10 +200,10 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 //		schema->version = 1;
 		// CREATE TABLE "cities"
 		table = sq_schema_create(schema, "cities", City);
-		sq_table_add_column(table, CityColumnsVer1, SQ_N_COLUMNS(CityColumnsVer1));
+		sq_table_add_column(table, cityColumnsVer1, SQ_N_COLUMNS(cityColumnsVer1));
 		// CREATE TABLE "users"
 		table = sq_schema_create(schema, "users", User);
-		sq_table_add_column(table, UserColumnsVer1, SQ_N_COLUMNS(UserColumnsVer1));
+		sq_table_add_column(table, userColumnsVer1, SQ_N_COLUMNS(userColumnsVer1));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -214,7 +214,7 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 //		schema->version = 2;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_column(table, UserColumnsVer2, SQ_N_COLUMNS(UserColumnsVer2));
+		sq_table_add_column(table, userColumnsVer2, SQ_N_COLUMNS(userColumnsVer2));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -225,7 +225,7 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 //		schema->version = 3;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_column(table, UserColumnsVer3, SQ_N_COLUMNS(UserColumnsVer3));
+		sq_table_add_column(table, userColumnsVer3, SQ_N_COLUMNS(userColumnsVer3));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -236,7 +236,7 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 //		schema->version = 4;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_column(table, UserColumnsVer4, SQ_N_COLUMNS(UserColumnsVer4));
+		sq_table_add_column(table, userColumnsVer4, SQ_N_COLUMNS(userColumnsVer4));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -265,7 +265,7 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 		sq_schema_free(schema);
 	}
 
-	// End of migration. create SQL tables based on storage->schema
+	// synchronize schema to database. create/alter SQL tables based on storage->schema
 	sq_storage_migrate(storage, NULL);
 }
 
@@ -312,7 +312,7 @@ int  main(void)
 	sq_storage_open(storage, "sample-c99");
 
 	// This program migrate to next version every run. (from Ver1 to Ver6)
-	storage_make_migrated_schema(storage, ((SqdbSqlite*)db)->version +1);
+	storage_make_migrated_schema(storage, db->version +1);
 
 	if (storage->schema->version == 1) {
 		city = city_new();
