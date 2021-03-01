@@ -38,6 +38,7 @@ extern "C" {
 
 // migration - warning
 #define SQCODE_REENTRY_DROPPED       31
+#define SQCODE_CAN_NOT_SYNC          32    // schema version is older than database
 // migration - error
 #define SQCODE_REFERENCE_NOT_FOUND   41
 #define SQCODE_REFERENCE_EACH_OTHER  42

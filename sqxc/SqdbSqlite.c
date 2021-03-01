@@ -74,6 +74,7 @@ static void sqdb_sqlite_init(SqdbSqlite* sqdb, SqdbConfigSqlite* config_src)
 		sqdb->extension = NULL;
 		sqdb->folder = NULL;
 	}
+	sqdb->version = 0;
 }
 
 static void sqdb_sqlite_final(SqdbSqlite* sqdb)
@@ -119,7 +120,8 @@ static int  sqdb_sqlite_close(SqdbSqlite* sqdb)
 	return SQCODE_OK;
 }
 
-static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* schema_next)
+// synchronize schema to database
+static int  sqdb_sqlite_migrate_sync(SqdbSqlite* sqdb, SqSchema* schema)
 {
 	SqBuffer    sql_buf;
 	SqPtrArray  reentries;
@@ -129,12 +131,13 @@ static int  sqdb_sqlite_migrate_end(SqdbSqlite* sqdb, SqSchema* schema, SqSchema
 	char*       errorMsg = NULL;
 	int   rc;
 
-	// Don't migrate if database schema version equal the latest schema version
-	if (sqdb->version == schema->version) {
-		// free temporary data after migration.
-		sq_schema_complete(schema);
+	// Don't migrate if database schema version greater than or equal to the latest schema version
+	// --- database schema version > the latest schema version
+	if (sqdb->version > schema->version)
+		return SQCODE_CAN_NOT_SYNC;
+	// --- database schema version == the latest schema version
+	if (sqdb->version == schema->version)
 		return SQCODE_OK;
-	}
 
 	// trace renamed (or dropped) table/column that was referenced by others
 	sq_schema_trace_foreign(schema);
@@ -311,9 +314,9 @@ static int  sqdb_sqlite_migrate(SqdbSqlite* sqdb, SqSchema* schema, SqSchema* sc
 	if (sqdb->self == NULL)
 		return SQCODE_ERROR;
 
-	// End of migration
+	// If 'schema_next' is NULL, synchronize schema to database
 	if (schema_next == NULL)
-		return sqdb_sqlite_migrate_end(sqdb, schema, schema_next);
+		return sqdb_sqlite_migrate_sync(sqdb, schema);
 
 	// include and apply changes
 	sq_schema_include(schema, schema_next);
@@ -404,12 +407,14 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 	int   rc;
 	char* errorMsg;
 
+#ifdef DEBUG
+	fprintf(stderr, "SQL: %s\n", sql);
+#endif
+
 	if (xc == NULL) {
 #ifdef DEBUG
-		fprintf(stderr, "SQL: %s\n", sql);
 		rc = sqlite3_exec(sqdb->self, sql, debug_callback, NULL, &errorMsg);
 #else
-		// no callback if xc is NULL
 		rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
 #endif
 	}
@@ -418,9 +423,10 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 		case 'S':    // SELECT
 		case 's':    // select
 #ifdef DEBUG
-			if (xc == NULL || xc->info != SQXC_INFO_VALUE)
+			if (xc->info != SQXC_INFO_VALUE) {
+				fprintf(stderr, "sqdb_sqlite_exec(): SELECT command must use with SqxcValue.\n");
 				return SQCODE_EXEC_ERROR;
-			fprintf(stderr, "SQL: %s\n", sql);
+			}
 #endif
 			// if Sqxc element prepare for multiple row
 			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
@@ -442,9 +448,10 @@ static int  sqdb_sqlite_exec(SqdbSqlite* sqdb, const char* sql, Sqxc* xc, void* 
 		case 'I':    // INSERT
 		case 'i':    // insert
 #ifdef DEBUG
-			if (xc == NULL || xc->info != SQXC_INFO_SQL)
+			if (xc->info != SQXC_INFO_SQL) {
+				fprintf(stderr, "sqdb_sqlite_exec(): INSERT command must use with SqxcSql.\n");
 				return SQCODE_EXEC_ERROR;
-			fprintf(stderr, "SQL: %s\n", sql);
+			}
 #endif
 		default:
 			rc = sqlite3_exec(sqdb->self, sql, insert_callback, xc, &errorMsg);
