@@ -41,11 +41,11 @@ extern const SqdbInfo*    SQDB_INFO_SQLITE;
     |
     `--- SqdbSqlite
 
-   The correct way to derive Sqdb:  (conforming C++11 standard-layout)
-   1. Use Sq::DbMethod to inherit member function(method).
-   2. Use SQDB_MEMBERS to inherit member variable.
-   3. Add variable and non-virtual function in derived struct.
-   ** This can keep std::is_standard_layout<>::value == true
+    The correct way to derive Sqdb:  (conforming C++11 standard-layout)
+    1. Use Sq::DbMethod to inherit member function(method).
+    2. Use SQDB_MEMBERS to inherit member variable.
+    3. Add variable and non-virtual function in derived struct.
+    ** This can keep std::is_standard_layout<>::value == true
  */
 
 #ifdef __cplusplus
@@ -57,11 +57,13 @@ struct SqdbSqlite
 	SQDB_MEMBERS;                          // <-- 2. inherit member variable
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
+
+	// schema version in SQL database
+	int             version;
  */
 
 	// ------ SqdbSqlite members ------    // <-- 3. Add variable and non-virtual function in derived struct.
-    sqlite3*        self;
-	int             version;     // schema version in SQL database
+	sqlite3*        self;
 	char*           folder;
 	char*           extension;   // optional
 };
@@ -72,6 +74,8 @@ struct SqdbSqlite
     SqdbConfig
     |
     `--- SqdbConfigSqlite
+
+    Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
  */
 struct SqdbConfigSqlite
 {
@@ -82,8 +86,8 @@ struct SqdbConfigSqlite
  */
 
 	// ------ SqdbConfigSqlite members ------
-	char*           folder;
-	char*           extension;   // optional
+	const char*     folder;
+	const char*     extension;   // optional
 };
 
 

@@ -15,6 +15,8 @@
 #ifndef SQDB_MYSQL_H
 #define SQDB_MYSQL_H
 
+#include <mysql/mysql.h>
+
 #include <Sqdb.h>
 
 #ifdef __cplusplus
@@ -39,15 +41,15 @@ extern const SqdbInfo*    SQDB_INFO_MYSQL;
     |
     `--- SqdbMysql
 
-   The correct way to derive Sqdb:  (conforming C++11 standard-layout)
-   1. Use Sq::DbMethod to inherit member function(method).
-   2. Use SQDB_MEMBERS to inherit member variable.
-   3. Add variable and non-virtual function in derived struct.
-   ** This can keep std::is_standard_layout<>::value == true
+    The correct way to derive Sqdb:  (conforming C++11 standard-layout)
+    1. Use Sq::DbMethod to inherit member function(method).
+    2. Use SQDB_MEMBERS to inherit member variable.
+    3. Add variable and non-virtual function in derived struct.
+    ** This can keep std::is_standard_layout<>::value == true
  */
 
 #ifdef __cplusplus
-struct SqdbMysql : Sq::DbMethod          // <-- 1. inherit member function(method)
+struct SqdbMysql : Sq::DbMethod            // <-- 1. inherit member function(method)
 #else
 struct SqdbMysql
 #endif
@@ -55,9 +57,14 @@ struct SqdbMysql
 	SQDB_MEMBERS;                          // <-- 2. inherit member variable
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
+
+	// schema version in SQL database
+	int             version;
  */
 
 	// ------ SqdbMysql members ------     // <-- 3. Add variable and non-virtual function in derived struct.
+	MYSQL*  self;
+	SqdbConfigMysql*  config;
 };
 
 /* ----------------------------------------------------------------------------
@@ -66,6 +73,8 @@ struct SqdbMysql
     SqdbConfig
     |
     `--- SqdbConfigMysql
+
+    Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
  */
 struct SqdbConfigMysql
 {
@@ -76,6 +85,11 @@ struct SqdbConfigMysql
  */
 
 	// ------ SqdbConfigMysql members ------
+	const char*   host;
+	const char*   user;
+	const char*   password;
+	const char*   db;
+	unsigned int  port;
 };
 
 
@@ -86,7 +100,7 @@ struct SqdbConfigMysql
 
 namespace Sq {
 
-typedef struct SqdbConfigMysql    DbConfigMariadb;
+typedef struct SqdbConfigMysql    DbConfigMysql;
 
 // conforming C++11 standard-layout
 // These are for directly use only. You can NOT derived it.

@@ -41,19 +41,20 @@ extern const SqdbInfo*    SQDB_INFO_EMPTY;
  */
 
 #ifdef __cplusplus
-struct SqdbEmpty : Sq::DbMethod
+struct SqdbEmpty : Sq::DbMethod            // <-- 1. inherit member function(method)
 #else
 struct SqdbEmpty
 #endif
 {
-	SQDB_MEMBERS;
+	SQDB_MEMBERS;                          // <-- 2. inherit member variable
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
+
+	// schema version in SQL database
+	int             version;
  */
 
-	// ------ SqdbEmpty members ------
-	int    version;     // schema version in SQL database
-
+	// ------ SqdbEmpty members ------     // <-- 3. Add variable and non-virtual function in derived struct.
 	void*  instance;
 };
 

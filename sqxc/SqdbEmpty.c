@@ -81,7 +81,7 @@ static int  sqdb_empty_migrate(SqdbEmpty* sqdb, SqSchema* schema, SqSchema* sche
 {
 //	SqBuffer* buffer;
 
-	// End of migration
+	// synchronize schema to database.
 	if (schema_next == NULL) {
 		// Don't migrate if database schema equal the latest schema
 		if (sqdb->version == schema->version)

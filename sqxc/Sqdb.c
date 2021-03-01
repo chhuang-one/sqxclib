@@ -88,7 +88,7 @@ void sqdb_sql_write_schema(Sqdb* db, SqBuffer* buffer, SqSchema* schema, SqPtrAr
 }
 
 // ------------------------------------
-// SqTable
+// create tables that reference each other
 
 // sort schema->type->entry by table->name before calling this function.
 int  sqdb_sql_create_tables_reo(Sqdb* db, SqBuffer* buffer, SqSchema* schema, SqTable* table)

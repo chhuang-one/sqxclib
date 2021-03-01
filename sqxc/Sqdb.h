@@ -150,7 +150,8 @@ struct SqdbInfo
  */
 
 #define SQDB_MEMBERS           \
-	const SqdbInfo *info
+	const SqdbInfo *info;      \
+	int             version
 
 #ifdef __cplusplus
 struct Sqdb : Sq::DbMethod           // <-- 1. inherit member function(method)
@@ -161,6 +162,9 @@ struct Sqdb
 	SQDB_MEMBERS;                    // <-- 2. inherit member variable
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
+
+	// schema version in SQL database
+	int             version;
  */
 
 	/* Add variable and function */  // <-- 3. Add variable and non-virtual function in derived struct.
