@@ -434,6 +434,8 @@ int  sq_type_object_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	if (entry) {
 		entry = *(SqEntry**)entry;
 		entrytype = entry->type;
+		if (entrytype->parse == NULL)  // don't parse anything if function pointer is NULL
+			return (src->code = SQCODE_OK);
 		instance = (char*)instance + entry->offset;
 		if (entry->bit_field & SQB_POINTER) {
 			if (src->type == SQXC_TYPE_STRING && src->value.string == NULL) {
