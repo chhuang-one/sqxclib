@@ -7,10 +7,6 @@ executable('test-cxx',
            'test-cxx.cpp',
            dependencies : [sqxc, sqlite])
 
-executable('test-migration',
-           'test-migration.c',
-           dependencies : [sqxc, sqlite])
-
 executable('test-query',
            'test-query.c',
            dependencies : [sqxc, sqlite])
