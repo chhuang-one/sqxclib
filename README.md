@@ -35,7 +35,7 @@ struct User {
  use C99 designated initializer to define table/column (static)
 
 ```c
-static const SqColumn  UserColumns[6] = {
+static const SqColumn  userColumns[6] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),       SQB_PRIMARY},
 	{SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
 	{SQ_TYPE_STRING, "email",     offsetof(User, email)      },
@@ -52,7 +52,7 @@ static const SqColumn  UserColumns[6] = {
 };
 
 	// add columns/records to table
-	sq_table_add_column(table, UserColumns, 6);
+	sq_table_add_column(table, userColumns, 6);
 ```
 
  use C++ aggregate initialization to define table/column (static)
@@ -60,15 +60,15 @@ static const SqColumn  UserColumns[6] = {
 ```c++
 Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
-static const SqForeign usersForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
+static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
 
-static const SqColumn  UserColumns[6] = {
+static const SqColumn  userColumns[6] = {
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
 	{SQ_TYPE_STRING, "full_name",  offsetof(User, full_name)  },
 	{SQ_TYPE_STRING, "email",      offsetof(User, email)      },
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
-		.foreign = (SqForeign*) &usersForeign},
+		.foreign = (SqForeign*) &userForeign},
 	// C++ std::string
 	{SQ_TYPE_STD_STRING, "strCpp", offsetof(User, strCpp)     },
 	// C++ std::vector
@@ -76,7 +76,7 @@ static const SqColumn  UserColumns[6] = {
 };
 
 	// add columns/records to table
-	table->addColumn(UserColumns, 6);
+	table->addColumn(userColumns, 6);
 ```
 
  use C function to define table/column (dynamic)
@@ -141,7 +141,7 @@ static const SqColumn  UserColumns[6] = {
  use C99 designated initializer to change table/column (static)
 
 ```c
-static const SqColumn  UserColumnsChanged[] = {
+static const SqColumn  userColumnsChanged[] = {
 	// ADD COLUMN "test_add"
 	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
 
@@ -156,7 +156,7 @@ static const SqColumn  UserColumnsChanged[] = {
 };
 
 	// add columns/records to table
-	sq_table_add_column(table, UserColumnsChanged, 4);
+	sq_table_add_column(table, userColumnsChanged, 4);
 ```
 
  use C function to change table/column (dynamic)
