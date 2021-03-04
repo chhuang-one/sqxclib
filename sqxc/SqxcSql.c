@@ -289,6 +289,9 @@ static void sqxc_sql_use_insert_command(SqxcSql* xcsql, SqTable* table)
 	sq_buffer_write(buffer, "\" (");
 	for (index = 0;  index < table->type->n_entry;  index++) {
 		entry = table->type->entry[index];
+		// skip SQ_TYPE_CONSTRAINT and SQ_TYPE_INDEX. They are fake types.
+		if (SQ_TYPE_IS_FAKE(entry->type))
+			continue;
 		// Don't output anything if column is auto increment.
 		if (entry->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(entry->type)) {
 			index_beg++;
