@@ -226,7 +226,7 @@ void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrAr
  */
 int       sq_table_erase_records(SqTable* table, char version_comparison);
 
-void      sq_table_complete(SqTable* table);
+void      sq_table_complete(SqTable* table, bool no_unused_column);
 
 // sort column by it's attribute
 //	sq_ptr_array_sort(result, (SqCompareFunc)sq_column_cmp_attrib);
@@ -513,8 +513,8 @@ struct SqTable
 	int  eraseRecords(char version_comparison) {
 		return sq_table_erase_records(this, version_comparison);
 	}
-	void complete() {
-		sq_table_complete(this);
+	void complete(bool no_unused_column = true) {
+		sq_table_complete(this, no_unused_column);
 	}
 #endif  // __cplusplus
 };

@@ -639,7 +639,7 @@ int  sq_table_erase_records(SqTable* table, char version_comparison)
 	return n_old_columns;
 }
 
-void   sq_table_complete(SqTable* table)
+void   sq_table_complete(SqTable* table, bool no_unused_column)
 {
 	SqPtrArray* reentries;
 	SqColumn*   column;
@@ -651,7 +651,7 @@ void   sq_table_complete(SqTable* table)
 		reentries = sq_type_get_ptr_array(table->type);
 		for (int index = 0;  index < reentries->length;  index++) {
 			column = reentries->data[index];
-			if (column->type == SQ_TYPE_INDEX || column->type == SQ_TYPE_CONSTRAINT) {
+			if (no_unused_column && (column->type == SQ_TYPE_INDEX || column->type == SQ_TYPE_CONSTRAINT)) {
 				sq_column_free(column);
 				reentries->data[index] = NULL;
 				has_null = true;

@@ -95,7 +95,7 @@ static int  sqdb_empty_migrate(SqdbEmpty* sqdb, SqSchema* schema, SqSchema* sche
 		sq_schema_erase_records(schema, '<');
 
 		// free temporary data after migration.
-		sq_schema_complete(schema);
+		sq_schema_complete(schema, true);
 		return SQCODE_OK;
 	}
 

@@ -485,7 +485,7 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 	sq_ptr_array_sort(entries, (SqCompareFunc)sq_entry_cmp_offset);
 }
 
-void    sq_schema_complete(SqSchema* schema)
+void    sq_schema_complete(SqSchema* schema, bool no_unused_column)
 {
 	SqPtrArray* entries = sq_type_get_ptr_array(schema->type);
 	SqTable*    table;
@@ -493,7 +493,7 @@ void    sq_schema_complete(SqSchema* schema)
 	for (int index = 0;  index < entries->length;  index++) {
 		table = entries->data[index];
 //		table->offset = 0;
-		sq_table_complete(table);
+		sq_table_complete(table, no_unused_column);
 	}
 
 	schema->bit_field &= ~SQB_SCHEMA_INCLUDED;

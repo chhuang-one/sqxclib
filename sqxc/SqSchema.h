@@ -135,9 +135,11 @@ int     sq_schema_erase_records_of_table(SqSchema* schema, char version_comparis
  */
 void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries);
 
-// call this function after creating/altering SQL table.
+// call this function after synchronize schema to database (creating/altering SQL tables).
 // It will free temporary data (e.g. table->foreigns)
-void    sq_schema_complete(SqSchema* schema);
+// If 'no_unused_column' == true, it will free unused index and composite constraint in memory.
+// set 'no_unused_column' to false if your program needs to synchronize schema to the SQLite database at any time.
+void    sq_schema_complete(SqSchema* schema, bool no_unused_column);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -213,8 +215,8 @@ struct SqSchema
 		{ sq_schema_erase_records_of_table(this, version_comparison); }
 	void  arrange(SqPtrArray* entries)
 		{ sq_schema_arrange(this, entries); }
-	void  complete(void)
-		{ sq_schema_complete(this); }
+	void  complete(bool no_unused_column = true)
+		{ sq_schema_complete(this, no_unused_column); }
 #endif  // __cplusplus
 };
 

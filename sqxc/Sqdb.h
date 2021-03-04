@@ -62,23 +62,31 @@ typedef enum SqdbProduct {
 Sqdb*   sqdb_new(const SqdbInfo *info, SqdbConfig* config);
 void    sqdb_free(Sqdb* db);
 
-// SQL statement
-void sqdb_sql_write_schema(Sqdb* db, SqBuffer* sql_buf, SqSchema* schema, SqPtrArray* arranged_tables);
-int  sqdb_sql_create_tables_reo(Sqdb* db, SqBuffer* sql_buf, SqSchema* schema, SqTable* table);
+// ------------------------------------
+// execute SQL statement
 
-int  sqdb_sql_rename_table(Sqdb* db, SqBuffer* sql_buf, const char* old_name, const char* new_name);
+int  sqdb_exec_create_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
+int  sqdb_exec_alter_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
+
+// ------------------------------------
+// write SQL statement to 'sql_buf'
+
+// return number of columns in 'table'
 int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
 int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns, int n_old_columns);
-int  sqdb_sql_alter_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
-int  sqdb_sql_drop_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table);
+void sqdb_sql_rename_table(Sqdb* db, SqBuffer* sql_buf, const char* old_name, const char* new_name);
+void sqdb_sql_drop_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, bool if_exist);
 
-int  sqdb_sql_rename_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
-int  sqdb_sql_add_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
-int  sqdb_sql_alter_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
-int  sqdb_sql_drop_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+void sqdb_sql_rename_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+void sqdb_sql_add_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+void sqdb_sql_alter_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+void sqdb_sql_drop_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
 
 void sqdb_sql_create_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
 void sqdb_sql_drop_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+
+// ------------------------------------
+// write parameter,arguments to 'sql_buf'
 
 void sqdb_sql_write_column(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
 void sqdb_sql_write_constraint(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
