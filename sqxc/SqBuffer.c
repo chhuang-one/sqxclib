@@ -36,7 +36,7 @@ void* sq_buffer_resize(SqBuffer* buf, int size)
 
 char* sq_buffer_alloc_at(SqBuffer* buf, int position, int count)
 {
-	int  new_length = buf->writed + count +1;  // +1 for null-terminated string
+	int  new_length = buf->writed + count +1;    // +1 to reserve space for NULL-terminated
 
 	if (buf->size < new_length) {
 		buf->size = (buf->size < SQ_BUFFER_SIZE_DEFAULT) ? SQ_BUFFER_SIZE_DEFAULT : buf->size * 2;
@@ -49,7 +49,7 @@ char* sq_buffer_alloc_at(SqBuffer* buf, int position, int count)
 		        buf->buf + position,
 		        buf->writed - position);
 	}
-	buf->writed = new_length -1;    // -1 for null-terminated string
+	buf->writed = new_length -1;    // -1 because reserve space is not counted in length
 	return buf->buf + position;
 }
 

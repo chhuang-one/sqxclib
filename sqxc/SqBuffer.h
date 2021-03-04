@@ -89,6 +89,8 @@ typedef struct SqBuffer    SqBuffer;
 // C functions
 
 void* sq_buffer_resize(SqBuffer* buf, int size);
+
+// It reserve space in tail of buffer for NULL-terminated
 char* sq_buffer_alloc_at(SqBuffer* buf, int position, int count);
 
 #ifdef __cplusplus

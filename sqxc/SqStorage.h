@@ -55,6 +55,7 @@ void  sq_storage_final(SqStorage* storage);
 int   sq_storage_open(SqStorage* storage, const char *database_name);
 int   sq_storage_close(SqStorage* storage);
 
+// synchronize storage->schema to database if 'schema' == NULL
 int   sq_storage_migrate(SqStorage* storage, SqSchema* schema);
 
 // CRUD functions: user must specify one of 'table_name' or 'type_name'
