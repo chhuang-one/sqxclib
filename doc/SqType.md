@@ -42,38 +42,38 @@ User can define a constant or dynamic SqType. If you define constant SqType for 
 
 First, we define a custom data type:
 ```c
-	typedef struct User     User;
+typedef struct User     User;
 
-	struct User {
-		int    id;
-		char*  name;
-		char*  email;
-	};
+struct User {
+	int    id;
+	char  *name;
+	char  *email;
+};
 ```
 
 ##### 1. Define constant SqType with constant 'unsorted' SqEntry pointer array
 use C99 designated initializer to define struct that has 'unsorted' SqEntry pointer array.
 
 ```c
-	// --- entryPointers is 'unsorted' SqEntry pointer array
-	static const SqEntry  *entryPointers[] = {
-		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
-		&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
-		&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
-	};
+// --- entryPointers is 'unsorted' SqEntry pointer array
+static const SqEntry  *entryPointers[] = {
+	&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
+	&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
+	&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
+};
 
-	// --- typeUser use 'unsorted' entryPointers
-	const SqType typeUser = {
-		.size  = sizeof(User),
-		.init  = NULL,
-		.final = NULL,
-		.parse = sq_type_object_parse,
-		.write = sq_type_object_write,
-		.name  = SQ_GET_TYPE_NAME(User),
-		.entry   = entryPointers,
-		.n_entry = sizeof(entryPointers) / sizeof(SqEntry*),
-		.bit_field = 0,
-	};
+// --- typeUser use 'unsorted' entryPointers
+const SqType typeUser = {
+	.size  = sizeof(User),
+	.init  = NULL,
+	.final = NULL,
+	.parse = sq_type_object_parse,
+	.write = sq_type_object_write,
+	.name  = SQ_GET_TYPE_NAME(User),
+	.entry   = entryPointers,
+	.n_entry = sizeof(entryPointers) / sizeof(SqEntry*),
+	.bit_field = 0,
+};
 ```
 
 ##### 2. Define constant SqType with constant 'sorted' SqEntry pointer array
@@ -81,47 +81,47 @@ use C99 designated initializer to define struct that has 'unsorted' SqEntry poin
 use C99 designated initializer to define struct that has 'sorted' SqEntry pointer array.
 
 ```c
-	// --- sortedEntryPointers is 'sorted' entryPointers (sorted by name)
-	static const SqEntry  *sortedEntryPointers[] = {
-		&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
-		&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
-		&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
-	};
+// --- sortedEntryPointers is 'sorted' entryPointers (sorted by name)
+static const SqEntry  *sortedEntryPointers[] = {
+	&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), SQB_HIDDEN_NULL},
+	&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
+	&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
+};
 
-	// --- sortedTypeUser use sortedEntryPointers (set SQB_TYPE_SORTED in SqType::bit_field)
-	const SqType sortedTypeUser = {
-		.size  = sizeof(User),
-		.init  = NULL,
-		.final = NULL,
-		.parse = sq_type_object_parse,
-		.write = sq_type_object_write,
-		.name  = SQ_GET_TYPE_NAME(User),
+// --- sortedTypeUser use sortedEntryPointers (set SQB_TYPE_SORTED in SqType::bit_field)
+const SqType sortedTypeUser = {
+	.size  = sizeof(User),
+	.init  = NULL,
+	.final = NULL,
+	.parse = sq_type_object_parse,
+	.write = sq_type_object_write,
+	.name  = SQ_GET_TYPE_NAME(User),
 
-		// --- The following is the difference from typeUser
-		.entry   = sortedEntryPointers,
-		.n_entry = sizeof(sortedEntryPointers) / sizeof(SqEntry*),
-		.bit_field = SQB_TYPE_SORTED,
-		// Because sortedEntryPointers have been 'sorted' by SqEntry::name,
-		// you can set SQB_TYPE_SORTED in SqType::bit_field
-	};
+	// --- The following is the difference from typeUser
+	.entry   = sortedEntryPointers,
+	.n_entry = sizeof(sortedEntryPointers) / sizeof(SqEntry*),
+	.bit_field = SQB_TYPE_SORTED,
+	// Because sortedEntryPointers have been 'sorted' by SqEntry::name,
+	// you can set SQB_TYPE_SORTED in SqType::bit_field
+};
 ```
 
 ##### 3. Define constant SqType with constant SqEntry pointer array (use C macro)
 
 use macro SQ_TYPE_INITIALIZER() and SQ_TYPE_INITIALIZER_FULL()
 ```c
-	// entryPointers is 'unsorted' entries that defined in above example.
-	const SqType  typeUserM = SQ_TYPE_INITIALIZER(User, entryPointers, 0);
+// entryPointers is 'unsorted' entries that defined in above example.
+const SqType  typeUserM = SQ_TYPE_INITIALIZER(User, entryPointers, 0);
 
-	// sortedEntryPointers is 'sorted' entries that defined in above example.
-	const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, SQB_TYPE_SORTED);
+// sortedEntryPointers is 'sorted' entries that defined in above example.
+const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, SQB_TYPE_SORTED);
 ```
 
 ##### 4. Define dynamic SqType with constant SqEntry pointer array
 
 use sq_type_add_entry_ptrs() to add static SqEntry pointer array.
 ```c
-	SqType*  type = sq_type_new(0, NULL);
+	SqType  *type = sq_type_new(0, NULL);
 	int   n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
 
 	sq_type_add_entry_ptrs(type, entryPointers, n_entry);
@@ -131,8 +131,8 @@ use sq_type_add_entry_ptrs() to add static SqEntry pointer array.
 
 use sq_type_add_entry() to add dynamic SqEntry.
 ```c
-	SqType*  type = sq_type_new(0, NULL);
-	SqEntry* entry;
+	SqType  *type = sq_type_new(0, NULL);
+	SqEntry *entry;
 
 	entry = sq_entry_new(SQ_TYPE_INT);
 	entry->name = strdup("id");

@@ -14,15 +14,19 @@ It provides ORM features and C++ wrapper.
 
 3. It can work in low-end hardware.
 
-4. Supports SQLite. Supports for MySQL is working in progress.
+4. Supports SQLite.
+
+## Plan
+
+-  Supports more SQL database. (Supports MySQL in version 0.2)
 
 ## Database schema
 
 ```c
 struct User {
 	int    id;          // primary key
-	char*  full_name;
-	char*  email;
+	char  *full_name;
+	char  *email;
 	int    city_id;     // foreign key
 
 #ifdef __cplusplus      // C++ Only
@@ -32,7 +36,7 @@ struct User {
 };
 ```
 
- use C99 designated initializer to define table/column (static)
+ use C99 designated initializer to define table/column in schema_v1 (static)
 
 ```c
 static const SqColumn  userColumns[6] = {
@@ -51,11 +55,108 @@ static const SqColumn  userColumns[6] = {
 		.composite = (char *[]) {"id", NULL} },
 };
 
-	// add columns/records to table
+	schema_v1 = sq_schema_new("Ver 1");
+	schema_v1->version = 1;    // specify version number or auto generate it
+
+	// add static columns to table
+	table = sq_schema_create(schema_v1, "users", User);
 	sq_table_add_column(table, userColumns, 6);
 ```
 
- use C++ aggregate initialization to define table/column (static)
+ use C99 designated initializer to change table/column in schema_v2 (static)
+
+```c
+static const SqColumn  userColumnsChanged[] = {
+	// ADD COLUMN "test_add"
+	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
+
+	// ALTER COLUMN "city_id"
+	{SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
+
+	// DROP COLUMN "full_name"
+	{.old_name = "full_name", .name = NULL},
+
+	// RENAME COLUMN "email" TO "email2"
+	{.old_name = "email",     .name = "email2"},
+};
+
+	schema_v2 = sq_schema_new("Ver 2");
+	schema_v2->version = 2;    // specify version number or auto generate it
+
+	// add static columns/records to table
+	table = sq_schema_alter(schema_v2, "users", NULL);
+	sq_table_add_column(table, userColumnsChanged, 4);
+```
+
+ use C function to define table/column in schema_v1 (dynamic)
+
+```c
+	schema_v1 = sq_schmea_new("Ver 1");
+	schema_v1->version = 1;    // specify version number or auto generate it
+
+	table = sq_schema_create(schema_v1, "users", User);
+	column = sq_table_add_integer(table, "id", offsetof(User, id));
+	column->bit_field |= SQB_PRIMARY;
+	column = sq_table_add_string(table, "full_name", offsetof(User, full_name), -1);
+	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
+	// FOREIGN KEY
+	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
+	sq_column_reference(column, "cities", "id");
+	// CONSTRAINT FOREIGN KEY
+	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
+	sq_column_reference(column, "cities", "id");
+	// CREATE INDEX
+	column = sq_table_add_index(table, "users_id_index", "id", NULL);
+```
+
+ use C function to change table/column in schema_v2 (dynamic)
+
+```c
+	schema_v2 = sq_schema_new("Ver 2");
+	schema_v2->version = 2;    // specify version number or auto generate it
+
+	table = sq_schema_alter(schema_v2, "users", NULL);
+	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
+	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
+	column->bit_field |= SQB_CHANGED;
+	sq_table_drop_column(table, "full_name");
+	sq_table_rename_column(table, "email", "email2");
+```
+
+ use C macro to define table/column in schema_v1 (dynamic)
+
+```c
+	schema_v1 = sq_schmea_new("Ver 1");
+	schema_v1->version = 1;    // specify version number or auto generate it
+
+	SQ_SCHEMA_CREATE(schema_v1, "users", User, {
+		SQT_INTEGER("id", User, id);  SQC_PRIMARY();
+		SQT_STRING("full_name", User, full_name, -1);
+		SQT_STRING("email", User, email, -1);
+		// FOREIGN KEY
+		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");
+		// CONSTRAINT FOREIGN KEY
+		SQT_ADD_FOREIGN("users_city_id_foreign", "city_id");  SQC_REFERENCE("cities", "id");
+		// CREATE INDEX
+		SQT_ADD_INDEX("users_id_index", "id");
+	});
+```
+
+ use C macro to change table/column in schema_v2 (dynamic)
+
+```c
+	schema_v2 = sq_schema_new("Ver 2");
+	schema_v2->version = 2;    // specify version number or auto generate it
+
+	SQ_SCHEMA_ALTER(schema_v2, "users", User, {
+		SQT_INTEGER("test_add", User, test_add);
+		SQT_INTEGER("city_id", User, city_id);  SQC_CHANGE();
+		SQT_DROP("full_name");
+		SQT_RENAME("email", "email2");
+	});
+```
+
+ use C++ aggregate initialization to define table/column in schema_v1 (static)
 
 ```c++
 Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
@@ -75,54 +176,21 @@ static const SqColumn  userColumns[6] = {
 	{&SqTypeIntVector,  "intsCpp", offsetof(User, intsCpp)    },
 };
 
-	// add columns/records to table
+	schema_v1 = new Sq::Schema("Ver 1");
+	schema_v1->version = 1;    // specify version number or auto generate it
+
+	// add static columns to table
+	table = schema_v1->create<User>("users");
 	table->addColumn(userColumns, 6);
 ```
 
- use C function to define table/column (dynamic)
-
-```c
-	SqTable*  table;
-	SqColumn* column;
-
-	table = sq_schema_create(schema, "users", User);
-	column = sq_table_add_integer(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;
-	column = sq_table_add_string(table, "full_name", offsetof(User, full_name), -1);
-	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
-	// FOREIGN KEY
-	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
-	sq_column_reference(column, "cities", "id");
-	// CONSTRAINT FOREIGN KEY
-	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
-	sq_column_reference(column, "cities", "id");
-	// CREATE INDEX
-	column = sq_table_add_index(table, "users_id_index", "id", NULL);
-```
-
- use C macro to define table/column (dynamic)
-
-```c
-	SQ_SCHEMA_CREATE(schema, "users", User, {
-		SQT_INTEGER("id", User, id);  SQC_PRIMARY();
-		SQT_STRING("full_name", User, full_name, -1);
-		SQT_STRING("email", User, email, -1);
-		// FOREIGN KEY
-		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");
-		// CONSTRAINT FOREIGN KEY
-		SQT_ADD_FOREIGN("users_city_id_foreign", "city_id");  SQC_REFERENCE("cities", "id");
-		// CREATE INDEX
-		SQT_ADD_INDEX("users_id_index", "id");
-	});
-```
-
- use C++ function to define table/column (dynamic)
+ use C++ function to define table/column in schema_v1 (dynamic)
 
 ```c++
-	SqTable* table;
-	Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
+	schema_v1 = new Sq::Schema("Ver 1");
+	schema_v1->version = 1;    // specify version number or auto generate it
 
-	table = schema->create<User>("users");
+	table = schema_v1->create<User>("users");
 	table->integer("id", &User::id)->primary();
 	table->string("full_name", &User::full_name);
 	table->string("email", &User::email);
@@ -136,79 +204,39 @@ static const SqColumn  userColumns[6] = {
 	table->addIndex("users_id_index", "id", NULL);
 ```
 
-## Migration
-
- use C99 designated initializer to change table/column (static)
-
-```c
-static const SqColumn  userColumnsChanged[] = {
-	// ADD COLUMN "test_add"
-	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
-
-	// ALTER COLUMN "city_id"
-	{SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
-
-	// DROP COLUMN "full_name"
-	{.old_name = "full_name", .name = NULL},
-
-	// RENAME COLUMN "email" TO "email2"
-	{.old_name = "email",     .name = "email2"},
-};
-
-	// add columns/records to table
-	sq_table_add_column(table, userColumnsChanged, 4);
-```
-
- use C function to change table/column (dynamic)
-
-```c
-	table = sq_schema_alter(schema, "users", NULL);
-	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
-	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
-	column->bit_field |= SQB_CHANGED;
-	sq_table_drop_column(table, "full_name");
-	sq_table_rename_column(table, "email", "email2");
-```
-
- use C macro to change table/column (dynamic)
-
-```c
-	SQ_SCHEMA_ALTER(schema, "users", User, {
-		SQT_INTEGER("test_add", User, test_add);
-		SQT_INTEGER("city_id", User, city_id);  SQC_CHANGE();
-		SQT_DROP("full_name");
-		SQT_RENAME("email", "email2");
-	});
-```
-
- use C++ function to change table/column (dynamic)
+ use C++ function to change table/column in schema_v2 (dynamic)
 
 ```c++
-	table = schema->alter("users");
+	schema_v2 = new Sq::Schema("Ver 2");
+	schema_v2->version = 2;    // specify version number or auto generate it
+
+	table = schema_v2->alter("users");
 	table->integer("test_add", &User::test_add);
 	table->integer("city_id", &User::city_id)->change();
 	table->drop("full_name");
 	table->rename("email", "email2");
 ```
 
- use C++ function to migrate schema
+## Migration
+
+ use C++ function to migrate schema and synchronize to database
 
 ```c++
-	storage->migrate(schema);    // migrate schema
-	storage->migrate(schema2);   // migrate schema2
+	storage->migrate(schema_v1); // migrate schema_v1
+	storage->migrate(schema_v2); // migrate schema_v2
 	storage->migrate(NULL);      // synchronize schema to database.
-	delete schema;               // free unused schema
-	delete schema2;              // free unused schema2
+	delete schema_v1;            // free unused schema_v1
+	delete schema_v2;            // free unused schema_v2
 ```
 
- use C function to migrate schema
+ use C function to migrate schema and synchronize to database
 
 ```c
-	sq_storage_migrate(storage, schema);    // migrate schema
-	sq_storage_migrate(storage, schema2);   // migrate schema2
+	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
+	sq_storage_migrate(storage, schema_v2); // migrate schema_v2
 	sq_storage_migrate(storage, NULL);      // synchronize schema to database.
-	sq_schema_free(schema);                 // free unused schema
-	sq_schema_free(schema2);                // free unused schema2
+	sq_schema_free(schema_v1);              // free unused schema_v1
+	sq_schema_free(schema_v2);              // free unused schema_v2
 ```
 
 ## CRUD
@@ -216,7 +244,7 @@ static const SqColumn  userColumnsChanged[] = {
  use C function
 
 ```c
-	User*  user;
+	User  *user;
 
 	array = sq_storage_get_all(storage, "users", NULL, NULL);
 	user  = sq_storage_get(storage, "users", NULL, 2);
@@ -229,7 +257,7 @@ static const SqColumn  userColumnsChanged[] = {
  use C++ function
 
 ```c++
-	User*  user;
+	User  *user;
 
 	array = storage->getAll("users", NULL);
 	user  = storage->get("users", 2);
@@ -242,7 +270,7 @@ static const SqColumn  userColumnsChanged[] = {
  use C++ template function
 
 ```c++
-	User*  user;
+	User  *user;
 
 	vector = storage->getAll<std::vector<User>>();
 	// or
@@ -321,8 +349,8 @@ static const SqColumn  userColumnsChanged[] = {
 	array = sq_storage_query(storage, query, NULL, NULL);
 	for (int i = 0;  i < array->length;  i++) {
 		element = (void**)array->data[i];
-		city = (City*)element[0];
-		user = (User*)element[1];
+		city = (City*)element[0];    // sq_query_from(query, "cities");
+		user = (User*)element[1];    // sq_query_join(query, "users", ...);
 	}
 ```
 
@@ -352,7 +380,7 @@ static const SqColumn  userColumnsChanged[] = {
  use C function
 
 ```c
-	User*  user;
+	User  *user;
 
 	sq_storage_begin(storage);
 	sq_storage_insert(storage, "users", NULL, user);
@@ -365,7 +393,7 @@ static const SqColumn  userColumnsChanged[] = {
  use C++ function
 
 ```c++
-	User*  user;
+	User  *user;
 
 	storage->begin();
 	storage->insert<User>(user);

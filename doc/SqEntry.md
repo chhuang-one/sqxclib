@@ -2,17 +2,27 @@
 SqEntry define constant or dynamic field in structure.
 It must use SqType to declare type of field.
 
-```c
-// use 'const char*' to declare string and use 'const SqType*' to declare type,
-// C++ user can initialize static structure easily.
+	SqEntry
+	|
+	`--- SqReentry
+	     |
+	     +--- SqTable
+	     |
+	     `--- SqColumn
 
+Structure Definition:
+
+```c
 struct SqEntry
 {
-	const SqType* type;        // field type
-	const char*   name;        // field name
+	const SqType *type;        // field type
+	const char   *name;        // field name
 	size_t        offset;      // offset of field in structure/class
 	unsigned int  bit_field;   // declare below
 };
+
+// Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
+//       C++ user can initialize static structure easily.
 ```
 
 Declaring bit_field in SqEntry

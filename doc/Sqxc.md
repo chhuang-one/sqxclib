@@ -74,12 +74,12 @@ get error code from current Sqxc element
 ### Use Sqxc elements to convert data
 create element to convert data to SQL INSERT/UPDATE statement
 ```c
-	Sqxc* xc = sqxc_sql_new();
+	Sqxc *xc = sqxc_sql_new();
 ```
 
 add element to convert data to JSON array/object in SQL column.
 ```c
-	Sqxc* xc_json = sqxc_jsonc_writer_new();
+	Sqxc *xc_json = sqxc_jsonc_writer_new();
 	sqxc_insert(xc, xc_json, -1);
 ```
 
