@@ -37,7 +37,7 @@
 
 
 // ----------------------------------------------------------------------------
-// Default size
+// Default size : These sizes can auto expand.
 
 /* SqEntry.c, SqType.c, SqSchema.c - SQ_TYPE_N_ENTRY_DEFAULT */
 #define SQ_CONFIG_TYPE_N_ENTRY_DEFAULT    16
@@ -46,9 +46,16 @@
 #define SQ_CONFIG_BUFFER_SIZE_DEAULT     128
 
 /* SqxcSql.c */
-#define SQ_CONFIG_SQXC_SQL_BUFFER_SIZE_DEAULT     256
+#define SQ_CONFIG_SQXC_SQL_BUFFER_SIZE_DEAULT    256
 
 /* SqType-PtrArray.c - SQ_TYPE_PTR_ARRAY_SIZE_DEFAULT */
 #define SQ_CONFIG_TYPE_PTR_ARRAY_SIZE_DEFAULT    16
+
+/* SqTable-relation.c */
+#define SQ_CONFIG_TABLE_RELATION_SIZE            16    //  8
+
+/* SqSchema-relation.c */
+#define SQ_CONFIG_SCHEMA_RELATION_POOL_SIZE     128    // 64
+#define SQ_CONFIG_SCHEMA_RELATION_SIZE           16    //  8
 
 #endif  // SQ_CONFIG_H
