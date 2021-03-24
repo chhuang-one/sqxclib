@@ -24,6 +24,7 @@
 
 #include <SqConfig.h>    // SQ_CONFIG_NAMING_CONVENTION
 #include <SqPtrArray.h>
+#include <SqRelation.h>
 #include <SqTable.h>
 
 #ifdef __cplusplus
@@ -32,8 +33,9 @@ extern "C" {
 
 typedef struct SqSchema       SqSchema;
 
-// SqSchema::bit_field for internal use only
-#define SQB_SCHEMA_INCLUDED                (1 << 15)
+// SqSchema::bit_field
+// Can't steal column from this schema. It is not database no-steal
+#define SQB_SCHEMA_NO_STEAL                (1 << 15)
 
 // ----------------------------------------------------------------------------
 // C functions
@@ -137,9 +139,9 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries);
 
 // call this function after synchronize schema to database (creating/altering SQL tables).
 // It will free temporary data (e.g. table->foreigns)
-// If 'no_unused_column' == true, it will free unused index and composite constraint in memory.
-// set 'no_unused_column' to false if your program needs to synchronize schema to the SQLite database at any time.
-void    sq_schema_complete(SqSchema* schema, bool no_unused_column);
+// If 'no_need_to_sync' == true, it will free unused index and composite constraint in memory.
+// set 'no_need_to_sync' to false if your program needs to synchronize schema to the SQLite database at any time.
+void    sq_schema_complete(SqSchema* schema, bool no_need_to_sync);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -164,7 +166,11 @@ struct SqSchema
  */
 
 	// ------ SqSchema members ------
-	int          version;
+	int           version;
+
+	// relation for (SQLite) migration
+	SqRelation     *relation;    // relation of tables
+	SqRelationPool *relation_pool;
 
 #ifdef __cplusplus
 	// C++11 standard-layout

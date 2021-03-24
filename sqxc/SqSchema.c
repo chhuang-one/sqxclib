@@ -23,6 +23,7 @@
 #include <SqBuffer.h>
 #include <SqUtil.h>
 #include <SqSchema.h>
+#include <SqRelation-migration.h>  // migration
 
 #define SCHEMA_INITIAL_VERSION       0
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
@@ -41,6 +42,9 @@ void  sq_schema_init(SqSchema* schema, const char* name)
 	schema->name = name ? strdup(name) : NULL;
 	// version count
 	schema->version = cur_version++;
+	// new relation
+	schema->relation = NULL;
+	schema->relation_pool = NULL;
 }
 
 void  sq_schema_final(SqSchema* schema)
@@ -193,15 +197,8 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 	reentries_src = sq_type_get_ptr_array(schema_src->type);
 
 	// run sq_schema_include() first time.
-	if ((schema->bit_field & SQB_SCHEMA_INCLUDED) == 0) {
-		// get foreign keys before calling sq_schema_trace_foreign()
-		for (index = 0;  index < reentries->length;  index++) {
-			table = (SqTable*)reentries->data[index];
-			if (table->foreigns.data == NULL)
-				sq_ptr_array_init(&table->foreigns, 4, NULL);
-			sq_table_get_columns(table, &table->foreigns, NULL, SQB_FOREIGN);
-		}
-	}
+	if (schema->relation == NULL)
+		sq_schema_create_relation(schema);
 
 	for (index = 0;  index < reentries_src->length;  index++) {
 		table_src = (SqTable*)reentries_src->data[index];
@@ -211,19 +208,23 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 			addr = sq_reentries_find_name(reentries, table_src->name);
 			if (addr) {
 				table = *(SqTable**)addr;
-				sq_table_include(table, table_src);
+				sq_table_include(table, table_src);    // TODO: NO_STEAL
 				// append changed table to tail
 				*addr = NULL;
 				sq_reentries_add(reentries, table);
-				// It doesn't need to steal 'table_src' from 'schema_src'
-				continue;
+				// relation
+				if (sq_relation_find(table->relation, SQ_TYPE_FOREIGN, NULL))
+					sq_relation_add(schema->relation, SQ_TYPE_FOREIGN, table, 0);
+				else
+					sq_relation_erase(schema->relation, SQ_TYPE_FOREIGN, table, 0);
 			}
+#ifdef DEBUG
 			else {
-				// It must steal 'table_src' from 'schema_src' if table not found.
-				if (table_src->foreigns.data == NULL)
-					sq_ptr_array_init(&table_src->foreigns, 4, NULL);
-				sq_table_get_columns(table_src, &table_src->foreigns, NULL, SQB_FOREIGN);
+				fprintf(stderr, "SqSchema: Can't alter table %s. It is not found.\n", table_src->name);
 			}
+#endif
+			// It doesn't need to steal/copy 'table_src' from 'schema_src'
+			continue;
 		}
 		else if (table_src->name == NULL) {
 			// === DROP TABLE ===
@@ -231,9 +232,19 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 			addr = sq_reentries_find_name(reentries, table_src->old_name);
 			if (addr) {
 				table = *(SqTable**)addr;
+				// trace_foreign
+				sq_relation_erase(schema->relation, SQ_TYPE_FOREIGN, table, 0);
+				sq_relation_replace(schema->relation, table, table_src, 0);
+				sq_relation_add(schema->relation, SQ_TYPE_REENTRY, table_src, 0);
+				// remove
 				sq_table_free(table);
 				*addr = NULL;
 			}
+#if DEBUG
+			else {
+				fprintf(stderr, "SqSchema: Can't drop table %s. It is not found.\n", table_src->old_name);
+			}
+#endif
 		}
 		else if (table_src->old_name) {
 			// === RENAME TABLE ===
@@ -250,15 +261,25 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 					free((char*)table->name);
 				table->name = strdup(table_src->name);
 				table->bit_field |= SQB_RENAMED;
+				// trace_foreign
+				sq_relation_add(schema->relation, table_src, table, 0);
+				sq_relation_add(schema->relation, SQ_TYPE_REENTRY, table_src, 0);
 			}
+#if DEBUG
+			else {
+				fprintf(stderr, "SqSchema: Can't rename table %s. It is not found.\n", table_src->old_name);
+			}
+#endif
 		}
 		else {
 			// === ADD TABLE ===
-			if (table_src->foreigns.data == NULL)
-				sq_ptr_array_init(&table_src->foreigns, 4, NULL);
-			sq_table_get_columns(table_src, &table_src->foreigns, NULL, SQB_FOREIGN);
+			if (table_src->relation == NULL)
+				sq_table_create_relation(table_src, schema->relation_pool);
+			if (sq_relation_find(table_src->relation, SQ_TYPE_FOREIGN, NULL))
+				sq_relation_add(schema->relation, SQ_TYPE_FOREIGN, table_src, 0);
 		}
 
+		// TODO: NO_STEAL
 		// steal 'table_src' from 'schema_src->type->entry'.
 		reentries_src->data[index] = NULL;
 		// add 'table_src' to schema->type->entry.
@@ -267,7 +288,6 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 
 	// update other data in SqSchema
 	schema->version = schema_src->version;
-	schema->bit_field |= SQB_SCHEMA_INCLUDED;
 	((SqType*)schema->type)->bit_field &= ~SQB_TYPE_SORTED;
 
 	return SQCODE_OK;
@@ -275,77 +295,86 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 
 int     sq_schema_trace_foreign(SqSchema* schema)
 {
-	SqPtrArray *reentries = sq_type_get_ptr_array(schema->type);
-	SqTable    *table, *table_fore;
-	SqColumn   *column;
-	SqReentry  *reentry;
+	SqRelationNode *node_table, *node_column;
+	SqTable    *table,  *table_fore;
+	SqColumn   *column, *column_old;
+	const char *cur_name;
 	int         result = SQCODE_OK;
 
-	for (int index = 0;  index < reentries->length;  index++) {
-		table = (SqTable*)reentries->data[index];
-		if (table == NULL || table->foreigns.data == NULL)
+	// get tables that has foreign key
+	node_table = sq_relation_find(schema->relation, SQ_TYPE_FOREIGN, NULL);
+	if (node_table == NULL)
+		return SQCODE_OK;
+	// for each tables that has foreign key
+	for (node_table = node_table->next;  node_table;  node_table = node_table->next) {
+		table = node_table->object;
+		// get columns that has foreign reference
+		node_column = sq_relation_find(table->relation, SQ_TYPE_FOREIGN, NULL);
+		if (node_column == NULL)
 			continue;
-
-		for (int i = 0;  i < table->foreigns.length;  i++) {
-			column = (SqColumn*)table->foreigns.data[i];
-			if (column == NULL)
-				continue;
-
+		// for each columns that has foreign reference
+		for (node_column = node_column->next;  node_column;  node_column = node_column->next) {
+			column = node_column->object;
 			// --------------------------------------------
 			// trace renamed table
-			reentry = (SqReentry*)sq_reentries_trace_renamed(reentries,
-					column->foreign->table, schema->offset, false);
-			if (reentry) {
-				reentry = *(SqReentry**)reentry;
-				if (reentry->name == NULL) {
-					// table dropped.
-					result = SQCODE_REENTRY_DROPPED;
-					continue;   // error...
-				}
-				// reference table was renamed.
+			cur_name = sq_relation_trace_reentry(schema->relation, column->foreign->table, false);
+			if (cur_name == NULL) {
+				// table dropped.
+				result = SQCODE_REENTRY_DROPPED;
+#ifdef DEBUG
+				fprintf(stderr, "SqSchema: foreign table %s has been dropped.\n", column->foreign->table);
+#endif
+				continue;   // error...
+			}
+			else if (cur_name != column->foreign->table) {
+				// table has been renamed
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic column to replace static one
+					column_old = column;
 					column = sq_column_copy_static(column);
-					sq_table_replace_column(table, NULL,
-							(SqColumn**)&table->foreigns.data[i], column);
+					sq_relation_replace(schema->relation, column_old, column, 0);
+					sq_column_free(column_old);
 				}
 				free((char*)column->foreign->table);
-				column->foreign->table = strdup(reentry->name);    // name = the newest table name
+				column->foreign->table = strdup(cur_name);
 			}
 
 			// --------------------------------------------
 			// find referenced table
-			table_fore = (SqTable*)sq_reentries_find_name(reentries,
-					column->foreign->table);
+			table_fore = (SqTable*)sq_reentries_find_name(sq_type_get_ptr_array(schema->type),
+			                                              column->foreign->table);
 			if (table_fore)
 				table_fore = *(SqTable**)table_fore;
 			else {
 				// (renamed) table not found. dropped?
 				result = SQCODE_REFERENCE_NOT_FOUND;
+#ifdef DEBUG
+				fprintf(stderr, "SqSchema: foreign table %s not found.\n", column->foreign->table);
+#endif
 				continue;  // error...
 			}
 
 			// --------------------------------------------
 			// trace renamed column
-			reentry = (SqReentry*)sq_reentries_trace_renamed(
-					&((SqType*)table_fore->type)->entry,
-					column->foreign->column, table_fore->offset, false);
-			if (reentry) {
-				reentry = *(SqReentry**)reentry;
-				if (reentry->name == NULL) {
-					// column dropped.
-					result = SQCODE_REENTRY_DROPPED;
-					continue;   // error...
-				}
-				// reference column renamed.
+			cur_name = sq_relation_trace_reentry(table_fore->relation, column->foreign->column, false);
+			if (cur_name == NULL) {
+				// column dropped.
+				result = SQCODE_REENTRY_DROPPED;
+#ifdef DEBUG
+				fprintf(stderr, "SqSchema: foreign column %s has been dropped.\n", column->foreign->column);
+#endif
+				continue;   // error...
+			}
+			else if (cur_name != column->foreign->column) {
+				// column has been renamed
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
-					// create dynamic column to replace static one
+					column_old = column;
 					column = sq_column_copy_static(column);
-					sq_table_replace_column(table, NULL,
-							(SqColumn**)&table->foreigns.data[i], column);
+					sq_relation_replace(schema->relation, column_old, column, 0);
+					sq_column_free(column_old);
 				}
 				free((char*)column->foreign->column);
-				column->foreign->column = strdup(reentry->name);    // name = newest column name
+				column->foreign->column = strdup(cur_name);
 			}
 		}
 	}
@@ -359,8 +388,11 @@ int   sq_schema_erase_records_of_table(SqSchema* schema, char version_comparison
 
 	// erase renamed & dropped records in schema
 	reentries = sq_type_get_ptr_array(schema->type);    // schema->type->entry
-	sq_reentries_clear_records(reentries, version_comparison);
+	sq_reentries_clear_records(reentries, version_comparison, schema->offset);
 	n_old_tables = sq_reentries_remove_null(reentries, schema->offset);
+	// erase relation for renamed & dropped records in schema
+	sq_relation_erase(schema->relation, SQ_TYPE_REENTRY, NULL, -1);
+	sq_relation_remove_empty(schema->relation);
 	// set schema->offset for sq_schema_trace_foreign() or sq_schema_arrange()
 	// if database schema version < current schema version, reset schema->offset for sq_schema_arrange()
 	schema->offset = (version_comparison == '<') ? 0 : reentries->length;
@@ -390,23 +422,20 @@ int   sq_schema_erase_records(SqSchema* schema, char version_comparison)
 // 1. sort schema->type->entry by table->name
 // 2. sort table->extra->foreigns by column->foreign->table
 // 3. reset all table->offset = 0
-static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
+static int  count_table_order(SqSchema *schema, SqTable *table, int *is_reo)
 {
-	SqPtrArray* foreigns;
-	SqColumn*   column;
-	SqTable*    fore_table;
+	SqRelationNode *node;
+	SqColumn       *column;
+	SqTable        *fore_table;
 
 	if (table->offset > 0)
 		return table->offset;
 	table->offset = 1;
 	table->bit_field |= SQB_TABLE_REO_CHECKING;
-	foreigns = &table->foreigns;
+	node = sq_relation_find(table->relation, SQ_TYPE_FOREIGN, NULL);
 
-	for (int index = 0;  index < foreigns->length;  index++) {
- 		column = (SqColumn*)foreigns->data[index];
-		if (column == NULL)
-			continue;
-
+	for (node = node->next;  node;  node = node->next) {
+		column = node->object;
 //		fore_table = sq_type_find_entry(schema->type, column->foreign->table, NULL);
 		fore_table = sq_ptr_array_search(&schema->type->entry, column->foreign->table,
 		                                 (SqCompareFunc)sq_entry_cmp_str__name);
@@ -439,9 +468,9 @@ static int  count_table_order(SqSchema* schema, SqTable* table, int* is_reo)
 					table->bit_field |= SQB_TABLE_REO_CONSTRAINT;
 				continue;
 			}
-			// if tables doesn't reference each other, remove current column from 'foreigns'.
-			// these NULL will be removed by sq_reentries_remove_null()
-			foreigns->data[index] = NULL;
+			// if tables doesn't reference each other, remove current column from relation.
+			// if related list of object is empty, it will be removed by sq_relation_remove_empty()
+			sq_relation_erase(table->relation, SQ_TYPE_FOREIGN, column, 0);
 		}
 	}
 
@@ -478,14 +507,14 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 	for (int index = 0;  index < tables->length;  index++) {
 		table_one = (SqTable*)tables->data[index];
 		count_table_order(schema, table_one, NULL);
-		sq_reentries_remove_null(&table_one->foreigns, 0);
+		sq_relation_remove_empty(table_one->relation);
 	}
 
 	// sort entries by table->offset
 	sq_ptr_array_sort(entries, (SqCompareFunc)sq_entry_cmp_offset);
 }
 
-void    sq_schema_complete(SqSchema* schema, bool no_unused_column)
+void    sq_schema_complete(SqSchema* schema, bool no_need_to_sync)
 {
 	SqPtrArray* entries = sq_type_get_ptr_array(schema->type);
 	SqTable*    table;
@@ -493,8 +522,11 @@ void    sq_schema_complete(SqSchema* schema, bool no_unused_column)
 	for (int index = 0;  index < entries->length;  index++) {
 		table = entries->data[index];
 //		table->offset = 0;
-		sq_table_complete(table, no_unused_column);
+		sq_table_complete(table, no_need_to_sync);
 	}
 
-	schema->bit_field &= ~SQB_SCHEMA_INCLUDED;
+	if (no_need_to_sync) {
+		sq_relation_free(schema->relation);
+		sq_relation_pool_destroy(schema->relation_pool);
+	}
 }

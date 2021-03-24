@@ -15,9 +15,11 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <SqError.h>
 #include <SqTable.h>
+#include <SqRelation-migration.h>
 
 SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 {
@@ -31,7 +33,7 @@ SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 	table->name = (name) ? strdup(name) : NULL;
 	table->bit_field |= SQB_POINTER;
 	table->old_name = NULL;
-	table->foreigns = (SqPtrArray){NULL, 0};
+	table->relation = NULL;
 
 	return (SqTable*)table;
 }
@@ -49,7 +51,8 @@ void  sq_table_free(SqTable* table)
 		sq_entry_final((SqEntry*)table);
 		free((char*)table->old_name);
 		// free temporary data
-		sq_ptr_array_final(&table->foreigns);
+		if (table->relation)
+			sq_relation_free(table->relation);
 		// free SqTable
 		free(table);
 	}
@@ -104,7 +107,6 @@ void  sq_table_drop_column(SqTable* table, const char* column_name)
 #if 0
 	column = (SqColumn*)sq_type_find_entry(table->type, column_name, NULL);
 	if (column) {
-		sq_table_replace_column(table, (SqColumn**)column, NULL, NULL);
 		sq_type_steal_entry_addr(table->type, (void**)column, 1);
 	}
 #endif
@@ -441,48 +443,6 @@ void   sq_table_drop_foreign(SqTable* table, const char* name)
 // --------------------------------------------------------
 // migration functions
 
-void  sq_table_replace_column(SqTable*   table,
-                              SqColumn** old_in_type,
-                              SqColumn** old_in_foreigns,
-                              SqColumn*  new_one)
-{
-	SqPtrArray* reentries = NULL;
-	SqColumn*   column;
-
-	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
-		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
-	// table->type->entry
-	if (old_in_type == NULL)
-		reentries = sq_type_get_ptr_array(table->type);
-	else {
-		column = *old_in_type;
-		*old_in_type = new_one;
-	}
-	// table->foreigns
-	if (old_in_foreigns == NULL) {
-		if (column->foreign) {
-			reentries = &table->foreigns;
-			if (new_one && new_one->foreign == NULL)
-				new_one = NULL;
-		}
-	}
-	else {
-		column = *old_in_foreigns;
-		if (new_one && new_one->foreign == NULL)
-			*old_in_foreigns = NULL;
-		else
-			*old_in_foreigns = new_one;
-	}
-	// replace old column by new_one
-	if (reentries) {
-		for (int index = 0;  index < reentries->length;  index++)
-			if (reentries->data[index] == column)
-				reentries->data[index]  = new_one;
-	}
-	// free column
-	sq_column_free(column);
-}
-
 int   sq_table_include(SqTable* table, SqTable* table_src)
 {	//         *table,     *table_src
 	SqColumn   *column,    *column_src;
@@ -510,8 +470,20 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 			// === ALTER COLUMN ===
 			// free column if column->name == column_src->name
 			addr = sq_reentries_find_name(reentries, column_src->name);
-			if (addr)
-				sq_table_replace_column(table, (SqColumn**)addr, NULL, NULL);
+			if (addr) {
+				column = *(SqColumn**)addr;
+				sq_relation_erase(table->relation, SQ_TYPE_FOREIGN, column, 0);
+				sq_relation_replace(table->relation, column, column_src, 0);
+				sq_column_free(column);
+				*addr = NULL;
+			}
+#if DEBUG
+			else {
+				fprintf(stderr, "SqTable %s: Can't alter column %s. It is not found.\n",
+				        table->name, column_src->name);
+				// It can ignore this error...
+			}
+#endif
 			// set bit_field: column altered
 			table->bit_field |= SQB_TABLE_COL_ALTERED;
 		}
@@ -519,8 +491,20 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 			// === DROP COLUMN / CONSTRAINT / KEY ===
 			// free column if column->name == column_src->old_name
 			addr = sq_reentries_find_name(reentries, column_src->old_name);
-			if (addr)
-				sq_table_replace_column(table, (SqColumn**)addr, NULL, NULL);
+			if (addr) {
+				column = *(SqColumn**)addr;
+				sq_relation_erase(table->relation, SQ_TYPE_FOREIGN, column, 0);    // erase if exist
+				sq_relation_replace(table->relation, column, column_src, 0);
+				sq_column_free(column);
+				*addr = NULL;
+			}
+#if DEBUG
+			else {
+				fprintf(stderr, "SqTable %s: Can't drop column %s. It is not found.\n",
+				        table->name, column_src->old_name);
+			}
+#endif
+			sq_relation_add(table->relation, SQ_TYPE_REENTRY, column_src, 0);
 			// set bit_field: column dropped
 			table->bit_field |= SQB_TABLE_COL_DROPPED;
 		}
@@ -534,8 +518,11 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic column to replace static one
 					column = sq_column_copy_static(column);
-					sq_table_replace_column(table, (SqColumn**)addr, NULL, column);
+					sq_relation_replace(table->relation, *addr, column, 0);
+					*addr = column;
 				}
+				sq_relation_add(table->relation, column_src, column, 0);
+				sq_relation_add(table->relation, SQ_TYPE_REENTRY, column_src, 0);
 				// store old_name temporary, program use it when SQLite recreate
 				if (column->old_name == NULL)
 					column->old_name = column->name;
@@ -544,6 +531,12 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 				column->name = strdup(column_src->name);
 				column->bit_field |= SQB_RENAMED;
 			}
+#if DEBUG
+			else {
+				fprintf(stderr, "SqTable %s: Can't rename column %s. It is not found.\n",
+				        table->name, column_src->old_name);
+			}
+#endif
 			// set bit_field: column renamed
 			table->bit_field |= SQB_TABLE_COL_RENAMED;
 		}
@@ -568,6 +561,7 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 				table->bit_field |= SQB_TABLE_COL_ADDED;
 		}
 
+		// TODO: NO_STEAL
 		// steal 'column_src' if 'table_src->type' is not static.
 		if (table_src->type->bit_field & SQB_TYPE_DYNAMIC)
 			reentries_src->data[index] = NULL;
@@ -578,9 +572,7 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 
 		// ADD or ALTER COLUMN that having foreign reference
 		if (column_src->foreign && column_src->old_name == NULL) {
-			if (table->foreigns.data == NULL)
-				sq_ptr_array_init(&table->foreigns, 4, NULL);
-			sq_ptr_array_append(&table->foreigns, column_src);
+			sq_relation_add(table->relation, SQ_TYPE_FOREIGN, column_src, 0);
 		}
 	}
 
@@ -615,19 +607,21 @@ void  sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray*
 
 int  sq_table_erase_records(SqTable* table, char version_comparison)
 {
-	SqPtrArray* columns;
+	SqPtrArray* reentries;
 	int  n_old_columns;
 
 	// copy table->type if it is static SqType.
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
 		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
-	// It can get columns from table->type after calling sq_type_copy_static()
-	columns = sq_type_get_ptr_array(table->type);
-	// clear records
-	sq_reentries_clear_records(columns, version_comparison);
-	n_old_columns = sq_reentries_remove_null(columns, table->offset);
+	// erase renamed & dropped records in table
+	reentries = sq_type_get_ptr_array(table->type);
+	sq_reentries_clear_records(reentries, version_comparison, table->offset);
+	n_old_columns = sq_reentries_remove_null(reentries, table->offset);
+	// erase relation for renamed & dropped records in table
+	sq_relation_erase(table->relation, SQ_TYPE_REENTRY, NULL, -1);
+	sq_relation_remove_empty(table->relation);
 	// if database schema version < current schema version, reset table->offset for sq_schema_arrange()
-	table->offset = (version_comparison == '<') ? 0 : columns->length;
+	table->offset = (version_comparison == '<') ? 0 : reentries->length;
 	// clear SQB_CHANGED and SQB_RENAMED
 	table->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
 	// if database schema version == current schema version
@@ -639,19 +633,22 @@ int  sq_table_erase_records(SqTable* table, char version_comparison)
 	return n_old_columns;
 }
 
-void   sq_table_complete(SqTable* table, bool no_unused_column)
+void   sq_table_complete(SqTable* table, bool no_need_to_sync)
 {
 	SqPtrArray* reentries;
 	SqColumn*   column;
 	bool        has_null = false;
 
-	sq_ptr_array_final(&table->foreigns);
+	if (no_need_to_sync && table->relation) {
+		sq_relation_free(table->relation);
+		table->relation = NULL;
+	}
 
 	if (table->type->bit_field & SQB_DYNAMIC) {
 		reentries = sq_type_get_ptr_array(table->type);
 		for (int index = 0;  index < reentries->length;  index++) {
 			column = reentries->data[index];
-			if (no_unused_column && (column->type == SQ_TYPE_INDEX || column->type == SQ_TYPE_CONSTRAINT)) {
+			if (no_need_to_sync && (column->type == SQ_TYPE_INDEX || column->type == SQ_TYPE_CONSTRAINT)) {
 				sq_column_free(column);
 				reentries->data[index] = NULL;
 				has_null = true;

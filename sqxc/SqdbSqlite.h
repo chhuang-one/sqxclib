@@ -19,14 +19,20 @@
 
 #include <Sqdb.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// ----------------------------------------------------------------------------
+// C/C++ macro and type/structue declaration
 
 typedef struct SqdbSqlite          SqdbSqlite;
 typedef struct SqdbConfigSqlite    SqdbConfigSqlite;
 
-extern const SqdbInfo*    SQDB_INFO_SQLITE;
+// ----------------------------------------------------------------------------
+// C data and functions declaration
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern const SqdbInfo    *SQDB_INFO_SQLITE;
 
 #define sqdb_sqlite_new(sqdb_config)    sqdb_new(SQDB_INFO_SQLITE, sqdb_config)
 
@@ -34,7 +40,10 @@ extern const SqdbInfo*    SQDB_INFO_SQLITE;
 }  // extern "C"
 #endif
 
-/* ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// C/C++ structue definition
+
+/*
     SqdbSqlite - Sqdb for SQLite
 
     Sqdb
@@ -63,12 +72,12 @@ struct SqdbSqlite
  */
 
 	// ------ SqdbSqlite members ------    // <-- 3. Add variable and non-virtual function in derived struct.
-	sqlite3*        self;
-	char*           folder;
-	char*           extension;   // optional
+	sqlite3        *self;
+	char           *folder;
+	char           *extension;   // optional
 };
 
-/* ----------------------------------------------------------------------------
+/*
     SqdbConfigSqlite - SqdbSqlite use this configure
 
     SqdbConfig
@@ -86,13 +95,12 @@ struct SqdbConfigSqlite
  */
 
 	// ------ SqdbConfigSqlite members ------
-	const char*     folder;
-	const char*     extension;   // optional
+	const char     *folder;
+	const char     *extension;   // optional
 };
 
-
 // ----------------------------------------------------------------------------
-// C++ namespace
+// C++ data, methods, and functions declaration
 
 #ifdef __cplusplus
 
@@ -104,7 +112,7 @@ typedef struct SqdbConfigSqlite    DbConfigSqlite;
 // These are for directly use only. You can NOT derived it.
 struct DbSqlite : SqdbSqlite
 {
-	DbSqlite(SqdbConfigSqlite* config = NULL) {
+	DbSqlite(SqdbConfigSqlite *config = NULL) {
 		this->info = SQDB_INFO_SQLITE;  SQDB_INFO_SQLITE->init((Sqdb*)this, (SqdbConfig*)config);
 	}
 	~DbSqlite() {

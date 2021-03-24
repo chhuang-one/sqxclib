@@ -270,9 +270,9 @@ Sqxc* sq_type_object_write(void* instance, const SqType *type, Sqxc* xc_dest);
 
 // condition
 #define SQ_TYPE_IS_FAKE(type)     \
-		( (type)<=SQ_TYPE_FAKE6 && (type)>=SQ_TYPE_FAKE0 )
+		( (SqType*)(type)<=SQ_TYPE_FAKE6 && (SqType*)(type)>=SQ_TYPE_FAKE0 )
 #define SQ_TYPE_NOT_FAKE(type)    \
-		( (type)> SQ_TYPE_FAKE6 || (type)< SQ_TYPE_FAKE0 )
+		( (SqType*)(type)> SQ_TYPE_FAKE6 || (SqType*)(type)< SQ_TYPE_FAKE0 )
 
 struct SqTypeFake {
 	SqType* nth[SQ_TYPE_N_FAKE];

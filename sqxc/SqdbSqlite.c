@@ -23,6 +23,7 @@
 #include <SqdbSqlite.h>
 #include <SqxcValue.h>
 #include <SqxcSql.h>
+#include <SqRelation-migration.h>
 
 #define NEW_TABLE_PREFIX_NAME          "new__table__"
 #define SQLITE_VERSION_NUMBER_3_20     3020000           // 3.20.0
@@ -123,13 +124,15 @@ static int  sqdb_sqlite_close(SqdbSqlite* sqdb)
 // synchronize schema to database
 static int  sqdb_sqlite_migrate_sync(SqdbSqlite* sqdb, SqSchema* schema)
 {
+	SqRelationNode *node;
 	SqBuffer    sql_buf;
-	SqPtrArray  reentries;
-	SqTable**   table_addr;
-	SqTable*    table;
-	SqType*     type;
-	char*       errorMsg = NULL;
+	SqTable    *table;
+	SqType     *type;
 	int   rc;
+	union {
+		const char *name;
+		char       *errorMsg;
+	} temp;
 
 	// Don't synchronize if database schema version greater than or equal to the latest schema version
 	// --- database schema version > the latest schema version
@@ -140,87 +143,72 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite* sqdb, SqSchema* schema)
 		sq_schema_complete(schema, false);
 		return SQCODE_OK;
 	}
+	type = (SqType*)schema->type;
+	// buffer for SQL statement
+	sq_buffer_init(&sql_buf);
 
 	// trace renamed (or dropped) table/column that was referenced by others
 	sq_schema_trace_foreign(schema);
 
-	type = (SqType*)schema->type;
-	sq_ptr_array_init(&reentries, type->n_entry - schema->offset, (SqDestroyFunc)sq_table_free);
-	// move renamed and dropped (table's)record from schema->type->entry to another array
-	for (int index = schema->offset;  index < type->n_entry;  index++) {
-		table = (SqTable*)type->entry[index];
-		if (table && table->old_name) {    // (table->bit_field & SQB_RENAMED) == 0
-			sq_ptr_array_append(&reentries, table);
-			type->entry[index] = NULL;
+#if DEBUG
+	fprintf(stderr, "SQLite: BEGIN TRANSACTION ------\n");
+#endif
+	rc = sqlite3_exec(sqdb->self, "PRAGMA foreign_keys=off; BEGIN TRANSACTION", NULL, NULL, &temp.errorMsg);
+	// error occurred
+	if (rc != SQLITE_OK)
+		goto atExit;
+
+	// --------- rename and drop table ---------
+	node = sq_relation_find(schema->relation, SQ_TYPE_REENTRY, NULL);
+	if (node) {
+		// reverse node from "first in, last out." change to "first in, first out."
+		node->next = sq_relation_node_reverse(node->next);
+		while (node->next) {
+			// node->next may be freed by sq_relation_trace_reentry()
+			SqTable *table = node->next->object;
+			temp.name = sq_relation_trace_reentry(schema->relation, table->old_name, true);
+			if (temp.name == table->old_name) {
+				// node->next is NOT freed by sq_relation_trace_reentry()
+				node = node->next;
+				continue;
+			}
+
+			sql_buf.writed = 0;  // clear sql_buf
+			if (temp.name == NULL) {
+				// === DROP TABLE ===
+				sqdb_sql_drop_table((Sqdb*)sqdb, &sql_buf, table, true);
+			}
+			else {
+				// === RENAME TABLE ===
+				sqdb_sql_rename_table((Sqdb*)sqdb, &sql_buf, table->old_name, temp.name);
+				// check table existence
+				table = (SqTable*)sq_type_find_entry(type, temp.name, NULL);
+				if (table) {
+					table = *(SqTable**)table;
+					// don't rename table if table doesn't exist in database
+					if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0)
+						sql_buf.writed = 0;
+				}
+			}
+
+			// exec SQL statement
+			if (sql_buf.writed > 0) {
+#if DEBUG
+				fprintf(stderr, "SQL: %s\n", sql_buf.buf);
+#endif
+				sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
+			}
 		}
 	}
+	// --------- End of rename and drop table ---------
+
 	// clear all renamed and dropped records
 	// database schema version < (less than) current schema version
 	sq_schema_erase_records_of_table(schema, '<');
 	// sort schema->type->entry
 	sq_type_sort_entry(type);
 
-	// buffer for SQL statement
-	sq_buffer_init(&sql_buf);
-
-	// --------- rename and drop table ---------
-	for (int index = 0;  index < reentries.length;  index++) {
-		table = reentries.data[index];
-		if (table->name == NULL) {
-			// this is dropped record
-			table_addr = (SqTable**)reentries.data + index;
-		}
-		else {
-			// this is renamed record
-			table_addr = (SqTable**)sq_reentries_trace_renamed(&reentries, table->name, index+1, true);
-			// if table doesn't rename again.
-			if (table_addr == NULL)
-				table_addr = (SqTable**)reentries.data + index;
-		}
-
-		sql_buf.writed = 0;  // clear sql_buf
-		// === DROP TABLE ===
-		// if table has been dropped or dropped after renaming
-		if (table_addr[0]->name == NULL)
-			sqdb_sql_drop_table((Sqdb*)sqdb, &sql_buf, table, true);
-		// === RENAME TABLE ===
-		else {
-			sqdb_sql_rename_table((Sqdb*)sqdb, &sql_buf, table->old_name, table_addr[0]->name);
-			// check table existence
-			table = (SqTable*)sq_type_find_entry(type, table_addr[0]->name, NULL);
-			if (table) {
-				table = *(SqTable**)table;
-				// don't rename table if table doesn't exist in database
-				if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0)
-					sql_buf.writed = 0;
-			}
-		}
-
-		// exec SQL statement
-		if (sql_buf.writed > 0) {
-#if DEBUG
-			fprintf(stderr, "SQL: %s\n", sql_buf.buf);
-#endif
-			sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
-		}
-		// free current record
-		sq_table_free(table_addr[0]);
-		table_addr[0] = NULL;
-	}
-	// destroy records in array
-	sq_ptr_array_final(&reentries);
-	// --------- End of rename and drop table ---------
-
-#if DEBUG
-	fprintf(stderr, "SQLite: BEGIN TRANSACTION ------\n");
-#endif
-	rc = sqlite3_exec(sqdb->self, "PRAGMA foreign_keys=off; BEGIN TRANSACTION", NULL, NULL, &errorMsg);
-	// error occurred
-	if (rc != SQLITE_OK)
-		goto atExit;
-
 	// run SQL statement: create/recreate table
-	type = (SqType*)schema->type;
 	for (int index = 0;  index < type->n_entry;  index++) {
 		table = (SqTable*)type->entry[index];
 		if (table == NULL)
@@ -253,7 +241,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite* sqdb, SqSchema* schema)
 #ifdef DEBUG
 			fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 #endif
-			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &temp.errorMsg);
 			// error occurred
 			if (rc != SQLITE_OK) {
 #ifdef DEBUG
@@ -267,7 +255,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite* sqdb, SqSchema* schema)
 #ifdef DEBUG
 	fprintf(stderr, "SQLite: END TRANSACTION ------\n");
 #endif
-	rc = sqlite3_exec(sqdb->self, "COMMIT; PRAGMA foreign_keys=on", NULL, NULL, &errorMsg);
+	rc = sqlite3_exec(sqdb->self, "COMMIT; PRAGMA foreign_keys=on", NULL, NULL, &temp.errorMsg);
 	// error occurred
 	if (rc != SQLITE_OK)
 		goto atExit;
@@ -281,7 +269,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite* sqdb, SqSchema* schema)
 #ifdef DEBUG
 	fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 #endif
-	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &temp.errorMsg);
 
 atExit:
 	// free buffer for SQL statement
@@ -295,9 +283,9 @@ atExit:
 	else {
 		// error occurred
 #ifdef DEBUG
-		fprintf(stderr, "SQLite: %s\n", errorMsg);
+		fprintf(stderr, "SQLite: %s\n", temp.errorMsg);
 #endif
-		sqlite3_free(errorMsg);
+		sqlite3_free(temp.errorMsg);
 		return SQCODE_ERROR;
 	}
 }

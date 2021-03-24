@@ -116,26 +116,26 @@ int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2)
 // ----------------------------------------------------------------------------
 // SqReentry functions for SqPtrArray
 
-void  sq_reentries_clear_records(void* reentry_ptr_array, char version_comparison)
+void  sq_reentries_clear_records(void* reentry_ptr_array, char version_comparison, int n_old_elements)
 {
 	SqDestroyFunc destroy;
 	SqReentry*    reentry;
-	bool          is_renamed_column;
+	bool          is_renamed;
 
 	destroy = sq_ptr_array_destroy_func(reentry_ptr_array);
-	for (int index = 0;  index < ((SqPtrArray*)reentry_ptr_array)->length; index++) {
+	for (int index = n_old_elements;  index < ((SqPtrArray*)reentry_ptr_array)->length; index++) {
 		reentry = ((SqPtrArray*)reentry_ptr_array)->data[index];
 		if (reentry == NULL || reentry->old_name == NULL)
 			continue;
-		is_renamed_column = (reentry->bit_field & SQB_RENAMED) ? true : false;
-		// clear altered and renamed status in column
+		is_renamed = (reentry->bit_field & SQB_RENAMED) ? true : false;
+		// clear altered and renamed status in column/table
 		if (version_comparison != '<' && reentry->bit_field & SQB_DYNAMIC) {
 			free((char*)reentry->old_name);
 			reentry->old_name = NULL;
 			reentry->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
 		}
-		// Don't destroy renamed column
-		if (is_renamed_column)
+		// Don't destroy renamed column/table
+		if (is_renamed)
 			continue;
 		// destory dropped & renamed records
 		if (destroy)
@@ -145,7 +145,7 @@ void  sq_reentries_clear_records(void* reentry_ptr_array, char version_compariso
 	}
 }
 
-int  sq_reentries_remove_null(void* reentry_ptr_array, int n_old_columns)
+int  sq_reentries_remove_null(void* reentry_ptr_array, int n_old_elements)
 {
 	SqPtrArray* array = (SqPtrArray*)reentry_ptr_array;
 	int  index_src, index_dest;
@@ -156,54 +156,16 @@ int  sq_reentries_remove_null(void* reentry_ptr_array, int n_old_columns)
 			break;
 	}
 	// move non-NULL pointer to overwrite NULL pointer
-	n_old_columns -= 1;
+	n_old_elements -= 1;
 	for (index_src = index_dest +1;  index_src < array->length;  index_src++) {
-		if (n_old_columns == index_src)
-			n_old_columns = index_dest;
+		if (n_old_elements == index_src)
+			n_old_elements = index_dest;
 		if (array->data[index_src])
 			array->data[index_dest++] = array->data[index_src];
 	}
 
 	array->length = index_dest;
-	return n_old_columns +1;
-}
-
-void**  sq_reentries_trace_renamed(void* reentries, const char* old_name,
-                                   int   index_beg, bool  erase_renamed)
-{
-	SqReentry*  reentry;
-	const char* cur_name = old_name;
-	void**      addr = NULL;
-	SqDestroyFunc  destroy = sq_ptr_array_destroy_func(reentries);
-
-	for (int index = index_beg;  index < sq_ptr_array_length(reentries);  index++) {
-		reentry = sq_ptr_array_at(reentries, index);
-		if (reentry == NULL || reentry->old_name == NULL || reentry->bit_field & SQB_RENAMED)
-			continue;
-		// trace dropped and renamed records
-#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
-		if (strcmp(reentry->old_name, cur_name) == 0) {
-#else
-		if (strcasecmp(reentry->old_name, cur_name) == 0) {
-#endif
-			// erase previous renamed reccord
-			if (erase_renamed && addr) {
-				if (destroy)
-					destroy(*addr);
-				*addr = NULL;
-			}
-			addr = sq_ptr_array_addr(reentries, index);
-
-			if (reentry->name)
-				cur_name = reentry->name;    // renamed, set 'cur_name'
-			else {
-				cur_name = old_name;         // dropped, reset 'cur_name'
-				if (erase_renamed)
-					break;
-			}
-		}
-	}
-	return addr;
+	return n_old_elements +1;
 }
 
 // ------------------------------------

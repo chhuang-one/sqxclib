@@ -31,6 +31,7 @@
 #include <stdarg.h>
 
 #include <SqEntry.h>
+#include <SqRelation.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -199,13 +200,6 @@ void      sq_table_drop_foreign(SqTable* table, const char* name);
 	migration functions
  */
 
-// function will free old column and replace it by 'new_one'
-// if 'new_one' is NULL, it remove old column and set NULL in it's address.
-void      sq_table_replace_column(SqTable*   table,
-                                  SqColumn** old_in_type,
-                                  SqColumn** old_in_foreigns,
-                                  SqColumn*  new_one);
-
 // This used by migration: include and apply changes from 'table_src'.
 // It may move/steal columns from 'table_src'.
 int       sq_table_include(SqTable* table, SqTable* table_src);
@@ -226,7 +220,7 @@ void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrAr
  */
 int       sq_table_erase_records(SqTable* table, char version_comparison);
 
-void      sq_table_complete(SqTable* table, bool no_unused_column);
+void      sq_table_complete(SqTable* table, bool no_need_to_sync);
 
 // sort column by it's attribute
 //	sq_ptr_array_sort(result, (SqCompareFunc)sq_column_cmp_attrib);
@@ -314,12 +308,11 @@ struct SqTable
 
 	// ------ SqTable members ------
 
-	// SqColumn's array for temporary use.
+	// SqColumn's relation for (SQLite) migration.
 	// sq_table_include() and sq_schema_include() store columns that having foreign reference.
 	// sq_schema_trace_foreign() use these to trace renamed (or dropped) column that was referenced by others.
-	// finalize it after creating table in SQL
-	SqPtrArray   foreigns;
-
+	// free it if you don't need to sync table changed to database.
+	SqRelation  *relation;
 
 #ifdef __cplusplus
 	// C++11 standard-layout

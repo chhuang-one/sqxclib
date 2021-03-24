@@ -158,12 +158,12 @@ typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
 // find and delete renamed & dropped records, set index of deleted pointer to NULL.
 // if database schema version <  current schema version, pass 'version_comparison' = '<'
 // if database schema version == current schema version, pass 'version_comparison' = '='
-void    sq_reentries_clear_records(void* reentry_ptr_array, char version_comparison);
+void    sq_reentries_clear_records(void* reentry_ptr_array, char version_comparison, int n_old_elements);
 
 // It remove all NULL pointer in array
-// n_old_columns: number of old columns before removing NULL
-// return:        number of old columns after  removing NULL
-int     sq_reentries_remove_null(void* reentry_ptr_array, int n_old_columns);
+// n_old_elements: number of old elements before removing NULL
+// return:         number of old elements after  removing NULL
+int     sq_reentries_remove_null(void* reentry_ptr_array, int n_old_elements);
 
 // void sq_reentries_add(void* reentry_ptr_array, void* reentry);
 #define sq_reentries_add		sq_ptr_array_append
@@ -175,13 +175,6 @@ int     sq_reentries_remove_null(void* reentry_ptr_array, int n_old_columns);
 // void** sq_reentries_find_old_name(void* reentry_ptr_array, const char* old_name)
 #define sq_reentries_find_old_name(reentry_ptr_array, old_name)    \
 		sq_ptr_array_find((void*)(reentry_ptr_array), old_name, (SqCompareFunc)sq_reentry_cmp_str__old_name)
-
-// trace all renamed record by 'old_name' and return the latest record.
-// if 'erase_renamed' is true, erase tracked and renamed records and return the latest renamed or dropped record. (for SQLite)
-// if 'erase_renamed' is false, return the latest renamed record.
-// if not found, return NULL.
-void**  sq_reentries_trace_renamed(void* reentry_ptr_array, const char* old_name,
-                                   int   index_beg,         bool  erase_renamed);
 
 #ifdef __cplusplus
 }  // extern "C"
