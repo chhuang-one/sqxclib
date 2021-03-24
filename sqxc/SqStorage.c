@@ -315,19 +315,19 @@ static char*  get_primary_key_string(void* instance, SqTable* table)
 	// integer
 	instance = (char*)instance + column->offset;
 	switch(SQ_TYPE_BUILTIN_INDEX(column->type)) {
-	case SQ_TYPE_INDEX_INT:
+	case SQ_TYPE_INT_INDEX:
 		len = snprintf(NULL, 0, "\"%s\"=%d", column->name, *(int*)instance) +1;
 		condition = malloc(len);
 		snprintf(condition, len, "\"%s\"=%d", column->name, *(int*)instance);
 		break;
 
-	case SQ_TYPE_INDEX_UINT:
+	case SQ_TYPE_UINT_INDEX:
 		len = snprintf(NULL, 0, "\"%s\"=%u", column->name, *(unsigned int*)instance) +1;
 		condition = malloc(len);
 		snprintf(condition, len, "\"%s\"=%u", column->name, *(unsigned int*)instance);
 		break;
 
-	case SQ_TYPE_INDEX_INT64:
+	case SQ_TYPE_INT64_INDEX:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "\"%s\"=%I64d", column->name, *(int64_t*)instance) +1;
 		condition = malloc(len);
@@ -343,7 +343,7 @@ static char*  get_primary_key_string(void* instance, SqTable* table)
 #endif
 		break;
 
-	case SQ_TYPE_INDEX_UINT64:
+	case SQ_TYPE_UINT64_INDEX:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "\"%s\"=%I64u", column->name, *(uint64_t*)instance) +1;
 		condition = malloc(len);

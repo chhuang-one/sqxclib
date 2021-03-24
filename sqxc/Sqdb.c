@@ -451,16 +451,16 @@ void sqdb_sql_write_column(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 	digits = column->digits;
 
 	switch (SQ_TYPE_BUILTIN_INDEX(type)) {
-	case SQ_TYPE_INDEX_BOOL:
+	case SQ_TYPE_BOOL_INDEX:
 		if (db->info->column.has_boolean)
 			sq_buffer_write(buffer, "BOOLEAN");
 		else
 			sq_buffer_write(buffer, "TINYINT");
 		break;
 
-	case SQ_TYPE_INDEX_INT:
-	case SQ_TYPE_INDEX_UINT:
-	case SQ_TYPE_INDEX_INTPTR:
+	case SQ_TYPE_INT_INDEX:
+	case SQ_TYPE_UINT_INDEX:
+	case SQ_TYPE_INTPTR_INDEX:
 		sq_buffer_write(buffer, "INT");
 		if (size > 0) {
 			len = snprintf(NULL, 0, "(%d)", size);
@@ -470,8 +470,8 @@ void sqdb_sql_write_column(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 			sq_buffer_write(buffer, " UNSIGNED");
 		break;
 
-	case SQ_TYPE_INDEX_INT64:
-	case SQ_TYPE_INDEX_UINT64:
+	case SQ_TYPE_INT64_INDEX:
+	case SQ_TYPE_UINT64_INDEX:
 		sq_buffer_write(buffer, "BIGINT");
 		if (size > 0) {
 			len = snprintf(NULL, 0, "(%d)", size);
@@ -481,11 +481,11 @@ void sqdb_sql_write_column(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 			sq_buffer_write(buffer, " UNSIGNED");
 		break;
 
-	case SQ_TYPE_INDEX_TIME:
+	case SQ_TYPE_TIME_INDEX:
 		sq_buffer_write(buffer, "TIMESTAMP");
 		break;
 
-	case SQ_TYPE_INDEX_DOUBLE:
+	case SQ_TYPE_DOUBLE_INDEX:
 		sq_buffer_write(buffer, "DOUBLE");    // FLOAT
 		if (size > 0 || digits > 0) {
 			sq_buffer_write_c(buffer, '(');
@@ -501,7 +501,7 @@ void sqdb_sql_write_column(Sqdb* db, SqBuffer* buffer, SqColumn* column)
 		}
 		break;
 
-	case SQ_TYPE_INDEX_STRING:
+	case SQ_TYPE_STRING_INDEX:
 		size = (size <= 0) ? SQL_STRING_LENGTH_DEFAULT : size;
 		len = snprintf(NULL, 0, "VARCHAR(%d)", size);
 		sprintf(sq_buffer_alloc(buffer, len), "VARCHAR(%d)", size);
