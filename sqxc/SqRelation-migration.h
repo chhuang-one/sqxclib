@@ -19,20 +19,33 @@
 #include <SqRelation.h>
 #include <SqSchema.h>
 
-//      SQ_TYPE_INDEX    SQ_TYPE_FAKE1
-#define SQ_TYPE_FOREIGN  SQ_TYPE_FAKE2    // for internal use only
-#define SQ_TYPE_REENTRY  SQ_TYPE_FAKE3    // for internal use only
-//#define SQ_TYPE_RESERVE  SQ_TYPE_FAKE4    // for internal use only
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
+
+// These types are for internal use only
+#define SQ_TYPE_FOREIGN    SQ_TYPE_FAKE2
+#define SQ_TYPE_COMPOSITE  SQ_TYPE_FAKE3
+#define SQ_TYPE_RESERVE    SQ_TYPE_FAKE4
+#define SQ_TYPE_REENTRY    SQ_TYPE_FAKE5
+
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* --- SqRelation functions --- */
+
 // This function trace related list of SQ_TYPE_REENTRY by SqReentry.old_name.
 // if 'erase_traced' == true, it will erase node that has been traced in related list of SQ_TYPE_REENTRY.
 const char *sq_relation_trace_reentry(SqRelation *relation, const char *old_name, bool erase_traced);
 
+/* --- SqTable functions --- */
+
 void  sq_table_create_relation(SqTable *table, SqRelationPool *pool);
+
+/* --- SqSchema functions --- */
 
 void  sq_schema_create_relation(SqSchema *schema);
 

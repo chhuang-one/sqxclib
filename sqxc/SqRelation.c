@@ -152,7 +152,6 @@ SqRelation *sq_relation_final(SqRelation *relation) {
 	return relation;
 }
 
-// It does NOT check duplicated 'to' objects
 void  sq_relation_add(SqRelation *relation, const void *from, const void *to, int no_reverse) {
 	int      index;
 	SqRelationNode *rnode_from, *rnode_to, *rnode_pool;
@@ -187,9 +186,6 @@ void  sq_relation_add(SqRelation *relation, const void *from, const void *to, in
 	}
 }
 
-// if 'to' is NULL, it will erase all relation that referenced by 'from'
-// if 'no_reverse' ==  0, erase reverse reference
-// if 'no_reverse' == -1, erase all references in related object
 void  sq_relation_erase(SqRelation *relation, const void *from, const void *to, int no_reverse) {
 	SqRelationNode *rnode, *rnode_pool;
 

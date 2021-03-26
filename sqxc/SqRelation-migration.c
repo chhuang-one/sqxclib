@@ -80,8 +80,8 @@ void  sq_table_create_relation(SqTable *table, SqRelationPool *pool) {
 			continue;
 		}
 /*
-		if (column->type == SQ_TYPE_INDEX) {
-			sq_relation_add(table->relation, SQ_TYPE_INDEX, column, 0);
+		if (column->type == SQ_TYPE_INDEX || column->type == SQ_TYPE_CONSTRAINT) {
+			sq_relation_add(table->relation, SQ_TYPE_COMPOSITE, column, 0);
 		}
  */
 	}
