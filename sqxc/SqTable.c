@@ -479,7 +479,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src)
 			addr = sq_reentries_find_name(reentries, column_src->name);
 			if (addr) {
 				column = *(SqColumn**)addr;
-				// trace_name
+				// If column has foreign/composite key, add it to SQ_TYPE_TRACING
 				sq_relation_erase(table->relation, SQ_TYPE_TRACING, column, 0, NULL);
 				if (column_src->foreign || column_src->composite)
 					sq_relation_add(table->relation, SQ_TYPE_TRACING, column_src, 0);
@@ -510,11 +510,11 @@ int   sq_table_include(SqTable *table, SqTable *table_src)
 				// erase relation in SQ_TYPE_TRACING and SQ_TYPE_RESERVE if exist
 				sq_relation_erase(table->relation, SQ_TYPE_TRACING, column, 0, NULL);
 				sq_relation_erase(table->relation, SQ_TYPE_RESERVE, column, 0, NULL);
-				// trace_name
+				// sq_schema_trace_name()
 				sq_relation_replace(table->relation, column, column_src, 0);
-				if ((column->bit_field & SQB_RENAMED) == 0)
+				if (column->old_name == NULL)
 					sq_relation_add(table->relation, SQ_TYPE_REENTRY, column_src, 0);
-				// remove dropped column
+				// remove dropped column from table->type->entry
 				sq_column_free(column);
 				*addr = NULL;
 			}
@@ -541,19 +541,22 @@ int   sq_table_include(SqTable *table, SqTable *table_src)
 					sq_relation_replace(table->relation, *addr, column, 0);
 					*addr = column;
 				}
-				// trace_name
+				// sq_schema_trace_name()
 				sq_relation_add(table->relation, column_src, column, 0);
 				sq_relation_add(table->relation, SQ_TYPE_REENTRY, column_src, 0);
-				// reserve record for existing column in database
-				if (sq_relation_find(table->relation, SQ_TYPE_RESERVE, column) == NULL)
-					sq_relation_add(table->relation, SQ_TYPE_RESERVE, column, 0);
-				// store old_name temporary, program use it when SQLite recreate
-				if (column->old_name == NULL)
+				// reserved record (it doesn't yet synchronize to database)
+				if (table->bit_field & SQB_TABLE_SQL_CREATED) {
+					if (sq_relation_find(table->relation, SQ_TYPE_RESERVE, column) == NULL)
+						sq_relation_add(table->relation, SQ_TYPE_RESERVE, column, 0);
+				}
+				// store old_name temporary, program use it when SQLite recreate table
+				if (column->old_name == NULL && table->bit_field & SQB_TABLE_SQL_CREATED) {
 					column->old_name = column->name;
+					column->bit_field |= SQB_RENAMED;
+				}
 				else
 					free((char*)column->name);
 				column->name = strdup(column_src->name);
-				column->bit_field |= SQB_RENAMED;
 
 				// SqTable.type.entry must sort again
 				((SqType*)table->type)->bit_field &= ~SQB_TYPE_SORTED;

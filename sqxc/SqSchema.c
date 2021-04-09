@@ -214,7 +214,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 			if (addr) {
 				table = *(SqTable**)addr;
 				sq_table_include(table, table_src);    // TODO: NO_STEAL
-				// relation
+				// If table has foreign/composite key, add it to SQ_TYPE_TRACING
 				if (sq_relation_find(table->relation, SQ_TYPE_TRACING, NULL))
 					sq_relation_add(schema->relation, SQ_TYPE_TRACING, table, 0);
 				else
@@ -236,10 +236,10 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 				table = *(SqTable**)addr;
 				// trace foreign or composite
 				sq_relation_erase(schema->relation, SQ_TYPE_TRACING, table, 0, NULL);
-				// if 'table' is not renamed table
-				if ((table->bit_field & SQB_RENAMED) == 0)
+				// sq_schema_trace_name(): if 'table' is not renamed table
+				if (table->old_name == NULL)
 					sq_relation_add(schema->relation, SQ_TYPE_REENTRY, table, 0);
-				// reserve record for existing table in database
+				// reserved record (it doesn't yet synchronize to database)
 				if (table->bit_field & SQB_TABLE_SQL_CREATED) {
 					if (sq_relation_find(schema->relation, SQ_TYPE_RESERVE, table) == NULL)
 						sq_relation_add(schema->relation, SQ_TYPE_RESERVE, table, 0);
@@ -251,7 +251,7 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 					free((char*)table->name);
 				table->name = NULL;
 				table->bit_field &= ~SQB_RENAMED;
-				// dropped record must remove from schema->type->entry
+				// remove dropped table from schema->type->entry
 				*addr = NULL;
 			}
 #if DEBUG
@@ -274,21 +274,22 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 				}
 				// rename existing table->name to table_src->name
 				table = *(SqTable**)addr;
-				// rename 'table'
-				if (table->old_name == NULL)
-					table->old_name = table->name;    // strdup(table->name)
-				else
-					free((char*)table->name);
-				table->name = strdup(table_src->name);
-				table->bit_field |= SQB_RENAMED;
-				// trace_name
+				// sq_schema_trace_name()
 				sq_relation_add(schema->relation, table_src, table, 0);
 				sq_relation_add(schema->relation, SQ_TYPE_REENTRY, table_src, 0);
-				// reserve record for existing table in database
+				// reserved record (it doesn't yet synchronize to database)
 				if (table->bit_field & SQB_TABLE_SQL_CREATED) {
 					if (sq_relation_find(schema->relation, SQ_TYPE_RESERVE, table) == NULL)
 						sq_relation_add(schema->relation, SQ_TYPE_RESERVE, table, 0);
 				}
+				// store old_name temporary, if table's name doesn't yet synchronize to database
+				if (table->old_name == NULL && table->bit_field & SQB_TABLE_SQL_CREATED) {
+					table->old_name = table->name;    // strdup(table->name)
+					table->bit_field |= SQB_RENAMED;
+				}
+				else
+					free((char*)table->name);
+				table->name = strdup(table_src->name);
 			}
 #if DEBUG
 			else {
