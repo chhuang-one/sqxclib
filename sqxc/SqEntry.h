@@ -82,8 +82,8 @@ typedef struct SqReentry        SqReentry;
 */
 
 #define SQ_ENTRY_MEMBERS        \
-	const SqType* type;         \
-	const char*   name;         \
+	const SqType *type;         \
+	const char   *name;         \
 	size_t        offset;       \
 	unsigned int  bit_field
 
@@ -91,28 +91,28 @@ struct SqEntry
 {
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
-	const SqType* type;        // type information of entry
-	const char*   name;
+	const SqType *type;        // type information of entry
+	const char   *name;
 	size_t        offset;
 	unsigned int  bit_field;
  */
 };
 
 // create/destroy entry for JSON or XML
-SqEntry* sq_entry_new(const SqType* type_info);
-void     sq_entry_free(SqEntry* entry);
+SqEntry *sq_entry_new(const SqType *type_info);
+void     sq_entry_free(SqEntry *entry);
 
 // sq_entry_init() and sq_entry_final() are called by derived struct
-void  sq_entry_init(SqEntry* entry, const SqType* type_info);
-void  sq_entry_final(SqEntry* entry);
+void  sq_entry_init(SqEntry *entry, const SqType *type_info);
+void  sq_entry_final(SqEntry *entry);
 
 // SqCompareFunc for sorting and finding SqEntry
-int  sq_entry_cmp_str__name(const char* str,  SqEntry** entry);
-int  sq_entry_cmp_name(SqEntry** entry1, SqEntry** entry2);
+int  sq_entry_cmp_str__name(const char *str,  SqEntry **entry);
+int  sq_entry_cmp_name(SqEntry **entry1, SqEntry **entry2);
 
 // SqCompareFunc for sorting and finding SqEntry by SqType::name
-int  sq_entry_cmp_str__type_name(const char* str,  SqEntry** entry);
-int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2);
+int  sq_entry_cmp_str__type_name(const char *str,  SqEntry **entry);
+int  sq_entry_cmp_type_name(SqEntry **entry1, SqEntry **entry2);
 
 /* ----------------------------------------------------------------------------
 	SqReentry: reentry previously-defined entries.
@@ -123,29 +123,29 @@ int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2);
 */
 
 #define SQ_REENTRY_MEMBERS      \
-	const SqType* type;         \
-	const char*   name;         \
+	const SqType *type;         \
+	const char   *name;         \
 	size_t        offset;       \
 	unsigned int  bit_field;    \
-	const char*   old_name
+	const char   *old_name
 
 struct SqReentry
 {
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
-	const SqType* type;        // type information of entry
-	const char*   name;
+	const SqType *type;        // type information of entry
+	const char   *name;
 	size_t        offset;
 	unsigned int  bit_field;
-	const char*   old_name;    // rename or drop
+	const char   *old_name;    // rename or drop
  */
 	// if name is NULL, it will drop old_name
 	// if name is NOT NULL, it will rename from old_name to name
 };
 
 // SqCompareFunc for finding unsorted array of SqReentry by name or old_name
-int  sq_reentry_cmp_str__name(const char* str, SqReentry** reentry);
-int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry);
+int  sq_reentry_cmp_str__name(const char *str, SqReentry **reentry);
+int  sq_reentry_cmp_str__old_name(const char *str, SqReentry **reentry);
 
 /* --------------------------------------------------------
 	SqReentries: unsorted SqReentry pointer array.
@@ -155,24 +155,19 @@ int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry);
 typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
  */
 
-// find and delete renamed & dropped records, set index of deleted pointer to NULL.
-// if database schema version <  current schema version, pass 'version_comparison' = '<'
-// if database schema version == current schema version, pass 'version_comparison' = '='
-void    sq_reentries_clear_records(void* reentry_ptr_array, char version_comparison, int n_old_elements);
-
 // It remove all NULL pointer in array
 // n_old_elements: number of old elements before removing NULL
 // return:         number of old elements after  removing NULL
-int     sq_reentries_remove_null(void* reentry_ptr_array, int n_old_elements);
+int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
 
-// void sq_reentries_add(void* reentry_ptr_array, void* reentry);
+// void sq_reentries_add(void *reentry_ptr_array, void *reentry);
 #define sq_reentries_add		sq_ptr_array_append
 
-// void** sq_reentries_find_name(void* reentry_ptr_array, const char* name)
+// void **sq_reentries_find_name(void *reentry_ptr_array, const char *name)
 #define sq_reentries_find_name(reentry_ptr_array, name)    \
 		sq_ptr_array_find((void*)(reentry_ptr_array), name, (SqCompareFunc)sq_reentry_cmp_str__name)
 
-// void** sq_reentries_find_old_name(void* reentry_ptr_array, const char* old_name)
+// void **sq_reentries_find_old_name(void *reentry_ptr_array, const char *old_name)
 #define sq_reentries_find_old_name(reentry_ptr_array, old_name)    \
 		sq_ptr_array_find((void*)(reentry_ptr_array), old_name, (SqCompareFunc)sq_reentry_cmp_str__old_name)
 
@@ -181,7 +176,7 @@ int     sq_reentries_remove_null(void* reentry_ptr_array, int n_old_elements);
 #endif
 
 // ----------------------------------------------------------------------------
-// C++ namespace
+// C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
 

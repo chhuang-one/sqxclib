@@ -23,10 +23,17 @@
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
 // These types are for internal use only
-#define SQ_TYPE_FOREIGN    SQ_TYPE_FAKE2
-#define SQ_TYPE_COMPOSITE  SQ_TYPE_FAKE3
-#define SQ_TYPE_RESERVE    SQ_TYPE_FAKE4
+#define SQ_TYPE_TRACING    SQ_TYPE_FAKE3    // column/table has foreign/composite key
+#define SQ_TYPE_RESERVE    SQ_TYPE_FAKE4    // not yet synchronize to database
 #define SQ_TYPE_REENTRY    SQ_TYPE_FAKE5
+
+/*
+Relation:
+  SQ_TYPE_REENTRY: It contain renamed and dropped records that used by sq_relation_trace_reentry()
+    renamed record <-----> renamed column/table
+    renamed record <-----> dropped record
+  SQ_TYPE_RESERVE: It contain renamed and dropped records that have not synchronize to database.
+ */
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -37,13 +44,19 @@ extern "C" {
 
 /* --- SqRelation functions --- */
 
-// This function trace related list of SQ_TYPE_REENTRY by SqReentry.old_name.
-// if 'erase_traced' == true, it will erase node that has been traced in related list of SQ_TYPE_REENTRY.
-const char *sq_relation_trace_reentry(SqRelation *relation, const char *old_name, bool erase_traced);
+// This function remove objects from related list of 'from_object' if there are the same objects in 'where_object_in'.
+void  sq_relation_exclude(SqRelation *relation, const void *from_object, const void *where_object_in);
+
+// This function trace related list of SQ_TYPE_REENTRY by SqReentry.old_name
+void *sq_relation_trace_reentry(SqRelation *relation, const char *old_name);
+
+// This function free not synced records in SQ_TYPE_RESERVE.
+void  sq_relation_erase_reserve(SqRelation *relation, SqDestroyFunc destroy_func);
 
 /* --- SqTable functions --- */
 
-void  sq_table_create_relation(SqTable *table, SqRelationPool *pool);
+void      sq_table_create_relation(SqTable *table, SqRelationPool *pool);
+SqColumn *sq_table_replace_column(SqTable* table, SqColumn *old_column, SqColumn *new_column);
 
 /* --- SqSchema functions --- */
 

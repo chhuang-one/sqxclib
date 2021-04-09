@@ -22,9 +22,8 @@
 #include <SqBuffer.h>
 #include <SqSchema.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
 
 typedef struct Sqdb             Sqdb;
 typedef struct SqdbInfo         SqdbInfo;
@@ -39,61 +38,66 @@ typedef enum SqdbProduct {
 } SqdbProduct;
 
 // ----------------------------------------------------------------------------
-// macro functions - parameter used only once in macro (except parameter 'db')
+// C declarations: declare C data, function, and others.
 
-// int  sqdb_open(Sqdb* db, const char* database_name);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* --- macro functions --- parameter used only once in macro (except parameter 'db') */
+
+// int  sqdb_open(Sqdb *db, const char *database_name);
 #define sqdb_open(db, database_name)    (db)->info->open(db, database_name)
 
-// int  sqdb_close(Sqdb* db);
+// int  sqdb_close(Sqdb *db);
 #define sqdb_close(db)                  (db)->info->close(db)
 
-// int  sqdb_migrate(Sqdb* db, SqSchema* schema_cur, SqSchema* schema_next);
+// int  sqdb_migrate(Sqdb *db, SqSchema *schema_cur, SqSchema *schema_next);
 #define sqdb_migrate(db, schema_cur, schema_next)    \
 		(db)->info->migrate(db, schema_cur, schema_next)
 
-// int  sqdb_exec(Sqdb* db, const char* sql, Sqxc* xc, void* reserve);
+// int  sqdb_exec(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
 #define sqdb_exec(db, sql, xc, reserve)    \
 		(db)->info->exec(db, sql, xc, reserve)
 
-// ----------------------------------------------------------------------------
-// C Functions
+/* --- C Functions --- */
 
 // if 'config' is NULL, program must set configure later
-Sqdb*   sqdb_new(const SqdbInfo *info, SqdbConfig* config);
-void    sqdb_free(Sqdb* db);
+Sqdb   *sqdb_new(const SqdbInfo *info, SqdbConfig *config);
+void    sqdb_free(Sqdb *db);
 
 // ------------------------------------
 // execute SQL statement
 
-int  sqdb_exec_create_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
-int  sqdb_exec_alter_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
+int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
+int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
 
 // ------------------------------------
 // write SQL statement to 'sql_buf'
 
 // return number of columns in 'table'
-int  sqdb_sql_create_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqPtrArray* arranged_columns);
-int  sqdb_sql_create_table_params(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns, int n_old_columns);
-void sqdb_sql_rename_table(Sqdb* db, SqBuffer* sql_buf, const char* old_name, const char* new_name);
-void sqdb_sql_drop_table(Sqdb* db, SqBuffer* sql_buf, SqTable* table, bool if_exist);
+int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
+int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arranged_columns, int n_old_columns);
+void sqdb_sql_rename_table(Sqdb *db, SqBuffer *sql_buf, const char *old_name, const char *new_name);
+void sqdb_sql_drop_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool if_exist);
 
-void sqdb_sql_rename_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
-void sqdb_sql_add_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
-void sqdb_sql_alter_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
-void sqdb_sql_drop_column(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+void sqdb_sql_rename_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
+void sqdb_sql_add_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
+void sqdb_sql_alter_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
+void sqdb_sql_drop_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 
-void sqdb_sql_create_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
-void sqdb_sql_drop_index(Sqdb* db, SqBuffer* sql_buf, SqTable* table, SqColumn* column);
+void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
+void sqdb_sql_drop_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 
 // ------------------------------------
 // write parameter,arguments to 'sql_buf'
 
-void sqdb_sql_write_column(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
-void sqdb_sql_write_constraint(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
-void sqdb_sql_write_composite_columns(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
-void sqdb_sql_write_foreign_ref(Sqdb* db, SqBuffer* sql_buf, SqColumn* column);
+void sqdb_sql_write_column(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
+void sqdb_sql_write_constraint(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
+void sqdb_sql_write_composite_columns(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
+void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 
-void sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arranged_columns,
+void sqdb_sql_write_column_list(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arranged_columns,
                                 int n_old_columns, bool use_old_name);
 
 #ifdef __cplusplus
@@ -101,21 +105,23 @@ void sqdb_sql_write_column_list(Sqdb* db, SqBuffer* sql_buf, SqPtrArray* arrange
 #endif
 
 // ----------------------------------------------------------------------------
-// DbMethod : a C++ struct is used by Sqdb and it's children.
+// C++ declarations: declare C++ data, function, method, and others.
 
 #ifdef __cplusplus
 
 namespace Sq
 {
 
+/* DbMethod : a C++ struct is used by Sqdb and it's children. */
+
 // This one is for derived use only, it must has Sqdb data members.
 // Your derived struct/class must be C++11 standard-layout.
 struct DbMethod
 {
-	int  open(const char* name);
+	int  open(const char *name);
 	int  close(void);
-	int  exec(const char* sql, Sqxc* xc, void* reserve);
-	int  migrate(SqSchema* schema_cur, SqSchema* schema_next);
+	int  exec(const char *sql, Sqxc *xc, void *reserve);
+	int  migrate(SqSchema *schema_cur, SqSchema *schema_next);
 };
 
 };  // namespace Sq
@@ -123,7 +129,9 @@ struct DbMethod
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// SqdbInfo
+// C/C++ common definitions: define structue
+
+/* SqdbInfo */
 
 struct SqdbInfo
 {
@@ -136,16 +144,16 @@ struct SqdbInfo
 		unsigned int use_modify:1;       // MODIFY COLUMN
 	} column;
 
-	void (*init)(Sqdb* db, SqdbConfig* config);
-	void (*final)(Sqdb* db);
+	void (*init)(Sqdb *db, SqdbConfig *config);
+	void (*final)(Sqdb *db);
 
-	int  (*open)(Sqdb* db, const char* name);
-	int  (*close)(Sqdb* db);
-	int  (*exec)(Sqdb* db, const char* sql, Sqxc* xc, void* reserve);
-	int  (*migrate)(Sqdb* db, SqSchema* schema_cur, SqSchema* schema_next);
+	int  (*open)(Sqdb *db, const char *name);
+	int  (*close)(Sqdb *db);
+	int  (*exec)(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
+	int  (*migrate)(Sqdb *db, SqSchema *schema_cur, SqSchema *schema_next);
 };
 
-/* ----------------------------------------------------------------------------
+/*
    Sqdb - database interface.
 
    TODO: Sqdb should be thread safe...
@@ -178,8 +186,7 @@ struct Sqdb
 	/* Add variable and function */  // <-- 3. Add variable and non-virtual function in derived struct.
 };
 
-// ----------------------------------------------------------------------------
-// SqdbConfig - setting of SQL product
+/* SqdbConfig - setting of SQL product */
 
 #define SQDB_CONFIG_MEMBERS    \
 	unsigned int    product;   \
@@ -195,27 +202,28 @@ struct SqdbConfig
 };
 
 // ----------------------------------------------------------------------------
-// Sq::Db C++ functions
+// C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
 
 namespace Sq {
 
-inline int  DbMethod::open(const char* name) {
+/* --- define methods for Sq::Db --- */
+
+inline int  DbMethod::open(const char *name) {
 	return sqdb_open((Sqdb*)this, name);
 }
 inline int  DbMethod::close(void) {
 	return sqdb_close((Sqdb*)this);
 }
-inline int  DbMethod::exec(const char* sql, Sqxc* xc, void* reserve) {
+inline int  DbMethod::exec(const char *sql, Sqxc *xc, void *reserve) {
 	return sqdb_exec((Sqdb*)this, sql, xc, reserve);
 }
-inline int  DbMethod::migrate(SqSchema* schema_cur, SqSchema* schema_next) {
+inline int  DbMethod::migrate(SqSchema *schema_cur, SqSchema *schema_next) {
 	return sqdb_migrate((Sqdb*)this, schema_cur, schema_next);
 }
 
-// ----------------------------------------------------------------------------
-// Db is C++11 standard-layout
+/* --- define C++11 standard-layout structures --- */
 
 // This one is for directly use only. You can NOT derived it.
 typedef struct Sqdb        Db;

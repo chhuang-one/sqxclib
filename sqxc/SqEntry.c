@@ -21,16 +21,16 @@
 // ----------------------------------------------------------------------------
 // SqEntry
 
-SqEntry* sq_entry_new(const SqType* type_info)
+SqEntry *sq_entry_new(const SqType *type_info)
 {
-	SqEntry* entry;
+	SqEntry *entry;
 
 	entry = malloc(sizeof(SqEntry));
 	sq_entry_init(entry, type_info);
 	return entry;
 }
 
-void  sq_entry_free(SqEntry* entry)
+void  sq_entry_free(SqEntry *entry)
 {
 	if (entry->bit_field & SQB_DYNAMIC) {
 		sq_entry_final(entry);
@@ -38,7 +38,7 @@ void  sq_entry_free(SqEntry* entry)
 	}
 }
 
-void  sq_entry_init(SqEntry* entry, const SqType* type_info)
+void  sq_entry_init(SqEntry *entry, const SqType *type_info)
 {
 	entry->name = NULL;
 	entry->offset = 0;
@@ -55,7 +55,7 @@ void  sq_entry_init(SqEntry* entry, const SqType* type_info)
 	}
 }
 
-void  sq_entry_final(SqEntry* entry)
+void  sq_entry_final(SqEntry *entry)
 {
 	if (entry->bit_field & SQB_DYNAMIC) {
 		if (entry->type)
@@ -68,9 +68,9 @@ void  sq_entry_final(SqEntry* entry)
 // SqEntry SqCompareFunc
 
 // used by find()
-int  sq_entry_cmp_str__name(const char* str, SqEntry** entry)
+int  sq_entry_cmp_str__name(const char *str, SqEntry **entry)
 {
-	const char* name;
+	const char *name;
 
 	name = (*entry) ? (*entry)->name : "";
 #ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
@@ -81,10 +81,10 @@ int  sq_entry_cmp_str__name(const char* str, SqEntry** entry)
 }
 
 // used by sort()
-int  sq_entry_cmp_name(SqEntry** entry1, SqEntry** entry2)
+int  sq_entry_cmp_name(SqEntry **entry1, SqEntry **entry2)
 {
-	const char* name1;
-	const char* name2;
+	const char *name1;
+	const char *name2;
 
 	name1 = (*entry1) ? (*entry1)->name : "";
 	name2 = (*entry2) ? (*entry2)->name : "";
@@ -95,18 +95,18 @@ int  sq_entry_cmp_name(SqEntry** entry1, SqEntry** entry2)
 #endif
 }
 
-int  sq_entry_cmp_str__type_name(const char* str,  SqEntry** entry)
+int  sq_entry_cmp_str__type_name(const char *str,  SqEntry **entry)
 {
-	const char* name;
+	const char *name;
 
 	name = (*entry) ? (*entry)->type->name : "";
 	return strcmp(str, name);
 }
 
-int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2)
+int  sq_entry_cmp_type_name(SqEntry **entry1, SqEntry **entry2)
 {
-	const char* name1;
-	const char* name2;
+	const char *name1;
+	const char *name2;
 
 	name1 = (*entry1) ? (*entry1)->type->name : "";
 	name2 = (*entry2) ? (*entry2)->type->name : "";
@@ -116,38 +116,9 @@ int  sq_entry_cmp_type_name(SqEntry** entry1, SqEntry** entry2)
 // ----------------------------------------------------------------------------
 // SqReentry functions for SqPtrArray
 
-void  sq_reentries_clear_records(void* reentry_ptr_array, char version_comparison, int n_old_elements)
+int  sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements)
 {
-	SqDestroyFunc destroy;
-	SqReentry*    reentry;
-	bool          is_renamed;
-
-	destroy = sq_ptr_array_destroy_func(reentry_ptr_array);
-	for (int index = n_old_elements;  index < ((SqPtrArray*)reentry_ptr_array)->length; index++) {
-		reentry = ((SqPtrArray*)reentry_ptr_array)->data[index];
-		if (reentry == NULL || reentry->old_name == NULL)
-			continue;
-		is_renamed = (reentry->bit_field & SQB_RENAMED) ? true : false;
-		// clear altered and renamed status in column/table
-		if (version_comparison != '<' && reentry->bit_field & SQB_DYNAMIC) {
-			free((char*)reentry->old_name);
-			reentry->old_name = NULL;
-			reentry->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
-		}
-		// Don't destroy renamed column/table
-		if (is_renamed)
-			continue;
-		// destory dropped & renamed records
-		if (destroy)
-			destroy(reentry);
-		// For performance reasons, It set freed pointer to NULL first and remove all NULL pointer later.
-		((SqPtrArray*)reentry_ptr_array)->data[index] = NULL;
-	}
-}
-
-int  sq_reentries_remove_null(void* reentry_ptr_array, int n_old_elements)
-{
-	SqPtrArray* array = (SqPtrArray*)reentry_ptr_array;
+	SqPtrArray *array = (SqPtrArray*)reentry_ptr_array;
 	int  index_src, index_dest;
 
 	// find first NULL pointer
@@ -171,9 +142,9 @@ int  sq_reentries_remove_null(void* reentry_ptr_array, int n_old_elements)
 // ------------------------------------
 // SqReentry SqCompareFunc
 
-int  sq_reentry_cmp_str__name(const char* str, SqReentry** reentry_addr)
+int  sq_reentry_cmp_str__name(const char *str, SqReentry **reentry_addr)
 {
-	SqReentry* reentry = *reentry_addr;
+	SqReentry *reentry = *reentry_addr;
 
 	if (reentry) {
 		if (reentry->old_name == NULL || reentry->bit_field & SQB_RENAMED)
@@ -186,9 +157,9 @@ int  sq_reentry_cmp_str__name(const char* str, SqReentry** reentry_addr)
 	return -1;
 }
 
-int  sq_reentry_cmp_str__old_name(const char* str, SqReentry** reentry_addr)
+int  sq_reentry_cmp_str__old_name(const char *str, SqReentry **reentry_addr)
 {
-	SqReentry* reentry = *reentry_addr;
+	SqReentry *reentry = *reentry_addr;
 
 	if (reentry) {
 		if (reentry->old_name == NULL || reentry->bit_field & SQB_RENAMED)

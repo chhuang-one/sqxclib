@@ -41,6 +41,8 @@ SqRelation *sq_relation_final(SqRelation *relation);
 // void        sq_relation_free(SqRelation *relation);
 #define sq_relation_free(relation)         free(sq_relation_final(relation))
 
+void  sq_relation_clear(SqRelation *relation);
+
 // *** function parameter 'no_reverse' set to 1 if user don't need reverse reference
 
 // This function prepend 'to_object' to related list of 'from_object'
@@ -53,8 +55,8 @@ void  sq_relation_add(SqRelation *relation, const void *from_object, const void 
 // if 'to_object' is NULL, it will erase all relation that referenced by 'from_object'
 // if 'no_reverse' ==  1, don't touch reverse reference
 // if 'no_reverse' ==  0, erase reverse reference
-// if 'no_reverse' == -1, erase all references in reverse related object
-void  sq_relation_erase(SqRelation *relation, const void *from_object, const void *to_object, int no_reverse);
+// if 'no_reverse' == -1, erase all references in reverse related objects. 'to_object_free_func' must use with this mode.
+void  sq_relation_erase(SqRelation *relation, const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func);
 
 // it replace 'old_object' to 'new_object'.
 // if 'no_reverse' ==  1, don't replace 'old_object' in reverse reference
@@ -71,9 +73,6 @@ SqRelationNode *sq_relation_find(SqRelation *relation, const void *from_object, 
 /* --- SqRelationNode functions --- */
 
 SqRelationNode *sq_relation_node_find(SqRelationNode *node, const void *object, SqRelationNode **prev_of_returned_node);
-
-// reverse 'node' order and return reversed list.
-SqRelationNode *sq_relation_node_reverse(SqRelationNode *node);
 
 /* --- SqRelationPool functions --- */
 
@@ -96,7 +95,7 @@ namespace Sq {
 /* --- declare methods for Sq::Relation --- */
 struct RelationMethod {
 	void  add(const void *from_object, const void *to_object, int no_reverse = 0);
-	void  erase(const void *from_object, const void *to_object, int no_reverse = 0);
+	void  erase(const void *from_object, const void *to_object, int no_reverse = 0, SqDestroyFunc to_object_free_func = NULL);
 	void  replace(const void *old_object, const void *new_object, int no_reverse = 0);
 	void  removeEmpty();
 	SqRelationNode *find(const void *from_object, const void *to_object);
@@ -172,8 +171,8 @@ namespace Sq {
 inline void  RelationMethod::add(const void *from_object, const void *to_object, int no_reverse) {
     sq_relation_add((SqRelation*)this, from_object, to_object, no_reverse);
 }
-inline void  RelationMethod::erase(const void *from_object, const void *to_object, int no_reverse) {
-    sq_relation_erase((SqRelation*)this, from_object, to_object, no_reverse);
+inline void  RelationMethod::erase(const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func) {
+    sq_relation_erase((SqRelation*)this, from_object, to_object, no_reverse, to_object_free_func);
 }
 inline void  RelationMethod::replace(const void *old_object, const void *new_object, int no_reverse) {
     sq_relation_replace((SqRelation*)this, old_object, new_object, no_reverse);
@@ -188,9 +187,6 @@ inline SqRelationNode *RelationMethod::find(const void *from_object, const void 
 /* --- define methods for Sq::RelationNode --- */
 inline SqRelationNode *RelationNodeMethod::find(const void *object, SqRelationNode **prev) {
     return sq_relation_node_find((SqRelationNode*)this, object, prev);
-}
-inline SqRelationNode *RelationNodeMethod::reverse() {
-    return sq_relation_node_reverse((SqRelationNode*)this);
 }
 
 /* --- define C++11 standard-layout structures --- */

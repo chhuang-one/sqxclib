@@ -24,6 +24,8 @@ static SqRelationNode *ptr_x2_array_find_sorted(SqPtrArray *array, const void *k
 
 #define ptr_x2_array_at(array, index)    \
 		(SqRelationNode*)sq_ptr_array_addr(array, index)
+#define ptr_x2_array_end(array)    \
+		(SqRelationNode*)sq_ptr_array_end(array)
 #define ptr_x2_array_erase(array, index)    \
 		sq_ptr_array_erase(array, index, NODE_N_PTR)
 #define ptr_x2_array_alloc_at(array, index)    \
@@ -125,18 +127,6 @@ SqRelationNode *sq_relation_node_find(SqRelationNode *node, const void *object, 
 	return NULL;
 }
 
-SqRelationNode *sq_relation_node_reverse(SqRelationNode *node) {
-	SqRelationNode *node_next, *node_prev;
-
-	// reverse order
-	for (node_prev = NULL;  node;  node = node_next) {
-		node_next = node->next;
-		node->next = node_prev;
-		node_prev = node;
-	}
-	return node_prev;
-}
-
 // ----------------------------------------------------------------------------
 // SqRelation
 
@@ -150,6 +140,19 @@ SqRelation *sq_relation_init(SqRelation *relation, SqRelationPool *rpool, int ca
 SqRelation *sq_relation_final(SqRelation *relation) {
 	sq_ptr_array_final(relation);
 	return relation;
+}
+
+void  sq_relation_clear(SqRelation *relation) {
+	SqRelationNode *node, *node_end, *node_pool, *node_next;
+
+	node_end = ptr_x2_array_end(relation);
+	for (node = relation->data;  node < node_end;  node++) {
+		for (node_pool = node->next;  node_pool;  node_pool = node_next) {
+			node_next = node_pool->next;
+			sq_relation_pool_free(relation->pool, node_pool);
+		}
+		node->next = NULL;
+	}
 }
 
 void  sq_relation_add(SqRelation *relation, const void *from, const void *to, int no_reverse) {
@@ -186,7 +189,7 @@ void  sq_relation_add(SqRelation *relation, const void *from, const void *to, in
 	}
 }
 
-void  sq_relation_erase(SqRelation *relation, const void *from, const void *to, int no_reverse) {
+void  sq_relation_erase(SqRelation *relation, const void *from, const void *to, int no_reverse, SqDestroyFunc object_free_func) {
 	SqRelationNode *rnode, *rnode_pool;
 
 	rnode = ptr_x2_array_find_sorted((SqPtrArray*)relation, from, NULL);
@@ -196,11 +199,13 @@ void  sq_relation_erase(SqRelation *relation, const void *from, const void *to, 
 	for (rnode_pool = rnode->next;  rnode_pool;  rnode_pool = rnode->next) {
 		if (rnode_pool->object == to || to == NULL) {
 			if (no_reverse != 1) {
-				sq_relation_erase(relation, rnode_pool->object, from, 1);
+				sq_relation_erase(relation, rnode_pool->object, from, 1, NULL);
 				if (no_reverse == -1)
-					sq_relation_erase(relation, rnode_pool->object, NULL, 0);
+					sq_relation_erase(relation, rnode_pool->object, NULL, 0, NULL);
 			}
 			rnode->next = rnode_pool->next;
+			if (no_reverse == -1 && object_free_func)
+				object_free_func(rnode_pool->object);
 			sq_relation_pool_free(relation->pool, rnode_pool);
 		}
 		else

@@ -443,7 +443,7 @@ void   sq_table_drop_foreign(SqTable* table, const char* name)
 // --------------------------------------------------------
 // migration functions
 
-int   sq_table_include(SqTable* table, SqTable* table_src)
+int   sq_table_include(SqTable *table, SqTable *table_src)
 {	//         *table,     *table_src
 	SqColumn   *column,    *column_src;
 	SqPtrArray *reentries, *reentries_src;
@@ -465,25 +465,37 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 	}
 
 	for (index = 0;  index < reentries_src->length;  index++) {
+		// TODO: NO_STEAL
 		column_src = (SqColumn*)reentries_src->data[index];
+		// steal 'column_src' if 'table_src->type' is not static.
+		if (table_src->type->bit_field & SQB_TYPE_DYNAMIC)
+			reentries_src->data[index] = NULL;
+
 		if (column_src->bit_field & SQB_CHANGED) {
 			// === ALTER COLUMN ===
 			// free column if column->name == column_src->name
 			addr = sq_reentries_find_name(reentries, column_src->name);
 			if (addr) {
 				column = *(SqColumn**)addr;
-				sq_relation_erase(table->relation, SQ_TYPE_FOREIGN, column, 0);
+				// trace_name
+				sq_relation_erase(table->relation, SQ_TYPE_TRACING, column, 0, NULL);
+				if (column_src->foreign || column_src->composite)
+					sq_relation_add(table->relation, SQ_TYPE_TRACING, column_src, 0);
+				// replace 'column' by 'column_src'
 				sq_relation_replace(table->relation, column, column_src, 0);
 				sq_column_free(column);
-				*addr = NULL;
+				*addr = column_src;
 			}
 #if DEBUG
 			else {
+				// It can ignore this error...
 				fprintf(stderr, "SqTable %s: Can't alter column %s. It is not found.\n",
 				        table->name, column_src->name);
-				// It can ignore this error...
+				// append 'column_src' to table->type->entry
+				sq_reentries_add(reentries, column_src);
 			}
 #endif
+			sq_type_decide_size((SqType*)table->type, (SqEntry*)column_src);
 			// set bit_field: column altered
 			table->bit_field |= SQB_TABLE_COL_ALTERED;
 		}
@@ -493,8 +505,14 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 			addr = sq_reentries_find_name(reentries, column_src->old_name);
 			if (addr) {
 				column = *(SqColumn**)addr;
-				sq_relation_erase(table->relation, SQ_TYPE_FOREIGN, column, 0);    // erase if exist
+				// erase relation in SQ_TYPE_TRACING and SQ_TYPE_RESERVE if exist
+				sq_relation_erase(table->relation, SQ_TYPE_TRACING, column, 0, NULL);
+				sq_relation_erase(table->relation, SQ_TYPE_RESERVE, column, 0, NULL);
+				// trace_name
 				sq_relation_replace(table->relation, column, column_src, 0);
+				if ((column->bit_field & SQB_RENAMED) == 0)
+					sq_relation_add(table->relation, SQ_TYPE_REENTRY, column_src, 0);
+				// remove dropped column
 				sq_column_free(column);
 				*addr = NULL;
 			}
@@ -502,9 +520,9 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 			else {
 				fprintf(stderr, "SqTable %s: Can't drop column %s. It is not found.\n",
 				        table->name, column_src->old_name);
+				sq_column_free(column_src);
 			}
 #endif
-			sq_relation_add(table->relation, SQ_TYPE_REENTRY, column_src, 0);
 			// set bit_field: column dropped
 			table->bit_field |= SQB_TABLE_COL_DROPPED;
 		}
@@ -521,8 +539,12 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 					sq_relation_replace(table->relation, *addr, column, 0);
 					*addr = column;
 				}
+				// trace_name
 				sq_relation_add(table->relation, column_src, column, 0);
 				sq_relation_add(table->relation, SQ_TYPE_REENTRY, column_src, 0);
+				// reserve record for existing column in database
+				if (sq_relation_find(table->relation, SQ_TYPE_RESERVE, column) == NULL)
+					sq_relation_add(table->relation, SQ_TYPE_RESERVE, column, 0);
 				// store old_name temporary, program use it when SQLite recreate
 				if (column->old_name == NULL)
 					column->old_name = column->name;
@@ -530,11 +552,15 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 					free((char*)column->name);
 				column->name = strdup(column_src->name);
 				column->bit_field |= SQB_RENAMED;
+
+				// SqTable.type.entry must sort again
+				((SqType*)table->type)->bit_field &= ~SQB_TYPE_SORTED;
 			}
 #if DEBUG
 			else {
 				fprintf(stderr, "SqTable %s: Can't rename column %s. It is not found.\n",
 				        table->name, column_src->old_name);
+				sq_column_free(column_src);
 			}
 #endif
 			// set bit_field: column renamed
@@ -559,25 +585,16 @@ int   sq_table_include(SqTable* table, SqTable* table_src)
 			}
 			else
 				table->bit_field |= SQB_TABLE_COL_ADDED;
-		}
-
-		// TODO: NO_STEAL
-		// steal 'column_src' if 'table_src->type' is not static.
-		if (table_src->type->bit_field & SQB_TYPE_DYNAMIC)
-			reentries_src->data[index] = NULL;
-		// append 'column_src' to table->type->entry and calculate new size
-		sq_reentries_add(reentries, column_src);
-		if (column_src->type)
+			if (column_src->foreign || column_src->composite)
+				sq_relation_add(table->relation, SQ_TYPE_TRACING, column_src, 0);
+			// append 'column_src' to table->type->entry and calculate new size
+			sq_reentries_add(reentries, column_src);
 			sq_type_decide_size((SqType*)table->type, (SqEntry*)column_src);
 
-		// ADD or ALTER COLUMN that having foreign reference
-		if (column_src->foreign && column_src->old_name == NULL) {
-			sq_relation_add(table->relation, SQ_TYPE_FOREIGN, column_src, 0);
+			// SqTable.type.entry must sort again
+			((SqType*)table->type)->bit_field &= ~SQB_TYPE_SORTED;
 		}
 	}
-
-	// SqTable.type.entry must sort again
-	((SqType*)table->type)->bit_field &= ~SQB_TYPE_SORTED;
 
 	return SQCODE_OK;
 }
@@ -605,32 +622,25 @@ void  sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray*
 	result->length = index_r;
 }
 
-int  sq_table_erase_records(SqTable* table, char version_comparison)
+void  sq_table_erase_records(SqTable* table, char version_comparison)
 {
-	SqPtrArray* reentries;
-	int  n_old_columns;
-
 	// copy table->type if it is static SqType.
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
 		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
-	// erase renamed & dropped records in table
-	reentries = sq_type_get_ptr_array(table->type);
-	sq_reentries_clear_records(reentries, version_comparison, table->offset);
-	n_old_columns = sq_reentries_remove_null(reentries, table->offset);
+
 	// erase relation for renamed & dropped records in table
-	sq_relation_erase(table->relation, SQ_TYPE_REENTRY, NULL, -1);
-	sq_relation_remove_empty(table->relation);
-	// if database schema version < current schema version, reset table->offset for sq_schema_arrange()
-	table->offset = (version_comparison == '<') ? 0 : reentries->length;
-	// clear SQB_CHANGED and SQB_RENAMED
-	table->bit_field &= ~(SQB_CHANGED | SQB_RENAMED);
+	sq_relation_erase(table->relation, SQ_TYPE_REENTRY, NULL, -1, (SqDestroyFunc)sq_column_free);
 	// if database schema version == current schema version
 	if (version_comparison == '=') {
+		// free not synced record
+		sq_relation_erase_reserve(table->relation, (SqDestroyFunc)sq_column_free);
+		// reset data in synced table
 		table->bit_field |= SQB_TABLE_SQL_CREATED;
-		table->bit_field &= ~(SQB_TABLE_COL_CHANGED);
+		table->bit_field &= ~(SQB_TABLE_COL_CHANGED | SQB_CHANGED | SQB_RENAMED);
+		// table->offset is number of existed columns
+		table->offset = table->type->n_entry;
 	}
-
-	return n_old_columns;
+	sq_relation_remove_empty(table->relation);
 }
 
 void   sq_table_complete(SqTable* table, bool no_need_to_sync)

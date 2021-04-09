@@ -207,18 +207,13 @@ int       sq_table_include(SqTable* table, SqTable* table_src);
 // table->type->entry remove columns found in 'excluded_columns', remained columns output to 'result'.
 void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray* result);
 
-/* erase ernamed & dropped records after calling sq_schema_include() and sq_schema_trace_foreign()
+/* erase ernamed & dropped records after calling sq_schema_include() and sq_schema_trace_name()
    if database schema version <  current schema version, pass 'version_comparison' = '<'
    if database schema version == current schema version, pass 'version_comparison' = '='
 
-   To pass '<' to 'version_comparison':
-   1. If you don't need calling sq_schema_trace_foreign() any more
-   2. before you call sq_schema_arrange()
-
-   If you pass '<' to 'version_comparison' , it will affect performance of sq_schema_trace_foreign().
    return number of old columns after erasing.
  */
-int       sq_table_erase_records(SqTable* table, char version_comparison);
+void      sq_table_erase_records(SqTable *table, char version_comparison);
 
 void      sq_table_complete(SqTable* table, bool no_need_to_sync);
 
@@ -299,18 +294,18 @@ struct SqTable
 {
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
-	const SqType* type;        // type information for this entry
-	const char*   name;
-	size_t        offset;      // sq_schema_trace_foreign() and migration use this
+	const SqType *type;        // type information for this entry
+	const char   *name;
+	size_t        offset;      // migration use this. Number of columns have existed in database
 	unsigned int  bit_field;
-	const char*   old_name;    // rename or drop
+	const char   *old_name;    // rename or drop
  */
 
 	// ------ SqTable members ------
 
 	// SqColumn's relation for (SQLite) migration.
 	// sq_table_include() and sq_schema_include() store columns that having foreign reference.
-	// sq_schema_trace_foreign() use these to trace renamed (or dropped) column that was referenced by others.
+	// sq_schema_trace_name() use these to trace renamed (or dropped) column that was referenced by others.
 	// free it if you don't need to sync table changed to database.
 	SqRelation  *relation;
 
@@ -503,8 +498,8 @@ struct SqTable
 		{ return sq_table_include(this, table_src); }
 	void exclude(SqPtrArray* excluded_columns, SqPtrArray* result)
 		{ sq_table_exclude(this, excluded_columns, result); }
-	int  eraseRecords(char version_comparison) {
-		return sq_table_erase_records(this, version_comparison);
+	void eraseRecords(char version_comparison) {
+		sq_table_erase_records(this, version_comparison);
 	}
 	void complete(bool no_unused_column = true) {
 		sq_table_complete(this, no_unused_column);
@@ -541,11 +536,11 @@ struct SqColumn
 {
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
-	const SqType* type;        // type information for this entry
-	const char*   name;
+	const SqType *type;        // type information for this entry
+	const char   *name;
 	size_t        offset;
 	unsigned int  bit_field;
-	const char*   old_name;    // rename or drop
+	const char   *old_name;    // rename or drop
  */
 
 	// ------ SqColumn members ------
@@ -555,13 +550,13 @@ struct SqColumn
 	int16_t      size;             // total digits or length of string
 	int16_t      digits;           // decimal digits
 
-	const char*  default_value;    // DEFAULT
-	const char*  check;            // CHECK (condition)
+	const char  *default_value;    // DEFAULT
+	const char  *check;            // CHECK (condition)
 
-	SqForeign*   foreign;          // foreign key
-	char**       composite;        // Null-terminated (column-name) string array
+	SqForeign   *foreign;          // foreign key
+	char       **composite;        // Null-terminated (column-name) string array
 
-	const char*  raw;              // raw SQL column property
+	const char  *raw;              // raw SQL column property
 
 	/*
 	struct SqExtra {

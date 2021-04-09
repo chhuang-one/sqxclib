@@ -25,12 +25,12 @@
 #include <SqxcValue.h>  // TODO: SqdbHelper functions
 #include <SqxcSql.h>
 
-static void sqdb_empty_init(SqdbEmpty* sqdb, SqdbConfigEmpty* config);
-static void sqdb_empty_final(SqdbEmpty* sqdb);
-static int  sqdb_empty_open(SqdbEmpty* sqdb, const char* database_name);
-static int  sqdb_empty_close(SqdbEmpty* sqdb);
-static int  sqdb_empty_exec(SqdbEmpty* sqdb, const char* sql, Sqxc* xc, void* reserve);
-static int  sqdb_empty_migrate(SqdbEmpty* sqdb, SqSchema* schema, SqSchema* schema_next);
+static void sqdb_empty_init(SqdbEmpty *sqdb, SqdbConfigEmpty *config);
+static void sqdb_empty_final(SqdbEmpty *sqdb);
+static int  sqdb_empty_open(SqdbEmpty *sqdb, const char *database_name);
+static int  sqdb_empty_close(SqdbEmpty *sqdb);
+static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *reserve);
+static int  sqdb_empty_migrate(SqdbEmpty *sqdb, SqSchema *schema, SqSchema *schema_next);
 
 static const SqdbInfo dbinfo = {
 	.size    = sizeof(SqdbEmpty),
@@ -48,12 +48,12 @@ static const SqdbInfo dbinfo = {
     .migrate = (void*)sqdb_empty_migrate,
 };
 
-const SqdbInfo* SQDB_INFO_EMPTY = &dbinfo;
+const SqdbInfo *SQDB_INFO_EMPTY = &dbinfo;
 
 // ----------------------------------------------------------------------------
 // SqdbInfo
 
-static void sqdb_empty_init(SqdbEmpty* sqdb, SqdbConfigEmpty* config_src)
+static void sqdb_empty_init(SqdbEmpty *sqdb, SqdbConfigEmpty *config_src)
 {
 	if (config_src) {
 		// setup Sqdb
@@ -63,23 +63,23 @@ static void sqdb_empty_init(SqdbEmpty* sqdb, SqdbConfigEmpty* config_src)
 	}
 }
 
-static void sqdb_empty_final(SqdbEmpty* sqdb)
+static void sqdb_empty_final(SqdbEmpty *sqdb)
 {
 }
 
-static int  sqdb_empty_open(SqdbEmpty* sqdb, const char* database_name)
+static int  sqdb_empty_open(SqdbEmpty *sqdb, const char *database_name)
 {
 	return SQCODE_OK;
 }
 
-static int  sqdb_empty_close(SqdbEmpty* sqdb)
+static int  sqdb_empty_close(SqdbEmpty *sqdb)
 {
 	return SQCODE_OK;
 }
 
-static int  sqdb_empty_migrate(SqdbEmpty* sqdb, SqSchema* schema, SqSchema* schema_next)
+static int  sqdb_empty_migrate(SqdbEmpty *sqdb, SqSchema *schema, SqSchema *schema_next)
 {
-//	SqBuffer* buffer;
+//	SqBuffer *buffer;
 
 	// synchronize schema to database.
 	if (schema_next == NULL) {
@@ -88,7 +88,7 @@ static int  sqdb_empty_migrate(SqdbEmpty* sqdb, SqSchema* schema, SqSchema* sche
 			return SQCODE_OK;
 
 		// trace renamed (or dropped) table/column that was referenced by others
-		sq_schema_trace_foreign(schema);
+		sq_schema_trace_name(schema);
 
 		// erase renamed & dropped records in schema
 		// database schema version < (less than) current schema version
@@ -109,7 +109,7 @@ static int  sqdb_empty_migrate(SqdbEmpty* sqdb, SqSchema* schema, SqSchema* sche
 	// current database schema
 	if (sqdb->version == schema->version) {
 		// trace renamed (or dropped) table/column that was referenced by others
-		sq_schema_trace_foreign(schema);
+		sq_schema_trace_name(schema);
 		// clear changed records and remove NULL records in schema
 		// database schema version = (equal) current schema version
 		sq_schema_erase_records(schema, '=');
@@ -118,7 +118,7 @@ static int  sqdb_empty_migrate(SqdbEmpty* sqdb, SqSchema* schema, SqSchema* sche
 	return SQCODE_OK;
 }
 
-static int  sqdb_empty_exec(SqdbEmpty* sqdb, const char* sql, Sqxc* xc, void* reserve)
+static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *reserve)
 {
 	switch (sql[0]) {
 	case 'S':    // SELECT
