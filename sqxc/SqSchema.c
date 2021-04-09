@@ -55,6 +55,11 @@ void  sq_schema_final(SqSchema* schema)
 	schema->type = NULL;
 	// finalize parent struct - SqEntry
 	sq_entry_final((SqEntry*)schema);
+	// free relation after sq_entry_final()
+	if (schema->relation) {
+		sq_relation_free(schema->relation);
+		sq_relation_pool_destroy(schema->relation_pool);
+	}
 }
 
 SqSchema*  sq_schema_new(const char* name)

@@ -50,9 +50,11 @@ void  sq_table_free(SqTable* table)
 		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)table);
 		free((char*)table->old_name);
-		// free temporary data
-		if (table->relation)
+		// free relation data
+		if (table->relation) {
+			sq_relation_clear(table->relation);
 			sq_relation_free(table->relation);
+		}
 		// free SqTable
 		free(table);
 	}
