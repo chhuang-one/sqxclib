@@ -290,6 +290,9 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 				else
 					free((char*)table->name);
 				table->name = strdup(table_src->name);
+
+				// SqSchema.type.entry must sort again
+				((SqType*)schema->type)->bit_field &= ~SQB_TYPE_SORTED;
 			}
 #if DEBUG
 			else {
@@ -311,6 +314,9 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 				sq_relation_add(schema->relation, SQ_TYPE_TRACING, table_src, 0);
 			// add 'table_src' to schema->type->entry.
 			sq_reentries_add(reentries, table_src);
+
+			// SqSchema.type.entry must sort again
+			((SqType*)schema->type)->bit_field &= ~SQB_TYPE_SORTED;
 		}
 
 		// TODO: NO_STEAL
@@ -318,9 +324,8 @@ int   sq_schema_include(SqSchema* schema, SqSchema* schema_src)
 		reentries_src->data[index] = NULL;
 	}
 
-	// update other data in SqSchema
+	// update schema version
 	schema->version = schema_src->version;
-	((SqType*)schema->type)->bit_field &= ~SQB_TYPE_SORTED;
 
 	return SQCODE_OK;
 }
@@ -558,8 +563,11 @@ void    sq_schema_arrange(SqSchema* schema, SqPtrArray* entries)
 
 void    sq_schema_complete(SqSchema* schema, bool no_need_to_sync)
 {
-	SqPtrArray* entries = sq_type_get_ptr_array(schema->type);
+	SqPtrArray* entries;
 	SqTable*    table;
+
+	entries = sq_type_get_ptr_array(schema->type);
+	sq_type_sort_entry((SqType*)schema->type);
 
 	for (int index = 0;  index < entries->length;  index++) {
 		table = entries->data[index];
