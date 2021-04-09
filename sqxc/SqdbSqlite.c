@@ -144,6 +144,9 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	// buffer for SQL statement
 	sq_buffer_init(&sql_buf);
 
+	// remove NULL tables in schema
+	schema->offset = sq_reentries_remove_null(sq_type_get_ptr_array(schema->type), schema->offset);
+
 	// trace renamed (or dropped) table/column that was referenced by others
 	sq_schema_trace_name(schema);
 
@@ -175,14 +178,8 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 			sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
 		}
 	}
-	// --------- End of rename and drop table ---------
 
-	// remove NULL tables in schema
-	schema->offset = sq_reentries_remove_null(sq_type_get_ptr_array(schema->type), schema->offset);
-	// sort schema->type->entry
-	sq_type_sort_entry(type);
-
-	// run SQL statement: create/recreate table
+	// --------- create and recreate table ---------
 	for (int index = 0;  index < type->n_entry;  index++) {
 		table = (SqTable*)type->entry[index];
 		// remove NULL columns in table
@@ -195,8 +192,8 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 			sq_buffer_write_c(&sql_buf, ';');
 			sqdb_exec_create_index((Sqdb*)sqdb, &sql_buf, table, NULL);
 		}
+		// === ALTER TABLE ===
 		else if (table->bit_field & SQB_TABLE_COL_CHANGED) {
-			// === ALTER TABLE ===
 			if (sqdb_sqlite_alter_table(sqdb, &sql_buf, table, table->offset) == false) {
 				// === RECREATE TABLE ===
 				sqdb_sqlite_recreate_table(sqdb, &sql_buf, table, table->offset);
@@ -227,6 +224,12 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	if (rc != SQLITE_OK)    // error occurred
 		goto atExit;
 
+	// clear all renamed and dropped records
+	// database schema version = (equal) current schema version
+	sq_schema_erase_records(schema, '=');
+	// sort table/column by name and free temporary data after migration.
+	sq_schema_complete(schema, false);
+
 	// update SQLite.user_version
 	sqdb->version = schema->version;
 	sql_buf.writed = 0;
@@ -238,20 +241,11 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 #endif
 	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
 
-	// clear all renamed and dropped records
-	// database schema version = (equal) current schema version
-	sq_schema_erase_records(schema, '=');
-
 atExit:
 	// free buffer for SQL statement
 	sq_buffer_final(&sql_buf);
 
-	if (rc == SQLITE_OK) {
-		// free temporary data after migration.
-//		sq_schema_complete(schema, false);
-		return SQCODE_OK;
-	}
-	else {
+	if (rc != SQLITE_OK) {
 		// error occurred
 #ifdef DEBUG
 		fprintf(stderr, "SQLite: %s\n", errorMsg);
@@ -259,6 +253,7 @@ atExit:
 		sqlite3_free(errorMsg);
 		return SQCODE_ERROR;
 	}
+	return SQCODE_OK;
 }
 
 static int  sqdb_sqlite_migrate(SqdbSqlite *sqdb, SqSchema *schema, SqSchema *schema_next)
