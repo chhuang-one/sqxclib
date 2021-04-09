@@ -27,25 +27,25 @@ typedef struct City     City;
 typedef struct User     User;
 
 struct Post {
-	char*  title;
-	char*  desc;
+	char  *title;
+	char  *desc;
 };
 
 struct City {
 	int    id;
-	char*  name;
+	char  *name;
 	bool   visited;
 };
 
 struct User {
 	int    id;         // primary key
-	char*  name;
-	char*  email;
+	char  *name;
+	char  *email;
 	int    city_id;    // foreign key
 
 	// make sure that SQ_CONFIG_JSON_SUPPORT is enabled if you want to store array/object in SQL column
 	SqIntptrArray  ints;    // intptr_t array (JSON array  in SQL column)
-	Post*          post;    // object pointer (JSON object in SQL column)
+	Post          *post;    // object pointer (JSON object in SQL column)
 
 	// add, drop, and rename
 	unsigned int   test_add;
@@ -126,8 +126,8 @@ static const SqColumn userColumnsVer4[] = {
 // ----------------------------------------------------------------------------
 // C Functions for City & User
 
-User* user_new(void) {
-	User* user;
+User *user_new(void) {
+	User *user;
 
 	user = calloc(1, sizeof(User));
 //	user->post = calloc(1, sizeof(Post));
@@ -135,7 +135,7 @@ User* user_new(void) {
 	return user;
 }
 
-void user_free(User* user) {
+void user_free(User *user) {
 	sq_ptr_array_final(&user->ints);
 	free(user->name);
 	free(user->email);
@@ -147,7 +147,7 @@ void user_free(User* user) {
 	free(user);
 }
 
-void user_print(User* user) {
+void user_print(User *user) {
 	printf("\n"
 	       "user.id = %d\n"
 	       "user.name = %s\n"
@@ -172,16 +172,16 @@ void user_print(User* user) {
 	       user->test_add, user->test_drop, user->test_rename);
 }
 
-City* city_new(void) {
+City *city_new(void) {
 	return calloc(1, sizeof(City));
 }
 
-void city_free(City* city) {
+void city_free(City *city) {
 	free(city->name);
 	free(city);
 }
 
-void city_print(City* city) {
+void city_print(City *city) {
 	printf("\n"
 	       "city.id = %d\n"
 	       "city.name = %s\n",
@@ -190,10 +190,10 @@ void city_print(City* city) {
 
 // ----------------------------------------------------------------------------
 
-void storage_make_migrated_schema(SqStorage* storage, int end_version)
+void storage_make_migrated_schema(SqStorage *storage, int end_version)
 {
-	SqSchema* schema;
-	SqTable*  table;
+	SqSchema *schema;
+	SqTable  *table;
 
 	if (end_version >= 1) {
 		schema = sq_schema_new("Ver1");
@@ -269,43 +269,51 @@ void storage_make_migrated_schema(SqStorage* storage, int end_version)
 	sq_storage_migrate(storage, NULL);
 }
 
-void  storage_query(SqStorage* storage)
+void  storage_query(SqStorage *storage)
 {
-	SqPtrArray* array;
-	SqQuery*    query;
-	void**      element;
-	City*       city;
-	User*       user;
+	SqPtrArray *array;
+	SqQuery    *query;
+	void      **element;
+	City       *city;
+	User       *user;
 
 	query = sq_query_new(NULL);
 //	sq_query_select(query, "cities.id AS 'cities.id'", "users.id AS 'users.id'", NULL);
 	sq_query_from(query, "cities");
-	sq_query_join(query, "users",  "cities.id", "users.city_id");
-
-	array = sq_storage_query(storage, query, NULL, NULL);
-	for (int i = 0;  i < array->length;  i++) {
-		element = (void**)array->data[i];
-		city = (City*)element[0];
-		city_print(city);
-		city_free(city);
-		user = (User*)element[1];
-		user_print(user);
-		user_free(user);
-		// free joint object
-		free(element);
+	if (storage->db->version < 5)
+		sq_query_join(query, "users",  "cities.id", "users.city_id");
+	else {
+		// TABLE "users" was renamed to "users2" in schema version 5
+		// DROP TABLE "user2" in schema version 6
+		sq_query_join(query, "users2",  "cities.id", "users2.city_id");
 	}
 
-	sq_ptr_array_free(array);
+	array = sq_storage_query(storage, query, NULL, NULL);
+	if (array) {
+		for (int i = 0;  i < array->length;  i++) {
+			element = (void**)array->data[i];
+			city = (City*)element[0];
+			city_print(city);
+			city_free(city);
+			user = (User*)element[1];
+			user_print(user);
+			user_free(user);
+			// free joint object
+			free(element);
+		}
+		sq_ptr_array_free(array);
+	}
+
 	sq_query_free(query);
 }
 
 int  main(void)
 {
-	Sqdb*       db;
-	SqStorage*  storage;
-	SqPtrArray* array;
-	City*       city;
-	User*       user;
+	Sqdb       *db;
+	SqStorage  *storage;
+	SqPtrArray *array;
+	City       *city;
+	User       *user;
 
 	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
 	storage = sq_storage_new(db);
@@ -365,7 +373,7 @@ int  main(void)
 
 	// TABLE "users" was renamed to "users2" in schema version 5
 	// DROP TABLE "user2" in schema version 6
-	if (((SqdbSqlite*)db)->version >= 5)
+	if (db->version >= 5)
 		user = sq_storage_get(storage, "users2", NULL, 1);
 	else
 		user = sq_storage_get(storage, "users", NULL, 1);
