@@ -343,6 +343,29 @@ int     sq_schema_trace_name(SqSchema* schema)
 			column = node_column->object;
 
 			// --------------------------------------------
+			// trace renamed column in composite key
+			if (column->composite) {
+				for (int index = 0;  column->composite[index];  index++) {
+					reentry = sq_relation_trace_reentry(schema->relation, column->composite[index]);
+					if (reentry == NULL)
+						continue;
+					// column dropped.
+					if (reentry->name == NULL) {
+						result = SQCODE_REENTRY_DROPPED;
+#ifdef DEBUG
+						fprintf(stderr, "SqSchema: column %s has been dropped.\n", column->composite[index]);
+#endif
+						continue;   // error...
+					}
+					// column has been renamed
+					if ((column->bit_field & SQB_DYNAMIC) == 0)
+						column = sq_table_replace_column(table, column, sq_column_copy_static(column));
+					free(column->composite[index]);
+					column->composite[index] = strdup(column->composite[index]);
+				}
+			}
+
+			// --------------------------------------------
 			// trace renamed table
 			if (column->foreign == NULL)
 				continue;
