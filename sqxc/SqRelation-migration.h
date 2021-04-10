@@ -24,15 +24,18 @@
 
 // These types are for internal use only
 #define SQ_TYPE_TRACING    SQ_TYPE_FAKE3    // column/table has foreign/composite key
-#define SQ_TYPE_RESERVE    SQ_TYPE_FAKE4    // not yet synchronize to database
-#define SQ_TYPE_REENTRY    SQ_TYPE_FAKE5
+#define SQ_TYPE_RESERVE    SQ_TYPE_FAKE4    // reserved record (it doesn't yet synchronize to database)
+#define SQ_TYPE_REENTRY    SQ_TYPE_FAKE5    // renamed and dropped records
 
 /*
 Relation:
-  SQ_TYPE_REENTRY: It contain renamed and dropped records that used by sq_relation_trace_reentry()
-    renamed record <-----> renamed column/table
-    renamed record <-----> dropped record
-  SQ_TYPE_RESERVE: It contain renamed and dropped records that have not synchronize to database.
+    SQ_TYPE_REENTRY: It contain renamed and dropped records that used by sq_relation_trace_reentry()
+        renamed record <-----> renamed column/table
+        renamed record <-----> dropped record
+        dropped record
+
+    SQ_TYPE_RESERVE: It contain renamed and dropped records that have not synchronize to database.
+                     sq_relation_erase_reserve() can free dropped records and clear renaming data.
  */
 
 // ----------------------------------------------------------------------------
