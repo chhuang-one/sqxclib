@@ -13,12 +13,9 @@ sources = ['SqPtrArray.c',
            'SqStorage-query.c',
            'SqQuery.c',
            'SqRelation.c',
-           'SqRelation-migration.c',
 
            # Sqdb - Database interface
            'Sqdb.c',
-           'SqdbSqlite.c',
-#          'SqdbMysql.c',
 
            # Sqxc - Converter interface
            'Sqxc.c',
@@ -45,12 +42,9 @@ headers = ['SqPtrArray.h',
            'SqQuery.h', 'SqQuery-macro.h',
            'SqConfig.h',
            'SqRelation.h',
-           'SqRelation-migration.h',
 
            # Sqdb - Database interface
            'Sqdb.h',
-           'SqdbSqlite.h',
-#          'SqdbMysql.h',
 
            # Sqxc - Converter interface
            'Sqxc.h',
@@ -77,17 +71,30 @@ headers_cpp = [
 # install_headers(headers_cpp, subdir: 'sqxc')
 
 sqxc_inc = include_directories('./')
+sqxc_dep = [jsonc]
+
+if has_mysql == true
+  sources += ['SqdbMysql.c', 'Sqdb-migration.c']
+  headers += ['SqdbMysql.h', 'Sqdb-migration.h']
+  sqxc_dep += mysql
+endif
+
+if has_sqlite == true
+  sources += ['SqdbSqlite.c', 'SqRelation-migration.c']
+  headers += ['SqdbSqlite.h', 'SqRelation-migration.h']
+  sqxc_dep += sqlite
+endif
 
 sqxc_lib = static_library('sqxc',
                           sources,
                           include_directories: sqxc_inc,
-                          dependencies : [jsonc, sqlite],
+                          dependencies : sqxc_dep,
                           install: false)
 
 sqxcpp_lib = static_library('sqxcpp',
                             sources_cpp,
                             include_directories: sqxc_inc,
-                            dependencies : [jsonc, sqlite],
+                            dependencies : sqxc_dep,
                             install: false)
 
 sqxc = declare_dependency(include_directories : sqxc_inc,
