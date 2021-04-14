@@ -14,7 +14,7 @@
 
 #include <SqPtrArray.h>
 
-void* sq_ptr_array_init_full(void* array,
+void *sq_ptr_array_init_full(void *array,
                              int allocated_length, int header_length,
                              SqDestroyFunc  destroy_func)
 {
@@ -37,7 +37,7 @@ void* sq_ptr_array_init_full(void* array,
 	return array;
 }
 
-void* sq_ptr_array_final(void* array)
+void *sq_ptr_array_final(void *array)
 {
 	SqDestroyFunc  destroy;
 
@@ -59,9 +59,9 @@ void* sq_ptr_array_final(void* array)
 	return array;
 }
 
-void** sq_ptr_array_alloc_at(void* array, int index, int count)
+void **sq_ptr_array_alloc_at(void *array, int index, int count)
 {
-	void* header;
+	void *header;
 	int   header_length;
 	int   new_length;
 	int   allocated;
@@ -96,7 +96,7 @@ void** sq_ptr_array_alloc_at(void* array, int index, int count)
 	return ((SqPtrArray*)array)->data + index;
 }
 
-void** sq_ptr_array_find(void* array, const void* key, SqCompareFunc cmpfunc)
+void **sq_ptr_array_find(void *array, const void *key, SqCompareFunc cmpfunc)
 {
 	sq_ptr_array_foreach_addr(array, element_addr) {
 		if (cmpfunc(key, element_addr) == 0)
@@ -105,7 +105,7 @@ void** sq_ptr_array_find(void* array, const void* key, SqCompareFunc cmpfunc)
 	return NULL;
 }
 
-void sq_ptr_array_erase(void* array, int index, int count)
+void sq_ptr_array_erase(void *array, int index, int count)
 {
 	SqDestroyFunc  destroy_func;
 
@@ -126,6 +126,43 @@ void sq_ptr_array_erase(void* array, int index, int count)
 	((SqPtrArray*)(array))->length -= (count);
 }
 
+void **sq_ptr_array_find_sorted(void *array, const void *key,
+                                SqCompareFunc compare, int *inserted_index)
+{
+	int      low;
+	int      cur;
+	int      high;
+	int      diff;
+	void    *cur_key;
+
+	low  = 0;
+	cur  = 0;
+	high = ((SqPtrArray*)array)->length;
+	while (low < high) {
+//		cur = low + ((high - low) / 2);
+		cur = low + ((high - low) >> 1);
+		cur_key = ((SqPtrArray*)array)->data + cur;
+
+		diff = compare(key, cur_key);
+		if (diff == 0) {
+			if (inserted_index)
+				inserted_index[0] = cur;
+			return ((SqPtrArray*)array)->data + cur;
+		}
+		else if (diff < 0)
+			high = cur;
+		else    // if (diff > 0)
+			low = cur + 1;
+	}
+
+	if (inserted_index) {
+		if (cur < low)
+			cur++;
+		inserted_index[0] = cur;
+	}
+	return NULL;
+}
+
 // ----------------------------------------------------------------------------
 // If compiler doesn't support C99 inline functions
 
@@ -133,22 +170,22 @@ void sq_ptr_array_erase(void* array, int index, int count)
 // C99 or C++ inline functions in SqArray.h
 #else
 
-void  sq_ptr_array_steal(void* array, int index, int count)
+void  sq_ptr_array_steal(void *array, int index, int count)
 {
 	SQ_PTR_ARRAY_STEAL(array, index, count);
 }
 
-void  sq_ptr_array_steal_addr(void* array, void** element_addr, int count)
+void  sq_ptr_array_steal_addr(void *array, void **element_addr, int count)
 {
 	SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
 }
 
-void  sq_ptr_array_insert_n(void* array, int index, const void* values, int count)
+void  sq_ptr_array_insert_n(void *array, int index, const void *values, int count)
 {
 	SQ_PTR_ARRAY_INSERT_N(array, index, values, count);
 }
 
-void  sq_ptr_array_append_n(void* array, const void* values, int count)
+void  sq_ptr_array_append_n(void *array, const void *values, int count)
 {
 	SQ_PTR_ARRAY_APPEND_N(array, values, count);
 }
