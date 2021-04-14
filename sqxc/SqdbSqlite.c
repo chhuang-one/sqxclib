@@ -188,8 +188,10 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 		sql_buf.writed = 0;
 		// === CREATE TABLE ===
 		if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0) {
-			sqdb_sql_create_table((Sqdb*)sqdb, &sql_buf, table, NULL);
-			sq_buffer_write_c(&sql_buf, ';');
+			if (sqdb_sql_create_table((Sqdb*)sqdb, &sql_buf, table, NULL) > 0)
+				sq_buffer_write_c(&sql_buf, ';');
+			else
+				sql_buf.writed = 0;
 			sqdb_exec_create_index((Sqdb*)sqdb, &sql_buf, table, NULL);
 		}
 		// === ALTER TABLE ===
