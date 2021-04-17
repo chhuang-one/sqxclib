@@ -19,14 +19,20 @@
 
 #include <Sqdb.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
 
 typedef struct SqdbMysql           SqdbMysql;
 typedef struct SqdbConfigMysql     SqdbConfigMysql;
 
-extern const SqdbInfo*    SQDB_INFO_MYSQL;
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern const SqdbInfo    *SQDB_INFO_MYSQL;
 
 #define sqdb_mysql_new(sqdb_config)    sqdb_new(SQDB_INFO_MYSQL, sqdb_config)
 
@@ -34,7 +40,10 @@ extern const SqdbInfo*    SQDB_INFO_MYSQL;
 }  // extern "C"
 #endif
 
-/* ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define structue
+
+/*
     SqdbMysql - Sqdb for MySQL
 
     Sqdb
@@ -63,11 +72,11 @@ struct SqdbMysql
  */
 
 	// ------ SqdbMysql members ------     // <-- 3. Add variable and non-virtual function in derived struct.
-	MYSQL*  self;
-	SqdbConfigMysql*  config;
+	MYSQL *self;
+	SqdbConfigMysql *config;
 };
 
-/* ----------------------------------------------------------------------------
+/*
     SqdbConfigMysql - SqdbMysql use this configure
 
     SqdbConfig
@@ -85,20 +94,22 @@ struct SqdbConfigMysql
  */
 
 	// ------ SqdbConfigMysql members ------
-	const char*   host;
-	const char*   user;
-	const char*   password;
-	const char*   db;
+	const char   *host;
+	const char   *user;
+	const char   *password;
+	const char   *db;
 	unsigned int  port;
 };
 
 
 // ----------------------------------------------------------------------------
-// C++ namespace
+// C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
 
 namespace Sq {
+
+// --- C++11 standard-layout ---
 
 typedef struct SqdbConfigMysql    DbConfigMysql;
 
@@ -106,7 +117,7 @@ typedef struct SqdbConfigMysql    DbConfigMysql;
 // These are for directly use only. You can NOT derived it.
 struct DbMysql : SqdbMysql
 {
-	DbMysql(SqdbConfigMysql* config = NULL) {
+	DbMysql(SqdbConfigMysql *config = NULL) {
 		this->info = SQDB_INFO_MYSQL;  SQDB_INFO_MYSQL->init((Sqdb*)this, (SqdbConfig*)config);
 	}
 	~DbMysql() {
