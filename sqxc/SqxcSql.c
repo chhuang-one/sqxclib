@@ -177,17 +177,19 @@ static int  sqxc_sql_send_update_command(SqxcSql* xcsql, Sqxc* src)
 		return (src->code = SQCODE_OK);
 	}
 
+	len = buffer->writed;
 	// SQL statement multiple columns
 	if (xcsql->col_count)
 		sq_buffer_write_c(buffer, ',');
+
 	// "name"=value
-	len = snprintf(NULL, 0, "\"%s\"=", src->name);
-	sprintf(sq_buffer_alloc(buffer, len), "\"%s\"=", src->name);
-	if (sqxc_sql_write_value(xcsql, src) != SQCODE_OK) {
-		buffer->writed -= len;
-		if (xcsql->col_count)
-			buffer->writed--;
-	}
+	sq_buffer_write_c(buffer, xcsql->quote[0]);
+	sq_buffer_write(buffer, src->name);
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = xcsql->quote[1];
+	sq_buffer_r_at(buffer, 0) = '=';
+	if (sqxc_sql_write_value(xcsql, src) != SQCODE_OK)
+		buffer->writed = len;
 
 	xcsql->col_count++;
 	return src->code;
@@ -264,6 +266,8 @@ static void  sqxc_sql_init(SqxcSql* xcsql)
 	xcsql->supported_type  = SQXC_TYPE_ALL;
 	xcsql->outer_type = SQXC_TYPE_NONE;
 	xcsql->id = -1;
+	xcsql->quote[0] = '"';
+	xcsql->quote[1] = '"';
 }
 
 static void  sqxc_sql_final(SqxcSql* xcsql)
@@ -283,10 +287,17 @@ static void sqxc_sql_use_insert_command(SqxcSql* xcsql, SqTable* table)
 
 	buffer = sqxc_get_buffer(xcsql);
 	buffer->writed = 0;
-	// "INSERT INTO 'table_name' ('column1','column2') OUTPUT Inserted.id VALUES "
-	sq_buffer_write(buffer, "INSERT INTO \"");
+	// "INSERT INTO "table_name" ("column1","column2") OUTPUT Inserted.id VALUES "
+	sq_buffer_write(buffer, "INSERT INTO");
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = xcsql->quote[0];
 	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" (");
+	sq_buffer_alloc(buffer, 3);
+	sq_buffer_r_at(buffer, 2) = xcsql->quote[1];
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = '(';
+
 	for (index = 0;  index < table->type->n_entry;  index++) {
 		entry = table->type->entry[index];
 		// skip SQ_TYPE_CONSTRAINT and SQ_TYPE_INDEX. They are fake types.
@@ -299,9 +310,9 @@ static void sqxc_sql_use_insert_command(SqxcSql* xcsql, SqTable* table)
 		}
 		if (index > index_beg)
 			sq_buffer_write_c(buffer, ',');
-		sq_buffer_write_c(buffer, '"');
+		sq_buffer_write_c(buffer, xcsql->quote[0]);
 		sq_buffer_write(buffer, entry->name);
-		sq_buffer_write_c(buffer, '"');
+		sq_buffer_write_c(buffer, xcsql->quote[1]);
 	}
 	sq_buffer_write(buffer, ") VALUES ");
 	// reuse after running Sqdb.exec() if buffer size too large
@@ -315,9 +326,14 @@ static void sqxc_sql_use_update_command(SqxcSql* xcsql, SqTable* table)
 	buffer = sqxc_get_buffer(xcsql);
 	buffer->writed = 0;
 	// "UPDATE 'table_name' SET "
-	sq_buffer_write(buffer, "UPDATE \"");
+	sq_buffer_write(buffer, "UPDATE");
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = xcsql->quote[0];
 	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" SET ");
+	sq_buffer_write_c(buffer, xcsql->quote[1]);
+
+	sq_buffer_write(buffer, " SET ");
 
 	xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
 	// reuse after running Sqdb.exec()

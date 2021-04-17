@@ -53,8 +53,12 @@ extern const SqxcInfo *SQXC_INFO_SQL;
 // ----------------------------------------------------------------------------
 // macro for accessing variable of SqxcSqlite
 
-#define sqxc_sql_db(xcsql)    ((SqxcSql*)xcsql)->db
 #define sqxc_sql_id(xcsql)    ((SqxcSql*)xcsql)->id
+#define sqxc_sql_set_db(xcsql, sqdb)         \
+		{	((SqxcSql*)xcsql)->db = sqdb;    \
+			((SqxcSql*)xcsql)->quote[0] = (sqdb)->info->quote.identifier[0];   \
+			((SqxcSql*)xcsql)->quote[1] = (sqdb)->info->quote.identifier[1];   \
+		}
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -129,6 +133,8 @@ struct SqxcSql
 
 	// output
 	Sqdb*        db;
+
+	char         quote[2];
 
 	// controlled variable
 	unsigned int mode;        // 1 == INSERT, 0 == UPDATE

@@ -81,6 +81,8 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arran
 void sqdb_sql_rename_table(Sqdb *db, SqBuffer *sql_buf, const char *old_name, const char *new_name);
 void sqdb_sql_drop_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool if_exist);
 
+void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool is_delete);
+
 void sqdb_sql_rename_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 void sqdb_sql_add_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 void sqdb_sql_alter_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
@@ -143,6 +145,11 @@ struct SqdbInfo
 		unsigned int use_alter:1;        // ALTER COLUMN
 		unsigned int use_modify:1;       // MODIFY COLUMN
 	} column;
+
+	// for  Database column/table identifiers
+	struct {
+		char         identifier[2];      // SQLite is "", MySQL is ``, SQL Server is []
+	} quote;
 
 	void (*init)(Sqdb *db, SqdbConfig *config);
 	void (*final)(Sqdb *db);

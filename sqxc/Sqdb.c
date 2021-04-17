@@ -111,7 +111,8 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 
 		buffer->writed = 0;
 #ifdef DEBUG
-		fprintf(stderr, "SQL: %s\n", buffer->buf);
+		// Don't run this because sqdb_exec() will output this debug message.
+//		fprintf(stderr, "SQL: %s\n", buffer->buf);
 #endif
 		rc = sqdb_exec(db, buffer->buf, NULL, NULL);
 		if (rc != SQCODE_OK)
@@ -131,9 +132,17 @@ int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArr
 		arranged_columns = sq_type_get_ptr_array(table->type);
 
 	// CREATE TABLE
-	sq_buffer_write(sql_buf, "CREATE TABLE \"");
+	sq_buffer_write(sql_buf, "CREATE TABLE");
+
+	// write "table name"
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = ' ';
+	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(sql_buf, table->name);
-	sq_buffer_write(sql_buf,"\" ");
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(sql_buf, 0) = ' ';
+
 	n_columns = sqdb_sql_create_table_params(db, sql_buf, arranged_columns, -1);
 
 	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
@@ -209,12 +218,16 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 				sq_buffer_write(buffer, ", UNIQUE");
 			else
 				continue;
-			// ("column_name")
-			sq_buffer_write(buffer, " (\"");
+
+			// write ("column_name")
+			sq_buffer_alloc(buffer, 3);
+			sq_buffer_r_at(buffer, 2) = ' ';
+			sq_buffer_r_at(buffer, 1) = '(';
+			sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 			sq_buffer_write(buffer, column->name);
 			sq_buffer_alloc(buffer, 2);
-			buffer->buf[buffer->writed -2] = '"';
-			buffer->buf[buffer->writed -1] = ')';
+			sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+			sq_buffer_r_at(buffer, 0) = ')';
 
 			// FOREIGN KEY REFERENCES
 			if (column->foreign)
@@ -248,13 +261,36 @@ void sqdb_sql_drop_table(Sqdb *db, SqBuffer *buffer, SqTable *table, bool if_exi
 {
 	// DROP TABLE IF EXISTS "table_name"
 	// DROP TABLE "table_name"
-	sq_buffer_write(buffer, "DROP TABLE ");
+	sq_buffer_write(buffer, "DROP TABLE");
 	if (if_exist)
-		sq_buffer_write(buffer, "IF EXISTS ");
-	sq_buffer_write_c(buffer, '\"');
+		sq_buffer_write(buffer, " IF EXISTS");
+
+	// write "table old name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, table->old_name);
-	sq_buffer_write_c(buffer, '\"');
+	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
+
 	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+}
+
+void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool is_delete)
+{
+	sq_buffer_write(sql_buf, (is_delete) ? "DELETE" : "SELECT");
+	if (is_delete == false)
+		sq_buffer_write(sql_buf, " *");
+	sq_buffer_write(sql_buf, " FROM");
+
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = ' ';
+	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
+	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(sql_buf, 0) = ' ';
+
+	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void sqdb_sql_rename_table(Sqdb *db, SqBuffer *buffer, const char *old_name, const char *new_name)
@@ -262,17 +298,31 @@ void sqdb_sql_rename_table(Sqdb *db, SqBuffer *buffer, const char *old_name, con
 	// RENAME TABLE "old_name" TO "new_name";
 	// ALTER TABLE "old_name" RENAME TO "new_name";
 	if (db->info->product == SQDB_PRODUCT_MYSQL)
-		sq_buffer_write(buffer, "RENAME TABLE \"");
+		sq_buffer_write(buffer, "RENAME TABLE");
 	else
-		sq_buffer_write(buffer, "ALTER TABLE \"");
+		sq_buffer_write(buffer, "ALTER TABLE");
+
+	// write "table old name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, old_name);
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(buffer, 0) = ' ';
 
 	if (db->info->product == SQDB_PRODUCT_MYSQL)
-		sq_buffer_write(buffer, "\" TO \"");
+		sq_buffer_write(buffer, "TO");
 	else
-		sq_buffer_write(buffer, "\" RENAME TO \"");
+		sq_buffer_write(buffer, "RENAME TO");
+
+	// write "table new name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, new_name);
-	sq_buffer_write_c(buffer, '"');
+	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
+
 	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
@@ -287,9 +337,17 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 		return;
 	}
 
-	sq_buffer_write(buffer, "ALTER TABLE \"");
+	sq_buffer_write(buffer, "ALTER TABLE");
+
+	// write "table name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" ");
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(buffer, 0) = ' ';
+
 	sq_buffer_write(buffer, "ADD ");
 
 	// ADD CONSTRAINT
@@ -316,9 +374,15 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	}
 
 	// ("column_name")
-	sq_buffer_write(buffer, " (\"");
+	sq_buffer_alloc(buffer, 3);
+	sq_buffer_r_at(buffer, 2) = ' ';
+	sq_buffer_r_at(buffer, 1) = '(';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, column->name);
-	sq_buffer_write(buffer, "\")");
+	sq_buffer_alloc(buffer, 3);
+	sq_buffer_r_at(buffer, 2) = db->info->quote.identifier[1];
+	sq_buffer_r_at(buffer, 1) = ')';
+	sq_buffer_r_at(buffer, 0) = ' ';
 
 	// ADD FOREIGN KEY REFERENCES
 	if (column->foreign)
@@ -329,9 +393,16 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 
 void sqdb_sql_alter_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
 {
-	sq_buffer_write(buffer, "ALTER TABLE \"");
+	sq_buffer_write(buffer, "ALTER TABLE");
+
+	// write "table name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" ");
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(buffer, 0) = ' ';
 
 	if (db->info->column.use_alter) {
 		// SQL Server / MS Access:
@@ -351,19 +422,35 @@ void sqdb_sql_alter_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 
 void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
 {
-	int  len;
+	sq_buffer_write(buffer, "ALTER TABLE");
 
-	sq_buffer_write(buffer, "ALTER TABLE \"");
+	// write "table name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" ");
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(buffer, 0) = ' ';
 
-	sq_buffer_write(buffer, "RENAME COLUMN ");
-	len = snprintf(NULL, 0, "\"%s\" TO \"%s\"",
-	               column->old_name, column->name);
-	sprintf(sq_buffer_alloc(buffer, len), "\"%s\" TO \"%s\"",
-	        column->old_name, column->name);
+	// MariaDB starting with 10.5.2
+	sq_buffer_write(buffer, "RENAME COLUMN");
 
-//	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	// write "column old name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
+	sq_buffer_write(buffer, column->old_name);
+	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
+
+	sq_buffer_write(buffer, " TO ");
+
+	// write "column new name"
+	sq_buffer_write_c(buffer, db->info->quote.identifier[0]);
+	sq_buffer_write(buffer, column->name);
+	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
+
+	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
@@ -373,9 +460,16 @@ void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 		return;
 	}
 
-	sq_buffer_write(buffer, "ALTER TABLE \"");
+	sq_buffer_write(buffer, "ALTER TABLE");
+
+	// write "table name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, table->name);
-	sq_buffer_write(buffer, "\" ");
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(buffer, 0) = ' ';
 
 	sq_buffer_write(buffer, "DROP ");
 	// DROP CONSTRAINT
@@ -396,20 +490,36 @@ void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 		sq_buffer_write(buffer, "COLUMN");
 	}
 
-	sq_buffer_write(buffer, " \"");
+	// write "column old name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, column->old_name);
-	sq_buffer_write_c(buffer,'"');
+	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
 
 	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
 {
-	sq_buffer_write(sql_buf, "CREATE INDEX \"");
+	sq_buffer_write(sql_buf, "CREATE INDEX");
+
+	// write "column name"
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = ' ';
+	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(sql_buf, column->name);
-	sq_buffer_write(sql_buf,"\" ON \"");
+	sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
+
+	sq_buffer_write(sql_buf," ON ");
+
+	// write "table name"
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = ' ';
+	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(sql_buf, table->name);
-	sq_buffer_write_c(sql_buf,'"');
+	sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
+
 	sqdb_sql_write_composite_columns(db, sql_buf, column);
 
 	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
@@ -418,16 +528,29 @@ void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn
 void sqdb_sql_drop_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
 {
 	if (db->info->product == SQDB_PRODUCT_MYSQL) {
-		sq_buffer_write(sql_buf, "ALTER TABLE \"");
-		sq_buffer_write(sql_buf, table->name);
-		sq_buffer_write(sql_buf, "\" ");
-	}
-	sq_buffer_write(sql_buf, "DROP INDEX \"");
-	sq_buffer_write(sql_buf, column->name);
+		sq_buffer_write(sql_buf, "ALTER TABLE");
 
-//	sq_buffer_write(sql_buf, "\" ON \"");
+		// write "table name"
+		sq_buffer_alloc(sql_buf, 2);
+		sq_buffer_r_at(sql_buf, 1) = ' ';
+		sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
+		sq_buffer_write(sql_buf, table->name);
+		sq_buffer_alloc(sql_buf, 2);
+		sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
+		sq_buffer_r_at(sql_buf, 0) = ' ';
+	}
+	sq_buffer_write(sql_buf, "DROP INDEX");
+
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = ' ';
+	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
+	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
+
+//	sq_buffer_write(sql_buf, " ON ");
+//	sq_buffer_write_c(sql_buf, db->info->quote.identifier[0]);
 //	sq_buffer_write(sql_buf, table->name);
-	sq_buffer_write_c(sql_buf, '"');
+//	sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
 	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
 }
 
@@ -440,10 +563,13 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 	int     len;
 	int16_t size, digits;
 
-	// "column_name"
-	sq_buffer_write_c(buffer, '"');
+	// "column name"
+	sq_buffer_write_c(buffer, db->info->quote.identifier[0]);
 	sq_buffer_write(buffer, column->name);
-	sq_buffer_write(buffer, "\" ");
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(buffer, 0) = ' ';
+
 	type = column->type;
 	if (SQ_TYPE_NOT_BUILTIN(type))
 		type = SQ_TYPE_STRING;
@@ -544,16 +670,23 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 void sqdb_sql_write_constraint(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 {
 	// CONSTRAINT "column name" PRIMARY KEY ("col1", "col2")
-	sq_buffer_write(buffer, " CONSTRAINT \"");
+	sq_buffer_write(buffer, " CONSTRAINT");
+
+	// write "column name"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, column->name);
-	sq_buffer_write_c(buffer, '"');
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(buffer, 0) = ' ';
 
 	if (column->foreign)
-		sq_buffer_write(buffer, " FOREIGN KEY");
+		sq_buffer_write(buffer, "FOREIGN KEY");
 	else if (column->bit_field & SQB_PRIMARY)
-		sq_buffer_write(buffer, " PRIMARY KEY");
+		sq_buffer_write(buffer, "PRIMARY KEY");
 	else if (column->bit_field & SQB_UNIQUE)
-		sq_buffer_write(buffer, " UNIQUE");
+		sq_buffer_write(buffer, "UNIQUE");
 
 	sqdb_sql_write_composite_columns(db, buffer, column);
 
@@ -566,12 +699,16 @@ void sqdb_sql_write_composite_columns(Sqdb *db, SqBuffer *sql_buf, SqColumn *col
 {
 	char **element;
 
-	sq_buffer_write(sql_buf, " (\"");
+	sq_buffer_write(sql_buf, " (");
 	for (element = column->composite;  *element;  element++) {
 		if (element != column->composite)
-			sq_buffer_write(sql_buf, ",\"");
+			sq_buffer_write_c(sql_buf, ',');
+		// write "composite column"
+		sq_buffer_alloc(sql_buf, 2);
+		sq_buffer_r_at(sql_buf, 1) = ' ';
+		sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
 	 	sq_buffer_write(sql_buf, *element);
-		sq_buffer_write_c(sql_buf, '"');
+		sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
 	}
 	sq_buffer_write_c(sql_buf, ')');
 }
@@ -579,13 +716,23 @@ void sqdb_sql_write_composite_columns(Sqdb *db, SqBuffer *sql_buf, SqColumn *col
 void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 {
 	// REFERENCES "foreign table name"("foreign column name")
-	sq_buffer_write(buffer, " REFERENCES \"");
+	sq_buffer_write(buffer, " REFERENCES");
+
+	// write "column foreign table"
+	sq_buffer_alloc(buffer, 2);
+	sq_buffer_r_at(buffer, 1) = ' ';
+	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(buffer, column->foreign->table);    // foreign table name
-	sq_buffer_write(buffer, "\"(\"");
+	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
+
+	// write "column foreign column"
+	sq_buffer_write(buffer, " ( ");
+	sq_buffer_write_c(buffer, db->info->quote.identifier[0]);
 	sq_buffer_write(buffer, column->foreign->column);   // foreign column name
 	sq_buffer_alloc(buffer, 2);
-	buffer->buf[buffer->writed -2] = '"';
-	buffer->buf[buffer->writed -1] = ')';
+	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(buffer, 0) = ')';
+
 	// ON DELETE
 	if (column->foreign->on_delete) {
 		sq_buffer_write(buffer, " ON DELETE ");
@@ -630,11 +777,11 @@ void  sqdb_sql_write_column_list(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arrang
 		}
 		count++;
 		// write column->old_name or column->name
-		sq_buffer_write_c(sql_buf, '\"');
+		sq_buffer_write_c(sql_buf, db->info->quote.identifier[0]);
 		if (old_name && column->old_name)
 			sq_buffer_write(sql_buf, column->old_name);
 		else
 			sq_buffer_write(sql_buf, column->name);
-		sq_buffer_write_c(sql_buf, '\"');
+		sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
 	}
 }

@@ -39,6 +39,9 @@ static const SqdbInfo dbinfo = {
 	 	.use_alter  = 1,
 		.use_modify = 0,
 	},
+	.quote = {
+		.identifier = {'"', '"'}
+	},
 
 	.init    = (void*)sqdb_empty_init,
 	.final   = (void*)sqdb_empty_final,

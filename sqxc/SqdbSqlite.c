@@ -43,6 +43,9 @@ static const SqdbInfo dbinfo = {
 		.use_alter  = 1,
 		.use_modify = 0,
 	},
+	.quote = {
+		.identifier = {'"', '"'}
+	},
 
 	.init    = (void*)sqdb_sqlite_init,
 	.final   = (void*)sqdb_sqlite_final,

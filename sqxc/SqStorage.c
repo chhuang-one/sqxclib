@@ -33,9 +33,9 @@
 #include <SqxcJsonc.h>
 #include <SqStorage.h>
 
-static char*    get_primary_key_string(void* instance, SqTable* type);
+static char    *get_primary_key_string(void *instance, SqTable *type, const char quote[2]);
 
-void  sq_storage_init(SqStorage* storage, Sqdb* db)
+void  sq_storage_init(SqStorage *storage, Sqdb *db)
 {
 	storage->db = db;
 	storage->schema = sq_schema_new("current");
@@ -54,7 +54,7 @@ void  sq_storage_init(SqStorage* storage, Sqdb* db)
 #endif
 }
 
-void  sq_storage_final(SqStorage* storage)
+void  sq_storage_final(SqStorage *storage)
 {
 //	sq_type_unref(storage->container_default);
 	sq_schema_free(storage->schema);
@@ -64,9 +64,9 @@ void  sq_storage_final(SqStorage* storage)
 	sqxc_free_chain(storage->xc_output);
 }
 
-SqStorage* sq_storage_new(Sqdb* db)
+SqStorage *sq_storage_new(Sqdb *db)
 {
-	SqStorage* storage;
+	SqStorage *storage;
 
 	storage = malloc(sizeof(SqStorage));
 	sq_storage_init(storage, db);
@@ -74,36 +74,37 @@ SqStorage* sq_storage_new(Sqdb* db)
 	return storage;
 }
 
-void  sq_storage_free(SqStorage* storage)
+void  sq_storage_free(SqStorage *storage)
 {
 	sq_storage_final(storage);
 	free(storage);
 }
 
-int   sq_storage_open(SqStorage* storage, const char *database_name)
+int   sq_storage_open(SqStorage *storage, const char *database_name)
 {
 	return sqdb_open(storage->db, database_name);
 }
 
-int   sq_storage_close(SqStorage* storage)
+int   sq_storage_close(SqStorage *storage)
 {
 	return sqdb_close(storage->db);
 }
 
-int   sq_storage_migrate(SqStorage* storage, SqSchema* schema)
+int   sq_storage_migrate(SqStorage *storage, SqSchema *schema)
 {
 	return sqdb_migrate(storage->db, storage->schema, schema);
 }
 
-void* sq_storage_get(SqStorage* storage,
+void *sq_storage_get(SqStorage *storage,
                      const char *table_name,
                      const char *type_name, int id)
 {
-	SqBuffer* buf;
-	SqColumn* column;
-	SqTable*  table;
-	Sqxc*     xcvalue;
-	void*     instance;
+	SqBuffer *buf;
+	SqColumn *column;
+	SqTable  *table;
+	Sqxc     *xcvalue;
+	void     *instance;
+	int       len;
 
 	// find SqTable by table_name or type_name
 	if (table_name)
@@ -122,11 +123,19 @@ void* sq_storage_get(SqStorage* storage,
 
 	// SQL statement
 	buf = sqxc_get_buffer(xcvalue);
-	buf->writed = snprintf(NULL, 0, "SELECT * FROM \"%s\" WHERE \"%s\"=%d",
-	                       table->name, column->name, id) +1;
-	sq_buffer_require(buf, buf->writed);
-	snprintf(buf->buf, buf->size, "SELECT * FROM \"%s\" WHERE \"%s\"=%d",
-	         table->name, column->name, id);
+	buf->writed = 0;
+	sqdb_sql_from(storage->db, buf, table, false);
+	sq_buffer_write(buf, "WHERE");
+	sq_buffer_alloc(buf, 2);
+	sq_buffer_r_at(buf, 1) = ' ';
+	sq_buffer_r_at(buf, 0) = storage->db->info->quote.identifier[0];
+	sq_buffer_write(buf, column->name);
+	sq_buffer_alloc(buf, 2);
+	sq_buffer_r_at(buf, 1) = storage->db->info->quote.identifier[1];
+	sq_buffer_r_at(buf, 0) = '=';
+
+	len = snprintf(NULL, 0, "%d", id);
+	sprintf(sq_buffer_alloc(buf, len), "%d", id);
 
 	sqxc_ready(xcvalue, NULL);
 	sqdb_exec(storage->db, buf->buf, xcvalue, NULL);
@@ -135,16 +144,16 @@ void* sq_storage_get(SqStorage* storage,
 	return instance;
 }
 
-void* sq_storage_get_by_sql(SqStorage* storage,
+void *sq_storage_get_by_sql(SqStorage *storage,
                             const char *table_name,
                             const char *type_name,
                             const SqType *container,
                             const char *sql_where_having)
 {
-	SqBuffer* buf;
-	SqTable*  table;
-	Sqxc*     xcvalue;
-	void*     instance;
+	SqBuffer *buf;
+	SqTable  *table;
+	Sqxc     *xcvalue;
+	void     *instance;
 
 	// find SqTable by table_name or type_name
 	if (table_name)
@@ -163,16 +172,12 @@ void* sq_storage_get_by_sql(SqStorage* storage,
 
 	// SQL statement
 	buf = sqxc_get_buffer(xcvalue);
-	buf->writed = snprintf(NULL, 0, "SELECT * FROM \"%s\"", table->name) +1;
-	sq_buffer_require(buf, buf->writed);
-	snprintf(buf->buf, buf->size, "SELECT * FROM \"%s\"", table->name);
+	buf->writed = 0;
+	sqdb_sql_from(storage->db, buf, table, false);
 
 	// SQL WHERE ... HAVING ...
-	if (sql_where_having) {
-		buf->writed--;
-		sq_buffer_write_c(buf, ' ');
+	if (sql_where_having)
 		sq_buffer_write(buf, sql_where_having);
-	}
 
 	sqxc_ready(xcvalue, NULL);
 	sqdb_exec(storage->db, buf->buf, xcvalue, NULL);
@@ -181,13 +186,13 @@ void* sq_storage_get_by_sql(SqStorage* storage,
 	return instance;
 }
 
-int   sq_storage_insert(SqStorage* storage,
-                        const char* table_name,
-                        const char* type_name,
-                        void* instance)
+int   sq_storage_insert(SqStorage *storage,
+                        const char *table_name,
+                        const char *type_name,
+                        void *instance)
 {
-	Sqxc*      xcsql;
-	SqTable*   table;
+	Sqxc      *xcsql;
+	SqTable   *table;
 	int        id = -1;
 
 	// find SqTable by table_name or type_name
@@ -200,7 +205,7 @@ int   sq_storage_insert(SqStorage* storage,
 
 	// destination of output
 	xcsql = storage->xc_output;
-	sqxc_sql_db(xcsql) = storage->db;
+	sqxc_sql_set_db(xcsql, storage->db);
 	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_INSERT, table);
 
 	sqxc_ready(xcsql, NULL);
@@ -210,14 +215,14 @@ int   sq_storage_insert(SqStorage* storage,
 	return (id = sqxc_sql_id(xcsql));
 }
 
-void  sq_storage_update(SqStorage* storage,
-                        const char* table_name,
-                        const char* type_name,
-                        void* instance)
+void  sq_storage_update(SqStorage *storage,
+                        const char *table_name,
+                        const char *type_name,
+                        void *instance)
 {
-	Sqxc*      xcsql;
-	SqTable*   table;
-	char*      where;
+	Sqxc      *xcsql;
+	SqTable   *table;
+	char      *where;
 
 	// find SqTable by table_name or type_name
 	if (table_name)
@@ -227,7 +232,7 @@ void  sq_storage_update(SqStorage* storage,
 	if (table == NULL)
 		return;
 
-	where = get_primary_key_string(instance, table);
+	where = get_primary_key_string(instance, table, storage->db->info->quote.identifier);
 	if (where == NULL)
 		return;
 
@@ -235,7 +240,7 @@ void  sq_storage_update(SqStorage* storage,
 	xcsql = storage->xc_output;
 	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_UPDATE, table);
 	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_WHERE, where);
-	sqxc_sql_db(xcsql) = storage->db;
+	sqxc_sql_set_db(xcsql, storage->db);
 	free(where);
 
 	sqxc_ready(xcsql, NULL);
@@ -243,14 +248,15 @@ void  sq_storage_update(SqStorage* storage,
 	sqxc_finish(xcsql, NULL);
 }
 
-void  sq_storage_remove(SqStorage* storage,
-                        const char* table_name,
-                        const char* type_name,
+void  sq_storage_remove(SqStorage *storage,
+                        const char *table_name,
+                        const char *type_name,
                         int   id)
 {
-	SqBuffer*  buf;
-	SqTable*   table;
-	SqColumn*  column;
+	SqBuffer  *buf;
+	SqTable   *table;
+	SqColumn  *column;
+	int        len;
 //	int        code;
 
 	// find SqTable by table_name or type_name
@@ -264,21 +270,29 @@ void  sq_storage_remove(SqStorage* storage,
 	column = sq_table_get_primary(table);
 
 	buf = sqxc_get_buffer(storage->xc_output);
-	buf->writed = snprintf(NULL, 0, "DELETE FROM \"%s\" WHERE \"%s\"=%d",
-	                       table->name, column->name, id) + 1;
-	sq_buffer_require(buf, buf->writed);
-	snprintf(buf->buf, buf->size, "DELETE FROM \"%s\" WHERE \"%s\"=%d",
-	         table->name, column->name, id);
+	buf->writed = 0;
+	sqdb_sql_from(storage->db, buf, table, true);
+	sq_buffer_write(buf, "WHERE");
+	len = snprintf(NULL, 0, " %c%s%c=%d",
+	               storage->db->info->quote.identifier[0],
+	               column->name,
+	               storage->db->info->quote.identifier[1],
+	               id);
+	sprintf(sq_buffer_alloc(buf, len), " %c%s%c=%d",
+	        storage->db->info->quote.identifier[0],
+	        column->name,
+	        storage->db->info->quote.identifier[1],
+	        id);
 	sqdb_exec(storage->db, buf->buf, NULL, NULL);
 }
 
 // ------------------------------------
 
-SqTable*  sq_storage_find_by_type(SqStorage* storage, const char *type_name)
+SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 {
-	SqPtrArray* type_tables;      // sorted by SqType.name
-	SqPtrArray* schema_tables;    // sorted by SqTable.name
-	SqTable**   table_addr;
+	SqPtrArray *type_tables;      // sorted by SqType.name
+	SqPtrArray *schema_tables;    // sorted by SqTable.name
+	SqTable   **table_addr;
 	int         count;
 
 	type_tables = &storage->tables;
@@ -304,10 +318,10 @@ SqTable*  sq_storage_find_by_type(SqStorage* storage, const char *type_name)
 // ----------------------------------------------------------------------------
 // static function
 
-static char*  get_primary_key_string(void* instance, SqTable* table)
+static char  *get_primary_key_string(void *instance, SqTable *table, const char quote[2])
 {
-	SqColumn*   column;
-	char*       condition = NULL;
+	SqColumn   *column;
+	char       *condition = NULL;
 	int         len;
 
 	column = sq_table_get_primary(table);
@@ -316,46 +330,62 @@ static char*  get_primary_key_string(void* instance, SqTable* table)
 	instance = (char*)instance + column->offset;
 	switch(SQ_TYPE_BUILTIN_INDEX(column->type)) {
 	case SQ_TYPE_INT_INDEX:
-		len = snprintf(NULL, 0, "\"%s\"=%d", column->name, *(int*)instance) +1;
+		len = snprintf(NULL, 0, "%c%s%c=%d",
+				quote[0], column->name, quote[1], *(int*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%d", column->name, *(int*)instance);
+		snprintf(condition, len, "%c%s%c=%d",
+				quote[0], column->name, quote[1], *(int*)instance);
 		break;
 
 	case SQ_TYPE_UINT_INDEX:
-		len = snprintf(NULL, 0, "\"%s\"=%u", column->name, *(unsigned int*)instance) +1;
+		len = snprintf(NULL, 0, "%c%s%c=%u",
+				quote[0], column->name, quote[1], *(unsigned int*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%u", column->name, *(unsigned int*)instance);
+		snprintf(condition, len, "%c%s%c=%u",
+				quote[0], column->name, quote[1], *(unsigned int*)instance);
 		break;
 
 	case SQ_TYPE_INT64_INDEX:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
-		len = snprintf(NULL, 0, "\"%s\"=%I64d", column->name, *(int64_t*)instance) +1;
+		len = snprintf(NULL, 0, "%c%s%c=%I64d",
+				quote[0], column->name, quote[1], *(int64_t*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%I64d", column->name, *(int64_t*)instance);
+		snprintf(condition, len, "%c%s%c=%I64d",
+				quote[0], column->name, quote[1], *(int64_t*)instance);
 #elif defined(__WORDSIZE) && (__WORDSIZE == 64)
-		len = snprintf(NULL, 0, "\"%s\"=%ld", column->name, *(int64_t*)instance) +1;
+		len = snprintf(NULL, 0, "%c%s%c=%ld",
+				quote[0], column->name, quote[1], *(int64_t*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%ld", column->name, *(int64_t*)instance);
+		snprintf(condition, len, "%c%s%c=%ld",
+				quote[0], column->name, quote[1], *(int64_t*)instance);
 #else
-		len = snprintf(NULL, 0, "\"%s\"=%lld", column->name, (long long int) *(int64_t*)instance) +1;
+		len = snprintf(NULL, 0, "%c%s%c=%lld",
+				quote[0], column->name, quote[1], (long long int) *(int64_t*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%lld", column->name, (long long int) *(int64_t*)instance);
+		snprintf(condition, len, "%c%s%c=%lld",
+				quote[0], column->name, quote[1], (long long int) *(int64_t*)instance);
 #endif
 		break;
 
 	case SQ_TYPE_UINT64_INDEX:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
-		len = snprintf(NULL, 0, "\"%s\"=%I64u", column->name, *(uint64_t*)instance) +1;
+		len = snprintf(NULL, 0, "%c%s%c=%I64u",
+				quote[0], column->name, quote[1], *(uint64_t*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%I64u", column->name, *(uint64_t*)instance);
+		snprintf(condition, len, "%c%s%c=%I64u",
+				quote[0], column->name, quote[1], *(uint64_t*)instance);
 #elif defined(__WORDSIZE) && (__WORDSIZE == 64)
-		len = snprintf(NULL, 0, "\"%s\"=%lu", column->name, *(uint64_t*)instance) +1;
+		len = snprintf(NULL, 0, "%c%s%c=%lu",
+				quote[0], column->name, quote[1], *(uint64_t*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%lu", column->name, *(uint64_t*)instance);
+		snprintf(condition, len, "%c%s%c=%lu",
+				quote[0], column->name, quote[1], *(uint64_t*)instance);
 #else
-		len = snprintf(NULL, 0, "\"%s\"=%llu", column->name, (long long unsigned int) *(int64_t*)instance) +1;
+		len = snprintf(NULL, 0, "%c%s%c=%llu",
+				quote[0], column->name, quote[1], (long long unsigned int) *(int64_t*)instance) +1;
 		condition = malloc(len);
-		snprintf(condition, len, "\"%s\"=%llu", column->name, (long long unsigned int) *(int64_t*)instance);
+		snprintf(condition, len, "%c%s%c=%llu",
+				quote[0], column->name, quote[1], (long long unsigned int) *(int64_t*)instance);
 #endif
 		break;
 
@@ -373,15 +403,15 @@ static char*  get_primary_key_string(void* instance, SqTable* table)
 // C99 or C++ inline functions in SqArray.h
 #else
 
-int  sq_storage_begin(SqStorage* storage) {
+int  sq_storage_begin(SqStorage *storage) {
 	return SQ_STORAGE_BEGIN(storage);
 }
 
-int  sq_storage_commit(SqStorage* storage) {
+int  sq_storage_commit(SqStorage *storage) {
 	return SQ_STORAGE_COMMIT(storage);
 }
 
-int  sq_storage_rollback(SqStorage* storage) {
+int  sq_storage_rollback(SqStorage *storage) {
 	return SQ_STORAGE_ROLLBACK(storage);
 }
 

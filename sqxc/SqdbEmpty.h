@@ -17,14 +17,20 @@
 
 #include <Sqdb.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
 
 typedef struct SqdbEmpty          SqdbEmpty;
 typedef struct SqdbConfigEmpty    SqdbConfigEmpty;
 
-extern const SqdbInfo*    SQDB_INFO_EMPTY;
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern const SqdbInfo    *SQDB_INFO_EMPTY;
 
 #define sqdb_empty_new(sqdb_config)    sqdb_new(SQDB_INFO_EMPTY, sqdb_config)
 
@@ -32,7 +38,10 @@ extern const SqdbInfo*    SQDB_INFO_EMPTY;
 }  // extern "C"
 #endif
 
-/* ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define structue
+
+/*
     SqdbEmpty - Sqdb for debug/sample
 
     Sqdb
@@ -55,10 +64,10 @@ struct SqdbEmpty
  */
 
 	// ------ SqdbEmpty members ------     // <-- 3. Add variable and non-virtual function in derived struct.
-	void*  instance;
+	void  *instance;
 };
 
-/* ----------------------------------------------------------------------------
+/*
     SqdbConfigEmpty - SqdbEmpty use this configure
 
     SqdbConfig
@@ -78,7 +87,7 @@ struct SqdbConfigEmpty
 };
 
 // ----------------------------------------------------------------------------
-// C++ namespace
+// C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
 
@@ -90,7 +99,7 @@ typedef struct SqdbConfigEmpty    DbConfigEmpty;
 // These are for directly use only. You can NOT derived it.
 struct DbEmpty : SqdbEmpty
 {
-	DbEmpty(SqdbConfigEmpty* config = NULL) {
+	DbEmpty(SqdbConfigEmpty *config = NULL) {
 		this->info = SQDB_INFO_EMPTY;  SQDB_INFO_EMPTY->init((Sqdb*)this, (SqdbConfig*)config);
 	}
 	~DbEmpty() {
