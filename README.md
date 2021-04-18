@@ -14,11 +14,7 @@ It provides ORM features and C++ wrapper.
 
 3. It can work in low-end hardware.
 
-4. Supports SQLite.
-
-## Plan
-
--  Supports more SQL database. (Supports MySQL in version 0.2)
+4. Supports SQLite, MySQL / MariaDB 10.5.2 (experimental).
 
 ## Database schema
 
@@ -285,6 +281,45 @@ static const SqColumn  userColumns[6] = {
 	// or
 	storage->insert(user);
 	storage->update(user);
+```
+
+## Database support
+
+ use C function to open SQLite database
+
+```c
+	SqdbConfigSqlite  config = { .folder = "/path", .extension = "db" };
+
+	db = sqdb_new(SQDB_INFO_SQLITE, &config);
+//	db = sqdb_new(SQDB_INFO_SQLITE, NULL);    // use default setting if config is NULL.
+
+	storage = sq_storage_new(db);
+	sq_storage_open(storage, "sqxc_local");
+```
+
+ use C function to open MySQL database
+
+```c
+	SqdbConfigMysql  config = { .host = "localhost", .port = 3306,
+	                            .user = "name", .password = "xxx" };
+
+	db = sqdb_new(SQDB_INFO_MYSQL, &config);
+//	db = sqdb_new(SQDB_INFO_MYSQL, NULL);    // use default setting if config is NULL.
+
+	storage = sq_storage_new(db);
+	sq_storage_open(storage, "sqxc_local");
+```
+
+ use C++ function to open SQLite database
+
+```c++
+	Sq::DbConfigSqlite  config = { .folder = "/path", .extension = "db" };
+
+	db = new Sq::DbSqlite(&config);
+//	db = new Sq::DbSqlite(NULL);    // use default setting if config is NULL.
+
+	storage = new Sq::Storage(db);
+	storage->open("sqxc_local");    // This will open file "sqxc_local.db"
 ```
 
 ## Query builder
