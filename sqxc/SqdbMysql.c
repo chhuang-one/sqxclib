@@ -134,6 +134,9 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 	reentries = sq_type_get_ptr_array(schema_next->type);
 
 	if (db->version < schema_next->version) {
+#if DEBUG
+		fprintf(stderr, "MySQL: start of migration ------\n");
+#endif
 		for (int index = 0;  index < reentries->length;  index++) {
 			table = (SqTable*)reentries->data[index];
 
@@ -155,6 +158,9 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 			else {
 				// CREATE TABLE
 				if (sqdb_sql_create_table((Sqdb*)db, &sql_buf, table, NULL) > 0) {
+#if DEBUG
+					fprintf(stderr, "SQL: %s\n", sql_buf.buf);
+#endif
 					rc = mysql_query(db->self, sql_buf.buf);
 					if (rc)
 						goto atExit;
@@ -164,16 +170,21 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 			}
 
 			if (sql_buf.writed > 0) {
+#if DEBUG
+				fprintf(stderr, "SQL: %s\n", sql_buf.buf);
+#endif
 				rc = mysql_query(db->self, sql_buf.buf);
 				if (rc)
 					goto atExit;
 			}
 		}
+#if DEBUG
+		fprintf(stderr, "MySQL: end of migration ------\n");
+#endif
 		// update database version
 		db->version = schema_next->version;
 		sqdb_mysql_schema_set_version(db, db->version);
 	}
-	// 
 	sq_schema_update(schema, schema_next);
 	schema->version = schema_next->version;
 
