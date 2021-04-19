@@ -14,7 +14,7 @@ It provides ORM features and C++ wrapper.
 
 3. It can work in low-end hardware.
 
-4. Supports SQLite, MySQL / MariaDB 10.5.2 (experimental).
+4. Supports SQLite, MySQL / MariaDB (experimental).
 
 ## Database schema
 

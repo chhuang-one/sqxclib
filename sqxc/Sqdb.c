@@ -433,8 +433,14 @@ void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn
 	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
 	sq_buffer_r_at(buffer, 0) = ' ';
 
-	// MariaDB starting with 10.5.2
-	sq_buffer_write(buffer, "RENAME COLUMN");
+	if (db->info->product != SQDB_PRODUCT_MYSQL) {
+		// MySQL >= 8.0 or MariaDB >= 10.5.2 can use this
+		sq_buffer_write(buffer, "RENAME COLUMN");
+	}
+	else {
+		// MySQL < 8.0 or MariaDB < 10.5.2
+		sq_buffer_write(buffer, "CHANGE COLUMN");
+	}
 
 	// write "column old name"
 	sq_buffer_alloc(buffer, 2);
@@ -443,12 +449,21 @@ void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn
 	sq_buffer_write(buffer, column->old_name);
 	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
 
-	sq_buffer_write(buffer, " TO ");
+	if (db->info->product != SQDB_PRODUCT_MYSQL) {
+		// MySQL >= 8.0 or MariaDB >= 10.5.2 can use this
+		sq_buffer_write(buffer, " TO ");
 
-	// write "column new name"
-	sq_buffer_write_c(buffer, db->info->quote.identifier[0]);
-	sq_buffer_write(buffer, column->name);
-	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
+		// write "column new name"
+		sq_buffer_write_c(buffer, db->info->quote.identifier[0]);
+		sq_buffer_write(buffer, column->name);
+		sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
+	}
+	else {
+		// MySQL < 8.0 or MariaDB < 10.5.2
+		sq_buffer_write_c(buffer, ' ');
+		// write "column new name" and "column definition"
+		sqdb_sql_write_column(db, buffer, column);
+	}
 
 	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
