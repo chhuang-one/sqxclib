@@ -56,14 +56,58 @@ void *sq_relation_trace_reentry(SqRelation *relation, const char *old_name);
 // This function free not synced records in SQ_TYPE_RESERVE.
 void  sq_relation_erase_reserve(SqRelation *relation, SqDestroyFunc destroy_func);
 
-/* --- SqTable functions --- */
+/* --- SqTable migration functions --- */
 
 void      sq_table_create_relation(SqTable *table, SqRelationPool *pool);
 SqColumn *sq_table_replace_column(SqTable* table, SqColumn *old_column, SqColumn *new_column);
 
+// This used by migration: include and apply changes from 'table_src'.
+// It may move/steal columns from 'table_src'.
+int       sq_table_include(SqTable* table, SqTable* table_src);
+
+/* erase ernamed & dropped records after calling sq_schema_include() and sq_schema_trace_name()
+   if database schema version <  current schema version, pass 'version_comparison' = '<'
+   if database schema version == current schema version, pass 'version_comparison' = '='
+
+   return number of old columns after erasing.
+ */
+void      sq_table_erase_records(SqTable *table, char version_comparison);
+
+void      sq_table_complete(SqTable* table, bool no_need_to_sync);
+
+
 /* --- SqSchema functions --- */
 
 void  sq_schema_create_relation(SqSchema *schema);
+
+// This used by migration: include and apply changes from 'schema_src'.
+// It may move/steal tables and column from 'schema_src'.
+int   sq_schema_include(SqSchema *schema, SqSchema *schema_src);
+
+// It trace renamed (or dropped) table/column that was referenced by others and update others references.
+// use this function after calling sq_schema_include()
+int   sq_schema_trace_name(SqSchema *schema);
+
+/* erase renamed & dropped records after calling sq_schema_include() and sq_schema_trace_name()
+   if database schema version <  current schema version, pass 'version_comparison' = '<'
+   if database schema version == current schema version, pass 'version_comparison' = '='
+ */
+void  sq_schema_erase_records(SqSchema *schema, char version_comparison);
+
+/* call this function before creating SQL table after sq_schema_erase_records(schema, '<')
+   if table has no foreign key, this function move it to front.
+   if table references most tables, this function move it to end.
+   if table references each other, table->extra->foreigns.length > 0
+   output arranged tables in 'entries'
+ */
+void  sq_schema_arrange(SqSchema *schema, SqPtrArray *entries);
+
+// call this function after synchronize schema to database (creating/altering SQL tables).
+// It will free temporary data (e.g. table->foreigns)
+// If 'no_need_to_sync' == true, it will free unused index and composite constraint in memory.
+// set 'no_need_to_sync' to false if your program needs to synchronize schema to the SQLite database at any time.
+void  sq_schema_complete(SqSchema *schema, bool no_need_to_sync);
+
 
 #ifdef __cplusplus
 }  // extern "C"

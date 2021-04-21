@@ -89,16 +89,6 @@ static int  sqdb_empty_migrate(SqdbEmpty *sqdb, SqSchema *schema, SqSchema *sche
 		// Don't migrate if database schema equal the latest schema
 		if (sqdb->version == schema->version)
 			return SQCODE_OK;
-
-		// trace renamed (or dropped) table/column that was referenced by others
-		sq_schema_trace_name(schema);
-
-		// erase renamed & dropped records in schema
-		// database schema version < (less than) current schema version
-		sq_schema_erase_records(schema, '<');
-
-		// free temporary data after migration.
-		sq_schema_complete(schema, true);
 		return SQCODE_OK;
 	}
 
@@ -106,16 +96,8 @@ static int  sqdb_empty_migrate(SqdbEmpty *sqdb, SqSchema *schema, SqSchema *sche
 		// Do migration
 	}
 
-	// include and apply changes
-	sq_schema_include(schema, schema_next);
-
 	// current database schema
 	if (sqdb->version == schema->version) {
-		// trace renamed (or dropped) table/column that was referenced by others
-		sq_schema_trace_name(schema);
-		// clear changed records and remove NULL records in schema
-		// database schema version = (equal) current schema version
-		sq_schema_erase_records(schema, '=');
 	}
 
 	return SQCODE_OK;

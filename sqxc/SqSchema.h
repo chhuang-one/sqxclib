@@ -84,60 +84,6 @@ void     sq_schema_rename(SqSchema *schema, const char *from, const char *to);
 
 SqTable *sq_schema_find(SqSchema *schema, const char *table_name);
 
-/*
-	migration functions
-
-	// --- if database_schema_version is 3, get current schema in database
-	sq_schema_include(schema, schema_v2);
-	sq_schema_include(schema, schema_v3);
-	sq_schema_trace_name(schema);
-	sq_schema_erase_records(schema, '=');
-
-	// --- if the latest schema_version is 5, migrate to schema_v5
-	// migrate schema_v4 and schema_v5 by SQL statement
-	sq_schema_include(schema, schema_v4);
-	sq_schema_include(schema, schema_v5);
-	sq_schema_trace_name(schema);
-	// === SQLite must rename and drop table here
-	sq_schema_erase_records(schema, '<');
-	// === SQLite must try to recreate or create table here
-
-	// Other SQL product may need this
-	sq_schema_arrange(schema, entries);
-	// create table by SQL statement here
-
-	// free temporary data after migration.
-	sq_schema_complete(schema);
- */
-
-// This used by migration: include and apply changes from 'schema_src'.
-// It may move/steal tables and column from 'schema_src'.
-int     sq_schema_include(SqSchema *schema, SqSchema *schema_src);
-
-// It trace renamed (or dropped) table/column that was referenced by others and update others references.
-// use this function after calling sq_schema_include()
-int     sq_schema_trace_name(SqSchema *schema);
-
-/* erase renamed & dropped records after calling sq_schema_include() and sq_schema_trace_name()
-   if database schema version <  current schema version, pass 'version_comparison' = '<'
-   if database schema version == current schema version, pass 'version_comparison' = '='
- */
-void    sq_schema_erase_records(SqSchema *schema, char version_comparison);
-
-/* call this function before creating SQL table after sq_schema_erase_records(schema, '<')
-   if table has no foreign key, this function move it to front.
-   if table references most tables, this function move it to end.
-   if table references each other, table->extra->foreigns.length > 0
-   output arranged tables in 'entries'
- */
-void    sq_schema_arrange(SqSchema *schema, SqPtrArray *entries);
-
-// call this function after synchronize schema to database (creating/altering SQL tables).
-// It will free temporary data (e.g. table->foreigns)
-// If 'no_need_to_sync' == true, it will free unused index and composite constraint in memory.
-// set 'no_need_to_sync' to false if your program needs to synchronize schema to the SQLite database at any time.
-void    sq_schema_complete(SqSchema *schema, bool no_need_to_sync);
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -214,22 +160,6 @@ struct SqSchema
 
 	SqTable *find(const char *table_name) {
 		return sq_schema_find(this, table_name);
-	}
-
-	int   include(SqSchema *schema_src) {
-		return sq_schema_include(this, schema_src);
-	}
-	int   traceName(void) {
-		return sq_schema_trace_name(this);
-	}
-	void  clearRecords(char version_comparison) {
-		sq_schema_erase_records(this, version_comparison);
-	}
-	void  arrange(SqPtrArray *entries) {
-		sq_schema_arrange(this, entries);
-	}
-	void  complete(bool no_unused_column = true) {
-		sq_schema_complete(this, no_unused_column);
 	}
 #endif  // __cplusplus
 };

@@ -196,27 +196,6 @@ SqColumn* sq_table_add_foreign(SqTable* table,
                                const char* column_name);
 void      sq_table_drop_foreign(SqTable* table, const char* name);
 
-/* --------------------------------------------------------
-	migration functions
- */
-
-// This used by migration: include and apply changes from 'table_src'.
-// It may move/steal columns from 'table_src'.
-int       sq_table_include(SqTable* table, SqTable* table_src);
-
-// table->type->entry remove columns found in 'excluded_columns', remained columns output to 'result'.
-void      sq_table_exclude(SqTable* table, SqPtrArray* excluded_columns, SqPtrArray* result);
-
-/* erase ernamed & dropped records after calling sq_schema_include() and sq_schema_trace_name()
-   if database schema version <  current schema version, pass 'version_comparison' = '<'
-   if database schema version == current schema version, pass 'version_comparison' = '='
-
-   return number of old columns after erasing.
- */
-void      sq_table_erase_records(SqTable *table, char version_comparison);
-
-void      sq_table_complete(SqTable* table, bool no_need_to_sync);
-
 // sort column by it's attribute
 //	sq_ptr_array_sort(result, (SqCompareFunc)sq_column_cmp_attrib);
 
@@ -491,19 +470,6 @@ struct SqTable
 		return column;
 	}
  */
-
-	// ----------------------------------------------------
-
-	int  include(SqTable* table_src)
-		{ return sq_table_include(this, table_src); }
-	void exclude(SqPtrArray* excluded_columns, SqPtrArray* result)
-		{ sq_table_exclude(this, excluded_columns, result); }
-	void eraseRecords(char version_comparison) {
-		sq_table_erase_records(this, version_comparison);
-	}
-	void complete(bool no_unused_column = true) {
-		sq_table_complete(this, no_unused_column);
-	}
 #endif  // __cplusplus
 };
 
