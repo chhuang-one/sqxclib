@@ -216,6 +216,7 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	// ALTER TABLE ADD COLUMN
 	table = schemaVer3->alter("users");
 	table->uint("test_add", &User::test_add);
+	table->dropForeign("users_companies_id_foreign");
 
 	// --- schema version 4 ---
 	schemaVer4 = new Sq::Schema("Ver4");

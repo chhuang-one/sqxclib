@@ -18,7 +18,12 @@
 
 #include <stdio.h>
 
+#ifdef HAS_MYSQL
+#define USE_MYSQL    0
+#include <SqdbMysql.h>
+#endif
 #include <SqdbSqlite.h>
+
 #include <SqStorage.h>
 #include <SqQuery.h>
 
@@ -115,11 +120,15 @@ static const SqColumn userColumnsVer2[] = {
 static const SqColumn userColumnsVer3[] = {
 	// DROP COLUMN "test_drop"
 	{.old_name = "test_drop",     .name = NULL },
+
+	// DROP CONSTRAINT FOREIGN KEY "users_city_id_foreign"
+	{.old_name = "users_city_id_foreign",     .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_FOREIGN },
 };
 
 // ALTER TABLE "users"
 static const SqColumn userColumnsVer4[] = {
-	// RENAME COLUMN "test_rename"  TO "test_rename2"
+	// RENAME COLUMN "test_rename" TO "test_rename2"
 	{.old_name = "test_rename",   .name = "test_rename2" },
 };
 
@@ -315,9 +324,15 @@ int  main(void)
 	City       *city;
 	User       *user;
 
+#if USE_MYSQL == 1
+	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
+	storage = sq_storage_new(db);
+	sq_storage_open(storage, "sqxc_local");
+#else
 	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
 	storage = sq_storage_new(db);
 	sq_storage_open(storage, "sample-c99");
+#endif
 
 	// This program migrate to next version every run. (from Ver1 to Ver6)
 	storage_make_migrated_schema(storage, db->version +1);

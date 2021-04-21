@@ -69,6 +69,10 @@ static const SqColumn  userColumnsChanged[] = {
 	// ALTER COLUMN "city_id"
 	{SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
 
+	// DROP CONSTRAINT FOREIGN KEY
+	{.old_name = "users_city_id_foreign",     .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_FOREIGN },
+
 	// DROP COLUMN "full_name"
 	{.old_name = "full_name", .name = NULL},
 
@@ -115,6 +119,7 @@ static const SqColumn  userColumnsChanged[] = {
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	column->bit_field |= SQB_CHANGED;
+	sq_table_drop_foreign(table, "users_city_id_foreign");
 	sq_table_drop_column(table, "full_name");
 	sq_table_rename_column(table, "email", "email2");
 ```
@@ -147,6 +152,7 @@ static const SqColumn  userColumnsChanged[] = {
 	SQ_SCHEMA_ALTER(schema_v2, "users", User, {
 		SQT_INTEGER("test_add", User, test_add);
 		SQT_INTEGER("city_id", User, city_id);  SQC_CHANGE();
+		SQT_DROP_FOREIGN("users_city_id_foreign");
 		SQT_DROP("full_name");
 		SQT_RENAME("email", "email2");
 	});
@@ -209,6 +215,7 @@ static const SqColumn  userColumns[6] = {
 	table = schema_v2->alter("users");
 	table->integer("test_add", &User::test_add);
 	table->integer("city_id", &User::city_id)->change();
+	table->dropForeign("users_city_id_foreign");    // DROP CONSTRAINT FOREIGN KEY
 	table->drop("full_name");
 	table->rename("email", "email2");
 ```
@@ -444,13 +451,13 @@ static const SqColumn  userColumns[6] = {
 - program can also parse JSON object/array that store in column.
 
 ## Sqdb - Database interface
- Sqdb is Database interface for SQLite, MySQL...etc.
- SqdbSqlite.c implement Sqdb interface for SQLite. 
-
+ Sqdb is Database interface for SQLite, MySQL...etc.  
+ SqdbSqlite.c implement Sqdb interface for SQLite.  
+ SqdbMysql.c implement Sqdb interface for MySQL.  
 
 ## Sqxc - Converter interface
- Sqxc is interface for data parse and write.
- User can link multiple Sqxc element to convert different types of data.
+ Sqxc is interface for data parse and write.  
+ User can link multiple Sqxc element to convert different types of data.  
 
 
 ## Licensing
