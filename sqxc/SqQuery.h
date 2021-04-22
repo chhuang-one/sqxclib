@@ -25,9 +25,8 @@
 
 #include <SqPtrArray.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
 
 typedef struct SqQuery           SqQuery;
 typedef struct SqQueryNode       SqQueryNode;
@@ -39,53 +38,14 @@ extern const uintptr_t SQ_QUERYLOGI_AND;
 extern const uintptr_t SQ_QUERYSORT_ASC;
 extern const uintptr_t SQ_QUERYSORT_DESC;
 
-/* ----------------------------------------------------------------------------
-	SqQueryNode - store elements of SQL Statements
+// ----------------------------------------------------------------------------
+// C data and functions declaration
 
-    SELECT DISTINCT name, age
-    FROM  User AS c
-    WHERE id > 40 AND age < 60
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-
-                 next          next
-        SELECT -------> FROM -------> WHERE
-          |              |              |
-          |              |     children |
-          |              |              |
-          |     children |              v      next       next
-          |              |          "id > 40" -----> AND -----> "age < 60"
-          |              |
- children |              v     next     next
-          |            "User" -----> AS -----> "c"
-          v
-      DISTINCT -----> "name" -----> , -----> "age"
-                next          next     next
-
-   --------------------------------------------------------
-    SqQueryNode digram for nested query (subquery)
-
-    SELECT ... FROM (SELECT ... FROM ... WHERE ...) AS "t1" WHERE ...
-
-            next        next
-    SELECT -----> FROM -----> WHERE
-                   |
-          children |
-                   v    next      next
-                  NONE -----> AS -----> "t1"
-          children |
-                   v          next          next
-                   ( SELECT -------> FROM -------> WHERE )
- */
-
-struct SqQueryNode
-{
-	uintptr_t      type;       // SqQueryNodeType
-	SqQueryNode*   next;
-	SqQueryNode*   children;   // arguments, nested, or inserted string
-	char*          value;
-};
-
-/* ----------------------------------------------------------------------------
+/*
 	SqQuery C functions
 
 
@@ -139,13 +99,16 @@ struct SqQueryNode
 
  */
 
-SqQuery* sq_query_init(SqQuery* query, const char* table_name);
-SqQuery* sq_query_final(SqQuery* query);
+SqQuery *sq_query_init(SqQuery *query, const char *table_name);
+SqQuery *sq_query_final(SqQuery *query);
 
-// SqQuery* sq_query_new(SqTable* table);
+// SqQuery *sq_query_new(SqTable *table);
 #define sq_query_new(table)     sq_query_init((SqQuery*)malloc(sizeof(SqQuery)), table)
-// void     sq_query_free(SqQuery* query);
+// void     sq_query_free(SqQuery *query);
 #define sq_query_free(query)    free(sq_query_final(query))
+
+// It reset SqQuery and remove all statements.
+void    sq_query_clear(SqQuery *query);
 
 /*
 	sq_query_push_nested() was called by sq_query_where_exists(), sq_query_from(),
@@ -154,22 +117,22 @@ SqQuery* sq_query_final(SqQuery* query);
  */
 
 // push/pop SqQueryNested
-SqQueryNested* sq_query_push_nested(SqQuery* query, SqQueryNode* parent);
-void           sq_query_pop_nested(SqQuery* query);
+SqQueryNested *sq_query_push_nested(SqQuery *query, SqQueryNode *parent);
+void           sq_query_pop_nested(SqQuery *query);
 
 // SQL: FROM
-bool    sq_query_from(SqQuery* query, const char* table);
+bool    sq_query_from(SqQuery *query, const char *table);
 
-// bool sq_query_table(SqQuery* query, const char* table);
+// bool sq_query_table(SqQuery *query, const char *table);
 #define sq_query_table    sq_query_from
 
 // SQL: AS
 // call it after sq_query_from(), sq_query_join(), sq_query_select()
-void    sq_query_as(SqQuery* query, const char* name);
+void    sq_query_as(SqQuery *query, const char *name);
 
 // SQL: JOIN ON
-void    sq_query_join(SqQuery* query, const char* table, ...);
-void    sq_query_on_logical(SqQuery* query, uintptr_t sqn_type, ...);
+void    sq_query_join(SqQuery *query, const char *table, ...);
+void    sq_query_on_logical(SqQuery *query, uintptr_t sqn_type, ...);
 
 #define sq_query_on(query, ...)        \
 		sq_query_on_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
@@ -177,8 +140,8 @@ void    sq_query_on_logical(SqQuery* query, uintptr_t sqn_type, ...);
 		sq_query_on_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
 // SQL: WHERE
-void    sq_query_where_logical(SqQuery* query, uintptr_t sqn_type, ...);
-bool    sq_query_where_exists(SqQuery* query);
+void    sq_query_where_logical(SqQuery *query, uintptr_t sqn_type, ...);
+bool    sq_query_where_exists(SqQuery *query);
 
 #define sq_query_where(query, ...)        \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
@@ -186,10 +149,10 @@ bool    sq_query_where_exists(SqQuery* query);
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
 // SQL: GROUP BY
-void    sq_query_group_by(SqQuery* query, ...);
+void    sq_query_group_by(SqQuery *query, ...);
 
 // SQL: HAVING
-void    sq_query_having_logical(SqQuery* query, uintptr_t sqn_type, ...);
+void    sq_query_having_logical(SqQuery *query, uintptr_t sqn_type, ...);
 
 #define sq_query_having(query, ...)        \
 		sq_query_having_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
@@ -197,12 +160,12 @@ void    sq_query_having_logical(SqQuery* query, uintptr_t sqn_type, ...);
 		sq_query_having_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
 // SQL: SELECT
-bool    sq_query_select(SqQuery* query, ...);
-bool    sq_query_distinct(SqQuery* query);
+bool    sq_query_select(SqQuery *query, ...);
+bool    sq_query_distinct(SqQuery *query);
 
 // SQL: ORDER BY
-void    sq_query_order_by(SqQuery* query, ...);
-void    sq_query_order_sorted(SqQuery* query, uintptr_t sqn_type);
+void    sq_query_order_by(SqQuery *query, ...);
+void    sq_query_order_sorted(SqQuery *query, uintptr_t sqn_type);
 
 #define sq_query_order_by_asc(query)     \
 		sq_query_order_sorted(query, SQ_QUERYSORT_ASC)
@@ -215,29 +178,29 @@ void    sq_query_order_sorted(SqQuery* query, uintptr_t sqn_type);
 #define sq_query_desc    sq_query_order_by_desc
 
 // SQL: DELETE FROM
-void    sq_query_delete(SqQuery* query);
+void    sq_query_delete(SqQuery *query);
 
 // SQL: TRUNCATE TABLE
-void    sq_query_truncate(SqQuery* query);
+void    sq_query_truncate(SqQuery *query);
 
 // SQL statements
-char*   sq_query_to_sql(SqQuery* query);
+char   *sq_query_to_sql(SqQuery *query);
 
 // va_list
-void    sq_query_join_va(SqQuery* query, const char* table,
-                         const char* condition, va_list arg_list);
-void    sq_query_on_logical_va(SqQuery* query, uintptr_t sqn_type,
-                               const char* condition, va_list arg_list);
-void    sq_query_where_logical_va(SqQuery* query, uintptr_t sqn_type,
-                                  const char* condition, va_list arg_list);
-void    sq_query_group_by_va(SqQuery* query,
-                             const char* column, va_list arg_list);
-void    sq_query_having_logical_va(SqQuery* query, uintptr_t sqn_type,
-                                   const char* condition, va_list arg_list);
-bool    sq_query_select_va(SqQuery* query,
-                           const char* column, va_list arg_list);
-void    sq_query_order_by_va(SqQuery* query,
-                             const char* column, va_list arg_list);
+void    sq_query_join_va(SqQuery *query, const char *table,
+                         const char *condition, va_list arg_list);
+void    sq_query_on_logical_va(SqQuery *query, uintptr_t sqn_type,
+                               const char *condition, va_list arg_list);
+void    sq_query_where_logical_va(SqQuery *query, uintptr_t sqn_type,
+                                  const char *condition, va_list arg_list);
+void    sq_query_group_by_va(SqQuery *query,
+                             const char *column, va_list arg_list);
+void    sq_query_having_logical_va(SqQuery *query, uintptr_t sqn_type,
+                                   const char *condition, va_list arg_list);
+bool    sq_query_select_va(SqQuery *query,
+                           const char *column, va_list arg_list);
+void    sq_query_order_by_va(SqQuery *query,
+                             const char *column, va_list arg_list);
 
 // get all of table_name and it's as_name in current SQL SELECT statement
 // return number of tables in query.
@@ -245,41 +208,101 @@ void    sq_query_order_by_va(SqQuery* query,
 //   element_0 = table1_name, element_1 = table1_as_name,
 //   element_2 = table2_name, element_3 = table2_as_name, ...etc
 //   elements are const string (const char*). User can't free elements in 'table_and_as_names'.
-int     sq_query_get_table_as_names(SqQuery* query, SqPtrArray* table_and_as_names);
+int     sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
 // ----------------------------------------------------------------------------
-// SqQuery
+//  C/C++ structue definition
+
+/*
+	SqQueryNode - store elements of SQL Statements
+
+    SELECT DISTINCT name, age
+    FROM  User AS c
+    WHERE id > 40 AND age < 60
+
+
+                 next          next
+        SELECT -------> FROM -------> WHERE
+          |              |              |
+          |              |     children |
+          |              |              |
+          |     children |              v      next       next
+          |              |          "id > 40" -----> AND -----> "age < 60"
+          |              |
+ children |              v     next     next
+          |            "User" -----> AS -----> "c"
+          v
+      DISTINCT -----> "name" -----> , -----> "age"
+                next          next     next
+
+   --------------------------------------------------------
+    SqQueryNode digram for nested query (subquery)
+
+    SELECT ... FROM (SELECT ... FROM ... WHERE ...) AS "t1" WHERE ...
+
+            next        next
+    SELECT -----> FROM -----> WHERE
+                   |
+          children |
+                   v    next      next
+                  NONE -----> AS -----> "t1"
+          children |
+                   v          next          next
+                   ( SELECT -------> FROM -------> WHERE )
+ */
+
+struct SqQueryNode
+{
+	uintptr_t      type;       // SqQueryNodeType
+	SqQueryNode   *next;
+	SqQueryNode   *children;   // arguments, nested, or inserted string
+	char          *value;
+};
+
+/*
+    SqQuery
+ */
 
 struct SqQuery
 {
 	SqQueryNode    root;
-	SqQueryNode*   node;
-	SqQueryNode*   freed;      // freed SqQueryNode.
-	void*          node_chunk;
+	SqQueryNode   *node;
+	SqQueryNode   *freed;      // freed SqQueryNode.
+	void          *node_chunk;
 	int            node_count;
 
-	SqQueryNested* nested_cur;
+	SqQueryNested *nested_cur;
 	int            nested_count;
 
 #ifdef __cplusplus
 	// C++11 standard-layout
 
-	SqQuery()
-		{ sq_query_init(this, NULL); }
-	~SqQuery()
-		{ sq_query_final(this); }
+	SqQuery() {
+		sq_query_init(this, NULL);
+	}
+	~SqQuery() {
+		sq_query_final(this);
+	}
 
-	SqQuery* operator->()
-		{ return this; }
+	SqQuery *operator->() {
+		return this;
+	}
+
+	SqQuery& clear() {
+		sq_query_clear(this);
+		return *this;
+	}
 
 	// ----------------------------------------------------
 
-	SqQuery& from(const char* table)
-		{ sq_query_from(this, table);  return *this; }
+	SqQuery& from(const char *table) {
+		sq_query_from(this, table);
+		return *this;
+	}
 	SqQuery& from(std::function<void()> func) {
 		sq_query_from(this, NULL);    // start of Subquery/Nested
 		func();
@@ -293,8 +316,10 @@ struct SqQuery
 		return *this;
 	}
 
-	SqQuery& table(const char* table)
-		{ sq_query_from(this, table);  return *this; }
+	SqQuery& table(const char *table) {
+		sq_query_from(this, table);
+		return *this;
+	}
 	SqQuery& table(std::function<void()> func) {
 		sq_query_from(this, NULL);    // start of Subquery/Nested
 		func();
@@ -308,11 +333,13 @@ struct SqQuery
 		return *this;
 	}
 
-	SqQuery& as(const char* name)
-		{ sq_query_as(this, name);  return *this; }
+	SqQuery& as(const char *name) {
+		sq_query_as(this, name);
+		return *this;
+	}
 
 	// ----------------------------------------------------
-	SqQuery& join(const char* table, const char* condition = NULL, ...) {
+	SqQuery& join(const char *table, const char *condition = NULL, ...) {
 		va_list  arg_list;
 		va_start(arg_list, condition);
 		sq_query_join_va(this, table, condition, arg_list);
@@ -332,7 +359,7 @@ struct SqQuery
 		return *this;
 	}
 
-	SqQuery& on(const char* condition, ...) {
+	SqQuery& on(const char *condition, ...) {
 		va_list  arg_list;
 		va_start(arg_list, condition);
 		sq_query_on_logical_va(this, SQ_QUERYLOGI_AND, condition, arg_list);
@@ -352,12 +379,12 @@ struct SqQuery
 		return *this;
 	}
 
-	SqQuery& onRaw(const char* raw) {
+	SqQuery& onRaw(const char *raw) {
 		sq_query_on_logical(this, SQ_QUERYLOGI_AND, raw, NULL);
 		return *this;
 	}
 
-	SqQuery& orOn(const char* condition, ...) {
+	SqQuery& orOn(const char *condition, ...) {
 		va_list  arg_list;
 		va_start(arg_list, condition);
 		sq_query_on_logical_va(this, SQ_QUERYLOGI_OR, condition, arg_list);
@@ -377,13 +404,13 @@ struct SqQuery
 		return *this;
 	}
 
-	SqQuery& orOnRaw(const char* raw) {
+	SqQuery& orOnRaw(const char *raw) {
 		sq_query_on_logical(this, SQ_QUERYLOGI_OR, raw, NULL);
 		return *this;
 	}
 
 	// ----------------------------------------------------
-	SqQuery& where(const char* condition, ...) {
+	SqQuery& where(const char *condition, ...) {
 		va_list  arg_list;
 		va_start(arg_list, condition);
 		sq_query_where_logical_va(this, SQ_QUERYLOGI_AND, condition, arg_list);
@@ -403,12 +430,12 @@ struct SqQuery
 		return *this;
 	}
 
-	SqQuery& whereRaw(const char* raw) {
+	SqQuery& whereRaw(const char *raw) {
 		sq_query_where_logical(this, SQ_QUERYLOGI_AND, raw, NULL);
 		return *this;
 	}
 
-	SqQuery& orWhere(const char* condition, ...) {
+	SqQuery& orWhere(const char *condition, ...) {
 		va_list  arg_list;
 		va_start(arg_list, condition);
 		sq_query_where_logical_va(this, SQ_QUERYLOGI_OR, condition, arg_list);
@@ -428,7 +455,7 @@ struct SqQuery
 		return *this;
 	}
 
-	SqQuery& orWhereRaw(const char* raw) {
+	SqQuery& orWhereRaw(const char *raw) {
 		sq_query_where_logical(this, SQ_QUERYLOGI_OR, raw, NULL);
 		return *this;
 	}
@@ -447,20 +474,20 @@ struct SqQuery
 	}
 
 	// ----------------------------------------------------
-	SqQuery& groupBy(const char* column, ...) {
+	SqQuery& groupBy(const char *column, ...) {
 		va_list  arg_list;
 		va_start(arg_list, column);
 		sq_query_group_by_va(this, column, arg_list);
 		va_end(arg_list);
 		return *this;
 	}
-	SqQuery& groupByRaw(const char* raw) {
+	SqQuery& groupByRaw(const char *raw) {
 		sq_query_group_by_va(this, raw, NULL);
 		return *this;
 	}
 
 	// ----------------------------------------------------
-	SqQuery& having(const char* condition, ...) {
+	SqQuery& having(const char *condition, ...) {
 		va_list  arg_list;
 		va_start(arg_list, condition);
 		sq_query_having_logical_va(this, SQ_QUERYLOGI_AND, condition, arg_list);
@@ -480,12 +507,12 @@ struct SqQuery
 		return *this;
 	}
 
-	SqQuery& havingRaw(const char* raw) {
+	SqQuery& havingRaw(const char *raw) {
 		sq_query_having_logical(this, SQ_QUERYLOGI_AND, raw, NULL);
 		return *this;
 	}
 
-	SqQuery& orHaving(const char* condition, ...) {
+	SqQuery& orHaving(const char *condition, ...) {
 		va_list  arg_list;
 		va_start(arg_list, condition);
 		sq_query_having_logical_va(this, SQ_QUERYLOGI_OR, condition, arg_list);
@@ -505,59 +532,72 @@ struct SqQuery
 		return *this;
 	}
 
-	SqQuery& orHavingRaw(const char* raw) {
+	SqQuery& orHavingRaw(const char *raw) {
 		sq_query_having_logical(this, SQ_QUERYLOGI_OR, raw, NULL);
 		return *this;
 	}
 
 	// ----------------------------------------------------
-	SqQuery& select(const char* column, ...) {
+	SqQuery& select(const char *column, ...) {
 		va_list  arg_list;
 		va_start(arg_list, column);
 		sq_query_select_va(this, column, arg_list);
 		va_end(arg_list);
 		return *this;
 	}
-	SqQuery& selectRaw(const char* raw) {
+	SqQuery& selectRaw(const char *raw) {
 		sq_query_select(this, raw, NULL);
 		return *this;
 	}
-	SqQuery& distinct()
-		{ sq_query_distinct(this);  return *this; }
+	SqQuery& distinct() {
+		sq_query_distinct(this);
+		return *this;
+	}
 
 	// ----------------------------------------------------
-	SqQuery& orderBy(const char* column, ...) {
+	SqQuery& orderBy(const char *column, ...) {
 		va_list  arg_list;
 		va_start(arg_list, column);
 		sq_query_order_by_va(this, column, arg_list);
 		va_end(arg_list);
 		return *this;
 	}
-	SqQuery& orderByRaw(const char* raw) {
+	SqQuery& orderByRaw(const char *raw) {
 		sq_query_order_by(this, raw, NULL);
 		return *this;
 	}
-	SqQuery& asc()
-		{ sq_query_order_by_asc(this);  return *this; }
-	SqQuery& desc()
-		{ sq_query_order_by_desc(this);  return *this; }
+	SqQuery& asc() {
+		sq_query_order_by_asc(this);
+		return *this;
+	}
+	SqQuery& desc() {
+		sq_query_order_by_desc(this);
+		return *this;
+	}
 
 	// ----------------------------------------------------
-	SqQuery& delete_()
-		{ sq_query_delete(this);  return *this; }
-	SqQuery& deleteFrom()
-		{ sq_query_delete(this);  return *this; }
-	SqQuery& truncate()
-		{ sq_query_truncate(this);  return *this; }
+	SqQuery& delete_() {
+		sq_query_delete(this);
+		return *this;
+	}
+	SqQuery& deleteFrom() {
+		sq_query_delete(this);
+		return *this;
+	}
+	SqQuery& truncate() {
+		sq_query_truncate(this);
+		return *this;
+	}
 
 	// ----------------------------------------------------
-	inline char* toSql()
-		{ return sq_query_to_sql(this); }
+	inline char *toSql() {
+		return sq_query_to_sql(this);
+	}
 #endif  // __cplusplus
 };
 
 // ----------------------------------------------------------------------------
-// C++ namespace
+// C++ other definitions
 
 #ifdef __cplusplus
 

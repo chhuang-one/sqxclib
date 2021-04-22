@@ -20,21 +20,21 @@
 
 #include <SqQuery.h>
 
-static SqQueryNode* sq_query_condition(SqQuery* query, const char* first, va_list arg_list);
-static void         sq_query_column(SqQuery* query, SqQueryNode* parent, const char* first, va_list arg_list);
-static void         sq_query_free_all_node(SqQuery* query);
+static SqQueryNode *sq_query_condition(SqQuery *query, const char *first, va_list arg_list);
+static void         sq_query_column(SqQuery *query, SqQueryNode *parent, const char *first, va_list arg_list);
+static void         sq_query_free_all_node(SqQuery *query);
 
-static SqQueryNode* sq_query_node_new(SqQuery* query);
-static void         sq_query_node_free(SqQueryNode* node, SqQuery* query);
+static SqQueryNode *sq_query_node_new(SqQuery *query);
+static void         sq_query_node_free(SqQueryNode *node, SqQuery *query);
 
 #define sq_query_node_append(parent, node)     \
 		sq_query_node_insert(parent, sq_query_node_last((parent)->children), node)
 #define sq_query_node_prepend(parent, node)    \
 		sq_query_node_insert(parent, NULL, node)
 
-static SqQueryNode* sq_query_node_insert(SqQueryNode* parent, SqQueryNode* prev, SqQueryNode* node);
-static SqQueryNode* sq_query_node_last(SqQueryNode* node);
-static SqQueryNode* sq_query_node_find(SqQueryNode* parent, uintptr_t sqn_cmd, SqQueryNode** insert_pos);
+static SqQueryNode *sq_query_node_insert(SqQueryNode *parent, SqQueryNode *prev, SqQueryNode *node);
+static SqQueryNode *sq_query_node_last(SqQueryNode *node);
+static SqQueryNode *sq_query_node_find(SqQueryNode *parent, uintptr_t sqn_cmd, SqQueryNode **insert_pos);
 
 enum SqQueryNodeType {
 	SQN_NONE,    // 0, empty string
@@ -103,21 +103,21 @@ enum SqQueryNodeType {
 
 struct SqQueryNested
 {
-	SqQueryNested*  outer;
-	SqQueryNested*  inner;
+	SqQueryNested  *outer;
+	SqQueryNested  *inner;
 
-	SqQueryNode*    parent;
-	SqQueryNode*    command;    // SQL command (SELECT, UPDATE ...etc)
-	SqQueryNode*    name;       // table, column, index, or database name
-	SqQueryNode*    aliasable;  // sq_query_as()
+	SqQueryNode    *parent;
+	SqQueryNode    *command;    // SQL command (SELECT, UPDATE ...etc)
+	SqQueryNode    *name;       // table, column, index, or database name
+	SqQueryNode    *aliasable;  // sq_query_as()
 
 	// current condition
-	SqQueryNode*    where;      // WHERE  AND  OR
-	SqQueryNode*    joinon;     // JOIN table ON  AND  OR
+	SqQueryNode    *where;      // WHERE  AND  OR
+	SqQueryNode    *joinon;     // JOIN table ON  AND  OR
 };
 
 
-static const char*   sqnword[];
+static const char  *sqnword[];
 
 const uintptr_t SQ_QUERYLOGI_OR   = SQN_OR;
 const uintptr_t SQ_QUERYLOGI_AND  = SQN_AND;
@@ -129,7 +129,7 @@ const uintptr_t SQ_QUERYSORT_DESC = SQN_DESC;
 // ----------------------------------------------------------------------------
 // SqQuery
 
-SqQuery* sq_query_init(SqQuery* query, const char* table_name)
+SqQuery *sq_query_init(SqQuery *query, const char *table_name)
 {
 	memset(query, 0, sizeof(SqQuery));
 
@@ -140,7 +140,7 @@ SqQuery* sq_query_init(SqQuery* query, const char* table_name)
 	return query;
 }
 
-SqQuery* sq_query_final(SqQuery* query)
+SqQuery *sq_query_final(SqQuery *query)
 {
 	// free SqQueryNested
 	while(query->nested_cur)
@@ -150,10 +150,25 @@ SqQuery* sq_query_final(SqQuery* query)
 	return query;
 }
 
-bool sq_query_from(SqQuery* query, const char* table)
+void  sq_query_clear(SqQuery *query)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   node = nested->name;
+	// clear query->root 
+	query->root.children = NULL;
+	// run finalize function
+	sq_query_final(query);
+	// sq_query_free_all_node() doesn't reset these
+	query->node = NULL;
+	query->node_chunk = NULL;
+	query->node_count = 0;
+	query->freed = NULL;
+	// sq_query_init() also do this
+	sq_query_push_nested(query, &query->root);
+}
+
+bool sq_query_from(SqQuery *query, const char *table)
+{
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *node = nested->name;
 
 	if (node)
 		return false;
@@ -179,10 +194,10 @@ bool sq_query_from(SqQuery* query, const char* table)
 	return true;
 }
 
-void sq_query_as(SqQuery* query, const char* name)
+void sq_query_as(SqQuery *query, const char *name)
 {
-	SqQueryNode* node = query->nested_cur->aliasable;
-	SqQueryNode* sub_node;
+	SqQueryNode *node = query->nested_cur->aliasable;
+	SqQueryNode *sub_node;
 
 	if (node == NULL)
 		return;
@@ -203,10 +218,10 @@ void sq_query_as(SqQuery* query, const char* name)
 	query->nested_cur->aliasable = NULL;
 }
 
-bool sq_query_select(SqQuery* query, ...)
+bool sq_query_select(SqQuery *query, ...)
 {
 	va_list  arg_list;
-	const char* first;
+	const char *first;
 	bool        result;
 
 	va_start(arg_list, query);
@@ -216,11 +231,11 @@ bool sq_query_select(SqQuery* query, ...)
 	return result;
 }
 
-bool sq_query_select_va(SqQuery* query, const char* first, va_list arg_list)
+bool sq_query_select_va(SqQuery *query, const char *first, va_list arg_list)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   sub_node;
-	SqQueryNode*   select;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *sub_node;
+	SqQueryNode   *select;
 
 	select = nested->command;
 	if (select == NULL) {
@@ -249,9 +264,9 @@ bool sq_query_select_va(SqQuery* query, const char* first, va_list arg_list)
 	return true;
 }
 
-bool sq_query_distinct(SqQuery* query)
+bool sq_query_distinct(SqQuery *query)
 {
-	SqQueryNode* command = query->nested_cur->command;
+	SqQueryNode *command = query->nested_cur->command;
 
 	if (command == NULL) {
 		// if no 'SELECT' command, call sq_query_select() insert it.
@@ -265,9 +280,9 @@ bool sq_query_distinct(SqQuery* query)
 	return true;
 }
 
-void sq_query_where_logical(SqQuery* query, uintptr_t sqn_type, ...)
+void sq_query_where_logical(SqQuery *query, uintptr_t sqn_type, ...)
 {
-	const char* first;
+	const char *first;
 	va_list  arg_list;
 
 	va_start(arg_list, sqn_type);
@@ -276,11 +291,11 @@ void sq_query_where_logical(SqQuery* query, uintptr_t sqn_type, ...)
 	va_end(arg_list);
 }
 
-void sq_query_where_logical_va(SqQuery* query, uintptr_t sqn_type, const char* first, va_list arg_list)
+void sq_query_where_logical_va(SqQuery *query, uintptr_t sqn_type, const char *first, va_list arg_list)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   where = nested->where;
-	SqQueryNode*   node;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *where = nested->where;
+	SqQueryNode   *node;
 
 	if (where == NULL) {
 		// insert 'WHERE' in specify position
@@ -297,11 +312,11 @@ void sq_query_where_logical_va(SqQuery* query, uintptr_t sqn_type, const char* f
 	sq_query_node_append(where, sq_query_condition(query, first, arg_list));
 }
 
-bool sq_query_where_exists(SqQuery* query)
+bool sq_query_where_exists(SqQuery *query)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   where = nested->where;
-	SqQueryNode*   node;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *where = nested->where;
+	SqQueryNode   *node;
 
 	if (where)
 		return false;
@@ -318,9 +333,9 @@ bool sq_query_where_exists(SqQuery* query)
 	return true;
 }
 
-void sq_query_join(SqQuery* query, const char* table, ...)
+void sq_query_join(SqQuery *query, const char *table, ...)
 {
-	const char* first;
+	const char *first;
 	va_list  arg_list;
 
 	va_start(arg_list, table);
@@ -329,12 +344,12 @@ void sq_query_join(SqQuery* query, const char* table, ...)
 	va_end(arg_list);
 }
 
-void sq_query_join_va(SqQuery* query, const char* table, const char* first, va_list arg_list)
+void sq_query_join_va(SqQuery *query, const char *table, const char *first, va_list arg_list)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   joinon = NULL;
-	SqQueryNode*   node;
-	SqQueryNode*   prev = NULL;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *joinon = NULL;
+	SqQueryNode   *node;
+	SqQueryNode   *prev = NULL;
 
 	// get last JOIN node
 	for (node = nested->parent->children;  node;  node = node->next) {
@@ -369,9 +384,9 @@ void sq_query_join_va(SqQuery* query, const char* table, const char* first, va_l
 	sq_query_node_append(joinon, sq_query_condition(query, first, arg_list));
 }
 
-void sq_query_on_logical(SqQuery* query, uintptr_t sqn_type, ...)
+void sq_query_on_logical(SqQuery *query, uintptr_t sqn_type, ...)
 {
-	const char* first;
+	const char *first;
 	va_list  arg_list;
 
 	va_start(arg_list, sqn_type);
@@ -380,11 +395,11 @@ void sq_query_on_logical(SqQuery* query, uintptr_t sqn_type, ...)
 	va_end(arg_list);
 }
 
-void sq_query_on_logical_va(SqQuery* query, uintptr_t sqn_type, const char* first, va_list arg_list)
+void sq_query_on_logical_va(SqQuery *query, uintptr_t sqn_type, const char *first, va_list arg_list)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   joinon = nested->joinon;
-	SqQueryNode*   node;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *joinon = nested->joinon;
+	SqQueryNode   *node;
 
 	if (joinon == NULL)
 		return;
@@ -397,9 +412,9 @@ void sq_query_on_logical_va(SqQuery* query, uintptr_t sqn_type, const char* firs
 	sq_query_node_append(joinon, sq_query_condition(query, first, arg_list));
 }
 
-void sq_query_group_by(SqQuery* query, ...)
+void sq_query_group_by(SqQuery *query, ...)
 {
-	const char* first;
+	const char *first;
 	va_list  arg_list;
 
 	va_start(arg_list, query);
@@ -408,11 +423,11 @@ void sq_query_group_by(SqQuery* query, ...)
 	va_end(arg_list);
 }
 
-void sq_query_group_by_va(SqQuery* query, const char* first, va_list arg_list)
+void sq_query_group_by_va(SqQuery *query, const char *first, va_list arg_list)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   groupby;
-	SqQueryNode*   node;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *groupby;
+	SqQueryNode   *node;
 
 	groupby = sq_query_node_find(nested->parent, SQN_GROUP_BY, &node);
 	if (groupby == NULL) {
@@ -425,9 +440,9 @@ void sq_query_group_by_va(SqQuery* query, const char* first, va_list arg_list)
 	nested->aliasable = NULL;
 }
 
-void sq_query_having_logical(SqQuery* query, uintptr_t sqn_type, ...)
+void sq_query_having_logical(SqQuery *query, uintptr_t sqn_type, ...)
 {
-	const char* first;
+	const char *first;
 	va_list  arg_list;
 
 	va_start(arg_list, sqn_type);
@@ -436,11 +451,11 @@ void sq_query_having_logical(SqQuery* query, uintptr_t sqn_type, ...)
 	va_end(arg_list);
 }
 
-void sq_query_having_logical_va(SqQuery* query, uintptr_t sqn_type, const char* first, va_list arg_list)
+void sq_query_having_logical_va(SqQuery *query, uintptr_t sqn_type, const char *first, va_list arg_list)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   having;
-	SqQueryNode*   node;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *having;
+	SqQueryNode   *node;
 
 	having = sq_query_node_find(nested->parent, SQN_HAVING, &node);
 	if (having == NULL)
@@ -453,9 +468,9 @@ void sq_query_having_logical_va(SqQuery* query, uintptr_t sqn_type, const char* 
 	sq_query_node_append(having, sq_query_condition(query, first, arg_list));
 }
 
-void sq_query_order_by(SqQuery* query, ...)
+void sq_query_order_by(SqQuery *query, ...)
 {
-	const char* first;
+	const char *first;
 	va_list  arg_list;
 
 	va_start(arg_list, query);
@@ -464,11 +479,11 @@ void sq_query_order_by(SqQuery* query, ...)
 	va_end(arg_list);
 }
 
-void sq_query_order_by_va(SqQuery* query, const char* first, va_list arg_list)
+void sq_query_order_by_va(SqQuery *query, const char *first, va_list arg_list)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   orderby;
-	SqQueryNode*   node;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *orderby;
+	SqQueryNode   *node;
 
 	orderby = sq_query_node_find(nested->parent, SQN_ORDER_BY, &node);
 	if (orderby == NULL) {
@@ -481,11 +496,11 @@ void sq_query_order_by_va(SqQuery* query, const char* first, va_list arg_list)
 	nested->aliasable = NULL;
 }
 
-void sq_query_order_sorted(SqQuery* query, uintptr_t sqn_type)
+void sq_query_order_sorted(SqQuery *query, uintptr_t sqn_type)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   orderby;
-	SqQueryNode*   node;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *orderby;
+	SqQueryNode   *node;
 
 	orderby = sq_query_node_find(nested->parent, SQN_ORDER_BY, &node);
 	if (orderby == NULL) {
@@ -498,10 +513,10 @@ void sq_query_order_sorted(SqQuery* query, uintptr_t sqn_type)
 	node->type = sqn_type;
 }
 
-void sq_query_delete(SqQuery* query)
+void sq_query_delete(SqQuery *query)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   node = nested->command;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *node = nested->command;
 
 	if (node == NULL) {
 		node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
@@ -510,10 +525,10 @@ void sq_query_delete(SqQuery* query)
 	}
 }
 
-void sq_query_truncate(SqQuery* query)
+void sq_query_truncate(SqQuery *query)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   node = nested->command;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *node = nested->command;
 
 	if (node == NULL) {
 		node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
@@ -525,11 +540,11 @@ void sq_query_truncate(SqQuery* query)
 		node->type = SQN_NONE;
 }
 
-static void sq_query_column(SqQuery* query, SqQueryNode* node, const char* first, va_list arg_list)
+static void sq_query_column(SqQuery *query, SqQueryNode *node, const char *first, va_list arg_list)
 {
-	const char*   name;
+	const char   *name;
 	uintptr_t     sqn_type;
-	SqQueryNode*  sub_node;
+	SqQueryNode  *sub_node;
 
 	// get last column
 	sub_node = sq_query_node_last(node->children);
@@ -574,10 +589,10 @@ static void sq_query_column(SqQuery* query, SqQueryNode* node, const char* first
 	}
 }
 
-static SqQueryNode* sq_query_condition(SqQuery* query, const char* first, va_list arg_list)
+static SqQueryNode *sq_query_condition(SqQuery *query, const char *first, va_list arg_list)
 {
-	SqQueryNode* node;
-	const char*  argv[3];
+	SqQueryNode *node;
+	const char  *argv[3];
 	union {
 		int       length;
 		int       index;
@@ -652,15 +667,15 @@ static SqQueryNode* sq_query_condition(SqQuery* query, const char* first, va_lis
 
 struct Sqbuf
 {
-	char* beg;
-	char* cur;
-	char* end;
+	char *beg;
+	char *cur;
+	char *end;
 	int   length;
 };
 
-static void node_to_buf(SqQueryNode* node, struct Sqbuf* buf)
+static void node_to_buf(SqQueryNode *node, struct Sqbuf *buf)
 {
-	char* cur;
+	char *cur;
 	int   temp;
 
 	for (;  node;  node = node->next) {
@@ -687,10 +702,10 @@ static void node_to_buf(SqQueryNode* node, struct Sqbuf* buf)
 	}
 }
 
-char* sq_query_to_sql(SqQuery* query)
+char *sq_query_to_sql(SqQuery *query)
 {
-	SqQueryNested* nested = query->nested_cur;
-	struct Sqbuf  buf;
+	SqQueryNested *nested = query->nested_cur;
+	struct Sqbuf   buf;
 
 	if (nested->name) {
 		if (nested->command == NULL)
@@ -712,9 +727,9 @@ char* sq_query_to_sql(SqQuery* query)
 	return buf.beg;
 }
 
-static const char* get_table(SqQueryNode* parent)
+static const char *get_table(SqQueryNode *parent)
 {
-	SqQueryNode*  child;
+	SqQueryNode  *child;
 
 	// parent->type must be SQN_FROM or SQN_JOIN
 	child = parent->children;
@@ -731,11 +746,11 @@ static const char* get_table(SqQueryNode* parent)
 
 // array[0] = table1_name, array[1] = table1_as_name,
 // array[2] = table2_name, array[3] = table2_as_name, ...etc
-int  sq_query_get_table_as_names(SqQuery* query, SqPtrArray* table_and_as_names)
+int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
 {
-	SqQueryNode*  qnode;
-	SqQueryNode*  child;
-	const char*   table_name;
+	SqQueryNode  *qnode;
+	SqQueryNode  *child;
+	const char   *table_name;
 
 	// FROM table1_name AS table1_as_name
 	// JOIN table2_name AS table2_as_name
@@ -766,10 +781,10 @@ int  sq_query_get_table_as_names(SqQuery* query, SqPtrArray* table_and_as_names)
 #define NESTED_CHUNK_SIZE    (1 << 2)    // 4
 #define NESTED_CHUNK_MASK    (NESTED_CHUNK_SIZE -1)
 
-SqQueryNested* sq_query_push_nested(SqQuery* query, SqQueryNode* parent)
+SqQueryNested *sq_query_push_nested(SqQuery *query, SqQueryNode *parent)
 {
-	SqQueryNested* outer = query->nested_cur;
-	SqQueryNested* nested;
+	SqQueryNested *outer = query->nested_cur;
+	SqQueryNested *nested;
 
 	// alloc multiple SqQueryNested each time
 	if ((query->nested_count & NESTED_CHUNK_MASK) == 0)
@@ -785,6 +800,7 @@ SqQueryNested* sq_query_push_nested(SqQuery* query, SqQueryNode* parent)
 	nested->parent = parent;
 	nested->command = NULL;
 	nested->name = NULL;
+	nested->aliasable = NULL;
 	nested->where = NULL;
 	nested->joinon = NULL;
 	query->nested_cur = nested;
@@ -792,25 +808,28 @@ SqQueryNested* sq_query_push_nested(SqQuery* query, SqQueryNode* parent)
 }
 
 /* static */
-void  sq_query_pop_nested(SqQuery* query)
+void  sq_query_pop_nested(SqQuery *query)
 {
-	SqQueryNested* nested = query->nested_cur;
-	SqQueryNode*   node;
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *node;
 
 	if (nested) {
-		// is subquery?
-		if (nested->name) {
-			if (nested->command == NULL)
-				sq_query_select(query, NULL);
+		// is not empty subquery?
+		if (nested->parent->children) {
+			// subquery has command?
+			if (nested->name) {
+				if (nested->command == NULL)
+					sq_query_select(query, NULL);
+			}
+			else if (nested->where)
+				nested->where->type = SQN_NONE;
+			// insert '(' to beginning of list
+			node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
+			node->type = SQN_BRACKETS_L;
+			// append ')' to ending of list
+			node = sq_query_node_append(nested->parent, sq_query_node_new(query));
+			node->type = SQN_BRACKETS_R;
 		}
-		else if (nested->where)
-			nested->where->type = SQN_NONE;
-		// insert '(' to beginning of list
-		node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
-		node->type = SQN_BRACKETS_L;
-		// append ')' to ending of list
-		node = sq_query_node_append(nested->parent, sq_query_node_new(query));
-		node->type = SQN_BRACKETS_R;
 		// pop nested from stack
 		nested = nested->outer;
 		if (nested)
@@ -831,14 +850,14 @@ void  sq_query_pop_nested(SqQuery* query)
 
 struct NodeChunk
 {
-	struct NodeChunk* prev;
+	struct NodeChunk *prev;
 	SqQueryNode nodes[NODE_CHUNK_SIZE];
 };
 
-static void sq_query_free_all_node(SqQuery* query)
+static void sq_query_free_all_node(SqQuery *query)
 {
-	struct NodeChunk*  chunk = query->node_chunk;
-	struct NodeChunk*  prev;
+	struct NodeChunk  *chunk = query->node_chunk;
+	struct NodeChunk  *prev;
 
 	sq_query_node_free(query->root.children, query);
 	// free chunk of SqQueryNode
@@ -849,10 +868,10 @@ static void sq_query_free_all_node(SqQuery* query)
 	}
 }
 
-static SqQueryNode* sq_query_node_new(SqQuery* query)
+static SqQueryNode *sq_query_node_new(SqQuery *query)
 {
-	SqQueryNode* node;
-	struct NodeChunk*  chunk;
+	SqQueryNode *node;
+	struct NodeChunk  *chunk;
 
 	// reuse freed SqQueryNode
 	if (query->freed) {
@@ -878,9 +897,9 @@ static SqQueryNode* sq_query_node_new(SqQuery* query)
 	return node;
 }
 
-static void sq_query_node_free(SqQueryNode* node, SqQuery* query)
+static void sq_query_node_free(SqQueryNode *node, SqQuery *query)
 {
-	SqQueryNode*  next;
+	SqQueryNode  *next;
 
 	for (;  node;  node = next) {
 		if (node->type == SQN_VALUE)
@@ -894,16 +913,16 @@ static void sq_query_node_free(SqQueryNode* node, SqQuery* query)
 	}
 }
 
-static SqQueryNode* sq_query_node_last(SqQueryNode* node)
+static SqQueryNode *sq_query_node_last(SqQueryNode *node)
 {
-	SqQueryNode* prev;
+	SqQueryNode *prev;
 
 	for(prev = NULL;  node;  node = node->next)
 		prev = node;
 	return prev;
 }
 
-static SqQueryNode* sq_query_node_insert(SqQueryNode* parent, SqQueryNode* prev, SqQueryNode* node)
+static SqQueryNode *sq_query_node_insert(SqQueryNode *parent, SqQueryNode *prev, SqQueryNode *node)
 {
 	if (prev == NULL) {
 		node->next = parent->children;
@@ -917,9 +936,9 @@ static SqQueryNode* sq_query_node_insert(SqQueryNode* parent, SqQueryNode* prev,
 }
 
 // insert_pos: 'sqn_cmd' must insert in this position
-static SqQueryNode* sq_query_node_find(SqQueryNode* node, uintptr_t sqn_cmd, SqQueryNode** insert_pos)
+static SqQueryNode *sq_query_node_find(SqQueryNode *node, uintptr_t sqn_cmd, SqQueryNode **insert_pos)
 {
-	SqQueryNode* prev = NULL;
+	SqQueryNode *prev = NULL;
 
 	for (node = node->children;  node;  node = node->next) {
 		if (node->type >= sqn_cmd) {
@@ -941,7 +960,7 @@ static SqQueryNode* sq_query_node_find(SqQueryNode* node, uintptr_t sqn_cmd, SqQ
 
 // ----------------------------------------------------------------------------
 
-static const char* sqnword[] = {
+static const char *sqnword[] = {
 	"",                  // SQN_NONE
 
 	"CREATE TABLE",      // SQN_CREATE_TABLE
