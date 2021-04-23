@@ -9,8 +9,8 @@ jsonc = dependency('json-c', required: true)
 # SQLite
 sqlite = dependency('sqlite3', required: false)
 if sqlite.found() == true
-  has_sqlite = true
   add_project_arguments('-DHAS_SQLITE', language : 'c')
+  has_sqlite = true
 else
   has_sqlite = false
 endif
@@ -23,6 +23,7 @@ endif
 if mysql_config.found()
   mysql = declare_dependency(compile_args: run_command([mysql_config, '--cflags']).stdout().split(),
                              link_args: run_command([mysql_config, '--libs']).stdout().split() )
+  add_project_arguments('-DHAS_MYSQL', language : 'c')
   has_mysql = true
 else
   has_mysql = false
