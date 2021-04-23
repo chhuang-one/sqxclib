@@ -27,7 +27,7 @@ static SqxcNested sqxc_nested_root = {0};
 // ----------------------------------------------------------------------------
 // Sqxc functions
 
-void   sqxc_init(Sqxc* xc, const SqxcInfo* xcinfo)
+void   sqxc_init(Sqxc *xc, const SqxcInfo *xcinfo)
 {
 	SqInitFunc init;
 
@@ -39,7 +39,7 @@ void   sqxc_init(Sqxc* xc, const SqxcInfo* xcinfo)
 	xc->info = xcinfo;
 }
 
-void   sqxc_final(Sqxc* xc)
+void   sqxc_final(Sqxc *xc)
 {
 	SqFinalFunc final;
 
@@ -52,26 +52,26 @@ void   sqxc_final(Sqxc* xc)
 	free(xc->buf);
 }
 
-Sqxc*  sqxc_new(const SqxcInfo* xcinfo)
+Sqxc  *sqxc_new(const SqxcInfo *xcinfo)
 {
-	Sqxc* xc;
+	Sqxc *xc;
 
 	xc = (Sqxc*)malloc(xcinfo->size);
 	sqxc_init(xc, xcinfo);
 	return xc;
 }
 
-void  sqxc_free(Sqxc* xc)
+void  sqxc_free(Sqxc *xc)
 {
 	sqxc_final(xc);
 	free(xc);
 }
 
-Sqxc* sqxc_new_chain(const SqxcInfo* info, ...)
+Sqxc *sqxc_new_chain(const SqxcInfo *info, ...)
 {
 	va_list    arg_list;
-	Sqxc*      xc = NULL;
-	Sqxc*      cur;
+	Sqxc      *xc = NULL;
+	Sqxc      *cur;
 
 	cur = xc = sqxc_new(info);
 
@@ -90,9 +90,9 @@ Sqxc* sqxc_new_chain(const SqxcInfo* info, ...)
 	return xc;
 }
 
-void  sqxc_free_chain(Sqxc* xc)
+void  sqxc_free_chain(Sqxc *xc)
 {
-	Sqxc*  peer;
+	Sqxc  *peer;
 
 	// free Sqxc from first to last.
 	for (;  xc;  xc = peer) {
@@ -101,10 +101,10 @@ void  sqxc_free_chain(Sqxc* xc)
 	}
 }
 
-Sqxc*   sqxc_insert(Sqxc* xc, Sqxc* xc_element, int position)
+Sqxc   *sqxc_insert(Sqxc *xc, Sqxc *xc_element, int position)
 {
-	Sqxc* cur;
-	Sqxc* prev = NULL;
+	Sqxc *cur;
+	Sqxc *prev = NULL;
 
 	for (cur = xc;  cur;  cur = cur->peer, position--) {
 		if (position == 0)
@@ -125,10 +125,10 @@ Sqxc*   sqxc_insert(Sqxc* xc, Sqxc* xc_element, int position)
 	return (prev) ? xc : xc_element;
 }
 
-Sqxc*   sqxc_steal(Sqxc* xc, Sqxc* xc_element)
+Sqxc   *sqxc_steal(Sqxc *xc, Sqxc *xc_element)
 {
-	Sqxc* cur;
-	Sqxc* prev = NULL;
+	Sqxc *cur;
+	Sqxc *prev = NULL;
 
 	for (cur = xc;  cur;  cur = cur->peer) {
 		if (cur == xc_element) {
@@ -141,7 +141,7 @@ Sqxc*   sqxc_steal(Sqxc* xc, Sqxc* xc_element)
 	return (prev) ? xc : xc->peer;
 }
 
-Sqxc*   sqxc_find(Sqxc* xc, const SqxcInfo* info)
+Sqxc   *sqxc_find(Sqxc *xc, const SqxcInfo *info)
 {
 	for (;  xc;  xc = xc->peer) {
 		if (xc->info == info)
@@ -150,7 +150,7 @@ Sqxc*   sqxc_find(Sqxc* xc, const SqxcInfo* info)
 	return NULL;
 }
 
-int   sqxc_broadcast(Sqxc* xc, int id, void* data)
+int   sqxc_broadcast(Sqxc *xc, int id, void *data)
 {
 	int   code = SQCODE_OK;
 
@@ -165,9 +165,9 @@ int   sqxc_broadcast(Sqxc* xc, int id, void* data)
 	return code;
 }
 
-Sqxc*  sqxc_send(Sqxc* xc)
+Sqxc  *sqxc_send(Sqxc *xc)
 {
-	Sqxc*    cur;
+	Sqxc    *cur;
 	uint16_t code;
 
 /*	if (xc->error == ERROR_MUST_STOP) {
@@ -206,16 +206,16 @@ Sqxc*  sqxc_send(Sqxc* xc)
 #define NESTED_CHUNK_SIZE    (1 << 3)    // 8
 #define NESTED_CHUNK_MASK    (NESTED_CHUNK_SIZE -1)
 
-void  sqxc_clear_nested(Sqxc* xc)
+void  sqxc_clear_nested(Sqxc *xc)
 {
 	while (xc->nested != NESTED_OUTER_ROOT)
 		sqxc_pop_nested(xc);
 	xc->nested_count = 0;
 }
 
-void  sqxc_erase_nested(Sqxc* xc, SqxcNested* nested)
+void  sqxc_erase_nested(Sqxc *xc, SqxcNested *nested)
 {
-	SqxcNested* inner;
+	SqxcNested *inner;
 
 	for (;  nested->inner;  nested = inner) {
 		inner = nested->inner;
@@ -226,10 +226,10 @@ void  sqxc_erase_nested(Sqxc* xc, SqxcNested* nested)
 	sqxc_pop_nested(xc);
 }
 
-SqxcNested* sqxc_push_nested(Sqxc* xc)
+SqxcNested *sqxc_push_nested(Sqxc *xc)
 {
-	SqxcNested* outer = xc->nested;
-	SqxcNested* nested;
+	SqxcNested *outer = xc->nested;
+	SqxcNested *nested;
 
 /*	// every outer has one inner at the same time
 	if (outer != NESTED_OUTER_ROOT && outer->inner) {
@@ -254,9 +254,9 @@ SqxcNested* sqxc_push_nested(Sqxc* xc)
 	return nested;
 }
 
-void sqxc_pop_nested(Sqxc* xc)
+void sqxc_pop_nested(Sqxc *xc)
 {
-	SqxcNested* outer;
+	SqxcNested *outer;
 
 	if (xc->nested != NESTED_OUTER_ROOT) {
 		outer = xc->nested->outer;

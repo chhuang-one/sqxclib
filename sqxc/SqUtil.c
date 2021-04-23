@@ -48,7 +48,7 @@
 	DDDDDDDDDD                    // Julian day number expressed as a floating point value.
  */
 
-static int sq_tm_hms(struct tm* timeinfo, const char* timestr)
+static int sq_tm_hms(struct tm *timeinfo, const char *timestr)
 {
 	int  hour, minute, second = 0;
 	int  result;
@@ -62,7 +62,7 @@ static int sq_tm_hms(struct tm* timeinfo, const char* timestr)
 	return result;
 }
 
-static int sq_tm_ymd(struct tm* timeinfo, const char* timestr)
+static int sq_tm_ymd(struct tm *timeinfo, const char *timestr)
 {
 	int  year, month, day;
 
@@ -78,7 +78,7 @@ static int sq_tm_ymd(struct tm* timeinfo, const char* timestr)
 
 // return UTC time
 // return -1 if error
-time_t  sq_time_from_string(const char* timestr)
+time_t  sq_time_from_string(const char *timestr)
 {
 	struct tm  timeinfo = {0};
 	char  *cur;
@@ -120,10 +120,10 @@ time_t  sq_time_from_string(const char* timestr)
 	return mktime(&timeinfo);
 }
 // return NULL if error
-char*   sq_time_to_string(time_t timeraw)
+char   *sq_time_to_string(time_t timeraw)
 {
-	struct tm*  timeinfo;
-	char*       timestr;
+	struct tm  *timeinfo;
+	char       *timestr;
 
 	timeinfo = localtime((time_t*) &timeraw);
 //	timeinfo = gmtime((time_t*) &timeraw);
@@ -145,7 +145,7 @@ char*   sq_time_to_string(time_t timeraw)
 // ----------------------------------------------------------------------------
 
 // C string to SQL string
-int  sq_str_c2sql(char* sql_string, const char* c_string)
+int  sq_str_c2sql(char *sql_string, const char *c_string)
 {
 	int    length = 0;
 
@@ -172,7 +172,7 @@ int  sq_str_c2sql(char* sql_string, const char* c_string)
 }
 
 // SQL string to C string
-int  sq_str_sql2c(char* c_string, char* sql_string)
+int  sq_str_sql2c(char *c_string, char *sql_string)
 {
 	int    length = 0;
 	int    prev_quote = 0;
@@ -198,7 +198,7 @@ int  sq_str_sql2c(char* c_string, char* sql_string)
 // Naming convention
 
 // camel case form snake case
-int  sq_camel_from_snake(char* camel_name, const char* snake_name, bool prev_underline)
+int  sq_camel_from_snake(char *camel_name, const char *snake_name, bool prev_underline)
 {
 	int  length;
 
@@ -217,7 +217,7 @@ int  sq_camel_from_snake(char* camel_name, const char* snake_name, bool prev_und
 }
 
 // snake case from camel case
-int  sq_snake_from_camel(char* snake_name, const char* camel_name)
+int  sq_snake_from_camel(char *snake_name, const char *camel_name)
 {
 	bool prev_upper = true;
 	int  length;
@@ -254,7 +254,7 @@ struct
 {
 	int16_t offset;
 	int16_t length;
-	char*   string;
+	char   *string;
 } plural_[4] =
 {
 	{-1, 3, "ies"},
@@ -264,7 +264,7 @@ struct
 };
 
 // singular to plural
-int sq_noun2plural(char* dest, const char* src)
+int sq_noun2plural(char *dest, const char *src)
 {
 	const char *tail;
 	int  index;
@@ -302,7 +302,7 @@ int sq_noun2plural(char* dest, const char* src)
 }
 
 // plural to singular
-int sq_noun2singular(char* dest, const char* src)
+int sq_noun2singular(char *dest, const char *src)
 {
 	int  index;
 	int  offset;
@@ -333,9 +333,9 @@ int sq_noun2singular(char* dest, const char* src)
 // ------------------------------------
 //	table name and type name
 
-char* sq_name2table(const char* type_name)
+char *sq_name2table(const char *type_name)
 {
-	char*  table_name;
+	char  *table_name;
 	int    length;
 
 	// length = snake case name + plural character + null-terminated
@@ -346,9 +346,9 @@ char* sq_name2table(const char* type_name)
 	return table_name;
 }
 
-char* sq_name2type(const char* table_name)
+char *sq_name2type(const char *table_name)
 {
-	char*  type_name;
+	char  *type_name;
 	int    length;
 
 	// length = snake case name + null-terminated

@@ -120,35 +120,47 @@ struct SqBuffer
 	int    writed;
 
 #ifdef __cplusplus
-	void   init()
-		{ sq_buffer_init(this); }
-	void   final()
-		{ sq_buffer_final(this); }
+	void   init() {
+		sq_buffer_init(this);
+	}
+	void   final() {
+		sq_buffer_final(this);
+	}
 
-	void   resize(int size)
-		{ sq_buffer_resize(this, size); }
+	void   resize(int size) {
+		sq_buffer_resize(this, size);
+	}
 
-	char  *alloc(int position, int size)
-		{ return sq_buffer_alloc_at(this, position, size); }
-	char  *alloc(int size)
-		{ return sq_buffer_alloc_at(this, this->writed, size); }
+	char  *alloc(int position, int size) {
+		return sq_buffer_alloc_at(this, position, size);
+	}
+	char  *alloc(int size) {
+		return sq_buffer_alloc_at(this, this->writed, size);
+	}
 
-	char  *require(int size)
-		{ SQ_BUFFER_REQUIRE(this, size);  return buf; }
+	char  *require(int size) {
+		SQ_BUFFER_REQUIRE(this, size);  return buf;
+	}
 
-	void   write(char character)
-		{ sq_buffer_write_c(this, character); }
-	void   write(const char *string)
-		{ SQ_BUFFER_WRITE(this, string); }
-	void   write(const char *string, int length)
-		{ SQ_BUFFER_WRITE_N(this, string, length); }
+	void   write(char character) {
+		sq_buffer_write_c(this, character);
+	}
+	void   write(const char *string) {
+		SQ_BUFFER_WRITE(this, string);
+	}
+	void   write(const char *string, int length) {
+		SQ_BUFFER_WRITE_N(this, string, length);
+	}
 
-	void   insert(int position, char character)
-		{ sq_buffer_insert_c(this, position, character); }
-	void   insert(int position, const char *string)
-		{ SQ_BUFFER_INSERT(this, position, string); }
-	void   insert(int position, const char *string, int length)
-		{ SQ_BUFFER_INSERT_N(this, position, string, length); }
+	void   insert(int position, char character) {
+		sq_buffer_insert_c(this, position, character);
+	}
+	void   insert(int position, const char *string) {
+		SQ_BUFFER_INSERT(this, position, string);
+	}
+	void   insert(int position, const char *string, int length) {
+		SQ_BUFFER_INSERT_N(this, position, string, length);
+	}
 #endif  // __cplusplus
 };
 

@@ -21,7 +21,7 @@
 // ----------------------------------------------------------------------------
 // SqxcInfo functions
 
-static int  sqxc_empty_send(SqxcEmpty* xcempty, Sqxc* args_src)
+static int  sqxc_empty_send(SqxcEmpty *xcempty, Sqxc *args_src)
 {
 	if (args_src->type & xcempty->not_matched_type) {
 //		src->required_type = args_src->type;    // set required type if return SQCODE_TYPE_NOT_MATCH
@@ -133,7 +133,7 @@ static int  sqxc_empty_send(SqxcEmpty* xcempty, Sqxc* args_src)
 	return (args_src->code = SQCODE_OK);
 }
 
-static int  sqxc_empty_ctrl(SqxcEmpty* xcempty, int id, void* data)
+static int  sqxc_empty_ctrl(SqxcEmpty *xcempty, int id, void *data)
 {
 	switch(id) {
 	case SQXC_CTRL_READY:
@@ -157,13 +157,13 @@ static int  sqxc_empty_ctrl(SqxcEmpty* xcempty, int id, void* data)
 	return SQCODE_OK;
 }
 
-static void  sqxc_empty_init(SqxcEmpty* xcempty)
+static void  sqxc_empty_init(SqxcEmpty *xcempty)
 {
 //	memset(xcempty, 0, sizeof(SqxcEmpty));
 	xcempty->supported_type = SQXC_TYPE_ALL;
 }
 
-static void  sqxc_empty_final(SqxcEmpty* xcempty)
+static void  sqxc_empty_final(SqxcEmpty *xcempty)
 {
 
 }

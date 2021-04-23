@@ -59,8 +59,8 @@ extern "C" {
 	table2 = instance[1];
  */
 
-SqType*  sq_type_joint_new();
-void     sq_type_joint_add(SqType* type_joint, SqTable* table, const char *table_as_name);
+SqType  *sq_type_joint_new();
+void     sq_type_joint_add(SqType *type_joint, SqTable *table, const char *table_as_name);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -76,7 +76,7 @@ namespace Sq
 // These are for directly use only. You can NOT derived it.
 template <size_t n_tables>
 struct Joint {
-	void* t[n_tables];
+	void *t[n_tables];
 };
 
 };  // namespace Sq
@@ -90,7 +90,7 @@ struct Joint {
 #ifdef __cplusplus
 #define SQ_JOINT(n_tables)    Sq::Joint<n_tables>
 #else
-#define SQ_JOINT(n_tables)    struct { void* t[n_tables]; }
+#define SQ_JOINT(n_tables)    struct { void *t[n_tables]; }
 #endif
 
 

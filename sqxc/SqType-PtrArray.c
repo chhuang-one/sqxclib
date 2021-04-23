@@ -28,14 +28,14 @@
 	User must assign element type in SqType.entry and set SqType.n_entry to -1.
  */
 
-static void sq_type_ptr_array_init(void* array, const SqType *type)
+static void sq_type_ptr_array_init(void *array, const SqType *type)
 {
 	sq_ptr_array_init(array, SQ_TYPE_PTR_ARRAY_SIZE_DEFAULT, NULL);
 }
 
-static void sq_type_ptr_array_final(void* array, const SqType *type)
+static void sq_type_ptr_array_final(void *array, const SqType *type)
 {
-	SqType*  element_type;
+	SqType  *element_type;
 
 	// get element type information in SqType.entry and free elements
 	if (sq_ptr_array_destroy_func(array) == NULL && type->entry) {
@@ -49,12 +49,12 @@ static void sq_type_ptr_array_final(void* array, const SqType *type)
 	sq_ptr_array_final(array);
 }
 
-static int  sq_type_ptr_array_parse(void* array, const SqType *type, Sqxc* src)
+static int  sq_type_ptr_array_parse(void *array, const SqType *type, Sqxc *src)
 {
-	const SqType* element_type;
-	SqxcValue*    xc_value = (SqxcValue*)src->dest;
-	SqxcNested*   nested;
-	void*         element;
+	const SqType *element_type;
+	SqxcValue    *xc_value = (SqxcValue*)src->dest;
+	SqxcNested   *nested;
+	void         *element;
 
 	// get element type information
 	if (type->n_entry == -1)    // SqType.entry can't be freed if SqType.n_entry == -1
@@ -97,10 +97,10 @@ static int  sq_type_ptr_array_parse(void* array, const SqType *type, Sqxc* src)
 	return src->code;
 }
 
-static Sqxc* sq_type_ptr_array_write(void* array, const SqType *type, Sqxc* dest)
+static Sqxc *sq_type_ptr_array_write(void *array, const SqType *type, Sqxc *dest)
 {
-	const SqType* element_type;
-	const char*   array_name = dest->name;
+	const SqType *element_type;
+	const char   *array_name = dest->name;
 
 	// get element type information.
 	if (type->n_entry == -1)    // SqType.entry can't be freed if SqType.n_entry == -1
@@ -149,12 +149,12 @@ const SqType SqType_PtrArray_ =
 	SQ_TYPE_STRING_ARRAY and SQ_TYPE_INTPTR_ARRAY
  */
 
-static int  sq_type_notptr_array_parse(void* array, const SqType *type, Sqxc* src)
+static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *src)
 {
-	const SqType* element_type;
-	SqxcValue*    xc_value = (SqxcValue*)src->dest;
-	SqxcNested*   nested;
-	void*         element;
+	const SqType *element_type;
+	SqxcValue    *xc_value = (SqxcValue*)src->dest;
+	SqxcNested   *nested;
+	void         *element;
 
 	// get element type information. different from sq_type_ptr_array_parse()
 	element_type = (SqType*)type->entry;    // SqPtrArray assign element type in SqType.entry
@@ -192,10 +192,10 @@ static int  sq_type_notptr_array_parse(void* array, const SqType *type, Sqxc* sr
 	return src->code;
 }
 
-static Sqxc* sq_type_notptr_array_write(void* array, const SqType *type, Sqxc* dest)
+static Sqxc *sq_type_notptr_array_write(void *array, const SqType *type, Sqxc *dest)
 {
-	const SqType* element_type;
-	const char*   array_name = dest->name;
+	const SqType *element_type;
+	const char   *array_name = dest->name;
 
 	// get element type information. different from sq_type_ptr_array_write()
 	element_type = (SqType*)type->entry;    // SqPtrArray assign element type in SqType.entry

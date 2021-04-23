@@ -590,7 +590,7 @@ struct SqQuery
 	}
 
 	// ----------------------------------------------------
-	inline char *toSql() {
+	char *toSql() {
 		return sq_query_to_sql(this);
 	}
 #endif  // __cplusplus

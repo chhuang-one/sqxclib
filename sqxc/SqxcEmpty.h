@@ -17,11 +17,19 @@
 
 #include <Sqxc.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
 
-/* ----------------------------------------------------------------------------
+typedef struct SqxcEmpty        SqxcEmpty;
+
+extern const SqxcInfo          *SQXC_INFO_EMPTY;
+
+#define sqxc_empty_new()        sqxc_new(SQXC_INFO_EMPTY)
+
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define structue
+
+/*
 	SqxcEmpty - A sample of Sqxc element.
 
 	Sqxc
@@ -35,16 +43,6 @@ extern "C" {
    ** This can keep std::is_standard_layout<>::value == true
  */
 
-typedef struct SqxcEmpty        SqxcEmpty;
-
-extern const SqxcInfo *SQXC_INFO_EMPTY;
-
-#define sqxc_empty_new()        sqxc_new(SQXC_INFO_EMPTY)
-
-#ifdef __cplusplus
-}  // extern "C"
-#endif
-
 #ifdef __cplusplus
 struct SqxcEmpty : Sq::XcMethod          // <-- 1. inherit member function(method)
 #else
@@ -56,29 +54,29 @@ struct SqxcEmpty
 	const SqxcInfo  *info;
 
 	// Sqxc chain
-	Sqxc*        peer;     // pointer to other Sqxc elements
-	Sqxc*        dest;     // pointer to current destination in Sqxc chain
+	Sqxc        *peer;     // pointer to other Sqxc elements
+	Sqxc        *dest;     // pointer to current destination in Sqxc chain
 
 	// stack of SqxcNested
-	SqxcNested*  nested;          // current nested object/array
+	SqxcNested  *nested;          // current nested object/array
 	int          nested_count;
 
-	// ----------------------------------------------------
+	// ------------------------------------------
 	// Buffer - common buffer for type conversion. To resize this buf:
 	// buf = realloc(buf, buf_size);
 
 //	SQ_BUFFER_MEMBERS(buf, buf_size, buf_writed);
-	char*        buf;
+	char        *buf;
 	int          buf_size;
 	int          buf_writed;
 
-	// ----------------------------------------------------
+	// ------------------------------------------
 	// properties
 
 	uint16_t     supported_type;  // supported SqxcType (bit field) for inputting, it can change at runtime.
 //	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
 
-	// ----------------------------------------------------
+	// ------------------------------------------
 	// arguments that used by SqxcInfo->send()
 
 	// output arguments
@@ -87,7 +85,7 @@ struct SqxcEmpty
 
 	// input arguments
 	uint16_t     type;            // input SqxcType
-	const char*  name;
+	const char  *name;
 	union {
 		bool          boolean;
 		int           integer;
@@ -98,27 +96,27 @@ struct SqxcEmpty
 		int64_t       uint64;
 		double        fraction;
 		double        double_;
-		char*         string;
-		char*         stream;     // Text stream must be null-terminated string
-		void*         pointer;
+		char         *string;
+		char         *stream;     // Text stream must be null-terminated string
+		void         *pointer;
 	} value;
 
 	// special input arguments
-	SqEntry*     entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	SqEntry     *entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
 
 	// input / output arguments
-	void**       error;
+	void       **error;
  */
 
 	// ------ SqxcEmpty members ------   // <-- 3. Add variable and non-virtual function in derived struct.
-	const char*  tag;
+	const char  *tag;
 	int          nested_count_when_ready;
 	int          send_to_dest_if_no_nested;    // boolean, 
 	uint16_t     not_matched_type;             // SqxcType (bit field)
 };
 
 // ----------------------------------------------------------------------------
-// C++ namespace
+// C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
 

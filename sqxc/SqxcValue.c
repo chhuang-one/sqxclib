@@ -21,11 +21,11 @@
 	SQXC_TYPE_xxx ---> SqxcValue ---> SqType.parse()
  */
 
-static int  sqxc_value_send(SqxcValue* xcvalue, Sqxc* src)
+static int  sqxc_value_send(SqxcValue *xcvalue, Sqxc *src)
 {
-	const SqType* type;
-	SqxcNested* nested;
-	void*       instance;
+	const SqType *type;
+	SqxcNested   *nested;
+	void         *instance;
 
 	nested = xcvalue->nested;
 	if (nested->data != NULL) {
@@ -48,7 +48,7 @@ static int  sqxc_value_send(SqxcValue* xcvalue, Sqxc* src)
 	return src->code;
 }
 
-static int  sqxc_value_ctrl(SqxcValue* xcvalue, int id, void* data)
+static int  sqxc_value_ctrl(SqxcValue *xcvalue, int id, void *data)
 {
 	switch (id) {
 	case SQXC_CTRL_READY:
@@ -72,7 +72,7 @@ static int  sqxc_value_ctrl(SqxcValue* xcvalue, int id, void* data)
 	return SQCODE_OK;
 }
 
-static void  sqxc_value_init(SqxcValue* xcvalue)
+static void  sqxc_value_init(SqxcValue *xcvalue)
 {
 //	memset(xcvalue, 0, sizeof(SqxcValue));
 	xcvalue->supported_type = SQXC_TYPE_ALL;
@@ -80,7 +80,7 @@ static void  sqxc_value_init(SqxcValue* xcvalue)
 	xcvalue->dest = (Sqxc*)xcvalue;
 }
 
-static void  sqxc_value_final(SqxcValue* xcvalue)
+static void  sqxc_value_final(SqxcValue *xcvalue)
 {
 //	if (xcvalue->instance)
 //		sq_type_final_instance(xcvalue->current, &xcvalue->instance, true);

@@ -20,17 +20,17 @@
     std::string
  */
 
-static void sq_type_std_string_init(void* instance, const SqType *type)
+static void sq_type_std_string_init(void *instance, const SqType *type)
 {
     new (&(*(std::string*)instance)) std::string();
 }
 
-static void sq_type_std_string_final(void* instance, const SqType *type)
+static void sq_type_std_string_final(void *instance, const SqType *type)
 {
     ((std::string*)instance)->std::string::~string();
 }
 
-static int  sq_type_std_string_parse(void* instance, const SqType *type, Sqxc* src)
+static int  sq_type_std_string_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	if (src->type == SQXC_TYPE_STRING) {
 		if (src->value.string)
@@ -47,7 +47,7 @@ static int  sq_type_std_string_parse(void* instance, const SqType *type, Sqxc* s
 	return (src->code = SQCODE_OK);
 }
 
-static Sqxc* sq_type_std_string_write(void* instance, const SqType *type, Sqxc* dest)
+static Sqxc *sq_type_std_string_write(void *instance, const SqType *type, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_STRING;
 //	dest->name = dest->name;    // "name" was set by caller of this function

@@ -23,11 +23,11 @@
 #include <SqStorage.h>
 #include <SqQuery.h>
 
-static void query_add_column_as_names(SqQuery* query, SqTable* table)
+static void query_add_column_as_names(SqQuery *query, SqTable *table)
 {
-	SqType*   type = (SqType*)table->type;
-	SqColumn* column;
-	char*     buffer = NULL;
+	SqType   *type = (SqType*)table->type;
+	SqColumn *column;
+	char     *buffer = NULL;
 	int       buf_len;
 
 	for (int index = 0;  index < type->n_entry;  index++) {
@@ -42,11 +42,11 @@ static void query_add_column_as_names(SqQuery* query, SqTable* table)
 	free(buffer);
 }
 
-SqType*  sq_storage_type_from_query(SqStorage* storage, SqQuery* query, int *n_tables_in_query)
+SqType  *sq_storage_type_from_query(SqStorage *storage, SqQuery *query, int *n_tables_in_query)
 {
 	SqPtrArray  names;
-	SqTable*    table;
-	SqType*     type = NULL;
+	SqTable    *table;
+	SqType     *type = NULL;
 	int         n;
 
 	sq_ptr_array_init(&names, 8, NULL);
@@ -75,12 +75,12 @@ SqType*  sq_storage_type_from_query(SqStorage* storage, SqQuery* query, int *n_t
 	return type;
 }
 
-void* sq_storage_query(SqStorage* storage, SqQuery* query, const SqType *container, const SqType *type)
+void *sq_storage_query(SqStorage *storage, SqQuery *query, const SqType *container, const SqType *type)
 {
-	SqType*     type_cur;
-	Sqxc*       xcvalue;
-	char*       sql;
-	void*       instance;
+	SqType     *type_cur;
+	Sqxc       *xcvalue;
+	char       *sql;
+	void       *instance;
 
 	if (container == NULL)
 		container = storage->container_default;

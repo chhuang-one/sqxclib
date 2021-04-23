@@ -66,14 +66,12 @@ extern "C" {
 Sqdb   *sqdb_new(const SqdbInfo *info, SqdbConfig *config);
 void    sqdb_free(Sqdb *db);
 
-// ------------------------------------
-// execute SQL statement
+/* --- execute SQL statement --- */
 
 int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
 int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
 
-// ------------------------------------
-// write SQL statement to 'sql_buf'
+/* --- write SQL statement to 'sql_buf' --- */
 
 // return number of columns in 'table'
 int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
@@ -91,8 +89,7 @@ void sqdb_sql_drop_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn 
 void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 void sqdb_sql_drop_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 
-// ------------------------------------
-// write parameter,arguments to 'sql_buf'
+/* --- write parameter,arguments to 'sql_buf' --- */
 
 void sqdb_sql_write_column(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 void sqdb_sql_write_constraint(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);

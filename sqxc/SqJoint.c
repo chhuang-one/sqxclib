@@ -19,13 +19,13 @@
 #include <SqxcValue.h>
 #include <SqJoint.h>
 
-static void sq_type_joint_init(void* instance, const SqType* type);
-static void sq_type_joint_final(void* instance, const SqType* type);
-static int  sq_type_joint_parse(void* instance, const SqType *type, Sqxc* src);
+static void sq_type_joint_init(void *instance, const SqType *type);
+static void sq_type_joint_final(void *instance, const SqType *type);
+static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src);
 
-SqType* sq_type_joint_new(void)
+SqType *sq_type_joint_new(void)
 {
-	SqType*  type = sq_type_new(4, (SqDestroyFunc)sq_entry_free);
+	SqType *type = sq_type_new(4, (SqDestroyFunc)sq_entry_free);
 	type->init = sq_type_joint_init;
 	type->final = sq_type_joint_final;
 	type->parse = sq_type_joint_parse;
@@ -34,9 +34,9 @@ SqType* sq_type_joint_new(void)
 	return type;
 }
 
-void    sq_type_joint_add(SqType* type_joint, SqTable* table, const char *table_as_name)
+void    sq_type_joint_add(SqType *type_joint, SqTable *table, const char *table_as_name)
 {
-	SqEntry*  jentry;
+	SqEntry *jentry;
 
 	jentry = sq_entry_new(table->type);
 	if (table_as_name)
@@ -52,9 +52,9 @@ void    sq_type_joint_add(SqType* type_joint, SqTable* table, const char *table_
 // ----------------------------------------------------------------------------
 // static function
 
-static void sq_type_joint_init(void* instance, const SqType* type)
+static void sq_type_joint_init(void *instance, const SqType *type)
 {
-	SqEntry*    table;
+	SqEntry    *table;
 
 	// initialize structure of joined tables
 	for (int index = 0;  index < type->n_entry;  index++) {
@@ -63,9 +63,9 @@ static void sq_type_joint_init(void* instance, const SqType* type)
 	}
 }
 
-static void sq_type_joint_final(void* instance, const SqType* type)
+static void sq_type_joint_final(void *instance, const SqType *type)
 {
-	SqEntry*    table;
+	SqEntry    *table;
 
 	// finalize structure of joined tables
 	for (int index = 0;  index < type->n_entry;  index++) {
@@ -74,14 +74,14 @@ static void sq_type_joint_final(void* instance, const SqType* type)
 	}
 }
 
-static int  sq_type_joint_parse(void* instance, const SqType *type, Sqxc* src)
+static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 {
-	SqxcValue*  xc_value = (SqxcValue*)src->dest;
-	SqxcNested* nested;
-	SqEntry*    table;
-	SqBuffer*   buf;
+	SqxcValue  *xc_value = (SqxcValue*)src->dest;
+	SqxcNested *nested;
+	SqEntry    *table;
+	SqBuffer   *buf;
 	union {
-		char*   dot;
+		char   *dot;
 		int     len;
 	} temp;
 

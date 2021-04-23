@@ -21,9 +21,9 @@
 #include <SqTable.h>
 #include <SqRelation-migration.h>
 
-SqTable* sq_table_new(const char* name, const SqType* typeinfo)
+SqTable *sq_table_new(const char *name, const SqType *typeinfo)
 {
-	SqTable* table;
+	SqTable *table;
 
 	table = malloc(sizeof(SqTable));
 	// create dynamic SqType
@@ -38,7 +38,7 @@ SqTable* sq_table_new(const char* name, const SqType* typeinfo)
 	return (SqTable*)table;
 }
 
-void  sq_table_free(SqTable* table)
+void  sq_table_free(SqTable *table)
 {
 	if (table->bit_field & SQB_DYNAMIC) {
 		// reduce the stack frame:
@@ -60,7 +60,7 @@ void  sq_table_free(SqTable* table)
 	}
 }
 
-bool  sq_table_has_column(SqTable* table, const char* column_name)
+bool  sq_table_has_column(SqTable *table, const char *column_name)
 {
 	SqCompareFunc cmp_func;
 
@@ -74,9 +74,9 @@ bool  sq_table_has_column(SqTable* table, const char* column_name)
 	return false;
 }
 
-void  sq_table_add_column(SqTable* table, const SqColumn* column, int n_column)
+void  sq_table_add_column(SqTable *table, const SqColumn *column, int n_column)
 {
-	SqType* type = (SqType*)table->type;
+	SqType *type = (SqType*)table->type;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
 		type = sq_type_copy_static(type, (SqDestroyFunc)sq_column_free);
@@ -85,9 +85,9 @@ void  sq_table_add_column(SqTable* table, const SqColumn* column, int n_column)
 	sq_type_add_entry(type, (SqEntry*)column, n_column, sizeof(SqColumn));
 }
 
-void  sq_table_add_column_ptrs(SqTable* table, const SqColumn** column_ptrs, int n_column_ptrs)
+void  sq_table_add_column_ptrs(SqTable *table, const SqColumn **column_ptrs, int n_column_ptrs)
 {
-	SqType*  type = (SqType*)table->type;
+	SqType  *type = (SqType*)table->type;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
 		type = sq_type_copy_static(type, (SqDestroyFunc)sq_column_free);
@@ -96,9 +96,9 @@ void  sq_table_add_column_ptrs(SqTable* table, const SqColumn** column_ptrs, int
 	sq_type_add_entry_ptrs(type, (const SqEntry**)column_ptrs, n_column_ptrs);
 }
 
-void  sq_table_drop_column(SqTable* table, const char* column_name)
+void  sq_table_drop_column(SqTable *table, const char *column_name)
 {
-	SqColumn*  column;
+	SqColumn  *column;
 
 	column = calloc(1, sizeof(SqColumn));
 	column->old_name = strdup(column_name);
@@ -114,9 +114,9 @@ void  sq_table_drop_column(SqTable* table, const char* column_name)
 #endif
 }
 
-void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
+void  sq_table_rename_column(SqTable *table, const char *from, const char *to)
 {
-	SqColumn*  column;
+	SqColumn  *column;
 
 	column = calloc(1, sizeof(SqColumn));
 	column->old_name = strdup(from);
@@ -141,11 +141,11 @@ void  sq_table_rename_column(SqTable* table, const char* from, const char* to)
 #endif
 }
 
-int  sq_table_get_columns(SqTable* table, SqPtrArray* ptrarray,
-                          const SqType* type, unsigned int bit_field)
+int  sq_table_get_columns(SqTable *table, SqPtrArray *ptrarray,
+                          const SqType *type, unsigned int bit_field)
 {
-	SqPtrArray*  colarray;
-	SqColumn*    column;
+	SqPtrArray  *colarray;
+	SqColumn    *column;
 	int          count = 0;
 	int          matched_count;
 	unsigned int bit_field_orig = bit_field;
@@ -177,10 +177,10 @@ int  sq_table_get_columns(SqTable* table, SqPtrArray* ptrarray,
 	return count;
 }
 
-SqColumn* sq_table_get_primary(SqTable* table)
+SqColumn *sq_table_get_primary(SqTable *table)
 {
-	SqPtrArray* array;
-	SqColumn*   column;
+	SqPtrArray *array;
+	SqColumn   *column;
 
 	array = sq_type_get_ptr_array(table->type);
 	for (int index = 0;  index < array->length;  index++) {
@@ -191,9 +191,9 @@ SqColumn* sq_table_get_primary(SqTable* table)
 	return NULL;
 }
 
-SqColumn* sq_table_add_bool(SqTable* table, const char* name, size_t offset)
+SqColumn *sq_table_add_bool(SqTable *table, const char *name, size_t offset)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_column_new(name, SQ_TYPE_BOOL);
 	column->offset = offset;
@@ -202,9 +202,9 @@ SqColumn* sq_table_add_bool(SqTable* table, const char* name, size_t offset)
 	return column;
 }
 
-SqColumn* sq_table_add_int(SqTable* table, const char* name, size_t offset)
+SqColumn *sq_table_add_int(SqTable *table, const char *name, size_t offset)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_column_new(name, SQ_TYPE_INT);
 	column->offset = offset;
@@ -213,9 +213,9 @@ SqColumn* sq_table_add_int(SqTable* table, const char* name, size_t offset)
 	return column;
 }
 
-SqColumn* sq_table_add_uint(SqTable* table, const char* name, size_t offset)
+SqColumn *sq_table_add_uint(SqTable *table, const char *name, size_t offset)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_column_new(name, SQ_TYPE_UINT);
 	column->offset = offset;
@@ -224,9 +224,9 @@ SqColumn* sq_table_add_uint(SqTable* table, const char* name, size_t offset)
 	return column;
 }
 
-SqColumn* sq_table_add_int64(SqTable* table, const char* name, size_t offset)
+SqColumn *sq_table_add_int64(SqTable *table, const char *name, size_t offset)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_column_new(name, SQ_TYPE_INT64);
 	column->offset = offset;
@@ -235,9 +235,9 @@ SqColumn* sq_table_add_int64(SqTable* table, const char* name, size_t offset)
 	return column;
 }
 
-SqColumn* sq_table_add_uint64(SqTable* table, const char* name, size_t offset)
+SqColumn *sq_table_add_uint64(SqTable *table, const char *name, size_t offset)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_column_new(name, SQ_TYPE_UINT64);
 	column->offset = offset;
@@ -246,9 +246,9 @@ SqColumn* sq_table_add_uint64(SqTable* table, const char* name, size_t offset)
 	return column;
 }
 
-SqColumn* sq_table_add_double(SqTable* table, const char* name, size_t offset)
+SqColumn *sq_table_add_double(SqTable *table, const char *name, size_t offset)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_column_new(name, SQ_TYPE_DOUBLE);
 	column->offset = offset;
@@ -257,9 +257,9 @@ SqColumn* sq_table_add_double(SqTable* table, const char* name, size_t offset)
 	return column;
 }
 
-SqColumn* sq_table_add_timestamp(SqTable* table, const char* name, size_t offset)
+SqColumn *sq_table_add_timestamp(SqTable *table, const char *name, size_t offset)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_column_new(name, SQ_TYPE_TIME);
 	column->offset = offset;
@@ -268,9 +268,9 @@ SqColumn* sq_table_add_timestamp(SqTable* table, const char* name, size_t offset
 	return column;
 }
 
-SqColumn* sq_table_add_string(SqTable* table, const char* name, size_t offset, int length)
+SqColumn *sq_table_add_string(SqTable *table, const char *name, size_t offset, int length)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_column_new(name, SQ_TYPE_STRING);
 	column->offset = offset;
@@ -280,11 +280,11 @@ SqColumn* sq_table_add_string(SqTable* table, const char* name, size_t offset, i
 	return column;
 }
 
-SqColumn* sq_table_add_custom(SqTable* table, const char* name,
-                              size_t offset, const SqType* sqtype,
+SqColumn *sq_table_add_custom(SqTable *table, const char *name,
+                              size_t offset, const SqType *sqtype,
                               int  length)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_column_new(name, sqtype);
 	column->offset = offset;
@@ -297,12 +297,12 @@ SqColumn* sq_table_add_custom(SqTable* table, const char* name,
 // --------------------------------------------------------
 // SqTable C functions for CONSTRAINT
 
-SqColumn* sq_table_add_composite(SqTable* table,
-                                 SqType*  column_type,
+SqColumn *sq_table_add_composite(SqTable *table,
+                                 SqType  *column_type,
                                  unsigned int bit_field,
-                                 const char*  name)
+                                 const char  *name)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = calloc(1, sizeof(SqColumn));
 	column->type = column_type;
@@ -314,7 +314,7 @@ SqColumn* sq_table_add_composite(SqTable* table,
 	if (name)
 		column->name = strdup(name);
 	else {
-		const char* post_string;
+		const char *post_string;
 		int  name_length;
 
 		switch(bit_field) {
@@ -351,12 +351,12 @@ SqColumn* sq_table_add_composite(SqTable* table,
 	return column;
 }
 
-void      sq_table_drop_composite(SqTable* table,
-                                  SqType*  column_type,
+void      sq_table_drop_composite(SqTable *table,
+                                  SqType  *column_type,
                                   unsigned int bit_field,
-                                  const char*  name)
+                                  const char  *name)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = calloc(1, sizeof(SqColumn));
 	column->type = column_type;
@@ -365,17 +365,17 @@ void      sq_table_drop_composite(SqTable* table,
 	sq_table_add_column(table, column, 1);
 
 #if 0
-	void** addr = sq_type_find_entry(table->type, name, NULL);
+	void **addr = sq_type_find_entry(table->type, name, NULL);
 	if (addr)
 		sq_type_erase_entry_addr(table->type, addr, 1);
 #endif
 }
 
-SqColumn* sq_table_add_index(SqTable* table,
-                             const char* index_name,
-                             const char* column1_name, ...)
+SqColumn *sq_table_add_index(SqTable *table,
+                             const char *index_name,
+                             const char *column1_name, ...)
 {
-	SqColumn* column;
+	SqColumn *column;
 	va_list   arg_list;
 
 	column = sq_table_add_composite(table, SQ_TYPE_INDEX, 0, index_name);
@@ -385,16 +385,16 @@ SqColumn* sq_table_add_index(SqTable* table,
 	return column;
 }
 
-void   sq_table_drop_index(SqTable* table, const char* index_name)
+void   sq_table_drop_index(SqTable *table, const char *index_name)
 {
 	sq_table_drop_composite(table, SQ_TYPE_INDEX, 0, index_name);
 }
 
-SqColumn* sq_table_add_unique(SqTable* table,
-                              const char* unique_name,
-                              const char* column1_name, ...)
+SqColumn *sq_table_add_unique(SqTable *table,
+                              const char *unique_name,
+                              const char *column1_name, ...)
 {
-	SqColumn* column;
+	SqColumn *column;
 	va_list   arg_list;
 
 	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, unique_name);
@@ -404,16 +404,16 @@ SqColumn* sq_table_add_unique(SqTable* table,
 	return column;
 }
 
-void   sq_table_drop_unique(SqTable* table, const char* unique_name)
+void   sq_table_drop_unique(SqTable *table, const char *unique_name)
 {
 	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, unique_name);
 }
 
-SqColumn* sq_table_add_primary(SqTable* table,
-                               const char* primary_name,
-                               const char* column1_name, ...)
+SqColumn *sq_table_add_primary(SqTable *table,
+                               const char *primary_name,
+                               const char *column1_name, ...)
 {
-	SqColumn* column;
+	SqColumn *column;
 	va_list   arg_list;
 
 	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, primary_name);
@@ -423,21 +423,21 @@ SqColumn* sq_table_add_primary(SqTable* table,
 	return column;
 }
 
-void   sq_table_drop_primary(SqTable* table, const char* primary_name)
+void   sq_table_drop_primary(SqTable *table, const char *primary_name)
 {
 	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, primary_name);
 }
 
-SqColumn* sq_table_add_foreign(SqTable* table, const char* name, const char* column_name)
+SqColumn *sq_table_add_foreign(SqTable *table, const char *name, const char *column_name)
 {
-	SqColumn* column;
+	SqColumn *column;
 
 	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
 	sq_column_set_composite(column, column_name, NULL);
 	return column;
 }
 
-void   sq_table_drop_foreign(SqTable* table, const char* name)
+void   sq_table_drop_foreign(SqTable *table, const char *name)
 {
 	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
 }
@@ -445,7 +445,7 @@ void   sq_table_drop_foreign(SqTable* table, const char* name)
 // ----------------------------------------------------------------------------
 //
 
-static void  sq_foreign_free(SqForeign* foreign)
+static void  sq_foreign_free(SqForeign *foreign)
 {
 	free((char*)foreign->table);
 	free((char*)foreign->column);
@@ -454,9 +454,9 @@ static void  sq_foreign_free(SqForeign* foreign)
 	free((char*)foreign);
 }
 
-static SqForeign* sq_foreign_copy(SqForeign* src)
+static SqForeign *sq_foreign_copy(SqForeign *src)
 {
-	SqForeign*  foreign;
+	SqForeign  *foreign;
 
 	foreign = malloc(sizeof(SqForeign));
 	foreign->table  = strdup(src->table);
@@ -476,9 +476,9 @@ static SqForeign* sq_foreign_copy(SqForeign* src)
 #define sq_composite_realloc(constraint, n)   ( (char**)realloc((constraint)-1, sizeof(char*) *(n+1)) +1)
 #define sq_composite_free(constraint)         free((constraint)-1)
 
-SqColumn*  sq_column_new(const char* name, const SqType* typeinfo)
+SqColumn  *sq_column_new(const char *name, const SqType *typeinfo)
 {
-	SqColumn*  column;
+	SqColumn  *column;
 
 	column = calloc(1, sizeof(SqColumn));
 	// init SqEntry members
@@ -489,7 +489,7 @@ SqColumn*  sq_column_new(const char* name, const SqType* typeinfo)
 	return column;
 }
 
-void  sq_column_free(SqColumn* column)
+void  sq_column_free(SqColumn *column)
 {
 	if (column->bit_field & SQB_DYNAMIC) {
 		// reduce the stack frame:
@@ -508,7 +508,7 @@ void  sq_column_free(SqColumn* column)
 		if (column->foreign)
 			sq_foreign_free(column->foreign);
 		if (column->composite) {
-			for (char** cur = column->composite;  *cur;  cur++)
+			for (char **cur = column->composite;  *cur;  cur++)
 				free(*cur);
 			sq_composite_free(column->composite);
 		}
@@ -516,9 +516,9 @@ void  sq_column_free(SqColumn* column)
 	}
 }
 
-SqColumn* sq_column_copy_static(const SqColumn* column_src)
+SqColumn *sq_column_copy_static(const SqColumn *column_src)
 {
-	SqColumn* column;
+	SqColumn *column;
 	int       index, length;
 
 	column = malloc(sizeof(SqColumn));
@@ -556,9 +556,9 @@ SqColumn* sq_column_copy_static(const SqColumn* column_src)
 }
 
 // foreign key references
-void  sq_column_reference(SqColumn* column,
-                          const char* foreign_table_name,
-                          const char* foreign_column_name)
+void  sq_column_reference(SqColumn *column,
+                          const char *foreign_table_name,
+                          const char *foreign_column_name)
 {
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
@@ -586,7 +586,7 @@ void  sq_column_reference(SqColumn* column,
 }
 
 // foreign key on delete
-void  sq_column_on_delete(SqColumn* column, const char* act)
+void  sq_column_on_delete(SqColumn *column, const char *act)
 {
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
@@ -595,7 +595,7 @@ void  sq_column_on_delete(SqColumn* column, const char* act)
 }
 
 // foreign key on update
-void  sq_column_on_update(SqColumn* column, const char* act)
+void  sq_column_on_update(SqColumn *column, const char *act)
 {
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
@@ -603,9 +603,9 @@ void  sq_column_on_update(SqColumn* column, const char* act)
 		column->foreign->on_update = strdup(act);
 }
 
-void  sq_column_set_composite(SqColumn* column, ...)
+void  sq_column_set_composite(SqColumn *column, ...)
 {
-	const char* first;
+	const char *first;
 	va_list  arg_list;
 
 	va_start(arg_list, column);
@@ -614,7 +614,7 @@ void  sq_column_set_composite(SqColumn* column, ...)
 	va_end(arg_list);
 }
 
-void  sq_column_set_composite_va(SqColumn* column, const char *name, va_list arg_list)
+void  sq_column_set_composite_va(SqColumn *column, const char *name, va_list arg_list)
 {
 	int   index, allocated;
 
@@ -652,7 +652,7 @@ void  sq_column_set_composite_va(SqColumn* column, const char *name, va_list arg
 // foreign key = 1
 // normal      = 2
 // constraint  = 3
-int  sq_column_cmp_attrib(SqColumn** column1, SqColumn** column2)
+int  sq_column_cmp_attrib(SqColumn **column1, SqColumn **column2)
 {
 	int  var1 = 0, var2 = 0;
 

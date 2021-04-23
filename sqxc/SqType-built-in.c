@@ -31,9 +31,9 @@
 #endif
 
 // ------------------------------------
-// SqType* SQ_TYPE_BOOL functions
+// SqType *SQ_TYPE_BOOL functions
 
-int  sq_type_bool_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_bool_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	char  ch;
 
@@ -66,7 +66,7 @@ int  sq_type_bool_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc* sq_type_bool_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_bool_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_BOOL;
 //	dest->name = dest->name;    // "name" was set by caller of this function
@@ -75,9 +75,9 @@ Sqxc* sq_type_bool_write(void* instance, const SqType *entrytype, Sqxc* dest)
 }
 
 // ------------------------------------
-// SqType* SQ_TYPE_INT functions
+// SqType *SQ_TYPE_INT functions
 
-int  sq_type_int_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_int_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT:
@@ -103,7 +103,7 @@ int  sq_type_int_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc* sq_type_int_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_int_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_INT;
 //	dest->name = dest->name;    // "name" was set by caller of this function
@@ -112,9 +112,9 @@ Sqxc* sq_type_int_write(void* instance, const SqType *entrytype, Sqxc* dest)
 }
 
 // ------------------------------------
-// SqType* SQ_TYPE_UINT functions
+// SqType *SQ_TYPE_UINT functions
 
-int  sq_type_uint_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_uint_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_UINT:
@@ -140,7 +140,7 @@ int  sq_type_uint_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc* sq_type_uint_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_uint_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_UINT;
 //	dest->name = dest->name;    // "name" was set by caller of this function
@@ -149,9 +149,9 @@ Sqxc* sq_type_uint_write(void* instance, const SqType *entrytype, Sqxc* dest)
 }
 
 // ------------------------------------
-// SqType* SQ_TYPE_INTPTR functions
+// SqType *SQ_TYPE_INTPTR functions
 
-int  sq_type_intptr_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_intptr_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT:
@@ -177,7 +177,7 @@ int  sq_type_intptr_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc* sq_type_intptr_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_intptr_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_INT;
 //	dest->name = dest->name;    // "name" was set by caller of this function
@@ -186,9 +186,9 @@ Sqxc* sq_type_intptr_write(void* instance, const SqType *entrytype, Sqxc* dest)
 }
 
 // ------------------------------------
-// SqType* SQ_TYPE_INT64 functions
+// SqType *SQ_TYPE_INT64 functions
 
-int  sq_type_int64_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_int64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT:
@@ -214,7 +214,7 @@ int  sq_type_int64_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc* sq_type_int64_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_int64_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_INT64;
 //	dest->name = dest->name;    // "name" was set by caller of this function
@@ -223,9 +223,9 @@ Sqxc* sq_type_int64_write(void* instance, const SqType *entrytype, Sqxc* dest)
 }
 
 // ------------------------------------
-// SqType* SQ_TYPE_UINT64 functions
+// SqType *SQ_TYPE_UINT64 functions
 
-int  sq_type_uint64_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_uint64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_UINT:
@@ -251,7 +251,7 @@ int  sq_type_uint64_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc* sq_type_uint64_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_uint64_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_UINT64;
 //	dest->name = dest->name;    // "name" was set by caller of this function
@@ -260,9 +260,9 @@ Sqxc* sq_type_uint64_write(void* instance, const SqType *entrytype, Sqxc* dest)
 }
 
 // ------------------------------------
-// SqType* SQ_TYPE_DOUBLE functions
+// SqType *SQ_TYPE_DOUBLE functions
 
-int  sq_type_double_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_double_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT:
@@ -288,7 +288,7 @@ int  sq_type_double_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc* sq_type_double_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_double_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_DOUBLE;
 //	dest->name = dest->name;    // "name" was set by caller of this function
@@ -297,9 +297,9 @@ Sqxc* sq_type_double_write(void* instance, const SqType *entrytype, Sqxc* dest)
 }
 
 // ------------------------------------
-// SqType* SQ_TYPE_TIME functions
+// SqType *SQ_TYPE_TIME functions
 
-int  sq_type_time_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_time_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT:
@@ -328,9 +328,9 @@ int  sq_type_time_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc* sq_type_time_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_time_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
-	char* timestr;
+	char *timestr;
 
 	timestr = sq_time_to_string(*(time_t*)instance);
 	dest->type = SQXC_TYPE_STRING;
@@ -342,14 +342,14 @@ Sqxc* sq_type_time_write(void* instance, const SqType *entrytype, Sqxc* dest)
 }
 
 // ------------------------------------
-// SqType* SQ_TYPE_STRING functions
+// SqType *SQ_TYPE_STRING functions
 
-void sq_type_string_final(void* instance, const SqType *entrytype)
+void sq_type_string_final(void *instance, const SqType *entrytype)
 {
 	free(*(char**)instance);
 }
 
-int  sq_type_string_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_string_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	/* TODO: convert to string
@@ -373,7 +373,7 @@ int  sq_type_string_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc* sq_type_string_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_string_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_STRING;
 //	dest->name = dest->name;    // "name" was set by caller of this function
@@ -382,7 +382,7 @@ Sqxc* sq_type_string_write(void* instance, const SqType *entrytype, Sqxc* dest)
 }
 
 // ------------------------------------
-// SqType* SQ_ENTRY_OBJECT functions
+// SqType *SQ_ENTRY_OBJECT functions
 
 /*
 static const SqType SqTypeObjectStatic =
@@ -394,14 +394,14 @@ static const SqType SqTypeObjectStatic =
 	sq_type_object_write,
 };
 // extern
-const SqType*  SQ_ENTRY_OBJECT = &SqTypeObjectStatic;
+const SqType  *SQ_ENTRY_OBJECT = &SqTypeObjectStatic;
  */
 
-int  sq_type_object_parse(void* instance, const SqType *entrytype, Sqxc* src)
+int  sq_type_object_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
-	SqxcValue*  xc_value = (SqxcValue*)src->dest;
-	SqxcNested* nested;
-	SqEntry*    entry;
+	SqxcValue  *xc_value = (SqxcValue*)src->dest;
+	SqxcNested *nested;
+	SqEntry    *entry;
 
 	// Start of Object
 	nested = xc_value->nested;
@@ -449,11 +449,11 @@ int  sq_type_object_parse(void* instance, const SqType *entrytype, Sqxc* src)
 	return (src->code = SQCODE_ENTRY_NOT_FOUND);
 }
 
-Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
+Sqxc *sq_type_object_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
-	void*       member;
-	SqType*     member_type;
-	const char* object_name = dest->name;
+	void       *member;
+	SqType     *member_type;
+	const char *object_name = dest->name;
 
 	dest->type = SQXC_TYPE_OBJECT;
 //	dest->name = object_name;     // "name" was set by caller of this function
@@ -464,7 +464,7 @@ Sqxc* sq_type_object_write(void* instance, const SqType *entrytype, Sqxc* dest)
 		return dest;
 
 	for (int index = 0;  index < entrytype->n_entry;  index++) {
-		SqEntry* entry = entrytype->entry[index];
+		SqEntry *entry = entrytype->entry[index];
 		member_type = (SqType*)entry->type;
 		if (member_type->write == NULL)  // don't write anything if function pointer is NULL
 			continue;

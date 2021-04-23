@@ -28,10 +28,10 @@
  */
 
 // send data(arguments) from SqxcJsonc(source) to SqxcValue(destination)
-static int  sqxc_jsonc_send_value_in(SqxcJsonc* xcjson, const char* name, json_object* value)
+static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_object *value)
 {
-	json_object*  jelement;
-	Sqxc* xcdest = xcjson->dest;
+	json_object  *jelement;
+	Sqxc *xcdest = xcjson->dest;
 	int   idx, len;
 
 	switch(json_object_get_type(value)) {
@@ -104,9 +104,9 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc* xcjson, const char* name, json_o
 	return xcjson->code;
 }
 
-static int  sqxc_jsonc_send_in(SqxcJsonc* xcjson, Sqxc* src)
+static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 {
-	json_object* jobject;
+	json_object *jobject;
 
 	jobject = json_tokener_parse(src->value.string);
 	if (jobject == NULL) {
@@ -123,7 +123,7 @@ static int  sqxc_jsonc_send_in(SqxcJsonc* xcjson, Sqxc* src)
 	return (src->code = sqxc_jsonc_send_value_in(xcjson, src->name, jobject));
 }
 
-static int  sqxc_jsonc_ctrl_in(SqxcJsonc* xcjson, int id, void* data)
+static int  sqxc_jsonc_ctrl_in(SqxcJsonc *xcjson, int id, void *data)
 {
 	switch(id) {
 	case SQXC_CTRL_READY:
@@ -141,13 +141,13 @@ static int  sqxc_jsonc_ctrl_in(SqxcJsonc* xcjson, int id, void* data)
 	return SQCODE_OK;
 }
 
-static void  sqxc_jsonc_init_in(SqxcJsonc* xcjson)
+static void  sqxc_jsonc_init_in(SqxcJsonc *xcjson)
 {
 //	memset(xcjson, 0, sizeof(SqxcJsonc));
 	xcjson->supported_type = SQXC_TYPE_ALL;
 }
 
-static void  sqxc_jsonc_final_in(SqxcJsonc* xcjson)
+static void  sqxc_jsonc_final_in(SqxcJsonc *xcjson)
 {
 
 }
@@ -159,10 +159,10 @@ static void  sqxc_jsonc_final_in(SqxcJsonc* xcjson)
 	                                            (JSON string)
  */
 
-static int  sqxc_jsonc_send_out(SqxcJsonc* xcjson, Sqxc* src)
+static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 {
-	SqxcNested*   nested;
-	json_object*  jobject;
+	SqxcNested   *nested;
+	json_object  *jobject;
 
 	if (src->entry && src->entry->bit_field & SQB_HIDDEN)
 		return (src->code = SQCODE_OK);
@@ -243,7 +243,7 @@ static int  sqxc_jsonc_send_out(SqxcJsonc* xcjson, Sqxc* src)
 
 check_nested_0:
 	if (xcjson->nested_count == 0) {
-		Sqxc* xcdest = xcjson->dest;
+		Sqxc *xcdest = xcjson->dest;
 		xcjson->type = SQXC_TYPE_STRING;
 		xcjson->name = xcjson->jroot_name;
 		xcjson->value.string = (char*)json_object_to_json_string(xcjson->jroot);
@@ -256,7 +256,7 @@ check_nested_0:
 	return (src->code = SQCODE_OK);
 }
 
-static int  sqxc_jsonc_ctrl_out(SqxcJsonc* xcjson, int id, void* data)
+static int  sqxc_jsonc_ctrl_out(SqxcJsonc *xcjson, int id, void *data)
 {
 	switch(id) {
 	case SQXC_CTRL_READY:
@@ -281,13 +281,13 @@ static int  sqxc_jsonc_ctrl_out(SqxcJsonc* xcjson, int id, void* data)
 	return SQCODE_OK;
 }
 
-static void  sqxc_jsonc_init_out(SqxcJsonc* xcjson)
+static void  sqxc_jsonc_init_out(SqxcJsonc *xcjson)
 {
 //	memset(xcjson, 0, sizeof(SqxcJsonc));
 	xcjson->supported_type = SQXC_TYPE_ALL;
 }
 
-static void  sqxc_jsonc_final_out(SqxcJsonc* xcjson)
+static void  sqxc_jsonc_final_out(SqxcJsonc *xcjson)
 {
 
 }

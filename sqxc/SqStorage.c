@@ -33,14 +33,16 @@
 #include <SqxcJsonc.h>
 #include <SqStorage.h>
 
+#define STORAGE_SCHEMA_INITIAL_VERSION       0
+
 static char    *get_primary_key_string(void *instance, SqTable *type, const char quote[2]);
 
 void  sq_storage_init(SqStorage *storage, Sqdb *db)
 {
 	storage->db = db;
 	storage->schema = sq_schema_new("current");
-	storage->schema->version = 0;
-	storage->tables_version = 0;
+	storage->schema->version = STORAGE_SCHEMA_INITIAL_VERSION;
+	storage->tables_version  = STORAGE_SCHEMA_INITIAL_VERSION;
 	sq_ptr_array_init(&storage->tables, 16, NULL);
 
 	storage->container_default = SQ_TYPE_PTR_ARRAY;

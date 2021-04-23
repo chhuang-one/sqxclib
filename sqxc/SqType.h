@@ -32,9 +32,9 @@ extern "C" {
 typedef struct SqType        SqType;
 typedef struct SqEntry       SqEntry;
 
-typedef void  (*SqTypeFunc)(void* instance, const SqType* type);
-typedef int   (*SqTypeParseFunc)(void* instance, const SqType* type, Sqxc* xc_src);
-typedef Sqxc* (*SqTypeWriteFunc)(void* instance, const SqType* type, Sqxc* xc_dest);
+typedef void  (*SqTypeFunc)(void *instance, const SqType *type);
+typedef int   (*SqTypeParseFunc)(void *instance, const SqType *type, Sqxc *xc_src);
+typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_dest);
 
 /* ----------------------------------------------------------------------------
 	SqType initializer macro
@@ -46,8 +46,8 @@ typedef Sqxc* (*SqTypeWriteFunc)(void* instance, const SqType* type, Sqxc* xc_de
 	const SqType   UserType1 = SQ_TYPE_INITIALIZER(User, UserEntries, 0);
 
 	// sample 2: initializer with init/final func
-	void  user_init(User* user);
-	void  user_final(User* user);
+	void  user_init(User *user);
+	void  user_final(User *user);
 
 	const SqType   UserType2 = SQ_TYPE_INITIALIZER_FULL(User, UserEntries, 0, user_init, user_final);
  */
@@ -138,7 +138,7 @@ enum {
 /* define SqType for SqPtrArray (SqType-PtrArray.c)
    User must assign element type in SqType.entry and set SqType.n_entry to -1.
 
-	SqType* typePtrArray = sq_type_copy_static(SQ_TYPE_PTR_ARRAY);
+	SqType *typePtrArray = sq_type_copy_static(SQ_TYPE_PTR_ARRAY);
 	typePtrArray->entry = (SqEntry**) element_SqType;
 	typePtrArray->n_entry = -1;
  */
@@ -173,11 +173,11 @@ struct SqType
 
 	// In C++, you must use typeid(TypeName).name() to assign "name"
 	// or use macro SQ_GET_TYPE_NAME()
-	char*          name;
+	char          *name;
 
 //	SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry);
 //	// ------ SqPtrArray members ------
-	SqEntry**      entry;
+	SqEntry      **entry;
 	int            n_entry;
 
 //	SqType.entry is array of SqEntry pointer if current SqType is for C struct.
@@ -197,28 +197,28 @@ extern  const  SqType      SqType_IntptrArray_;
 
 // create/destroy dynamic SqType.
 // if prealloc_size is 0, allocate default size.
-SqType*  sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
+SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 
 // these function only work if SqType.bit_field has SQB_TYPE_DYNAMIC
-void     sq_type_ref(SqType* type);
-void     sq_type_unref(SqType* type);
+void     sq_type_ref(SqType *type);
+void     sq_type_unref(SqType *type);
 
 // create dynamic SqType and copy data from static SqType
-SqType*  sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
+SqType  *sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
 
 // initialize/finalize instance
-void*    sq_type_init_instance(const SqType *type, void* instance, int is_pointer);
-void     sq_type_final_instance(const SqType *type, void* instance, int is_pointer);
+void    *sq_type_init_instance(const SqType *type, void *instance, int is_pointer);
+void     sq_type_final_instance(const SqType *type, void *instance, int is_pointer);
 
 // add entry from SqEntry array (NOT pointer array) to dynamic SqType.
 // if 'sizeof_entry' == 0, 'sizeof_entry' will equal sizeof(SqEntry)
-void     sq_type_add_entry(SqType* type, const SqEntry *entry, int n_entry, size_t sizeof_entry);
+void     sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry);
 // add entry from SqEntry pointer array to dynamic SqType.
-void     sq_type_add_entry_ptrs(SqType* type, const SqEntry **entry_ptrs, int n_entry_ptrs);
+void     sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_entry_ptrs);
 
 // find SqEntry in SqType.entry.
 // If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
-void**   sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc cmp_func);
+void   **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc cmp_func);
 
 // sort SqType.entry by name if SqType is dynamic.
 void     sq_type_sort_entry(SqType *type);
@@ -226,35 +226,35 @@ void     sq_type_sort_entry(SqType *type);
 // calculate size for dynamic SqType.
 // if "inner_entry" == NULL, it use all entries to calculate size.
 // otherwise it use "inner_entry" to calculate size.
-int      sq_type_decide_size(SqType* type, const SqEntry *inner_entry);
+int      sq_type_decide_size(SqType *type, const SqEntry *inner_entry);
 
 // --------------------------------------------------------
 // SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions
 
-int   sq_type_int_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_int_write(void* instance, const SqType *type, Sqxc* xc_dest);
+int   sq_type_int_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_int_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
-int   sq_type_uint_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_uint_write(void* instance, const SqType *type, Sqxc* xc_dest);
+int   sq_type_uint_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_uint_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
-int   sq_type_int64_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_int64_write(void* instance, const SqType *type, Sqxc* xc_dest);
+int   sq_type_int64_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_int64_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
-int   sq_type_uint64_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_uint64_write(void* instance, const SqType *type, Sqxc* xc_dest);
+int   sq_type_uint64_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_uint64_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
-int   sq_type_time_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_time_write(void* instance, const SqType *type, Sqxc* xc_dest);
+int   sq_type_time_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_time_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
-int   sq_type_double_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_double_write(void* instance, const SqType *type, Sqxc* xc_dest);
+int   sq_type_double_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_double_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
-void  sq_type_string_final(void* instance, const SqType *type);
-int   sq_type_string_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_string_write(void* instance, const SqType *type, Sqxc* xc_dest);
+void  sq_type_string_final(void *instance, const SqType *type);
+int   sq_type_string_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_string_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
-int   sq_type_object_parse(void* instance, const SqType *type, Sqxc* xc_src);
-Sqxc* sq_type_object_write(void* instance, const SqType *type, Sqxc* xc_dest);
+int   sq_type_object_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
 // ----------------------------------------------------------------------------
 // Fake type for user-defined special type (SqType-fake.c)
@@ -275,7 +275,7 @@ Sqxc* sq_type_object_write(void* instance, const SqType *type, Sqxc* xc_dest);
 		( (SqType*)(type)> SQ_TYPE_FAKE6 || (SqType*)(type)< SQ_TYPE_FAKE0 )
 
 struct SqTypeFake {
-	SqType* nth[SQ_TYPE_N_FAKE];
+	SqType *nth[SQ_TYPE_N_FAKE];
 	SqType  dummy;
 };
 
@@ -296,7 +296,7 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_type_erase_entry_addr(SqType* type, void** element_addr, int count)
+void  sq_type_erase_entry_addr(SqType *type, void **element_addr, int count)
 {
 	if (type->bit_field & SQB_TYPE_DYNAMIC)
 		sq_ptr_array_erase(&type->entry, (SqEntry**)element_addr - type->entry, count);
@@ -307,9 +307,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_type_steal_entry_addr(SqType* type, void** element_addr, int count)
+void  sq_type_steal_entry_addr(SqType *type, void **element_addr, int count)
 {
-	void* array = &type->entry;
+	void *array = &type->entry;
 
 	if (type->bit_field & SQB_TYPE_DYNAMIC)
 		SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
@@ -318,8 +318,8 @@ void  sq_type_steal_entry_addr(SqType* type, void** element_addr, int count)
 #else  // __STDC_VERSION__ || __cplusplus
 
 // C functions
-void  sq_type_erase_entry_addr(SqType* type, void** element_addr, int count);
-void  sq_type_steal_entry_addr(SqType* type, void** element_addr, int count);
+void  sq_type_erase_entry_addr(SqType *type, void **element_addr, int count);
+void  sq_type_steal_entry_addr(SqType *type, void **element_addr, int count);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 

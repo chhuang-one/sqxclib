@@ -41,10 +41,10 @@
 	             unsupport SQXC_TYPE_ARRAY while parsing/writing object.
  */
 
-static void sqxc_sql_use_insert_command(SqxcSql* xcsql, SqTable* table);
-static void sqxc_sql_use_update_command(SqxcSql* xcsql, SqTable* table);
-static void sqxc_sql_use_where_condition(SqxcSql* xcsql, const char *condition);
-static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src);
+static void sqxc_sql_use_insert_command(SqxcSql *xcsql, SqTable *table);
+static void sqxc_sql_use_update_command(SqxcSql *xcsql, SqTable *table);
+static void sqxc_sql_use_where_condition(SqxcSql *xcsql, const char *condition);
+static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src);
 
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - destination of output chain
@@ -52,10 +52,10 @@ static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src);
 	SQXC_TYPE_xxx ---> SqxcSql ---> Sqdb.exec()
  */
 
-static int  sqxc_sql_send_insert_command(SqxcSql* xcsql, Sqxc* src)
+static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 {
-	SqBuffer* buffer = sqxc_get_buffer(xcsql);
-	SqEntry*  entry;
+	SqBuffer *buffer = sqxc_get_buffer(xcsql);
+	SqEntry  *entry;
 
 	switch (src->type) {
 	case SQXC_TYPE_ARRAY:
@@ -129,10 +129,10 @@ static int  sqxc_sql_send_insert_command(SqxcSql* xcsql, Sqxc* src)
 	return src->code;
 }
 
-static int  sqxc_sql_send_update_command(SqxcSql* xcsql, Sqxc* src)
+static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 {
-	SqBuffer*  buffer = sqxc_get_buffer(xcsql);
-	SqEntry*   entry;
+	SqBuffer  *buffer = sqxc_get_buffer(xcsql);
+	SqEntry   *entry;
 	int        len;
 
 	switch (src->type) {
@@ -195,7 +195,7 @@ static int  sqxc_sql_send_update_command(SqxcSql* xcsql, Sqxc* src)
 	return src->code;
 }
 
-static int  sqxc_sql_send(SqxcSql* xcsql, Sqxc* src)
+static int  sqxc_sql_send(SqxcSql *xcsql, Sqxc *src)
 {
 	// 1 == INSERT, 0 == UPDATE
 	if (xcsql->mode == 1)
@@ -204,7 +204,7 @@ static int  sqxc_sql_send(SqxcSql* xcsql, Sqxc* src)
 		return sqxc_sql_send_update_command(xcsql, src);
 }
 
-static int  sqxc_sql_ctrl(SqxcSql* xcsql, int id, void* data)
+static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 {
 	int  code;
 
@@ -258,7 +258,7 @@ static int  sqxc_sql_ctrl(SqxcSql* xcsql, int id, void* data)
 	return SQCODE_OK;
 }
 
-static void  sqxc_sql_init(SqxcSql* xcsql)
+static void  sqxc_sql_init(SqxcSql *xcsql)
 {
 //	memset(xcsql, 0, sizeof(SqxcSql));
 	sq_buffer_resize(sqxc_get_buffer(xcsql), SQ_CONFIG_SQXC_SQL_BUFFER_SIZE_DEAULT);
@@ -270,7 +270,7 @@ static void  sqxc_sql_init(SqxcSql* xcsql)
 	xcsql->quote[1] = '"';
 }
 
-static void  sqxc_sql_final(SqxcSql* xcsql)
+static void  sqxc_sql_final(SqxcSql *xcsql)
 {
 
 }
@@ -278,10 +278,10 @@ static void  sqxc_sql_final(SqxcSql* xcsql)
 // ----------------------------------------------------------------------------
 // others functions
 
-static void sqxc_sql_use_insert_command(SqxcSql* xcsql, SqTable* table)
+static void sqxc_sql_use_insert_command(SqxcSql *xcsql, SqTable *table)
 {
-	SqEntry*   entry;
-	SqBuffer*  buffer;
+	SqEntry   *entry;
+	SqBuffer  *buffer;
 	int        index;
 	int        index_beg = 0;
 
@@ -319,9 +319,9 @@ static void sqxc_sql_use_insert_command(SqxcSql* xcsql, SqTable* table)
 	xcsql->buf_reuse = xcsql->buf_writed;
 }
 
-static void sqxc_sql_use_update_command(SqxcSql* xcsql, SqTable* table)
+static void sqxc_sql_use_update_command(SqxcSql *xcsql, SqTable *table)
 {
-	SqBuffer*  buffer;
+	SqBuffer  *buffer;
 
 	buffer = sqxc_get_buffer(xcsql);
 	buffer->writed = 0;
@@ -340,9 +340,9 @@ static void sqxc_sql_use_update_command(SqxcSql* xcsql, SqTable* table)
 	xcsql->buf_reuse = xcsql->buf_writed;
 }
 
-static void sqxc_sql_use_where_condition(SqxcSql* xcsql, const char *condition)
+static void sqxc_sql_use_where_condition(SqxcSql *xcsql, const char *condition)
 {
-	SqBuffer* buffer = sqxc_get_buffer(xcsql);
+	SqBuffer *buffer = sqxc_get_buffer(xcsql);
 	int       len;
 
 	// UPDATE (mode == 0)
@@ -358,9 +358,9 @@ static void sqxc_sql_use_where_condition(SqxcSql* xcsql, const char *condition)
 	}
 }
 
-static int  sqxc_sql_write_value(SqxcSql* xcsql, Sqxc* src)
+static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src)
 {
-	SqBuffer* buffer = sqxc_get_buffer(xcsql);
+	SqBuffer *buffer = sqxc_get_buffer(xcsql);
 	int       len, idx;
 
 	switch (src->type) {

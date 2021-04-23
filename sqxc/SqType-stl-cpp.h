@@ -28,18 +28,18 @@ namespace Sq {
 // SqType for C++ STL containers
 template<class Container>
 struct TypeStl : SqType {
-	static void  cxxInit(void* instance, const SqType* type) {
+	static void  cxxInit(void *instance, const SqType *type) {
 		new (&(*(Container*)instance)) Container();
 	}
-	static void  cxxFinal(void* instance, const SqType* type) {
+	static void  cxxFinal(void *instance, const SqType *type) {
 		((Container*)instance)->~Container();
 	}
 
-	static int   cxxParse(void* instance, const SqType* type, Sqxc* src) {
-		SqType*     element_type = (SqType*)type->entry;    // TypeStl use SqType.entry to store element type
-		SqxcValue*  xc_value = (SqxcValue*)src->dest;
-		SqxcNested* nested;
-		void*       element;
+	static int   cxxParse(void *instance, const SqType *type, Sqxc *src) {
+		SqType     *element_type = (SqType*)type->entry;    // TypeStl use SqType.entry to store element type
+		SqxcValue  *xc_value = (SqxcValue*)src->dest;
+		SqxcNested *nested;
+		void       *element;
 
 		// Start of Array (Container)
 		nested = xc_value->nested;
@@ -76,11 +76,11 @@ struct TypeStl : SqType {
 		return src->code;
 	}
 
-	static Sqxc* cxxWrite(void* instance, const SqType* type, Sqxc* dest) {
-		SqType*     element_type = (SqType*)type->entry;    // TypeStl use SqType.entry to store element type
-		const char* array_name = dest->name;
-		void*       element;
-		Container* container = (Container*)instance;
+	static Sqxc *cxxWrite(void *instance, const SqType *type, Sqxc *dest) {
+		SqType     *element_type = (SqType*)type->entry;    // TypeStl use SqType.entry to store element type
+		const char *array_name = dest->name;
+		void       *element;
+		Container  *container = (Container*)instance;
 		typename Container::iterator cur, end;
 
 		// Begin of SQXC_TYPE_ARRAY
@@ -115,7 +115,7 @@ struct TypeStl : SqType {
 		sq_type_unref(this);
 	}
 
-	TypeStl(const SqType* element_type) {
+	TypeStl(const SqType *element_type) {
 		this->size  = sizeof(Container);
 		this->init  = cxxInit;
 		this->final = cxxFinal;
@@ -137,12 +137,12 @@ struct TypeStl : SqType {
 	}
 
 	// for dynamic allocated Sq::TypeStl
-	void* operator new(size_t size) {
-		void* instance = malloc(size);
+	void *operator new(size_t size) {
+		void *instance = malloc(size);
 		((TypeStl*)instance)->bit_field = SQB_TYPE_DYNAMIC;
 		return instance;
 	}
-	void operator delete(void* instance) {
+	void operator delete(void *instance) {
 		free(instance);
 	}
 };

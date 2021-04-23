@@ -298,10 +298,10 @@ static const SqColumn  userColumns[6] = {
 	SqdbConfigSqlite  config = { .folder = "/path", .extension = "db" };
 
 	db = sqdb_new(SQDB_INFO_SQLITE, &config);
-//	db = sqdb_new(SQDB_INFO_SQLITE, NULL);    // use default setting if config is NULL.
+//	db = sqdb_new(SQDB_INFO_SQLITE, NULL);     // use default setting if config is NULL.
 
 	storage = sq_storage_new(db);
-	sq_storage_open(storage, "sqxc_local");
+	sq_storage_open(storage, "sqxc_local");    // This will open file "sqxc_local.db"
 ```
 
  use C function to open MySQL database
