@@ -126,6 +126,9 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 				// steal 'reentry_src' from 'entry_src->type'. TODO: NO_STEAL
 				if (entry_src->type->bit_field & SQB_DYNAMIC)
 					reentries_src->data[index] = NULL;
+				// calculate size if 'entry' is instance of SqTable
+				if (destroy_func == (SqDestroyFunc)sq_column_free)
+					sq_type_decide_size((SqType*)entry->type, (SqEntry*)reentry_src);
 			}
 #if DEBUG
 			else {
