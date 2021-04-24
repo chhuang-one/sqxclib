@@ -47,6 +47,7 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 			if (addr) {
 				reentry = *(SqReentry**)addr;
 				if (destroy_func == (SqDestroyFunc)sq_column_free) {
+					destroy_func(reentry);
 					*addr = reentry_src;
 					// steal 'reentry_src' from 'entry_src->type'. TODO: NO_STEAL
 					if (entry_src->type->bit_field & SQB_DYNAMIC)
