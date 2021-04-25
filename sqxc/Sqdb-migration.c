@@ -89,22 +89,27 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 			// === RENAME ===
 			// find existing if reentry->name == reentry_src->old_name
 			addr = sq_ptr_array_find_sorted(reentries, reentry_src->old_name,
-					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+					(SqCompareFunc) sq_entry_cmp_str__name, NULL);
 			if (addr) {
 				reentry = *(SqReentry**)addr;
 				if (destroy_func == (SqDestroyFunc)sq_column_free) {
 					if ((reentry->bit_field & SQB_DYNAMIC) == 0)
 						reentry = (SqReentry*)sq_column_copy_static((SqColumn*)reentry);
 				}
-
+				// get new index after renaming
+				sq_ptr_array_find_sorted(reentries, reentry_src->name,
+						(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+				if (temp.index == reentries->length)
+					temp.index--;
+				// change current reentry's name
 				free((char*)reentry->name);
 				reentry->name = strdup(reentry_src->name);
-				// move
+				// move renamed reentry. temp.addr = new address of 'reentry'
 				temp.addr = reentries->data + temp.index;
 				if (temp.addr > addr)
-					memmove(addr, temp.addr, (char*)temp.addr - (char*)addr);
-				else
-					memmove(addr, temp.addr, (char*)addr - (char*)temp.addr);
+					memmove(addr, addr +1, (char*)temp.addr - (char*)addr);
+				else if (temp.addr < addr)
+					memmove(temp.addr +1, temp.addr, (char*)addr - (char*)temp.addr);
 				*temp.addr = reentry;
 			}
 #if DEBUG
