@@ -99,17 +99,15 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 				// get new index after renaming
 				sq_ptr_array_find_sorted(reentries, reentry_src->name,
 						(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
-				if (temp.index == reentries->length)
-					temp.index--;
 				// change current reentry's name
 				free((char*)reentry->name);
 				reentry->name = strdup(reentry_src->name);
 				// move renamed reentry. temp.addr = new address of 'reentry'
 				temp.addr = reentries->data + temp.index;
-				if (temp.addr > addr)
-					memmove(addr, addr +1, (char*)temp.addr - (char*)addr);
-				else if (temp.addr < addr)
+				if (temp.addr < addr)
 					memmove(temp.addr +1, temp.addr, (char*)addr - (char*)temp.addr);
+				else if (temp.addr != addr)
+					memmove(addr, addr +1, (char*)(--temp.addr) - (char*)addr);
 				*temp.addr = reentry;
 			}
 #if DEBUG
