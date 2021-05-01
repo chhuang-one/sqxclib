@@ -224,12 +224,9 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 	if (rnode_new == NULL)
 		rnode_new = ptr_x2_array_alloc_at((SqPtrArray*)relation, new_index);
 	else if (rnode_new->next) {
-		for (rnode_pool = rnode->next; ; rnode_pool = rnode_pool->next) {
-			if (rnode_pool->next == NULL) {
-				rnode_pool->next = rnode_new->next;
-				break;
-			}
-		}
+		for (rnode_pool = rnode; rnode_pool->next; rnode_pool = rnode_pool->next)
+			;
+		rnode_pool->next = rnode_new->next;
 	}
 	rnode_new->next = rnode->next;
 	rnode_new->object = (void*)new_object;
