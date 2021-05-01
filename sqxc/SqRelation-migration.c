@@ -351,7 +351,9 @@ void   sq_table_complete(SqTable* table, bool no_need_to_sync)
 		reentries = sq_type_get_ptr_array(table->type);
 		for (int index = 0;  index < reentries->length;  index++) {
 			column = reentries->data[index];
-			if (no_need_to_sync && (column->type == SQ_TYPE_INDEX || column->type == SQ_TYPE_CONSTRAINT)) {
+			if (column == NULL)
+				has_null = true;
+			else if (no_need_to_sync && (column->type == SQ_TYPE_INDEX || column->type == SQ_TYPE_CONSTRAINT)) {
 				sq_column_free(column);
 				reentries->data[index] = NULL;
 				has_null = true;
@@ -664,19 +666,24 @@ void  sq_schema_erase_records(SqSchema* schema, char version_comparison)
 		sq_table_erase_records((SqTable*)type->entry[index], version_comparison);
 }
 
-void    sq_schema_complete(SqSchema* schema, bool no_need_to_sync)
+void    sq_schema_complete(SqSchema *schema, bool no_need_to_sync)
 {
-	SqPtrArray* entries;
-	SqTable*    table;
+	SqPtrArray *entries;
+	SqTable    *table;
+	bool        has_null;
 
 	entries = sq_type_get_ptr_array(schema->type);
 	sq_type_sort_entry((SqType*)schema->type);
 
 	for (int index = 0;  index < entries->length;  index++) {
 		table = entries->data[index];
+		if (table == NULL)
+			has_null = true;
 //		table->offset = 0;
 		sq_table_complete(table, no_need_to_sync);
 	}
+	if (has_null)
+		sq_reentries_remove_null(entries, 0);
 
 	if (no_need_to_sync) {
 		sq_relation_free(schema->relation);
