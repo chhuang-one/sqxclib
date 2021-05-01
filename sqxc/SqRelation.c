@@ -214,12 +214,27 @@ void  sq_relation_erase(SqRelation *relation, const void *from, const void *to, 
 }
 
 void  sq_relation_replace(SqRelation *relation, const void *old_object, const void *new_object, int no_reverse) {
-	SqRelationNode *rnode, *rnode_pool;
+	SqRelationNode *rnode, *rnode_new, *rnode_pool;
+	int  new_index;
 
 	rnode = ptr_x2_array_find_sorted((SqPtrArray*)relation, old_object, NULL);
 	if (rnode == NULL)
 		return;
-	rnode->object = (void*)new_object;
+	rnode_new = ptr_x2_array_find_sorted((SqPtrArray*)relation, new_object, &new_index);
+	if (rnode_new == NULL)
+		rnode_new = ptr_x2_array_alloc_at((SqPtrArray*)relation, new_index);
+	else if (rnode_new->next) {
+		for (rnode_pool = rnode->next; ; rnode_pool = rnode_pool->next) {
+			if (rnode_pool->next == NULL) {
+				rnode_pool->next = rnode_new->next;
+				break;
+			}
+		}
+	}
+	rnode_new->next = rnode->next;
+	rnode_new->object = (void*)new_object;
+	rnode->next = NULL;
+	rnode = rnode_new;
 
 	if (no_reverse == 0) {
 		for (rnode = rnode->next;  rnode;  rnode = rnode->next) {
