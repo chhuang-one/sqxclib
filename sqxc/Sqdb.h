@@ -69,7 +69,7 @@ void    sqdb_free(Sqdb *db);
 /* --- execute SQL statement --- */
 
 int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
-int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
+int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns, SqTable *table_data);
 
 /* --- write SQL statement to 'sql_buf' --- */
 
@@ -81,7 +81,7 @@ void sqdb_sql_drop_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool if_ex
 
 void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool is_delete);
 
-void sqdb_sql_rename_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
+void sqdb_sql_rename_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column, SqColumn *column_data);
 void sqdb_sql_add_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 void sqdb_sql_alter_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 void sqdb_sql_drop_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
@@ -91,7 +91,7 @@ void sqdb_sql_drop_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *
 
 /* --- write parameter,arguments to 'sql_buf' --- */
 
-void sqdb_sql_write_column(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
+void sqdb_sql_write_column(Sqdb *db, SqBuffer *sql_buf, SqColumn *column, const char *column_name);
 void sqdb_sql_write_constraint(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 void sqdb_sql_write_composite_columns(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);

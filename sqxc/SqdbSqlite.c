@@ -487,7 +487,7 @@ static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf,
 	if (node) {
 		for (node = node->next;  node;  node = node->next) {
 			column = node->object;
-			sqdb_sql_rename_column((Sqdb*)db, sql_buf, table, column);
+			sqdb_sql_rename_column((Sqdb*)db, sql_buf, table, column, NULL);
 			sq_buffer_write_c(sql_buf, ';');
 		}
 	}

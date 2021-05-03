@@ -79,9 +79,9 @@ int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrAr
 	return rc;
 }
 
-int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArray *arranged_columns)
+int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArray *arranged_columns, SqTable *table_data)
 {
-	SqColumn *column;
+	SqColumn *column, *column_data = NULL;
 	int       index;
 	int       rc;
 
@@ -102,7 +102,14 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 		}
 		else if (column->old_name && (column->bit_field & SQB_RENAMED) == 0) {
 			// RENAME COLUMN
-			sqdb_sql_rename_column(db, buffer, table, column);
+			if (table_data) {
+				// MySQL "CHANGE COLUMN" need original column data
+				column_data = (SqColumn*)sq_ptr_array_find_sorted(sq_type_get_ptr_array(table_data->type), column->old_name,
+				                         (SqCompareFunc)sq_entry_cmp_str__name, NULL);
+				if (column_data)
+					column_data = *(SqColumn**)column_data;
+			}
+			sqdb_sql_rename_column(db, buffer, table, column, column_data);
 		}
 		else {
 			// ADD COLUMN / CONSTRAINT / INDEX / KEY
@@ -185,7 +192,7 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 		}
 		n_columns++;
 		// write column
-		sqdb_sql_write_column(db, buffer, column);
+		sqdb_sql_write_column(db, buffer, column, NULL);
 #ifdef SQ_CONFIG_SQL_COLUMN_NOT_NULL_WITHOUT_DEFAULT
 		// if column is newly "added" one
 		if (index >= n_old_columns && (column->bit_field & SQB_CHANGED) == 0) {
@@ -369,7 +376,7 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	}
 	// ADD COLUMN
 	else {
-		sqdb_sql_write_column(db, buffer, column);
+		sqdb_sql_write_column(db, buffer, column, NULL);
 		return;
 	}
 
@@ -407,21 +414,25 @@ void sqdb_sql_alter_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 	if (db->info->column.use_alter) {
 		// SQL Server / MS Access:
 		sq_buffer_write(buffer, "ALTER COLUMN ");
-		sqdb_sql_write_column(db, buffer, column);
+		sqdb_sql_write_column(db, buffer, column, NULL);
 	}
 	else if (db->info->column.use_modify) {
 		// My SQL / Oracle (prior version 10G):
 		sq_buffer_write(buffer, "MODIFY COLUMN ");
 		// Oracle 10G and later:
 //		sq_buffer_write(buffer, "MODIFY ");
-		sqdb_sql_write_column(db, buffer, column);
+		sqdb_sql_write_column(db, buffer, column, NULL);
 	}
 
 	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
-void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
+void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column, SqColumn *column_data)
 {
+	// MySQL "CHANGE COLUMN" need original column data
+	if (column_data == NULL)
+		column_data = column;
+
 	sq_buffer_write(buffer, "ALTER TABLE");
 
 	// write "table name"
@@ -462,7 +473,7 @@ void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn
 		// MySQL < 8.0 or MariaDB < 10.5.2
 		sq_buffer_write_c(buffer, ' ');
 		// write "column new name" and "column definition"
-		sqdb_sql_write_column(db, buffer, column);
+		sqdb_sql_write_column(db, buffer, column_data, column->name);
 	}
 
 	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
@@ -572,15 +583,17 @@ void sqdb_sql_drop_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *
 // ----------------------------------------------------------------------------
 // write parameter,arguments to 'buffer'
 
-void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column)
+void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const char* column_name)
 {
 	const SqType *type;
 	int     len;
 	int16_t size, digits;
 
+	if (column_name == NULL)
+		column_name = column->name;
 	// "column name"
 	sq_buffer_write_c(buffer, db->info->quote.identifier[0]);
-	sq_buffer_write(buffer, column->name);
+	sq_buffer_write(buffer, column_name);
 	sq_buffer_alloc(buffer, 2);
 	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
 	sq_buffer_r_at(buffer, 0) = ' ';

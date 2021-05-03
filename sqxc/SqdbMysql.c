@@ -121,7 +121,7 @@ static int  sqdb_mysql_close(SqdbMysql *sqdb)
 static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema_next)
 {
 	SqBuffer    sql_buf;
-	SqTable    *table;
+	SqTable    *table, *table_data;
 	SqPtrArray *reentries;
 	int    rc = 0;
 
@@ -145,7 +145,8 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 
 			if (table->bit_field & SQB_CHANGED) {
 				// ALTER TABLE
-				sqdb_exec_alter_table((Sqdb*)db, &sql_buf, table, NULL);
+				table_data = sq_schema_find(schema, table->name);
+				sqdb_exec_alter_table((Sqdb*)db, &sql_buf, table, NULL, table_data);
 			}
 			else if (table->name == NULL) {
 				// DROP TABLE
