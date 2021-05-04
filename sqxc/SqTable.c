@@ -65,7 +65,7 @@ bool  sq_table_has_column(SqTable *table, const char *column_name)
 	SqCompareFunc cmp_func;
 
 	if (table->bit_field & SQB_CHANGED)
-		cmp_func = (SqCompareFunc)sq_reentry_cmp_str__name;
+		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
 	else
 		cmp_func = NULL;
 

@@ -22,9 +22,6 @@
 /* Sqdb.c, SqSchema.c - SQL_STRING_LENGTH_DEFAULT */
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT    191
 
-/* Program will add default value if newly added column has "NOT NULL" without "DEFAULT". */
-#define SQ_CONFIG_SQL_COLUMN_NOT_NULL_WITHOUT_DEFAULT
-
 /* SqxcJsonc.c, SqxcJsonc.h, SqStorage.c */
 #define SQ_CONFIG_JSON_SUPPORT
 

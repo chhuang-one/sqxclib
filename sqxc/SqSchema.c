@@ -179,7 +179,7 @@ SqTable* sq_schema_find(SqSchema* schema, const char* name)
 
 	// if cmp_func == NULL, sq_type_find_entry() will sort entry before finding.
 	if (schema->bit_field & SQB_CHANGED)
-		cmp_func = (SqCompareFunc)sq_reentry_cmp_str__name;
+		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
 	else
 		cmp_func = NULL;
 

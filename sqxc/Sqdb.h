@@ -75,7 +75,7 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArr
 
 // return number of columns in 'table'
 int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
-int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arranged_columns, int n_old_columns);
+int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arranged_columns);
 void sqdb_sql_rename_table(Sqdb *db, SqBuffer *sql_buf, const char *old_name, const char *new_name);
 void sqdb_sql_drop_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool if_exist);
 
@@ -95,9 +95,6 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *sql_buf, SqColumn *column, const 
 void sqdb_sql_write_constraint(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 void sqdb_sql_write_composite_columns(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
-
-void sqdb_sql_write_column_list(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arranged_columns,
-                                int n_old_columns, bool use_old_name);
 
 #ifdef __cplusplus
 }  // extern "C"

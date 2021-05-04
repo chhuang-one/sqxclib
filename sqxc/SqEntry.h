@@ -57,8 +57,6 @@ typedef struct SqReentry        SqReentry;
 #define SQB_AUTOINCREMENT  (1 << 9)   // SQL: AUTOINCREMENT == SQB_INCREMENT
 #define SQB_NULLABLE       (1 << 10)  // SQL: remove "NOT NULL"
 
-// #define SQB_UNSIGNED       (1 << 13)  // SQL: attribute "UNSIGNED"
-// #define SQB_IGNORE         (1 << 14)  // SQL: ignore this entry/column
 // #define SQB_CURRENT_TIMESTAMP
 
 #define SQB_COLUMN_ATTRIB  (SQB_PRIMARY | SQB_FOREIGN | SQB_UNIQUE)
@@ -143,10 +141,6 @@ struct SqReentry
 	// if name is NOT NULL, it will rename from old_name to name
 };
 
-// SqCompareFunc for finding unsorted array of SqReentry by name or old_name
-int  sq_reentry_cmp_str__name(const char *str, SqReentry **reentry);
-int  sq_reentry_cmp_str__old_name(const char *str, SqReentry **reentry);
-
 /* --------------------------------------------------------
 	SqReentries: unsorted SqReentry pointer array.
 	             element can be NULL in array.
@@ -159,17 +153,6 @@ typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
 // n_old_elements: number of old elements before removing NULL
 // return:         number of old elements after  removing NULL
 int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
-
-// void sq_reentries_add(void *reentry_ptr_array, void *reentry);
-#define sq_reentries_add		sq_ptr_array_append
-
-// void **sq_reentries_find_name(void *reentry_ptr_array, const char *name)
-#define sq_reentries_find_name(reentry_ptr_array, name)    \
-		sq_ptr_array_find((void*)(reentry_ptr_array), name, (SqCompareFunc)sq_reentry_cmp_str__name)
-
-// void **sq_reentries_find_old_name(void *reentry_ptr_array, const char *old_name)
-#define sq_reentries_find_old_name(reentry_ptr_array, old_name)    \
-		sq_ptr_array_find((void*)(reentry_ptr_array), old_name, (SqCompareFunc)sq_reentry_cmp_str__old_name)
 
 #ifdef __cplusplus
 }  // extern "C"

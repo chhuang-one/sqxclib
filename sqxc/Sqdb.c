@@ -90,8 +90,6 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 	// ALTER TABLE
 	for (index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
-//		if (column->bit_field & SQB_IGNORE)
-//			continue;
 		if (column->bit_field & SQB_CHANGED) {
 			// ALTER COLUMN
 			sqdb_sql_alter_column(db, buffer, table, column);
@@ -150,30 +148,22 @@ int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArr
 	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
 	sq_buffer_r_at(sql_buf, 0) = ' ';
 
-	n_columns = sqdb_sql_create_table_params(db, sql_buf, arranged_columns, -1);
+	n_columns = sqdb_sql_create_table_params(db, sql_buf, arranged_columns);
 
 	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
 	return n_columns;
 }
 
-int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arranged_columns, int n_old_columns)
+int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arranged_columns)
 {
 	SqColumn *column;
 	int       index, n_columns = 0;
 	bool      has_constraint = false;
 
 	sq_buffer_write(buffer, "( ");
-	if (n_old_columns == -1)
-		n_old_columns = arranged_columns->length;
 	for (index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
 		if (column == NULL)
-			continue;
-		// skip ignore
-//		if (column->bit_field & SQB_IGNORE)
-//			continue;
-		// skip "dropped" or "renamed" records
-		if (column->old_name && (column->bit_field & SQB_RENAMED) == 0)
 			continue;
 		// skip INDEX
 		if (column->type == SQ_TYPE_INDEX)
@@ -193,19 +183,6 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 		n_columns++;
 		// write column
 		sqdb_sql_write_column(db, buffer, column, NULL);
-#ifdef SQ_CONFIG_SQL_COLUMN_NOT_NULL_WITHOUT_DEFAULT
-		// if column is newly "added" one
-		if (index >= n_old_columns && (column->bit_field & SQB_CHANGED) == 0) {
-			// Program can add default value if newly added column has "NOT NULL" without "DEFAULT".
-			if ((column->bit_field & SQB_NULLABLE)==0 && column->default_value == NULL) {
-				sq_buffer_write(buffer, " DEFAULT ");
-				if (SQ_TYPE_IS_ARITHMETIC(column->type))
-					sq_buffer_write(buffer, "0");
-				else
-					sq_buffer_write(buffer, "''");
-			}
-		}
-#endif  // SQ_CONFIG_SQL_COLUMN_NOT_NULL_WITHOUT_DEFAULT
 	}
 
 //	if (db->info->product == SQDB_PRODUCT_MYSQL) {
@@ -773,43 +750,3 @@ void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 	}
 }
 
-void  sqdb_sql_write_column_list(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arranged_columns,
-                                 int n_old_columns, bool old_name)
-{
-	SqColumn *column;
-	char *allocated;
-	int   count = 0;
-
-	if (n_old_columns == -1)
-		n_old_columns = arranged_columns->length;
-	for (int index = 0;  index < arranged_columns->length;  index++) {
-		column = (SqColumn*)arranged_columns->data[index];
-		// skip ignore
-//		if (column->bit_field & SQB_IGNORE)
-//			continue;
-		// skip SQ_TYPE_CONSTRAINT and SQ_TYPE_INDEX. They are fake types.
-		if (SQ_TYPE_IS_FAKE(column->type))
-			continue;
-		// skip "dropped" or "renamed" records
-		if (column->old_name && (column->bit_field & SQB_RENAMED) == 0)
-			continue;
-		// skip if column is newly "added" one
-		if (index >= n_old_columns && (column->bit_field & SQB_CHANGED) == 0)
-			continue;
-
-		// write comma between two columns
-		if (count > 0) {
-			allocated = sq_buffer_alloc(sql_buf, 2);
-			allocated[0] = ',';
-			allocated[1] = ' ';
-		}
-		count++;
-		// write column->old_name or column->name
-		sq_buffer_write_c(sql_buf, db->info->quote.identifier[0]);
-		if (old_name && column->old_name)
-			sq_buffer_write(sql_buf, column->old_name);
-		else
-			sq_buffer_write(sql_buf, column->name);
-		sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
-	}
-}

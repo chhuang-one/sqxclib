@@ -139,33 +139,3 @@ int  sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements)
 	return n_old_elements +1;
 }
 
-// ------------------------------------
-// SqReentry SqCompareFunc
-
-int  sq_reentry_cmp_str__name(const char *str, SqReentry **reentry_addr)
-{
-	SqReentry *reentry = *reentry_addr;
-
-	if (reentry) {
-#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
-		return strcmp(str, reentry->name);
-#else
-		return strcasecmp(str, reentry->name);
-#endif
-	}
-	return -1;
-}
-
-int  sq_reentry_cmp_str__old_name(const char *str, SqReentry **reentry_addr)
-{
-	SqReentry *reentry = *reentry_addr;
-
-	if (reentry) {
-#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
-		return strcmp(str, reentry->old_name);
-#else
-		return strcasecmp(str, reentry->old_name);
-#endif
-	}
-	return -1;
-}

@@ -113,7 +113,7 @@ static const SqColumn userColumnsVer1[] = {
 // ALTER TABLE "users"
 static const SqColumn userColumnsVer2[] = {
 	// ADD COLUMN "test_add"
-	{SQ_TYPE_UINT,   "test_add",  offsetof(User, test_add),  0},
+	{SQ_TYPE_UINT,   "test_add",  offsetof(User, test_add),  SQB_NULLABLE},
 };
 
 // ALTER TABLE "users"
@@ -130,6 +130,8 @@ static const SqColumn userColumnsVer3[] = {
 static const SqColumn userColumnsVer4[] = {
 	// RENAME COLUMN "test_rename" TO "test_rename2"
 	{.old_name = "test_rename",   .name = "test_rename2" },
+
+//	{.old_name = "ints",   .name = "test_ints" },
 };
 
 // ----------------------------------------------------------------------------
@@ -202,6 +204,7 @@ void city_print(City *city) {
 void storage_make_migrated_schema(SqStorage *storage, int end_version)
 {
 	SqSchema *schema;
+	SqColumn *column;
 	SqTable  *table;
 
 	if (end_version >= 1) {
@@ -235,6 +238,9 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
 		sq_table_add_column(table, userColumnsVer3, SQ_N_COLUMNS(userColumnsVer3));
+		// add "test_drop" after dropping "test_drop"
+		column = sq_table_add_uint(table, "test_drop", offsetof(User, test_drop));
+		column->bit_field |= SQB_NULLABLE;
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -258,7 +264,8 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 		sq_schema_rename(schema, "users", "users2");
 		// ALTER TABLE "cities" ADD COLUMN "visited"    (dynamic)
 		table = sq_schema_alter(schema, "cities", NULL);
-		sq_table_add_bool(table, "visited", offsetof(City, visited));
+		column = sq_table_add_bool(table, "visited", offsetof(City, visited));
+		column->bit_field |= SQB_NULLABLE;
 		// migrate changed of "users" and "cities"
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -379,12 +386,14 @@ int  main(void)
 	}
 
 	array = sq_storage_get_all(storage, "cities", NULL, NULL);
-	for (int i = 0;  i < array->length;  i++) {
-		city = array->data[i];
-		city_print(city);
-		city_free(city);
+	if (array) {
+		for (int i = 0;  i < array->length;  i++) {
+			city = array->data[i];
+			city_print(city);
+			city_free(city);
+		}
+		sq_ptr_array_free(array);
 	}
-	sq_ptr_array_free(array);
 
 	// TABLE "users" was renamed to "users2" in schema version 5
 	// DROP TABLE "user2" in schema version 6
