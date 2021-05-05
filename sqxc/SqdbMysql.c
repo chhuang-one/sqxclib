@@ -158,7 +158,7 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 			}
 			else {
 				// CREATE TABLE
-				if (sqdb_sql_create_table((Sqdb*)db, &sql_buf, table, NULL) > 0) {
+				if (sqdb_sql_create_table((Sqdb*)db, &sql_buf, table, NULL, false) > 0) {
 #if DEBUG
 					fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 #endif

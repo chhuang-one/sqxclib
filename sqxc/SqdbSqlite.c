@@ -187,7 +187,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 		sql_buf.writed = 0;
 		// === CREATE TABLE ===
 		if ((table->bit_field & SQB_TABLE_SQL_CREATED) == 0) {
-			if (sqdb_sql_create_table((Sqdb*)sqdb, &sql_buf, table, NULL) > 0)
+			if (sqdb_sql_create_table((Sqdb*)sqdb, &sql_buf, table, NULL, true) > 0)
 				sq_buffer_write_c(&sql_buf, ';');
 			else
 				sql_buf.writed = 0;
@@ -463,7 +463,7 @@ static void  sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTab
 	sq_buffer_write(sql_buf, "CREATE TABLE IF NOT EXISTS \"" NEW_TABLE_PREFIX_NAME);
 	sq_buffer_write(sql_buf, table->name);
 	sq_buffer_write_c(sql_buf, '\"');
-	sqdb_sql_create_table_params((Sqdb*)db, sql_buf, columns);
+	sqdb_sql_create_table_params((Sqdb*)db, sql_buf, columns, true);
 	sq_buffer_write_c(sql_buf, ';');
 
 	// -- copy data from the table to the new_tables

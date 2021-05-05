@@ -129,7 +129,7 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 // ----------------------------------------------------------------------------
 // write SQL statement to 'sql_buf'
 
-int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns)
+int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns, bool primary_first)
 {
 	int  n_columns;
 
@@ -148,17 +148,52 @@ int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArr
 	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
 	sq_buffer_r_at(sql_buf, 0) = ' ';
 
-	n_columns = sqdb_sql_create_table_params(db, sql_buf, arranged_columns);
+	n_columns = sqdb_sql_create_table_params(db, sql_buf, arranged_columns, primary_first);
 
 	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
 	return n_columns;
 }
 
-int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arranged_columns)
+// used by sqdb_sql_create_table_params()
+static int  column_cmp_pfk(SqColumn **col1, SqColumn **col2) {
+	int  val1, val2;
+
+	if ((*col1)->bit_field & SQB_PRIMARY)
+		val1 = 1;
+	else if ((*col1)->foreign)
+		val1 = 2;
+	else
+		val1 = 3;
+
+	if ((*col2)->bit_field & SQB_PRIMARY)
+		val2 = 1;
+	else if ((*col2)->foreign)
+		val2 = 2;
+	else
+		val2 = 3;
+
+	return val1 - val2;
+}
+
+int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arranged_columns, bool primary_first)
 {
+	SqPtrArray array;
 	SqColumn *column;
 	int       index, n_columns = 0;
 	bool      has_constraint = false;
+
+	if (primary_first) {
+		// if first column is not primary key
+		column = (SqColumn*)arranged_columns->data[0];
+		if ((column->bit_field & SQB_PRIMARY) == 0) {
+			// move primary and foreign key to beginning of array
+			sq_ptr_array_init(&array, arranged_columns->length, NULL);
+			memcpy(array.data, arranged_columns->data, sizeof(void*) * arranged_columns->length);
+			array.length = arranged_columns->length;
+			sq_ptr_array_sort(&array, (SqCompareFunc)column_cmp_pfk);
+			arranged_columns = &array;
+		}
+	}
 
 	sq_buffer_write(buffer, "( ");
 	for (index = 0;  index < arranged_columns->length;  index++) {
@@ -235,6 +270,9 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 			}
 		}
 	}
+
+	if (primary_first)    //  arranged_columns == &array
+		sq_ptr_array_final(&array);
 
 	sq_buffer_write_c(buffer, ')');
 	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
