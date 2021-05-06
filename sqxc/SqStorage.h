@@ -306,7 +306,7 @@ inline StlContainer *StorageMethod::getBySql(const char *sql_where_having) {
 		return NULL;
 	SqType  *containerType = new Sq::TypeStl<StlContainer>(table->type);
 	StlContainer *instance = (StlContainer*) sq_storage_get_by_sql((SqStorage*)this, table->name, NULL, containerType, sql_where_having);
-	delete containerType;
+	delete (Sq::TypeStl<StlContainer>*)containerType;
 	return instance;
 }
 template <class ElementType, class StlContainer>
@@ -316,7 +316,7 @@ inline StlContainer *StorageMethod::getBySql(const char *sql_where_having) {
 		return NULL;
 	SqType  *containerType = new Sq::TypeStl<StlContainer>(table->type);
 	StlContainer *instance = (StlContainer*) sq_storage_get_by_sql((SqStorage*)this, table->name, NULL, containerType, sql_where_having);
-	delete containerType;
+	delete (Sq::TypeStl<StlContainer>*)containerType;
 	return instance;
 }
 
@@ -335,7 +335,7 @@ inline StlContainer *StorageMethod::getAll() {
 		return NULL;
 	SqType  *containerType = new Sq::TypeStl<StlContainer>(table->type);
 	StlContainer *instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, NULL, containerType);
-	delete containerType;
+	delete (Sq::TypeStl<StlContainer>*)containerType;
 	return instance;
 }
 template <class ElementType, class StlContainer>
@@ -345,7 +345,7 @@ inline StlContainer *StorageMethod::getAll() {
 		return NULL;
 	SqType  *containerType = new Sq::TypeStl<StlContainer>(table->type);
 	StlContainer *instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, NULL, containerType);
-	delete containerType;
+	delete (Sq::TypeStl<StlContainer>*)containerType;
 	return instance;
 }
 
@@ -364,7 +364,7 @@ inline StlContainer *StorageMethod::query(SqQuery *query) {
 	if (type) {
 		SqType  *containerType = new Sq::TypeStl<StlContainer>(type);
 		instance = sq_storage_query((SqStorage*)this, query, containerType, type);
-		delete containerType;
+		delete (Sq::TypeStl<StlContainer>*)containerType;
 		sq_type_unref(type);
 	}
 	return (StlContainer*)instance;
