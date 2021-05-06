@@ -22,16 +22,14 @@ sources = ['SqPtrArray.c',
            'SqxcValue.c',
            'SqxcJsonc.c',
            'SqxcSql.c',
-
-           # for testing
-           'SqdbEmpty.c',
-           'SqxcEmpty.c',
           ]
 
-headers = ['SqPtrArray.h',
-           'SqBuffer.h',
+headers = ['SqConfig.h',
            'SqDefine.h',
            'SqError.h',
+
+           'SqPtrArray.h',
+           'SqBuffer.h',
            'SqUtil.h',
            'SqType.h',
            'SqEntry.h',
@@ -40,7 +38,6 @@ headers = ['SqPtrArray.h',
            'SqSchema.h', 'SqSchema-macro.h',
            'SqStorage.h',
            'SqQuery.h', 'SqQuery-macro.h',
-           'SqConfig.h',
            'SqRelation.h',
 
            # Sqdb - Database interface
@@ -51,10 +48,6 @@ headers = ['SqPtrArray.h',
            'SqxcValue.h',
            'SqxcJsonc.h',
            'SqxcSql.h',
-
-           # for testing
-           'SqdbEmpty.h',
-           'SqxcEmpty.h',
           ]
 
 # C++ sources & headers
@@ -66,6 +59,18 @@ sources_cpp = [
 headers_cpp = [
                'SqType-stl-cpp.h',
               ]
+
+# test sources & headers
+
+sources_test = [
+                'SqdbEmpty.c',
+                'SqxcEmpty.c',
+               ]
+
+headers_test = [
+                'SqdbEmpty.h',
+                'SqxcEmpty.h',
+               ]
 
 # install_headers(headers, subdir: 'sqxc')
 # install_headers(headers_cpp, subdir: 'sqxc')
@@ -97,5 +102,11 @@ sqxcpp_lib = static_library('sqxcpp',
                             dependencies : sqxc_dep,
                             install: false)
 
+sqxctest_lib = static_library('sqxctest',
+                              sources_test,
+                              include_directories: sqxc_inc,
+                              dependencies : sqxc_dep,
+                              install: false)
+
 sqxc = declare_dependency(include_directories : sqxc_inc,
-                          link_with : [sqxc_lib, sqxcpp_lib])
+                          link_with : [sqxc_lib, sqxcpp_lib, sqxctest_lib])
