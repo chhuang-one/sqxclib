@@ -1,0 +1,41 @@
+set(EXAMPLE_INCLUDE_DIRS
+    ${SQXC_INCLUDE_DIRS}
+    ${JSONC_INCLUDE_DIRS}
+)
+set(EXAMPLE_LIBRARIES
+    ${SQXC_LIBRARIES}
+    ${JSONC_LIBRARIES}
+)
+
+
+if (SQLITE3_INCLUDE_DIRS)
+	set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAS_SQLITE")
+	set(EXAMPLE_INCLUDE_DIRS
+	    ${EXAMPLE_INCLUDE_DIRS}
+	    ${SQLITE3_INCLUDE_DIRS}
+	)
+	set(EXAMPLE_LIBRARIES
+	    ${EXAMPLE_LIBRARIES}
+	    ${SQLITE3_LIBRARIES}
+	)
+endif()
+
+if (MYSQL_FOUND)
+	set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAS_MYSQL")
+	set(EXAMPLE_INCLUDE_DIRS
+	    ${EXAMPLE_INCLUDE_DIRS}
+	    ${MYSQL_INCLUDE_DIR}
+	)
+	set(EXAMPLE_LIBRARIES
+	    ${EXAMPLE_LIBRARIES}
+	    ${MYSQL_LIBRARY}
+	)
+endif()
+
+
+include_directories(${EXAMPLE_INCLUDE_DIRS})
+link_libraries(${EXAMPLE_LIBRARIES})
+
+add_executable(storage-c99  storage-c99.c)
+
+add_executable(storage-cxx  storage-cxx.cpp)

@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.4.1)
-
-project(sqxc)
-
 set(SOURCES
     SqPtrArray.c
     SqBuffer.c
@@ -65,6 +61,16 @@ set(HEADERS_TEST
     SqxcEmpty.h
 )
 
+
+set(LOCAL_INCLUDE_DIRS
+	${SQXC_INCLUDE_DIRS}
+	${JSONC_INCLUDE_DIRS}
+)
+set(LOCAL_LIBRARIES
+	${JSONC_LIBRARIES}
+)
+
+
 if (SQLITE3_INCLUDE_DIRS)
 	set(SOURCES
 	    ${SOURCES}
@@ -75,6 +81,15 @@ if (SQLITE3_INCLUDE_DIRS)
 	    ${HEADERS}
 	    SqdbSqlite.h
 	    SqRelation-migration.h
+	)
+
+	set(LOCAL_INCLUDE_DIRS
+	    ${LOCAL_INCLUDE_DIRS}
+	    ${SQLITE3_INCLUDE_DIRS}
+	)
+	set(LOCAL_LIBRARIES
+	    ${LOCAL_LIBRARIES}
+	    ${SQLITE3_LIBRARIES}
 	)
 endif()
 
@@ -89,20 +104,20 @@ if (MYSQL_FOUND)
 	    SqdbMysql.h
 	    Sqdb-migration.h
 	)
+
+	set(LOCAL_INCLUDE_DIRS
+	    ${LOCAL_INCLUDE_DIRS}
+	    ${MYSQL_INCLUDE_DIR}
+	)
+	set(LOCAL_LIBRARIES
+	    ${LOCAL_LIBRARIES}
+	    ${MYSQL_LIBRARY}
+	)
 endif()
 
-if (MYSQL_FOUND)
-	include_directories(${JSONC_INCLUDE_DIRS}
-	                    ${SQLITE3_INCLUDE_DIRS}
-	                    ${MYSQL_INCLUDE_DIR}
-	                    ${CMAKE_CURRENT_SOURCE_DIR}
-	)
-else()
-	include_directories(${JSONC_INCLUDE_DIRS}
-	                    ${SQLITE3_INCLUDE_DIRS}
-	                    ${CMAKE_CURRENT_SOURCE_DIR}
-	)
-endif()
+
+include_directories(${LOCAL_INCLUDE_DIRS})
+link_libraries(${LOCAL_LIBRARIES})
 
 add_library(sqxc
             STATIC
