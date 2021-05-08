@@ -271,7 +271,7 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 		}
 	}
 
-	if (primary_first)    //  arranged_columns == &array
+	if (arranged_columns == &array)     //  primary_first
 		sq_ptr_array_final(&array);
 
 	sq_buffer_write_c(buffer, ')');
