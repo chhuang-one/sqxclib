@@ -226,7 +226,7 @@ void     sq_type_sort_entry(SqType *type);
 // calculate size for dynamic SqType.
 // if "inner_entry" == NULL, it use all entries to calculate size.
 // otherwise it use "inner_entry" to calculate size.
-int      sq_type_decide_size(SqType *type, const SqEntry *inner_entry);
+int      sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
 
 // --------------------------------------------------------
 // SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions

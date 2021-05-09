@@ -167,7 +167,7 @@ void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t 
 		entry_addr = sq_ptr_array_alloc(array, n_entry);
 		for (;  n_entry;  n_entry--, entry_addr++) {
 			*entry_addr = (void*)entry;
-			sq_type_decide_size(type, entry);
+			sq_type_decide_size(type, entry, false);
 			entry = (SqEntry*) ((char*)entry + sizeof_entry);
 		}
 	}
@@ -182,7 +182,7 @@ void  sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_ent
 		array = sq_type_get_ptr_array(type);
 		SQ_PTR_ARRAY_APPEND_N(array, entry_ptrs, n_entry_ptrs);
 		for (int index = 0;  index < n_entry_ptrs;  index++, entry_ptrs++)
-			sq_type_decide_size(type, *entry_ptrs);
+			sq_type_decide_size(type, *entry_ptrs, false);
 	}
 }
 
@@ -213,7 +213,7 @@ void  sq_type_sort_entry(SqType *type)
 	}
 }
 
-int   sq_type_decide_size(SqType *type, const SqEntry *inner_entry)
+int   sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed)
 {
 	SqPtrArray *array;
 	int   size;
@@ -221,34 +221,43 @@ int   sq_type_decide_size(SqType *type, const SqEntry *inner_entry)
 	if (type->bit_field & SQB_TYPE_DYNAMIC) {
 		if (inner_entry) {
 			// calculate new one entry 
-			if (inner_entry->type == NULL)
+			if (SQ_TYPE_IS_FAKE(inner_entry->type) || inner_entry->type == NULL)
 				return type->size;
 			else if (inner_entry->bit_field & SQB_POINTER)
 				size = sizeof(void*);
 			else
 				size = inner_entry->type->size;
 			size += inner_entry->offset;
-			if (type->size < size)
-				type->size = size;
-		}
-		else {
-			// recalculate size
-			type->size = 0;
-			if (type->entry == NULL)
-				return 0;
-			array = sq_type_get_ptr_array(type);
-			sq_ptr_array_foreach_addr(array, element_addr) {
-				SqEntry *inner = *element_addr;
-				if (inner->type == NULL)
-					continue;
-				else if (inner->bit_field & SQB_POINTER)
-					size = sizeof(void*);
-				else
-					size = inner->type->size;
-				size += inner->offset;
+			// removing or adding entry
+			if (entry_removed) {
+				if (type->size == size) {
+					type->size = inner_entry->offset;
+					return type->size;
+				}
+			}
+			else {
 				if (type->size < size)
 					type->size = size;
+				return type->size;
 			}
+		}
+
+		// recalculate size
+		type->size = 0;
+		if (type->entry == NULL)
+			return 0;
+		array = sq_type_get_ptr_array(type);
+		sq_ptr_array_foreach_addr(array, element_addr) {
+			SqEntry *inner = *element_addr;
+			if (inner->type == NULL)
+				continue;
+			else if (inner->bit_field & SQB_POINTER)
+				size = sizeof(void*);
+			else
+				size = inner->type->size;
+			size += inner->offset;
+			if (type->size < size)
+				type->size = size;
 		}
 	}
 	return type->size;

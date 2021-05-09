@@ -203,8 +203,13 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 					sq_relation_add(table->relation, SQ_TYPE_TRACING, column_src, 0);
 				// replace 'column' by 'column_src'
 				sq_relation_replace(table->relation, column, column_src, 0);
-				sq_column_free(column);
 				*addr = column_src;
+				// calculate size
+				sq_type_decide_size((SqType*)table->type, (SqEntry*)column_src, false);
+				// free removed column
+				sq_column_free(column);
+				// set bit_field: column altered
+				table->bit_field |= SQB_TABLE_COL_ALTERED;
 			}
 #if DEBUG
 			else {
@@ -213,9 +218,6 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				        table->name, column_src->name);
 			}
 #endif
-			sq_type_decide_size((SqType*)table->type, (SqEntry*)column_src);
-			// set bit_field: column altered
-			table->bit_field |= SQB_TABLE_COL_ALTERED;
 		}
 		else if (column_src->name == NULL) {
 			// === DROP COLUMN / CONSTRAINT / KEY ===
@@ -231,9 +233,12 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				sq_relation_replace(table->relation, column, column_src, 0);
 				if (column->old_name == NULL)
 					sq_relation_add(table->relation, SQ_TYPE_REENTRY, column_src, 0);
+				// remove dropped column from array
+				sq_ptr_array_steal(reentries, temp.index, 1);
+				// calculate size
+				sq_type_decide_size((SqType*)table->type, (SqEntry*)column, true);
 				// remove dropped column from table->type->entry
 				sq_column_free(column);
-				sq_ptr_array_steal(reentries, temp.index, 1);
 			}
 #if DEBUG
 			else {
@@ -340,12 +345,12 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				// steal 'reentry_src' from 'entry_src->type'. TODO: NO_STEAL
 //				if (table_src->type->bit_field & SQB_DYNAMIC)
 //					reentries_src->data[index] = NULL;
+				// calculate size
+				sq_type_decide_size((SqType*)table->type, (SqEntry*)column_src, false);
 			}
 			else {
 				fprintf(stderr, "SqTable: column %s is exist.\n", column_src->name);
 			}
-
-			sq_type_decide_size((SqType*)table->type, (SqEntry*)column_src);
 		}
 	}
 
