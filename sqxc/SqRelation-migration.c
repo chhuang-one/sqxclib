@@ -213,7 +213,6 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 			}
 #if DEBUG
 			else {
-				// It can ignore this error...
 				fprintf(stderr, "SqTable %s: Can't alter column %s. It is not found.\n",
 				        table->name, column_src->name);
 			}
@@ -239,6 +238,8 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				sq_type_decide_size((SqType*)table->type, (SqEntry*)column, true);
 				// remove dropped column from table->type->entry
 				sq_column_free(column);
+				// set bit_field: column dropped
+				table->bit_field |= SQB_TABLE_COL_DROPPED;
 			}
 #if DEBUG
 			else {
@@ -247,8 +248,6 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				sq_column_free(column_src);
 			}
 #endif
-			// set bit_field: column dropped
-			table->bit_field |= SQB_TABLE_COL_DROPPED;
 		}
 		else if (column_src->old_name) {
 			// === RENAME COLUMN ===
@@ -257,14 +256,14 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 					(SqCompareFunc) sq_entry_cmp_str__name, NULL);
 			// rename existing column->name to column_src->name
 			if (addr) {
+				// if there is a column that has the same name was erased/renamed
 				if (sq_relation_trace_reentry(table->relation, column_src->name)) {
-					// There is a column that has the same name was erased/renamed
 					sq_schema_trace_name(schema);
 					sq_schema_erase_records(schema, '?');
 				}
+				// create dynamic column to replace static one if column is static
 				column = *(SqColumn**)addr;
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
-					// create dynamic column to replace static one
 					column = sq_column_copy_static(column);
 					sq_relation_replace(table->relation, *addr, column, 0);
 					*addr = column;
@@ -297,6 +296,8 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				else if (temp.addr != addr)
 					memmove(addr, addr +1, (char*)(--temp.addr) - (char*)addr);
 				*temp.addr = column;
+				// set bit_field: column renamed
+				table->bit_field |= SQB_TABLE_COL_RENAMED;
 			}
 #if DEBUG
 			else {
@@ -305,41 +306,23 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				sq_column_free(column_src);
 			}
 #endif
-			// set bit_field: column renamed
-			table->bit_field |= SQB_TABLE_COL_RENAMED;
 		}
 		else {
 			// === ADD COLUMN / CONSTRAINT / KEY ===
-			if (sq_relation_trace_reentry(table->relation, column_src->name)) {
-				// There is a column that has the same name was erased/renamed
-				sq_schema_trace_name(schema);
-				sq_schema_erase_records(schema, '?');
-			}
-			// set bit_field: column added
-			if (column_src->type == SQ_TYPE_CONSTRAINT)
-				table->bit_field |= SQB_TABLE_COL_ADDED_CONSTRAINT;
-			else if (column_src->bit_field & (SQB_UNIQUE | SQB_PRIMARY))
-				table->bit_field |= SQB_TABLE_COL_ADDED_UNIQUE;
-			else if (column_src->default_value) {
-				// DEFAULT (expression)
-				if (column_src->default_value[0] == '(')
-					table->bit_field |= SQB_TABLE_COL_ADDED_EXPRESSION;
-				// DEFAULT CURRENT_TIME or CURRENT_DATE...etc
-				else if (column_src->default_value[0] == 'C' && column_src->default_value[7] == '_')
-					table->bit_field |= SQB_TABLE_COL_ADDED_CURRENT_TIME;
-				else
-					table->bit_field |= SQB_TABLE_COL_ADDED;
-			}
-			else
-				table->bit_field |= SQB_TABLE_COL_ADDED;
-			if (column_src->foreign || column_src->composite)
-				sq_relation_add(table->relation, SQ_TYPE_TRACING, column_src, 0);
-			if (table->bit_field & SQB_TABLE_SQL_CREATED)
-				sq_relation_add(table->relation, SQ_TYPE_UNSYNCED, column_src, 0);
 			// get inserting position
 			addr = sq_ptr_array_find_sorted(reentries, column_src->name,
 					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
 			if (addr == NULL) {
+				// if there is a column that has the same name was erased/renamed
+				if (sq_relation_trace_reentry(table->relation, column_src->name)) {
+					sq_schema_trace_name(schema);
+					sq_schema_erase_records(schema, '?');
+				}
+				// sq_schema_trace_name()
+				if (column_src->foreign || column_src->composite)
+					sq_relation_add(table->relation, SQ_TYPE_TRACING, column_src, 0);
+				if (table->bit_field & SQB_TABLE_SQL_CREATED)
+					sq_relation_add(table->relation, SQ_TYPE_UNSYNCED, column_src, 0);
 				// add 'reentry_src' to entry->type.
 				sq_ptr_array_insert(reentries, temp.index, column_src);
 				// steal 'reentry_src' from 'entry_src->type'. TODO: NO_STEAL
@@ -347,6 +330,23 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 //					reentries_src->data[index] = NULL;
 				// calculate size
 				sq_type_decide_size((SqType*)table->type, (SqEntry*)column_src, false);
+				// set bit_field: column added
+				if (column_src->type == SQ_TYPE_CONSTRAINT)
+					table->bit_field |= SQB_TABLE_COL_ADDED_CONSTRAINT;
+				else if (column_src->bit_field & (SQB_UNIQUE | SQB_PRIMARY))
+					table->bit_field |= SQB_TABLE_COL_ADDED_UNIQUE;
+				else if (column_src->default_value) {
+					// DEFAULT (expression)
+					if (column_src->default_value[0] == '(')
+						table->bit_field |= SQB_TABLE_COL_ADDED_EXPRESSION;
+					// DEFAULT CURRENT_TIME, CURRENT_DATE, or CURRENT_TIMESTAMP...etc
+					else if (strncasecmp("CURRENT_", column_src->default_value, 8) == 0)
+						table->bit_field |= SQB_TABLE_COL_ADDED_CURRENT_TIME;
+					else
+						table->bit_field |= SQB_TABLE_COL_ADDED;
+				}
+				else
+					table->bit_field |= SQB_TABLE_COL_ADDED;
 			}
 			else {
 				fprintf(stderr, "SqTable: column %s is exist.\n", column_src->name);
@@ -519,12 +519,11 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 			addr = sq_ptr_array_find_sorted(reentries, table_src->old_name,
 					(SqCompareFunc) sq_entry_cmp_str__name, NULL);
 			if (addr) {
+				// if there is a table that has the same name was erased/renamed
 				if (sq_relation_trace_reentry(schema->relation, table_src->name)) {
-					// There is a table that has the same name was erased/renamed
 					sq_schema_trace_name(schema);
 					sq_schema_erase_records(schema, '?');
 				}
-				// rename existing table->name to table_src->name
 				table = *(SqTable**)addr;
 				// sq_schema_trace_name()
 				sq_relation_add(schema->relation, table_src, table, 0);
@@ -563,22 +562,21 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 		}
 		else {
 			// === ADD TABLE ===
-			if (sq_relation_trace_reentry(schema->relation, table_src->name)) {
-				// There is a table that has the same name was erased/renamed
-				sq_schema_trace_name(schema);
-				sq_schema_erase_records(schema, '?');
-			}
-
-			if (table_src->relation == NULL)
-				sq_table_create_relation(table_src, schema->relation_pool);
-			if (sq_relation_find(table_src->relation, SQ_TYPE_TRACING, NULL))
-				sq_relation_add(schema->relation, SQ_TYPE_TRACING, table_src, 0);
-			sq_relation_add(schema->relation, SQ_TYPE_UNSYNCED, table_src, 0);
-
 			// get inserting position
 			addr = sq_ptr_array_find_sorted(reentries, table_src->name,
 					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
 			if (addr == NULL) {
+				// if there is a table that has the same name was erased/renamed
+				if (sq_relation_trace_reentry(schema->relation, table_src->name)) {
+					sq_schema_trace_name(schema);
+					sq_schema_erase_records(schema, '?');
+				}
+				// sq_schema_trace_name()
+				if (table_src->relation == NULL)
+					sq_table_create_relation(table_src, schema->relation_pool);
+				if (sq_relation_find(table_src->relation, SQ_TYPE_TRACING, NULL))
+					sq_relation_add(schema->relation, SQ_TYPE_TRACING, table_src, 0);
+				sq_relation_add(schema->relation, SQ_TYPE_UNSYNCED, table_src, 0);
 				// add 'reentry_src' to entry->type.
 				sq_ptr_array_insert(reentries, temp.index, table_src);
 				// steal 'reentry_src' from 'entry_src->type'. TODO: NO_STEAL
