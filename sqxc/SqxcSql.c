@@ -28,6 +28,7 @@
 
 #include <SqError.h>
 #include <SqBuffer.h>
+#include <SqUtil.h>
 #include <SqTable.h>
 #include <SqxcSql.h>
 
@@ -44,7 +45,7 @@
 static void sqxc_sql_use_insert_command(SqxcSql *xcsql, SqTable *table);
 static void sqxc_sql_use_update_command(SqxcSql *xcsql, SqTable *table);
 static void sqxc_sql_use_where_condition(SqxcSql *xcsql, const char *condition);
-static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src);
+static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer);
 
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - destination of output chain
@@ -54,7 +55,8 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src);
 
 static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 {
-	SqBuffer *buffer = sqxc_get_buffer(xcsql);
+	SqBuffer *values_buf = &xcsql->values_buf;
+	SqBuffer *names_buf = sqxc_get_buffer(xcsql);
 	SqEntry  *entry;
 
 	switch (src->type) {
@@ -78,8 +80,8 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 		xcsql->supported_type |= SQXC_TYPE_END;
 		// --- Begin of row ---
 		if (xcsql->row_count)
-			sq_buffer_write_c(buffer, ',');
-		sq_buffer_write_c(buffer, '(');
+			sq_buffer_write_c(values_buf, ',');
+		sq_buffer_write_c(values_buf, '(');
 		xcsql->row_count++;
 		xcsql->col_count = 0;
 		return (src->code = SQCODE_OK);
@@ -90,10 +92,10 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 		xcsql->outer_type &= ~SQXC_TYPE_OBJECT;
 		xcsql->supported_type |= SQXC_TYPE_OBJECT;
 		// --- End of row ---
-		sq_buffer_write_c(buffer, ')');
+		sq_buffer_write_c(values_buf, ')');
 		if ((xcsql->outer_type & SQXC_TYPE_ARRAY) == 0) {
-			sq_buffer_write_c(buffer, 0);    // null-terminated
-			// SQL statement has written in xcsql->buf
+			sq_buffer_write_c(values_buf, 0);    // null-terminated
+			// SQL INSERT VALUES has written in xcsql->values_buf
 		}
 		return (src->code = SQCODE_OK);
 
@@ -103,29 +105,52 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 		xcsql->outer_type &= ~SQXC_TYPE_ARRAY;
 		xcsql->supported_type |= SQXC_TYPE_ARRAY;
 		// --- End of Array ---
-		sq_buffer_write_c(buffer, 0);    // null-terminated
-		// SQL statement has written in xcsql->buf
+		sq_buffer_write_c(values_buf, 0);    // null-terminated
+		// SQL INSERT VALUES has written in xcsql->values_buf
 		return (src->code = SQCODE_OK);
 
 	default:
 		break;
 	}
 
-	// Don't output auto increment
 	entry = src->entry;
-	if (entry && entry->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(entry->type))
-		return (src->code = SQCODE_OK);
-
-	// SQL statement multiple columns
-	if (xcsql->col_count)
-		sq_buffer_write_c(buffer, ',');
-	// value
-	if (sqxc_sql_write_value(xcsql, src) != SQCODE_OK) {
-		if (xcsql->col_count)
-			buffer->writed--;
+	if (entry) {
+		// Don't output column that has AUTO INCREMENT and value.integer is 0
+		if (entry->bit_field & SQB_INCREMENT) {
+			if (src->value.int64 == 0)    //  && (entry->type == SQ_TYPE_INT64 || entry->type == SQ_TYPE_UINT64)
+				return (src->code = SQCODE_OK);
+			if (src->value.int_  == 0 && (entry->type == SQ_TYPE_INT   || entry->type == SQ_TYPE_UINT))
+				return (src->code = SQCODE_OK);
+		}
+		// Don't output column that has DEFAULT CURRENT_XXXX and value.rawtime is 0
+		if (entry->type == SQ_TYPE_TIME && src->type == SQXC_TYPE_TIME && src->value.rawtime == 0) {
+			if (strncasecmp("CURRENT_", ((SqColumn*)entry)->default_value, 8) == 0)
+				return (src->code = SQCODE_OK);
+		}
 	}
 
-	xcsql->col_count++;
+	// SQL statement multiple columns
+	if (xcsql->col_count) {
+		sq_buffer_write_c(names_buf, ',');
+		sq_buffer_write_c(values_buf, ',');
+	}
+
+	// value
+	if (sqxc_sql_write_value(xcsql, src, values_buf) != SQCODE_OK) {
+		if (xcsql->col_count) {
+			names_buf->writed--;     // remove ',' from names_buf
+			values_buf->writed--;    // remove ',' form values_buf
+		}
+	}
+	// "name"
+	else {
+		sq_buffer_write_c(names_buf, xcsql->quote[0]);
+		sq_buffer_write(names_buf, src->name);
+		sq_buffer_write_c(names_buf, xcsql->quote[1]);
+
+		xcsql->col_count++;
+	}
+
 	return src->code;
 }
 
@@ -168,13 +193,20 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 		break;
 	}
 
-	// Don't output primary key
 	entry = src->entry;
-	if (entry && entry->bit_field & SQB_PRIMARY) {
-		// get primary key id if possible
-		if (SQ_TYPE_IS_INT(entry->type) && xcsql->id == -1)
-			xcsql->id = src->value.integer;
-		return (src->code = SQCODE_OK);
+	if (entry) {
+		// Don't output primary key
+		if (entry->bit_field & SQB_PRIMARY) {
+			// get primary key id if possible
+			if (SQ_TYPE_IS_INT(entry->type) && xcsql->id == -1)
+				xcsql->id = src->value.integer;
+			return (src->code = SQCODE_OK);
+		}
+		// Don't output column that has DEFAULT CURRENT_XXXX and value.rawtime is 0
+		if (entry->type == SQ_TYPE_TIME && src->type == SQXC_TYPE_TIME && src->value.rawtime == 0) {
+			if (strncasecmp("CURRENT_", ((SqColumn*)entry)->default_value, 8) == 0)
+				return (src->code = SQCODE_OK);
+		}
 	}
 
 	len = buffer->writed;
@@ -188,10 +220,11 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 	sq_buffer_alloc(buffer, 2);
 	sq_buffer_r_at(buffer, 1) = xcsql->quote[1];
 	sq_buffer_r_at(buffer, 0) = '=';
-	if (sqxc_sql_write_value(xcsql, src) != SQCODE_OK)
+	if (sqxc_sql_write_value(xcsql, src, NULL) != SQCODE_OK)
 		buffer->writed = len;
+	else
+		xcsql->col_count++;
 
-	xcsql->col_count++;
 	return src->code;
 }
 
@@ -217,6 +250,18 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 	case SQXC_CTRL_FINISH:
 		free(xcsql->condition);
 		xcsql->condition = NULL;
+		// write INSERT VALUES to xcsql->buf
+		if (xcsql->mode == 1) {
+			SqBuffer *buffer = sqxc_get_buffer(xcsql);
+			SqBuffer *values = &xcsql->values_buf;
+	
+			// length of ") VALUES " is 9
+			sq_buffer_resize(buffer, buffer->writed + 9 + values->writed + 1);
+			sq_buffer_write(buffer, ") VALUES ");
+			sq_buffer_write_n(buffer, values->buf, values->writed);
+			// reset values buffer
+			values->writed = 0;
+		}
 		// SQL statement has written in xcsql->buf
 		if (xcsql->db && xcsql->buf_writed > 0) {
 			code = sqdb_exec(xcsql->db, xcsql->buf, (Sqxc*)xcsql, NULL);
@@ -262,6 +307,7 @@ static void  sqxc_sql_init(SqxcSql *xcsql)
 {
 //	memset(xcsql, 0, sizeof(SqxcSql));
 	sq_buffer_resize(sqxc_get_buffer(xcsql), SQ_CONFIG_SQXC_SQL_BUFFER_SIZE_DEAULT);
+	sq_buffer_init(&xcsql->values_buf);
 
 	xcsql->supported_type  = SQXC_TYPE_ALL;
 	xcsql->outer_type = SQXC_TYPE_NONE;
@@ -272,7 +318,7 @@ static void  sqxc_sql_init(SqxcSql *xcsql)
 
 static void  sqxc_sql_final(SqxcSql *xcsql)
 {
-
+	sq_buffer_final(&xcsql->values_buf);
 }
 
 // ----------------------------------------------------------------------------
@@ -280,10 +326,7 @@ static void  sqxc_sql_final(SqxcSql *xcsql)
 
 static void sqxc_sql_use_insert_command(SqxcSql *xcsql, SqTable *table)
 {
-	SqEntry   *entry;
 	SqBuffer  *buffer;
-	int        index;
-	int        index_beg = 0;
 
 	buffer = sqxc_get_buffer(xcsql);
 	buffer->writed = 0;
@@ -297,26 +340,6 @@ static void sqxc_sql_use_insert_command(SqxcSql *xcsql, SqTable *table)
 	sq_buffer_r_at(buffer, 2) = xcsql->quote[1];
 	sq_buffer_r_at(buffer, 1) = ' ';
 	sq_buffer_r_at(buffer, 0) = '(';
-
-	for (index = 0;  index < table->type->n_entry;  index++) {
-		entry = table->type->entry[index];
-		// skip SQ_TYPE_CONSTRAINT and SQ_TYPE_INDEX. They are fake types.
-		if (SQ_TYPE_IS_FAKE(entry->type))
-			continue;
-		// Don't output anything if column is auto increment.
-		if (entry->bit_field & SQB_INCREMENT && SQ_TYPE_NOT_INT(entry->type)) {
-			index_beg++;
-			continue;
-		}
-		if (index > index_beg)
-			sq_buffer_write_c(buffer, ',');
-		sq_buffer_write_c(buffer, xcsql->quote[0]);
-		sq_buffer_write(buffer, entry->name);
-		sq_buffer_write_c(buffer, xcsql->quote[1]);
-	}
-	sq_buffer_write(buffer, ") VALUES ");
-	// reuse after running Sqdb.exec() if buffer size too large
-	xcsql->buf_reuse = xcsql->buf_writed;
 }
 
 static void sqxc_sql_use_update_command(SqxcSql *xcsql, SqTable *table)
@@ -358,10 +381,13 @@ static void sqxc_sql_use_where_condition(SqxcSql *xcsql, const char *condition)
 	}
 }
 
-static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src)
+static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 {
-	SqBuffer *buffer = sqxc_get_buffer(xcsql);
-	int       len, idx;
+	int   len, idx;
+	char *tempstr;
+
+	if (buffer == NULL)
+		buffer = sqxc_get_buffer(xcsql);
 
 	switch (src->type) {
 	case SQXC_TYPE_BOOL:
@@ -412,6 +438,12 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src)
 		len = snprintf(NULL, 0, "%llu", (long long unsigned int)src->value.uint64);
 		sprintf(sq_buffer_alloc(buffer, len), "%llu", (long long unsigned int)src->value.uint64);
 #endif
+		break;
+
+	case SQXC_TYPE_TIME:
+		tempstr = sq_time_to_string(src->value.rawtime);
+		sq_buffer_write(buffer, tempstr);
+		free(tempstr);
 		break;
 
 	case SQXC_TYPE_DOUBLE:

@@ -109,6 +109,7 @@ struct SqxcJsonc
 		unsigned int  uint;
 		int64_t       int64;
 		int64_t       uint64;
+		time_t        rawtime;
 		double        fraction;
 		double        double_;
 		char         *string;

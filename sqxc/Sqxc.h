@@ -65,17 +65,18 @@ typedef enum {
 	SQXC_TYPE_UINT     = (1 << 2),    // 0x0004
 	SQXC_TYPE_INT64    = (1 << 3),    // 0x0008
 	SQXC_TYPE_UINT64   = (1 << 4),    // 0x0010
-	SQXC_TYPE_DOUBLE   = (1 << 5),    // 0x0020
-	SQXC_TYPE_ARITHMETIC = 0x3F,
+	SQXC_TYPE_TIME     = (1 << 5),    // 0x0020
+	SQXC_TYPE_DOUBLE   = (1 << 6),    // 0x0040
+	SQXC_TYPE_ARITHMETIC = 0x7F,
 
-	SQXC_TYPE_STRING   = (1 << 6),    // 0x0040
-	SQXC_TYPE_OBJECT   = (1 << 7),    // 0x0080
-	SQXC_TYPE_ARRAY    = (1 << 8),    // 0x0100    // array or other storage structure
-	SQXC_TYPE_BASIC    =  0x1FF,
+	SQXC_TYPE_STRING   = (1 << 7),    // 0x0080
+	SQXC_TYPE_OBJECT   = (1 << 8),    // 0x0100
+	SQXC_TYPE_ARRAY    = (1 << 9),    // 0x0200    // array or other storage structure
+	SQXC_TYPE_BASIC    =  0x3FF,
 
 	// Text stream must be null-terminated string
-	SQXC_TYPE_STREAM   = (1 << 9),    // 0x0200    // e.g. file stream
-	SQXC_TYPE_ALL      =  0x3FF,
+	SQXC_TYPE_STREAM   = (1 << 10),   // 0x0400    // e.g. file stream
+	SQXC_TYPE_ALL      =  0x7FF,
 
 	// End of SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY, or SQXC_TYPE_STREAM
 	SQXC_TYPE_END      = (1 << 15),   // 0x8000
@@ -383,6 +384,7 @@ struct SqxcNested
 		unsigned int  uint;         \
 		int64_t       int64;        \
 		uint64_t      uint64;       \
+		time_t        rawtime;      \
 		double        fraction;     \
 		double        double_;      \
 		char         *string;       \
@@ -443,6 +445,7 @@ struct Sqxc
 		unsigned int  uint;
 		int64_t       int64;
 		int64_t       uint64;
+		time_t        rawtime;
 		double        fraction;
 		double        double_;
 		char         *string;

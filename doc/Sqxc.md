@@ -19,6 +19,7 @@ data type for Sqxc converter
 | SQXC_TYPE_UINT   | corresponds to C data type:  unsigned int  |
 | SQXC_TYPE_INT64  | corresponds to C data type:  int64_t       |
 | SQXC_TYPE_UINT64 | corresponds to C data type:  uint64_t      |
+| SQXC_TYPE_TIME   | corresponds to C data type:  time_t        |
 | SQXC_TYPE_DOUBLE | corresponds to C data type:  double        |
 | SQXC_TYPE_STRING | corresponds to C data type:  char*         |
 | SQXC_TYPE_OBJECT | Start of object                            |

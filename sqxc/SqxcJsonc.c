@@ -188,6 +188,10 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 		jobject = json_object_new_uint64(src->value.uint64);
 		break;
 
+	case SQXC_TYPE_TIME:
+		jobject = json_object_new_int(src->value.rawtime);
+		break;
+
 	case SQXC_TYPE_DOUBLE:
 		jobject = json_object_new_double(src->value.double_);
 		break;

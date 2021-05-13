@@ -310,6 +310,10 @@ int  sq_type_time_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(time_t*)instance = src->value.int64;
 		break;
 
+	case SQXC_TYPE_TIME:
+		*(time_t*)instance = src->value.rawtime;
+		break;
+
 	case SQXC_TYPE_STRING:
 		if (src->value.string) {
 			*(time_t*)instance = sq_time_from_string(src->value.string);
@@ -330,14 +334,10 @@ int  sq_type_time_parse(void *instance, const SqType *entrytype, Sqxc *src)
 
 Sqxc *sq_type_time_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
-	char *timestr;
-
-	timestr = sq_time_to_string(*(time_t*)instance);
-	dest->type = SQXC_TYPE_STRING;
+	dest->type = SQXC_TYPE_TIME;
 //	dest->name = dest->name;    // "name" was set by caller of this function
-	dest->value.string = timestr;
+	dest->value.rawtime = *(time_t*)instance;
 	dest = sqxc_send(dest);
-	free(timestr);
 	return dest;
 }
 

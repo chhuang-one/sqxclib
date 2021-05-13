@@ -143,6 +143,8 @@ struct SqxcSql
 	int          row_count;   // used by INSERT
 	int          col_count;   // used by INSERT and UPDATE
 	int          buf_reuse;   // used by INSERT and UPDATE
+
+	SqBuffer     values_buf;  // used by INSERT INTO VALUES
 };
 
 // ----------------------------------------------------------------------------
