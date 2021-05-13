@@ -230,7 +230,7 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 			if (column->foreign)    // || column->bit_field & SQB_FOREIGN
 				sq_buffer_write(buffer, ", FOREIGN KEY");
 			// PRIMARY KEY
-			else if (column->bit_field & SQB_PRIMARY)
+			else if (column->bit_field & SQB_PRIMARY && db->info->product != SQDB_PRODUCT_SQLITE)
 				sq_buffer_write(buffer, ", PRIMARY KEY");
 			// UNIQUE
 			else if (column->bit_field & SQB_UNIQUE)
@@ -630,7 +630,10 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 	case SQ_TYPE_INT_INDEX:
 	case SQ_TYPE_UINT_INDEX:
 	case SQ_TYPE_INTPTR_INDEX:
-		sq_buffer_write(buffer, "INT");
+		if (column->bit_field & SQB_PRIMARY && db->info->product == SQDB_PRODUCT_SQLITE)
+			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
+		else
+			sq_buffer_write(buffer, "INT");
 		if (size > 0) {
 			len = snprintf(NULL, 0, "(%d)", size);
 			sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
@@ -641,7 +644,10 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 
 	case SQ_TYPE_INT64_INDEX:
 	case SQ_TYPE_UINT64_INDEX:
-		sq_buffer_write(buffer, "BIGINT");
+		if (column->bit_field & SQB_PRIMARY && db->info->product == SQDB_PRODUCT_SQLITE)
+			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
+		else
+			sq_buffer_write(buffer, "BIGINT");
 		if (size > 0) {
 			len = snprintf(NULL, 0, "(%d)", size);
 			sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
@@ -677,12 +683,18 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 		break;
 	}
 
-	// "AUTOINCREMENT"
-	if (column->bit_field & SQB_AUTOINCREMENT)
-		sq_buffer_write(buffer, " AUTOINCREMENT");
 	// "NOT NULL"
-	if ((column->bit_field & SQB_NULLABLE) == 0)
-		sq_buffer_write(buffer, " NOT NULL");
+	if ((column->bit_field & SQB_NULLABLE) == 0) {
+		if (db->info->product != SQDB_PRODUCT_SQLITE || (column->bit_field & SQB_PRIMARY) == 0)
+			sq_buffer_write(buffer, " NOT NULL");
+	}
+	// "AUTOINCREMENT"
+	if (column->bit_field & SQB_AUTOINCREMENT) {
+		if (db->info->product == SQDB_PRODUCT_MYSQL)
+			sq_buffer_write(buffer, " AUTO_INCREMENT");    // MySQL
+		else
+			sq_buffer_write(buffer, " AUTOINCREMENT");     // SQLite, Access
+	}
 /*
 	if (db->info->product != SQDB_PRODUCT_MYSQL) {
 		// "FOREIGN KEY"
