@@ -26,6 +26,7 @@
 
 #include <SqStorage.h>
 #include <SqQuery.h>
+#include <SqUtil.h>
 
 typedef struct Post     Post;
 typedef struct City     City;
@@ -51,6 +52,8 @@ struct User {
 	// make sure that SQ_CONFIG_JSON_SUPPORT is enabled if you want to store array/object in SQL column
 	SqIntptrArray  ints;    // intptr_t array (JSON array  in SQL column)
 	Post          *post;    // object pointer (JSON object in SQL column)
+
+	time_t created_at;
 
 	// add, drop, and rename
 	unsigned int   test_add;
@@ -78,14 +81,14 @@ static const SqType   typePost = SQ_TYPE_INITIALIZER(Post, postEntryPointers, 0)
 
 // CREATE TABLE "cities"
 static const SqColumn cityColumnsVer1[] = {
-	{SQ_TYPE_INT,    "id",        offsetof(City, id),        SQB_PRIMARY | SQB_HIDDEN},
+	{SQ_TYPE_INT,    "id",        offsetof(City, id),        SQB_PRIMARY | SQB_AUTOINCREMENT | SQB_HIDDEN},
 	{SQ_TYPE_STRING, "name",      offsetof(City, name),      SQB_NULLABLE},
 //	{SQ_TYPE_BOOL,   "visited",   offsetof(City, visited)},
 };
 
 // CREATE TABLE "users"
 static const SqColumn userColumnsVer1[] = {
-	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_HIDDEN},
+	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_AUTOINCREMENT | SQB_HIDDEN},
 	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0},
 	{SQ_TYPE_STRING, "email",     offsetof(User, email),     0},
 	// FOREIGN KEY
@@ -101,6 +104,9 @@ static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_CONSTRAINT,   "users_city_id_foreign",
 		.foreign = &(SqForeign) {"cities",  "id",  "NO ACTION",  "NO ACTION"},
 		.composite = (char *[]) {"city_id", NULL} },
+
+	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),   0,
+		.default_value = "CURRENT_TIMESTAMP"},
 
 	// This column will be deleted in Ver3
 	{SQ_TYPE_UINT,   "test_drop",   offsetof(User, test_drop),   0},
@@ -177,6 +183,11 @@ void user_print(User *user) {
 		       "user.post.desc = %s\n",
 		       user->post->title, user->post->desc);
 	}
+
+	char* timestr = sq_time_to_string(user->created_at);
+	printf("user.created_at = %s\n", timestr);
+	free(timestr);
+
 	printf("user.test_add = %d\n"
 	       "user.test_drop = %d\n"
 	       "user.test_rename = %d\n",
@@ -346,14 +357,14 @@ int  main(void)
 
 	if (storage->schema->version == 1) {
 		city = city_new();
-		city->id = 1;
+//		city->id = 1;
 		city->name = strdup("Los Angeles");
 		city->visited = false;
 		sq_storage_insert(storage, "cities", NULL, city);
 		city_free(city);
 
 		city = city_new();
-		city->id = 2;
+//		city->id = 2;
 		city->name = NULL;
 //		city->name = strdup("San Francisco");
 		city->visited = true;
@@ -361,7 +372,7 @@ int  main(void)
 		city_free(city);
 
 		user = user_new();
-		user->id = 1;
+//		user->id = 1;
 		user->city_id = 1;
 		user->name = strdup("Paul");
 		user->email = strdup("guest@");
@@ -379,6 +390,7 @@ int  main(void)
 
 		// update User.email
 		free(user->email);
+		user->id = 1;
 		user->email = strdup("paul@sqxc");
 		sq_storage_update(storage, "users", NULL, user);
 		// free 'user' after inserting and updating
