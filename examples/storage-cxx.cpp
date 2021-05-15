@@ -18,10 +18,7 @@
 #include <string>
 #include <iostream>
 
-#include <SqType-stl-cpp.h>    // Sq::TypeStl<StlContainer>
-#include <SqQuery.h>
-#include <SqStorage.h>
-#include <SqdbSqlite.h>
+#include <sqxclib.h>
 
 #define USE_CXX_AGGREGATE_INITIALIZATION    0
 

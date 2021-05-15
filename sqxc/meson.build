@@ -24,7 +24,8 @@ sources = ['SqPtrArray.c',
            'SqxcSql.c',
           ]
 
-headers = ['SqConfig.h',
+headers = ['sqxclib.h',
+           'SqConfig.h',
            'SqDefine.h',
            'SqError.h',
 

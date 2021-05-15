@@ -1,6 +1,6 @@
 [![Donate using PayPal](https://img.shields.io/badge/donate-PayPal-brightgreen.svg)](https://paypal.me/CHHUANGONE)
 
-# sqxc
+# sqxclib
 
 sqxc is a library to convert SQL (or JSON...etc) data to/from C language.
 It provides ORM features and C++ wrapper.
@@ -458,7 +458,7 @@ static const SqColumn  userColumns[6] = {
 ## Sqxc - Converter interface
  Sqxc is interface for data parse and write.  
  User can link multiple Sqxc element to convert different types of data.  
-
+ You can get more description and example in [Sqxc.md](doc/Sqxc.md)  
 
 ## Licensing
 

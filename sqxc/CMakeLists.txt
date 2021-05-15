@@ -22,6 +22,7 @@ set(SOURCES
 )
 
 set(HEADERS
+    sqxclib.h
     SqConfig.h
     SqDefine.h
     SqError.h

@@ -15,13 +15,13 @@
 #ifndef SQ_TYPE_STL_CPP_H
 #define SQ_TYPE_STL_CPP_H
 
+#ifdef __cplusplus
+
 #include <type_traits>    // std::is_pointer
 
 #include <SqError.h>
 #include <SqType.h>
 #include <SqxcValue.h>
-
-#ifdef __cplusplus
 
 namespace Sq {
 

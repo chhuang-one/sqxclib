@@ -18,15 +18,9 @@
 
 #include <stdio.h>
 
-#ifdef HAS_MYSQL
-#define USE_MYSQL    0
-#include <SqdbMysql.h>
-#endif
-#include <SqdbSqlite.h>
+#include <sqxclib.h>
 
-#include <SqStorage.h>
-#include <SqQuery.h>
-#include <SqUtil.h>
+#define USE_MYSQL    0
 
 typedef struct Post     Post;
 typedef struct City     City;
