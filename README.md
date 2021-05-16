@@ -2,7 +2,7 @@
 
 # sqxclib
 
-sqxc is a library to convert SQL (or JSON...etc) data to/from C language.
+sqxclib is a library to convert SQL (or JSON...etc) data to/from C language.
 It provides ORM features and C++ wrapper.
 
 ## Current features:
@@ -14,7 +14,7 @@ It provides ORM features and C++ wrapper.
 
 3. It can work in low-end hardware.
 
-4. Supports SQLite, MySQL / MariaDB (experimental).
+4. Supports SQLite, MySQL / MariaDB.
 
 ## Database schema
 
@@ -450,12 +450,12 @@ static const SqColumn  userColumns[6] = {
 - all defined table/column can use to parse JSON object/field
 - program can also parse JSON object/array that store in column.
 
-## Sqdb - Database interface
- Sqdb is Database interface for SQLite, MySQL...etc.  
+## Sqdb
+ Sqdb is base structure for database product (SQLite, MySQL...etc).  
  SqdbSqlite.c implement Sqdb interface for SQLite.  
  SqdbMysql.c implement Sqdb interface for MySQL.  
 
-## Sqxc - Converter interface
+## Sqxc
  Sqxc is interface for data parse and write.  
  User can link multiple Sqxc element to convert different types of data.  
  You can get more description and example in [Sqxc.md](doc/Sqxc.md)  

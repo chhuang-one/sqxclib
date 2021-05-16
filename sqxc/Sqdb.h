@@ -127,15 +127,16 @@ struct DbMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/* SqdbInfo */
+/* SqdbInfo - It is data and function interface for database product.
+ */
 
 struct SqdbInfo
 {
-	uintptr_t      size;       // instance size
+	uintptr_t      size;       // Sqdb instance size
 	SqdbProduct    product;    // SqdbProduct product = SQLite, MySQL...etc
 
 	struct {
-		unsigned int has_boolean:1;
+		unsigned int has_boolean:1;      // has Boolean Data Type
 		unsigned int use_alter:1;        // ALTER COLUMN
 		unsigned int use_modify:1;       // MODIFY COLUMN
 	} column;
@@ -145,17 +146,23 @@ struct SqdbInfo
 		char         identifier[2];      // SQLite is "", MySQL is ``, SQL Server is []
 	} quote;
 
+	// initialize derived structure of Sqdb
 	void (*init)(Sqdb *db, SqdbConfig *config);
+	// finalize derived structure of Sqdb
 	void (*final)(Sqdb *db);
 
+	// open a database file or establish a connection to a database server
 	int  (*open)(Sqdb *db, const char *name);
+	// close a previously opened file or connection.
 	int  (*close)(Sqdb *db);
+	// executes the SQL statement
 	int  (*exec)(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
+	// migrate schema from 'schema_next' to 'schema_cur'
 	int  (*migrate)(Sqdb *db, SqSchema *schema_cur, SqSchema *schema_next);
 };
 
 /*
-   Sqdb - database interface.
+   Sqdb - It is a base structure for database product (SQLite, MySQL...etc).
 
    TODO: Sqdb should be thread safe...
 
