@@ -236,6 +236,8 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 	if (no_reverse == 0) {
 		for (rnode = rnode->next;  rnode;  rnode = rnode->next) {
 			rnode_pool = ptr_x2_array_find_sorted((SqPtrArray*)relation, rnode->object, NULL);
+			if (rnode_pool == NULL)
+				continue;
 			for (rnode_pool = rnode_pool->next;  rnode_pool;  rnode_pool = rnode_pool->next) {
 				if (rnode_pool->object == old_object)
 					rnode_pool->object = (void*)new_object;
