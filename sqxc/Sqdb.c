@@ -496,21 +496,18 @@ void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn
 
 void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
 {
-	if (column->type == SQ_TYPE_INDEX) {
-		sqdb_sql_drop_index(db, buffer, table, column);
-		return;
+	if (column->type != SQ_TYPE_INDEX || db->info->product == SQDB_PRODUCT_MYSQL) {
+		sq_buffer_write(buffer, "ALTER TABLE");
+
+		// write "table name"
+		sq_buffer_alloc(buffer, 2);
+		sq_buffer_r_at(buffer, 1) = ' ';
+		sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
+		sq_buffer_write(buffer, table->name);
+		sq_buffer_alloc(buffer, 2);
+		sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
+		sq_buffer_r_at(buffer, 0) = ' ';
 	}
-
-	sq_buffer_write(buffer, "ALTER TABLE");
-
-	// write "table name"
-	sq_buffer_alloc(buffer, 2);
-	sq_buffer_r_at(buffer, 1) = ' ';
-	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
-	sq_buffer_write(buffer, table->name);
-	sq_buffer_alloc(buffer, 2);
-	sq_buffer_r_at(buffer, 1) = db->info->quote.identifier[1];
-	sq_buffer_r_at(buffer, 0) = ' ';
 
 	sq_buffer_write(buffer, "DROP ");
 	// DROP CONSTRAINT
@@ -526,10 +523,16 @@ void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 		else
 			sq_buffer_write(buffer, "CONSTRAINT");
 	}
-	// DROP COLUMN
-	else {
-		sq_buffer_write(buffer, "COLUMN");
+	// DROP INDEX
+	else if (column->type == SQ_TYPE_INDEX) {
+		sq_buffer_write(buffer, "INDEX");
+		// avoid error - SQLite: no such index
+		if (db->info->product == SQDB_PRODUCT_SQLITE)
+			sq_buffer_write(buffer, " IF EXISTS ");
 	}
+	// DROP COLUMN
+	else
+		sq_buffer_write(buffer, "COLUMN");
 
 	// write "column old name"
 	sq_buffer_alloc(buffer, 2);
@@ -550,9 +553,11 @@ void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn
 	sq_buffer_r_at(sql_buf, 1) = ' ';
 	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
 	sq_buffer_write(sql_buf, column->name);
-	sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[0];
+	sq_buffer_r_at(sql_buf, 0) = ' ';
 
-	sq_buffer_write(sql_buf," ON ");
+	sq_buffer_write(sql_buf, "ON");
 
 	// write "table name"
 	sq_buffer_alloc(sql_buf, 2);
@@ -563,35 +568,6 @@ void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn
 
 	sqdb_sql_write_composite_columns(db, sql_buf, column);
 
-	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
-}
-
-void sqdb_sql_drop_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
-{
-	if (db->info->product == SQDB_PRODUCT_MYSQL) {
-		sq_buffer_write(sql_buf, "ALTER TABLE");
-
-		// write "table name"
-		sq_buffer_alloc(sql_buf, 2);
-		sq_buffer_r_at(sql_buf, 1) = ' ';
-		sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
-		sq_buffer_write(sql_buf, table->name);
-		sq_buffer_alloc(sql_buf, 2);
-		sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
-		sq_buffer_r_at(sql_buf, 0) = ' ';
-	}
-	sq_buffer_write(sql_buf, "DROP INDEX");
-
-	sq_buffer_alloc(sql_buf, 2);
-	sq_buffer_r_at(sql_buf, 1) = ' ';
-	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
-	sq_buffer_write(sql_buf, column->name);
-	sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
-
-//	sq_buffer_write(sql_buf, " ON ");
-//	sq_buffer_write_c(sql_buf, db->info->quote.identifier[0]);
-//	sq_buffer_write(sql_buf, table->name);
-//	sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
 	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
 }
 
