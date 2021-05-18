@@ -238,8 +238,13 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				sq_type_decide_size((SqType*)table->type, (SqEntry*)column, true);
 				// remove dropped column from table->type->entry
 				sq_column_free(column);
-				// set bit_field: column dropped
-				table->bit_field |= SQB_TABLE_COL_DROPPED;
+				// special case: drop index
+				if (column_src->type == SQ_TYPE_INDEX)
+					sq_relation_add(table->relation, SQ_TYPE_UNSYNCED, column_src, 0);
+				else {
+					// set bit_field: column dropped
+					table->bit_field |= SQB_TABLE_COL_DROPPED;
+				}
 			}
 #if DEBUG
 			else {
@@ -321,7 +326,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				// sq_schema_trace_name()
 				if (column_src->foreign || column_src->composite)
 					sq_relation_add(table->relation, SQ_TYPE_TRACING, column_src, 0);
-				if (table->bit_field & SQB_TABLE_SQL_CREATED)
+				if (table->bit_field & SQB_TABLE_SQL_CREATED || column_src->type == SQ_TYPE_INDEX)
 					sq_relation_add(table->relation, SQ_TYPE_UNSYNCED, column_src, 0);
 				// add 'reentry_src' to entry->type.
 				sq_ptr_array_insert(reentries, temp.index, column_src);
@@ -364,6 +369,7 @@ void  sq_table_erase_records(SqTable *table, char version_comparison)
 		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
 
 	// erase relation for renamed & dropped records in table
+	sq_relation_exclude(table->relation, SQ_TYPE_REENTRY, SQ_TYPE_UNSYNCED);
 	sq_relation_erase(table->relation, SQ_TYPE_REENTRY, NULL, -1, (SqDestroyFunc)sq_column_free);
 	// if database schema version == current schema version
 	if (version_comparison == '=') {
