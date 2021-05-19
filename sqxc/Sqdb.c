@@ -536,13 +536,14 @@ void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 	else
 		sq_buffer_write(buffer, "COLUMN");
 
-	// write "column old name"
-	sq_buffer_alloc(buffer, 2);
-	sq_buffer_r_at(buffer, 1) = ' ';
-	sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
-	sq_buffer_write(buffer, column->old_name);
-	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
-
+	if (db->info->product != SQDB_PRODUCT_MYSQL || (column->bit_field & SQB_PRIMARY) == 0) {
+		// write "column old name"
+		sq_buffer_alloc(buffer, 2);
+		sq_buffer_r_at(buffer, 1) = ' ';
+		sq_buffer_r_at(buffer, 0) = db->info->quote.identifier[0];
+		sq_buffer_write(buffer, column->old_name);
+		sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
+	}
 	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
