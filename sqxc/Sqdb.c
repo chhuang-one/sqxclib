@@ -375,6 +375,7 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	// ADD CONSTRAINT
 	if (column->type == SQ_TYPE_CONSTRAINT) {
 		sqdb_sql_write_constraint(db, buffer, column);
+		buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
 		return;
 	}
 	// ADD FOREIGN KEY
@@ -392,6 +393,7 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	// ADD COLUMN
 	else {
 		sqdb_sql_write_column(db, buffer, column, NULL);
+		buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
 		return;
 	}
 
