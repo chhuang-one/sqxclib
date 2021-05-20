@@ -127,7 +127,7 @@ send object data to Sqxc elements
 
 SqxcSql will output SQL statement:
 ```sql
-INSERT INTO 'table_name' ('id','int_array') VALUES (1, '[ 2, 4 ]');
+INSERT INTO table_name (id, int_array) VALUES (1, '[ 2, 4 ]');
 ```
 
 SQL table look like this:
