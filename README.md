@@ -39,13 +39,16 @@ static const SqColumn  userColumns[6] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),       SQB_PRIMARY},
 	{SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
 	{SQ_TYPE_STRING, "email",     offsetof(User, email)      },
+
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
 		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
+
 	// CONSTRAINT FOREIGN KEY
 	{SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
 		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
 		.composite = (char *[]) {"city_id", NULL} },
+
 	// CREATE INDEX
 	{SQ_TYPE_INDEX,       "users_id_index",
 		.composite = (char *[]) {"id", NULL} },
@@ -193,6 +196,7 @@ static const SqColumn  userColumns[6] = {
 	schema_v1->version = 1;    // specify version number or auto generate it
 
 	table = schema_v1->create<User>("users");
+//	table = schema_v1->create("users", SQ_GET_TYPE_NAME(User));    // use typename to create table
 	table->integer("id", &User::id)->primary();
 	table->string("full_name", &User::full_name);
 	table->string("email", &User::email);
@@ -219,6 +223,40 @@ static const SqColumn  userColumns[6] = {
 	table->drop("full_name");
 	table->rename("email", "email2");
 ```
+
+ other samples: C99 designated initializer to change table/column (static)
+
+```c
+static const SqColumn  otherSampleChanged_1[] = {
+	// CONSTRAINT PRIMARY KEY
+	{SQ_TYPE_CONSTRAINT,  "other_primary", 0,  SQB_PRIMARY,
+		.composite = (char *[]) {"column1", "column2", NULL} },
+
+	// CONSTRAINT UNIQUE
+	{SQ_TYPE_CONSTRAINT,  "other_unique",  0,  SQB_UNIQUE,
+		.composite = (char *[]) {"column1", "column2", NULL} },
+};
+
+static const SqColumn  otherSampleChanged_2[] = {
+	// DROP CONSTRAINT PRIMARY KEY
+	{.old_name = "other_primary",  .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_PRIMARY },
+
+	// DROP CONSTRAINT UNIQUE
+	{.old_name = "other_unique",   .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_UNIQUE },
+};
+```
+
+ other samples: use C++ function to change table/column (dynamic)
+
+ ```c++
+	table->addUnique("other_unique", "column1", "column2", NULL);
+	table->addPrimary("other_primary", "column1", "column2", NULL);
+
+	table->dropUnique("other_unique");
+	table->dropPrimary("other_primary");
+ ```
 
 ## Migration
 
@@ -458,7 +496,7 @@ static const SqColumn  userColumns[6] = {
 ## Sqxc
  Sqxc is interface for data parse and write.  
  User can link multiple Sqxc element to convert different types of data.  
- You can get more description and example in [Sqxc.md](doc/Sqxc.md)  
+ You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)  
 
 ## Licensing
 
