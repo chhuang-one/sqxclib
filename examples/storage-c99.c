@@ -114,6 +114,20 @@ static const SqColumn userColumnsVer1[] = {
 static const SqColumn userColumnsVer2[] = {
 	// ADD COLUMN "test_add"
 	{SQ_TYPE_UINT,   "test_add",  offsetof(User, test_add),  SQB_NULLABLE},
+
+/*
+	// ADD INDEX
+	{SQ_TYPE_INDEX,  "id_city_id_index",
+		.composite = (char *[]) {"id", "city_id", NULL} },
+
+	// ADD CONSTRAINT UNIQUE
+	{SQ_TYPE_CONSTRAINT,  "id_city_id_unique", 0,  SQB_UNIQUE,
+		.composite = (char *[]) {"id", "city_id", NULL} },
+
+	// ADD CONSTRAINT PRIMARY KEY
+	{SQ_TYPE_CONSTRAINT,  "id_city_id_primary", 0,  SQB_PRIMARY,
+		.composite = (char *[]) {"id", "city_id", NULL} },
+ */
 };
 
 // ALTER TABLE "users"
@@ -124,6 +138,20 @@ static const SqColumn userColumnsVer3[] = {
 	// DROP CONSTRAINT FOREIGN KEY "users_city_id_foreign"
 	{.old_name = "users_city_id_foreign",     .name = NULL,
 	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_FOREIGN },
+
+/*
+	// DROP INDEX "id_city_id_index"
+	{.old_name = "id_city_id_index",  .name = NULL,
+	 .type = SQ_TYPE_INDEX },
+
+	// DROP CONSTRAINT UNIQUE "id_city_id_unique"
+	{.old_name = "id_city_id_unique",  .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_UNIQUE },
+
+	// DROP CONSTRAINT PRIMARY KEY "id_city_id_primary"
+	{.old_name = "id_city_id_primary",  .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_PRIMARY },
+ */
 };
 
 // ALTER TABLE "users"
