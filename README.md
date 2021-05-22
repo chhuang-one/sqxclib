@@ -59,13 +59,13 @@ static const SqColumn  userColumns[6] = {
 
 	// add static columns to table
 	table = sq_schema_create(schema_v1, "users", User);
-	sq_table_add_column(table, userColumns, 6);
+	sq_table_add_column(table, userColumns, 6);    // userColumns has 6 elements
 ```
 
  use C99 designated initializer to change table/column in schema_v2 (static)
 
 ```c
-static const SqColumn  userColumnsChanged[] = {
+static const SqColumn  userColumnsChanged[5] = {
 	// ADD COLUMN "test_add"
 	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
 
@@ -88,7 +88,7 @@ static const SqColumn  userColumnsChanged[] = {
 
 	// add static columns/records to table
 	table = sq_schema_alter(schema_v2, "users", NULL);
-	sq_table_add_column(table, userColumnsChanged, 4);
+	sq_table_add_column(table, userColumnsChanged, 5);    // userColumnsChanged has 5 elements
 ```
 
  use C function to define table/column in schema_v1 (dynamic)
@@ -186,7 +186,7 @@ static const SqColumn  userColumns[6] = {
 
 	// add static columns to table
 	table = schema_v1->create<User>("users");
-	table->addColumn(userColumns, 6);
+	table->addColumn(userColumns, 6);    // userColumns has 6 elements
 ```
 
  use C++ function to define table/column in schema_v1 (dynamic)
