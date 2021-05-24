@@ -146,6 +146,15 @@ typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 			sqxc = sqxc_send((Sqxc*)(sqxc));             \
 		}
 
+// void sqxc_send_time(Sqxc **sqxc, const char *entry_name, time_t value);
+#define SQXC_SEND_TIME(sqxc, entry_name, value_)        \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_INT64;     \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.rawtime = value_;     \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
 // void sqxc_send_double(Sqxc **sqxc, const char *entry_name, double value);
 #define SQXC_SEND_DOUBLE(sqxc, entry_name, val)          \
 		{                                                \
@@ -310,6 +319,7 @@ struct XcMethod
 	Sqxc  *sendBool(const char *entry_name, bool value);
 	Sqxc  *sendInt(const char *entry_name, int value);
 	Sqxc  *sendInt64(const char *entry_name, int64_t value);
+	Sqxc  *sendTime(const char *entry_name, time_t value);
 	Sqxc  *sendDouble(const char *entry_name, double value);
 	Sqxc  *sendString(const char *entry_name, const char *value);
 
@@ -530,6 +540,9 @@ inline Sqxc *XcMethod::sendInt(const char *entry_name, int value) {
 }
 inline Sqxc *XcMethod::sendInt64(const char *entry_name, int64_t value) {
 	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_INT64(xc, entry_name, value);  return xc;
+}
+inline Sqxc *XcMethod::sendTime(const char *entry_name, time_t value) {
+	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_TIME(xc, entry_name, value);  return xc;
 }
 inline Sqxc *XcMethod::sendDouble(const char *entry_name, double value) {
 	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_DOUBLE(xc, entry_name, value);  return xc;
