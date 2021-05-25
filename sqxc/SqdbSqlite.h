@@ -58,7 +58,7 @@ extern const SqdbInfo    *SQDB_INFO_SQLITE;
  */
 
 #ifdef __cplusplus
-struct SqdbSqlite : Sq::DbMethod           // <-- 1. inherit member function(method)
+struct SqdbSqlite : Sq::DbMethod           // <-- 1. inherit C++ member function(method)
 #else
 struct SqdbSqlite
 #endif

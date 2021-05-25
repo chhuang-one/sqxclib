@@ -50,7 +50,7 @@ extern const SqdbInfo    *SQDB_INFO_EMPTY;
  */
 
 #ifdef __cplusplus
-struct SqdbEmpty : Sq::DbMethod            // <-- 1. inherit member function(method)
+struct SqdbEmpty : Sq::DbMethod            // <-- 1. inherit C++ member function(method)
 #else
 struct SqdbEmpty
 #endif

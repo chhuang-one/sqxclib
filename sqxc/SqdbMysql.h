@@ -58,7 +58,7 @@ extern const SqdbInfo    *SQDB_INFO_MYSQL;
  */
 
 #ifdef __cplusplus
-struct SqdbMysql : Sq::DbMethod            // <-- 1. inherit member function(method)
+struct SqdbMysql : Sq::DbMethod            // <-- 1. inherit C++ member function(method)
 #else
 struct SqdbMysql
 #endif

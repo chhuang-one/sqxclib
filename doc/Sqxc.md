@@ -39,7 +39,8 @@ data type for Sqxc converter
 	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
 	                 |                    |
 	                 +--> SqxcXmlParser --+
-Note: If SqxcValue can't match current data type, it will forward data to SqxcJsonParser (or other element).
+Note: If SqxcValue can't match current data type, it will forward data to SqxcJsonParser (or other element).  
+Note: SqxcXmlParser doesn't implement yet because it is rarely used.  
 
 
 	                 +-> SqxcJsonWriter --+
@@ -47,7 +48,8 @@ Note: If SqxcValue can't match current data type, it will forward data to SqxcJs
 	SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
 	                 |                    |
 	                 +--> SqxcXmlWriter --+
-Note: If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter (or other element).
+Note: If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter (or other element).  
+Note: SqxcXmlWriter doesn't implement yet because it is rarely used.  
 
 ### Use sqxc_send() to send data to Sqxc elements.
 
@@ -138,4 +140,59 @@ SQL table look like this:
 JSON look like this:
 ```json
 { "id": 1, "int_array": [ 2, 4] }
+```
+
+## How to support new format:
+ User can refer SqxcJsonc.h and SqxcJsonc.c to support new format.  
+ SqxcEmpty.h and SqxcEmpty.c is a workable sample, but it do nothing.  
+
+#### 1. define new structure that derived from Sqxc
+ All derived structure must conforme C++11 standard-layout
+
+```c++
+// This is header file - SqxcText.h
+#include <Sqxc.h>
+
+// define in SqxcText.c
+extern const SqxcInfo    *SQXC_INFO_TEXT_PARSER;
+
+#ifdef __cplusplus
+struct SqxcText : Sq::XcMethod           // <-- 1. inherit C++ member function(method)
+#else
+struct SqxcText
+#endif
+{
+	SQXC_MEMBERS;                        // <-- 2. inherit member variable
+
+	int    other_data;                   // <-- 3. Add variable and non-virtual function in derived struct.
+	int    status;
+};
+
+```
+
+#### 2. implement SqdbInfo interface
+
+```c
+// This is source file - SqxcText.c
+#include <SqxcText.h>
+
+// declare functions for SqxcInfo
+static void sqxc_text_init(SqxcText *xctext);
+static void sqxc_text_final(SqxcText *xctext);
+static int  sqxc_text_ctrl(SqxcText *xctext, int id, void *data);
+static int  sqxc_text_send(SqxcText *xctext, Sqxc *src);
+
+static const SqxcInfo sqxc_text_parser =
+{
+	.size  = sizeof(SqxcText),
+	.init  = (SqInitFunc)   sqxc_text_init,
+	.final = (SqFinalFunc)  sqxc_text_final,
+	.ctrl  = (SqxcCtrlFunc) sqxc_text_ctrl,
+	.send  = (SqxcSendFunc) sqxc_text_send,
+};
+
+// used by SqxcText.h
+const SqxcInfo *SQXC_INFO_TEXT_PARSER = &sqxc_text_parser;
+
+// implement sqxc_text_xxxx() functions here
 ```

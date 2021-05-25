@@ -59,7 +59,7 @@ extern const SqxcInfo    *SQXC_INFO_JSONC_WRITER;
  */
 
 #ifdef __cplusplus
-struct SqxcJsonc : Sq::XcMethod          // <-- 1. inherit member function(method)
+struct SqxcJsonc : Sq::XcMethod          // <-- 1. inherit C++ member function(method)
 #else
 struct SqxcJsonc
 #endif

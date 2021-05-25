@@ -14,7 +14,9 @@ It provides ORM features and C++ wrapper.
 
 3. It can work in low-end hardware.
 
-4. Supports SQLite, MySQL / MariaDB.
+4. Single header file sqxclib.h (Note: It doesn't contain special macros)
+
+5. Supports SQLite, MySQL / MariaDB.
 
 ## Database schema
 
@@ -35,6 +37,8 @@ struct User {
  use C99 designated initializer to define table/column in schema_v1 (static)
 
 ```c
+#include <sqxclib.h>
+
 static const SqColumn  userColumns[6] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),       SQB_PRIMARY},
 	{SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
@@ -57,9 +61,10 @@ static const SqColumn  userColumns[6] = {
 	schema_v1 = sq_schema_new("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
-	// add static columns to table
+	// create table "users"
 	table = sq_schema_create(schema_v1, "users", User);
-	sq_table_add_column(table, userColumns, 6);    // userColumns has 6 elements
+	// add static 'userColumns' that has 6 elements to table
+	sq_table_add_column(table, userColumns, 6);
 ```
 
  use C99 designated initializer to change table/column in schema_v2 (static)
@@ -86,9 +91,10 @@ static const SqColumn  userColumnsChanged[5] = {
 	schema_v2 = sq_schema_new("Ver 2");
 	schema_v2->version = 2;    // specify version number or auto generate it
 
-	// add static columns/records to table
+	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
-	sq_table_add_column(table, userColumnsChanged, 5);    // userColumnsChanged has 5 elements
+	// add static 'userColumnsChanged' that has 5 elements to table
+	sq_table_add_column(table, userColumnsChanged, 5);
 ```
 
  use C function to define table/column in schema_v1 (dynamic)
@@ -97,7 +103,9 @@ static const SqColumn  userColumnsChanged[5] = {
 	schema_v1 = sq_schmea_new("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
+	// create table "users"
 	table = sq_schema_create(schema_v1, "users", User);
+	// add dynamic columns to table
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	column->bit_field |= SQB_PRIMARY;
 	column = sq_table_add_string(table, "full_name", offsetof(User, full_name), -1);
@@ -118,7 +126,9 @@ static const SqColumn  userColumnsChanged[5] = {
 	schema_v2 = sq_schema_new("Ver 2");
 	schema_v2->version = 2;    // specify version number or auto generate it
 
+	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
+	// add dynamic columns/records to table
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	column->bit_field |= SQB_CHANGED;
@@ -130,9 +140,13 @@ static const SqColumn  userColumnsChanged[5] = {
  use C macro to define table/column in schema_v1 (dynamic)
 
 ```c
+#include <sqxclib.h>
+#include <SqSchema-macro.h>    // sqxclib.h doesn't contain special macros
+
 	schema_v1 = sq_schmea_new("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
+	// create table "users"
 	SQ_SCHEMA_CREATE(schema_v1, "users", User, {
 		SQT_INTEGER("id", User, id);  SQC_PRIMARY();
 		SQT_STRING("full_name", User, full_name, -1);
@@ -152,6 +166,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	schema_v2 = sq_schema_new("Ver 2");
 	schema_v2->version = 2;    // specify version number or auto generate it
 
+	// alter table "users"
 	SQ_SCHEMA_ALTER(schema_v2, "users", User, {
 		SQT_INTEGER("test_add", User, test_add);
 		SQT_INTEGER("city_id", User, city_id);  SQC_CHANGE();
@@ -164,6 +179,8 @@ static const SqColumn  userColumnsChanged[5] = {
  use C++ aggregate initialization to define table/column in schema_v1 (static)
 
 ```c++
+#include <sqxclib.h>
+
 Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
 static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
@@ -184,9 +201,10 @@ static const SqColumn  userColumns[6] = {
 	schema_v1 = new Sq::Schema("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
-	// add static columns to table
+	// create table "users"
 	table = schema_v1->create<User>("users");
-	table->addColumn(userColumns, 6);    // userColumns has 6 elements
+	// add static 'userColumns' that has 6 elements to table
+	table->addColumn(userColumns, 6);
 ```
 
  use C++ function to define table/column in schema_v1 (dynamic)
@@ -195,8 +213,9 @@ static const SqColumn  userColumns[6] = {
 	schema_v1 = new Sq::Schema("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
+	// create table "users"
 	table = schema_v1->create<User>("users");
-//	table = schema_v1->create("users", SQ_GET_TYPE_NAME(User));    // use typename to create table
+	// add dynamic columns to table
 	table->integer("id", &User::id)->primary();
 	table->string("full_name", &User::full_name);
 	table->string("email", &User::email);
@@ -216,7 +235,9 @@ static const SqColumn  userColumns[6] = {
 	schema_v2 = new Sq::Schema("Ver 2");
 	schema_v2->version = 2;    // specify version number or auto generate it
 
+	// alter table "users"
 	table = schema_v2->alter("users");
+	// add dynamic columns/records to table
 	table->integer("test_add", &User::test_add);
 	table->integer("city_id", &User::city_id)->change();
 	table->dropForeign("users_city_id_foreign");    // DROP CONSTRAINT FOREIGN KEY
@@ -251,10 +272,14 @@ static const SqColumn  otherSampleChanged_2[] = {
  other samples: use C++ function to change table/column (dynamic)
 
  ```c++
+	// ADD CONSTRAINT UNIQUE
 	table->addUnique("other_unique", "column1", "column2", NULL);
+	// ADD CONSTRAINT PRIMARY KEY
 	table->addPrimary("other_primary", "column1", "column2", NULL);
 
+	// DROP CONSTRAINT UNIQUE
 	table->dropUnique("other_unique");
+	// DROP CONSTRAINT PRIMARY KEY
 	table->dropPrimary("other_primary");
  ```
 
@@ -265,7 +290,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 ```c++
 	storage->migrate(schema_v1); // migrate schema_v1
 	storage->migrate(schema_v2); // migrate schema_v2
-	storage->migrate(NULL);      // synchronize schema to database.
+	storage->migrate(NULL);      // synchronize schema to database. (Mainly used by SQLite)
 	delete schema_v1;            // free unused schema_v1
 	delete schema_v2;            // free unused schema_v2
 ```
@@ -275,7 +300,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 ```c
 	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
 	sq_storage_migrate(storage, schema_v2); // migrate schema_v2
-	sq_storage_migrate(storage, NULL);      // synchronize schema to database.
+	sq_storage_migrate(storage, NULL);      // synchronize schema to database. (Mainly used by SQLite)
 	sq_schema_free(schema_v1);              // free unused schema_v1
 	sq_schema_free(schema_v2);              // free unused schema_v2
 ```
@@ -407,6 +432,9 @@ static const SqColumn  otherSampleChanged_2[] = {
  use C macro to produce query
 
 ```c
+#include <sqxclib.h>
+#include <SqQuery-macro.h>    // sqxclib.h doesn't contain special macros
+
 	SQ_QUERY_DO(query, {
 		SQQ_SELECT("id", "age");
 		SQQ_FROM("companies");
@@ -423,6 +451,8 @@ static const SqColumn  otherSampleChanged_2[] = {
  use C function
 
 ```c
+	SqPtrArray *array;
+
 	sq_query_from(query, "cities");
 	sq_query_join(query, "users",  "cities.id", "users.city_id");
 
@@ -431,6 +461,8 @@ static const SqColumn  otherSampleChanged_2[] = {
 		element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
 		user = (User*)element[1];    // sq_query_join(query, "users", ...);
+		// free 'element' before you free 'array'
+		// free(element);
 	}
 ```
 
@@ -439,19 +471,21 @@ static const SqColumn  otherSampleChanged_2[] = {
 ```c++
 	query->from("cities")->join("users",  "cities.id", "users.city_id");
 
-	array = (SqPtrArray*) storage->query(query);
+	typedef  Sq::Joint<2>  SqJoint2;
+	vector = storage->query<std::vector<SqJoint2>>(query);
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		SqJoint2 *joint = vector->at(index);
+		city = (City*)joint.t[0];
+		user = (User*)joint.t[1];
+	}
+	// or
+	SqPtrArray *array = (Sq::PtrArray*) storage->query(query);
 	for (int i = 0;  i < array->length;  i++) {
 		element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
 		user = (User*)element[1];    // join("users")
-	}
-	// or
-	typedef  Sq::Joint<2>  SqJoint2;
-	vector = storage->query<std::vector<SqJoint2>>(query);
-	for (unsigned int index = 0;  index < vector->size();  index++) {
-		joint = vector->at(index);
-		city = (City*)joint.t[0];
-		user = (User*)joint.t[1];
+		// free 'element' before you free 'array'
+		// free(element);
 	}
 ```
 
@@ -492,6 +526,7 @@ static const SqColumn  otherSampleChanged_2[] = {
  Sqdb is base structure for database product (SQLite, MySQL...etc).  
  SqdbSqlite.c implement Sqdb interface for SQLite.  
  SqdbMysql.c implement Sqdb interface for MySQL.  
+ You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
 
 ## Sqxc
  Sqxc is interface for data parse and write.  

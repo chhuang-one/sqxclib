@@ -405,7 +405,7 @@ struct SqxcNested
 	void       **error
 
 #ifdef __cplusplus
-struct Sqxc : Sq::XcMethod               // <-- 1. inherit member function(method)
+struct Sqxc : Sq::XcMethod               // <-- 1. inherit C++ member function(method)
 #else
 struct Sqxc
 #endif

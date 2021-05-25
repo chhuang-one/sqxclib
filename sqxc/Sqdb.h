@@ -35,6 +35,8 @@ typedef enum SqdbProduct {
 	SQDB_PRODUCT_UNKNOWN,
 	SQDB_PRODUCT_SQLITE,
 	SQDB_PRODUCT_MYSQL,
+
+	SQDB_PRODUCT_CUSTOM,
 } SqdbProduct;
 
 // ----------------------------------------------------------------------------

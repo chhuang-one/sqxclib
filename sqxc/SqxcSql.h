@@ -62,7 +62,7 @@ extern const SqxcInfo        *SQXC_INFO_SQL;
  */
 
 #ifdef __cplusplus
-struct SqxcSql : Sq::XcMethod            // <-- 1. inherit member function(method)
+struct SqxcSql : Sq::XcMethod            // <-- 1. inherit C++ member function(method)
 #else
 struct SqxcSql
 #endif

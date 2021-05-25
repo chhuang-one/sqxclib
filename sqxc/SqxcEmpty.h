@@ -44,7 +44,7 @@ extern const SqxcInfo          *SQXC_INFO_EMPTY;
  */
 
 #ifdef __cplusplus
-struct SqxcEmpty : Sq::XcMethod          // <-- 1. inherit member function(method)
+struct SqxcEmpty : Sq::XcMethod          // <-- 1. inherit C++ member function(method)
 #else
 struct SqxcEmpty
 #endif
