@@ -15,10 +15,7 @@
 #ifndef SQXC_JSONC_H
 #define SQXC_JSONC_H
 
-#include <SqConfig.h>
-#ifdef SQ_CONFIG_JSON_SUPPORT
-
-#include<json-c/json.h>
+#include <json-c/json.h>
 #include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
@@ -172,7 +169,5 @@ struct XcJsoncWriter : SqxcJsonc
 };  // namespace Sq
 
 #endif  // __cplusplus
-
-#endif  // SQ_CONFIG_JSON_SUPPORT
 
 #endif  // SQXC_JSONC_H

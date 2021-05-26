@@ -20,7 +20,6 @@ sources = ['SqPtrArray.c',
            # Sqxc - Converter interface
            'Sqxc.c',
            'SqxcValue.c',
-           'SqxcJsonc.c',
            'SqxcSql.c',
           ]
 
@@ -47,7 +46,6 @@ headers = ['sqxclib.h',
            # Sqxc - Converter interface
            'Sqxc.h',
            'SqxcValue.h',
-           'SqxcJsonc.h',
            'SqxcSql.h',
           ]
 
@@ -73,23 +71,34 @@ headers_test = [
                 'SqxcEmpty.h',
                ]
 
-# install_headers(headers, subdir: 'sqxc')
-# install_headers(headers_cpp, subdir: 'sqxc')
+if jsonc.found() == true
+  sources += ['SqxcJsonc.c']
+  headers += ['SqxcJsonc.h']
+  sqxc_dep = [jsonc]
+endif
 
-sqxc_inc = include_directories('./')
-sqxc_dep = [jsonc]
-
-if has_mysql == true
+if mysql_config.found()
   sources += ['SqdbMysql.c', 'Sqdb-migration.c']
   headers += ['SqdbMysql.h', 'Sqdb-migration.h']
   sqxc_dep += mysql
 endif
 
-if has_sqlite == true
+if sqlite.found() == true
   sources += ['SqdbSqlite.c', 'SqRelation-migration.c']
   headers += ['SqdbSqlite.h', 'SqRelation-migration.h']
   sqxc_dep += sqlite
 endif
+
+install_headers(headers, subdir: 'sqxc')
+install_headers(headers_cpp, subdir: 'sqxc')
+
+configure_file(input : 'config.h.in',
+               output : 'config.h',
+               install : true,
+               install_dir : 'include/sqxc',
+               configuration : config_data)
+
+sqxc_inc = include_directories('./')
 
 sqxc_lib = static_library('sqxc',
                           sources,

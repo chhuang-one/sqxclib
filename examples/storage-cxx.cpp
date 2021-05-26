@@ -19,6 +19,9 @@
 #include <iostream>
 
 #include <sqxclib.h>
+#include <SqdbEmpty.h>    // test structure doesn't contain in sqxclib.h
+
+#define USE_MYSQL    0
 
 #define USE_CXX_AGGREGATE_INITIALIZATION    0
 
@@ -31,7 +34,7 @@ typedef struct Company    Company;
 
 struct User {
 	int    id;
-	char*  name;
+	char  *name;
 	int    company_id;
 
 	unsigned int  test_add;
@@ -50,12 +53,12 @@ struct User {
 struct Company
 {
 	int    id;
-	char*  name;
+	char  *name;
 	int    age;
-	char*  address;
+	char  *address;
 	double salary;
 
-	// make sure that SQ_CONFIG_JSON_SUPPORT is enabled if you want to store array (vector) in SQL column
+	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array (vector) in SQL column
 	Sq::IntptrArray  ints;    // C array for intptr_t
 	Sq::StringArray  strs;    // C array for char*
 	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
@@ -96,9 +99,9 @@ struct Company
 	}
 };
 
-void  company_array_print(SqPtrArray* array)
+void  company_array_print(SqPtrArray *array)
 {
-	Company*   company;
+	Company   *company;
 	int        index;
 
 	for (index = 0;  index < array->length;  index++) {
@@ -113,8 +116,8 @@ void  company_array_print(SqPtrArray* array)
 // use C++ aggregate initialization to define static SqColumn
 
 static const SqForeign userForeign = {"companies",  "id",  "CASCADE",  "CASCADE"};
-static const char*     userForeignComposite[] = {"company_id", NULL};
-static const char*     userIndexComposite[]   = {"id", NULL};
+static const char     *userForeignComposite[] = {"company_id", NULL};
+static const char     *userIndexComposite[]   = {"id", NULL};
 
 // CREATE TABLE "users"
 static const SqColumn userColumns[] = {
@@ -131,15 +134,15 @@ static const SqColumn userColumns[] = {
 	{SQ_TYPE_INDEX,  "users_id_index",
 		.composite = (char **)  userIndexComposite },
 };
-#endif
+#endif  // USE_CXX_AGGREGATE_INITIALIZATION
 
 // ----------------------------------------------------------------------------
 // use C++ functions to define dynamic SqColumn
 
-void  storage_make_fixed_schema(Sq::Storage* storage)
+void  storage_make_fixed_schema(Sq::Storage *storage)
 {
-	Sq::Schema*   schema;
-	Sq::Table*    table;
+	Sq::Schema   *schema;
+	Sq::Table    *table;
 
 	// create table in storage->schema
 	schema = storage->schema;
@@ -151,7 +154,7 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
 	table->stdstring("strCpp", &Company::strCpp);
-#ifdef SQ_CONFIG_JSON_SUPPORT
+#ifdef SQ_CONFIG_HAVE_JSONC
 	table->custom("strs", &Company::strs, SQ_TYPE_STRING_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
@@ -173,13 +176,13 @@ void  storage_make_fixed_schema(Sq::Storage* storage)
 	storage->migrate(NULL);
 }
 
-void  storage_make_migrated_schema(Sq::Storage* storage)
+void  storage_make_migrated_schema(Sq::Storage *storage)
 {
-	Sq::Schema*   schemaVer1;
-	Sq::Schema*   schemaVer2;
-	Sq::Schema*   schemaVer3;
-	Sq::Schema*   schemaVer4;
-	Sq::Table*    table;
+	Sq::Schema   *schemaVer1;
+	Sq::Schema   *schemaVer2;
+	Sq::Schema   *schemaVer3;
+	Sq::Schema   *schemaVer4;
+	Sq::Table    *table;
 
 	// --- schema version 1 ---
 	schemaVer1 = new Sq::Schema("Ver1");
@@ -191,7 +194,7 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
 	table->stdstring("strCpp", &Company::strCpp);
-#ifdef SQ_CONFIG_JSON_SUPPORT
+#ifdef SQ_CONFIG_HAVE_JSONC
 	table->custom("strs", &Company::strs, SQ_TYPE_STRING_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
@@ -237,10 +240,10 @@ void  storage_make_migrated_schema(Sq::Storage* storage)
 	delete schemaVer4;
 }
 
-void  storage_ptr_array_get_all(Sq::Storage* storage)
+void  storage_ptr_array_get_all(Sq::Storage *storage)
 {
-	SqPtrArray* array;
-	Company*    company;
+	SqPtrArray *array;
+	Company    *company;
 
 	array = (SqPtrArray*)storage->getAll<Company>(NULL);
 	for (int i = 0;  i < array->length;  i++) {
@@ -252,11 +255,11 @@ void  storage_ptr_array_get_all(Sq::Storage* storage)
 	delete array;
 }
 
-void  storage_stl_container_get_all(Sq::Storage* storage)
+void  storage_stl_container_get_all(Sq::Storage *storage)
 {
-	std::list<Company>* container;
+	std::list<Company> *container;
 	std::list<Company>::iterator cur, end;
-//	std::vector<Company>* container;
+//	std::vector<Company> *container;
 //	std::vector<Company>::iterator cur, end;
 
 	container = storage->getAll<std::list<Company>>();
@@ -270,13 +273,13 @@ void  storage_stl_container_get_all(Sq::Storage* storage)
 	delete container;
 }
 
-void  storage_ptr_array_query(Sq::Storage* storage)
+void  storage_ptr_array_query(Sq::Storage *storage)
 {
-	SqPtrArray* array;
-	SqQuery*    query;
-	void**      element;
-	Company*    company;
-	User*       user;
+	SqPtrArray *array;
+	SqQuery    *query;
+	void      **element;
+	Company    *company;
+	User       *user;
 
 	query = new Sq::Query();
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
@@ -298,14 +301,14 @@ void  storage_ptr_array_query(Sq::Storage* storage)
 	delete query;
 }
 
-void  storage_stl_container_query(Sq::Storage* storage)
+void  storage_stl_container_query(Sq::Storage *storage)
 {
-	std::vector<Sq::Joint<2>>* j2vector;
+	std::vector<Sq::Joint<2>> *j2vector;
 	std::vector<Sq::Joint<2>>::iterator cur, end;
-	SqQuery*     query;
+	SqQuery     *query;
 	Sq::Joint<2> element;
-	Company*     company;
-	User*        user;
+	Company     *company;
+	User        *user;
 
 	query = sq_query_new(NULL);
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
@@ -348,17 +351,24 @@ void check_standard_layout()
 	          << std::is_standard_layout<Company>::value << std::endl;
 }
 
-int  main(int argc, char* argv[])
+int  main(int argc, char *argv[])
 {
-//	Sq::DbConfigSqlite* dbconfig;
-	Sq::DbSqlite* db;
-	Sq::Storage*  storage;
-	Company*      company;
-	User*         user;
+//	Sq::DbConfigSqlite *dbconfig;
+	Sq::Db       *db;
+	Sq::Storage  *storage;
+	Company      *company;
+	User         *user;
 
 	check_standard_layout();
 
-	db = new Sq::DbSqlite(NULL);
+#if   defined(SQ_CONFIG_MYSQL) && USE_MYSQL == 1
+	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
+#elif defined(SQ_CONFIG_SQLITE)
+	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+#else
+	db = sqdb_new(SQDB_INFO_EMPTY, NULL);
+#endif
+
 	storage = new Sq::Storage(db);
 
 	storage->open("sample-cxx");

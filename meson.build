@@ -3,16 +3,24 @@ project('sqxc', 'c', 'cpp',
         version: '0.3')
 
 add_global_arguments('-DDEBUG', language : ['c', 'cpp'])
+# add_project_arguments('-DHAVE_CONFIG_H', language : ['c', 'cpp'])
 
-jsonc = dependency('json-c', required: true)
+config_data = configuration_data()
+
+# json-c
+jsonc = dependency('json-c', required: false)
+if jsonc.found() == true
+  config_data.set('have_jsonc',  '1')
+else
+  config_data.set('have_jsonc',  '0')
+endif
 
 # SQLite
 sqlite = dependency('sqlite3', required: false)
 if sqlite.found() == true
-  add_project_arguments('-DHAS_SQLITE', language : 'c')
-  has_sqlite = true
+  config_data.set('have_sqlite', '1')
 else
-  has_sqlite = false
+  config_data.set('have_sqlite', '0')
 endif
 
 # MySQL, MariaDB
@@ -23,10 +31,9 @@ endif
 if mysql_config.found()
   mysql = declare_dependency(compile_args: run_command([mysql_config, '--cflags']).stdout().split(),
                              link_args: run_command([mysql_config, '--libs']).stdout().split() )
-  add_project_arguments('-DHAS_MYSQL', language : 'c')
-  has_mysql = true
+  config_data.set('have_mysql',  '1')
 else
-  has_mysql = false
+  config_data.set('have_mysql',  '0')
 endif
 
 subdir('sqxc')

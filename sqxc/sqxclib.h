@@ -21,11 +21,26 @@
 #include <SqQuery.h>
 #include <SqJoint.h>
 
+// ------------------------------------
+#include <Sqdb.h>
+
+#ifdef SQ_CONFIG_HAVE_SQLITE
 #include <SqdbSqlite.h>
+#endif
+
+#ifdef SQ_CONFIG_HAVE_MYSQL
 #include <SqdbMysql.h>
+#endif
 
-#include <SqxcValue.h>
-#include <SqxcJsonc.h>
+// ------------------------------------
+#include <Sqxc.h>
+
 #include <SqxcSql.h>
+#include <SqxcValue.h>
 
+#ifdef SQ_CONFIG_HAVE_JSONC
+#include <SqxcJsonc.h>
+#endif
+
+// ------------------------------------
 #include <SqType-stl-cpp.h>    // Sq::TypeStl<StlContainer>

@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include <sqxclib.h>
+#include <SqdbEmpty.h>    // test structure doesn't contain in sqxclib.h
 
 #define USE_MYSQL    0
 
@@ -43,7 +44,7 @@ struct User {
 	char  *email;
 	int    city_id;    // foreign key
 
-	// make sure that SQ_CONFIG_JSON_SUPPORT is enabled if you want to store array/object in SQL column
+	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in SQL column
 	SqIntptrArray  ints;    // intptr_t array (JSON array  in SQL column)
 	Post          *post;    // object pointer (JSON object in SQL column)
 
@@ -89,7 +90,7 @@ static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   0,
 		.foreign = &(SqForeign) {"cities",  "id",  "CASCADE",  "CASCADE"} },
 
-#ifdef SQ_CONFIG_JSON_SUPPORT
+#ifdef SQ_CONFIG_HAVE_JSONC
 	{SQ_TYPE_INTPTR_ARRAY, "ints",  offsetof(User, ints),    0},
 	{SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER | SQB_NULLABLE},    // User.post is pointer
 #endif
@@ -364,15 +365,16 @@ int  main(void)
 	City       *city;
 	User       *user;
 
-#if USE_MYSQL == 1
+#if   defined(SQ_CONFIG_MYSQL) && USE_MYSQL == 1
 	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
-	storage = sq_storage_new(db);
-	sq_storage_open(storage, "sqxc_local");
-#else
+#elif defined(SQ_CONFIG_SQLITE)
 	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+#else
+	db = sqdb_new(SQDB_INFO_EMPTY, NULL);
+#endif
+
 	storage = sq_storage_new(db);
 	sq_storage_open(storage, "sample-c99");
-#endif
 
 	// This program migrate to next version every run. (from Ver1 to Ver6)
 	storage_make_migrated_schema(storage, db->version +1);

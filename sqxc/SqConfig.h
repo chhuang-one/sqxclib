@@ -16,14 +16,38 @@
 #define SQ_CONFIG_H
 
 
+#if 1    // defined(HAVE_CONFIG_H)
+#include "config.h"
+#else
+#define HAVE_JSONC    1
+#define HAVE_SQLITE   1
+#define HAVE_MYSQL    1
+#endif
+
+
+#if HAVE_JSONC == 1
+#undef HAVE_JSONC
+/* SqxcJsonc.c, SqxcJsonc.h, SqStorage.c */
+#define SQ_CONFIG_HAVE_JSONC
+#endif
+
+#if HAVE_SQLITE == 1
+#undef HAVE_SQLITE
+/* SqdbSqlite.h */
+#define SQ_CONFIG_HAVE_SQLITE
+#endif
+
+#if HAVE_MYSQL == 1
+#undef HAVE_MYSQL
+/* SqdbMysql.h */
+#define SQ_CONFIG_HAVE_MYSQL
+#endif
+
 /* SqEntry.c */
 // #define SQ_CONFIG_SQL_CASE_SENSITIVE    1
 
 /* Sqdb.c, SqSchema.c - SQL_STRING_LENGTH_DEFAULT */
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT    191
-
-/* SqxcJsonc.c, SqxcJsonc.h, SqStorage.c */
-#define SQ_CONFIG_JSON_SUPPORT
 
 /* Enable "SQL_table_name" <-> "C struct type_name" converting. (SqSchema.h, SqUtil.h)
    When calling sq_schema_create_xxx():

@@ -16,8 +16,6 @@
 #include <SqEntry.h>
 #include <SqxcJsonc.h>
 
-#ifdef SQ_CONFIG_JSON_SUPPORT
-
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - Middleware of input chain
 
@@ -319,5 +317,3 @@ static const SqxcInfo sqxc_jsonc_writer =
 
 const SqxcInfo *SQXC_INFO_JSONC_PARSER = &sqxc_jsonc_parser;
 const SqxcInfo *SQXC_INFO_JSONC_WRITER = &sqxc_jsonc_writer;
-
-#endif  // SQ_CONFIG_JSON_SUPPORT
