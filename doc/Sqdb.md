@@ -76,6 +76,10 @@ struct SqdbConfig
 // This is header file - SqdbXxsql.h
 #include <Sqdb.h>
 
+// define types - SqdbXxsql and SqdbConfigXxsql for C Language
+typedef struct SqdbXxsql          SqdbXxsql;
+typedef struct SqdbConfigXxsql    SqdbConfigXxsql;
+
 // define SQL product id
 #define  SQDB_PRODUCT_XXSQL    (SQDB_PRODUCT_CUSTOM + 1)
 
@@ -115,7 +119,7 @@ struct SqdbXxsql
 #include <SqdbXxsql.h>
 
 // declare functions for SqdbInfo
-static void sqdb_xxsql_init(SqdbXxsql *sqdb, SqdbConfigMysql *config);
+static void sqdb_xxsql_init(SqdbXxsql *sqdb, SqdbConfigXxsql *config);
 static void sqdb_xxsql_final(SqdbXxsql *sqdb);
 static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name);
 static int  sqdb_xxsql_close(SqdbXxsql *sqdb);

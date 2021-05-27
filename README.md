@@ -360,7 +360,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 ```c
 	SqdbConfigSqlite  config = { .folder = "/path", .extension = "db" };
 
-	db = sqdb_new(SQDB_INFO_SQLITE, &config);
+	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
 //	db = sqdb_new(SQDB_INFO_SQLITE, NULL);     // use default setting if config is NULL.
 
 	storage = sq_storage_new(db);
@@ -373,7 +373,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	SqdbConfigMysql  config = { .host = "localhost", .port = 3306,
 	                            .user = "name", .password = "xxx" };
 
-	db = sqdb_new(SQDB_INFO_MYSQL, &config);
+	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config);
 //	db = sqdb_new(SQDB_INFO_MYSQL, NULL);    // use default setting if config is NULL.
 
 	storage = sq_storage_new(db);
