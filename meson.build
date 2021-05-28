@@ -1,4 +1,4 @@
-project('sqxc', 'c', 'cpp',
+project('sqxclib', 'c', 'cpp',
 #        default_options : ['c_std=c99', 'cpp_std=c++11'],
         version: '0.3')
 
