@@ -19,7 +19,6 @@
 #include <iostream>
 
 #include <sqxclib.h>
-#include <SqdbEmpty.h>    // test structure doesn't contain in sqxclib.h
 
 #define USE_MYSQL    0
 
@@ -361,17 +360,18 @@ int  main(int argc, char *argv[])
 
 	check_standard_layout();
 
-#if   defined(SQ_CONFIG_MYSQL) && USE_MYSQL == 1
+#if   defined(SQ_CONFIG_HAVE_MYSQL) && USE_MYSQL == 1
 	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
-#elif defined(SQ_CONFIG_SQLITE)
+#elif defined(SQ_CONFIG_HAVE_SQLITE)
 	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
 #else
-	db = sqdb_new(SQDB_INFO_EMPTY, NULL);
+	#error No supported database
 #endif
 
 	storage = new Sq::Storage(db);
 
-	storage->open("sample-cxx");
+	if (storage->open("sample-cxx") != SQCODE_OK)
+		return EXIT_FAILURE;
 
 	// --- make schema
 //	storage_make_fixed_schema(storage);
@@ -426,8 +426,10 @@ int  main(int argc, char *argv[])
 
 	// --- get data from database
 	company = storage->get<Company>(1);
-	company->print();
-	delete company;
+	if (company) {
+		company->print();
+		delete company;
+	}
 
 	// call Sq::Storage.getAll()
 	storage_ptr_array_get_all(storage);

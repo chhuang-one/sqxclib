@@ -19,7 +19,6 @@
 #include <stdio.h>
 
 #include <sqxclib.h>
-#include <SqdbEmpty.h>    // test structure doesn't contain in sqxclib.h
 
 #define USE_MYSQL    0
 
@@ -365,16 +364,18 @@ int  main(void)
 	City       *city;
 	User       *user;
 
-#if   defined(SQ_CONFIG_MYSQL) && USE_MYSQL == 1
+#if   defined(SQ_CONFIG_HAVE_MYSQL) && USE_MYSQL == 1
 	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
-#elif defined(SQ_CONFIG_SQLITE)
+#elif defined(SQ_CONFIG_HAVE_SQLITE)
 	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
 #else
-	db = sqdb_new(SQDB_INFO_EMPTY, NULL);
+	#error No supported database
 #endif
 
 	storage = sq_storage_new(db);
-	sq_storage_open(storage, "sample-c99");
+
+	if (sq_storage_open(storage, "sample-c99") != SQCODE_OK)
+		return EXIT_FAILURE;
 
 	// This program migrate to next version every run. (from Ver1 to Ver6)
 	storage_make_migrated_schema(storage, db->version +1);
