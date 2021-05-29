@@ -573,6 +573,18 @@ struct SqColumn
 		return *this;
 	}
 
+	// C/C++ pointer
+	SqColumn& pointer() {
+		bit_field |= SQB_POINTER;   return *this;
+	}
+	// JSON
+	SqColumn& hidden() {
+		bit_field |= SQB_HIDDEN;    return *this;
+	}
+	SqColumn& hiddenNull() {
+		bit_field |= SQB_HIDDEN_NULL;   return *this;
+	}
+	// SQL
 	SqColumn& primary() {
 		bit_field |= SQB_PRIMARY;   return *this;
 	}
@@ -580,6 +592,9 @@ struct SqColumn
 		bit_field |= SQB_UNIQUE;    return *this;
 	}
 	SqColumn& increment() {
+		bit_field |= SQB_INCREMENT; return *this;
+	}
+	SqColumn& autoIncrement() {
 		bit_field |= SQB_INCREMENT; return *this;
 	}
 	SqColumn& nullable() {
