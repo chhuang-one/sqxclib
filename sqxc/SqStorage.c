@@ -51,6 +51,7 @@ void  sq_storage_init(SqStorage *storage, Sqdb *db)
 	storage->xc_output = sqxc_new(SQXC_INFO_SQL);
 
 #ifdef SQ_CONFIG_HAVE_JSONC
+	// append JSON parser/writer to tail of list
 	sqxc_insert(storage->xc_input,  sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
 	sqxc_insert(storage->xc_output, sqxc_new(SQXC_INFO_JSONC_WRITER), -1);
 #endif

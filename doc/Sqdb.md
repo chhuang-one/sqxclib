@@ -150,4 +150,20 @@ static const SqdbInfo dbinfo = {
 const SqdbInfo *SQDB_INFO_XXSQL = &dbinfo;
 
 // implement sqdb_xxsql_xxxx() functions here
+//
+```
+
+#### 3. use custom Sqdb
+
+```c++
+	Sqdb       *db;
+	SqdbConfigXxsql  config = { .xxsql_setting1 = 0};
+	SqStorage       *storage;
+
+	// create custom Sqdb object with config data
+	db = sqdb_new(SQDB_INFO_XXSQL, (SqdbConfig*) &config);
+
+	// create storage object that use new Sqdb
+	storage = sq_storage_new(db);	// C function
+//	storage = new Sq::Storage(db);  // C++ function
 ```

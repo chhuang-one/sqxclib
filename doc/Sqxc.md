@@ -91,6 +91,7 @@ add element to convert data to JSON array/object in SQL column.
 	xc_json = sqxc_new(SQXC_INFO_JSONC_WRITER);    // suggest using this
 //	xc_json = sqxc_jsonc_writer_new();
 
+	// append xc_json to tail of list
 	sqxc_insert(xc, xc_json, -1);    // C function
 //	xc->insert(xc_json, -1);         // C++ function
 ```
@@ -222,22 +223,92 @@ struct SqxcText
 #include <SqxcText.h>
 
 // declare functions for SqxcInfo
-static void sqxc_text_init(SqxcText *xctext);
-static void sqxc_text_final(SqxcText *xctext);
-static int  sqxc_text_ctrl(SqxcText *xctext, int id, void *data);
-static int  sqxc_text_send(SqxcText *xctext, Sqxc *src);
+static void sqxc_text_parser_init(SqxcText *xctext);
+static void sqxc_text_parser_final(SqxcText *xctext);
+static int  sqxc_text_parser_ctrl(SqxcText *xctext, int id, void *data);
+static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src);
 
 static const SqxcInfo sqxc_text_parser =
 {
 	.size  = sizeof(SqxcText),
-	.init  = (SqInitFunc)   sqxc_text_init,
-	.final = (SqFinalFunc)  sqxc_text_final,
-	.ctrl  = (SqxcCtrlFunc) sqxc_text_ctrl,
-	.send  = (SqxcSendFunc) sqxc_text_send,
+	.init  = (SqInitFunc)   sqxc_text_parser_init,
+	.final = (SqFinalFunc)  sqxc_text_parser_final,
+	.ctrl  = (SqxcCtrlFunc) sqxc_text_parser_ctrl,
+	.send  = (SqxcSendFunc) sqxc_text_parser_send,
 };
 
 // used by SqxcText.h
 const SqxcInfo *SQXC_INFO_TEXT_PARSER = &sqxc_text_parser;
 
 // implement sqxc_text_xxxx() functions here
+//
 ```
+
+Note: If new Sqxc element want to parse/write data in SQL column, it must:  
+1. support SQXC_TYPE_ARRAY or SQXC_TYPE_OBJECT.
+2. send converted data to dest (next) element. see below:
+
+```c++
+	Sqxc *xc_dest;
+
+	// set converted data in xc_text
+	xc_text->type = SQXC_TYPE_INT;
+	xc_text->name = NULL;
+	xc_text->value.integer = 3;
+
+	// send data from xc_text to xc_dest element
+	xc_dest = xc_text->dest;
+	xc_dest->info->send(xc_dest, xc_text);    // C function
+//	xc_dest->send(xc_text);                   // C++ function
+```
+
+#### 3. use new Sqxc element
+
+append custom Sqxc element to tail of list.
+
+```c++
+	Sqxc *xc_text;
+
+	// create custom Sqxc element
+	xc_text = sqxc_new(SQXC_INFO_TEXT_PARSER);
+
+	// append xc_text parser to tail of list
+	sqxc_insert(xc, xc_text, -1);    // C function
+//	xc->insert(xc_text, -1);         // C++ function
+```
+
+insert custom Sqxc element to input elements in storage.  
+
+```c++
+	Sqxc *xc_text;
+	Sqxc *xc_json;
+
+	// create custom Sqxc element
+	xc_text = sqxc_new(SQXC_INFO_TEXT_PARSER);
+
+	// insert xc_text parser after storage->xc_input
+	sqxc_insert(storage->xc_input, xc_text, 1);   // C function
+//	storage->xc_input->insert(xc_text, 1);        // C++ function
+
+	// remove JSON parser from list because it is replaced by new one.
+	xc_json = sqxc_find(storage->xc_input, SQXC_INFO_JSONC_PARSER);    // C function
+//	xc_json = storage->xc_input->find(SQXC_INFO_JSONC_PARSER);         // C++ function
+
+	if (xc_json) {
+		sqxc_steal(storage->xc_input, xc_json);    // C function
+//		storage->xc_input->steal(xc_json);         // C++ function
+
+//		sqxc_free(xc_json);
+	}
+
+	// You may also need:
+	// insert xc_text writer after storage->xc_output
+	// remove JSON writer from list because it is replaced by new one.
+```
+
+The Sqxc input dataflow in your SqStorage object will look like this:
+
+	                 +-> SqxcTextParser --+
+	( input )        |                    |
+	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
+
