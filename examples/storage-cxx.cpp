@@ -147,8 +147,8 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	schema = storage->schema;
 
 	table = schema->create<Company>("companies");
-	table->integer("id", &Company::id)->primary();
-	table->string("name", &Company::name);
+	table->integer("id", &Company::id)->primary()->increment();
+	table->string("name", &Company::name)->nullable();
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
@@ -187,8 +187,8 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	schemaVer1 = new Sq::Schema("Ver1");
 	schemaVer1->version = 1;
 	table = schemaVer1->create<Company>("companies");
-	table->integer("id", &Company::id)->primary();
-	table->string("name", &Company::name);
+	table->integer("id", &Company::id)->primary()->increment();
+	table->string("name", &Company::name)->nullable();
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
@@ -245,13 +245,14 @@ void  storage_ptr_array_get_all(Sq::Storage *storage)
 	Company    *company;
 
 	array = (SqPtrArray*)storage->getAll<Company>(NULL);
-	for (int i = 0;  i < array->length;  i++) {
-		company = (Company*)array->data[i];
-		company->print();
-		delete company;
+	if (array) {
+		for (int i = 0;  i < array->length;  i++) {
+			company = (Company*)array->data[i];
+			company->print();
+			delete company;
+		}
+		delete array;
 	}
-
-	delete array;
 }
 
 void  storage_stl_container_get_all(Sq::Storage *storage)
@@ -263,13 +264,12 @@ void  storage_stl_container_get_all(Sq::Storage *storage)
 
 	container = storage->getAll<std::list<Company>>();
 //	container = storage->getAll<std::vector<Company>>();
-	cur = container->begin();
-	end = container->end();
-	for (;  cur != end;  cur++)
-		(*cur).print();
-
-	// free
-	delete container;
+	if (container) {
+		for (cur = container->begin(), end = container->end();  cur != end;  cur++)
+			(*cur).print();
+		// free
+		delete container;
+	}
 }
 
 void  storage_ptr_array_query(Sq::Storage *storage)
@@ -285,18 +285,19 @@ void  storage_ptr_array_query(Sq::Storage *storage)
 	query->from("companies")->join("users",  "companies.id", "users.company_id");
 
 	array = (SqPtrArray*)storage->query(query);
-	for (int i = 0;  i < array->length;  i++) {
-		element = (void**)array->data[i];
-		company = (Company*)element[0];
-		company->print();
-		delete company;
-		user = (User*)element[1];
-		user->print();
-		delete user;
-		free(element);
+	if (array) {
+		for (int i = 0;  i < array->length;  i++) {
+			element = (void**)array->data[i];
+			company = (Company*)element[0];
+			company->print();
+			delete company;
+			user = (User*)element[1];
+			user->print();
+			delete user;
+			free(element);
+		}
+		delete array;
 	}
-
-	delete array;
 	delete query;
 }
 
@@ -314,20 +315,19 @@ void  storage_stl_container_query(Sq::Storage *storage)
 	query->from("companies")->join("users",  "companies.id", "users.company_id");
 
 	j2vector = storage->query<std::vector<Sq::Joint<2>>>(query);
-	cur = j2vector->begin();
-	end = j2vector->end();
-
-	for (;  cur != end;  cur++) {
-		element = (*cur);
-		company = (Company*)element.t[0];
-		company->print();
-		delete company;
-		user = (User*)element.t[1];
-		user->print();
-		delete user;
+	if (j2vector) {
+		for (cur = j2vector->begin(), end = j2vector->end();  cur != end;  cur++) {
+			element = (*cur);
+			company = (Company*)element.t[0];
+			company->print();
+			delete company;
+			user = (User*)element.t[1];
+			user->print();
+			delete user;
+		}
+		delete j2vector;
 	}
 
-	delete j2vector;
 	delete query;
 }
 
@@ -370,8 +370,10 @@ int  main(int argc, char *argv[])
 
 	storage = new Sq::Storage(db);
 
-	if (storage->open("sample-cxx") != SQCODE_OK)
+	if (storage->open("sample-cxx") != SQCODE_OK) {
+		std::cerr << "Can't open database - " << "sample-cxx" << std::endl;
 		return EXIT_FAILURE;
+	}
 
 	// --- make schema
 //	storage_make_fixed_schema(storage);

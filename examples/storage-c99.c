@@ -374,8 +374,10 @@ int  main(void)
 
 	storage = sq_storage_new(db);
 
-	if (sq_storage_open(storage, "sample-c99") != SQCODE_OK)
+	if (sq_storage_open(storage, "sample-c99") != SQCODE_OK) {
+		fprintf(stderr, "Can't open database - %s\n", "sample-c99");
 		return EXIT_FAILURE;
+	}
 
 	// This program migrate to next version every run. (from Ver1 to Ver6)
 	storage_make_migrated_schema(storage, db->version +1);
