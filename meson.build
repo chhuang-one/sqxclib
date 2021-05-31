@@ -1,6 +1,6 @@
 project('sqxclib', 'c', 'cpp',
 #        default_options : ['c_std=c99', 'cpp_std=c++11'],
-        version: '0.3')
+        version: '0.3.1')
 
 add_global_arguments('-DDEBUG', language : ['c', 'cpp'])
 # add_project_arguments('-DHAVE_CONFIG_H', language : ['c', 'cpp'])
