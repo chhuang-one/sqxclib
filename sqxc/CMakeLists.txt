@@ -13,7 +13,6 @@ set(SOURCES
     SqStorage.c
     SqStorage-query.c
     SqQuery.c
-    SqRelation.c
     Sqdb.c
     Sqxc.c
     SqxcValue.c
@@ -87,6 +86,7 @@ if (SQLITE3_INCLUDE_DIRS)
 	    ${SOURCES}
 	    SqdbSqlite.c
 	    SqRelation-migration.c
+	    SqRelation.c
 	)
 	set(HEADERS
 	    ${HEADERS}

@@ -12,7 +12,6 @@ sources = ['SqPtrArray.c',
            'SqStorage.c',
            'SqStorage-query.c',
            'SqQuery.c',
-           'SqRelation.c',
 
            # Sqdb - Database interface
            'Sqdb.c',
@@ -84,7 +83,7 @@ if mysql_config.found()
 endif
 
 if sqlite.found() == true
-  sources += ['SqdbSqlite.c', 'SqRelation-migration.c']
+  sources += ['SqdbSqlite.c', 'SqRelation-migration.c', 'SqRelation.c']
   headers += ['SqdbSqlite.h', 'SqRelation-migration.h']
   sqxc_dep += sqlite
 endif

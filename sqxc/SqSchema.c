@@ -19,11 +19,11 @@
 
 #include <stdio.h>      // snprintf
 
+#include <SqConfig.h>
 #include <SqError.h>
 #include <SqBuffer.h>
 #include <SqUtil.h>
 #include <SqSchema.h>
-#include <SqRelation-migration.h>  // migration
 
 #define SCHEMA_INITIAL_VERSION       0
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
@@ -55,11 +55,13 @@ void  sq_schema_final(SqSchema* schema)
 	schema->type = NULL;
 	// finalize parent struct - SqEntry
 	sq_entry_final((SqEntry*)schema);
+#ifdef SQ_CONFIG_HAVE_SQLITE
 	// free relation after sq_entry_final()
 	if (schema->relation) {
 		sq_relation_free(schema->relation);
 		sq_relation_pool_destroy(schema->relation_pool);
 	}
+#endif
 }
 
 SqSchema*  sq_schema_new(const char* name)

@@ -17,9 +17,9 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <SqConfig.h>
 #include <SqError.h>
 #include <SqTable.h>
-#include <SqRelation-migration.h>
 
 SqTable *sq_table_new(const char *name, const SqType *typeinfo)
 {
@@ -50,11 +50,13 @@ void  sq_table_free(SqTable *table)
 		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)table);
 		free((char*)table->old_name);
+#ifdef SQ_CONFIG_HAVE_SQLITE
 		// free relation data
 		if (table->relation) {
 			sq_relation_clear(table->relation);
 			sq_relation_free(table->relation);
 		}
+#endif
 		// free SqTable
 		free(table);
 	}
