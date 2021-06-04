@@ -17,7 +17,7 @@
 #include <sqxclib.h>
 #include <SqSchema-macro.h>
 
-#define USE_MYSQL    0
+#define USE_SQLITE_IF_POSSIBLE    1
 
 // ----------------------------------------------------------------------------
 // C structure
@@ -301,21 +301,22 @@ int  main(void)
 {
 	Sqdb   *db;
 
-#if   defined(SQ_CONFIG_HAVE_MYSQL) && USE_MYSQL == 1
-	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
-#elif defined(SQ_CONFIG_HAVE_SQLITE)
+#if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
 	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+#elif defined(SQ_CONFIG_HAVE_MYSQL)
+	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
 #else
 	#error No supported database
 #endif
 
-	sqdb_open(db, "test-migrate");
-//	db->info->open(db, "test-migrate");
+	if (sqdb_open(db, "test-migrate") != SQCODE_OK) {
+		fprintf(stderr, "Can't open database - %s\n", "test-migrate");
+		return EXIT_SUCCESS;
+	}
 
 	test_sqdb_migrate(db);
 
 	sqdb_close(db);
-//	db->info->close(db);
 
 	sqdb_free(db);
 	return EXIT_SUCCESS;

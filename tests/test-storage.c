@@ -15,6 +15,9 @@
 
 #include <stdio.h>
 
+#include <SqConfig.h>
+#ifdef SQ_CONFIG_HAVE_SQLITE
+
 #include <sqlite3.h>
 
 #include <SqError.h>
@@ -200,3 +203,5 @@ int main (int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
+
+#endif  // SQ_CONFIG_HAVE_SQLITE

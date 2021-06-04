@@ -20,7 +20,7 @@
 
 #include <sqxclib.h>
 
-#define USE_MYSQL    0
+#define USE_SQLITE_IF_POSSIBLE    1
 
 typedef struct Post     Post;
 typedef struct City     City;
@@ -364,10 +364,10 @@ int  main(void)
 	City       *city;
 	User       *user;
 
-#if   defined(SQ_CONFIG_HAVE_MYSQL) && USE_MYSQL == 1
-	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
-#elif defined(SQ_CONFIG_HAVE_SQLITE)
+#if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
 	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+#elif defined(SQ_CONFIG_HAVE_MYSQL)
+	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
 #else
 	#error No supported database
 #endif
