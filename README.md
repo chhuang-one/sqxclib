@@ -14,7 +14,7 @@ It provides ORM features and C++ wrapper.
 
 3. It can work in low-end hardware.
 
-4. Single header file sqxclib.h (Note: It doesn't contain special macros)
+4. Single header file sqxclib.h  (Note: It doesn't contain special macros)
 
 5. Supports SQLite, MySQL / MariaDB.
 
@@ -245,7 +245,8 @@ static const SqColumn  userColumns[6] = {
 	table->rename("email", "email2");
 ```
 
- other samples: C99 designated initializer to change table/column (static)
+ - Other constraint sample:
+ use C99 designated initializer to change constraint (static)
 
 ```c
 static const SqColumn  otherSampleChanged_1[] = {
@@ -269,9 +270,25 @@ static const SqColumn  otherSampleChanged_2[] = {
 };
 ```
 
- other samples: use C++ function to change table/column (dynamic)
+ - Other constraint sample:
+ use C function to change constraint (dynamic)
 
- ```c++
+```c
+	// ADD CONSTRAINT UNIQUE
+	sq_table_add_unique(table, "other_unique", "column1", "column2", NULL);
+	// ADD CONSTRAINT PRIMARY KEY
+	sq_table_add_primary(table, "other_primary", "column1", "column2", NULL);
+
+	// DROP CONSTRAINT UNIQUE
+	sq_table_drop_unique(table, "other_unique");
+	// DROP CONSTRAINT PRIMARY KEY
+	sq_table_drop_primary(table, "other_primary");
+```
+
+ - Other constraint sample:
+ use C++ function to change constraint (dynamic)
+
+```c++
 	// ADD CONSTRAINT UNIQUE
 	table->addUnique("other_unique", "column1", "column2", NULL);
 	// ADD CONSTRAINT PRIMARY KEY
@@ -281,7 +298,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	table->dropUnique("other_unique");
 	// DROP CONSTRAINT PRIMARY KEY
 	table->dropPrimary("other_primary");
- ```
+```
 
 ## Migration
 
@@ -387,6 +404,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 
 	db = new Sq::DbSqlite(&config);
 //	db = new Sq::DbSqlite(NULL);    // use default setting if config is NULL.
+//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);    // this also works.
 
 	storage = new Sq::Storage(db);
 	storage->open("sqxc_local");    // This will open file "sqxc_local.db"

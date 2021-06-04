@@ -240,7 +240,7 @@ static const SqxcInfo sqxc_text_parser =
 // used by SqxcText.h
 const SqxcInfo *SQXC_INFO_TEXT_PARSER = &sqxc_text_parser;
 
-// implement sqxc_text_xxxx() functions here
+// implement sqxc_text_parser_xxxx() functions here
 //
 ```
 
@@ -277,7 +277,7 @@ append custom Sqxc element to tail of list.
 //	xc->insert(xc_text, -1);         // C++ function
 ```
 
-insert custom Sqxc element to input elements in storage.  
+insert custom Sqxc element to input elements in SqStorage object.
 
 ```c++
 	Sqxc *xc_text;
