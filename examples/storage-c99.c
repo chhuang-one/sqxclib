@@ -206,7 +206,7 @@ void user_print(User *user) {
 		       user->post->title, user->post->desc);
 	}
 
-	char* timestr = sq_time_to_string(user->created_at);
+	char *timestr = sq_time_to_string(user->created_at);
 	printf("user.created_at = %s\n", timestr);
 	free(timestr);
 

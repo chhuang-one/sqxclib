@@ -14,9 +14,10 @@
 
 #include <stdio.h>
 
-#include <Sqdb.h>
-#include <SqdbSqlite.h>
+#include <sqxclib.h>
 #include <SqSchema-macro.h>
+
+#define USE_MYSQL    0
 
 // ----------------------------------------------------------------------------
 // C structure
@@ -27,8 +28,8 @@ typedef struct Company  Company;
 
 struct User {
 	int    id;
-	char*  name;
-	char*  email;
+	char  *name;
+	char  *email;
 	int    city_id;
 	int    company_id;
 
@@ -39,12 +40,12 @@ struct User {
 
 struct City {
 	int    id;
-	char*  name;
+	char  *name;
 };
 
 struct Company {
 	int    id;
-	char*  name;
+	char  *name;
 	int    city_id;
 };
 
@@ -126,13 +127,13 @@ const SqType UserTypeChange = {
 
 // ------------------------------------
 
-SqTable* create_user_table_by_type(SqSchema* schema)
+SqTable *create_user_table_by_type(SqSchema *schema)
 {
 	return sq_schema_create_by_type(schema, "users", &UserType);
 //	return sq_schema_create_full(schema, "users", NULL, &UserType, 0);
 }
 
-SqTable* change_user_table_by_c_type(SqSchema* schema)
+SqTable *change_user_table_by_c_type(SqSchema *schema)
 {
 	return sq_schema_alter(schema, "users", &UserTypeChange);
 }
@@ -140,10 +141,10 @@ SqTable* change_user_table_by_c_type(SqSchema* schema)
 // ----------------------------------------------------------------------------
 // use C function to define table/column
 
-SqTable* create_user_table_by_c(SqSchema* schema)
+SqTable *create_user_table_by_c(SqSchema *schema)
 {
-	SqTable*  table;
-	SqColumn* column;
+	SqTable  *table;
+	SqColumn *column;
 
 //	table = sq_schema_create(schema, "users", User);
 	table = sq_schema_create_full(schema, "users", SQ_GET_TYPE_NAME(User), NULL, sizeof(User));
@@ -170,10 +171,10 @@ SqTable* create_user_table_by_c(SqSchema* schema)
 	return table;
 }
 
-SqTable* change_user_table_by_c(SqSchema* schema)
+SqTable *change_user_table_by_c(SqSchema *schema)
 {
-	SqTable*  table;
-	SqColumn* column;
+	SqTable  *table;
+	SqColumn *column;
 
 	table = sq_schema_alter(schema, "users", NULL);
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
@@ -187,7 +188,7 @@ SqTable* change_user_table_by_c(SqSchema* schema)
 // ----------------------------------------------------------------------------
 // use C macro to define dynamic table/column
 
-void  create_user_table_by_macro(SqSchema* schema)
+void  create_user_table_by_macro(SqSchema *schema)
 {
 	SQ_SCHEMA_CREATE(schema, "users", User, {
 		SQT_INTEGER_AS(User, id);  SQC_PRIMARY();  SQC_HIDDEN();
@@ -208,7 +209,7 @@ void  create_user_table_by_macro(SqSchema* schema)
 #endif
 }
 
-void  change_user_table_by_macro(SqSchema* schema)
+void  change_user_table_by_macro(SqSchema *schema)
 {
 	SQ_SCHEMA_ALTER(schema, "users", {
 		SQT_UINT_AS(User, test_add);
@@ -220,10 +221,10 @@ void  change_user_table_by_macro(SqSchema* schema)
 
 // ----------------------------------------------------------------------------
 
-void create_company_table_by_c(SqSchema* schema)
+void create_company_table_by_c(SqSchema *schema)
 {
-	SqTable*  table;
-	SqColumn* column;
+	SqTable  *table;
+	SqColumn *column;
 
 	// use C function to change schema
 	table = sq_schema_create(schema, "companies", Company);
@@ -235,10 +236,10 @@ void create_company_table_by_c(SqSchema* schema)
 //	sq_column_on_delete(column, "set null");
 }
 
-void create_city_table_and_rename_by_c(SqSchema* schema)
+void create_city_table_and_rename_by_c(SqSchema *schema)
 {
-	SqTable*  table;
-	SqColumn* column;
+	SqTable  *table;
+	SqColumn *column;
 
 	// use C function to change schema
 	table = sq_schema_create(schema, "cities", City);
@@ -252,89 +253,22 @@ void create_city_table_and_rename_by_c(SqSchema* schema)
 
 // ----------------------------------------------------------------------------
 
-void test_schema_to_sql(SqSchema* schema, SqPtrArray* entries)
+void test_sqdb_migrate(Sqdb *db)
 {
-	Sqdb     db;
-	SqdbInfo dbinfo;
-	SqBuffer buffer;
-
-	dbinfo.product = SQDB_PRODUCT_SQLITE;
-	dbinfo.column.use_alter = 1;
-	dbinfo.column.use_modify = 0;
-	db.info = &dbinfo;
-	buffer = (SqBuffer){NULL, 0, 0};
-
-	sqdb_sql_write_schema(&db, &buffer, schema, entries);
-
-	sq_buffer_write_c(&buffer, '\0');
-	puts(buffer.buf);
-
-	sq_buffer_final(&buffer);
-}
-
-void test_schema_migration(void)
-{
-	SqSchema*   schema;
-	SqSchema*   schema_v2;
-	SqSchema*   schema_v3;
-	SqSchema*   schema_v4;
-	SqPtrArray  entries;
-
-	schema  = sq_schema_new("current");
-	create_user_table_by_type(schema);
-//	create_user_table_by_macro(schema);
-//	create_user_table_by_c(schema);
-
-	schema_v2 = sq_schema_new("ver2");
-	change_user_table_by_c_type(schema_v2);
-
-	schema_v3 = sq_schema_new("ver3");
-	create_company_table_by_c(schema_v3);
-
-	schema_v4 = sq_schema_new("ver4");
-	create_city_table_and_rename_by_c(schema_v4);
-
-	sq_schema_include(schema, schema_v2);
-	sq_schema_include(schema, schema_v3);
-	sq_schema_include(schema, schema_v4);
-
-	// trace renamed (or dropped) table/column that was referenced by others
-	sq_schema_trace_foreign(schema);
-	// clear changed records before calling sq_schema_arrange()
-	// database schema version < current schema version
-	sq_schema_erase_records(schema, '<');
-
-	sq_ptr_array_init(&entries, 8, NULL);
-	sq_schema_arrange(schema, &entries);
-
-	test_schema_to_sql(schema, &entries);
-
-	sq_ptr_array_final(&entries);
-	sq_schema_free(schema);
-	sq_schema_free(schema_v2);
-	sq_schema_free(schema_v3);
-	sq_schema_free(schema_v4);
-}
-
-// ----------------------------------------------------------------------------
-
-void test_sqdb(void)
-{
-	Sqdb* db;
-	SqSchema*   schema;
-	SqSchema*   schema_v1;
-	SqSchema*   schema_v2;
-	SqSchema*   schema_v3;
-	SqSchema*   schema_v4;
+	SqSchema   *schema;
+	SqSchema   *schema_v1;
+	SqSchema   *schema_v2;
+	SqSchema   *schema_v3;
+	SqSchema   *schema_v4;
 
 	schema  = sq_schema_new("current");
 	schema->version = 0;
 
 	schema_v1  = sq_schema_new("ver1");
 	schema_v1->version = 1;
-	create_user_table_by_type(schema);
-//	create_user_table_by_macro(schema);
-//	create_user_table_by_c(schema);
+	create_user_table_by_type(schema_v1);
+//	create_user_table_by_macro(schema_v1);
+//	create_user_table_by_c(schema_v1);
 
 	schema_v2 = sq_schema_new("ver2");
 	schema_v2->version = 2;
@@ -348,21 +282,41 @@ void test_sqdb(void)
 	schema_v4->version = 4;
 	create_city_table_and_rename_by_c(schema_v4);
 
-	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
-	((SqdbSqlite*)db)->version = 1;
 	sqdb_migrate(db, schema, schema_v1);
 	sqdb_migrate(db, schema, schema_v2);
 	sqdb_migrate(db, schema, schema_v3);
 	sqdb_migrate(db, schema, schema_v4);
-//	sqdb_migrate(db, schema, NULL);
+	sqdb_migrate(db, schema, NULL);
+
+	sq_schema_free(schema);
+	sq_schema_free(schema_v1);
+	sq_schema_free(schema_v2);
+	sq_schema_free(schema_v3);
+	sq_schema_free(schema_v4);
 }
 
 // ----------------------------------------------------------------------------
 
 int  main(void)
 {
-	test_schema_migration();
-	test_sqdb();
+	Sqdb   *db;
 
-	return 0;
+#if   defined(SQ_CONFIG_HAVE_MYSQL) && USE_MYSQL == 1
+	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
+#elif defined(SQ_CONFIG_HAVE_SQLITE)
+	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+#else
+	#error No supported database
+#endif
+
+	sqdb_open(db, "test-migrate");
+//	db->info->open(db, "test-migrate");
+
+	test_sqdb_migrate(db);
+
+	sqdb_close(db);
+//	db->info->close(db);
+
+	sqdb_free(db);
+	return EXIT_SUCCESS;
 }

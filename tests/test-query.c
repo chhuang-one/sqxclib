@@ -21,8 +21,8 @@
 
 void test_query_c1()
 {
-	SqQuery* query;
-	char*    sql;
+	SqQuery *query;
+	char    *sql;
 
 	query = sq_query_new(NULL);
 
@@ -61,8 +61,8 @@ void test_query_c1()
 
 void test_query_c2()
 {
-	SqQuery* query;
-	char*    sql;
+	SqQuery *query;
+	char    *sql;
 
 	query = sq_query_new(NULL);
 	// SELECT * FROM Company
@@ -85,8 +85,8 @@ void test_query_c2()
 
 void test_query_macro()
 {
-	SqQuery* query;
-	char*    sql;
+	SqQuery *query;
+	char    *sql;
 
 	query = sq_query_new(NULL);
 
@@ -111,7 +111,7 @@ void test_query_macro()
 	free(sql);
 
 	// get table name and it's as name in query.
-	SqPtrArray* table_as = sq_ptr_array_new(4, NULL);
+	SqPtrArray *table_as = sq_ptr_array_new(4, NULL);
 	sq_query_get_table_as_names(query, table_as);
 	for (int i = 0;  i < table_as->length;  i += 2)
 		printf("%s - %s\n", (char*)table_as->data[i], (char*)table_as->data[i+1]);
@@ -129,8 +129,8 @@ void test_query()
 
 // ----------------------------------------------------------------------------
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	test_query();
-	return 0;
+	return EXIT_SUCCESS;
 }

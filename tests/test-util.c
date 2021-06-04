@@ -21,8 +21,8 @@
 void test_name_convention()
 {
 #ifdef SQ_CONFIG_NAMING_CONVENTION
-	const char* src;
-	char* name;
+	const char *src;
+	char *name;
 	int   len;
 
 	len = sq_camel_from_snake(NULL, "custom_name", true);
@@ -72,7 +72,7 @@ void test_name_convention()
 
 void test_time_string()
 {
-	char*    str;
+	char    *str;
 	time_t   time;
 
 	time = sq_time_from_string("2002-11-10T15:23:59");
@@ -91,8 +91,8 @@ void test_util()
 
 // ----------------------------------------------------------------------------
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	test_util();
-	return 0;
+	return EXIT_SUCCESS;
 }

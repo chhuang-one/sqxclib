@@ -445,6 +445,6 @@ int  main(int argc, char *argv[])
 	delete storage;
 	delete db;
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 

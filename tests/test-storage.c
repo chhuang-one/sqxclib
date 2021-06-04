@@ -31,20 +31,20 @@ typedef struct Company    Company;
 struct Company
 {
 	int    id;
-	char*  name;
+	char  *name;
 	int    age;
-	char*  address;
+	char  *address;
 	double salary;
 };
 
-void company_free(Company* company)
+void company_free(Company *company)
 {
 	free(company->name);
 	free(company->address);
 	free(company);
 }
 
-void create_company_table(SqSchema* schema)
+void create_company_table(SqSchema *schema)
 {
 	SQ_SCHEMA_CREATE(schema, "COMPANY", Company, {
 		SQT_INTEGER("ID", Company, id); SQC_PRIMARY();
@@ -55,10 +55,10 @@ void create_company_table(SqSchema* schema)
 	});
 }
 
-SqStorage* create_storage(sqlite3 *sqlitedb)
+SqStorage *create_storage(sqlite3 *sqlitedb)
 {
-	Sqdb*       db;
-	SqStorage*  storage;
+	Sqdb       *db;
+	SqStorage  *storage;
 
 	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
 	((SqdbSqlite*)db)->self = sqlitedb;
@@ -68,7 +68,7 @@ SqStorage* create_storage(sqlite3 *sqlitedb)
 	return storage;
 }
 
-void  company_object_print(Company* company)
+void  company_object_print(Company *company)
 {
 	printf("company.id = %d\n"
 	       "company.name = %s\n"
@@ -79,9 +79,9 @@ void  company_object_print(Company* company)
 	       company->address, company->salary);
 }
 
-void  company_array_print(SqPtrArray* array)
+void  company_array_print(SqPtrArray *array)
 {
-	Company*   company;
+	Company   *company;
 	int        index;
 
 	for (index = 0;  index < array->length;  index++) {
@@ -100,17 +100,17 @@ static int callback(void *user_data, int argc, char **argv, char **columnName)
 	return 0;
 }
 
-int main (int argc, char* argv[])
+int main (int argc, char *argv[])
 {
-	sqlite3* db;
-	char*  errorMsg;
-	char*  sql;
+	sqlite3 *db;
+	char  *errorMsg;
+	char  *sql;
 	int    rc;
 
 	// sqxc
-	SqStorage*  storage;
-	SqPtrArray* array;
-	Company*    company;
+	SqStorage  *storage;
+	SqPtrArray *array;
+	Company    *company;
 
 	/* Open database */
 	rc = sqlite3_open("test.db", &db);
@@ -197,5 +197,6 @@ int main (int argc, char* argv[])
 
 //	rc = sqlite3_db_cacheflush(db);
 	sqlite3_close(db);
-	return 0;
+
+	return EXIT_SUCCESS;
 }

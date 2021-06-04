@@ -29,8 +29,8 @@ typedef struct User     User;
 
 struct User {
 	int    id;
-	char*  name;
-	char*  email;
+	char  *name;
+	char  *email;
 
 	SqStringArray  strs;
 	SqIntptrArray  ints;
@@ -61,7 +61,7 @@ const SqType UserType = {
 
 // ------------------------------------
 
-void print_user(User* user)
+void print_user(User *user)
 {
 	int  index;
 
@@ -78,7 +78,7 @@ void print_user(User* user)
 	puts("\n");
 }
 
-SqTable* create_user_table_by_type(SqSchema* schema)
+SqTable *create_user_table_by_type(SqSchema *schema)
 {
 	return sq_schema_create_by_type(schema, "users", &UserType);
 //	return sq_schema_create_full(schema, "users", NULL, &UserType, 0);
@@ -89,11 +89,11 @@ SqTable* create_user_table_by_type(SqSchema* schema)
 
 void test_sqxc_joint_input()
 {
-	SqType*   type;
-	SqTable*  table;
-	Sqxc*     xc;
-	User*     user;
-	void**    instance;
+	SqType   *type;
+	SqTable  *table;
+	Sqxc     *xc;
+	User     *user;
+	void    **instance;
 
 	table = sq_table_new("users", &UserType);
 	type = sq_type_joint_new();
@@ -137,7 +137,7 @@ void test_sqxc_joint_input()
 
 #ifdef SQ_CONFIG_HAVE_JSONC
 
-const char* json_array_string =
+const char *json_array_string =
 "["
 	"{"
 		"\"id\": 10,"
@@ -147,7 +147,7 @@ const char* json_array_string =
 	"}"
 "]";
 
-const char* json_object_string =
+const char *json_object_string =
 "{"
 	"\"id\": 10,"
 	"\"email\": \"guest@\","
@@ -157,8 +157,8 @@ const char* json_object_string =
 
 void test_sqxc_jsonc_input()
 {
-	Sqxc* xcjsonc;
-	Sqxc* xcchain;
+	Sqxc *xcjsonc;
+	Sqxc *xcchain;
 
 	xcchain = sqxc_new_chain(SQXC_INFO_EMPTY, SQXC_INFO_JSONC_PARSER, NULL);
 	xcjsonc = sqxc_find(xcchain, SQXC_INFO_JSONC_PARSER);
@@ -173,11 +173,11 @@ void test_sqxc_jsonc_input()
 	sqxc_free_chain(xcchain);
 }
 
-User* test_sqxc_jsonc_input_user()
+User *test_sqxc_jsonc_input_user()
 {
-	Sqxc* xcjsonc;
-	Sqxc* xcvalue;
-	User* user;
+	Sqxc *xcjsonc;
+	Sqxc *xcvalue;
+	User *user;
 
 	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
 	xcjsonc = sqxc_find(xcvalue, SQXC_INFO_JSONC_PARSER);
@@ -202,10 +202,10 @@ User* test_sqxc_jsonc_input_user()
 // ----------------------------------------------------------------------------
 // Sqxc - Output
 
-void test_sqxc_jsonc_output(User* instance)
+void test_sqxc_jsonc_output(User *instance)
 {
-	Sqxc* xcjsonc;
-	Sqxc* xcchain;
+	Sqxc *xcjsonc;
+	Sqxc *xcchain;
 
 	xcchain = sqxc_new_chain(SQXC_INFO_EMPTY, SQXC_INFO_JSONC_WRITER, NULL);
 	xcjsonc = sqxc_find(xcchain, SQXC_INFO_JSONC_WRITER);
@@ -243,10 +243,10 @@ void test_sqxc_jsonc_output(User* instance)
 
 void test_sqxc_sql_output(bool use_update)
 {
-	SqTable* table;
-	Sqxc* xcchain;
-	Sqxc* xcsql;
-	Sqxc* xccur;
+	SqTable *table;
+	Sqxc *xcchain;
+	Sqxc *xcsql;
+	Sqxc *xccur;
 
 	table = sq_table_new("User", &UserType);
 
@@ -313,8 +313,8 @@ void test_sqxc_sql_output(bool use_update)
 
 int  main(void)
 {
-	SqSchema*   schema;
-	User*       user;
+	SqSchema   *schema;
+	User       *user;
 
 	schema = sq_schema_new("default");
 	create_user_table_by_type(schema);
@@ -337,5 +337,5 @@ int  main(void)
 #endif  // SQ_CONFIG_HAVE_JSONC
 
 //	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
-	return 0;
+	return EXIT_SUCCESS;
 }

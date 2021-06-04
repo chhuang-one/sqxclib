@@ -26,7 +26,7 @@ using namespace std;
 
 void test_intptr_array()
 {
-	Sq::IntptrArray* array;
+	Sq::IntptrArray *array;
 	intptr_t   intarray[] = {0, 3, 2, 5};
 
 	array = new Sq::IntptrArray();
@@ -52,13 +52,13 @@ void test_intptr_array()
 
 void test_string_array()
 {
-	Sq::StringArray* array;
-	const char*  strarray[] = {"One", "Two"};
+	Sq::StringArray *array;
+	const char  *strarray[] = {"One", "Two"};
 
 	array = new Sq::StringArray();
 	array->append(strarray, 2);
 	// C++ foreach (lambda)
-	array->foreach([](char* element) {
+	array->foreach([](char *element) {
 		printf(" - %s", element);
 	});
 	puts("");
@@ -107,7 +107,7 @@ void test_ptr_array()
 
 void test_buffer(void)
 {
-	SqBuffer* buf;
+	SqBuffer *buf;
 	int       len;
 
 	buf = sq_buffer_new();
@@ -136,5 +136,5 @@ int main(void)
 
 	cout << "is_arithmetic : " << std::is_arithmetic<time_t>::value << endl;
 //	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
-	return 0;
+	return EXIT_SUCCESS;
 }

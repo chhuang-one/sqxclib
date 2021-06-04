@@ -97,8 +97,8 @@ void test_schema()
 
 void test_query_cpp()
 {
-	Sq::Query* query;
-	char*      sql;
+	Sq::Query *query;
+	char      *sql;
 
 	/*
 		SELECT DISTINCT age, name, u.id
@@ -137,10 +137,10 @@ void test_query()
 
 void test_sqxc(void)
 {
-	Sq::XcEmpty*  xc;
-	Sq::XcEmpty*  xc2;
-	Sq::XcEmpty*  xc3;
-	Sq::XcMethod* cur;
+	Sq::XcEmpty  *xc;
+	Sq::XcEmpty  *xc2;
+	Sq::XcEmpty  *xc3;
+	Sq::XcMethod *cur;
 
 	xc  = new Sq::XcEmpty();
 	xc2 = new Sq::XcEmpty();
@@ -178,8 +178,8 @@ void test_sqxc(void)
 
 void test_storage()
 {
-	Sq::DbEmpty* db = new Sq::DbEmpty();
-	Sq::Storage* storage = new Sq::Storage(db);
+	Sq::DbEmpty *db = new Sq::DbEmpty();
+	Sq::Storage *storage = new Sq::Storage(db);
 
 	storage->insert<Company>(NULL);
 	storage->get<Company>(1);
@@ -193,5 +193,5 @@ int main(void)
 	test_query();
 	test_sqxc();
 	test_storage();
-	return 0;
+	return EXIT_SUCCESS;
 }
