@@ -116,6 +116,8 @@ static const SqColumn  userColumnsChanged[5] = {
 	// CONSTRAINT FOREIGN KEY
 	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
 	sq_column_reference(column, "cities", "id");
+	sq_column_on_delete(column, "NO ACTION");
+	sq_column_on_update(column, "NO ACTION");
 	// CREATE INDEX
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
 ```
@@ -154,7 +156,8 @@ static const SqColumn  userColumnsChanged[5] = {
 		// FOREIGN KEY
 		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");
 		// CONSTRAINT FOREIGN KEY
-		SQT_ADD_FOREIGN("users_city_id_foreign", "city_id");  SQC_REFERENCE("cities", "id");
+		SQT_ADD_FOREIGN("users_city_id_foreign", "city_id");
+			SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("NO ACTION");  SQC_ON_UPDATE("NO ACTION"):
 		// CREATE INDEX
 		SQT_ADD_INDEX("users_id_index", "id");
 	});
@@ -224,7 +227,8 @@ static const SqColumn  userColumns[6] = {
 	// FOREIGN KEY
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
 	// CONSTRAINT FOREIGN KEY
-	table->addForeign("users_city_id_foreign", "city_id")->reference("cities", "id");
+	table->addForeign("users_city_id_foreign", "city_id")
+	     ->reference("cities", "id")->onDelete("NO ACTION")->onUpdate("NO ACTION");
 	// CREATE INDEX
 	table->addIndex("users_id_index", "id", NULL);
 ```

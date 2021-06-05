@@ -167,7 +167,8 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->integer("company_id", &User::company_id);
-	table->addForeign("users_companies_id_foreign", "company_id")->reference("companies", "id");
+	table->addForeign("users_companies_id_foreign", "company_id")
+	     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");
 	table->addIndex("users_id_index", "id", NULL);
 #endif
 
@@ -206,7 +207,8 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->integer("company_id", &User::company_id);
-	table->addForeign("users_companies_id_foreign", "company_id")->reference("companies", "id");
+	table->addForeign("users_companies_id_foreign", "company_id")
+	     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");;
 	table->addIndex("users_id_index", "id", NULL);
 
 	// --- schema version 3 ---

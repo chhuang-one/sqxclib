@@ -161,6 +161,7 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 	column = sq_table_add_foreign(table, "fk_cities_id", "city_id");
 	sq_column_reference(column, "cities", "id");
 	sq_column_on_delete(column, "no action");
+	sq_column_on_update(column, "cascade");
 
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	column->bit_field |= SQB_PRIMARY;
@@ -179,7 +180,7 @@ SqTable *change_user_table_by_c(SqSchema *schema)
 	table = sq_schema_alter(schema, "users", NULL);
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	column->bit_field |= SQB_NULLABLE;
-	sq_table_drop_foreign(table, "cities_id_foreign");
+	sq_table_drop_foreign(table, "fk_cities_id");
 	sq_table_drop_column(table, "name");
 	sq_table_rename_column(table, "email", "email2");
 	return table;
