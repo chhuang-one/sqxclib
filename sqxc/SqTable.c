@@ -518,6 +518,24 @@ void  sq_column_free(SqColumn *column)
 	}
 }
 
+void  sq_column_default(SqColumn *column, const char *default_value)
+{
+	if ((column->bit_field & SQB_DYNAMIC) == 0)
+		return;
+
+	free((char*)column->default_value);
+	column->default_value = strdup(default_value);
+}
+
+void  sq_column_raw(SqColumn *column, const char *raw_property)
+{
+	if ((column->bit_field & SQB_DYNAMIC) == 0)
+		return;
+
+	free((char*)column->raw);
+	column->raw = strdup(raw_property);
+}
+
 SqColumn *sq_column_copy_static(const SqColumn *column_src)
 {
 	SqColumn *column;

@@ -239,11 +239,13 @@ typedef struct Company
 #define SQC_NULLABLE()   \
 		column_cur_->bit_field   |= SQB_NULLABLE
 
-#define SQC_UNSIGNED()   \
-		column_cur_->bit_field   |= SQB_UNSIGNED
-
-
 #define SQC_CHANGE()   \
 		column_cur_->bit_field   |= SQB_CHANGED
+
+#define SQC_DEFAULT(default_val)   \
+		sq_column_default(default_val)
+
+#define SQC_RAW(raw_property)   \
+		sq_column_raw(raw_property)
 
 #endif  // SQ_SCHEMA_MACRO_H

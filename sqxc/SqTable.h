@@ -206,6 +206,9 @@ void      sq_table_drop_foreign(SqTable *table, const char *name);
 SqColumn  *sq_column_new(const char *name, const SqType *type_info);
 void       sq_column_free(SqColumn *column);
 
+void       sq_column_default(SqColumn *column, const char *default_value);
+void       sq_column_raw(SqColumn *column, const char *raw_property);
+
 // create new SqColumn and copy data from static one.
 SqColumn  *sq_column_copy_static(const SqColumn *column_src);
 
@@ -584,7 +587,7 @@ struct SqColumn
 	SqColumn& hiddenNull() {
 		bit_field |= SQB_HIDDEN_NULL;   return *this;
 	}
-	// SQL
+	// SQL column property
 	SqColumn& primary() {
 		bit_field |= SQB_PRIMARY;   return *this;
 	}
@@ -602,6 +605,19 @@ struct SqColumn
 	}
 	SqColumn& change() {
 		bit_field |= SQB_CHANGED;   return *this;
+	}
+
+	SqColumn& default_(const char *default_val) {
+		sq_column_default(this, default_val);  return *this;
+	}
+	SqColumn& defaultValue(const char *default_val) {
+		sq_column_default(this, default_val);  return *this;
+	}
+	SqColumn& raw_(const char *raw_property) {
+		sq_column_raw(this, raw_property);  return *this;
+	}
+	SqColumn& rawProperty(const char *raw_property) {
+		sq_column_raw(this, raw_property);  return *this;
 	}
 #endif  // __cplusplus
 };
