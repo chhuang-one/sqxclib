@@ -29,8 +29,8 @@ data type for Sqxc converter
 | SQXC_TYPE_ARRAY_END  | End of array (or other container)      |
 | SQXC_TYPE_STREAM_END | End of stream                          |
 
-- Note: SQXC_TYPE_OBJECT corresponds to SQL row.
-- Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.
+Note: SQXC_TYPE_OBJECT corresponds to SQL row.  
+Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.  
 
 ## Sqxc dataflow
 

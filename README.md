@@ -27,6 +27,8 @@ struct User {
 	char  *email;
 	int    city_id;     // foreign key
 
+	time_t    created_at;
+
 #ifdef __cplusplus      // C++ Only
 	std::string       strCpp;
 	std::vector<int>  intsCpp;
@@ -34,18 +36,21 @@ struct User {
 };
 ```
 
- use C99 designated initializer to define table/column in schema_v1 (static)
+use C99 designated initializer to define table/column in schema_v1 (static)
 
 ```c
 #include <sqxclib.h>
 
 static const SqColumn  userColumns[6] = {
-	{SQ_TYPE_INT,    "id",        offsetof(User, id),       SQB_PRIMARY},
-	{SQ_TYPE_STRING, "full_name", offsetof(User, full_name)  },
-	{SQ_TYPE_STRING, "email",     offsetof(User, email)      },
+	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
+	{SQ_TYPE_STRING, "full_name",  offsetof(User, full_name)  },
+	{SQ_TYPE_STRING, "email",      offsetof(User, email),    .size = 60},    // VARCHAR(60)
+
+	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at),
+		.default_value = "CURRENT_TIMESTAMP"},
 
 	// FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
 		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
 
 	// CONSTRAINT FOREIGN KEY
@@ -67,7 +72,7 @@ static const SqColumn  userColumns[6] = {
 	sq_table_add_column(table, userColumns, 6);
 ```
 
- use C99 designated initializer to change table/column in schema_v2 (static)
+use C99 designated initializer to change table/column in schema_v2 (static)
 
 ```c
 static const SqColumn  userColumnsChanged[5] = {
@@ -97,7 +102,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	sq_table_add_column(table, userColumnsChanged, 5);
 ```
 
- use C function to define table/column in schema_v1 (dynamic)
+use C function to define table/column in schema_v1 (dynamic)
 
 ```c
 	schema_v1 = sq_schmea_new("Ver 1");
@@ -109,7 +114,9 @@ static const SqColumn  userColumnsChanged[5] = {
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	column->bit_field |= SQB_PRIMARY;
 	column = sq_table_add_string(table, "full_name", offsetof(User, full_name), -1);
-	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
+	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
+	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
+	sq_column_default("CURRENT_TIMESTAMP");
 	// FOREIGN KEY
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id");
@@ -122,7 +129,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
 ```
 
- use C function to change table/column in schema_v2 (dynamic)
+use C function to change table/column in schema_v2 (dynamic)
 
 ```c
 	schema_v2 = sq_schema_new("Ver 2");
@@ -139,7 +146,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	sq_table_rename_column(table, "email", "email2");
 ```
 
- use C macro to define table/column in schema_v1 (dynamic)
+use C macro to define table/column in schema_v1 (dynamic)
 
 ```c
 #include <sqxclib.h>
@@ -152,7 +159,8 @@ static const SqColumn  userColumnsChanged[5] = {
 	SQ_SCHEMA_CREATE(schema_v1, "users", User, {
 		SQT_INTEGER("id", User, id);  SQC_PRIMARY();
 		SQT_STRING("full_name", User, full_name, -1);
-		SQT_STRING("email", User, email, -1);
+		SQT_STRING("email", User, email, 60);    // VARCHAR(60)
+		SQT_TIMESTAMP("created_at", User, created_at);  SQC_DEFAULT("CURRENT_TIMESTAMP");
 		// FOREIGN KEY
 		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");
 		// CONSTRAINT FOREIGN KEY
@@ -163,7 +171,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	});
 ```
 
- use C macro to change table/column in schema_v2 (dynamic)
+use C macro to change table/column in schema_v2 (dynamic)
 
 ```c
 	schema_v2 = sq_schema_new("Ver 2");
@@ -179,7 +187,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	});
 ```
 
- use C++ aggregate initialization to define table/column in schema_v1 (static)
+use C++ aggregate initialization to define table/column in schema_v1 (static)
 
 ```c++
 #include <sqxclib.h>
@@ -191,7 +199,10 @@ static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
 static const SqColumn  userColumns[6] = {
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
 	{SQ_TYPE_STRING, "full_name",  offsetof(User, full_name)  },
-	{SQ_TYPE_STRING, "email",      offsetof(User, email)      },
+	{SQ_TYPE_STRING, "email",      offsetof(User, email),    .size = 60},    // VARCHAR(60)
+	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at),
+		.default_value = "CURRENT_TIMESTAMP"},
+
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
 		.foreign = (SqForeign*) &userForeign},
@@ -210,7 +221,7 @@ static const SqColumn  userColumns[6] = {
 	table->addColumn(userColumns, 6);
 ```
 
- use C++ function to define table/column in schema_v1 (dynamic)
+use C++ function to define table/column in schema_v1 (dynamic)
 
 ```c++
 	schema_v1 = new Sq::Schema("Ver 1");
@@ -221,7 +232,8 @@ static const SqColumn  userColumns[6] = {
 	// add dynamic columns to table
 	table->integer("id", &User::id)->primary();
 	table->string("full_name", &User::full_name);
-	table->string("email", &User::email);
+	table->string("email", &User::email, 60);    // VARCHAR(60)
+	table->timestamp("created_at", &User::created_at)->default_("CURRENT_TIMESTAMP");
 	table->stdstring("strCpp", &User::strCpp);                     // C++ std::string
 	table->custom("intsCpp", &User::intsCpp, &SqTypeIntVector);    // C++ std::vector
 	// FOREIGN KEY
@@ -233,7 +245,7 @@ static const SqColumn  userColumns[6] = {
 	table->addIndex("users_id_index", "id", NULL);
 ```
 
- use C++ function to change table/column in schema_v2 (dynamic)
+use C++ function to change table/column in schema_v2 (dynamic)
 
 ```c++
 	schema_v2 = new Sq::Schema("Ver 2");
@@ -249,8 +261,7 @@ static const SqColumn  userColumns[6] = {
 	table->rename("email", "email2");
 ```
 
- - Other constraint sample:
- use C99 designated initializer to change constraint (static)
+Other constraint sample: use C99 designated initializer to change constraint (static)
 
 ```c
 static const SqColumn  otherSampleChanged_1[] = {
@@ -274,8 +285,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 };
 ```
 
- - Other constraint sample:
- use C function to change constraint (dynamic)
+Other constraint sample: use C function to change constraint (dynamic)
 
 ```c
 	// ADD CONSTRAINT UNIQUE
@@ -289,8 +299,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	sq_table_drop_primary(table, "other_primary");
 ```
 
- - Other constraint sample:
- use C++ function to change constraint (dynamic)
+Other constraint sample: use C++ function to change constraint (dynamic)
 
 ```c++
 	// ADD CONSTRAINT UNIQUE
@@ -306,7 +315,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 
 ## Migration
 
- use C++ function to migrate schema and synchronize to database
+use C++ function to migrate schema and synchronize to database
 
 ```c++
 	storage->migrate(schema_v1); // migrate schema_v1
@@ -316,7 +325,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	delete schema_v2;            // free unused schema_v2
 ```
 
- use C function to migrate schema and synchronize to database
+use C function to migrate schema and synchronize to database
 
 ```c
 	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
@@ -328,7 +337,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 
 ## CRUD
 
- use C function
+use C function
 
 ```c
 	User  *user;
@@ -341,7 +350,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	sq_storage_remove(storage, "users", NULL, 5);
 ```
 
- use C++ function
+use C++ function
 
 ```c++
 	User  *user;
@@ -354,7 +363,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	storage->remove("users", 5);
 ```
 
- use C++ template function
+use C++ template function
 
 ```c++
 	User  *user;
@@ -376,7 +385,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 
 ## Database support
 
- use C function to open SQLite database
+use C function to open SQLite database
 
 ```c
 	SqdbConfigSqlite  config = { .folder = "/path", .extension = "db" };
@@ -388,7 +397,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	sq_storage_open(storage, "sqxc_local");    // This will open file "sqxc_local.db"
 ```
 
- use C function to open MySQL database
+use C function to open MySQL database
 
 ```c
 	SqdbConfigMysql  config = { .host = "localhost", .port = 3306,
@@ -401,7 +410,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	sq_storage_open(storage, "sqxc_local");
 ```
 
- use C++ function to open SQLite database
+use C++ function to open SQLite database
 
 ```c++
 	Sq::DbConfigSqlite  config = { .folder = "/path", .extension = "db" };
@@ -416,7 +425,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 
 ## Query builder
 
- SQL statement
+SQL statement
 
 ```sql
 	SELECT id, age
@@ -425,7 +434,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	WHERE age > 5
 ```
 
- use C++ function to produce query
+use C++ function to produce query
 
 ```c++
 	query->select("id", "age", NULL)
@@ -437,7 +446,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	     ->where("age > 5");
 ```
 
- use C function to produce query
+use C function to produce query
 
 ```c
 	sq_query_select(query, "id", "age", NULL);
@@ -451,7 +460,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	sq_query_where(query, "age > 5");
 ```
 
- use C macro to produce query
+use C macro to produce query
 
 ```c
 #include <sqxclib.h>
@@ -470,7 +479,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 
 ## JOIN support
 
- use C function
+use C function
 
 ```c
 	SqPtrArray *array;
@@ -488,7 +497,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	}
 ```
 
- use C++ function
+use C++ function
 
 ```c++
 	query->from("cities")->join("users",  "cities.id", "users.city_id");
@@ -513,7 +522,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 
 ## Transaction
 
- use C function
+use C function
 
 ```c
 	User  *user;
@@ -526,7 +535,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 		sq_storage_commit(storage);
 ```
 
- use C++ function
+use C++ function
 
 ```c++
 	User  *user;
