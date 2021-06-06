@@ -47,7 +47,7 @@ struct User {
 	SqIntptrArray  ints;    // intptr_t array (JSON array  in SQL column)
 	Post          *post;    // object pointer (JSON object in SQL column)
 
-	time_t created_at;
+	time_t         created_at;
 
 	// add, drop, and rename
 	unsigned int   test_add;
@@ -84,7 +84,7 @@ static const SqColumn cityColumnsVer1[] = {
 static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_AUTOINCREMENT | SQB_HIDDEN},
 	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0},
-	{SQ_TYPE_STRING, "email",     offsetof(User, email),     0},
+	{SQ_TYPE_STRING, "email",     offsetof(User, email),     0,    .size = 60},
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   0,
 		.foreign = &(SqForeign) {"cities",  "id",  "CASCADE",  "CASCADE"} },
@@ -99,7 +99,7 @@ static const SqColumn userColumnsVer1[] = {
 		.foreign = &(SqForeign) {"cities",  "id",  "NO ACTION",  "NO ACTION"},
 		.composite = (char *[]) {"city_id", NULL} },
 
-	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),   0,
+	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),
 		.default_value = "CURRENT_TIMESTAMP"},
 
 	// This column will be deleted in Ver3

@@ -36,16 +36,22 @@ struct User {
 	char  *name;
 	int    company_id;
 
+	time_t        created_at;
+
 	unsigned int  test_add;
 
 	// --------------------------------
 	// member functions
 	void print() {
+		char *timestr = sq_time_to_string(this->created_at);
+
 		std::cout << std::endl
 		          << "user.id = "         << this->id         << std::endl
 		          << "user.name = "       << this->name       << std::endl
 		          << "user.company_id = " << this->company_id << std::endl
+		          << "user.created_at = " << timestr          << std::endl
 		          << std::endl;
+		free(timestr);
 	}
 };
 
@@ -121,7 +127,9 @@ static const char     *userIndexComposite[]   = {"id", NULL};
 // CREATE TABLE "users"
 static const SqColumn userColumns[] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_HIDDEN},
-	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0},
+	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0,    .size = 50},
+	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),
+		.default_value = "CURRENT_TIMESTAMP"},
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "company_id",   offsetof(User, company_id),   0,
 		.foreign = (SqForeign*)&userForeign},
@@ -165,8 +173,9 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->addColumn(userColumns, sizeof(userColumns) / sizeof(SqColumn));
 #else
 	table->integer("id", &User::id)->primary();
-	table->string("name", &User::name);
+	table->string("name", &User::name, 50);
 	table->integer("company_id", &User::company_id);
+	table->timestamp("created_at", &User::created_at)->default_("CURRENT_TIMESTAMP");
 	table->addForeign("users_companies_id_foreign", "company_id")
 	     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");
 	table->addIndex("users_id_index", "id", NULL);
@@ -207,6 +216,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->integer("company_id", &User::company_id);
+	table->timestamp("created_at", &User::created_at)->default_("CURRENT_TIMESTAMP");
 	table->addForeign("users_companies_id_foreign", "company_id")
 	     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");;
 	table->addIndex("users_id_index", "id", NULL);
