@@ -64,25 +64,44 @@ int   sq_storage_migrate(SqStorage *storage, SqSchema *schema);
 
 // CRUD functions: user must specify one of 'table_name' or 'type_name'
 
-void *sq_storage_get(SqStorage *storage,
-                     const char *table_name,
-                     const char *type_name,
-                     int   id);
+// sq_storage_get_full() can run a bit faster if user specify 'table_name' and 'type' at the same time.
+void *sq_storage_get_full(SqStorage  *storage,
+                          const char *table_name,
+                          const char *type_name,
+                          const SqType *type,
+                          int   id);
 
-// void *sq_storage_get_all(SqStorage *storage,
+// sq_storage_get_all_full() can run a bit faster if user specify 'table_name' and 'type' at the same time.
+void *sq_storage_get_all_full(SqStorage  *storage,
+                              const char *table_name,
+                              const char *type_name,
+                              const SqType *type,
+                              const SqType *container,
+                              const char *sql_where_having);
+
+// void *sq_storage_get(SqStorage  *storage,
+//                      const char *table_name,
+//                      const char *type_name,
+//                      int   id);
+#define sq_storage_get(storage, table_name, type_name, id)    \
+		sq_storage_get_full(storage, table_name, type_name, NULL, id)
+
+// void *sq_storage_get_all(SqStorage  *storage,
 //                          const char *table_name,
 //                          const char *type_name,
 //                          const SqType *container);
 #define sq_storage_get_all(storage, table_name, type_name, container)    \
-		sq_storage_get_by_sql(storage, table_name, type_name, container, NULL);
+		sq_storage_get_all_full(storage, table_name, type_name, NULL, container, NULL)
 
 // This function will generate below SQL statement to get rows
 // SELECT * FROM table_name + 'sql_where_having'
-void *sq_storage_get_by_sql(SqStorage *storage,
-                            const char *table_name,
-                            const char *type_name,
-                            const SqType *container,
-                            const char *sql_where_having);
+// void *sq_storage_get_by_sql(SqStorage  *storage,
+//                             const char *table_name,
+//                             const char *type_name,
+//                             const SqType *container,
+//                             const char *sql_where_having);
+#define sq_storage_get_by_sql(storage, table_name, type_name, container, sql_where_having)    \
+		sq_storage_get_all_full(storage, table_name, type_name, NULL, container, sql_where_having)
 
 // return id if no error
 // return -1 if error occurred
@@ -155,6 +174,7 @@ struct StorageMethod
 	template <class StructType>
 	StructType *get(int id);
 	void       *get(const char *table_name, int id);
+	void       *get(const char *table_name, const SqType *type, int id);
 
 	template <class Element, class StlContainer>
 	StlContainer *getBySql(const char *sql_where_having);
@@ -163,6 +183,7 @@ struct StorageMethod
 	template <class StructType>
 	void *getBySql(const SqType *container, const char *sql_where_having);
 	void *getBySql(const char *table_name, const SqType *container, const char *sql_where_having);
+	void *getBySql(const char *table_name, const SqType *type, const SqType *container, const char *sql_where_having);
 
 	template <class Element, class StlContainer>
 	StlContainer *getAll();
@@ -171,6 +192,7 @@ struct StorageMethod
 	template <class StructType>
 	void *getAll(const SqType *container);
 	void *getAll(const char *table_name, const SqType *container);
+	void *getAll(const char *table_name, const SqType *type, const SqType *container);
 
 	template <class StlContainer>
 	StlContainer *query(SqQuery *query);
@@ -298,6 +320,9 @@ inline StructType *StorageMethod::get(int id) {
 inline void       *StorageMethod::get(const char *table_name, int id) {
 	return (void*)sq_storage_get((SqStorage*)this, table_name, NULL, id);
 }
+inline void       *StorageMethod::get(const char *table_name, const SqType *type, int id) {
+	return (void*)sq_storage_get_full((SqStorage*)this, table_name, NULL, type, id);
+}
 
 template <class StlContainer>
 inline StlContainer *StorageMethod::getBySql(const char *sql_where_having) {
@@ -327,6 +352,9 @@ inline void *StorageMethod::getBySql(const SqType *container, const char *sql_wh
 inline void *StorageMethod::getBySql(const char *table_name, const SqType *container, const char *sql_where_having) {
 	return (void*)sq_storage_get_by_sql((SqStorage*)this, table_name, NULL, container, sql_where_having);
 }
+inline void *StorageMethod::getBySql(const char *table_name, const SqType *type, const SqType *container, const char *sql_where_having) {
+	return (void*)sq_storage_get_all_full((SqStorage*)this, table_name, NULL, type, container, sql_where_having);
+}
 
 template <class StlContainer>
 inline StlContainer *StorageMethod::getAll() {
@@ -355,6 +383,9 @@ inline void *StorageMethod::getAll(const SqType *container) {
 }
 inline void *StorageMethod::getAll(const char *table_name, const SqType *container) {
 	return (void*)sq_storage_get_all((SqStorage*)this, table_name, NULL, container);
+}
+inline void *StorageMethod::getAll(const char *table_name, const SqType *type, const SqType *container) {
+	return (void*)sq_storage_get_all_full((SqStorage*)this, table_name, NULL, type, container, NULL);
 }
 
 template <class StlContainer>

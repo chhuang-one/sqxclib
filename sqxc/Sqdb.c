@@ -297,7 +297,7 @@ void sqdb_sql_drop_table(Sqdb *db, SqBuffer *buffer, SqTable *table, bool if_exi
 	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
-void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool is_delete)
+void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, const char *table_name, bool is_delete)
 {
 	sq_buffer_write(sql_buf, (is_delete) ? "DELETE" : "SELECT");
 	if (is_delete == false)
@@ -307,7 +307,7 @@ void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool is_delete)
 	sq_buffer_alloc(sql_buf, 2);
 	sq_buffer_r_at(sql_buf, 1) = ' ';
 	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
-	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, table_name);
 	sq_buffer_alloc(sql_buf, 2);
 	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
 	sq_buffer_r_at(sql_buf, 0) = ' ';

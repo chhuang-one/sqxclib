@@ -98,95 +98,124 @@ int   sq_storage_migrate(SqStorage *storage, SqSchema *schema)
 	return sqdb_migrate(storage->db, storage->schema, schema);
 }
 
-void *sq_storage_get(SqStorage *storage,
-                     const char *table_name,
-                     const char *type_name, int id)
+void *sq_storage_get_full(SqStorage  *storage,
+                          const char *table_name,
+                          const char *type_name,
+                          const SqType *type,
+                          int   id)
 {
 	SqBuffer *buf;
-	SqColumn *column;
-	SqTable  *table;
 	Sqxc     *xcvalue;
-	void     *instance;
-	int       len;
+	union {
+		SqColumn *column;
+		SqTable  *table;
+		void     *instance;
+		int       len;
+	} temp;
 
-	// find SqTable by table_name or type_name
-	if (table_name)
-		table = sq_schema_find(storage->schema, table_name);
-	else
-		table = sq_storage_find_by_type(storage, type_name);
-	if (table == NULL)
-		return NULL;
+	if (type == NULL) {
+		// find SqTable by table_name or type_name
+		if (table_name)
+			temp.table = sq_schema_find(storage->schema, table_name);
+		else    // if (type_name)
+			temp.table = sq_storage_find_by_type(storage, type_name);
+
+		if (temp.table == NULL)
+			return NULL;
+		type = temp.table->type;
+		table_name = temp.table->name;
+	}
+	else if (table_name == NULL) {
+		temp.table = sq_storage_find_by_type(storage, type->name);
+		if (temp.table == NULL)
+			return NULL;
+		table_name = temp.table->name;
+	}
 
 	// destination of input
 	xcvalue = storage->xc_input;
-	sqxc_value_type(xcvalue) = table->type;
+	sqxc_value_type(xcvalue) = type;
 	sqxc_value_container(xcvalue) = NULL;
 
-	column = sq_table_get_primary(table);
+	temp.column = sq_table_get_primary(temp.table);
 
 	// SQL statement
 	buf = sqxc_get_buffer(xcvalue);
 	buf->writed = 0;
-	sqdb_sql_from(storage->db, buf, table, false);
+	sqdb_sql_from(storage->db, buf, table_name, false);
 	sq_buffer_write(buf, "WHERE");
 	sq_buffer_alloc(buf, 2);
 	sq_buffer_r_at(buf, 1) = ' ';
 	sq_buffer_r_at(buf, 0) = storage->db->info->quote.identifier[0];
-	sq_buffer_write(buf, column->name);
+	sq_buffer_write(buf, temp.column->name);
 	sq_buffer_alloc(buf, 2);
 	sq_buffer_r_at(buf, 1) = storage->db->info->quote.identifier[1];
 	sq_buffer_r_at(buf, 0) = '=';
 
-	len = snprintf(NULL, 0, "%d", id);
-	sprintf(sq_buffer_alloc(buf, len), "%d", id);
+	temp.len = snprintf(NULL, 0, "%d", id);
+	sprintf(sq_buffer_alloc(buf, temp.len), "%d", id);
 
 	sqxc_ready(xcvalue, NULL);
 	sqdb_exec(storage->db, buf->buf, xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
-	instance = sqxc_value_instance(xcvalue);
-	return instance;
+	temp.instance = sqxc_value_instance(xcvalue);
+	return temp.instance;
 }
 
-void *sq_storage_get_by_sql(SqStorage *storage,
-                            const char *table_name,
-                            const char *type_name,
-                            const SqType *container,
-                            const char *sql_where_having)
+void *sq_storage_get_all_full(SqStorage  *storage,
+                              const char *table_name,
+                              const char *type_name,
+                              const SqType *type,
+                              const SqType *container,
+                              const char *sql_where_having)
 {
-	SqBuffer *buf;
-	SqTable  *table;
 	Sqxc     *xcvalue;
-	void     *instance;
+	union {
+		SqBuffer *buf;
+		SqTable  *table;
+		void     *instance;
+	} temp;
 
-	// find SqTable by table_name or type_name
-	if (table_name)
-		table = sq_schema_find(storage->schema, table_name);
-	else
-		table = sq_storage_find_by_type(storage, type_name);
-	if (table == NULL)
-		return NULL;
+	if (type == NULL) {
+		// find SqTable by table_name or type_name
+		if (table_name)
+			temp.table = sq_schema_find(storage->schema, table_name);
+		else    // if (type_name)
+			temp.table = sq_storage_find_by_type(storage, type_name);
+
+		if (temp.table == NULL)
+			return NULL;
+		type = temp.table->type;
+		table_name = temp.table->name;
+	}
+	else if (table_name == NULL) {
+		temp.table = sq_storage_find_by_type(storage, type->name);
+		if (temp.table == NULL)
+			return NULL;
+		table_name = temp.table->name;
+	}
 	if (container == NULL)
 		container = (SqType*)storage->container_default;
 
 	// destination of input
 	xcvalue = (Sqxc*) storage->xc_input;
-	sqxc_value_type(xcvalue) = table->type;
+	sqxc_value_type(xcvalue) = type;
 	sqxc_value_container(xcvalue) = container;
 
 	// SQL statement
-	buf = sqxc_get_buffer(xcvalue);
-	buf->writed = 0;
-	sqdb_sql_from(storage->db, buf, table, false);
+	temp.buf = sqxc_get_buffer(xcvalue);
+	temp.buf->writed = 0;
+	sqdb_sql_from(storage->db, temp.buf, table_name, false);
 
 	// SQL WHERE ... HAVING ...
 	if (sql_where_having)
-		sq_buffer_write(buf, sql_where_having);
+		sq_buffer_write(temp.buf, sql_where_having);
 
 	sqxc_ready(xcvalue, NULL);
-	sqdb_exec(storage->db, buf->buf, xcvalue, NULL);
+	sqdb_exec(storage->db, temp.buf->buf, xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
-	instance = sqxc_value_instance(xcvalue);
-	return instance;
+	temp.instance = sqxc_value_instance(xcvalue);
+	return temp.instance;
 }
 
 int   sq_storage_insert(SqStorage *storage,
@@ -274,7 +303,7 @@ void  sq_storage_remove(SqStorage *storage,
 
 	buf = sqxc_get_buffer(storage->xc_output);
 	buf->writed = 0;
-	sqdb_sql_from(storage->db, buf, table, true);
+	sqdb_sql_from(storage->db, buf, table->name, true);
 	sq_buffer_write(buf, "WHERE");
 	len = snprintf(NULL, 0, " %c%s%c=%d",
 	               storage->db->info->quote.identifier[0],
