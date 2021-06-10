@@ -179,12 +179,16 @@ int  sq_table_get_columns(SqTable *table, SqPtrArray *ptrarray,
 	return count;
 }
 
-SqColumn *sq_table_get_primary(SqTable *table)
+SqColumn *sq_table_get_primary(SqTable *table, const SqType *type_in_table)
 {
 	SqPtrArray *array;
 	SqColumn   *column;
 
-	array = sq_type_get_ptr_array(table->type);
+	if (type_in_table)
+		array = sq_type_get_ptr_array(type_in_table);
+	else
+		array = sq_type_get_ptr_array(table->type);
+
 	for (int index = 0;  index < array->length;  index++) {
 		column = array->data[index];
 		if (column->bit_field & SQB_PRIMARY && SQ_TYPE_IS_INT(column->type))

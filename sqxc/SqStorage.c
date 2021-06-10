@@ -137,7 +137,7 @@ void *sq_storage_get_full(SqStorage  *storage,
 	sqxc_value_type(xcvalue) = type;
 	sqxc_value_container(xcvalue) = NULL;
 
-	temp.column = sq_table_get_primary(temp.table);
+	temp.column = sq_table_get_primary(NULL, type);
 
 	// SQL statement
 	buf = sqxc_get_buffer(xcvalue);
@@ -299,7 +299,7 @@ void  sq_storage_remove(SqStorage *storage,
 	if (table == NULL)
 		return;
 
-	column = sq_table_get_primary(table);
+	column = sq_table_get_primary(table, NULL);
 
 	buf = sqxc_get_buffer(storage->xc_output);
 	buf->writed = 0;
@@ -356,7 +356,7 @@ static char  *get_primary_key_string(void *instance, SqTable *table, const char 
 	char       *condition = NULL;
 	int         len;
 
-	column = sq_table_get_primary(table);
+	column = sq_table_get_primary(table, NULL);
 
 	// integer
 	instance = (char*)instance + column->offset;

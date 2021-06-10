@@ -91,7 +91,9 @@ void      sq_table_rename_column(SqTable *table, const char *from, const char *t
 
 int       sq_table_get_columns(SqTable *table, SqPtrArray *ptr_array,
                                const SqType *type, unsigned int bit_field);
-SqColumn *sq_table_get_primary(SqTable *table);
+
+// user must specify one of 'table' or 'type_in_table'.
+SqColumn *sq_table_get_primary(SqTable *table, const SqType *type_in_table);
 
 // add SqColumn from array (NOT pointer array)
 void      sq_table_add_column(SqTable *table, const SqColumn *column, int n_column);
@@ -311,7 +313,7 @@ struct SqTable
 		return sq_table_get_columns(this, ptr_array, type, bit_field);
 	}
 	SqColumn *getPrimary() {
-		return sq_table_get_primary(this);
+		return sq_table_get_primary(this, NULL);
 	}
 
 	void  addColumn(const SqColumn *columns, int n_columns = 1) {

@@ -59,10 +59,11 @@ void  sq_storage_final(SqStorage *storage);
 int   sq_storage_open(SqStorage *storage, const char *database_name);
 int   sq_storage_close(SqStorage *storage);
 
-// synchronize storage->schema to database if 'schema' == NULL
+// synchronize storage->schema to database if 'schema' == NULL (Mainly used by SQLite)
 int   sq_storage_migrate(SqStorage *storage, SqSchema *schema);
 
-// CRUD functions: user must specify one of 'table_name' or 'type_name'
+// ------------------------------------
+// CRUD functions can work if user only specify one of 'table_name', 'type_name', or 'type'.
 
 // sq_storage_get_full() can run a bit faster if user specify 'table_name' and 'type' at the same time.
 void *sq_storage_get_full(SqStorage  *storage,
