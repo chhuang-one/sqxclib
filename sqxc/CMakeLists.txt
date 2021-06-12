@@ -16,7 +16,6 @@ set(SOURCES
     Sqdb.c
     Sqxc.c
     SqxcValue.c
-    SqxcJsonc.c
     SqxcSql.c
 )
 
@@ -41,7 +40,6 @@ set(HEADERS
     Sqdb.h
     Sqxc.h
     SqxcValue.h
-    SqxcJsonc.h
     SqxcSql.h
 )
 
@@ -70,6 +68,15 @@ set(LOCAL_LIBRARIES
 
 # --- json-c ---
 if (JSONC_INCLUDE_DIRS)
+	set(SOURCES
+	    ${SOURCES}
+	    SqxcJsonc.c
+	)
+	set(HEADERS
+	    ${HEADERS}
+	    SqxcJsonc.h
+	)
+
 	set(LOCAL_INCLUDE_DIRS
 		${LOCAL_INCLUDE_DIRS}
 		${JSONC_INCLUDE_DIRS}
@@ -92,6 +99,7 @@ if (SQLITE3_INCLUDE_DIRS)
 	    ${HEADERS}
 	    SqdbSqlite.h
 	    SqRelation-migration.h
+#       SqRelation.h
 	)
 
 	set(LOCAL_INCLUDE_DIRS
