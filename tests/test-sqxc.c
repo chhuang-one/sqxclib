@@ -14,13 +14,15 @@
 
 #include <stdio.h>
 
-#include <SqxcValue.h>
-#include <SqxcJsonc.h>
-#include <SqxcEmpty.h>
-#include <SqxcSql.h>
 #include <SqPtrArray.h>
 #include <SqSchema-macro.h>
 #include <SqJoint.h>
+#include <SqxcSql.h>
+#include <SqxcValue.h>
+#include <SqxcEmpty.h>
+#ifdef SQ_CONFIG_HAVE_JSONC
+#include <SqxcJsonc.h>
+#endif
 
 // ----------------------------------------------------------------------------
 // C structure

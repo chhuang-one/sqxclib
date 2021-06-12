@@ -20,18 +20,19 @@
 #endif
 
 #define _CRT_SECURE_NO_WARNINGS
-#define snprintf	_snprintf
+#define snprintf    _snprintf
 #endif  // _MSC_VER
 
 #include <limits.h>     // __WORDSIZE
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
-#include <SqQuery.h>
+#include <SqStorage.h>
 #include <SqxcSql.h>
 #include <SqxcValue.h>
+#ifdef SQ_CONFIG_HAVE_JSONC
 #include <SqxcJsonc.h>
-#include <SqStorage.h>
+#endif
 
 #define STORAGE_SCHEMA_INITIAL_VERSION       0
 
