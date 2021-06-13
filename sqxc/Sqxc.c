@@ -168,7 +168,6 @@ int   sqxc_broadcast(Sqxc *xc, int id, void *data)
 Sqxc  *sqxc_send(Sqxc *xc)
 {
 	Sqxc    *cur;
-	uint16_t code;
 
 /*	if (xc->error == ERROR_MUST_STOP) {
 		xc->code = error_code;
@@ -178,25 +177,29 @@ Sqxc  *sqxc_send(Sqxc *xc)
 
 /*	xc->required_type = SQXC_TYPE_ALL;  */
 	for (cur = xc;  cur;  cur = cur->peer) {
-		if ((cur->supported_type & xc->type) == 0)
+		if ((cur->supported_type & xc->type) == 0) {
+			xc->code = SQCODE_TYPE_NOT_SUPPORT;
 			continue;
+		}
 /*		if ((cur->outputable_type & xc->required_type) == 0)
 			continue;
  */
 		// change destination before calling send()
 		if (cur != xc)
 			cur->dest = xc;
-		code = cur->info->send(cur, xc);
-		if (code == SQCODE_OK) {
+		xc->code = cur->info->send(cur, xc);
+
+		if (xc->code == SQCODE_OK) {
 			// change current Sqxc element
 			if (cur->nested_count == 0 && cur->dest)
 				cur = cur->dest;
-			cur->code = code;    // set code for convenient
+			cur->code = SQCODE_OK;    // set code for convenient
 			return cur;
 		}
+		else if (xc->code == SQCODE_ENTRY_NOT_FOUND)
+			break;
 	}
-	// No Sqxc element support required type
-	xc->code = SQCODE_TYPE_NOT_SUPPORT;
+
 	return xc;
 }
 
