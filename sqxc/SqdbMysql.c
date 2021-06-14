@@ -246,14 +246,26 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 				xc->name = NULL;
 				xc->value.pointer = NULL;
 				xc = sqxc_send(xc);
-//				if (xc->code != SQCODE_OK)
-//					break;
 
 				xc->type = SQXC_TYPE_STRING;
 				for (unsigned int i = 0;  i < n_fields;  i++) {
 					xc->name = names[i];
 					xc->value.string = row[i];
 					xc = sqxc_send(xc);
+#ifdef DEBUG
+					switch (xc->code) {
+					case SQCODE_OK:
+						break;
+
+					case SQCODE_ENTRY_NOT_FOUND:
+						fprintf(stderr, "sqdb_mysql_exec(): column '%s' not found.\n", names[i]);
+						break;
+
+					default:
+						fprintf(stderr, "sqdb_mysql_exec(): error occurred during parsing column '%s'.\n", names[i]);
+						break;
+					}
+#endif  // DEBUG
 				}
 
 				xc->type = SQXC_TYPE_OBJECT_END;

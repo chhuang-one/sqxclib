@@ -301,10 +301,22 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 		xc->name = columnName[index];
 		xc->value.string = argv[index];
 		xc = sqxc_send(xc);
+
 #ifdef DEBUG
-		// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
-		if (xc->code != SQCODE_OK)
-			return 1;
+		switch (xc->code) {
+		case SQCODE_OK:
+			break;
+
+		case SQCODE_ENTRY_NOT_FOUND:
+			fprintf(stderr, "sqdb_sqlite_exec(): column '%s' not found.\n", columnName[index]);
+			break;
+
+		default:
+			fprintf(stderr, "sqdb_sqlite_exec(): error occurred during parsing column '%s'.\n", columnName[index]);
+			// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
+//			return 1;
+			break;
+		}
 #endif  // DEBUG
 	}
 
