@@ -16,7 +16,15 @@
 #include <SqDefine.h>
 #include <SqError.h>
 
+#include <SqPtrArray.h>
+#include <SqBuffer.h>
+
+#include <SqType.h>
+#include <SqEntry.h>
+
 #include <SqUtil.h>
+#include <SqTable.h>
+#include <SqSchema.h>
 #include <SqStorage.h>
 #include <SqQuery.h>
 #include <SqJoint.h>

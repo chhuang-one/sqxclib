@@ -25,9 +25,8 @@
 #include <SqPtrArray.h>
 #include <Sqxc.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
 
 typedef struct SqType        SqType;
 typedef struct SqEntry       SqEntry;
@@ -36,7 +35,7 @@ typedef void  (*SqTypeFunc)(void *instance, const SqType *type);
 typedef int   (*SqTypeParseFunc)(void *instance, const SqType *type, Sqxc *xc_src);
 typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_dest);
 
-/* ----------------------------------------------------------------------------
+/*
 	SqType initializer macro
 
 	// sample 1:
@@ -76,13 +75,224 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 	.bit_field = bit_value,                                        \
 }
 
-// ----------------------------------------------------------------------------
-// SqType::bit_field - SQB_TYPE_xxxx
+/* SqType::bit_field - SQB_TYPE_xxxx */
 #define SQB_TYPE_DYNAMIC     (1<<0)    // equal SQB_DYNAMIC, for internal use only
 #define SQB_TYPE_SORTED      (1<<1)
 
 // ----------------------------------------------------------------------------
-// SqType-built-in.c - built-in types
+// macro for maintaining C/C++ inline functions easily
+
+// void SQ_TYPE_ERASE_ENTRY_ADDR(SqType *type, void **element_addr, int count)
+#define SQ_TYPE_ERASE_ENTRY_ADDR(type, element_addr, count)    \
+		{                                                      \
+		if ((type)->bit_field & SQB_TYPE_DYNAMIC)              \
+			sq_ptr_array_erase(&(type)->entry,                 \
+					(SqEntry**)element_addr - (type)->entry, count); \
+		}
+
+// void SQ_TYPE_STEAL_ENTRY_ADDR(SqType *type, void **element_addr, int count)
+#define SQ_TYPE_STEAL_ENTRY_ADDR(type, element_addr, count)    \
+		{                                                      \
+		if ((type)->bit_field & SQB_TYPE_DYNAMIC)              \
+			SQ_PTR_ARRAY_STEAL_ADDR(&(type)->entry, element_addr, count); \
+		}
+
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// create/destroy dynamic SqType.
+// if prealloc_size is 0, allocate default size.
+SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
+
+// these function only work if SqType.bit_field has SQB_TYPE_DYNAMIC
+void     sq_type_ref(SqType *type);
+void     sq_type_unref(SqType *type);
+
+// create dynamic SqType and copy data from static SqType
+SqType  *sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
+
+// initialize/finalize instance
+void    *sq_type_init_instance(const SqType *type, void *instance, int is_pointer);
+void     sq_type_final_instance(const SqType *type, void *instance, int is_pointer);
+
+// add entry from SqEntry array (NOT pointer array) to dynamic SqType.
+// if 'sizeof_entry' == 0, 'sizeof_entry' will equal sizeof(SqEntry)
+void     sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry);
+// add entry from SqEntry pointer array to dynamic SqType.
+void     sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_entry_ptrs);
+
+// find SqEntry in SqType.entry.
+// If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
+void   **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc cmp_func);
+
+// sort SqType.entry by name if SqType is dynamic.
+void     sq_type_sort_entry(SqType *type);
+
+// calculate size for dynamic SqType.
+// if "inner_entry" == NULL, it use all entries to calculate size.
+// otherwise it use "inner_entry" to calculate size.
+int      sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
+
+// --------------------------------------------------------
+// SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions
+
+int   sq_type_int_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_int_write(void *instance, const SqType *type, Sqxc *xc_dest);
+
+int   sq_type_uint_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_uint_write(void *instance, const SqType *type, Sqxc *xc_dest);
+
+int   sq_type_int64_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_int64_write(void *instance, const SqType *type, Sqxc *xc_dest);
+
+int   sq_type_uint64_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_uint64_write(void *instance, const SqType *type, Sqxc *xc_dest);
+
+int   sq_type_time_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_time_write(void *instance, const SqType *type, Sqxc *xc_dest);
+
+int   sq_type_double_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_double_write(void *instance, const SqType *type, Sqxc *xc_dest);
+
+void  sq_type_string_final(void *instance, const SqType *type);
+int   sq_type_string_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_string_write(void *instance, const SqType *type, Sqxc *xc_dest);
+
+int   sq_type_object_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *xc_dest);
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define structue
+
+/*
+    SqType - define how to initialize, finalize, and convert instance.
+             User can define constant or dynamic SqType.
+ */
+
+struct SqType
+{
+	uintptr_t      size;        // instance size
+
+	SqTypeFunc     init;        // initialize instance
+	SqTypeFunc     final;       // finalize instance
+
+	SqTypeParseFunc   parse;       // parse Sqxc(SQL/JSON) data to instance
+	SqTypeWriteFunc   write;       // write instance data to Sqxc(SQL/JSON)
+
+	// In C++, you must use typeid(TypeName).name() to assign "name"
+	// or use macro SQ_GET_TYPE_NAME()
+	char          *name;
+
+//	SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry);
+//	// ------ SqPtrArray members ------
+	SqEntry      **entry;
+	int            n_entry;
+
+//	SqType.entry is array of SqEntry pointer if current SqType is for C struct.
+//	SqType.entry can't be freed if SqType.n_entry == -1
+
+	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
+	// SqType::bit_field has SQB_TYPE_SORTED if SqType::entry is sorted.
+	uint16_t       bit_field;
+	uint16_t       ref_count;    // reference count for dynamic SqType only
+
+#ifdef __cplusplus
+	// these function only work if SqType.bit_field has SQB_TYPE_DYNAMIC
+	void  ref() {
+		sq_type_ref((SqType*)this);
+	}
+	void  unref() {
+		sq_type_unref((SqType*)this);
+	}
+
+	// create dynamic SqType and copy data from static SqType
+	SqType *copyStatic(SqDestroyFunc entry_free_func) {
+		return sq_type_copy_static((const SqType*)this, entry_free_func);
+	}
+
+	// initialize/finalize instance
+	void *initInstance(void *instance, int is_pointer = 0) {
+		return sq_type_init_instance((const SqType*)this, instance, is_pointer);
+	}
+	void  finalInstance(void *instance, int is_pointer = 0) {
+		sq_type_final_instance((const SqType*)this, instance, is_pointer);
+	}
+
+	// add entry from SqEntry array (NOT pointer array) to dynamic SqType.
+	// if 'sizeof_entry' == 0, 'sizeof_entry' will equal sizeof(SqEntry)
+	void  addEntry(const SqEntry *entry, int n_entry = 1, size_t sizeof_entry = 0) {
+		sq_type_add_entry((SqType*)this, entry, n_entry, sizeof_entry);
+	}
+	// add entry from SqEntry pointer array to dynamic SqType.
+	void  addEntry(const SqEntry **entry_ptrs, int n_entry_ptrs = 1) {
+		sq_type_add_entry_ptrs((SqType*)this, entry_ptrs, n_entry_ptrs);
+	}
+
+	// find SqEntry in SqType.entry.
+	// If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
+	SqEntry **findEntry(const void *key, SqCompareFunc cmp_func = NULL) {
+		return (SqEntry**)sq_type_find_entry((const SqType*)this, key, cmp_func);
+	}
+	// sort SqType.entry by name if SqType is dynamic.
+	void  sortEntry() {
+		sq_type_sort_entry((SqType*)this);
+	}
+	// calculate size for dynamic SqType.
+	// if "inner_entry" == NULL, it use all entries to calculate size.
+	// otherwise it use "inner_entry" to calculate size.
+	int   decideSize(const SqEntry *inner_entry = NULL, bool entry_removed = false) {
+		return sq_type_decide_size((SqType*)this, inner_entry, entry_removed);
+	}
+
+	/*
+	// sample code for eraseEntry() and stealEntry()
+
+	SqEntry** entryAddr;
+
+	entryAddr = type->findEntry("field_name");
+	if (entryAddr) {
+		type->eraseEntry(entryAddr);
+//		type->stealEntry(entryAddr);
+	}
+	 */
+
+	// erase entry in SqType if SqType is dynamic.
+	void     eraseEntry(void **element_addr, int count = 1) {
+		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, element_addr, count);
+	}
+	void     eraseEntry(SqEntry **element_addr, int count = 1) {
+		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, element_addr, count);
+	}
+	// steal entry in SqType if SqType is dynamic.
+	void     stealEntry(void **element_addr, int count = 1) {
+		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, element_addr, count);
+	}
+	void     stealEntry(SqEntry **element_addr, int count = 1) {
+		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, element_addr, count);
+	}
+#endif  // __cplusplus
+};
+
+// ----------------------------------------------------------------------------
+// C definitions: define C extern data and related macros.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* SqType-built-in.c - built-in types */
+extern  const  SqType      SqType_BuiltIn_[];
+extern  const  SqType      SqType_PtrArray_;
+extern  const  SqType      SqType_StringArray_;
+extern  const  SqType      SqType_IntptrArray_;
 
 enum {
 	SQ_TYPE_BOOL_INDEX,
@@ -152,113 +362,11 @@ enum {
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
 #define SQ_TYPE_INTPTR_ARRAY  (&SqType_IntptrArray_)
 
-// ----------------------------------------------------------------------------
-// macro for accessing variable of SqType
+/* macro for accessing variable of SqType */
 #define sq_type_get_ptr_array(type)    ((SqPtrArray*)&type->entry)
 
-/* ----------------------------------------------------------------------------
-    SqType - define how to initialize, finalize, and convert instance.
-             User can define constant or dynamic SqType.
- */
-
-struct SqType
-{
-	uintptr_t      size;        // instance size
-
-	SqTypeFunc     init;        // initialize instance
-	SqTypeFunc     final;       // finalize instance
-
-	SqTypeParseFunc   parse;       // parse Sqxc(SQL/JSON) data to instance
-	SqTypeWriteFunc   write;       // write instance data to Sqxc(SQL/JSON)
-
-	// In C++, you must use typeid(TypeName).name() to assign "name"
-	// or use macro SQ_GET_TYPE_NAME()
-	char          *name;
-
-//	SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry);
-//	// ------ SqPtrArray members ------
-	SqEntry      **entry;
-	int            n_entry;
-
-//	SqType.entry is array of SqEntry pointer if current SqType is for C struct.
-//	SqType.entry can't be freed if SqType.n_entry == -1
-
-	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
-	// SqType::bit_field has SQB_TYPE_SORTED if SqType::entry is sorted.
-	uint16_t       bit_field;
-	uint16_t       ref_count;    // reference count for dynamic SqType only
-};
-
-// extern
-extern  const  SqType      SqType_BuiltIn_[];
-extern  const  SqType      SqType_PtrArray_;
-extern  const  SqType      SqType_StringArray_;
-extern  const  SqType      SqType_IntptrArray_;
-
-// create/destroy dynamic SqType.
-// if prealloc_size is 0, allocate default size.
-SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
-
-// these function only work if SqType.bit_field has SQB_TYPE_DYNAMIC
-void     sq_type_ref(SqType *type);
-void     sq_type_unref(SqType *type);
-
-// create dynamic SqType and copy data from static SqType
-SqType  *sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
-
-// initialize/finalize instance
-void    *sq_type_init_instance(const SqType *type, void *instance, int is_pointer);
-void     sq_type_final_instance(const SqType *type, void *instance, int is_pointer);
-
-// add entry from SqEntry array (NOT pointer array) to dynamic SqType.
-// if 'sizeof_entry' == 0, 'sizeof_entry' will equal sizeof(SqEntry)
-void     sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry);
-// add entry from SqEntry pointer array to dynamic SqType.
-void     sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_entry_ptrs);
-
-// find SqEntry in SqType.entry.
-// If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
-void   **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc cmp_func);
-
-// sort SqType.entry by name if SqType is dynamic.
-void     sq_type_sort_entry(SqType *type);
-
-// calculate size for dynamic SqType.
-// if "inner_entry" == NULL, it use all entries to calculate size.
-// otherwise it use "inner_entry" to calculate size.
-int      sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
-
-// --------------------------------------------------------
-// SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions
-
-int   sq_type_int_parse(void *instance, const SqType *type, Sqxc *xc_src);
-Sqxc *sq_type_int_write(void *instance, const SqType *type, Sqxc *xc_dest);
-
-int   sq_type_uint_parse(void *instance, const SqType *type, Sqxc *xc_src);
-Sqxc *sq_type_uint_write(void *instance, const SqType *type, Sqxc *xc_dest);
-
-int   sq_type_int64_parse(void *instance, const SqType *type, Sqxc *xc_src);
-Sqxc *sq_type_int64_write(void *instance, const SqType *type, Sqxc *xc_dest);
-
-int   sq_type_uint64_parse(void *instance, const SqType *type, Sqxc *xc_src);
-Sqxc *sq_type_uint64_write(void *instance, const SqType *type, Sqxc *xc_dest);
-
-int   sq_type_time_parse(void *instance, const SqType *type, Sqxc *xc_src);
-Sqxc *sq_type_time_write(void *instance, const SqType *type, Sqxc *xc_dest);
-
-int   sq_type_double_parse(void *instance, const SqType *type, Sqxc *xc_src);
-Sqxc *sq_type_double_write(void *instance, const SqType *type, Sqxc *xc_dest);
-
-void  sq_type_string_final(void *instance, const SqType *type);
-int   sq_type_string_parse(void *instance, const SqType *type, Sqxc *xc_src);
-Sqxc *sq_type_string_write(void *instance, const SqType *type, Sqxc *xc_dest);
-
-int   sq_type_object_parse(void *instance, const SqType *type, Sqxc *xc_src);
-Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *xc_dest);
-
-// ----------------------------------------------------------------------------
-// Fake type for user-defined special type (SqType-fake.c)
-
+// ------------------------------------
+/* Fake type for user-defined special type (SqType-fake.c) */
 #define SQ_TYPE_N_FAKE     6
 #define SQ_TYPE_FAKE0      ((SqType*)&SqType_Fake_.nth[0])
 #define SQ_TYPE_FAKE1      ((SqType*)&SqType_Fake_.nth[1])
@@ -298,8 +406,7 @@ static inline
 #endif
 void  sq_type_erase_entry_addr(SqType *type, void **element_addr, int count)
 {
-	if (type->bit_field & SQB_TYPE_DYNAMIC)
-		sq_ptr_array_erase(&type->entry, (SqEntry**)element_addr - type->entry, count);
+	SQ_TYPE_ERASE_ENTRY_ADDR(type, element_addr, count);
 }
 
 #ifdef __cplusplus  // C++
@@ -309,10 +416,7 @@ static inline
 #endif
 void  sq_type_steal_entry_addr(SqType *type, void **element_addr, int count)
 {
-	void *array = &type->entry;
-
-	if (type->bit_field & SQB_TYPE_DYNAMIC)
-		SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
+	SQ_TYPE_STEAL_ENTRY_ADDR(type, element_addr, count);
 }
 
 #else  // __STDC_VERSION__ || __cplusplus
@@ -323,19 +427,8 @@ void  sq_type_steal_entry_addr(SqType *type, void **element_addr, int count);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
-/* ----------------------------------------------------------------------------
-   C++ type
-
-	We can call C++ constructor/destructor in init()/final()
-
-	// ==== C++ constructor + C malloc()
-	buffer = malloc(size);
-	object = new (buffer) MyClass();
-
-	// ==== C++ destructor  + C free()
-	object->~MyClass();
-	free(buffer);
- */
+// ----------------------------------------------------------------------------
+// C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
 
@@ -343,9 +436,17 @@ extern  const  SqType      SqType_StdString_;    // C++ std::string
 
 #define SQ_TYPE_STD_STRING    ((SqType*)&SqType_StdString_)
 
-/* 
+/*
 #include <SqType-stl-cpp.h>
  */
+
+namespace Sq {
+
+/* --- define C++11 standard-layout structures --- */
+typedef struct SqType    Type;
+
+};  // namespace Sq
+
 #endif  // __cplusplus
 
 

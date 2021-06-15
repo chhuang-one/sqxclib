@@ -272,16 +272,12 @@ int   sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_r
 
 void  sq_type_erase_entry_addr(SqType *type, void **element_addr, int count)
 {
-	if (type->bit_field & SQB_TYPE_DYNAMIC)
-		sq_ptr_array_erase(&type->entry, (SqEntry**)element_addr - type->entry, count);
+	SQ_TYPE_ERASE_ENTRY_ADDR(type, element_addr, count);
 }
 
 void  sq_type_steal_entry_addr(SqType *type, void **element_addr, int count)
 {
-	void *array = &type->entry;
-
-	if (type->bit_field & SQB_TYPE_DYNAMIC)
-		SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
+	SQ_TYPE_STEAL_ENTRY_ADDR(type, element_addr, count);
 }
 
 #endif  // __STDC_VERSION__

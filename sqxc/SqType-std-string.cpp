@@ -17,7 +17,17 @@
 #include <SqType.h>
 
 /* ----------------------------------------------------------------------------
-    std::string
+    SqType for std::string
+
+	We can call C++ constructor/destructor in init()/final()
+
+	// ==== C++ constructor + C malloc()
+	buffer = malloc(size);
+	object = new (buffer) MyClass();
+
+	// ==== C++ destructor  + C free()
+	object->~MyClass();
+	free(buffer);
  */
 
 static void sq_type_std_string_init(void *instance, const SqType *type)
