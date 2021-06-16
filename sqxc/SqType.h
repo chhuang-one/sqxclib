@@ -327,7 +327,7 @@ enum {
 #define SQ_TYPE_BUILTIN_BEG       SQ_TYPE_BOOL
 #define SQ_TYPE_BUILTIN_END       SQ_TYPE_STRING
 
-#define SQ_TYPE_BUILTIN_INDEX(type)  (type - SQ_TYPE_BUILTIN_BEG)
+#define SQ_TYPE_BUILTIN_INDEX(type)  ((type) - SQ_TYPE_BUILTIN_BEG)
 
 // condition
 #define SQ_TYPE_IS_INT(type)     \
@@ -363,7 +363,7 @@ enum {
 #define SQ_TYPE_INTPTR_ARRAY  (&SqType_IntptrArray_)
 
 /* macro for accessing variable of SqType */
-#define sq_type_get_ptr_array(type)    ((SqPtrArray*)&type->entry)
+#define sq_type_get_ptr_array(type)    ((SqPtrArray*)&(type)->entry)
 
 // ------------------------------------
 /* Fake type for user-defined special type (SqType-fake.c) */

@@ -108,13 +108,6 @@ struct TypeStl : SqType {
 		return dest;
 	}
 
-	void  ref() {
-		sq_type_ref(this);
-	}
-	void  unref() {
-		sq_type_unref(this);
-	}
-
 	TypeStl(const SqType *element_type) {
 		this->size  = sizeof(Container);
 		this->init  = cxxInit;
