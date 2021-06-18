@@ -20,25 +20,12 @@
 
 #include <SqType.h>    // typedef struct SqEntry
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* ----------------------------------------------------------------------------
-	SqEntry: define field in structure/class.
-	SqColumn: define SQL column (field) in SQL table (structure/class).
-
-	SqEntry
-	|
-	`--- SqReentry
-	     |
-	     +--- SqTable
-	     |
-	     `--- SqColumn
- */
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
 
 //typedef struct SqEntry          SqEntry;
 typedef struct SqReentry        SqReentry;
+
 
 // SqEntry::bit_field
 #define SQB_DYNAMIC        (1 << 0)   // C: entry can be changed and freed
@@ -66,35 +53,17 @@ typedef struct SqReentry        SqReentry;
 // SQL common bit_field
 #define SQB_CHANGED        (1 << 31)  // SQL: alter/modify. column/table has been altered.
 
-// ----------------------------------------------------------------------------
 // SQ_N_PTRS() calculate number of pointer in array. for example:
 //	SqEntry *FooEntries[] = {...};
 //	int  n_entry = SQ_N_PTRS(FooEntries);
 #define SQ_N_PTRS(PointerArray) ( sizeof(PointerArray)/sizeof(void*) )
 
-/* ----------------------------------------------------------------------------
-	SqEntry: define object/field in structure.
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
 
-	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
-	      C++ user can initialize static structure easily.
-*/
-
-#define SQ_ENTRY_MEMBERS        \
-	const SqType *type;         \
-	const char   *name;         \
-	size_t        offset;       \
-	unsigned int  bit_field
-
-struct SqEntry
-{
-	SQ_ENTRY_MEMBERS;
-/*	// ------ SqEntry members ------
-	const SqType *type;        // type information of entry
-	const char   *name;
-	size_t        offset;
-	unsigned int  bit_field;
- */
-};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // create/destroy entry for JSON or XML
 SqEntry *sq_entry_new(const SqType *type_info);
@@ -112,7 +81,68 @@ int  sq_entry_cmp_name(SqEntry **entry1, SqEntry **entry2);
 int  sq_entry_cmp_str__type_name(const char *str,  SqEntry **entry);
 int  sq_entry_cmp_type_name(SqEntry **entry1, SqEntry **entry2);
 
-/* ----------------------------------------------------------------------------
+
+/*
+	SqReentries: unsorted SqReentry pointer array.
+	             element can be NULL in array.
+	             It used by migration, change list...etc
+ */
+
+// It remove all NULL pointer in array
+// n_old_elements: number of old elements before removing NULL
+// return:         number of old elements after  removing NULL
+int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
+
+#ifdef __cplusplus
+}
+#endif
+
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define structue
+
+/*
+	SqEntry: define object/field in structure/class.
+	SqColumn: define SQL column (field) in SQL table (structure/class).
+
+	SqEntry
+	|
+	`--- SqReentry
+	     |
+	     +--- SqTable
+	     |
+	     `--- SqColumn
+
+	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
+	      C++ user can initialize static structure easily.
+ */
+
+#define SQ_ENTRY_MEMBERS        \
+	const SqType *type;         \
+	const char   *name;         \
+	size_t        offset;       \
+	unsigned int  bit_field
+
+struct SqEntry
+{
+	SQ_ENTRY_MEMBERS;
+/*	// ------ SqEntry members ------
+	const SqType *type;        // type information of entry
+	const char   *name;
+	size_t        offset;
+	unsigned int  bit_field;
+ */
+
+#ifdef __cplusplus
+	void  init(const SqType *type_info) {
+		sq_entry_init((SqEntry*)this, type_info);
+	}
+	void  final() {
+		sq_entry_final((SqEntry*)this);
+	}
+#endif
+};
+
+/*
 	SqReentry: reentry previously-defined entries.
 	           add old_name in SqEntry to record changes (rename or drop).
 
@@ -140,23 +170,6 @@ struct SqReentry
 	// if name is NULL, it will drop old_name
 	// if name is NOT NULL, it will rename from old_name to name
 };
-
-/* --------------------------------------------------------
-	SqReentries: unsorted SqReentry pointer array.
-	             element can be NULL in array.
-	             It used by migration, change list...etc
-
-typedef SQ_PTR_ARRAY(SqReentry*)      SqReentries;
- */
-
-// It remove all NULL pointer in array
-// n_old_elements: number of old elements before removing NULL
-// return:         number of old elements after  removing NULL
-int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
-
-#ifdef __cplusplus
-}  // extern "C"
-#endif
 
 // ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.
