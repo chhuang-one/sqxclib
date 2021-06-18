@@ -105,7 +105,8 @@ extern "C" {
 #endif
 
 // create/destroy dynamic SqType.
-// if prealloc_size is 0, allocate default size.
+// if 'prealloc_size' is 0, allocate default size.
+// if user want create a custom, non-structure type, pass 'prealloc_size' = -1 and 'entry_destroy_func' = NULL.
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 
 // these function only work if SqType.bit_field has SQB_TYPE_DYNAMIC
@@ -114,6 +115,12 @@ void     sq_type_unref(SqType *type);
 
 // create dynamic SqType and copy data from static SqType
 SqType  *sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
+
+// initialize/finalize self
+// if 'prealloc_size' is -1, allocate default size.
+// if user want create a custom, non-structure type, pass 'prealloc_size' = 0 and 'entry_destroy_func' = NULL.
+void     sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_destroy_func);
+void     sq_type_final_self(SqType *type);
 
 // initialize/finalize instance
 void    *sq_type_init_instance(const SqType *type, void *instance, int is_pointer);
@@ -216,6 +223,17 @@ struct SqType
 	// create dynamic SqType and copy data from static SqType
 	SqType *copyStatic(SqDestroyFunc entry_free_func) {
 		return sq_type_copy_static((const SqType*)this, entry_free_func);
+	}
+
+	// initialize/finalize self
+	void  initSelf(int prealloc_size, SqDestroyFunc entry_destroy_func) {
+		sq_type_init_self((SqType*)this, prealloc_size, entry_destroy_func);
+	}
+	void  initSelf(int prealloc_size, void (*entry_destroy_func)(SqEntry*) ) {
+		sq_type_init_self((SqType*)this, prealloc_size, (SqDestroyFunc)entry_destroy_func);
+	}
+	void  finalSelf() {
+		sq_type_final_self((SqType*)this);
 	}
 
 	// initialize/finalize instance
