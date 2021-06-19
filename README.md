@@ -564,6 +564,10 @@ use C++ function
  User can link multiple Sqxc element to convert different types of data.  
  You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)  
 
+## Others
+ Document for SqEntry (SqColumn's base class/structure) in doc/[SqEntry.md](doc/SqEntry.md)  
+ Document for SqType in doc/[SqType.md](doc/SqType.md)  
+
 ## Licensing
 
 sqxc is licensed under the Mulan PSL v2.

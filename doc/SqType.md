@@ -37,10 +37,13 @@ Declaring bit_field in SqType
 * It is better to use constant or static SqEntry with constant or static SqType.
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
-### Define SqType with custom data type
+### use SqType to define custom basic data type
+refer source code SqType-built-in.c
+
+### use SqType to define custom structured data type
 User can define a constant or dynamic SqType. If you define constant SqType for structure, it must use with SqEntry pointer array.
 
-First, we define a custom data type:
+First, we define a custom structured data type:
 ```c
 typedef struct User     User;
 
@@ -119,20 +122,33 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 
 ##### 4. Define dynamic SqType with constant SqEntry pointer array
 
-use sq_type_add_entry_ptrs() to add static SqEntry pointer array.
+use C function sq_type_add_entry_ptrs() to add static SqEntry pointer array.
 ```c
-	SqType  *type = sq_type_new(0, NULL);
+	SqType  *type;
 	int   n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
 
+	type = sq_type_new(8, (SqDestroyFunc)sq_entry_free);
 	sq_type_add_entry_ptrs(type, entryPointers, n_entry);
+```
+
+use C++ function addEntry() to add static SqEntry pointer array.
+```c++
+	Sq::Type  *type;
+	int   n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
+
+	type = new Sq::Type;
+	type->initSelf(8, sq_entry_free);
+	type->addEntry(entryPointers, n_entry);
 ```
 
 ##### 5. Define dynamic SqType with dynamic SqEntry
 
-use sq_type_add_entry() to add dynamic SqEntry.
+use C function sq_type_add_entry() to add dynamic SqEntry.
 ```c
-	SqType  *type = sq_type_new(0, NULL);
+	SqType  *type;
 	SqEntry *entry;
+
+	type = sq_type_new(8, (SqDestroyFunc)sq_entry_free);
 
 	entry = sq_entry_new(SQ_TYPE_INT);
 	entry->name = strdup("id");
@@ -147,9 +163,86 @@ use sq_type_add_entry() to add dynamic SqEntry.
 	sq_type_add_entry(type, entry, 1, 0);
 
 	entry = sq_entry_new(SQ_TYPE_STRING);
-	sq_type_add_entry(type, entry, 1, 0);
 	entry->name = strdup("email");
 	entry->offset = offsetof(User, email);
 	entry->bit_field = SQB_HIDDEN_NULL;
 	sq_type_add_entry(type, entry, 1, 0);
 ```
+
+use C++ functions to add dynamic SqEntry.
+```c++
+	Sq::Type  *type;
+	Sq::Entry *entry;
+
+	type = new Sq::Type;
+	type->initSelf(8, sq_entry_free);
+
+	entry = new Sq::Entry;
+	entry->init(SQ_TYPE_INT);
+	entry->name = strdup("id");
+	entry->offset = offsetof(User, id);
+	entry->bit_field = SQB_PRIMARY | SQB_HIDDEN;
+	type->addEntry(entry);
+
+	entry = new Sq::Entry;
+	entry->init(SQ_TYPE_STRING);
+	entry->name = strdup("name");
+	entry->offset = offsetof(User, name);
+	entry->bit_field = 0;
+	type->addEntry(entry);
+
+	entry = new Sq::Entry;
+	entry->init(SQ_TYPE_STRING);
+	entry->name = strdup("email");
+	entry->offset = offsetof(User, email);
+	entry->bit_field = SQB_HIDDEN_NULL;
+	type->addEntry(entry);
+```
+
+### find & remove entry from dynamic SqType
+
+use C function to find & remove SqEntry
+
+```c
+	SqEntry **entry_addr;
+
+	entry_addr = sq_type_find_entry(type, "entry_name", NULL);
+	sq_type_erase_entry_addr(type, entry_addr, 1);
+
+	// remove entry from type and keep entry in memory
+//	sq_type_steal_entry_addr(type, entry_addr, 1);
+```
+
+use C++ function to find & remove SqEntry
+
+```c++
+	SqEntry **entry_addr;
+
+	entry_addr = type->findEntry(type, "entry_name");
+	type->eraseEntry(type, entry_addr);
+
+	// remove entry from type and keep entry in memory
+//	type->stealEntry(type, entry_addr);
+```
+
+### reference count in dynamic SqType
+
+It will increase reference count of SqType if a dynamic SqEntry use a dynamic SqType.  
+User can call function to increase reference count.  
+
+```c++
+	sq_type_ref(type);    // C function
+
+	type->ref();          // C++ function
+```
+
+It will decrease reference count of SqType if user free a dynamic SqEntry that having a dynamic SqType.  
+User can call function to decrease reference count.
+
+```c++
+	sq_type_unref(type);    // C function
+
+	type->unref();          // C++ function
+```
+
+If an dynamic SqType's reference count reaches zero, it will be destroyed.
