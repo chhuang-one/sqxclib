@@ -186,6 +186,44 @@ void test_storage()
 }
 
 // ----------------------------------------------------------------------------
+void test_type()
+{
+	Sq::Type   *type;
+	Sq::Entry  *entry;
+	Sq::Entry **entry_addr;
+
+	type = new Sq::Type;
+	type->initSelf(8, sq_entry_free);
+
+	entry = new Sq::Entry;
+	entry->init(SQ_TYPE_INT);
+	entry->name = strdup("id");
+	entry->offset = offsetof(User, id);
+	entry->bit_field |= SQB_HIDDEN;
+	type->addEntry(entry);
+
+	entry = new Sq::Entry;
+	entry->init(SQ_TYPE_STRING);
+	entry->name = strdup("name");
+	entry->offset = offsetof(User, name);
+	type->addEntry(entry);
+
+	entry = new Sq::Entry;
+	entry->init(SQ_TYPE_STRING);
+	entry->name = strdup("email");
+	entry->offset = offsetof(User, email);
+	type->addEntry(entry);
+
+	entry_addr = type->findEntry("email");
+	type->stealEntry(entry_addr);
+	type->decideSize(*entry_addr, true);
+
+	type->addEntry(entry);
+	type->decideSize();
+
+	type->unref();
+}
+// ----------------------------------------------------------------------------
 
 int main(void)
 {
@@ -193,5 +231,6 @@ int main(void)
 	test_query();
 	test_sqxc();
 	test_storage();
+	test_type();
 	return EXIT_SUCCESS;
 }
