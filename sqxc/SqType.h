@@ -15,6 +15,12 @@
 #ifndef SQ_TYPE_H
 #define SQ_TYPE_H
 
+
+/* about macro SQ_GET_TYPE_NAME(Type):
+ * It is used to get name of structured data type in C and C++ code.
+ * warning: You will get difference type name from C and C++ source code when you use gcc to compile
+ *          because gcc's typeid(Type).name() will return strange name.
+ */
 #ifdef __cplusplus
 #include <typeinfo>
 #define SQ_GET_TYPE_NAME(Type)        ( (char*)typeid(Type).name() )
@@ -117,8 +123,8 @@ void     sq_type_unref(SqType *type);
 SqType  *sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
 
 // initialize/finalize self
-// if 'prealloc_size' is -1, allocate default size.
-// if user want create a basic (not structured) type, pass 'prealloc_size' = 0 and 'entry_destroy_func' = NULL.
+// if 'prealloc_size' is 0, allocate default size.
+// if user want create a basic (not structured) data type, pass 'prealloc_size' = -1 and 'entry_destroy_func' = NULL.
 void     sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_destroy_func);
 void     sq_type_final_self(SqType *type);
 
@@ -139,13 +145,13 @@ void   **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc c
 // sort SqType.entry by name if SqType is dynamic.
 void     sq_type_sort_entry(SqType *type);
 
-// calculate size for dynamic SqType.
-// if "inner_entry" == NULL, it use all entries to calculate size.
-// otherwise it use "inner_entry" to calculate size.
+// calculate instance size for dynamic structured data type.
+// if 'inner_entry' == NULL, it use all entries in SqType to calculate size.
+// if user add 'inner_entry' to SqType, pass argument 'entry_removed' = false.
+// if user remove 'inner_entry' from SqType, pass argument 'entry_removed' = true.
 int      sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
 
-// --------------------------------------------------------
-// SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions
+/* SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions */
 
 int   sq_type_int_parse(void *instance, const SqType *type, Sqxc *xc_src);
 Sqxc *sq_type_int_write(void *instance, const SqType *type, Sqxc *xc_dest);
@@ -383,7 +389,6 @@ enum {
 /* macro for accessing variable of SqType */
 #define sq_type_get_ptr_array(type)    ((SqPtrArray*)&(type)->entry)
 
-// ------------------------------------
 /* Fake type for user-defined special type (SqType-fake.c) */
 #define SQ_TYPE_N_FAKE     6
 #define SQ_TYPE_FAKE0      ((SqType*)&SqType_Fake_.nth[0])
