@@ -112,7 +112,7 @@ use C function to define table/column in schema_v1 (dynamic)
 	table = sq_schema_create(schema_v1, "users", User);
 	// add dynamic columns to table
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;
+	column->bit_field |= SQB_PRIMARY;        // set bit in SqColumn.bit_field
 	column = sq_table_add_string(table, "full_name", offsetof(User, full_name), -1);
 	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
@@ -140,7 +140,7 @@ use C function to change table/column in schema_v2 (dynamic)
 	// add dynamic columns/records to table
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
-	column->bit_field |= SQB_CHANGED;
+	column->bit_field |= SQB_CHANGED;        // set bit in SqColumn.bit_field
 	sq_table_drop_foreign(table, "users_city_id_foreign");
 	sq_table_drop_column(table, "full_name");
 	sq_table_rename_column(table, "email", "email2");
