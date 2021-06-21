@@ -33,10 +33,10 @@ Declaring bit_field in SqType
 
 * SQB_TYPE_DYNAMIC is for internal use only. User should NOT set/clear this bit.
 * User can NOT change or free SqType if SqType.bit_field has NOT set SQB_TYPE_DYNAMIC.
-* Dynamic SqType has reference count. It increase when dynamic SqEntry use it.
+* User must use bitwise operators to set/clear bits in SqType.bit_field.
 * It is better to use constant or static SqEntry with constant or static SqType.
+* Dynamic SqType has reference count. It increase when dynamic SqEntry use it.
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
-* User must use bitwise operators to set/clear bit in dynamic SqType.bit_field.
 
 ## 1. use SqType to define basic (not structured) data type
 refer source code SqType-built-in.c to get more sample.
@@ -116,6 +116,10 @@ const SqType typeUser = {
 	.bit_field = 0,
 };
 ```
+
+about above macro SQ_GET_TYPE_NAME(Type):
+* It is used to get name of structured data type in C and C++ code.
+* warning: You will get difference type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.
 
 #### 2.2. Define constant SqType with constant 'sorted' SqEntry pointer array
 
@@ -233,7 +237,25 @@ use C++ functions to add dynamic SqEntry.
 	type->addEntry(entry);
 ```
 
-## 3. find & remove entry from dynamic SqType
+## 3. calculate instance size for dynamic structured data type
+
+* User can use C function sq_type_decide_size(), C++ function decideSize() to calculate instance size.
+* You don't need to call function to calculate instance size after adding entry because program will do it automatically.
+* You must call function to calculate instance size after removing entry from type.
+
+```c++
+// sq_type_decide_size() declarations:
+// int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
+
+	sq_type_decide_size(type, NULL, false);    // C function
+	type->decideSize(NULL, false);             // C++ function
+```
+
+* if 'inner_entry' == NULL, it use all entries in SqType to calculate size.
+* if user add 'inner_entry' to SqType, pass argument 'entry_removed' = false.
+* if user remove 'inner_entry' from SqType, pass argument 'entry_removed' = true.
+
+## 4. find & remove entry from dynamic SqType that defined structured data type
 
 use C function to find & remove SqEntry
 
@@ -245,6 +267,9 @@ use C function to find & remove SqEntry
 
 	// remove entry from type and keep entry in memory
 //	sq_type_steal_entry_addr(type, entry_addr, 1);
+
+	sq_type_decide_size(type, NULL, true);
+//	sq_type_decide_size(type, *entry_addr, true);
 ```
 
 use C++ function to find & remove SqEntry
@@ -257,9 +282,12 @@ use C++ function to find & remove SqEntry
 
 	// remove entry from type and keep entry in memory
 //	type->stealEntry(type, entry_addr);
+
+	type->decideSize(NULL, true);
+//	type->decideSize(*entry_addr, true);
 ```
 
-## 4. reference count in dynamic SqType
+## 5. reference count in dynamic SqType
 
 It will increase reference count of SqType if a dynamic SqEntry use a dynamic SqType.  
 User can call function to increase reference count.  

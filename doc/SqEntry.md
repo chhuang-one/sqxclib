@@ -36,10 +36,10 @@ Declaring bit_field in SqEntry
 
 * SQB_DYNAMIC is for internal use only. User should NOT set/clear this bit.
 * User can NOT change or free SqEntry if SqEntry.bit_field has NOT set SQB_DYNAMIC.
-* Dynamic SqType has reference count. It increase when dynamic SqEntry use it.
+* User must use bitwise operators to set/clear bits in SqEntry.bit_field.
 * It is better to use constant or static SqEntry with constant or static SqType.
+* Dynamic SqType has reference count. It increase when dynamic SqEntry use it.
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
-* User must use bitwise operators to set/clear bit in dynamic SqEntry.bit_field.
 
 #### 1. define constant SqEntry pointer array that used by constant SqType
 * Note: This is SqEntry pointer array. If you define constant SqType for structure, it must use with SqEntry pointer array.
