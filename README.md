@@ -566,6 +566,7 @@ use C++ function
 
 ## Others
  Document for SqEntry (SqColumn's base class/structure) in doc/[SqEntry.md](doc/SqEntry.md)  
+ Document for SqColumn in doc/[SqColumn.md](doc/SqColumn.md)  
  Document for SqType in doc/[SqType.md](doc/SqType.md)  
 
 ## Licensing
