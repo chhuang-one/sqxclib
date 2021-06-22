@@ -1,6 +1,6 @@
 # SqEntry
 SqEntry define constant or dynamic field in structure.
-It must use SqType to declare type of field.
+It must use [SqType](SqType.md) to declare data type of field.
 
 	SqEntry
 	|
@@ -46,11 +46,15 @@ Declaring bit_field in SqEntry
 
 ```c
 static const SqEntry *entryPointers[2] = {
-	&(SqEntry) {SQ_TYPE_UINT,   "bit_field",  offsetof(SqEntry, bit_field),  0},
-	&(SqEntry) {SQ_TYPE_STRING, "name",       offsetof(SqEntry, name),       SQB_HIDDEN_NULL},
+	&(SqEntry) {SQ_TYPE_UINT,   "bit_field",  offsetof(YourStruct, bit_field),  0},
+	&(SqEntry) {SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
 };
 
-const SqType type = SQ_TYPE_INITIALIZER(entryPointers, 2, 0);
+// If your entryPointers are not sorted, pass 0 to last argument.
+const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointers, 0);
+
+// If your entryPointers are sorted by name, pass SQB_TYPE_SORTED to last argument.
+// const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointers, SQB_TYPE_SORTED);
 ```
 
 #### 2. define constant SqEntry array that used by dynamic SqType
@@ -58,10 +62,11 @@ const SqType type = SQ_TYPE_INITIALIZER(entryPointers, 2, 0);
 
 ```c++
 static const SqEntry entries[2] = {
-	{SQ_TYPE_UINT,   "bit_field",  offsetof(SqEntry, bit_field),  0},
-	{SQ_TYPE_STRING, "name",       offsetof(SqEntry, name),       SQB_HIDDEN_NULL},
+	{SQ_TYPE_UINT,   "bit_field",  offsetof(YourStruct, bit_field),  0},
+	{SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
 };
 
+	// add 2 elements from array
 	sq_type_add_entry(type, entries, 2, 0);    // C function
 //	type->addEntry(entries, 2);                // C++ function
 ```
@@ -72,7 +77,7 @@ use C function to add one dynamic entry
 ```c
 	SqEntry *entry = sq_entry_new(SQ_TYPE_STRING);
 	entry->name = strdup("name");
-	entry->offset = offsetof(SqEntry, name);
+	entry->offset = offsetof(YourStruct, name);
 	entry->bit_field |= SQB_HIDDEN_NULL;    // set bit in SqEntry.bit_field
 //	entry->bit_field &= ~SQB_HIDDEN_NULL;   // clear bit in SqEntry.bit_field
 
@@ -84,7 +89,7 @@ use C++ function to add one dynamic entry
 	SqEntry *entry = new Sq::Entry;
 	entry->init(SQ_TYPE_STRING);
 	entry->name = strdup("name");
-	entry->offset = offsetof(SqEntry, name);
+	entry->offset = offsetof(YourStruct, name);
 	entry->bit_field |= SQB_HIDDEN_NULL;    // set bit in SqEntry.bit_field
 //	entry->bit_field &= ~SQB_HIDDEN_NULL;   // clear bit in SqEntry.bit_field
 
