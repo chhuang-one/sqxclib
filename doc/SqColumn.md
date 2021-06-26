@@ -1,13 +1,11 @@
 ﻿# SqColumn
 
-SqColumn derives from [SqEntry](SqEntry.md) and defines constant or dynamic column in SQL table.
+SqColumn derives from [SqEntry](SqEntry.md) and defines column in SQL table.
 When it works with SqType is very similar to SqEntry.
 
 	SqEntry
 	|
 	`--- SqReentry
-	     |
-	     +--- SqTable
 	     |
 	     `--- SqColumn
 
@@ -57,7 +55,12 @@ Declaring bit_field in SqColumn
 * All items that need attention are the same as the [SqEntry](SqEntry.md)
 
 
-#### 1. define constant SqColumn pointer array that used by constant SqType
+## 1. Create table by SqType
+Because SqColumn is derived from SqEntry, you can see [SqType](SqType.md) to get more sample.
+
+#### 1.1. define constant SqColumn pointer array that used by constant SqType
+This can reduce running time when making schema if your SQL table is fixed and not changed in future.
+
 * Note: This is SqColumn pointer array. If you define constant SqType for structure, it must use with SqColumn pointer array.
 
 ```c++
@@ -73,15 +76,14 @@ const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointers, 0);
 // const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointers, SQB_TYPE_SORTED);
 
 
-	// use C function to create table by table
+	// use C function to create table by type
 	table = sq_schema_create_by_type(schema, "your_table_name", type);
 
-	// use C++ function to create table by table
+	// use C++ function to create table by type
 	table = schema->create("your_table_name", type);
 ```
 
-
-#### 2. define constant SqColumn array that used by dynamic SqType
+#### 1.2. define constant SqColumn array that used by dynamic SqType
 * Note: This is SqColumn array (NOT pointer array)
 
 ```c++
@@ -90,19 +92,25 @@ static const SqColumn columns[2] = {
 	{SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
 };
 
-	// use C function add 2 elements from array and create table
+	// use C function:
+	// add 2 columns from array
 	sq_type_add_entry(type, (const SqEntry*)columns, 2, sizeof(SqColumn));
+	// create table by type
 	table = sq_schema_create_by_type(schema, "your_table_name", type);
 
-	// use C++ function add 2 elements from array and create table
+	// use C++ function:
+	// add 2 columns from array
 	type->addEntry((const SqEntry*)columns, 2, sizeof(SqColumn));
+	// create table by type
 	table = schema->create("your_table_name", type);
 ```
 
+#### 1.3. define dynamic SqColumn that used by dynamic SqType
 
-#### 3. define dynamic SqColumn that used by dynamic SqType
+use C function to add one dynamic column 
 
-use C function to add one dynamic column
+* Note: It is **not recommended** to use this way because it may deprecated or changed in future.
+
 ```c++
 	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STRING);
 	column->offset = offsetof(YourStruct, name);
@@ -115,3 +123,8 @@ use C function to add one dynamic column
 	// use C++ function to add column
 	type->addEntry((const SqEntry*)column);
 ```
+
+## 2. Create table by schema builder
+
+It is recommended to use schema builder to create dynamic table.
+You can see **(Schema Builder)** parts of "**Database schema**" in ../[README.md](../README.md) to get more sample.

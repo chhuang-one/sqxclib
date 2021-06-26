@@ -155,10 +155,10 @@ const SqType sortedTypeUser = {
 
 use macro SQ_TYPE_INITIALIZER() and SQ_TYPE_INITIALIZER_FULL()
 ```c
-// entryPointers is 'unsorted' entries that defined in above example.
+// Because entryPointers is 'unsorted' entries, you can pass 0 to last argument.
 const SqType  typeUserM = SQ_TYPE_INITIALIZER(User, entryPointers, 0);
 
-// sortedEntryPointers is 'sorted' entries that defined in above example.
+// Because sortedEntryPointers is 'sorted' entries, you can pass SQB_TYPE_SORTED to last argument.
 const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, SQB_TYPE_SORTED);
 ```
 

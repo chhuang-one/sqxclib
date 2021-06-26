@@ -37,6 +37,7 @@ struct User {
 ```
 
 use C99 designated initializer to define table/column in schema_v1 (static)
+* This can reduce running time when making schema if your SQL table is fixed and not changed in future.
 
 ```c
 #include <sqxclib.h>
@@ -102,7 +103,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	sq_table_add_column(table, userColumnsChanged, 5);
 ```
 
-use C function to define table/column in schema_v1 (dynamic)
+use C functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 
 ```c
 	schema_v1 = sq_schmea_new("Ver 1");
@@ -129,7 +130,7 @@ use C function to define table/column in schema_v1 (dynamic)
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
 ```
 
-use C function to change table/column in schema_v2 (dynamic)
+use C functions (Schema Builder) to change table/column in schema_v2 (dynamic)
 
 ```c
 	schema_v2 = sq_schema_new("Ver 2");
@@ -188,6 +189,7 @@ use C macro to change table/column in schema_v2 (dynamic)
 ```
 
 use C++ aggregate initialization to define table/column in schema_v1 (static)
+* This can reduce running time when making schema if your SQL table is fixed and not changed in future.
 
 ```c++
 #include <sqxclib.h>
@@ -221,7 +223,7 @@ static const SqColumn  userColumns[6] = {
 	table->addColumn(userColumns, 6);
 ```
 
-use C++ function to define table/column in schema_v1 (dynamic)
+use C++ functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 
 ```c++
 	schema_v1 = new Sq::Schema("Ver 1");
@@ -245,7 +247,7 @@ use C++ function to define table/column in schema_v1 (dynamic)
 	table->addIndex("users_id_index", "id", NULL);
 ```
 
-use C++ function to change table/column in schema_v2 (dynamic)
+use C++ functions (Schema Builder) to change table/column in schema_v2 (dynamic)
 
 ```c++
 	schema_v2 = new Sq::Schema("Ver 2");
@@ -261,7 +263,8 @@ use C++ function to change table/column in schema_v2 (dynamic)
 	table->rename("email", "email2");
 ```
 
-Other constraint sample: use C99 designated initializer to change constraint (static)
+Other constraint sample:  
+use C99 designated initializer to change constraint (static)
 
 ```c
 static const SqColumn  otherSampleChanged_1[] = {
@@ -285,7 +288,8 @@ static const SqColumn  otherSampleChanged_2[] = {
 };
 ```
 
-Other constraint sample: use C function to change constraint (dynamic)
+Other constraint sample (Schema Builder):  
+use C function to change constraint (dynamic)
 
 ```c
 	// ADD CONSTRAINT UNIQUE
@@ -299,7 +303,8 @@ Other constraint sample: use C function to change constraint (dynamic)
 	sq_table_drop_primary(table, "other_primary");
 ```
 
-Other constraint sample: use C++ function to change constraint (dynamic)
+Other constraint sample (Schema Builder):  
+use C++ function to change constraint (dynamic)
 
 ```c++
 	// ADD CONSTRAINT UNIQUE
