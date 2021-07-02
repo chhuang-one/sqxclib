@@ -61,8 +61,8 @@ const SqdbInfo *SQDB_INFO_SQLITE = &dbinfo;
 // SqdbInfo
 
 static void sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
+static void sqdb_sqlite_create_indexes(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
 static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
-static void sqdb_sqlite_do_unsynced(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table, bool index_only);
 #if DEBUG
 static int debug_callback(void *user_data, int argc, char **argv, char **columnName);
 #endif
@@ -192,14 +192,14 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 				sq_buffer_write_c(&sql_buf, ';');
 			else
 				sql_buf.writed = 0;
-			sqdb_sqlite_do_unsynced(sqdb, &sql_buf, table, true);
+			sqdb_sqlite_create_indexes(sqdb, &sql_buf, table);
 		}
 		// === ALTER TABLE ===
 		else if (table->bit_field & SQB_TABLE_COL_CHANGED) {
 			if (sqdb_sqlite_alter_table(sqdb, &sql_buf, table) == false) {
 				// === RECREATE TABLE ===
 				sqdb_sqlite_recreate_table(sqdb, &sql_buf, table);
-				sqdb_sqlite_do_unsynced(sqdb, &sql_buf, table, true);
+				sqdb_sqlite_create_indexes(sqdb, &sql_buf, table);
 			}
 		}
 
@@ -505,8 +505,26 @@ static void  sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTab
 	sq_buffer_write(sql_buf, "\"; ");
 }
 
+static void sqdb_sqlite_create_indexes(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table)
+{
+	SqColumn  *column;
+	SqEntry  **cur, **end;
+
+	end = table->type->entry + table->type->n_entry;
+	for (cur = table->type->entry;  cur < end;  cur++) {
+		column = *(SqColumn**)cur;
+		// CREATE INDEX
+		if (column->type == SQ_TYPE_INDEX) {
+			sqdb_sql_create_index((Sqdb*)db, sql_buf, table, column);
+			sq_buffer_write_c(sql_buf, ';');
+		}
+	}
+}
+
 static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table)
 {
+	SqRelationNode *node;
+	SqColumn     *column;
 	unsigned int  unsupported = SQB_TABLE_COL_ADDED_CURRENT_TIME |
 	                            SQB_TABLE_COL_ADDED_EXPRESSION |
 	                            SQB_TABLE_COL_ADDED_CONSTRAINT |
@@ -522,16 +540,7 @@ static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *
 	if (table->bit_field & unsupported)
 		return false;
 
-	sqdb_sqlite_do_unsynced(db, sql_buf, table, false);
-
-	return true;
-}
-
-static void sqdb_sqlite_do_unsynced(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table, bool index_only)
-{
-	SqRelationNode *node;
-	SqColumn     *column;
-
+	// do unsynced
 	node = sq_relation_find(table->relation, SQ_TYPE_UNSYNCED, NULL);
 	if (node) {
 		for (node = node->next;  node;  node = node->next) {
@@ -546,13 +555,8 @@ static void sqdb_sqlite_do_unsynced(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *
 					sqdb_sql_create_index((Sqdb*)db, sql_buf, table, column);
 				sq_buffer_write_c(sql_buf, ';');
 			}
-
-			// don't alter table if index_only is true.
-			if (index_only)
-				continue;
-
 			// RENAME COLUMN
-			if (column->old_name) {
+			else if (column->old_name) {
 				sqdb_sql_rename_column((Sqdb*)db, sql_buf, table, column, NULL);
 				sq_buffer_write_c(sql_buf, ';');
 				// clear renamed data
@@ -560,11 +564,13 @@ static void sqdb_sqlite_do_unsynced(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *
 				column->old_name = NULL;
 				column->bit_field &= ~SQB_RENAMED;
 			}
-			// ADD COLUMN / INDEX (UNIQUE) / FOREIGN KEY
+			// ADD COLUMN / UNIQUE / FOREIGN KEY
 			else {
 				sqdb_sql_add_column((Sqdb*)db, sql_buf, table, column);
 				sq_buffer_write_c(sql_buf, ';');
 			}
 		}
 	}
+
+	return true;
 }
