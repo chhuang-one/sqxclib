@@ -64,14 +64,7 @@ void  sq_table_free(SqTable *table)
 
 bool  sq_table_has_column(SqTable *table, const char *column_name)
 {
-	SqCompareFunc cmp_func;
-
-	if (table->bit_field & SQB_CHANGED)
-		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
-	else
-		cmp_func = NULL;
-
-	if (sq_type_find_entry(table->type, column_name, cmp_func))
+	if (sq_type_find_entry(table->type, column_name, NULL))
 		return true;
 	return false;
 }

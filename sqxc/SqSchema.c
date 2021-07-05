@@ -156,8 +156,6 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 	schema->bit_field |= SQB_CHANGED;
 
 #if 0
-//	table = (SqTable*)sq_type_find_entry(schema->type, from,
-//	                                     (SqCompareFunc)sq_entry_cmp_str__name);
 	table = (SqTable*)sq_type_find_entry(schema->type, from, NULL);
 	if (table) {
 		table = *(SqTable**)table;
@@ -176,16 +174,9 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 
 SqTable* sq_schema_find(SqSchema* schema, const char* name)
 {
-	SqCompareFunc cmp_func;
 	void** addr;
 
-	// if cmp_func == NULL, sq_type_find_entry() will sort entry before finding.
-	if (schema->bit_field & SQB_CHANGED)
-		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
-	else
-		cmp_func = NULL;
-
-	addr = sq_type_find_entry(schema->type, name, cmp_func);
+	addr = sq_type_find_entry(schema->type, name, NULL);
 	if (addr)
 		return *addr;
 	else
