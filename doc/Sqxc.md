@@ -64,8 +64,10 @@ These data will process between Sqxc elements.
 
 sqxc_send() return current Sqxc element that processing data
 ```c++
-	xc = sqxc_send(xc);    // C function
-//	xc = xc->send();       // C++ function
+	/* C function */
+	xc = sqxc_send(xc);
+	/* C++ function */
+//	xc = xc->send();
 ```
 
 get error code from current Sqxc element
@@ -92,8 +94,10 @@ add element to convert data to JSON array/object in SQL column.
 //	xc_json = sqxc_jsonc_writer_new();
 
 	// append xc_json to tail of list
-	sqxc_insert(xc, xc_json, -1);    // C function
-//	xc->insert(xc_json, -1);         // C++ function
+	/* C function */
+	sqxc_insert(xc, xc_json, -1);
+	/* C++ function */
+//	xc->insert(xc_json, -1);
 ```
 
 #### use C function to send object data to Sqxc elements
@@ -258,8 +262,10 @@ Note: If new Sqxc element want to parse/write data in SQL column, it must:
 
 	// send data from xc_text to xc_dest element
 	xc_dest = xc_text->dest;
-	xc_dest->info->send(xc_dest, xc_text);    // C function
-//	xc_dest->send(xc_text);                   // C++ function
+	/* C function */
+	xc_dest->info->send(xc_dest, xc_text);
+	/* C++ function */
+//	xc_dest->send(xc_text);
 ```
 
 #### 3. use new Sqxc element
@@ -273,8 +279,10 @@ append custom Sqxc element to tail of list.
 	xc_text = sqxc_new(SQXC_INFO_TEXT_PARSER);
 
 	// append xc_text parser to tail of list
-	sqxc_insert(xc, xc_text, -1);    // C function
-//	xc->insert(xc_text, -1);         // C++ function
+	/* C function */
+	sqxc_insert(xc, xc_text, -1);
+	/* C++ function */
+//	xc->insert(xc_text, -1);
 ```
 
 insert custom Sqxc element to input elements in SqStorage object.
@@ -287,16 +295,22 @@ insert custom Sqxc element to input elements in SqStorage object.
 	xc_text = sqxc_new(SQXC_INFO_TEXT_PARSER);
 
 	// insert xc_text parser after storage->xc_input
-	sqxc_insert(storage->xc_input, xc_text, 1);   // C function
-//	storage->xc_input->insert(xc_text, 1);        // C++ function
+	/* C function */
+	sqxc_insert(storage->xc_input, xc_text, 1);
+	/* C++ function */
+//	storage->xc_input->insert(xc_text, 1);
 
 	// remove JSON parser from list because it is replaced by new one.
-	xc_json = sqxc_find(storage->xc_input, SQXC_INFO_JSONC_PARSER);    // C function
-//	xc_json = storage->xc_input->find(SQXC_INFO_JSONC_PARSER);         // C++ function
+	/* C function */
+	xc_json = sqxc_find(storage->xc_input, SQXC_INFO_JSONC_PARSER);
+	/* C++ function */
+//	xc_json = storage->xc_input->find(SQXC_INFO_JSONC_PARSER);
 
 	if (xc_json) {
-		sqxc_steal(storage->xc_input, xc_json);    // C function
-//		storage->xc_input->steal(xc_json);         // C++ function
+		/* C function */
+		sqxc_steal(storage->xc_input, xc_json);
+		/* C++ function */
+//		storage->xc_input->steal(xc_json);
 
 //		sqxc_free(xc_json);
 	}

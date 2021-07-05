@@ -20,14 +20,18 @@ It provides ORM features and C++ wrapper.
 
 ## Database schema
 
-```c
-struct User {
-	int    id;          // primary key
-	char  *full_name;
-	char  *email;
-	int    city_id;     // foreign key
+First, we define a C structured data type that mappings to your database table "users".
 
-	time_t    created_at;
+```c++
+typedef struct  User    User;    // add this line if you use C language
+
+struct User {
+	int     id;          // primary key
+	char   *name;
+	char   *email;
+	int     city_id;     // foreign key
+
+	time_t  created_at;
 
 #ifdef __cplusplus      // C++ Only
 	std::string       strCpp;
@@ -42,9 +46,12 @@ use C99 designated initializer to define table/column in schema_v1 (static)
 ```c
 #include <sqxclib.h>
 
-static const SqColumn  userColumns[6] = {
+static const SqColumn  userColumns[7] = {
+	// PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
-	{SQ_TYPE_STRING, "full_name",  offsetof(User, full_name)  },
+
+	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
+
 	{SQ_TYPE_STRING, "email",      offsetof(User, email),    .size = 60},    // VARCHAR(60)
 
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at),
@@ -69,8 +76,9 @@ static const SqColumn  userColumns[6] = {
 
 	// create table "users"
 	table = sq_schema_create(schema_v1, "users", User);
-	// add static 'userColumns' that has 6 elements to table
-	sq_table_add_column(table, userColumns, 6);
+
+	// add static 'userColumns' that has 7 elements to table
+	sq_table_add_column(table, userColumns, 7);
 ```
 
 use C99 designated initializer to change table/column in schema_v2 (static)
@@ -87,8 +95,8 @@ static const SqColumn  userColumnsChanged[5] = {
 	{.old_name = "users_city_id_foreign",     .name = NULL,
 	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_FOREIGN },
 
-	// DROP COLUMN "full_name"
-	{.old_name = "full_name", .name = NULL},
+	// DROP COLUMN "name"
+	{.old_name = "name",      .name = NULL},
 
 	// RENAME COLUMN "email" TO "email2"
 	{.old_name = "email",     .name = "email2"},
@@ -99,6 +107,7 @@ static const SqColumn  userColumnsChanged[5] = {
 
 	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
+
 	// add static 'userColumnsChanged' that has 5 elements to table
 	sq_table_add_column(table, userColumnsChanged, 5);
 ```
@@ -111,21 +120,28 @@ use C functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 
 	// create table "users"
 	table = sq_schema_create(schema_v1, "users", User);
-	// add dynamic columns to table
+
+	// PRIMARY KEY
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	column->bit_field |= SQB_PRIMARY;        // set bit in SqColumn.bit_field
-	column = sq_table_add_string(table, "full_name", offsetof(User, full_name), -1);
+
+	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
+
 	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
+
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
 	sq_column_default("CURRENT_TIMESTAMP");
+
 	// FOREIGN KEY
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id");
+
 	// CONSTRAINT FOREIGN KEY
 	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
 	sq_column_reference(column, "cities", "id");
 	sq_column_on_delete(column, "NO ACTION");
 	sq_column_on_update(column, "NO ACTION");
+
 	// CREATE INDEX
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
 ```
@@ -138,12 +154,16 @@ use C functions (Schema Builder) to change table/column in schema_v2 (dynamic)
 
 	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
-	// add dynamic columns/records to table
+
+	// add column to table
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
+
+	// alter column in table
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	column->bit_field |= SQB_CHANGED;        // set bit in SqColumn.bit_field
+
 	sq_table_drop_foreign(table, "users_city_id_foreign");
-	sq_table_drop_column(table, "full_name");
+	sq_table_drop_column(table, "name");
 	sq_table_rename_column(table, "email", "email2");
 ```
 
@@ -158,15 +178,22 @@ use C macro to define table/column in schema_v1 (dynamic)
 
 	// create table "users"
 	SQ_SCHEMA_CREATE(schema_v1, "users", User, {
+		// PRIMARY KEY
 		SQT_INTEGER("id", User, id);  SQC_PRIMARY();
-		SQT_STRING("full_name", User, full_name, -1);
+
+		SQT_STRING("name", User, name, -1);
+
 		SQT_STRING("email", User, email, 60);    // VARCHAR(60)
+
 		SQT_TIMESTAMP("created_at", User, created_at);  SQC_DEFAULT("CURRENT_TIMESTAMP");
+
 		// FOREIGN KEY
 		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");
+
 		// CONSTRAINT FOREIGN KEY
 		SQT_ADD_FOREIGN("users_city_id_foreign", "city_id");
 			SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("NO ACTION");  SQC_ON_UPDATE("NO ACTION"):
+
 		// CREATE INDEX
 		SQT_ADD_INDEX("users_id_index", "id");
 	});
@@ -183,7 +210,7 @@ use C macro to change table/column in schema_v2 (dynamic)
 		SQT_INTEGER("test_add", User, test_add);
 		SQT_INTEGER("city_id", User, city_id);  SQC_CHANGE();
 		SQT_DROP_FOREIGN("users_city_id_foreign");
-		SQT_DROP("full_name");
+		SQT_DROP("name");
 		SQT_RENAME("email", "email2");
 	});
 ```
@@ -198,18 +225,24 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
 
-static const SqColumn  userColumns[6] = {
+static const SqColumn  userColumns[7] = {
+	// PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
-	{SQ_TYPE_STRING, "full_name",  offsetof(User, full_name)  },
+
+	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
+
 	{SQ_TYPE_STRING, "email",      offsetof(User, email),    .size = 60},    // VARCHAR(60)
+
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at),
 		.default_value = "CURRENT_TIMESTAMP"},
 
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
 		.foreign = (SqForeign*) &userForeign},
+
 	// C++ std::string
 	{SQ_TYPE_STD_STRING, "strCpp", offsetof(User, strCpp)     },
+
 	// C++ std::vector
 	{&SqTypeIntVector,  "intsCpp", offsetof(User, intsCpp)    },
 };
@@ -219,8 +252,8 @@ static const SqColumn  userColumns[6] = {
 
 	// create table "users"
 	table = schema_v1->create<User>("users");
-	// add static 'userColumns' that has 6 elements to table
-	table->addColumn(userColumns, 6);
+	// add static 'userColumns' that has 7 elements to table
+	table->addColumn(userColumns, 7);
 ```
 
 use C++ functions (Schema Builder) to define table/column in schema_v1 (dynamic)
@@ -233,7 +266,7 @@ use C++ functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 	table = schema_v1->create<User>("users");
 	// add dynamic columns to table
 	table->integer("id", &User::id)->primary();
-	table->string("full_name", &User::full_name);
+	table->string("name", &User::name);
 	table->string("email", &User::email, 60);    // VARCHAR(60)
 	table->timestamp("created_at", &User::created_at)->default_("CURRENT_TIMESTAMP");
 	table->stdstring("strCpp", &User::strCpp);                     // C++ std::string
@@ -259,7 +292,7 @@ use C++ functions (Schema Builder) to change table/column in schema_v2 (dynamic)
 	table->integer("test_add", &User::test_add);
 	table->integer("city_id", &User::city_id)->change();
 	table->dropForeign("users_city_id_foreign");    // DROP CONSTRAINT FOREIGN KEY
-	table->drop("full_name");
+	table->drop("name");
 	table->rename("email", "email2");
 ```
 
@@ -280,11 +313,11 @@ static const SqColumn  otherSampleChanged_1[] = {
 static const SqColumn  otherSampleChanged_2[] = {
 	// DROP CONSTRAINT PRIMARY KEY
 	{.old_name = "other_primary",  .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_PRIMARY },
+	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_PRIMARY },
 
 	// DROP CONSTRAINT UNIQUE
 	{.old_name = "other_unique",   .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_UNIQUE },
+	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_UNIQUE },
 };
 ```
 
@@ -318,7 +351,9 @@ use C++ function to change constraint (dynamic)
 	table->dropPrimary("other_primary");
 ```
 
-## Migration
+* You can get more information about schema and migrations in [database-migrations.md](doc/database-migrations.md)
+
+## Database synchronization (Migration)
 
 use C++ function to migrate schema and synchronize to database
 

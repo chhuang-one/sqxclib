@@ -36,7 +36,7 @@ typedef struct SqReentry        SqReentry;
 #define SQB_RESERVE_1      (1 << 5)   // reserve
 #define SQB_ENTRY_END      SQB_RESERVE_1
 
-// SqColumn::bit_field
+// SqColumn::bit_field (Column Modifiers)
 #define SQB_PRIMARY        (1 << 6)   // SQL: PRIMARY KEY
 #define SQB_FOREIGN        (1 << 7)   // SQL: FOREIGN KEY
 #define SQB_UNIQUE         (1 << 8)   // SQL: UNIQUE
@@ -53,9 +53,10 @@ typedef struct SqReentry        SqReentry;
 // SQL common bit_field
 #define SQB_CHANGED        (1 << 31)  // SQL: alter/modify. column/table has been altered.
 
-// SQ_N_PTRS() calculate number of pointer in array. for example:
-//	SqEntry *FooEntries[] = {...};
-//	int  n_entry = SQ_N_PTRS(FooEntries);
+/* SQ_N_PTRS() calculate number of pointer in array. for example:
+	SqEntry *FooEntries[] = {...};
+	int  n_entry = SQ_N_PTRS(FooEntries);
+ */
 #define SQ_N_PTRS(PointerArray) ( sizeof(PointerArray)/sizeof(void*) )
 
 // ----------------------------------------------------------------------------

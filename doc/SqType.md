@@ -61,14 +61,16 @@ const SqType type_int = {
 2. assign size, init, final, parse, and write in SqType structure.
 
 ```c++
-// sq_type_new() declarations:
+/* sq_type_new() declarations: */
 // SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 
 	SqType *type;
 
-	type = sq_type_new(-1, NULL);    // C function
+	/* C function */
+	type = sq_type_new(-1, NULL);
 
-//	type = new Sq::Type;             // C++ function
+	/* C++ function */
+//	type = new Sq::Type;
 //	type->initSelf(-1, NULL);
 
 	type->size  = sizeof(int);
@@ -96,14 +98,14 @@ struct User {
 use C99 designated initializer to define struct that has 'unsorted' SqEntry pointer array.
 
 ```c
-// --- entryPointers is 'unsorted' SqEntry pointer array
+/* entryPointers is 'unsorted' SqEntry pointer array */
 static const SqEntry  *entryPointers[] = {
 	&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
 	&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
 	&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), 0},
 };
 
-// --- typeUser use 'unsorted' entryPointers
+/* typeUser use 'unsorted' entryPointers */
 const SqType typeUser = {
 	.size  = sizeof(User),
 	.init  = NULL,
@@ -126,14 +128,14 @@ about above macro SQ_GET_TYPE_NAME(Type):
 use C99 designated initializer to define struct that has 'sorted' SqEntry pointer array.
 
 ```c
-// --- sortedEntryPointers is 'sorted' entryPointers (sorted by name)
+/* sortedEntryPointers is 'sorted' entryPointers (sorted by name) */
 static const SqEntry  *sortedEntryPointers[] = {
 	&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), 0},
 	&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
 	&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
 };
 
-// --- sortedTypeUser use sortedEntryPointers (set SQB_TYPE_SORTED in SqType::bit_field)
+/* sortedTypeUser use sortedEntryPointers (set SQB_TYPE_SORTED in SqType::bit_field) */
 const SqType sortedTypeUser = {
 	.size  = sizeof(User),
 	.init  = NULL,
@@ -155,10 +157,10 @@ const SqType sortedTypeUser = {
 
 use macro SQ_TYPE_INITIALIZER() and SQ_TYPE_INITIALIZER_FULL()
 ```c
-// Because entryPointers is 'unsorted' entries, you can pass 0 to last argument.
+/* Because entryPointers is 'unsorted' entries, you can pass 0 to last argument. */
 const SqType  typeUserM = SQ_TYPE_INITIALIZER(User, entryPointers, 0);
 
-// Because sortedEntryPointers is 'sorted' entries, you can pass SQB_TYPE_SORTED to last argument.
+/* Because sortedEntryPointers is 'sorted' entries, you can pass SQB_TYPE_SORTED to last argument. */
 const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, SQB_TYPE_SORTED);
 ```
 
@@ -244,11 +246,13 @@ use C++ functions to add dynamic SqEntry.
 * You must call function to calculate instance size after removing entry from type.
 
 ```c++
-// sq_type_decide_size() declarations:
+/* sq_type_decide_size() declarations: */
 // int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
 
-	sq_type_decide_size(type, NULL, false);    // C function
-	type->decideSize(NULL, false);             // C++ function
+	/* C function */
+	sq_type_decide_size(type, NULL, false);
+	/* C++ function */
+	type->decideSize(NULL, false);
 ```
 
 * if 'inner_entry' == NULL, it use all entries in SqType to calculate size.
@@ -293,18 +297,22 @@ It will increase reference count of SqType if a dynamic SqEntry use a dynamic Sq
 User can call function to increase reference count.  
 
 ```c++
-	sq_type_ref(type);    // C function
+	/* C function */
+	sq_type_ref(type);
 
-	type->ref();          // C++ function
+	/* C++ function */
+	type->ref();
 ```
 
 It will decrease reference count of SqType if user free a dynamic SqEntry that having a dynamic SqType.  
 User can call function to decrease reference count.
 
 ```c++
-	sq_type_unref(type);    // C function
+	/* C function */
+	sq_type_unref(type);
 
-	type->unref();          // C++ function
+	/* C++ function */
+	type->unref();
 ```
 
 If an dynamic SqType's reference count reaches zero, it will be destroyed.

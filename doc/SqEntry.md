@@ -53,10 +53,10 @@ static const SqEntry *entryPointers[2] = {
 	&(SqEntry) {SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
 };
 
-// If your entryPointers are not sorted, pass 0 to last argument.
+/* If your entryPointers are not sorted by name, pass 0 to last argument. */
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointers, 0);
 
-// If your entryPointers are sorted by name, pass SQB_TYPE_SORTED to last argument.
+/* If your entryPointers are sorted by name, pass SQB_TYPE_SORTED to last argument. */
 // const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointers, SQB_TYPE_SORTED);
 ```
 

@@ -164,6 +164,8 @@ const SqdbInfo *SQDB_INFO_XXSQL = &dbinfo;
 	db = sqdb_new(SQDB_INFO_XXSQL, (SqdbConfig*) &config);
 
 	// create storage object that use new Sqdb
-	storage = sq_storage_new(db);	// C function
-//	storage = new Sq::Storage(db);  // C++ function
+	/* C function */
+	storage = sq_storage_new(db);
+	/* C++ function */
+//	storage = new Sq::Storage(db);
 ```

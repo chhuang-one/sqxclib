@@ -64,7 +64,7 @@ static void sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTabl
 static void sqdb_sqlite_create_indexes(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
 static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
 #if DEBUG
-static int debug_callback(void *user_data, int argc, char **argv, char **columnName);
+static int  debug_callback(void *user_data, int argc, char **argv, char **columnName);
 #endif
 
 static void sqdb_sqlite_init(SqdbSqlite *sqdb, SqdbConfigSqlite *config_src)
@@ -353,7 +353,7 @@ static int insert_callback(void *user_data, int argc, char **argv, char **column
 }
 
 #ifdef DEBUG
-static int debug_callback(void *user_data, int argc, char **argv, char **columnName)
+static int  debug_callback(void *user_data, int argc, char **argv, char **columnName)
 {
 	int i;
 
