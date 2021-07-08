@@ -326,3 +326,20 @@ The Sqxc input dataflow in your SqStorage object will look like this:
 	( input )        |                    |
 	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
 
+## Processing (skip) unknown object & array
+
+There is a JSON object defined below.
+
+```json
+{
+	"id" : 123,
+	"name" : "Joe",
+	"undefinedObject" : {
+		"id" : 456,
+		"name" : "Alex"
+	}
+}
+```
+
+In this case, it will cause an error when Sqxc parsing above JSON object if no 'undefinedObject' defined by SqEntry/SqColumn.  
+If you want to skip unknown(undefine) object & array like 'undefinedObject', please enable SQ_CONFIG_SQXC_UNKNOWN_SKIP in SqConfig.h
