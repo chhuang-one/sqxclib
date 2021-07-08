@@ -16,10 +16,11 @@
 	Sqxc - Entry and value convert X to/from C  (X = SQL, JSON...etc)
 	       xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
-	SqxcXml    - convert to/from XML   - SqxcXml.c     (TODO or not)
-	SqxcJsonc  - convert to/from JSON  - SqxcJsonc.c
-	SqxcSql    - convert to SQL (Sqdb) - SqxcSql.c
-	SqxcValue  - convert to C struct   - SqxcValue.c
+	SqxcXml     - convert to/from XML     - SqxcXml.c     (TODO or not)
+	SqxcJsonc   - convert to/from JSON    - SqxcJsonc.c
+	SqxcSql     - convert to SQL (Sqdb)   - SqxcSql.c
+	SqxcValue   - convert to C structure  - SqxcValue.c
+	SqxcUnknown - unknown object or array - SqxcUnknown.c
 
 	User can link multiple Sqxc element to convert different types of data.
 
@@ -72,6 +73,7 @@ typedef enum {
 	SQXC_TYPE_STRING   = (1 << 7),    // 0x0080
 	SQXC_TYPE_OBJECT   = (1 << 8),    // 0x0100
 	SQXC_TYPE_ARRAY    = (1 << 9),    // 0x0200    // array or other storage structure
+	SQXC_TYPE_NESTED   = SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY,    // 0x0300
 	SQXC_TYPE_BASIC    =  0x3FF,
 
 	// Text stream must be null-terminated string
