@@ -57,7 +57,7 @@
 // #define SQ_CONFIG_NAMING_CONVENTION
 
 // ----------------------------------------------------------------------------
-// Default size : These sizes can auto expand.
+// Default length (size)
 
 /* Sqdb.c, SqSchema.c - SQL_STRING_LENGTH_DEFAULT */
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT      191

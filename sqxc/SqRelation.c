@@ -127,6 +127,18 @@ SqRelationNode *sq_relation_node_find(SqRelationNode *node, const void *object, 
 	return NULL;
 }
 
+SqRelationNode *sq_relation_node_reverse(SqRelationNode *node) {
+	SqRelationNode *node_next, *node_prev;
+
+	// reverse order
+	for (node_prev = NULL;  node;  node = node_next) {
+		node_next = node->next;
+		node->next = node_prev;
+		node_prev = node;
+	}
+	return node_prev;
+}
+
 // ----------------------------------------------------------------------------
 // SqRelation
 

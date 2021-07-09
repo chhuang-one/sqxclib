@@ -73,6 +73,7 @@ SqRelationNode *sq_relation_find(SqRelation *relation, const void *from_object, 
 /* --- SqRelationNode functions --- */
 
 SqRelationNode *sq_relation_node_find(SqRelationNode *node, const void *object, SqRelationNode **prev_of_returned_node);
+SqRelationNode *sq_relation_node_reverse(SqRelationNode *node);
 
 /* --- SqRelationPool functions --- */
 

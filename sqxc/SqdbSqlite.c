@@ -543,6 +543,9 @@ static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *
 	// do unsynced
 	node = sq_relation_find(table->relation, SQ_TYPE_UNSYNCED, NULL);
 	if (node) {
+		// reverse node order because unsynced changes store in SqRelation is reverse order.
+		node->next = sq_relation_node_reverse(node->next);
+		// processing columns by original order
 		for (node = node->next;  node;  node = node->next) {
 			column = node->object;
 			// INDEX
