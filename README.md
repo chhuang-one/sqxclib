@@ -14,7 +14,7 @@ It provides ORM features and C++ wrapper.
 
 3. It can work in low-end hardware.
 
-4. Single header file sqxclib.h  (Note: It doesn't contain special macros)
+4. Single header file **sqxclib.h**  (Note: It doesn't contain special macros)
 
 5. Supports SQLite, MySQL / MariaDB.
 
@@ -43,6 +43,10 @@ struct User {
 use C++ functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 
 ```c++
+/* define global type for C++ STL */
+Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
+
+	/* create schema version 1 */
 	schema_v1 = new Sq::Schema("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
@@ -67,6 +71,7 @@ use C++ functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 use C++ functions (Schema Builder) to change table/column in schema_v2 (dynamic)
 
 ```c++
+	/* create schema version 2 */
 	schema_v2 = new Sq::Schema("Ver 2");
 	schema_v2->version = 2;    // specify version number or auto generate it
 
@@ -85,8 +90,7 @@ use C++ aggregate initialization to define table/column in schema_v1 (static)
 * If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see doc/[SqColumn.md](doc/SqColumn.md)
 
 ```c++
-#include <sqxclib.h>
-
+/* define global type for C++ STL */
 Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
 static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
@@ -127,8 +131,6 @@ use C99 designated initializer to define table/column in schema_v1 (static)
 * If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see doc/[SqColumn.md](doc/SqColumn.md)
 
 ```c
-#include <sqxclib.h>
-
 static const SqColumn  userColumns[7] = {
 	// PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
