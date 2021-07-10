@@ -75,6 +75,7 @@ static const SqColumn *columnPointers[2] = {
 /* If your columnPointers are sorted by name, pass SQB_TYPE_SORTED to last argument. */
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointers, SQB_TYPE_SORTED);
 
+	/* use C function to create table by type */
 	table = sq_schema_create_by_type(schema, "your_table_name", type);
 ```
 
@@ -92,6 +93,7 @@ static const SqColumn *columnPointers[2] = {
 /* If your columnPointers are sorted by name, pass SQB_TYPE_SORTED to last argument. */
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointers, SQB_TYPE_SORTED);
 
+	/* use C++ method to create table by type */
 	table = schema->create("your_table_name", type);
 ```
 
@@ -104,11 +106,16 @@ static const SqColumn columns[2] = {
 	{SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
 };
 
+	/* C */
+	type = sq_type_new(0, (SqDestroyFunc)sq_column_free);
 	/* use C function to add 2 columns from array and create table by type */
 	sq_type_add_entry(type, (const SqEntry*)columns, 2, sizeof(SqColumn));
 	table = sq_schema_create_by_type(schema, "your_table_name", type);
 
-	/* use C++ function to add 2 columns from array to create table by type */
+	/* C++ */
+	type = new Sq::Type;
+	type->initSelf(0, (SqDestroyFunc)sq_column_free);
+	/* use C++ method to add 2 columns from array to create table by type */
 	type->addEntry((const SqEntry*)columns, 2, sizeof(SqColumn));
 	table = schema->create("your_table_name", type);
 ```
@@ -117,7 +124,7 @@ static const SqColumn columns[2] = {
 
 add one dynamic column to type
 
-* Note: It is **not recommended** to use this way because it may deprecated or changed in future.
+* Note: It is **not recommended** to use this way.
 
 ```c++
 	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STRING);
@@ -125,14 +132,21 @@ add one dynamic column to type
 	column->bit_field |= SQB_PRIMARY;    // set bit in SqColumn.bit_field
 //	column->bit_field &= ~SQB_PRIMARY;   // clear bit in SqColumn.bit_field
 
+	/* C */
+	type = sq_type_new(0, (SqDestroyFunc)sq_column_free);
 	/* use C function to add column */
 	sq_type_add_entry(type, (const SqEntry*)column, 1, sizeof(SqColumn));
 
-	/* use C++ function to add column */
+	/* C++ */
+	type = new Sq::Type;
+	type->initSelf(0, (SqDestroyFunc)sq_column_free);
+	/* use C++ method to add column */
 	type->addEntry((const SqEntry*)column);
 ```
 
 ## 2. Create table by schema builder (dynamic)
 
 It is recommended to use schema builder to create dynamic table.  
-You can see [database-migrations.md](database-migrations.md) and **(Schema Builder)** parts of "**Database schema**" in ../[README.md](../README.md#database-schema) to get more sample.
+To get more information and sample, you can see below documents:  
+1. [database-migrations.md](database-migrations.md)
+2. **(Schema Builder)** parts of "**Database schema**" in ../[README.md](../README.md#database-schema)
