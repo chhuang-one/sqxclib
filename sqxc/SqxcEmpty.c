@@ -13,10 +13,19 @@
  */
 
 #include <limits.h>     // __WORDSIZE
+#include <stdint.h>     // __WORDSIZE (Apple)
 #include <stdio.h>
 
 #include <SqError.h>
 #include <SqxcEmpty.h>
+
+#ifdef _MSC_VER
+#ifdef _WIN64
+#define __WORDSIZE 64
+#else
+#define __WORDSIZE 32
+#endif  // _WIN64
+#endif  // _MSC_VER
 
 // ----------------------------------------------------------------------------
 // SqxcInfo functions

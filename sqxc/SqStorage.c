@@ -16,6 +16,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <limits.h>     // __WORDSIZE
+#include <stdint.h>     // __WORDSIZE (Apple)
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
