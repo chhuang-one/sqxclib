@@ -44,6 +44,7 @@
 #include <stddef.h>
 #include <stdint.h>     // int64_t
 #include <stdbool.h>    // bool
+#include <time.h>       // time_t
 
 #include <SqDefine.h>
 #include <SqBuffer.h>
