@@ -16,6 +16,10 @@
 #include <SqError.h>
 #include <Sqdb-migration.h>
 
+#ifdef _MSC_VER
+#define strdup       _strdup
+#endif
+
 int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_func) {
 	//         *entry,     *entry_src
 	SqReentry  *reentry,   *reentry_src;

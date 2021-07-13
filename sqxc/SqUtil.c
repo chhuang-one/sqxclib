@@ -12,12 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
-#define strtoll		_strtoi64
-#define snprintf	_snprintf
 #endif
-
 #include <ctype.h>    // tolower(), toupper()
 #include <stdio.h>    // sscanf()
 #include <stddef.h>
@@ -26,6 +23,11 @@
 #include <string.h>
 
 #include <SqUtil.h>
+
+#ifdef _MSC_VER
+#define strtoll		_strtoi64
+#define snprintf	_snprintf
+#endif
 
 /* ----------------------------------------------------------------------------
 	Time string converter

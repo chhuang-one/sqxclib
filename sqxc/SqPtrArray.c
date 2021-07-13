@@ -72,10 +72,10 @@ void **sq_ptr_array_alloc_at(void *array, int index, int count)
 //		sq_ptr_array_init_full(array, count*2, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL);
 
 	length     = sq_ptr_array_length(array);
-	allocated  = sq_ptr_array_allocated(array);
+	allocated  = (int)sq_ptr_array_allocated(array);
 	new_length = length + count;
 	if (allocated < new_length) {
-		header_length = sq_ptr_array_header_length(array);
+		header_length = (int)sq_ptr_array_header_length(array);
 		header = ((SqPtrArray*)array)->data - header_length;
 		if ( (allocated*=2) < new_length)
 			allocated = new_length * 2;

@@ -21,6 +21,10 @@
 #include <SqError.h>
 #include <SqTable.h>
 
+#ifdef _MSC_VER
+#define strdup       _strdup
+#endif
+
 SqTable *sq_table_new(const char *name, const SqType *typeinfo)
 {
 	SqTable *table;
@@ -643,7 +647,7 @@ void  sq_column_set_composite_va(SqColumn *column, const char *name, va_list arg
 		allocated = SQ_COMPOSITE_LENGTH_DEFAULT;
 	}
 	else {
-		allocated = sq_composite_allocated(column->composite);
+		allocated = (int)sq_composite_allocated(column->composite);
 		for (index = 0;  column->composite[index];  index++)
 			free(column->composite[index]);
 	}

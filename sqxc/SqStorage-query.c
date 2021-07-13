@@ -12,16 +12,18 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
-#define snprintf	_snprintf
-#endif  // _MSC_VER
-
+#endif
 #include <stdio.h>      // snprintf
 
 #include <SqxcValue.h>
 #include <SqStorage.h>
 #include <SqQuery.h>
+
+#ifdef _MSC_VER
+#define snprintf	_snprintf
+#endif
 
 static void query_add_column_as_names(SqQuery *query, SqTable *table)
 {

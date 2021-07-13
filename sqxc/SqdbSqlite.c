@@ -12,11 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
-#define snprintf	_snprintf
 #endif
-
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
@@ -24,6 +22,10 @@
 #include <SqxcValue.h>
 #include <SqxcSql.h>
 #include <SqRelation-migration.h>
+
+#ifdef _MSC_VER
+#define snprintf	_snprintf
+#endif
 
 #define NEW_TABLE_PREFIX_NAME          "new__table__"
 #define SQLITE_VERSION_NUMBER_3_20     3020000           // 3.20.0

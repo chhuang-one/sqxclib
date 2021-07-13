@@ -12,6 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <time.h>     // time_t
 #include <stdio.h>    // sprintf()
 #include <stdlib.h>   // realloc(), strtol()
@@ -24,8 +27,7 @@
 #include <SqEntry.h>
 #include <SqxcValue.h>
 
-#if defined(_MSC_VER)
-#define _CRT_SECURE_NO_WARNINGS
+#ifdef _MSC_VER
 #define strtoll		_strtoi64
 #define snprintf	_snprintf
 #endif
@@ -181,7 +183,7 @@ Sqxc *sq_type_intptr_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_INT;
 //	dest->name = dest->name;    // "name" was set by caller of this function
-	dest->value.integer = *(intptr_t*)instance;
+	dest->value.integer = (int) *(intptr_t*)instance;
 	return sqxc_send(dest);
 }
 

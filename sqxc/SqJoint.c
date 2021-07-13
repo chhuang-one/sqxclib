@@ -19,6 +19,10 @@
 #include <SqxcValue.h>
 #include <SqJoint.h>
 
+#ifdef _MSC_VER
+#define strdup       _strdup
+#endif
+
 static void sq_type_joint_init(void *instance, const SqType *type);
 static void sq_type_joint_final(void *instance, const SqType *type);
 static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src);
@@ -59,7 +63,7 @@ static void sq_type_joint_init(void *instance, const SqType *type)
 	// initialize structure of joined tables
 	for (int index = 0;  index < type->n_entry;  index++) {
 		table = type->entry[index];
-		sq_type_init_instance(table->type, instance + table->offset, true);
+		sq_type_init_instance(table->type, (char*)instance + table->offset, true);
 	}
 }
 
@@ -70,7 +74,7 @@ static void sq_type_joint_final(void *instance, const SqType *type)
 	// finalize structure of joined tables
 	for (int index = 0;  index < type->n_entry;  index++) {
 		table = type->entry[index];
-		sq_type_final_instance(table->type, instance + table->offset, true);
+		sq_type_final_instance(table->type, (char*)instance + table->offset, true);
 	}
 }
 
@@ -115,7 +119,7 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 	temp.dot = strchr(src->name, '.');
 	if (temp.dot == NULL || temp.dot == src->name)
 		return (src->code = SQCODE_ENTRY_NOT_FOUND);
-	temp.len = temp.dot - src->name;
+	temp.len = (int)(temp.dot - src->name);
 	// use SqxcValue.buf to find entry
 	buf = sqxc_get_buffer(xc_value);
 	buf->writed = 0;

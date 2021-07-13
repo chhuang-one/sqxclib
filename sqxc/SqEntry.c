@@ -18,6 +18,11 @@
 
 #define SQ_TYPE_N_ENTRY_DEFAULT    SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 
+#ifdef _MSC_VER
+#define strcasecmp   stricmp
+#define strncasecmp  strnicmp
+#endif
+
 // ----------------------------------------------------------------------------
 // SqEntry
 

@@ -24,6 +24,7 @@
 #ifdef _MSC_VER
 #define strcasecmp   stricmp
 #define strncasecmp  strnicmp
+#define strdup       _strdup
 #endif
 
 SqType *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
@@ -127,8 +128,8 @@ void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
 			SqEntry *entry = *element_addr;
 			type = entry->type;
 			if (SQ_TYPE_NOT_BUILTIN(type)) {
-				sq_type_init_instance(type, 
-						instance + entry->offset,
+				sq_type_init_instance(type,
+						(char*)instance + entry->offset,
 						entry->bit_field & SQB_POINTER);
 			}
 		}
@@ -159,7 +160,7 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 			type = entry->type;
 			if (SQ_TYPE_NOT_ARITHMETIC(type)) {
 				sq_type_final_instance(type,
-						instance + entry->offset,
+						(char*)instance + entry->offset,
 						entry->bit_field & SQB_POINTER);
 			}
 		}
@@ -229,10 +230,10 @@ void  sq_type_sort_entry(SqType *type)
 	}
 }
 
-int   sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed)
+unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed)
 {
-	SqPtrArray *array;
-	int   size;
+	SqPtrArray   *array;
+	unsigned int  size;
 
 	if (type->bit_field & SQB_TYPE_DYNAMIC) {
 		if (inner_entry) {

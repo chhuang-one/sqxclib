@@ -12,11 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
-#define snprintf	_snprintf
 #endif
-
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
@@ -24,6 +22,10 @@
 
 #include <SqxcValue.h>  // TODO: SqdbHelper functions
 #include <SqxcSql.h>
+
+#ifdef _MSC_VER
+#define snprintf	_snprintf
+#endif
 
 static void sqdb_empty_init(SqdbEmpty *sqdb, SqdbConfigEmpty *config);
 static void sqdb_empty_final(SqdbEmpty *sqdb);

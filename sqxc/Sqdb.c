@@ -12,16 +12,18 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#if defined(_MSC_VER)
+#ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
-#define snprintf	_snprintf
 #endif
-
 #include <stdio.h>      // snprintf
 
 #include <SqConfig.h>
 #include <SqError.h>
 #include <Sqdb.h>
+
+#ifdef _MSC_VER
+#define snprintf	_snprintf
+#endif
 
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
 

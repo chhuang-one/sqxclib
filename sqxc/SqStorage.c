@@ -12,17 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#if defined(_MSC_VER)
-#ifdef _WIN64
-#define __WORDSIZE 64
-#else
-#define __WORDSIZE 32
-#endif
-
+#ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
-#define snprintf    _snprintf
-#endif  // _MSC_VER
-
+#endif
 #include <limits.h>     // __WORDSIZE
 #include <stdio.h>      // snprintf
 
@@ -33,6 +25,15 @@
 #ifdef SQ_CONFIG_HAVE_JSONC
 #include <SqxcJsonc.h>
 #endif
+
+#ifdef _MSC_VER
+#ifdef _WIN64
+#define __WORDSIZE 64
+#else
+#define __WORDSIZE 32
+#endif  // _WIN64
+#define snprintf    _snprintf
+#endif  // _MSC_VER
 
 #define STORAGE_SCHEMA_INITIAL_VERSION       0
 

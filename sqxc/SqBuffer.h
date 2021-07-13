@@ -15,6 +15,9 @@
 #ifndef SQ_BUFFER_H
 #define SQ_BUFFER_H
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <stdlib.h>    // calloc(), realloc()
 #include <string.h>    // memcpy(), strcpy(), strlen()
 
@@ -69,7 +72,7 @@ extern "C" {
 
 // void sq_buffer_write(SqBuffer *buffer, const char *string);
 #define SQ_BUFFER_WRITE(buffer, string)  \
-		strcpy(sq_buffer_alloc(buffer, strlen(string)), string)
+		strcpy(sq_buffer_alloc(buffer, (int)strlen(string)), string)
 
 // void sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);
 #define SQ_BUFFER_WRITE_N(buffer, string, length)   \
@@ -77,7 +80,7 @@ extern "C" {
 
 // void sq_buffer_insert(SqBuffer *buffer, int position, const char *string);
 #define SQ_BUFFER_INSERT(buffer, position, string)  \
-		{	int  length = strlen(string);           \
+		{	int  length = (int)strlen(string);           \
 			memcpy(sq_buffer_alloc_at(buffer, position, length),  \
 			       string, length);                 \
 		}

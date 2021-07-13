@@ -12,6 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <stdint.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -19,6 +22,10 @@
 #include <stdio.h>      // vsnprintf
 
 #include <SqQuery.h>
+
+#ifdef _MSC_VER
+#define strdup       _strdup
+#endif
 
 static SqQueryNode *sq_query_condition(SqQuery *query, const char *first, va_list arg_list);
 static void         sq_query_column(SqQuery *query, SqQueryNode *parent, const char *first, va_list arg_list);
@@ -117,7 +124,7 @@ struct SqQueryNested
 };
 
 
-static const char  *sqnword[];
+static const char  *sqnword[38];
 
 const uintptr_t SQ_QUERYLOGI_OR   = SQN_OR;
 const uintptr_t SQ_QUERYLOGI_AND  = SQN_AND;
@@ -608,7 +615,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, const char *first, va_lis
 		return node;
 	}
 	//
-	temp.length = strcspn(argv[0], "%");
+	temp.length = (int)strcspn(argv[0], "%");
 	if (*(argv[0] +temp.length) == '%') {
 		// printf format
 		va_list  arg_copy;
@@ -633,7 +640,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, const char *first, va_lis
 		node->value = strdup(argv[0]);
 		return node;
 	}
-	temp.length += strlen(argv[1]) +1;
+	temp.length += (int)strlen(argv[1]) +1;
 	if (strpbrk(argv[1], "!=<>") == NULL) {
 		argv[2] = argv[1];
 		argv[1] = "=";
@@ -642,7 +649,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, const char *first, va_lis
 	// ====== third argument ======
 	else {
 		argv[2] = va_arg(arg_list, const char*);
-		temp.length += strlen(argv[2]) +2 +1;  // + "''" + "\0"
+		temp.length += (int)strlen(argv[2]) +2 +1;  // + "''" + "\0"
 	}
 
 	node->type = SQN_VALUE;
@@ -686,9 +693,9 @@ static void node_to_buf(SqQueryNode *node, struct Sqbuf *buf)
 		}
 		cur = node->value;
 		if (*cur) {
-			temp = strlen(cur) + 1;    // + " "
+			temp = (int)strlen(cur) + 1;    // + " "
 			if (buf->cur +temp >= buf->end) {
-				temp = buf->cur - buf->beg;
+				temp = (int)(buf->cur - buf->beg);
 				buf->length *= 2;
 				buf->beg = realloc(buf->beg, buf->length);
 				buf->end = buf->beg + buf->length;
@@ -960,7 +967,7 @@ static SqQueryNode *sq_query_node_find(SqQueryNode *node, uintptr_t sqn_cmd, SqQ
 
 // ----------------------------------------------------------------------------
 
-static const char *sqnword[] = {
+static const char *sqnword[38] = {
 	"",                  // SQN_NONE
 
 	"CREATE TABLE",      // SQN_CREATE_TABLE

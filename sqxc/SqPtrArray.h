@@ -540,7 +540,11 @@ struct StringArray : SqPtrArrayTemplate<char*>
 	// for internal use only
 	void duplicateElement(int index, int length) {
 		for (int end = index+length;  index < end;  index++) {
+#ifdef _MSC_VER
+			data[index] = _strdup(data[index]);
+#else
 			data[index] = strdup(data[index]);
+#endif
 		}
 	}
 

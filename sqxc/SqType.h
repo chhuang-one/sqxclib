@@ -93,7 +93,7 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 		{                                                      \
 		if ((type)->bit_field & SQB_TYPE_DYNAMIC)              \
 			sq_ptr_array_erase(&(type)->entry,                 \
-					(SqEntry**)element_addr - (type)->entry, count); \
+					(int)((SqEntry**)element_addr - (type)->entry), count); \
 		}
 
 // void SQ_TYPE_STEAL_ENTRY_ADDR(SqType *type, void **element_addr, int count)
@@ -149,7 +149,7 @@ void     sq_type_sort_entry(SqType *type);
 // if 'inner_entry' == NULL, it use all entries in SqType to calculate size.
 // if user add 'inner_entry' to SqType, pass argument 'entry_removed' = false.
 // if user remove 'inner_entry' from SqType, pass argument 'entry_removed' = true.
-int      sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
+unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
 
 /* SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions */
 
@@ -192,7 +192,7 @@ Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
 struct SqType
 {
-	uintptr_t      size;        // instance size
+	unsigned int   size;        // instance size
 
 	SqTypeFunc     init;        // initialize instance
 	SqTypeFunc     final;       // finalize instance
@@ -272,7 +272,7 @@ struct SqType
 	// calculate size for dynamic SqType.
 	// if "inner_entry" == NULL, it use all entries to calculate size.
 	// otherwise it use "inner_entry" to calculate size.
-	int   decideSize(const SqEntry *inner_entry = NULL, bool entry_removed = false) {
+	unsigned int  decideSize(const SqEntry *inner_entry = NULL, bool entry_removed = false) {
 		return sq_type_decide_size((SqType*)this, inner_entry, entry_removed);
 	}
 
