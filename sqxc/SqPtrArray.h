@@ -528,10 +528,36 @@ inline Type  PtrArrayMethod<Type>::operator[](int index) {
 // C++11 standard-layout
 
 // All derived struct/class must be C++11 standard-layout.
+#if 1
+template<class Type>
+struct PtrArray : SqPtrArrayTemplate<Type>
+{
+	// ------ SqPtrArrayTemplate constructor/destructor ------
+	PtrArray(int allocated_length = 0, SqDestroyFunc func = NULL) {
+		sq_ptr_array_init(this, allocated_length, func);
+	}
+	~PtrArray(void) {
+		sq_ptr_array_final(this);
+	}
+	// copy constructor
+	PtrArray(SqPtrArray& src) {
+		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
+//		sq_ptr_array_destroy_func(this) = sq_ptr_array_destroy_func(&src);
+	}
+	// move constructor
+	PtrArray(SqPtrArray&& src) {
+		this->data = src.data;
+		this->length = src.length;
+		src.data = NULL;
+		src.length = 0;
+	}
+};
+#else
 template<class Type> struct PtrArray : SqPtrArrayTemplate<Type>
 {
 	using SqPtrArrayTemplate<Type>::SqPtrArrayTemplate;
 };
+#endif
 
 typedef struct SqPtrArrayTemplate<intptr_t>    IntptrArray;
 
