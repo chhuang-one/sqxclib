@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.14)
 
 project(sqxclib)
 
@@ -15,7 +15,9 @@ find_package(PkgConfig REQUIRED)
 
 # pkg-config module
 pkg_check_modules(JSONC json-c)
-pkg_check_modules(SQLITE3 sqlite3)
+
+# find SQLite3
+find_package(SQLite3)
 
 # find MySQL
 find_package(MySQL)
@@ -28,7 +30,7 @@ else()
 	set(have_jsonc     0)
 endif()
 
-if (SQLITE3_INCLUDE_DIRS)
+if (SQLite3_INCLUDE_DIRS)
 	set(have_sqlite    1)
 else()
 	set(have_sqlite    0)
