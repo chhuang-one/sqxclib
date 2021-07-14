@@ -61,6 +61,12 @@ static int  sqxc_empty_send(SqxcEmpty *xcempty, Sqxc *args_src)
 		       xcempty->nested_count,
 		       args_src->name,
 		       args_src->value.int64);
+#elif defined(__APPLE__)
+		printf("%s  %2d  INT64  %s = %lld\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.int64);
 #elif defined(__WORDSIZE) && (__WORDSIZE == 64)
 		printf("%s  %2d  INT64  %s = %ld\n",
 		       xcempty->tag ? xcempty->tag : "",

@@ -40,7 +40,9 @@ static void sq_type_std_string_init(void *instance, const SqType *type)
 
 static void sq_type_std_string_final(void *instance, const SqType *type)
 {
-    ((std::string*)instance)->std::string::~string();
+	std::string &stdstring = *((std::string*)instance);
+	// call basic_string destructor.
+    stdstring.~basic_string();
 }
 
 static int  sq_type_std_string_parse(void *instance, const SqType *type, Sqxc *src)
