@@ -24,7 +24,7 @@
 #include <SqxcSql.h>
 
 #ifdef _MSC_VER
-#define snprintf	_snprintf
+#define snprintf     _snprintf
 #endif
 
 static void sqdb_empty_init(SqdbEmpty *sqdb, SqdbConfigEmpty *config);

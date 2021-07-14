@@ -24,7 +24,8 @@
 #include <SqRelation-migration.h>
 
 #ifdef _MSC_VER
-#define snprintf	_snprintf
+#define snprintf     _snprintf
+#define strdup       _strdup
 #endif
 
 #define NEW_TABLE_PREFIX_NAME          "new__table__"

@@ -31,7 +31,9 @@
 #else
 #define __WORDSIZE 32
 #endif  // _WIN64
-#define snprintf	_snprintf
+#define strncasecmp  _strnicmp
+#define snprintf     _snprintf
+#define strdup       _strdup
 #endif  // _MSC_VER
 
 /*

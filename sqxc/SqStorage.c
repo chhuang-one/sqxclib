@@ -33,7 +33,7 @@
 #else
 #define __WORDSIZE 32
 #endif  // _WIN64
-#define snprintf    _snprintf
+#define snprintf     _snprintf
 #endif  // _MSC_VER
 
 #define STORAGE_SCHEMA_INITIAL_VERSION       0

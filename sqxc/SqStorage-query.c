@@ -22,7 +22,7 @@
 #include <SqQuery.h>
 
 #ifdef _MSC_VER
-#define snprintf	_snprintf
+#define snprintf     _snprintf
 #endif
 
 static void query_add_column_as_names(SqQuery *query, SqTable *table)

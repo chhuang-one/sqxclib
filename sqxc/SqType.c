@@ -22,8 +22,8 @@
 #define SQ_TYPE_N_ENTRY_DEFAULT    SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 
 #ifdef _MSC_VER
-#define strcasecmp   stricmp
-#define strncasecmp  strnicmp
+#define strcasecmp   _stricmp
+#define strncasecmp  _strnicmp
 #define strdup       _strdup
 #endif
 
@@ -244,11 +244,11 @@ unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool
 				size = sizeof(void*);
 			else
 				size = inner_entry->type->size;
-			size += inner_entry->offset;
+			size += (unsigned int)inner_entry->offset;
 			// removing or adding entry
 			if (entry_removed) {
 				if (type->size == size) {
-					type->size = inner_entry->offset;
+					type->size = (unsigned int)inner_entry->offset;
 					return type->size;
 				}
 			}
@@ -272,7 +272,7 @@ unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool
 				size = sizeof(void*);
 			else
 				size = inner->type->size;
-			size += inner->offset;
+			size += (unsigned int)inner->offset;
 			if (type->size < size)
 				type->size = size;
 		}

@@ -24,7 +24,7 @@
 #include <Sqdb-migration.h>
 
 #ifdef _MSC_VER
-#define snprintf	_snprintf
+#define snprintf     _snprintf
 #endif
 
 #define MYSQL_DEFAULT_HOST      "localhost"

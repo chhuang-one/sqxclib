@@ -24,7 +24,8 @@
 #include <SqSchema.h>
 
 #ifdef _MSC_VER
-#define snprintf	_snprintf
+#define snprintf     _snprintf
+#define strdup       _strdup
 #endif
 
 #define SCHEMA_INITIAL_VERSION       0
@@ -85,7 +86,7 @@ SqTable* sq_schema_create_full(SqSchema* schema,
                                const char* table_name,
                                const char* type_name,
                                const SqType* type_info,
-                               size_t instance_size)
+                               size_t  instance_size)
 {
 	SqTable*  table;
 
@@ -95,7 +96,7 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 	// if type_info == NULL,
 	// table->type is dynamic type and table->bit_field has SQB_TYPE_DYNAMIC
 	if (type_info == NULL) {
-		((SqType*)table->type)->size = instance_size;
+		((SqType*)table->type)->size = (unsigned int)instance_size;
 		if (type_name)
 			((SqType*)table->type)->name = strdup(type_name);
 	}

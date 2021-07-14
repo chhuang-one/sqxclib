@@ -28,8 +28,9 @@
 #include <SqxcValue.h>
 
 #ifdef _MSC_VER
-#define strtoll		_strtoi64
-#define snprintf	_snprintf
+#define snprintf     _snprintf
+#define strtoll      _strtoi64
+#define strdup       _strdup
 #endif
 
 // ------------------------------------
