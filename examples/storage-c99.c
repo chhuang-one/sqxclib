@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include <sqxclib.h>
+#include <SqdbEmpty.h>
 
 #define USE_SQLITE_IF_POSSIBLE    1
 
@@ -115,11 +116,11 @@ static const SqColumn userColumnsVer2[] = {
 	// ADD COLUMN "test_add"
 	{SQ_TYPE_UINT,   "test_add",  offsetof(User, test_add),  SQB_NULLABLE},
 
-/*
 	// ADD INDEX
 	{SQ_TYPE_INDEX,  "id_city_id_index",
 		.composite = (char *[]) {"id", "city_id", NULL} },
 
+/*
 	// ADD CONSTRAINT UNIQUE
 	{SQ_TYPE_CONSTRAINT,  "id_city_id_unique", 0,  SQB_UNIQUE,
 		.composite = (char *[]) {"id", "city_id", NULL} },
@@ -369,7 +370,9 @@ int  main(void)
 #elif defined(SQ_CONFIG_HAVE_MYSQL)
 	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
 #else
-	#error No supported database
+//	db = sqdb_new(SQDB_INFO_EMPTY, NULL);
+	fprintf(stderr, "No supported database");
+	return EXIT_SUCCESS;
 #endif
 
 	storage = sq_storage_new(db);

@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include <sqxclib.h>
+#include <SqdbEmpty.h>
 
 #define USE_SQLITE_IF_POSSIBLE    1
 
@@ -377,7 +378,9 @@ int  main(int argc, char *argv[])
 #elif defined(SQ_CONFIG_HAVE_MYSQL)
 	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
 #else
-	#error No supported database
+//	db = sqdb_new(SQDB_INFO_EMPTY, NULL);
+	fprintf(stderr, "No supported database");
+	return EXIT_SUCCESS;
 #endif
 
 	storage = new Sq::Storage(db);
