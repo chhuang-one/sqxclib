@@ -14,7 +14,7 @@ It provides ORM features and C++ wrapper.
 
 3. It can work in low-end hardware.
 
-4. Single header file **sqxclib.h**  (Note: It doesn't contain special macros)
+4. Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros)
 
 5. Supports SQLite, MySQL / MariaDB.
 
@@ -62,10 +62,10 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	// FOREIGN KEY
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
 	// CONSTRAINT FOREIGN KEY
-	table->addForeign("users_city_id_foreign", "city_id")
+	table->foreign("users_city_id_foreign", "city_id")
 	     ->reference("cities", "id")->onDelete("NO ACTION")->onUpdate("NO ACTION");
 	// CREATE INDEX
-	table->addIndex("users_id_index", "id", NULL);
+	table->index("users_id_index", "id", NULL);
 ```
 
 use C++ functions (Schema Builder) to change table/column in schema_v2 (dynamic)
@@ -117,6 +117,7 @@ static const SqColumn  userColumns[7] = {
 	{&SqTypeIntVector,  "intsCpp", offsetof(User, intsCpp)    },
 };
 
+	/* create schema version 1 */
 	schema_v1 = new Sq::Schema("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
@@ -156,6 +157,7 @@ static const SqColumn  userColumns[7] = {
 		.composite = (char *[]) {"id", NULL} },
 };
 
+	/* create schema version 1 */
 	schema_v1 = sq_schema_new("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
@@ -187,6 +189,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	{.old_name = "email",     .name = "email2"},
 };
 
+	/* create schema version 2 */
 	schema_v2 = sq_schema_new("Ver 2");
 	schema_v2->version = 2;    // specify version number or auto generate it
 
@@ -200,6 +203,7 @@ static const SqColumn  userColumnsChanged[5] = {
 use C functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 
 ```c
+	/* create schema version 1 */
 	schema_v1 = sq_schmea_new("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
@@ -234,6 +238,7 @@ use C functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 use C functions (Schema Builder) to change table/column in schema_v2 (dynamic)
 
 ```c
+	/* create schema version 2 */
 	schema_v2 = sq_schema_new("Ver 2");
 	schema_v2->version = 2;    // specify version number or auto generate it
 
@@ -545,7 +550,7 @@ use C++ function
 ```
 
 ## JSON support
-
+- This library use [json-c](https://github.com/json-c/json-c) to parse/write JSON.
 - all defined table/column can use to parse JSON object/field
 - program can also parse JSON object/array that store in column.
 

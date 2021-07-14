@@ -247,7 +247,7 @@ use C++ functions to add dynamic SqEntry.
 
 ```c++
 /* sq_type_decide_size() declarations: */
-// int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
+// unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
 
 	/* C function */
 	sq_type_decide_size(type, NULL, false);
