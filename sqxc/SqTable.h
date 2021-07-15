@@ -254,6 +254,10 @@ inline size_t offsetOf(Type Store::*member) {
 	static Store obj;
 	return size_t(&(obj.*member)) - size_t(&obj);
 }
+#elif defined(__APPLE__)
+template<typename T, typename U> size_t offsetOf(U T::*member) {
+    return (char*)&((T*)nullptr->*member) - (char*)nullptr;
+}
 #else
 template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
     return (char*)&((T*)nullptr->*member) - (char*)nullptr;

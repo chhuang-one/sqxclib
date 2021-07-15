@@ -387,7 +387,7 @@ static char  *get_primary_key_string(void *instance, SqTable *table, const char 
 		condition = malloc(len);
 		snprintf(condition, len, "%c%s%c=%I64d",
 				quote[0], column->name, quote[1], *(int64_t*)instance);
-#elif defined(__WORDSIZE) && (__WORDSIZE == 64)
+#elif defined(__WORDSIZE) && (__WORDSIZE == 64) && !defined(__APPLE__)
 		len = snprintf(NULL, 0, "%c%s%c=%ld",
 				quote[0], column->name, quote[1], *(int64_t*)instance) +1;
 		condition = malloc(len);
@@ -409,7 +409,7 @@ static char  *get_primary_key_string(void *instance, SqTable *table, const char 
 		condition = malloc(len);
 		snprintf(condition, len, "%c%s%c=%I64u",
 				quote[0], column->name, quote[1], *(uint64_t*)instance);
-#elif defined(__WORDSIZE) && (__WORDSIZE == 64)
+#elif defined(__WORDSIZE) && (__WORDSIZE == 64) && !defined(__APPLE__)
 		len = snprintf(NULL, 0, "%c%s%c=%lu",
 				quote[0], column->name, quote[1], *(uint64_t*)instance) +1;
 		condition = malloc(len);

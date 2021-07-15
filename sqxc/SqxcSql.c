@@ -424,7 +424,7 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "%I64d", src->value.int64);
 		sprintf(sq_buffer_alloc(buffer, len), "%I64d", src->value.int64);
-#elif defined(__WORDSIZE) && (__WORDSIZE == 64)
+#elif defined(__WORDSIZE) && (__WORDSIZE == 64) && !defined(__APPLE__)
 		len = snprintf(NULL, 0, "%ld", src->value.int64);
 		sprintf(sq_buffer_alloc(buffer, len), "%ld", src->value.int64);
 #else
@@ -437,7 +437,7 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "%I64u", src->value.uint64);
 		sprintf(sq_buffer_alloc(buffer, len), "%I64u", src->value.uint64);
-#elif defined(__WORDSIZE) && (__WORDSIZE == 64)
+#elif defined(__WORDSIZE) && (__WORDSIZE == 64) && !defined(__APPLE__)
 		len = snprintf(NULL, 0, "%lu", src->value.uint64);
 		sprintf(sq_buffer_alloc(buffer, len), "%lu", src->value.uint64);
 #else

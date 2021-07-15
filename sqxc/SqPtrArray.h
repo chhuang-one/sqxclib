@@ -528,7 +528,7 @@ inline Type  PtrArrayMethod<Type>::operator[](int index) {
 // C++11 standard-layout
 
 // All derived struct/class must be C++11 standard-layout.
-#if 1
+#if 1     // defined(__APPLE__)
 template<class Type>
 struct PtrArray : SqPtrArrayTemplate<Type>
 {

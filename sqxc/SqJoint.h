@@ -74,7 +74,7 @@ void     sq_type_joint_add(SqType *type_joint, SqTable *table, const char *table
 namespace Sq
 {
 // These are for directly use only. You can NOT derived it.
-template <size_t n_tables>
+template <unsigned int n_tables>
 struct Joint {
 	void *t[n_tables];
 };

@@ -26,8 +26,8 @@
 #define USE_CXX_AGGREGATE_INITIALIZATION    0
 
 // SqType for C++ std::vector<int>
-Sq::TypeStl<std::vector<int>>  SqTypeIntVector(SQ_TYPE_INT);
-#define SQ_TYPE_INT_VECTOR    &SqTypeIntVector
+Sq::TypeStl< std::vector<int> >  SqTypeIntVector(SQ_TYPE_INT);
+#define SQ_TYPE_INT_VECTOR      &SqTypeIntVector
 
 typedef struct User       User;
 typedef struct Company    Company;
@@ -275,8 +275,8 @@ void  storage_stl_container_get_all(Sq::Storage *storage)
 //	std::vector<Company> *container;
 //	std::vector<Company>::iterator cur, end;
 
-	container = storage->getAll<std::list<Company>>();
-//	container = storage->getAll<std::vector<Company>>();
+	container = storage->getAll< std::list<Company> >();
+//	container = storage->getAll< std::vector<Company> >();
 	if (container) {
 		for (cur = container->begin(), end = container->end();  cur != end;  cur++)
 			(*cur).print();
@@ -316,8 +316,8 @@ void  storage_ptr_array_query(Sq::Storage *storage)
 
 void  storage_stl_container_query(Sq::Storage *storage)
 {
-	std::vector<Sq::Joint<2>> *j2vector;
-	std::vector<Sq::Joint<2>>::iterator cur, end;
+	std::vector< Sq::Joint<2> > *j2vector;
+	std::vector< Sq::Joint<2> >::iterator cur, end;
 	SqQuery     *query;
 	Sq::Joint<2> element;
 	Company     *company;
@@ -327,7 +327,7 @@ void  storage_stl_container_query(Sq::Storage *storage)
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
 	query->from("companies")->join("users",  "companies.id", "users.company_id");
 
-	j2vector = storage->query<std::vector<Sq::Joint<2>>>(query);
+	j2vector = storage->query< std::vector< Sq::Joint<2> > >(query);
 	if (j2vector) {
 		for (cur = j2vector->begin(), end = j2vector->end();  cur != end;  cur++) {
 			element = (*cur);
@@ -358,7 +358,7 @@ void check_standard_layout()
 	std::cout << "Sq::StringArray is standard layout = "
 	          << std::is_standard_layout<Sq::StringArray>::value << std::endl;
 	std::cout << "Sq::TypeStl<std::vector<int>> is standard layout = "
-	          << std::is_standard_layout< Sq::TypeStl<std::vector<int>> >::value << std::endl;
+	          << std::is_standard_layout< Sq::TypeStl< std::vector<int> > >::value << std::endl;
 	std::cout << "Company is standard layout = "
 	          << std::is_standard_layout<Company>::value << std::endl;
 }
