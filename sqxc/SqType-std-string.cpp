@@ -20,7 +20,7 @@
 #include <SqType.h>
 
 /* ----------------------------------------------------------------------------
-    SqType for std::string
+	SqType for std::string
 
 	We can call C++ constructor/destructor in init()/final()
 
@@ -35,23 +35,27 @@
 
 static void sq_type_std_string_init(void *instance, const SqType *type)
 {
-    new (&(*(std::string*)instance)) std::string();
+	new (&(*(std::string*)instance)) std::string();
 }
 
 static void sq_type_std_string_final(void *instance, const SqType *type)
 {
+#if 0
+	((std::string*)instance)->std::string::~string();
+#else
 	std::string &stdstring = *((std::string*)instance);
 	// call basic_string destructor.
-    stdstring.~basic_string();
+	stdstring.~basic_string();
+#endif
 }
 
 static int  sq_type_std_string_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	if (src->type == SQXC_TYPE_STRING) {
 		if (src->value.string)
-            ((std::string*)instance)->assign(src->value.string);
+			((std::string*)instance)->assign(src->value.string);
 		else
-            ((std::string*)instance)->resize(0);
+			((std::string*)instance)->resize(0);
 	}
 	else {
 		// TODO: convert to string
