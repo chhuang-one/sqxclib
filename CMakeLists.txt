@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.14)
 
 project(sqxclib)
 
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 11)
+
 set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
     "${CMAKE_SOURCE_DIR}/cmake/"
@@ -10,18 +13,22 @@ set(CMAKE_MODULE_PATH
 set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DDEBUG")
 # set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H")
 
-# use find_package(PkgConfig REQUIRED) before use pkg-config module
-find_package(PkgConfig REQUIRED)
-
-# pkg-config module
-pkg_check_modules(JSONC json-c)
-
 # find SQLite3
 find_package(SQLite3)
 
 # find MySQL
 find_package(MySQL)
 
+# use find_package(PkgConfig REQUIRED) before use pkg-config module
+find_package(PkgConfig REQUIRED)
+
+# pkg-config module
+if (PKG_CONFIG_FOUND)
+	pkg_check_modules(JSONC json-c)
+	if (NOT SQLite3_FOUND)
+		pkg_check_modules(SQLite3 sqlite3)
+	endif()
+endif()
 
 # --- config.h ---
 if (JSONC_INCLUDE_DIRS)
@@ -30,7 +37,7 @@ else()
 	set(have_jsonc     0)
 endif()
 
-if (SQLite3_INCLUDE_DIRS)
+if (SQLite3_FOUND)
 	set(have_sqlite    1)
 else()
 	set(have_sqlite    0)
