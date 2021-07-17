@@ -61,13 +61,6 @@ set(HEADERS_TEST
     SqxcEmpty.h
 )
 
-
-set(LOCAL_INCLUDE_DIRS
-	${SQXC_INCLUDE_DIRS}
-)
-set(LOCAL_LIBRARIES
-)
-
 # --- json-c ---
 if (JSONC_INCLUDE_DIRS)
 	set(SOURCES
@@ -77,15 +70,6 @@ if (JSONC_INCLUDE_DIRS)
 	set(HEADERS
 	    ${HEADERS}
 	    SqxcJsonc.h
-	)
-
-	set(LOCAL_INCLUDE_DIRS
-		${LOCAL_INCLUDE_DIRS}
-		${JSONC_INCLUDE_DIRS}
-	)
-	set(LOCAL_LIBRARIES
-		${LOCAL_LIBRARIES}
-		${JSONC_LIBRARIES}
 	)
 endif()
 
@@ -101,16 +85,7 @@ if (SQLite3_INCLUDE_DIRS)
 	    ${HEADERS}
 	    SqdbSqlite.h
 	    SqRelation-migration.h
-#       SqRelation.h
-	)
-
-	set(LOCAL_INCLUDE_DIRS
-	    ${LOCAL_INCLUDE_DIRS}
-	    ${SQLite3_INCLUDE_DIRS}
-	)
-	set(LOCAL_LIBRARIES
-	    ${LOCAL_LIBRARIES}
-	    ${SQLite3_LIBRARIES}
+#	    SqRelation.h
 	)
 endif()
 
@@ -126,20 +101,11 @@ if (MYSQL_FOUND)
 	    SqdbMysql.h
 	    Sqdb-migration.h
 	)
-
-	set(LOCAL_INCLUDE_DIRS
-	    ${LOCAL_INCLUDE_DIRS}
-	    ${MYSQL_INCLUDE_DIRS}
-	)
-	set(LOCAL_LIBRARIES
-	    ${LOCAL_LIBRARIES}
-	    ${MYSQL_LIBRARIES}
-	)
 endif()
 
-
-include_directories(${LOCAL_INCLUDE_DIRS})
-link_libraries(${LOCAL_LIBRARIES})
+# --- sqxc ---
+include_directories(${SQXC_INCLUDE_DIRS})
+link_libraries(${SQXC_LIBRARIES})
 
 add_library(sqxc
             STATIC

@@ -30,38 +30,70 @@ if (PKG_CONFIG_FOUND)
 	endif()
 endif()
 
-# --- config.h ---
-if (JSONC_INCLUDE_DIRS)
+# --- json-c ---
+if (JSONC_FOUND)
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${JSONC_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${JSONC_LIBRARIES}
+	)
+	# --- config.h ---
 	set(have_jsonc     1)
 else()
 	set(have_jsonc     0)
 endif()
 
+# --- SQLite ---
 if (SQLite3_FOUND)
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${SQLite3_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${SQLite3_LIBRARIES}
+	)
+	# --- config.h ---
 	set(have_sqlite    1)
 else()
 	set(have_sqlite    0)
 endif()
 
+# --- MySQL ---
 if (MYSQL_FOUND)
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${MYSQL_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${MYSQL_LIBRARIES}
+	)
+	message(STATUS "MySQL include dirs: ${MYSQL_INCLUDE_DIRS}")
+	# --- config.h ---
 	set(have_mysql     1)
 else()
 	set(have_mysql     0)
 endif()
 
+# --- config.h ---
 configure_file("${CMAKE_SOURCE_DIR}/sqxc/config.h.in"
                "${CMAKE_SOURCE_DIR}/sqxc/config.h")
 
-
 # --- sqxc ---
 set(SQXC_INCLUDE_DIRS
+    ${SQXC_INCLUDE_DIRS}
     "${CMAKE_CURRENT_SOURCE_DIR}/sqxc"
 )
+add_subdirectory(sqxc)
 set(SQXC_LIBRARIES
+    ${SQXC_LIBRARIES}
     sqxc
     sqxcpp
-    sqxctest
 )
 
-add_subdirectory(sqxc)
+# --- others ---
 add_subdirectory(examples)
