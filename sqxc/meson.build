@@ -73,21 +73,21 @@ headers_test = [
                ]
 
 if jsonc.found() == true
-  sources += ['SqxcJsonc.c']
-  headers += ['SqxcJsonc.h']
-  sqxc_dep = [jsonc]
+	sources += ['SqxcJsonc.c']
+	headers += ['SqxcJsonc.h']
+	sqxc_dep = [jsonc]
 endif
 
 if mysql_config.found()
-  sources += ['SqdbMysql.c', 'Sqdb-migration.c']
-  headers += ['SqdbMysql.h', 'Sqdb-migration.h']
-  sqxc_dep += mysql
+	sources += ['SqdbMysql.c', 'Sqdb-migration.c']
+	headers += ['SqdbMysql.h', 'Sqdb-migration.h']
+	sqxc_dep += mysql
 endif
 
 if sqlite.found() == true
-  sources += ['SqdbSqlite.c', 'SqRelation-migration.c', 'SqRelation.c']
-  headers += ['SqdbSqlite.h', 'SqRelation-migration.h']
-  sqxc_dep += sqlite
+	sources += ['SqdbSqlite.c', 'SqRelation-migration.c', 'SqRelation.c']
+	headers += ['SqdbSqlite.h', 'SqRelation-migration.h']
+	sqxc_dep += sqlite
 endif
 
 install_headers(headers, subdir: 'sqxc')
@@ -120,5 +120,5 @@ sqxctest_lib = static_library('sqxctest',
                               install: false)
 
 sqxc = declare_dependency(include_directories : sqxc_inc,
-                          link_with : [sqxc_lib, sqxcpp_lib, sqxctest_lib],
+                          link_with : [sqxc_lib, sqxcpp_lib],
                           dependencies : sqxc_dep)

@@ -10,30 +10,30 @@ config_data = configuration_data()
 # json-c
 jsonc = dependency('json-c', required: false)
 if jsonc.found() == true
-  config_data.set('have_jsonc',  '1')
+	config_data.set('have_jsonc',  '1')
 else
-  config_data.set('have_jsonc',  '0')
+	config_data.set('have_jsonc',  '0')
 endif
 
 # SQLite
 sqlite = dependency('sqlite3', required: false)
 if sqlite.found() == true
-  config_data.set('have_sqlite', '1')
+	config_data.set('have_sqlite', '1')
 else
-  config_data.set('have_sqlite', '0')
+	config_data.set('have_sqlite', '0')
 endif
 
 # MySQL, MariaDB
 mysql_config = find_program('mariadb_config', required: false)
 if mysql_config.found() == false
-  mysql_config = find_program('mysql_config', required: false)
+	mysql_config = find_program('mysql_config', required: false)
 endif
 if mysql_config.found()
-  mysql = declare_dependency(compile_args: run_command([mysql_config, '--cflags']).stdout().split(),
-                             link_args: run_command([mysql_config, '--libs']).stdout().split() )
-  config_data.set('have_mysql',  '1')
+	mysql = declare_dependency(compile_args: run_command([mysql_config, '--cflags']).stdout().split(),
+	                           link_args: run_command([mysql_config, '--libs']).stdout().split() )
+	config_data.set('have_mysql',  '1')
 else
-  config_data.set('have_mysql',  '0')
+	config_data.set('have_mysql',  '0')
 endif
 
 subdir('sqxc')

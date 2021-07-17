@@ -5,7 +5,8 @@ executable('test-container-cxx',
 
 executable('test-cxx',
            'test-cxx.cpp',
-           dependencies : sqxc)
+           dependencies : sqxc,
+           link_with: sqxctest_lib)
 
 executable('test-migration',
            'test-migration.c',
@@ -17,7 +18,8 @@ executable('test-query',
 
 executable('test-sqxc',
            'test-sqxc.c',
-           dependencies : sqxc)
+           dependencies : sqxc,
+           link_with: sqxctest_lib)
 
 executable('test-storage',
            'test-storage.c',
