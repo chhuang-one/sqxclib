@@ -6,6 +6,7 @@
 # MYSQL_VERSION_STRING	- Version in a string of MySQL.
 #
 # Created by RenatoUtsch based on eAthena implementation.
+# Updated by Andre Bar'yudin
 #
 # Please note that this module only supports Windows and Linux officially, but
 # should work on all UNIX-like operational systems too.
@@ -25,17 +26,31 @@
 #  License text for the above reference.)
 
 if( WIN32 )
+	set(MYENVx86 "PROGRAMFILES(X86)")
+
+	set(MYSQL_SOURCE_DIRS 
+		"$ENV{PROGRAMFILES}/MySQL" 
+		"$ENV{${MYENVx86}}/MySQL" 
+		"$ENV{SYSTEMDRIVE}/MySQL"
+		"$ENV{ProgramW6432}/MySQL"
+		)
+
+	foreach(stem ${MYSQL_SOURCE_DIRS})
+		file(GLOB MYTEMPVAR1 LINK_DIRECTORIES TRUE "${stem}/*/include")
+		list(APPEND MYSQL_DIRS_INC
+			${MYTEMPVAR1})
+		file(GLOB MYTEMPVAR2 LINK_DIRECTORIES TRUE "${stem}/*/lib")
+		list(APPEND MYSQL_DIRS_LIB
+			${MYTEMPVAR2})
+	endforeach(stem)
+		
 	find_path( MYSQL_INCLUDE_DIR
 		NAMES "mysql.h"
-		PATHS "$ENV{PROGRAMFILES}/MySQL/*/include"
-			  "$ENV{PROGRAMFILES\(x86\)}/MySQL/*/include"
-			  "$ENV{SYSTEMDRIVE}/MySQL/*/include" )
+		PATHS ${MYSQL_DIRS_INC})
 	
 	find_library( MYSQL_LIBRARY
 		NAMES "mysqlclient" "mysqlclient_r"
-		PATHS "$ENV{PROGRAMFILES}/MySQL/*/lib"
-			  "$ENV{PROGRAMFILES\(x86\)}/MySQL/*/lib"
-			  "$ENV{SYSTEMDRIVE}/MySQL/*/lib" )
+		PATHS  ${MYSQL_DIRS_LIB} )
 else()
 	find_path( MYSQL_INCLUDE_DIR
 		NAMES "mysql.h"
@@ -55,10 +70,8 @@ else()
 			  "/usr/mysql/lib64/mysql" )
 endif()
 
-
-
-if( MYSQL_INCLUDE_DIR AND EXISTS "${MYSQL_INCLUDE_DIRS}/mysql_version.h" )
-	file( STRINGS "${MYSQL_INCLUDE_DIRS}/mysql_version.h"
+if( EXISTS "${MYSQL_INCLUDE_DIR}/mysql_version.h" )
+	file( STRINGS "${MYSQL_INCLUDE_DIR}/mysql_version.h"
 		MYSQL_VERSION_H REGEX "^#define[ \t]+MYSQL_SERVER_VERSION[ \t]+\"[^\"]+\".*$" )
 	string( REGEX REPLACE
 		"^.*MYSQL_SERVER_VERSION[ \t]+\"([^\"]+)\".*$" "\\1" MYSQL_VERSION_STRING
@@ -68,12 +81,11 @@ endif()
 # handle the QUIETLY and REQUIRED arguments and set MYSQL_FOUND to TRUE if
 # all listed variables are TRUE
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( MYSQL DEFAULT_MSG
-	REQUIRED_VARS	MYSQL_LIBRARY MYSQL_INCLUDE_DIR
+find_package_handle_standard_args( MYSQL
+    REQUIRED_VARS	MYSQL_LIBRARY MYSQL_INCLUDE_DIR
 	VERSION_VAR		MYSQL_VERSION_STRING )
 
 set( MYSQL_INCLUDE_DIRS ${MYSQL_INCLUDE_DIR} )
 set( MYSQL_LIBRARIES ${MYSQL_LIBRARY} )
 
 mark_as_advanced( MYSQL_INCLUDE_DIR MYSQL_LIBRARY )
-

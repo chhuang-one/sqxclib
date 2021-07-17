@@ -17,7 +17,7 @@ set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DDEBUG")
 find_package(SQLite3)
 
 # find MySQL
-find_package(MySQL)
+find_package(MYSQL)
 
 # use find_package(PkgConfig REQUIRED) before use pkg-config module
 find_package(PkgConfig REQUIRED)
