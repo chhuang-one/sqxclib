@@ -69,7 +69,7 @@ int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrAr
 	for (int i = 0;  i < indexes.length;  i++) {
 		sqdb_sql_create_index(db, sql_buf, table, (SqColumn*)indexes.data[i]);
 		sql_buf->writed = 0;
-#ifdef DEBUG
+#ifndef NDEBUG
 		// Don't run this because sqdb_exec() will output this debug message.
 //		fprintf(stderr, "SQL: %s\n", sql_buf->buf);
 #endif
@@ -117,7 +117,7 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 		}
 
 		buffer->writed = 0;
-#ifdef DEBUG
+#ifndef NDEBUG
 		// Don't run this because sqdb_exec() will output this debug message.
 //		fprintf(stderr, "SQL: %s\n", buffer->buf);
 #endif

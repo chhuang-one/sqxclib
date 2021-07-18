@@ -40,7 +40,7 @@ static void sq_type_std_string_init(void *instance, const SqType *type)
 
 static void sq_type_std_string_final(void *instance, const SqType *type)
 {
-#if 0
+#if 1
 	((std::string*)instance)->std::string::~string();
 #else
 	std::string &stdstring = *((std::string*)instance);

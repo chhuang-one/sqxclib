@@ -66,7 +66,7 @@ const SqdbInfo *SQDB_INFO_SQLITE = &dbinfo;
 static void sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
 static void sqdb_sqlite_create_indexes(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
 static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
-#if DEBUG
+#ifndef NDEBUG
 static int  debug_callback(void *user_data, int argc, char **argv, char **columnName);
 #endif
 
@@ -152,7 +152,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	// trace renamed (or dropped) table/column that was referenced by others
 	sq_schema_trace_name(schema);
 
-#if DEBUG
+#ifndef NDEBUG
 	fprintf(stderr, "SQLite: BEGIN TRANSACTION ------\n");
 #endif
 	rc = sqlite3_exec(sqdb->self, "PRAGMA foreign_keys=off; BEGIN TRANSACTION", NULL, NULL, &errorMsg);
@@ -177,7 +177,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 				continue;
 
 			// exec SQL statement
-#if DEBUG
+#ifndef NDEBUG
 			fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 #endif
 			sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
@@ -209,13 +209,13 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 		// exec SQL statement
 		if (sql_buf.writed > 0) {
 			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
-#ifdef DEBUG
+#ifndef NDEBUG
 			fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 #endif
 			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
 			if (rc != SQLITE_OK) {
 				// error occurred
-#ifdef DEBUG
+#ifndef NDEBUG
 				fprintf(stderr, "SQLite: ROLLBACK TRANSACTION ------\n");
 #endif
 				sqlite3_exec(sqdb->self, "ROLLBACK", NULL, NULL, NULL);
@@ -223,7 +223,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 			}
 		}
 	}
-#ifdef DEBUG
+#ifndef NDEBUG
 	fprintf(stderr, "SQLite: END TRANSACTION ------\n");
 #endif
 	rc = sqlite3_exec(sqdb->self, "COMMIT; PRAGMA foreign_keys=on", NULL, NULL, &errorMsg);
@@ -242,7 +242,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	sq_buffer_alloc(&sql_buf, snprintf(NULL, 0, "PRAGMA user_version = %d", sqdb->version));
 	sprintf(sql_buf.buf, "PRAGMA user_version = %d", sqdb->version);
 //	sq_buffer_write_c(&sql_buf, 0);  // null-terminated
-#ifdef DEBUG
+#ifndef NDEBUG
 	fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 #endif
 	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
@@ -253,7 +253,7 @@ atExit:
 
 	if (rc != SQLITE_OK) {
 		// error occurred
-#ifdef DEBUG
+#ifndef NDEBUG
 		fprintf(stderr, "SQLite: %s\n", errorMsg);
 #endif
 		sqlite3_free(errorMsg);
@@ -305,7 +305,7 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 		xc->value.string = argv[index];
 		xc = sqxc_send(xc);
 
-#ifdef DEBUG
+#ifndef NDEBUG
 		switch (xc->code) {
 		case SQCODE_OK:
 			break;
@@ -320,18 +320,18 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 //			return 1;
 			break;
 		}
-#endif  // DEBUG
+#endif  // NDEBUG
 	}
 
 	xc->type = SQXC_TYPE_OBJECT_END;
 	xc->name = NULL;
 	xc->value.pointer = NULL;
 	xc = sqxc_send(xc);
-#ifdef DEBUG
+#ifndef NDEBUG
 	// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
 	if (xc->code != SQCODE_OK)
 		return 1;
-#endif  // DEBUG
+#endif  // NDEBUG
 
 	// xc may be changed by sqxc_send()
 	*(Sqxc**)user_data = xc;
@@ -355,7 +355,7 @@ static int insert_callback(void *user_data, int argc, char **argv, char **column
 	return 0;
 }
 
-#ifdef DEBUG
+#ifndef NDEBUG
 static int  debug_callback(void *user_data, int argc, char **argv, char **columnName)
 {
 	int i;
@@ -365,19 +365,19 @@ static int  debug_callback(void *user_data, int argc, char **argv, char **column
 		fprintf(stderr, "%s = %s\n", columnName[i], argv[i] ? argv[i] : "NULL");
 	return 0;
 }
-#endif  // DEBUG
+#endif  // NDEBUG
 
 static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *reserve)
 {
 	int   rc;
 	char *errorMsg;
 
-#ifdef DEBUG
+#ifndef NDEBUG
 	fprintf(stderr, "SQL: %s\n", sql);
 #endif
 
 	if (xc == NULL) {
-#ifdef DEBUG
+#ifndef NDEBUG
 		rc = sqlite3_exec(sqdb->self, sql, debug_callback, NULL, &errorMsg);
 #else
 		rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
@@ -387,7 +387,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 		switch (sql[0]) {
 		case 'S':    // SELECT
 		case 's':    // select
-#ifdef DEBUG
+#ifndef NDEBUG
 			if (xc->info != SQXC_INFO_VALUE) {
 				fprintf(stderr, "sqdb_sqlite_exec(): SELECT command must use with SqxcValue.\n");
 				return SQCODE_EXEC_ERROR;
@@ -412,7 +412,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 
 		case 'I':    // INSERT
 		case 'i':    // insert
-#ifdef DEBUG
+#ifndef NDEBUG
 			if (xc->info != SQXC_INFO_SQL) {
 				fprintf(stderr, "sqdb_sqlite_exec(): INSERT command must use with SqxcSql.\n");
 				return SQCODE_EXEC_ERROR;
@@ -426,7 +426,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 
 	// check return value of sqlite3_exec()
 	if (rc != SQLITE_OK) {
-#if DEBUG
+#ifndef NDEBUG
 		fprintf(stderr, "SQLite: %s\n", errorMsg);
 		sqlite3_free(errorMsg);
 #endif

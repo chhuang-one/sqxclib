@@ -136,7 +136,7 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 	reentries = sq_type_get_ptr_array(schema_next->type);
 
 	if (db->version < schema_next->version) {
-#if DEBUG
+#ifndef NDEBUG
 		fprintf(stderr, "MySQL: start of migration ------\n");
 #endif
 		for (int index = 0;  index < reentries->length;  index++) {
@@ -161,7 +161,7 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 			else {
 				// CREATE TABLE
 				if (sqdb_sql_create_table((Sqdb*)db, &sql_buf, table, NULL, false) > 0) {
-#if DEBUG
+#ifndef NDEBUG
 					fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 #endif
 					rc = mysql_query(db->self, sql_buf.buf);
@@ -173,7 +173,7 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 			}
 
 			if (sql_buf.writed > 0) {
-#if DEBUG
+#ifndef NDEBUG
 				fprintf(stderr, "SQL: %s\n", sql_buf.buf);
 #endif
 				rc = mysql_query(db->self, sql_buf.buf);
@@ -181,7 +181,7 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 					goto atExit;
 			}
 		}
-#if DEBUG
+#ifndef NDEBUG
 		fprintf(stderr, "MySQL: end of migration ------\n");
 #endif
 		// update database version
@@ -209,7 +209,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 	char **names;
 	int    rc = 0;
 
-#ifdef DEBUG
+#ifndef NDEBUG
 		fprintf(stderr, "SQL: %s\n", sql);
 #endif
 
@@ -219,7 +219,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 		switch (sql[0]) {
 		case 'S':    // SELECT
 		case 's':    // select
-#ifdef DEBUG
+#ifndef NDEBUG
 			if (xc->info != SQXC_INFO_VALUE) {
 				fprintf(stderr, "sqdb_mysql_exec(): SELECT command must use with SqxcValue.\n");
 				return SQCODE_EXEC_ERROR;
@@ -254,7 +254,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 					xc->name = names[i];
 					xc->value.string = row[i];
 					xc = sqxc_send(xc);
-#ifdef DEBUG
+#ifndef NDEBUG
 					switch (xc->code) {
 					case SQCODE_OK:
 						break;
@@ -267,7 +267,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 						fprintf(stderr, "sqdb_mysql_exec(): error occurred during parsing column '%s'.\n", names[i]);
 						break;
 					}
-#endif  // DEBUG
+#endif  // NDEBUG
 				}
 
 				xc->type = SQXC_TYPE_OBJECT_END;
@@ -292,7 +292,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 
 		case 'I':    // INSERT
 		case 'i':    // insert
-#ifdef DEBUG
+#ifndef NDEBUG
 			if (xc->info != SQXC_INFO_SQL) {
 				fprintf(stderr, "sqdb_mysql_exec(): INSERT command must use with SqxcSql.\n");
 				return SQCODE_EXEC_ERROR;

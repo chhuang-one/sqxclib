@@ -64,7 +64,7 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 				else
 					sq_entry_update((SqEntry*)reentry, (SqEntry*)reentry_src, (SqDestroyFunc)sq_column_free);
 			}
-#ifdef DEBUG
+#ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
 					fprintf(stderr, "SqTable: Can't alter column %s. It is not found.\n", reentry_src->name);
@@ -89,7 +89,7 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 				if (destroy_func)
 					destroy_func(reentry);
 			}
-#if DEBUG
+#ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
 					fprintf(stderr, "SqTable: Can't drop column %s. It is not found.\n", reentry_src->old_name);
@@ -123,7 +123,7 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 					memmove(addr, addr +1, (char*)(--temp.addr) - (char*)addr);
 				*temp.addr = reentry;
 			}
-#if DEBUG
+#ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
 					fprintf(stderr, "SqTable: Can't rename column %s. It is not found.\n", reentry_src->old_name);
@@ -146,7 +146,7 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
 					sq_type_decide_size((SqType*)entry->type, (SqEntry*)reentry_src, false);
 			}
-#if DEBUG
+#ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
 					fprintf(stderr, "SqTable: column %s is exist.\n", reentry_src->name);

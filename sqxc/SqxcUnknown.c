@@ -66,14 +66,14 @@ static void  sqxc_unknown_init(SqxcUnknown *xcunknown)
 	xcunknown->nested_count = 1;
 	xcunknown->code = SQCODE_NOT_SUPPORT;    // SQCODE_OK;
 
-#ifdef DEBUG
+#ifndef NDEBUG
 	fprintf(stderr, "sqxc_unknown_init(): create SqxcUnknown. Start of unknown data.\n");
 #endif
 }
 
 static void  sqxc_unknown_final(SqxcUnknown *xcunknown)
 {
-#ifdef DEBUG
+#ifndef NDEBUG
 	fprintf(stderr, "sqxc_unknown_final(): destroy SqxcUnknown. End of unknown data.\n");
 #endif
 }
