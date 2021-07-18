@@ -15,7 +15,7 @@
 #ifndef SQDB_MYSQL_H
 #define SQDB_MYSQL_H
 
-#include <mysql/mysql.h>
+#include <mysql.h>
 
 #include <Sqdb.h>
 
