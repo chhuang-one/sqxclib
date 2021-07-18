@@ -13,12 +13,19 @@
  */
 
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <list>
 #include <vector>
 #include <string>
 #include <iostream>
 
 #include <sqxclib.h>
+
+#ifdef _MSC_VER
+#define strdup       _strdup
+#endif
 
 #define USE_SQLITE_IF_POSSIBLE    1
 
@@ -377,7 +384,7 @@ int  main(int argc, char *argv[])
 #elif defined(SQ_CONFIG_HAVE_MYSQL)
 	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
 #else
-	fprintf(stderr, "No supported database");
+	std::cerr << "No supported database" << std::endl;
 	return EXIT_SUCCESS;
 #endif
 

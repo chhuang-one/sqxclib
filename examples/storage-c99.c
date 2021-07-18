@@ -16,9 +16,16 @@
 	This example code use C99 designated initializer to define table/column.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <stdio.h>
 
 #include <sqxclib.h>
+
+#ifdef _MSC_VER
+#define strdup       _strdup
+#endif
 
 #define USE_SQLITE_IF_POSSIBLE    1
 
@@ -369,14 +376,14 @@ int  main(void)
 #elif defined(SQ_CONFIG_HAVE_MYSQL)
 	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
 #else
-	fprintf(stderr, "No supported database");
+	printf("No supported database");
 	return EXIT_SUCCESS;
 #endif
 
 	storage = sq_storage_new(db);
 
 	if (sq_storage_open(storage, "sample-c99") != SQCODE_OK) {
-		fprintf(stderr, "Can't open database - %s\n", "sample-c99");
+		printf("Can't open database - %s\n", "sample-c99");
 		return EXIT_FAILURE;
 	}
 
