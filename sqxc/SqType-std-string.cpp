@@ -40,12 +40,12 @@ static void sq_type_std_string_init(void *instance, const SqType *type)
 
 static void sq_type_std_string_final(void *instance, const SqType *type)
 {
-#if 1
-	((std::string*)instance)->std::string::~string();
-#else
+#ifdef __APPLE__
 	std::string &stdstring = *((std::string*)instance);
 	// call basic_string destructor.
 	stdstring.~basic_string();
+#else
+	((std::string*)instance)->std::string::~string();
 #endif
 }
 
