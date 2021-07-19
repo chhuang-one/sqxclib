@@ -10,7 +10,6 @@ set(CMAKE_MODULE_PATH
     "${CMAKE_SOURCE_DIR}/cmake/"
 )
 
-set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DDEBUG")
 # set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H")
 
 # find SQLite3
@@ -73,6 +72,7 @@ if (MYSQL_FOUND)
 	    ${MYSQL_LIBRARIES}
 	)
 	message(STATUS "MySQL include dirs: ${MYSQL_INCLUDE_DIRS}")
+	message(STATUS "MySQL libraries: ${MYSQL_LIBRARIES}")
 	# --- config.h ---
 	set(have_mysql     1)
 else()
