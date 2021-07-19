@@ -40,7 +40,7 @@ static void sq_type_std_string_init(void *instance, const SqType *type)
 
 static void sq_type_std_string_final(void *instance, const SqType *type)
 {
-#ifdef __APPLE__
+#if 1    // defined(__APPLE__)    // clang
 	std::string &stdstring = *((std::string*)instance);
 	// call basic_string destructor.
 	stdstring.~basic_string();
