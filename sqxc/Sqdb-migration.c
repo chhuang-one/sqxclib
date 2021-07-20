@@ -117,9 +117,9 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 				reentry->name = strdup(reentry_src->name);
 				// move renamed reentry. temp.addr = new address of 'reentry'
 				temp.addr = reentries->data + temp.index;
-				if (temp.addr < addr)
+				if (temp.addr < addr)          // insert after
 					memmove(temp.addr +1, temp.addr, (char*)addr - (char*)temp.addr);
-				else if (temp.addr != addr)
+				else if (temp.addr != addr)    // insert before
 					memmove(addr, addr +1, (char*)(--temp.addr) - (char*)addr);
 				*temp.addr = reentry;
 			}

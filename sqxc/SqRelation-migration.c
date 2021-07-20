@@ -246,13 +246,13 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 					table->bit_field |= SQB_TABLE_COL_DROPPED;
 				}
 			}
-#ifndef NDEBUG
 			else {
+#ifndef NDEBUG
 				fprintf(stderr, "SqTable %s: Can't drop column %s. It is not found.\n",
 				        table->name, column_src->old_name);
+#endif
 				sq_column_free(column_src);
 			}
-#endif
 		}
 		else if (column_src->old_name) {
 			// === RENAME COLUMN ===
@@ -296,21 +296,21 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				column->name = strdup(column_src->name);
 				// move
 				temp.addr = reentries->data + temp.index;
-				if (temp.addr < addr)
+				if (temp.addr < addr)          // insert after
 					memmove(temp.addr +1, temp.addr, (char*)addr - (char*)temp.addr);
-				else if (temp.addr != addr)
+				else if (temp.addr != addr)    // insert before
 					memmove(addr, addr +1, (char*)(--temp.addr) - (char*)addr);
 				*temp.addr = column;
 				// set bit_field: column renamed
 				table->bit_field |= SQB_TABLE_COL_RENAMED;
 			}
-#ifndef NDEBUG
 			else {
+#ifndef NDEBUG
 				fprintf(stderr, "SqTable %s: Can't rename column %s. It is not found.\n",
 				        table->name, column_src->old_name);
+#endif
 				sq_column_free(column_src);
 			}
-#endif
 		}
 		else {
 			// === ADD COLUMN / CONSTRAINT / KEY ===
@@ -353,9 +353,11 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				else
 					table->bit_field |= SQB_TABLE_COL_ADDED;
 			}
+#ifndef NDEBUG
 			else {
 				fprintf(stderr, "SqTable: column %s is exist.\n", column_src->name);
 			}
+#endif
 		}
 	}
 
@@ -554,9 +556,9 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 				table->name = strdup(table_src->name);
 				// move
 				temp.addr = reentries->data + temp.index;
-				if (temp.addr < addr)
+				if (temp.addr < addr)          // insert after
 					memmove(temp.addr +1, temp.addr, (char*)addr - (char*)temp.addr);
-				else if (temp.addr != addr)
+				else if (temp.addr != addr)    // insert before
 					memmove(addr, addr +1, (char*)(--temp.addr) - (char*)addr);
 				*temp.addr = table;
 			}
@@ -589,9 +591,11 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 //				if (table_src->type->bit_field & SQB_DYNAMIC)
 //					reentries_src->data[index] = NULL;
 			}
+#ifndef NDEBUG
 			else {
 				fprintf(stderr, "SqSchema: table %s is exist.\n", table_src->name);
 			}
+#endif
 		}
 
 		// TODO: NO_STEAL
