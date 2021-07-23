@@ -189,6 +189,9 @@ inline SqRelationNode *RelationMethod::find(const void *from_object, const void 
 inline SqRelationNode *RelationNodeMethod::find(const void *object, SqRelationNode **prev) {
     return sq_relation_node_find((SqRelationNode*)this, object, prev);
 }
+inline SqRelationNode *RelationNodeMethod::reverse() {
+    return sq_relation_node_reverse((SqRelationNode*)this);
+}
 
 /* --- define C++11 standard-layout structures --- */
 typedef struct SqRelation        Relation;
