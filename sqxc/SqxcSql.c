@@ -448,7 +448,9 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 
 	case SQXC_TYPE_TIME:
 		tempstr = sq_time_to_string(src->value.rawtime);
+		sq_buffer_write_c(buffer, '\'');
 		sq_buffer_write(buffer, tempstr);
+		sq_buffer_write_c(buffer, '\'');
 		free(tempstr);
 		break;
 
