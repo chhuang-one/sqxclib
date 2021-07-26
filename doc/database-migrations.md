@@ -218,14 +218,16 @@ For example, to make the column "nullable":
 
 Below methods/functions are correspond to Column Modifiers
 
-| C++ methods      | C functions         | C bit field name  |
-| ---------------- | ------------------- | ----------------- |
-| primary()        |                     | SQB_PRIMARY       |
-| unique()         |                     | SQB_UNIQUE        |
-| primary()        |                     | SQB_PRIMARY       |
-| autoIncrement()  |                     | SQB_AUTOINCREMENT |
-| nullable()       |                     | SQB_NULLABLE      |
-| default_(string) | sq_column_default() |                   |
+| C++ methods          | C functions         | C bit field name      |
+| -------------------- | ------------------- | --------------------- |
+| primary()            |                     | SQB_PRIMARY           |
+| unique()             |                     | SQB_UNIQUE            |
+| primary()            |                     | SQB_PRIMARY           |
+| autoIncrement()      |                     | SQB_AUTOINCREMENT     |
+| nullable()           |                     | SQB_NULLABLE          |
+| useCurrent()         |                     | SQB_CURRENT           |
+| useCurrentOnUpdate() |                     | SQB_CURRENT_ON_UPDATE |
+| default_(string)     | sq_column_default() |                       |
 
 * Because 'default' is C/C++ keywords, I must append '_' in tail of this method.
 

@@ -41,16 +41,18 @@ struct SqColumn
 
 Declaring bit_field in SqColumn
 
-| name              | description                                   | 
-| ----------------- | --------------------------------------------- |
-| SQB_PRIMARY       | SQL property: PRIMARY KEY                     |
-| SQB_FOREIGN       | SQL property: FOREIGN KEY                     |
-| SQB_UNIQUE        | SQL property: UNIQUE                          |
-| SQB_INCREMENT     | SQL property: AUTOINCREMENT                   |
-| SQB_AUTOINCREMENT | SQL property: the same as SQB_INCREMENT       |
-| SQB_NULLABLE      | SQL property: remove "NOT NULL"               |
-| SQB_RENAMED       | column/table has been renamed.                |
-| SQB_CHANGED       | alter/modify. column/table has been altered.  |
+| name                   | description                                   | 
+| ---------------------- | --------------------------------------------- |
+| SQB_PRIMARY            | SQL property: PRIMARY KEY                     |
+| SQB_FOREIGN            | SQL property: FOREIGN KEY                     |
+| SQB_UNIQUE             | SQL property: UNIQUE                          |
+| SQB_INCREMENT          | SQL property: AUTOINCREMENT                   |
+| SQB_AUTOINCREMENT      | SQL property: the same as SQB_INCREMENT       |
+| SQB_NULLABLE           | SQL property: remove "NOT NULL"               |
+| SQB_CURRENT            | SQL property: DEFAULT CURRENT_TIMESTAMP       |
+| SQB_CURRENT_ON_UPDATE  | SQL property: use CURRENT_TIMESTAMP when a record is updated. |
+| SQB_RENAMED            | column/table has been renamed.                |
+| SQB_CHANGED            | alter/modify. column/table has been altered.  |
 
 * All items that need attention are the same as the [SqEntry](SqEntry.md)
 
@@ -141,7 +143,7 @@ add one dynamic column to type
 	type = new Sq::Type;
 	type->initSelf(0, (SqDestroyFunc)sq_column_free);
 	/* use C++ method to add column */
-	type->addEntry((const SqEntry*)column);
+	type->addEntry((const SqEntry*)column, 1, sizeof(SqColumn));
 ```
 
 ## 2. Create table by schema builder (dynamic)
