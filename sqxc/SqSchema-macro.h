@@ -169,6 +169,10 @@ typedef struct Company
 #define SQT_TIMESTAMP_AS(structure, member)    \
 		(column_cur_ = sq_table_add_timestamp(table_cur_, #member, offsetof(structure, member)))
 
+#define SQT_TIMESTAMPS_AS(structure, created_at_member, updated_at_member)    \
+		sq_table_add_timestamps(table_cur_, "created_at", offsetof(structure, created_at_member),  \
+		                                    "updated_at", offsetof(structure, updated_at_member))
+
 #define SQT_STRING(column_name, structure, member, length)   \
 		(column_cur_ = sq_table_add_string(table_cur_, column_name, offsetof(structure, member), length))
 
@@ -241,6 +245,12 @@ typedef struct Company
 
 #define SQC_CHANGE()   \
 		column_cur_->bit_field   |= SQB_CHANGED
+
+#define SQC_USE_CURRENT()   \
+		column_cur_->bit_field   |= SQB_CURRENT
+
+#define SQC_USE_CURRENT_ON_UPDATE()   \
+		column_cur_->bit_field   |= SQB_CURRENT_ON_UPDATE
 
 #define SQC_DEFAULT(default_val)   \
 		sq_column_default(default_val)

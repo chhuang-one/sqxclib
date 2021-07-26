@@ -117,6 +117,10 @@ SqColumn *sq_table_add_double(SqTable *table, const char *column_name,
                               size_t offset);
 SqColumn *sq_table_add_timestamp(SqTable *table, const char *column_name,
                                  size_t offset);
+// if 'created_at_name' (or 'updated_at_name') is NULL, use default name "created_at" (or "updated_at").
+void      sq_table_add_timestamps(SqTable *table,
+                                  const char *created_at_name, size_t created_at_offset,
+                                  const char *updated_at_name, size_t updated_at_offset);
 SqColumn *sq_table_add_string(SqTable *table, const char *column_name,
                               size_t offset, int length);
 SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
@@ -140,6 +144,14 @@ SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
 
 #define sq_table_add_double_as(table, Structure, Member)    \
 		sq_table_add_double(table, #Member, offsetof(Structure, Member))
+
+#define sq_table_add_timestamp_as(table, Structure, Member)    \
+		sq_table_add_timestamp(table, #Member, offsetof(Structure, Member))
+
+#define sq_table_add_timestamps_as(table, Structure, Member_create_at, Member_update_at)    \
+		sq_table_add_timestamps(table,                                                      \
+		                        #Member_create_at, offsetof(Structure, Member_create_at),   \
+		                        #Member_update_at, offsetof(Structure, Member_update_at))
 
 #define sq_table_add_string_as(table, Structure, Member, length)    \
 		sq_table_add_string(table, #Member, offsetof(Structure, Member), length)
@@ -348,6 +360,15 @@ struct SqTable
 	SqColumn& timestamp(const char *column_name, size_t offset) {
 		return *sq_table_add_timestamp(this, column_name, offset);
 	}
+	void      timestamps(const char *created_at_name, size_t created_at_offset,
+	                     const char *updated_at_name, size_t updated_at_offset) {
+		sq_table_add_timestamps(this, created_at_name, created_at_offset,
+		                              updated_at_name, updated_at_offset);
+	}
+	void      timestamps(size_t created_at_offset, size_t updated_at_offset) {
+		sq_table_add_timestamps(this, NULL, created_at_offset,
+		                              NULL, updated_at_offset);
+	}
 	SqColumn& double_(const char *column_name, size_t offset) {
 		return *sq_table_add_double(this, column_name, offset);
 	}
@@ -393,6 +414,17 @@ struct SqTable
 	template<class Store, class Type>
 	SqColumn& timestamp(const char *column_name, Type Store::*member) {
 		return *sq_table_add_timestamp(this, column_name, Sq::offsetOf(member));
+	};
+	template<class Store, class Type>
+	void      timestamps(const char *created_at_name, Type Store::*created_at_member,
+	                     const char *updated_at_name, Type Store::*updated_at_member) {
+		sq_table_add_timestamps(this, created_at_name, Sq::offsetOf(created_at_member),
+		                              updated_at_name, Sq::offsetOf(updated_at_member));
+	};
+	template<class Store, class Type>
+	void      timestamps(Type Store::*created_at_member, Type Store::*updated_at_member) {
+		sq_table_add_timestamps(this, NULL, Sq::offsetOf(created_at_member),
+		                              NULL, Sq::offsetOf(updated_at_member));
 	};
 	template<class Store, class Type>
 	SqColumn& double_(const char *column_name, Type Store::*member) {
@@ -629,6 +661,12 @@ struct SqColumn
 	}
 	SqColumn& change() {
 		bit_field |= SQB_CHANGED;   return *this;
+	}
+	SqColumn& useCurrent() {
+		bit_field |= SQB_CURRENT;   return *this;
+	}
+	SqColumn& useCurrentOnUpdate() {
+		bit_field |= SQB_CURRENT_ON_UPDATE;   return *this;
 	}
 
 	SqColumn& default_(const char *default_val) {

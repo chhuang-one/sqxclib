@@ -345,7 +345,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 					if (column_src->default_value[0] == '(')
 						table->bit_field |= SQB_TABLE_COL_ADDED_EXPRESSION;
 					// DEFAULT CURRENT_TIME, CURRENT_DATE, or CURRENT_TIMESTAMP...etc
-					else if (strncasecmp("CURRENT_", column_src->default_value, 8) == 0)
+					else if (column->bit_field & SQB_CURRENT || strncasecmp("CURRENT_", column_src->default_value, 8) == 0)
 						table->bit_field |= SQB_TABLE_COL_ADDED_CURRENT_TIME;
 					else
 						table->bit_field |= SQB_TABLE_COL_ADDED;

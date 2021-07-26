@@ -271,6 +271,27 @@ SqColumn *sq_table_add_timestamp(SqTable *table, const char *name, size_t offset
 	return column;
 }
 
+void  sq_table_add_timestamps(SqTable *table,
+                              const char *created_at_name, size_t created_at_offset,
+                              const char *updated_at_name, size_t updated_at_offset)
+{
+	SqColumn *column;
+
+	if (created_at_name == NULL)
+		created_at_name = "created_at";
+	column = sq_column_new(created_at_name, SQ_TYPE_TIME);
+	column->offset = created_at_offset;
+	column->bit_field |= SQB_CURRENT;
+	sq_table_add_column(table, column, 1);
+
+	if (updated_at_name == NULL)
+		updated_at_name = "updated_at";
+	column = sq_column_new(updated_at_name, SQ_TYPE_TIME);
+	column->offset = updated_at_offset;
+	column->bit_field |= SQB_CURRENT | SQB_CURRENT_ON_UPDATE;
+	sq_table_add_column(table, column, 1);
+}
+
 SqColumn *sq_table_add_string(SqTable *table, const char *name, size_t offset, int length)
 {
 	SqColumn *column;

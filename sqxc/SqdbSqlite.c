@@ -64,7 +64,8 @@ const SqdbInfo *SQDB_INFO_SQLITE = &dbinfo;
 // SqdbInfo
 
 static void sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
-static void sqdb_sqlite_create_indexes(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
+static void sqdb_sqlite_create_dependent(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
+static void sqdb_sqlite_create_trigger(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
 #ifndef NDEBUG
 static int  debug_callback(void *user_data, int argc, char **argv, char **columnName);
@@ -195,14 +196,14 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 				sq_buffer_write_c(&sql_buf, ';');
 			else
 				sql_buf.writed = 0;
-			sqdb_sqlite_create_indexes(sqdb, &sql_buf, table);
+			sqdb_sqlite_create_dependent(sqdb, &sql_buf, table);
 		}
 		// === ALTER TABLE ===
 		else if (table->bit_field & SQB_TABLE_COL_CHANGED) {
 			if (sqdb_sqlite_alter_table(sqdb, &sql_buf, table) == false) {
 				// === RECREATE TABLE ===
 				sqdb_sqlite_recreate_table(sqdb, &sql_buf, table);
-				sqdb_sqlite_create_indexes(sqdb, &sql_buf, table);
+				sqdb_sqlite_create_dependent(sqdb, &sql_buf, table);
 			}
 		}
 
@@ -508,7 +509,7 @@ static void  sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTab
 	sq_buffer_write(sql_buf, "\"; ");
 }
 
-static void sqdb_sqlite_create_indexes(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table)
+static void sqdb_sqlite_create_dependent(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table)
 {
 	SqColumn  *column;
 	SqEntry  **cur, **end;
@@ -521,7 +522,67 @@ static void sqdb_sqlite_create_indexes(SqdbSqlite *db, SqBuffer *sql_buf, SqTabl
 			sqdb_sql_create_index((Sqdb*)db, sql_buf, table, column);
 			sq_buffer_write_c(sql_buf, ';');
 		}
+		// CREATE TRIGGER
+		else if (column->bit_field & SQB_CURRENT_ON_UPDATE)
+			sqdb_sqlite_create_trigger(db, sql_buf, table, column);
 	}
+}
+
+static void sqdb_sqlite_create_trigger(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
+{
+	sq_buffer_write(sql_buf, "CREATE TRIGGER");
+
+	// write "[column name]"
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = ' ';
+	sq_buffer_r_at(sql_buf, 0) = '[';
+	sq_buffer_write(sql_buf, column->name);    // trigger name
+	sq_buffer_write(sql_buf, "_cur_time");
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = ']';
+	sq_buffer_r_at(sql_buf, 0) = ' ';
+
+	sq_buffer_write(sql_buf, "AFTER UPDATE ");
+
+	sq_buffer_write(sql_buf, "ON");
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = ' ';
+	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
+	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(sql_buf, 0) = ' ';
+
+	// FOR EACH ROW
+	// WHEN NEW.updated_at <= OLD.updated_at
+	sq_buffer_write(sql_buf, "FOR EACH ROW " "WHEN NEW.");
+	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = '<';
+	sq_buffer_r_at(sql_buf, 0) = '=';
+	sq_buffer_write(sql_buf, "OLD.");
+	sq_buffer_write(sql_buf, column->name);
+
+	// BEGIN
+	//   UPDATE table_name SET updated_at=CURRENT_TIMESTAMP WHERE id=OLD.id;
+	// END;
+	sq_buffer_write(sql_buf, " BEGIN " "UPDATE");
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = ' ';
+	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
+	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_alloc(sql_buf, 2);
+	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
+	sq_buffer_r_at(sql_buf, 0) = ' ';
+	sq_buffer_write(sql_buf, "SET ");
+	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write(sql_buf, "=CURRENT_TIMESTAMP WHERE ");
+
+	column = sq_table_get_primary(table, NULL);
+	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write(sql_buf, "=OLD.");
+	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write(sql_buf, "; END;");
 }
 
 static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table)
@@ -574,6 +635,10 @@ static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *
 			else {
 				sqdb_sql_add_column((Sqdb*)db, sql_buf, table, column);
 				sq_buffer_write_c(sql_buf, ';');
+
+				// ON UPDATE CURRENT_TIMESTAMP
+				if (column->bit_field & SQB_CURRENT_ON_UPDATE)
+					sqdb_sqlite_create_trigger(db, sql_buf, table, column);
 			}
 		}
 	}

@@ -695,6 +695,16 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 		sq_buffer_write(buffer, " DEFAULT ");
 		sq_buffer_write(buffer, column->default_value);
 	}
+	else if (column->bit_field & SQB_CURRENT) {
+		sq_buffer_write(buffer, " DEFAULT ");
+		sq_buffer_write(buffer, "CURRENT_TIMESTAMP");
+	}
+
+	// MySQL only: ON UPDATE CURRENT_TIMESTAMP
+	if (db->info->product == SQDB_PRODUCT_MYSQL && column->bit_field & SQB_CURRENT_ON_UPDATE) {
+		sq_buffer_write(buffer, " ON UPDATE ");
+		sq_buffer_write(buffer, "CURRENT_TIMESTAMP");
+	}
 
 	// raw SQL
 	if (column->raw) {

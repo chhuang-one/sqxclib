@@ -27,7 +27,7 @@
 typedef struct SqReentry        SqReentry;
 
 
-// SqEntry::bit_field
+/* --- SqEntry::bit_field --- */
 #define SQB_DYNAMIC        (1 << 0)   // C: entry can be changed and freed
 #define SQB_POINTER        (1 << 1)   // C: entry's instance is pointer
 #define SQB_RESERVE_0      (1 << 2)   // reserve
@@ -36,7 +36,7 @@ typedef struct SqReentry        SqReentry;
 #define SQB_RESERVE_1      (1 << 5)   // reserve
 #define SQB_ENTRY_END      SQB_RESERVE_1
 
-// SqColumn::bit_field (Column Modifiers)
+/* --- SqColumn::bit_field (Column Modifiers) --- */
 #define SQB_PRIMARY        (1 << 6)   // SQL: PRIMARY KEY
 #define SQB_FOREIGN        (1 << 7)   // SQL: FOREIGN KEY
 #define SQB_UNIQUE         (1 << 8)   // SQL: UNIQUE
@@ -44,9 +44,10 @@ typedef struct SqReentry        SqReentry;
 #define SQB_AUTOINCREMENT  (1 << 9)   // SQL: AUTOINCREMENT == SQB_INCREMENT
 #define SQB_NULLABLE       (1 << 10)  // SQL: remove "NOT NULL"
 
-// #define SQB_CURRENT_TIMESTAMP
-
-#define SQB_COLUMN_ATTRIB  (SQB_PRIMARY | SQB_FOREIGN | SQB_UNIQUE)
+// SqColumn::type == SQ_TYPE_TIME (use CURRENT_TIMESTAMP)
+#define SQB_CURRENT              (1 << 11)    // SQL: DEFAULT CURRENT_TIMESTAMP
+#define SQB_CURRENT_ON_UPDATE    (1 << 12)    // SQL: CREATE TRIGGER AFTER UPDATE
+#define SQB_CURRENT_ALL          (SQB_CURRENT | SQB_CURRENT_ON_UPDATE)
 
 // SQL common bit_field (for internal use only. use it when SQLite recreate)
 #define SQB_RENAMED        (1 << 30)  // SQL: rename. column/table has been renamed.
