@@ -55,6 +55,7 @@ struct User {
 	Post          *post;    // object pointer (JSON object in SQL column)
 
 	time_t         created_at;
+	time_t         updated_at;
 
 	// add, drop, and rename
 	unsigned int   test_add;
@@ -106,8 +107,8 @@ static const SqColumn userColumnsVer1[] = {
 		.foreign = &(SqForeign) {"cities",  "id",  "NO ACTION",  "NO ACTION"},
 		.composite = (char *[]) {"city_id", NULL} },
 
-	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),
-		.default_value = "CURRENT_TIMESTAMP"},
+	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),  SQB_CURRENT},
+	{SQ_TYPE_TIME,   "updated_at",   offsetof(User, updated_at),  SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
 	// This column will be deleted in Ver3
 	{SQ_TYPE_UINT,   "test_drop",   offsetof(User, test_drop),   0},
@@ -213,8 +214,12 @@ void user_print(User *user) {
 		       user->post->title, user->post->desc);
 	}
 
-	char *timestr = sq_time_to_string(user->created_at);
+	char *timestr;
+	timestr = sq_time_to_string(user->created_at);
 	printf("user.created_at = %s\n", timestr);
+	free(timestr);
+	timestr = sq_time_to_string(user->updated_at);
+	printf("user.updated_at = %s\n", timestr);
 	free(timestr);
 
 	printf("user.test_add = %d\n"

@@ -44,21 +44,25 @@ struct User {
 	int    company_id;
 
 	time_t        created_at;
+	time_t        updated_at;
 
 	unsigned int  test_add;
 
 	// --------------------------------
 	// member functions
 	void print() {
-		char *timestr = sq_time_to_string(this->created_at);
+		char *created_at = sq_time_to_string(this->created_at);
+		char *updated_at = sq_time_to_string(this->updated_at);
 
 		std::cout << std::endl
 		          << "user.id = "         << this->id         << std::endl
 		          << "user.name = "       << this->name       << std::endl
 		          << "user.company_id = " << this->company_id << std::endl
-		          << "user.created_at = " << timestr          << std::endl
+		          << "user.created_at = " << created_at       << std::endl
+		          << "user.updated_at = " << updated_at       << std::endl
 		          << std::endl;
-		free(timestr);
+		free(created_at);
+		free(updated_at);
 	}
 };
 
@@ -133,10 +137,11 @@ static const char     *userIndexComposite[]   = {"id", NULL};
 
 // CREATE TABLE "users"
 static const SqColumn userColumns[] = {
-	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_HIDDEN},
-	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0,    .size = 50},
-	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),
-		.default_value = "CURRENT_TIMESTAMP"},
+	{SQ_TYPE_INT,    "id",           offsetof(User, id),           SQB_PRIMARY | SQB_HIDDEN},
+	{SQ_TYPE_STRING, "name",         offsetof(User, name),         0,
+		.size = 50},    // VARCHAR(50)
+	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),   SQB_CURRENT},    // DEFAULT CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,   "updated_at",   offsetof(User, updated_at),   SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "company_id",   offsetof(User, company_id),   0,
 		.foreign = (SqForeign*)&userForeign},
@@ -182,9 +187,13 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name, 50);
 	table->integer("company_id", &User::company_id);
-	table->timestamp("created_at", &User::created_at)->default_("CURRENT_TIMESTAMP");
+	// call table->timestamps() to use default column names
+	table->timestamps(&User::created_at,
+	                  &User::updated_at);
+	// CONSTRAINT FOREIGN KEY
 	table->addForeign("users_companies_id_foreign", "company_id")
 	     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");
+	// INDEX
 	table->addIndex("users_id_index", "id", NULL);
 #endif
 
@@ -223,7 +232,19 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->integer("company_id", &User::company_id);
-	table->timestamp("created_at", &User::created_at)->default_("CURRENT_TIMESTAMP");
+#if   1
+	// call table->timestamps() to use default column names
+	table->timestamps(&User::created_at,
+	                  &User::updated_at);
+#elif 0
+	// call table->timestamps() to specify column names
+	table->timestamps("created_at", &User::created_at,
+	                  "updated_at", &User::updated_at);
+#elif 0
+	// call table->timestamps() will do these
+	table->timestamp("created_at", &User::created_at)->useCurrent();
+	table->timestamp("updated_at", &User::updated_at)->useCurrent()->useCurrentOnUpdate();
+#endif
 	table->addForeign("users_companies_id_foreign", "company_id")
 	     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");;
 	table->addIndex("users_id_index", "id", NULL);
