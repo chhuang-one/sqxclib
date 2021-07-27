@@ -233,6 +233,9 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->string("name", &User::name);
 	table->integer("company_id", &User::company_id);
 #if   1
+	// call table->timestamps() to use default column/member names
+	table->timestamps<User>();
+#elif 0
 	// call table->timestamps() to use default column names
 	table->timestamps(&User::created_at,
 	                  &User::updated_at);

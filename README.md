@@ -7,7 +7,7 @@ It provides ORM features and C++ wrapper.
 
 ## Current features:
 1. User can use C99 designated initializer (or C++ aggregate initialization) to define SQL table/column/migration statically.
-   You can also use C/C++ function to do these dynamically.
+   You can also use C functions (or C++ methods) to do these dynamically.
 
 2. All defined table/column can use to parse JSON object/field.
    Program can also parse JSON object/array from SQL column.
@@ -32,15 +32,16 @@ struct User {
 	int     city_id;     // foreign key
 
 	time_t  created_at;
+	time_t  updated_at;
 
-#ifdef __cplusplus      // C++ Only
+#ifdef __cplusplus       // C++ Only
 	std::string       strCpp;
 	std::vector<int>  intsCpp;
 #endif
 };
 ```
 
-use C++ functions (Schema Builder) to define table/column in schema_v1 (dynamic)
+use C++ methods (Schema Builder) to define table/column in schema_v1 (dynamic)
 
 ```c++
 /* define global type for C++ STL */
@@ -53,12 +54,16 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	// create table "users"
 	table = schema_v1->create<User>("users");
 	// add dynamic columns to table
-	table->integer("id", &User::id)->primary();
+	table->integer("id", &User::id)->primary();  // PRIMARY KEY
 	table->string("name", &User::name);
 	table->string("email", &User::email, 60);    // VARCHAR(60)
-	table->timestamp("created_at", &User::created_at)->default_("CURRENT_TIMESTAMP");
-	table->stdstring("strCpp", &User::strCpp);                     // C++ std::string
-	table->custom("intsCpp", &User::intsCpp, &SqTypeIntVector);    // C++ std::vector
+	// DEFAULT CURRENT_TIMESTAMP
+	table->timestamp("created_at", &User::created_at)->useCurrent();
+	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	table->timestamp("updated_at", &User::created_at)->useCurrent()->useCurrentOnUpdate();
+	// C++ types - std::string and std::vector
+	table->stdstring("strCpp", &User::strCpp);
+	table->custom("intsCpp", &User::intsCpp, &SqTypeIntVector);
 	// FOREIGN KEY
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
 	// CONSTRAINT FOREIGN KEY
@@ -66,9 +71,13 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	     ->reference("cities", "id")->onDelete("NO ACTION")->onUpdate("NO ACTION");
 	// CREATE INDEX
 	table->index("users_id_index", "id", NULL);
+
+	// If columns and members use default names - 'created_at' and 'updated_at',
+	// you can use below line to replace above 2 timestamp() functions.
+//	table->timestamps<User>();
 ```
 
-use C++ functions (Schema Builder) to change table/column in schema_v2 (dynamic)
+use C++ methods (Schema Builder) to change table/column in schema_v2 (dynamic)
 
 ```c++
 	/* create schema version 2 */
@@ -95,16 +104,20 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
 
-static const SqColumn  userColumns[7] = {
+static const SqColumn  userColumns[8] = {
 	// PRIMARY KEY
-	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
+	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
 	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
 
-	{SQ_TYPE_STRING, "email",      offsetof(User, email),    .size = 60},    // VARCHAR(60)
+	{SQ_TYPE_STRING, "email",      offsetof(User, email),
+		.size = 60},    // VARCHAR(60)
 
-	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at),
-		.default_value = "CURRENT_TIMESTAMP"},
+	// DEFAULT CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
+
+	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
@@ -123,8 +136,8 @@ static const SqColumn  userColumns[7] = {
 
 	// create table "users"
 	table = schema_v1->create<User>("users");
-	// add static 'userColumns' that has 7 elements to table
-	table->addColumn(userColumns, 7);
+	// add static 'userColumns' that has 8 elements to table
+	table->addColumn(userColumns, 8);
 ```
 
 use C99 designated initializer to define table/column in schema_v1 (static)
@@ -132,16 +145,20 @@ use C99 designated initializer to define table/column in schema_v1 (static)
 * If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see doc/[SqColumn.md](doc/SqColumn.md)
 
 ```c
-static const SqColumn  userColumns[7] = {
+static const SqColumn  userColumns[8] = {
 	// PRIMARY KEY
-	{SQ_TYPE_INT,    "id",         offsetof(User, id),       SQB_PRIMARY},
+	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
 	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
 
-	{SQ_TYPE_STRING, "email",      offsetof(User, email),    .size = 60},    // VARCHAR(60)
+	{SQ_TYPE_STRING, "email",      offsetof(User, email),
+		.size = 60},    // VARCHAR(60)
 
-	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at),
-		.default_value = "CURRENT_TIMESTAMP"},
+	// DEFAULT CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
+
+	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
@@ -164,8 +181,8 @@ static const SqColumn  userColumns[7] = {
 	// create table "users"
 	table = sq_schema_create(schema_v1, "users", User);
 
-	// add static 'userColumns' that has 7 elements to table
-	sq_table_add_column(table, userColumns, 7);
+	// add static 'userColumns' that has 8 elements to table
+	sq_table_add_column(table, userColumns, 8);
 ```
 
 use C99 designated initializer to change table/column in schema_v2 (static)
@@ -176,7 +193,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
 
 	// ALTER COLUMN "city_id"
-	{SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
+	{SQ_TYPE_INT,  "city_id",  offsetof(User, city_id), SQB_CHANGED},
 
 	// DROP CONSTRAINT FOREIGN KEY
 	{.old_name = "users_city_id_foreign",     .name = NULL,
@@ -218,8 +235,13 @@ use C functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 
 	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
 
+	// DEFAULT CURRENT_TIMESTAMP
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
-	sq_column_default("CURRENT_TIMESTAMP");
+	column->bit_field |= SQB_CURRENT;
+
+	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	column = sq_table_add_timestamp(table, "updated_at", offset(User, updated_at));
+	column->bit_field |= SQB_CURRENT | SQB_CURRENT_ON_UPDATE;
 
 	// FOREIGN KEY
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
@@ -233,6 +255,11 @@ use C functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 
 	// CREATE INDEX
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
+
+
+	// If columns and members use default names - 'created_at' and 'updated_at',
+	// you can use below line to replace above 2 sq_table_add_timestamp() functions.
+//	sq_table_add_timestamps_struct(table, User);
 ```
 
 use C functions (Schema Builder) to change table/column in schema_v2 (dynamic)
@@ -282,7 +309,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 ```
 
 Other constraint sample (Schema Builder):  
-use C function to change constraint (dynamic)
+use C functions to change constraint (dynamic)
 
 ```c
 	// ADD CONSTRAINT UNIQUE
@@ -297,7 +324,7 @@ use C function to change constraint (dynamic)
 ```
 
 Other constraint sample (Schema Builder):  
-use C++ function to change constraint (dynamic)
+use C++ methods to change constraint (dynamic)
 
 ```c++
 	// ADD CONSTRAINT UNIQUE
@@ -316,7 +343,7 @@ use C++ function to change constraint (dynamic)
 
 ## Database synchronization (Migration)
 
-use C++ function to migrate schema and synchronize to database
+use C++ methods to migrate schema and synchronize to database
 
 ```c++
 	storage->migrate(schema_v1); // migrate schema_v1
@@ -326,7 +353,7 @@ use C++ function to migrate schema and synchronize to database
 	delete schema_v2;            // free unused schema_v2
 ```
 
-use C function to migrate schema and synchronize to database
+use C functions to migrate schema and synchronize to database
 
 ```c
 	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
@@ -338,7 +365,7 @@ use C function to migrate schema and synchronize to database
 
 ## CRUD
 
-use C function
+use C functions
 
 ```c
 	User  *user;
@@ -351,7 +378,7 @@ use C function
 	sq_storage_remove(storage, "users", NULL, 5);
 ```
 
-use C++ function
+use C++ methods
 
 ```c++
 	User  *user;
@@ -364,7 +391,7 @@ use C++ function
 	storage->remove("users", 5);
 ```
 
-use C++ template function
+use C++ template functions
 
 ```c++
 	User  *user;
@@ -386,7 +413,7 @@ use C++ template function
 
 ## Database support
 
-use C function to open SQLite database
+use C functions to open SQLite database
 
 ```c
 	SqdbConfigSqlite  config = { .folder = "/path", .extension = "db" };
@@ -398,7 +425,7 @@ use C function to open SQLite database
 	sq_storage_open(storage, "sqxc_local");    // This will open file "sqxc_local.db"
 ```
 
-use C function to open MySQL database
+use C functions to open MySQL database
 
 ```c
 	SqdbConfigMysql  config = { .host = "localhost", .port = 3306,
@@ -411,7 +438,7 @@ use C function to open MySQL database
 	sq_storage_open(storage, "sqxc_local");
 ```
 
-use C++ function to open SQLite database
+use C++ methods to open SQLite database
 
 ```c++
 	Sq::DbConfigSqlite  config = { .folder = "/path", .extension = "db" };
@@ -435,7 +462,7 @@ SQL statement
 	WHERE age > 5
 ```
 
-use C++ function to produce query
+use C++ methods to produce query
 
 ```c++
 	query->select("id", "age", NULL)
@@ -447,7 +474,7 @@ use C++ function to produce query
 	     ->where("age > 5");
 ```
 
-use C function to produce query
+use C functions to produce query
 
 ```c
 	sq_query_select(query, "id", "age", NULL);
@@ -480,7 +507,7 @@ use C macro to produce query
 
 ## JOIN support
 
-use C function
+use C functions
 
 ```c
 	SqPtrArray *array;
@@ -498,7 +525,7 @@ use C function
 	}
 ```
 
-use C++ function
+use C++ methods
 
 ```c++
 	query->from("cities")->join("users",  "cities.id", "users.city_id");
@@ -523,7 +550,7 @@ use C++ function
 
 ## Transaction
 
-use C function
+use C functions
 
 ```c
 	User  *user;
@@ -536,7 +563,7 @@ use C function
 		sq_storage_commit(storage);
 ```
 
-use C++ function
+use C++ methods
 
 ```c++
 	User  *user;

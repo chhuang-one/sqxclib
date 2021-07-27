@@ -148,10 +148,14 @@ SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
 #define sq_table_add_timestamp_as(table, Structure, Member)    \
 		sq_table_add_timestamp(table, #Member, offsetof(Structure, Member))
 
-#define sq_table_add_timestamps_as(table, Structure, Member_create_at, Member_update_at)    \
-		sq_table_add_timestamps(table,                                                      \
-		                        #Member_create_at, offsetof(Structure, Member_create_at),   \
-		                        #Member_update_at, offsetof(Structure, Member_update_at))
+#define sq_table_add_timestamps_as(table, Structure, Member_created_at, Member_updated_at)   \
+		sq_table_add_timestamps(table,                                                       \
+		                        #Member_created_at, offsetof(Structure, Member_created_at),  \
+		                        #Member_updated_at, offsetof(Structure, Member_updated_at))
+
+#define sq_table_add_timestamps_struct(table, Structure)                        \
+		sq_table_add_timestamps(table, NULL, offsetof(Structure, created_at),   \
+		                               NULL, offsetof(Structure, updated_at))
 
 #define sq_table_add_string_as(table, Structure, Member, length)    \
 		sq_table_add_string(table, #Member, offsetof(Structure, Member), length)
@@ -425,6 +429,11 @@ struct SqTable
 	void      timestamps(Type Store::*created_at_member, Type Store::*updated_at_member) {
 		sq_table_add_timestamps(this, NULL, Sq::offsetOf(created_at_member),
 		                              NULL, Sq::offsetOf(updated_at_member));
+	};
+	template<class Store>
+	void      timestamps() {
+		sq_table_add_timestamps(this, NULL, Sq::offsetOf(&Store::created_at),
+		                              NULL, Sq::offsetOf(&Store::updated_at));
 	};
 	template<class Store, class Type>
 	SqColumn& double_(const char *column_name, Type Store::*member) {

@@ -169,9 +169,13 @@ typedef struct Company
 #define SQT_TIMESTAMP_AS(structure, member)    \
 		(column_cur_ = sq_table_add_timestamp(table_cur_, #member, offsetof(structure, member)))
 
-#define SQT_TIMESTAMPS_AS(structure, created_at_member, updated_at_member)    \
-		sq_table_add_timestamps(table_cur_, "created_at", offsetof(structure, created_at_member),  \
-		                                    "updated_at", offsetof(structure, updated_at_member))
+#define SQT_TIMESTAMPS_AS(structure, member_created_at, member_updated_at)    \
+		sq_table_add_timestamps(table_cur_, #member_created_at, offsetof(structure, member_created_at),  \
+		                                    #member_updated_at, offsetof(structure, member_updated_at))
+
+#define SQT_TIMESTAMPS_STRUCT(structure)    \
+		sq_table_add_timestamps(table_cur_, NULL, offsetof(structure, created_at),  \
+		                                    NULL, offsetof(structure, updated_at))
 
 #define SQT_STRING(column_name, structure, member, length)   \
 		(column_cur_ = sq_table_add_string(table_cur_, column_name, offsetof(structure, member), length))
