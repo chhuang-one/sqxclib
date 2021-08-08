@@ -19,10 +19,10 @@
 extern "C" {
 #endif
 
-typedef void  (*SqInitFunc)(void* value);
-typedef void  (*SqFinalFunc)(void* value);
-typedef void  (*SqDestroyFunc)(void* value);
-typedef int   (*SqCompareFunc)(const void* a, const void* b);
+typedef void  (*SqInitFunc)(void *value);
+typedef void  (*SqFinalFunc)(void *value);
+typedef void  (*SqDestroyFunc)(void *value);
+typedef int   (*SqCompareFunc)(const void *a, const void *b);
 
 #ifdef __cplusplus
 }  // extern "C"
