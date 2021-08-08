@@ -78,7 +78,7 @@ static const SqColumn *columnPointers[2] = {
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointers, SQB_TYPE_SORTED);
 
 	/* use C function to create table by type */
-	table = sq_schema_create_by_type(schema, "your_table_name", type);
+	table = sq_schema_create_by_type(schema, "your_table_name", &type);
 ```
 
 ```c++
@@ -96,7 +96,7 @@ static const SqColumn *columnPointers[2] = {
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointers, SQB_TYPE_SORTED);
 
 	/* use C++ method to create table by type */
-	table = schema->create("your_table_name", type);
+	table = schema->create("your_table_name", &type);
 ```
 
 #### 1.2. define constant SqColumn array that used by dynamic SqType

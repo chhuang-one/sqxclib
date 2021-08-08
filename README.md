@@ -60,7 +60,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	// DEFAULT CURRENT_TIMESTAMP
 	table->timestamp("created_at", &User::created_at)->useCurrent();
 	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-	table->timestamp("updated_at", &User::created_at)->useCurrent()->useCurrentOnUpdate();
+	table->timestamp("updated_at", &User::updated_at)->useCurrent()->useCurrentOnUpdate();
 	// C++ types - std::string and std::vector
 	table->stdstring("strCpp", &User::strCpp);
 	table->custom("intsCpp", &User::intsCpp, &SqTypeIntVector);
@@ -73,7 +73,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	table->index("users_id_index", "id", NULL);
 
 	// If columns and members use default names - 'created_at' and 'updated_at',
-	// you can use below line to replace above 2 timestamp() functions.
+	// you can use below line to replace above 2 timestamp() methods.
 //	table->timestamps<User>();
 ```
 
