@@ -46,8 +46,8 @@
 	             unsupport SQXC_TYPE_ARRAY while parsing/writing object.
  */
 
-static void sqxc_sql_use_insert_command(SqxcSql *xcsql, SqTable *table);
-static void sqxc_sql_use_update_command(SqxcSql *xcsql, SqTable *table);
+static void sqxc_sql_use_insert_command(SqxcSql *xcsql, const char *table_name);
+static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name);
 static void sqxc_sql_use_where_condition(SqxcSql *xcsql, const char *condition);
 static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer);
 
@@ -286,14 +286,14 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 		xcsql->mode = 1;
 		xcsql->row_count = 0;
 //		xcsql->col_count = 0;
-		sqxc_sql_use_insert_command(xcsql, (SqTable*)data);
+		sqxc_sql_use_insert_command(xcsql, data);
 		break;
 
 	case SQXC_SQL_USE_UPDATE:
 		xcsql->mode = 0;
 //		xcsql->row_count = 0;
 		xcsql->col_count = 0;
-		sqxc_sql_use_update_command(xcsql, (SqTable*)data);
+		sqxc_sql_use_update_command(xcsql, data);
 		break;
 
 	case SQXC_SQL_USE_WHERE:
@@ -332,7 +332,7 @@ static void  sqxc_sql_final(SqxcSql *xcsql)
 // ----------------------------------------------------------------------------
 // others functions
 
-static void sqxc_sql_use_insert_command(SqxcSql *xcsql, SqTable *table)
+static void sqxc_sql_use_insert_command(SqxcSql *xcsql, const char *table_name)
 {
 	SqBuffer  *buffer;
 
@@ -343,14 +343,14 @@ static void sqxc_sql_use_insert_command(SqxcSql *xcsql, SqTable *table)
 	sq_buffer_alloc(buffer, 2);
 	sq_buffer_r_at(buffer, 1) = ' ';
 	sq_buffer_r_at(buffer, 0) = xcsql->quote[0];
-	sq_buffer_write(buffer, table->name);
+	sq_buffer_write(buffer, table_name);
 	sq_buffer_alloc(buffer, 3);
 	sq_buffer_r_at(buffer, 2) = xcsql->quote[1];
 	sq_buffer_r_at(buffer, 1) = ' ';
 	sq_buffer_r_at(buffer, 0) = '(';
 }
 
-static void sqxc_sql_use_update_command(SqxcSql *xcsql, SqTable *table)
+static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name)
 {
 	SqBuffer  *buffer;
 
@@ -361,7 +361,7 @@ static void sqxc_sql_use_update_command(SqxcSql *xcsql, SqTable *table)
 	sq_buffer_alloc(buffer, 2);
 	sq_buffer_r_at(buffer, 1) = ' ';
 	sq_buffer_r_at(buffer, 0) = xcsql->quote[0];
-	sq_buffer_write(buffer, table->name);
+	sq_buffer_write(buffer, table_name);
 	sq_buffer_write_c(buffer, xcsql->quote[1]);
 
 	sq_buffer_write(buffer, " SET ");

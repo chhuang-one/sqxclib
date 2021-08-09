@@ -38,7 +38,7 @@
 
 #define STORAGE_SCHEMA_INITIAL_VERSION       0
 
-static char    *get_primary_key_string(void *instance, SqTable *type, const char quote[2]);
+static char    *get_primary_key_string(void *instance, const SqType *type, const char quote[2]);
 
 void  sq_storage_init(SqStorage *storage, Sqdb *db)
 {
@@ -50,7 +50,7 @@ void  sq_storage_init(SqStorage *storage, Sqdb *db)
 
 	storage->container_default = SQ_TYPE_PTR_ARRAY;
 
-	storage->xc_input = sqxc_new(SQXC_INFO_VALUE);
+	storage->xc_input  = sqxc_new(SQXC_INFO_VALUE);
 	storage->xc_output = sqxc_new(SQXC_INFO_SQL);
 
 #ifdef SQ_CONFIG_HAVE_JSONC
@@ -101,11 +101,11 @@ int   sq_storage_migrate(SqStorage *storage, SqSchema *schema)
 	return sqdb_migrate(storage->db, storage->schema, schema);
 }
 
-void *sq_storage_get_full(SqStorage  *storage,
-                          const char *table_name,
-                          const char *type_name,
-                          const SqType *type,
-                          int   id)
+void *sq_storage_get_full(SqStorage    *storage,
+                          const char   *table_name,
+                          const char   *type_name,
+                          int           id,
+                          const SqType *type)
 {
 	SqBuffer *buf;
 	Sqxc     *xcvalue;
@@ -116,7 +116,7 @@ void *sq_storage_get_full(SqStorage  *storage,
 		int       len;
 	} temp;
 
-	if (type == NULL) {
+	if (type == NULL || table_name == NULL) {
 		// find SqTable by table_name or type_name
 		if (table_name)
 			temp.table = sq_schema_find(storage->schema, table_name);
@@ -126,12 +126,6 @@ void *sq_storage_get_full(SqStorage  *storage,
 		if (temp.table == NULL)
 			return NULL;
 		type = temp.table->type;
-		table_name = temp.table->name;
-	}
-	else if (table_name == NULL) {
-		temp.table = sq_storage_find_by_type(storage, type->name);
-		if (temp.table == NULL)
-			return NULL;
 		table_name = temp.table->name;
 	}
 
@@ -165,12 +159,12 @@ void *sq_storage_get_full(SqStorage  *storage,
 	return temp.instance;
 }
 
-void *sq_storage_get_all_full(SqStorage  *storage,
-                              const char *table_name,
-                              const char *type_name,
-                              const SqType *type,
+void *sq_storage_get_all_full(SqStorage    *storage,
+                              const char   *table_name,
+                              const char   *type_name,
                               const SqType *container,
-                              const char *sql_where_having)
+                              const char   *sql_where_having,
+                              const SqType *type)
 {
 	Sqxc     *xcvalue;
 	union {
@@ -179,7 +173,7 @@ void *sq_storage_get_all_full(SqStorage  *storage,
 		void     *instance;
 	} temp;
 
-	if (type == NULL) {
+	if (type == NULL || table_name == NULL) {
 		// find SqTable by table_name or type_name
 		if (table_name)
 			temp.table = sq_schema_find(storage->schema, table_name);
@@ -189,12 +183,6 @@ void *sq_storage_get_all_full(SqStorage  *storage,
 		if (temp.table == NULL)
 			return NULL;
 		type = temp.table->type;
-		table_name = temp.table->name;
-	}
-	else if (table_name == NULL) {
-		temp.table = sq_storage_find_by_type(storage, type->name);
-		if (temp.table == NULL)
-			return NULL;
 		table_name = temp.table->name;
 	}
 	if (container == NULL)
@@ -221,72 +209,85 @@ void *sq_storage_get_all_full(SqStorage  *storage,
 	return temp.instance;
 }
 
-int   sq_storage_insert(SqStorage *storage,
-                        const char *table_name,
-                        const char *type_name,
-                        void *instance)
+int   sq_storage_insert_full(SqStorage    *storage,
+                             const char   *table_name,
+                             const char   *type_name,
+                             void         *instance,
+                             const SqType *type)
 {
 	Sqxc      *xcsql;
 	SqTable   *table;
 	int        id = -1;
 
-	// find SqTable by table_name or type_name
-	if (table_name)
-		table = sq_schema_find(storage->schema, table_name);
-	else
-		table = sq_storage_find_by_type(storage, type_name);
-	if (table == NULL)
-		return -1;
+	if (type == NULL || table_name == NULL) {
+		// find SqTable by table_name or type_name
+		if (table_name)
+			table = sq_schema_find(storage->schema, table_name);
+		else    // if (type_name)
+			table = sq_storage_find_by_type(storage, type_name);
+
+		if (table == NULL)
+			return -1;
+		type = table->type;
+		table_name = table->name;
+	}
 
 	// destination of output
 	xcsql = storage->xc_output;
 	sqxc_sql_set_db(xcsql, storage->db);
-	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_INSERT, table);
+	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_INSERT, (void*)table_name);
 
 	sqxc_ready(xcsql, NULL);
-	table->type->write(instance, table->type, xcsql);
+	type->write(instance, type, xcsql);
 	sqxc_finish(xcsql, NULL);
 
 	return (id = sqxc_sql_id(xcsql));
 }
 
-void  sq_storage_update(SqStorage *storage,
-                        const char *table_name,
-                        const char *type_name,
-                        void *instance)
+void  sq_storage_update_full(SqStorage    *storage,
+                             const char   *table_name,
+                             const char   *type_name,
+                             void         *instance,
+                             const SqType *type)
 {
 	Sqxc      *xcsql;
 	SqTable   *table;
 	char      *where;
 
-	// find SqTable by table_name or type_name
-	if (table_name)
-		table = sq_schema_find(storage->schema, table_name);
-	else
-		table = sq_storage_find_by_type(storage, type_name);
-	if (table == NULL)
-		return;
+	if (type == NULL || table_name == NULL) {
+		// find SqTable by table_name or type_name
+		if (table_name)
+			table = sq_schema_find(storage->schema, table_name);
+		else    // if (type_name)
+			table = sq_storage_find_by_type(storage, type_name);
 
-	where = get_primary_key_string(instance, table, storage->db->info->quote.identifier);
+		if (table == NULL)
+			return;
+		type = table->type;
+		table_name = table->name;
+	}
+
+	where = get_primary_key_string(instance, type, storage->db->info->quote.identifier);
 	if (where == NULL)
 		return;
 
 	// destination of output
 	xcsql = storage->xc_output;
-	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_UPDATE, table);
+	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_UPDATE, (void*)table_name);
 	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_WHERE, where);
 	sqxc_sql_set_db(xcsql, storage->db);
 	free(where);
 
 	sqxc_ready(xcsql, NULL);
-	table->type->write(instance, table->type, xcsql);
+	type->write(instance, type, xcsql);
 	sqxc_finish(xcsql, NULL);
 }
 
-void  sq_storage_remove(SqStorage *storage,
-                        const char *table_name,
-                        const char *type_name,
-                        int   id)
+void  sq_storage_remove_full(SqStorage    *storage,
+                             const char   *table_name,
+                             const char   *type_name,
+                             int           id,
+                             const SqType *type)
 {
 	SqBuffer  *buf;
 	SqTable   *table;
@@ -294,19 +295,24 @@ void  sq_storage_remove(SqStorage *storage,
 	int        len;
 //	int        code;
 
-	// find SqTable by table_name or type_name
-	if (table_name)
-		table = sq_schema_find(storage->schema, table_name);
-	else
-		table = sq_storage_find_by_type(storage, type_name);
-	if (table == NULL)
-		return;
+	if (type == NULL || table_name == NULL) {
+		// find SqTable by table_name or type_name
+		if (table_name)
+			table = sq_schema_find(storage->schema, table_name);
+		else    // if (type_name)
+			table = sq_storage_find_by_type(storage, type_name);
 
-	column = sq_table_get_primary(table, NULL);
+		if (table == NULL)
+			return;
+		type = table->type;
+		table_name = table->name;
+	}
+
+	column = sq_table_get_primary(NULL, type);
 
 	buf = sqxc_get_buffer(storage->xc_output);
 	buf->writed = 0;
-	sqdb_sql_from(storage->db, buf, table->name, true);
+	sqdb_sql_from(storage->db, buf, table_name, true);
 	sq_buffer_write(buf, "WHERE");
 	len = snprintf(NULL, 0, " %c%s%c=%d",
 	               storage->db->info->quote.identifier[0],
@@ -353,13 +359,13 @@ SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 // ----------------------------------------------------------------------------
 // static function
 
-static char  *get_primary_key_string(void *instance, SqTable *table, const char quote[2])
+static char  *get_primary_key_string(void *instance, const SqType *type, const char quote[2])
 {
 	SqColumn   *column;
 	char       *condition = NULL;
 	int         len;
 
-	column = sq_table_get_primary(table, NULL);
+	column = sq_table_get_primary(NULL, type);
 
 	// integer
 	instance = (char*)instance + column->offset;
