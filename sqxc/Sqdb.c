@@ -613,14 +613,15 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 	case SQ_TYPE_INTPTR_INDEX:
 		if (column->bit_field & SQB_PRIMARY && db->info->product == SQDB_PRODUCT_SQLITE)
 			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
-		else
+		else {
 			sq_buffer_write(buffer, "INT");
-		if (size > 0) {
-			len = snprintf(NULL, 0, "(%d)", size);
-			sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
+			if (size > 0) {
+				len = snprintf(NULL, 0, "(%d)", size);
+				sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
+			}
+			if (column->type == SQ_TYPE_UINT)  // || column->type == SQ_TYPE_UINTPTR
+				sq_buffer_write(buffer, " UNSIGNED");
 		}
-		if (column->type == SQ_TYPE_UINT)  // || column->type == SQ_TYPE_UINTPTR
-			sq_buffer_write(buffer, " UNSIGNED");
 		break;
 
 	case SQ_TYPE_INT64_INDEX:
