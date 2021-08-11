@@ -46,6 +46,7 @@ extern "C" {
 // SQL - error
 #define SQCODE_OPEN_FAIL             51
 #define SQCODE_EXEC_ERROR            52
+#define SQCODE_NO_DATA               53    // if the result set is empty.
 
 // JSON error
 #define SQCODE_UNCOMPLETED_JSON      61

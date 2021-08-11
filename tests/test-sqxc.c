@@ -179,6 +179,7 @@ User *test_sqxc_jsonc_input_user()
 {
 	Sqxc *xcjsonc;
 	Sqxc *xcvalue;
+	Sqxc *xc;
 	User *user;
 
 	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
@@ -188,10 +189,29 @@ User *test_sqxc_jsonc_input_user()
 
 	sqxc_ready(xcvalue, NULL);
 
+#if 0
 	xcjsonc->type = SQXC_TYPE_STRING;
 	xcjsonc->name = NULL;
 	xcjsonc->value.string = (char*)json_object_string;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
+#else
+	xc = xcvalue;
+
+	xc->type = SQXC_TYPE_OBJECT;
+	xc = sqxc_send(xc);
+
+	xc->type = SQXC_TYPE_OBJECT;
+	xc->name = "x1";
+	xc = sqxc_send(xc);
+
+	xc->type = SQXC_TYPE_OBJECT_END;
+	xc->name = "x1";
+	xc = sqxc_send(xc);
+
+	xc->type = SQXC_TYPE_OBJECT_END;
+	xc = sqxc_send(xc);
+
+#endif
 
 	sqxc_finish(xcvalue, NULL);
 

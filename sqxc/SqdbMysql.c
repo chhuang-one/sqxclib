@@ -208,6 +208,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 	unsigned int n_fields;
 	char **names;
 	int    rc = 0;
+	int    code = SQCODE_OK;
 
 #ifndef NDEBUG
 		fprintf(stderr, "SQL: %s\n", sql);
@@ -243,6 +244,8 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 				xc = sqxc_send(xc);
 			}
 
+			// get result set
+			xc->code = SQCODE_NO_DATA;
 			while ((row = mysql_fetch_row(result))) {
 				xc->type = SQXC_TYPE_OBJECT;
 				xc->name = NULL;
@@ -277,6 +280,9 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 //				if (xc->code != SQCODE_OK)
 //					break;
 			}
+			// if the result set is empty.
+			if (xc->code == SQCODE_NO_DATA)
+				code = SQCODE_NO_DATA;
 
 			// if Sqxc element prepare for multiple row
 			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
@@ -308,7 +314,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->self));
 		return SQCODE_EXEC_ERROR;
 	}
-	return SQCODE_OK;
+	return code;
 }
 
 // ----------------------------------------------------------------------------

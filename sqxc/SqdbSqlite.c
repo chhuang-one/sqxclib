@@ -371,6 +371,7 @@ static int  debug_callback(void *user_data, int argc, char **argv, char **column
 static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *reserve)
 {
 	int   rc;
+	int   code = SQCODE_OK;
 	char *errorMsg;
 
 #ifndef NDEBUG
@@ -401,7 +402,14 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 				xc->value.pointer = NULL;
 				xc = sqxc_send(xc);
 			}
+
+			// set xc->code and call sqlite3_exec()
+			xc->code = SQCODE_NO_DATA;
 			rc = sqlite3_exec(sqdb->self, sql, query_callback, &xc, &errorMsg);
+			// if the result set is empty.
+			if(xc->code == SQCODE_NO_DATA)
+				code = SQCODE_NO_DATA;
+
 			// if Sqxc element prepare for multiple row
 			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
 				xc->type = SQXC_TYPE_ARRAY_END;
@@ -433,7 +441,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 #endif
 		return SQCODE_EXEC_ERROR;
 	}
-	return SQCODE_OK;
+	return code;
 }
 
 // ----------------------------------------------------------------------------
