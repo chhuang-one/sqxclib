@@ -114,6 +114,7 @@ void *sq_storage_get_full(SqStorage    *storage,
 		SqTable  *table;
 		void     *instance;
 		int       len;
+		int       code;
 	} temp;
 
 	if (type == NULL || table_name == NULL) {
@@ -153,8 +154,15 @@ void *sq_storage_get_full(SqStorage    *storage,
 	sprintf(sq_buffer_alloc(buf, temp.len), "%d", id);
 
 	sqxc_ready(xcvalue, NULL);
-	sqdb_exec(storage->db, buf->buf, xcvalue, NULL);
+	temp.code = sqdb_exec(storage->db, buf->buf, xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
+	if (temp.code != SQCODE_OK) {
+		storage->xc_input->code = temp.code;
+		sq_type_final_instance(type, sqxc_value_instance(xcvalue), 0);
+		free(sqxc_value_instance(xcvalue));
+		sqxc_value_instance(xcvalue) = NULL;
+		return NULL;
+	}
 	temp.instance = sqxc_value_instance(xcvalue);
 	return temp.instance;
 }
