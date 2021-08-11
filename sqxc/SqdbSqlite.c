@@ -151,7 +151,8 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	sq_buffer_init(&sql_buf);
 
 	// trace renamed (or dropped) table/column that was referenced by others
-	sq_schema_trace_name(schema);
+	if (schema->relation)
+		sq_schema_trace_name(schema);
 
 #ifndef NDEBUG
 	fprintf(stderr, "SQLite: BEGIN TRANSACTION ------\n");
@@ -161,7 +162,11 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 		goto atExit;
 
 	// --------- rename and drop table ---------
-	node = sq_relation_find(schema->relation, SQ_TYPE_UNSYNCED, NULL);
+	if (schema->relation)
+		node = sq_relation_find(schema->relation, SQ_TYPE_UNSYNCED, NULL);
+	else
+		node = NULL;
+
 	if (node) {
 		for (;  node->next;  node = node->next) {
 			SqTable *table = node->next->object;
@@ -231,11 +236,13 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	if (rc != SQLITE_OK)    // error occurred
 		goto atExit;
 
-	// clear all renamed and dropped records
-	// database schema version = (equal) current schema version
-	sq_schema_erase_records(schema, '=');
-	// sort table/column by name and free temporary data after migration.
-	sq_schema_complete(schema, false);
+	if (schema->relation) {
+		// clear all renamed and dropped records
+		// database schema version = (equal) current schema version
+		sq_schema_erase_records(schema, '=');
+		// sort table/column by name and free temporary data after migration.
+		sq_schema_complete(schema, false);
+	}
 
 	// update SQLite.user_version
 	sqdb->version = schema->version;
