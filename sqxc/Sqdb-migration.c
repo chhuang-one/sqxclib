@@ -57,7 +57,7 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 					sq_type_decide_size((SqType*)entry->type, (SqEntry*)reentry_src, false);
 					// free removed column
 					destroy_func(reentry);
-					// steal 'reentry_src' from 'entry_src->type'. TODO: NO_STEAL
+					// steal 'reentry_src' from 'entry_src->type'.
 					if (entry_src->type->bit_field & SQB_DYNAMIC)
 						reentries_src->data[index] = NULL;
 				}
@@ -139,7 +139,7 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 			if (addr == NULL) {
 				// add 'reentry_src' to entry->type.
 				sq_ptr_array_insert(reentries, temp.index, reentry_src);
-				// steal 'reentry_src' from 'entry_src->type'. TODO: NO_STEAL
+				// steal 'reentry_src' from 'entry_src->type'.
 				if (entry_src->type->bit_field & SQB_DYNAMIC)
 					reentries_src->data[index] = NULL;
 				// calculate size if 'entry' is instance of SqTable

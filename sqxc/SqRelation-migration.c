@@ -184,7 +184,6 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 	}
 
 	for (index = 0;  index < reentries_src->length;  index++) {
-		// TODO: NO_STEAL
 		column_src = (SqColumn*)reentries_src->data[index];
 		// steal 'column_src' if 'table_src->type' is not static.
 		if (table_src->type->bit_field & SQB_TYPE_DYNAMIC)
@@ -330,7 +329,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 					sq_relation_add(table->relation, SQ_TYPE_UNSYNCED, column_src, 0);
 				// add 'reentry_src' to entry->type.
 				sq_ptr_array_insert(reentries, temp.index, column_src);
-				// steal 'reentry_src' from 'entry_src->type'. TODO: NO_STEAL
+				// steal 'reentry_src' from 'entry_src->type'.
 //				if (table_src->type->bit_field & SQB_DYNAMIC)
 //					reentries_src->data[index] = NULL;
 				// calculate size
@@ -471,7 +470,7 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 					(SqCompareFunc) sq_entry_cmp_str__name, NULL);
 			if (addr) {
 				table = *(SqTable**)addr;
-				sq_table_include(table, table_src, schema);    // TODO: NO_STEAL
+				sq_table_include(table, table_src, schema);
 				// If table has foreign/composite key, add it to SQ_TYPE_TRACING
 				if (sq_relation_find(table->relation, SQ_TYPE_TRACING, NULL))
 					sq_relation_add(schema->relation, SQ_TYPE_TRACING, table, 0);
@@ -587,7 +586,7 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 				sq_relation_add(schema->relation, SQ_TYPE_UNSYNCED, table_src, 0);
 				// add 'reentry_src' to entry->type.
 				sq_ptr_array_insert(reentries, temp.index, table_src);
-				// steal 'reentry_src' from 'entry_src->type'. TODO: NO_STEAL
+				// steal 'reentry_src' from 'entry_src->type'.
 //				if (table_src->type->bit_field & SQB_DYNAMIC)
 //					reentries_src->data[index] = NULL;
 			}
@@ -598,7 +597,6 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 #endif
 		}
 
-		// TODO: NO_STEAL
 		// steal 'table_src' from 'schema_src->type->entry'.
 		reentries_src->data[index] = NULL;
 	}
