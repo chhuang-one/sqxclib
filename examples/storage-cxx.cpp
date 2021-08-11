@@ -165,6 +165,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 
 	// create table in storage->schema
 	schema = storage->schema;
+	schema->version++;
 
 	table = schema->create<Company>("companies");
 	table->integer("id", &Company::id)->primary()->increment();

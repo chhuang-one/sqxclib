@@ -90,8 +90,6 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 {
 	SqTable*  table;
 
-	if (schema->version == 0)
-		schema->version++;
 	table = sq_table_new(table_name, type_info);
 	// if type_info == NULL,
 	// table->type is dynamic type and table->bit_field has SQB_TYPE_DYNAMIC
