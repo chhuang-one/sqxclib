@@ -281,9 +281,9 @@ void  sq_storage_update_full(SqStorage    *storage,
 
 	// destination of output
 	xcsql = storage->xc_output;
+	sqxc_sql_set_db(xcsql, storage->db);
 	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_UPDATE, (void*)table_name);
 	xcsql->info->ctrl(xcsql, SQXC_SQL_USE_WHERE, where);
-	sqxc_sql_set_db(xcsql, storage->db);
 	free(where);
 
 	sqxc_ready(xcsql, NULL);
