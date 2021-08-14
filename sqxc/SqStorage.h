@@ -152,6 +152,10 @@ void  sq_storage_remove(SqStorage  *storage,
 #define sq_storage_remove(storage, table_name, type_name, id)    \
 		sq_storage_remove_full(storage, table_name, type_name, id, NULL)
 
+void  sq_storage_remove_by_sql(SqStorage    *storage,
+                               const char   *table_name,
+                               const char   *sql_where_having);
+
 // ------------------------------------
 
 // find SqTable by SqTable.name
@@ -246,6 +250,8 @@ struct StorageMethod
 	template <class StructType>
 	void  remove(int id);
 	void  remove(const char *table_name, int id, const SqType *type = NULL);
+
+	void  removeBySql(const char *table_name, const char *sql_where_having);
 
 	int   begin();
 	int   commit();
@@ -462,6 +468,10 @@ inline void StorageMethod::remove(int id) {
 }
 inline void StorageMethod::remove(const char *table_name, int id, const SqType *type) {
 	sq_storage_remove_full((SqStorage*)this, table_name, NULL, id, type);
+}
+
+inline void StorageMethod::removeBySql(const char *table_name, const char *sql_where_having) {
+	sq_storage_remove_by_sql((SqStorage*)this, table_name, sql_where_having);
 }
 
 inline int  StorageMethod::begin() {
