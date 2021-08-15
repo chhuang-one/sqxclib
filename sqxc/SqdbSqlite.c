@@ -299,13 +299,16 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 	Sqxc *xc = *(Sqxc**)user_data;
 	int   index;
 
-	xc->type = SQXC_TYPE_OBJECT;
-	xc->name = NULL;
-	xc->value.pointer = NULL;
-	xc = sqxc_send(xc);
-	// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
-	if (xc->code != SQCODE_OK)
-		return 1;
+	// built-in types are not object
+	if (SQ_TYPE_IS_BUILTIN(sqxc_value_type(xc)) == false) {
+		xc->type = SQXC_TYPE_OBJECT;
+		xc->name = NULL;
+		xc->value.pointer = NULL;
+		xc = sqxc_send(xc);
+		// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
+		if (xc->code != SQCODE_OK)
+			return 1;
+	}
 
 	for (index = 0;  index < argc;  index++) {
 		xc->type = SQXC_TYPE_STRING;
@@ -331,15 +334,18 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 #endif  // NDEBUG
 	}
 
-	xc->type = SQXC_TYPE_OBJECT_END;
-	xc->name = NULL;
-	xc->value.pointer = NULL;
-	xc = sqxc_send(xc);
+	// built-in types are not object
+	if (SQ_TYPE_IS_BUILTIN(sqxc_value_type(xc)) == false) {
+		xc->type = SQXC_TYPE_OBJECT_END;
+		xc->name = NULL;
+		xc->value.pointer = NULL;
+		xc = sqxc_send(xc);
 #ifndef NDEBUG
-	// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
-	if (xc->code != SQCODE_OK)
-		return 1;
+		// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
+		if (xc->code != SQCODE_OK)
+			return 1;
 #endif  // NDEBUG
+	}
 
 	// xc may be changed by sqxc_send()
 	*(Sqxc**)user_data = xc;

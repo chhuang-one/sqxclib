@@ -247,10 +247,15 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 			// get result set
 			xc->code = SQCODE_NO_DATA;
 			while ((row = mysql_fetch_row(result))) {
-				xc->type = SQXC_TYPE_OBJECT;
-				xc->name = NULL;
-				xc->value.pointer = NULL;
-				xc = sqxc_send(xc);
+				// built-in types are not object
+				if (SQ_TYPE_IS_BUILTIN(sqxc_value_type(xc)) == false) {
+					xc->type = SQXC_TYPE_OBJECT;
+					xc->name = NULL;
+					xc->value.pointer = NULL;
+					xc = sqxc_send(xc);
+//					if (xc->code != SQCODE_OK)
+//						break;
+				}
 
 				xc->type = SQXC_TYPE_STRING;
 				for (unsigned int i = 0;  i < n_fields;  i++) {
@@ -273,12 +278,15 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 #endif  // NDEBUG
 				}
 
-				xc->type = SQXC_TYPE_OBJECT_END;
-				xc->name = NULL;
-				xc->value.pointer = NULL;
-				xc = sqxc_send(xc);
-//				if (xc->code != SQCODE_OK)
-//					break;
+				// built-in types are not object
+				if (SQ_TYPE_IS_BUILTIN(sqxc_value_type(xc)) == false) {
+					xc->type = SQXC_TYPE_OBJECT_END;
+					xc->name = NULL;
+					xc->value.pointer = NULL;
+					xc = sqxc_send(xc);
+//					if (xc->code != SQCODE_OK)
+//						break;
+				}
 			}
 			// if the result set is empty.
 			if (xc->code == SQCODE_NO_DATA)
