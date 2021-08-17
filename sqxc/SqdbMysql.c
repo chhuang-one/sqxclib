@@ -248,7 +248,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 			xc->code = SQCODE_NO_DATA;
 			while ((row = mysql_fetch_row(result))) {
 				// built-in types are not object
-				if (SQ_TYPE_IS_BUILTIN(sqxc_value_type(xc)) == false) {
+				if (SQ_TYPE_IS_BUILTIN(sqxc_value_current(xc)) == false) {
 					xc->type = SQXC_TYPE_OBJECT;
 					xc->name = NULL;
 					xc->value.pointer = NULL;
@@ -279,7 +279,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 				}
 
 				// built-in types are not object
-				if (SQ_TYPE_IS_BUILTIN(sqxc_value_type(xc)) == false) {
+				if (SQ_TYPE_IS_BUILTIN(sqxc_value_current(xc)) == false) {
 					xc->type = SQXC_TYPE_OBJECT_END;
 					xc->name = NULL;
 					xc->value.pointer = NULL;

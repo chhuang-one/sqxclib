@@ -300,7 +300,7 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 	int   index;
 
 	// built-in types are not object
-	if (SQ_TYPE_IS_BUILTIN(sqxc_value_type(xc)) == false) {
+	if (SQ_TYPE_IS_BUILTIN(sqxc_value_current(xc)) == false) {
 		xc->type = SQXC_TYPE_OBJECT;
 		xc->name = NULL;
 		xc->value.pointer = NULL;
@@ -335,7 +335,7 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 	}
 
 	// built-in types are not object
-	if (SQ_TYPE_IS_BUILTIN(sqxc_value_type(xc)) == false) {
+	if (SQ_TYPE_IS_BUILTIN(sqxc_value_current(xc)) == false) {
 		xc->type = SQXC_TYPE_OBJECT_END;
 		xc->name = NULL;
 		xc->value.pointer = NULL;
