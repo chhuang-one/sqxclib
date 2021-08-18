@@ -276,10 +276,10 @@ void test_sqxc_sql_output(bool use_update)
 	xcsql = sqxc_find(xcchain, SQXC_INFO_SQL);
 	if (use_update) {
 		sqxc_sql_id(xcsql) = 2333;
-		xcsql->info->ctrl(xcsql, SQXC_SQL_USE_UPDATE, table);
+		sqxc_ctrl(xcsql, SQXC_SQL_CTRL_UPDATE, table->name);
 	}
 	else
-		xcsql->info->ctrl(xcsql, SQXC_SQL_USE_INSERT, table);
+		sqxc_ctrl(xcsql, SQXC_SQL_CTRL_INSERT, table->name);
 
 	sqxc_ready(xcchain, NULL);
 

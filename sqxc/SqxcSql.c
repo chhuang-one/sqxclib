@@ -282,21 +282,21 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 		xcsql->buf_writed = 0;
 		break;
 
-	case SQXC_SQL_USE_INSERT:
+	case SQXC_SQL_CTRL_INSERT:
 		xcsql->mode = 1;
 		xcsql->row_count = 0;
 //		xcsql->col_count = 0;
 		sqxc_sql_use_insert_command(xcsql, data);
 		break;
 
-	case SQXC_SQL_USE_UPDATE:
+	case SQXC_SQL_CTRL_UPDATE:
 		xcsql->mode = 0;
 //		xcsql->row_count = 0;
 		xcsql->col_count = 0;
 		sqxc_sql_use_update_command(xcsql, data);
 		break;
 
-	case SQXC_SQL_USE_WHERE:
+	case SQXC_SQL_CTRL_WHERE:
 		free(xcsql->condition);
 		if (data)
 			xcsql->condition = strdup((char*)data);

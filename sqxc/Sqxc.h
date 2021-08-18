@@ -86,20 +86,23 @@ typedef enum {
 
 	SQXC_TYPE_OBJECT_END = SQXC_TYPE_END | SQXC_TYPE_OBJECT,
 	SQXC_TYPE_ARRAY_END  = SQXC_TYPE_END | SQXC_TYPE_ARRAY,
-	SQXC_TYPE_STREAM_END = SQXC_TYPE_END | SQXC_TYPE_STREAM,
+	SQXC_TYPE_STREAM_END = SQXC_TYPE_END | SQXC_TYPE_STREAM,    // reserve (unused now)
 } SqxcType;
 
 /* --- control id that used by SqxcInfo.ctrl() --- */
 
 typedef enum {
 	// common
-	SQXC_CTRL_READY,         // reset status
-	SQXC_CTRL_FINISH,        // flush data
+	SQXC_CTRL_READY,          // reset status
+	SQXC_CTRL_FINISH,         // flush data
 
 	// SqxcSql
-	SQXC_SQL_USE_INSERT,     // SqTable *data
-	SQXC_SQL_USE_UPDATE,     // SqTable *data
-	SQXC_SQL_USE_WHERE,      // char    *condition
+	SQXC_SQL_CTRL_INSERT,     // const char *table_name
+	SQXC_SQL_CTRL_UPDATE,     // const char *table_name
+	SQXC_SQL_CTRL_WHERE,      // const char *condition
+
+	// SqxcValue
+	SQXC_VALUE_CTRL_BUILTIN,  // const SqType *buildin_type
 } SqxcCtrlId;
 
 typedef int   (*SqxcCtrlFunc)(Sqxc *xc, int ctrl_id, void *data);
@@ -249,7 +252,9 @@ Sqxc   *sqxc_find(Sqxc *xc, const SqxcInfo *info);
 //Sqxc *sqxc_nth(Sqxc *sqxc, int position);
 #define sqxc_nth(sqxc, position)    sqxc_insert(sqxc, NULL, position)
 
-#define sqxc_get_buffer(xc)    (SqBuffer*)(&((Sqxc*)(xc))->buf)
+#define sqxc_get_buffer(xc)         (SqBuffer*)(&((Sqxc*)(xc))->buf)
+
+#define sqxc_ctrl(xc, code, data)   ((Sqxc*)(xc))->info->ctrl(xc, code, (void*)(data))
 
 // sqxc_broadcast() broadcast Sqxc chain.
 // It will call Sqxc.ctrl() from src to dest in chain of Sqxc.
