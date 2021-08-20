@@ -27,7 +27,7 @@ data type for Sqxc converter
 | SQXC_TYPE_STREAM | Text stream must be null-terminated string |
 | SQXC_TYPE_OBJECT_END | End of object                          |
 | SQXC_TYPE_ARRAY_END  | End of array (or other container)      |
-| SQXC_TYPE_STREAM_END | End of stream                          |
+| SQXC_TYPE_STREAM_END | End of stream (reserve, unused now)    |
 
 Note: SQXC_TYPE_OBJECT corresponds to SQL row.  
 Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.  

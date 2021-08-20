@@ -15,7 +15,6 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdio.h>      // snprintf
 
 #include <SqConfig.h>
 #include <SqError.h>
@@ -24,7 +23,6 @@
 #include <SqSchema.h>
 
 #ifdef _MSC_VER
-#define snprintf     _snprintf
 #define strdup       _strdup
 #endif
 

@@ -108,8 +108,9 @@ void *sq_storage_get_by_sql(SqStorage    *storage,
 #define sq_storage_get_by_sql(storage, table_name, type_name, container, sql_where_having)    \
 		sq_storage_get_all_full(storage, table_name, type_name, container, sql_where_having, NULL)
 
-// return id if no error
-// return -1 if error occurred
+/* return id if no error
+   return -1 if error occurred (or id is unknown while TRANSACTION)
+ */
 int   sq_storage_insert_full(SqStorage    *storage,
                              const char   *table_name,
                              const char   *type_name,

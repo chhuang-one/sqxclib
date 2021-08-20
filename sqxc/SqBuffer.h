@@ -142,7 +142,8 @@ struct SqBuffer
 	}
 
 	char  *require(int size) {
-		SQ_BUFFER_REQUIRE(this, size);  return buf;
+		SQ_BUFFER_REQUIRE(this, size);
+		return buf;
 	}
 
 	void   write(char character) {
