@@ -13,6 +13,7 @@ set(SOURCES
     SqStorage.c
     SqStorage-query.c
     SqQuery.c
+    SqMigration.c
     Sqdb.c
     Sqxc.c
     SqxcUnknown.c
@@ -37,6 +38,7 @@ set(HEADERS
     SqStorage.h
     SqQuery.h
     SqQuery-macro.h
+    SqMigration.h
     SqRelation.h
     Sqdb.h
     Sqxc.h
