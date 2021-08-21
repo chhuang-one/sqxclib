@@ -31,10 +31,12 @@ extern const SqxcInfo          *SQXC_INFO_VALUE;
 
 #define sqxc_value_instance(xcvalue)      ((SqxcValue*)xcvalue)->instance
 // type
-#define sqxc_value_type(xcvalue)          ((SqxcValue*)xcvalue)->element
 #define sqxc_value_current(xcvalue)       ((SqxcValue*)xcvalue)->current
 #define sqxc_value_element(xcvalue)       ((SqxcValue*)xcvalue)->element
 #define sqxc_value_container(xcvalue)     ((SqxcValue*)xcvalue)->container
+
+// deprecated
+#define sqxc_value_type(xcvalue)          ((SqxcValue*)xcvalue)->element
 
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue

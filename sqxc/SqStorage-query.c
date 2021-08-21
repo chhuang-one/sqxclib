@@ -104,7 +104,7 @@ void *sq_storage_query(SqStorage *storage, SqQuery *query, const SqType *contain
 	sql = sq_query_to_sql(query);
 	// destination of input
 	xcvalue = (Sqxc*) storage->xc_input;
-	sqxc_value_type(xcvalue) = type_cur;
+	sqxc_value_element(xcvalue) = type_cur;
 	sqxc_value_container(xcvalue) = (container) ? container : (SqType*)storage->container_default;
 	// get input from SQL
 	sqxc_ready(xcvalue, NULL);

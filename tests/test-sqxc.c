@@ -103,7 +103,7 @@ void test_sqxc_joint_input()
 	sq_type_joint_add(type, table, "tb2");
 
 	xc = sqxc_new(SQXC_INFO_VALUE);
-	sqxc_value_type(xc) = type;
+	sqxc_value_element(xc) = type;
 
 	sqxc_ready(xc, NULL);
 
@@ -184,7 +184,7 @@ User *test_sqxc_jsonc_input_user()
 
 	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
 	xcjsonc = sqxc_find(xcvalue, SQXC_INFO_JSONC_PARSER);
-	sqxc_value_type(xcvalue) = &UserType;
+	sqxc_value_element(xcvalue) = &UserType;
 	sqxc_value_container(xcvalue) = NULL;
 
 	sqxc_ready(xcvalue, NULL);

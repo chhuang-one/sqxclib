@@ -132,7 +132,7 @@ void *sq_storage_get_full(SqStorage    *storage,
 
 	// destination of input
 	xcvalue = storage->xc_input;
-	sqxc_value_type(xcvalue) = type;
+	sqxc_value_element(xcvalue) = type;
 	sqxc_value_container(xcvalue) = NULL;
 
 	temp.column = sq_table_get_primary(NULL, type);
@@ -198,7 +198,7 @@ void *sq_storage_get_all_full(SqStorage    *storage,
 
 	// destination of input
 	xcvalue = (Sqxc*) storage->xc_input;
-	sqxc_value_type(xcvalue) = type;
+	sqxc_value_element(xcvalue) = type;
 	sqxc_value_container(xcvalue) = container;
 
 	// SQL statement
