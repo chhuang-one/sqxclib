@@ -41,23 +41,26 @@ static int  sqxc_value_send(SqxcValue *xcvalue, Sqxc *src)
 		return src->code;
 	}
 
-	type = xcvalue->current;
+	type = xcvalue->container;
 	if (type == NULL)
-		return (src->code = SQCODE_TYPE_NOT_SUPPORT);
+		type = xcvalue->element;
+
 	src->code = type->parse(xcvalue->instance, type, src);
 	return src->code;
 }
 
 static int  sqxc_value_ctrl(SqxcValue *xcvalue, int id, void *data)
 {
+	const SqType *type;
+
 	switch (id) {
 	case SQXC_CTRL_READY:
-		if (xcvalue->container)
-			xcvalue->current = xcvalue->container;
-		else
-			xcvalue->current = xcvalue->element;
-		xcvalue->instance = sq_type_init_instance(xcvalue->current,
-		                                         &xcvalue->instance, true);
+		if (xcvalue->instance)
+			break;
+		type = xcvalue->container;
+		if (type == NULL)
+			type = xcvalue->element;
+		xcvalue->instance = sq_type_init_instance(type, &xcvalue->instance, true);
 		break;
 
 	case SQXC_CTRL_FINISH:
@@ -68,7 +71,6 @@ static int  sqxc_value_ctrl(SqxcValue *xcvalue, int id, void *data)
 	case SQXC_VALUE_CTRL_BUILTIN:
 		xcvalue->container = NULL;
 		xcvalue->element = data;
-		xcvalue->current = data;
 		xcvalue->instance = &xcvalue->value;
 		break;
 

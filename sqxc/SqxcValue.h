@@ -29,14 +29,12 @@ extern const SqxcInfo          *SQXC_INFO_VALUE;
 
 // macro for accessing variable of SqxcValue
 
-#define sqxc_value_instance(xcvalue)      ((SqxcValue*)xcvalue)->instance
-// type
-#define sqxc_value_current(xcvalue)       ((SqxcValue*)xcvalue)->current
-#define sqxc_value_element(xcvalue)       ((SqxcValue*)xcvalue)->element
-#define sqxc_value_container(xcvalue)     ((SqxcValue*)xcvalue)->container
+// instance type = (container) ? container : element
+#define sqxc_value_element(xcvalue)       ( ((SqxcValue*)xcvalue)->element )
+#define sqxc_value_container(xcvalue)     ( ((SqxcValue*)xcvalue)->container )
 
-// deprecated
-#define sqxc_value_type(xcvalue)          ((SqxcValue*)xcvalue)->element
+// instance of container (or element)
+#define sqxc_value_instance(xcvalue)      ( ((SqxcValue*)xcvalue)->instance )
 
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
@@ -131,9 +129,8 @@ struct SqxcValue
 	// ------ SqxcValue members ------   // <-- 3. Add variable and non-virtual function in derived struct.
 	void        *instance;
 
-	// current pointer to container when calling get_all()
-	// current pointer to element when calling get(id)
-	const SqType *current;    // type of instance
+	// instance type = container when calling get_all()
+	// instance type = element when calling get(id)
 	const SqType *element;    // type of table (or entry)
 	const SqType *container;  // type of array (or list)
 };

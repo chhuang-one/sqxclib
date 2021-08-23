@@ -71,7 +71,7 @@ int  sq_migration_get_last(SqStorage *storage, int *batch)
 	SqMigrationTable  mtable = {0};
 
 	sqxc_value_container(storage->xc_input) = NULL;
-	sqxc_value_current(storage->xc_input)   = &SqType_migration_table_;
+	sqxc_value_element(storage->xc_input)   = &SqType_migration_table_;
 	sqxc_value_instance(storage->xc_input)  = &mtable;
 
 	sqdb_exec(storage->db,
@@ -95,7 +95,7 @@ int  sq_migration_count_batch(SqStorage *storage, int batch)
 	storage->xc_input->value.integer = 0;
 #if 1
 	sqxc_value_container(storage->xc_input) = NULL;
-	sqxc_value_current(storage->xc_input)   = SQ_TYPE_INT;
+	sqxc_value_element(storage->xc_input)   = SQ_TYPE_INT;
 	sqxc_value_instance(storage->xc_input)  = &storage->xc_input->value;
 #else
 	sqxc_ctrl(storage->xc_input, SQXC_VALUE_CTRL_BUILTIN, SQ_TYPE_INT);

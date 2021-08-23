@@ -132,8 +132,9 @@ void *sq_storage_get_full(SqStorage    *storage,
 
 	// destination of input
 	xcvalue = storage->xc_input;
-	sqxc_value_element(xcvalue) = type;
+	sqxc_value_element(xcvalue)   = type;
 	sqxc_value_container(xcvalue) = NULL;
+	sqxc_value_instance(xcvalue)  = NULL;
 
 	temp.column = sq_table_get_primary(NULL, type);
 
@@ -158,7 +159,7 @@ void *sq_storage_get_full(SqStorage    *storage,
 	sqxc_finish(xcvalue, NULL);
 	if (temp.code != SQCODE_OK) {
 		storage->xc_input->code = temp.code;
-		sq_type_final_instance(type, sqxc_value_instance(xcvalue), 0);
+		sq_type_final_instance(type, sqxc_value_instance(xcvalue), false);
 		free(sqxc_value_instance(xcvalue));
 		sqxc_value_instance(xcvalue) = NULL;
 		return NULL;
@@ -198,8 +199,9 @@ void *sq_storage_get_all_full(SqStorage    *storage,
 
 	// destination of input
 	xcvalue = (Sqxc*) storage->xc_input;
-	sqxc_value_element(xcvalue) = type;
+	sqxc_value_element(xcvalue)   = type;
 	sqxc_value_container(xcvalue) = container;
+	sqxc_value_instance(xcvalue)  = NULL;
 
 	// SQL statement
 	temp.buf = sqxc_get_buffer(xcvalue);

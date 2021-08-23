@@ -237,7 +237,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 				names[i] = field->name;
 
 			// if Sqxc element prepare for multiple row
-			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
+			if (sqxc_value_container(xc)) {
 				xc->type = SQXC_TYPE_ARRAY;
 				xc->name = NULL;
 				xc->value.pointer = NULL;
@@ -248,7 +248,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 			xc->code = SQCODE_NO_DATA;
 			while ((row = mysql_fetch_row(result))) {
 				// built-in types are not object
-				if (SQ_TYPE_IS_BUILTIN(sqxc_value_current(xc)) == false) {
+				if (SQ_TYPE_NOT_BUILTIN(sqxc_value_element(xc))) {
 					xc->type = SQXC_TYPE_OBJECT;
 					xc->name = NULL;
 					xc->value.pointer = NULL;
@@ -279,7 +279,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 				}
 
 				// built-in types are not object
-				if (SQ_TYPE_IS_BUILTIN(sqxc_value_current(xc)) == false) {
+				if (SQ_TYPE_NOT_BUILTIN(sqxc_value_element(xc))) {
 					xc->type = SQXC_TYPE_OBJECT_END;
 					xc->name = NULL;
 					xc->value.pointer = NULL;
@@ -293,7 +293,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 				code = SQCODE_NO_DATA;
 
 			// if Sqxc element prepare for multiple row
-			if (sqxc_value_current(xc) == sqxc_value_container(xc)) {
+			if (sqxc_value_container(xc)) {
 				xc->type = SQXC_TYPE_ARRAY_END;
 				xc->name = NULL;
 //				xc->value.pointer = NULL;
