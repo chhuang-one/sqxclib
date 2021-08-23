@@ -311,15 +311,16 @@ struct XcMethod
 	Sqxc  *find(const SqxcInfo *info);
 	Sqxc  *nth(int position);
 
+	int    ctrl(int id, void *data);
 	int    broadcast(int id, void *data);
 	int    ready(void *data = NULL);
 	int    finish(void *data = NULL);
 
-	int    send(Sqxc *arguments_src);
-
 	void        clearNested(void);
 	SqxcNested *push(void);
 	void        pop(void);
+
+	int    send(Sqxc *arguments_src);
 
 	/* --- These are called by data source side. --- */
 
@@ -514,6 +515,9 @@ inline Sqxc  *XcMethod::nth(int position) {
 	return sqxc_nth((Sqxc*)this, position);
 }
 
+inline int  XcMethod::ctrl(int id, void *data) {
+	return sqxc_ctrl((Sqxc*)this, id, data);
+}
 inline int  XcMethod::broadcast(int id, void *data) {
 	return sqxc_broadcast((Sqxc*)this, id, data);
 }
@@ -522,9 +526,6 @@ inline int  XcMethod::ready(void *data) {
 }
 inline int  XcMethod::finish(void *data) {
 	return sqxc_finish((Sqxc*)this, data);
-}
-inline int  XcMethod::send(Sqxc *arguments_src) {
-	return ((Sqxc*)this)->info->send((Sqxc*)this, arguments_src);
 }
 
 inline void        XcMethod::clearNested(void) {
@@ -535,6 +536,10 @@ inline SqxcNested *XcMethod::push(void) {
 }
 inline void        XcMethod::pop(void) {
 	sqxc_pop_nested((Sqxc*)this);
+}
+
+inline int  XcMethod::send(Sqxc *arguments_src) {
+	return ((Sqxc*)this)->info->send((Sqxc*)this, arguments_src);
 }
 
 inline Sqxc *XcMethod::send(void) {
