@@ -296,7 +296,7 @@ struct PtrArrayMethod
 #ifdef __cplusplus
 
 // C++ template works with C macro
-template<class Type>
+template<class Type = void*>
 struct SqPtrArrayTemplate : Sq::PtrArrayMethod<Type>
 {
 	SQ_PTR_ARRAY_MEMBERS(Type, data, length);
@@ -529,7 +529,7 @@ inline Type  PtrArrayMethod<Type>::operator[](int index) {
 
 // All derived struct/class must be C++11 standard-layout.
 #if 1     // defined(__APPLE__)
-template<class Type>
+template<class Type = void*>
 struct PtrArray : SqPtrArrayTemplate<Type>
 {
 	// ------ SqPtrArrayTemplate constructor/destructor ------
@@ -553,7 +553,7 @@ struct PtrArray : SqPtrArrayTemplate<Type>
 	}
 };
 #else
-template<class Type> struct PtrArray : SqPtrArrayTemplate<Type>
+template<class Type = void*> struct PtrArray : SqPtrArrayTemplate<Type>
 {
 	using SqPtrArrayTemplate<Type>::SqPtrArrayTemplate;
 };
