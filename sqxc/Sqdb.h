@@ -117,7 +117,8 @@ struct DbMethod
 {
 	int  open(const char *name);
 	int  close(void);
-	int  exec(const char *sql, Sqxc *xc, void *reserve);
+	int  exec(const char *sql, Sqxc *xc, void *reserve = NULL);
+	int  exec(const char *sql, XcMethod *xc, void *reserve = NULL);
 	int  migrate(SqSchema *schema_cur, SqSchema *schema_next);
 };
 
@@ -227,6 +228,9 @@ inline int  DbMethod::close(void) {
 }
 inline int  DbMethod::exec(const char *sql, Sqxc *xc, void *reserve) {
 	return sqdb_exec((Sqdb*)this, sql, xc, reserve);
+}
+inline int  DbMethod::exec(const char *sql, XcMethod *xc, void *reserve) {
+	return sqdb_exec((Sqdb*)this, sql, (Sqxc*)xc, reserve);
 }
 inline int  DbMethod::migrate(SqSchema *schema_cur, SqSchema *schema_next) {
 	return sqdb_migrate((Sqdb*)this, schema_cur, schema_next);
