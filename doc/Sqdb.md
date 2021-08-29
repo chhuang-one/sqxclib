@@ -65,6 +65,64 @@ struct SqdbConfig
 };
 ```
 
+## Get result from SQL query
+
+get an integer value:
+
+```c
+	SqxcValue *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
+	int   integer = -1;
+	int   code;
+
+	xc_input->container = NULL;
+	xc_input->element   = SQ_TYPE_INT;
+	xc_input->instance  = &integer;
+	code = sqdb_exec(db, "SELECT max(id) FROM migrations", xc_input, NULL);
+
+	if (code == SQCODE_OK)
+		return integer;
+```
+
+get a row of "migrations" table:
+
+```c
+	SqxcValue  *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
+	SqMigrationTable *mtable = calloc(1, sizeof(SqMigrationTable));
+	int   code;
+
+	xc_input->container = NULL;
+	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
+	xc_input->instance  = mtable;
+	code = sqdb_exec(db, "SELECT * FROM migrations WHERE id = 1", xc_input, NULL);
+
+	if (code == SQCODE_OK)
+		return mtable;
+	else {
+		free(mtable);
+		return NULL;
+	}
+```
+
+get multiple rows of "migrations" table:
+
+```c
+	SqxcValue  *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
+	SqPtrArray *array = sq_ptr_array_new(32, NULL);
+	int   code;
+
+	xc_input->container = SQ_TYPE_PTR_ARRAY;
+	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
+	xc_input->instance  = array;
+	code = sqdb_exec(db, "SELECT * FROM migrations", xc_input, NULL);
+
+	if (code == SQCODE_OK)
+		return array;
+	else {
+		sq_ptr_array_free(array);
+		return NULL;
+	}
+```
+
 ## How to support new SQL product:
  User can refer SqdbMysql.h and SqdbMysql.c to support new SQL product.  
  SqdbEmpty.h and SqdbEmpty.c is a workable sample, but it do nothing.  
