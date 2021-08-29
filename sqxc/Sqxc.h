@@ -546,36 +546,56 @@ inline Sqxc *XcMethod::send(void) {
 	return sqxc_send((Sqxc*)this);
 }
 inline Sqxc *XcMethod::sendBool(const char *entry_name, bool value) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_BOOL(xc, entry_name, value);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_BOOL(xc, entry_name, value);
+	return xc;
 }
 inline Sqxc *XcMethod::sendInt(const char *entry_name, int value) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_INT(xc, entry_name, value);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_INT(xc, entry_name, value);
+	return xc;
 }
 inline Sqxc *XcMethod::sendInt64(const char *entry_name, int64_t value) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_INT64(xc, entry_name, value);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_INT64(xc, entry_name, value);
+	return xc;
 }
 inline Sqxc *XcMethod::sendTime(const char *entry_name, time_t value) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_TIME(xc, entry_name, value);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_TIME(xc, entry_name, value);
+	return xc;
 }
 inline Sqxc *XcMethod::sendDouble(const char *entry_name, double value) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_DOUBLE(xc, entry_name, value);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_DOUBLE(xc, entry_name, value);
+	return xc;
 }
 inline Sqxc *XcMethod::sendString(const char *entry_name, const char *value) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_STRING(xc, entry_name, (char*)value);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_STRING(xc, entry_name, (char*)value);
+	return xc;
 }
 
 inline Sqxc *XcMethod::sendObjectBeg(const char *entry_name) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_OBJECT_BEG(xc, entry_name);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_OBJECT_BEG(xc, entry_name);
+	return xc;
 }
 inline Sqxc *XcMethod::sendObjectEnd(const char *entry_name) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_OBJECT_END(xc, entry_name);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_OBJECT_END(xc, entry_name);
+	return xc;
 }
 
 inline Sqxc *XcMethod::sendArrayBeg(const char *entry_name) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_ARRAY_BEG(xc, entry_name);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_ARRAY_BEG(xc, entry_name);
+	return xc;
 }
 inline Sqxc *XcMethod::sendArrayEnd(const char *entry_name) {
-	Sqxc *xc = (Sqxc*)this;  SQXC_SEND_ARRAY_END(xc, entry_name);  return xc;
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_ARRAY_END(xc, entry_name);
+	return xc;
 }
 
 // These are for directly use only. You can NOT derived it.
