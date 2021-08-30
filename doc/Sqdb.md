@@ -67,7 +67,12 @@ struct SqdbConfig
 
 ## Get result from SQL query
 
-get an integer value:
+User can use sqdb_exec() to execute a query and get result by Sqxc elements.  
+- If you want to parse object or array and reuse Sqxc elements:
+1. call sqxc_ready() before sqdb_exec().
+2. call sqxc_finish() after sqdb_exec().
+
+#### Get an integer value
 
 ```c
 	SqxcValue *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
@@ -77,23 +82,31 @@ get an integer value:
 	xc_input->container = NULL;
 	xc_input->element   = SQ_TYPE_INT;
 	xc_input->instance  = &integer;
-	code = sqdb_exec(db, "SELECT max(id) FROM migrations", xc_input, NULL);
+
+	code = sqdb_exec(db, "SELECT max(id) FROM migrations", (Sqxc*)xc_input, NULL);
 
 	if (code == SQCODE_OK)
 		return integer;
 ```
 
-get a row of "migrations" table:
+#### Get a row of "migrations" table
 
 ```c
-	SqxcValue  *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
+	SqxcValue        *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
 	SqMigrationTable *mtable = calloc(1, sizeof(SqMigrationTable));
 	int   code;
 
 	xc_input->container = NULL;
 	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
 	xc_input->instance  = mtable;
-	code = sqdb_exec(db, "SELECT * FROM migrations WHERE id = 1", xc_input, NULL);
+
+	// call sqxc_ready() before sqdb_exec() if you want to reuse Sqxc elements
+	sqxc_ready(xc_input, NULL);
+
+	code = sqdb_exec(db, "SELECT * FROM migrations WHERE id = 1", (Sqxc*)xc_input, NULL);
+
+	// call sqxc_finish() after sqdb_exec() if you want to reuse Sqxc elements
+	sqxc_finish(xc_input, NULL);
 
 	if (code == SQCODE_OK)
 		return mtable;
@@ -103,22 +116,54 @@ get a row of "migrations" table:
 	}
 ```
 
-get multiple rows of "migrations" table:
+#### Get multiple rows of "migrations" table
+
+Use C function to get multiple rows of "migrations" table
 
 ```c
 	SqxcValue  *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
 	SqPtrArray *array = sq_ptr_array_new(32, NULL);
-	int   code;
+	int         code;
 
 	xc_input->container = SQ_TYPE_PTR_ARRAY;
 	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
 	xc_input->instance  = array;
-	code = sqdb_exec(db, "SELECT * FROM migrations", xc_input, NULL);
+
+	// call sqxc_ready() before sqdb_exec() if you want to reuse Sqxc elements
+	sqxc_ready(xc_input, NULL);
+
+	code = sqdb_exec(db, "SELECT * FROM migrations", (Sqxc*)xc_input, NULL);
+
+	// call sqxc_finish() after sqdb_exec() if you want to reuse Sqxc elements
+	sqxc_finish(xc_input, NULL);
 
 	if (code == SQCODE_OK)
 		return array;
 	else {
 		sq_ptr_array_free(array);
+		return NULL;
+	}
+```
+
+Use C++ function to get multiple rows of "migrations" table
+
+```c++
+	Sq::XcValue    *xc_input = new Sq::XcValue();
+	Sq::PtrArray<> *array = new Sq::PtrArray<>();
+	int   code;
+
+	xc_input->container = SQ_TYPE_PTR_ARRAY;
+	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
+	xc_input->instance  = array;
+
+	xc_input->ready();
+	db->exec("SELECT * FROM migrations", xc_input);
+	xc_input->finish();
+
+	if (code == SQCODE_OK)
+		return array;
+	else {
+		delete array;
 		return NULL;
 	}
 ```
@@ -227,3 +272,4 @@ const SqdbInfo *SQDB_INFO_XXSQL = &dbinfo;
 	/* C++ function */
 //	storage = new Sq::Storage(db);
 ```
+
