@@ -157,7 +157,7 @@ Use C++ function to get multiple rows of "migrations" table
 	xc_input->instance  = array;
 
 	xc_input->ready();
-	db->exec("SELECT * FROM migrations", xc_input);
+	code = db->exec("SELECT * FROM migrations", xc_input);
 	xc_input->finish();
 
 	if (code == SQCODE_OK)
