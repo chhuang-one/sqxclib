@@ -60,7 +60,7 @@ int  sq_migration_install(Sqdb *db)
 
 	table = sq_table_new(SQ_MIGRATION_TABLE_NAME, &SqType_migration_table_);
 	sqdb_sql_create_table(db, &buffer, table, NULL, true);
-	code = sqdb_exec(db, buffer.buf, NULL, NULL);
+	code = sqdb_exec(db, buffer.mem, NULL, NULL);
 	sq_buffer_final(&buffer);
 	sq_table_free(table);
 	return code;
@@ -100,7 +100,7 @@ int  sq_migration_count_batch(SqStorage *storage, int batch)
 #else
 	sqxc_ctrl(storage->xc_input, SQXC_VALUE_CTRL_BUILTIN, SQ_TYPE_INT);
 #endif
-	sqdb_exec(storage->db, buf->buf, storage->xc_input, NULL);
+	sqdb_exec(storage->db, buf->mem, storage->xc_input, NULL);
 	return storage->xc_input->value.integer;
 }
 
@@ -132,7 +132,7 @@ void  sq_migration_remove(SqStorage *storage, int begin)
 	SqBuffer  buffer = {0};
 
 	sq_buffer_alloc(&buffer, snprintf(NULL, 0, "WHERE id >= %d", begin));
-	snprintf(buffer.buf, buffer.size, "WHERE id >= %d", begin);
-	sq_storage_remove_by_sql(storage, SQ_MIGRATION_TABLE_NAME, buffer.buf);
+	snprintf(buffer.mem, buffer.size, "WHERE id >= %d", begin);
+	sq_storage_remove_by_sql(storage, SQ_MIGRATION_TABLE_NAME, buffer.mem);
 	sq_buffer_final(&buffer);
 }

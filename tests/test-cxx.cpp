@@ -52,9 +52,9 @@ struct Company
 };
 
 static const SqColumn  UserColumnArray[] = {
-	{SQ_TYPE_INT,    (char*)"id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
-	{SQ_TYPE_STRING, (char*)"name",    offsetof(User, name),  0 },
-	{SQ_TYPE_STRING, (char*)"email",   offsetof(User, email), 0 },
+	{SQ_TYPE_INT,      "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
+	{SQ_TYPE_STRING,   "name",    offsetof(User, name),  0 },
+	{SQ_TYPE_STRING,   "email",   offsetof(User, email), 0 },
 };
 
 static const SqColumn  *UserColumns[] = {
@@ -218,6 +218,7 @@ void test_type()
 	type->stealEntry(entry_addr);
 	type->decideSize(*entry_addr, true);
 
+	// add entry "email" again
 	type->addEntry(entry);
 	type->decideSize();
 

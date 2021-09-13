@@ -123,7 +123,7 @@ void test_buffer(void)
 	sq_buffer_insert_c(buf, 3, 'q');
 
 	sq_buffer_write_c(buf, 0);
-	puts(buf->buf);
+	puts(buf->mem);
 	sq_buffer_free(buf);
 }
 

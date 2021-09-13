@@ -127,10 +127,10 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 	buf = sqxc_get_buffer(xc_value);
 	buf->writed = 0;
 	strncpy(sq_buffer_alloc(buf, temp.len*2), src->name, temp.len);   // alloc(buf, (temp.len+1)*2)
-	buf->buf[temp.len] = 0;    // null-terminated
+	buf->mem[temp.len] = 0;    // null-terminated
 	temp.len++;                // + '.'
 
-	table = (SqEntry*)sq_type_find_entry(type, buf->buf, NULL);
+	table = (SqEntry*)sq_type_find_entry(type, buf->mem, NULL);
 	if (table) {
 		table = *(SqEntry**)table;
 		// push nested for parser of 'table'

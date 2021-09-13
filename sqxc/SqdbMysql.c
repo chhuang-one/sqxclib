@@ -162,9 +162,9 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 				// CREATE TABLE
 				if (sqdb_sql_create_table((Sqdb*)db, &sql_buf, table, NULL, false) > 0) {
 #ifndef NDEBUG
-					fprintf(stderr, "SQL: %s\n", sql_buf.buf);
+					fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-					rc = mysql_query(db->self, sql_buf.buf);
+					rc = mysql_query(db->self, sql_buf.mem);
 					if (rc)
 						goto atExit;
 				}
@@ -174,9 +174,9 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 
 			if (sql_buf.writed > 0) {
 #ifndef NDEBUG
-				fprintf(stderr, "SQL: %s\n", sql_buf.buf);
+				fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-				rc = mysql_query(db->self, sql_buf.buf);
+				rc = mysql_query(db->self, sql_buf.mem);
 				if (rc)
 					goto atExit;
 			}

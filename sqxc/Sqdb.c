@@ -71,9 +71,9 @@ int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrAr
 		sql_buf->writed = 0;
 #ifndef NDEBUG
 		// Don't run this because sqdb_exec() will output this debug message.
-//		fprintf(stderr, "SQL: %s\n", sql_buf->buf);
+//		fprintf(stderr, "SQL: %s\n", sql_buf->mem);
 #endif
-		rc = sqdb_exec(db, sql_buf->buf, NULL, NULL);
+		rc = sqdb_exec(db, sql_buf->mem, NULL, NULL);
 		if (rc != SQCODE_OK)
 			break;
 	}
@@ -119,9 +119,9 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 		buffer->writed = 0;
 #ifndef NDEBUG
 		// Don't run this because sqdb_exec() will output this debug message.
-//		fprintf(stderr, "SQL: %s\n", buffer->buf);
+//		fprintf(stderr, "SQL: %s\n", buffer->mem);
 #endif
-		rc = sqdb_exec(db, buffer->buf, NULL, NULL);
+		rc = sqdb_exec(db, buffer->mem, NULL, NULL);
 		if (rc != SQCODE_OK)
 			break;
 	}
@@ -152,7 +152,7 @@ int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArr
 
 	n_columns = sqdb_sql_create_table_params(db, sql_buf, arranged_columns, primary_first);
 
-	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
 	return n_columns;
 }
 
@@ -214,8 +214,8 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 		// write comma between two columns
 		if (n_columns > 0) {
 			sq_buffer_alloc(buffer, 2);
-			buffer->buf[buffer->writed -2] = ',';
-			buffer->buf[buffer->writed -1] = ' ';
+			buffer->mem[buffer->writed -2] = ',';
+			buffer->mem[buffer->writed -1] = ' ';
 		}
 		n_columns++;
 		// write column
@@ -277,7 +277,7 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 		sq_ptr_array_final(&array);
 
 	sq_buffer_write_c(buffer, ')');
-	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 	return n_columns;  
 }
 
@@ -296,7 +296,7 @@ void sqdb_sql_drop_table(Sqdb *db, SqBuffer *buffer, SqTable *table, bool if_exi
 	sq_buffer_write(buffer, table->old_name);
 	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
 
-	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, const char *table_name, bool is_delete)
@@ -314,7 +314,7 @@ void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, const char *table_name, bool is_
 	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
 	sq_buffer_r_at(sql_buf, 0) = ' ';
 
-	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void sqdb_sql_rename_table(Sqdb *db, SqBuffer *buffer, const char *old_name, const char *new_name)
@@ -347,7 +347,7 @@ void sqdb_sql_rename_table(Sqdb *db, SqBuffer *buffer, const char *old_name, con
 	sq_buffer_write(buffer, new_name);
 	sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
 
-	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 // ------------------------------------
@@ -377,7 +377,7 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	// ADD CONSTRAINT
 	if (column->type == SQ_TYPE_CONSTRAINT) {
 		sqdb_sql_write_constraint(db, buffer, column);
-		buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+		buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 		return;
 	}
 	// ADD FOREIGN KEY
@@ -395,7 +395,7 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	// ADD COLUMN
 	else {
 		sqdb_sql_write_column(db, buffer, column, NULL);
-		buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+		buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 		return;
 	}
 
@@ -414,7 +414,7 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	if (column->foreign)
 		sqdb_sql_write_foreign_ref(db, buffer, column);
 
-	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void sqdb_sql_alter_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
@@ -443,7 +443,7 @@ void sqdb_sql_alter_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 		sqdb_sql_write_column(db, buffer, column, NULL);
 	}
 
-	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column, SqColumn *column_data)
@@ -495,7 +495,7 @@ void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn
 		sqdb_sql_write_column(db, buffer, column_data, column->name);
 	}
 
-	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
@@ -546,7 +546,7 @@ void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 		sq_buffer_write(buffer, column->old_name);
 		sq_buffer_write_c(buffer, db->info->quote.identifier[1]);
 	}
-	buffer->buf[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
@@ -573,7 +573,7 @@ void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn
 
 	sqdb_sql_write_composite_columns(db, sql_buf, column);
 
-	sql_buf->buf[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 // ----------------------------------------------------------------------------

@@ -184,9 +184,9 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 
 			// exec SQL statement
 #ifndef NDEBUG
-			fprintf(stderr, "SQL: %s\n", sql_buf.buf);
+			fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-			sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, NULL);
+			sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, NULL);
 		}
 	}
 
@@ -216,9 +216,9 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 		if (sql_buf.writed > 0) {
 			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #ifndef NDEBUG
-			fprintf(stderr, "SQL: %s\n", sql_buf.buf);
+			fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-			rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+			rc = sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, &errorMsg);
 			if (rc != SQLITE_OK) {
 				// error occurred
 #ifndef NDEBUG
@@ -248,12 +248,12 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	sqdb->version = schema->version;
 	sql_buf.writed = 0;
 	sq_buffer_alloc(&sql_buf, snprintf(NULL, 0, "PRAGMA user_version = %d", sqdb->version));
-	sprintf(sql_buf.buf, "PRAGMA user_version = %d", sqdb->version);
+	sprintf(sql_buf.mem, "PRAGMA user_version = %d", sqdb->version);
 //	sq_buffer_write_c(&sql_buf, 0);  // null-terminated
 #ifndef NDEBUG
-	fprintf(stderr, "SQL: %s\n", sql_buf.buf);
+	fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-	rc = sqlite3_exec(sqdb->self, sql_buf.buf, NULL, NULL, &errorMsg);
+	rc = sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, &errorMsg);
 
 atExit:
 	// free buffer for SQL statement

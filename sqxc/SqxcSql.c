@@ -266,7 +266,7 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 			// length of ") VALUES " is 9
 			sq_buffer_resize(buffer, buffer->writed + 9 + values->writed + 1);
 			sq_buffer_write(buffer, ") VALUES ");
-			sq_buffer_write_n(buffer, values->buf, values->writed);
+			sq_buffer_write_n(buffer, values->mem, values->writed);
 			// reset values buffer
 			values->writed = 0;
 		}
@@ -474,13 +474,13 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 		}
 		idx = buffer->writed;
 		sq_buffer_alloc(buffer, len +2);    // + '\'' x 2
-		buffer->buf[idx++] = '\'';
-		buffer->buf[idx +len] = '\'';
+		buffer->mem[idx++] = '\'';
+		buffer->mem[idx +len] = '\'';
 		for (len = idx, idx = 0;  src->value.string[idx];  idx++, len++) {
 			// double up on the single quotes
 			if (src->value.string[idx] == '\'')
-				buffer->buf[len++] = '\'';
-			buffer->buf[len] = src->value.string[idx];
+				buffer->mem[len++] = '\'';
+			buffer->mem[len] = src->value.string[idx];
 		}
 		break;
 

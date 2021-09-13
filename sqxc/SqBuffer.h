@@ -45,7 +45,7 @@ extern "C" {
 		*(buffer) = (SqBuffer){NULL, 0, 0}
 #else
 #define sq_buffer_init(buffer)    \
-		{ ((SqBuffer*)(buffer))->buf = NULL;  ((SqBuffer*)(buffer))->size = 0;  ((SqBuffer*)(buffer))->writed = 0; }
+		{ ((SqBuffer*)(buffer))->mem = NULL;  ((SqBuffer*)(buffer))->size = 0;  ((SqBuffer*)(buffer))->writed = 0; }
 #endif  // C99
 
 #define sq_buffer_final(buffer)   \
@@ -53,7 +53,7 @@ extern "C" {
 
 // void sq_buffer_r_at(SqBuffer *buffer, int reverse_pos)
 #define sq_buffer_r_at(buffer, reverse_pos)    \
-		(buffer)->buf[(buffer)->writed - (reverse_pos) -1]
+		(buffer)->mem[(buffer)->writed - (reverse_pos) -1]
 
 // allocation count+1 character for null-terminated string
 //char *sq_buffer_alloc(SqBuffer *buf, int count);
@@ -94,7 +94,7 @@ extern "C" {
 #define SQ_BUFFER_REQUIRE(buffer, length)               \
 		if (((SqBuffer*)(buffer))->size < (length)) {   \
 			((SqBuffer*)(buffer))->size = (length);     \
-			((SqBuffer*)(buffer))->buf  = (char*)realloc(((SqBuffer*)(buffer))->buf, (length)); }
+			((SqBuffer*)(buffer))->mem  = (char*)realloc(((SqBuffer*)(buffer))->mem, (length)); }
 
 /* --- C functions --- */
 
@@ -110,15 +110,15 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count);
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-#define SQ_BUFFER_MEMBERS(buf_name, size_name, writed_name)  \
-	char  *buf_name;      \
+#define SQ_BUFFER_MEMBERS(mem_name, size_name, writed_name)  \
+	char  *mem_name;      \
 	int    size_name;     \
 	int    writed_name
 
 struct SqBuffer
 {
-//	SQ_BUFFER_MEMBERS(buf, size, writed)
-	char  *buf;
+//	SQ_BUFFER_MEMBERS(mem, size, writed)
+	char  *mem;
 	int    size;
 	int    writed;
 
@@ -143,7 +143,7 @@ struct SqBuffer
 
 	char  *require(int size) {
 		SQ_BUFFER_REQUIRE(this, size);
-		return buf;
+		return mem;
 	}
 
 	void   write(char character) {
@@ -222,7 +222,7 @@ static inline
 char *sq_buffer_require(SqBuffer *buffer, int length)
 {
 	SQ_BUFFER_REQUIRE(buffer, length);
-	return buffer->buf;
+	return buffer->mem;
 }
 
 #else   // __STDC_VERSION__ || __cplusplus

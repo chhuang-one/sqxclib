@@ -278,7 +278,7 @@ struct SqStorage
 
 	SqSchema  *schema;      // current schema
 
-	// tables is sorted by SqTable.type.name
+	// tables is an array that sorted by SqTable.type.name
 	SqPtrArray tables;
 	int        tables_version;
 

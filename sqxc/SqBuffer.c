@@ -20,13 +20,13 @@
 void *sq_buffer_resize(SqBuffer *buf, int size)
 {
 	if (size == 0) {
-		free(buf->buf);
-		buf->buf = NULL;
+		free(buf->mem);
+		buf->mem = NULL;
 		buf->size = 0;
 		buf->writed = 0;
 	}
 	else {
-		buf->buf = realloc(buf->buf, size);
+		buf->mem = realloc(buf->mem, size);
 		buf->size = size;
 		if (buf->writed > size)
 			buf->writed = size;
@@ -42,15 +42,15 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count)
 		buf->size = (buf->size < SQ_BUFFER_SIZE_DEFAULT) ? SQ_BUFFER_SIZE_DEFAULT : buf->size * 2;
 		if (buf->size < new_length)
 			buf->size = new_length * 2;
-		buf->buf = realloc(buf->buf, buf->size);
+		buf->mem = realloc(buf->mem, buf->size);
 	}
 	if (position < buf->writed) {
-		memmove(buf->buf + position + count,
-		        buf->buf + position,
+		memmove(buf->mem + position + count,
+		        buf->mem + position,
 		        buf->writed - position);
 	}
 	buf->writed = new_length -1;    // -1 because reserve space is not counted in length
-	return buf->buf + position;
+	return buf->mem + position;
 }
 
 // ----------------------------------------------------------------------------
@@ -83,7 +83,7 @@ void  sq_buffer_insert_n(SqBuffer *buffer, int position, const char *string, int
 char *sq_buffer_require(SqBuffer *buffer, int length)
 {
 	SQ_BUFFER_REQUIRE(buffer, length);
-	return buffer->buf;
+	return buffer->mem;
 }
 
 #endif  // __STDC_VERSION__

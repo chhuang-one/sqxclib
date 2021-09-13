@@ -155,7 +155,7 @@ void *sq_storage_get_full(SqStorage    *storage,
 	sprintf(sq_buffer_alloc(buf, temp.len), "%d", id);
 
 	sqxc_ready(xcvalue, NULL);
-	temp.code = sqdb_exec(storage->db, buf->buf, xcvalue, NULL);
+	temp.code = sqdb_exec(storage->db, buf->mem, xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
 	if (temp.code != SQCODE_OK) {
 		storage->xc_input->code = temp.code;
@@ -213,7 +213,7 @@ void *sq_storage_get_all_full(SqStorage    *storage,
 		sq_buffer_write(temp.buf, sql_where_having);
 
 	sqxc_ready(xcvalue, NULL);
-	sqdb_exec(storage->db, temp.buf->buf, xcvalue, NULL);
+	sqdb_exec(storage->db, temp.buf->mem, xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
 	temp.instance = sqxc_value_instance(xcvalue);
 	return temp.instance;
@@ -338,7 +338,7 @@ void  sq_storage_remove_full(SqStorage    *storage,
 	        temp.column->name,
 	        storage->db->info->quote.identifier[1],
 	        id);
-	sqdb_exec(storage->db, buf->buf, NULL, NULL);
+	sqdb_exec(storage->db, buf->mem, NULL, NULL);
 }
 
 void  sq_storage_remove_by_sql(SqStorage    *storage,
@@ -351,7 +351,7 @@ void  sq_storage_remove_by_sql(SqStorage    *storage,
 	buf->writed = 0;
 	sqdb_sql_from(storage->db, buf, table_name, true);
 	sq_buffer_write(buf, sql_where_having);
-	sqdb_exec(storage->db, buf->buf, NULL, NULL);
+	sqdb_exec(storage->db, buf->mem, NULL, NULL);
 }
 
 // ------------------------------------

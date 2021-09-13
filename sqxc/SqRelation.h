@@ -120,10 +120,11 @@ struct RelationNodeMethod {
                 SqRelationNode is the element type in in pool and array
  */
 #ifdef __cplusplus
-struct SqRelation : Sq::RelationMethod {
+struct SqRelation : Sq::RelationMethod
 #else
-struct SqRelation {
+struct SqRelation
 #endif
+{
 	SQ_PTR_ARRAY_MEMBERS(SqRelationNode, data, x2length);    // sorted by object address.
 	SqRelationPool  *pool;
 
@@ -142,10 +143,11 @@ struct SqRelation {
                     size of this structure == size of 2 pointers because SqRelationNode has 2 pointers
  */
 #ifdef __cplusplus
-struct SqRelationNode : Sq::RelationNodeMethod {
+struct SqRelationNode : Sq::RelationNodeMethod
 #else
-struct SqRelationNode {
+struct SqRelationNode
 #endif
+{
 	void           *object;
 	SqRelationNode *next;
 };

@@ -66,13 +66,13 @@ extern "C" {
 // ----------------------------------------------------------------------------
 // macro functions - parameter used only once in macro (except parameter 'array')
 
-//void  sq_ptr_array_init(void *array, int allocated_length, SqDestroyFunc func);
-#define sq_ptr_array_init(array, allocated_length, func)  \
-		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, func)
+//void  sq_ptr_array_init(void *array, int allocated_length, SqDestroyFunc destroy_func);
+#define sq_ptr_array_init(array, allocated_length, destroy_func)  \
+		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, destroy_func)
 
-//void *sq_ptr_array_new(int allocated_length, SqDestroyFunc func);
-#define sq_ptr_array_new(allocated_length, func)  \
-		sq_ptr_array_init_full(NULL, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, func)
+//void *sq_ptr_array_new(int allocated_length, SqDestroyFunc destroy_func);
+#define sq_ptr_array_new(allocated_length, destroy_func)  \
+		sq_ptr_array_init_full(NULL, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, destroy_func)
 
 //void  sq_ptr_array_free(void *array);
 #define sq_ptr_array_free(array)    free(sq_ptr_array_final(array))
