@@ -54,42 +54,40 @@ headers = ['sqxclib.h',
 
 # C++ sources & headers
 
-sources_cpp = [
-               'SqType-std-string.cpp',
+sources_cpp = ['SqType-std-string.cpp',
               ]
 
-headers_cpp = [
-               'SqType-stl-cpp.h',
+headers_cpp = ['SqType-stl-cpp.h',
               ]
 
 # test sources & headers
 
-sources_test = [
-                'SqdbEmpty.c',
+sources_test = ['SqdbEmpty.c',
                 'SqxcEmpty.c',
                ]
 
-headers_test = [
-                'SqdbEmpty.h',
+headers_test = ['SqdbEmpty.h',
                 'SqxcEmpty.h',
                ]
+
+dependencies = []
 
 if jsonc.found() == true
 	sources += ['SqxcJsonc.c']
 	headers += ['SqxcJsonc.h']
-	sqxc_dep = [jsonc]
+	dependencies += jsonc
 endif
 
 if mysql_config.found()
 	sources += ['SqdbMysql.c', 'Sqdb-migration.c']
 	headers += ['SqdbMysql.h', 'Sqdb-migration.h']
-	sqxc_dep += mysql
+	dependencies += mysql
 endif
 
 if sqlite.found() == true
 	sources += ['SqdbSqlite.c', 'SqRelation-migration.c', 'SqRelation.c']
 	headers += ['SqdbSqlite.h', 'SqRelation-migration.h']
-	sqxc_dep += sqlite
+	dependencies += sqlite
 endif
 
 install_headers(headers, subdir: 'sqxc')
@@ -106,21 +104,21 @@ sqxc_inc = include_directories('./')
 sqxc_lib = static_library('sqxc',
                           sources,
                           include_directories: sqxc_inc,
-                          dependencies : sqxc_dep,
+                          dependencies : dependencies,
                           install: false)
 
 sqxcpp_lib = static_library('sqxcpp',
                             sources_cpp,
                             include_directories: sqxc_inc,
-                            dependencies : sqxc_dep,
+                            dependencies : dependencies,
                             install: false)
 
 sqxctest_lib = static_library('sqxctest',
                               sources_test,
                               include_directories: sqxc_inc,
-                              dependencies : sqxc_dep,
+                              dependencies : dependencies,
                               install: false)
 
 sqxc = declare_dependency(include_directories : sqxc_inc,
                           link_with : [sqxc_lib, sqxcpp_lib],
-                          dependencies : sqxc_dep)
+                          dependencies : dependencies)
