@@ -407,7 +407,7 @@ static const SqType SqTypeObjectStatic =
 const SqType  *SQ_ENTRY_OBJECT = &SqTypeObjectStatic;
  */
 
-int  sq_type_object_parse(void *instance, const SqType *entrytype, Sqxc *src)
+int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	SqxcValue  *xc_value = (SqxcValue*)src->dest;
 	SqxcNested *nested;
@@ -420,7 +420,7 @@ int  sq_type_object_parse(void *instance, const SqType *entrytype, Sqxc *src)
 			// Frist time to call this function to parse object
 			nested = sqxc_push_nested((Sqxc*)xc_value);
 			nested->data  = instance;
-			nested->data2 = (SqType*)entrytype;
+			nested->data2 = (SqType*)type;
 			nested->data3 = NULL;
 		}
 		if (src->type != SQXC_TYPE_OBJECT) {
@@ -440,26 +440,29 @@ int  sq_type_object_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	 */
 
 	// parse entries in type
-	entry = (SqEntry*)sq_type_find_entry(entrytype, src->name, NULL);
+	entry = (SqEntry*)sq_type_find_entry(type, src->name, NULL);
 	if (entry) {
 		entry = *(SqEntry**)entry;
-		entrytype = entry->type;
-		if (entrytype->parse == NULL)  // don't parse anything if function pointer is NULL
+		type = entry->type;
+		if (type->parse == NULL)  // don't parse anything if function pointer is NULL
 			return (src->code = SQCODE_OK);
 		instance = (char*)instance + entry->offset;
+		// special case : pointer to instance
 		if (entry->bit_field & SQB_POINTER) {
-			if (src->type == SQXC_TYPE_STRING && src->value.string == NULL) {
-				*(void**)instance = NULL;
+			// try to use existed instance
+			if (*(void**)instance)
+				instance = *(void**)instance;
+			else if (src->type != SQXC_TYPE_STRING || src->value.string != NULL)
+				instance = sq_type_init_instance(type, instance, true);
+			else
 				return (src->code = SQCODE_OK);
-			}
-			instance = sq_type_init_instance(entrytype, instance, true);
 		}
-		return entrytype->parse(instance, entrytype, src);
+		return type->parse(instance, type, src);
 	}
 	return (src->code = SQCODE_ENTRY_NOT_FOUND);
 }
 
-Sqxc *sq_type_object_write(void *instance, const SqType *entrytype, Sqxc *dest)
+Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *dest)
 {
 	void       *member;
 	SqType     *member_type;
@@ -473,8 +476,8 @@ Sqxc *sq_type_object_write(void *instance, const SqType *entrytype, Sqxc *dest)
 	if (dest->code != SQCODE_OK)
 		return dest;
 
-	for (int index = 0;  index < entrytype->n_entry;  index++) {
-		SqEntry *entry = entrytype->entry[index];
+	for (int index = 0;  index < type->n_entry;  index++) {
+		SqEntry *entry = type->entry[index];
 		member_type = (SqType*)entry->type;
 		if (member_type->write == NULL)  // don't write anything if function pointer is NULL
 			continue;

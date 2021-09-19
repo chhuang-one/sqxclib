@@ -85,7 +85,7 @@ static void  sqxc_value_init(SqxcValue *xcvalue)
 {
 //	memset(xcvalue, 0, sizeof(SqxcValue));
 	xcvalue->supported_type = SQXC_TYPE_ALL;
-	// SqTypeWriteFunc like sq_type_object_write(), sq_type_xxx_array_write() need this line
+	// SqTypeParseFunc like sq_type_object_parse(), sq_type_xxx_array_parse() need this line
 	xcvalue->dest = (Sqxc*)xcvalue;
 }
 
