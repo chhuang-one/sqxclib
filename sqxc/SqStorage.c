@@ -468,8 +468,10 @@ static char  *get_primary_key_string(void *instance, const SqType *type, const c
 // If compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-// C99 or C++ inline functions in SqArray.h
-#else
+// C99 or C++ inline functions in SqStorage.h
+
+#else   // __STDC_VERSION__
+// declare functions here if compiler does NOT support inline function.
 
 int  sq_storage_begin(SqStorage *storage) {
 	return SQ_STORAGE_BEGIN(storage);

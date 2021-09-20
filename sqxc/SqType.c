@@ -284,8 +284,10 @@ unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool
 // If compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-// C99 or C++ inline functions in SqArray.h
-#else
+// C99 or C++ inline functions in SqType.h
+
+#else   // __STDC_VERSION__
+// declare functions here if compiler does NOT support inline function.
 
 void  sq_type_erase_entry_addr(SqType *type, void **element_addr, int count)
 {

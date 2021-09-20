@@ -167,8 +167,10 @@ void **sq_ptr_array_find_sorted(void *array, const void *key,
 // If compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-// C99 or C++ inline functions in SqArray.h
-#else
+// C99 or C++ inline functions in SqPtrArray.h
+
+#else   // __STDC_VERSION__
+// declare functions here if compiler does NOT support inline function.
 
 void  sq_ptr_array_steal(void *array, int index, int count)
 {

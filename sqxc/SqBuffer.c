@@ -58,7 +58,9 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count)
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 // C99 or C++ inline functions in SqBuffer.h
-#else
+
+#else   // __STDC_VERSION__
+// declare functions here if compiler does NOT support inline function.
 
 void  sq_buffer_write(SqBuffer *buffer, const char *string)
 {

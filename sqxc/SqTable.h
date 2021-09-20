@@ -277,7 +277,7 @@ template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
 }
 #endif
 
-};
+};  // namespace Sq
 
 #endif  // __cplusplus
 

@@ -442,7 +442,7 @@ void  sq_type_steal_entry_addr(SqType *type, void **element_addr, int count)
 	SQ_TYPE_STEAL_ENTRY_ADDR(type, element_addr, count);
 }
 
-#else  // __STDC_VERSION__ || __cplusplus
+#else   // __STDC_VERSION__ || __cplusplus
 
 // C functions
 void  sq_type_erase_entry_addr(SqType *type, void **element_addr, int count);
