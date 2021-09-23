@@ -33,7 +33,7 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 	} temp;
 
 	if ((entry->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
-		entry->type = sq_type_copy_static(entry->type, destroy_func);
+		entry->type = sq_type_copy_static(NULL, entry->type, destroy_func);
 	if ((entry->type->bit_field & SQB_TYPE_SORTED) == 0)
 		sq_type_sort_entry((SqType*)entry->type);
 	reentries = sq_type_get_ptr_array(entry->type);

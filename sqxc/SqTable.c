@@ -78,7 +78,7 @@ void  sq_table_add_column(SqTable *table, const SqColumn *column, int n_column)
 	SqType *type = (SqType*)table->type;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
-		type = sq_type_copy_static(type, (SqDestroyFunc)sq_column_free);
+		type = sq_type_copy_static(NULL, type, (SqDestroyFunc)sq_column_free);
 		table->type = type;
 	}
 	sq_type_add_entry(type, (SqEntry*)column, n_column, sizeof(SqColumn));
@@ -89,7 +89,7 @@ void  sq_table_add_column_ptrs(SqTable *table, const SqColumn **column_ptrs, int
 	SqType  *type = (SqType*)table->type;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
-		type = sq_type_copy_static(type, (SqDestroyFunc)sq_column_free);
+		type = sq_type_copy_static(NULL, type, (SqDestroyFunc)sq_column_free);
 		table->type = type;
 	}
 	sq_type_add_entry_ptrs(type, (const SqEntry**)column_ptrs, n_column_ptrs);

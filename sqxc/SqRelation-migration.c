@@ -140,7 +140,7 @@ SqColumn *sq_table_replace_column(SqTable *table, SqColumn *old_column, SqColumn
 	SqEntry **end, **cur;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
-		type = sq_type_copy_static(type, (SqDestroyFunc)sq_column_free);
+		type = sq_type_copy_static(NULL, type, (SqDestroyFunc)sq_column_free);
 		table->type = type;
 	}
 	if (table->relation)
@@ -169,7 +169,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 	} temp;
 
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
-		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
+		table->type = sq_type_copy_static(NULL, table->type, (SqDestroyFunc)sq_column_free);
 	if ((table->type->bit_field & SQB_TYPE_SORTED) == 0)
 		sq_type_sort_entry((SqType*)table->type);
 
@@ -367,7 +367,7 @@ void  sq_table_erase_records(SqTable *table, char version_comparison)
 {
 	// copy table->type if it is static SqType.
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
-		table->type = sq_type_copy_static(table->type, (SqDestroyFunc)sq_column_free);
+		table->type = sq_type_copy_static(NULL, table->type, (SqDestroyFunc)sq_column_free);
 
 	// erase relation for renamed & dropped records in table
 	sq_relation_exclude(table->relation, SQ_TYPE_REENTRY, SQ_TYPE_UNSYNCED);

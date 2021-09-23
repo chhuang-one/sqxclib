@@ -60,12 +60,15 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 #define SQ_TYPE_INITIALIZER(StructType, EntryPtrArray, bit_value)  \
 {                                                                  \
 	.size  = sizeof(StructType),                                   \
+	.init  = (SqTypeFunc) NULL,                                    \
+	.final = (SqTypeFunc) NULL,                                    \
 	.parse = sq_type_object_parse,                                 \
 	.write = sq_type_object_write,                                 \
 	.name  = SQ_GET_TYPE_NAME(StructType),                         \
 	.entry   = (SqEntry**) EntryPtrArray,                          \
 	.n_entry = sizeof(EntryPtrArray) / sizeof(SqEntry*),           \
 	.bit_field = bit_value,                                        \
+	.ref_count = 0,                                                \
 }
 
 #define SQ_TYPE_INITIALIZER_FULL(StructType, EntryPtrArray, bit_value, init_func, final_func) \
@@ -79,6 +82,7 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 	.entry   = (SqEntry**) EntryPtrArray,                          \
 	.n_entry = sizeof(EntryPtrArray) / sizeof(SqEntry*),           \
 	.bit_field = bit_value,                                        \
+	.ref_count = 0,                                                \
 }
 
 /* SqType::bit_field - SQB_TYPE_xxxx */
@@ -119,8 +123,10 @@ SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 void     sq_type_ref(SqType *type);
 void     sq_type_unref(SqType *type);
 
-// create dynamic SqType and copy data from static SqType
-SqType  *sq_type_copy_static(const SqType *type, SqDestroyFunc entry_free_func);
+// copy data from static SqType to dynamic SqType
+// if 'type_dest' is NULL, function will create dynamic SqType.
+// return dynnamic SqType.
+SqType  *sq_type_copy_static(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func);
 
 // initialize/finalize self
 // if 'prealloc_size' is 0, allocate default size.
@@ -307,7 +313,7 @@ struct SqType
 
 	// create dynamic SqType and copy data from static SqType
 	SqType *copyStatic(SqDestroyFunc entry_free_func) {
-		return sq_type_copy_static((const SqType*)this, entry_free_func);
+		return sq_type_copy_static(NULL, (const SqType*)this, entry_free_func);
 	}
 
 	// initialize/finalize self
@@ -439,7 +445,7 @@ enum {
 /* define SqType for SqPtrArray (SqType-PtrArray.c)
    User must assign element type in SqType.entry and set SqType.n_entry to -1.
 
-	SqType *typePtrArray = sq_type_copy_static(SQ_TYPE_PTR_ARRAY);
+	SqType *typePtrArray = sq_type_copy_static(NULL, SQ_TYPE_PTR_ARRAY, NULL);
 	typePtrArray->entry = (SqEntry**) element_SqType;
 	typePtrArray->n_entry = -1;
  */
@@ -542,7 +548,7 @@ inline void  TypeMethod::unref() {
 
 // create dynamic SqType and copy data from static SqType
 inline SqType *TypeMethod::copyStatic(SqDestroyFunc entry_free_func) {
-	return sq_type_copy_static((const SqType*)this, entry_free_func);
+	return sq_type_copy_static(NULL, (const SqType*)this, entry_free_func);
 }
 
 // initialize/finalize self
