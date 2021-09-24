@@ -54,6 +54,18 @@ set(HEADERS_CPP
     SqType-stl-cpp.h
 )
 
+set(SOURCES_CONSOLE
+    SqConsole.c
+    SqCommand.c
+    SqOption.c
+)
+
+set(HEADERS_CONSOLE
+    SqConsole.h
+    SqCommand.h
+    SqOption.h
+)
+
 set(SOURCES_TEST
     SqdbEmpty.c
     SqxcEmpty.c
@@ -119,6 +131,12 @@ add_library(sqxcpp
             STATIC
             ${SOURCES_CPP}
             ${HEADERS_CPP}
+)
+
+add_library(sqxconsole
+            STATIC
+            ${SOURCES_CONSOLE}
+            ${HEADERS_CONSOLE}
 )
 
 add_library(sqxctest

@@ -31,6 +31,10 @@
 
 #include <SqMigration.h>
 
+// library: sqxconsole
+#include <SqCommand.h>
+#include <SqConsole.h>
+
 // ------------------------------------
 #include <Sqdb.h>
 
@@ -53,4 +57,5 @@
 #endif
 
 // ------------------------------------
+// library: sqxcpp
 #include <SqType-stl-cpp.h>    // Sq::TypeStl<StlContainer>
