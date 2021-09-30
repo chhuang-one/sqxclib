@@ -22,6 +22,7 @@
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
+typedef struct SqConsole         SqConsole;
 typedef struct SqCommand         SqCommand;
 typedef struct SqCommandType     SqCommandType;
 
@@ -49,7 +50,7 @@ typedef struct SqCommandType     SqCommandType;
 extern "C" {
 #endif
 
-typedef void (*SqCommandFunc)(SqCommand *cmd, void* data);
+typedef void (*SqCommandFunc)(SqCommand *cmd, SqConsole *console, void* data);
 
 /* --- SqCommand C functions --- */
 SqCommand  *sq_command_new(const SqCommandType *cmd_type);
@@ -82,6 +83,7 @@ struct CommandMethod {
 	void *operator new(size_t size) {
 		return calloc(1, size);
 	}
+
 	void init(const SqCommandType *cmdtype) {
 		sq_command_init((SqCommand*)this, cmdtype);
 	}

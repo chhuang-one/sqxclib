@@ -70,10 +70,7 @@ namespace Sq {
 struct SqMigration {
 	SqMigrationFunc  up;
 	SqMigrationFunc  down;
-
-#ifdef SQ_TOOL
 	const char      *name;
-#endif
 };
 
 struct SqMigrationTable {

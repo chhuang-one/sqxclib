@@ -19,7 +19,6 @@
 
 #include <SqError.h>
 #include <SqxcValue.h>
-#define SQ_TOOL
 #include <SqMigration.h>
 
 #ifdef _MSC_VER

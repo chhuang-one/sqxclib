@@ -15,12 +15,12 @@
 #ifndef SQ_CONSOLE_H
 #define SQ_CONSOLE_H
 
-#include <SqCommand.h>
+#include <SqCommand.h>    // typedef struct SqConsole
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
-typedef struct SqConsole         SqConsole;
+// typedef struct SqConsole         SqConsole;    // declare in SqCommand.h
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -57,7 +57,9 @@ namespace Sq {
 
 /* --- declare methods for Sq::Console --- */
 struct ConsoleMethod {
-	void           add(const SqCommandType *command_type);
+	void  add(const SqCommandType *command_type);
+	void  printHelp(const char *command_name, const char *program_name);
+
 	SqCommandType *find(const char *name);
 	SqCommand     *parse(int argc, char **argv, bool argv_has_command = true);
 };
@@ -69,27 +71,28 @@ struct ConsoleMethod {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-    SqConsole
+/*	SqConsole: command-line interface
  */
+
+#define SQ_CONSOLE_MEMBERS         \
+	SqPtrArray commands;           \
+	bool       commands_sorted;    \
+	Sqxc      *xc_input;           \
+	SqBuffer   buf
+
 #ifdef __cplusplus
-struct SqConsole : Sq::ConsoleMethod
+struct SqConsole : Sq::ConsoleMethod           // <-- 1. inherit C++ member function(method)
 #else
 struct SqConsole
 #endif
 {
-	SQ_PTR_ARRAY_MEMBERS(SqCommandType *, commands, n_commands);
-/*	// ------ SqPtrArray members ------
-	SqType   **commands;
-	int        n_commands;
- */
-
-	SqCommandType *default_command;   // if no command string
-
-	bool       sorted;
-	SqBuffer   buf;
+//	SQ_CONSOLE_MEMBERS;                        // <-- 2. inherit member variable
+/*	// ------ SqConsole members ------  */
+	SqPtrArray commands;
+	bool       commands_sorted;
 
 	Sqxc      *xc_input;
+	SqBuffer   buf;
 
 #ifdef __cplusplus
 	SqConsole() {
@@ -122,6 +125,9 @@ namespace Sq {
 /* --- define methods for Sq::Relation --- */
 inline void  ConsoleMethod::add(const SqCommandType *command_type) {
 	sq_console_add((SqConsole*)this, command_type);
+}
+inline void  ConsoleMethod::printHelp(const char *command_name, const char *program_name) {
+	sq_console_print_help((SqConsole*)this, command_name, program_name);
 }
 inline SqCommandType *ConsoleMethod::find(const char *name) {
 	return sq_console_find((SqConsole*)this, name);
