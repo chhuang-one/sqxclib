@@ -12,6 +12,13 @@ set(CMAKE_MODULE_PATH
 
 # set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H")
 
+# find pthread
+if (UNIX)
+	set(THREADS_PREFER_PTHREAD_FLAG ON)
+	find_package(Threads REQUIRED)
+	set(Threads_LIBRARIES Threads::Threads)
+endif (UNIX)
+
 # find SQLite3
 find_package(SQLite3)
 
@@ -27,7 +34,25 @@ if (PKG_CONFIG_FOUND)
 	if (NOT SQLite3_FOUND)
 		pkg_check_modules(SQLite3 sqlite3)
 	endif()
-endif()
+endif (PKG_CONFIG_FOUND)
+
+# --- thrread ---
+if (Threads_FOUND)
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${Threads_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${Threads_LIBRARIES}
+	)
+# --- config.h ---
+	set(have_thread    1)
+elseif (WIN32)
+	set(have_thread    1)
+else()
+	set(have_thread    0)
+endif (Threads_FOUND)
 
 # --- json-c ---
 if (JSONC_FOUND)
@@ -43,7 +68,7 @@ if (JSONC_FOUND)
 	set(have_jsonc     1)
 else()
 	set(have_jsonc     0)
-endif()
+endif (JSONC_FOUND)
 
 # --- SQLite ---
 if (SQLite3_FOUND)
@@ -59,7 +84,7 @@ if (SQLite3_FOUND)
 	set(have_sqlite    1)
 else()
 	set(have_sqlite    0)
-endif()
+endif (SQLite3_FOUND)
 
 # --- MySQL ---
 if (MYSQL_FOUND)
@@ -77,7 +102,7 @@ if (MYSQL_FOUND)
 	set(have_mysql     1)
 else()
 	set(have_mysql     0)
-endif()
+endif (MYSQL_FOUND)
 
 # --- config.h ---
 configure_file("${CMAKE_SOURCE_DIR}/sqxc/config.h.in"

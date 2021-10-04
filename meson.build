@@ -6,6 +6,18 @@ project('sqxclib', 'c', 'cpp',
 
 config_data = configuration_data()
 
+# therad
+if host_machine.system() == 'windows'
+	config_data.set('have_thread',  '1')
+else
+	thread = dependency('threads', required: false)
+	if thread.found() == true
+		config_data.set('have_thread',  '1')
+	else
+		config_data.set('have_thread',  '0')
+	endif
+endif
+
 # json-c
 jsonc = dependency('json-c', required: false)
 if jsonc.found() == true

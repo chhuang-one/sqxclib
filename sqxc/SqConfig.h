@@ -19,11 +19,18 @@
 #if 1    // defined(HAVE_CONFIG_H)
 #include "config.h"
 #else
+#define HAVE_THREAD   1
 #define HAVE_JSONC    1
 #define HAVE_SQLITE   1
 #define HAVE_MYSQL    1
 #endif
 
+
+#if HAVE_THREAD == 1
+#undef HAVE_THREAD
+/* SqStorage.c */
+#define SQ_CONFIG_HAVE_THREAD
+#endif
 
 #if HAVE_JSONC == 1
 #undef HAVE_JSONC

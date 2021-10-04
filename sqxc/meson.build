@@ -1,5 +1,6 @@
 sources = ['SqPtrArray.c',
            'SqBuffer.c',
+           'SqThread.c',
            'SqUtil.c',
            'SqType.c',
            'SqType-built-in.c',
@@ -31,6 +32,7 @@ headers = ['sqxclib.h',
 
            'SqPtrArray.h',
            'SqBuffer.h',
+           'SqThread.h',
            'SqUtil.h',
            'SqType.h',
            'SqEntry.h',
@@ -83,6 +85,12 @@ headers_test = ['SqdbEmpty.h',
                ]
 
 dependencies = []
+
+if host_machine.system() != 'windows'
+	if thread.found() == true
+		dependencies += thread
+	endif
+endif
 
 if jsonc.found() == true
 	sources += ['SqxcJsonc.c']
