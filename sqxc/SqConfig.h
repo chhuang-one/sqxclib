@@ -27,28 +27,28 @@
 
 
 #if HAVE_THREAD == 1
-#undef HAVE_THREAD
 /* SqStorage.c */
 #define SQ_CONFIG_HAVE_THREAD
 #endif
+#undef HAVE_THREAD
 
 #if HAVE_JSONC == 1
-#undef HAVE_JSONC
 /* SqxcJsonc.c, SqxcJsonc.h, SqStorage.c */
 #define SQ_CONFIG_HAVE_JSONC
 #endif
+#undef HAVE_JSONC
 
 #if HAVE_SQLITE == 1
-#undef HAVE_SQLITE
 /* SqdbSqlite.h */
 #define SQ_CONFIG_HAVE_SQLITE
 #endif
+#undef HAVE_SQLITE
 
 #if HAVE_MYSQL == 1
-#undef HAVE_MYSQL
 /* SqdbMysql.h */
 #define SQ_CONFIG_HAVE_MYSQL
 #endif
+#undef HAVE_MYSQL
 
 /* SqEntry.c */
 // #define SQ_CONFIG_SQL_CASE_SENSITIVE

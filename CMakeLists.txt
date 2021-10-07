@@ -121,4 +121,5 @@ set(SQXC_LIBRARIES
 )
 
 # --- others ---
+add_subdirectory(sqapp)
 add_subdirectory(examples)
