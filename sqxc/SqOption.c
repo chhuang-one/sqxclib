@@ -12,9 +12,47 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <stdlib.h>
 #include <SqOption.h>
 
 #define N_SPACES_AFTER_OPTION    2
+
+SqOption *sq_option_new(const SqType *type)
+{
+	SqOption *option;
+
+	option = malloc(sizeof(SqOption));
+	sq_option_init(option, type);
+	return option;
+}
+
+void sq_option_free(SqOption *option)
+{
+	sq_option_final(option);
+	free(option);
+}
+
+void  sq_option_init(SqOption *option, const SqType *type)
+{
+	sq_entry_init((SqEntry*)option, type);
+	// --- SqOption members ---
+	option->shortcut = NULL;
+	option->default_value = NULL;
+	option->value_description = NULL;
+	option->description = NULL;
+}
+
+void  sq_option_final(SqOption *option)
+{
+	if (option->bit_field & SQB_DYNAMIC) {
+		sq_entry_final((SqEntry*)option);
+		// --- SqOption members ---
+		free((char*)option->shortcut);
+		free((char*)option->default_value);
+		free((char*)option->value_description);
+		free((char*)option->description);
+	}
+}
 
 int  sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
 {

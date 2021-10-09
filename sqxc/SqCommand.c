@@ -12,17 +12,23 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <memory.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <SqError.h>
 #include <SqxcValue.h>
 #include <SqCommand.h>
 
-SqCommand  *sq_command_new(const SqCommandType *cmdtype)
+#ifdef _MSC_VER
+#define strdup       _strdup
+#endif
+
+SqCommand  *sq_command_new(const SqCommandType *cmd_type)
 {
 	SqCommand *cmd;
 
-	cmd = calloc(1, cmdtype->size);
-	sq_command_init(cmd, cmdtype);
+	cmd = calloc(1, cmd_type->size);
+	sq_command_init(cmd, cmd_type);
 	return cmd;
 }
 
@@ -32,10 +38,10 @@ void  sq_command_free(SqCommand *cmd)
 	free(cmd);
 }
 
-void  sq_command_init(SqCommand *cmd, const SqCommandType *cmdtype)
+void  sq_command_init(SqCommand *cmd, const SqCommandType *cmd_type)
 {
-	sq_type_init_instance((SqType*)cmdtype, cmd, 0);
-	cmd->type = cmdtype;
+	sq_type_init_instance((SqType*)cmd_type, cmd, 0);
+	cmd->type = cmd_type;
 	sq_ptr_array_init(&cmd->shortcuts, 8, NULL);
 	sq_ptr_array_init(&cmd->arguments, 8, NULL);
 //	sq_ptr_array_init(&cmd->arguments, 8, (SqDestroyFunc)free);
@@ -64,6 +70,35 @@ void  sq_command_sort_shortcuts(SqCommand *cmd)
 
 // ----------------------------------------------------------------------------
 // --- SqCommandType C functions ---
+SqCommandType *sq_command_type_new(const char *cmd_name)
+{
+	SqCommandType *cmd_type;
+
+	cmd_type = malloc(sizeof(SqCommandType));
+	sq_type_init_self((SqType*)cmd_type, 0, (SqDestroyFunc)sq_option_free);
+//	cmd_type->init  = NULL;
+//	cmd_type->final = NULL;
+	cmd_type->parse = sq_type_command_parse_option;
+	cmd_type->write = NULL;
+	cmd_type->name = strdup(cmd_name);
+
+	// --- SqCommandType members ---
+	cmd_type->handle = NULL;
+	cmd_type->parameter = NULL;
+	cmd_type->description = NULL;
+
+	return cmd_type;
+}
+
+void  sq_command_type_free(SqCommandType *cmd_type)
+{
+	sq_type_final_self((SqType*)cmd_type);
+
+	// --- SqCommandType members ---
+	free((char*)cmd_type->parameter);
+	free((char*)cmd_type->description);
+	free((char*)cmd_type);
+}
 
 /* SqCommandType parse function for SqCommand */
 int  sq_type_command_parse_option(void *instance, const SqType *type, Sqxc *src)

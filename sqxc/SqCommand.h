@@ -26,19 +26,19 @@ typedef struct SqConsole         SqConsole;
 typedef struct SqCommand         SqCommand;
 typedef struct SqCommandType     SqCommandType;
 
-#define SQ_COMMAND_TYPE_INITIALIZER(StructType, bit_value, Command, parameter_string, description_string) \
+#define SQ_COMMAND_TYPE_INITIALIZER(StructType, bit_value, command_string, command_options, handle_func, parameter_string, description_string) \
 {                                                                  \
 	.size  = sizeof(StructType),                                   \
-	.init  = (SqTypeFunc) Command##_init,                          \
-	.final = (SqTypeFunc) Command##_final,                         \
+	.init  = (SqTypeFunc) NULL,                                    \
+	.final = (SqTypeFunc) NULL,                                    \
 	.parse = sq_type_command_parse_option,                         \
 	.write = NULL,                                                 \
-	.name  = #Command,                                             \
-	.entry   = (SqEntry**) Command##_options,                      \
-	.n_entry = sizeof(Command##_options) / sizeof(SqOption*),      \
+	.name  = command_string,                                       \
+	.entry   = (SqEntry**) command_options,                        \
+	.n_entry = sizeof(command_options) / sizeof(SqOption*),        \
 	.bit_field = bit_value,                                        \
 	.ref_count = 0,                                                \
-	.handle      = (SqCommandFunc) Command##_handle,               \
+	.handle      = (SqCommandFunc) handle_func,                    \
 	.parameter   = parameter_string,                               \
 	.description = description_string,                             \
 }
@@ -50,7 +50,7 @@ typedef struct SqCommandType     SqCommandType;
 extern "C" {
 #endif
 
-typedef void (*SqCommandFunc)(SqCommand *cmd, SqConsole *console, void* data);
+typedef void (*SqCommandFunc)(SqCommand *cmd, SqConsole *console, void *data);
 
 /* --- SqCommand C functions --- */
 SqCommand  *sq_command_new(const SqCommandType *cmd_type);
@@ -63,6 +63,8 @@ void  sq_command_final(SqCommand *cmd);
 void  sq_command_sort_shortcuts(SqCommand *cmd);
 
 /* --- SqCommandType C functions --- */
+SqCommandType *sq_command_type_new(const char *cmd_name);
+void           sq_command_type_free(SqCommandType *cmd_type);
 
 // SqCommandType parse function for SqCommand
 int   sq_type_command_parse_option(void *cmd_instance, const SqType *cmd_type, Sqxc *src);
@@ -84,11 +86,15 @@ struct CommandMethod {
 		return calloc(1, size);
 	}
 
-	void init(const SqCommandType *cmdtype) {
+	void  init(const SqCommandType *cmdtype) {
 		sq_command_init((SqCommand*)this, cmdtype);
 	}
-	void final() {
+	void  final() {
 		sq_command_final((SqCommand*)this);
+	}
+
+	void  sortShortcuts() {
+		sq_command_sort_shortcuts((SqCommand*)this);
 	}
 };
 

@@ -31,6 +31,11 @@ extern "C" {
 #endif
 
 /* --- SqOption C functions --- */
+SqOption *sq_option_new(const SqType *type);
+void      sq_option_free(SqOption *option);
+
+void  sq_option_init(SqOption *option, const SqType *type);
+void  sq_option_final(SqOption *option);
 
 // return length of option string
 int  sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length);
@@ -52,6 +57,16 @@ namespace Sq {
 
 /* --- declare methods for Sq::Command --- */
 struct OptionMethod {
+	void  init(const SqType *type) {
+		sq_option_init((SqOption*)this, type);
+	}
+	void  final() {
+		sq_option_final((SqOption*)this);
+	}
+
+	int   print(SqBuffer *buffer, int opt_max_length) {
+		return sq_option_print((SqOption*)this, buffer, opt_max_length);
+	}
 };
 
 }  // namespace Sq
@@ -68,9 +83,13 @@ struct OptionMethod {
 	|
 	`--- SqOption
 */
+#ifdef __cplusplus
+struct SqOption : Sq::OptionMethod       // <-- 1. inherit C++ member function(method)
+#else
 struct SqOption
+#endif
 {
-	SQ_ENTRY_MEMBERS;
+	SQ_ENTRY_MEMBERS;                    // <-- 2. inherit member variable
 /*	// ------ SqEntry members ------
 	const SqType *type;        // type information of entry
 	const char   *name;
@@ -78,7 +97,7 @@ struct SqOption
 	unsigned int  bit_field;
  */
 
-	// ------ SqOption members ------
+	// ------ SqOption members ------    // <-- 3. Add variable and non-virtual function in derived struct.
 	const char *shortcut;
 	const char *default_value;
 

@@ -13,11 +13,16 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include <SqConfig.h>
 #include <SqxcValue.h>
 #include <SqxcJsonc.h>
 #include <SqConsole.h>
+
+#ifdef _MSC_VER
+#define strcasecmp   _stricmp
+#endif
 
 // SqType SqCompareFunc
 static int  sq_type_cmp_name(SqType **type1, SqType **type2);
