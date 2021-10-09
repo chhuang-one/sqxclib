@@ -47,9 +47,7 @@ void  sq_type_unref(SqType *type)
 	if (type->bit_field & SQB_TYPE_DYNAMIC) {
 		type->ref_count--;
 		if (type->ref_count == 0) {
-			// SqType.entry can't be freed if SqType.n_entry == -1
-			if (type->n_entry != -1)
-				sq_ptr_array_final(&type->entry);
+			sq_type_final_self(type);
 			free(type);
 		}
 	}
@@ -100,6 +98,7 @@ void  sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_des
 
 void  sq_type_final_self(SqType *type)
 {
+	free(type->name);
 	// SqType.entry can't be freed if SqType.n_entry == -1
 	if (type->n_entry != -1)
 		sq_ptr_array_final(&type->entry);
