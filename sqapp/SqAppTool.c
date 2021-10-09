@@ -12,3 +12,16 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <SqAppTool.h>
+
+void    sq_app_tool_init(SqAppTool *app)
+{
+    sq_app_init((SqApp*)app);
+    app->console = sq_console_new();
+}
+
+void    sq_app_tool_final(SqAppTool *app)
+{
+    sq_console_free(app->console);
+    sq_app_final((SqApp*)app);
+}

@@ -18,7 +18,6 @@
 #include <Sqdb.h>
 #include <SqStorage.h>
 #include <SqMigration.h>
-#include <SqConsole.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.

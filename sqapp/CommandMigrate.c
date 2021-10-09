@@ -17,8 +17,7 @@
 static SqOption *migrate_options[] = {
 	&(SqOption) {SQ_TYPE_BOOL, "step",  offsetof(CommandMigrate, step),
 			.default_value = "true",
-			.description = "Force the migrations to be run so they can be rolled back individually",
-	}
+			.description = "Force the migrations to be run so they can be rolled back individually"}
 };
 
 static void migrate_init(CommandMigrate *cmd)
@@ -34,13 +33,8 @@ static void migrate_handle(SqCommand *cmd, SqConsole *console, void *data)
 {
 }
 
-const SqCommandType SqCommandType_Migrate_ = SQ_COMMAND_TYPE_INITIALIZER(
-		CommandMigrate, 0, migrate,
-		NULL,
-		"Run the database migrations");
-
-/*	// Macro expand to
 const SqCommandType SqCommandType_Migrate_ = {
+	/* --- SqType members --- */
 	.size  = sizeof(CommandMigrate),
 	.init  = (SqTypeFunc) migrate_init,
 	.final = (SqTypeFunc) migrate_final,
@@ -51,8 +45,8 @@ const SqCommandType SqCommandType_Migrate_ = {
 	.n_entry = sizeof(migrate_options) / sizeof(SqOption*),
 	.bit_field = 0,
 	.ref_count = 0,
+	/* --- SqCommandType members --- */
 	.handle      = (SqCommandFunc) migrate_handle,
 	.parameter   = NULL,
 	.description = "Run the database migrations",
 };
- */

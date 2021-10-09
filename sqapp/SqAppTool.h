@@ -16,6 +16,8 @@
 #define SQ_APP_TOOL_H
 
 #include <SqApp.h>
+#include <SqConsole.h>
+#include <CommandMigrate.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
@@ -31,7 +33,6 @@ extern "C" {
 
 void    sq_app_tool_init(SqAppTool *app);
 void    sq_app_tool_final(SqAppTool *app);
-
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -81,6 +82,7 @@ struct SqAppTool
  */
 
 	// ------ SqAppTool members ------        // <-- 3. Add variable and non-virtual function in derived struct.
+
 	SqConsole           *console;
 };
 

@@ -9,6 +9,16 @@ set(HEADERS_APP
     migrations.h
 )
 
+set(SQAPP_INCLUDE_DIRS
+    ${SQXC_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+set(SQAPP_LIBRARIES
+    sqapp
+    ${SQXC_LIBRARIES}
+)
+
 # --- sqapptool ---
 set(SOURCES_TOOL
     SqApp.c
@@ -24,15 +34,23 @@ set(HEADERS_TOOL
     CommandMigrate.h
 )
 
+set(SQTOOL_INCLUDE_DIRS
+    ${SQAPP_INCLUDE_DIRS}
+)
+
+set(SQTOOL_LIBRARIES
+    sqapptool
+    sqxconsole
+    ${SQXC_LIBRARIES}
+)
+
 # --- sqtool ---
 set(SOURCES
     sqtool.c
 )
 
 # ---
-include_directories(${SQXC_INCLUDE_DIRS}
-                    ${CMAKE_CURRENT_SOURCE_DIR}
-)
+include_directories(${SQAPP_INCLUDE_DIRS})
 link_libraries(sqxconsole
                ${SQXC_LIBRARIES}
 )
@@ -54,7 +72,5 @@ add_executable(sqtool
                ${SOURCES}
 )
 target_link_libraries(sqtool
-                      sqapptool
-                      sqxconsole
-                      ${SQXC_LIBRARIES}
+                      ${SQTOOL_LIBRARIES}
 )

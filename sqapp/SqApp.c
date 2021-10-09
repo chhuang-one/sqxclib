@@ -68,5 +68,6 @@ void  sq_app_init(SqApp *app)
 
 void  sq_app_final(SqApp *app)
 {
-
+	sq_storage_free(app->storage);
+	sqdb_free(app->db);
 }

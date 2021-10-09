@@ -38,7 +38,14 @@ sqtool_lib = static_library('sqapptool',
                             dependencies : sqxc,
                             install: false)
 
+sqapp = declare_dependency(include_directories : sqapp_inc,
+                           link_with : sqapp_lib,
+                           dependencies : sqxc)
+
+sqtool = declare_dependency(include_directories : sqapp_inc,
+                            link_with : [sqtool_lib, sqxconsole_lib],
+                            dependencies : sqxc)
+
 executable('sqtool',
            sources,
-           link_with : [sqxconsole_lib, sqtool_lib],
-           dependencies : sqxc)
+           dependencies : sqtool)
