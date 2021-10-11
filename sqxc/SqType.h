@@ -123,9 +123,9 @@ SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 void     sq_type_ref(SqType *type);
 void     sq_type_unref(SqType *type);
 
-// copy data from static SqType to dynamic SqType
+// copy data from static SqType to dynamic SqType. 'type_dest' must be raw memory.
 // if 'type_dest' is NULL, function will create dynamic SqType.
-// return dynnamic SqType.
+// return dynamic SqType.
 SqType  *sq_type_copy_static(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func);
 
 // initialize/finalize self
