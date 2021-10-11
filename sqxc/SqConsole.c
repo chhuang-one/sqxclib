@@ -185,14 +185,11 @@ void  sq_console_print_help(SqConsole  *console,
 	printf("[options]" "\n\n");
 
 	puts("Options:");
-	for (int i = 0;  i < console->commands.length;  i++) {
-		cmdtype = console->commands.data[i];
-		for (int j = 0;  j < cmdtype->n_entry;  j++) {
-			option = (SqOption*)cmdtype->entry[j];
-			console->buf.writed = 0;
-			sq_option_print(option, &console->buf, 0);
-			puts(console->buf.mem);
-		}
+	for (int j = 0;  j < cmdtype->n_entry;  j++) {
+		option = (SqOption*)cmdtype->entry[j];
+		console->buf.writed = 0;
+		sq_option_print(option, &console->buf, 0);
+		puts(console->buf.mem);
 	}
 	printf("\n\n");
 }
