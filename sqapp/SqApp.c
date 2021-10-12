@@ -17,46 +17,62 @@
 #include <SqAppConfig.h>
 #include <migrations.h>
 
-/* ------ common ------ */
-#define DB_CONFIG    ((SqdbConfig*) &db_config)
+// ----------------------------------------------------------------------------
+// SQL products
 
 /* ------ SQLite ------ */
-#ifdef SQLITE
-#undef SQLITE
-	#if !defined(SQ_CONFIG_HAVE_SQLITE)
-	#error sqxclib does not enable SQLite support when compiling.
-	#endif
+#if defined(SQLITE) && defined(SQ_CONFIG_HAVE_SQLITE)
 
 #include <SqdbSqlite.h>
 #define DB_CONNECTION    SQDB_INFO_SQLITE
+#define DB_CONFIG        ((SqdbConfig*) &db_config_sqlite)
 
-static const SqdbConfigSqlite  db_config = {
+static const SqdbConfigSqlite  db_config_sqlite = {
 	.folder    = DB_FOLDER,
 	.extension = DB_EXTENSION,
 };
+
+#elif defined(SQLITE)
+#define DB_PRODUCT_ERROR    "sqxclib does not enable SQLite support when compiling."
 #endif  // SQLITE
+#undef SQLITE
 
 /* ------ MySQL ------ */
-#ifdef MYSQL
-#undef MYSQL
-	#if !defined(SQ_CONFIG_HAVE_MYSQL)
-	#error sqxclib does not enable MySQL support when compiling.
-	#endif
+#if defined(MYSQL) && defined(SQ_CONFIG_HAVE_MYSQL)
 
 #include <SqdbMysql.h>
 #define DB_CONNECTION    SQDB_INFO_MYSQL
+#define DB_CONFIG        ((SqdbConfig*) &db_config_mysql)
 
-static const SqdbConfigMysql  db_config = {
+static const SqdbConfigMysql  db_config_mysql = {
 	.host     = DB_HOST,
 	.port     = DB_PORT,
 	.user     = DB_USERNAME,
 	.password = DB_PASSWORD,
 };
-#endif  // MYSQL
 
+#elif defined(MYSQL)
+#define DB_PRODUCT_ERROR    "sqxclib does not enable MySQL support when compiling."
+#endif  // MYSQL
+#undef MYSQL
+
+/* ------ error ------ */
+#ifdef DB_PRODUCT_ERROR
+#include <stdio.h>    // puts
+#define DB_CONNECTION    NULL
+#define DB_CONFIG        NULL
+#endif
+
+// ----------------------------------------------------------------------------
+// SqApp functions
 
 void  sq_app_init(SqApp *app)
 {
+#ifdef DB_PRODUCT_ERROR
+	puts(DB_PRODUCT_ERROR);
+	exit(EXIT_FAILURE);
+#endif
+
 	app->db = sqdb_new(DB_CONNECTION, DB_CONFIG);
 	app->db_config = DB_CONFIG;
 	app->db_database  = DB_DATABASE;
@@ -70,4 +86,11 @@ void  sq_app_final(SqApp *app)
 {
 	sq_storage_free(app->storage);
 	sqdb_free(app->db);
+}
+
+int   sq_app_open_database(SqApp *app, const char *db_database)
+{
+	if (db_database == NULL)
+		db_database = DB_DATABASE;
+	return sq_storage_open(app->storage, db_database);
 }

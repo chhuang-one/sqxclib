@@ -12,11 +12,11 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <stdio.h>
 #include <sqxclib.h>
 
-#include <SqConsole.h>
-#include <SqCommand.h>
-#include "CommandMigrate.h"
+#include <SqAppTool.h>
+#include <CommandMigrate.h>
 
 const char *test_argv[] = {
     "sqtool", "migrate", "--step", "testarg",
@@ -24,11 +24,19 @@ const char *test_argv[] = {
 
 int main(int argc, char **argv)
 {
+	SqAppTool *apptool;
 	SqConsole *console;
 	SqCommand *command;
 
+	apptool = malloc(sizeof(SqAppTool));
+	sq_app_tool_init(apptool);
+	if (sq_app_open_database((SqApp*)apptool, NULL) != SQCODE_OK) {
+		puts("Can't open database");
+		return EXIT_FAILURE;
+	}
+
 	console = sq_console_new();
-	sq_console_add(console, SQ_COMMAND_TYPE_MIGRATE);
+	sq_console_add_command_migrate(console);
 	command = sq_console_parse(console, 4, (char**)test_argv, true);
 
 	sq_console_print_help(console, "migrate", "sqtool");

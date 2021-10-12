@@ -29,9 +29,7 @@ typedef struct CommandMigrate        CommandMigrate;
 extern "C" {
 #endif
 
-extern const SqCommandType           SqCommandType_Migrate_;
-
-#define SQ_COMMAND_TYPE_MIGRATE    (&SqCommandType_Migrate_)
+void  sq_console_add_command_migrate(SqConsole *console);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -62,16 +60,7 @@ struct CommandMigrate
 
 	// options
 	bool           step;
-
-#ifdef __cplusplus
-	// C++11 standard-layout
-	CommandMigrate() {
-		init(SQ_COMMAND_TYPE_MIGRATE);
-	}
-	~CommandMigrate() {
-		final();
-	}
-#endif  // __cplusplus
+	bool           quiet;
 };
 
 

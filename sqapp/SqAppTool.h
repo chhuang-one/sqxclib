@@ -48,7 +48,7 @@ namespace Sq {
 /*	AppMethod : C++ struct is used by SqApp and it's children.
  */
 
-struct AppToolMethod {
+struct AppToolMethod : AppMethod {
 };
 
 };  // namespace Sq
@@ -66,7 +66,7 @@ struct AppToolMethod {
  */
 
 #ifdef __cplusplus
-struct SqAppTool : Sq::AppMethod              // <-- 1. inherit C++ member function(method)
+struct SqAppTool : Sq::AppToolMethod          // <-- 1. inherit C++ member function(method)
 #else
 struct SqAppTool
 #endif

@@ -31,9 +31,11 @@ typedef struct SqApp             SqApp;
 extern "C" {
 #endif
 
-void    sq_app_init(SqApp *app);
-void    sq_app_final(SqApp *app);
+void  sq_app_init(SqApp *app);
+void  sq_app_final(SqApp *app);
 
+// if db_database is NULL, open default database that specify in SqAppConfig.h
+int   sq_app_open_database(SqApp *app, const char *db_database);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -50,6 +52,7 @@ namespace Sq {
  */
 
 struct AppMethod {
+	int   openDatabase(const char *db_database);
 };
 
 };  // namespace Sq
@@ -104,6 +107,11 @@ struct SqApp
 #ifdef __cplusplus
 
 namespace Sq {
+
+inline int   App::openDatabase(const char *db_database = NULL) {
+	return sq_app_open_database((SqApp*)this, db_database);
+}
+
 /* --- define C++11 standard-layout structures --- */
 typedef struct SqApp     App;
 

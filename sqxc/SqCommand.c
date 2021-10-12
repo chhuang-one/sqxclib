@@ -108,7 +108,7 @@ void sq_command_type_unref(SqCommandType *cmd_type)
 			free((char*)cmd_type->parameter);
 			free((char*)cmd_type->description);
 			// free SqCommandType struct
-			free((char*)cmd_type);
+			free(cmd_type);
 		}
 	}
 }

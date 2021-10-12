@@ -12,41 +12,89 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include "CommandMigrate.h"
+#include <stdio.h>
 
-static SqOption *migrate_options[] = {
-	&(SqOption) {SQ_TYPE_BOOL, "step",  offsetof(CommandMigrate, step),
-			.default_value = "true",
-			.description = "Force the migrations to be run so they can be rolled back individually"}
+#include <SqError.h>
+#include <SqMigration.h>
+
+#include <SqConsole.h>
+#include <SqApp.h>
+#include <CommandMigrate.h>
+
+#define OPTION_STEP     option_array +0
+#define OPTION_QUIET    option_array +1
+
+// ----------------------------------------------------------------------------
+// All options
+
+static const SqOption option_array[] = {
+	{SQ_TYPE_BOOL, "step",   offsetof(CommandMigrate, step),
+		.default_value = "true",
+		.description = "Force the migrations to be run so they can be rolled back individually"},
+	{SQ_TYPE_BOOL, "quiet",  offsetof(CommandMigrate, quiet),
+		.default_value = "true",
+		.description = "Do not output any message"},
 };
 
-static void migrate_init(CommandMigrate *cmd)
-{
-	cmd->step = false;
-}
-
-static void migrate_final(CommandMigrate *cmd)
-{
-}
+// ----------------------------------------------------------------------------
+// migrate
 
 static void migrate_handle(SqCommand *cmd, SqConsole *console, void *data)
 {
 }
 
-const SqCommandType SqCommandType_Migrate_ = {
-	/* --- SqType members --- */
+static const SqOption *migrate_options[] = {
+	OPTION_STEP,
+};
+
+const SqCommandType SqCommandType_Migrate = {
 	.size  = sizeof(CommandMigrate),
-	.init  = (SqTypeFunc) migrate_init,
-	.final = (SqTypeFunc) migrate_final,
 	.parse = sq_type_command_parse_option,
-	.write = NULL,
 	.name  = "migrate",
 	.entry   = (SqEntry**) migrate_options,
 	.n_entry = sizeof(migrate_options) / sizeof(SqOption*),
-	.bit_field = 0,
-	.ref_count = 0,
-	/* --- SqCommandType members --- */
+	// SqCommandType members
 	.handle      = (SqCommandFunc) migrate_handle,
 	.parameter   = NULL,
 	.description = "Run the database migrations",
 };
+
+// ----------------------------------------------------------------------------
+// migrate:install
+
+static void migrate_install(SqCommand *cmd, SqConsole *console, void *data)
+{
+	SqApp *app = data;
+	int    code;
+
+	code = sq_migration_install(app->db);
+	if (code != SQCODE_OK)
+		printf("Can't install migration table\n");
+}
+
+static const SqOption *migrate_install_options[] = {
+	OPTION_QUIET,
+};
+
+const SqCommandType SqCommandType_Migrate_Install = {
+	.size  = sizeof(CommandMigrate),
+	.parse = sq_type_command_parse_option,
+	.name  = "migrate:install",
+	.entry   = (SqEntry**)migrate_install_options,
+	.n_entry = sizeof(migrate_install_options) / sizeof(SqOption*),
+	// SqCommandType members
+	.handle      = (SqCommandFunc) migrate_install,
+	.parameter   = NULL,
+	.description = "Create the migration repository",
+};
+
+// ----------------------------------------------------------------------------
+//
+
+void  sq_console_add_command_migrate(SqConsole *console)
+{
+	// migrate
+	sq_console_add(console, &SqCommandType_Migrate);
+	// migrate:install
+	sq_console_add(console, &SqCommandType_Migrate_Install);
+}
