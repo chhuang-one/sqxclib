@@ -23,51 +23,51 @@
 #define strdup       _strdup
 #endif
 
-SqCommand  *sq_command_new(const SqCommandType *cmd_type)
+SqCommandValue  *sq_command_value_new(const SqCommandType *cmd_type)
 {
-	SqCommand *cmd;
+	SqCommandValue *cmd_value;
 
-	cmd = calloc(1, cmd_type->size);
-	sq_command_init(cmd, cmd_type);
-	return cmd;
+	cmd_value = calloc(1, cmd_type->size);
+	sq_command_value_init(cmd_value, cmd_type);
+	return cmd_value;
 }
 
-void  sq_command_free(SqCommand *cmd)
+void  sq_command_value_free(SqCommandValue *cmd_value)
 {
-	sq_command_final(cmd);
-	free(cmd);
+	sq_command_value_final(cmd_value);
+	free(cmd_value);
 }
 
-void  sq_command_init(SqCommand *cmd, const SqCommandType *cmd_type)
+void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommandType *cmd_type)
 {
 	sq_command_type_ref((SqCommandType*)cmd_type);
-	sq_type_init_instance((SqType*)cmd_type, cmd, 0);
-	cmd->type = cmd_type;
-	sq_ptr_array_init(&cmd->shortcuts, 8, NULL);
-	sq_ptr_array_init(&cmd->arguments, 8, NULL);
+	sq_type_init_instance((SqType*)cmd_type, cmd_value, 0);
+	cmd_value->type = cmd_type;
+	sq_ptr_array_init(&cmd_value->shortcuts, 8, NULL);
+	sq_ptr_array_init(&cmd_value->arguments, 8, NULL);
 //	sq_ptr_array_init(&cmd->arguments, 8, (SqDestroyFunc)free);
 }
 
-void  sq_command_final(SqCommand *cmd)
+void  sq_command_value_final(SqCommandValue *cmd_value)
 {
-	sq_ptr_array_final(&cmd->arguments);
-	sq_ptr_array_final(&cmd->shortcuts);
-	sq_type_final_instance((SqType*)cmd->type, cmd, 0);
-	sq_command_type_unref((SqCommandType*)cmd->type);
+	sq_ptr_array_final(&cmd_value->arguments);
+	sq_ptr_array_final(&cmd_value->shortcuts);
+	sq_type_final_instance((SqType*)cmd_value->type, cmd_value, 0);
+	sq_command_type_unref((SqCommandType*)cmd_value->type);
 }
 
-void  sq_command_sort_shortcuts(SqCommand *cmd)
+void  sq_command_sort_shortcuts(SqCommandValue *cmd_value)
 {
-	const SqCommandType *cmd_type = cmd->type;
+	const SqCommandType *cmd_type = cmd_value->type;
 	SqOption *option;
 
-	cmd->shortcuts.length = 0;
+	cmd_value->shortcuts.length = 0;
 	for (int i = 0;  i < cmd_type->n_entry;  i++) {
 		option = (SqOption*)cmd_type->entry[i];
         if (option->shortcut)
-            sq_ptr_array_append(&cmd->shortcuts, option);
+            sq_ptr_array_append(&cmd_value->shortcuts, option);
 	}
-	sq_ptr_array_sort(&cmd->shortcuts, (SqCompareFunc)sq_option_cmp_shortcut);
+	sq_ptr_array_sort(&cmd_value->shortcuts, (SqCompareFunc)sq_option_cmp_shortcut);
 }
 
 // ----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ SqCommandType *sq_command_type_copy_static(SqCommandType       *type_dest,
 	return type_dest;
 }
 
-/* SqCommandType parse function for SqCommand */
+/* SqCommandType parse function for SqCommandValue */
 int  sq_type_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 {
 	SqxcValue  *xc_value = (SqxcValue*)src->dest;
@@ -169,7 +169,7 @@ int  sq_type_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 	option = (SqOption*)sq_type_find_entry(type, src->name, NULL);
 	if (option == NULL) {
 		// option shortcut
-		option = sq_ptr_array_search(&((SqCommand*)instance)->shortcuts,
+		option = sq_ptr_array_search(&((SqCommandValue*)instance)->shortcuts,
 				src->name, (SqCompareFunc)sq_option_cmp_str__shortcut);
 	}
 

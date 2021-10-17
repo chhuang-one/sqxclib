@@ -42,13 +42,13 @@ void  sq_console_add_command_migrate(SqConsole *console);
  */
 
 #ifdef __cplusplus
-struct CommandMigrate : Sq::CommandMethod     // <-- 1. inherit C++ member function(method)
+struct CommandMigrate : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
 #else
 struct CommandMigrate
 #endif
 {
-	SQ_COMMAND_MEMBERS;                       // <-- 2. inherit member variable
-/*	// ------ SqCommand members ------
+	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
+/*	// ------ SqCommandValue members ------
 	const SqCommandType  *type;
 
 	// shortcuts is an array that sorted by SqOption.shortcut
@@ -56,7 +56,7 @@ struct CommandMigrate
 	SqPtrArray     arguments;
  */
 
-	// ------ CommandMigrate members ------   // <-- 3. Add variable and non-virtual function in derived struct.
+	// ------ CommandMigrate members ------        // <-- 3. Add variable and non-virtual function in derived struct.
 
 	// options
 	bool           step;

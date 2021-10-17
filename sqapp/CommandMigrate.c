@@ -21,33 +21,29 @@
 #include <SqApp.h>
 #include <CommandMigrate.h>
 
-#define OPTION_STEP     option_array +0
-#define OPTION_QUIET    option_array +1
-
-// ----------------------------------------------------------------------------
-// All options
-
-static const SqOption option_array[] = {
-	{SQ_TYPE_BOOL, "step",   offsetof(CommandMigrate, step),
-		.default_value = "true",
-		.description = "Force the migrations to be run so they can be rolled back individually"},
-	{SQ_TYPE_BOOL, "quiet",  offsetof(CommandMigrate, quiet),
-		.default_value = "true",
-		.description = "Do not output any message"},
-};
-
 // ----------------------------------------------------------------------------
 // migrate
 
-static void migrate_handle(SqCommand *cmd, SqConsole *console, void *data)
+static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
 {
 }
 
 static const SqOption *migrate_options[] = {
-	OPTION_STEP,
+	&(SqOption) {SQ_TYPE_BOOL, "step",   offsetof(CommandMigrate, step),
+		.default_value = "true",
+		.description = "Force the migrations to be run so they can be rolled back individually"},
 };
 
-const SqCommandType SqCommandType_Migrate = {
+static const SqCommandType migrate_command = SQ_COMMAND_TYPE_INITIALIZER(
+	CommandMigrate, 0,                             // StructureType, bit_field
+	"migrate",                                     // command string
+	migrate_options,                               // SqOption pointer array
+	migrate,                                       // handle function
+	NULL,                                          // parameter string
+	"Run the database migrations"                  // description string
+);
+/* Macro Expands to
+static const SqCommandType migrate_command = {
 	.size  = sizeof(CommandMigrate),
 	.parse = sq_type_command_parse_option,
 	.name  = "migrate",
@@ -58,11 +54,12 @@ const SqCommandType SqCommandType_Migrate = {
 	.parameter   = NULL,
 	.description = "Run the database migrations",
 };
+ */
 
 // ----------------------------------------------------------------------------
 // migrate:install
 
-static void migrate_install(SqCommand *cmd, SqConsole *console, void *data)
+static void migrate_install(SqCommandValue *cmd_value, SqConsole *console, void *data)
 {
 	SqApp *app = data;
 	int    code;
@@ -73,10 +70,21 @@ static void migrate_install(SqCommand *cmd, SqConsole *console, void *data)
 }
 
 static const SqOption *migrate_install_options[] = {
-	OPTION_QUIET,
+	&(SqOption) {SQ_TYPE_BOOL, "quiet",  offsetof(CommandMigrate, quiet),
+		.default_value = "true",
+		.description = "Do not output any message"},
 };
 
-const SqCommandType SqCommandType_Migrate_Install = {
+static const SqCommandType migrate_install_command = SQ_COMMAND_TYPE_INITIALIZER(
+	CommandMigrate, 0,                            // StructureType, bit_field
+	"migrate:install",                            // command string
+	migrate_install_options,                      // SqOption pointer array
+	migrate_install,                              // handle function
+	NULL,                                         // parameter string
+	"Create the migration repository"             // description string
+);
+/* Macro Expands to
+static const SqCommandType migrate_install_command = {
 	.size  = sizeof(CommandMigrate),
 	.parse = sq_type_command_parse_option,
 	.name  = "migrate:install",
@@ -87,14 +95,15 @@ const SqCommandType SqCommandType_Migrate_Install = {
 	.parameter   = NULL,
 	.description = "Create the migration repository",
 };
+ */
 
 // ----------------------------------------------------------------------------
-//
+// SqConsole function
 
 void  sq_console_add_command_migrate(SqConsole *console)
 {
 	// migrate
-	sq_console_add(console, &SqCommandType_Migrate);
+	sq_console_add(console, &migrate_command);
 	// migrate:install
-	sq_console_add(console, &SqCommandType_Migrate_Install);
+	sq_console_add(console, &migrate_install_command);
 }

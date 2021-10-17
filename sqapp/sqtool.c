@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 {
 	SqAppTool *apptool;
 	SqConsole *console;
-	SqCommand *command;
+	SqCommandValue *command;
 
 	apptool = malloc(sizeof(SqAppTool));
 	sq_app_tool_init(apptool);
@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 	command = sq_console_parse(console, 4, (char**)test_argv, true);
 
 	sq_console_print_help(console, "migrate", "sqtool");
-	sq_command_free(command);
+	sq_command_value_free(command);
 
 	return EXIT_SUCCESS;
 }

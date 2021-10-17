@@ -46,7 +46,7 @@ void  sq_console_free(SqConsole *console)
 void  sq_console_init(SqConsole *console)
 {
 	console->commands_sorted = false;
-	sq_ptr_array_init(&console->commands, 8, (SqDestroyFunc)sq_command_free);
+	sq_ptr_array_init(&console->commands, 8, (SqDestroyFunc)sq_command_value_free);
 	sq_buffer_init(&console->buf);
 
 	console->xc_input = sqxc_new(SQXC_INFO_VALUE);
@@ -83,10 +83,10 @@ SqCommandType  *sq_console_find(SqConsole *console, const char* name)
 	return type;
 }
 
-SqCommand *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command)
+SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command)
 {
     const SqCommandType  *type;
-	SqCommand  *cmd;
+	SqCommandValue  *cmd_value;
 	Sqxc       *xc;
 	char       *equ;
 	int         n_dash;
@@ -106,13 +106,13 @@ SqCommand *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv
 	if (type == NULL)
 		return NULL;
 
-	cmd = sq_command_new(type);
-	sq_command_sort_shortcuts(cmd);
+	cmd_value = sq_command_value_new(type);
+	sq_command_sort_shortcuts(cmd_value);
 
 	xc = console->xc_input;
 	sqxc_value_container(xc) = NULL;
 	sqxc_value_element(xc) = (SqType*)type;
-	sqxc_value_instance(xc) = cmd;
+	sqxc_value_instance(xc) = cmd_value;
 
 	sqxc_ready(xc, NULL);
 	xc->type = SQXC_TYPE_OBJECT;
@@ -138,7 +138,7 @@ SqCommand *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv
 		}
 		else {
 			// argument
-			sq_ptr_array_append(&cmd->arguments, argv[i]);
+			sq_ptr_array_append(&cmd_value->arguments, argv[i]);
 			continue;
 		}
 	}
@@ -149,7 +149,7 @@ SqCommand *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv
 	xc = sqxc_send(xc);
 	sqxc_finish(xc, NULL);
 
-	return cmd;
+	return cmd_value;
 }
 
 void  sq_console_print_help(SqConsole  *console,

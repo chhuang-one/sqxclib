@@ -38,7 +38,7 @@ void       sq_console_final(SqConsole *console);
 void       sq_console_add(SqConsole *console, const SqCommandType *command_type);
 
 SqCommandType  *sq_console_find(SqConsole *console, const char* name);
-SqCommand      *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command);
+SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command);
 
 void       sq_console_print_help(SqConsole  *console,
                                  const char *command_name,
@@ -60,8 +60,8 @@ struct ConsoleMethod {
 	void  add(const SqCommandType *command_type);
 	void  printHelp(const char *command_name, const char *program_name);
 
-	SqCommandType *find(const char *name);
-	SqCommand     *parse(int argc, char **argv, bool argv_has_command = true);
+	SqCommandType  *find(const char *name);
+	SqCommandValue *parse(int argc, char **argv, bool argv_has_command = true);
 };
 
 }  // namespace Sq
@@ -132,7 +132,7 @@ inline void  ConsoleMethod::printHelp(const char *command_name, const char *prog
 inline SqCommandType *ConsoleMethod::find(const char *name) {
 	return sq_console_find((SqConsole*)this, name);
 }
-inline SqCommand *ConsoleMethod::parse(int argc, char **argv, bool argv_has_command) {
+inline SqCommandValue *ConsoleMethod::parse(int argc, char **argv, bool argv_has_command) {
 	return sq_console_parse((SqConsole*)this, argc, argv, argv_has_command);
 }
 

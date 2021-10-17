@@ -23,7 +23,7 @@
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
 typedef struct SqConsole         SqConsole;
-typedef struct SqCommand         SqCommand;
+typedef struct SqCommandValue    SqCommandValue;
 typedef struct SqCommandType     SqCommandType;
 
 #define SQ_COMMAND_TYPE_INITIALIZER(StructType, bit_value, command_string, command_options, handle_func, parameter_string, description_string) \
@@ -50,17 +50,17 @@ typedef struct SqCommandType     SqCommandType;
 extern "C" {
 #endif
 
-typedef void (*SqCommandFunc)(SqCommand *cmd, SqConsole *console, void *data);
+typedef void (*SqCommandFunc)(SqCommandValue *cmd_value, SqConsole *console, void *data);
 
-/* --- SqCommand C functions --- */
-SqCommand  *sq_command_new(const SqCommandType *cmd_type);
-void        sq_command_free(SqCommand *cmd);
+/* --- SqCommandValue C functions --- */
+SqCommandValue  *sq_command_value_new(const SqCommandType *cmd_type);
+void        sq_command_value_free(SqCommandValue *cmd_value);
 
-void  sq_command_init(SqCommand *cmd, const SqCommandType *cmd_type);
-void  sq_command_final(SqCommand *cmd);
+void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommandType *cmd_type);
+void  sq_command_value_final(SqCommandValue *cmd_value);
 
 // this function is called by SqConsole
-void  sq_command_sort_shortcuts(SqCommand *cmd);
+void  sq_command_sort_shortcuts(SqCommandValue *cmd_value);
 
 /* --- SqCommandType C functions --- */
 SqCommandType *sq_command_type_new(const char *cmd_name);
@@ -81,8 +81,8 @@ SqCommandType *sq_command_type_copy_static(SqCommandType       *type_dest,
                                            const SqCommandType *static_type_src,
                                            SqDestroyFunc        option_free_func);
 
-// SqCommandType parse function for SqCommand
-int   sq_type_command_parse_option(void *cmd_instance, const SqType *cmd_type, Sqxc *src);
+// SqCommandType parse function for SqCommandValue
+int   sq_type_command_parse_option(void *cmd_value, const SqType *cmd_type, Sqxc *src);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -95,21 +95,21 @@ int   sq_type_command_parse_option(void *cmd_instance, const SqType *cmd_type, S
 
 namespace Sq {
 
-/* --- declare methods for Sq::Command --- */
-struct CommandMethod {
+/* --- declare methods for Sq::CommandValue --- */
+struct CommandValueMethod {
 	void *operator new(size_t size) {
 		return calloc(1, size);
 	}
 
 	void  init(const SqCommandType *cmdtype) {
-		sq_command_init((SqCommand*)this, cmdtype);
+		sq_command_value_init((SqCommandValue*)this, cmdtype);
 	}
 	void  final() {
-		sq_command_final((SqCommand*)this);
+		sq_command_value_final((SqCommandValue*)this);
 	}
 
 	void  sortShortcuts() {
-		sq_command_sort_shortcuts((SqCommand*)this);
+		sq_command_sort_shortcuts((SqCommandValue*)this);
 	}
 };
 
@@ -183,21 +183,21 @@ struct SqCommandType
 #endif  // __cplusplus
 };
 
-/*	SqCommand: define a command that used by command line interface.
+/*	SqCommandValue: define a command that used by command line interface.
  */
-#define SQ_COMMAND_MEMBERS       \
+#define SQ_COMMAND_VALUE_MEMBERS \
 	const SqCommandType  *type;  \
 	SqPtrArray     shortcuts;    \
 	SqPtrArray     arguments
 
 #ifdef __cplusplus
-struct SqCommand : Sq::CommandMethod     // <-- 1. inherit C++ member function(method)
+struct SqCommandValue : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
 #else
-struct SqCommand
+struct SqCommandValue
 #endif
 {
-	SQ_COMMAND_MEMBERS;                  // <-- 2. inherit member variable
-/*	// ------ SqCommand members ------
+	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
+/*	// ------ SqCommandValue members ------
 	const SqCommandType  *type;
 
 	// shortcuts & arguments are used by SqConsole
@@ -205,7 +205,7 @@ struct SqCommand
 	SqPtrArray     arguments;
  */
 
-	/* Add variable and function */      // <-- 3. Add variable and non-virtual function in derived struct.
+	/* Add variable and function */                // <-- 3. Add variable and non-virtual function in derived struct.
 };
 
 // ----------------------------------------------------------------------------
@@ -228,7 +228,7 @@ namespace Sq {
 
 /* --- define C++11 standard-layout structures --- */
 typedef struct SqCommandType     CommandType;
-typedef struct SqCommand         Command;
+typedef struct SqCommandValue    CommandValue;
 
 };  // namespace Sq
 
