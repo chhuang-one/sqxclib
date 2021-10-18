@@ -23,7 +23,7 @@
 #define strdup       _strdup
 #endif
 
-SqCommandValue  *sq_command_value_new(const SqCommandType *cmd_type)
+SqCommandValue  *sq_command_value_new(const SqCommand *cmd_type)
 {
 	SqCommandValue *cmd_value;
 
@@ -38,9 +38,9 @@ void  sq_command_value_free(SqCommandValue *cmd_value)
 	free(cmd_value);
 }
 
-void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommandType *cmd_type)
+void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommand *cmd_type)
 {
-	sq_command_type_ref((SqCommandType*)cmd_type);
+	sq_command_ref((SqCommand*)cmd_type);
 	sq_type_init_instance((SqType*)cmd_type, cmd_value, 0);
 	cmd_value->type = cmd_type;
 	sq_ptr_array_init(&cmd_value->shortcuts, 8, NULL);
@@ -53,36 +53,22 @@ void  sq_command_value_final(SqCommandValue *cmd_value)
 	sq_ptr_array_final(&cmd_value->arguments);
 	sq_ptr_array_final(&cmd_value->shortcuts);
 	sq_type_final_instance((SqType*)cmd_value->type, cmd_value, 0);
-	sq_command_type_unref((SqCommandType*)cmd_value->type);
-}
-
-void  sq_command_sort_shortcuts(SqCommandValue *cmd_value)
-{
-	const SqCommandType *cmd_type = cmd_value->type;
-	SqOption *option;
-
-	cmd_value->shortcuts.length = 0;
-	for (int i = 0;  i < cmd_type->n_entry;  i++) {
-		option = (SqOption*)cmd_type->entry[i];
-        if (option->shortcut)
-            sq_ptr_array_append(&cmd_value->shortcuts, option);
-	}
-	sq_ptr_array_sort(&cmd_value->shortcuts, (SqCompareFunc)sq_option_cmp_shortcut);
+	sq_command_unref((SqCommand*)cmd_value->type);
 }
 
 // ----------------------------------------------------------------------------
-// --- SqCommandType C functions ---
-SqCommandType *sq_command_type_new(const char *cmd_name)
+// --- SqCommand C functions ---
+SqCommand *sq_command_new(const char *cmd_name)
 {
-	SqCommandType *cmd_type;
+	SqCommand *cmd_type;
 
-	cmd_type = malloc(sizeof(SqCommandType));
+	cmd_type = malloc(sizeof(SqCommand));
 	// set SqType members
 	sq_type_init_self((SqType*)cmd_type, 0, (SqDestroyFunc)sq_option_free);
-	cmd_type->parse = sq_type_command_parse_option;
+	cmd_type->parse = sq_command_parse_option;
 	cmd_type->write = NULL;
 	cmd_type->name  = strdup(cmd_name);
-	// set SqCommandType members
+	// set SqCommand members
 	cmd_type->handle = NULL;
 	cmd_type->parameter = NULL;
 	cmd_type->description = NULL;
@@ -90,41 +76,41 @@ SqCommandType *sq_command_type_new(const char *cmd_name)
 	return cmd_type;
 }
 
-void sq_command_type_ref(SqCommandType *cmd_type)
+void sq_command_ref(SqCommand *cmd_type)
 {
 	// below code is the same as sq_type_ref()
 	if (cmd_type->bit_field & SQB_TYPE_DYNAMIC)
 		cmd_type->ref_count++;
 }
 
-void sq_command_type_unref(SqCommandType *cmd_type)
+void sq_command_unref(SqCommand *cmd_type)
 {
 	if (cmd_type->bit_field & SQB_TYPE_DYNAMIC) {
 		cmd_type->ref_count--;
 		if (cmd_type->ref_count == 0) {
 			// free SqType members
 			sq_type_final_self((SqType*)cmd_type);
-			// free SqCommandType members
+			// free SqCommand members
 			free((char*)cmd_type->parameter);
 			free((char*)cmd_type->description);
-			// free SqCommandType struct
+			// free SqCommand struct
 			free(cmd_type);
 		}
 	}
 }
 
-SqCommandType *sq_command_type_copy_static(SqCommandType       *type_dest,
-                                           const SqCommandType *static_type_src,
-                                           SqDestroyFunc        option_free_func)
+SqCommand *sq_command_copy_static(SqCommand       *type_dest,
+                                  const SqCommand *static_type_src,
+                                  SqDestroyFunc    option_free_func)
 {
 	if (type_dest == NULL)
-		type_dest = malloc(sizeof(SqCommandType));
+		type_dest = malloc(sizeof(SqCommand));
 	if (option_free_func == NULL)
 		option_free_func = (SqDestroyFunc)sq_option_free;
 
 	// copy SqType members
 	sq_type_copy_static((SqType*)type_dest, (SqType*)static_type_src, option_free_func);
-	// copy SqCommandType members
+	// copy SqCommand members
 	type_dest->handle = static_type_src->handle;
 	type_dest->parameter = strdup(static_type_src->parameter);
 	type_dest->description = strdup(static_type_src->description);
@@ -132,8 +118,21 @@ SqCommandType *sq_command_type_copy_static(SqCommandType       *type_dest,
 	return type_dest;
 }
 
-/* SqCommandType parse function for SqCommandValue */
-int  sq_type_command_parse_option(void *instance, const SqType *type, Sqxc *src)
+void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array)
+{
+	SqOption *option;
+
+	array->length = 0;
+	for (int i = 0;  i < cmd_type->n_entry;  i++) {
+		option = (SqOption*)cmd_type->entry[i];
+        if (option->shortcut)
+            sq_ptr_array_append(array, option);
+	}
+	sq_ptr_array_sort(array, (SqCompareFunc)sq_option_cmp_shortcut);
+}
+
+/* SqCommand parse function */
+int  sq_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 {
 	SqxcValue  *xc_value = (SqxcValue*)src->dest;
 	SqxcNested *nested;

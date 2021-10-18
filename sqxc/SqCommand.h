@@ -24,14 +24,14 @@
 
 typedef struct SqConsole         SqConsole;
 typedef struct SqCommandValue    SqCommandValue;
-typedef struct SqCommandType     SqCommandType;
+typedef struct SqCommand         SqCommand;
 
 #define SQ_COMMAND_TYPE_INITIALIZER(StructType, bit_value, command_string, command_options, handle_func, parameter_string, description_string) \
 {                                                                  \
 	.size  = sizeof(StructType),                                   \
 	.init  = (SqTypeFunc) NULL,                                    \
 	.final = (SqTypeFunc) NULL,                                    \
-	.parse = sq_type_command_parse_option,                         \
+	.parse = sq_command_parse_option,                              \
 	.write = NULL,                                                 \
 	.name  = command_string,                                       \
 	.entry   = (SqEntry**) command_options,                        \
@@ -53,36 +53,37 @@ extern "C" {
 typedef void (*SqCommandFunc)(SqCommandValue *cmd_value, SqConsole *console, void *data);
 
 /* --- SqCommandValue C functions --- */
-SqCommandValue  *sq_command_value_new(const SqCommandType *cmd_type);
-void        sq_command_value_free(SqCommandValue *cmd_value);
+SqCommandValue *sq_command_value_new(const SqCommand *cmd_type);
+void            sq_command_value_free(SqCommandValue *cmd_value);
 
-void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommandType *cmd_type);
+void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommand *cmd_type);
 void  sq_command_value_final(SqCommandValue *cmd_value);
 
-// this function is called by SqConsole
-void  sq_command_sort_shortcuts(SqCommandValue *cmd_value);
 
-/* --- SqCommandType C functions --- */
-SqCommandType *sq_command_type_new(const char *cmd_name);
+/* --- SqCommand C functions --- */
+SqCommand *sq_command_new(const char *cmd_name);
 
-// these function only work if SqCommandType.bit_field has SQB_TYPE_DYNAMIC
-void  sq_command_type_ref(SqCommandType *cmd_type);
-void  sq_command_type_unref(SqCommandType *cmd_type);
+// these function only work if SqCommand.bit_field has SQB_TYPE_DYNAMIC
+void  sq_command_ref(SqCommand *cmd_type);
+void  sq_command_unref(SqCommand *cmd_type);
 
-// void sq_command_type_add_option(SqCommandType *cmd_type, SqOption *option, int n_option);
-#define sq_command_type_add_option(cmd_type, option, n_option)    \
+// sort options by SqOption.shortcut and save result in array. this function is called by SqConsole
+void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array);
+
+// void sq_command_add_option(SqCommand *cmd_type, SqOption *option, int n_option);
+#define sq_command_add_option(cmd_type, option, n_option)    \
 		sq_type_add_entry((SqType*)cmd_type, (SqEntry*)option, n_option, sizeof(SqOption));
 
-// copy data from static SqCommandType to dynamic SqCommandType. 'type_dest' must be raw memory.
-// if 'type_dest' is NULL, function will create dynamic SqCommandType.
+// copy data from static SqCommand to dynamic SqCommand. 'type_dest' must be raw memory.
+// if 'type_dest' is NULL, function will create dynamic SqCommand.
 // if 'option_free_func' is NULL, function will use default value - sq_option_free
-// return dynamic SqCommandType.
-SqCommandType *sq_command_type_copy_static(SqCommandType       *type_dest,
-                                           const SqCommandType *static_type_src,
-                                           SqDestroyFunc        option_free_func);
+// return dynamic SqCommand.
+SqCommand *sq_command_copy_static(SqCommand       *type_dest,
+                                  const SqCommand *static_type_src,
+                                  SqDestroyFunc    option_free_func);
 
-// SqCommandType parse function for SqCommandValue
-int   sq_type_command_parse_option(void *cmd_value, const SqType *cmd_type, Sqxc *src);
+// SqCommand parse function
+int   sq_command_parse_option(void *cmd_value, const SqType *cmd_type, Sqxc *src);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -101,15 +102,11 @@ struct CommandValueMethod {
 		return calloc(1, size);
 	}
 
-	void  init(const SqCommandType *cmdtype) {
-		sq_command_value_init((SqCommandValue*)this, cmdtype);
+	void  init(const SqCommand *cmd_type) {
+		sq_command_value_init((SqCommandValue*)this, cmd_type);
 	}
 	void  final() {
 		sq_command_value_final((SqCommandValue*)this);
-	}
-
-	void  sortShortcuts() {
-		sq_command_sort_shortcuts((SqCommandValue*)this);
 	}
 };
 
@@ -120,14 +117,14 @@ struct CommandValueMethod {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*	SqCommandType: parse/handle command and it's options.
+/*	SqCommand: parse/handle command and it's options.
 
 	SqType
 	|
-	`--- SqCommandType
+	`--- SqCommand
  */
 
-struct SqCommandType
+struct SqCommand
 {
 	SQ_TYPE_MEMBERS;
 /*	// ------ SqType members ------
@@ -157,28 +154,32 @@ struct SqCommandType
 	uint16_t       ref_count;    // reference count for dynamic SqType only
  */
 
-	// ------ SqCommandType members ------
+	// ------ SqCommand members ------
 	SqCommandFunc  handle;
 	const char    *parameter;
 	const char    *description;
 
 #ifdef __cplusplus
-	// these function only work if SqCommandType.bit_field has SQB_TYPE_DYNAMIC
+	// these function only work if SqCommand.bit_field has SQB_TYPE_DYNAMIC
 	void  ref() {
-		sq_command_type_ref((SqCommandType*)this);
+		sq_command_ref((SqCommand*)this);
 	}
 	void  unref() {
-		sq_command_type_unref((SqCommandType*)this);
+		sq_command_unref((SqCommand*)this);
 	}
 
-	// create dynamic SqCommandType and copy data from static SqCommandType
-	SqCommandType *copyStatic(SqDestroyFunc option_free_func = NULL) {
-		return sq_command_type_copy_static(NULL, (const SqCommandType*)this, option_free_func);
+	void  sortShortcuts(SqPtrArray *array) {
+		sq_command_sort_shortcuts((SqCommand*)this, array);
 	}
 
-	// add option from SqOption array (NOT pointer array) to dynamic SqCommandType.
+	// create dynamic SqCommand and copy data from static SqCommand
+	SqCommand *copyStatic(SqDestroyFunc option_free_func = NULL) {
+		return sq_command_copy_static(NULL, (const SqCommand*)this, option_free_func);
+	}
+
+	// add option from SqOption array (NOT pointer array) to dynamic SqCommand.
 	void  addOption(const SqOption *option, int n_option = 1) {
-		sq_command_type_add_option((SqCommandType*)this, option, n_option);
+		sq_command_add_option((SqCommand*)this, option, n_option);
 	}
 #endif  // __cplusplus
 };
@@ -186,7 +187,7 @@ struct SqCommandType
 /*	SqCommandValue: define a command that used by command line interface.
  */
 #define SQ_COMMAND_VALUE_MEMBERS \
-	const SqCommandType  *type;  \
+	const SqCommand  *type;      \
 	SqPtrArray     shortcuts;    \
 	SqPtrArray     arguments
 
@@ -198,7 +199,7 @@ struct SqCommandValue
 {
 	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
 /*	// ------ SqCommandValue members ------
-	const SqCommandType  *type;
+	const SqCommand  *type;
 
 	// shortcuts & arguments are used by SqConsole
 	SqPtrArray     shortcuts;    // sorted by SqOption.shortcut
@@ -227,7 +228,7 @@ struct SqCommandValue
 namespace Sq {
 
 /* --- define C++11 standard-layout structures --- */
-typedef struct SqCommandType     CommandType;
+typedef struct SqCommand         CommandType;
 typedef struct SqCommandValue    CommandValue;
 
 };  // namespace Sq

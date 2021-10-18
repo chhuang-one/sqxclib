@@ -34,7 +34,7 @@ static const SqOption *migrate_options[] = {
 		.description = "Force the migrations to be run so they can be rolled back individually"},
 };
 
-static const SqCommandType migrate_command = SQ_COMMAND_TYPE_INITIALIZER(
+static const SqCommand migrate_command = SQ_COMMAND_TYPE_INITIALIZER(
 	CommandMigrate, 0,                             // StructureType, bit_field
 	"migrate",                                     // command string
 	migrate_options,                               // SqOption pointer array
@@ -43,13 +43,13 @@ static const SqCommandType migrate_command = SQ_COMMAND_TYPE_INITIALIZER(
 	"Run the database migrations"                  // description string
 );
 /* Macro Expands to
-static const SqCommandType migrate_command = {
+static const SqCommand migrate_command = {
 	.size  = sizeof(CommandMigrate),
-	.parse = sq_type_command_parse_option,
+	.parse = sq_command_parse_option,
 	.name  = "migrate",
 	.entry   = (SqEntry**) migrate_options,
 	.n_entry = sizeof(migrate_options) / sizeof(SqOption*),
-	// SqCommandType members
+	// SqCommand members
 	.handle      = (SqCommandFunc) migrate_handle,
 	.parameter   = NULL,
 	.description = "Run the database migrations",
@@ -75,7 +75,7 @@ static const SqOption *migrate_install_options[] = {
 		.description = "Do not output any message"},
 };
 
-static const SqCommandType migrate_install_command = SQ_COMMAND_TYPE_INITIALIZER(
+static const SqCommand migrate_install_command = SQ_COMMAND_TYPE_INITIALIZER(
 	CommandMigrate, 0,                            // StructureType, bit_field
 	"migrate:install",                            // command string
 	migrate_install_options,                      // SqOption pointer array
@@ -84,13 +84,13 @@ static const SqCommandType migrate_install_command = SQ_COMMAND_TYPE_INITIALIZER
 	"Create the migration repository"             // description string
 );
 /* Macro Expands to
-static const SqCommandType migrate_install_command = {
+static const SqCommand migrate_install_command = {
 	.size  = sizeof(CommandMigrate),
-	.parse = sq_type_command_parse_option,
+	.parse = sq_command_parse_option,
 	.name  = "migrate:install",
 	.entry   = (SqEntry**)migrate_install_options,
 	.n_entry = sizeof(migrate_install_options) / sizeof(SqOption*),
-	// SqCommandType members
+	// SqCommand members
 	.handle      = (SqCommandFunc) migrate_install,
 	.parameter   = NULL,
 	.description = "Create the migration repository",

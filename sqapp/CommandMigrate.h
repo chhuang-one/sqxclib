@@ -49,7 +49,7 @@ struct CommandMigrate
 {
 	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
 /*	// ------ SqCommandValue members ------
-	const SqCommandType  *type;
+	const SqCommand  *type;
 
 	// shortcuts is an array that sorted by SqOption.shortcut
 	SqPtrArray     shortcuts;
