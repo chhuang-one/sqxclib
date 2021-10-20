@@ -1,8 +1,10 @@
+#include <SqStorage.h>
 #include <SqMigration.h>
+#include <CStructs.h>
 #include "migrations-files"
 
 const SqMigration *migrations[] = {
-    NULL,
+    NULL,                              // migration not existed or deleted
     #include "migrations-elements"
 };
 

@@ -26,7 +26,7 @@ typedef struct SqConsole         SqConsole;
 typedef struct SqCommandValue    SqCommandValue;
 typedef struct SqCommand         SqCommand;
 
-#define SQ_COMMAND_TYPE_INITIALIZER(StructType, bit_value, command_string, command_options, handle_func, parameter_string, description_string) \
+#define SQ_COMMAND_INITIALIZER(StructType, bit_value, command_string, command_options, handle_func, parameter_string, description_string) \
 {                                                                  \
 	.size  = sizeof(StructType),                                   \
 	.init  = (SqTypeFunc) NULL,                                    \

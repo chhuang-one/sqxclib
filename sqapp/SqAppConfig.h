@@ -11,7 +11,7 @@
 #define DB_PORT        3306
 #define DB_USERNAME    "root"
 #define DB_PASSWORD    ""
-#define DB_DATABASE    "sqxc-example"
+#define DB_DATABASE    "sqapp-example"
 
 // SQLite Configuration
 #define DB_FOLDER      NULL

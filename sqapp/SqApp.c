@@ -13,6 +13,7 @@
  */
 
 #include <SqConfig.h>
+#include <SqError.h>
 #include <SqApp.h>
 #include <SqAppConfig.h>
 #include <migrations.h>
@@ -66,6 +67,8 @@ static const SqdbConfigMysql  db_config_mysql = {
 // ----------------------------------------------------------------------------
 // SqApp functions
 
+static int   sq_app_make_current_schema(SqApp *app, SqSchema *schema);
+
 void  sq_app_init(SqApp *app)
 {
 #ifdef DB_PRODUCT_ERROR
@@ -74,7 +77,7 @@ void  sq_app_init(SqApp *app)
 #endif
 
 	app->db = sqdb_new(DB_CONNECTION, DB_CONFIG);
-	app->db_config = DB_CONFIG;
+	app->db_config    = DB_CONFIG;
 	app->db_database  = DB_DATABASE;
 	app->migrations   = migrations;
 	app->n_migrations = n_migrations;
@@ -90,7 +93,132 @@ void  sq_app_final(SqApp *app)
 
 int   sq_app_open_database(SqApp *app, const char *db_database)
 {
+	int  code;
+
 	if (db_database == NULL)
 		db_database = DB_DATABASE;
-	return sq_storage_open(app->storage, db_database);
+	code = sq_storage_open(app->storage, db_database);
+	if (code != SQCODE_OK)
+		return code;
+
+	return sq_app_make_current_schema(app, app->storage->schema);
+}
+
+int   sq_app_migrate(SqApp *app, int step)
+{
+	const SqMigration *migration;
+	SqSchema    *schema;
+	int  end, cur;
+	int  code;
+	int  batch;
+
+	if (sq_migration_get_last(app->storage, &batch) == 0) {
+		if (sq_migration_install(app->db) != SQCODE_OK)
+			return SQCODE_ERROR;
+	}
+
+	code = SQCODE_OK;
+	end = app->n_migrations;
+	cur = app->db->version;
+	if (cur >= end)
+		return SQCODE_DB_VERSION_MISMATCH;
+	if (step > 0) {
+		end = cur + step + 1;
+		if (end > app->n_migrations)
+			end = app->n_migrations;
+	}
+
+	schema = malloc(sizeof(SqSchema));
+	for (cur = cur+1;  cur < end;  cur++) {
+		migration = app->migrations[cur];
+		if (migration == NULL)
+			continue;
+		sq_schema_init(schema, NULL);
+		migration->up(schema, app->storage);
+		schema->version = cur;
+		code = sq_storage_migrate(app->storage, schema);
+		sq_schema_final(schema);
+		if (code != SQCODE_OK)
+			break;
+/*
+		if (code != SQCODE_OK)
+			code = sq_storage_migrate(app->storage, NULL);
+		if (code != SQCODE_OK)
+			break;
+ */
+		sq_migration_insert(app->storage, (SqMigration**)app->migrations,
+		                    cur, 1, batch +1);
+	}
+	free(schema);
+
+	if (code == SQCODE_OK)
+		code = sq_storage_migrate(app->storage, NULL);
+	return code;
+}
+
+int   sq_app_migrate_rollback(SqApp *app, int step)
+{
+	const SqMigration *migration;
+	SqSchema    *schema;
+	int  cur;
+	int  code;
+	int  batch = 0;
+
+	code = SQCODE_OK;
+	cur = app->db->version;
+	if (cur >= app->n_migrations)
+		return SQCODE_DB_VERSION_MISMATCH;
+	if (step == 0) {
+		if (sq_migration_get_last(app->storage, &batch) == 0)
+			return SQCODE_DB_NO_MIGRATIONS;
+		step = sq_migration_count_batch(app->storage, batch);
+	}
+
+	schema = malloc(sizeof(SqSchema));
+	for (;  cur > 0 && step > 0;  step--, cur--) {
+		migration = app->migrations[cur];
+		if (migration == NULL)
+			continue;
+		sq_schema_init(schema, NULL);
+		migration->down(schema, app->storage);
+		schema->version = cur - 1;
+		app->db->version -= 2;
+		code = sq_storage_migrate(app->storage, schema);
+		sq_schema_final(schema);
+/*
+		if (code != SQCODE_OK)
+			code = sq_storage_migrate(app->storage, NULL);
+		if (code != SQCODE_OK)
+			break;
+ */
+	}
+	free(schema);
+
+	if (code == SQCODE_OK)
+		code = sq_storage_migrate(app->storage, NULL);
+	return SQCODE_OK;
+}
+
+// ----------------------------------------------------------------------------
+// static
+
+static int   sq_app_make_current_schema(SqApp *app, SqSchema *schema)
+{
+	const SqMigration *migration;
+	int  cur;
+	int  code = SQCODE_OK;
+
+	cur = app->db->version;
+	if (cur >= app->n_migrations)
+		return SQCODE_DB_VERSION_MISMATCH;
+	if (cur == schema->version)
+		return SQCODE_OK;
+
+	for (int i = 1;  i <= cur;  i++) {
+		migration = app->migrations[i];
+		if (migration == NULL)
+			continue;
+		migration->up(schema, app->storage);
+	}
+	return code;
 }

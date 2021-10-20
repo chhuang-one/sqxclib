@@ -18,15 +18,22 @@
 #include <SqAppTool.h>
 #include <CommandMigrate.h>
 
+#define TEST_ARGV
+
+#ifdef TEST_ARGV
 const char *test_argv[] = {
-    "sqtool", "migrate", "--step", "testarg",
+	"sqtool", "migrate", "--step", "testarg",
+//	"sqtool", "migrate:install", "testarg",
+//	"sqtool", "migrate:rollback", "--step", "testarg",
 };
+const int   test_argc = sizeof(test_argv) / sizeof(char*);
+#endif
 
 int main(int argc, char **argv)
 {
 	SqAppTool *apptool;
 	SqConsole *console;
-	SqCommandValue *command;
+	SqCommandValue *cmd_value;
 
 	apptool = malloc(sizeof(SqAppTool));
 	sq_app_tool_init(apptool);
@@ -37,11 +44,19 @@ int main(int argc, char **argv)
 
 	console = sq_console_new();
 	sq_console_add_command_migrate(console);
-	command = sq_console_parse(console, 4, (char**)test_argv, true);
 
-	sq_console_print_help(console, "migrate", "sqtool");
-	sq_command_value_free(command);
+#ifdef TEST_ARGV
+	cmd_value = sq_console_parse(console, test_argc, (char**)test_argv, true);
+#else
+	cmd_value = sq_console_parse(console, argc, (char**)argv, true);
+#endif
 
+	cmd_value->type->handle(cmd_value, console, apptool);
+
+//	sq_console_print_help(console, "migrate", "sqtool");
+	sq_command_value_free(cmd_value);
+
+	sq_storage_close(apptool->storage);
 	return EXIT_SUCCESS;
 }
 

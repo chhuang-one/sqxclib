@@ -37,6 +37,9 @@ void  sq_app_final(SqApp *app);
 // if db_database is NULL, open default database that specify in SqAppConfig.h
 int   sq_app_open_database(SqApp *app, const char *db_database);
 
+int   sq_app_migrate(SqApp *app, int step);
+int   sq_app_migrate_rollback(SqApp *app, int step);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

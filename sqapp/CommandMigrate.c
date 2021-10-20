@@ -26,6 +26,12 @@
 
 static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
 {
+	SqApp *app = data;
+	int    code;
+
+	code = sq_app_migrate(app, ((CommandMigrate*)cmd_value)->step);
+	if (code)
+		printf("Can't migrate\n");
 }
 
 static const SqOption *migrate_options[] = {
@@ -34,7 +40,7 @@ static const SqOption *migrate_options[] = {
 		.description = "Force the migrations to be run so they can be rolled back individually"},
 };
 
-static const SqCommand migrate_command = SQ_COMMAND_TYPE_INITIALIZER(
+static const SqCommand migrate_command = SQ_COMMAND_INITIALIZER(
 	CommandMigrate, 0,                             // StructureType, bit_field
 	"migrate",                                     // command string
 	migrate_options,                               // SqOption pointer array
@@ -75,7 +81,7 @@ static const SqOption *migrate_install_options[] = {
 		.description = "Do not output any message"},
 };
 
-static const SqCommand migrate_install_command = SQ_COMMAND_TYPE_INITIALIZER(
+static const SqCommand migrate_install_command = SQ_COMMAND_INITIALIZER(
 	CommandMigrate, 0,                            // StructureType, bit_field
 	"migrate:install",                            // command string
 	migrate_install_options,                      // SqOption pointer array
@@ -98,7 +104,49 @@ static const SqCommand migrate_install_command = {
  */
 
 // ----------------------------------------------------------------------------
-// SqConsole function
+// migrate:rollback
+
+static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void *data)
+{
+	SqApp *app = data;
+	int    code;
+
+	code = sq_app_migrate_rollback(app, ((CommandMigrate*)cmd_value)->step);
+	if (code != SQCODE_OK)
+		printf("Can't install migration table\n");
+}
+
+static const SqOption *migrate_rollback_options[] = {
+	&(SqOption) {SQ_TYPE_INT,  "step",   offsetof(CommandMigrate, step),
+		.default_value = "0",
+		.value_description = "[=STEP]",
+		.description = "The number of migrations to be reverted"},
+};
+
+static const SqCommand migrate_rollback_command = SQ_COMMAND_INITIALIZER(
+	CommandMigrate, 0,                            // StructureType, bit_field
+	"migrate:rollback",                           // command string
+	migrate_rollback_options,                     // SqOption pointer array
+	migrate_rollback,                             // handle function
+	NULL,                                         // parameter string
+	"Rollback the last database migration"        // description string
+);
+/* Macro Expands to
+static const SqCommand migrate_rollback_command = {
+	.size  = sizeof(CommandMigrate),
+	.parse = sq_command_parse_option,
+	.name  = "migrate:rollback",
+	.entry   = (SqEntry**)migrate_rollback_options,
+	.n_entry = sizeof(migrate_rollback_options) / sizeof(SqOption*),
+	// SqCommand members
+	.handle      = (SqCommandFunc) migrate_rollback,
+	.parameter   = NULL,
+	.description = "Rollback the last database migration",
+};
+ */
+
+// ----------------------------------------------------------------------------
+//
 
 void  sq_console_add_command_migrate(SqConsole *console)
 {
@@ -106,4 +154,6 @@ void  sq_console_add_command_migrate(SqConsole *console)
 	sq_console_add(console, &migrate_command);
 	// migrate:install
 	sq_console_add(console, &migrate_install_command);
+	// migrate:rollback
+	sq_console_add(console, &migrate_rollback_command);
 }
