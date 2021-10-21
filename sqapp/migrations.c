@@ -5,6 +5,7 @@
 
 const SqMigration *migrations[] = {
     NULL,                              // migration not existed or deleted
+
     #include "migrations-elements"
 };
 
