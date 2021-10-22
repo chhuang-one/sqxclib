@@ -41,8 +41,13 @@ SqCommand *sq_console_find(SqConsole *console, const char* name);
 SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command);
 
 void       sq_console_print_help(SqConsole  *console,
-                                 const char *command_name,
-                                 const char *program_name);
+                                 const char *program_name,
+                                 const char *command_name);
+
+// print command list
+void       sq_console_print_list(SqConsole  *console,
+                                 const char *program_name,
+                                 const char *description);
 
 #ifdef __cplusplus
 }  // extern "C"

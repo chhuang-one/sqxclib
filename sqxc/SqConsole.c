@@ -45,9 +45,10 @@ void  sq_console_free(SqConsole *console)
 
 void  sq_console_init(SqConsole *console)
 {
-	console->commands_sorted = false;
-	sq_ptr_array_init(&console->commands, 8, (SqDestroyFunc)sq_command_value_free);
 	sq_buffer_init(&console->buf);
+	sq_ptr_array_init(&console->commands, 8, (SqDestroyFunc)sq_command_value_free);
+	console->commands.data[0] = NULL;    // default command
+	console->commands_sorted  = false;
 
 	console->xc_input = sqxc_new(SQXC_INFO_VALUE);
 #ifdef SQ_CONFIG_HAVE_JSONC
@@ -86,7 +87,7 @@ SqCommand  *sq_console_find(SqConsole *console, const char* name)
 SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command)
 {
     const SqCommand  *type;
-	SqCommandValue  *cmd_value;
+	SqCommandValue   *cmd_value;
 	Sqxc       *xc;
 	char       *equ;
 	int         n_dash;
@@ -99,7 +100,7 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool
 		argv += 2;
 	}
 	else {
-		type = console->commands.data[0];
+		type = console->commands.data[0];    // default command
 		argc -= 1;
 		argv += 1;
 	}
@@ -153,8 +154,8 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool
 }
 
 void  sq_console_print_help(SqConsole  *console,
-                            const char *command_name,
-                            const char *program_name)
+                            const char *program_name,
+                            const char *command_name)
 {
 	const SqCommand *cmd_type;
 	SqOption  *option;
@@ -162,7 +163,7 @@ void  sq_console_print_help(SqConsole  *console,
 	if (command_name)
 		cmd_type = sq_console_find(console, command_name);
 	else
-		cmd_type = console->commands.data[0];
+		cmd_type = console->commands.data[0];    // default command
 
 	puts("");
 	if (cmd_type == NULL) {
@@ -192,6 +193,29 @@ void  sq_console_print_help(SqConsole  *console,
 		puts(console->buf.mem);
 	}
 	printf("\n\n");
+}
+
+// print command list
+void  sq_console_print_list(SqConsole  *console,
+                            const char *program_name,
+                            const char *description)
+{
+	const SqCommand *cmd_type;
+
+	puts("");
+	if (description)
+		puts(description);
+
+	printf("Usage:\n" "  ");
+	if (program_name)
+		printf("%s ", program_name);
+	puts("  command [options] [arguments]\n");
+
+	puts("Available commands:");
+	for (int i = 0;  i < console->commands.length;  i++) {
+		cmd_type = console->commands.data[i];
+		printf("%s    %s\n", cmd_type->name, cmd_type->description);
+	}
 }
 
 // ------------------------------------
