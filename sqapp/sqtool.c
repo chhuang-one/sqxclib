@@ -18,13 +18,14 @@
 #include <SqAppTool.h>
 #include <CommandMigrate.h>
 
-#define TEST_ARGV
+//#define TEST_ARGV
 
 #ifdef TEST_ARGV
 const char *test_argv[] = {
-	"sqtool", "migrate", "--step", "testarg",
+//	"sqtool", "migrate", "--step", "testarg",
 //	"sqtool", "migrate:install", "testarg",
 //	"sqtool", "migrate:rollback", "--step", "testarg",
+	"sqtool",
 };
 const int   test_argc = sizeof(test_argv) / sizeof(char*);
 #endif
@@ -42,19 +43,20 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 
-	console = sq_console_new();
-	sq_console_add_command_migrate(console);
-
 #ifdef TEST_ARGV
-	cmd_value = sq_console_parse(console, test_argc, (char**)test_argv, true);
-#else
-	cmd_value = sq_console_parse(console, argc, (char**)argv, true);
+	argc = test_argc;
+	argv = (char**)test_argv;
 #endif
 
-	cmd_value->type->handle(cmd_value, console, apptool);
-
-//	sq_console_print_help(console, "migrate", "sqtool");
-	sq_command_value_free(cmd_value);
+	console = apptool->console;
+	if (argc > 1) {
+		cmd_value = sq_console_parse(console, argc, (char**)argv, true);
+		cmd_value->type->handle(cmd_value, console, apptool);
+		sq_command_value_free(cmd_value);
+	}
+	else {
+		sq_console_print_list(console, "sqtool", NULL);
+	}
 
 	sq_storage_close(apptool->storage);
 	return EXIT_SUCCESS;
