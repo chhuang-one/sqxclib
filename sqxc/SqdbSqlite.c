@@ -143,7 +143,13 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 		return SQCODE_CAN_NOT_SYNC;
 	// --- database schema version == the latest schema version
 	if (sqdb->version == schema->version) {
-		sq_schema_complete(schema, false);
+		if (schema->relation) {
+			// sq_schema_erase_records(schema, '=') was called by sqdb_sqlite_migrate()
+			// when database schema version = (equal) current schema version
+
+			// sort table/column by name and free temporary data after migration.
+			sq_schema_complete(schema, false);
+		}
 		return SQCODE_OK;
 	}
 	type = (SqType*)schema->type;

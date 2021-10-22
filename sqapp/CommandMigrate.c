@@ -56,7 +56,7 @@ static const SqCommand migrate_command = {
 	.entry   = (SqEntry**) migrate_options,
 	.n_entry = sizeof(migrate_options) / sizeof(SqOption*),
 	// SqCommand members
-	.handle      = (SqCommandFunc) migrate_handle,
+	.handle      = (SqCommandFunc) migrate,
 	.parameter   = NULL,
 	.description = "Run the database migrations",
 };
