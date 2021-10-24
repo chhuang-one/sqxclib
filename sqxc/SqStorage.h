@@ -266,7 +266,14 @@ struct StorageMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/* --- SqStorage --- */
+/* --- SqStorage ---
+
+  Notes about multithreading:
+   1. 'schema', 'tables', 'tables_version' must be shared between threads.
+      use readers-writer lock to access these data member.
+   2. 'xc_input', 'xc_output' is NOT shared between threads.
+      each thread has its Sqxc chain ('xc_input' and 'xc_output').
+ */
 
 #ifdef __cplusplus
 struct SqStorage : Sq::StorageMethod
@@ -282,7 +289,7 @@ struct SqStorage
 	SqPtrArray tables;
 	int        tables_version;
 
-	// 1 thread use 1 Sqxc chain
+	// each thread has its Sqxc chain
 	Sqxc      *xc_input;    // SqxcValue
 	Sqxc      *xc_output;   // SqxcSql
 
