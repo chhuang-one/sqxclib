@@ -67,8 +67,6 @@ static const SqdbConfigMysql  db_config_mysql = {
 // ----------------------------------------------------------------------------
 // SqApp functions
 
-static int   sq_app_make_current_schema(SqApp *app);
-
 void  sq_app_init(SqApp *app)
 {
 #ifdef DB_PRODUCT_ERROR
@@ -101,7 +99,38 @@ int   sq_app_open_database(SqApp *app, const char *db_database)
 	if (code != SQCODE_OK)
 		return code;
 
-	return sq_app_make_current_schema(app);
+	return sq_app_make_schema(app, 0);
+}
+
+int   sq_app_make_schema(SqApp *app, int cur)
+{
+	const SqMigration *migration;
+	SqSchema *schema;
+	int  code = SQCODE_OK;
+
+	if (cur == 0)
+		cur = app->db->version;
+	if (cur >= app->n_migrations)
+		return SQCODE_DB_VERSION_MISMATCH;
+
+	schema = malloc(sizeof(SqSchema));
+	for (int i = 1;  i <= cur;  i++) {
+		migration = app->migrations[i];
+		if (migration == NULL)
+			continue;
+		sq_schema_init(schema, NULL);
+		schema->version = i;    // specify version number
+		migration->up(schema, app->storage);
+		sq_storage_migrate(app->storage, schema);
+		sq_schema_final(schema);
+	}
+	free(schema);
+
+	// synchronize schema to database and update schema/table status
+	// This mainly used by SQLite
+	sq_storage_migrate(app->storage, NULL);
+
+	return code;
 }
 
 int   sq_app_migrate(SqApp *app, int step)
@@ -201,38 +230,4 @@ int   sq_app_migrate_rollback(SqApp *app, int step)
 	if (schema_changed)
 		code = sq_storage_migrate(app->storage, NULL);
 	return SQCODE_OK;
-}
-
-// ----------------------------------------------------------------------------
-// static
-
-static int   sq_app_make_current_schema(SqApp *app)
-{
-	const SqMigration *migration;
-	SqSchema *schema;
-	int  cur;
-	int  code = SQCODE_OK;
-
-	cur = app->db->version;
-	if (cur >= app->n_migrations)
-		return SQCODE_DB_VERSION_MISMATCH;
-
-	schema = malloc(sizeof(SqSchema));
-	for (int i = 1;  i <= cur;  i++) {
-		migration = app->migrations[i];
-		if (migration == NULL)
-			continue;
-		sq_schema_init(schema, NULL);
-		schema->version = i;    // specify version number
-		migration->up(schema, app->storage);
-		sq_storage_migrate(app->storage, schema);
-		sq_schema_final(schema);
-	}
-	free(schema);
-
-	// synchronize schema to database and update schema/table status
-	// This mainly used by SQLite
-	sq_storage_migrate(app->storage, NULL);
-
-	return code;
 }

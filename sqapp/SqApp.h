@@ -37,6 +37,10 @@ void  sq_app_final(SqApp *app);
 // if db_database is NULL, open default database that specify in SqAppConfig.h
 int   sq_app_open_database(SqApp *app, const char *db_database);
 
+// if 'migration_id' is 0, 'migration_id' will use version of database schema.
+// return error code.
+int   sq_app_make_schema(SqApp *app, int migration_id);
+
 int   sq_app_migrate(SqApp *app, int step);
 int   sq_app_migrate_rollback(SqApp *app, int step);
 
@@ -55,7 +59,8 @@ namespace Sq {
  */
 
 struct AppMethod {
-	int   openDatabase(const char *db_database);
+	int   openDatabase(const char *db_database = NULL);
+	int   makeSchema(int migration_id = 0);
 };
 
 };  // namespace Sq
@@ -111,8 +116,11 @@ struct SqApp
 
 namespace Sq {
 
-inline int   App::openDatabase(const char *db_database = NULL) {
+inline int   AppMethod::openDatabase(const char *db_database) {
 	return sq_app_open_database((SqApp*)this, db_database);
+}
+inline int   AppMethod::makeSchema(int migration_id) {
+	return sq_app_make_schema((SqApp*)this, migration_id);
 }
 
 /* --- define C++11 standard-layout structures --- */
