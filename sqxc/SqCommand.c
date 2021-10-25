@@ -40,8 +40,10 @@ void  sq_command_value_free(SqCommandValue *cmd_value)
 
 void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommand *cmd_type)
 {
-	sq_command_ref((SqCommand*)cmd_type);
-	sq_type_init_instance((SqType*)cmd_type, cmd_value, 0);
+	if (cmd_type) {
+		sq_command_ref((SqCommand*)cmd_type);
+		sq_type_init_instance((SqType*)cmd_type, cmd_value, 0);
+	}
 	cmd_value->type = cmd_type;
 	sq_ptr_array_init(&cmd_value->shortcuts, 8, NULL);
 	sq_ptr_array_init(&cmd_value->arguments, 8, NULL);
@@ -50,14 +52,19 @@ void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommand *cmd_type
 
 void  sq_command_value_final(SqCommandValue *cmd_value)
 {
+	const SqCommand *cmd_type = cmd_value->type;
+
 	sq_ptr_array_final(&cmd_value->arguments);
 	sq_ptr_array_final(&cmd_value->shortcuts);
-	sq_type_final_instance((SqType*)cmd_value->type, cmd_value, 0);
-	sq_command_unref((SqCommand*)cmd_value->type);
+	if (cmd_type) {
+		sq_type_final_instance((SqType*)cmd_value->type, cmd_value, 0);
+		sq_command_unref((SqCommand*)cmd_value->type);
+	}
 }
 
 // ----------------------------------------------------------------------------
 // --- SqCommand C functions ---
+
 SqCommand *sq_command_new(const char *cmd_name)
 {
 	SqCommand *cmd_type;

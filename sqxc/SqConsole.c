@@ -24,6 +24,8 @@
 #define strcasecmp   _stricmp
 #endif
 
+#define COMMAND_BORDER_WIDTH    2
+
 // SqType SqCompareFunc
 static int  sq_type_cmp_name(SqType **type1, SqType **type2);
 static int  sq_type_cmp_str__name(const char *str,  SqType **type);
@@ -159,6 +161,8 @@ void  sq_console_print_help(SqConsole  *console,
 {
 	const SqCommand *cmd_type;
 	SqOption  *option;
+	int        option_max_length = 0;
+	int        length;
 
 	if (command_name)
 		cmd_type = sq_console_find(console, command_name);
@@ -183,13 +187,21 @@ void  sq_console_print_help(SqConsole  *console,
 		printf("%s ", command_name);
 	if (cmd_type->parameter)
 		printf("%s ", cmd_type->parameter);
-	printf("[options]" "\n\n");
+	puts("[options]" "\n");
 
 	puts("Options:");
+	// count max length
+	for (int i = 0;  i < cmd_type->n_entry;  i++) {
+		option = (SqOption*)cmd_type->entry[i];
+		length = sq_option_print(option, NULL, 0);
+		if (option_max_length < length)
+			option_max_length = length;
+	}
+
 	for (int j = 0;  j < cmd_type->n_entry;  j++) {
 		option = (SqOption*)cmd_type->entry[j];
 		console->buf.writed = 0;
-		sq_option_print(option, &console->buf, 0);
+		sq_option_print(option, &console->buf, option_max_length);
 		puts(console->buf.mem);
 	}
 	printf("\n\n");
@@ -201,20 +213,35 @@ void  sq_console_print_list(SqConsole  *console,
                             const char *description)
 {
 	const SqCommand *cmd_type;
+	int    command_max_length = 0;
+	int    length;
 
-	puts("");
-	if (description)
+	for (int i = 0;  i < console->commands.length;  i++) {
+		cmd_type = console->commands.data[i];
+		length = strlen(cmd_type->name);
+		if (command_max_length < length)
+			command_max_length = length;
+	}
+	command_max_length += COMMAND_BORDER_WIDTH;
+
+	if (description) {
+		puts("");
 		puts(description);
+	}
 
-	printf("Usage:\n" "  ");
+	puts("\n" "Usage:");
+	printf("%*c", COMMAND_BORDER_WIDTH, ' ');
 	if (program_name)
 		printf("%s ", program_name);
-	puts("  command [options] [arguments]\n");
+	puts("command [options] [arguments]\n");
 
 	puts("Available commands:");
 	for (int i = 0;  i < console->commands.length;  i++) {
 		cmd_type = console->commands.data[i];
-		printf("%s    %s\n", cmd_type->name, cmd_type->description);
+		printf("%*c", COMMAND_BORDER_WIDTH, ' ');
+		printf("%s%*c", cmd_type->name,
+		       command_max_length - strlen(cmd_type->name), ' ');
+		puts(cmd_type->description);
 	}
 }
 

@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <SqOption.h>
 
-#define N_SPACES_AFTER_OPTION    2
+#define OPTION_BORDER_WIDTH    2
 
 SqOption *sq_option_new(const SqType *type)
 {
@@ -59,8 +59,8 @@ int  sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
 	int   length;
 
 	if (buffer)
-		sq_buffer_write_n(buffer, "  ", 2);
-	length =2;
+		memset(sq_buffer_alloc(buffer,2), ' ', OPTION_BORDER_WIDTH);
+	length = OPTION_BORDER_WIDTH;
 
 	if (option->shortcut) {
 		if (buffer) {
@@ -88,9 +88,9 @@ int  sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
 	}
 
 	if (opt_max_length < length)
-		opt_max_length = N_SPACES_AFTER_OPTION;
+		opt_max_length = OPTION_BORDER_WIDTH;
 	else
-		opt_max_length = N_SPACES_AFTER_OPTION + opt_max_length - length;
+		opt_max_length = OPTION_BORDER_WIDTH + opt_max_length - length;
 	if (buffer)
 		memset(sq_buffer_alloc(buffer, opt_max_length), ' ', opt_max_length);
 
