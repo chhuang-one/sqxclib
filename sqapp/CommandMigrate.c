@@ -26,17 +26,25 @@
 
 static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
 {
+	CommandMigrate *value = (CommandMigrate*)cmd_value;
 	SqApp *app = data;
 	int    code;
 
-	code = sq_app_migrate(app, ((CommandMigrate*)cmd_value)->step);
+	if (value->help) {
+		sq_console_print_help(console, value->type);
+		return;
+	}
+
+	code = sq_app_migrate(app, value->step);
 	if (code)
 		printf("Can't migrate\n");
 }
 
 static const SqOption *migrate_options[] = {
-	&(SqOption) {SQ_TYPE_BOOL, "step",   offsetof(CommandMigrate, step),
-		.default_value = "true",
+	COMMON_OPTION_HELP,
+//	COMMON_OPTION_QUIET,
+	&(SqOption) {SQ_TYPE_INT, "step",   offsetof(CommandMigrate, step),
+		.default_value = "1",
 		.description = "Force the migrations to be run so they can be rolled back individually"},
 };
 
@@ -67,8 +75,14 @@ static const SqCommand migrate_command = {
 
 static void migrate_install(SqCommandValue *cmd_value, SqConsole *console, void *data)
 {
+	CommandMigrate *value = (CommandMigrate*)cmd_value;
 	SqApp *app = data;
 	int    code;
+
+	if (value->help) {
+		sq_console_print_help(console, value->type);
+		return;
+	}
 
 	code = sq_migration_install(app->db);
 	if (code != SQCODE_OK)
@@ -76,6 +90,8 @@ static void migrate_install(SqCommandValue *cmd_value, SqConsole *console, void 
 }
 
 static const SqOption *migrate_install_options[] = {
+	COMMON_OPTION_HELP,
+//	COMMON_OPTION_QUIET,
 	&(SqOption) {SQ_TYPE_BOOL, "quiet",  offsetof(CommandMigrate, quiet),
 		.default_value = "true",
 		.description = "Do not output any message"},
@@ -108,15 +124,23 @@ static const SqCommand migrate_install_command = {
 
 static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void *data)
 {
+	CommandMigrate *value = (CommandMigrate*)cmd_value;
 	SqApp *app = data;
 	int    code;
 
-	code = sq_app_migrate_rollback(app, ((CommandMigrate*)cmd_value)->step);
+	if (value->help) {
+		sq_console_print_help(console, value->type);
+		return;
+	}
+
+	code = sq_app_migrate_rollback(app, value->step);
 	if (code != SQCODE_OK)
 		printf("Can't install migration table\n");
 }
 
 static const SqOption *migrate_rollback_options[] = {
+	COMMON_OPTION_HELP,
+//	COMMON_OPTION_QUIET,
 	&(SqOption) {SQ_TYPE_INT,  "step",   offsetof(CommandMigrate, step),
 		.default_value = "0",
 		.value_description = "[=STEP]",

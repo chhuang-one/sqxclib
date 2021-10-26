@@ -12,16 +12,15 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef COMMAND_MIGRATE_H
-#define COMMAND_MIGRATE_H
+#ifndef COMMON_OPTIONS_H
+#define COMMON_OPTIONS_H
 
 #include <SqCommand.h>
-#include <CommonOptions.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
-typedef struct CommandMigrate        CommandMigrate;
+typedef struct CommandCommon        CommandCommon;
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -30,7 +29,13 @@ typedef struct CommandMigrate        CommandMigrate;
 extern "C" {
 #endif
 
-void  sq_console_add_command_migrate(SqConsole *console);
+extern const SqOption  common_option_array[];    // common option array
+extern const SqOption *common_options[];         // common option pointer array
+extern const int       n_common_options;
+
+#define COMMON_OPTION_HELP       (&common_option_array[0])
+#define COMMON_OPTION_QUIET      (&common_option_array[1])
+#define COMMON_OPTION_VERSION    (&common_option_array[2])
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -39,13 +44,22 @@ void  sq_console_add_command_migrate(SqConsole *console);
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*	CommandMigrate: migrate command
+#define COMMON_OPTION_MEMBERS     \
+	bool           help;          \
+	bool           quiet;         \
+    bool           version
+
+/*	CommandCommon: SqCommandValue + common command options
  */
 
+#define COMMAND_COMMON_MEMBERS    \
+    SQ_COMMAND_VALUE_MEMBERS;     \
+	COMMON_OPTION_MEMBERS
+
 #ifdef __cplusplus
-struct CommandMigrate : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
+struct CommandCommon : Sq::CommandValueMethod      // <-- 1. inherit C++ member function(method)
 #else
-struct CommandMigrate
+struct CommandCommon
 #endif
 {
 	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
@@ -63,10 +77,6 @@ struct CommandMigrate
 	bool           quiet;
     bool           version;    // Display this application version
  */
-
-	// ------ CommandMigrate members ------
-	int            step;
 };
 
-
-#endif  // End of COMMAND_MIGRATE_H
+#endif  // COMMON_OPTIONS_H

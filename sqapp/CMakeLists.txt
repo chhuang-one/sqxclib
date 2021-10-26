@@ -24,6 +24,7 @@ set(SOURCES_TOOL
     SqApp.c
     SqAppTool.c
     SqAppTool-migrations.c
+    CommonOptions.c
     CommandMigrate.c
 )
 
@@ -31,6 +32,7 @@ set(HEADERS_TOOL
     SqApp.h
     SqAppTool.h
     migrations.h
+    CommonOptions.h
     CommandMigrate.h
 )
 
