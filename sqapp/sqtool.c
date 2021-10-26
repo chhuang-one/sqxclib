@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 	SqCommandValue *cmd_value;
 
 	apptool = malloc(sizeof(SqAppTool));
-	sq_app_tool_init(apptool);
+	sq_app_tool_init(apptool, "sqtool");
 	if (sq_app_open_database((SqApp*)apptool, NULL) != SQCODE_OK) {
 		puts("Can't open database");
 		return EXIT_FAILURE;
@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 		sq_command_value_free(cmd_value);
 	}
 	else {
-		sq_console_print_list(console, "sqtool", NULL);
+		sq_console_print_list(console, NULL);
 	}
 
 	sq_storage_close(apptool->storage);

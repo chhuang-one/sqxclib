@@ -31,7 +31,7 @@ typedef struct SqAppTool         SqAppTool;
 extern "C" {
 #endif
 
-void    sq_app_tool_init(SqAppTool *app);
+void    sq_app_tool_init(SqAppTool *app, const char *program_name);
 void    sq_app_tool_final(SqAppTool *app);
 
 #ifdef __cplusplus

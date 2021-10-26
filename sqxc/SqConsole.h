@@ -37,17 +37,15 @@ void       sq_console_final(SqConsole *console);
 
 void       sq_console_add(SqConsole *console, const SqCommand *command_type);
 
-SqCommand *sq_console_find(SqConsole *console, const char* name);
+SqCommand *sq_console_find(SqConsole *console, const char* command_name);
 SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command);
 
-void       sq_console_print_help(SqConsole  *console,
-                                 const char *program_name,
-                                 const char *command_name);
+void       sq_console_print_options(SqConsole *console, SqOption **options, int n_options);
+
+void       sq_console_print_help(SqConsole  *console, const SqCommand *command);
 
 // print command list
-void       sq_console_print_list(SqConsole  *console,
-                                 const char *program_name,
-                                 const char *description);
+void       sq_console_print_list(SqConsole  *console, const char *program_description);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -63,7 +61,7 @@ namespace Sq {
 /* --- declare methods for Sq::Console --- */
 struct ConsoleMethod {
 	void  add(const SqCommand *command_type);
-	void  printHelp(const char *command_name, const char *program_name);
+	void  printHelp(const SqCommand *command = NULL);
 
 	SqCommand  *find(const char *name);
 	SqCommandValue *parse(int argc, char **argv, bool argv_has_command = true);
@@ -82,6 +80,7 @@ struct ConsoleMethod {
 #define SQ_CONSOLE_MEMBERS         \
 	SqPtrArray commands;           \
 	bool       commands_sorted;    \
+	char      *program_name;       \
 	Sqxc      *xc_input;           \
 	SqBuffer   buf
 
@@ -96,6 +95,7 @@ struct SqConsole
 	SqPtrArray commands;
 	bool       commands_sorted;
 
+	char      *program_name;
 	Sqxc      *xc_input;
 	SqBuffer   buf;
 
@@ -131,8 +131,8 @@ namespace Sq {
 inline void  ConsoleMethod::add(const SqCommand *command_type) {
 	sq_console_add((SqConsole*)this, command_type);
 }
-inline void  ConsoleMethod::printHelp(const char *command_name, const char *program_name) {
-	sq_console_print_help((SqConsole*)this, command_name, program_name);
+inline void  ConsoleMethod::printHelp(const SqCommand *command) {
+	sq_console_print_help((SqConsole*)this, command);
 }
 inline SqCommand *ConsoleMethod::find(const char *name) {
 	return sq_console_find((SqConsole*)this, name);

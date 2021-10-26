@@ -14,9 +14,16 @@
 
 #include <SqAppTool.h>
 
+// ----------------------------------------------------------------------------
+// CommandList
+
 typedef struct CommandList        CommandList;
 
+#ifdef __cplusplus
+struct CommandList : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
+#else
 struct CommandList
+#endif
 {
 	SQ_COMMAND_VALUE_MEMBERS;                   // <-- 2. inherit member variable
 /*	// ------ SqCommandValue members ------
@@ -38,7 +45,7 @@ static void list(SqCommandValue *cmd_value, SqConsole *console, void *data)
 //	SqAppTool *app = data;
 //	console = app->console;
 
-	sq_console_print_list(console, "sqtool", NULL);
+	sq_console_print_list(console, NULL);
 }
 
 static const SqOption *list_options[] = {
@@ -69,10 +76,11 @@ static const SqCommand list_command = {
 // ----------------------------------------------------------------------------
 // SqAppTool functions
 
-void    sq_app_tool_init(SqAppTool *app)
+void    sq_app_tool_init(SqAppTool *app, const char *program_name)
 {
 	sq_app_init((SqApp*)app);
 	app->console = sq_console_new();
+	app->console->program_name = strdup(program_name);
 
 	sq_console_add(app->console, &list_command);
 	sq_console_add_command_migrate(app->console);
