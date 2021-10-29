@@ -23,8 +23,8 @@
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
 typedef struct SqConsole         SqConsole;
-typedef struct SqCommandValue    SqCommandValue;
 typedef struct SqCommand         SqCommand;
+typedef struct SqCommandValue    SqCommandValue;
 
 #define SQ_COMMAND_INITIALIZER(StructType, bit_value, command_string, command_options, handle_func, parameter_string, description_string) \
 {                                                                  \
@@ -38,6 +38,7 @@ typedef struct SqCommand         SqCommand;
 	.n_entry = sizeof(command_options) / sizeof(SqOption*),        \
 	.bit_field = bit_value,                                        \
 	.ref_count = 0,                                                \
+	                                                               \
 	.handle      = (SqCommandFunc) handle_func,                    \
 	.parameter   = parameter_string,                               \
 	.description = description_string,                             \
@@ -228,7 +229,7 @@ struct SqCommandValue
 namespace Sq {
 
 /* --- define C++11 standard-layout structures --- */
-typedef struct SqCommand         CommandType;
+typedef struct SqCommand         Command;
 typedef struct SqCommandValue    CommandValue;
 
 };  // namespace Sq

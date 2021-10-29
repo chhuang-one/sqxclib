@@ -41,8 +41,11 @@ static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
 }
 
 static const SqOption *migrate_options[] = {
+	// --- CommandCommon options ---
 	COMMON_OPTION_HELP,
 //	COMMON_OPTION_QUIET,
+
+	// --- CommandMigrate options ---
 	&(SqOption) {SQ_TYPE_INT, "step",   offsetof(CommandMigrate, step),
 		.default_value = "1",
 		.description = "Force the migrations to be run so they can be rolled back individually"},
@@ -58,12 +61,14 @@ static const SqCommand migrate_command = SQ_COMMAND_INITIALIZER(
 );
 /* Macro Expands to
 static const SqCommand migrate_command = {
+	// --- SqType members ---
 	.size  = sizeof(CommandMigrate),
 	.parse = sq_command_parse_option,
 	.name  = "migrate",
 	.entry   = (SqEntry**) migrate_options,
 	.n_entry = sizeof(migrate_options) / sizeof(SqOption*),
-	// SqCommand members
+	.bit_field = 0,
+	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) migrate,
 	.parameter   = NULL,
 	.description = "Run the database migrations",
@@ -90,11 +95,14 @@ static void migrate_install(SqCommandValue *cmd_value, SqConsole *console, void 
 }
 
 static const SqOption *migrate_install_options[] = {
+	// --- CommandCommon options ---
 	COMMON_OPTION_HELP,
 //	COMMON_OPTION_QUIET,
-	&(SqOption) {SQ_TYPE_BOOL, "quiet",  offsetof(CommandMigrate, quiet),
-		.default_value = "true",
-		.description = "Do not output any message"},
+
+	// --- CommandMigrate options ---
+//	&(SqOption) {SQ_TYPE_BOOL, "quiet",  offsetof(CommandMigrate, quiet),
+//		.default_value = "true",
+//		.description = "Do not output any message"},
 };
 
 static const SqCommand migrate_install_command = SQ_COMMAND_INITIALIZER(
@@ -107,12 +115,14 @@ static const SqCommand migrate_install_command = SQ_COMMAND_INITIALIZER(
 );
 /* Macro Expands to
 static const SqCommand migrate_install_command = {
+	// --- SqType members ---
 	.size  = sizeof(CommandMigrate),
 	.parse = sq_command_parse_option,
 	.name  = "migrate:install",
 	.entry   = (SqEntry**)migrate_install_options,
 	.n_entry = sizeof(migrate_install_options) / sizeof(SqOption*),
-	// SqCommand members
+	.bit_field = 0,
+	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) migrate_install,
 	.parameter   = NULL,
 	.description = "Create the migration repository",
@@ -139,8 +149,11 @@ static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void
 }
 
 static const SqOption *migrate_rollback_options[] = {
+	// --- CommandCommon options ---
 	COMMON_OPTION_HELP,
 //	COMMON_OPTION_QUIET,
+
+	// --- CommandMigrate options ---
 	&(SqOption) {SQ_TYPE_INT,  "step",   offsetof(CommandMigrate, step),
 		.default_value = "0",
 		.value_description = "[=STEP]",
@@ -157,12 +170,14 @@ static const SqCommand migrate_rollback_command = SQ_COMMAND_INITIALIZER(
 );
 /* Macro Expands to
 static const SqCommand migrate_rollback_command = {
+	// --- SqType members ---
 	.size  = sizeof(CommandMigrate),
 	.parse = sq_command_parse_option,
 	.name  = "migrate:rollback",
 	.entry   = (SqEntry**)migrate_rollback_options,
 	.n_entry = sizeof(migrate_rollback_options) / sizeof(SqOption*),
-	// SqCommand members
+	.bit_field = 0,
+	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) migrate_rollback,
 	.parameter   = NULL,
 	.description = "Rollback the last database migration",

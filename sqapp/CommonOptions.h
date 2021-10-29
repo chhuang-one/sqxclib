@@ -50,6 +50,10 @@ extern const int       n_common_options;
     bool           version
 
 /*	CommandCommon: SqCommandValue + common command options
+
+	SqCommandValue
+	|
+	`--- CommandCommon
  */
 
 #define COMMAND_COMMON_MEMBERS    \

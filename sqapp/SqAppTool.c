@@ -13,11 +13,21 @@
  */
 
 #include <SqAppTool.h>
+#include <CommonOptions.h>
 
 // ----------------------------------------------------------------------------
 // CommandList
 
 typedef struct CommandList        CommandList;
+
+/*	CommandList: migrate command
+
+	SqCommandValue
+	|
+	`--- CommandCommon    (CommonOptions.h)
+	     |
+	     `--- CommandList
+ */
 
 #ifdef __cplusplus
 struct CommandList : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
@@ -32,6 +42,13 @@ struct CommandList
 	// shortcuts is an array that sorted by SqOption.shortcut
 	SqPtrArray     shortcuts;
 	SqPtrArray     arguments;
+ */
+
+	COMMON_OPTION_MEMBERS;
+/*	// ------ CommandCommon members ------
+	bool           help;
+	bool           quiet;
+    bool           version;    // Display this application version
  */
 
 	// ------ CommandList members ------        // <-- 3. Add variable and non-virtual function in derived struct.
@@ -61,12 +78,14 @@ static const SqCommand list_command = SQ_COMMAND_INITIALIZER(
 );
 /* Macro Expands to
 static const SqCommand list_command = {
+	// --- SqType members ---
 	.size  = sizeof(CommandList),
 	.parse = sq_command_parse_option,
 	.name  = "list",
 	.entry   = (SqEntry**) list_options,
 	.n_entry = sizeof(list_options) / sizeof(SqOption*),
-	// SqCommand members
+	.bit_field = 0,
+	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) list,
 	.parameter   = NULL,
 	.description = "lists all commands",

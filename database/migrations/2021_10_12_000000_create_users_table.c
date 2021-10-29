@@ -7,16 +7,16 @@
 void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 {
 	SqTable  *table;
-    SqColumn *column;
+	SqColumn *column;
 
 	table  = sq_schema_create(schema, "users", User);
-    column = sq_table_add_uint(table, "id", offsetof(User, id));
-    column->bit_field |= SQB_PRIMARY;
+	column = sq_table_add_uint(table, "id", offsetof(User, id));
+	column->bit_field |= SQB_PRIMARY;
 
-    column = sq_table_add_string(table, "name", offsetof(User, name), 0);
-    column = sq_table_add_string(table, "email", offsetof(User, email), 0);
+	column = sq_table_add_string(table, "name", offsetof(User, name), 0);
+	column = sq_table_add_string(table, "email", offsetof(User, email), 0);
 
-    sq_table_add_timestamps_struct(table, User);
+	sq_table_add_timestamps_struct(table, User);
 
 /* sq_table_add_timestamps_struct(table, User) will do these
 	column = sq_table_add_timestamp(table, "created_at", offsetof(User, created_at));
@@ -29,7 +29,7 @@ void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 // Reverse the migrations.
 void down_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 {
-    sq_schema_drop(schema, "users");
+	sq_schema_drop(schema, "users");
 }
 
 static const SqMigration CreateUsersTable_2021_10_12_000000 = {

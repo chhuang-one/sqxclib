@@ -40,6 +40,12 @@ void  sq_console_add_command_migrate(SqConsole *console);
 // C/C++ common definitions: define structue
 
 /*	CommandMigrate: migrate command
+
+	SqCommandValue
+	|
+	`--- CommandCommon    (CommonOptions.h)
+	     |
+	     `--- CommandMigrate
  */
 
 #ifdef __cplusplus
@@ -58,13 +64,13 @@ struct CommandMigrate
  */
 
 	COMMON_OPTION_MEMBERS;
-/*	// ------ CommandCommon members ------         // <-- 3. Add variable and non-virtual function in derived struct.
+/*	// ------ CommandCommon members ------
 	bool           help;
 	bool           quiet;
     bool           version;    // Display this application version
  */
 
-	// ------ CommandMigrate members ------
+	// ------ CommandMigrate members ------        // <-- 3. Add variable and non-virtual function in derived struct.
 	int            step;
 };
 
