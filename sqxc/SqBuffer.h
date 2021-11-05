@@ -70,13 +70,13 @@ extern "C" {
 
 /* --- macro functions --- for maintaining C/C++ inline functions easily */
 
-// void sq_buffer_write(SqBuffer *buffer, const char *string);
+// char* sq_buffer_write(SqBuffer *buffer, const char *string);
 #define SQ_BUFFER_WRITE(buffer, string)  \
 		strcpy(sq_buffer_alloc(buffer, (int)strlen(string)), string)
 
-// void sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);
+// char* sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);
 #define SQ_BUFFER_WRITE_N(buffer, string, length)   \
-		memcpy(sq_buffer_alloc(buffer, length), string, length)
+		(char*)memcpy(sq_buffer_alloc(buffer, length), string, length)
 
 // void sq_buffer_insert(SqBuffer *buffer, int position, const char *string);
 #define SQ_BUFFER_INSERT(buffer, position, string)  \
@@ -118,6 +118,7 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count);
 struct SqBuffer
 {
 //	SQ_BUFFER_MEMBERS(mem, size, writed)
+	// ------ SqBuffer members ------
 	char  *mem;
 	int    size;
 	int    writed;
@@ -149,11 +150,11 @@ struct SqBuffer
 	void   write(char character) {
 		sq_buffer_write_c(this, character);
 	}
-	void   write(const char *string) {
-		SQ_BUFFER_WRITE(this, string);
+	char  *write(const char *string) {
+		return SQ_BUFFER_WRITE(this, string);
 	}
-	void   write(const char *string, int length) {
-		SQ_BUFFER_WRITE_N(this, string, length);
+	char  *write(const char *string, int length) {
+		return SQ_BUFFER_WRITE_N(this, string, length);
 	}
 
 	void   insert(int position, char character) {
@@ -179,9 +180,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_buffer_write(SqBuffer *buffer, const char *string)
+char *sq_buffer_write(SqBuffer *buffer, const char *string)
 {
-	SQ_BUFFER_WRITE(buffer, string);
+	return SQ_BUFFER_WRITE(buffer, string);
 }
 
 #ifdef __cplusplus  // C++
@@ -189,9 +190,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_buffer_write_n(SqBuffer *buffer, const char *string, int length)
+char *sq_buffer_write_n(SqBuffer *buffer, const char *string, int length)
 {
-	SQ_BUFFER_WRITE_N(buffer, string, length);
+	return SQ_BUFFER_WRITE_N(buffer, string, length);
 }
 
 #ifdef __cplusplus  // C++
@@ -229,8 +230,8 @@ char *sq_buffer_require(SqBuffer *buffer, int length)
 
 // C functions  (If C compiler doesn't support C99 inline function.)
 
-void  sq_buffer_write(SqBuffer *buffer, const char *string);
-void  sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);
+char *sq_buffer_write(SqBuffer *buffer, const char *string);
+char *sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);
 void  sq_buffer_insert(SqBuffer *buffer, int position, const char *string);
 void  sq_buffer_insert_n(SqBuffer *buffer, int position, const char *string, int length);
 char *sq_buffer_require(SqBuffer *buffer, int length);

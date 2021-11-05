@@ -62,14 +62,14 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count)
 #else   // __STDC_VERSION__
 // declare functions here if compiler does NOT support inline function.
 
-void  sq_buffer_write(SqBuffer *buffer, const char *string)
+char *sq_buffer_write(SqBuffer *buffer, const char *string)
 {
-	SQ_BUFFER_WRITE(buffer, string);
+	return SQ_BUFFER_WRITE(buffer, string);
 }
 
-void  sq_buffer_write_n(SqBuffer *buffer, const char *string, int length)
+char *sq_buffer_write_n(SqBuffer *buffer, const char *string, int length)
 {
-	SQ_BUFFER_WRITE_N(buffer, string, length);
+	return SQ_BUFFER_WRITE_N(buffer, string, length);
 }
 
 void  sq_buffer_insert(SqBuffer *buffer, int position, const char *string)
