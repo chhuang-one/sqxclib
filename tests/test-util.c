@@ -78,7 +78,7 @@ void test_time_string()
 	time = sq_time_from_string("2002-11-10T15:23:59");
 //	time = sq_time_from_string("2012/10/18 17:53:39");
 //	time = sq_time_from_string("21:13:30");
-	str  = sq_time_to_string(time);
+	str  = sq_time_to_string(time, 0);
 	if (str)
 		puts(str);
 }

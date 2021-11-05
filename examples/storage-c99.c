@@ -215,10 +215,10 @@ void user_print(User *user) {
 	}
 
 	char *timestr;
-	timestr = sq_time_to_string(user->created_at);
+	timestr = sq_time_to_string(user->created_at, 0);
 	printf("user.created_at = %s\n", timestr);
 	free(timestr);
-	timestr = sq_time_to_string(user->updated_at);
+	timestr = sq_time_to_string(user->updated_at, 0);
 	printf("user.updated_at = %s\n", timestr);
 	free(timestr);
 

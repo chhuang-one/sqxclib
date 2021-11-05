@@ -123,8 +123,9 @@ time_t  sq_time_from_string(const char *timestr)
 	return mktime(&timeinfo);
 }
 // return NULL if error
-char   *sq_time_to_string(time_t timeraw)
+char   *sq_time_to_string(time_t timeraw, int format_type)
 {
+	const char *format;
 	struct tm  *timeinfo;
 	char       *timestr;
 
@@ -133,9 +134,21 @@ char   *sq_time_to_string(time_t timeraw)
 	if (timeinfo == NULL)
 		return NULL;
 
+	switch (format_type) {
+	case 'c':
+		// output format : "2013_02_05_212515"
+		format = "%.4d_%.2d_%.2d_%.2d%.2d%.2d";
+		break;
+
+	case 0:
+	default:
+		// output format : "2013-02-05 21:25:15"
+		format = "%.4d-%.2d-%.2d %.2d:%.2d:%.2d";
+		break;
+	}
+
 	timestr = malloc(32);
-	// output format : "2013-02-05 21:25:15"
-	snprintf(timestr, 32, "%.4d-%.2d-%.2d %.2d:%.2d:%.2d",
+	snprintf(timestr, 32, format,
 	         timeinfo->tm_year + 1900,
 	         timeinfo->tm_mon  + 1,
 	         timeinfo->tm_mday,

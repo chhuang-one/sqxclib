@@ -32,7 +32,7 @@ extern "C" {
 time_t  sq_time_from_string(const char *timestr);
 
 // return NULL if error
-char   *sq_time_to_string(time_t time);
+char   *sq_time_to_string(time_t time, int format_type);
 
 
 /* ----------------------------------------------------------------------------

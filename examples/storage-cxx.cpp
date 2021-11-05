@@ -51,8 +51,8 @@ struct User {
 	// --------------------------------
 	// member functions
 	void print() {
-		char *created_at = sq_time_to_string(this->created_at);
-		char *updated_at = sq_time_to_string(this->updated_at);
+		char *created_at = sq_time_to_string(this->created_at, 0);
+		char *updated_at = sq_time_to_string(this->updated_at, 0);
 
 		std::cout << std::endl
 		          << "user.id = "         << this->id         << std::endl
