@@ -4,6 +4,7 @@ sources_app = ['SqApp.c',
 ]
 
 headers_app = ['SqApp.h',
+               'SqApp-config.h',
                'migrations.h',
 ]
 
@@ -16,6 +17,7 @@ sources_tool = ['SqApp.c',
 ]
 
 headers_tool = ['SqApp.h',
+                'SqApp-config.h',
                 'SqAppTool.h',
                 'migrations.h',
                 'CommonOptions.h',

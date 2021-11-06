@@ -6,6 +6,7 @@ set(SOURCES_APP
 
 set(HEADERS_APP
     SqApp.h
+    SqApp-config.h
     migrations.h
 )
 
@@ -30,6 +31,7 @@ set(SOURCES_TOOL
 
 set(HEADERS_TOOL
     SqApp.h
+    SqApp-config.h
     SqAppTool.h
     migrations.h
     CommonOptions.h

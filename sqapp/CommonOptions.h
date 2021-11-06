@@ -79,7 +79,7 @@ struct CommandCommon
 /*	// ------ CommandCommon members ------         // <-- 3. Add variable and non-virtual function in derived struct.
 	bool           help;
 	bool           quiet;
-    bool           version;    // Display this application version
+	bool           version;    // Display this application version
  */
 };
 

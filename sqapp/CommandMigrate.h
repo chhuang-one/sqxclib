@@ -67,7 +67,7 @@ struct CommandMigrate
 /*	// ------ CommandCommon members ------
 	bool           help;
 	bool           quiet;
-    bool           version;    // Display this application version
+	bool           version;    // Display this application version
  */
 
 	// ------ CommandMigrate members ------        // <-- 3. Add variable and non-virtual function in derived struct.

@@ -15,7 +15,7 @@
 #include <SqConfig.h>
 #include <SqError.h>
 #include <SqApp.h>
-#include <SqAppConfig.h>
+#include <SqApp-config.h>
 #include <migrations.h>
 
 // ----------------------------------------------------------------------------

@@ -48,7 +48,7 @@ struct CommandList
 /*	// ------ CommandCommon members ------
 	bool           help;
 	bool           quiet;
-    bool           version;    // Display this application version
+	bool           version;    // Display this application version
  */
 
 	// ------ CommandList members ------        // <-- 3. Add variable and non-virtual function in derived struct.
@@ -98,9 +98,9 @@ static const SqCommand list_command = {
 void    sq_app_tool_init(SqAppTool *app, const char *program_name)
 {
 	sq_app_init((SqApp*)app);
+	// console
 	app->console = sq_console_new();
 	app->console->program_name = strdup(program_name);
-
 	sq_console_add(app->console, &list_command);
 	sq_console_add_command_migrate(app->console);
 }
