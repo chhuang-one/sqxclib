@@ -100,8 +100,8 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 #ifdef SQ_CONFIG_NAMING_CONVENTION
 	if (table->name == NULL)
 		table->name = sq_name2table(table->type->name);
-	if (table->type->name == NULL)
-		table->type->name = sq_name2type(table->name);
+	if (table->type->name == NULL  &&  table->type->bit_field & SQB_DYNAMIC)
+		((SqType*)table->type)->name = sq_name2type(table->name);
 #endif
 
 	// add table in schema->type
