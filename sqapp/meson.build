@@ -10,18 +10,23 @@ headers_app = ['SqApp.h',
 
 # --- sqapptool ---
 sources_tool = ['SqApp.c',
+                'SqPairs.c',
                 'SqAppTool.c',
                 'SqAppTool-migrations.c',
                 'CommonOptions.c',
                 'CommandMigrate.c',
+                'CommandMake.c',
 ]
 
 headers_tool = ['SqApp.h',
                 'SqApp-config.h',
+                'SqPairs.h',
                 'SqAppTool.h',
+                'SqAppTool-config.h',
                 'migrations.h',
                 'CommonOptions.h',
                 'CommandMigrate.h',
+                'CommandMake.h',
 ]
 
 # --- sqtool ---

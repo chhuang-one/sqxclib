@@ -12,17 +12,15 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef SQ_APP_TOOL_H
-#define SQ_APP_TOOL_H
+#ifndef SQ_PAIRS_H
+#define SQ_PAIRS_H
 
-#include <SqApp.h>
-#include <SqConsole.h>
-#include <SqPairs.h>
+#include <SqPtrArray.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
-typedef struct SqAppTool         SqAppTool;
+typedef struct SqPairs       SqPairs;    // array of SqPair
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -31,26 +29,18 @@ typedef struct SqAppTool         SqAppTool;
 extern "C" {
 #endif
 
-/* --- SqAppTool functions --- */
-void    sq_app_tool_init(SqAppTool *app, const char *program_name);
-void    sq_app_tool_final(SqAppTool *app);
+void    sq_pairs_init(SqPairs *pairs, SqCompareFunc key_compare_func);
+void    sq_pairs_final(SqPairs *pairs);
 
-// 'template_filename' = "migration-create.c.txt"
-// 'migration_name'    = "create_users_table"
-// key / value in 'pairs'
-// key = "struct_name"      value = "User"
-// key = "table_name"       value = "users"
-// key = "timestamp"        value = "2021_10_10_010203"
-int     sq_app_tool_make_migration(SqAppTool  *app,
-                                   const char *template_filename,
-                                   const char *migration_name,
-                                   SqPairs    *pairs);
+void    sq_pairs_add(SqPairs *pairs, void *key, void *value);
+void    sq_pairs_erase(SqPairs *pairs, void *key);
+void    sq_pairs_steal(SqPairs *pairs, void *key);
+void   *sq_pairs_find(SqPairs *pairs, void *key);
 
-void    sq_app_tool_print_path();
+void    sq_pairs_sort(SqPairs *pairs);
 
-/* --- template functions --- */
-char *sq_template_write_buffer(const char *template_string, SqPairs *pairs, SqBuffer *result_buffer);
-int   sq_template_write_file(const char *template_file, SqPairs *pairs, const char *result_file);
+// SqPair SqCompareFunc
+int     sq_pairs_cmp_string(const char **key1, const char **key2);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -63,10 +53,11 @@ int   sq_template_write_file(const char *template_file, SqPairs *pairs, const ch
 
 namespace Sq {
 
-/*	AppMethod : C++ struct is used by SqApp and it's children.
- */
-
-struct AppToolMethod : AppMethod {
+struct SqPairsMethod {
+	void    add(void *key, void *value);
+	void    erase(void *key);
+	void   *find(void *key);
+	void    sort();
 };
 
 };  // namespace Sq
@@ -76,35 +67,22 @@ struct AppToolMethod : AppMethod {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*	SqAppTool
-
-    SqApp
-    |
-    `--- SqAppTool
- */
-
 #ifdef __cplusplus
-struct SqAppTool : Sq::AppToolMethod          // <-- 1. inherit C++ member function(method)
+struct SqPairs : Sq::SqPairsMethod
 #else
-struct SqAppTool
+struct SqPairs
 #endif
 {
-	SQ_APP_MEMBERS;                           // <-- 2. inherit member variable
-/*	// ------ SqApp members ------
-	Sqdb                *db;
-	SqdbConfig          *db_config;
-	const char          *db_database;
-	const SqMigration  **migrations;
-	int                  n_migrations;
-	SqStorage           *storage;
+	SQ_PTR_ARRAY_MEMBERS(void*, data, x2length);
+/*	// ------ SqPtrArray members ------
+	void         **data;
+	int            x2length;
  */
 
-	// ------ SqAppTool members ------        // <-- 3. Add variable and non-virtual function in derived struct.
-
-	SqConsole           *console;
-
-	// Key-Value Pairs
-	SqPairs              pairs;
+	int            sorted;
+	SqCompareFunc  key_compare_func;
+	SqDestroyFunc  key_destroy_func;
+	SqDestroyFunc  value_destroy_func;
 };
 
 // ----------------------------------------------------------------------------
@@ -124,12 +102,23 @@ struct SqAppTool
 #ifdef __cplusplus
 
 namespace Sq {
-/* --- define C++11 standard-layout structures --- */
-typedef struct SqAppTool     AppTool;
+
+inline void   SqPairsMethod::add(void *key, void *value) {
+	sq_pairs_add((SqPairs*)this, key, value);
+}
+inline void   SqPairsMethod::erase(void *key) {
+	sq_pairs_erase((SqPairs*)this, key);
+}
+inline void  *SqPairsMethod::find(void *key) {
+	return sq_pairs_find((SqPairs*)this, key);
+}
+inline void   SqPairsMethod::sort() {
+	sq_pairs_sort((SqPairs*)this);
+}
 
 };  // namespace Sq
 
 #endif  // __cplusplus
 
 
-#endif  // SQ_APP_TOOL_H
+#endif  // SQ_PAIRS_H

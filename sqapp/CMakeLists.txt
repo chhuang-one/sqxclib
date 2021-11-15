@@ -23,19 +23,23 @@ set(SQAPP_LIBRARIES
 # --- sqapptool ---
 set(SOURCES_TOOL
     SqApp.c
+    SqPairs.c
     SqAppTool.c
     SqAppTool-migrations.c
     CommonOptions.c
     CommandMigrate.c
+    CommandMake.c
 )
 
 set(HEADERS_TOOL
     SqApp.h
     SqApp-config.h
+    SqPairs.h
     SqAppTool.h
     migrations.h
     CommonOptions.h
     CommandMigrate.h
+    CommandMake.h
 )
 
 set(SQTOOL_INCLUDE_DIRS

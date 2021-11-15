@@ -1,0 +1,34 @@
+/* This template file is used by sqtool
+// migrations.c has included below headers.
+#include <SqStorage.h>
+#include <CStructs.h>
+ */
+
+// Run the migrations.
+void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
+{
+	SqTable  *table;
+	SqColumn *column;
+
+	table  = sq_schema_create(schema, "{{ table_name }}", User);
+/*
+	column = sq_table_add_uint(table, "id", offsetof({{ struct_name }}, id));
+	column->bit_field |= SQB_PRIMARY;
+	sq_table_add_timestamps_struct(table, {{ struct_name }});
+ */
+}
+
+// Reverse the migrations.
+void down_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
+{
+	sq_schema_drop(schema, "{{ table_name }}");
+}
+
+static const SqMigration {{ migration_name }}_{{ timestamp }} = {
+	.up   = up_{{ timestamp }},
+	.down = down_{{ timestamp }},
+
+#ifdef SQ_APP_TOOL
+	.name = "{{ timestamp }}_{{ migration_name }}",
+#endif
+};
