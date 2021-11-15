@@ -25,7 +25,8 @@ const char *test_argv[] = {
 //	"sqtool", "migrate", "--step", "testarg",
 //	"sqtool", "migrate:install", "testarg",
 //	"sqtool", "migrate:rollback", "--step", "testarg",
-	"sqtool",
+	"sqtool", "make:migration", "create_companies_table",
+//	"sqtool",
 };
 const int   test_argc = sizeof(test_argv) / sizeof(char*);
 #endif
@@ -51,8 +52,12 @@ int main(int argc, char **argv)
 	console = apptool->console;
 	if (argc > 1) {
 		cmd_value = sq_console_parse(console, argc, (char**)argv, true);
-		cmd_value->type->handle(cmd_value, console, apptool);
-		sq_command_value_free(cmd_value);
+		if (cmd_value == NULL)
+			puts("unknown command");
+		else {
+			cmd_value->type->handle(cmd_value, console, apptool);
+			sq_command_value_free(cmd_value);
+		}
 	}
 	else {
 		sq_console_print_list(console, NULL);
