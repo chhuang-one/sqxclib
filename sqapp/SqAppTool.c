@@ -248,10 +248,12 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, temp.timestr);
 	sq_buffer_write_c(buf, '_');
 	sq_buffer_write(buf, migration_name);
-	// get extensions from 'template_filename'
+	// get file extensions from 'template_filename'
 	in.path = strchr(template_filename, '.');
-	if (in.path)
-		sq_buffer_write(buf, in.path);
+	if (in.path) {
+		// strcspn() count length of file extension
+		sq_buffer_write_n(buf, in.path, strcspn(in.path+1, ".") + 1);
+	}
 	buf->mem[buf->writed] = 0;
 	out.path = strdup(buf->mem);
 
