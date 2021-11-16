@@ -14,6 +14,7 @@
 
 #include <time.h>             // time_t, struct tm
 #include <stdio.h>            // FILE
+#include <ctype.h>            // toupper()
 #include <string.h>           // strchr()
 #include <SqError.h>
 #include <SqUtil.h>           // sq_name2type()
@@ -23,6 +24,10 @@
 #include <CommonOptions.h>
 #include <CommandMigrate.h>
 #include <CommandMake.h>
+
+#ifdef _MSC_VER
+#define strdup       _strdup
+#endif
 
 // ----------------------------------------------------------------------------
 // CommandList
@@ -113,18 +118,55 @@ void    sq_app_tool_init(SqAppTool *app, const char *program_name)
 	sq_console_add(app->console, &list_command);
 	sq_console_add_command_migrate(app->console);
 	sq_console_add_command_make(app->console);
-	// Key-Value Pairs
+	// Key-Value pairs for temporary use
 	sq_pairs_init(&app->pairs, (SqCompareFunc)sq_pairs_cmp_string);
 	app->pairs.key_destroy_func   = free;
 	app->pairs.value_destroy_func = free;
+	// buffer for temporary use
+	sq_buffer_init(&app->buffer);
 
+	// decide workspace folder
+	sq_app_tool_decide_path(app);
 }
 
 void    sq_app_tool_final(SqAppTool *app)
 {
-	sq_pairs_final(&app->pairs);
 	sq_console_free(app->console);
+	sq_pairs_final(&app->pairs);
+	sq_buffer_final(&app->buffer);
+	free(app->path);    // free workspace folder
 	sq_app_final((SqApp*)app);
+}
+
+int    sq_app_tool_decide_path(SqAppTool  *app)
+{
+	SqBuffer *buf = &app->buffer;
+	FILE     *file = NULL;
+	char     *array[] = {".", "..", "../..", SQ_TOOL_PATH_BASE, NULL};
+
+	app->path = NULL;
+	buf->writed = 0;
+	// workspace folder
+	for (int i = 0;  array[i];  i++) {
+		sq_buffer_write(buf, array[i]);
+		sq_buffer_write(buf, SQ_TOOL_PATH_TEMPLATES);
+		sq_buffer_write_c(buf, '/');
+		sq_buffer_write(buf, "migration-create.c.txt");
+		file = fopen(buf->mem, "r");
+		buf->writed = 0;    // clear app->buffer
+		if (file) {
+			app->path = strdup(array[i]);
+			fclose(file);
+			break;
+		}
+	}
+	if (app->path == NULL) {
+		app->path = strdup(array[0]);
+		puts("workspace folder not found");
+		return SQCODE_ERROR;
+	}
+	printf("workspace folder = %s\n", app->path);
+	return SQCODE_OK;
 }
 
 int     sq_app_tool_make_migration(SqAppTool  *app,
@@ -132,9 +174,9 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
                                    const char *migration_name,
                                    SqPairs    *pairs)
 {
-	SqBuffer buf;
-	char    *struct_name, *table_name;
-	int      code = SQCODE_OK;
+	SqBuffer *buf = &app->buffer;
+	char     *struct_name, *table_name;
+	int       code = SQCODE_OK;
 	struct {
 		unsigned int  table_name:1;
 		unsigned int  struct_name:1;
@@ -181,8 +223,10 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 		if (table_name)
 			struct_name = sq_name2type(table_name);
 #else
-		if (table_name)
+		if (table_name) {
 			struct_name = strdup(table_name);
+			struct_name[0] = toupper(struct_name[0]);
+		}
 #endif
 		else
 			struct_name = strdup("YourStructName");
@@ -197,27 +241,27 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 		added.timestr = 1;
 	}
 
-	sq_buffer_init(&buf);
-	sq_buffer_resize(&buf, 128);
-	sq_buffer_write(&buf, SQ_TOOL_PATH_MIGRATIONS);
-	sq_buffer_write_c(&buf, '/');
-	sq_buffer_write(&buf, temp.timestr);
-	sq_buffer_write_c(&buf, '_');
-	sq_buffer_write(&buf, migration_name);
+	buf->writed = 0;
+	sq_buffer_write(buf, app->path);    // workspace folder
+	sq_buffer_write(buf, SQ_TOOL_PATH_MIGRATIONS);
+	sq_buffer_write_c(buf, '/');
+	sq_buffer_write(buf, temp.timestr);
+	sq_buffer_write_c(buf, '_');
+	sq_buffer_write(buf, migration_name);
 	// get extensions from 'template_filename'
 	in.path = strchr(template_filename, '.');
 	if (in.path)
-		sq_buffer_write(&buf, in.path);
-	buf.mem[buf.writed] = 0;
-	out.path = buf.mem;
+		sq_buffer_write(buf, in.path);
+	buf->mem[buf->writed] = 0;
+	out.path = strdup(buf->mem);
 
-	sq_buffer_init(&buf);
-	sq_buffer_resize(&buf, 128);
-	sq_buffer_write(&buf, SQ_TOOL_PATH_TEMPLATES);
-	sq_buffer_write_c(&buf, '/');
-	sq_buffer_write(&buf, template_filename);
-	buf.mem[buf.writed] = 0;
-	in.path = buf.mem;
+	buf->writed = 0;
+	sq_buffer_write(buf, app->path);    // workspace folder
+	sq_buffer_write(buf, SQ_TOOL_PATH_TEMPLATES);
+	sq_buffer_write_c(buf, '/');
+	sq_buffer_write(buf, template_filename);
+	buf->mem[buf->writed] = 0;
+	in.path = strdup(buf->mem);
 
 	code = sq_template_write_file(in.path, pairs, out.path);
 	free(in.path);
@@ -226,13 +270,13 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 		goto exit;
 
 	// append filename in migrations-files
-	sq_buffer_init(&buf);
-	sq_buffer_resize(&buf, 128);
-	sq_buffer_write(&buf, SQ_TOOL_PATH_APP);
-	sq_buffer_write_c(&buf, '/');
-	sq_buffer_write(&buf, "migrations-files");
-	buf.mem[buf.writed] = 0;
-	out.file = fopen(buf.mem, "a");
+	buf->writed = 0;
+	sq_buffer_write(buf, app->path);    // workspace folder
+	sq_buffer_write(buf, SQ_TOOL_PATH_APP);
+	sq_buffer_write_c(buf, '/');
+	sq_buffer_write(buf, "migrations-files");
+	buf->mem[buf->writed] = 0;
+	out.file = fopen(buf->mem, "a");
 	if (out.file == NULL)
 		code = SQCODE_ERROR;
 	else {
@@ -240,20 +284,22 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 		fclose(out.file);
 	}
 
-	buf.writed = 0;
 	// append element in migrations-elements
-	sq_buffer_init(&buf);
-	sq_buffer_write(&buf, SQ_TOOL_PATH_APP);
-	sq_buffer_write_c(&buf, '/');
-	sq_buffer_write(&buf, "migrations-elements");
-	buf.mem[buf.writed] = 0;
-	out.file = fopen(buf.mem, "a");
+	buf->writed = 0;
+	sq_buffer_write(buf, app->path);    // workspace folder
+	sq_buffer_write(buf, SQ_TOOL_PATH_APP);
+	sq_buffer_write_c(buf, '/');
+	sq_buffer_write(buf, "migrations-elements");
+	buf->mem[buf->writed] = 0;
+	out.file = fopen(buf->mem, "a");
 	if (out.file == NULL)
 		code = SQCODE_ERROR;
 	else {
+		// print comment and element
 		fprintf(out.file,
-		        "// defined in %s\n"
-		        "&%s_%s," "\n\n",
+		        "\n"
+		        "// defined in %s" "\n"
+		        "&%s_%s," "\n",
 		        in.path,
 		        migration_name, temp.timestr);
 		fclose(out.file);
@@ -277,15 +323,6 @@ exit:
 	}
 	free(in.path);
 	return code;
-}
-
-void    sq_app_tool_print_path()
-{
-	puts("sqtool data path:");
-	puts(SQ_TOOL_PATH_DATABASE);
-	puts(SQ_TOOL_PATH_MIGRATIONS);
-	puts(SQ_TOOL_PATH_APP);
-	puts(SQ_TOOL_PATH_TEMPLATES);
 }
 
 // ----------------------------------------------------------------------------

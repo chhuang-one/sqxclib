@@ -6,4 +6,3 @@
 
 // defined in ../database/migrations/2021_10_12_000000_create_users_table.c
 &CreateUsersTable_2021_10_12_000000,
-

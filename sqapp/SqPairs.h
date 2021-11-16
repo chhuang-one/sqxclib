@@ -56,6 +56,7 @@ namespace Sq {
 struct SqPairsMethod {
 	void    add(void *key, void *value);
 	void    erase(void *key);
+	void    steal(void *key);
 	void   *find(void *key);
 	void    sort();
 };
@@ -108,6 +109,9 @@ inline void   SqPairsMethod::add(void *key, void *value) {
 }
 inline void   SqPairsMethod::erase(void *key) {
 	sq_pairs_erase((SqPairs*)this, key);
+}
+inline void   SqPairsMethod::steal(void *key) {
+	sq_pairs_steal((SqPairs*)this, key);
 }
 inline void  *SqPairsMethod::find(void *key) {
 	return sq_pairs_find((SqPairs*)this, key);

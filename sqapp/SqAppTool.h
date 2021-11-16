@@ -35,6 +35,9 @@ extern "C" {
 void    sq_app_tool_init(SqAppTool *app, const char *program_name);
 void    sq_app_tool_final(SqAppTool *app);
 
+// decide workspace folder and save it in app->path
+int     sq_app_tool_decide_path(SqAppTool *app);
+
 // 'template_filename' = "migration-create.c.txt"
 // 'migration_name'    = "create_users_table"
 // key / value in 'pairs'
@@ -45,8 +48,6 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
                                    const char *template_filename,
                                    const char *migration_name,
                                    SqPairs    *pairs);
-
-void    sq_app_tool_print_path();
 
 /* --- template functions --- */
 char *sq_template_write_buffer(const char *template_string, SqPairs *pairs, SqBuffer *result_buffer);
@@ -100,11 +101,10 @@ struct SqAppTool
  */
 
 	// ------ SqAppTool members ------        // <-- 3. Add variable and non-virtual function in derived struct.
-
-	SqConsole           *console;
-
-	// Key-Value Pairs
-	SqPairs              pairs;
+	char           *path;       // workspace folder
+	SqConsole      *console;
+	SqBuffer        buffer;     // buffer for temporary use
+	SqPairs         pairs;    	// Key-Value pairs for temporary use
 };
 
 // ----------------------------------------------------------------------------

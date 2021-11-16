@@ -16,12 +16,12 @@
 #define SQ_TOOL_CONFIG_H
 
 #ifndef SQ_TOOL_PATH_BASE
-#define SQ_TOOL_PATH_BASE            "."
+#define SQ_TOOL_PATH_BASE            NULL
 #endif
 
-#define SQ_TOOL_PATH_DATABASE        SQ_TOOL_PATH_BASE     "/database"
+#define SQ_TOOL_PATH_DATABASE        "/database"
 #define SQ_TOOL_PATH_MIGRATIONS      SQ_TOOL_PATH_DATABASE "/migrations"
-#define SQ_TOOL_PATH_APP             SQ_TOOL_PATH_BASE "/sqapp"
+#define SQ_TOOL_PATH_APP             "/sqapp"
 #define SQ_TOOL_PATH_TEMPLATES       SQ_TOOL_PATH_APP  "/templates"
 
 

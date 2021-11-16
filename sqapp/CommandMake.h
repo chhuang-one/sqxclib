@@ -71,8 +71,8 @@ struct CommandMake
  */
 
 	// ------ CommandMigrate members ------        // <-- 3. Add variable and non-virtual function in derived struct.
-    char          *table_to_create;
-    char          *table_to_migrate;
+	char          *table_to_create;
+	char          *table_to_migrate;
 	int            step;
 };
 
