@@ -61,6 +61,9 @@ namespace Sq {
 struct AppMethod {
 	int   openDatabase(const char *db_database = NULL);
 	int   makeSchema(int migration_id = 0);
+
+	int   migrate(int step);
+	int   migrateRollback(int step);
 };
 
 };  // namespace Sq
@@ -121,6 +124,13 @@ inline int   AppMethod::openDatabase(const char *db_database) {
 }
 inline int   AppMethod::makeSchema(int migration_id) {
 	return sq_app_make_schema((SqApp*)this, migration_id);
+}
+
+inline int   AppMethod::migrate(int step) {
+	return sq_app_migrate((SqApp*)this, step);
+}
+inline int   AppMethod::migrateRollback(int step) {
+	return sq_app_migrate_rollback((SqApp*)this, step);
 }
 
 /* --- define C++11 standard-layout structures --- */

@@ -124,9 +124,6 @@ void    sq_app_tool_init(SqAppTool *app, const char *program_name)
 	app->pairs.value_destroy_func = free;
 	// buffer for temporary use
 	sq_buffer_init(&app->buffer);
-
-	// decide workspace folder
-	sq_app_tool_decide_path(app);
 }
 
 void    sq_app_tool_final(SqAppTool *app)
@@ -136,6 +133,38 @@ void    sq_app_tool_final(SqAppTool *app)
 	sq_buffer_final(&app->buffer);
 	free(app->path);    // free workspace folder
 	sq_app_final((SqApp*)app);
+}
+
+int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
+{
+	SqConsole *console;
+	SqCommandValue *cmd_value;
+
+	console = app->console;
+	if (argc <= 1) {
+		sq_console_print_list(console, NULL);
+		return SQCODE_OK;
+	}
+
+	cmd_value = sq_console_parse(console, argc, (char**)argv, true);
+	if (cmd_value == NULL) {
+		puts("unknown command");
+		return SQCODE_ERROR;
+	}
+
+	// decide workspace folder
+	sq_app_tool_decide_path(app);
+	// open database
+	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+		puts("Can't open database");
+		return SQCODE_ERROR;
+	}
+	// handle command
+	cmd_value->type->handle(cmd_value, console, app);
+	sq_command_value_free(cmd_value);
+	// close database
+	sq_storage_close(app->storage);
+	return SQCODE_OK;
 }
 
 int    sq_app_tool_decide_path(SqAppTool  *app)
@@ -267,9 +296,26 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 
 	code = sq_template_write_file(in.path, pairs, out.path);
 	free(in.path);
-	in.path = out.path;    // program will use it later
+	free(out.path);
 	if (code != SQCODE_OK)
 		goto exit;
+
+	// relative path of migration file for SqApp
+	buf->writed = 0;
+	sq_buffer_write(buf, "..");    // current dir of sqapp is "workspace folder/sqapp"
+	sq_buffer_write(buf, SQ_TOOL_PATH_MIGRATIONS);
+	sq_buffer_write_c(buf, '/');
+	sq_buffer_write(buf, temp.timestr);
+	sq_buffer_write_c(buf, '_');
+	sq_buffer_write(buf, migration_name);
+	// get file extensions from 'template_filename'
+	in.path = strchr(template_filename, '.');
+	if (in.path) {
+		// strcspn() count length of file extension
+		sq_buffer_write_n(buf, in.path, strcspn(in.path+1, ".") + 1);
+	}
+	buf->mem[buf->writed] = 0;
+	in.path = strdup(buf->mem);
 
 	// append filename in migrations-files
 	buf->writed = 0;
@@ -307,6 +353,8 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 		fclose(out.file);
 	}
 
+	free(in.path);
+
 exit:
 	if (added.migration_name) {
 		sq_pairs_steal(pairs, "migration_name");
@@ -323,7 +371,6 @@ exit:
 		sq_pairs_steal(pairs, "timestamp");
 		free(temp.timestr);
 	}
-	free(in.path);
 	return code;
 }
 

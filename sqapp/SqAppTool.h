@@ -35,6 +35,8 @@ extern "C" {
 void    sq_app_tool_init(SqAppTool *app, const char *program_name);
 void    sq_app_tool_final(SqAppTool *app);
 
+int     sq_app_tool_run(SqAppTool *app, int argc, char **argv);
+
 // decide workspace folder and save it in app->path
 int     sq_app_tool_decide_path(SqAppTool *app);
 
@@ -68,6 +70,14 @@ namespace Sq {
  */
 
 struct AppToolMethod : AppMethod {
+	void init(const char *program_name);
+	void final();
+
+	int  run(int argc, char **argv);
+
+	int  makeMigration(const char *template_filename,
+	                   const char *migration_name,
+	                   SqPairs    *pairs);
 };
 
 };  // namespace Sq
@@ -105,6 +115,15 @@ struct SqAppTool
 	SqConsole      *console;
 	SqBuffer        buffer;     // buffer for temporary use
 	SqPairs         pairs;    	// Key-Value pairs for temporary use
+
+#ifdef __cplusplus
+	SqAppTool(const char *program_name) {
+		init(program_name);
+	}
+	~SqAppTool() {
+		final();
+	}
+#endif  // __cplusplus
 };
 
 // ----------------------------------------------------------------------------
@@ -124,6 +143,25 @@ struct SqAppTool
 #ifdef __cplusplus
 
 namespace Sq {
+
+inline void AppToolMethod::init(const char *program_name) {
+	sq_app_tool_init((SqAppTool*)this, program_name);
+}
+inline void AppToolMethod::final() {
+	sq_app_tool_final((SqAppTool*)this);
+}
+
+inline int  AppToolMethod::run(int argc, char **argv) {
+	return sq_app_tool_run((SqAppTool*)this, argc, argv);
+}
+inline int  AppToolMethod::makeMigration(const char *template_filename,
+                                         const char *migration_name,
+                                         SqPairs    *pairs)
+{
+	return sq_app_tool_make_migration((SqAppTool*)this,
+			template_filename, migration_name, pairs);
+}
+
 /* --- define C++11 standard-layout structures --- */
 typedef struct SqAppTool     AppTool;
 
