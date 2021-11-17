@@ -33,16 +33,16 @@ static void make_migration(SqCommandValue *cmd_value, SqConsole *console, void *
 	}
 
 	if (value->table_to_migrate) {
-		template_file = "migration-alter.c.txt";
+		template_file = "migration-alter";
 		sq_pairs_add(&app->pairs, "table_name", value->table_to_migrate);
 	}
 	if (value->table_to_create) {
-		template_file = "migration-create.c.txt";
+		template_file = "migration-create";
 		if (value->table_to_migrate == NULL)
 			sq_pairs_add(&app->pairs, "table_name", value->table_to_create);
 	}
 	if (template_file == NULL)
-		template_file = "migration-create.c.txt";    // default
+		template_file = "migration-create";    // default
 
 	code = sq_app_tool_make_migration(app, template_file,
 			value->arguments.data[0], &app->pairs);

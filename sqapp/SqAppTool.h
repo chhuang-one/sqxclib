@@ -111,6 +111,10 @@ struct SqAppTool
  */
 
 	// ------ SqAppTool members ------        // <-- 3. Add variable and non-virtual function in derived struct.
+
+	// template file extension
+	const char     *template_extension;
+
 	char           *path;       // workspace folder
 	SqConsole      *console;
 	SqBuffer        buffer;     // buffer for temporary use

@@ -124,6 +124,9 @@ void    sq_app_tool_init(SqAppTool *app, const char *program_name)
 	app->pairs.value_destroy_func = free;
 	// buffer for temporary use
 	sq_buffer_init(&app->buffer);
+
+	app->template_extension = ".c.txt";
+	app->path = NULL;
 }
 
 void    sq_app_tool_final(SqAppTool *app)
@@ -173,7 +176,6 @@ int    sq_app_tool_decide_path(SqAppTool  *app)
 	FILE     *file = NULL;
 	char     *array[] = {".", "..", "../..", SQ_TOOL_PATH_BASE, NULL};
 
-	app->path = NULL;
 	buf->writed = 0;
 	// workspace folder
 	for (int i = 0;  array[i];  i++) {
@@ -277,12 +279,9 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, temp.timestr);
 	sq_buffer_write_c(buf, '_');
 	sq_buffer_write(buf, migration_name);
-	// get file extensions from 'template_filename'
-	in.path = strchr(template_filename, '.');
-	if (in.path) {
-		// strcspn() count length of file extension
-		sq_buffer_write_n(buf, in.path, strcspn(in.path+1, ".") + 1);
-	}
+	// strcspn() count length of template file extension
+	sq_buffer_write_n(buf, app->template_extension,
+	                  strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	out.path = strdup(buf->mem);
 
@@ -291,6 +290,7 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, SQ_TOOL_PATH_TEMPLATES);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, template_filename);
+	sq_buffer_write(buf, app->template_extension);
 	buf->mem[buf->writed] = 0;
 	in.path = strdup(buf->mem);
 
@@ -308,12 +308,9 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, temp.timestr);
 	sq_buffer_write_c(buf, '_');
 	sq_buffer_write(buf, migration_name);
-	// get file extensions from 'template_filename'
-	in.path = strchr(template_filename, '.');
-	if (in.path) {
-		// strcspn() count length of file extension
-		sq_buffer_write_n(buf, in.path, strcspn(in.path+1, ".") + 1);
-	}
+	// strcspn() count length of template file extension
+	sq_buffer_write_n(buf, app->template_extension,
+	                  strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	in.path = strdup(buf->mem);
 
