@@ -48,7 +48,7 @@ void  sq_console_free(SqConsole *console)
 void  sq_console_init(SqConsole *console)
 {
 	sq_buffer_init(&console->buf);
-	sq_ptr_array_init(&console->commands, 8, (SqDestroyFunc)sq_command_value_free);
+	sq_ptr_array_init(&console->commands, 8, (SqDestroyFunc)sq_command_unref);
 	console->commands.data[0] = NULL;    // default command
 	console->commands_sorted  = false;
 
