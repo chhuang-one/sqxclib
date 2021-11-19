@@ -79,12 +79,9 @@ int  sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
 	}
 
 	if (option->value_description) {
-		if (buffer) {
-			sq_buffer_write(buffer, "[=");
+		if (buffer)
 			sq_buffer_write(buffer, option->value_description);
-			sq_buffer_write(buffer, "]");
-		}
-		length += strlen(option->value_description) + 1;
+		length += strlen(option->value_description);
 	}
 
 	if (opt_max_length < length)
