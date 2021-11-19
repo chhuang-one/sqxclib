@@ -36,6 +36,7 @@ void  sq_app_final(SqApp *app);
 
 // if db_database is NULL, open default database that specify in SqAppConfig.h
 int   sq_app_open_database(SqApp *app, const char *db_database);
+void  sq_app_close_database(SqApp *app);
 
 // if 'migration_id' is 0, 'migration_id' will use version of database schema.
 // return error code.

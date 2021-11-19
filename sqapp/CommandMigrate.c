@@ -35,9 +35,18 @@ static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
 		return;
 	}
 
+	// open database
+	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+		puts("Can't open database");
+		return;
+	}
+
 	code = sq_app_migrate(app, value->step);
 	if (code)
 		printf("Can't migrate\n");
+
+	// close database
+	sq_app_close_database(app);
 }
 
 static const SqOption *migrate_options[] = {
@@ -89,9 +98,18 @@ static void migrate_install(SqCommandValue *cmd_value, SqConsole *console, void 
 		return;
 	}
 
+	// open database
+	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+		puts("Can't open database");
+		return;
+	}
+
 	code = sq_migration_install(app->db);
 	if (code != SQCODE_OK)
 		printf("Can't install migration table\n");
+
+	// close database
+	sq_app_close_database(app);
 }
 
 static const SqOption *migrate_install_options[] = {
@@ -143,9 +161,18 @@ static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void
 		return;
 	}
 
+	// open database
+	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+		puts("Can't open database");
+		return;
+	}
+
 	code = sq_app_migrate_rollback(app, value->step);
 	if (code != SQCODE_OK)
 		printf("Can't install migration table\n");
+
+	// close database
+	sq_app_close_database(app);
 }
 
 static const SqOption *migrate_rollback_options[] = {

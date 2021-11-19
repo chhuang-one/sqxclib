@@ -157,16 +157,9 @@ int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
 
 	// decide workspace folder
 	sq_app_tool_decide_path(app);
-	// open database
-	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
-		puts("Can't open database");
-		return SQCODE_ERROR;
-	}
 	// handle command
 	cmd_value->type->handle(cmd_value, console, app);
 	sq_command_value_free(cmd_value);
-	// close database
-	sq_storage_close(app->storage);
 	return SQCODE_OK;
 }
 

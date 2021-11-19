@@ -102,6 +102,11 @@ int   sq_app_open_database(SqApp *app, const char *db_database)
 	return sq_app_make_schema(app, 0);
 }
 
+void  sq_app_close_database(SqApp *app)
+{
+	sq_storage_close(app->storage);
+}
+
 int   sq_app_make_schema(SqApp *app, int cur)
 {
 	const SqMigration *migration;
