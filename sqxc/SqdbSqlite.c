@@ -559,12 +559,13 @@ static void sqdb_sqlite_create_trigger(SqdbSqlite *db, SqBuffer *sql_buf, SqTabl
 {
 	sq_buffer_write(sql_buf, "CREATE TRIGGER");
 
-	// write "[column name]"
+	// write "[trigger name]"
 	sq_buffer_alloc(sql_buf, 2);
 	sq_buffer_r_at(sql_buf, 1) = ' ';
 	sq_buffer_r_at(sql_buf, 0) = '[';
-	sq_buffer_write(sql_buf, column->name);    // trigger name
-	sq_buffer_write(sql_buf, "_cur_time");
+	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, "_trig_");
+	sq_buffer_write(sql_buf, column->name);
 	sq_buffer_alloc(sql_buf, 2);
 	sq_buffer_r_at(sql_buf, 1) = ']';
 	sq_buffer_r_at(sql_buf, 0) = ' ';
