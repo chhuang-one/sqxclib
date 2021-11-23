@@ -1,7 +1,7 @@
 set(SOURCES
     SqPtrArray.c
     SqBuffer.c
-    SqThread.c
+#    SqThread.c
     SqUtil.c
     SqType.c
     SqType-built-in.c
@@ -29,7 +29,7 @@ set(HEADERS
     SqError.h
     SqPtrArray.h
     SqBuffer.h
-    SqThread.h
+#    SqThread.h
     SqUtil.h
     SqType.h
     SqEntry.h
