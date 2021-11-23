@@ -109,7 +109,7 @@ static const SqCommand list_command = {
 // ----------------------------------------------------------------------------
 /* --- SqAppTool functions --- */
 
-void    sq_app_tool_init(SqAppTool *app, const char *program_name)
+void   sq_app_tool_init(SqAppTool *app, const char *program_name)
 {
 	sq_app_init((SqApp*)app);
 	// console
@@ -129,7 +129,7 @@ void    sq_app_tool_init(SqAppTool *app, const char *program_name)
 	app->path = NULL;
 }
 
-void    sq_app_tool_final(SqAppTool *app)
+void   sq_app_tool_final(SqAppTool *app)
 {
 	sq_console_free(app->console);
 	sq_pairs_final(&app->pairs);
@@ -193,10 +193,10 @@ int    sq_app_tool_decide_path(SqAppTool  *app)
 	return SQCODE_OK;
 }
 
-int     sq_app_tool_make_migration(SqAppTool  *app,
-                                   const char *template_filename,
-                                   const char *migration_name,
-                                   SqPairs    *pairs)
+int    sq_app_tool_make_migration(SqAppTool  *app,
+                                  const char *template_filename,
+                                  const char *migration_name,
+                                  SqPairs    *pairs)
 {
 	SqBuffer *buf = &app->buffer;
 	char     *struct_name, *table_name;
@@ -307,18 +307,42 @@ int     sq_app_tool_make_migration(SqAppTool  *app,
 	buf->mem[buf->writed] = 0;
 	in.path = strdup(buf->mem);
 
-	// append filename in migrations-files
+	// append filename in migrations-files.c (or .cpp)
 	buf->writed = 0;
 	sq_buffer_write(buf, app->path);    // workspace folder
 	sq_buffer_write(buf, SQ_TOOL_PATH_APP);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, "migrations-files");
+	// strcspn() count length of template file extension
+	sq_buffer_write_n(buf, app->template_extension,
+	                  strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	out.file = fopen(buf->mem, "a");
 	if (out.file == NULL)
 		code = SQCODE_ERROR;
 	else {
 		fprintf(out.file, "#include \"%s\"" "\n", in.path);
+		fclose(out.file);
+	}
+
+	// append element in migrations-declarations
+	buf->writed = 0;
+	sq_buffer_write(buf, app->path);    // workspace folder
+	sq_buffer_write(buf, SQ_TOOL_PATH_APP);
+	sq_buffer_write_c(buf, '/');
+	sq_buffer_write(buf, "migrations-declarations");
+	buf->mem[buf->writed] = 0;
+	out.file = fopen(buf->mem, "a");
+	if (out.file == NULL)
+		code = SQCODE_ERROR;
+	else {
+		// print comment and declaration
+		fprintf(out.file,
+		        "\n"
+		        "// defined in %s" "\n"
+		        "extern const SqMigration  %s_%s;" "\n",
+		        in.path,
+		        migration_name, temp.timestr);
 		fclose(out.file);
 	}
 

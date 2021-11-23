@@ -1,11 +1,12 @@
 /* This template file is used by sqtool
 // migrations.c has included below headers.
 #include <SqStorage.h>
+#include <SqMigration.h>
 #include <CStructs.h>
  */
 
 // Run the migrations.
-void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
+static void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
 {
 	SqTable  *table;
 	SqColumn *column;
@@ -19,12 +20,12 @@ void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
 }
 
 // Reverse the migrations.
-void down_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
+static void down_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
 {
 	sq_schema_drop(schema, "{{ table_name }}");
 }
 
-static const SqMigration {{ migration_name }}_{{ timestamp }} = {
+const SqMigration {{ migration_name }}_{{ timestamp }} = {
 	.up   = up_{{ timestamp }},
 	.down = down_{{ timestamp }},
 

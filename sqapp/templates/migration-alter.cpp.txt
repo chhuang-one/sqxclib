@@ -1,10 +1,11 @@
 /* This template file is used by sqtool-cxx
 // migrations.cpp has included below headers.
 #include <SqStorage.h>
+#include <SqMigration.h>
 #include <CStructs.h>
  */
 
-static const SqMigration {{ migration_name }}_{{ timestamp }} = {
+const SqMigration {{ migration_name }}_{{ timestamp }} = {
 
 	// Run the migrations.
 	.up = [](SqSchema *schema, SqStorage *storage) {

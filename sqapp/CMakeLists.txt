@@ -2,6 +2,11 @@
 set(SOURCES_APP
     SqApp.c
     migrations.c
+    migrations-files.c
+)
+
+set(SOURCES_APP_CPP
+    migrations-files.cpp
 )
 
 set(HEADERS_APP
@@ -17,6 +22,7 @@ set(SQAPP_INCLUDE_DIRS
 
 set(SQAPP_LIBRARIES
     sqapp
+    sqappcpp
     ${SQXC_LIBRARIES}
 )
 
@@ -26,9 +32,14 @@ set(SOURCES_TOOL
     SqPairs.c
     SqAppTool.c
     SqAppTool-migrations.c
+    migrations.c
     CommonOptions.c
     CommandMigrate.c
     CommandMake.c
+)
+
+set(SOURCES_TOOL_CPP
+    SqAppTool-migrations.cpp
 )
 
 set(HEADERS_TOOL
@@ -48,6 +59,7 @@ set(SQTOOL_INCLUDE_DIRS
 
 set(SQTOOL_LIBRARIES
     sqapptool
+    sqapptoolcpp
     sqxconsole
     ${SQXC_LIBRARIES}
 )
@@ -69,9 +81,21 @@ add_library(sqapp
             ${HEADERS_APP}
 )
 
+add_library(sqappcpp
+            STATIC
+            ${SOURCES_APP_CPP}
+            ${HEADERS_APP}
+)
+
 add_library(sqapptool
             STATIC
             ${SOURCES_TOOL}
+            ${HEADERS_TOOL}
+)
+
+add_library(sqapptoolcpp
+            STATIC
+            ${SOURCES_TOOL_CPP}
             ${HEADERS_TOOL}
 )
 

@@ -1,10 +1,11 @@
 /* migrations.c has included below headers.
 #include <SqStorage.h>
+#include <SqMigration.h>
 #include <CStructs.h>
  */
 
 // Run the migrations.
-void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
+static void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 {
 	SqTable  *table;
 	SqColumn *column;
@@ -27,12 +28,12 @@ void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 }
 
 // Reverse the migrations.
-void down_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
+static void down_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 {
 	sq_schema_drop(schema, "users");
 }
 
-static const SqMigration CreateUsersTable_2021_10_12_000000 = {
+const SqMigration CreateUsersTable_2021_10_12_000000 = {
 	.up   = up_2021_10_12_000000,
 	.down = down_2021_10_12_000000,
 

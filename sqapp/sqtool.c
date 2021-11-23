@@ -12,27 +12,25 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <stdio.h>
 #include <sqxclib.h>
-
 #include <SqAppTool.h>
-#include <CommandMigrate.h>
 
 //#define TEST_ARGV
 
 #ifdef TEST_ARGV
 const char *test_argv[] = {
+	"sqtool", "migrate",
 //	"sqtool", "migrate", "--step", "testarg",
 //	"sqtool", "migrate:install", "testarg",
 //	"sqtool", "migrate:rollback", "--step", "testarg",
-	"sqtool", "make:migration", "create_companies_table",
+//	"sqtool", "make:migration", "create_companies_table",
 //	"sqtool", "make:migration", "--table=companies", "alter_companies_table",
 //	"sqtool",
 };
 const int   test_argc = sizeof(test_argv) / sizeof(char*);
 #endif
 
-int main(int argc, char **argv)
+int  main(int argc, char **argv)
 {
 	SqAppTool *apptool;
 
@@ -47,5 +45,7 @@ int main(int argc, char **argv)
 	sq_app_tool_run(apptool, argc, argv);
 
 	sq_app_tool_final(apptool);
+	free(apptool);
+
 	return EXIT_SUCCESS;
 }

@@ -150,6 +150,7 @@ namespace Sq {
 
 inline void AppToolMethod::init(const char *program_name) {
 	sq_app_tool_init((SqAppTool*)this, program_name);
+	((SqAppTool*)this)->template_extension = ".cpp.txt";
 }
 inline void AppToolMethod::final() {
 	sq_app_tool_final((SqAppTool*)this);
