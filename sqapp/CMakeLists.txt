@@ -69,6 +69,10 @@ set(SOURCES
     sqtool.c
 )
 
+set(SOURCES_CPP
+    sqtoolcpp.cpp
+)
+
 # ---
 include_directories(${SQAPP_INCLUDE_DIRS})
 link_libraries(sqxconsole
@@ -104,5 +108,12 @@ add_executable(sqtool
                ${SOURCES}
 )
 target_link_libraries(sqtool
+                      ${SQTOOL_LIBRARIES}
+)
+
+add_executable(sqtoolcpp
+               ${SOURCES_CPP}
+)
+target_link_libraries(sqtoolcpp
                       ${SQTOOL_LIBRARIES}
 )

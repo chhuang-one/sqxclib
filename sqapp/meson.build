@@ -38,6 +38,8 @@ headers_tool = ['SqApp.h',
 # --- sqtool ---
 sources = ['sqtool.c']
 
+sources_cpp = ['sqtoolcpp.cpp']
+
 # ---
 sqapp_inc = include_directories('./')
 
@@ -75,4 +77,8 @@ sqapptool = declare_dependency(include_directories : sqapp_inc,
 
 executable('sqtool',
            sources,
+           dependencies : sqapptool)
+
+executable('sqtoolcpp',
+           sources_cpp,
            dependencies : sqapptool)
