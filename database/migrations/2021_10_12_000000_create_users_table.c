@@ -1,4 +1,4 @@
-/* migrations.c has included below headers.
+/* migrations-files.c has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
 #include <CStructs.h>

@@ -361,7 +361,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		fprintf(out.file,
 		        "\n"
 		        "// defined in %s" "\n"
-		        "&%s_%s," "\n",
+		        "& %s_%s," "\n",
 		        in.path,
 		        migration_name, temp.timestr);
 		fclose(out.file);

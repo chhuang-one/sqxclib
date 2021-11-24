@@ -1,5 +1,5 @@
 /* This template file is used by sqtool-cxx
-// migrations.cpp has included below headers.
+// migrations-files.cpp has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
 #include <CStructs.h>
