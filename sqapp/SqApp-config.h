@@ -2,6 +2,11 @@
 #define SQ_APP_CONFIG_H
 
 
+#ifdef SQ_APP_CONFIG_FILE
+// include user's configuration file
+#include SQ_APP_CONFIG_FILE
+#else   // SQ_APP_CONFIG_FILE
+
 /* ------ SQL products ------ use one of products */
 #define SQLITE
 // #define MYSQL
@@ -16,6 +21,8 @@
 // SQLite Configuration
 #define DB_FOLDER      NULL
 #define DB_EXTENSION   NULL
+
+#endif  // SQ_APP_CONFIG_FILE
 
 
 #endif  // SQ_APP_CONFIG_H

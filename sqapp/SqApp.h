@@ -61,6 +61,8 @@ namespace Sq {
 
 struct AppMethod {
 	int   openDatabase(const char *db_database = NULL);
+	void  closeDatabase(void);
+
 	int   makeSchema(int migration_id = 0);
 
 	int   migrate(int step);
@@ -123,6 +125,10 @@ namespace Sq {
 inline int   AppMethod::openDatabase(const char *db_database) {
 	return sq_app_open_database((SqApp*)this, db_database);
 }
+inline void  AppMethod::closeDatabase(void) {
+	return sq_app_close_database((SqApp*)this);
+}
+
 inline int   AppMethod::makeSchema(int migration_id) {
 	return sq_app_make_schema((SqApp*)this, migration_id);
 }
