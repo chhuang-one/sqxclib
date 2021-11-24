@@ -15,14 +15,14 @@ headers_app = ['SqApp.h',
 sources_apptool = ['SqApp.c',
                    'SqPairs.c',
                    'SqAppTool.c',
-                   'SqAppTool-migrations.c',
+                   'SqAppTool-migrations-files.c',
                    'migrations.c',
                    'CommonOptions.c',
                    'CommandMigrate.c',
                    'CommandMake.c',
 ]
 
-sources_apptool_cpp = ['SqAppTool-migrations.cpp']
+sources_apptool_cpp = ['SqAppTool-migrations-files.cpp']
 
 headers_apptool = ['SqApp.h',
                    'SqApp-config.h',

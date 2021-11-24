@@ -44,7 +44,7 @@ set(SOURCES_APPTOOL
     SqApp.c
     SqPairs.c
     SqAppTool.c
-    SqAppTool-migrations.c
+    SqAppTool-migrations-files.c
     migrations.c
     CommonOptions.c
     CommandMigrate.c
@@ -53,7 +53,7 @@ set(SOURCES_APPTOOL
 
 # sqapptool C++ source files
 set(SOURCES_APPTOOL_CPP
-    SqAppTool-migrations.cpp
+    SqAppTool-migrations-files.cpp
 )
 
 set(HEADERS_APPTOOL
