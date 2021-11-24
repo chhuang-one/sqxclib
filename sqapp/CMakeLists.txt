@@ -5,6 +5,7 @@ set(SOURCES_APP
     migrations-files.c
 )
 
+# sqapp C++ source files
 set(SOURCES_APP_CPP
     migrations-files.cpp
 )
@@ -26,8 +27,20 @@ set(SQAPP_LIBRARIES
     ${SQXC_LIBRARIES}
 )
 
+# set SQAPP_INCLUDE_DIRS to PARENT_SCOPE
+set(SQAPP_INCLUDE_DIRS
+    ${SQAPP_INCLUDE_DIRS}
+    PARENT_SCOPE
+)
+
+# set SQAPP_LIBRARIES to PARENT_SCOPE
+set(SQAPP_LIBRARIES
+    ${SQAPP_LIBRARIES}
+    PARENT_SCOPE
+)
+
 # --- sqapptool ---
-set(SOURCES_TOOL
+set(SOURCES_APPTOOL
     SqApp.c
     SqPairs.c
     SqAppTool.c
@@ -38,11 +51,12 @@ set(SOURCES_TOOL
     CommandMake.c
 )
 
-set(SOURCES_TOOL_CPP
+# sqapptool C++ source files
+set(SOURCES_APPTOOL_CPP
     SqAppTool-migrations.cpp
 )
 
-set(HEADERS_TOOL
+set(HEADERS_APPTOOL
     SqApp.h
     SqApp-config.h
     SqPairs.h
@@ -53,11 +67,11 @@ set(HEADERS_TOOL
     CommandMake.h
 )
 
-set(SQTOOL_INCLUDE_DIRS
+set(SQAPPTOOL_INCLUDE_DIRS
     ${SQAPP_INCLUDE_DIRS}
 )
 
-set(SQTOOL_LIBRARIES
+set(SQAPPTOOL_LIBRARIES
     sqapptool
     sqapptoolcpp
     sqxconsole
@@ -75,9 +89,7 @@ set(SOURCES_CPP
 
 # ---
 include_directories(${SQAPP_INCLUDE_DIRS})
-link_libraries(sqxconsole
-               ${SQXC_LIBRARIES}
-)
+link_libraries(${SQXC_LIBRARIES})
 
 add_library(sqapp
             STATIC
@@ -93,27 +105,19 @@ add_library(sqappcpp
 
 add_library(sqapptool
             STATIC
-            ${SOURCES_TOOL}
-            ${HEADERS_TOOL}
+            ${SOURCES_APPTOOL}
+            ${HEADERS_APPTOOL}
 )
 
 add_library(sqapptoolcpp
             STATIC
-            ${SOURCES_TOOL_CPP}
-            ${HEADERS_TOOL}
+            ${SOURCES_APPTOOL_CPP}
+            ${HEADERS_APPTOOL}
 )
 
 
-add_executable(sqtool
-               ${SOURCES}
-)
-target_link_libraries(sqtool
-                      ${SQTOOL_LIBRARIES}
-)
+add_executable(sqtool  ${SOURCES})
+target_link_libraries(sqtool  ${SQAPPTOOL_LIBRARIES})
 
-add_executable(sqtoolcpp
-               ${SOURCES_CPP}
-)
-target_link_libraries(sqtoolcpp
-                      ${SQTOOL_LIBRARIES}
-)
+add_executable(sqtoolcpp  ${SOURCES_CPP})
+target_link_libraries(sqtoolcpp  ${SQAPPTOOL_LIBRARIES})

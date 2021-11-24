@@ -108,18 +108,7 @@ endif (MYSQL_FOUND)
 configure_file("${CMAKE_SOURCE_DIR}/sqxc/config.h.in"
                "${CMAKE_SOURCE_DIR}/sqxc/config.h")
 
-# --- sqxc ---
-set(SQXC_INCLUDE_DIRS
-    ${SQXC_INCLUDE_DIRS}
-    "${CMAKE_CURRENT_SOURCE_DIR}/sqxc"
-)
+# --- subdirectory ---
 add_subdirectory(sqxc)
-set(SQXC_LIBRARIES
-    ${SQXC_LIBRARIES}
-    sqxc
-    sqxcpp
-)
-
-# --- others ---
 add_subdirectory(sqapp)
 add_subdirectory(examples)

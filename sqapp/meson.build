@@ -12,27 +12,27 @@ headers_app = ['SqApp.h',
 ]
 
 # --- sqapptool ---
-sources_tool = ['SqApp.c',
-                'SqPairs.c',
-                'SqAppTool.c',
-                'SqAppTool-migrations.c',
-                'migrations.c',
-                'CommonOptions.c',
-                'CommandMigrate.c',
-                'CommandMake.c',
+sources_apptool = ['SqApp.c',
+                   'SqPairs.c',
+                   'SqAppTool.c',
+                   'SqAppTool-migrations.c',
+                   'migrations.c',
+                   'CommonOptions.c',
+                   'CommandMigrate.c',
+                   'CommandMake.c',
 ]
 
-sources_tool_cpp = ['SqAppTool-migrations.cpp']
+sources_apptool_cpp = ['SqAppTool-migrations.cpp']
 
-headers_tool = ['SqApp.h',
-                'SqApp-config.h',
-                'SqPairs.h',
-                'SqAppTool.h',
-                'SqAppTool-config.h',
-                'migrations.h',
-                'CommonOptions.h',
-                'CommandMigrate.h',
-                'CommandMake.h',
+headers_apptool = ['SqApp.h',
+                   'SqApp-config.h',
+                   'SqPairs.h',
+                   'SqAppTool.h',
+                   'SqAppTool-config.h',
+                   'migrations.h',
+                   'CommonOptions.h',
+                   'CommandMigrate.h',
+                   'CommandMake.h',
 ]
 
 # --- sqtool ---
@@ -55,14 +55,16 @@ sqappcpp_lib = static_library('sqappcpp',
                               dependencies : sqxc,
                               install: false)
 
+sqapptool_inc = sqapp_inc
+
 sqapptool_lib = static_library('sqapptool',
-                               sources_tool,
+                               sources_apptool,
                                include_directories: sqapp_inc,
                                dependencies : sqxc,
                                install: false)
 
 sqapptoolcpp_lib = static_library('sqapptoolcpp',
-                                  sources_tool_cpp,
+                                  sources_apptool_cpp,
                                   include_directories: sqapp_inc,
                                   dependencies : sqxc,
                                   install: false)

@@ -120,7 +120,7 @@ if (MYSQL_FOUND)
 endif()
 
 # --- sqxc ---
-include_directories(${SQXC_INCLUDE_DIRS})
+include_directories(${SQXC_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
 link_libraries(${SQXC_LIBRARIES})
 
 add_library(sqxc
@@ -145,4 +145,19 @@ add_library(sqxctest
             STATIC
             ${SOURCES_TEST}
             ${HEADERS_TEST}
+)
+
+# set SQXC_INCLUDE_DIRS to PARENT_SCOPE
+set(SQXC_INCLUDE_DIRS
+    ${SQXC_INCLUDE_DIRS}
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    PARENT_SCOPE
+)
+
+# set SQXC_LIBRARIES to PARENT_SCOPE
+set(SQXC_LIBRARIES
+    ${SQXC_LIBRARIES}
+    sqxc
+    sqxcpp
+    PARENT_SCOPE
 )
