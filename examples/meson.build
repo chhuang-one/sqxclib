@@ -6,3 +6,7 @@ executable('storage-c99',
 executable('storage-cxx',
            'storage-cxx.cpp',
            dependencies : [sqxc])
+
+executable('myapp-c99',
+           'myapp-c99.c',
+           dependencies : [sqapp])
