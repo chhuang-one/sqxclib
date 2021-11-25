@@ -60,13 +60,16 @@ namespace Sq {
  */
 
 struct AppMethod {
+	AppMethod();
+	~AppMethod();
+
 	int   openDatabase(const char *db_database = NULL);
 	void  closeDatabase(void);
 
 	int   makeSchema(int migration_id = 0);
 
-	int   migrate(int step);
-	int   migrateRollback(int step);
+	int   migrate(int step = 0);
+	int   migrateRollback(int step = 0);
 };
 
 };  // namespace Sq
@@ -121,6 +124,13 @@ struct SqApp
 #ifdef __cplusplus
 
 namespace Sq {
+
+inline AppMethod::AppMethod() {
+	sq_app_init((SqApp*)this);
+}
+inline AppMethod::~AppMethod() {
+	sq_app_final((SqApp*)this);
+}
 
 inline int   AppMethod::openDatabase(const char *db_database) {
 	return sq_app_open_database((SqApp*)this, db_database);
