@@ -229,6 +229,7 @@ int   sq_app_migrate_rollback(SqApp *app, int step)
 		if (code != SQCODE_OK)
 			break;
  */
+		sq_migration_remove(app->storage, cur);
 	}
 	free(schema);
 
