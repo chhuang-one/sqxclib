@@ -115,6 +115,10 @@ int   sq_app_make_schema(SqApp *app, int cur)
 
 	if (cur == 0)
 		cur = app->db->version;
+	// if the database vesion is 0 (no migrations have been done), return SQCODE_DB_VERSION_0
+	if (cur == 0)
+		return SQCODE_DB_VERSION_0;
+	// if these migrations are not for this database, return SQCODE_DB_VERSION_MISMATCH
 	if (cur >= app->n_migrations)
 		return SQCODE_DB_VERSION_MISMATCH;
 
@@ -126,8 +130,10 @@ int   sq_app_make_schema(SqApp *app, int cur)
 		sq_schema_init(schema, NULL);
 		schema->version = i;    // specify version number
 		migration->up(schema, app->storage);
-		sq_storage_migrate(app->storage, schema);
+		code = sq_storage_migrate(app->storage, schema);
 		sq_schema_final(schema);
+		if (code != SQCODE_OK)
+			break;
 	}
 	free(schema);
 

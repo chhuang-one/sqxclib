@@ -41,7 +41,7 @@ extern "C" {
 #define SQCODE_CAN_NOT_SYNC          32    // schema version is older than database
 // migration - error
 #define SQCODE_REFERENCE_NOT_FOUND   41
-#define SQCODE_REFERENCE_EACH_OTHER  42
+#define SQCODE_DB_VERSION_0          42    // SqApp
 #define SQCODE_DB_VERSION_MISMATCH   43    // SqApp
 #define SQCODE_DB_NO_MIGRATIONS      44    // SqApp
 
