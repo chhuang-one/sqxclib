@@ -11,3 +11,4 @@
 
 /* C++ source files in ../database/migrations */
 
+#include "../database/migrations/2021_11_26_091532_alter_users_table.cpp"

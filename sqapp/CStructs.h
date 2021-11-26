@@ -12,6 +12,7 @@
  */
 typedef struct User {
 	unsigned int   id;
+	int            age;    // altered in 2021_11_26_091532
 	char          *name;
 	char          *email;
 	time_t         created_at;
