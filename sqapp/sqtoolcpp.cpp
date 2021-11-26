@@ -19,13 +19,13 @@
 
 #ifdef TEST_ARGV
 const char *test_argv[] = {
-	"sqtool", "migrate",
-//	"sqtool", "migrate", "--step", "testarg",
-//	"sqtool", "migrate:install", "testarg",
-//	"sqtool", "migrate:rollback", "--step", "testarg",
-//	"sqtool", "make:migration", "create_companies_table",
-//	"sqtool", "make:migration", "--table=companies", "alter_companies_table",
-//	"sqtool",
+	"sqtoolcpp", "migrate",
+//	"sqtoolcpp", "migrate", "--step", "testarg",
+//	"sqtoolcpp", "migrate:install", "testarg",
+//	"sqtoolcpp", "migrate:rollback", "--step", "testarg",
+//	"sqtoolcpp", "make:migration", "create_companies_table",
+//	"sqtoolcpp", "make:migration", "--table=companies", "alter_companies_table",
+//	"sqtoolcpp",
 };
 const int   test_argc = sizeof(test_argv) / sizeof(char*);
 #endif

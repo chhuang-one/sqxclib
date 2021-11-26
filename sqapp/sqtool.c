@@ -35,7 +35,7 @@ int  main(int argc, char **argv)
 	SqAppTool *apptool;
 
 	apptool = malloc(sizeof(SqAppTool));
-	sq_app_tool_init(apptool, "sqtool");
+	sq_app_tool_init(apptool, "sqtool", true);
 
 #ifdef TEST_ARGV
 	argc = test_argc;
@@ -44,7 +44,7 @@ int  main(int argc, char **argv)
 
 	sq_app_tool_run(apptool, argc, argv);
 
-	sq_app_tool_final(apptool);
+	sq_app_tool_final(apptool, true);
 	free(apptool);
 
 	return EXIT_SUCCESS;

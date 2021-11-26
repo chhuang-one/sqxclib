@@ -109,9 +109,11 @@ static const SqCommand list_command = {
 // ----------------------------------------------------------------------------
 /* --- SqAppTool functions --- */
 
-void   sq_app_tool_init(SqAppTool *app, const char *program_name)
+void   sq_app_tool_init(SqAppTool *app, const char *program_name, bool with_base)
 {
-	sq_app_init((SqApp*)app);
+	if (with_base)
+		sq_app_init((SqApp*)app);
+
 	// console
 	app->console = sq_console_new();
 	app->console->program_name = strdup(program_name);
@@ -129,13 +131,15 @@ void   sq_app_tool_init(SqAppTool *app, const char *program_name)
 	app->path = NULL;
 }
 
-void   sq_app_tool_final(SqAppTool *app)
+void   sq_app_tool_final(SqAppTool *app, bool with_base)
 {
 	sq_console_free(app->console);
 	sq_pairs_final(&app->pairs);
 	sq_buffer_final(&app->buffer);
 	free(app->path);    // free workspace folder
-	sq_app_final((SqApp*)app);
+
+	if (with_base)
+		sq_app_final((SqApp*)app);
 }
 
 int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
