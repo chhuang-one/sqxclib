@@ -91,15 +91,9 @@ void  sq_app_final(SqApp *app)
 
 int   sq_app_open_database(SqApp *app, const char *db_database)
 {
-	int  code;
-
 	if (db_database == NULL)
 		db_database = DB_DATABASE;
-	code = sq_storage_open(app->storage, db_database);
-	if (code != SQCODE_OK)
-		return code;
-
-	return sq_app_make_schema(app, 0);
+	return sq_storage_open(app->storage, db_database);
 }
 
 void  sq_app_close_database(SqApp *app)
