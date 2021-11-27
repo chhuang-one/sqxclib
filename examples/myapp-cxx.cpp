@@ -15,6 +15,7 @@
 #include <iostream>     // cout
 #include <type_traits>  // is_standard_layout<>
 
+#include <sqxclib.h>
 #include <SqApp.h>
 
 struct MyApp : Sq::AppMethod                  // <-- 1. inherit C++ member function(method)
@@ -47,15 +48,27 @@ int  main(void)
 	          << std::is_standard_layout<MyApp>::value
 	          << std::endl << std::endl;
 
+#if 0
 	// open database that defined in SqApp-config.h
-//	myapp->openDatabase(NULL);
-
+	if (myapp->openDatabase(NULL) != SQCODE_OK)
+		return EXIT_FAILURE;
+#else
 	// open user specify database
-	myapp->openDatabase("myapp-cxx");
+	if (myapp->openDatabase("myapp-cxx") != SQCODE_OK)
+		return EXIT_FAILURE;
+#endif
 
-	// run migrations that defined in ../database/migrations
-	myapp->migrate();
+	// if the database vesion is 0 (no migrations have been done)
+	if (myapp->makeSchema() == SQCODE_DB_VERSION_0) {
+		// run migrations that defined in ../database/migrations
+		if (myapp->migrate() != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
+
+	// run your code here...
 
 	myapp->closeDatabase();
 	delete myapp;
+
+	return EXIT_SUCCESS;
 }
