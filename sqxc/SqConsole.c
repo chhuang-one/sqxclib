@@ -16,8 +16,10 @@
 #include <string.h>
 
 #include <SqConfig.h>
-#include <SqxcValue.h>
+#ifdef SQ_CONFIG_HAVE_JSONC
 #include <SqxcJsonc.h>
+#endif
+#include <SqxcValue.h>
 #include <SqConsole.h>
 
 #ifdef _MSC_VER
