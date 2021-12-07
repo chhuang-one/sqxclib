@@ -12,6 +12,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
+/*
+	SqApp
+	|
+	`--- SqAppTool
+ */
+
 #ifndef SQ_APP_TOOL_H
 #define SQ_APP_TOOL_H
 

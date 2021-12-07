@@ -18,6 +18,12 @@
 #include <sqxclib.h>
 #include <SqApp.h>
 
+/*
+	SqApp
+	|
+	`--- MyApp
+ */
+
 struct MyApp : Sq::AppMethod                  // <-- 1. inherit C++ member function(method)
 {
 	SQ_APP_MEMBERS;                           // <-- 2. inherit member variable
