@@ -16,7 +16,9 @@ It provides ORM features and C++ wrapper.
 
 4. Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros)
 
-5. Supports SQLite, MySQL / MariaDB.
+5. Command-line tools can make migration and do migrate. See doc/[SqApp.md](doc/SqApp.md)
+
+6. Supports SQLite, MySQL / MariaDB.
 
 ## Database schema
 
@@ -348,7 +350,11 @@ use C++ methods to migrate schema and synchronize to database
 ```c++
 	storage->migrate(schema_v1); // migrate schema_v1
 	storage->migrate(schema_v2); // migrate schema_v2
-	storage->migrate(NULL);      // synchronize schema to database. (Mainly used by SQLite)
+
+	// synchronize schema to database and update schema/table status
+	// This mainly used by SQLite
+	storage->migrate(NULL);
+
 	delete schema_v1;            // free unused schema_v1
 	delete schema_v2;            // free unused schema_v2
 ```
@@ -358,7 +364,11 @@ use C functions to migrate schema and synchronize to database
 ```c
 	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
 	sq_storage_migrate(storage, schema_v2); // migrate schema_v2
-	sq_storage_migrate(storage, NULL);      // synchronize schema to database. (Mainly used by SQLite)
+
+	// synchronize schema to database and update schema/table status
+	// This Mainly used by SQLite
+	sq_storage_migrate(storage, NULL);
+
 	sq_schema_free(schema_v1);              // free unused schema_v1
 	sq_schema_free(schema_v2);              // free unused schema_v2
 ```
