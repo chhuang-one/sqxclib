@@ -1,11 +1,7 @@
 #ifndef SQ_APP_CONFIG_H
 #define SQ_APP_CONFIG_H
 
-#ifdef SQ_APP_CONFIG_FILE
-// include user's configuration file
-#include SQ_APP_CONFIG_FILE
-
-#else   // SQ_APP_CONFIG_FILE
+#ifndef SQ_APP_CONFIG_FILE
 
 
 // ----------------------------------------------------------------------------
@@ -31,6 +27,8 @@
 #define DB_EXTENSION   NULL
 
 
+#else   // SQ_APP_CONFIG_FILE has been defined, it will include user's configuration file.
+#include SQ_APP_CONFIG_FILE
 #endif  // SQ_APP_CONFIG_FILE
 
 #endif  // SQ_APP_CONFIG_H
