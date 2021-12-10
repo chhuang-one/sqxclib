@@ -16,7 +16,7 @@ It provides ORM features and C++ wrapper.
 
 4. Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros)
 
-5. Command-line tools can make migration and do migrate. See doc/[SqApp.md](doc/SqApp.md)
+5. Command-line tools can generate migration and do migrate. See doc/[SqApp.md](doc/SqApp.md)
 
 6. Supports SQLite, MySQL / MariaDB.
 

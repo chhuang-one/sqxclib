@@ -69,7 +69,7 @@ sqtool (or sqtoolcpp) use the same configuration values as library sqapp.
 sqtool  make:migration  migration_name
 ```
 * This command will:
-1. create migration file - workspace/database/migrations/yyyy_mm_dd_hhmmss_migration_name.c
+1. generate migration file - workspace/database/migrations/yyyy_mm_dd_hhmmss_migration_name.c
 2. append relative path of migration file in workspace/sqapp/migrations.c
 3. append declaration of migration to workspace/sqapp/migrations-declarations
 4. append element of migrations array to workspace/sqapp/migrations-elements
@@ -78,7 +78,7 @@ sqtool  make:migration  migration_name
 
 #### create table by sqtool (C language)
 
-create componies table
+generate C migration file to create componies table
 
 ```
 sqtool  make:migration  create_componies_table 
@@ -86,12 +86,15 @@ sqtool  make:migration  create_componies_table
 
 #### alter table by sqtoolcpp (C++ Language)
 
-alter componies table
+generate C++ migration file to alter componies table
+
 ```
 sqtoolcpp  make:migration  --table=componies  alter_componies_table 
 ```
 
 #### migrate by sqtool (or sqtoolcpp)
+
+do migrate
 
 ```
 sqtool  migrate
