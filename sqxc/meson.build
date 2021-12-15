@@ -78,10 +78,12 @@ headers_console = ['SqConsole.h',
 
 sources_test = ['SqdbEmpty.c',
                 'SqxcEmpty.c',
+                'SqxcFile.c',
                ]
 
 headers_test = ['SqdbEmpty.h',
                 'SqxcEmpty.h',
+                'SqxcFile.h',
                ]
 
 dependencies = []

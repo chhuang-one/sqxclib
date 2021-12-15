@@ -71,10 +71,12 @@ set(HEADERS_CONSOLE
 set(SOURCES_TEST
     SqdbEmpty.c
     SqxcEmpty.c
+    SqxcFile.c
 )
 set(HEADERS_TEST
     SqdbEmpty.h
     SqxcEmpty.h
+    SqxcFile.h
 )
 
 # --- json-c ---
