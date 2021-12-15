@@ -115,8 +115,8 @@ struct SqxcSql
 		time_t        rawtime;
 		double        fraction;
 		double        double_;
-		char         *string;
-		char         *stream;     // Text stream must be null-terminated string
+		const char   *string;
+		const char   *stream;     // Text stream must be null-terminated string
 		void         *pointer;
 	} value;
 

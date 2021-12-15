@@ -304,8 +304,8 @@ struct XcMethod
 
 	void   freeChain();
 
-	Sqxc  *insert(Sqxc *xc_element, int position);
-	Sqxc  *insert(Sq::XcMethod *xc_element, int position);
+	Sqxc  *insert(Sqxc *xc_element, int position = -1);
+	Sqxc  *insert(Sq::XcMethod *xc_element, int position = -1);
 	Sqxc  *steal(Sqxc *xc_element);
 	Sqxc  *steal(Sq::XcMethod *xc_element);
 	Sqxc  *find(const SqxcInfo *info);
@@ -321,6 +321,7 @@ struct XcMethod
 	void        pop(void);
 
 	int    send(Sqxc *arguments_src);
+	int    send(XcMethod *arguments_src);
 
 	/* --- These are called by data source side. --- */
 
@@ -406,8 +407,8 @@ struct SqxcNested
 		time_t        rawtime;      \
 		double        fraction;     \
 		double        double_;      \
-		char         *string;       \
-		char         *stream;       \
+		const char   *string;       \
+		const char   *stream;       \
 		void         *pointer;      \
 	} value;                        \
 	SqEntry     *entry;             \
@@ -467,8 +468,8 @@ struct Sqxc
 		time_t        rawtime;
 		double        fraction;
 		double        double_;
-		char         *string;
-		char         *stream;     // Text stream must be null-terminated string
+		const char   *string;
+		const char   *stream;     // Text stream must be null-terminated string
 		void         *pointer;
 	} value;
 
@@ -540,6 +541,9 @@ inline void        XcMethod::pop(void) {
 
 inline int  XcMethod::send(Sqxc *arguments_src) {
 	return ((Sqxc*)this)->info->send((Sqxc*)this, arguments_src);
+}
+inline int  XcMethod::send(XcMethod *arguments_src) {
+	return ((Sqxc*)this)->info->send((Sqxc*)this, (Sqxc*)arguments_src);
 }
 
 inline Sqxc *XcMethod::send(void) {
