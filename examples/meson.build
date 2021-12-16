@@ -14,3 +14,8 @@ executable('myapp-c99',
 executable('myapp-cxx',
            'myapp-cxx.cpp',
            dependencies : [sqapp])
+
+executable('xc_json_file',
+           'xc_json_file.cpp',
+           dependencies : [sqxc],
+           link_with: sqxctest_lib)
