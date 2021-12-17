@@ -32,27 +32,43 @@ data type for Sqxc converter
 Note: SQXC_TYPE_OBJECT corresponds to SQL row.  
 Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.  
 
-## Sqxc dataflow
+## Sqxc dataflow 1
+passing data to specified Sqxc element
+
+	user program   ----> SqxcJsonWriter ----> SqxcFile ---> fwrite()
+
+Note: SqxcFile is in sqxctest library.  
+
+* use xcjson->info->send() to send data to SqxcJsonWriter (specified Sqxc element).
+
+```c
+	xc->type = SQXC_TYPE_INT;
+	xc->name = "id";
+	xc->value.integer = 100;
+	xcjson->info->send(xcjson, xc);
+```
+
+## Sqxc dataflow 2
+passing data that according to type of data
 
 	                 +-> SqxcJsonParser --+
 	( input )        |                    |
 	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
-	                 |                    |
-	                 +--> SqxcXmlParser --+
+
 Note: If SqxcValue can't match current data type, it will forward data to SqxcJsonParser (or other element).  
-Note: SqxcXmlParser doesn't implement yet because it is rarely used.  
 
 
 	                 +-> SqxcJsonWriter --+
 	( output )       |                    |
 	SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
-	                 |                    |
-	                 +--> SqxcXmlWriter --+
+
 Note: If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter (or other element).  
-Note: SqxcXmlWriter doesn't implement yet because it is rarely used.  
 
-## Use sqxc_send() to send data to Sqxc elements.
+* Use sqxc_send() to send data to Sqxc elements.
 
+sqxc_send() is called by data source side. It send data to Sqxc element and try to match type in Sqxc chain.  
+Because difference data type is processed by difference Sqxc element, It returns current Sqxc elements.  
+  
 Before you call sqxc_send(), set data type, data name, and data value in Sqxc structure.
 These data will process between Sqxc elements.
 ```c

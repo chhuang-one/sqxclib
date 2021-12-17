@@ -16,7 +16,7 @@
 	Sqxc - Entry and value convert X to/from C  (X = SQL, JSON...etc)
 	       xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
-	SqxcXml     - convert to/from XML     - SqxcXml.c     (TODO or not)
+	SqxcXml     - convert to/from XML     - SqxcXml.c     (doesn't implement)
 	SqxcJsonc   - convert to/from JSON    - SqxcJsonc.c
 	SqxcSql     - convert to SQL (Sqdb)   - SqxcSql.c
 	SqxcValue   - convert to C structure  - SqxcValue.c
@@ -30,12 +30,15 @@
 	                 |                    |
 	                 +--> SqxcXmlParser --+
 
+	Note: SqxcXmlParser doesn't implement yet because it is rarely used.
 
 	                 +-> SqxcJsonWriter --+
 	( output )       |                    |
 	SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
 	                 |                    |
 	                 +--> SqxcXmlWriter --+
+
+	Note: SqxcXmlWriter doesn't implement yet because it is rarely used.
  */
 
 #ifndef SQXC_H
