@@ -47,12 +47,13 @@ extern const SqxcInfo        *SQXC_INFO_SQL;
 	|
 	`--- SqxcSql
 
-                     +-> SqxcJsonWriter --+
-    ( output )       |                    |       (SQL statement)
-    SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
-                     |                    |
-                     +--> SqxcXmlWriter --+
+	                 +-> SqxcJsonWriter --+
+	( output )       |                    |       (SQL statement)
+	SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
+	                 |                    |
+	                 +--> SqxcXmlWriter --+
 
+	Note: SqxcXmlWriter doesn't implement yet because it is rarely used.
 
    The correct way to derive Sqxc:  (conforming C++11 standard-layout)
    1. Use Sq::XcMethod to inherit member function(method).
@@ -164,6 +165,10 @@ struct XcSql : SqxcSql
 	}
 	~XcSql() {
 		sqxc_final((Sqxc*)this);
+	}
+
+	void setDb(Sqdb *db) {
+		sqxc_sql_set_db((SqxcSql*)this, db);
 	}
 };
 

@@ -32,24 +32,35 @@ data type for Sqxc converter
 Note: SQXC_TYPE_OBJECT corresponds to SQL row.  
 Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.  
 
-## Sqxc dataflow 1
-passing data to specified Sqxc element
+## Create Sqxc elements
+create element to convert data to SQL INSERT/UPDATE statement and add element to convert data to JSON array/object in SQL column.
 
-	user program   ----> SqxcJsonWriter ----> SqxcFile ---> fwrite()
-
-Note: SqxcFile is in sqxctest library.  
-
-* use xcjson->info->send() to send data to SqxcJsonWriter (specified Sqxc element).
-
+* use C Language
 ```c
-	xc->type = SQXC_TYPE_INT;
-	xc->name = "id";
-	xc->value.integer = 100;
-	xcjson->info->send(xcjson, xc);
+	Sqxc *xcsql;
+	Sqxc *xcjson;
+
+	xcsql  = sqxc_new(SQXC_INFO_SQL);
+	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
+	/* another way to create Sqxc elements */
+//	xcsql  = sqxc_sql_new();
+//	xcjson = sqxc_jsonc_writer_new();
+
+	// append JSON writer to Sqxc chain
+	sqxc_insert(xcsql, xcjson, -1);
 ```
 
-## Sqxc dataflow 2
-passing data that according to type of data
+* use C++ Language
+```c++
+	Sq::XcSql         *xcsql  = new Sq::XcSql();
+	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
+
+	// append JSON writer to Sqxc chain
+	xcsql->insert(xcjson);
+```
+
+## Send data according to data type
+  Use sqxc_send() to send data(arguments) between Sqxc elements.  
 
 	                 +-> SqxcJsonParser --+
 	( input )        |                    |
@@ -64,95 +75,85 @@ Note: If SqxcValue can't match current data type, it will forward data to SqxcJs
 
 Note: If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter (or other element).  
 
-* Use sqxc_send() to send data to Sqxc elements.
-
-sqxc_send() is called by data source side. It send data to Sqxc element and try to match type in Sqxc chain.  
+sqxc_send() is called by data source side. It send data(arguments) to Sqxc element and try to match type in Sqxc chain.  
 Because difference data type is processed by difference Sqxc element, It returns current Sqxc elements.  
   
 Before you call sqxc_send(), set data type, data name, and data value in Sqxc structure.
-These data will process between Sqxc elements.
+These data(arguments) will be processed between Sqxc elements.
+
+* use C Language
 ```c
-	// sqxc_send() input arguments
+	Sqxc *xc = xcsql;
+
+	// set Sqxc arguments
 	xc->type = SQXC_TYPE_INT;
 	xc->name = "id";
 	xc->value.integer = 105;
-```
 
-sqxc_send() return current Sqxc element that processing data
-```c++
-	/* C function */
+	// sqxc_send() pass data(arguments) between Sqxc elements and
+	//             return current Sqxc element that processing data(arguments)
 	xc = sqxc_send(xc);
-	/* C++ function */
-//	xc = xc->send();
-```
 
-get error code from current Sqxc element
-```c
-	// get result
+	// get error code from current Sqxc element
 	if (xc->code != SQCODE_OK)
 		return;    // error
 ```
 
-## Use Sqxc elements to convert data
-create element to convert data to SQL INSERT/UPDATE statement
-```c
-	Sqxc *xc;
-
-	xc = sqxc_new(SQXC_INFO_SQL);    // suggest using this
-//	xc = sqxc_sql_new();
-```
-
-add element to convert data to JSON array/object in SQL column.
+* use C++ Language
 ```c++
-	Sqxc *xc_json;
+	Sq::Xc *xc = (Sq::Xc*)xcsql;
 
-	xc_json = sqxc_new(SQXC_INFO_JSONC_WRITER);    // suggest using this
-//	xc_json = sqxc_jsonc_writer_new();
+	// set Sqxc arguments
+	xc->type = SQXC_TYPE_INT;
+	xc->name = "id";
+	xc->value.integer = 105;
 
-	// append xc_json to tail of list
-	/* C function */
-	sqxc_insert(xc, xc_json, -1);
-	/* C++ function */
-//	xc->insert(xc_json, -1);
+	// send() pass data(arguments) between Sqxc elements and
+	//        return current Sqxc element that processing data(arguments)
+	xc = xc->send();
+
+	// get error code from current Sqxc element
+	if (xc->code != SQCODE_OK)
+		return;    // error
 ```
 
 #### use C function to send object data to Sqxc elements
 
 ```c
-	Sqxc *dest = xc;   // current Sqxc element
+	Sqxc *xcur = xc;   // current Sqxc element
 
 	sqxc_ready(xc);    // notify Sqxc elements to get ready
 
-	dest->type = SQXC_TYPE_OBJECT;      // {
-	dest->name = NULL;
-	dest = sqxc_send(dest);
+	xcur->type = SQXC_TYPE_OBJECT;      // {
+	xcur->name = NULL;
+	xcur = sqxc_send(xcur);
 
-	dest->type = SQXC_TYPE_INT;         // "id": 1
-	dest->name = "id";
-	dest->value.integer = 1;
-	dest = sqxc_send(dest);
+	xcur->type = SQXC_TYPE_INT;         // "id": 1
+	xcur->name = "id";
+	xcur->value.integer = 1;
+	xcur = sqxc_send(xcur);
 
-	dest->type = SQXC_TYPE_ARRAY;       // "ints": [
-	dest->name = "int_array";
-	dest = sqxc_send(dest);
+	xcur->type = SQXC_TYPE_ARRAY;       // "ints": [
+	xcur->name = "int_array";
+	xcur = sqxc_send(xcur);
 
-	dest->type = SQXC_TYPE_INT;         // 2,
-	dest->name = NULL;
-	dest->value.integer = 2;
-	dest = sqxc_send(dest);
+	xcur->type = SQXC_TYPE_INT;         // 2,
+	xcur->name = NULL;
+	xcur->value.integer = 2;
+	xcur = sqxc_send(xcur);
 
-	dest->type = SQXC_TYPE_INT;         // 4
-	dest->name = NULL;
-	dest->value.integer = 4;
-	dest = sqxc_send(dest);
+	xcur->type = SQXC_TYPE_INT;         // 4
+	xcur->name = NULL;
+	xcur->value.integer = 4;
+	xcur = sqxc_send(xcur);
 
-	dest->type = SQXC_TYPE_ARRAY_END;   // ]
-	dest->name = NULL;
-	dest = sqxc_send(dest);
+	xcur->type = SQXC_TYPE_ARRAY_END;   // ]
+	xcur->name = NULL;
+	xcur = sqxc_send(xcur);
 
-	dest->type = SQXC_TYPE_OBJECT_END;  // }
-	dest->name = NULL;
-	dest = sqxc_send(dest);
+	xcur->type = SQXC_TYPE_OBJECT_END;  // }
+	xcur->name = NULL;
+	xcur = sqxc_send(xcur);
 
 	sqxc_finish(xc);    // notify Sqxc elements to finish
 ```
@@ -175,27 +176,27 @@ JSON look like this:
 #### use C++ function to send array to Sqxc elements
 
 ```c++
-	Sq::Xc *dest = xc; // current Sqxc element
+	Sq::Xc *xcur = xc; // current Sqxc element
 
 	xc->ready();       // notify Sqxc elements to get ready
 
-	dest->type = SQXC_TYPE_ARRAY;       // [
-	dest->name = NULL;
-	dest = dest->send();
+	xcur->type = SQXC_TYPE_ARRAY;       // [
+	xcur->name = NULL;
+	xcur = xcur->send();
 
-	dest->type = SQXC_TYPE_INT;         // 1,
-	dest->name = NULL;
-	dest->value.integer = 1;
-	dest = dest->send();
+	xcur->type = SQXC_TYPE_INT;         // 1,
+	xcur->name = NULL;
+	xcur->value.integer = 1;
+	xcur = xcur->send();
 
-	dest->type = SQXC_TYPE_INT;         // 3
-	dest->name = NULL;
-	dest->value.integer = 3;
-	dest = dest->send();
+	xcur->type = SQXC_TYPE_INT;         // 3
+	xcur->name = NULL;
+	xcur->value.integer = 3;
+	xcur = xcur->send();
 
-	dest->type = SQXC_TYPE_ARRAY_END;   // ]
-	dest->name = NULL;
-	dest = dest->send();
+	xcur->type = SQXC_TYPE_ARRAY_END;   // ]
+	xcur->name = NULL;
+	xcur = xcur->send();
 
 	xc->finish();      // notify Sqxc elements to finish
 ```
@@ -203,6 +204,33 @@ JSON look like this:
 JSON look like this:
 ```json
 [ 1, 3]
+```
+
+## Send data to user specified Sqxc element
+  Use xc->info->send() to send data(arguments) to specified Sqxc elements.  
+
+	user program   ----> SqxcJsonWriter ----> SqxcFile ---> fwrite()
+
+Note: SqxcFile is in sqxctest library.  
+
+* use C Language
+```c
+	xc->type = SQXC_TYPE_INT;
+	xc->name = "id";
+	xc->value.integer = 100;
+
+	// pass data(arguments) to xcjson (SqxcJsonWriter)
+	xcjson->info->send(xcjson, xc);
+```
+
+* use C++ Language
+```c++
+	xc->type = SQXC_TYPE_INT;
+	xc->name = "id";
+	xc->value.integer = 100;
+
+	// pass data(arguments) to xcjson (SqxcJsonWriter)
+	xcjson->send(xc);
 ```
 
 ## How to support new format:

@@ -59,7 +59,7 @@ int  main(void)
 	if (myapp->openDatabase(NULL) != SQCODE_OK)
 		return EXIT_FAILURE;
 #else
-	// open user specify database
+	// open user specified database
 	if (myapp->openDatabase("myapp-cxx") != SQCODE_OK)
 		return EXIT_FAILURE;
 #endif
