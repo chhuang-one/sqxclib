@@ -118,6 +118,9 @@ These data(arguments) will be processed between Sqxc elements.
 ```
 
 #### use C function to send object data to Sqxc elements
+- If you want to parse/write object or array and reuse Sqxc elements:
+1. call sqxc_ready() before sending data.
+2. call sqxc_finish() after sending data.
 
 ```c
 	Sqxc *xcur = xc;   // current Sqxc element
@@ -174,6 +177,9 @@ JSON look like this:
 ```
 
 #### use C++ function to send array to Sqxc elements
+- If you want to parse/write object or array and reuse Sqxc elements:
+1. call xc->ready() before sending data.
+2. call xc->finish() after sending data.
 
 ```c++
 	Sq::Xc *xcur = xc; // current Sqxc element
@@ -260,6 +266,15 @@ struct SqxcText
 
 	int    other_data;                   // <-- 3. Add variable and non-virtual function in derived struct.
 	int    status;
+
+#ifdef __cplusplus
+	SqxcText() {
+		sqxc_init((Sqxc*)this, SQXC_INFO_TEXT_PARSER);
+	}
+	~SqxcText() {
+		sqxc_final((Sqxc*)this);
+	}
+#endif
 };
 
 ```

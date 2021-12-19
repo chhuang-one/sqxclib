@@ -23,11 +23,22 @@
 
 typedef struct SqxcJsonc        SqxcJsonc;
 
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const SqxcInfo    *SQXC_INFO_JSONC_PARSER;
 extern const SqxcInfo    *SQXC_INFO_JSONC_WRITER;
 
 #define sqxc_jsonc_parser_new()        sqxc_new(SQXC_INFO_JSONC_PARSER)
 #define sqxc_jsonc_writer_new()        sqxc_new(SQXC_INFO_JSONC_WRITER)
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue

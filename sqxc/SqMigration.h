@@ -25,14 +25,14 @@
 typedef struct SqMigration         SqMigration;
 typedef struct SqMigrationTable    SqMigrationTable;
 
+typedef void (*SqMigrationFunc)(SqSchema *schema, SqStorage *storage);
+
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef void (*SqMigrationFunc)(SqSchema *schema, SqStorage *storage);
 
 extern const SqType SqType_migration_table_;
 

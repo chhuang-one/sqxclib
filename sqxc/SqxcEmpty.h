@@ -22,9 +22,20 @@
 
 typedef struct SqxcEmpty        SqxcEmpty;
 
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const SqxcInfo          *SQXC_INFO_EMPTY;
 
 #define sqxc_empty_new()        sqxc_new(SQXC_INFO_EMPTY)
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue

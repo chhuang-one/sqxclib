@@ -23,9 +23,20 @@
 
 typedef struct SqxcFile        SqxcFile;
 
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const SqxcInfo    *SQXC_INFO_FILE_WRITER;
 
 #define sqxc_file_writer_new()        sqxc_new(SQXC_INFO_FILE_WRITER)
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue

@@ -24,6 +24,13 @@
 
 typedef struct SqxcSql        SqxcSql;
 
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const SqxcInfo        *SQXC_INFO_SQL;
 
 #define sqxc_sql_new()        sqxc_new(SQXC_INFO_SQL)
@@ -36,6 +43,10 @@ extern const SqxcInfo        *SQXC_INFO_SQL;
 			((SqxcSql*)xcsql)->quote[0] = (sqdb)->info->quote.identifier[0];   \
 			((SqxcSql*)xcsql)->quote[1] = (sqdb)->info->quote.identifier[1];   \
 		}
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue

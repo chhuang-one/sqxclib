@@ -23,6 +23,13 @@
 
 typedef struct SqxcValue        SqxcValue;
 
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const SqxcInfo          *SQXC_INFO_VALUE;
 
 #define sqxc_value_new()        sqxc_new(SQXC_INFO_VALUE)
@@ -35,6 +42,10 @@ extern const SqxcInfo          *SQXC_INFO_VALUE;
 
 // instance of container (or element)
 #define sqxc_value_instance(xcvalue)      ( ((SqxcValue*)xcvalue)->instance )
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
 
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
