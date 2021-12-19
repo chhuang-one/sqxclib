@@ -2,7 +2,7 @@
  *   Copyright (C) 2021 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
- * sqxc is licensed under Mulan PSL v2.
+ * sqxclib is licensed under Mulan PSL v2.
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
@@ -35,10 +35,12 @@ void json_file_writer_cpp()
 	// specify output filename
 	xcfile->filename = "xc_json_file_cpp.json";
 
-	// Because arguments in xcfile never used in sqxc chain, I use xcfile as arguments source here.
-	xc = (Sq::Xc*)xcfile;
+	// --- Sqxc chain ready to work ---
+	xcfile->ready();
 
-	xc->ready();
+	// Because arguments in xcfile never used in sqxc chain,
+	// I use xcfile as arguments source here.
+	xc = (Sq::Xc*)xcfile;
 
 	xc->name = NULL;
 	xc->type = SQXC_TYPE_OBJECT;
@@ -58,15 +60,17 @@ void json_file_writer_cpp()
 	xc->type = SQXC_TYPE_OBJECT_END;
 	xcjson->send(xc);
 
-	xc->finish();
+	// --- Sqxc chain finish work ---
+	xcfile->finish();
 
-	xc->freeChain();    // free xcfile and xcjson
+	// free xcfile and xcjson in Sqxc chain
+	xcfile->freeChain();
 }
 
 // create and write JSON file by using C Language
 void json_file_writer_c(void)
 {
-	Sqxc       *sqxc;
+	Sqxc       *xc;
 	SqxcFile   *xcfile;
 	SqxcJsonc  *xcjson;
 
@@ -77,32 +81,36 @@ void json_file_writer_c(void)
 	// specify output filename
 	xcfile->filename = "xc_json_file_c.json";
 
-	// Because arguments in xcfile never used in sqxc chain, I use xcfile as arguments source here.
-	sqxc = (Sqxc*)xcfile;
+	// --- Sqxc chain ready to work ---
+	sqxc_ready((Sqxc*)xcfile, NULL);
 
-	sqxc_ready(sqxc, NULL);
+	// Because arguments in xcfile never used in sqxc chain,
+	// I use xcfile as arguments source here.
+	xc = (Sqxc*)xcfile;
 
-	sqxc->name = NULL;
-	sqxc->type = SQXC_TYPE_OBJECT;
-	xcjson->info->send((Sqxc*)xcjson, sqxc);
+	xc->name = NULL;
+	xc->type = SQXC_TYPE_OBJECT;
+	sqxc_send_to((Sqxc*)xcjson, xc);
 
-	sqxc->name = "id";
-	sqxc->type = SQXC_TYPE_INT;
-	sqxc->value.integer = 11;
-	xcjson->info->send((Sqxc*)xcjson, sqxc);
+	xc->name = "id";
+	xc->type = SQXC_TYPE_INT;
+	xc->value.integer = 11;
+	sqxc_send_to((Sqxc*)xcjson, xc);
 
-	sqxc->name = "name";
-	sqxc->type = SQXC_TYPE_STRING;
-	sqxc->value.string = "johny";
-	xcjson->info->send((Sqxc*)xcjson, sqxc);
+	xc->name = "name";
+	xc->type = SQXC_TYPE_STRING;
+	xc->value.string = "johny";
+	sqxc_send_to((Sqxc*)xcjson, xc);
 
-	sqxc->name = NULL;
-	sqxc->type = SQXC_TYPE_OBJECT_END;
-	xcjson->info->send((Sqxc*)xcjson, sqxc);
+	xc->name = NULL;
+	xc->type = SQXC_TYPE_OBJECT_END;
+	sqxc_send_to((Sqxc*)xcjson, xc);
 
-	sqxc_finish(sqxc, NULL);
+	// --- Sqxc chain finish work ---
+	sqxc_finish((Sqxc*)xcfile, NULL);
 
-	sqxc_free_chain(sqxc);    // free xcfile and xcjson
+	// free xcfile and xcjson in Sqxc chain
+	sqxc_free_chain((Sqxc*)xcfile);
 }
 
 int main(void)

@@ -266,12 +266,16 @@ int     sqxc_broadcast(Sqxc *xc, int id, void *data);
 // sqxc_ready() broadcast Sqxc chain to ready
 // void sqxc_ready(Sqxc *xc, void *data);
 #define sqxc_ready(xc, data)    \
-		sqxc_broadcast((Sqxc*)xc, SQXC_CTRL_READY, data);
+		sqxc_broadcast((Sqxc*)xc, SQXC_CTRL_READY, data)
 
 // sqxc_finish() broadcast Sqxc chain to flush data
 // void sqxc_finish(Sqxc *xc, void *error);
 #define sqxc_finish(xc, data)   \
-		sqxc_broadcast((Sqxc*)xc, SQXC_CTRL_FINISH, data);
+		sqxc_broadcast((Sqxc*)xc, SQXC_CTRL_FINISH, data)
+
+/* sqxc_send_to() pass data 'arguments_src' to user specified Sqxc element */
+#define sqxc_send_to(xc, arguments_src) \
+		((Sqxc*)xc)->info->send((Sqxc*)xc, arguments_src)
 
 /* sqxc_send() is called by data source side.
    It send data to Sqxc element and try to match type in Sqxc chain.

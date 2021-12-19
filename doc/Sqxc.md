@@ -213,7 +213,7 @@ JSON look like this:
 ```
 
 ## Send data to user specified Sqxc element
-  Use xc->info->send() to send data(arguments) to specified Sqxc elements.  
+  Use sqxc_send_to() to pass data(arguments) to specified Sqxc elements.  
 
 	user program   ----> SqxcJsonWriter ----> SqxcFile ---> fwrite()
 
@@ -225,8 +225,8 @@ Note: SqxcFile is in sqxctest library.
 	xc->name = "id";
 	xc->value.integer = 100;
 
-	// pass data(arguments) to xcjson (SqxcJsonWriter)
-	xcjson->info->send(xcjson, xc);
+	// pass data(arguments) 'xc' to 'xcjson' (type is SqxcJsonWriter)
+	sqxc_send_to(xcjson, xc);
 ```
 
 * use C++ Language
@@ -235,7 +235,7 @@ Note: SqxcFile is in sqxctest library.
 	xc->name = "id";
 	xc->value.integer = 100;
 
-	// pass data(arguments) to xcjson (SqxcJsonWriter)
+	// pass data(arguments) 'xc' to 'xcjson' (type is Sq::XcJsonWriter)
 	xcjson->send(xc);
 ```
 
@@ -322,7 +322,8 @@ Note: If new Sqxc element want to parse/write data in SQL column, it must:
 	// send data from xc_text to xc_dest element
 	xc_dest = xc_text->dest;
 	/* C function */
-	xc_dest->info->send(xc_dest, xc_text);
+	sqxc_send_to(xc_dest, xc_text);
+
 	/* C++ function */
 //	xc_dest->send(xc_text);
 ```
