@@ -15,7 +15,10 @@ executable('myapp-cxx',
            'myapp-cxx.cpp',
            dependencies : [sqapp])
 
+# --- json-c is required
+if jsonc.found() == true
 executable('xc_json_file',
            'xc_json_file.cpp',
            dependencies : [sqxc],
            link_with: sqxctest_lib)
+endif
