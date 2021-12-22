@@ -166,10 +166,11 @@ static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void
 		puts("Can't open database");
 		return;
 	}
+	sq_app_make_schema(app, 0);
 
 	code = sq_app_migrate_rollback(app, value->step);
 	if (code != SQCODE_OK)
-		printf("Can't install migration table\n");
+		printf("Can't rollback\n");
 
 	// close database
 	sq_app_close_database(app);
