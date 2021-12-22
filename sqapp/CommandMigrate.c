@@ -40,6 +40,8 @@ static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
 		puts("Can't open database");
 		return;
 	}
+	// make current schema in database
+	sq_app_make_schema(app, 0);
 
 	code = sq_app_migrate(app, value->step);
 	if (code)
@@ -166,6 +168,7 @@ static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void
 		puts("Can't open database");
 		return;
 	}
+	// make current schema in database
 	sq_app_make_schema(app, 0);
 
 	code = sq_app_migrate_rollback(app, value->step);
