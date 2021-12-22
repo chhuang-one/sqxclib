@@ -147,10 +147,8 @@ int   sq_app_migrate(SqApp *app, int step)
 	int  code;
 	int  batch;
 
-	if (sq_migration_get_last(app->storage, &batch) == 0) {
-		if (sq_migration_install(app->db) != SQCODE_OK)
-			return SQCODE_ERROR;
-	}
+	if (sq_migration_get_last(app->storage, &batch) == -1)
+		sq_migration_install(app->db);
 
 	code = SQCODE_OK;
 	end = app->n_migrations;
