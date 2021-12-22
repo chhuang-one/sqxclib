@@ -44,7 +44,9 @@ extern const SqType SqType_migration_table_;
 // install migrations table
 int  sq_migration_install(Sqdb *db);
 
+// return -1 if table 'migrations' has no record or doesn't exist.
 int  sq_migration_get_last(SqStorage *storage, int *batch);
+
 int  sq_migration_count_batch(SqStorage *storage, int batch);
 
 int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int begin, int n, int batch);

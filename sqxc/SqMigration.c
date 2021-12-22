@@ -67,7 +67,7 @@ int  sq_migration_install(Sqdb *db)
 
 int  sq_migration_get_last(SqStorage *storage, int *batch)
 {
-	SqMigrationTable  mtable = {0};
+	SqMigrationTable  mtable = {-1, NULL, 0};
 
 	sqxc_value_container(storage->xc_input) = NULL;
 	sqxc_value_element(storage->xc_input)   = &SqType_migration_table_;
