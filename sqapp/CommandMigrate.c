@@ -216,6 +216,104 @@ static const SqCommand migrate_rollback_command = {
  */
 
 // ----------------------------------------------------------------------------
+// migrate:reset
+
+static void migrate_reset(SqCommandValue *cmd_value, SqConsole *console, void *data)
+{
+	CommandMigrate *value = (CommandMigrate*)cmd_value;
+	SqApp *app = data;
+	int    code;
+
+	if (value->help) {
+		sq_console_print_help(console, value->type);
+		return;
+	}
+
+	// open database
+	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+		puts("Can't open database");
+		return;
+	}
+	// make current schema in database
+	sq_app_make_schema(app, 0);
+
+	code = sq_app_migrate_rollback(app, app->db->version);
+	if (code != SQCODE_OK)
+		printf("Can't reset\n");
+
+	// close database
+	sq_app_close_database(app);
+}
+
+static const SqOption *migrate_reset_options[] = {
+	// --- CommandCommon options ---
+	COMMON_OPTION_HELP,
+//	COMMON_OPTION_QUIET,
+};
+
+static const SqCommand migrate_reset_command = SQ_COMMAND_INITIALIZER(
+	CommandMigrate, 0,                            // StructureType, bit_field
+	"migrate:reset",                              // command string
+	migrate_reset_options,                        // SqOption pointer array
+	migrate_reset,                                // handle function
+	NULL,                                         // parameter string
+	"Rollback all database migrations"            // description string
+);
+
+// ----------------------------------------------------------------------------
+// migrate:refresh
+
+static void migrate_refresh(SqCommandValue *cmd_value, SqConsole *console, void *data)
+{
+	CommandMigrate *value = (CommandMigrate*)cmd_value;
+	SqApp *app = data;
+	int    code;
+
+	if (value->help) {
+		sq_console_print_help(console, value->type);
+		return;
+	}
+
+	// open database
+	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+		puts("Can't open database");
+		return;
+	}
+	// make current schema in database
+	sq_app_make_schema(app, 0);
+
+	code = sq_app_migrate_rollback(app, app->db->version);
+	if (code != SQCODE_OK)
+		printf("Can't refresh\n");
+
+	// synchronize schema to database and update schema/table status
+	// This Mainly used by SQLite
+	sq_storage_migrate(app->storage, NULL);
+
+	code = sq_app_migrate(app, 0);
+	if (code)
+		printf("Can't refresh\n");
+
+	// close database
+	sq_app_close_database(app);
+}
+
+static const SqOption *migrate_refresh_options[] = {
+	// --- CommandCommon options ---
+	COMMON_OPTION_HELP,
+//	COMMON_OPTION_QUIET,
+};
+
+static const SqCommand migrate_refresh_command = SQ_COMMAND_INITIALIZER(
+	CommandMigrate, 0,                            // StructureType, bit_field
+	"migrate:refresh",                            // command string
+	migrate_refresh_options,                      // SqOption pointer array
+	migrate_refresh,                              // handle function
+	NULL,                                         // parameter string
+	"Reset and re-run all migrations"             // description string
+);
+
+// ----------------------------------------------------------------------------
 //
 
 void  sq_console_add_command_migrate(SqConsole *console)
@@ -226,4 +324,8 @@ void  sq_console_add_command_migrate(SqConsole *console)
 	sq_console_add(console, &migrate_install_command);
 	// migrate:rollback
 	sq_console_add(console, &migrate_rollback_command);
+	// migrate:reset
+	sq_console_add(console, &migrate_reset_command);
+	// migrate:refresh
+	sq_console_add(console, &migrate_refresh_command);
 }
