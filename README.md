@@ -3,7 +3,8 @@
 # sqxclib
 
 sqxclib is a library to convert SQL (or JSON...etc) data to/from C language.
-It provides ORM features and C++ wrapper.
+It provides ORM features and C++ wrapper.  
+Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## Current features:
 1. User can use C99 designated initializer (or C++ aggregate initialization) to define SQL table/column/migration statically.

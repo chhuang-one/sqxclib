@@ -62,16 +62,14 @@ create element to convert data to SQL INSERT/UPDATE statement and add element to
 ## Send data according to data type
   Use sqxc_send() to send data(arguments) between Sqxc elements.  
 
-	                 +-> SqxcJsonParser --+
-	( input )        |                    |
-	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
+	─> input         ┌─> SqxcJsonParser ──┐
+	Sqdb.exec()    ──┴────────────────────┴──> SqxcValue ───> SqType.parse()
 
 Note: If SqxcValue can't match current data type, it will forward data to SqxcJsonParser (or other element).  
 
 
-	                 +-> SqxcJsonWriter --+
-	( output )       |                    |
-	SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
+	─> output        ┌─> SqxcJsonWriter ──┐
+	SqType.write() ──┴────────────────────┴──> SqxcSql   ───> Sqdb.exec()
 
 Note: If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter (or other element).  
 
@@ -215,9 +213,9 @@ JSON look like this:
 ## Send data to user specified Sqxc element
   Use sqxc_send_to() to pass data(arguments) to specified Sqxc elements.  
 
-	user program   ----> SqxcJsonWriter ----> SqxcFile ---> fwrite()
+	user output ────> SqxcJsonWriter ────> SqxcFile ────> fwrite()
 
-Note: SqxcFile is in sqxctest library.  
+Note: SqxcFile is in sqxctest library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)
 
 * use C Language
 ```c
