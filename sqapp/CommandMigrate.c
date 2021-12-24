@@ -22,6 +22,15 @@
 #include <CommandMigrate.h>
 
 // ----------------------------------------------------------------------------
+static const SqOption option_database = {
+	SQ_TYPE_STRING,  "database",      offsetof(CommandMigrate, database),
+		.shortcut = NULL,
+		.default_value = NULL,
+		.value_description = "[=DATABASE]",
+		.description = "The database connection to use.",
+};
+
+// ----------------------------------------------------------------------------
 // migrate
 
 static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
@@ -36,7 +45,7 @@ static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
@@ -57,6 +66,7 @@ static const SqOption *migrate_options[] = {
 //	COMMON_OPTION_QUIET,
 
 	// --- CommandMigrate options ---
+	&option_database,
 	&(SqOption) {SQ_TYPE_INT, "step",   offsetof(CommandMigrate, step),
 		.default_value = "1",
 		.description = "Force the migrations to be run so they can be rolled back individually"},
@@ -101,7 +111,7 @@ static void migrate_install(SqCommandValue *cmd_value, SqConsole *console, void 
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
@@ -120,9 +130,7 @@ static const SqOption *migrate_install_options[] = {
 //	COMMON_OPTION_QUIET,
 
 	// --- CommandMigrate options ---
-//	&(SqOption) {SQ_TYPE_BOOL, "quiet",  offsetof(CommandMigrate, quiet),
-//		.default_value = "true",
-//		.description = "Do not output any message"},
+	&option_database,
 };
 
 static const SqCommand migrate_install_command = SQ_COMMAND_INITIALIZER(
@@ -164,7 +172,7 @@ static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
@@ -185,6 +193,7 @@ static const SqOption *migrate_rollback_options[] = {
 //	COMMON_OPTION_QUIET,
 
 	// --- CommandMigrate options ---
+	&option_database,
 	&(SqOption) {SQ_TYPE_INT,  "step",   offsetof(CommandMigrate, step),
 		.default_value = "0",
 		.value_description = "[=STEP]",
@@ -230,7 +239,7 @@ static void migrate_reset(SqCommandValue *cmd_value, SqConsole *console, void *d
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
@@ -249,6 +258,9 @@ static const SqOption *migrate_reset_options[] = {
 	// --- CommandCommon options ---
 	COMMON_OPTION_HELP,
 //	COMMON_OPTION_QUIET,
+
+	// --- CommandMigrate options ---
+	&option_database,
 };
 
 static const SqCommand migrate_reset_command = SQ_COMMAND_INITIALIZER(
@@ -275,7 +287,7 @@ static void migrate_refresh(SqCommandValue *cmd_value, SqConsole *console, void 
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, NULL) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
@@ -302,6 +314,9 @@ static const SqOption *migrate_refresh_options[] = {
 	// --- CommandCommon options ---
 	COMMON_OPTION_HELP,
 //	COMMON_OPTION_QUIET,
+
+	// --- CommandMigrate options ---
+	&option_database,
 };
 
 static const SqCommand migrate_refresh_command = SQ_COMMAND_INITIALIZER(

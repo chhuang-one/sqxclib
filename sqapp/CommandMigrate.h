@@ -71,6 +71,7 @@ struct CommandMigrate
  */
 
 	// ------ CommandMigrate members ------        // <-- 3. Add variable and non-virtual function in derived struct.
+	char          *database;
 	int            step;
 };
 
