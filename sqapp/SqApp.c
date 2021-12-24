@@ -14,15 +14,15 @@
 
 #include <SqConfig.h>
 #include <SqError.h>
-#include <SqApp.h>
-#include <SqApp-config.h>
 #include <migrations.h>
+#include <SqApp.h>
+#include <SqApp-config.h>    // include SqApp-config.h at last
 
 // ----------------------------------------------------------------------------
 // SQL products
 
 /* ------ SQLite ------ */
-#if defined(SQLITE) && defined(SQ_CONFIG_HAVE_SQLITE)
+#if defined(DB_SQLITE) && defined(SQ_CONFIG_HAVE_SQLITE)
 
 #include <SqdbSqlite.h>
 #define DB_CONNECTION    SQDB_INFO_SQLITE
@@ -33,13 +33,12 @@ static const SqdbConfigSqlite  db_config_sqlite = {
 	.extension = DB_EXTENSION,
 };
 
-#elif defined(SQLITE)
+#elif defined(DB_SQLITE)
 #define DB_PRODUCT_ERROR    "sqxclib does not enable SQLite support when compiling."
-#endif  // SQLITE
-#undef SQLITE
+#endif  // DB_SQLITE
 
 /* ------ MySQL ------ */
-#if defined(MYSQL) && defined(SQ_CONFIG_HAVE_MYSQL)
+#if defined(DB_MYSQL) && defined(SQ_CONFIG_HAVE_MYSQL)
 
 #include <SqdbMysql.h>
 #define DB_CONNECTION    SQDB_INFO_MYSQL
@@ -52,10 +51,9 @@ static const SqdbConfigMysql  db_config_mysql = {
 	.password = DB_PASSWORD,
 };
 
-#elif defined(MYSQL)
+#elif defined(DB_MYSQL)
 #define DB_PRODUCT_ERROR    "sqxclib does not enable MySQL support when compiling."
-#endif  // MYSQL
-#undef MYSQL
+#endif  // DB_MYSQL
 
 /* ------ error ------ */
 #ifdef DB_PRODUCT_ERROR

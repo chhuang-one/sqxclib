@@ -7,8 +7,8 @@
 // ----------------------------------------------------------------------------
 // --- SQL products --- You can enable only one SQL products here
 
-#define SQLITE
-// #define MYSQL
+#define DB_SQLITE
+// #define DB_MYSQL
 
 // ----------------------------------------------------------------------------
 // --- Database Configuration ---

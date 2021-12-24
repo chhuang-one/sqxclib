@@ -36,8 +36,8 @@ User can use only one SQL products here (e.g. use MySQL)
 ```c++
 // You can enable only one SQL products here
 
-// #define SQLITE
-#define MYSQL
+// #define DB_SQLITE
+#define DB_MYSQL
 ```
 
 ### Database configuration values
