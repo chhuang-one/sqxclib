@@ -179,7 +179,7 @@ static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void
 	// make current schema in database
 	sq_app_make_schema(app, 0);
 
-	code = sq_app_migrate_rollback(app, value->step);
+	code = sq_app_rollback(app, value->step);
 	if (code != SQCODE_OK)
 		printf("Can't rollback\n");
 
@@ -246,7 +246,7 @@ static void migrate_reset(SqCommandValue *cmd_value, SqConsole *console, void *d
 	// make current schema in database
 	sq_app_make_schema(app, 0);
 
-	code = sq_app_migrate_rollback(app, app->db->version);
+	code = sq_app_rollback(app, app->db->version);
 	if (code != SQCODE_OK)
 		printf("Can't reset\n");
 
@@ -294,7 +294,7 @@ static void migrate_refresh(SqCommandValue *cmd_value, SqConsole *console, void 
 	// make current schema in database
 	sq_app_make_schema(app, 0);
 
-	code = sq_app_migrate_rollback(app, app->db->version);
+	code = sq_app_rollback(app, app->db->version);
 	if (code != SQCODE_OK)
 		printf("Can't refresh\n");
 

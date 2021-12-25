@@ -94,13 +94,21 @@ sqtoolcpp  make:migration  --table=componies  alter_componies_table
 
 #### migrate by sqtool (or sqtoolcpp)
 
-do migrate
+Run all of your outstanding migrations
 
 ```
 sqtool  migrate
 ```
 
+Rollback the last database migration
+
+```
+sqtool  migrate:rollback
+```
+
 #### migrate by C Language
+
+Run all of your outstanding migrations
 
 ```c
 	// if the database vesion is 0 (no migrations have been done)
@@ -111,7 +119,17 @@ sqtool  migrate
 	}
 ```
 
+Rollback the last database migration
+
+```c
+	int  step = 0;
+
+	sq_app_rollback(app, step);
+```
+
 #### migrate by C++ Language
+
+Run all of your outstanding migrations
 
 ```c++
 	// if the database vesion is 0 (no migrations have been done)
@@ -120,4 +138,12 @@ sqtool  migrate
 		if (sqapp->migrate() != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
+```
+
+Rollback the last database migration
+
+```c++
+	int  step = 0;
+
+	sqapp->rollback(step);
 ```

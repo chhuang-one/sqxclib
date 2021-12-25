@@ -187,7 +187,7 @@ int   sq_app_migrate(SqApp *app, int step)
 	return code;
 }
 
-int   sq_app_migrate_rollback(SqApp *app, int step)
+int   sq_app_rollback(SqApp *app, int step)
 {
 	const SqMigration *migration;
 	SqSchema    *schema;

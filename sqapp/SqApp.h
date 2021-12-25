@@ -50,8 +50,11 @@ void  sq_app_close_database(SqApp *app);
 // return SQCODE_DB_VERSION_MISMATCH : if these migrations are not for this database
 int   sq_app_make_schema(SqApp *app, int migration_id);
 
+// if 'step' is 0:
+// sq_app_migrate() will run all of your outstanding migrations
+// sq_app_rollback() will roll back the latest migration operation
 int   sq_app_migrate(SqApp *app, int step);
-int   sq_app_migrate_rollback(SqApp *app, int step);
+int   sq_app_rollback(SqApp *app, int step);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -77,7 +80,7 @@ struct AppMethod {
 	int   makeSchema(int migration_id = 0);
 
 	int   migrate(int step = 0);
-	int   migrateRollback(int step = 0);
+	int   rollback(int step = 0);
 };
 
 };  // namespace Sq
@@ -154,8 +157,8 @@ inline int   AppMethod::makeSchema(int migration_id) {
 inline int   AppMethod::migrate(int step) {
 	return sq_app_migrate((SqApp*)this, step);
 }
-inline int   AppMethod::migrateRollback(int step) {
-	return sq_app_migrate_rollback((SqApp*)this, step);
+inline int   AppMethod::rollback(int step) {
+	return sq_app_rollback((SqApp*)this, step);
 }
 
 /* --- define C++11 standard-layout structures --- */
