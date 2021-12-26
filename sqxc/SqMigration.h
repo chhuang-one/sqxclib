@@ -49,8 +49,8 @@ int  sq_migration_get_last(SqStorage *storage, int *batch);
 
 int  sq_migration_count_batch(SqStorage *storage, int batch);
 
-int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int begin, int n, int batch);
-void sq_migration_remove(SqStorage *storage, int begin);
+int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int index_beg, int n, int batch);
+void sq_migration_remove(SqStorage *storage, int index_beg);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -111,7 +111,7 @@ Sq::Migration CreateUsersTable = {
 	.down = [](SqSchema *schema, SqStorage *storage) {
 	},
 
-#ifdef SQ_TOOL
+#ifdef SQ_APP_TOOL
 	.name = "2021_07_06_000000_create_users_table",
 #endif
 };

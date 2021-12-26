@@ -103,17 +103,18 @@ int  sq_migration_count_batch(SqStorage *storage, int batch)
 	return storage->xc_input->value.integer;
 }
 
-int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int begin, int n, int batch)
+int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int index, int n, int batch)
 {
 	SqMigrationTable mtable;
 	int  code;
 
-	code = sq_storage_begin_trans(storage);     // SQLite performance
+	// begin transaction to improve SQLite performance
+	if (storage->db->info->product == SQDB_PRODUCT_SQLITE && n > 1)
+		code = sq_storage_begin_trans(storage);
 
-	n += begin;
-	for (int i = begin;  i < n;  i++) {
-		mtable.id = i;
-		mtable.migration = (char*)migrations[i]->name;
+	for (int end = index + n;  index < end;  index++) {
+		mtable.id = index;
+		mtable.migration = (char*)migrations[index]->name;
 		mtable.batch = batch;
 		if (mtable.migration == NULL)
 			mtable.migration = "";
@@ -121,7 +122,9 @@ int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int begin
 		                       &mtable, &SqType_migration_table_);
 	}
 
-	code = sq_storage_commit_trans(storage);    // SQLite performance
+	// commit transaction to improve SQLite performance
+	if (storage->db->info->product == SQDB_PRODUCT_SQLITE && n > 1)
+		code = sq_storage_commit_trans(storage);    // SQLite performance
 
 	return code;
 }
