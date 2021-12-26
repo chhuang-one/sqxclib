@@ -566,12 +566,12 @@ use C functions
 ```c
 	User  *user;
 
-	sq_storage_begin(storage);
+	sq_storage_begin_trans(storage);
 	sq_storage_insert(storage, "users", NULL, user);
 	if (abort)
-		sq_storage_rollback(storage);
+		sq_storage_rollback_trans(storage);
 	else
-		sq_storage_commit(storage);
+		sq_storage_commit_trans(storage);
 ```
 
 use C++ methods
@@ -579,12 +579,12 @@ use C++ methods
 ```c++
 	User  *user;
 
-	storage->begin();
+	storage->beginTrans();
 	storage->insert<User>(user);
 	if (abort)
-		storage->rollback();
+		storage->rollbackTrans();
 	else
-		storage->commit();
+		storage->commitTrans();
 ```
 
 ## JSON support

@@ -108,7 +108,7 @@ int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int begin
 	SqMigrationTable mtable;
 	int  code;
 
-	code = sq_storage_begin(storage);     // SQLite performance
+	code = sq_storage_begin_trans(storage);     // SQLite performance
 
 	n += begin;
 	for (int i = begin;  i < n;  i++) {
@@ -121,7 +121,7 @@ int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int begin
 		                       &mtable, &SqType_migration_table_);
 	}
 
-	code = sq_storage_commit(storage);    // SQLite performance
+	code = sq_storage_commit_trans(storage);    // SQLite performance
 
 	return code;
 }

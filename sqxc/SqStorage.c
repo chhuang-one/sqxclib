@@ -171,7 +171,7 @@ void *sq_storage_get_full(SqStorage    *storage,
 void *sq_storage_get_all_full(SqStorage    *storage,
                               const char   *table_name,
                               const char   *type_name,
-                              const SqType *container,
+                              const SqType *container_type,
                               const char   *sql_where_having,
                               const SqType *type)
 {
@@ -194,13 +194,13 @@ void *sq_storage_get_all_full(SqStorage    *storage,
 		type = temp.table->type;
 		table_name = temp.table->name;
 	}
-	if (container == NULL)
-		container = (SqType*)storage->container_default;
+	if (container_type == NULL)
+		container_type = (SqType*)storage->container_default;
 
 	// destination of input
 	xcvalue = (Sqxc*) storage->xc_input;
 	sqxc_value_element(xcvalue)   = type;
-	sqxc_value_container(xcvalue) = container;
+	sqxc_value_container(xcvalue) = container_type;
 	sqxc_value_instance(xcvalue)  = NULL;
 
 	// SQL statement
@@ -473,16 +473,16 @@ static char  *get_primary_key_string(void *instance, const SqType *type, const c
 #else   // __STDC_VERSION__
 // declare functions here if compiler does NOT support inline function.
 
-int  sq_storage_begin(SqStorage *storage) {
-	return SQ_STORAGE_BEGIN(storage);
+int  sq_storage_begin_trans(SqStorage *storage) {
+	return SQ_STORAGE_BEGIN_TRANS(storage);
 }
 
-int  sq_storage_commit(SqStorage *storage) {
-	return SQ_STORAGE_COMMIT(storage);
+int  sq_storage_commit_trans(SqStorage *storage) {
+	return SQ_STORAGE_COMMIT_TRANS(storage);
 }
 
-int  sq_storage_rollback(SqStorage *storage) {
-	return SQ_STORAGE_ROLLBACK(storage);
+int  sq_storage_rollback_trans(SqStorage *storage) {
+	return SQ_STORAGE_ROLLBACK_TRANS(storage);
 }
 
 #endif  // __STDC_VERSION

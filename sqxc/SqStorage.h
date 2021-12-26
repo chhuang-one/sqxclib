@@ -32,14 +32,14 @@ typedef struct SqQuery           SqQuery;    // define in SqQuery.h
 
 /* macro for maintaining C/C++ inline functions easily */
 
-// int   sq_storage_begin(SqStorage *storage);
-#define  SQ_STORAGE_BEGIN(storage)     (storage)->db->info->exec((storage)->db, "BEGIN", NULL, NULL);
+// int   sq_storage_begin_trans(SqStorage *storage);
+#define  SQ_STORAGE_BEGIN_TRANS(storage)     (storage)->db->info->exec((storage)->db, "BEGIN", NULL, NULL);
 
-// int   sq_storage_commit(SqStorage *storage);
-#define  SQ_STORAGE_COMMIT(storage)    (storage)->db->info->exec((storage)->db, "COMMIT", NULL, NULL);
+// int   sq_storage_commit_trans(SqStorage *storage);
+#define  SQ_STORAGE_COMMIT_TRANS(storage)    (storage)->db->info->exec((storage)->db, "COMMIT", NULL, NULL);
 
-// int   sq_storage_rollback(SqStorage *storage);
-#define  SQ_STORAGE_ROLLBACK(storage)  (storage)->db->info->exec((storage)->db, "ROLLBACK", NULL, NULL);
+// int   sq_storage_rollback_trans(SqStorage *storage);
+#define  SQ_STORAGE_ROLLBACK_TRANS(storage)  (storage)->db->info->exec((storage)->db, "ROLLBACK", NULL, NULL);
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -77,7 +77,7 @@ void *sq_storage_get_full(SqStorage    *storage,
 void *sq_storage_get_all_full(SqStorage    *storage,
                               const char   *table_name,
                               const char   *type_name,
-                              const SqType *container,
+                              const SqType *container_type,
                               const char   *sql_where_having,
                               const SqType *type);
 /*
@@ -92,21 +92,21 @@ void *sq_storage_get(SqStorage    *storage,
 void *sq_storage_get_all(SqStorage    *storage,
                          const char   *table_name,
                          const char   *type_name,
-                         const SqType *container);
+                         const SqType *container_type);
  */
-#define sq_storage_get_all(storage, table_name, type_name, container)    \
-		sq_storage_get_all_full(storage, table_name, type_name, container, NULL, NULL)
+#define sq_storage_get_all(storage, table_name, type_name, container_type)    \
+		sq_storage_get_all_full(storage, table_name, type_name, container_type, NULL, NULL)
 /*
  * This function will generate below SQL statement to get rows
  * SELECT * FROM table_name + 'sql_where_having'
 void *sq_storage_get_by_sql(SqStorage    *storage,
                             const char   *table_name,
                             const char   *type_name,
-                            const SqType *container,
+                            const SqType *container_type,
                             const char   *sql_where_having);
  */
-#define sq_storage_get_by_sql(storage, table_name, type_name, container, sql_where_having)    \
-		sq_storage_get_all_full(storage, table_name, type_name, container, sql_where_having, NULL)
+#define sq_storage_get_by_sql(storage, table_name, type_name, container_type, sql_where_having)    \
+		sq_storage_get_all_full(storage, table_name, type_name, container_type, sql_where_having, NULL)
 
 /* return id if no error
    return -1 if error occurred (or id is unknown while TRANSACTION)
@@ -254,9 +254,9 @@ struct StorageMethod
 
 	void  removeBySql(const char *table_name, const char *sql_where_having);
 
-	int   begin();
-	int   commit();
-	int   rollback();
+	int   beginTrans();
+	int   commitTrans();
+	int   rollbackTrans();
 };
 
 };  // namespace Sq
@@ -307,8 +307,8 @@ inline
 #else               // C99
 static inline
 #endif
-int      sq_storage_begin(SqStorage *storage) {
-	return SQ_STORAGE_BEGIN(storage);
+int      sq_storage_begin_trans(SqStorage *storage) {
+	return SQ_STORAGE_BEGIN_TRANS(storage);
 }
 
 #ifdef __cplusplus  // C++
@@ -316,8 +316,8 @@ inline
 #else               // C99
 static inline
 #endif
-int      sq_storage_commit(SqStorage *storage) {
-	return SQ_STORAGE_COMMIT(storage);
+int      sq_storage_commit_trans(SqStorage *storage) {
+	return SQ_STORAGE_COMMIT_TRANS(storage);
 }
 
 #ifdef __cplusplus  // C++
@@ -325,16 +325,16 @@ inline
 #else               // C99
 static inline
 #endif
-int      sq_storage_rollback(SqStorage *storage) {
-	return SQ_STORAGE_ROLLBACK(storage);
+int      sq_storage_rollback_trans(SqStorage *storage) {
+	return SQ_STORAGE_ROLLBACK_TRANS(storage);
 }
 
 #else   // __STDC_VERSION__ || __cplusplus
 
 // C functions
-int      sq_storage_begin(SqStorage *storage);
-int      sq_storage_commit(SqStorage *storage);
-int      sq_storage_rollback(SqStorage *storage);
+int      sq_storage_begin_trans(SqStorage *storage);
+int      sq_storage_commit_trans(SqStorage *storage);
+int      sq_storage_rollback_trans(SqStorage *storage);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -386,11 +386,13 @@ inline StlContainer *StorageMethod::getBySql(const char *sql_where_having) {
 }
 
 template <class StructType>
-inline void *StorageMethod::getBySql(const SqType *container, const char *sql_where_having) {
-	return (StructType*)sq_storage_get_all_full((SqStorage*)this, NULL, typeid(StructType).name(), container, sql_where_having, NULL);
+inline void *StorageMethod::getBySql(const SqType *container_type, const char *sql_where_having) {
+	return sq_storage_get_all_full((SqStorage*)this, NULL, typeid(StructType).name(),
+	                               container_type, sql_where_having, NULL);
 }
-inline void *StorageMethod::getBySql(const char *table_name, const SqType *container, const char *sql_where_having, const SqType *type) {
-	return (void*)sq_storage_get_all_full((SqStorage*)this, table_name, NULL, container, sql_where_having, type);
+inline void *StorageMethod::getBySql(const char *table_name, const SqType *container_type, const char *sql_where_having, const SqType *type) {
+	return sq_storage_get_all_full((SqStorage*)this, table_name, NULL,
+	                               container_type, sql_where_having, type);
 }
 
 template <class StlContainer>
@@ -415,11 +417,13 @@ inline StlContainer *StorageMethod::getAll() {
 }
 
 template <class StructType>
-inline void *StorageMethod::getAll(const SqType *container) {
-	return (StructType*)sq_storage_get_all((SqStorage*)this, NULL, typeid(StructType).name(), container);
+inline void *StorageMethod::getAll(const SqType *container_type) {
+	return sq_storage_get_all_full((SqStorage*)this, NULL, typeid(StructType).name(),
+			                       container_type, NULL, NULL);
 }
-inline void *StorageMethod::getAll(const char *table_name, const SqType *container, const SqType *type) {
-	return (void*)sq_storage_get_all_full((SqStorage*)this, table_name, NULL, container, NULL, type);
+inline void *StorageMethod::getAll(const char *table_name, const SqType *container_type, const SqType *type) {
+	return sq_storage_get_all_full((SqStorage*)this, table_name, NULL,
+	                               container_type, NULL, type);
 }
 
 template <class StlContainer>
@@ -482,14 +486,14 @@ inline void StorageMethod::removeBySql(const char *table_name, const char *sql_w
 	sq_storage_remove_by_sql((SqStorage*)this, table_name, sql_where_having);
 }
 
-inline int  StorageMethod::begin() {
-	return SQ_STORAGE_BEGIN((SqStorage*)this);
+inline int  StorageMethod::beginTrans() {
+	return SQ_STORAGE_BEGIN_TRANS((SqStorage*)this);
 }
-inline int  StorageMethod::commit() {
-	return SQ_STORAGE_COMMIT((SqStorage*)this);
+inline int  StorageMethod::commitTrans() {
+	return SQ_STORAGE_COMMIT_TRANS((SqStorage*)this);
 }
-inline int  StorageMethod::rollback() {
-	return SQ_STORAGE_ROLLBACK((SqStorage*)this);
+inline int  StorageMethod::rollbackTrans() {
+	return SQ_STORAGE_ROLLBACK_TRANS((SqStorage*)this);
 }
 
 // This is for directly use only. You can NOT derived it.
