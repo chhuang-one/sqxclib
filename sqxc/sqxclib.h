@@ -29,8 +29,6 @@
 #include <SqQuery.h>
 #include <SqJoint.h>
 
-#include <SqMigration.h>
-
 // library: sqxconsole
 #include <SqCommand.h>
 #include <SqConsole.h>

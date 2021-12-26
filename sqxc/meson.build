@@ -13,7 +13,6 @@ sources = ['SqPtrArray.c',
            'SqStorage.c',
            'SqStorage-query.c',
            'SqQuery.c',
-           'SqMigration.c',
 
            # Sqdb - Database interface
            'Sqdb.c',
@@ -41,7 +40,6 @@ headers = ['sqxclib.h',
            'SqSchema.h', 'SqSchema-macro.h',
            'SqStorage.h',
            'SqQuery.h', 'SqQuery-macro.h',
-           'SqMigration.h',
            'SqRelation.h',
 
            # Sqdb - Database interface

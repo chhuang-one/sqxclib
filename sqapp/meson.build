@@ -1,5 +1,6 @@
 # --- sqapp ---
 sources_app = ['SqApp.c',
+               'SqMigration.c',
                'migrations.c',
                'migrations-files.c'
 ]
@@ -8,6 +9,7 @@ sources_app_cpp = ['migrations-files.cpp']
 
 headers_app = ['SqApp.h',
                'SqApp-config.h',
+               'SqMigration.h',
                'migrations.h',
 ]
 
@@ -16,6 +18,7 @@ sources_apptool = ['SqApp.c',
                    'SqPairs.c',
                    'SqAppTool.c',
                    'SqAppTool-migrations-files.c',
+                   'SqMigration.c',
                    'migrations.c',
                    'CommonOptions.c',
                    'CommandMigrate.c',
@@ -29,6 +32,7 @@ headers_apptool = ['SqApp.h',
                    'SqPairs.h',
                    'SqAppTool.h',
                    'SqAppTool-config.h',
+                   'SqMigration.h',
                    'migrations.h',
                    'CommonOptions.h',
                    'CommandMigrate.h',

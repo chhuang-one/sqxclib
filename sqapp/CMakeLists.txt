@@ -1,6 +1,7 @@
 # --- sqapp ---
 set(SOURCES_APP
     SqApp.c
+    SqMigration.c
     migrations.c
     migrations-files.c
 )
@@ -13,6 +14,7 @@ set(SOURCES_APP_CPP
 set(HEADERS_APP
     SqApp.h
     SqApp-config.h
+    SqMigration.h
     migrations.h
 )
 
@@ -45,6 +47,7 @@ set(SOURCES_APPTOOL
     SqPairs.c
     SqAppTool.c
     SqAppTool-migrations-files.c
+    SqMigration.c
     migrations.c
     CommonOptions.c
     CommandMigrate.c
@@ -61,6 +64,7 @@ set(HEADERS_APPTOOL
     SqApp-config.h
     SqPairs.h
     SqAppTool.h
+    SqMigration.h
     migrations.h
     CommonOptions.h
     CommandMigrate.h
