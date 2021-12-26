@@ -11,7 +11,7 @@ static void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
 	SqTable  *table;
 	SqColumn *column;
 
-	table  = sq_schema_create(schema, "{{ table_name }}", User);
+	table  = sq_schema_create(schema, "{{ table_name }}", {{ struct_name }});
 /*
 	column = sq_table_add_uint(table, "id", offsetof({{ struct_name }}, id));
 	column->bit_field |= SQB_PRIMARY;
