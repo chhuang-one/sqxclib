@@ -3,12 +3,12 @@ SqEntry define constant or dynamic field in structure.
 It must use [SqType](SqType.md) to declare data type of field.
 
 	SqEntry
-	|
-	`--- SqReentry
-	     |
-	     +--- SqTable
-	     |
-	     `--- SqColumn
+	│
+	└─── SqReentry
+	     │
+	     ├─── SqTable
+	     │
+	     └─── SqColumn
 
 Structure Definition:
 

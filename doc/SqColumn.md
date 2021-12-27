@@ -4,10 +4,10 @@ SqColumn derives from [SqEntry](SqEntry.md) and defines column in SQL table.
 When it works with SqType is very similar to SqEntry.
 
 	SqEntry
-	|
-	`--- SqReentry
-	     |
-	     `--- SqColumn
+	│
+	└─── SqReentry
+	     │
+	     └─── SqColumn
 
 Structure Definition:
 
