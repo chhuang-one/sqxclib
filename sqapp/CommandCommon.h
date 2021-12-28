@@ -22,6 +22,8 @@
 	|
 	`--- CommandCommon
 	     |
+	     +--- CommandList    (defined in SqAppTool.c)
+	     |
 	     +--- CommandMake
 	     |
 	     `--- CommandMigrate

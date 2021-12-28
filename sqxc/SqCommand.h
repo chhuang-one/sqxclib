@@ -97,6 +97,31 @@ int   sq_command_parse_option(void *cmd_value, const SqType *cmd_type, Sqxc *src
 
 namespace Sq {
 
+/* --- declare methods for Sq::Command --- */
+struct CommandMethod {
+	// these function only work if SqCommand.bit_field has SQB_TYPE_DYNAMIC
+	void  ref() {
+		sq_command_ref((SqCommand*)this);
+	}
+	void  unref() {
+		sq_command_unref((SqCommand*)this);
+	}
+
+	void  sortShortcuts(SqPtrArray *array) {
+		sq_command_sort_shortcuts((SqCommand*)this, array);
+	}
+
+	// create dynamic SqCommand and copy data from static SqCommand
+	SqCommand *copyStatic(SqDestroyFunc option_free_func = NULL) {
+		return sq_command_copy_static(NULL, (const SqCommand*)this, option_free_func);
+	}
+
+	// add option from SqOption array (NOT pointer array) to dynamic SqCommand.
+	void  addOption(const SqOption *option, int n_option = 1) {
+		sq_command_add_option((SqCommand*)this, option, n_option);
+	}
+};
+
 /* --- declare methods for Sq::CommandValue --- */
 struct CommandValueMethod {
 	void *operator new(size_t size) {
@@ -118,16 +143,30 @@ struct CommandValueMethod {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*	SqCommand: parse/handle command and it's options.
+/*	SqCommand: User can use SqCommand to define command and it's options
+	           statically (or dynamically).
+
+	           SqConsole use this to parse data from command-line and
+	           store parsed data in SqCommandValue.
 
 	SqType
 	|
 	`--- SqCommand
  */
 
+#define SQ_COMMAND_MEMBERS        \
+    SQ_TYPE_MEMBERS;              \
+	SqCommandFunc  handle;        \
+	const char    *parameter;     \
+	const char    *description
+
+#ifdef __cplusplus
+struct SqCommand : Sq::CommandMethod               // <-- 1. inherit C++ member function(method)
+#else
 struct SqCommand
+#endif
 {
-	SQ_TYPE_MEMBERS;
+	SQ_COMMAND_MEMBERS;                            // <-- 2. inherit member variable
 /*	// ------ SqType members ------
 	unsigned int   size;        // instance size
 
@@ -153,36 +192,12 @@ struct SqCommand
 	// SqType::bit_field has SQB_TYPE_SORTED if SqType::entry is sorted.
 	uint16_t       bit_field;
 	uint16_t       ref_count;    // reference count for dynamic SqType only
- */
 
-	// ------ SqCommand members ------
+	// ------ SqCommand members ------             // <-- 3. Add variable and non-virtual function in derived struct.
 	SqCommandFunc  handle;
 	const char    *parameter;
 	const char    *description;
-
-#ifdef __cplusplus
-	// these function only work if SqCommand.bit_field has SQB_TYPE_DYNAMIC
-	void  ref() {
-		sq_command_ref((SqCommand*)this);
-	}
-	void  unref() {
-		sq_command_unref((SqCommand*)this);
-	}
-
-	void  sortShortcuts(SqPtrArray *array) {
-		sq_command_sort_shortcuts((SqCommand*)this, array);
-	}
-
-	// create dynamic SqCommand and copy data from static SqCommand
-	SqCommand *copyStatic(SqDestroyFunc option_free_func = NULL) {
-		return sq_command_copy_static(NULL, (const SqCommand*)this, option_free_func);
-	}
-
-	// add option from SqOption array (NOT pointer array) to dynamic SqCommand.
-	void  addOption(const SqOption *option, int n_option = 1) {
-		sq_command_add_option((SqCommand*)this, option, n_option);
-	}
-#endif  // __cplusplus
+ */
 };
 
 /*	SqCommandValue: define a command that used by command line interface.
