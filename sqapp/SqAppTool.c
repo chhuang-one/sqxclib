@@ -21,7 +21,7 @@
 #include <SqBuffer.h>
 #include <SqAppTool.h>
 #include <SqAppTool-config.h>
-#include <CommonOptions.h>
+#include <CommandCommon.h>
 #include <CommandMigrate.h>
 #include <CommandMake.h>
 
@@ -38,7 +38,7 @@ typedef struct CommandList        CommandList;
 
 	SqCommandValue
 	|
-	`--- CommandCommon    (CommonOptions.h)
+	`--- CommandCommon
 	     |
 	     `--- CommandList
  */
@@ -49,17 +49,15 @@ struct CommandList : Sq::CommandValueMethod     // <-- 1. inherit C++ member fun
 struct CommandList
 #endif
 {
-	SQ_COMMAND_VALUE_MEMBERS;                   // <-- 2. inherit member variable
+	COMMAND_COMMON_MEMBERS;                     // <-- 2. inherit member variable
 /*	// ------ SqCommandValue members ------
 	const SqCommand  *type;
 
 	// shortcuts is an array that sorted by SqOption.shortcut
 	SqPtrArray     shortcuts;
 	SqPtrArray     arguments;
- */
 
-	COMMON_OPTION_MEMBERS;
-/*	// ------ CommandCommon members ------
+	// ------ CommandCommon members ------
 	bool           help;
 	bool           quiet;
 	bool           version;    // Display this application version

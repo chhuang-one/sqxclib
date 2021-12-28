@@ -16,7 +16,7 @@
 #define COMMAND_MIGRATE_H
 
 #include <SqCommand.h>
-#include <CommonOptions.h>
+#include <CommandCommon.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
@@ -43,7 +43,7 @@ void  sq_console_add_command_migrate(SqConsole *console);
 
 	SqCommandValue
 	|
-	`--- CommandCommon    (CommonOptions.h)
+	`--- CommandCommon
 	     |
 	     `--- CommandMigrate
  */
@@ -54,17 +54,15 @@ struct CommandMigrate : Sq::CommandValueMethod     // <-- 1. inherit C++ member 
 struct CommandMigrate
 #endif
 {
-	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
+	COMMAND_COMMON_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ SqCommandValue members ------
 	const SqCommand  *type;
 
 	// shortcuts is an array that sorted by SqOption.shortcut
 	SqPtrArray     shortcuts;
 	SqPtrArray     arguments;
- */
 
-	COMMON_OPTION_MEMBERS;
-/*	// ------ CommandCommon members ------
+	// ------ CommandCommon members ------
 	bool           help;
 	bool           quiet;
 	bool           version;    // Display this application version

@@ -62,8 +62,8 @@ static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
 
 static const SqOption *migrate_options[] = {
 	// --- CommandCommon options ---
-	COMMON_OPTION_HELP,
-//	COMMON_OPTION_QUIET,
+	COMMAND_COMMON_OPTION_HELP,
+//	COMMAND_COMMON_OPTION_QUIET,
 
 	// --- CommandMigrate options ---
 	&option_database,
@@ -126,8 +126,8 @@ static void migrate_install(SqCommandValue *cmd_value, SqConsole *console, void 
 
 static const SqOption *migrate_install_options[] = {
 	// --- CommandCommon options ---
-	COMMON_OPTION_HELP,
-//	COMMON_OPTION_QUIET,
+	COMMAND_COMMON_OPTION_HELP,
+//	COMMAND_COMMON_OPTION_QUIET,
 
 	// --- CommandMigrate options ---
 	&option_database,
@@ -189,8 +189,8 @@ static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void
 
 static const SqOption *migrate_rollback_options[] = {
 	// --- CommandCommon options ---
-	COMMON_OPTION_HELP,
-//	COMMON_OPTION_QUIET,
+	COMMAND_COMMON_OPTION_HELP,
+//	COMMAND_COMMON_OPTION_QUIET,
 
 	// --- CommandMigrate options ---
 	&option_database,
@@ -256,8 +256,8 @@ static void migrate_reset(SqCommandValue *cmd_value, SqConsole *console, void *d
 
 static const SqOption *migrate_reset_options[] = {
 	// --- CommandCommon options ---
-	COMMON_OPTION_HELP,
-//	COMMON_OPTION_QUIET,
+	COMMAND_COMMON_OPTION_HELP,
+//	COMMAND_COMMON_OPTION_QUIET,
 
 	// --- CommandMigrate options ---
 	&option_database,
@@ -312,8 +312,8 @@ static void migrate_refresh(SqCommandValue *cmd_value, SqConsole *console, void 
 
 static const SqOption *migrate_refresh_options[] = {
 	// --- CommandCommon options ---
-	COMMON_OPTION_HELP,
-//	COMMON_OPTION_QUIET,
+	COMMAND_COMMON_OPTION_HELP,
+//	COMMAND_COMMON_OPTION_QUIET,
 
 	// --- CommandMigrate options ---
 	&option_database,

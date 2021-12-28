@@ -12,10 +12,20 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef COMMON_OPTIONS_H
-#define COMMON_OPTIONS_H
+#ifndef COMMAND_COMMON_H
+#define COMMAND_COMMON_H
 
 #include <SqCommand.h>
+
+/*
+	SqCommandValue
+	|
+	`--- CommandCommon
+	     |
+	     +--- CommandMake
+	     |
+	     `--- CommandMigrate
+ */
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
@@ -29,13 +39,13 @@ typedef struct CommandCommon        CommandCommon;
 extern "C" {
 #endif
 
-extern const SqOption  common_option_array[];    // common option array
-extern const SqOption *common_options[];         // common option pointer array
-extern const int       n_common_options;
+extern const SqOption command_common_help_option;
+extern const SqOption command_common_quiet_option;
+extern const SqOption command_common_version_option;
 
-#define COMMON_OPTION_HELP       (&common_option_array[0])
-#define COMMON_OPTION_QUIET      (&common_option_array[1])
-#define COMMON_OPTION_VERSION    (&common_option_array[2])
+#define COMMAND_COMMON_OPTION_HELP       (&command_common_help_option)
+#define COMMAND_COMMON_OPTION_QUIET      (&command_common_quiet_option)
+#define COMMAND_COMMON_OPTION_VERSION    (&command_common_version_option)
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -43,11 +53,6 @@ extern const int       n_common_options;
 
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
-
-#define COMMON_OPTION_MEMBERS     \
-	bool           help;          \
-	bool           quiet;         \
-    bool           version
 
 /*	CommandCommon: SqCommandValue + common command options
 
@@ -58,7 +63,9 @@ extern const int       n_common_options;
 
 #define COMMAND_COMMON_MEMBERS    \
     SQ_COMMAND_VALUE_MEMBERS;     \
-	COMMON_OPTION_MEMBERS
+	bool           help;          \
+	bool           quiet;         \
+    bool           version
 
 #ifdef __cplusplus
 struct CommandCommon : Sq::CommandValueMethod      // <-- 1. inherit C++ member function(method)
@@ -66,21 +73,19 @@ struct CommandCommon : Sq::CommandValueMethod      // <-- 1. inherit C++ member 
 struct CommandCommon
 #endif
 {
-	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
+	COMMAND_COMMON_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ SqCommandValue members ------
 	const SqCommand  *type;
 
 	// shortcuts is an array that sorted by SqOption.shortcut
 	SqPtrArray     shortcuts;
 	SqPtrArray     arguments;
- */
 
-	COMMON_OPTION_MEMBERS;
-/*	// ------ CommandCommon members ------         // <-- 3. Add variable and non-virtual function in derived struct.
+	// ------ CommandCommon members ------         // <-- 3. Add variable and non-virtual function in derived struct.
 	bool           help;
 	bool           quiet;
 	bool           version;    // Display this application version
  */
 };
 
-#endif  // COMMON_OPTIONS_H
+#endif  // COMMAND_COMMON_H

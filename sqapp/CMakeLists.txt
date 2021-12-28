@@ -49,7 +49,7 @@ set(SOURCES_APPTOOL
     SqAppTool-migrations-files.c
     SqMigration.c
     migrations.c
-    CommonOptions.c
+    CommandCommon.c
     CommandMigrate.c
     CommandMake.c
 )
@@ -66,7 +66,7 @@ set(HEADERS_APPTOOL
     SqAppTool.h
     SqMigration.h
     migrations.h
-    CommonOptions.h
+    CommandCommon.h
     CommandMigrate.h
     CommandMake.h
 )
