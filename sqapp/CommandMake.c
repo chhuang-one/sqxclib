@@ -74,7 +74,8 @@ static const SqCommand make_migration_command = SQ_COMMAND_INITIALIZER(
 	"<name>",                                      // parameter string
 	"Create a new migration file"                  // description string
 );
-/* Macro Expands to
+
+/* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand make_migration_command = {
 	// --- SqType members ---
 	.size  = sizeof(CommandMake),

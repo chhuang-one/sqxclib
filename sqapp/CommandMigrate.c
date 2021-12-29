@@ -80,7 +80,8 @@ static const SqCommand migrate_command = SQ_COMMAND_INITIALIZER(
 	NULL,                                          // parameter string
 	"Run the database migrations"                  // description string
 );
-/* Macro Expands to
+
+/* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand migrate_command = {
 	// --- SqType members ---
 	.size  = sizeof(CommandMigrate),
@@ -141,7 +142,8 @@ static const SqCommand migrate_install_command = SQ_COMMAND_INITIALIZER(
 	NULL,                                         // parameter string
 	"Create the migration repository"             // description string
 );
-/* Macro Expands to
+
+/* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand migrate_install_command = {
 	// --- SqType members ---
 	.size  = sizeof(CommandMigrate),
@@ -208,7 +210,8 @@ static const SqCommand migrate_rollback_command = SQ_COMMAND_INITIALIZER(
 	NULL,                                         // parameter string
 	"Rollback the last database migration"        // description string
 );
-/* Macro Expands to
+
+/* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand migrate_rollback_command = {
 	// --- SqType members ---
 	.size  = sizeof(CommandMigrate),

@@ -88,7 +88,8 @@ static const SqCommand list_command = SQ_COMMAND_INITIALIZER(
 	NULL,                                          // parameter string
 	"lists all commands"                           // description string
 );
-/* Macro Expands to
+
+/* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand list_command = {
 	// --- SqType members ---
 	.size  = sizeof(CommandList),
