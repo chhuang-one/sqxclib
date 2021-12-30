@@ -5,13 +5,13 @@ SqConsole provide command-line interface. It must use with SqCommand and SqOptio
 	Relationship of SqConsole, SqCommand, and SqOption.
 
 	SqConsole ---┐
-	             |
+	             │
 	             ├--- SqCommand 1 ---  ...
-	             |
+	             │
 	             └--- SqCommand n ---┐
-	                                 |
+	                                 │
 	                                 ├--- SqOption 1
-	                                 |
+	                                 │
 	                                 └--- SqOption n
 
 # SqCommand
@@ -32,7 +32,7 @@ SqConsole use this to parse data from command-line and store parsed data in SqCo
 
 ## Define a new command
 
-define MyCommandValue that has two options - '--help' and '--quiet'
+define 'mycommand' that has two options - '--help' and '--quiet'
 
 #### 1. define value of command
 
@@ -68,7 +68,7 @@ static const SqOption *mycommand_options[] = {
 };
 ```
 
-#### 3. define command handler function
+#### 3. define function of command handler
 
 ```c++
 static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void *data)

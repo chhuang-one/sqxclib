@@ -77,71 +77,85 @@ sqtool  make:migration  migration_name
 
 #### create table by sqtool (C language)
 
-generate C migration file to create componies table
+generate C migration file to create companies table
 
 ```
-sqtool  make:migration  create_componies_table
+sqtool  make:migration  create_companies_table
 ```
 
-Above command will create file in workspace/database/migrations/yyyy_MM_dd_HHmmss_create_componies_table.c  
+Above command will create file in workspace/database/migrations/yyyy_MM_dd_HHmmss_create_companies_table.c  
+It is suggested that user define struct Company in workspace/sqapp/CStructs.h in this case.  
 The file looks like below:
 
 ```c
+/* migrations-files.c has included below headers.
+#include <SqStorage.h>
+#include <SqMigration.h>
+#include <CStructs.h>        // define struct Company in CStructs.h
+ */
+
 // Run the migrations.
 static void up_2021_12_12_180000(SqSchema *schema, SqStorage *storage)
 {
 	SqTable  *table;
 	SqColumn *column;
 
-	table  = sq_schema_create(schema, "componies", Componies);
+	table  = sq_schema_create(schema, "companies", Company);
 }
 
 // Reverse the migrations.
 static void down_2021_12_12_180000(SqSchema *schema, SqStorage *storage)
 {
-	sq_schema_drop(schema, "componies");
+	sq_schema_drop(schema, "companies");
 }
 
-const SqMigration create_componies_table_2021_12_12_180000 = {
+const SqMigration create_companies_table_2021_12_12_180000 = {
 	.up   = up_2021_12_12_180000,
 	.down = down_2021_12_12_180000,
 
 #ifdef SQ_APP_TOOL
-	.name = "2021_12_12_180000_create_componies_table",
+	.name = "2021_12_12_180000_create_companies_table",
 #endif
 };
 ```
 
 #### alter table by sqtoolcpp (C++ Language)
 
-generate C++ migration file to alter componies table
+generate C++ migration file to alter companies table
 
 ```
-sqtoolcpp  make:migration  --table=componies  alter_componies_table
+sqtoolcpp  make:migration  --table=companies  alter_companies_table
 ```
 
-Above command will create file in workspace/database/migrations/yyyy_MM_dd_HHmmss_alter_componies_table.cpp  
+Above command will create file in workspace/database/migrations/yyyy_MM_dd_HHmmss_alter_companies_table.cpp  
 The file looks like below:
 
 ```c++
-const SqMigration alter_componies_table_2021_12_26_191532 = {
+/* This template file is used by sqtoolcpp
+// migrations-files.cpp has included below headers.
+#include <SqStorage.h>
+#include <SqMigration.h>
+#include <CStructs.h>
+ */
+
+const SqMigration alter_companies_table_2021_12_26_191532 = {
 
 	// Run the migrations.
 	.up = [](SqSchema *schema, SqStorage *storage) {
 		SqTable  *table;
 
-		table = schema->alter("componies");
+		table = schema->alter("companies");
 	},
 
 	// Reverse the migrations.
 	.down = [](SqSchema *schema, SqStorage *storage) {
 		SqTable  *table;
 
-		table = schema->alter("componies");
+		table = schema->alter("companies");
 	},
 
 #ifdef SQ_APP_TOOL
-	.name = "2021_12_26_191532_alter_componies_table",
+	.name = "2021_12_26_191532_alter_companies_table",
 #endif
 };
 

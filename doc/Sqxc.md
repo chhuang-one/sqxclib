@@ -62,13 +62,13 @@ create element to convert data to SQL INSERT/UPDATE statement and add element to
 ## Send data according to data type
   Use sqxc_send() to send data(arguments) between Sqxc elements.  
 
-	input ->         ┌─> SqxcJsonParser ──┐
+	input ─>         ┌─> SqxcJsonParser ──┐
 	Sqdb.exec()    ──┴────────────────────┴──> SqxcValue ───> SqType.parse()
 
 Note: If SqxcValue can't match current data type, it will forward data to SqxcJsonParser (or other element).  
 
 
-	output ->        ┌─> SqxcJsonWriter ──┐
+	output ─>        ┌─> SqxcJsonWriter ──┐
 	SqType.write() ──┴────────────────────┴──> SqxcSql   ───> Sqdb.exec()
 
 Note: If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter (or other element).  
