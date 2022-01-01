@@ -1,8 +1,8 @@
 /*
- *   Copyright (C) 2020-2021 by C.H. Huang
+ *   Copyright (C) 2020-2022 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
- * sqxc is licensed under Mulan PSL v2.
+ * sqxclib is licensed under Mulan PSL v2.
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
  *          http://license.coscl.org.cn/MulanPSL2
