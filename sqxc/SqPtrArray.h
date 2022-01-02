@@ -536,9 +536,12 @@ struct PtrArray : SqPtrArrayTemplate<Type>
 	PtrArray(int allocated_length = 0, SqDestroyFunc func = NULL) {
 		sq_ptr_array_init(this, allocated_length, func);
 	}
-	~PtrArray(void) {
-		sq_ptr_array_final(this);
-	}
+
+	// It doesn't need destructor because SqPtrArrayTemplate has been defined it.
+//	~PtrArray(void) {
+//		sq_ptr_array_final(this);
+//	}
+
 	// copy constructor
 	PtrArray(SqPtrArray& src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
@@ -578,9 +581,12 @@ struct StringArray : SqPtrArrayTemplate<char*>
 	StringArray(int allocated_length = 0, SqDestroyFunc func = free) {
 		sq_ptr_array_init(this, allocated_length, func);
 	}
-	~StringArray(void) {
-		sq_ptr_array_final(this);
-	}
+
+	// It doesn't need destructor because SqPtrArrayTemplate has been defined it.
+//	~StringArray(void) {
+//		sq_ptr_array_final(this);
+//	}
+
 	// copy constructor
 	StringArray(StringArray& src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);

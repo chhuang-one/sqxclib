@@ -47,7 +47,7 @@ void test_intptr_array()
 	}
 	puts("");
 
-	sq_ptr_array_free(array);
+	delete array;
 }
 
 void test_string_array()
@@ -67,6 +67,8 @@ void test_string_array()
 		printf(" - %s", element);
 	}
 	puts("");
+
+	delete array;
 }
 
 void test_ptr_array_vp()
