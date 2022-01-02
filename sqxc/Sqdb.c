@@ -45,12 +45,17 @@ Sqdb   *sqdb_new(const SqdbInfo *info, SqdbConfig *config)
 
 void    sqdb_free(Sqdb *db)
 {
+	sqdb_final(db);
+	free(db);
+}
+
+void    sqdb_final(Sqdb *db)
+{
 	void (*final)(Sqdb *db);
 
 	final = db->info->final;
 	if (final)
 		final(db);
-	free(db);
 }
 
 // ----------------------------------------------------------------------------

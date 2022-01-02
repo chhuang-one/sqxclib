@@ -309,6 +309,7 @@ struct XcMethod
 {
 	SqBuffer *buffer(void);
 
+	void   free();
 	void   freeChain();
 
 	Sqxc  *insert(Sqxc *xc_element, int position = -1);
@@ -485,6 +486,12 @@ struct Sqxc
 
 	// input / output arguments
 	void       **error;
+
+#ifdef __cplusplus
+	~Sqxc(void) {
+		sqxc_final(this);
+	}
+#endif
 };
 
 // ----------------------------------------------------------------------------
@@ -500,6 +507,9 @@ inline SqBuffer *XcMethod::buffer(void) {
 	return sqxc_get_buffer(this);
 }
 
+inline void   XcMethod::free() {
+	return sqxc_free((Sqxc*)this);
+}
 inline void   XcMethod::freeChain() {
 	return sqxc_free_chain((Sqxc*)this);
 }

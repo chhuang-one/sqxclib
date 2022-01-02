@@ -68,6 +68,8 @@ extern "C" {
 Sqdb   *sqdb_new(const SqdbInfo *info, SqdbConfig *config);
 void    sqdb_free(Sqdb *db);
 
+void    sqdb_final(Sqdb *db);
+
 /* --- execute SQL statement --- */
 
 int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
@@ -193,7 +195,11 @@ struct Sqdb
 	int             version;
  */
 
-	/* Add variable and function */  // <-- 3. Add variable and non-virtual function in derived struct.
+#ifdef __cplusplus
+	~Sqdb(void) {
+		sqdb_final(this);
+	}
+#endif
 };
 
 /* SqdbConfig - setting of SQL product */

@@ -328,23 +328,9 @@ Note: If new Sqxc element want to parse/write data in SQL column, it must:
 
 #### 3. use new Sqxc element
 
-append custom Sqxc element to tail of list.
+create custom Sqxc element and insert it to SqStorage::xc_input list.
 
-```c++
-	Sqxc *xc_text;
-
-	// create custom Sqxc element
-	xc_text = sqxc_new(SQXC_INFO_TEXT_PARSER);
-
-	// append xc_text parser to tail of list
-	/* C function */
-	sqxc_insert(xc, xc_text, -1);
-	/* C++ function */
-//	xc->insert(xc_text, -1);
-```
-
-insert custom Sqxc element to input elements in SqStorage object.
-
+* use C Language
 ```c++
 	Sqxc *xc_text;
 	Sqxc *xc_json;
@@ -352,36 +338,50 @@ insert custom Sqxc element to input elements in SqStorage object.
 	// create custom Sqxc element
 	xc_text = sqxc_new(SQXC_INFO_TEXT_PARSER);
 
-	// insert xc_text parser after storage->xc_input
-	/* C function */
+	// append 'xc_text' parser to 'xc_input' list
+//	sqxc_insert(storage->xc_input, xc_text, -1);
+
+	// insert 'xc_text' parser to the 2nd element of 'xc_input' list
 	sqxc_insert(storage->xc_input, xc_text, 1);
-	/* C++ function */
-//	storage->xc_input->insert(xc_text, 1);
 
 	// remove JSON parser from list because it is replaced by new one.
-	/* C function */
 	xc_json = sqxc_find(storage->xc_input, SQXC_INFO_JSONC_PARSER);
-	/* C++ function */
-//	xc_json = storage->xc_input->find(SQXC_INFO_JSONC_PARSER);
-
 	if (xc_json) {
-		/* C function */
 		sqxc_steal(storage->xc_input, xc_json);
-		/* C++ function */
-//		storage->xc_input->steal(xc_json);
-
-//		sqxc_free(xc_json);
+		// free 'xc_json' if no longer needed
+		sqxc_free(xc_json);
 	}
+```
 
-	// You may also need:
-	// insert xc_text writer after storage->xc_output
-	// remove JSON writer from list because it is replaced by new one.
+* use C++ Language
+```c++
+	SqxcText  *xc_text;
+	Sqxc      *xc_json;
+
+	// create custom Sqxc element
+	xc_text = new SqxcText();
+
+	// append 'xc_text' parser to 'xc_input' list
+//	storage->xc_input->insert(xc_text, -1);
+
+	// insert 'xc_text' parser to the 2nd element of 'xc_input' list
+	storage->xc_input->insert(xc_text, 1);
+
+	// remove JSON parser from list because it is replaced by new one.
+	xc_json = storage->xc_input->find(SQXC_INFO_JSONC_PARSER);
+	if (xc_json) {
+		storage->xc_input->steal(xc_json);
+		// free 'xc_json' if no longer needed
+		delete xc_json;
+	}
 ```
 
 The Sqxc input dataflow in your SqStorage object will look like this:
 
 	input ->         ┌-> SqxcTextParser --┐
 	Sqdb.exec()    --┴--------------------┴-> SqxcValue ---> SqType.parse()
+
+Note: You also need replace SqxcJsoncWriter by SqxcTextWriter in SqStorage::xc_output.
 
 ## Processing (skip) unknown object & array
 
