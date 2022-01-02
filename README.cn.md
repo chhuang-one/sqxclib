@@ -1,27 +1,25 @@
-[中文(未完成)](README.cn.md)
+[English](README.md)
 
 [![Donate using PayPal](https://img.shields.io/badge/donate-PayPal-brightgreen.svg)](https://paypal.me/CHHUANGONE)
 
 # sqxclib
 
-sqxclib is a library to convert SQL (or JSON...etc) data to/from C language.
-It provides ORM features and C++ wrapper.  
-Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
+sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提供 ORM 的功能和 C++ 包装器 (C++ wrapper)
+项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
-## Current features:
-1. User can use C99 designated initializer or C++ aggregate initialization to define SQL table/column/migration statically.
-   You can also use C functions or C++ methods to do these dynamically.
+## 目前的功能:
+1. 用户可以使用 C99 指定初始化器(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL表/列/迁移。
+   也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
-2. All defined table/column can use to parse JSON object/field.
-   Program can also parse JSON object/array from SQL column.
+2. 所有定义的 SQL表/列 都可以用于解析 JSON 对象/字段。也可以从 SQL 列 解析 JSON 对象/数组。
 
-3. It can work in low-end hardware.
+3. 可以在低端硬件上工作.
 
-4. Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros)
+4. 单一头文件 〈 **sqxclib.h** 〉 (注意：不包含特殊宏)
 
-5. Command-line tools can generate migration and do migrate. See doc/[SqApp.md](doc/SqApp.md)
+5. 命令行工具可以生成迁移并进行迁移. 见 doc/[SqApp.md](doc/SqApp.md)
 
-6. Supports SQLite, MySQL / MariaDB.
+6. 支持 SQLite, MySQL / MariaDB.
 
 ## Database schema
 

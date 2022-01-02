@@ -1,11 +1,13 @@
 # Database: Migrations (Draft)
 
-Because many users have used Laravel, there are many sqxclib C++ method names are similar to it.  
+This document describe how to define SQL table/column/migration dynamically.
+You can also use SqApp to run and reverse migrations with command-line tool, see [SqApp.md](SqApp.md)  
+
+Note: Because many users have used Laravel, there are many sqxclib C++ method names are similar to it.
 Actually the design of sqxclib is different from Laravel, so the usage cannot be the same.  
-* This document describe how to define SQL table/column/migration dynamically. (No static definition here)
 
 ## Running Migrations
-There is no command line tool to do this currently. You must use method/function to migrate schema and synchronize to database.
+You can use method/function to migrate schema and synchronize to database.
 
 ```c++
 	/* C++ sample code */

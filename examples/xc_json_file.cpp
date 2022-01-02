@@ -17,8 +17,8 @@
 
 /*	Sqxc chain data flow in this file
 
-	program ---------> SqxcJson Writer ---------> SqxcFile Writer
-	      SQXC_TYPE_XXXX            SQXC_TYPE_STRING
+	output ---------> SqxcJson Writer ---------> SqxcFile Writer
+	     SQXC_TYPE_XXXX            SQXC_TYPE_STRING
  */
 
 // create and write JSON file by using C++ Language
