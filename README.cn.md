@@ -4,7 +4,7 @@
 
 # sqxclib
 
-sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提供 ORM 的功能和 C++ 包装器 (C++ wrapper)
+sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提供 ORM 的功能和 C++ 包装器 (C++ wrapper)  
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## 目前的功能:
