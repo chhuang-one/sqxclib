@@ -223,6 +223,12 @@ struct SqCommandValue
  */
 
 	/* Add variable and function */                // <-- 3. Add variable and non-virtual function in derived struct.
+
+#ifdef __cplusplus
+	~SqCommandValue() {
+		sq_command_value_final(this);
+	}
+#endif
 };
 
 // ----------------------------------------------------------------------------
