@@ -668,6 +668,12 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 		len = snprintf(NULL, 0, "VARCHAR(%d)", size);
 		sprintf(sq_buffer_alloc(buffer, len), "VARCHAR(%d)", size);
 		break;
+
+	case SQ_TYPE_CHAR_INDEX:
+		size = (size <= 0) ? SQL_STRING_LENGTH_DEFAULT : size;
+		len = snprintf(NULL, 0, "CHAR(%d)", size);
+		sprintf(sq_buffer_alloc(buffer, len), "CHAR(%d)", size);
+		break;
 	}
 
 	// "NOT NULL"

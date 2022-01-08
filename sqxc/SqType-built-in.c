@@ -583,4 +583,12 @@ const SqType SqType_BuiltIn_[] = {
 		sq_type_string_parse,
 		sq_type_string_write,
 	},
+	// SQ_TYPE_CHAR
+	{
+		sizeof(char*),
+		NULL,
+		sq_type_string_final,
+		sq_type_string_parse,
+		sq_type_string_write,
+	},
 };

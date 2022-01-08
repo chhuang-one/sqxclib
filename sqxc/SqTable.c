@@ -304,6 +304,18 @@ SqColumn *sq_table_add_string(SqTable *table, const char *name, size_t offset, i
 	return column;
 }
 
+SqColumn *sq_table_add_char(SqTable *table, const char *name, size_t offset, int length)
+{
+	SqColumn *column;
+
+	column = sq_column_new(name, SQ_TYPE_CHAR);
+	column->offset = offset;
+	column->size = length;
+
+	sq_table_add_column(table, column, 1);
+	return column;
+}
+
 SqColumn *sq_table_add_custom(SqTable *table, const char *name,
                               size_t offset, const SqType *sqtype,
                               int  length)

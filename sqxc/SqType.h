@@ -401,6 +401,7 @@ enum {
 	SQ_TYPE_TIME_INDEX,
 	SQ_TYPE_DOUBLE_INDEX,
 	SQ_TYPE_STRING_INDEX,
+	SQ_TYPE_CHAR_INDEX,
 };
 
 #define SQ_TYPE_BOOL       (&SqType_BuiltIn_[SQ_TYPE_BOOL_INDEX])
@@ -412,6 +413,8 @@ enum {
 #define SQ_TYPE_TIME       (&SqType_BuiltIn_[SQ_TYPE_TIME_INDEX])
 #define SQ_TYPE_DOUBLE     (&SqType_BuiltIn_[SQ_TYPE_DOUBLE_INDEX])
 #define SQ_TYPE_STRING     (&SqType_BuiltIn_[SQ_TYPE_STRING_INDEX])
+#define SQ_TYPE_CHAR       (&SqType_BuiltIn_[SQ_TYPE_CHAR_INDEX])
+/* update below definition if you insert type in SqType_BuiltIn_[] */
 
 // std::is_integral<Type>::value == true
 #define SQ_TYPE_INTEGER_BEG       SQ_TYPE_BOOL
@@ -422,7 +425,7 @@ enum {
 #define SQ_TYPE_ARITHMETIC_END    SQ_TYPE_DOUBLE
 
 #define SQ_TYPE_BUILTIN_BEG       SQ_TYPE_BOOL
-#define SQ_TYPE_BUILTIN_END       SQ_TYPE_STRING
+#define SQ_TYPE_BUILTIN_END       SQ_TYPE_CHAR
 
 #define SQ_TYPE_BUILTIN_INDEX(type)  ((type) - SQ_TYPE_BUILTIN_BEG)
 

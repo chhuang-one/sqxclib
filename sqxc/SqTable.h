@@ -123,6 +123,8 @@ void      sq_table_add_timestamps(SqTable *table,
                                   const char *updated_at_name, size_t updated_at_offset);
 SqColumn *sq_table_add_string(SqTable *table, const char *column_name,
                               size_t offset, int length);
+SqColumn *sq_table_add_char(SqTable *table, const char *column_name,
+                            size_t offset, int length);
 SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
                               size_t offset, const SqType *sqtype,
                               int  length);
@@ -379,6 +381,9 @@ struct SqTable
 	SqColumn& string(const char *column_name, size_t offset, int length = -1) {
 		return *sq_table_add_string(this, column_name, offset, length);
 	}
+	SqColumn& char_(const char *column_name, size_t offset, int length = -1) {
+		return *sq_table_add_char(this, column_name, offset, length);
+	}
 	SqColumn& custom(const char *column_name, size_t offset, const SqType *type, int length = -1) {
 		return *sq_table_add_custom(this, column_name, offset, type, length);
 	}
@@ -594,8 +599,8 @@ struct SqColumn
 
 	// size  : total number of digits is specified in size or length of string
 	// digits: number of digits after the decimal point.
-	int16_t      size;             // total digits or length of string
-	int16_t      digits;           // decimal digits
+	int16_t      size;             // total digits   (precision) or length of string
+	int16_t      digits;           // decimal digits (scale)
 
 	const char  *default_value;    // DEFAULT
 	const char  *check;            // CHECK (condition)
