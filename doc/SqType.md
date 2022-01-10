@@ -17,6 +17,11 @@ Built-in SqType with it's C data type
 | SQ_TYPE_DOUBLE  | double       |
 | SQ_TYPE_STRING  | char*        |
 
+Built-in SqType with it's SQL data type
+| SqType          | C data type  | SQL data type |
+| --------------- | ------------ | ------------- |
+| SQ_TYPE_CHAR    | char*        | CHAR          |
+
 SqType with it's C++ data type
 
 | SqType                 | C++ data type  |

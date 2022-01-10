@@ -413,6 +413,7 @@ enum {
 #define SQ_TYPE_TIME       (&SqType_BuiltIn_[SQ_TYPE_TIME_INDEX])
 #define SQ_TYPE_DOUBLE     (&SqType_BuiltIn_[SQ_TYPE_DOUBLE_INDEX])
 #define SQ_TYPE_STRING     (&SqType_BuiltIn_[SQ_TYPE_STRING_INDEX])
+// ---- SQ_TYPE for SQL ----
 #define SQ_TYPE_CHAR       (&SqType_BuiltIn_[SQ_TYPE_CHAR_INDEX])
 /* update below definition if you insert type in SqType_BuiltIn_[] */
 
