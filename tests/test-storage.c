@@ -54,7 +54,7 @@ void create_company_table(SqSchema *schema)
 		SQT_STRING("NAME", Company, name, -1);
 		SQT_INTEGER("AGE", Company, age);
 		SQT_STRING("ADDRESS", Company, address, 50);
-		SQT_DOUBLE("SALARY", Company, salary);
+		SQT_DOUBLE("SALARY", Company, salary, 0, 0);
 	});
 }
 

@@ -157,8 +157,8 @@ typedef struct Company
 #define SQT_UINT64_AS(structure, member)   \
 		(column_cur_ = sq_table_add_uint64(table_cur_, #member, offsetof(structure, member)))
 
-#define SQT_DOUBLE(column_name, structure, member)    \
-		(column_cur_ = sq_table_add_double(table_cur_, column_name, offsetof(structure, member)))
+#define SQT_DOUBLE(column_name, structure, member, precision, scale)    \
+		(column_cur_ = sq_table_add_double(table_cur_, column_name, offsetof(structure, member), precision, scale))
 
 #define SQT_DOUBLE_AS(structure, member)    \
 		(column_cur_ = sq_table_add_double(table_cur_, #member, offsetof(structure, member)))

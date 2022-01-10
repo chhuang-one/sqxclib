@@ -249,12 +249,14 @@ SqColumn *sq_table_add_uint64(SqTable *table, const char *name, size_t offset)
 	return column;
 }
 
-SqColumn *sq_table_add_double(SqTable *table, const char *name, size_t offset)
+SqColumn *sq_table_add_double(SqTable *table, const char *name, size_t offset, int precision, int scale)
 {
 	SqColumn *column;
 
 	column = sq_column_new(name, SQ_TYPE_DOUBLE);
 	column->offset = offset;
+	column->size = precision;
+	column->digits = scale;
 
 	sq_table_add_column(table, column, 1);
 	return column;

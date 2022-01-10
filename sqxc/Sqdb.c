@@ -652,10 +652,12 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 		if (size > 0 || digits > 0) {
 			sq_buffer_write_c(buffer, '(');
 			if (size > 0 && digits == 0) {
+				// precision (total digits)
 				len = snprintf(NULL, 0, "%d", size);
 				sprintf(sq_buffer_alloc(buffer, len), "%d", size);
 			}
 			else {
+				// precision (total digits) , scale (decimal digits)
 				len = snprintf(NULL, 0, "%d,%d", size, digits);
 				sprintf(sq_buffer_alloc(buffer, len), "%d,%d", size, digits);
 			}

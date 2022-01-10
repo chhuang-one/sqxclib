@@ -114,7 +114,7 @@ SqColumn *sq_table_add_int64(SqTable *table, const char *column_name,
 SqColumn *sq_table_add_uint64(SqTable *table, const char *column_name,
                               size_t offset);
 SqColumn *sq_table_add_double(SqTable *table, const char *column_name,
-                              size_t offset);
+                              size_t offset, int precision, int scale);
 SqColumn *sq_table_add_timestamp(SqTable *table, const char *column_name,
                                  size_t offset);
 // if 'created_at_name' (or 'updated_at_name') is NULL, use default name "created_at" (or "updated_at").
@@ -144,8 +144,8 @@ SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
 #define sq_table_add_uint64_as(table, Structure, Member)    \
 		sq_table_add_uint64(table, #Member, offsetof(Structure, Member))
 
-#define sq_table_add_double_as(table, Structure, Member)    \
-		sq_table_add_double(table, #Member, offsetof(Structure, Member))
+#define sq_table_add_double_as(table, Structure, Member, precision, scale)    \
+		sq_table_add_double(table, #Member, offsetof(Structure, Member), precision, scale)
 
 #define sq_table_add_timestamp_as(table, Structure, Member)    \
 		sq_table_add_timestamp(table, #Member, offsetof(Structure, Member))
@@ -375,8 +375,8 @@ struct SqTable
 		sq_table_add_timestamps(this, NULL, created_at_offset,
 		                              NULL, updated_at_offset);
 	}
-	SqColumn& double_(const char *column_name, size_t offset) {
-		return *sq_table_add_double(this, column_name, offset);
+	SqColumn& double_(const char *column_name, size_t offset, int precision = 0, int scale = 0) {
+		return *sq_table_add_double(this, column_name, offset, precision, scale);
 	}
 	SqColumn& string(const char *column_name, size_t offset, int length = -1) {
 		return *sq_table_add_string(this, column_name, offset, length);
@@ -441,8 +441,8 @@ struct SqTable
 		                              NULL, Sq::offsetOf(&Store::updated_at));
 	};
 	template<class Store, class Type>
-	SqColumn& double_(const char *column_name, Type Store::*member) {
-		return *sq_table_add_double(this, column_name, Sq::offsetOf(member));
+	SqColumn& double_(const char *column_name, Type Store::*member, int precision = 0, int scale = 0) {
+		return *sq_table_add_double(this, column_name, Sq::offsetOf(member), precision, scale);
 	};
 	template<class Store, class Type>
 	SqColumn& string(const char *column_name, Type Store::*member, int length = -1) {
