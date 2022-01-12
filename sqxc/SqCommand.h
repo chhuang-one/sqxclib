@@ -64,16 +64,12 @@ void  sq_command_value_final(SqCommandValue *cmd_value);
 /* --- SqCommand C functions --- */
 SqCommand *sq_command_new(const char *cmd_name);
 
+void  sq_command_init_self(SqCommand *cmd_type, const char *cmd_name);
+void  sq_command_final_self(SqCommand *cmd_type);
+
 // these function only work if SqCommand.bit_field has SQB_TYPE_DYNAMIC
 void  sq_command_ref(SqCommand *cmd_type);
 void  sq_command_unref(SqCommand *cmd_type);
-
-// sort options by SqOption.shortcut and save result in array. this function is called by SqConsole
-void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array);
-
-// void sq_command_add_option(SqCommand *cmd_type, SqOption *option, int n_option);
-#define sq_command_add_option(cmd_type, option, n_option)    \
-		sq_type_add_entry((SqType*)cmd_type, (SqEntry*)option, n_option, sizeof(SqOption));
 
 // copy data from static SqCommand to dynamic SqCommand. 'type_dest' must be raw memory.
 // if 'type_dest' is NULL, function will create dynamic SqCommand.
@@ -82,6 +78,11 @@ void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array);
 SqCommand *sq_command_copy_static(SqCommand       *type_dest,
                                   const SqCommand *static_type_src,
                                   SqDestroyFunc    option_free_func);
+
+void  sq_command_add_option(SqCommand *cmd_type, const SqOption *option, int n_option);
+
+// sort options by SqOption.shortcut and save result in array. this function is called by SqConsole
+void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array);
 
 // SqCommand parse function
 int   sq_command_parse_option(void *cmd_value, const SqType *cmd_type, Sqxc *src);
@@ -99,16 +100,20 @@ namespace Sq {
 
 /* --- declare methods for Sq::Command --- */
 struct CommandMethod {
+	// initialize/finalize self
+	void  initSelf(const char *cmd_name) {
+		sq_command_init_self((SqCommand*)this, cmd_name);
+	}
+	void  finalSelf() {
+		sq_command_final_self((SqCommand*)this);
+	}
+
 	// these function only work if SqCommand.bit_field has SQB_TYPE_DYNAMIC
 	void  ref() {
 		sq_command_ref((SqCommand*)this);
 	}
 	void  unref() {
 		sq_command_unref((SqCommand*)this);
-	}
-
-	void  sortShortcuts(SqPtrArray *array) {
-		sq_command_sort_shortcuts((SqCommand*)this, array);
 	}
 
 	// create dynamic SqCommand and copy data from static SqCommand
@@ -119,6 +124,10 @@ struct CommandMethod {
 	// add option from SqOption array (NOT pointer array) to dynamic SqCommand.
 	void  addOption(const SqOption *option, int n_option = 1) {
 		sq_command_add_option((SqCommand*)this, option, n_option);
+	}
+
+	void  sortShortcuts(SqPtrArray *array) {
+		sq_command_sort_shortcuts((SqCommand*)this, array);
 	}
 };
 

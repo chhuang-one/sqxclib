@@ -70,17 +70,30 @@ SqCommand *sq_command_new(const char *cmd_name)
 	SqCommand *cmd_type;
 
 	cmd_type = malloc(sizeof(SqCommand));
+	sq_command_init_self(cmd_type, cmd_name);
+	return cmd_type;
+}
+
+void  sq_command_init_self(SqCommand *cmd_type, const char *cmd_name)
+{
 	// set SqType members
 	sq_type_init_self((SqType*)cmd_type, 0, (SqDestroyFunc)sq_option_free);
 	cmd_type->parse = sq_command_parse_option;
 	cmd_type->write = NULL;
-	cmd_type->name  = strdup(cmd_name);
+	cmd_type->name  = (cmd_name) ? strdup(cmd_name) : NULL;
 	// set SqCommand members
 	cmd_type->handle = NULL;
 	cmd_type->parameter = NULL;
 	cmd_type->description = NULL;
+}
 
-	return cmd_type;
+void  sq_command_final_self(SqCommand *cmd_type)
+{
+	// free SqType members
+	sq_type_final_self((SqType*)cmd_type);
+	// free SqCommand members
+	free((char*)cmd_type->parameter);
+	free((char*)cmd_type->description);
 }
 
 void sq_command_ref(SqCommand *cmd_type)
@@ -95,11 +108,7 @@ void sq_command_unref(SqCommand *cmd_type)
 	if (cmd_type->bit_field & SQB_TYPE_DYNAMIC) {
 		cmd_type->ref_count--;
 		if (cmd_type->ref_count == 0) {
-			// free SqType members
-			sq_type_final_self((SqType*)cmd_type);
-			// free SqCommand members
-			free((char*)cmd_type->parameter);
-			free((char*)cmd_type->description);
+			sq_command_final_self(cmd_type);
 			// free SqCommand struct
 			free(cmd_type);
 		}
@@ -123,6 +132,11 @@ SqCommand *sq_command_copy_static(SqCommand       *type_dest,
 	type_dest->description = strdup(static_type_src->description);
 
 	return type_dest;
+}
+
+void  sq_command_add_option(SqCommand *cmd_type, const SqOption *option, int n_option)
+{
+	sq_type_add_entry((SqType*)cmd_type, (SqEntry*)option, n_option, sizeof(SqOption));
 }
 
 void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array)
