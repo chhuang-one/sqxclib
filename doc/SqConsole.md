@@ -30,11 +30,11 @@ SqConsole use this to parse data from command-line and store parsed data in SqCo
 	|
 	`--- SqOption
 
-## Define a new command
+## 1 Define a new command statically
 
 define 'mycommand' that has two options - '--help' and '--quiet'
 
-#### 1. define value of command
+#### 1.1 define value of command
 
 	SqCommandValue
 	|
@@ -54,7 +54,7 @@ typedef struct MyCommandValue
 };
 ```
 
-#### 2. define options of command
+#### 1.2 define options of command statically
 
 ```c
 static const SqOption *mycommand_options[] = {
@@ -68,7 +68,7 @@ static const SqOption *mycommand_options[] = {
 };
 ```
 
-#### 3. define function of command handler
+#### 1.3 define function of command handler
 
 ```c++
 static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void *data)
@@ -77,7 +77,7 @@ static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void
 }
 ```
 
-#### 4. define command
+#### 1.4 define command statically
 
 ```c++
 static const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
@@ -107,7 +107,55 @@ static const SqCommand mycommand = {
  */
 ```
 
-#### 5. add command to SqConsole
+## 2 Define a new command dynamically
+
+* use C Language
+
+```c
+	SqOption  *option;
+	SqCommand *mycommand;
+
+	mycommand = sq_command_new("mycommand");
+	mycommand->size   = sizeof(MyCommandValue),
+	mycommand->handle = mycommand_handle;
+	mycommand->parameter   = strdup("mycommand parameterName");
+	mycommand->description = strdup("mycommand description");
+
+	option = sq_option_new(SQ_TYPE_BOOL);
+	option->offset        = offsetof(MyCommandValue, help);
+	option->name          = strdup("help");
+	option->shortcut      = strdup("h");
+	option->default_value = strdup("true");
+	option->description   = strdup("Display help for the given command.");
+
+	sq_command_add_option(mycommand, option);
+```
+
+* use C++ Language
+
+```c++
+	Sq::Option  *option;
+	Sq::Command *mycommand;
+
+	mycommand = new Sq::Command();
+	mycommand->initSelf("mycommand");
+	mycommand->size   = sizeof(MyCommandValue),
+	mycommand->handle = mycommand_handle;
+	mycommand->parameter   = strdup("mycommand parameterName");
+	mycommand->description = strdup("mycommand description");
+
+	option = new Sq::Option();
+	option->init(SQ_TYPE_BOOL);
+	option->offset        = offsetof(MyCommandValue, help);
+	option->name          = strdup("help");
+	option->shortcut      = strdup("h");
+	option->default_value = strdup("true");
+	option->description   = strdup("Display help for the given command.");
+
+	mycommand->addOption(option);
+```
+
+## 3 add command to SqConsole
 
 ```c
 	// C function
@@ -116,3 +164,4 @@ static const SqCommand mycommand = {
 	// C++ method
 	console->add(&mycommand)
 ```
+
