@@ -1,6 +1,6 @@
 # SqConsole
 
-SqConsole provide command-line interface. It must use with SqCommand and SqOption.
+SqConsole provide command-line interface (mainly for SqAppTool). It must use with SqCommand and SqOption.
 
 	Relationship of SqConsole, SqCommand, and SqOption.
 
@@ -116,7 +116,7 @@ static const SqCommand mycommand = {
 	SqCommand *mycommand;
 
 	mycommand = sq_command_new("mycommand");
-	mycommand->size   = sizeof(MyCommandValue),
+	mycommand->size   = sizeof(MyCommandValue);
 	mycommand->handle = mycommand_handle;
 	mycommand->parameter   = strdup("mycommand parameterName");
 	mycommand->description = strdup("mycommand description");
@@ -139,7 +139,7 @@ static const SqCommand mycommand = {
 
 	mycommand = new Sq::Command();
 	mycommand->initSelf("mycommand");
-	mycommand->size   = sizeof(MyCommandValue),
+	mycommand->size   = sizeof(MyCommandValue);
 	mycommand->handle = mycommand_handle;
 	mycommand->parameter   = strdup("mycommand parameterName");
 	mycommand->description = strdup("mycommand description");

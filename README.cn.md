@@ -21,7 +21,7 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
 
 6. 支持 SQLite, MySQL / MariaDB.
 
-## Database schema
+## 数据库架构
 
 There is a C structured data type that mappings to your database table "users".
 
@@ -353,7 +353,7 @@ use C++ methods to migrate schema and synchronize to database
 	storage->migrate(schema_v2); // migrate schema_v2
 
 	// synchronize schema to database and update schema/table status
-	// This mainly used by SQLite
+	// This is mainly used by SQLite
 	storage->migrate(NULL);
 
 	delete schema_v1;            // free unused schema_v1
@@ -367,14 +367,14 @@ use C functions to migrate schema and synchronize to database
 	sq_storage_migrate(storage, schema_v2); // migrate schema_v2
 
 	// synchronize schema to database and update schema/table status
-	// This Mainly used by SQLite
+	// This is mainly used by SQLite
 	sq_storage_migrate(storage, NULL);
 
 	sq_schema_free(schema_v1);              // free unused schema_v1
 	sq_schema_free(schema_v2);              // free unused schema_v2
 ```
 
-## CRUD
+## 增删查改
 
 use C functions
 
@@ -462,7 +462,7 @@ use C++ methods to open SQLite database
 	storage->open("sqxc_local");    // This will open file "sqxc_local.db"
 ```
 
-## Query builder
+## 查询生成器
 
 SQL statement
 
@@ -559,7 +559,7 @@ use C++ methods
 	}
 ```
 
-## Transaction
+## 交易 Transaction
 
 use C functions
 
@@ -602,6 +602,14 @@ use C++ methods
  Sqxc is interface for data parse and write.  
  User can link multiple Sqxc element to convert different types of data.  
  You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)  
+
+## SqApp
+ SqApp use configuration file (SqApp-config.h) to initialize database and do migrations for user's application.  
+ Document for SqApp in doc/[SqApp.md](doc/SqApp.md)  
+
+## SqConsole
+ SqConsole provide command-line interface (mainly for SqAppTool).  
+ Document for SqConsole in doc/[SqConsole.md](doc/SqConsole.md)  
 
 ## Others
  Document for SqEntry (SqColumn's base class/structure) in doc/[SqEntry.md](doc/SqEntry.md)  

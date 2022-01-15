@@ -1,13 +1,16 @@
 # SqApp
 
-SqApp use configuration file (SqApp-config.h) to initialize database and do migrations for user's application.
+SqApp use configuration file (SqApp-config.h) to initialize database and do migrations. It used by user's application.
 
 	SqApp
 	│
 	└─── SqAppTool
 
-SqApp is used by user's application.
-SqAppTool is used by command-line program - sqtool and sqtoolcpp.
+# SqAppTool
+
+SqAppTool is used by command-line program - **sqtool** and **sqtoolcpp**.  
+  
+Both **sqtool** and **sqtoolcpp** can generate migration and do migrate. They can help with the user's application that using SqApp library. The difference is that sqtool generate C migration file and sqtoolcpp generate C++ migration file.
 
 ## Configuration (SqApp-config.h)
 
