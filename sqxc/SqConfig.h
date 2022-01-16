@@ -50,7 +50,7 @@
 #endif
 #undef HAVE_MYSQL
 
-/* SqEntry.c */
+/* SqEntry.c, SqRelation-migration.c */
 // #define SQ_CONFIG_SQL_CASE_SENSITIVE
 
 /* Sqxc can process (skip) unknown array & object */
@@ -62,6 +62,9 @@
      user only specify "C struct type_name", program generate "SQL_table_name".
  */
 // #define SQ_CONFIG_NAMING_CONVENTION
+
+/* SqConsole.c */
+// #define SQ_CONFIG_COMMAND_CASE_SENSITIVE
 
 // ----------------------------------------------------------------------------
 // Default length (size)

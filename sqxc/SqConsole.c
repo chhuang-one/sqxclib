@@ -29,8 +29,8 @@
 #define COMMAND_BORDER_WIDTH    2
 
 // SqType SqCompareFunc
-static int  sq_type_cmp_name(SqType **type1, SqType **type2);
-static int  sq_type_cmp_str__name(const char *str,  SqType **type);
+static int  sq_command_cmp_name(SqCommand **cmd_type1, SqCommand **cmd_type2);
+static int  sq_command_cmp_str__name(const char *str,  SqCommand **cmd_type);
 
 SqConsole *sq_console_new()
 {
@@ -81,10 +81,10 @@ SqCommand  *sq_console_find(SqConsole *console, const char* command_name)
 
 	if (console->commands_sorted == false) {
 		console->commands_sorted =  true;
-		sq_ptr_array_sort(&console->commands, (SqCompareFunc)sq_type_cmp_name);
+		sq_ptr_array_sort(&console->commands, (SqCompareFunc)sq_command_cmp_name);
 	}
 	type = sq_ptr_array_search(&console->commands, command_name,
-	                           (SqCompareFunc)sq_type_cmp_str__name);
+	                           (SqCompareFunc)sq_command_cmp_str__name);
 	if (type)
 		type = *(SqCommand**)type;
 	return type;
@@ -251,27 +251,27 @@ void  sq_console_print_list(SqConsole  *console, const char *program_description
 // ------------------------------------
 // SqType SqCompareFunc
 
-static int  sq_type_cmp_name(SqType **type1, SqType **type2)
+static int  sq_command_cmp_name(SqCommand **cmd_type1, SqCommand **cmd_type2)
 {
 	const char *name1;
 	const char *name2;
 
-	name1 = (*type1) ? (*type1)->name : "";
-	name2 = (*type2) ? (*type2)->name : "";
-#if defined(SQ_CONFIG_COMMAND_CASE_SENSITIVE)
+	name1 = (*cmd_type1) ? (*cmd_type1)->name : "";
+	name2 = (*cmd_type2) ? (*cmd_type2)->name : "";
+#ifdef SQ_CONFIG_COMMAND_CASE_SENSITIVE
 	return strcmp(name1, name2);
 #else
 	return strcasecmp(name1, name2);
 #endif
 }
 
-static int  sq_type_cmp_str__name(const char *str,  SqType **type)
+static int  sq_command_cmp_str__name(const char *str,  SqCommand **cmd_type)
 {
 	const char *name;
 
-	name = (*type) ? (*type)->name : "";
-#if defined(SQ_CONFIG_COMMAND_CASE_SENSITIVE)
-	return strcmp(name1, name2);
+	name = (*cmd_type) ? (*cmd_type)->name : "";
+#ifdef SQ_CONFIG_COMMAND_CASE_SENSITIVE
+	return strcmp(str, name);
 #else
 	return strcasecmp(str, name);
 #endif
