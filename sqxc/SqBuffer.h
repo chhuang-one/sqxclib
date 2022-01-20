@@ -108,6 +108,38 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count);
 #endif
 
 // ----------------------------------------------------------------------------
+// C++ declarations: declare C++ data, function, method, and others.
+
+#ifdef __cplusplus
+
+namespace Sq
+{
+
+struct BufferMethod {
+	void   init();
+	void   final();
+
+	void   resize(int size);
+
+	char  *alloc(int position, int size);
+	char  *alloc(int size);
+
+	char  *require(int size);
+
+	void   write(char character);
+	char  *write(const char *string);
+	char  *write(const char *string, int length);
+
+	void   insert(int position, char character);
+	void   insert(int position, const char *string);
+	void   insert(int position, const char *string, int length);
+};
+
+};  // namespace Sq
+
+#endif // __cplusplus
+
+// ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
 #define SQ_BUFFER_MEMBERS(mem_name, size_name, writed_name)  \
@@ -115,58 +147,17 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count);
 	int    size_name;     \
 	int    writed_name
 
+#ifdef __cplusplus
+struct SqBuffer : Sq::BufferMethod           // <-- 1. inherit member function(method)
+#else
 struct SqBuffer
+#endif
 {
-//	SQ_BUFFER_MEMBERS(mem, size, writed)
+//	SQ_BUFFER_MEMBERS(mem, size, writed)     // <-- 2. inherit member variable
 	// ------ SqBuffer members ------
 	char  *mem;
 	int    size;
 	int    writed;
-
-#ifdef __cplusplus
-	void   init() {
-		sq_buffer_init(this);
-	}
-	void   final() {
-		sq_buffer_final(this);
-	}
-
-	void   resize(int size) {
-		sq_buffer_resize(this, size);
-	}
-
-	char  *alloc(int position, int size) {
-		return sq_buffer_alloc_at(this, position, size);
-	}
-	char  *alloc(int size) {
-		return sq_buffer_alloc_at(this, this->writed, size);
-	}
-
-	char  *require(int size) {
-		SQ_BUFFER_REQUIRE(this, size);
-		return mem;
-	}
-
-	void   write(char character) {
-		sq_buffer_write_c(this, character);
-	}
-	char  *write(const char *string) {
-		return SQ_BUFFER_WRITE(this, string);
-	}
-	char  *write(const char *string, int length) {
-		return SQ_BUFFER_WRITE_N(this, string, length);
-	}
-
-	void   insert(int position, char character) {
-		sq_buffer_insert_c(this, position, character);
-	}
-	void   insert(int position, const char *string) {
-		SQ_BUFFER_INSERT(this, position, string);
-	}
-	void   insert(int position, const char *string, int length) {
-		SQ_BUFFER_INSERT_N(this, position, string, length);
-	}
-#endif  // __cplusplus
 };
 
 // ----------------------------------------------------------------------------
@@ -238,5 +229,72 @@ char *sq_buffer_require(SqBuffer *buffer, int length);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
+// ----------------------------------------------------------------------------
+// C++ definitions: define C++ data, function, method, and others.
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+/* BufferMethod functions */
+
+inline void   BufferMethod::init() {
+	sq_buffer_init((SqBuffer*)this);
+}
+inline void   BufferMethod::final() {
+	sq_buffer_final((SqBuffer*)this);
+}
+
+inline void   BufferMethod::resize(int size) {
+	sq_buffer_resize((SqBuffer*)this, size);
+}
+
+inline char  *BufferMethod::alloc(int position, int size) {
+	return sq_buffer_alloc_at((SqBuffer*)this, position, size);
+}
+inline char  *BufferMethod::alloc(int size) {
+	return sq_buffer_alloc_at((SqBuffer*)this, ((SqBuffer*)this)->writed, size);
+}
+
+inline char  *BufferMethod::require(int size) {
+	SQ_BUFFER_REQUIRE((SqBuffer*)this, size);
+	return ((SqBuffer*)this)->mem;
+}
+
+inline void   BufferMethod::write(char character) {
+	sq_buffer_write_c((SqBuffer*)this, character);
+}
+inline char  *BufferMethod::write(const char *string) {
+	return SQ_BUFFER_WRITE((SqBuffer*)this, string);
+}
+inline char  *BufferMethod::write(const char *string, int length) {
+	return SQ_BUFFER_WRITE_N((SqBuffer*)this, string, length);
+}
+
+inline void   BufferMethod::insert(int position, char character) {
+	sq_buffer_insert_c((SqBuffer*)this, position, character);
+}
+inline void   BufferMethod::insert(int position, const char *string) {
+	SQ_BUFFER_INSERT((SqBuffer*)this, position, string);
+}
+inline void   BufferMethod::insert(int position, const char *string, int length) {
+	SQ_BUFFER_INSERT_N((SqBuffer*)this, position, string, length);
+}
+
+/* All derived struct/class must be C++11 standard-layout. */
+struct Buffer : SqBuffer {
+	// constructor
+	Buffer() {
+		sq_buffer_init(this);
+	}
+	// destructor
+	~Buffer() {
+		sq_buffer_final(this);
+	}
+};
+
+};  // namespace Sq
+
+#endif  // __cplusplus
 
 #endif  // SQ_BUFFER_H
