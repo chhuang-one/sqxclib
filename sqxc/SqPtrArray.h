@@ -26,14 +26,24 @@
 
 #include <SqDefine.h>
 
+// default
+#define SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT     3
+
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
+
+typedef struct SqPtrArray       SqPtrArray;
+typedef struct SqStringArray    SqStringArray;
+typedef struct SqIntptrArray    SqIntptrArray;
+
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// default
-#define SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT     3
-
-/* ----------------------------------------------------------------------------
+/*
 	macro for accessing variable of array
 
 	Header field of SqPtrArray
@@ -63,12 +73,14 @@ extern "C" {
 #define sq_ptr_array_destroy_func(array)  \
 		*(SqDestroyFunc*)(((SqPtrArray*)(array))->data -3)
 
-// ----------------------------------------------------------------------------
-// macro functions - parameter used only once in macro (except parameter 'array')
+/* macro functions - parameter used only once in macro (except parameter 'array') */
 
 //void  sq_ptr_array_init(void *array, int allocated_length, SqDestroyFunc destroy_func);
 #define sq_ptr_array_init(array, allocated_length, destroy_func)  \
 		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, destroy_func)
+
+#define sq_intptr_array_init(array, allocated_length)    \
+		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL)
 
 //void *sq_ptr_array_new(int allocated_length, SqDestroyFunc destroy_func);
 #define sq_ptr_array_new(allocated_length, destroy_func)  \
@@ -167,8 +179,7 @@ extern "C" {
 		     element##_addr < element##_end;                    \
 		     element##_addr++, element = *element##_addr)
 
-// ----------------------------------------------------------------------------
-// macro for maintaining C/C++ inline functions easily
+/* macro for maintaining C/C++ inline functions easily */
 
 //void *sq_ptr_array_insert_n(void *array, int index, const void *values, int count);
 #define SQ_PTR_ARRAY_INSERT_N(array, index, values, count)    \
@@ -198,8 +209,7 @@ extern "C" {
 		((SqPtrArray*)(array))->length -= (count);               \
 		}
 
-// ----------------------------------------------------------------------------
-// C functions
+/* C functions */
 
 void  *sq_ptr_array_init_full(void *array,
                               int allocated_length, int header_length,
@@ -222,7 +232,7 @@ void **sq_ptr_array_find_sorted(void *array, const void *key,
 #endif
 
 // ----------------------------------------------------------------------------
-// PtrArrayMethod : a template C++ struct is used by SqPtrArray and it's children.
+// C++ declarations: declare C++ data, function, method, and others.
 
 #ifdef __cplusplus
 
@@ -232,6 +242,8 @@ namespace Sq
 // This one is for derived use only, no data members here.
 // This one is NOT for directly use, it must has SqPtrArray data members.
 // Your derived struct/class must be C++11 standard-layout.
+
+/* PtrArrayMethod : a template C++ struct is used by SqPtrArray and it's children. */
 template<class Type>
 struct PtrArrayMethod
 {
@@ -267,8 +279,7 @@ struct PtrArrayMethod
 	void   foreach(std::function<void(Type  element)> func);
 	void   foreach(std::function<void(Type *address)> func);
 
-	// ----------------------------------------------------
-	// C++
+	/* PtrArrayMethod iterator (uncompleted) */
 
 	typedef Type        *iterator;
 	typedef const Type  *const_iterator;
@@ -287,50 +298,68 @@ struct PtrArrayMethod
 #endif // __cplusplus
 
 // ----------------------------------------------------------------------------
-// SqPtrArray - pointer array
+// C/C++ common definitions: define structue
 
 #define SQ_PTR_ARRAY_MEMBERS(Type, data_name, length_name)   \
 		Type     *data_name;    \
 		int       length_name
 
+
 #ifdef __cplusplus
-
-// C++ template works with C macro
-template<class Type = void*>
-struct SqPtrArrayTemplate : Sq::PtrArrayMethod<Type>
+struct SqPtrArray : Sq::PtrArrayMethod<void*>
+#else
+struct SqPtrArray
+#endif
 {
-	SQ_PTR_ARRAY_MEMBERS(Type, data, length);
+	SQ_PTR_ARRAY_MEMBERS(void*, data, length);
 /*	// ------ SqPtrArray members ------
-	void         **data;
-	int            length;
+	void    **data;
+	int       length;
  */
-
-	// ------ SqPtrArrayTemplate constructor/destructor ------
-	SqPtrArrayTemplate(int allocated_length = 0, SqDestroyFunc func = NULL);
-	~SqPtrArrayTemplate(void);
-	// copy constructor
-	SqPtrArrayTemplate(SqPtrArrayTemplate& src);
-	// move constructor
-	SqPtrArrayTemplate(SqPtrArrayTemplate&& src);
 };
-#define SQ_PTR_ARRAY(Type)     struct SqPtrArrayTemplate<Type>
 
-#else  // __cplusplus
+#ifdef __cplusplus
+struct SqStringArray : Sq::PtrArrayMethod<char*>
+#else
+struct SqStringArray
+#endif
+{
+	SQ_PTR_ARRAY_MEMBERS(char*, data, length);
+/*	// ------ SqPtrArray members ------
+	char    **data;
+	int       length;
+ */
+};
 
-// implement template by C macro
-#define SQ_PTR_ARRAY(Type)     struct { SQ_PTR_ARRAY_MEMBERS(Type, data, length); }
+#ifdef __cplusplus
+struct SqIntptrArray : Sq::PtrArrayMethod<intptr_t>
+#else
+struct SqIntptrArray
+#endif
+{
+	SQ_PTR_ARRAY_MEMBERS(intptr_t, data, length);
+/*	// ------ SqPtrArray members ------
+	intptr_t  *data;
+	int        length;
+ */
+};
 
-#endif  // __cplusplus
+#ifdef __cplusplus
+struct SqUintptrArray : Sq::PtrArrayMethod<uintptr_t>
+#else
+struct SqUintptrArray
+#endif
+{
+	SQ_PTR_ARRAY_MEMBERS(uintptr_t, data, length);
+/*	// ------ SqPtrArray members ------
+	uintptr_t *data;
+	int        length;
+ */
+};
 
-typedef SQ_PTR_ARRAY(void*)      SqPtrArray;
-typedef SQ_PTR_ARRAY(char*)      SqStringArray;
-typedef SQ_PTR_ARRAY(intptr_t)   SqIntptrArray;
-
-#define sq_intptr_array_init(array, allocated_length)    \
-		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL)
 
 // ----------------------------------------------------------------------------
-// C/C++ inline functions
+// C/C++ common definitions: define global inline function
 
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
 // C99 or C++ inline functions
@@ -386,110 +415,101 @@ void  sq_ptr_array_append_n(void *array, const void *values, int count);
 #endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------
-// C++ template
+// C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
 
-// ----------------------------------------------------------------------------
-// SqPtrArrayTemplate
-
-template<class Type>
-SqPtrArrayTemplate<Type>::SqPtrArrayTemplate(int allocated_length, SqDestroyFunc func) {
-	sq_ptr_array_init(this, allocated_length, func);
-}
-template<class Type>
-SqPtrArrayTemplate<Type>::~SqPtrArrayTemplate(void) {
-	sq_ptr_array_final(this);
-}
-// copy constructor
-template<class Type>
-SqPtrArrayTemplate<Type>::SqPtrArrayTemplate(SqPtrArrayTemplate& src) {
-	SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
-//	sq_ptr_array_destroy_func(this) = sq_ptr_array_destroy_func(&src);
-}
-// move constructor
-template<class Type>
-SqPtrArrayTemplate<Type>::SqPtrArrayTemplate(SqPtrArrayTemplate&& src) {
-	data = src.data;
-	length = src.length;
-	src.data = NULL;
-	src.length = 0;
-}
-
-// ----------------------------------------------------------------------------
-// C++ definitions: define C++ data, function, method, and others.
-
 namespace Sq {
 
-// ----------------------------------------------------------------------------
-// PtrArrayMethod template functions
+/* PtrArrayMethod template functions */
 
 template<class Type>
-inline Type *PtrArrayMethod<Type>::addr(int index)
-	{ return (Type*)sq_ptr_array_addr(this, index); }
+inline Type *PtrArrayMethod<Type>::addr(int index) {
+	return (Type*)sq_ptr_array_addr(this, index);
+}
 
 template<class Type>
-inline void  PtrArrayMethod<Type>::init(int allocated_length, SqDestroyFunc func)
-	{ sq_ptr_array_init_full(this, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, func); }
+inline void  PtrArrayMethod<Type>::init(int allocated_length, SqDestroyFunc func) {
+	sq_ptr_array_init_full(this, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, func);
+}
 template<class Type>
-inline void  PtrArrayMethod<Type>::final(void)
-	{ sq_ptr_array_final(this); }
+inline void  PtrArrayMethod<Type>::final(void) {
+	sq_ptr_array_final(this);
+}
 template<class Type>
-inline Type **PtrArrayMethod<Type>::alloc(int length)
-	{ return (Type**) sq_ptr_array_alloc(this, length); }
+inline Type **PtrArrayMethod<Type>::alloc(int length) {
+	return (Type**) sq_ptr_array_alloc(this, length);
+}
 template<class Type>
-inline Type **PtrArrayMethod<Type>::alloc(int index, int length)
-	{ return (Type**) sq_ptr_array_alloc_at(this, index, length); }
+inline Type **PtrArrayMethod<Type>::alloc(int index, int length) {
+	return (Type**) sq_ptr_array_alloc_at(this, index, length);
+}
 
 template<class Type>
-inline void  PtrArrayMethod<Type>::insert(int index, Type *values, int length)
-	{ SQ_PTR_ARRAY_INSERT_N(this, index, values, length); }
+inline void  PtrArrayMethod<Type>::insert(int index, Type *values, int length) {
+	SQ_PTR_ARRAY_INSERT_N(this, index, values, length);
+}
 template<class Type>
-inline void  PtrArrayMethod<Type>::insert(int index, Type  value)
-	{ sq_ptr_array_insert(this, index, value); }
+inline void  PtrArrayMethod<Type>::insert(int index, Type  value) {
+	sq_ptr_array_insert(this, index, value);
+}
 
 template<class Type>
-inline void  PtrArrayMethod<Type>::append(Type *values, int length)
-	{ SQ_PTR_ARRAY_APPEND_N(this, values, length); }
+inline void  PtrArrayMethod<Type>::append(Type *values, int length) {
+	SQ_PTR_ARRAY_APPEND_N(this, values, length);
+}
 template<class Type>
-inline void  PtrArrayMethod<Type>::append(Type  value)
-	{ sq_ptr_array_append(this, value); }
+inline void  PtrArrayMethod<Type>::append(Type  value) {
+	sq_ptr_array_append(this, value);
+}
 template<class Type>
-inline void  PtrArrayMethod<Type>::erase(int index, int length)
-	{ sq_ptr_array_erase(this, index, length); }
+inline void  PtrArrayMethod<Type>::erase(int index, int length) {
+	sq_ptr_array_erase(this, index, length);
+}
 template<class Type>
-inline void  PtrArrayMethod<Type>::erase(Type *addr, int length)
-	{ sq_ptr_array_erase_addr(this, (void**)addr, length); }
+inline void  PtrArrayMethod<Type>::erase(Type *addr, int length) {
+	sq_ptr_array_erase_addr(this, (void**)addr, length);
+}
 template<class Type>
-inline void  PtrArrayMethod<Type>::steal(int index, int length)
-	{ sq_ptr_array_steal(this, index, length); }
+inline void  PtrArrayMethod<Type>::steal(int index, int length) {
+	sq_ptr_array_steal(this, index, length);
+}
 template<class Type>
-inline void  PtrArrayMethod<Type>::steal(Type *addr, int length)
-	{ sq_ptr_array_steal_addr(this, (void**)addr, length); }
+inline void  PtrArrayMethod<Type>::steal(Type *addr, int length) {
+	sq_ptr_array_steal_addr(this, (void**)addr, length);
+}
 
 template<class Type>
-inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type  element)> func)
-	{ sq_ptr_array_foreach(this, element) { func((Type)element); } }
+inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type  element)> func) {
+	sq_ptr_array_foreach(this, element) {
+		func((Type)element);
+	}
+}
 template<class Type>
-inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type *address)> func)
-	{ sq_ptr_array_foreach_addr(this, address) { func((Type*)address); } }
+inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type *address)> func) {
+	sq_ptr_array_foreach_addr(this, address) {
+		func((Type*)address);
+	}
+}
 
 template<class Type>
-inline void  PtrArrayMethod<Type>::sort(SqCompareFunc func)
-	{ sq_ptr_array_sort(this, func); }
+inline void  PtrArrayMethod<Type>::sort(SqCompareFunc func) {
+	sq_ptr_array_sort(this, func);
+}
 template<class Type>
-inline Type *PtrArrayMethod<Type>::search(Type key, SqCompareFunc func)
-	{ return (Type*)sq_ptr_array_search(this, &key, func); }
+inline Type *PtrArrayMethod<Type>::search(Type key, SqCompareFunc func) {
+	return (Type*)sq_ptr_array_search(this, &key, func);
+}
 template<class Type>
-inline Type *PtrArrayMethod<Type>::find(Type key, SqCompareFunc func)
-	{ return (Type*)sq_ptr_array_find(this, &key, func); }
+inline Type *PtrArrayMethod<Type>::find(Type key, SqCompareFunc func) {
+	return (Type*)sq_ptr_array_find(this, &key, func);
+}
 template<class Type>
 inline Type *PtrArrayMethod<Type>::findSorted(Type key, SqCompareFunc func, int *insertedIndex) {
 	return (Type*)sq_ptr_array_find_sorted(this, &key, func, insertedIndex);
 }
 
-// --------------------------------------------------------
-// PtrArrayMethod iterator (uncompleted)
+/* PtrArrayMethod iterator (uncompleted) */
 
 template<class Type>
 inline int   PtrArrayMethod<Type>::size() {
@@ -524,24 +544,19 @@ inline Type  PtrArrayMethod<Type>::operator[](int index) {
 	return (Type)sq_ptr_array_at(this, index);
 }
 
-// ----------------------------------------------------------------------------
-// C++11 standard-layout
-
 // All derived struct/class must be C++11 standard-layout.
-#if 1     // defined(__APPLE__)
+
 template<class Type = void*>
-struct PtrArray : SqPtrArrayTemplate<Type>
+struct PtrArray : Sq::PtrArrayMethod<Type>
 {
-	// ------ SqPtrArrayTemplate constructor/destructor ------
+	// constructor
 	PtrArray(int allocated_length = 0, SqDestroyFunc func = NULL) {
 		sq_ptr_array_init(this, allocated_length, func);
 	}
-
-	// It doesn't need destructor because SqPtrArrayTemplate has been defined it.
-//	~PtrArray(void) {
-//		sq_ptr_array_final(this);
-//	}
-
+	// destructor
+	~PtrArray(void) {
+		sq_ptr_array_final(this);
+	}
 	// copy constructor
 	PtrArray(SqPtrArray& src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
@@ -555,16 +570,54 @@ struct PtrArray : SqPtrArrayTemplate<Type>
 		src.length = 0;
 	}
 };
-#else
-template<class Type = void*> struct PtrArray : SqPtrArrayTemplate<Type>
+
+struct IntptrArray : SqIntptrArray
 {
-	using SqPtrArrayTemplate<Type>::SqPtrArrayTemplate;
+	// constructor
+	IntptrArray(int allocated_length = 0) {
+		sq_ptr_array_init(this, allocated_length, NULL);
+	}
+	// destructor
+	~IntptrArray() {
+		sq_ptr_array_final(this);
+	}
+	// copy constructor
+	IntptrArray(IntptrArray& src) {
+		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
+	}
+	// move constructor
+	IntptrArray(IntptrArray&& src) {
+		data = src.data;
+		length = src.length;
+		src.data = NULL;
+		src.length = 0;
+	}
 };
-#endif
 
-typedef struct SqPtrArrayTemplate<intptr_t>    IntptrArray;
+struct UintptrArray : SqUintptrArray
+{
+	// constructor
+	UintptrArray(int allocated_length = 0) {
+		sq_ptr_array_init(this, allocated_length, NULL);
+	}
+	// destructor
+	~UintptrArray() {
+		sq_ptr_array_final(this);
+	}
+	// copy constructor
+	UintptrArray(UintptrArray& src) {
+		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
+	}
+	// move constructor
+	UintptrArray(UintptrArray&& src) {
+		data = src.data;
+		length = src.length;
+		src.data = NULL;
+		src.length = 0;
+	}
+};
 
-struct StringArray : SqPtrArrayTemplate<char*>
+struct StringArray : SqStringArray
 {
 	// for internal use only
 	void duplicateElement(int index, int length) {
@@ -577,16 +630,14 @@ struct StringArray : SqPtrArrayTemplate<char*>
 		}
 	}
 
-	// ------ StringArray constructor/destructor ------
+	// constructor
 	StringArray(int allocated_length = 0, SqDestroyFunc func = free) {
 		sq_ptr_array_init(this, allocated_length, func);
 	}
-
-	// It doesn't need destructor because SqPtrArrayTemplate has been defined it.
-//	~StringArray(void) {
-//		sq_ptr_array_final(this);
-//	}
-
+	// destructor
+	~StringArray() {
+		sq_ptr_array_final(this);
+	}
 	// copy constructor
 	StringArray(StringArray& src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
