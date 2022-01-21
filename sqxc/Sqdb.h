@@ -109,8 +109,7 @@ void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
 /* DbMethod : a C++ struct is used by Sqdb and it's children. */
 

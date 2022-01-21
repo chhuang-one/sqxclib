@@ -35,6 +35,7 @@
 typedef struct SqPtrArray       SqPtrArray;
 typedef struct SqStringArray    SqStringArray;
 typedef struct SqIntptrArray    SqIntptrArray;
+typedef struct SqUintptrArray   SqUintptrArray;
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -236,14 +237,13 @@ void **sq_ptr_array_find_sorted(void *array, const void *key,
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
 // This one is for derived use only, no data members here.
 // This one is NOT for directly use, it must has SqPtrArray data members.
 // Your derived struct/class must be C++11 standard-layout.
 
-/* PtrArrayMethod : a template C++ struct is used by SqPtrArray and it's children. */
+/* PtrArrayMethod is used by SqPtrArray and it's children. */
 template<class Type>
 struct PtrArrayMethod
 {
@@ -289,8 +289,8 @@ struct PtrArrayMethod
 	void   reserve(int n);
 	Type  *begin();
 	Type  *end();
-    Type   at(int index);
-    Type   operator[](int index);
+	Type   at(int index);
+	Type   operator[](int index);
 };
 
 };  // namespace Sq

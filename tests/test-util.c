@@ -86,7 +86,7 @@ void test_time_string()
 void test_util()
 {
 	test_name_convention();
-    test_time_string();
+	test_time_string();
 }
 
 // ----------------------------------------------------------------------------

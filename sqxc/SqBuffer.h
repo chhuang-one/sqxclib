@@ -112,8 +112,7 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count);
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
 struct BufferMethod {
 	void   init();

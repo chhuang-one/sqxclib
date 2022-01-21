@@ -190,8 +190,7 @@ void *sq_storage_query(SqStorage *storage, SqQuery *query, const SqType *contain
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
 /* StorageMethod : C++ struct is used by SqStorage and it's children. */
 

@@ -596,8 +596,7 @@ struct SqQuery
 
 #ifdef __cplusplus
 
-namespace Sq
-{
+namespace Sq {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
