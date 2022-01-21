@@ -19,6 +19,7 @@
 #include <string.h>
 
 #include <SqError.h>
+#include <SqType.h>
 #include <SqxcValue.h>
 #include <SqJoint.h>
 

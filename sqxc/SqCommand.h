@@ -71,12 +71,12 @@ void  sq_command_final_self(SqCommand *cmd_type);
 void  sq_command_ref(SqCommand *cmd_type);
 void  sq_command_unref(SqCommand *cmd_type);
 
-// copy data from static SqCommand to dynamic SqCommand. 'type_dest' must be raw memory.
-// if 'type_dest' is NULL, function will create dynamic SqCommand.
+// copy data from static SqCommand to dynamic SqCommand. 'cmd_type_dest' must be raw memory.
+// if 'cmd_type_dest' is NULL, function will create dynamic SqCommand.
 // if 'option_free_func' is NULL, function will use default value - sq_option_free
 // return dynamic SqCommand.
-SqCommand *sq_command_copy_static(SqCommand       *type_dest,
-                                  const SqCommand *static_type_src,
+SqCommand *sq_command_copy_static(SqCommand       *cmd_type_dest,
+                                  const SqCommand *static_cmd_type_src,
                                   SqDestroyFunc    option_free_func);
 
 void  sq_command_add_option(SqCommand *cmd_type, const SqOption *option, int n_option);
@@ -98,7 +98,7 @@ int   sq_command_parse_option(void *cmd_value, const SqType *cmd_type, Sqxc *src
 
 namespace Sq {
 
-/* --- declare methods for Sq::Command --- */
+/* --- declare methods for SqCommand and it's children --- */
 struct CommandMethod {
 	// initialize/finalize self
 	void  initSelf(const char *cmd_name) {
@@ -131,7 +131,7 @@ struct CommandMethod {
 	}
 };
 
-/* --- declare methods for Sq::CommandValue --- */
+/* --- declare methods for SqCommandValue and it's children --- */
 struct CommandValueMethod {
 	void *operator new(size_t size) {
 		return calloc(1, size);
@@ -232,12 +232,6 @@ struct SqCommandValue
  */
 
 	/* Add variable and function */                // <-- 3. Add variable and non-virtual function in derived struct.
-
-#ifdef __cplusplus
-	~SqCommandValue() {
-		sq_command_value_final(this);
-	}
-#endif
 };
 
 // ----------------------------------------------------------------------------
@@ -258,9 +252,31 @@ struct SqCommandValue
 
 namespace Sq {
 
-/* --- define C++11 standard-layout structures --- */
-typedef struct SqCommand         Command;
-typedef struct SqCommandValue    CommandValue;
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct Command : SqCommand {
+	// constructor
+	Command() {}
+	Command(const char *cmd_name) {
+		sq_command_init_self(this, cmd_name);
+	}
+	// destructor
+	~Command() {
+		sq_command_final_self(this);
+	}
+};
+
+struct CommandValue : SqCommandValue {
+	// constructor
+	CommandValue() {}
+	CommandValue(const SqCommand *cmd_type) {
+		sq_command_value_init(this, cmd_type);
+	}
+	// destructor
+	~CommandValue() {
+		sq_command_value_final(this);
+	}
+};
 
 };  // namespace Sq
 

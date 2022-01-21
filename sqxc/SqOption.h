@@ -55,7 +55,7 @@ int  sq_option_cmp_shortcut(SqOption **option1, SqOption **option2);
 
 namespace Sq {
 
-/* --- declare methods for Sq::Command --- */
+/* --- declare methods for SqOption and it's children --- */
 struct OptionMethod {
 	void  init(const SqType *type) {
 		sq_option_init((SqOption*)this, type);
@@ -123,8 +123,19 @@ struct SqOption
 
 namespace Sq {
 
-/* --- define C++11 standard-layout structures --- */
-typedef struct SqOption          Option;
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct Option : SqOption {
+	// constructor
+	Option() {}
+	Option(const SqType *type) {
+		sq_option_init(this, type);
+	}
+	// destructor
+	~Option() {
+		sq_option_final(this);
+	}
+};
 
 };  // namespace Sq
 

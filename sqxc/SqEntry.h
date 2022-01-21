@@ -18,12 +18,11 @@
 #include <stddef.h>    // NULL
 #include <stdbool.h>   // bool, true, false
 
-#include <SqType.h>    // typedef struct SqEntry
-
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
-//typedef struct SqEntry          SqEntry;
+typedef struct SqType           SqType;
+typedef struct SqEntry          SqEntry;
 typedef struct SqReentry        SqReentry;
 
 
@@ -100,6 +99,29 @@ int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
 #endif
 
 // ----------------------------------------------------------------------------
+// C++ declarations: declare C++ data, function, method, and others.
+
+#ifdef __cplusplus
+
+namespace Sq
+{
+
+/* --- declare methods for SqEntry and it's children --- */
+struct EntryMethod
+{
+	void  init(const SqType *type_info) {
+		sq_entry_init((SqEntry*)this, type_info);
+	}
+	void  final() {
+		sq_entry_final((SqEntry*)this);
+	}
+};
+
+};  // namespace Sq
+
+#endif // __cplusplus
+
+// ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
 /*
@@ -124,7 +146,11 @@ int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
 	size_t        offset;       \
 	unsigned int  bit_field
 
+#ifdef __cplusplus
+struct SqEntry : Sq::EntryMethod
+#else
 struct SqEntry
+#endif
 {
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
@@ -133,15 +159,6 @@ struct SqEntry
 	size_t        offset;
 	unsigned int  bit_field;
  */
-
-#ifdef __cplusplus
-	void  init(const SqType *type_info) {
-		sq_entry_init((SqEntry*)this, type_info);
-	}
-	void  final() {
-		sq_entry_final((SqEntry*)this);
-	}
-#endif
 };
 
 /*
@@ -180,9 +197,21 @@ struct SqReentry
 
 namespace Sq
 {
-// These are for directly use only. You can NOT derived it.
-typedef struct SqEntry          Entry;
+
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct Entry : SqEntry {
+	Entry() {}
+	Entry(const SqType *type_info) {
+		sq_entry_init(this, type_info);
+	}
+	~Entry() {
+		sq_entry_final(this);
+	}
+};
+
 typedef struct SqReentry        Reentry;
+
 };  // namespace Sq
 
 #endif  // __cplusplus

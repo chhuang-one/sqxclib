@@ -14,6 +14,7 @@
 
 #include <stdio.h>
 #include <SqError.h>
+#include <SqType.h>
 #include <Sqdb-migration.h>
 
 #ifdef _MSC_VER

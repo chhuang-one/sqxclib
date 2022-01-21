@@ -17,6 +17,7 @@
 #endif
 #include <stdio.h>      // snprintf
 
+#include <SqType.h>
 #include <SqxcValue.h>
 #include <SqStorage.h>
 #include <SqQuery.h>

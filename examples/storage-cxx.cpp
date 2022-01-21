@@ -164,7 +164,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	Sq::Table    *table;
 
 	// create table in storage->schema
-	schema = storage->schema;
+	schema = (Sq::Schema*)storage->schema;
 	schema->version++;
 
 	table = schema->create<Company>("companies");
@@ -397,7 +397,7 @@ void check_standard_layout()
 int  main(int argc, char *argv[])
 {
 //	Sq::DbConfigSqlite *dbconfig;
-	Sq::Db       *db;
+	Sq::DbMethod *db;
 	Sq::Storage  *storage;
 	Company      *company;
 	User         *user;
@@ -405,9 +405,9 @@ int  main(int argc, char *argv[])
 	check_standard_layout();
 
 #if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
-	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+	db = new Sq::DbSqlite();
 #elif defined(SQ_CONFIG_HAVE_MYSQL)
-	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
+	db = new Sq::DbMysql();
 #else
 	std::cerr << "No supported database" << std::endl;
 	return EXIT_SUCCESS;

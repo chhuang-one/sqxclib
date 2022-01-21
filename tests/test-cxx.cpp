@@ -68,7 +68,7 @@ void test_schema_with_designated_initializer()
 	Sq::Schema* schema;
 	Sq::Table*  table;
 
-	schema = sq_schema_new("current");
+	schema = new Sq::Schema("current");
 	table = schema->create<Company>("companies");
 	table->addColumn(UserColumns, SQ_N_PTRS(UserColumns));
 	delete schema;
@@ -79,7 +79,7 @@ void test_schema()
 	Sq::Schema* schema;
 	Sq::Table*  table;
 
-	schema = sq_schema_new("current");
+	schema = new Sq::Schema("current");
 
 //	table = schema->create("companies", NULL);
 	table = schema->create<Company>("companies");
@@ -106,7 +106,7 @@ void test_query_cpp()
 		JOIN ( SELECT * FROM User WHERE name = 'tom' ) AS u ON u.city_id = city.id
 		WHERE id > 30 AND ( age < '15' AND name = 'abc' )
 	 */
-	query = new SqQuery();
+	query = new Sq::Query();
 	query->from("city")
 		 ->join([query] {
 			query->from("User")

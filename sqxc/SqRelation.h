@@ -93,7 +93,7 @@ void            sq_relation_pool_free(SqRelationPool *pool, SqRelationNode *node
 
 namespace Sq {
 
-/* --- declare methods for Sq::Relation --- */
+/* --- declare methods for SqRelation and it's children --- */
 struct RelationMethod {
 	void  add(const void *from_object, const void *to_object, int no_reverse = 0);
 	void  erase(const void *from_object, const void *to_object, int no_reverse = 0, SqDestroyFunc to_object_free_func = NULL);
@@ -102,7 +102,7 @@ struct RelationMethod {
 	SqRelationNode *find(const void *from_object, const void *to_object);
 };
 
-/* --- declare methods for Sq::RelationNode --- */
+/* --- declare methods for SqRelationNode and it's children --- */
 struct RelationNodeMethod {
 	SqRelationNode *find(const void *object, SqRelationNode **prev_of_returned_node = NULL);
 	SqRelationNode *reverse();
@@ -126,16 +126,13 @@ struct SqRelation
 #endif
 {
 	SQ_PTR_ARRAY_MEMBERS(SqRelationNode, data, x2length);    // sorted by object address.
-	SqRelationPool  *pool;
+/*	// ------ SqPtrArray members ------
+	SqRelationNode  *data;
+	int              x2length;
+ */
 
-#ifdef __cplusplus
-	SqRelation(SqRelationPool *pool, int capacity) {
-		sq_relation_init((SqRelation*)this, pool, capacity);
-	}
-	~SqRelation() {
-		sq_relation_final((SqRelation*)this);
-	}
-#endif
+	// ------ SqRelation members ------
+	SqRelationPool  *pool;
 };
 
 /*
@@ -195,8 +192,17 @@ inline SqRelationNode *RelationNodeMethod::reverse() {
     return sq_relation_node_reverse((SqRelationNode*)this);
 }
 
-/* --- define C++11 standard-layout structures --- */
-typedef struct SqRelation        Relation;
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct Relation : SqRelation {
+	Relation(SqRelationPool *pool, int capacity) {
+		sq_relation_init(this, pool, capacity);
+	}
+	~Relation() {
+		sq_relation_final(this);
+	}
+};
+
 typedef struct SqRelationNode    RelationNode;
 typedef struct SqRelationPool    RelationPool;
 

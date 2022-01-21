@@ -125,8 +125,12 @@ struct TypeStl : SqType {
 			this->bit_field = 0;
 	}
 	~TypeStl() {
-//		if (this->bit_field & SQB_TYPE_DYNAMIC)
-		sq_type_unref((SqType*)this->entry);      // TypeStl use SqType.entry to store element type
+//		if (this->bit_field & SQB_TYPE_DYNAMIC) {
+			sq_type_unref((SqType*)this->entry);      // TypeStl use SqType.entry to store element type
+			//// The destructor of the base class was originally called here.
+			//// But it just doesn't need to call this.
+			// sq_type_final_self(this);
+//		}
 	}
 
 	// for dynamic allocated Sq::TypeStl

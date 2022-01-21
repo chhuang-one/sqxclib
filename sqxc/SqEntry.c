@@ -15,6 +15,7 @@
 #include <SqConfig.h>
 #include <SqError.h>
 #include <SqEntry.h>
+#include <SqType.h>
 
 #define SQ_TYPE_N_ENTRY_DEFAULT    SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 

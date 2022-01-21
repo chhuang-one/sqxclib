@@ -178,9 +178,11 @@ void    sq_query_order_sorted(SqQuery *query, uintptr_t sqn_type);
 #define sq_query_desc    sq_query_order_by_desc
 
 // SQL: DELETE FROM
+// call this function at last (before generating SQL statement).
 void    sq_query_delete(SqQuery *query);
 
 // SQL: TRUNCATE TABLE
+// call this function at last (before generating SQL statement).
 void    sq_query_truncate(SqQuery *query);
 
 // SQL statements
@@ -280,13 +282,6 @@ struct SqQuery
 
 #ifdef __cplusplus
 	// C++11 standard-layout
-
-	SqQuery() {
-		sq_query_init(this, NULL);
-	}
-	~SqQuery() {
-		sq_query_final(this);
-	}
 
 	SqQuery *operator->() {
 		return this;
@@ -603,8 +598,17 @@ struct SqQuery
 
 namespace Sq
 {
-// These are for directly use only. You can NOT derived it.
-typedef struct SqQuery          Query;
+
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct Query : SqQuery {
+	Query() {
+		sq_query_init(this, NULL);
+	}
+	~Query() {
+		sq_query_final(this);
+	}
+};
 
 };  // namespace Sq
 

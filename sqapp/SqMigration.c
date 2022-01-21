@@ -18,6 +18,7 @@
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
+#include <SqType.h>
 #include <SqxcValue.h>
 #include <SqMigration.h>
 

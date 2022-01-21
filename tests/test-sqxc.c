@@ -177,24 +177,24 @@ void test_sqxc_jsonc_input()
 
 User *test_sqxc_jsonc_input_user()
 {
-	Sqxc *xcjsonc;
 	Sqxc *xcvalue;
-	Sqxc *xc;
 	User *user;
 
 	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
-	xcjsonc = sqxc_find(xcvalue, SQXC_INFO_JSONC_PARSER);
 	sqxc_value_element(xcvalue) = &UserType;
 	sqxc_value_container(xcvalue) = NULL;
 
 	sqxc_ready(xcvalue, NULL);
 
 #if 0
+	Sqxc *xcjsonc;
+	xcjsonc = sqxc_find(xcvalue, SQXC_INFO_JSONC_PARSER);
 	xcjsonc->type = SQXC_TYPE_STRING;
 	xcjsonc->name = NULL;
 	xcjsonc->value.string = (char*)json_object_string;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
 #else
+	Sqxc *xc;
 	xc = xcvalue;
 
 	xc->type = SQXC_TYPE_OBJECT;
@@ -210,7 +210,6 @@ User *test_sqxc_jsonc_input_user()
 
 	xc->type = SQXC_TYPE_OBJECT_END;
 	xc = sqxc_send(xc);
-
 #endif
 
 	sqxc_finish(xcvalue, NULL);

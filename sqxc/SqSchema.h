@@ -125,12 +125,6 @@ struct SqSchema
 		free(instance);
 	}
  */
-	SqSchema(const char *name = NULL) {
-		sq_schema_init(this, name);
-	}
-	~SqSchema() {
-		sq_schema_final(this);
-	}
 
 	SqTable *create(const char *table_name,
 	                const char *type_name,
@@ -172,8 +166,16 @@ struct SqSchema
 namespace Sq
 {
 
-// These are for directly use only. You can NOT derived it.
-typedef struct SqSchema     Schema;
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct Schema : SqSchema {
+	Schema(const char *name = NULL) {
+		sq_schema_init(this, name);
+	}
+	~Schema() {
+		sq_schema_final(this);
+	}
+};
 
 };  // namespace Sq
 

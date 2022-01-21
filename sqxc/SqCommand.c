@@ -115,23 +115,23 @@ void sq_command_unref(SqCommand *cmd_type)
 	}
 }
 
-SqCommand *sq_command_copy_static(SqCommand       *type_dest,
-                                  const SqCommand *static_type_src,
+SqCommand *sq_command_copy_static(SqCommand       *cmd_type_dest,
+                                  const SqCommand *static_cmd_type_src,
                                   SqDestroyFunc    option_free_func)
 {
-	if (type_dest == NULL)
-		type_dest = malloc(sizeof(SqCommand));
+	if (cmd_type_dest == NULL)
+		cmd_type_dest = malloc(sizeof(SqCommand));
 	if (option_free_func == NULL)
 		option_free_func = (SqDestroyFunc)sq_option_free;
 
 	// copy SqType members
-	sq_type_copy_static((SqType*)type_dest, (SqType*)static_type_src, option_free_func);
+	sq_type_copy_static((SqType*)cmd_type_dest, (SqType*)static_cmd_type_src, option_free_func);
 	// copy SqCommand members
-	type_dest->handle = static_type_src->handle;
-	type_dest->parameter = strdup(static_type_src->parameter);
-	type_dest->description = strdup(static_type_src->description);
+	cmd_type_dest->handle = static_cmd_type_src->handle;
+	cmd_type_dest->parameter = strdup(static_cmd_type_src->parameter);
+	cmd_type_dest->description = strdup(static_cmd_type_src->description);
 
-	return type_dest;
+	return cmd_type_dest;
 }
 
 void  sq_command_add_option(SqCommand *cmd_type, const SqOption *option, int n_option)

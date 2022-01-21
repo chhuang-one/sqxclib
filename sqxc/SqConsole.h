@@ -58,7 +58,7 @@ void       sq_console_print_list(SqConsole  *console, const char *program_descri
 
 namespace Sq {
 
-/* --- declare methods for Sq::Console --- */
+/* --- declare methods for SqConsole and it's children --- */
 struct ConsoleMethod {
 	void  add(const SqCommand *command_type);
 	void  printHelp(const SqCommand *command = NULL);
@@ -98,15 +98,6 @@ struct SqConsole
 	char      *program_name;
 	Sqxc      *xc_input;
 	SqBuffer   buf;
-
-#ifdef __cplusplus
-	SqConsole() {
-		sq_console_init(this);
-	}
-	~SqConsole() {
-		sq_console_final(this);
-	}
-#endif  // __cplusplus
 };
 
 // ----------------------------------------------------------------------------
@@ -141,9 +132,16 @@ inline SqCommandValue *ConsoleMethod::parse(int argc, char **argv, bool argv_has
 	return sq_console_parse((SqConsole*)this, argc, argv, argv_has_command);
 }
 
+/* All derived struct/class must be C++11 standard-layout. */
 
-/* --- define C++11 standard-layout structures --- */
-typedef struct SqConsole         Console;
+struct Console : SqConsole {
+	Console() {
+		sq_console_init(this);
+	}
+	~Console() {
+		sq_console_final(this);
+	}
+};
 
 };  // namespace Sq
 

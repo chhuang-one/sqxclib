@@ -29,13 +29,13 @@
 #endif
 
 #include <SqPtrArray.h>
+#include <SqEntry.h>
 #include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
 typedef struct SqType        SqType;
-typedef struct SqEntry       SqEntry;
 
 typedef void  (*SqTypeFunc)(void *instance, const SqType *type);
 typedef int   (*SqTypeParseFunc)(void *instance, const SqType *type, Sqxc *xc_src);
@@ -226,7 +226,7 @@ struct TypeMethod {
 
 	// find SqEntry in SqType.entry.
 	// If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
-	SqEntry **findEntry(const void *key, SqCompareFunc cmp_func = NULL);
+	Sq::Entry **findEntry(const void *key, SqCompareFunc cmp_func = NULL);
 
 	// sort SqType.entry by name if SqType is dynamic.
 	void  sortEntry();
@@ -347,8 +347,8 @@ struct SqType
 
 	// find SqEntry in SqType.entry.
 	// If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
-	SqEntry **findEntry(const void *key, SqCompareFunc cmp_func = NULL) {
-		return (SqEntry**)sq_type_find_entry((const SqType*)this, key, cmp_func);
+	Sq::Entry **findEntry(const void *key, SqCompareFunc cmp_func = NULL) {
+		return (Sq::Entry**)sq_type_find_entry((const SqType*)this, key, cmp_func);
 	}
 	// sort SqType.entry by name if SqType is dynamic.
 	void  sortEntry() {
@@ -368,12 +368,18 @@ struct SqType
 	void     eraseEntry(SqEntry **element_addr, int count = 1) {
 		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, element_addr, count);
 	}
+	void     eraseEntry(Sq::Entry **element_addr, int count = 1) {
+		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
+	}
 	// steal entry in SqType if SqType is dynamic.
 	void     stealEntry(void **element_addr, int count = 1) {
 		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, element_addr, count);
 	}
 	void     stealEntry(SqEntry **element_addr, int count = 1) {
 		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, element_addr, count);
+	}
+	void     stealEntry(Sq::Entry **element_addr, int count = 1) {
+		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
 	}
 #endif  // __cplusplus
 };
@@ -586,8 +592,8 @@ inline void  TypeMethod::addEntry(const SqEntry **entry_ptrs, int n_entry_ptrs) 
 
 // find SqEntry in SqType.entry.
 // If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
-inline SqEntry **TypeMethod::findEntry(const void *key, SqCompareFunc cmp_func) {
-	return (SqEntry**)sq_type_find_entry((const SqType*)this, key, cmp_func);
+inline Sq::Entry **TypeMethod::findEntry(const void *key, SqCompareFunc cmp_func) {
+	return (Sq::Entry**)sq_type_find_entry((const SqType*)this, key, cmp_func);
 }
 // sort SqType.entry by name if SqType is dynamic.
 inline void  TypeMethod::sortEntry() {
@@ -627,8 +633,20 @@ inline void     TypeMethod::stealEntry(SqEntry **element_addr, int count) {
 	}
  */
 
-/* --- define C++11 standard-layout structures --- */
-typedef struct SqType    Type;
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct Type : SqType {
+	Type() {}
+	Type(int prealloc_size, SqDestroyFunc entry_destroy_func) {
+		sq_type_init_self(this, prealloc_size, entry_destroy_func);
+	}
+	Type(int prealloc_size, void (*entry_destroy_func)(SqEntry*)) {
+		sq_type_init_self(this, prealloc_size, (SqDestroyFunc)entry_destroy_func);
+	}
+	~Type(void) {
+		sq_type_final_self(this);
+	}
+};
 
 };  // namespace Sq
 

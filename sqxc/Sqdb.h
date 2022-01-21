@@ -21,6 +21,7 @@
 
 #include <SqBuffer.h>
 #include <SqSchema.h>
+#include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
@@ -120,7 +121,7 @@ struct DbMethod
 	int  open(const char *name);
 	int  close(void);
 	int  exec(const char *sql, Sqxc *xc, void *reserve = NULL);
-	int  exec(const char *sql, XcMethod *xc, void *reserve = NULL);
+	int  exec(const char *sql, Sq::XcMethod *xc, void *reserve = NULL);
 	int  migrate(SqSchema *schema_cur, SqSchema *schema_next);
 };
 
@@ -194,12 +195,6 @@ struct Sqdb
 	// schema version in SQL database
 	int             version;
  */
-
-#ifdef __cplusplus
-	~Sqdb(void) {
-		sqdb_final(this);
-	}
-#endif
 };
 
 /* SqdbConfig - setting of SQL product */
@@ -235,17 +230,20 @@ inline int  DbMethod::close(void) {
 inline int  DbMethod::exec(const char *sql, Sqxc *xc, void *reserve) {
 	return sqdb_exec((Sqdb*)this, sql, xc, reserve);
 }
-inline int  DbMethod::exec(const char *sql, XcMethod *xc, void *reserve) {
+inline int  DbMethod::exec(const char *sql, Sq::XcMethod *xc, void *reserve) {
 	return sqdb_exec((Sqdb*)this, sql, (Sqxc*)xc, reserve);
 }
 inline int  DbMethod::migrate(SqSchema *schema_cur, SqSchema *schema_next) {
 	return sqdb_migrate((Sqdb*)this, schema_cur, schema_next);
 }
 
-/* --- define C++11 standard-layout structures --- */
+/* All derived struct/class must be C++11 standard-layout. */
 
-// This one is for directly use only. You can NOT derived it.
-typedef struct Sqdb        Db;
+struct Db : Sqdb {
+	~Db(void) {
+		sqdb_final(this);
+	}
+};
 
 };  // namespace Sq
 

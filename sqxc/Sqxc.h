@@ -313,9 +313,9 @@ struct XcMethod
 	void   freeChain();
 
 	Sqxc  *insert(Sqxc *xc_element, int position = -1);
-	Sqxc  *insert(Sq::XcMethod *xc_element, int position = -1);
+	Sqxc  *insert(XcMethod *xc_element, int position = -1);
 	Sqxc  *steal(Sqxc *xc_element);
-	Sqxc  *steal(Sq::XcMethod *xc_element);
+	Sqxc  *steal(XcMethod *xc_element);
 	Sqxc  *find(const SqxcInfo *info);
 	Sqxc  *nth(int position);
 
@@ -486,12 +486,6 @@ struct Sqxc
 
 	// input / output arguments
 	void       **error;
-
-#ifdef __cplusplus
-	~Sqxc(void) {
-		sqxc_final(this);
-	}
-#endif
 };
 
 // ----------------------------------------------------------------------------
@@ -517,13 +511,13 @@ inline void   XcMethod::freeChain() {
 inline Sqxc  *XcMethod::insert(Sqxc *xc_element, int position) {
 	return sqxc_insert((Sqxc*)this, xc_element, position);
 }
-inline Sqxc  *XcMethod::insert(Sq::XcMethod *xc_element, int position) {
+inline Sqxc  *XcMethod::insert(XcMethod *xc_element, int position) {
 	return sqxc_insert((Sqxc*)this, (Sqxc*)xc_element, position);
 }
 inline Sqxc  *XcMethod::steal(Sqxc *xc_element) {
 	return sqxc_steal((Sqxc*)this, xc_element);
 }
-inline Sqxc  *XcMethod::steal(Sq::XcMethod *xc_element) {
+inline Sqxc  *XcMethod::steal(XcMethod *xc_element) {
 	return sqxc_steal((Sqxc*)this, (Sqxc*)xc_element);
 }
 inline Sqxc  *XcMethod::find(const SqxcInfo *info) {
@@ -619,8 +613,13 @@ inline Sqxc *XcMethod::sendArrayEnd(const char *entry_name) {
 	return xc;
 }
 
-// These are for directly use only. You can NOT derived it.
-typedef struct Sqxc             Xc;
+/* All derived struct/class must be C++11 standard-layout. */
+struct Xc : Sqxc {
+	~Xc() {
+		sqxc_final(this);
+	}
+};
+
 typedef struct SqxcInfo         XcInfo;
 typedef struct SqxcNested       XcNested;
 

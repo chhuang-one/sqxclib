@@ -20,6 +20,7 @@
 #include <SqError.h>
 #include <SqBuffer.h>
 #include <SqUtil.h>
+#include <SqType.h>
 #include <SqSchema.h>
 
 #ifdef _MSC_VER

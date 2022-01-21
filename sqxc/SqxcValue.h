@@ -162,6 +162,27 @@ struct XcValue : SqxcValue
 	~XcValue() {
 		sqxc_final((Sqxc*)this);
 	}
+
+	void  setElement(const SqType *element) {
+		this->element = element;
+	}
+	const SqType *getElement() {
+		return this->element;
+	}
+
+	void  setContainer(const SqType *container) {
+		this->container = container;
+	}
+	const SqType *getContainer() {
+		return this->container;
+	}
+
+	void  setInstance(void *instance) {
+		this->instance = instance;
+	}
+	void *getInstance() {
+		return this->instance;
+	}
 };
 
 };  // namespace Sq

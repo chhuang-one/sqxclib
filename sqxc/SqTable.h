@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 
+#include <SqType.h>
 #include <SqEntry.h>
 #include <SqRelation.h>
 
