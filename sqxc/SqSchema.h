@@ -89,6 +89,38 @@ SqTable *sq_schema_find(SqSchema *schema, const char *table_name);
 #endif
 
 // ----------------------------------------------------------------------------
+// C++ declarations: declare C++ data, function, method, and others.
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+/* SchemaMethod is used by SqSchema and it's children. */
+struct SchemaMethod
+{
+	Sq::Table *create(const char   *table_name,
+	                  const char   *type_name,
+	                  const SqType *type_info = NULL,
+	                  size_t        instance_size = 0);
+
+	Sq::Table *create(const char *table_name, const SqType *type_info);
+
+	template <class StructType>
+	Sq::Table *create(const char *name);
+
+	Sq::Table *alter(const char *name, const SqType *type_info = NULL);
+	void       drop(const char *name);
+	void       rename(const char *from, const char *to);
+
+	Sq::Table *find(const char *table_name);
+};
+
+};  // namespace Sq
+
+#endif  // __cplusplus
+
+
+// ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
 /*
@@ -99,7 +131,11 @@ SqTable *sq_schema_find(SqSchema *schema, const char *table_name);
 	`--- SqSchema
  */
 
+#ifdef __cplusplus
+struct SqSchema : Sq::SchemaMethod
+#else
 struct SqSchema
+#endif
 {
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
@@ -114,48 +150,6 @@ struct SqSchema
 	SqRelation     *relation;         // relation of tables
 
 	int             version;
-#ifdef __cplusplus
-	// C++11 standard-layout
-	// ----------------------------------------------------
-/*
-	void *operator new(size_t size) {
-		return malloc(size);
-	}
-	void operator delete(void *instance) {
-		free(instance);
-	}
- */
-
-	SqTable *create(const char *table_name,
-	                const char *type_name,
-	                const SqType *type_info = NULL,
-	                size_t instance_size = 0) {
-		return sq_schema_create_full(this, table_name, type_name, type_info, instance_size);
-	}
-
-	SqTable *create(const char *table_name, const SqType *type_info) {
-		return sq_schema_create_full(this, table_name, NULL, type_info, 0);
-	}
-
-	template <class StructType>
-	SqTable *create(const char *name) {
-		return sq_schema_create_full(this, name, typeid(StructType).name(), NULL, sizeof(StructType));
-	}
-
-	SqTable *alter(const char *name, const SqType *type_info = NULL) {
-		return sq_schema_alter(this, name, type_info);
-	}
-	void  drop(const char *name) {
-		sq_schema_drop(this, name);
-	}
-	void  rename(const char *from, const char *to) {
-		sq_schema_rename(this, from, to);
-	}
-
-	SqTable *find(const char *table_name) {
-		return sq_schema_find(this, table_name);
-	}
-#endif  // __cplusplus
 };
 
 // ----------------------------------------------------------------------------
@@ -163,8 +157,39 @@ struct SqSchema
 
 #ifdef __cplusplus
 
-namespace Sq
+namespace Sq {
+
+/* SchemaMethod functions */
+inline Sq::Table *SchemaMethod::create(const char   *table_name,
+                                       const char   *type_name,
+                                       const SqType *type_info,
+                                       size_t        instance_size)
 {
+	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, type_name, type_info, instance_size);
+}
+
+inline Sq::Table *SchemaMethod::create(const char *table_name, const SqType *type_info) {
+	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, NULL, type_info, 0);
+}
+
+template <class StructType>
+inline Sq::Table *SchemaMethod::create(const char *name) {
+	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, name, typeid(StructType).name(), NULL, sizeof(StructType));
+}
+
+inline Sq::Table *SchemaMethod::alter(const char *name, const SqType *type_info) {
+	return (Sq::Table*)sq_schema_alter((SqSchema*)this, name, type_info);
+}
+inline void  SchemaMethod::drop(const char *name) {
+	sq_schema_drop((SqSchema*)this, name);
+}
+inline void  SchemaMethod::rename(const char *from, const char *to) {
+	sq_schema_rename((SqSchema*)this, from, to);
+}
+
+inline Sq::Table *SchemaMethod::find(const char *table_name) {
+	return (Sq::Table*)sq_schema_find((SqSchema*)this, table_name);
+}
 
 /* All derived struct/class must be C++11 standard-layout. */
 
