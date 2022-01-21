@@ -71,8 +71,8 @@ namespace Sq {
  */
 
 struct AppMethod {
-	AppMethod();
-	~AppMethod();
+	void  init();
+	void  final();
 
 	int   openDatabase(const char *db_database = NULL);
 	void  closeDatabase(void);
@@ -90,7 +90,7 @@ struct AppMethod {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*	SqApp
+/*	SqApp use configuration file (SqApp-config.h) to initialize database and do migrations. It used by user's application.
  */
 
 #define SQ_APP_MEMBERS                  \
@@ -136,10 +136,10 @@ struct SqApp
 
 namespace Sq {
 
-inline AppMethod::AppMethod() {
+inline void  AppMethod::init() {
 	sq_app_init((SqApp*)this);
 }
-inline AppMethod::~AppMethod() {
+inline void  AppMethod::final() {
 	sq_app_final((SqApp*)this);
 }
 
@@ -147,7 +147,7 @@ inline int   AppMethod::openDatabase(const char *db_database) {
 	return sq_app_open_database((SqApp*)this, db_database);
 }
 inline void  AppMethod::closeDatabase(void) {
-	return sq_app_close_database((SqApp*)this);
+	sq_app_close_database((SqApp*)this);
 }
 
 inline int   AppMethod::makeSchema(int migration_id) {
@@ -161,8 +161,16 @@ inline int   AppMethod::rollback(int step) {
 	return sq_app_rollback((SqApp*)this, step);
 }
 
-/* --- define C++11 standard-layout structures --- */
-typedef struct SqApp     App;
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct App : SqApp {
+	App() {
+		sq_app_init(this);
+	}
+	~App() {
+		sq_app_final(this);
+	}
+};
 
 };  // namespace Sq
 

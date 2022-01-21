@@ -95,7 +95,7 @@ struct AppToolMethod : AppMethod {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*	SqAppTool
+/*	SqAppTool is used by command-line program - sqtool and sqtoolcpp.
 
     SqApp
     |
@@ -127,15 +127,6 @@ struct SqAppTool
 	SqConsole      *console;
 	SqBuffer        buffer;     // buffer for temporary use
 	SqPairs         pairs;    	// Key-Value pairs for temporary use
-
-#ifdef __cplusplus
-	SqAppTool(const char *program_name) {
-		init(program_name);
-	}
-	~SqAppTool() {
-		final();
-	}
-#endif  // __cplusplus
 };
 
 // ----------------------------------------------------------------------------
@@ -175,8 +166,16 @@ inline int  AppToolMethod::makeMigration(const char *template_filename,
 			template_filename, migration_name, pairs);
 }
 
-/* --- define C++11 standard-layout structures --- */
-typedef struct SqAppTool     AppTool;
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct AppTool : SqAppTool {
+	AppTool(const char *program_name) {
+		init(program_name);
+	}
+	~AppTool() {
+		final();
+	}
+};
 
 };  // namespace Sq
 
