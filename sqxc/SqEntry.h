@@ -103,23 +103,7 @@ int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
 
 #ifdef __cplusplus
 
-namespace Sq
-{
-
-/*	EntryMethod : C++ struct is used by SqEntry's children.
-
-	Note: If you add, remove, or change methods here, do the same things in SqEntry.
- */
-
-struct EntryMethod
-{
-	void  init(const SqType *type_info) {
-		sq_entry_init((SqEntry*)this, type_info);
-	}
-	void  final() {
-		sq_entry_final((SqEntry*)this);
-	}
-};
+namespace Sq {
 
 };  // namespace Sq
 
@@ -208,8 +192,21 @@ struct SqReentry
 
 #ifdef __cplusplus
 
-namespace Sq
+namespace Sq {
+
+/*	EntryMethod is used by SqEntry's children.
+
+	Note: If you add, remove, or change methods here, do the same things in SqEntry.
+ */
+struct EntryMethod
 {
+	void  init(const SqType *type_info) {
+		sq_entry_init((SqEntry*)this, type_info);
+	}
+	void  final() {
+		sq_entry_final((SqEntry*)this);
+	}
+};
 
 /* All derived struct/class must be C++11 standard-layout. */
 
