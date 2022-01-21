@@ -29,13 +29,13 @@
 #endif
 
 #include <SqPtrArray.h>
-#include <SqEntry.h>
+#include <SqEntry.h>       // typedef struct SqType
 #include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
-typedef struct SqType        SqType;
+//typedef struct SqType        SqType;
 
 typedef void  (*SqTypeFunc)(void *instance, const SqType *type);
 typedef int   (*SqTypeParseFunc)(void *instance, const SqType *type, Sqxc *xc_src);
@@ -195,7 +195,7 @@ Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
 namespace Sq {
 
-/*	TypeMethod : C++ struct is used by SqType and it's children.
+/*	TypeMethod : C++ struct is used by SqType's children.
 
 	Note: If you add, remove, or change methods here, do the same things in SqType.
  */

@@ -106,7 +106,11 @@ int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
 namespace Sq
 {
 
-/* --- declare methods for SqEntry and it's children --- */
+/*	EntryMethod : C++ struct is used by SqEntry's children.
+
+	Note: If you add, remove, or change methods here, do the same things in SqEntry.
+ */
+
 struct EntryMethod
 {
 	void  init(const SqType *type_info) {
@@ -138,6 +142,8 @@ struct EntryMethod
 
 	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
 	      C++ user can initialize static structure easily.
+
+	SqEntry must have no base struct because I need use aggregate initialization with it.
  */
 
 #define SQ_ENTRY_MEMBERS        \
@@ -146,11 +152,7 @@ struct EntryMethod
 	size_t        offset;       \
 	unsigned int  bit_field
 
-#ifdef __cplusplus
-struct SqEntry : Sq::EntryMethod
-#else
 struct SqEntry
-#endif
 {
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
@@ -159,6 +161,17 @@ struct SqEntry
 	size_t        offset;
 	unsigned int  bit_field;
  */
+
+#ifdef __cplusplus
+	/* Note: If you add, remove, or change methods here, do the same things in Sq::EntryMethod. */
+
+	void  init(const SqType *type_info) {
+		sq_entry_init((SqEntry*)this, type_info);
+	}
+	void  final() {
+		sq_entry_final((SqEntry*)this);
+	}
+#endif
 };
 
 /*
