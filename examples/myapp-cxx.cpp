@@ -18,33 +18,54 @@
 #include <sqxclib.h>
 #include <SqApp.h>
 
-/*
+#define USE_DERVIDED_MYAPP    0
+
+#if USE_DERVIDED_MYAPP == 0
+/*	In this case, MyApp can be C++ standard layout or NOT. */
+class MyApp
+{
+private:
+	Sq::App  base;
+
+public:
+	int   openDatabase(const char *db_database = NULL) {
+		return base.openDatabase(db_database);
+	}
+	void  closeDatabase(void) {
+		base.closeDatabase();
+	}
+	int   makeSchema(int migration_id = 0) {
+		return base.makeSchema(migration_id);
+	}
+	int   migrate(int step = 0) {
+		return base.migrate(step);
+	}
+	int   rollback(int step = 0) {
+		return base.rollback(step);
+	}
+};
+
+#else
+/*	In this case, MyApp must be C++ standard layout.
+
 	SqApp
 	|
 	`--- MyApp
  */
-
 struct MyApp : Sq::AppMethod                  // <-- 1. inherit C++ member function(method)
 {
 	SQ_APP_MEMBERS;                           // <-- 2. inherit member variable
-/*	// ------ SqApp members ------
-	Sqdb                *db;
-	SqdbConfig          *db_config;
-	const char          *db_database;
-	const SqMigration  **migrations;
-	int                  n_migrations;
-	SqStorage           *storage;
- */
 
-	// ------ MyApp members ------            // <-- 3. Add variable and non-virtual function in derived struct.
+	// add MyApp members                      // <-- 3. Add variable and non-virtual function in derived struct.
 
-	// user data
 	MyApp() {
+		init();     // call Sq::AppMethod::init()
 	}
 	~MyApp() {
+		final();    // call Sq::AppMethod::final()
 	}
 };
-
+#endif  // USE_DERVIDED_MYAPP
 
 int  main(void)
 {

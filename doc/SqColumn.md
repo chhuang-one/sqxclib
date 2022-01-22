@@ -115,8 +115,7 @@ static const SqColumn columns[2] = {
 	table = sq_schema_create_by_type(schema, "your_table_name", type);
 
 	/* C++ */
-	type = new Sq::Type;
-	type->initSelf(0, (SqDestroyFunc)sq_column_free);
+	type = new Sq::Type(0, (SqDestroyFunc)sq_column_free);
 	/* use C++ method to add 2 columns from array to create table by type */
 	type->addEntry((const SqEntry*)columns, 2, sizeof(SqColumn));
 	table = schema->create("your_table_name", type);
@@ -140,8 +139,7 @@ add one dynamic column to type
 	sq_type_add_entry(type, (const SqEntry*)column, 1, sizeof(SqColumn));
 
 	/* C++ */
-	type = new Sq::Type;
-	type->initSelf(0, (SqDestroyFunc)sq_column_free);
+	type = new Sq::Type(0, (SqDestroyFunc)sq_column_free);
 	/* use C++ method to add column */
 	type->addEntry((const SqEntry*)column, 1, sizeof(SqColumn));
 ```

@@ -89,8 +89,7 @@ use C function to add one dynamic entry
 
 use C++ function to add one dynamic entry
 ```c++
-	SqEntry *entry = new Sq::Entry;
-	entry->init(SQ_TYPE_STRING);
+	SqEntry *entry = new Sq::Entry(SQ_TYPE_STRING);
 	entry->name = strdup("name");
 	entry->offset = offsetof(YourStruct, name);
 	entry->bit_field |= SQB_HIDDEN_NULL;    // set bit in SqEntry.bit_field

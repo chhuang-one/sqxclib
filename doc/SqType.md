@@ -75,8 +75,7 @@ const SqType type_int = {
 	type = sq_type_new(-1, NULL);
 
 	/* C++ function */
-//	type = new Sq::Type;
-//	type->initSelf(-1, NULL);
+//	type = new Sq::Type(-1, NULL);
 
 	type->size  = sizeof(int);
 	type->init  = NULL;           // initialize function
@@ -185,8 +184,7 @@ use C++ function addEntry() to add static SqEntry pointer array.
 	Sq::Type  *type;
 	int   n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
 
-	type = new Sq::Type;
-	type->initSelf(8, sq_entry_free);
+	type = new Sq::Type(8, sq_entry_free);
 	type->addEntry(entryPointers, n_entry);
 ```
 
@@ -221,24 +219,20 @@ use C++ functions to add dynamic SqEntry.
 	Sq::Type  *type;
 	Sq::Entry *entry;
 
-	type = new Sq::Type;
-	type->initSelf(8, sq_entry_free);
+	type = new Sq::Type(8, sq_entry_free);
 
-	entry = new Sq::Entry;
-	entry->init(SQ_TYPE_INT);
+	entry = new Sq::Entry(SQ_TYPE_INT);
 	entry->name = strdup("id");
 	entry->offset = offsetof(User, id);
 	entry->bit_field |= SQB_HIDDEN;    // set bit in SqEntry.bit_field
 	type->addEntry(entry);
 
-	entry = new Sq::Entry;
-	entry->init(SQ_TYPE_STRING);
+	entry = new Sq::Entry(SQ_TYPE_STRING);
 	entry->name = strdup("name");
 	entry->offset = offsetof(User, name);
 	type->addEntry(entry);
 
-	entry = new Sq::Entry;
-	entry->init(SQ_TYPE_STRING);
+	entry = new Sq::Entry(SQ_TYPE_STRING);
 	entry->name = strdup("email");
 	entry->offset = offsetof(User, email);
 	type->addEntry(entry);

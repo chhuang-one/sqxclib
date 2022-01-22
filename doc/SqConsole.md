@@ -137,15 +137,13 @@ static const SqCommand mycommand = {
 	Sq::Option  *option;
 	Sq::Command *mycommand;
 
-	mycommand = new Sq::Command();
-	mycommand->initSelf("mycommand");
+	mycommand = new Sq::Command("mycommand");
 	mycommand->size   = sizeof(MyCommandValue);
 	mycommand->handle = mycommand_handle;
 	mycommand->parameter   = strdup("mycommand parameterName");
 	mycommand->description = strdup("mycommand description");
 
-	option = new Sq::Option();
-	option->init(SQ_TYPE_BOOL);
+	option = new Sq::Option(SQ_TYPE_BOOL);
 	option->offset        = offsetof(MyCommandValue, help);
 	option->name          = strdup("help");
 	option->shortcut      = strdup("h");
