@@ -55,20 +55,6 @@ int  sq_option_cmp_shortcut(SqOption **option1, SqOption **option2);
 
 namespace Sq {
 
-/* --- declare methods for SqOption and it's children --- */
-struct OptionMethod {
-	void  init(const SqType *type) {
-		sq_option_init((SqOption*)this, type);
-	}
-	void  final() {
-		sq_option_final((SqOption*)this);
-	}
-
-	int   print(SqBuffer *buffer, int opt_max_length) {
-		return sq_option_print((SqOption*)this, buffer, opt_max_length);
-	}
-};
-
 }  // namespace Sq
 
 #endif  // __cplusplus
@@ -82,12 +68,10 @@ struct OptionMethod {
 	SqEntry
 	|
 	`--- SqOption
+
+	SqOption must have no base struct because I need use aggregate initialization with it.
 */
-#ifdef __cplusplus
-struct SqOption : Sq::OptionMethod       // <-- 1. inherit C++ member function(method)
-#else
 struct SqOption
-#endif
 {
 	SQ_ENTRY_MEMBERS;                    // <-- 2. inherit member variable
 /*	// ------ SqEntry members ------
@@ -103,6 +87,21 @@ struct SqOption
 
 	const char *value_description;
 	const char *description;
+
+#ifdef __cplusplus
+	/* Note: If you add, remove, or change methods here, do the same things in Sq::OptionMethod. */
+
+	void  init(const SqType *type) {
+		sq_option_init((SqOption*)this, type);
+	}
+	void  final() {
+		sq_option_final((SqOption*)this);
+	}
+
+	int   print(SqBuffer *buffer, int opt_max_length) {
+		return sq_option_print((SqOption*)this, buffer, opt_max_length);
+	}
+#endif  // __cplusplus
 };
 
 // ----------------------------------------------------------------------------
@@ -122,6 +121,23 @@ struct SqOption
 #ifdef __cplusplus
 
 namespace Sq {
+
+/*	OptionMethod is used by SqOption's children.
+
+	Note: If you add, remove, or change methods here, do the same things in SqOption.
+ */
+struct OptionMethod {
+	void  init(const SqType *type) {
+		sq_option_init((SqOption*)this, type);
+	}
+	void  final() {
+		sq_option_final((SqOption*)this);
+	}
+
+	int   print(SqBuffer *buffer, int opt_max_length) {
+		return sq_option_print((SqOption*)this, buffer, opt_max_length);
+	}
+};
 
 /* All derived struct/class must be C++11 standard-layout. */
 

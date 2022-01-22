@@ -155,7 +155,7 @@ struct SqEntry
 	void  final() {
 		sq_entry_final((SqEntry*)this);
 	}
-#endif
+#endif  // __cplusplus
 };
 
 /*

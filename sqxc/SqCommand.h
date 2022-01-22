@@ -201,7 +201,7 @@ struct SqCommand
 	void  sortShortcuts(SqPtrArray *array) {
 		sq_command_sort_shortcuts((SqCommand*)this, array);
 	}
-#endif
+#endif  // __cplusplus
 };
 
 /*	SqCommandValue: define a command that used by command line interface.
