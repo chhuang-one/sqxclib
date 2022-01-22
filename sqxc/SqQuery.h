@@ -217,6 +217,98 @@ int     sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_nam
 #endif
 
 // ----------------------------------------------------------------------------
+// C++ declarations: declare C++ data, function, method, and others.
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+struct Query;
+
+/*	QueryMethod is used by SqQuery and it's children. */
+struct QueryMethod
+{
+	Sq::Query *operator->();
+
+	Sq::Query& clear();
+
+	Sq::Query& from(const char *table);
+	Sq::Query& from(std::function<void()> func);
+	Sq::Query& from(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& table(const char *table);
+	Sq::Query& table(std::function<void()> func);
+	Sq::Query& table(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& as(const char *name);
+
+	Sq::Query& join(const char *table, const char *condition = NULL, ...);
+	Sq::Query& join(std::function<void()> func);
+	Sq::Query& join(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& on(const char *condition, ...);
+	Sq::Query& on(std::function<void()> func);
+	Sq::Query& on(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& onRaw(const char *raw);
+
+	Sq::Query& orOn(const char *condition, ...);
+	Sq::Query& orOn(std::function<void()> func);
+	Sq::Query& orOn(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& orOnRaw(const char *raw);
+
+	Sq::Query& where(const char *condition, ...);
+	Sq::Query& where(std::function<void()> func);
+	Sq::Query& where(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& whereRaw(const char *raw);
+
+	Sq::Query& orWhere(const char *condition, ...);
+	Sq::Query& orWhere(std::function<void()> func);
+	Sq::Query& orWhere(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& orWhereRaw(const char *raw);
+
+	Sq::Query& whereExists(std::function<void()> func);
+	Sq::Query& whereExists(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& groupBy(const char *column, ...);
+	Sq::Query& groupByRaw(const char *raw);
+
+	Sq::Query& having(const char *condition, ...);
+	Sq::Query& having(std::function<void()> func);
+	Sq::Query& having(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& havingRaw(const char *raw);
+
+	Sq::Query& orHaving(const char *condition, ...);
+	Sq::Query& orHaving(std::function<void()> func);
+	Sq::Query& orHaving(std::function<void(SqQuery& query)> func);
+
+	Sq::Query& orHavingRaw(const char *raw);
+
+	Sq::Query& select(const char *column, ...);
+	Sq::Query& selectRaw(const char *raw);
+	Sq::Query& distinct();
+
+	Sq::Query& orderBy(const char *column, ...);
+	Sq::Query& orderByRaw(const char *raw);
+	Sq::Query& asc();
+	Sq::Query& desc();
+
+	Sq::Query& delete_();
+	Sq::Query& deleteFrom();
+	Sq::Query& truncate();
+
+	char *toSql();
+};
+
+};  // namespace Sq
+
+#endif  // __cplusplus
+
+// ----------------------------------------------------------------------------
 //  C/C++ structue definition
 
 /*
@@ -265,330 +357,33 @@ struct SqQueryNode
 	char          *value;
 };
 
-/*
-    SqQuery
+/*	SqQuery is Query builder
  */
+#define SQ_QUERY_MEMBERS          \
+	SqQueryNode    root;          \
+	SqQueryNode   *node;          \
+	SqQueryNode   *freed;         \
+	void          *node_chunk;    \
+	int            node_count;    \
+	SqQueryNested *nested_cur;    \
+	int            nested_count
 
+#ifdef __cplusplus
+struct SqQuery : Sq::QueryMethod         // <-- 1. inherit C++ member function(method)
+#else
 struct SqQuery
+#endif
 {
+	SQ_QUERY_MEMBERS;                    // <-- 2. inherit member variable
+/*	// ------ SqQuery members ------
 	SqQueryNode    root;
 	SqQueryNode   *node;
 	SqQueryNode   *freed;      // freed SqQueryNode.
 	void          *node_chunk;
 	int            node_count;
-
 	SqQueryNested *nested_cur;
 	int            nested_count;
-
-#ifdef __cplusplus
-	// C++11 standard-layout
-
-	SqQuery *operator->() {
-		return this;
-	}
-
-	SqQuery& clear() {
-		sq_query_clear(this);
-		return *this;
-	}
-
-	// ----------------------------------------------------
-
-	SqQuery& from(const char *table) {
-		sq_query_from(this, table);
-		return *this;
-	}
-	SqQuery& from(std::function<void()> func) {
-		sq_query_from(this, NULL);    // start of Subquery/Nested
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& from(std::function<void(SqQuery& query)> func) {
-		sq_query_from(this, NULL);    // start of Subquery/Nested
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	SqQuery& table(const char *table) {
-		sq_query_from(this, table);
-		return *this;
-	}
-	SqQuery& table(std::function<void()> func) {
-		sq_query_from(this, NULL);    // start of Subquery/Nested
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& table(std::function<void(SqQuery& query)> func) {
-		sq_query_from(this, NULL);    // start of Subquery/Nested
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	SqQuery& as(const char *name) {
-		sq_query_as(this, name);
-		return *this;
-	}
-
-	// ----------------------------------------------------
-	SqQuery& join(const char *table, const char *condition = NULL, ...) {
-		va_list  arg_list;
-		va_start(arg_list, condition);
-		sq_query_join_va(this, table, condition, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& join(std::function<void()> func) {
-		sq_query_join(this, NULL);    // start of Subquery/Nested
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& join(std::function<void(SqQuery& query)> func) {
-		sq_query_join(this, NULL);    // start of Subquery/Nested
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	SqQuery& on(const char *condition, ...) {
-		va_list  arg_list;
-		va_start(arg_list, condition);
-		sq_query_on_logical_va(this, SQ_QUERYLOGI_AND, condition, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& on(std::function<void()> func) {
-		sq_query_on_logical(this, SQ_QUERYLOGI_AND, NULL);
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& on(std::function<void(SqQuery& query)> func) {
-		sq_query_on_logical(this, SQ_QUERYLOGI_AND, NULL);
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	SqQuery& onRaw(const char *raw) {
-		sq_query_on_logical(this, SQ_QUERYLOGI_AND, raw, NULL);
-		return *this;
-	}
-
-	SqQuery& orOn(const char *condition, ...) {
-		va_list  arg_list;
-		va_start(arg_list, condition);
-		sq_query_on_logical_va(this, SQ_QUERYLOGI_OR, condition, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& orOn(std::function<void()> func) {
-		sq_query_on_logical(this, SQ_QUERYLOGI_OR, NULL);
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& orOn(std::function<void(SqQuery& query)> func) {
-		sq_query_on_logical(this, SQ_QUERYLOGI_OR, NULL);
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	SqQuery& orOnRaw(const char *raw) {
-		sq_query_on_logical(this, SQ_QUERYLOGI_OR, raw, NULL);
-		return *this;
-	}
-
-	// ----------------------------------------------------
-	SqQuery& where(const char *condition, ...) {
-		va_list  arg_list;
-		va_start(arg_list, condition);
-		sq_query_where_logical_va(this, SQ_QUERYLOGI_AND, condition, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& where(std::function<void()> func) {
-		sq_query_where_logical(this, SQ_QUERYLOGI_AND, NULL);
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& where(std::function<void(SqQuery& query)> func) {
-		sq_query_where_logical(this, SQ_QUERYLOGI_AND, NULL);
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	SqQuery& whereRaw(const char *raw) {
-		sq_query_where_logical(this, SQ_QUERYLOGI_AND, raw, NULL);
-		return *this;
-	}
-
-	SqQuery& orWhere(const char *condition, ...) {
-		va_list  arg_list;
-		va_start(arg_list, condition);
-		sq_query_where_logical_va(this, SQ_QUERYLOGI_OR, condition, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& orWhere(std::function<void()> func) {
-		sq_query_where_logical(this, SQ_QUERYLOGI_OR, NULL);
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& orWhere(std::function<void(SqQuery& query)> func) {
-		sq_query_where_logical(this, SQ_QUERYLOGI_OR, NULL);
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	SqQuery& orWhereRaw(const char *raw) {
-		sq_query_where_logical(this, SQ_QUERYLOGI_OR, raw, NULL);
-		return *this;
-	}
-
-	SqQuery& whereExists(std::function<void()> func) {
-		sq_query_where_exists(this);
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& whereExists(std::function<void(SqQuery& query)> func) {
-		sq_query_where_exists(this);
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	// ----------------------------------------------------
-	SqQuery& groupBy(const char *column, ...) {
-		va_list  arg_list;
-		va_start(arg_list, column);
-		sq_query_group_by_va(this, column, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& groupByRaw(const char *raw) {
-		sq_query_group_by_va(this, raw, NULL);
-		return *this;
-	}
-
-	// ----------------------------------------------------
-	SqQuery& having(const char *condition, ...) {
-		va_list  arg_list;
-		va_start(arg_list, condition);
-		sq_query_having_logical_va(this, SQ_QUERYLOGI_AND, condition, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& having(std::function<void()> func) {
-		sq_query_having_logical(this, SQ_QUERYLOGI_AND, NULL);
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& having(std::function<void(SqQuery& query)> func) {
-		sq_query_having_logical(this, SQ_QUERYLOGI_AND, NULL);
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	SqQuery& havingRaw(const char *raw) {
-		sq_query_having_logical(this, SQ_QUERYLOGI_AND, raw, NULL);
-		return *this;
-	}
-
-	SqQuery& orHaving(const char *condition, ...) {
-		va_list  arg_list;
-		va_start(arg_list, condition);
-		sq_query_having_logical_va(this, SQ_QUERYLOGI_OR, condition, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& orHaving(std::function<void()> func) {
-		sq_query_having_logical(this, SQ_QUERYLOGI_OR, NULL);
-		func();
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-	SqQuery& orHaving(std::function<void(SqQuery& query)> func) {
-		sq_query_having_logical(this, SQ_QUERYLOGI_OR, NULL);
-		func(*this);
-		sq_query_pop_nested(this);    // end of Subquery/Nested
-		return *this;
-	}
-
-	SqQuery& orHavingRaw(const char *raw) {
-		sq_query_having_logical(this, SQ_QUERYLOGI_OR, raw, NULL);
-		return *this;
-	}
-
-	// ----------------------------------------------------
-	SqQuery& select(const char *column, ...) {
-		va_list  arg_list;
-		va_start(arg_list, column);
-		sq_query_select_va(this, column, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& selectRaw(const char *raw) {
-		sq_query_select(this, raw, NULL);
-		return *this;
-	}
-	SqQuery& distinct() {
-		sq_query_distinct(this);
-		return *this;
-	}
-
-	// ----------------------------------------------------
-	SqQuery& orderBy(const char *column, ...) {
-		va_list  arg_list;
-		va_start(arg_list, column);
-		sq_query_order_by_va(this, column, arg_list);
-		va_end(arg_list);
-		return *this;
-	}
-	SqQuery& orderByRaw(const char *raw) {
-		sq_query_order_by(this, raw, NULL);
-		return *this;
-	}
-	SqQuery& asc() {
-		sq_query_order_by_asc(this);
-		return *this;
-	}
-	SqQuery& desc() {
-		sq_query_order_by_desc(this);
-		return *this;
-	}
-
-	// ----------------------------------------------------
-	SqQuery& delete_() {
-		sq_query_delete(this);
-		return *this;
-	}
-	SqQuery& deleteFrom() {
-		sq_query_delete(this);
-		return *this;
-	}
-	SqQuery& truncate() {
-		sq_query_truncate(this);
-		return *this;
-	}
-
-	// ----------------------------------------------------
-	char *toSql() {
-		return sq_query_to_sql(this);
-	}
-#endif  // __cplusplus
+ */
 };
 
 // ----------------------------------------------------------------------------
@@ -597,6 +392,304 @@ struct SqQuery
 #ifdef __cplusplus
 
 namespace Sq {
+
+/* define methods of QueryMethod */
+
+inline Sq::Query *QueryMethod::operator->() {
+	return (Sq::Query*)this;
+}
+
+inline Sq::Query& QueryMethod::clear() {
+	sq_query_clear((SqQuery*)this);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::from(const char *table) {
+	sq_query_from((SqQuery*)this, table);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::from(std::function<void()> func) {
+	sq_query_from((SqQuery*)this, NULL);    // start of Subquery/Nested
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::from(std::function<void(SqQuery& query)> func) {
+	sq_query_from((SqQuery*)this, NULL);    // start of Subquery/Nested
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::table(const char *table) {
+	sq_query_from((SqQuery*)this, table);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::table(std::function<void()> func) {
+	sq_query_from((SqQuery*)this, NULL);    // start of Subquery/Nested
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::table(std::function<void(SqQuery& query)> func) {
+	sq_query_from((SqQuery*)this, NULL);    // start of Subquery/Nested
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::as(const char *name) {
+	sq_query_as((SqQuery*)this, name);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::join(const char *table, const char *condition, ...) {
+	va_list  arg_list;
+	va_start(arg_list, condition);
+	sq_query_join_va((SqQuery*)this, table, condition, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::join(std::function<void()> func) {
+	sq_query_join((SqQuery*)this, NULL);    // start of Subquery/Nested
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::join(std::function<void(SqQuery& query)> func) {
+	sq_query_join((SqQuery*)this, NULL);    // start of Subquery/Nested
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::on(const char *condition, ...) {
+	va_list  arg_list;
+	va_start(arg_list, condition);
+	sq_query_on_logical_va((SqQuery*)this, SQ_QUERYLOGI_AND, condition, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::on(std::function<void()> func) {
+	sq_query_on_logical((SqQuery*)this, SQ_QUERYLOGI_AND, NULL);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::on(std::function<void(SqQuery& query)> func) {
+	sq_query_on_logical((SqQuery*)this, SQ_QUERYLOGI_AND, NULL);
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::onRaw(const char *raw) {
+	sq_query_on_logical((SqQuery*)this, SQ_QUERYLOGI_AND, raw, NULL);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::orOn(const char *condition, ...) {
+	va_list  arg_list;
+	va_start(arg_list, condition);
+	sq_query_on_logical_va((SqQuery*)this, SQ_QUERYLOGI_OR, condition, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::orOn(std::function<void()> func) {
+	sq_query_on_logical((SqQuery*)this, SQ_QUERYLOGI_OR, NULL);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::orOn(std::function<void(SqQuery& query)> func) {
+	sq_query_on_logical((SqQuery*)this, SQ_QUERYLOGI_OR, NULL);
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::orOnRaw(const char *raw) {
+	sq_query_on_logical((SqQuery*)this, SQ_QUERYLOGI_OR, raw, NULL);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::where(const char *condition, ...) {
+	va_list  arg_list;
+	va_start(arg_list, condition);
+	sq_query_where_logical_va((SqQuery*)this, SQ_QUERYLOGI_AND, condition, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::where(std::function<void()> func) {
+	sq_query_where_logical((SqQuery*)this, SQ_QUERYLOGI_AND, NULL);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::where(std::function<void(SqQuery& query)> func) {
+	sq_query_where_logical((SqQuery*)this, SQ_QUERYLOGI_AND, NULL);
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::whereRaw(const char *raw) {
+	sq_query_where_logical((SqQuery*)this, SQ_QUERYLOGI_AND, raw, NULL);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::orWhere(const char *condition, ...) {
+	va_list  arg_list;
+	va_start(arg_list, condition);
+	sq_query_where_logical_va((SqQuery*)this, SQ_QUERYLOGI_OR, condition, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::orWhere(std::function<void()> func) {
+	sq_query_where_logical((SqQuery*)this, SQ_QUERYLOGI_OR, NULL);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::orWhere(std::function<void(SqQuery& query)> func) {
+	sq_query_where_logical((SqQuery*)this, SQ_QUERYLOGI_OR, NULL);
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::orWhereRaw(const char *raw) {
+	sq_query_where_logical((SqQuery*)this, SQ_QUERYLOGI_OR, raw, NULL);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::whereExists(std::function<void()> func) {
+	sq_query_where_exists((SqQuery*)this);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::whereExists(std::function<void(SqQuery& query)> func) {
+	sq_query_where_exists((SqQuery*)this);
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::groupBy(const char *column, ...) {
+	va_list  arg_list;
+	va_start(arg_list, column);
+	sq_query_group_by_va((SqQuery*)this, column, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::groupByRaw(const char *raw) {
+	sq_query_group_by_va((SqQuery*)this, raw, NULL);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::having(const char *condition, ...) {
+	va_list  arg_list;
+	va_start(arg_list, condition);
+	sq_query_having_logical_va((SqQuery*)this, SQ_QUERYLOGI_AND, condition, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::having(std::function<void()> func) {
+	sq_query_having_logical((SqQuery*)this, SQ_QUERYLOGI_AND, NULL);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::having(std::function<void(SqQuery& query)> func) {
+	sq_query_having_logical((SqQuery*)this, SQ_QUERYLOGI_AND, NULL);
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::havingRaw(const char *raw) {
+	sq_query_having_logical((SqQuery*)this, SQ_QUERYLOGI_AND, raw, NULL);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::orHaving(const char *condition, ...) {
+	va_list  arg_list;
+	va_start(arg_list, condition);
+	sq_query_having_logical_va((SqQuery*)this, SQ_QUERYLOGI_OR, condition, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::orHaving(std::function<void()> func) {
+	sq_query_having_logical((SqQuery*)this, SQ_QUERYLOGI_OR, NULL);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::orHaving(std::function<void(SqQuery& query)> func) {
+	sq_query_having_logical((SqQuery*)this, SQ_QUERYLOGI_OR, NULL);
+	func(*(SqQuery*)this);
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::orHavingRaw(const char *raw) {
+	sq_query_having_logical((SqQuery*)this, SQ_QUERYLOGI_OR, raw, NULL);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::select(const char *column, ...) {
+	va_list  arg_list;
+	va_start(arg_list, column);
+	sq_query_select_va((SqQuery*)this, column, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::selectRaw(const char *raw) {
+	sq_query_select((SqQuery*)this, raw, NULL);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::distinct() {
+	sq_query_distinct((SqQuery*)this);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::orderBy(const char *column, ...) {
+	va_list  arg_list;
+	va_start(arg_list, column);
+	sq_query_order_by_va((SqQuery*)this, column, arg_list);
+	va_end(arg_list);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::orderByRaw(const char *raw) {
+	sq_query_order_by((SqQuery*)this, raw, NULL);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::asc() {
+	sq_query_order_by_asc((SqQuery*)this);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::desc() {
+	sq_query_order_by_desc((SqQuery*)this);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::delete_() {
+	sq_query_delete((SqQuery*)this);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::deleteFrom() {
+	sq_query_delete((SqQuery*)this);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::truncate() {
+	sq_query_truncate((SqQuery*)this);
+	return *(Sq::Query*)this;
+}
+
+inline char *QueryMethod::toSql() {
+	return sq_query_to_sql((SqQuery*)this);
+}
 
 /* All derived struct/class must be C++11 standard-layout. */
 

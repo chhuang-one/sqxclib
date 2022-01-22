@@ -192,8 +192,9 @@ void *sq_storage_query(SqStorage *storage, SqQuery *query, const SqType *contain
 
 namespace Sq {
 
-/* StorageMethod : C++ struct is used by SqStorage and it's children. */
+struct QueryMethod;    // define in SqQuery.h
 
+/* StorageMethod is used by SqStorage and it's children. */
 struct StorageMethod
 {
 	/*
@@ -228,8 +229,8 @@ struct StorageMethod
 	void *getAll(const char *table_name, const SqType *container, const SqType *type = NULL);
 
 	template <class StlContainer>
-	StlContainer *query(SqQuery *query);
-	void *query(SqQuery *query, const SqType *container = NULL, const SqType *type = NULL);
+	StlContainer *query(Sq::QueryMethod *query);
+	void *query(Sq::QueryMethod *query, const SqType *container = NULL, const SqType *type = NULL);
 
 	template <class StructType>
 	int   insert(StructType& instance);
@@ -344,6 +345,8 @@ int      sq_storage_rollback_trans(SqStorage *storage);
 
 namespace Sq {
 
+/* define methods of StorageMethod */
+
 inline int   StorageMethod::open(const char *database_name) {
 	return sqdb_open(((SqStorage*)this)->db, database_name);
 }
@@ -426,19 +429,19 @@ inline void *StorageMethod::getAll(const char *table_name, const SqType *contain
 }
 
 template <class StlContainer>
-inline StlContainer *StorageMethod::query(SqQuery *query) {
+inline StlContainer *StorageMethod::query(Sq::QueryMethod *query) {
 	void    *instance = NULL;
-	SqType  *type = sq_storage_type_from_query((SqStorage*)this, query, NULL);
+	SqType  *type = sq_storage_type_from_query((SqStorage*)this, (SqQuery*)query, NULL);
 	if (type) {
 		SqType  *containerType = new Sq::TypeStl<StlContainer>(type);
-		instance = sq_storage_query((SqStorage*)this, query, containerType, type);
+		instance = sq_storage_query((SqStorage*)this, (SqQuery*)query, containerType, type);
 		delete (Sq::TypeStl<StlContainer>*)containerType;
 		sq_type_unref(type);
 	}
 	return (StlContainer*)instance;
 }
-inline void *StorageMethod::query(SqQuery *query, const SqType *container, const SqType *type) {
-	return sq_storage_query((SqStorage*)this, query, container, type);
+inline void *StorageMethod::query(Sq::QueryMethod *query, const SqType *container, const SqType *type) {
+	return sq_storage_query((SqStorage*)this, (SqQuery*)query, container, type);
 }
 
 template <class StructType>
@@ -495,7 +498,8 @@ inline int  StorageMethod::rollbackTrans() {
 	return SQ_STORAGE_ROLLBACK_TRANS((SqStorage*)this);
 }
 
-// This is for directly use only. You can NOT derived it.
+/* All derived struct/class must be C++11 standard-layout. */
+
 struct Storage : SqStorage
 {
 	// constructor
