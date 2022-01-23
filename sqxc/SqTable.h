@@ -542,20 +542,25 @@ struct TableMethod
 	      C++ user can initialize static structure easily.
 */
 
+#define SQ_TABLE_MEMBERS     \
+	SQ_REENTRY_MEMBERS;      \
+	SqRelation  *relation
+
 #ifdef __cplusplus
-struct SqTable : Sq::TableMethod
+struct SqTable : Sq::TableMethod         // <-- 1. inherit C++ member function(method)
 #else
 struct SqTable
 #endif
 {
-	SQ_REENTRY_MEMBERS;
-/*	// ------ SqReentry members ------
+	SQ_TABLE_MEMBERS;                    // <-- 2. inherit member variable
+/*	// ------ SqEntry members ------
 	const SqType *type;        // type information for this entry
 	const char   *name;
 	size_t        offset;      // migration use this. Number of columns have existed in database
 	unsigned int  bit_field;
+
+	// ------ SqReentry members ------
 	const char   *old_name;    // rename or drop
- */
 
 	// ------ SqTable members ------
 
@@ -564,6 +569,7 @@ struct SqTable
 	// sq_schema_trace_name() use these to trace renamed (or dropped) column that was referenced by others.
 	// free it if you don't need to sync table changed to database.
 	SqRelation  *relation;
+ */
 };
 
 
@@ -593,16 +599,27 @@ struct SqForeign
 	SqColumn must have no base struct because I need use aggregate initialization with it.
 */
 
+#define SQ_COLUMN_MEMBERS       \
+	SQ_REENTRY_MEMBERS;         \
+	int16_t      size;          \
+	int16_t      digits;        \
+	const char  *default_value; \
+	const char  *check;         \
+	SqForeign   *foreign;       \
+	char       **composite;     \
+	const char  *raw
+
 struct SqColumn
 {
-	SQ_REENTRY_MEMBERS;
-/*	// ------ SqReentry members ------
+	SQ_COLUMN_MEMBERS;
+/*	// ------ SqEntry members ------
 	const SqType *type;        // type information for this entry
 	const char   *name;
 	size_t        offset;
 	unsigned int  bit_field;
+
+	// ------ SqReentry members ------
 	const char   *old_name;    // rename or drop
- */
 
 	// ------ SqColumn members ------
 
@@ -619,15 +636,14 @@ struct SqColumn
 
 	const char  *raw;              // raw SQL column property
 
-	/*
-	struct SqExtra {
-		char    *comment;          // COMMENT
-		char    *others;
-	} *extra;
-	 */
+//	struct SqExtra {
+//		char    *comment;          // COMMENT
+//		char    *others;
+//	} *extra;
 
 	// if column->name is NULL, it will drop column->old_name
 	// if column->name is NOT NULL, it will rename from column->old_name to column->name
+ */
 
 #ifdef __cplusplus
 	/* Note: If you add, remove, or change methods here, do the same things in Sq::ColumnMethod. */

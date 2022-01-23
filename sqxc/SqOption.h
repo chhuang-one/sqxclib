@@ -38,11 +38,11 @@ void  sq_option_init(SqOption *option, const SqType *type);
 void  sq_option_final(SqOption *option);
 
 // return length of option string
-int  sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length);
+int   sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length);
 
 // SqCompareFunc for sorting and finding SqOption by SqOption::shortcut
-int  sq_option_cmp_str__shortcut(const char *str,  SqOption **option);
-int  sq_option_cmp_shortcut(SqOption **option1, SqOption **option2);
+int   sq_option_cmp_str__shortcut(const char *str,  SqOption **option);
+int   sq_option_cmp_shortcut(SqOption **option1, SqOption **option2);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -71,35 +71,44 @@ namespace Sq {
 
 	SqOption must have no base struct because I need use aggregate initialization with it.
 */
+
+#define SQ_OPTION_MEMBERS           \
+	SQ_ENTRY_MEMBERS;               \
+	const char *shortcut;           \
+	const char *default_value;      \
+	const char *value_description;  \
+	const char *description
+
 struct SqOption
 {
-	SQ_ENTRY_MEMBERS;                    // <-- 2. inherit member variable
+	SQ_OPTION_MEMBERS;
 /*	// ------ SqEntry members ------
-	const SqType *type;        // type information of entry
+	const SqType *type;
 	const char   *name;
 	size_t        offset;
 	unsigned int  bit_field;
- */
 
-	// ------ SqOption members ------    // <-- 3. Add variable and non-virtual function in derived struct.
+	// ------ SqOption members ------
 	const char *shortcut;
 	const char *default_value;
-
 	const char *value_description;
 	const char *description;
-
+ */
 #ifdef __cplusplus
 	/* Note: If you add, remove, or change methods here, do the same things in Sq::OptionMethod. */
 
 	void  init(const SqType *type) {
 		sq_option_init((SqOption*)this, type);
 	}
+	void  init(const Sq::TypeMethod *type) {
+		sq_option_init((SqOption*)this, (const SqType*)type);
+	}
 	void  final() {
 		sq_option_final((SqOption*)this);
 	}
 
-	int   print(SqBuffer *buffer, int opt_max_length) {
-		return sq_option_print((SqOption*)this, buffer, opt_max_length);
+	int   print(Sq::BufferMethod *buffer, int opt_max_length) {
+		return sq_option_print((SqOption*)this, (SqBuffer*)buffer, opt_max_length);
 	}
 #endif  // __cplusplus
 };
@@ -130,12 +139,15 @@ struct OptionMethod {
 	void  init(const SqType *type) {
 		sq_option_init((SqOption*)this, type);
 	}
+	void  init(const Sq::TypeMethod *type) {
+		sq_option_init((SqOption*)this, (const SqType*)type);
+	}
 	void  final() {
 		sq_option_final((SqOption*)this);
 	}
 
-	int   print(SqBuffer *buffer, int opt_max_length) {
-		return sq_option_print((SqOption*)this, buffer, opt_max_length);
+	int   print(Sq::BufferMethod *buffer, int opt_max_length) {
+		return sq_option_print((SqOption*)this, (SqBuffer*)buffer, opt_max_length);
 	}
 };
 
@@ -146,6 +158,9 @@ struct Option : SqOption {
 	Option() {}
 	Option(const SqType *type) {
 		sq_option_init(this, type);
+	}
+	Option(const Sq::TypeMethod *type) {
+		sq_option_init(this, (const SqType*)type);
 	}
 	// destructor
 	~Option() {

@@ -292,9 +292,15 @@ struct SqType
 	void  addEntry(const SqEntry *entry, int n_entry = 1, size_t sizeof_entry = 0) {
 		sq_type_add_entry((SqType*)this, entry, n_entry, sizeof_entry);
 	}
+	void  addEntry(const Sq::EntryMethod *entry, int n_entry = 1, size_t sizeof_entry = 0) {
+		sq_type_add_entry((SqType*)this, (const SqEntry*)entry, n_entry, sizeof_entry);
+	}
 	// add entry from SqEntry pointer array to dynamic SqType.
 	void  addEntry(const SqEntry **entry_ptrs, int n_entry_ptrs = 1) {
 		sq_type_add_entry_ptrs((SqType*)this, entry_ptrs, n_entry_ptrs);
+	}
+	void  addEntry(const Sq::EntryMethod **entry_ptrs, int n_entry_ptrs = 1) {
+		sq_type_add_entry_ptrs((SqType*)this, (const SqEntry**)entry_ptrs, n_entry_ptrs);
 	}
 
 	// find SqEntry in SqType.entry.
@@ -548,9 +554,15 @@ struct TypeMethod {
 	void  addEntry(const SqEntry *entry, int n_entry = 1, size_t sizeof_entry = 0) {
 		sq_type_add_entry((SqType*)this, entry, n_entry, sizeof_entry);
 	}
+	void  addEntry(const Sq::EntryMethod *entry, int n_entry = 1, size_t sizeof_entry = 0) {
+		sq_type_add_entry((SqType*)this, (const SqEntry*)entry, n_entry, sizeof_entry);
+	}
 	// add entry from SqEntry pointer array to dynamic SqType.
 	void  addEntry(const SqEntry **entry_ptrs, int n_entry_ptrs = 1) {
 		sq_type_add_entry_ptrs((SqType*)this, entry_ptrs, n_entry_ptrs);
+	}
+	void  addEntry(const Sq::EntryMethod **entry_ptrs, int n_entry_ptrs = 1) {
+		sq_type_add_entry_ptrs((SqType*)this, (const SqEntry**)entry_ptrs, n_entry_ptrs);
 	}
 
 	// find SqEntry in SqType.entry.

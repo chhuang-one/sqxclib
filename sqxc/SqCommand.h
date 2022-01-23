@@ -99,12 +99,14 @@ int   sq_command_parse_option(void *cmd_value, const SqType *cmd_type, Sqxc *src
 namespace Sq {
 
 struct Command;
+struct CommandMethod;
 
 /* CommandValueMethod is used by SqCommandValue and it's children --- */
 struct CommandValueMethod {
 	void *operator new(size_t size);
 
 	void  init(const SqCommand *cmd_type);
+	void  init(const Sq::CommandMethod *cmd_type);
 	void  final();
 };
 
@@ -197,6 +199,9 @@ struct SqCommand
 	void  addOption(const SqOption *option, int n_option = 1) {
 		sq_command_add_option((SqCommand*)this, option, n_option);
 	}
+	void  addOption(const Sq::OptionMethod *option, int n_option = 1) {
+		sq_command_add_option((SqCommand*)this, (const SqOption*)option, n_option);
+	}
 
 	void  sortShortcuts(SqPtrArray *array) {
 		sq_command_sort_shortcuts((SqCommand*)this, array);
@@ -277,6 +282,9 @@ struct CommandMethod {
 	void  addOption(const SqOption *option, int n_option = 1) {
 		sq_command_add_option((SqCommand*)this, option, n_option);
 	}
+	void  addOption(const Sq::OptionMethod *option, int n_option = 1) {
+		sq_command_add_option((SqCommand*)this, (const SqOption*)option, n_option);
+	}
 
 	void  sortShortcuts(SqPtrArray *array) {
 		sq_command_sort_shortcuts((SqCommand*)this, array);
@@ -290,6 +298,9 @@ inline void *CommandValueMethod::operator new(size_t size) {
 
 inline void  CommandValueMethod::init(const SqCommand *cmd_type) {
 	sq_command_value_init((SqCommandValue*)this, cmd_type);
+}
+inline void  CommandValueMethod::init(const Sq::CommandMethod *cmd_type) {
+	sq_command_value_init((SqCommandValue*)this, (const SqCommand*)cmd_type);
 }
 inline void  CommandValueMethod::final() {
 	sq_command_value_final((SqCommandValue*)this);
@@ -314,6 +325,9 @@ struct CommandValue : SqCommandValue {
 	CommandValue() {}
 	CommandValue(const SqCommand *cmd_type) {
 		sq_command_value_init(this, cmd_type);
+	}
+	CommandValue(const Sq::CommandMethod *cmd_type) {
+		sq_command_value_init(this, (const SqCommand*)cmd_type);
 	}
 	// destructor
 	~CommandValue() {

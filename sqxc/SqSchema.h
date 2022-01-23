@@ -103,12 +103,19 @@ struct SchemaMethod
 	                  const SqType *type_info = NULL,
 	                  size_t        instance_size = 0);
 
+	Sq::Table *create(const char           *table_name,
+	                  const char           *type_name,
+	                  const Sq::TypeMethod *type_info,
+	                  size_t                instance_size);
+
 	Sq::Table *create(const char *table_name, const SqType *type_info);
+	Sq::Table *create(const char *table_name, const Sq::TypeMethod *type_info);
 
 	template <class StructType>
 	Sq::Table *create(const char *name);
 
 	Sq::Table *alter(const char *name, const SqType *type_info = NULL);
+	Sq::Table *alter(const char *name, const Sq::TypeMethod *type_info);
 	void       drop(const char *name);
 	void       rename(const char *from, const char *to);
 
@@ -131,25 +138,30 @@ struct SchemaMethod
 	`--- SqSchema
  */
 
+#define SQ_SCHEMA_MEMBERS          \
+	SQ_ENTRY_MEMBERS;              \
+	SqRelationPool *relation_pool; \
+	SqRelation     *relation;      \
+	int             version
+
 #ifdef __cplusplus
-struct SqSchema : Sq::SchemaMethod
+struct SqSchema : Sq::SchemaMethod       // <-- 1. inherit C++ member function(method)
 #else
 struct SqSchema
 #endif
 {
-	SQ_ENTRY_MEMBERS;
+	SQ_SCHEMA_MEMBERS;                   // <-- 2. inherit member variable
 /*	// ------ SqEntry members ------
 	const SqType *type;        // type information for this entry
 	const char   *name;
 	size_t        offset;      // migration use this. Number of tables have existed in database
 	unsigned int  bit_field;
- */
 
 	// ------ SqSchema members ------
 	SqRelationPool *relation_pool;    // relation pool for (SQLite) migration
 	SqRelation     *relation;         // relation of tables
-
 	int             version;
+ */
 };
 
 // ----------------------------------------------------------------------------
@@ -167,9 +179,19 @@ inline Sq::Table *SchemaMethod::create(const char   *table_name,
 {
 	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, type_name, type_info, instance_size);
 }
+inline Sq::Table *SchemaMethod::create(const char           *table_name,
+                                       const char           *type_name,
+                                       const Sq::TypeMethod *type_info,
+                                       size_t                instance_size)
+{
+	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, type_name, (const SqType*)type_info, instance_size);
+}
 
 inline Sq::Table *SchemaMethod::create(const char *table_name, const SqType *type_info) {
 	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, NULL, type_info, 0);
+}
+inline Sq::Table *SchemaMethod::create(const char *table_name, const Sq::TypeMethod *type_info) {
+	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, NULL, (const SqType*)type_info, 0);
 }
 
 template <class StructType>
@@ -179,6 +201,9 @@ inline Sq::Table *SchemaMethod::create(const char *name) {
 
 inline Sq::Table *SchemaMethod::alter(const char *name, const SqType *type_info) {
 	return (Sq::Table*)sq_schema_alter((SqSchema*)this, name, type_info);
+}
+inline Sq::Table *SchemaMethod::alter(const char *name, const Sq::TypeMethod *type_info) {
+	return (Sq::Table*)sq_schema_alter((SqSchema*)this, name, (const SqType*)type_info);
 }
 inline void  SchemaMethod::drop(const char *name) {
 	sq_schema_drop((SqSchema*)this, name);

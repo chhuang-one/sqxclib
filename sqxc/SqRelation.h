@@ -93,7 +93,7 @@ void            sq_relation_pool_free(SqRelationPool *pool, SqRelationNode *node
 
 namespace Sq {
 
-/* --- declare methods for SqRelation and it's children --- */
+/*	RelationMethod is used by SqRelation and it's children --- */
 struct RelationMethod {
 	void  add(const void *from_object, const void *to_object, int no_reverse = 0);
 	void  erase(const void *from_object, const void *to_object, int no_reverse = 0, SqDestroyFunc to_object_free_func = NULL);
@@ -102,7 +102,7 @@ struct RelationMethod {
 	SqRelationNode *find(const void *from_object, const void *to_object);
 };
 
-/* --- declare methods for SqRelationNode and it's children --- */
+/* RelationNodeMethod is used by SqRelationNode and it's children --- */
 struct RelationNodeMethod {
 	SqRelationNode *find(const void *object, SqRelationNode **prev_of_returned_node = NULL);
 	SqRelationNode *reverse();
@@ -119,20 +119,25 @@ struct RelationNodeMethod {
     SqRelation: record relation of object
                 SqRelationNode is the element type in in pool and array
  */
+
+#define SQ_RELATION_MEMBERS      \
+	SQ_PTR_ARRAY_MEMBERS(SqRelationNode, data, x2length);  \
+	SqRelationPool  *pool
+
 #ifdef __cplusplus
 struct SqRelation : Sq::RelationMethod
 #else
 struct SqRelation
 #endif
 {
-	SQ_PTR_ARRAY_MEMBERS(SqRelationNode, data, x2length);    // sorted by object address.
+	SQ_RELATION_MEMBERS;
 /*	// ------ SqPtrArray members ------
-	SqRelationNode  *data;
+	SqRelationNode  *data;        // sorted by object address.
 	int              x2length;
- */
 
 	// ------ SqRelation members ------
 	SqRelationPool  *pool;
+ */
 };
 
 /*
@@ -167,7 +172,7 @@ struct SqRelationNode
 
 namespace Sq {
 
-/* --- define methods for Sq::Relation --- */
+/* define methods of RelationMethod */
 inline void  RelationMethod::add(const void *from_object, const void *to_object, int no_reverse) {
     sq_relation_add((SqRelation*)this, from_object, to_object, no_reverse);
 }
@@ -184,7 +189,7 @@ inline SqRelationNode *RelationMethod::find(const void *from_object, const void 
     return sq_relation_find((SqRelation*)this, from_object, to_object);
 }
 
-/* --- define methods for Sq::RelationNode --- */
+/* define methods of RelationNodeMethod */
 inline SqRelationNode *RelationNodeMethod::find(const void *object, SqRelationNode **prev) {
     return sq_relation_node_find((SqRelationNode*)this, object, prev);
 }

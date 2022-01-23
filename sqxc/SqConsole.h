@@ -58,13 +58,15 @@ void       sq_console_print_list(SqConsole  *console, const char *program_descri
 
 namespace Sq {
 
-/* --- declare methods for SqConsole and it's children --- */
+/*	ConsoleMethod is used by SqConsole and it's children. */
 struct ConsoleMethod {
 	void  add(const SqCommand *command_type);
+	void  add(const Sq::CommandMethod *command_type);
 	void  printHelp(const SqCommand *command = NULL);
+	void  printHelp(const Sq::CommandMethod *command = NULL);
 
-	SqCommand  *find(const char *name);
-	SqCommandValue *parse(int argc, char **argv, bool argv_has_command = true);
+	Sq::Command      *find(const char *name);
+	Sq::CommandValue *parse(int argc, char **argv, bool argv_has_command = true);
 };
 
 }  // namespace Sq
@@ -118,18 +120,24 @@ struct SqConsole
 
 namespace Sq {
 
-/* --- define methods for Sq::Relation --- */
+/* define methods of ConsoleMethod. */
 inline void  ConsoleMethod::add(const SqCommand *command_type) {
 	sq_console_add((SqConsole*)this, command_type);
+}
+inline void  ConsoleMethod::add(const Sq::CommandMethod *command_type) {
+	sq_console_add((SqConsole*)this, (const SqCommand*)command_type);
 }
 inline void  ConsoleMethod::printHelp(const SqCommand *command) {
 	sq_console_print_help((SqConsole*)this, command);
 }
-inline SqCommand *ConsoleMethod::find(const char *name) {
-	return sq_console_find((SqConsole*)this, name);
+inline void  ConsoleMethod::printHelp(const Sq::CommandMethod *command) {
+	sq_console_print_help((SqConsole*)this, (const SqCommand*)command);
 }
-inline SqCommandValue *ConsoleMethod::parse(int argc, char **argv, bool argv_has_command) {
-	return sq_console_parse((SqConsole*)this, argc, argv, argv_has_command);
+inline Sq::Command *ConsoleMethod::find(const char *name) {
+	return (Sq::Command*)sq_console_find((SqConsole*)this, name);
+}
+inline Sq::CommandValue *ConsoleMethod::parse(int argc, char **argv, bool argv_has_command) {
+	return (Sq::CommandValue*)sq_console_parse((SqConsole*)this, argc, argv, argv_has_command);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */

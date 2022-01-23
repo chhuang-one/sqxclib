@@ -105,6 +105,8 @@ int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
 
 namespace Sq {
 
+struct TypeMethod;    // define in SqType.h
+
 };  // namespace Sq
 
 #endif // __cplusplus
@@ -151,6 +153,9 @@ struct SqEntry
 
 	void  init(const SqType *type_info) {
 		sq_entry_init((SqEntry*)this, type_info);
+	}
+	void  init(const Sq::TypeMethod *type_info) {
+		sq_entry_init((SqEntry*)this, (const SqType*)type_info);
 	}
 	void  final() {
 		sq_entry_final((SqEntry*)this);
@@ -203,6 +208,9 @@ struct EntryMethod
 	void  init(const SqType *type_info) {
 		sq_entry_init((SqEntry*)this, type_info);
 	}
+	void  init(const Sq::TypeMethod *type_info) {
+		sq_entry_init((SqEntry*)this, (const SqType*)type_info);
+	}
 	void  final() {
 		sq_entry_final((SqEntry*)this);
 	}
@@ -214,6 +222,9 @@ struct Entry : SqEntry {
 	Entry() {}
 	Entry(const SqType *type_info) {
 		sq_entry_init(this, type_info);
+	}
+	Entry(const Sq::TypeMethod *type_info) {
+		sq_entry_init(this, (const SqType*)type_info);
 	}
 	~Entry() {
 		sq_entry_final(this);

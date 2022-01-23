@@ -303,21 +303,23 @@ void        sqxc_pop_nested(Sqxc *xc);
 
 namespace Sq {
 
-/* XcMethod : a template C++ struct is used by Sqxc and it's children. */
+struct Xc;
+
+/* XcMethod is used by Sqxc and it's children. */
 
 struct XcMethod
 {
-	SqBuffer *buffer(void);
+	Sq::Buffer *buffer(void);
 
 	void   free();
 	void   freeChain();
 
-	Sqxc  *insert(Sqxc *xc_element, int position = -1);
-	Sqxc  *insert(XcMethod *xc_element, int position = -1);
-	Sqxc  *steal(Sqxc *xc_element);
-	Sqxc  *steal(XcMethod *xc_element);
-	Sqxc  *find(const SqxcInfo *info);
-	Sqxc  *nth(int position);
+	Sq::Xc  *insert(Sqxc *xc_element, int position = -1);
+	Sq::Xc  *insert(XcMethod *xc_element, int position = -1);
+	Sq::Xc  *steal(Sqxc *xc_element);
+	Sq::Xc  *steal(XcMethod *xc_element);
+	Sq::Xc  *find(const SqxcInfo *info);
+	Sq::Xc  *nth(int position);
 
 	int    ctrl(int id, void *data);
 	int    broadcast(int id, void *data);
@@ -333,19 +335,19 @@ struct XcMethod
 
 	/* --- These are called by data source side. --- */
 
-	Sqxc  *send(void);
-	Sqxc  *sendBool(const char *entry_name, bool value);
-	Sqxc  *sendInt(const char *entry_name, int value);
-	Sqxc  *sendInt64(const char *entry_name, int64_t value);
-	Sqxc  *sendTime(const char *entry_name, time_t value);
-	Sqxc  *sendDouble(const char *entry_name, double value);
-	Sqxc  *sendString(const char *entry_name, const char *value);
+	Sq::Xc  *send(void);
+	Sq::Xc  *sendBool(const char *entry_name, bool value);
+	Sq::Xc  *sendInt(const char *entry_name, int value);
+	Sq::Xc  *sendInt64(const char *entry_name, int64_t value);
+	Sq::Xc  *sendTime(const char *entry_name, time_t value);
+	Sq::Xc  *sendDouble(const char *entry_name, double value);
+	Sq::Xc  *sendString(const char *entry_name, const char *value);
 
-	Sqxc  *sendObjectBeg(const char *entry_name);
-	Sqxc  *sendObjectEnd(const char *entry_name);
+	Sq::Xc  *sendObjectBeg(const char *entry_name);
+	Sq::Xc  *sendObjectEnd(const char *entry_name);
 
-	Sqxc  *sendArrayBeg(const char *entry_name);
-	Sqxc  *sendArrayEnd(const char *entry_name);
+	Sq::Xc  *sendArrayBeg(const char *entry_name);
+	Sq::Xc  *sendArrayEnd(const char *entry_name);
 };
 
 };  // namespace Sq
@@ -389,37 +391,37 @@ struct SqxcNested
    ** This can keep std::is_standard_layout<>::value == true
  */
 
-#define SQXC_MEMBERS    \
-	const SqxcInfo  *info;    \
-	Sqxc            *peer;    \
-	Sqxc            *dest;    \
-	SqxcNested  *nested;          \
-	int          nested_count;    \
-	char        *buf;             \
-	int          buf_size;        \
-	int          buf_writed;      \
-	uint16_t     supported_type;    \
-/*	uint16_t     outputable_type; */\
-/*	uint16_t     required_type;   */\
-	uint16_t     code;              \
-	uint16_t     type;              \
-	const char  *name;              \
-	union {                         \
-		bool          boolean;      \
-		int           integer;      \
-		int           int_;         \
-		unsigned int  uinteger;     \
-		unsigned int  uint;         \
-		int64_t       int64;        \
-		uint64_t      uint64;       \
-		time_t        rawtime;      \
-		double        fraction;     \
-		double        double_;      \
-		const char   *string;       \
-		const char   *stream;       \
-		void         *pointer;      \
-	} value;                        \
-	SqEntry     *entry;             \
+#define SQXC_MEMBERS                   \
+	const SqxcInfo  *info;             \
+	Sqxc            *peer;             \
+	Sqxc            *dest;             \
+	SqxcNested  *nested;               \
+	int          nested_count;         \
+	char        *buf;                  \
+	int          buf_size;             \
+	int          buf_writed;           \
+	uint16_t     supported_type;       \
+/*	uint16_t     outputable_type; */   \
+/*	uint16_t     required_type;   */   \
+	uint16_t     code;                 \
+	uint16_t     type;                 \
+	const char  *name;                 \
+	union {                            \
+		bool          boolean;         \
+		int           integer;         \
+		int           int_;            \
+		unsigned int  uinteger;        \
+		unsigned int  uint;            \
+		int64_t       int64;           \
+		uint64_t      uint64;          \
+		time_t        rawtime;         \
+		double        fraction;        \
+		double        double_;         \
+		const char   *string;          \
+		const char   *stream;          \
+		void         *pointer;         \
+	} value;                           \
+	SqEntry     *entry;                \
 	void       **error
 
 #ifdef __cplusplus
@@ -428,8 +430,8 @@ struct Sqxc : Sq::XcMethod               // <-- 1. inherit C++ member function(m
 struct Sqxc
 #endif
 {
-//	SQXC_MEMBERS;                        // <-- 2. inherit member variable
-/*	// ------ Sqxc members ------  */
+	SQXC_MEMBERS;                        // <-- 2. inherit member variable
+/*	// ------ Sqxc members ------
 	const SqxcInfo  *info;
 
 	// Sqxc chain
@@ -486,6 +488,7 @@ struct Sqxc
 
 	// input / output arguments
 	void       **error;
+ */
 };
 
 // ----------------------------------------------------------------------------
@@ -497,8 +500,8 @@ namespace Sq {
 
 // XcMethod
 
-inline SqBuffer *XcMethod::buffer(void) {
-	return sqxc_get_buffer(this);
+inline Sq::Buffer *XcMethod::buffer(void) {
+	return (Sq::Buffer*)sqxc_get_buffer(this);
 }
 
 inline void   XcMethod::free() {
@@ -508,23 +511,23 @@ inline void   XcMethod::freeChain() {
 	return sqxc_free_chain((Sqxc*)this);
 }
 
-inline Sqxc  *XcMethod::insert(Sqxc *xc_element, int position) {
-	return sqxc_insert((Sqxc*)this, xc_element, position);
+inline Sq::Xc  *XcMethod::insert(Sqxc *xc_element, int position) {
+	return (Sq::Xc*)sqxc_insert((Sqxc*)this, xc_element, position);
 }
-inline Sqxc  *XcMethod::insert(XcMethod *xc_element, int position) {
-	return sqxc_insert((Sqxc*)this, (Sqxc*)xc_element, position);
+inline Sq::Xc  *XcMethod::insert(XcMethod *xc_element, int position) {
+	return (Sq::Xc*)sqxc_insert((Sqxc*)this, (Sqxc*)xc_element, position);
 }
-inline Sqxc  *XcMethod::steal(Sqxc *xc_element) {
-	return sqxc_steal((Sqxc*)this, xc_element);
+inline Sq::Xc  *XcMethod::steal(Sqxc *xc_element) {
+	return (Sq::Xc*)sqxc_steal((Sqxc*)this, xc_element);
 }
-inline Sqxc  *XcMethod::steal(XcMethod *xc_element) {
-	return sqxc_steal((Sqxc*)this, (Sqxc*)xc_element);
+inline Sq::Xc  *XcMethod::steal(XcMethod *xc_element) {
+	return (Sq::Xc*)sqxc_steal((Sqxc*)this, (Sqxc*)xc_element);
 }
-inline Sqxc  *XcMethod::find(const SqxcInfo *info) {
-	return sqxc_find((Sqxc*)this, info);
+inline Sq::Xc  *XcMethod::find(const SqxcInfo *info) {
+	return (Sq::Xc*)sqxc_find((Sqxc*)this, info);
 }
-inline Sqxc  *XcMethod::nth(int position) {
-	return sqxc_nth((Sqxc*)this, position);
+inline Sq::Xc  *XcMethod::nth(int position) {
+	return (Sq::Xc*)sqxc_nth((Sqxc*)this, position);
 }
 
 inline int  XcMethod::ctrl(int id, void *data) {
@@ -557,60 +560,60 @@ inline int  XcMethod::send(XcMethod *arguments_src) {
 	return ((Sqxc*)this)->info->send((Sqxc*)this, (Sqxc*)arguments_src);
 }
 
-inline Sqxc *XcMethod::send(void) {
-	return sqxc_send((Sqxc*)this);
+inline Sq::Xc  *XcMethod::send(void) {
+	return (Sq::Xc*)sqxc_send((Sqxc*)this);
 }
-inline Sqxc *XcMethod::sendBool(const char *entry_name, bool value) {
+inline Sq::Xc  *XcMethod::sendBool(const char *entry_name, bool value) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_BOOL(xc, entry_name, value);
-	return xc;
+	return (Sq::Xc*)xc;
 }
-inline Sqxc *XcMethod::sendInt(const char *entry_name, int value) {
+inline Sq::Xc  *XcMethod::sendInt(const char *entry_name, int value) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_INT(xc, entry_name, value);
-	return xc;
+	return (Sq::Xc*)xc;
 }
-inline Sqxc *XcMethod::sendInt64(const char *entry_name, int64_t value) {
+inline Sq::Xc  *XcMethod::sendInt64(const char *entry_name, int64_t value) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_INT64(xc, entry_name, value);
-	return xc;
+	return (Sq::Xc*)xc;
 }
-inline Sqxc *XcMethod::sendTime(const char *entry_name, time_t value) {
+inline Sq::Xc  *XcMethod::sendTime(const char *entry_name, time_t value) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_TIME(xc, entry_name, value);
-	return xc;
+	return (Sq::Xc*)xc;
 }
-inline Sqxc *XcMethod::sendDouble(const char *entry_name, double value) {
+inline Sq::Xc  *XcMethod::sendDouble(const char *entry_name, double value) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_DOUBLE(xc, entry_name, value);
-	return xc;
+	return (Sq::Xc*)xc;
 }
-inline Sqxc *XcMethod::sendString(const char *entry_name, const char *value) {
+inline Sq::Xc  *XcMethod::sendString(const char *entry_name, const char *value) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_STRING(xc, entry_name, (char*)value);
-	return xc;
+	return (Sq::Xc*)xc;
 }
 
-inline Sqxc *XcMethod::sendObjectBeg(const char *entry_name) {
+inline Sq::Xc  *XcMethod::sendObjectBeg(const char *entry_name) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_OBJECT_BEG(xc, entry_name);
-	return xc;
+	return (Sq::Xc*)xc;
 }
-inline Sqxc *XcMethod::sendObjectEnd(const char *entry_name) {
+inline Sq::Xc  *XcMethod::sendObjectEnd(const char *entry_name) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_OBJECT_END(xc, entry_name);
-	return xc;
+	return (Sq::Xc*)xc;
 }
 
-inline Sqxc *XcMethod::sendArrayBeg(const char *entry_name) {
+inline Sq::Xc  *XcMethod::sendArrayBeg(const char *entry_name) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_ARRAY_BEG(xc, entry_name);
-	return xc;
+	return (Sq::Xc*)xc;
 }
-inline Sqxc *XcMethod::sendArrayEnd(const char *entry_name) {
+inline Sq::Xc  *XcMethod::sendArrayEnd(const char *entry_name) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_ARRAY_END(xc, entry_name);
-	return xc;
+	return (Sq::Xc*)xc;
 }
 
 /* All derived struct/class must be C++11 standard-layout. */
