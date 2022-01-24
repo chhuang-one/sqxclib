@@ -93,19 +93,23 @@ void            sq_relation_pool_free(SqRelationPool *pool, SqRelationNode *node
 
 namespace Sq {
 
-/*	RelationMethod is used by SqRelation and it's children --- */
+struct RelationNode;
+
+/* RelationMethod is used by SqRelation and it's children */
 struct RelationMethod {
 	void  add(const void *from_object, const void *to_object, int no_reverse = 0);
 	void  erase(const void *from_object, const void *to_object, int no_reverse = 0, SqDestroyFunc to_object_free_func = NULL);
 	void  replace(const void *old_object, const void *new_object, int no_reverse = 0);
 	void  removeEmpty();
-	SqRelationNode *find(const void *from_object, const void *to_object);
+	Sq::RelationNode *find(const void *from_object, const void *to_object);
 };
 
 /* RelationNodeMethod is used by SqRelationNode and it's children --- */
 struct RelationNodeMethod {
-	SqRelationNode *find(const void *object, SqRelationNode **prev_of_returned_node = NULL);
-	SqRelationNode *reverse();
+	Sq::RelationNode *find(const void *object, SqRelationNode **prev_of_returned_node = NULL);
+	Sq::RelationNode *find(const void *object, Sq::RelationNode **prev_of_returned_node);
+	Sq::RelationNode *find(const void *object, Sq::RelationNodeMethod **prev_of_returned_node);
+	Sq::RelationNode *reverse();
 };
 
 }  // namespace Sq
@@ -116,8 +120,8 @@ struct RelationNodeMethod {
 // C/C++ common definitions: define structue
 
 /*
-    SqRelation: record relation of object
-                SqRelationNode is the element type in in pool and array
+	SqRelation: record relation of object
+	            SqRelationNode is the element type in in pool and array
  */
 
 #define SQ_RELATION_MEMBERS      \
@@ -141,8 +145,8 @@ struct SqRelation
 };
 
 /*
-    SqRelationNode: relation node. This is element type in chunk and array
-                    size of this structure == size of 2 pointers because SqRelationNode has 2 pointers
+	SqRelationNode: relation node. This is element type in chunk and array
+	                size of this structure == size of 2 pointers because SqRelationNode has 2 pointers
  */
 #ifdef __cplusplus
 struct SqRelationNode : Sq::RelationNodeMethod
@@ -174,27 +178,33 @@ namespace Sq {
 
 /* define methods of RelationMethod */
 inline void  RelationMethod::add(const void *from_object, const void *to_object, int no_reverse) {
-    sq_relation_add((SqRelation*)this, from_object, to_object, no_reverse);
+	sq_relation_add((SqRelation*)this, from_object, to_object, no_reverse);
 }
 inline void  RelationMethod::erase(const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func) {
-    sq_relation_erase((SqRelation*)this, from_object, to_object, no_reverse, to_object_free_func);
+	sq_relation_erase((SqRelation*)this, from_object, to_object, no_reverse, to_object_free_func);
 }
 inline void  RelationMethod::replace(const void *old_object, const void *new_object, int no_reverse) {
-    sq_relation_replace((SqRelation*)this, old_object, new_object, no_reverse);
+	sq_relation_replace((SqRelation*)this, old_object, new_object, no_reverse);
 }
 inline void  RelationMethod::removeEmpty() {
-    sq_relation_remove_empty((SqRelation*)this);
+	sq_relation_remove_empty((SqRelation*)this);
 }
-inline SqRelationNode *RelationMethod::find(const void *from_object, const void *to_object) {
-    return sq_relation_find((SqRelation*)this, from_object, to_object);
+inline Sq::RelationNode *RelationMethod::find(const void *from_object, const void *to_object) {
+	return (Sq::RelationNode*)sq_relation_find((SqRelation*)this, from_object, to_object);
 }
 
 /* define methods of RelationNodeMethod */
-inline SqRelationNode *RelationNodeMethod::find(const void *object, SqRelationNode **prev) {
-    return sq_relation_node_find((SqRelationNode*)this, object, prev);
+inline Sq::RelationNode *RelationNodeMethod::find(const void *object, SqRelationNode **prev) {
+	return (Sq::RelationNode*)sq_relation_node_find((SqRelationNode*)this, object, prev);
 }
-inline SqRelationNode *RelationNodeMethod::reverse() {
-    return sq_relation_node_reverse((SqRelationNode*)this);
+inline Sq::RelationNode *RelationNodeMethod::find(const void *object, Sq::RelationNode **prev) {
+	return (Sq::RelationNode*)sq_relation_node_find((SqRelationNode*)this, object, (SqRelationNode**)prev);
+}
+inline Sq::RelationNode *RelationNodeMethod::find(const void *object, Sq::RelationNodeMethod **prev) {
+	return (Sq::RelationNode*)sq_relation_node_find((SqRelationNode*)this, object, (SqRelationNode**)prev);
+}
+inline Sq::RelationNode *RelationNodeMethod::reverse() {
+	return (Sq::RelationNode*)sq_relation_node_reverse((SqRelationNode*)this);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */
@@ -208,7 +218,10 @@ struct Relation : SqRelation {
 	}
 };
 
-typedef struct SqRelationNode    RelationNode;
+struct RelationNode : SqRelationNode {
+	// It can NOT add variable and virtual function in derived struct.
+};
+
 typedef struct SqRelationPool    RelationPool;
 
 };  // namespace Sq

@@ -314,9 +314,7 @@ struct XcMethod
 	void   free();
 	void   freeChain();
 
-	Sq::Xc  *insert(Sqxc *xc_element, int position = -1);
 	Sq::Xc  *insert(XcMethod *xc_element, int position = -1);
-	Sq::Xc  *steal(Sqxc *xc_element);
 	Sq::Xc  *steal(XcMethod *xc_element);
 	Sq::Xc  *find(const SqxcInfo *info);
 	Sq::Xc  *nth(int position);
@@ -330,7 +328,6 @@ struct XcMethod
 	SqxcNested *push(void);
 	void        pop(void);
 
-	int    send(Sqxc *arguments_src);
 	int    send(XcMethod *arguments_src);
 
 	/* --- These are called by data source side. --- */
@@ -511,14 +508,8 @@ inline void   XcMethod::freeChain() {
 	return sqxc_free_chain((Sqxc*)this);
 }
 
-inline Sq::Xc  *XcMethod::insert(Sqxc *xc_element, int position) {
-	return (Sq::Xc*)sqxc_insert((Sqxc*)this, xc_element, position);
-}
 inline Sq::Xc  *XcMethod::insert(XcMethod *xc_element, int position) {
 	return (Sq::Xc*)sqxc_insert((Sqxc*)this, (Sqxc*)xc_element, position);
-}
-inline Sq::Xc  *XcMethod::steal(Sqxc *xc_element) {
-	return (Sq::Xc*)sqxc_steal((Sqxc*)this, xc_element);
 }
 inline Sq::Xc  *XcMethod::steal(XcMethod *xc_element) {
 	return (Sq::Xc*)sqxc_steal((Sqxc*)this, (Sqxc*)xc_element);
@@ -553,9 +544,6 @@ inline void        XcMethod::pop(void) {
 	sqxc_pop_nested((Sqxc*)this);
 }
 
-inline int  XcMethod::send(Sqxc *arguments_src) {
-	return ((Sqxc*)this)->info->send((Sqxc*)this, arguments_src);
-}
 inline int  XcMethod::send(XcMethod *arguments_src) {
 	return ((Sqxc*)this)->info->send((Sqxc*)this, (Sqxc*)arguments_src);
 }
