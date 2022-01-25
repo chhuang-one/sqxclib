@@ -356,7 +356,7 @@ create custom Sqxc element and insert it to SqStorage::xc_input list.
 * use C++ Language
 ```c++
 	SqxcText  *xc_text;
-	Sqxc      *xc_json;
+	Sq::Xc    *xc_json;
 
 	// create custom Sqxc element
 	xc_text = new SqxcText();

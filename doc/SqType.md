@@ -173,7 +173,7 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 use C function sq_type_add_entry_ptrs() to add static SqEntry pointer array.
 ```c
 	SqType  *type;
-	int   n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
+	int      n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
 
 	type = sq_type_new(8, (SqDestroyFunc)sq_entry_free);
 	sq_type_add_entry_ptrs(type, entryPointers, n_entry);
@@ -182,7 +182,7 @@ use C function sq_type_add_entry_ptrs() to add static SqEntry pointer array.
 use C++ function addEntry() to add static SqEntry pointer array.
 ```c++
 	Sq::Type  *type;
-	int   n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
+	int        n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
 
 	type = new Sq::Type(8, sq_entry_free);
 	type->addEntry(entryPointers, n_entry);
@@ -278,7 +278,7 @@ use C function to find & remove SqEntry
 use C++ function to find & remove SqEntry
 
 ```c++
-	SqEntry **entry_addr;
+	Sq::Entry **entry_addr;
 
 	entry_addr = type->findEntry(type, "entry_name");
 	type->eraseEntry(type, entry_addr);

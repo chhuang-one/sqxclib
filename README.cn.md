@@ -23,7 +23,7 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
 
 ## 数据库架构
 
-There is a C structured data type that mappings to your database table "users".
+定义映射到数据库表 “users” 的 C 结构化数据类型。
 
 ```c++
 typedef struct  User    User;    // add this line if you use C language
@@ -44,7 +44,7 @@ struct User {
 };
 ```
 
-use C++ methods (Schema Builder) to define table/column in schema_v1 (dynamic)
+使用 C++ 方法（Schema Builder）在 schema_v1 中定义表/列 （动态）
 
 ```c++
 /* define global type for C++ STL */
@@ -80,7 +80,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 //	table->timestamps<User>();
 ```
 
-use C++ methods (Schema Builder) to change table/column in schema_v2 (dynamic)
+使用 C++ 方法（Schema Builder）更改 schema_v2 中的表/列 （动态）
 
 ```c++
 	/* create schema version 2 */
@@ -97,7 +97,7 @@ use C++ methods (Schema Builder) to change table/column in schema_v2 (dynamic)
 	table->rename("email", "email2");
 ```
 
-use C++ aggregate initialization to define table/column in schema_v1 (static)
+使用 C++ 聚合初始化在 schema_v1 中定义表/列 （静态）
 * This can reduce running time when making schema.
 * If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see doc/[SqColumn.md](doc/SqColumn.md)
 
@@ -143,7 +143,7 @@ static const SqColumn  userColumns[8] = {
 	table->addColumn(userColumns, 8);
 ```
 
-use C99 designated initializer to define table/column in schema_v1 (static)
+使用 C99 指定初始化程序在 schema_v1 中定义表/列 （静态）
 * This can reduce running time when making schema.
 * If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see doc/[SqColumn.md](doc/SqColumn.md)
 
@@ -188,7 +188,7 @@ static const SqColumn  userColumns[8] = {
 	sq_table_add_column(table, userColumns, 8);
 ```
 
-use C99 designated initializer to change table/column in schema_v2 (static)
+使用 C99 指定初始化程序更改 schema_v2 中的表/列 （静态）
 
 ```c
 static const SqColumn  userColumnsChanged[5] = {
@@ -220,7 +220,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	sq_table_add_column(table, userColumnsChanged, 5);
 ```
 
-use C functions (Schema Builder) to define table/column in schema_v1 (dynamic)
+使用 C 函数（Schema Builder）在 schema_v1 中定义表/列 （动态）
 
 ```c
 	/* create schema version 1 */
@@ -265,7 +265,7 @@ use C functions (Schema Builder) to define table/column in schema_v1 (dynamic)
 //	sq_table_add_timestamps_struct(table, User);
 ```
 
-use C functions (Schema Builder) to change table/column in schema_v2 (dynamic)
+使用 C 函数（Schema Builder）更改 schema_v2 中的表/列 （动态）
 
 ```c
 	/* create schema version 2 */

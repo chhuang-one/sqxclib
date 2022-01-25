@@ -25,7 +25,7 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 ## Database schema
 
-There is a C structured data type that mappings to your database table "users".
+Define a C structured data type that mappings to your database table "users".
 
 ```c++
 typedef struct  User    User;    // add this line if you use C language

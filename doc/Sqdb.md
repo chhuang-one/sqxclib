@@ -211,7 +211,20 @@ struct SqdbXxsql
 	SQDB_MEMBERS;                          // <-- 2. inherit member variable
 
 	SqdbConfigXxsql *config;               // <-- 3. Add variable and non-virtual function in derived struct.
-	int    others;
+	int       xxsql_setting;
+
+
+#ifdef __cplusplus
+	// define C++ constructor and destructor here if you use C++ language.
+	SqdbXxsql(SqdbConfigXxsql *config) {
+		// call Sq::DbMethod::init()
+		init(SQDB_INFO_XXSQL, (SqdbConfig*)config);
+	}
+	~SqdbXxsql() {
+		// call Sq::DbMethod::final()
+		final();
+	}
+#endif
 };
 ```
 
@@ -258,18 +271,32 @@ const SqdbInfo *SQDB_INFO_XXSQL = &dbinfo;
 
 #### 3. use custom Sqdb
 
+* use C Language
 ```c++
-	Sqdb       *db;
-	SqdbConfigXxsql  config = { .xxsql_setting1 = 0};
+	SqdbConfigXxsql  config = {
+		.xxsql_setting = 0,
+	};
+	Sqdb            *db;
 	SqStorage       *storage;
 
 	// create custom Sqdb object with config data
 	db = sqdb_new(SQDB_INFO_XXSQL, (SqdbConfig*) &config);
 
 	// create storage object that use new Sqdb
-	/* C function */
 	storage = sq_storage_new(db);
-	/* C++ function */
-//	storage = new Sq::Storage(db);
 ```
 
+* use C++ Language
+```c++
+	SqdbConfigXxsql  config = {
+		.xxsql_setting = 0,
+	};
+	SqdbXxsql       *db;
+	Sq::Storage     *storage;
+
+	// create custom Sqdb object with config data
+	db = new SqdbXxsql(&config);
+
+	// create storage object that use new Sqdb
+	storage = new Sq::Storage(db);
+```
