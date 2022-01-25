@@ -99,11 +99,11 @@ typedef struct SqdbConfigEmpty    DbConfigEmpty;
 // These are for directly use only. You can NOT derived it.
 struct DbEmpty : SqdbEmpty
 {
-	DbEmpty(SqdbConfigEmpty *config = NULL) {
-		this->info = SQDB_INFO_EMPTY;  SQDB_INFO_EMPTY->init((Sqdb*)this, (SqdbConfig*)config);
+	DbEmpty(const SqdbConfigEmpty *config = NULL) {
+		init(SQDB_INFO_EMPTY, (const SqdbConfig*)config);
 	}
 	~DbEmpty() {
-		SQDB_INFO_EMPTY->final((Sqdb*)this);
+		final();
 	}
 };
 

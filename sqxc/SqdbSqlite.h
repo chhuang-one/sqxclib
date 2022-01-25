@@ -112,11 +112,11 @@ typedef struct SqdbConfigSqlite    DbConfigSqlite;
 // These are for directly use only. You can NOT derived it.
 struct DbSqlite : SqdbSqlite
 {
-	DbSqlite(SqdbConfigSqlite *config = NULL) {
-		this->info = SQDB_INFO_SQLITE;  SQDB_INFO_SQLITE->init((Sqdb*)this, (SqdbConfig*)config);
+	DbSqlite(const SqdbConfigSqlite *config = NULL) {
+		init(SQDB_INFO_SQLITE, (const SqdbConfig*)config);
 	}
 	~DbSqlite() {
-		SQDB_INFO_SQLITE->final((Sqdb*)this);
+		final();
 	}
 };
 

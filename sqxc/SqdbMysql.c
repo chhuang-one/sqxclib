@@ -32,7 +32,7 @@
 #define MYSQL_DEFAULT_USER      "root"
 #define MYSQL_DEFAULT_PASSWORD  ""
 
-static void sqdb_mysql_init(SqdbMysql *sqdb, SqdbConfigMysql *config);
+static void sqdb_mysql_init(SqdbMysql *sqdb, const SqdbConfigMysql *config);
 static void sqdb_mysql_final(SqdbMysql *sqdb);
 static int  sqdb_mysql_open(SqdbMysql *sqdb, const char *database_name);
 static int  sqdb_mysql_close(SqdbMysql *sqdb);
@@ -74,7 +74,7 @@ const SqdbInfo *SQDB_INFO_MYSQL = &dbinfo;
 // ----------------------------------------------------------------------------
 // SqdbInfo
 
-static void sqdb_mysql_init(SqdbMysql *sqdb, SqdbConfigMysql *config_src)
+static void sqdb_mysql_init(SqdbMysql *sqdb, const SqdbConfigMysql *config_src)
 {
 	// Memory allocated by mysql_init() must be freed with mysql_close().
 	sqdb->self = mysql_init(NULL);

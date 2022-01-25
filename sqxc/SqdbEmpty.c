@@ -27,7 +27,7 @@
 #define snprintf     _snprintf
 #endif
 
-static void sqdb_empty_init(SqdbEmpty *sqdb, SqdbConfigEmpty *config);
+static void sqdb_empty_init(SqdbEmpty *sqdb, const SqdbConfigEmpty *config);
 static void sqdb_empty_final(SqdbEmpty *sqdb);
 static int  sqdb_empty_open(SqdbEmpty *sqdb, const char *database_name);
 static int  sqdb_empty_close(SqdbEmpty *sqdb);
@@ -58,7 +58,7 @@ const SqdbInfo *SQDB_INFO_EMPTY = &dbinfo;
 // ----------------------------------------------------------------------------
 // SqdbInfo
 
-static void sqdb_empty_init(SqdbEmpty *sqdb, SqdbConfigEmpty *config_src)
+static void sqdb_empty_init(SqdbEmpty *sqdb, const SqdbConfigEmpty *config_src)
 {
 	if (config_src) {
 		// setup Sqdb

@@ -66,9 +66,10 @@ extern "C" {
 /* --- C Functions --- */
 
 // if 'config' is NULL, program must set configure later
-Sqdb   *sqdb_new(const SqdbInfo *info, SqdbConfig *config);
+Sqdb   *sqdb_new(const SqdbInfo *info, const SqdbConfig *config);
 void    sqdb_free(Sqdb *db);
 
+void    sqdb_init(Sqdb *db, const SqdbInfo *info, const SqdbConfig *config);
 void    sqdb_final(Sqdb *db);
 
 /* --- execute SQL statement --- */
@@ -111,12 +112,15 @@ void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 
 namespace Sq {
 
-/* DbMethod : a C++ struct is used by Sqdb and it's children. */
+/* DbMethod is used by Sqdb and it's children. */
 
 // This one is for derived use only, it must has Sqdb data members.
 // Your derived struct/class must be C++11 standard-layout.
 struct DbMethod
 {
+	void init(const SqdbInfo *info, const SqdbConfig *config);
+	void final(void);
+
 	int  open(const char *name);
 	int  close(void);
 	int  exec(const char *sql, Sqxc *xc, void *reserve = NULL);
@@ -151,7 +155,7 @@ struct SqdbInfo
 	} quote;
 
 	// initialize derived structure of Sqdb
-	void (*init)(Sqdb *db, SqdbConfig *config);
+	void (*init)(Sqdb *db, const SqdbConfig *config);
 	// finalize derived structure of Sqdb
 	void (*final)(Sqdb *db);
 
@@ -218,7 +222,14 @@ struct SqdbConfig
 
 namespace Sq {
 
-/* --- define methods for Sq::Db --- */
+/* DbMethod is used by Sqdb's children. */
+
+inline void DbMethod::init(const SqdbInfo *info, const SqdbConfig *config) {
+	sqdb_init((Sqdb*)this, info, config);
+}
+inline void DbMethod::final(void) {
+	sqdb_final((Sqdb*)this);
+}
 
 inline int  DbMethod::open(const char *name) {
 	return sqdb_open((Sqdb*)this, name);

@@ -28,19 +28,12 @@
 
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
 
-Sqdb   *sqdb_new(const SqdbInfo *info, SqdbConfig *config)
+Sqdb   *sqdb_new(const SqdbInfo *info, const SqdbConfig *config)
 {
-	void (*init)(Sqdb *db, SqdbConfig *conf);
 	Sqdb *db;
 
-	init = info->init;
-	if (init) {
-		db = malloc(info->size);
-		info->init(db, config);
-	}
-	else
-		db = calloc(1, info->size);
-	db->info = info;
+	db = malloc(info->size);
+	sqdb_init(db, info, config);
 	return db;
 }
 
@@ -50,7 +43,22 @@ void    sqdb_free(Sqdb *db)
 	free(db);
 }
 
-void    sqdb_final(Sqdb *db)
+void  sqdb_init(Sqdb *db, const SqdbInfo *info, const SqdbConfig *config)
+{
+	void (*init)(Sqdb *db, const SqdbConfig *conf);
+
+	init = info->init;
+	if (init) {
+		db->info = info;
+		info->init(db, config);
+	}
+	else {
+		memset(db, 0, info->size);
+		db->info = info;
+	}
+}
+
+void  sqdb_final(Sqdb *db)
 {
 	void (*final)(Sqdb *db);
 

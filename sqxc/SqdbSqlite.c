@@ -31,7 +31,7 @@
 #define NEW_TABLE_PREFIX_NAME          "new__table__"
 #define SQLITE_VERSION_NUMBER_3_20     3020000           // 3.20.0
 
-static void sqdb_sqlite_init(SqdbSqlite *sqdb, SqdbConfigSqlite *config);
+static void sqdb_sqlite_init(SqdbSqlite *sqdb, const SqdbConfigSqlite *config);
 static void sqdb_sqlite_final(SqdbSqlite *sqdb);
 static int  sqdb_sqlite_open(SqdbSqlite *sqdb, const char *database_name);
 static int  sqdb_sqlite_close(SqdbSqlite *sqdb);
@@ -71,7 +71,7 @@ static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *
 static int  debug_callback(void *user_data, int argc, char **argv, char **columnName);
 #endif
 
-static void sqdb_sqlite_init(SqdbSqlite *sqdb, SqdbConfigSqlite *config_src)
+static void sqdb_sqlite_init(SqdbSqlite *sqdb, const SqdbConfigSqlite *config_src)
 {
 	if (config_src) {
 		sqdb->extension = strdup(config_src->extension);

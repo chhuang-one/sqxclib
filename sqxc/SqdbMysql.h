@@ -78,7 +78,7 @@ struct SqdbMysql
 
 	// ------ SqdbMysql members ------     // <-- 3. Add variable and non-virtual function in derived struct.
 	MYSQL *self;
-	SqdbConfigMysql *config;
+	const SqdbConfigMysql *config;
 };
 
 /*
@@ -122,11 +122,11 @@ typedef struct SqdbConfigMysql    DbConfigMysql;
 // These are for directly use only. You can NOT derived it.
 struct DbMysql : SqdbMysql
 {
-	DbMysql(SqdbConfigMysql *config = NULL) {
-		this->info = SQDB_INFO_MYSQL;  SQDB_INFO_MYSQL->init((Sqdb*)this, (SqdbConfig*)config);
+	DbMysql(const SqdbConfigMysql *config = NULL) {
+		init(SQDB_INFO_MYSQL, (const SqdbConfig*)config);
 	}
 	~DbMysql() {
-		SQDB_INFO_MYSQL->final((Sqdb*)this);
+		final();
 	}
 };
 
