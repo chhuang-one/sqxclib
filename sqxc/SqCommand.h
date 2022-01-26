@@ -26,6 +26,32 @@ typedef struct SqConsole         SqConsole;
 typedef struct SqCommand         SqCommand;
 typedef struct SqCommandValue    SqCommandValue;
 
+/*	SqCommand initializer macro. below is sample code:
+
+	typedef struct MyCommandValue {
+		SQ_COMMAND_VALUE_MEMBERS;
+		int  option1_value;
+		int  option2_value;
+	} MyCommandValue;
+
+	static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void *data) {
+		// The function will be called when your command is executed.
+	}
+
+	static const SqOption *mycommand_options[] = {
+		option1,
+		option2,
+	};
+
+	const SqCommand  mycommand = SQ_COMMAND_INITIALIZER(
+		MyCommandValue, 0,                             // StructureType, bit_field
+		"mycommand",                                   // command string
+		mycommand_options,                             // SqOption pointer array
+		mycommand_handle,                              // handle function
+		"mycommand parameterName",                     // parameter string
+		"mycommand description"                        // description string
+	);
+ */
 #define SQ_COMMAND_INITIALIZER(StructType, bit_value, command_string, command_options, handle_func, parameter_string, description_string) \
 {                                                                  \
 	.size  = sizeof(StructType),                                   \
@@ -101,7 +127,10 @@ namespace Sq {
 struct Command;
 struct CommandMethod;
 
-/* CommandValueMethod is used by SqCommandValue and it's children --- */
+/*	CommandValueMethod is used by SqCommandValue and it's children.
+
+	It's derived struct/class must be C++11 standard-layout and has SqCommandValue members.
+ */
 struct CommandValueMethod {
 	void *operator new(size_t size);
 
@@ -152,16 +181,14 @@ struct SqCommand
 	// or use macro SQ_GET_TYPE_NAME()
 	char          *name;
 
-//	SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry);
-//	// ------ SqPtrArray members ------
-	SqEntry      **entry;
-	int            n_entry;
-
-//	SqType.entry is array of SqEntry pointer if current SqType is for C struct.
-//	SqType.entry can't be freed if SqType.n_entry == -1
+	// SqType.entry is array of SqEntry pointer if current SqType is for C struct type.
+	// SqType.entry can't be freed if SqType.n_entry == -1
+	SqEntry      **entry;          // SqPtrArray.data
+	int            n_entry;        // SqPtrArray.length
+	// macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) expands to above 2 fields.
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
-	// SqType::bit_field has SQB_TYPE_SORTED if SqType::entry is sorted.
+	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
 	uint16_t       bit_field;
 	uint16_t       ref_count;    // reference count for dynamic SqType only
 
@@ -254,6 +281,8 @@ namespace Sq {
 
 /*	CommandMethod is used by SqCommand's children.
 
+	It's derived struct/class must be C++11 standard-layout and has SqCommand members.
+
 	Note: If you add, remove, or change methods here, do the same things in SqCommand.
  */
 struct CommandMethod {
@@ -291,7 +320,8 @@ struct CommandMethod {
 	}
 };
 
-/* CommandValueMethod */
+/* define CommandValueMethod functions. */
+
 inline void *CommandValueMethod::operator new(size_t size) {
 	return calloc(1, size);
 }

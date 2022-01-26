@@ -41,15 +41,18 @@ define 'mycommand' that has two options - '--help' and '--quiet'
 	`--- MyCommandValue
 
 ```c++
+// add this line if you use C language
+typedef struct MyCommandValue    MyCommandValue;
+
 #ifdef __cplusplus
-typedef struct MyCommandValue : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
+struct MyCommandValue : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
 #else
-typedef struct MyCommandValue
+struct MyCommandValue
 #endif
 {
-	SQ_COMMAND_VALUE_MEMBERS;                              // <-- 2. inherit member variable
+	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
 
-	bool    help;                                          // <-- 3. Add variable and non-virtual function in derived struct.
+	bool    help;                                  // <-- 3. Add variable and non-virtual function in derived struct.
 	bool    quiet;
 };
 ```

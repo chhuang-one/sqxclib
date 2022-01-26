@@ -194,7 +194,10 @@ namespace Sq {
 
 struct QueryMethod;    // define in SqQuery.h
 
-/* StorageMethod is used by SqStorage and it's children. */
+/*	StorageMethod is used by SqStorage and it's children.
+
+	It's derived struct/class must be C++11 standard-layout and has SqStorage members.
+ */
 struct StorageMethod
 {
 	/*
@@ -345,7 +348,7 @@ int      sq_storage_rollback_trans(SqStorage *storage);
 
 namespace Sq {
 
-/* define methods of StorageMethod */
+/* define StorageMethod functions. */
 
 inline int   StorageMethod::open(const char *database_name) {
 	return sqdb_open(((SqStorage*)this)->db, database_name);

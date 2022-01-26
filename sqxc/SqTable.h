@@ -269,237 +269,90 @@ namespace Sq {
 
 struct Column;
 
-#if 0
-template<class Store, class Type>
-inline size_t offsetOf(Type Store::*member) {
-	static Store obj;
-	return size_t(&(obj.*member)) - size_t(&obj);
-}
-#else
-// constexpr specifier (since C++11)
-template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
-	return (char*)&((T*)nullptr->*member) - (char*)nullptr;
-}
-#endif
+/*	TableMethod is used by SqTable and it's children.
 
-/* TableMethod is used by SqTable and it's children. */
+	It's derived struct/class must be C++11 standard-layout and has SqTable members.
+ */
 struct TableMethod
 {
-	bool  hasColumn(const char *column_name) {
-		return sq_table_has_column((SqTable*)this, column_name);
-	}
-	void  dropColumn(const char *column_name) {
-		sq_table_drop_column((SqTable*)this, column_name);
-	}
-	void  renameColumn(const char *from, const char *to) {
-		sq_table_rename_column((SqTable*)this, from, to);
-	}
-	int   getColumns(SqPtrArray *ptr_array, const SqType *type, unsigned int bit_field) {
-		return sq_table_get_columns((SqTable*)this, ptr_array, type, bit_field);
-	}
-	Sq::Column *getPrimary() {
-		return (Sq::Column*)sq_table_get_primary((SqTable*)this, NULL);
-	}
+	bool        hasColumn(const char *column_name);
+	void        dropColumn(const char *column_name);
+	void        renameColumn(const char *from, const char *to);
+	int         getColumns(SqPtrArray *ptr_array, const SqType *type, unsigned int bit_field);
+	Sq::Column *getPrimary();
 
-	void  addColumn(const SqColumn *columns, int n_columns = 1) {
-		sq_table_add_column((SqTable*)this, columns, n_columns);
-	}
-	void  addColumn(const SqColumn **column_ptrs, int n_column_ptrs = 1) {
-		sq_table_add_column_ptrs((SqTable*)this, column_ptrs, n_column_ptrs);
-	}
+	void        addColumn(const SqColumn *columns, int n_columns = 1);
+	void        addColumn(const SqColumn **column_ptrs, int n_column_ptrs = 1);
 
-	Sq::Column& boolean(const char *column_name, size_t offset) {
-		return *(Sq::Column*)sq_table_add_bool((SqTable*)this, column_name, offset);
-	}
-	Sq::Column& bool_(const char *column_name, size_t offset) {
-		return *(Sq::Column*)sq_table_add_bool((SqTable*)this, column_name, offset);
-	}
-	Sq::Column& integer(const char *column_name, size_t offset) {
-		return *(Sq::Column*)sq_table_add_int((SqTable*)this, column_name, offset);
-	}
-	Sq::Column& int_(const char *column_name, size_t offset) {
-		return *(Sq::Column*)sq_table_add_int((SqTable*)this, column_name, offset);
-	}
-	Sq::Column& uint(const char *column_name, size_t offset) {
-		return *(Sq::Column*)sq_table_add_uint((SqTable*)this, column_name, offset);
-	}
-	Sq::Column& int64(const char *column_name, size_t offset) {
-		return *(Sq::Column*)sq_table_add_int64((SqTable*)this, column_name, offset);
-	}
-	Sq::Column& uint64(const char *column_name, size_t offset) {
-		return *(Sq::Column*)sq_table_add_uint64((SqTable*)this, column_name, offset);
-	}
-	Sq::Column& timestamp(const char *column_name, size_t offset) {
-		return *(Sq::Column*)sq_table_add_timestamp((SqTable*)this, column_name, offset);
-	}
+	Sq::Column& boolean(const char *column_name, size_t offset);
+	Sq::Column& bool_(const char *column_name, size_t offset);
+	Sq::Column& integer(const char *column_name, size_t offset);
+	Sq::Column& int_(const char *column_name, size_t offset);
+	Sq::Column& uint(const char *column_name, size_t offset);
+	Sq::Column& int64(const char *column_name, size_t offset);
+	Sq::Column& uint64(const char *column_name, size_t offset);
+	Sq::Column& timestamp(const char *column_name, size_t offset);
 	void        timestamps(const char *created_at_name, size_t created_at_offset,
-	                       const char *updated_at_name, size_t updated_at_offset) {
-		sq_table_add_timestamps((SqTable*)this, created_at_name, created_at_offset,
-		                        updated_at_name, updated_at_offset);
-	}
-	void        timestamps(size_t created_at_offset, size_t updated_at_offset) {
-		sq_table_add_timestamps((SqTable*)this, NULL, created_at_offset,
-		                        NULL, updated_at_offset);
-	}
-	Sq::Column& double_(const char *column_name, size_t offset, int precision = 0, int scale = 0) {
-		return *(Sq::Column*)sq_table_add_double((SqTable*)this, column_name, offset, precision, scale);
-	}
-	Sq::Column& string(const char *column_name, size_t offset, int length = -1) {
-		return *(Sq::Column*)sq_table_add_string((SqTable*)this, column_name, offset, length);
-	}
-	Sq::Column& char_(const char *column_name, size_t offset, int length = -1) {
-		return *(Sq::Column*)sq_table_add_char((SqTable*)this, column_name, offset, length);
-	}
-	Sq::Column& custom(const char *column_name, size_t offset, const SqType *type, int length = -1) {
-		return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, offset, type, length);
-	}
+	                       const char *updated_at_name, size_t updated_at_offset);
+	void        timestamps(size_t created_at_offset, size_t updated_at_offset);
+	Sq::Column& double_(const char *column_name, size_t offset, int precision = 0, int scale = 0);
+	Sq::Column& string(const char *column_name, size_t offset, int length = -1);
+	Sq::Column& char_(const char *column_name, size_t offset, int length = -1);
+	Sq::Column& custom(const char *column_name, size_t offset, const SqType *type, int length = -1);
 
-	Sq::Column& stdstring(const char *column_name, size_t offset, int length = -1) {
-		return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, offset, SQ_TYPE_STD_STRING, length);
-	}
+	Sq::Column& stdstring(const char *column_name, size_t offset, int length = -1);
 
 	template<class Store, class Type>
-	Sq::Column& boolean(const char *column_name, Type Store::*member) {
-		return *(Sq::Column*)sq_table_add_bool((SqTable*)this, column_name, Sq::offsetOf(member));
-	};
+	Sq::Column& boolean(const char *column_name, Type Store::*member);
 	template<class Store, class Type>
-	Sq::Column& bool_(const char *column_name, Type Store::*member) {
-		return *(Sq::Column*)sq_table_add_bool((SqTable*)this, column_name, Sq::offsetOf(member));
-	};
+	Sq::Column& bool_(const char *column_name, Type Store::*member);
 	template<class Store, class Type>
-	Sq::Column& integer(const char *column_name, Type Store::*member) {
-		return *(Sq::Column*)sq_table_add_int((SqTable*)this, column_name, Sq::offsetOf(member));
-	};
+	Sq::Column& integer(const char *column_name, Type Store::*member);
 	template<class Store, class Type>
-	Sq::Column& int_(const char *column_name, Type Store::*member) {
-		return *(Sq::Column*)sq_table_add_int((SqTable*)this, column_name, Sq::offsetOf(member));
-	};
+	Sq::Column& int_(const char *column_name, Type Store::*member);
 	template<class Store, class Type>
-	Sq::Column& uint(const char *column_name, Type Store::*member) {
-		return *(Sq::Column*)sq_table_add_uint((SqTable*)this, column_name, Sq::offsetOf(member));
-	};
+	Sq::Column& uint(const char *column_name, Type Store::*member);
 	template<class Store, class Type>
-	Sq::Column& int64(const char *column_name, Type Store::*member) {
-		return *(Sq::Column*)sq_table_add_int64((SqTable*)this, column_name, Sq::offsetOf(member));
-	};
+	Sq::Column& int64(const char *column_name, Type Store::*member);
 	template<class Store, class Type>
-	Sq::Column& uint64(const char *column_name, Type Store::*member) {
-		return *(Sq::Column*)sq_table_add_uint64((SqTable*)this, column_name, Sq::offsetOf(member));
-	};
+	Sq::Column& uint64(const char *column_name, Type Store::*member);
 	template<class Store, class Type>
-	Sq::Column& timestamp(const char *column_name, Type Store::*member) {
-		return *(Sq::Column*)sq_table_add_timestamp((SqTable*)this, column_name, Sq::offsetOf(member));
-	};
+	Sq::Column& timestamp(const char *column_name, Type Store::*member);
 	template<class Store, class Type>
 	void        timestamps(const char *created_at_name, Type Store::*created_at_member,
-	                       const char *updated_at_name, Type Store::*updated_at_member) {
-		sq_table_add_timestamps((SqTable*)this, created_at_name, Sq::offsetOf(created_at_member),
-		                        updated_at_name, Sq::offsetOf(updated_at_member));
-	};
+	                       const char *updated_at_name, Type Store::*updated_at_member);
 	template<class Store, class Type>
-	void        timestamps(Type Store::*created_at_member, Type Store::*updated_at_member) {
-		sq_table_add_timestamps((SqTable*)this, NULL, Sq::offsetOf(created_at_member),
-		                        NULL, Sq::offsetOf(updated_at_member));
-	};
+	void        timestamps(Type Store::*created_at_member, Type Store::*updated_at_member);
 	template<class Store>
-	void        timestamps() {
-		sq_table_add_timestamps((SqTable*)this, NULL, Sq::offsetOf(&Store::created_at),
-		                        NULL, Sq::offsetOf(&Store::updated_at));
-	};
+	void        timestamps();
 	template<class Store, class Type>
-	Sq::Column& double_(const char *column_name, Type Store::*member, int precision = 0, int scale = 0) {
-		return *(Sq::Column*)sq_table_add_double((SqTable*)this, column_name, Sq::offsetOf(member), precision, scale);
-	};
+	Sq::Column& double_(const char *column_name, Type Store::*member, int precision = 0, int scale = 0);
 	template<class Store, class Type>
-	Sq::Column& string(const char *column_name, Type Store::*member, int length = -1) {
-		return *(Sq::Column*)sq_table_add_string((SqTable*)this, column_name, Sq::offsetOf(member), length);
-	};
+	Sq::Column& string(const char *column_name, Type Store::*member, int length = -1);
 	template<class Store, class Type>
-	Sq::Column& custom(const char *column_name, Type Store::*member, const SqType *type, int length = -1) {
-		return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, Sq::offsetOf(member), type, length);
-	};
+	Sq::Column& custom(const char *column_name, Type Store::*member, const SqType *type, int length = -1);
 
 	template<class Store, class Type>
-	Sq::Column& stdstring(const char *column_name, Type Store::*member, int length = -1) {
-		return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, Sq::offsetOf(member), SQ_TYPE_STD_STRING, length);
-	};
+	Sq::Column& stdstring(const char *column_name, Type Store::*member, int length = -1);
 
 	// ----------------------------------------------------
 	// composite (constraint)
 
-	Sq::Column *index(const char *name, const char *column1_name, ...) {
-		va_list   arg_list;
-		SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_INDEX, 0, name);
-		va_start(arg_list, column1_name);
-		sq_column_set_composite_va(column, column1_name, arg_list);
-		va_end(arg_list);
-		return (Sq::Column*)column;
-	}
-	Sq::Column *addIndex(const char *name, const char *column1_name, ...) {
-		va_list   arg_list;
-		SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_INDEX, 0, name);
-		va_start(arg_list, column1_name);
-		sq_column_set_composite_va(column, column1_name, arg_list);
-		va_end(arg_list);
-		return (Sq::Column*)column;
-	}
-	void  dropIndex(const char *name) {
-		sq_table_drop_composite((SqTable*)this, SQ_TYPE_INDEX, 0, name);
-	}
+	Sq::Column *index(const char *name, const char *column1_name, ...);
+	Sq::Column *addIndex(const char *name, const char *column1_name, ...);
+	void        dropIndex(const char *name);
 
-	Sq::Column *unique(const char *name, const char *column1_name, ...) {
-		va_list   arg_list;
-		SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, name);
-		va_start(arg_list, column1_name);
-		sq_column_set_composite_va(column, column1_name, arg_list);
-		va_end(arg_list);
-		return (Sq::Column*)column;
-	}
-	Sq::Column *addUnique(const char *name, const char *column1_name, ...) {
-		va_list   arg_list;
-		SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, name);
-		va_start(arg_list, column1_name);
-		sq_column_set_composite_va(column, column1_name, arg_list);
-		va_end(arg_list);
-		return (Sq::Column*)column;
-	}
-	void  dropUnique(const char *name) {
-		sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, name);
-	}
+	Sq::Column *unique(const char *name, const char *column1_name, ...);
+	Sq::Column *addUnique(const char *name, const char *column1_name, ...);
+	void        dropUnique(const char *name);
 
-	Sq::Column *primary(const char *name, const char *column1_name, ...) {
-		va_list   arg_list;
-		SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, name);
-		va_start(arg_list, column1_name);
-		sq_column_set_composite_va(column, column1_name, arg_list);
-		va_end(arg_list);
-		return (Sq::Column*)column;
-	}
-	Sq::Column *addPrimary(const char *name, const char *column1_name, ...) {
-		va_list   arg_list;
-		SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, name);
-		va_start(arg_list, column1_name);
-		sq_column_set_composite_va(column, column1_name, arg_list);
-		va_end(arg_list);
-		return (Sq::Column*)column;
-	}
-	void  dropPrimary(const char *name) {
-		sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, name);
-	}
+	Sq::Column *primary(const char *name, const char *column1_name, ...);
+	Sq::Column *addPrimary(const char *name, const char *column1_name, ...);
+	void        dropPrimary(const char *name);
 
-	Sq::Column *foreign(const char *name, const char *column_name) {
-		SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
-		sq_column_set_composite(column, column_name, NULL);
-		return (Sq::Column*)column;
-	}
-	Sq::Column *addForeign(const char *name, const char *column_name) {
-		SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
-		sq_column_set_composite(column, column_name, NULL);
-		return (Sq::Column*)column;
-	}
-	void  dropForeign(const char *name) {
-		sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
-	}
+	Sq::Column *foreign(const char *name, const char *column_name);
+	Sq::Column *addForeign(const char *name, const char *column_name);
+	void        dropForeign(const char *name);
 
 /*
 	template<int N>
@@ -514,13 +367,7 @@ struct TableMethod
 	Sq::Column *primary(const char *(&column_array)[N], const char *name = NULL);
 	Sq::Column *primary(const char *column1_name, ...);
 
-	Sq::Column *foreign(const char *column_name, const char *name = NULL) {
-		SqColumn column;
-
-		column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
-		sq_column_set_composite(column, column_name, NULL);
-		return (Sq::Column*)column;
-	}
+	Sq::Column *foreign(const char *column_name, const char *name = NULL);
  */
 };
 
@@ -746,7 +593,263 @@ struct SqColumn
 #ifdef __cplusplus
 namespace Sq {
 
+#if 0
+template<class Store, class Type>
+inline size_t offsetOf(Type Store::*member) {
+	static Store obj;
+	return size_t(&(obj.*member)) - size_t(&obj);
+}
+#else
+// constexpr specifier (since C++11)
+template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
+	return (char*)&((T*)nullptr->*member) - (char*)nullptr;
+}
+#endif
+
+/*	TableMethod is used by SqTable and it's children.
+
+	define TableMethod functions.
+ */
+inline bool  TableMethod::hasColumn(const char *column_name) {
+	return sq_table_has_column((SqTable*)this, column_name);
+}
+inline void  TableMethod::dropColumn(const char *column_name) {
+	sq_table_drop_column((SqTable*)this, column_name);
+}
+inline void  TableMethod::renameColumn(const char *from, const char *to) {
+	sq_table_rename_column((SqTable*)this, from, to);
+}
+inline int   TableMethod::getColumns(SqPtrArray *ptr_array, const SqType *type, unsigned int bit_field) {
+	return sq_table_get_columns((SqTable*)this, ptr_array, type, bit_field);
+}
+inline Sq::Column *TableMethod::getPrimary() {
+	return (Sq::Column*)sq_table_get_primary((SqTable*)this, NULL);
+}
+
+inline void  TableMethod::addColumn(const SqColumn *columns, int n_columns) {
+	sq_table_add_column((SqTable*)this, columns, n_columns);
+}
+inline void  TableMethod::addColumn(const SqColumn **column_ptrs, int n_column_ptrs) {
+	sq_table_add_column_ptrs((SqTable*)this, column_ptrs, n_column_ptrs);
+}
+
+inline Sq::Column&  TableMethod::boolean(const char *column_name, size_t offset) {
+	return *(Sq::Column*)sq_table_add_bool((SqTable*)this, column_name, offset);
+}
+inline Sq::Column&  TableMethod::bool_(const char *column_name, size_t offset) {
+	return *(Sq::Column*)sq_table_add_bool((SqTable*)this, column_name, offset);
+}
+inline Sq::Column&  TableMethod::integer(const char *column_name, size_t offset) {
+	return *(Sq::Column*)sq_table_add_int((SqTable*)this, column_name, offset);
+}
+inline Sq::Column&  TableMethod::int_(const char *column_name, size_t offset) {
+	return *(Sq::Column*)sq_table_add_int((SqTable*)this, column_name, offset);
+}
+inline Sq::Column&  TableMethod::uint(const char *column_name, size_t offset) {
+	return *(Sq::Column*)sq_table_add_uint((SqTable*)this, column_name, offset);
+}
+inline Sq::Column&  TableMethod::int64(const char *column_name, size_t offset) {
+	return *(Sq::Column*)sq_table_add_int64((SqTable*)this, column_name, offset);
+}
+inline Sq::Column&  TableMethod::uint64(const char *column_name, size_t offset) {
+	return *(Sq::Column*)sq_table_add_uint64((SqTable*)this, column_name, offset);
+}
+inline Sq::Column&  TableMethod::timestamp(const char *column_name, size_t offset) {
+	return *(Sq::Column*)sq_table_add_timestamp((SqTable*)this, column_name, offset);
+}
+inline void  TableMethod::timestamps(const char *created_at_name, size_t created_at_offset,
+                                     const char *updated_at_name, size_t updated_at_offset) {
+	sq_table_add_timestamps((SqTable*)this, created_at_name, created_at_offset,
+	                        updated_at_name, updated_at_offset);
+}
+inline void  TableMethod::timestamps(size_t created_at_offset, size_t updated_at_offset) {
+	sq_table_add_timestamps((SqTable*)this, NULL, created_at_offset,
+	                        NULL, updated_at_offset);
+}
+inline Sq::Column&  TableMethod::double_(const char *column_name, size_t offset, int precision, int scale) {
+	return *(Sq::Column*)sq_table_add_double((SqTable*)this, column_name, offset, precision, scale);
+}
+inline Sq::Column&  TableMethod::string(const char *column_name, size_t offset, int length) {
+	return *(Sq::Column*)sq_table_add_string((SqTable*)this, column_name, offset, length);
+}
+inline Sq::Column&  TableMethod::char_(const char *column_name, size_t offset, int length) {
+	return *(Sq::Column*)sq_table_add_char((SqTable*)this, column_name, offset, length);
+}
+inline Sq::Column&  TableMethod::custom(const char *column_name, size_t offset, const SqType *type, int length) {
+	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, offset, type, length);
+}
+
+inline Sq::Column&  TableMethod::stdstring(const char *column_name, size_t offset, int length) {
+	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, offset, SQ_TYPE_STD_STRING, length);
+}
+
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::boolean(const char *column_name, Type Store::*member) {
+	return *(Sq::Column*)sq_table_add_bool((SqTable*)this, column_name, Sq::offsetOf(member));
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::bool_(const char *column_name, Type Store::*member) {
+	return *(Sq::Column*)sq_table_add_bool((SqTable*)this, column_name, Sq::offsetOf(member));
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::integer(const char *column_name, Type Store::*member) {
+	return *(Sq::Column*)sq_table_add_int((SqTable*)this, column_name, Sq::offsetOf(member));
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::int_(const char *column_name, Type Store::*member) {
+	return *(Sq::Column*)sq_table_add_int((SqTable*)this, column_name, Sq::offsetOf(member));
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::uint(const char *column_name, Type Store::*member) {
+	return *(Sq::Column*)sq_table_add_uint((SqTable*)this, column_name, Sq::offsetOf(member));
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::int64(const char *column_name, Type Store::*member) {
+	return *(Sq::Column*)sq_table_add_int64((SqTable*)this, column_name, Sq::offsetOf(member));
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::uint64(const char *column_name, Type Store::*member) {
+	return *(Sq::Column*)sq_table_add_uint64((SqTable*)this, column_name, Sq::offsetOf(member));
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::timestamp(const char *column_name, Type Store::*member) {
+	return *(Sq::Column*)sq_table_add_timestamp((SqTable*)this, column_name, Sq::offsetOf(member));
+};
+template<class Store, class Type>
+inline void  TableMethod::timestamps(const char *created_at_name, Type Store::*created_at_member,
+                                     const char *updated_at_name, Type Store::*updated_at_member) {
+	sq_table_add_timestamps((SqTable*)this, created_at_name, Sq::offsetOf(created_at_member),
+	                        updated_at_name, Sq::offsetOf(updated_at_member));
+};
+template<class Store, class Type>
+inline void  TableMethod::timestamps(Type Store::*created_at_member, Type Store::*updated_at_member) {
+	sq_table_add_timestamps((SqTable*)this, NULL, Sq::offsetOf(created_at_member),
+	                        NULL, Sq::offsetOf(updated_at_member));
+};
+template<class Store>
+inline void  TableMethod::timestamps() {
+	sq_table_add_timestamps((SqTable*)this, NULL, Sq::offsetOf(&Store::created_at),
+	                        NULL, Sq::offsetOf(&Store::updated_at));
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::double_(const char *column_name, Type Store::*member, int precision, int scale) {
+	return *(Sq::Column*)sq_table_add_double((SqTable*)this, column_name, Sq::offsetOf(member), precision, scale);
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::string(const char *column_name, Type Store::*member, int length) {
+	return *(Sq::Column*)sq_table_add_string((SqTable*)this, column_name, Sq::offsetOf(member), length);
+};
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::custom(const char *column_name, Type Store::*member, const SqType *type, int length) {
+	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, Sq::offsetOf(member), type, length);
+};
+
+template<class Store, class Type>
+inline Sq::Column&  TableMethod::stdstring(const char *column_name, Type Store::*member, int length) {
+	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, Sq::offsetOf(member), SQ_TYPE_STD_STRING, length);
+};
+
+// define composite (constraint) methods of TableMethod
+
+inline Sq::Column *TableMethod::index(const char *name, const char *column1_name, ...) {
+	va_list   arg_list;
+	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_INDEX, 0, name);
+	va_start(arg_list, column1_name);
+	sq_column_set_composite_va(column, column1_name, arg_list);
+	va_end(arg_list);
+	return (Sq::Column*)column;
+}
+inline Sq::Column *TableMethod::addIndex(const char *name, const char *column1_name, ...) {
+	va_list   arg_list;
+	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_INDEX, 0, name);
+	va_start(arg_list, column1_name);
+	sq_column_set_composite_va(column, column1_name, arg_list);
+	va_end(arg_list);
+	return (Sq::Column*)column;
+}
+inline void  TableMethod::dropIndex(const char *name) {
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_INDEX, 0, name);
+}
+
+inline Sq::Column *TableMethod::unique(const char *name, const char *column1_name, ...) {
+	va_list   arg_list;
+	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, name);
+	va_start(arg_list, column1_name);
+	sq_column_set_composite_va(column, column1_name, arg_list);
+	va_end(arg_list);
+	return (Sq::Column*)column;
+}
+inline Sq::Column *TableMethod::addUnique(const char *name, const char *column1_name, ...) {
+	va_list   arg_list;
+	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, name);
+	va_start(arg_list, column1_name);
+	sq_column_set_composite_va(column, column1_name, arg_list);
+	va_end(arg_list);
+	return (Sq::Column*)column;
+}
+inline void  TableMethod::dropUnique(const char *name) {
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, name);
+}
+
+inline Sq::Column *TableMethod::primary(const char *name, const char *column1_name, ...) {
+	va_list   arg_list;
+	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, name);
+	va_start(arg_list, column1_name);
+	sq_column_set_composite_va(column, column1_name, arg_list);
+	va_end(arg_list);
+	return (Sq::Column*)column;
+}
+inline Sq::Column *TableMethod::addPrimary(const char *name, const char *column1_name, ...) {
+	va_list   arg_list;
+	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, name);
+	va_start(arg_list, column1_name);
+	sq_column_set_composite_va(column, column1_name, arg_list);
+	va_end(arg_list);
+	return (Sq::Column*)column;
+}
+inline void  TableMethod::dropPrimary(const char *name) {
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, name);
+}
+
+inline Sq::Column *TableMethod::foreign(const char *name, const char *column_name) {
+	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
+	sq_column_set_composite(column, column_name, NULL);
+	return (Sq::Column*)column;
+}
+inline Sq::Column *TableMethod::addForeign(const char *name, const char *column_name) {
+	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
+	sq_column_set_composite(column, column_name, NULL);
+	return (Sq::Column*)column;
+}
+inline void  TableMethod::dropForeign(const char *name) {
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
+}
+
+/*
+template<int N>
+inline Sq::Column *TableMethod::index(const char *(&column_array)[N], const char *name)
+inline Sq::Column *TableMethod::index(const char *column1_name, ...);
+
+template<int N>
+inline Sq::Column *TableMethod::unique(const char *(&column_array)[N], const char *name);
+inline Sq::Column *TableMethod::unique(const char *column1_name, ...);
+
+template<int N>
+inline Sq::Column *TableMethod::primary(const char *(&column_array)[N], const char *name);
+inline Sq::Column *TableMethod::primary(const char *column1_name, ...);
+
+inline Sq::Column *TableMethod::foreign(const char *column_name, const char *name) {
+	SqColumn column;
+
+	column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
+	sq_column_set_composite(column, column_name, NULL);
+	return (Sq::Column*)column;
+}
+ */
+
 /*	ColumnMethod is used by SqColumn's children.
+
+	It's derived struct/class must be C++11 standard-layout and has SqColumn members.
 
 	Note: If you add, remove, or change methods here, do the same things in SqColumn.
  */

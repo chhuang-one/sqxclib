@@ -58,7 +58,10 @@ void       sq_console_print_list(SqConsole  *console, const char *program_descri
 
 namespace Sq {
 
-/*	ConsoleMethod is used by SqConsole and it's children. */
+/*	ConsoleMethod is used by SqConsole and it's children.
+
+	It's derived struct/class must be C++11 standard-layout and has SqConsole members.
+*/
 struct ConsoleMethod {
 	void  add(const SqCommand *command_type);
 	void  add(const Sq::CommandMethod *command_type);
@@ -120,7 +123,8 @@ struct SqConsole
 
 namespace Sq {
 
-/* define methods of ConsoleMethod. */
+/* define ConsoleMethod functions. */
+
 inline void  ConsoleMethod::add(const SqCommand *command_type) {
 	sq_console_add((SqConsole*)this, command_type);
 }

@@ -3,10 +3,11 @@ project('sqxclib', 'c', 'cpp',
         version: '0.5.1')
 
 # add_project_arguments('-DHAVE_CONFIG_H', language : ['c', 'cpp'])
+# add_project_arguments('-DNDEBUG', language : ['c', 'cpp'])
 
 config_data = configuration_data()
 
-# therad
+# --- therad ---
 if host_machine.system() == 'windows'
 	config_data.set('have_thread',  '1')
 else
@@ -18,7 +19,7 @@ else
 	endif
 endif
 
-# json-c
+# --- json-c ---
 jsonc = dependency('json-c', required: false)
 if jsonc.found() == true
 	config_data.set('have_jsonc',  '1')
@@ -26,7 +27,7 @@ else
 	config_data.set('have_jsonc',  '0')
 endif
 
-# SQLite
+# --- SQLite ---
 sqlite = dependency('sqlite3', required: false)
 if sqlite.found() == true
 	config_data.set('have_sqlite', '1')
@@ -34,7 +35,7 @@ else
 	config_data.set('have_sqlite', '0')
 endif
 
-# MySQL, MariaDB
+# --- MySQL, MariaDB ---
 mysql_config = find_program('mariadb_config', required: false)
 if mysql_config.found() == false
 	mysql_config = find_program('mysql_config', required: false)

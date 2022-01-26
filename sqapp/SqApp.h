@@ -67,9 +67,10 @@ int   sq_app_rollback(SqApp *app, int step);
 
 namespace Sq {
 
-/*	AppMethod : C++ struct is used by SqApp and it's children.
- */
+/*	AppMethod is used by SqApp and it's children.
 
+	It's derived struct/class must be C++11 standard-layout and has SqApp members.
+ */
 struct AppMethod {
 	void  init();
 	void  final();
@@ -135,6 +136,8 @@ struct SqApp
 #ifdef __cplusplus
 
 namespace Sq {
+
+/* define AppMethod functions. */
 
 inline void  AppMethod::init() {
 	sq_app_init((SqApp*)this);

@@ -95,7 +95,10 @@ namespace Sq {
 
 struct RelationNode;
 
-/* RelationMethod is used by SqRelation and it's children */
+/*	RelationMethod is used by SqRelation and it's children.
+
+	It's derived struct/class must be C++11 standard-layout and has RelationMethod members.
+ */
 struct RelationMethod {
 	void  add(const void *from_object, const void *to_object, int no_reverse = 0);
 	void  erase(const void *from_object, const void *to_object, int no_reverse = 0, SqDestroyFunc to_object_free_func = NULL);
@@ -104,7 +107,10 @@ struct RelationMethod {
 	Sq::RelationNode *find(const void *from_object, const void *to_object);
 };
 
-/* RelationNodeMethod is used by SqRelationNode and it's children --- */
+/*	RelationNodeMethod is used by SqRelationNode and it's children.
+
+	It's derived struct/class must be C++11 standard-layout and has SqRelationNode members.
+*/
 struct RelationNodeMethod {
 	Sq::RelationNode *find(const void *object, SqRelationNode **prev_of_returned_node = NULL);
 	Sq::RelationNode *find(const void *object, Sq::RelationNode **prev_of_returned_node);
@@ -176,7 +182,7 @@ struct SqRelationNode
 
 namespace Sq {
 
-/* define methods of RelationMethod */
+/* define RelationMethod functions. */
 inline void  RelationMethod::add(const void *from_object, const void *to_object, int no_reverse) {
 	sq_relation_add((SqRelation*)this, from_object, to_object, no_reverse);
 }
@@ -193,7 +199,7 @@ inline Sq::RelationNode *RelationMethod::find(const void *from_object, const voi
 	return (Sq::RelationNode*)sq_relation_find((SqRelation*)this, from_object, to_object);
 }
 
-/* define methods of RelationNodeMethod */
+/* define RelationNodeMethod functions. */
 inline Sq::RelationNode *RelationNodeMethod::find(const void *object, SqRelationNode **prev) {
 	return (Sq::RelationNode*)sq_relation_node_find((SqRelationNode*)this, object, prev);
 }

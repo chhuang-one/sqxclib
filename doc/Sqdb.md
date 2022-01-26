@@ -195,8 +195,7 @@ struct SqdbConfigXxsql
 {
 	SQDB_CONFIG_MEMBERS;                   // <-- 1. inherit member variable
 
-	int   xxsql_setting1;                  // <-- 2. Add variable and non-virtual function in derived struct.
-	int   xxsql_setting2;
+	int   xxsql_setting;                   // <-- 2. Add variable and non-virtual function in derived struct.
 };
 
 
@@ -211,7 +210,7 @@ struct SqdbXxsql
 	SQDB_MEMBERS;                          // <-- 2. inherit member variable
 
 	SqdbConfigXxsql *config;               // <-- 3. Add variable and non-virtual function in derived struct.
-	int       xxsql_setting;
+	int            variable;
 
 
 #ifdef __cplusplus

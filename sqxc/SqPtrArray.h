@@ -44,8 +44,7 @@ typedef struct SqUintptrArray   SqUintptrArray;
 extern "C" {
 #endif
 
-/*
-	macro for accessing variable of array
+/*	macro for accessing variable of array
 
 	Header field of SqPtrArray
 	ptr_array->data[-1]: (intptr_t) header length
@@ -239,11 +238,10 @@ void **sq_ptr_array_find_sorted(void *array, const void *key,
 
 namespace Sq {
 
-// This one is for derived use only, no data members here.
-// This one is NOT for directly use, it must has SqPtrArray data members.
-// Your derived struct/class must be C++11 standard-layout.
+/*	PtrArrayMethod is used by SqPtrArray and it's children.
 
-/* PtrArrayMethod is used by SqPtrArray and it's children. */
+	It's derived struct/class must be C++11 standard-layout and has SqPtrArray members.
+ */
 template<class Type>
 struct PtrArrayMethod
 {
@@ -421,7 +419,7 @@ void  sq_ptr_array_append_n(void *array, const void *values, int count);
 
 namespace Sq {
 
-/* PtrArrayMethod template functions */
+/* define PtrArrayMethod template functions */
 
 template<class Type>
 inline Type *PtrArrayMethod<Type>::addr(int index) {

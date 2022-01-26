@@ -112,10 +112,10 @@ void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 
 namespace Sq {
 
-/* DbMethod is used by Sqdb and it's children. */
+/*	DbMethod is used by Sqdb and it's children.
 
-// This one is for derived use only, it must has Sqdb data members.
-// Your derived struct/class must be C++11 standard-layout.
+	It's derived struct/class must be C++11 standard-layout and has Sqdb members.
+ */
 struct DbMethod
 {
 	void init(const SqdbInfo *info, const SqdbConfig *config);
@@ -222,7 +222,7 @@ struct SqdbConfig
 
 namespace Sq {
 
-/* DbMethod is used by Sqdb's children. */
+/* define DbMethod functions. */
 
 inline void DbMethod::init(const SqdbInfo *info, const SqdbConfig *config) {
 	sqdb_init((Sqdb*)this, info, config);

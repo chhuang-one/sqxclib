@@ -298,7 +298,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				if (temp.addr < addr)          // insert after
 					memmove(temp.addr +1, temp.addr, (char*)addr - (char*)temp.addr);
 				else if (temp.addr != addr)    // insert before
-					memmove(addr, addr +1, (char*)(--temp.addr) - (char*)addr);
+					memmove(addr,         addr +1,   (char*)(--temp.addr) - (char*)addr);
 				*temp.addr = column;
 				// set bit_field: column renamed
 				table->bit_field |= SQB_TABLE_COL_RENAMED;
@@ -558,7 +558,7 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 				if (temp.addr < addr)          // insert after
 					memmove(temp.addr +1, temp.addr, (char*)addr - (char*)temp.addr);
 				else if (temp.addr != addr)    // insert before
-					memmove(addr, addr +1, (char*)(--temp.addr) - (char*)addr);
+					memmove(addr,         addr +1,   (char*)(--temp.addr) - (char*)addr);
 				*temp.addr = table;
 			}
 #ifndef NDEBUG

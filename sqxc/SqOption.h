@@ -133,6 +133,8 @@ namespace Sq {
 
 /*	OptionMethod is used by SqOption's children.
 
+	It's derived struct/class must be C++11 standard-layout and has SqOption members.
+
 	Note: If you add, remove, or change methods here, do the same things in SqOption.
  */
 struct OptionMethod {

@@ -305,8 +305,10 @@ namespace Sq {
 
 struct Xc;
 
-/* XcMethod is used by Sqxc and it's children. */
+/*	XcMethod is used by Sqxc and it's children.
 
+	It's derived struct/class must be C++11 standard-layout and has Sqxc members.
+ */
 struct XcMethod
 {
 	Sq::Buffer *buffer(void);
@@ -495,7 +497,7 @@ struct Sqxc
 
 namespace Sq {
 
-// XcMethod
+/* define XcMethod functions. */
 
 inline Sq::Buffer *XcMethod::buffer(void) {
 	return (Sq::Buffer*)sqxc_get_buffer(this);

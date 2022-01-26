@@ -95,7 +95,10 @@ SqTable *sq_schema_find(SqSchema *schema, const char *table_name);
 
 namespace Sq {
 
-/* SchemaMethod is used by SqSchema and it's children. */
+/*	SchemaMethod is used by SqSchema and it's children.
+
+	It's derived struct/class must be C++11 standard-layout and has SqSchema members.
+ */
 struct SchemaMethod
 {
 	Sq::Table *create(const char   *table_name,
@@ -171,7 +174,8 @@ struct SqSchema
 
 namespace Sq {
 
-/* SchemaMethod functions */
+/* define SchemaMethod functions. */
+
 inline Sq::Table *SchemaMethod::create(const char   *table_name,
                                        const char   *type_name,
                                        const SqType *type_info,

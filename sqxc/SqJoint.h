@@ -17,12 +17,14 @@
 
 #include <SqTable.h>
 
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* ----------------------------------------------------------------------------
-	SqTypeJoint - combine multiple table's type (SQL joined table)
+/*	SqTypeJoint - combine multiple table's type (SQL joined table)
 
 	SqType
 	|
@@ -67,7 +69,7 @@ void     sq_type_joint_add(SqType *type_joint, SqTable *table, const char *table
 #endif
 
 // ----------------------------------------------------------------------------
-// C++ namespace
+// C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
 

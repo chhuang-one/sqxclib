@@ -41,8 +41,7 @@ typedef void  (*SqTypeFunc)(void *instance, const SqType *type);
 typedef int   (*SqTypeParseFunc)(void *instance, const SqType *type, Sqxc *xc_src);
 typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_dest);
 
-/*
-	SqType initializer macro
+/*	SqType initializer macro
 
 	// sample 1:
 	typedef struct User    User;
@@ -89,8 +88,10 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 #define SQB_TYPE_DYNAMIC     (1<<0)    // equal SQB_DYNAMIC, for internal use only
 #define SQB_TYPE_SORTED      (1<<1)
 
-// ----------------------------------------------------------------------------
-// macro for maintaining C/C++ inline functions easily
+/* macro for accessing variable of SqType */
+#define sq_type_get_ptr_array(type)    ((SqPtrArray*)&(type)->entry)
+
+/* macro for maintaining C/C++ inline functions easily */
 
 // void SQ_TYPE_ERASE_ENTRY_ADDR(SqType *type, void **element_addr, int count)
 #define SQ_TYPE_ERASE_ENTRY_ADDR(type, element_addr, count)    \
@@ -152,9 +153,9 @@ void   **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc c
 void     sq_type_sort_entry(SqType *type);
 
 // calculate instance size for dynamic structured data type.
-// if 'inner_entry' == NULL, it use all entries in SqType to calculate size.
-// if user add 'inner_entry' to SqType, pass argument 'entry_removed' = false.
-// if user remove 'inner_entry' from SqType, pass argument 'entry_removed' = true.
+// if you add 'inner_entry' to SqType, pass argument 'entry_removed' = false.
+// if you remove 'inner_entry' from SqType, pass argument 'entry_removed' = true.
+// if you recalculate instance size of SqType, pass 'inner_entry' = NULL and don't care argument 'entry_removed'.
 unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
 
 /* SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions */
@@ -225,8 +226,8 @@ struct Type;
 
 struct SqType
 {
-//	SQ_TYPE_MEMBERS;
-/*	// ------ SqType members ------  */
+	SQ_TYPE_MEMBERS;
+/*	// ------ SqType members ------
 	unsigned int   size;        // instance size
 
 	SqTypeFunc     init;        // initialize instance
@@ -239,18 +240,17 @@ struct SqType
 	// or use macro SQ_GET_TYPE_NAME()
 	char          *name;
 
-//	SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry);
-//	// ------ SqPtrArray members ------
-	SqEntry      **entry;
-	int            n_entry;
-
-//	SqType.entry is array of SqEntry pointer if current SqType is for C struct.
-//	SqType.entry can't be freed if SqType.n_entry == -1
+	// SqType.entry is array of SqEntry pointer if current SqType is for C struct type.
+	// SqType.entry can't be freed if SqType.n_entry == -1
+	SqEntry      **entry;          // SqPtrArray.data
+	int            n_entry;        // SqPtrArray.length
+	// macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) expands to above 2 fields.
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
-	// SqType::bit_field has SQB_TYPE_SORTED if SqType::entry is sorted.
+	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
 	uint16_t       bit_field;
 	uint16_t       ref_count;    // reference count for dynamic SqType only
+ */
 
 #ifdef __cplusplus
 	/* Note: If you add, remove, or change methods here, do the same things in Sq::TypeMethod. */
@@ -312,11 +312,17 @@ struct SqType
 	void  sortEntry() {
 		sq_type_sort_entry((SqType*)this);
 	}
-	// calculate size for dynamic SqType.
-	// if "inner_entry" == NULL, it use all entries to calculate size.
-	// otherwise it use "inner_entry" to calculate size.
-	unsigned int  decideSize(const SqEntry *inner_entry = NULL, bool entry_removed = false) {
+
+	// use all entries to recalculate instance size of SqType.
+	unsigned int  decideSize() {
+		return sq_type_decide_size((SqType*)this, NULL, false);
+	}
+	// use 'inner_entry' to calculate instance size of SqType.
+	unsigned int  decideSize(const SqEntry *inner_entry, bool entry_removed = false) {
 		return sq_type_decide_size((SqType*)this, inner_entry, entry_removed);
+	}
+	unsigned int  decideSize(const Sq::EntryMethod *inner_entry, bool entry_removed = false) {
+		return sq_type_decide_size((SqType*)this, (const SqEntry*)inner_entry, entry_removed);
 	}
 
 	// erase entry in SqType if SqType is dynamic.
@@ -433,9 +439,6 @@ enum {
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
 #define SQ_TYPE_INTPTR_ARRAY  (&SqType_IntptrArray_)
 
-/* macro for accessing variable of SqType */
-#define sq_type_get_ptr_array(type)    ((SqPtrArray*)&(type)->entry)
-
 /* Fake type for user-defined special type (SqType-fake.c) */
 #define SQ_TYPE_N_FAKE     6
 #define SQ_TYPE_FAKE0      ((SqType*)&SqType_Fake_.nth[0])
@@ -514,6 +517,8 @@ namespace Sq {
 
 /*	TypeMethod is used by SqType's children.
 
+	It's derived struct/class must be C++11 standard-layout and has SqType members.
+
 	Note: If you add, remove, or change methods here, do the same things in SqType.
  */
 struct TypeMethod {
@@ -574,11 +579,17 @@ struct TypeMethod {
 	void  sortEntry() {
 		sq_type_sort_entry((SqType*)this);
 	}
-	// calculate size for dynamic SqType.
-	// if "inner_entry" == NULL, it use all entries to calculate size.
-	// otherwise it use "inner_entry" to calculate size.
-	unsigned int  decideSize(const SqEntry *inner_entry = NULL, bool entry_removed = false) {
+
+	// use all entries to recalculate instance size of SqType.
+	unsigned int  decideSize() {
+		return sq_type_decide_size((SqType*)this, NULL, false);
+	}
+	// use 'inner_entry' to calculate instance size of SqType.
+	unsigned int  decideSize(const SqEntry *inner_entry, bool entry_removed = false) {
 		return sq_type_decide_size((SqType*)this, inner_entry, entry_removed);
+	}
+	unsigned int  decideSize(const Sq::EntryMethod *inner_entry, bool entry_removed = false) {
+		return sq_type_decide_size((SqType*)this, (const SqEntry*)inner_entry, entry_removed);
 	}
 
 	// erase entry in SqType if SqType is dynamic.

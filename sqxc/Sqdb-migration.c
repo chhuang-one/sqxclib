@@ -121,7 +121,7 @@ int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_
 				if (temp.addr < addr)          // insert after
 					memmove(temp.addr +1, temp.addr, (char*)addr - (char*)temp.addr);
 				else if (temp.addr != addr)    // insert before
-					memmove(addr, addr +1, (char*)(--temp.addr) - (char*)addr);
+					memmove(addr,         addr +1,   (char*)(--temp.addr) - (char*)addr);
 				*temp.addr = reentry;
 			}
 #ifndef NDEBUG

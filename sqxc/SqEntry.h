@@ -201,6 +201,8 @@ namespace Sq {
 
 /*	EntryMethod is used by SqEntry's children.
 
+	It's derived struct/class must be C++11 standard-layout and has SqEntry members.
+
 	Note: If you add, remove, or change methods here, do the same things in SqEntry.
  */
 struct EntryMethod

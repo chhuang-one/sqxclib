@@ -114,12 +114,10 @@ struct SqdbConfigMysql
 
 namespace Sq {
 
-// --- C++11 standard-layout ---
+/* All derived struct/class must be C++11 standard-layout. */
 
 typedef struct SqdbConfigMysql    DbConfigMysql;
 
-// conforming C++11 standard-layout
-// These are for directly use only. You can NOT derived it.
 struct DbMysql : SqdbMysql
 {
 	DbMysql(const SqdbConfigMysql *config = NULL) {

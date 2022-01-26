@@ -74,9 +74,10 @@ int   sq_template_write_file(const char *template_file, SqPairs *pairs, const ch
 
 namespace Sq {
 
-/*	AppMethod : C++ struct is used by SqApp and it's children.
- */
+/*	AppToolMethod is used by SqAppTool and it's children.
 
+	It's derived struct/class must be C++11 standard-layout and has SqAppTool members.
+ */
 struct AppToolMethod : AppMethod {
 	void init(const char *program_name);
 	void final();
@@ -146,6 +147,8 @@ struct SqAppTool
 #ifdef __cplusplus
 
 namespace Sq {
+
+/* define AppToolMethod functions. */
 
 inline void AppToolMethod::init(const char *program_name) {
 	sq_app_tool_init((SqAppTool*)this, program_name, false);

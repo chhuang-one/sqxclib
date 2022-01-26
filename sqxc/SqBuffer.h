@@ -114,6 +114,10 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count);
 
 namespace Sq {
 
+/*	BufferMethod is used by SqBuffer and it's children.
+
+	It's derived struct/class must be C++11 standard-layout and has SqBuffer members.
+ */
 struct BufferMethod {
 	void   init();
 	void   final();
@@ -235,7 +239,7 @@ char *sq_buffer_require(SqBuffer *buffer, int length);
 
 namespace Sq {
 
-/* BufferMethod functions */
+/* define BufferMethod functions. */
 
 inline void   BufferMethod::init() {
 	sq_buffer_init((SqBuffer*)this);

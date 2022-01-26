@@ -93,10 +93,10 @@ struct SqdbConfigEmpty
 
 namespace Sq {
 
+/* All derived struct/class must be C++11 standard-layout. */
+
 typedef struct SqdbConfigEmpty    DbConfigEmpty;
 
-// conforming C++11 standard-layout
-// These are for directly use only. You can NOT derived it.
 struct DbEmpty : SqdbEmpty
 {
 	DbEmpty(const SqdbConfigEmpty *config = NULL) {
