@@ -83,8 +83,7 @@ int  sq_entry_cmp_str__type_name(const char *str,  SqEntry **entry);
 int  sq_entry_cmp_type_name(SqEntry **entry1, SqEntry **entry2);
 
 
-/*
-	SqReentries: unsorted SqReentry pointer array.
+/*	SqReentries: unsorted SqReentry pointer array.
 	             element can be NULL in array.
 	             It used by migration, change list...etc
  */
@@ -114,8 +113,7 @@ struct TypeMethod;    // define in SqType.h
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqEntry: define object/field in structure/class.
+/*	SqEntry: define object/field in structure/class.
 	SqColumn: define SQL column (field) in SQL table (structure/class).
 
 	SqEntry
@@ -163,8 +161,7 @@ struct SqEntry
 #endif  // __cplusplus
 };
 
-/*
-	SqReentry: reentry previously-defined entries.
+/*	SqReentry: reentry previously-defined entries.
 	           add old_name in SqEntry to record changes (rename or drop).
 
 	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,

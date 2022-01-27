@@ -125,8 +125,7 @@ struct RelationNodeMethod {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqRelation: record relation of object
+/*	SqRelation: record relation of object
 	            SqRelationNode is the element type in in pool and array
  */
 
@@ -135,12 +134,12 @@ struct RelationNodeMethod {
 	SqRelationPool  *pool
 
 #ifdef __cplusplus
-struct SqRelation : Sq::RelationMethod
+struct SqRelation : Sq::RelationMethod       // <-- 1. inherit C++ member function(method)
 #else
 struct SqRelation
 #endif
 {
-	SQ_RELATION_MEMBERS;
+	SQ_RELATION_MEMBERS;                     // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
 	SqRelationNode  *data;        // sorted by object address.
 	int              x2length;
@@ -150,8 +149,7 @@ struct SqRelation
  */
 };
 
-/*
-	SqRelationNode: relation node. This is element type in chunk and array
+/*	SqRelationNode: relation node. This is element type in chunk and array
 	                size of this structure == size of 2 pointers because SqRelationNode has 2 pointers
  */
 #ifdef __cplusplus

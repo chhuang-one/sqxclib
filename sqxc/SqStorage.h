@@ -278,14 +278,24 @@ struct StorageMethod
       each thread has its Sqxc chain ('xc_input' and 'xc_output').
  */
 
+#define SQ_STORAGE_MEMBERS     \
+	Sqdb      *db;             \
+	SqSchema  *schema;         \
+	SqPtrArray tables;         \
+	int        tables_version; \
+	Sqxc      *xc_input;       \
+	Sqxc      *xc_output;      \
+	const SqType   *container_default
+
 #ifdef __cplusplus
-struct SqStorage : Sq::StorageMethod
+struct SqStorage : Sq::StorageMethod         // <-- 1. inherit C++ member function(method)
 #else
 struct SqStorage
 #endif
 {
+	SQ_STORAGE_MEMBERS;                      // <-- 2. inherit member variable
+/*	// ------ SqStorage members ------
 	Sqdb      *db;          // database
-
 	SqSchema  *schema;      // current schema
 
 	// tables is an array that sorted by SqTable.type.name
@@ -297,6 +307,7 @@ struct SqStorage
 	Sqxc      *xc_output;   // SqxcSql
 
 	const SqType   *container_default;
+ */
 };
 
 // ----------------------------------------------------------------------------

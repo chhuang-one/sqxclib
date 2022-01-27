@@ -53,7 +53,11 @@ int     sq_pairs_cmp_string(const char **key1, const char **key2);
 
 namespace Sq {
 
-struct SqPairsMethod {
+/*	PairsMethod is used by SqPairs and it's children.
+
+	It's derived struct/class must be C++11 standard-layout and has SqPairs members.
+ */
+struct PairsMethod {
 	void    add(void *key, void *value);
 	void    erase(void *key);
 	void    steal(void *key);
@@ -68,22 +72,33 @@ struct SqPairsMethod {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
+/*	SqPairs is array of key-value pairs.
+ */
+
+#define SQ_PAIRS_MEMBERS                            \
+	SQ_PTR_ARRAY_MEMBERS(void*, data, x2length);    \
+	int            sorted;                          \
+	SqCompareFunc  key_compare_func;                \
+	SqDestroyFunc  key_destroy_func;                \
+	SqDestroyFunc  value_destroy_func
+
 #ifdef __cplusplus
-struct SqPairs : Sq::SqPairsMethod
+struct SqPairs : Sq::PairsMethod             // <-- 1. inherit C++ member function(method)
 #else
 struct SqPairs
 #endif
 {
-	SQ_PTR_ARRAY_MEMBERS(void*, data, x2length);
+	SQ_PAIRS_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
 	void         **data;
 	int            x2length;
- */
 
+	// ------ SqPairs members ------
 	int            sorted;
 	SqCompareFunc  key_compare_func;
 	SqDestroyFunc  key_destroy_func;
 	SqDestroyFunc  value_destroy_func;
+ */
 };
 
 // ----------------------------------------------------------------------------
@@ -104,19 +119,21 @@ struct SqPairs
 
 namespace Sq {
 
-inline void   SqPairsMethod::add(void *key, void *value) {
+/* define PairsMethod functions. */
+
+inline void   PairsMethod::add(void *key, void *value) {
 	sq_pairs_add((SqPairs*)this, key, value);
 }
-inline void   SqPairsMethod::erase(void *key) {
+inline void   PairsMethod::erase(void *key) {
 	sq_pairs_erase((SqPairs*)this, key);
 }
-inline void   SqPairsMethod::steal(void *key) {
+inline void   PairsMethod::steal(void *key) {
 	sq_pairs_steal((SqPairs*)this, key);
 }
-inline void  *SqPairsMethod::find(void *key) {
+inline void  *PairsMethod::find(void *key) {
 	return sq_pairs_find((SqPairs*)this, key);
 }
-inline void   SqPairsMethod::sort() {
+inline void   PairsMethod::sort() {
 	sq_pairs_sort((SqPairs*)this);
 }
 

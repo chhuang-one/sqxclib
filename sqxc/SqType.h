@@ -205,8 +205,7 @@ struct Type;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqType - define how to initialize, finalize, and convert instance.
+/*	SqType - define how to initialize, finalize, and convert instance.
 	         User can define constant or dynamic SqType.
 
 	SqType must have no base struct because I need use aggregate initialization with it.

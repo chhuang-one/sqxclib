@@ -16,7 +16,9 @@
 
 #include <SqPairs.h>
 
-
+/*	SqPair: This is element type in array
+	        size of this structure == size of 2 pointers because SqPair has 2 pointers
+ */
 typedef struct SqPair        SqPair;
 
 struct SqPair

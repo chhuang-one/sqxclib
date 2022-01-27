@@ -169,16 +169,15 @@ struct SqdbInfo
 	int  (*migrate)(Sqdb *db, SqSchema *schema_cur, SqSchema *schema_next);
 };
 
-/*
-   Sqdb - It is a base structure for database product (SQLite, MySQL...etc).
+/*	Sqdb - It is a base structure for database product (SQLite, MySQL...etc).
 
-   TODO: Sqdb should be thread safe...
+	TODO: Sqdb should be thread safe...
 
-   The correct way to derive Sqdb:  (conforming C++11 standard-layout)
-   1. Use Sq::DbMethod to inherit member function(method).
-   2. Use SQDB_MEMBERS to inherit member variable.
-   3. Add variable and non-virtual function in derived struct.
-   ** This can keep std::is_standard_layout<>::value == true
+	The correct way to derive Sqdb:  (conforming C++11 standard-layout)
+	1. Use Sq::DbMethod to inherit member function(method).
+	2. Use SQDB_MEMBERS to inherit member variable.
+	3. Add variable and non-virtual function in derived struct.
+	** This can keep std::is_standard_layout<>::value == true
  */
 
 #define SQDB_MEMBERS           \
@@ -186,12 +185,12 @@ struct SqdbInfo
 	int             version
 
 #ifdef __cplusplus
-struct Sqdb : Sq::DbMethod           // <-- 1. inherit member function(method)
+struct Sqdb : Sq::DbMethod               // <-- 1. inherit member function(method)
 #else
 struct Sqdb
 #endif
 {
-	SQDB_MEMBERS;                    // <-- 2. inherit member variable
+	SQDB_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
 

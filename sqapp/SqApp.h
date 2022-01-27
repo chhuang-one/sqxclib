@@ -103,12 +103,12 @@ struct AppMethod {
 	SqStorage           *storage
 
 #ifdef __cplusplus
-struct SqApp : Sq::AppMethod                  // <-- 1. inherit C++ member function(method)
+struct SqApp : Sq::AppMethod                 // <-- 1. inherit C++ member function(method)
 #else
 struct SqApp
 #endif
 {
-	SQ_APP_MEMBERS;                           // <-- 2. inherit member variable
+	SQ_APP_MEMBERS;                          // <-- 2. inherit member variable
 /*	// ------ SqApp members ------
 	Sqdb                *db;
 	SqdbConfig          *db_config;

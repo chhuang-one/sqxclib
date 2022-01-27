@@ -15,7 +15,7 @@ struct Sqdb
 };
 ```
 
-## SqdbInfo
+# SqdbInfo
 
  SqdbInfo is data and function interface for database product.
 
@@ -52,7 +52,7 @@ struct SqdbInfo
 };
 ```
 
-## SqdbConfig
+# SqdbConfig
 
  SqdbConfig is setting of SQL product
 
@@ -189,7 +189,6 @@ typedef struct SqdbConfigXxsql    SqdbConfigXxsql;
 // define in SqdbXxsql.c
 extern const SqdbInfo    *SQDB_INFO_XXSQL;
 
-// ------------------------------------
 // config data structure that derived from SqdbConfig
 struct SqdbConfigXxsql
 {
@@ -198,8 +197,6 @@ struct SqdbConfigXxsql
 	int   xxsql_setting;                   // <-- 2. Add variable and non-virtual function in derived struct.
 };
 
-
-// ------------------------------------
 // structure that derived from Sqdb
 #ifdef __cplusplus
 struct SqdbXxsql : Sq::DbMethod            // <-- 1. inherit C++ member function(method)
@@ -215,7 +212,7 @@ struct SqdbXxsql
 
 #ifdef __cplusplus
 	// define C++ constructor and destructor here if you use C++ language.
-	SqdbXxsql(SqdbConfigXxsql *config) {
+	SqdbXxsql(const SqdbConfigXxsql *config) {
 		// call Sq::DbMethod::init()
 		init(SQDB_INFO_XXSQL, (SqdbConfig*)config);
 	}
@@ -234,7 +231,7 @@ struct SqdbXxsql
 #include <SqdbXxsql.h>
 
 // declare functions for SqdbInfo
-static void sqdb_xxsql_init(SqdbXxsql *sqdb, SqdbConfigXxsql *config);
+static void sqdb_xxsql_init(SqdbXxsql *sqdb, const SqdbConfigXxsql *config);
 static void sqdb_xxsql_final(SqdbXxsql *sqdb);
 static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name);
 static int  sqdb_xxsql_close(SqdbXxsql *sqdb);
@@ -265,7 +262,68 @@ static const SqdbInfo dbinfo = {
 const SqdbInfo *SQDB_INFO_XXSQL = &dbinfo;
 
 // implement sqdb_xxsql_xxxx() functions here
-//
+
+static void sqdb_xxsql_init(SqdbXxsql *sqdb, const SqdbConfigXxsql *config)
+{
+	// initialize SqdbXxsql instance
+	sqdb->version  = 0;
+	sqdb->config   = config;
+}
+
+static void sqdb_xxsql_final(SqdbXxsql *sqdb)
+{
+	// finalize SqdbXxsql instance
+}
+
+static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name)
+{
+	// open database and get it's schema version
+	sqdb->version = db_schema_version;
+	return SQCODE_OK;
+}
+
+static int  sqdb_xxsql_close(SqdbXxsql *sqdb)
+{
+	// close database
+}
+
+static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
+{
+	if (xc == NULL) {
+		// execute query
+	}
+	else {
+		switch (sql[0]) {
+		case 'S':    // SELECT
+		case 's':    // select
+			// get rows from xxsql and send them to 'xc'
+			break;
+
+		default:
+			// execute query
+			break;
+		}
+	}
+
+	if (error occurred)
+		return SQCODE_EXEC_ERROR;
+	else
+		return SQCODE_OK;
+}
+
+static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema, SqSchema *schema_next)
+{
+	if (schema_next == NULL) {
+		// synchronize 'schema' to database. This is mainly used by SQLite
+		return SQCODE_OK;
+	}
+
+	if (db->version < schema_next->version) {
+		// do migrations
+	}
+
+	schema->version = schema_next->version;
+}
 ```
 
 #### 3. use custom Sqdb

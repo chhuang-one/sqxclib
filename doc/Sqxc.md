@@ -239,6 +239,7 @@ Note: SqxcFile is in sqxctest library. Sample code is in [xc_json_file.cpp](../e
 
 ## How to support new format:
  User can refer SqxcJsonc.h and SqxcJsonc.c to support new format.  
+ SqxcFile.h and SqxcFile.c is the simplest sample code, it just write string to file.  
  SqxcEmpty.h and SqxcEmpty.c is a workable sample, but it do nothing.  
 
 #### 1. define new structure that derived from Sqxc
@@ -302,7 +303,49 @@ static const SqxcInfo sqxc_text_parser =
 const SqxcInfo *SQXC_INFO_TEXT_PARSER = &sqxc_text_parser;
 
 // implement sqxc_text_parser_xxxx() functions here
-//
+
+static void sqxc_text_parser_init(SqxcText *xctext)
+{
+	// initialize SqxcText instance
+}
+
+static void sqxc_text_parser_final(SqxcText *xctext)
+{
+	// finalize SqxcText instance
+}
+
+static int  sqxc_text_parser_ctrl(SqxcText *xctext, int id, void *data)
+{
+	switch(id) {
+	case SQXC_CTRL_READY:     // notify 'xctext' to get ready
+		break;
+
+	case SQXC_CTRL_FINISH:    // notify 'xctext' to finish
+		break;
+
+	default:
+		return SQCODE_NOT_SUPPORT;
+	}
+	return SQCODE_OK;
+}
+
+static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src)
+{
+	Sqxc *xc_dest = xctext->dest;
+
+	// parse arguments in 'src'
+
+	// set parsed data to arguments of 'xctext'
+	xctext->type = src->type;
+	xctext->name = src->name;
+	xctext->value.string = src->value.string;
+
+	// send arguments of 'xctext' to 'xc_dest'
+	sqxc_send_to(xc_dest, (Sqxc*)xctext);
+
+	// set return code in src->code
+	return (src->code = SQCODE_OK);
+}
 ```
 
 Note: If new Sqxc element want to parse/write data in SQL column, it must:  

@@ -103,13 +103,21 @@ struct AppToolMethod : AppMethod {
     `--- SqAppTool
  */
 
+#define SQ_APP_TOOL_MEMBERS                \
+	SQ_APP_MEMBERS;                        \
+	const char     *template_extension;    \
+	char           *path;                  \
+	SqConsole      *console;               \
+	SqBuffer        buffer;                \
+	SqPairs         pairs
+
 #ifdef __cplusplus
-struct SqAppTool : Sq::AppToolMethod          // <-- 1. inherit C++ member function(method)
+struct SqAppTool : Sq::AppToolMethod         // <-- 1. inherit C++ member function(method)
 #else
 struct SqAppTool
 #endif
 {
-	SQ_APP_MEMBERS;                           // <-- 2. inherit member variable
+	SQ_APP_TOOL_MEMBERS;                     // <-- 2. inherit member variable
 /*	// ------ SqApp members ------
 	Sqdb                *db;
 	SqdbConfig          *db_config;
@@ -117,17 +125,14 @@ struct SqAppTool
 	const SqMigration  **migrations;
 	int                  n_migrations;
 	SqStorage           *storage;
- */
 
-	// ------ SqAppTool members ------        // <-- 3. Add variable and non-virtual function in derived struct.
-
-	// template file extension
-	const char     *template_extension;
-
+	// ------ SqAppTool members ------
+	const char     *template_extension;    // template file extension
 	char           *path;       // workspace folder
 	SqConsole      *console;
 	SqBuffer        buffer;     // buffer for temporary use
 	SqPairs         pairs;    	// Key-Value pairs for temporary use
+ */
 };
 
 // ----------------------------------------------------------------------------

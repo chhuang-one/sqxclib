@@ -156,11 +156,12 @@ struct SqBuffer : Sq::BufferMethod           // <-- 1. inherit member function(m
 struct SqBuffer
 #endif
 {
-//	SQ_BUFFER_MEMBERS(mem, size, writed)     // <-- 2. inherit member variable
-	// ------ SqBuffer members ------
+	SQ_BUFFER_MEMBERS(mem, size, writed);    // <-- 2. inherit member variable
+/*	// ------ SqBuffer members ------
 	char  *mem;
 	int    size;
 	int    writed;
+ */
 };
 
 // ----------------------------------------------------------------------------

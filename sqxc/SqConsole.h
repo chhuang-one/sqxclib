@@ -90,19 +90,19 @@ struct ConsoleMethod {
 	SqBuffer   buf
 
 #ifdef __cplusplus
-struct SqConsole : Sq::ConsoleMethod           // <-- 1. inherit C++ member function(method)
+struct SqConsole : Sq::ConsoleMethod         // <-- 1. inherit C++ member function(method)
 #else
 struct SqConsole
 #endif
 {
-//	SQ_CONSOLE_MEMBERS;                        // <-- 2. inherit member variable
-/*	// ------ SqConsole members ------  */
+	SQ_CONSOLE_MEMBERS;                      // <-- 2. inherit member variable
+/*	// ------ SqConsole members ------
 	SqPtrArray commands;
 	bool       commands_sorted;
-
 	char      *program_name;
 	Sqxc      *xc_input;
 	SqBuffer   buf;
+ */
 };
 
 // ----------------------------------------------------------------------------

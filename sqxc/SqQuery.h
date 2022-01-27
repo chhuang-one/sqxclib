@@ -374,12 +374,12 @@ struct SqQueryNode
 	int            nested_count
 
 #ifdef __cplusplus
-struct SqQuery : Sq::QueryMethod         // <-- 1. inherit C++ member function(method)
+struct SqQuery : Sq::QueryMethod             // <-- 1. inherit C++ member function(method)
 #else
 struct SqQuery
 #endif
 {
-	SQ_QUERY_MEMBERS;                    // <-- 2. inherit member variable
+	SQ_QUERY_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ SqQuery members ------
 	SqQueryNode    root;
 	SqQueryNode   *node;

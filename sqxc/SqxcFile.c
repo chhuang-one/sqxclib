@@ -43,8 +43,8 @@ static int  sqxc_file_writer_ctrl(SqxcFile *xcfile, int id, void *data)
 		if (xcfile->file)
 			fclose(xcfile->file);
 		xcfile->file = NULL;
-		// clear SqxcNested if problem occurred during processing
-		sqxc_clear_nested((Sqxc*)xcfile);
+		// Because SqxcFile never use SqxcNested, it doesn't need to clear SqxcNested stack.
+//		sqxc_clear_nested((Sqxc*)xcfile);
 		break;
 
 	default:

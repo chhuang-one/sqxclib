@@ -298,18 +298,19 @@ struct PtrArrayMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
+/* SqPtrArray is array of pointer */
+
 #define SQ_PTR_ARRAY_MEMBERS(Type, data_name, length_name)   \
 		Type     *data_name;    \
 		int       length_name
 
-
 #ifdef __cplusplus
-struct SqPtrArray : Sq::PtrArrayMethod<void*>
+struct SqPtrArray : Sq::PtrArrayMethod<void*>        // <-- 1. inherit C++ member function(method)
 #else
 struct SqPtrArray
 #endif
 {
-	SQ_PTR_ARRAY_MEMBERS(void*, data, length);
+	SQ_PTR_ARRAY_MEMBERS(void*, data, length);       // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
 	void    **data;
 	int       length;
@@ -317,12 +318,12 @@ struct SqPtrArray
 };
 
 #ifdef __cplusplus
-struct SqStringArray : Sq::PtrArrayMethod<char*>
+struct SqStringArray : Sq::PtrArrayMethod<char*>     // <-- 1. inherit C++ member function(method)
 #else
 struct SqStringArray
 #endif
 {
-	SQ_PTR_ARRAY_MEMBERS(char*, data, length);
+	SQ_PTR_ARRAY_MEMBERS(char*, data, length);       // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
 	char    **data;
 	int       length;
@@ -330,12 +331,12 @@ struct SqStringArray
 };
 
 #ifdef __cplusplus
-struct SqIntptrArray : Sq::PtrArrayMethod<intptr_t>
+struct SqIntptrArray : Sq::PtrArrayMethod<intptr_t>  // <-- 1. inherit C++ member function(method)
 #else
 struct SqIntptrArray
 #endif
 {
-	SQ_PTR_ARRAY_MEMBERS(intptr_t, data, length);
+	SQ_PTR_ARRAY_MEMBERS(intptr_t, data, length);    // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
 	intptr_t  *data;
 	int        length;
@@ -343,12 +344,12 @@ struct SqIntptrArray
 };
 
 #ifdef __cplusplus
-struct SqUintptrArray : Sq::PtrArrayMethod<uintptr_t>
+struct SqUintptrArray : Sq::PtrArrayMethod<uintptr_t>    // <-- 1. inherit C++ member function(method)
 #else
 struct SqUintptrArray
 #endif
 {
-	SQ_PTR_ARRAY_MEMBERS(uintptr_t, data, length);
+	SQ_PTR_ARRAY_MEMBERS(uintptr_t, data, length);       // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
 	uintptr_t *data;
 	int        length;

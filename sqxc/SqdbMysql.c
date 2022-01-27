@@ -211,7 +211,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 	int    code = SQCODE_OK;
 
 #ifndef NDEBUG
-		fprintf(stderr, "SQL: %s\n", sql);
+	fprintf(stderr, "SQL: %s\n", sql);
 #endif
 
 	if (xc == NULL)
