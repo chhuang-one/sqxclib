@@ -69,12 +69,6 @@ static int  sqxc_value_ctrl(SqxcValue *xcvalue, int id, void *data)
 		sqxc_clear_nested((Sqxc*)xcvalue);
 		break;
 
-	case SQXC_VALUE_CTRL_BUILTIN:
-		xcvalue->container = NULL;
-		xcvalue->element = data;
-		xcvalue->instance = &xcvalue->value;
-		break;
-
 	default:
 		return SQCODE_NOT_SUPPORT;
 	}

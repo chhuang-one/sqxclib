@@ -85,23 +85,23 @@ int  sq_migration_get_last(SqStorage *storage, int *batch)
 
 int  sq_migration_count_batch(SqStorage *storage, int batch)
 {
-	SqBuffer *buf;
+	SqBuffer  *buf;
+	SqxcValue *xc_value;
 
-	buf = sqxc_get_buffer(storage->xc_input);
+	xc_value = (SqxcValue*)storage->xc_input;
+	buf = sqxc_get_buffer(xc_value);
 	buf->writed = 0;
 	sq_buffer_write(buf, "SELECT COUNT(batch) FROM migrations WHERE batch=");
 	sprintf(sq_buffer_alloc(buf, snprintf(NULL, 0, "%d", batch)), "%d", batch);
 
-	storage->xc_input->value.integer = 0;
-#if 1
-	sqxc_value_container(storage->xc_input) = NULL;
-	sqxc_value_element(storage->xc_input)   = SQ_TYPE_INT;
-	sqxc_value_instance(storage->xc_input)  = &storage->xc_input->value;
-#else
-	sqxc_ctrl(storage->xc_input, SQXC_VALUE_CTRL_BUILTIN, SQ_TYPE_INT);
-#endif
-	sqdb_exec(storage->db, buf->mem, storage->xc_input, NULL);
-	return storage->xc_input->value.integer;
+	// configure SqxcValue
+	xc_value->container = NULL;
+	xc_value->element   = SQ_TYPE_INT;
+	xc_value->instance  = &xc_value->value.integer;
+	// execute SQL statement and get result
+	xc_value->value.integer = 0;
+	sqdb_exec(storage->db, buf->mem, (Sqxc*)xc_value, NULL);
+	return xc_value->value.integer;
 }
 
 int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int index, int n, int batch)
