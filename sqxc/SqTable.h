@@ -378,8 +378,13 @@ struct TableMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqTable: SQL Table
+/*	SqTable: SQL Table
+
+	SqEntry
+	|
+	`--- SqReentry
+	     |
+	     `--- SqTable
 
 	Migration - Alter Table : table->bit_field & SQB_CHANGED
 	Migration - Drop   : table->name = NULL, table->old_name = column_name
@@ -420,10 +425,8 @@ struct SqTable
 };
 
 
-/*
-	SqForeign: foreign key data in SqColumn
+/*	SqForeign: foreign key data in SqColumn
  */
-
 struct SqForeign
 {
 	// Note: use 'const char*' to declare string here, C++ user can initialize static structure easily.
@@ -433,8 +436,13 @@ struct SqForeign
 	const char  *on_update;
 };
 
-/*
-	SqColumn: SQL Column
+/*	SqColumn: SQL Column
+
+	SqEntry
+	|
+	`--- SqReentry
+	     |
+	     `--- SqColumn
 
 	Migration - Alter Type : column->bit_field & SQB_CHANGED
 	Migration - Drop   : column->name = NULL, column->old_name = column_name

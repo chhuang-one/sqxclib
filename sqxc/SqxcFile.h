@@ -41,8 +41,7 @@ extern const SqxcInfo    *SQXC_INFO_FILE_WRITER;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqxcFile - output to a file.
+/*	SqxcFile - output to a file.
 
 	Sqxc
 	|

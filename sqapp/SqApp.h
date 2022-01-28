@@ -12,12 +12,6 @@
  * See the Mulan PSL v2 for more details.
  */
 
-/*
-	SqApp
-	|
-	`--- SqAppTool
- */
-
 #ifndef SQ_APP_H
 #define SQ_APP_H
 
@@ -92,6 +86,10 @@ struct AppMethod {
 // C/C++ common definitions: define structue
 
 /*	SqApp use configuration file (SqApp-config.h) to initialize database and do migrations. It used by user's application.
+
+	SqApp
+	|
+	`--- SqAppTool
  */
 
 #define SQ_APP_MEMBERS                  \

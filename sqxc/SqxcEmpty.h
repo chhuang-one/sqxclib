@@ -40,8 +40,7 @@ extern const SqxcInfo          *SQXC_INFO_EMPTY;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqxcEmpty - A sample of Sqxc element.
+/*	SqxcEmpty - A sample of Sqxc element.
 
 	Sqxc
 	|

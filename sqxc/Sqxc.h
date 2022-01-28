@@ -12,9 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-/* ----------------------------------------------------------------------------
-	Sqxc - Entry and value convert X to/from C  (X = SQL, JSON...etc)
-	       xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
+/*	The origin of the name 'Sqxc'
+	Entry and value convert X to/from C  (X = SQL, JSON...etc)
+	xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
 	SqxcXml     - convert to/from XML     - SqxcXml.c     (doesn't implement)
 	SqxcJsonc   - convert to/from JSON    - SqxcJsonc.c
@@ -380,8 +380,7 @@ struct SqxcNested
 	void  *data3;   // void    *data;    // other data
 };
 
-/*
-	Sqxc - Interface for data parse and write
+/*	Sqxc - Interface for data parse and write
 
    The correct way to derive Sqxc:  (conforming C++11 standard-layout)
    1. Use Sq::XcMethod to inherit member function(method).

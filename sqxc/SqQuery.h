@@ -45,14 +45,13 @@ extern const uintptr_t SQ_QUERYSORT_DESC;
 extern "C" {
 #endif
 
-/*
-	SqQuery C functions
+/*	SqQuery C functions
 
 
 	** below functions support printf format string:
 		sq_query_join(), sq_query_on(),     sq_query_or_on(),
-		               sq_query_where(),  sq_query_or_where(),
-		               sq_query_having(), sq_query_or_having(),
+		                 sq_query_where(),  sq_query_or_where(),
+		                 sq_query_having(), sq_query_or_having(),
 
 	// e.g. "WHERE id < 100"
 	sq_query_where(query, "id < %d", 100);
@@ -110,8 +109,7 @@ SqQuery *sq_query_final(SqQuery *query);
 // It reset SqQuery and remove all statements.
 void    sq_query_clear(SqQuery *query);
 
-/*
-	sq_query_push_nested() was called by sq_query_where_exists(), sq_query_from(),
+/*	sq_query_push_nested() was called by sq_query_where_exists(), sq_query_from(),
 	                       sq_query_join(), sq_query_on(), sq_query_where() ...etc
 	It usually doesn't call by user.
  */
@@ -185,7 +183,7 @@ void    sq_query_delete(SqQuery *query);
 // call this function at last (before generating SQL statement).
 void    sq_query_truncate(SqQuery *query);
 
-// SQL statements
+// generate SQL statements
 char   *sq_query_to_sql(SqQuery *query);
 
 // va_list
@@ -290,10 +288,12 @@ struct QueryMethod
 	Sq::Query& asc();
 	Sq::Query& desc();
 
+	// call these function at last (before generating SQL statement).
 	Sq::Query& delete_();
 	Sq::Query& deleteFrom();
 	Sq::Query& truncate();
 
+	// generate SQL statement
 	char *toSql();
 
 	// deprecated functions
@@ -316,8 +316,7 @@ struct QueryMethod
 // ----------------------------------------------------------------------------
 //  C/C++ structue definition
 
-/*
-	SqQueryNode - store elements of SQL Statements
+/*	SqQueryNode - store elements of SQL Statements
 
     SELECT DISTINCT name, age
     FROM  User AS c

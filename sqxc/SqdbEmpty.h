@@ -41,12 +41,11 @@ extern const SqdbInfo    *SQDB_INFO_EMPTY;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-    SqdbEmpty - Sqdb for debug/sample
+/*	SqdbEmpty - Sqdb for debug/sample
 
-    Sqdb
-    |
-    `--- SqdbEmpty
+	Sqdb
+	|
+	`--- SqdbEmpty
  */
 
 #ifdef __cplusplus
@@ -67,12 +66,11 @@ struct SqdbEmpty
 	void  *instance;
 };
 
-/*
-    SqdbConfigEmpty - SqdbEmpty use this configure
+/*	SqdbConfigEmpty - SqdbEmpty use this to configure database connection
 
-    SqdbConfig
-    |
-    `--- SqdbConfigEmpty
+	SqdbConfig
+	|
+	`--- SqdbConfigEmpty
  */
 struct SqdbConfigEmpty
 {

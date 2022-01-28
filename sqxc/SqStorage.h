@@ -48,7 +48,7 @@ typedef struct SqQuery           SqQuery;    // define in SqQuery.h
 extern "C" {
 #endif
 
-/* --- SqStorage C Functions --- */
+/* SqStorage C Functions */
 
 SqStorage *sq_storage_new(Sqdb *db);
 void       sq_storage_free(SqStorage *storage);
@@ -63,9 +63,9 @@ int   sq_storage_close(SqStorage *storage);
 int   sq_storage_migrate(SqStorage *storage, SqSchema *schema);
 
 /* ------------------------------------
-   CRUD functions:
-   1. can work if user only specify one of 'table_name' or 'type_name'.
-   2. can run a bit faster if user specify 'table_name' and 'type' at the same time.
+	CRUD functions:
+	1. can work if user only specify one of 'table_name' or 'type_name'.
+	2. can run a bit faster if user specify 'table_name' and 'type' at the same time.
  */
 void *sq_storage_get_full(SqStorage    *storage,
                           const char   *table_name,
@@ -158,11 +158,10 @@ void  sq_storage_remove_by_sql(SqStorage    *storage,
                                const char   *sql_where_having);
 
 // ------------------------------------
+// find table by SqTable.name or SqType.name
 
-// find SqTable by SqTable.name
 #define  sq_storage_find(storage, table_name)    sq_schema_find((storage)->schema, table_name)
 
-// find SqTable by SqType.name
 SqTable *sq_storage_find_by_type(SqStorage *storage, const char *type_name);
 
 // ------------------------------------
@@ -269,13 +268,13 @@ struct StorageMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/* --- SqStorage ---
+/*	SqStorage
 
-  Notes about multithreading:
-   1. 'schema', 'tables', 'tables_version' must be shared between threads.
-      use readers-writer lock to access these data member.
-   2. 'xc_input', 'xc_output' is NOT shared between threads.
-      each thread has its Sqxc chain ('xc_input' and 'xc_output').
+	Notes about multithreading:
+	1. 'schema', 'tables', 'tables_version' must be shared between threads.
+	   use readers-writer lock to access these data member.
+	2. 'xc_input', 'xc_output' is NOT shared between threads.
+	   each thread has its Sqxc chain ('xc_input' and 'xc_output').
  */
 
 #define SQ_STORAGE_MEMBERS     \
@@ -385,9 +384,9 @@ inline StlContainer *StorageMethod::getBySql(const char *sql_where_having) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
 	if (table == NULL)
 		return NULL;
-	SqType  *containerType = new Sq::TypeStl<StlContainer>(table->type);
+	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
 	StlContainer *instance = (StlContainer*) sq_storage_get_by_sql((SqStorage*)this, table->name, NULL, containerType, sql_where_having);
-	delete (Sq::TypeStl<StlContainer>*)containerType;
+	delete containerType;
 	return instance;
 }
 template <class ElementType, class StlContainer>
@@ -395,9 +394,9 @@ inline StlContainer *StorageMethod::getBySql(const char *sql_where_having) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
 	if (table == NULL)
 		return NULL;
-	SqType  *containerType = new Sq::TypeStl<StlContainer>(table->type);
+	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
 	StlContainer *instance = (StlContainer*) sq_storage_get_by_sql((SqStorage*)this, table->name, NULL, containerType, sql_where_having);
-	delete (Sq::TypeStl<StlContainer>*)containerType;
+	delete containerType;
 	return instance;
 }
 
@@ -416,9 +415,9 @@ inline StlContainer *StorageMethod::getAll() {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
 	if (table == NULL)
 		return NULL;
-	SqType  *containerType = new Sq::TypeStl<StlContainer>(table->type);
+	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
 	StlContainer *instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, NULL, containerType);
-	delete (Sq::TypeStl<StlContainer>*)containerType;
+	delete containerType;
 	return instance;
 }
 template <class ElementType, class StlContainer>
@@ -426,9 +425,9 @@ inline StlContainer *StorageMethod::getAll() {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
 	if (table == NULL)
 		return NULL;
-	SqType  *containerType = new Sq::TypeStl<StlContainer>(table->type);
+	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
 	StlContainer *instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, NULL, containerType);
-	delete (Sq::TypeStl<StlContainer>*)containerType;
+	delete containerType;
 	return instance;
 }
 
@@ -447,9 +446,9 @@ inline StlContainer *StorageMethod::query(Sq::QueryMethod *query) {
 	void    *instance = NULL;
 	SqType  *type = sq_storage_type_from_query((SqStorage*)this, (SqQuery*)query, NULL);
 	if (type) {
-		SqType  *containerType = new Sq::TypeStl<StlContainer>(type);
+		Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(type);
 		instance = sq_storage_query((SqStorage*)this, (SqQuery*)query, containerType, type);
-		delete (Sq::TypeStl<StlContainer>*)containerType;
+		delete containerType;
 		sq_type_unref(type);
 	}
 	return (StlContainer*)instance;

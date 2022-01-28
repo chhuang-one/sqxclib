@@ -40,8 +40,7 @@ extern const SqxcInfo          *SQXC_INFO_UNKNOWN;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqxcUnknown - A Sqxc element for unknown data.
+/*	SqxcUnknown - A Sqxc element for unknown data.
 
 	Sqxc
 	|

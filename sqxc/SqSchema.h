@@ -133,8 +133,7 @@ struct SchemaMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqSchema
+/*	SqSchema
 
 	SqEntry
 	|

@@ -51,8 +51,7 @@ extern const SqxcInfo        *SQXC_INFO_SQL;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqxcSql - Sqxc data convert to SQL statement. (destination of output chain)
+/*	SqxcSql - Sqxc data convert to SQL statement. (destination of output chain)
 
 	Sqxc
 	|

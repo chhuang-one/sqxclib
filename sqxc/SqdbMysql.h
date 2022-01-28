@@ -48,18 +48,17 @@ extern const SqdbInfo    *SQDB_INFO_MYSQL;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-    SqdbMysql - Sqdb for MySQL
+/*	SqdbMysql - Sqdb for MySQL
 
-    Sqdb
-    |
-    `--- SqdbMysql
+	Sqdb
+	|
+	`--- SqdbMysql
 
-    The correct way to derive Sqdb:  (conforming C++11 standard-layout)
-    1. Use Sq::DbMethod to inherit member function(method).
-    2. Use SQDB_MEMBERS to inherit member variable.
-    3. Add variable and non-virtual function in derived struct.
-    ** This can keep std::is_standard_layout<>::value == true
+	The correct way to derive Sqdb:  (conforming C++11 standard-layout)
+	1. Use Sq::DbMethod to inherit member function(method).
+	2. Use SQDB_MEMBERS to inherit member variable.
+	3. Add variable and non-virtual function in derived struct.
+	** This can keep std::is_standard_layout<>::value == true
  */
 
 #ifdef __cplusplus
@@ -81,14 +80,13 @@ struct SqdbMysql
 	const SqdbConfigMysql *config;
 };
 
-/*
-    SqdbConfigMysql - SqdbMysql use this configure
+/*	SqdbConfigMysql - SqdbMysql use this to configure database connection
 
-    SqdbConfig
-    |
-    `--- SqdbConfigMysql
+	SqdbConfig
+	|
+	`--- SqdbConfigMysql
 
-    Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
+	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
  */
 struct SqdbConfigMysql
 {

@@ -43,8 +43,7 @@ extern const SqxcInfo    *SQXC_INFO_JSONC_WRITER;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqxcJsonc - Middleware of input/output chain. It use json-c to implement.
+/*	SqxcJsonc - Middleware of input/output chain. It use json-c to implement.
 
 	Sqxc
 	|

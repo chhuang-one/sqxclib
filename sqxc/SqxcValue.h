@@ -50,8 +50,7 @@ extern const SqxcInfo          *SQXC_INFO_VALUE;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-	SqxcValue - convert data to C Language Value. (destination of input chain)
+/*	SqxcValue - convert data to C Language Value. (destination of input chain)
 
 	Sqxc
 	|

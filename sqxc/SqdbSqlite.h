@@ -43,18 +43,17 @@ extern const SqdbInfo    *SQDB_INFO_SQLITE;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*
-    SqdbSqlite - Sqdb for SQLite
+/*	SqdbSqlite - Sqdb for SQLite
 
-    Sqdb
-    |
-    `--- SqdbSqlite
+	Sqdb
+	|
+	`--- SqdbSqlite
 
-    The correct way to derive Sqdb:  (conforming C++11 standard-layout)
-    1. Use Sq::DbMethod to inherit member function(method).
-    2. Use SQDB_MEMBERS to inherit member variable.
-    3. Add variable and non-virtual function in derived struct.
-    ** This can keep std::is_standard_layout<>::value == true
+	The correct way to derive Sqdb:  (conforming C++11 standard-layout)
+	1. Use Sq::DbMethod to inherit member function(method).
+	2. Use SQDB_MEMBERS to inherit member variable.
+	3. Add variable and non-virtual function in derived struct.
+	** This can keep std::is_standard_layout<>::value == true
  */
 
 #ifdef __cplusplus
@@ -77,14 +76,13 @@ struct SqdbSqlite
 	char           *extension;   // optional
 };
 
-/*
-    SqdbConfigSqlite - SqdbSqlite use this configure
+/*	SqdbConfigSqlite - SqdbSqlite use this to configure database connection
 
-    SqdbConfig
-    |
-    `--- SqdbConfigSqlite
+	SqdbConfig
+	|
+	`--- SqdbConfigSqlite
 
-    Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
+	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
  */
 struct SqdbConfigSqlite
 {
