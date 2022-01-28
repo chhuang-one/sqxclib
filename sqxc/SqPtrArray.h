@@ -545,8 +545,7 @@ inline Type  PtrArrayMethod<Type>::operator[](int index) {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-template<class Type = void*>
-struct PtrArray : Sq::PtrArrayMethod<Type>
+struct PtrArray : SqPtrArray
 {
 	// constructor
 	PtrArray(int allocated_length = 0, SqDestroyFunc func = NULL) {

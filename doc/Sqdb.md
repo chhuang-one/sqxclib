@@ -148,8 +148,8 @@ Use C function to get multiple rows of "migrations" table
 Use C++ function to get multiple rows of "migrations" table
 
 ```c++
-	Sq::XcValue    *xc_input = new Sq::XcValue();
-	Sq::PtrArray<> *array = new Sq::PtrArray<>();
+	Sq::XcValue   *xc_input = new Sq::XcValue();
+	Sq::PtrArray  *array    = new Sq::PtrArray();
 	int   code;
 
 	xc_input->container = SQ_TYPE_PTR_ARRAY;

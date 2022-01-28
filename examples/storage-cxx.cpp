@@ -285,10 +285,10 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 
 void  storage_ptr_array_get_all(Sq::Storage *storage)
 {
-	SqPtrArray *array;
-	Company    *company;
+	Sq::PtrArray *array;
+	Company      *company;
 
-	array = (SqPtrArray*)storage->getAll<Company>(NULL);
+	array = (Sq::PtrArray*)storage->getAll<Company>(NULL);
 	if (array) {
 		for (int i = 0;  i < array->length;  i++) {
 			company = (Company*)array->data[i];
@@ -318,17 +318,17 @@ void  storage_stl_container_get_all(Sq::Storage *storage)
 
 void  storage_ptr_array_query(Sq::Storage *storage)
 {
-	SqPtrArray *array;
-	SqQuery    *query;
-	void      **element;
-	Company    *company;
-	User       *user;
+	Sq::PtrArray  *array;
+	Sq::Query     *query;
+	void         **element;
+	Company       *company;
+	User          *user;
 
 	query = new Sq::Query();
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
 	query->from("companies")->join("users",  "companies.id", "users.company_id");
 
-	array = (SqPtrArray*)storage->query(query);
+	array = (Sq::PtrArray*)storage->query(query);
 	if (array) {
 		for (int i = 0;  i < array->length;  i++) {
 			element = (void**)array->data[i];
@@ -349,12 +349,12 @@ void  storage_stl_container_query(Sq::Storage *storage)
 {
 	std::vector< Sq::Joint<2> > *j2vector;
 	std::vector< Sq::Joint<2> >::iterator cur, end;
-	SqQuery     *query;
+	Sq::Query   *query;
 	Sq::Joint<2> element;
 	Company     *company;
 	User        *user;
 
-	query = sq_query_new(NULL);
+	query = new Sq::Query;
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
 	query->from("companies")->join("users",  "companies.id", "users.company_id");
 
