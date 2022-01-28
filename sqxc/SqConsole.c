@@ -243,7 +243,7 @@ void  sq_console_print_list(SqConsole  *console, const char *program_description
 		cmd_type = console->commands.data[i];
 		printf("%*c", COMMAND_BORDER_WIDTH, ' ');
 		printf("%s%*c", cmd_type->name,
-		       command_max_length - strlen(cmd_type->name), ' ');
+		       command_max_length - (int)strlen(cmd_type->name), ' ');
 		puts(cmd_type->description);
 	}
 }

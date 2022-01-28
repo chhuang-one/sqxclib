@@ -194,7 +194,9 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 atExit:
 	sq_buffer_final(&sql_buf);
 	if (rc) {
+#ifndef NDEBUG
 		fprintf(stderr, "MySQL: %s\n", mysql_error(db->self));
+#endif
 		return SQCODE_EXEC_ERROR;
 	}
 	return SQCODE_OK;
@@ -319,7 +321,9 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 	}
 
 	if (rc) {
+#ifndef NDEBUG
 		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->self));
+#endif
 		return SQCODE_EXEC_ERROR;
 	}
 	return code;

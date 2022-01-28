@@ -107,7 +107,7 @@ int  sq_migration_count_batch(SqStorage *storage, int batch)
 int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int index, int n, int batch)
 {
 	SqMigrationTable mtable;
-	int  code;
+	int  code = SQCODE_OK;
 
 	// begin transaction to improve SQLite performance
 	if (storage->db->info->product == SQDB_PRODUCT_SQLITE && n > 1)
