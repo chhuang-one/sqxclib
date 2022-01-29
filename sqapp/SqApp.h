@@ -31,6 +31,9 @@ typedef struct SqApp             SqApp;
 extern "C" {
 #endif
 
+SqApp *sq_app_new(void);
+void   sq_app_free(SqApp *app);
+
 void  sq_app_init(SqApp *app);
 void  sq_app_final(SqApp *app);
 

@@ -65,6 +65,21 @@ static const SqdbConfigMysql  db_config_mysql = {
 // ----------------------------------------------------------------------------
 // SqApp functions
 
+SqApp *sq_app_new(void)
+{
+	SqApp *app;
+
+	app = malloc(sizeof(SqApp));
+	sq_app_init(app);
+	return app;
+}
+
+void   sq_app_free(SqApp *app)
+{
+	sq_app_final(app);
+	free(app);
+}
+
 void  sq_app_init(SqApp *app)
 {
 #ifdef DB_PRODUCT_ERROR
