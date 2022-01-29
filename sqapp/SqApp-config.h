@@ -37,8 +37,8 @@
 #define DB_DATABASE    "sqapp-example"
 
 // SQLite configuration values
-#define DB_FOLDER      NULL
-#define DB_EXTENSION   NULL
+#define DB_FOLDER      "."
+#define DB_EXTENSION   "db"
 
 
 #else   // SQ_APP_CONFIG_FILE has been defined, it will include user's configuration file.

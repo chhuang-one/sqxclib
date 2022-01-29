@@ -74,8 +74,8 @@ static int  debug_callback(void *user_data, int argc, char **argv, char **column
 static void sqdb_sqlite_init(SqdbSqlite *sqdb, const SqdbConfigSqlite *config_src)
 {
 	if (config_src) {
-		sqdb->extension = strdup(config_src->extension);
-		sqdb->folder = strdup(config_src->folder);
+		sqdb->extension = config_src->extension ? strdup(config_src->extension) : NULL;
+		sqdb->folder    = config_src->folder    ? strdup(config_src->folder)    : NULL;
 	}
 	else {
 		sqdb->extension = NULL;
