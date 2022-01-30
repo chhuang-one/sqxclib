@@ -42,43 +42,63 @@ Declaring bit_field in SqEntry
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
 ## Define structured data type
-See [SqType](SqType.md) to get more sample.
+You can see [SqType](SqType.md) to get more sample.
 
 #### 1. define constant SqEntry pointer array that used by constant SqType
-* Note: This is SqEntry pointer array. If you define constant SqType for structure, it must use with SqEntry pointer array.
+* Note: If you define constant SqType for structure, it must use with SqEntry **pointer array**.
 
 ```c
-static const SqEntry *entryPointers[2] = {
-	&(SqEntry) {SQ_TYPE_UINT,   "bit_field",  offsetof(YourStruct, bit_field),  0},
-	&(SqEntry) {SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
-};
-
-/* If your entryPointers are not sorted by name, pass 0 to last argument. */
-const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointers, 0);
-
-/* If your entryPointers are sorted by name, pass SQB_TYPE_SORTED to last argument. */
-// const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointers, SQB_TYPE_SORTED);
-```
-
-#### 2. define constant SqEntry array that used by dynamic SqType
-* Note: This is SqEntry array (NOT pointer array)
-
-```c++
-static const SqEntry entries[2] = {
+static const SqEntry  entryArray[2] = {
 	{SQ_TYPE_UINT,   "bit_field",  offsetof(YourStruct, bit_field),  0},
 	{SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
 };
 
-	// add 2 elements from array
-	sq_type_add_entry(type, entries, 2, 0);    // C function
-//	type->addEntry(entries, 2);                // C++ function
+static const SqEntry *entryPointerArray[2] = {
+	& entryArray[0],
+	& entryArray[1],
+};
+
+/* If 'entryPointerArray' is NOT sorted by name, pass 0 to last argument.
+   Otherwise use SQB_TYPE_SORTED to replace 0 in last argument.
+ */
+const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointerArray, 0);
 ```
 
-#### 3. define dynamic SqEntry that used by dynamic SqType
+#### 2. define constant SqEntry array that used by dynamic SqType
 
-use C function to add one dynamic entry
+e.g. create dynamic SqType that using constant SqEntry
+
+use C language
+
+```c
+	SqType *type = sq_type_new(0, (SqDestroyFunc)sq_entry_free);
+
+	// add 2 entries from pointer array
+	sq_type_add_entry_ptrs(type, entryPointerArray, 2);
+
+	// add 2 entries from array (NOT pointer array)
+//	sq_type_add_entry(type, entryArray, 2, 0);
+```
+
+use C++ language
+
+```c++
+	Sq::Type *type = new Sq::Type(0, sq_entry_free);
+
+	// add 2 entries from pointer array
+	type->addEntry(entryPointerArray, 2);
+
+	// add 2 entries from array (NOT pointer array)
+//	type->addEntry(entryArray, 2);
+```
+
+#### 3. create dynamic SqEntry that used by dynamic SqType
+
+use C language
+
 ```c
 	SqEntry *entry = sq_entry_new(SQ_TYPE_STRING);
+
 	entry->name = strdup("name");
 	entry->offset = offsetof(YourStruct, name);
 	entry->bit_field |= SQB_HIDDEN_NULL;    // set bit in SqEntry.bit_field
@@ -87,9 +107,11 @@ use C function to add one dynamic entry
 	sq_type_add_entry(type, entry, 1, 0);
 ```
 
-use C++ function to add one dynamic entry
+use C++ language
+
 ```c++
 	Sq::Entry *entry = new Sq::Entry(SQ_TYPE_STRING);
+
 	entry->name = strdup("name");
 	entry->offset = offsetof(YourStruct, name);
 	entry->bit_field |= SQB_HIDDEN_NULL;    // set bit in SqEntry.bit_field

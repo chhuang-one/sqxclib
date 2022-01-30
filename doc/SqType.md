@@ -74,7 +74,7 @@ const SqType type_int = {
 	/* C function */
 	type = sq_type_new(-1, NULL);
 
-	/* C++ function */
+	/* C++ method */
 //	type = new Sq::Type(-1, NULL);
 
 	type->size  = sizeof(int);
@@ -170,7 +170,8 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 
 #### 2.4. Define dynamic SqType with constant SqEntry pointer array
 
-use C function sq_type_add_entry_ptrs() to add static SqEntry pointer array.
+use C language to add static SqEntry pointer array.
+
 ```c
 	SqType  *type;
 	int      n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
@@ -179,7 +180,8 @@ use C function sq_type_add_entry_ptrs() to add static SqEntry pointer array.
 	sq_type_add_entry_ptrs(type, entryPointers, n_entry);
 ```
 
-use C++ function addEntry() to add static SqEntry pointer array.
+use C++ language to add static SqEntry pointer array.
+
 ```c++
 	Sq::Type  *type;
 	int        n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
@@ -190,7 +192,8 @@ use C++ function addEntry() to add static SqEntry pointer array.
 
 #### 2.5. Define dynamic SqType with dynamic SqEntry
 
-use C function sq_type_add_entry() to add dynamic SqEntry.
+use C language to add dynamic SqEntry.
+
 ```c
 	SqType  *type;
 	SqEntry *entry;
@@ -214,7 +217,8 @@ use C function sq_type_add_entry() to add dynamic SqEntry.
 	sq_type_add_entry(type, entry, 1, 0);
 ```
 
-use C++ functions to add dynamic SqEntry.
+use C++ language to add dynamic SqEntry.
+
 ```c++
 	Sq::Type  *type;
 	Sq::Entry *entry;
@@ -240,7 +244,7 @@ use C++ functions to add dynamic SqEntry.
 
 ## 3. calculate instance size for dynamic structured data type
 
-* User can use C function sq_type_decide_size(), C++ function decideSize() to calculate instance size.
+* User can use C function sq_type_decide_size(), C++ method decideSize() to calculate instance size.
 * You don't need to call function to calculate instance size after adding entry because program will do it automatically.
 * You must call function to calculate instance size after removing entry from type.
 
@@ -250,7 +254,7 @@ use C++ functions to add dynamic SqEntry.
 
 	/* C function */
 	sq_type_decide_size(type, NULL, false);
-	/* C++ function */
+	/* C++ method */
 	type->decideSize(NULL, false);
 ```
 
@@ -260,7 +264,7 @@ use C++ functions to add dynamic SqEntry.
 
 ## 4. find & remove entry from dynamic SqType that defined structured data type
 
-use C function to find & remove SqEntry
+use C language to find & remove SqEntry
 
 ```c
 	SqEntry **entry_addr;
@@ -275,7 +279,7 @@ use C function to find & remove SqEntry
 //	sq_type_decide_size(type, *entry_addr, true);
 ```
 
-use C++ function to find & remove SqEntry
+use C++ language to find & remove SqEntry
 
 ```c++
 	Sq::Entry **entry_addr;
@@ -299,7 +303,7 @@ User can call function to increase reference count.
 	/* C function */
 	sq_type_ref(type);
 
-	/* C++ function */
+	/* C++ method */
 	type->ref();
 ```
 
@@ -310,7 +314,7 @@ User can call function to decrease reference count.
 	/* C function */
 	sq_type_unref(type);
 
-	/* C++ function */
+	/* C++ method */
 	type->unref();
 ```
 

@@ -183,6 +183,12 @@ sqtool  migrate:rollback
 Run all of your outstanding migrations
 
 ```c
+	SqApp *sqapp = sq_app_new();
+
+	// open database that defined in SqApp-config.h
+	if (sq_app_open_database(sqapp, NULL) != SQCODE_OK)
+		return EXIT_FAILURE;
+
 	// if the database vesion is 0 (no migrations have been done)
 	if (sq_app_make_schema(sqapp, 0) == SQCODE_DB_VERSION_0) {
 		// run migrations that defined in ../database/migrations
@@ -204,6 +210,12 @@ Rollback the last database migration
 Run all of your outstanding migrations
 
 ```c++
+	Sq::App *sqapp = new Sq::App;
+
+	// open database that defined in SqApp-config.h
+	if (sqapp->openDatabase(NULL) != SQCODE_OK)
+		return EXIT_FAILURE;
+
 	// if the database vesion is 0 (no migrations have been done)
 	if (sqapp->makeSchema() == SQCODE_DB_VERSION_0) {
 		// run migrations that defined in ../database/migrations

@@ -58,16 +58,22 @@ struct MyCommandValue
 ```
 
 #### 1.2 define options of command statically
+* Note: If you define constant SqCommand, it must use with SqOption **pointer array**.
 
 ```c
-static const SqOption *mycommand_options[] = {
-	&(SqOption) {SQ_TYPE_BOOL,  "help",      offsetof(MyCommandValue, help),
-	             .shortcut = "h",  .default_value = "true",
-	             .description = "Display help for the given command."},
+static const SqOption  mycommand_option_array[] = {
+	{SQ_TYPE_BOOL,  "help",      offsetof(MyCommandValue, help),
+		.shortcut = "h",  .default_value = "true",
+		.description = "Display help for the given command."},
 
-	&(SqOption) {SQ_TYPE_BOOL,  "quiet",     offsetof(MyCommandValue, quiet),
-	             .shortcut = "q",  .default_value = "true",
-	             .description = "Do not output any message."},
+	{SQ_TYPE_BOOL,  "quiet",     offsetof(MyCommandValue, quiet),
+		.shortcut = "q",  .default_value = "true",
+		.description = "Do not output any message."},
+};
+
+static const SqOption *mycommand_options[] = {
+	& mycommand_option_array[0],
+	& mycommand_option_array[1],
 };
 ```
 
@@ -112,7 +118,7 @@ static const SqCommand mycommand = {
 
 ## 2 Define a new command dynamically
 
-* use C Language
+use C language
 
 ```c
 	SqOption  *option;
@@ -134,7 +140,7 @@ static const SqCommand mycommand = {
 	sq_command_add_option(mycommand, option);
 ```
 
-* use C++ Language
+use C++ language
 
 ```c++
 	Sq::Option  *option;

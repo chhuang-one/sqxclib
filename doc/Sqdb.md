@@ -118,7 +118,7 @@ User can use sqdb_exec() to execute a query and get result by Sqxc elements.
 
 #### Get multiple rows of "migrations" table
 
-Use C function to get multiple rows of "migrations" table
+Use C language to get multiple rows of "migrations" table
 
 ```c
 	SqxcValue  *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
@@ -145,7 +145,7 @@ Use C function to get multiple rows of "migrations" table
 	}
 ```
 
-Use C++ function to get multiple rows of "migrations" table
+Use C++ language to get multiple rows of "migrations" table
 
 ```c++
 	Sq::XcValue   *xc_input = new Sq::XcValue();
@@ -328,7 +328,8 @@ static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema, SqSchema *schema
 
 #### 3. use custom Sqdb
 
-* use C Language
+use C language
+
 ```c++
 	SqdbConfigXxsql  config = {
 		.xxsql_setting = 0,
@@ -343,7 +344,8 @@ static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema, SqSchema *schema
 	storage = sq_storage_new(db);
 ```
 
-* use C++ Language
+use C++ language
+
 ```c++
 	SqdbConfigXxsql  config = {
 		.xxsql_setting = 0,

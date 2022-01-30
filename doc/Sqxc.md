@@ -35,7 +35,8 @@ Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.
 ## Create Sqxc elements
 create element to convert data to SQL INSERT/UPDATE statement and add element to convert data to JSON array/object in SQL column.
 
-* use C Language
+use C language
+
 ```c
 	Sqxc *xcsql;
 	Sqxc *xcjson;
@@ -50,7 +51,8 @@ create element to convert data to SQL INSERT/UPDATE statement and add element to
 	sqxc_insert(xcsql, xcjson, -1);
 ```
 
-* use C++ Language
+use C++ language
+
 ```c++
 	Sq::XcSql         *xcsql  = new Sq::XcSql();
 	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
@@ -79,7 +81,8 @@ Because difference data type is processed by difference Sqxc element, It returns
 Before you call sqxc_send(), set data type, data name, and data value in Sqxc structure.
 These data(arguments) will be processed between Sqxc elements.
 
-* use C Language
+use C language
+
 ```c
 	Sqxc *xc = xcsql;
 
@@ -97,7 +100,8 @@ These data(arguments) will be processed between Sqxc elements.
 		return;    // error
 ```
 
-* use C++ Language
+use C++ language
+
 ```c++
 	Sq::Xc *xc = (Sq::Xc*)xcsql;
 
@@ -115,7 +119,7 @@ These data(arguments) will be processed between Sqxc elements.
 		return;    // error
 ```
 
-#### use C function to send object data to Sqxc elements
+#### use C language to send object data to Sqxc elements
 - If you want to parse/write object or array and reuse Sqxc elements:
 1. call sqxc_ready() before sending data.
 2. call sqxc_finish() after sending data.
@@ -174,7 +178,7 @@ JSON look like this:
 { "id": 1, "int_array": [ 2, 4] }
 ```
 
-#### use C++ function to send array to Sqxc elements
+#### use C++ language to send array to Sqxc elements
 - If you want to parse/write object or array and reuse Sqxc elements:
 1. call xc->ready() before sending data.
 2. call xc->finish() after sending data.
@@ -217,7 +221,8 @@ JSON look like this:
 
 Note: SqxcFile is in sqxctest library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)
 
-* use C Language
+use C language
+
 ```c
 	xc->type = SQXC_TYPE_INT;
 	xc->name = "id";
@@ -227,7 +232,8 @@ Note: SqxcFile is in sqxctest library. Sample code is in [xc_json_file.cpp](../e
 	sqxc_send_to(xcjson, xc);
 ```
 
-* use C++ Language
+use C++ language
+
 ```c++
 	xc->type = SQXC_TYPE_INT;
 	xc->name = "id";
@@ -365,7 +371,7 @@ Note: If new Sqxc element want to parse/write data in SQL column, it must:
 	/* C function */
 	sqxc_send_to(xc_dest, xc_text);
 
-	/* C++ function */
+	/* C++ method */
 //	xc_dest->send(xc_text);
 ```
 
@@ -373,7 +379,8 @@ Note: If new Sqxc element want to parse/write data in SQL column, it must:
 
 create custom Sqxc element and insert it to SqStorage::xc_input list.
 
-* use C Language
+use C Language
+
 ```c++
 	Sqxc *xc_text;
 	Sqxc *xc_json;
@@ -396,7 +403,8 @@ create custom Sqxc element and insert it to SqStorage::xc_input list.
 	}
 ```
 
-* use C++ Language
+use C++ Language
+
 ```c++
 	SqxcText  *xc_text;
 	Sq::Xc    *xc_json;
