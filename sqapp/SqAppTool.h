@@ -33,9 +33,8 @@ extern "C" {
 
 /* --- SqAppTool functions --- */
 
-// If 'with_base' is false, these 2 functions will not initialize/finalize base class/struct (SqApp).
-void    sq_app_tool_init(SqAppTool *app, const char *program_name, bool with_base);
-void    sq_app_tool_final(SqAppTool *app, bool with_base);
+void    sq_app_tool_init(SqAppTool *app, const char *program_name);
+void    sq_app_tool_final(SqAppTool *app);
 
 int     sq_app_tool_run(SqAppTool *app, int argc, char **argv);
 
@@ -150,11 +149,11 @@ namespace Sq {
 /* define AppToolMethod functions. */
 
 inline void AppToolMethod::init(const char *program_name) {
-	sq_app_tool_init((SqAppTool*)this, program_name, false);
+	sq_app_tool_init((SqAppTool*)this, program_name);
 	((SqAppTool*)this)->template_extension = ".cpp.txt";
 }
 inline void AppToolMethod::final() {
-	sq_app_tool_final((SqAppTool*)this, false);
+	sq_app_tool_final((SqAppTool*)this);
 }
 
 inline int  AppToolMethod::run(int argc, char **argv) {
