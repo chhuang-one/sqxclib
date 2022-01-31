@@ -69,6 +69,10 @@ namespace Sq {
 
 /*	AppToolMethod is used by SqAppTool and it's children.
 
+	AppMethod
+	|
+	`--- AppToolMethod
+
 	It's derived struct/class must be C++11 standard-layout and has SqAppTool members.
  */
 struct AppToolMethod : AppMethod {
