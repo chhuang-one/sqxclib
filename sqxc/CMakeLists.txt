@@ -8,6 +8,7 @@ set(SOURCES
     SqType-PtrArray.c
     SqType-fake.c
     SqEntry.c
+    SqColumn.c
     SqTable.c
     SqJoint.c
     SqSchema.c
@@ -32,6 +33,7 @@ set(HEADERS
     SqUtil.h
     SqType.h
     SqEntry.h
+    SqColumn.h
     SqTable.h
     SqJoint.h
     SqSchema.h
