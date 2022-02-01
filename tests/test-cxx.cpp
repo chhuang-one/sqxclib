@@ -12,6 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <assert.h>
 #include <stdio.h>
 #include <type_traits>  // is_standard_layout<>
 #include <iostream>     // cout
@@ -99,11 +100,15 @@ void test_query_cpp()
 {
 	Sq::Query *query;
 	char      *sql;
+	const char *result = "SELECT DISTINCT age, name, u.id "
+	                     "FROM city "
+	                     "JOIN ( SELECT * FROM User WHERE name = tom ) AS u ON u.city_id = city.id "
+	                     "WHERE id > 30 AND ( age < 15 AND name = 'abc' )";
 
 	/*
 		SELECT DISTINCT age, name, u.id
 		FROM city
-		JOIN ( SELECT * FROM User WHERE name = 'tom' ) AS u ON u.city_id = city.id
+		JOIN ( SELECT * FROM User WHERE name = tom ) AS u ON u.city_id = city.id
 		WHERE id > 30 AND ( age < '15' AND name = 'abc' )
 	 */
 	query = new Sq::Query();
@@ -122,8 +127,9 @@ void test_query_cpp()
 
 	sql = query->toSql();
 	puts(sql);
-	free(sql);
 
+	assert(strcmp(sql, result) == 0);
+	free(sql);
 	delete query;
 }
 
@@ -221,7 +227,9 @@ void test_type()
 	// add entry "email" again
 	type->addEntry(entry);
 	type->decideSize();
+	printf("type instance size = %d\n", type->size);
 
+	assert(type->size == 12);
 	type->unref();
 }
 // ----------------------------------------------------------------------------

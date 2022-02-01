@@ -12,6 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <assert.h>
 #include <time.h>
 #include <stdio.h>
 #include <type_traits>  // is_standard_layout<>
@@ -28,6 +29,7 @@ void test_intptr_array()
 {
 	Sq::IntptrArray *array;
 	intptr_t   intarray[] = {0, 3, 2, 5};
+	intptr_t   result[] = {0, 301, 351, 2, 5};
 
 	array = new Sq::IntptrArray();
 	array->insert(0, intarray, 4);
@@ -35,6 +37,8 @@ void test_intptr_array()
 	sq_ptr_array_alloc_at(array, 2, 2);
 	array->data[2] = 301;
 	array->data[3] = 351;
+
+	sq_ptr_array_erase(array, 1, 1);
 
 	// C++ foreach (lambda)
 	array->foreach([](intptr_t element) {
@@ -47,6 +51,7 @@ void test_intptr_array()
 	}
 	puts("");
 
+	assert(memcmp(array->data, result, sizeof(result)) == 0);
 	delete array;
 }
 
@@ -68,41 +73,15 @@ void test_string_array()
 	}
 	puts("");
 
+	// Sq::StringArray must copy strings from 'strarray' to array->data
+	assert(memcmp(array->data, strarray, sizeof(strarray)) != 0);
 	delete array;
-}
-
-void test_ptr_array_vp()
-{
-	SqPtrArray  array;
-
-	// array pointer stay the same
-	sq_ptr_array_init(&array, 4, NULL);
-
-	array.data[array.length++] = (void*)(intptr_t)5;
-	array.data[array.length++] = (void*)(intptr_t)6;
-	array.data[array.length++] = (void*)(intptr_t)7;
-	array.data[array.length++] = (void*)(intptr_t)8;
-
-	sq_ptr_array_erase(&array, 2, 1);
-	sq_ptr_array_append(&array, (void*)(intptr_t)12);
-	sq_ptr_array_insert(&array, 2, (void*)(intptr_t)105);
-	sq_ptr_array_insert(&array, 3, (void*)(intptr_t)0);
-
-	sq_ptr_array_foreach(&array, element) {
-		printf(" - 0x%p", element);
-	}
-	puts("");
-
-	// array pointer stay the same
-	sq_ptr_array_alloc(&array, 16);
-	sq_ptr_array_final(&array);
 }
 
 void test_ptr_array()
 {
 	test_intptr_array();
 	test_string_array();
-	test_ptr_array_vp();
 }
 
 // ----------------------------------------------------------------------------
@@ -111,6 +90,7 @@ void test_buffer(void)
 {
 	SqBuffer *buf;
 	int       len;
+	const char *result = "13xqyz254abcg";
 
 	buf = sq_buffer_new();
 
@@ -126,6 +106,8 @@ void test_buffer(void)
 
 	sq_buffer_write_c(buf, 0);
 	puts(buf->mem);
+
+	assert(memcmp(buf->mem, result, strlen(result)) == 0);
 	sq_buffer_free(buf);
 }
 

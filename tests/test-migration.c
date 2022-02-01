@@ -139,7 +139,7 @@ SqTable *change_user_table_by_c_type(SqSchema *schema)
 }
 
 // ----------------------------------------------------------------------------
-// use C function to define table/column
+// define table/column
 
 SqTable *create_user_table_by_c(SqSchema *schema)
 {
@@ -227,7 +227,7 @@ void create_company_table_by_c(SqSchema *schema)
 	SqTable  *table;
 	SqColumn *column;
 
-	// use C function to change schema
+	// change schema
 	table = sq_schema_create(schema, "companies", Company);
 	column = sq_table_add_integer(table, "id", offsetof(Company, id));
 	column->bit_field |= SQB_PRIMARY;
@@ -242,7 +242,7 @@ void create_city_table_and_rename_by_c(SqSchema *schema)
 	SqTable  *table;
 	SqColumn *column;
 
-	// use C function to change schema
+	// change schema
 	table = sq_schema_create(schema, "cities", City);
 	column = sq_table_add_integer(table, "id", offsetof(City, id));
 	column->bit_field |= SQB_PRIMARY;

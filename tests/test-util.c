@@ -12,7 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 
 #include <SqUtil.h>
@@ -29,43 +31,62 @@ void test_name_convention()
 	name = malloc(len +2 +1);  // + plural character + null-terminated
 	sq_camel_from_snake(name, "custom_name", true);
 	printf("sq_camel_from_snake() - %s\n", name);
+	assert(strcmp(name, "CustomName") == 0);
+
 	len = sq_noun2plural(name, name);
 	printf("sq_noun2plural() - %d, %s\n", len, name);
+	assert(strcmp(name, "CustomNames") == 0);
 	free(name);
+
 
 	len = sq_snake_from_camel(NULL, "CustomName");
 	name = malloc(len +2 +1);  // + plural character + null-terminated
 	sq_snake_from_camel(name, "CustomName");
 	printf("sq_snake_from_camel() - %s\n", name);
+	assert(strcmp(name, "custom_name") == 0);
+
 	len = sq_noun2plural(name, name);
 	printf("sq_noun2plural() - %d, %s\n", len, name);
+	assert(strcmp(name, "custom_names") == 0);
 	free(name);
+
 
 	src = "boy";
 	len = sq_noun2plural(NULL, src);
 	name = malloc(len +1);  // + null-terminated
 	len = sq_noun2plural(name, src);
 	printf("sq_noun2plural() - %d, %s\n", len, name);
+	assert(strcmp(name, "boys") == 0);
+
 	len = sq_noun2singular(name, name);
 	printf("sq_noun2singular() - %d, %s\n", len, name);
+	assert(strcmp(name, "boy") == 0);
 	free(name);
+
 
 	src = "Company";
 	len = sq_noun2plural(NULL, src);
 	name = malloc(len +1);  // + null-terminated
 	sq_noun2plural(name, src);
 	printf("sq_noun2plural() - %d, %s\n", len, name);
+	assert(strcmp(name, "Companies") == 0);
+
 	len = sq_noun2singular(name, name);
 	printf("sq_noun2singular() - %d, %s\n", len, name);
+	assert(strcmp(name, "Company") == 0);
 	free(name);
+
 
 	src = "Watch";
 	len = sq_noun2plural(NULL, src);
 	name = malloc(len +1);  // + null-terminated
 	sq_noun2plural(name, src);
 	printf("sq_noun2plural() - %d, %s\n", len, name);
+	assert(strcmp(name, "Watches") == 0);
+
 	len = sq_noun2singular(name, name);
 	printf("sq_noun2singular() - %d, %s\n", len, name);
+	assert(strcmp(name, "Watch") == 0);
 	free(name);
 #endif  // SQ_CONFIG_NAMING_CONVENTION
 }

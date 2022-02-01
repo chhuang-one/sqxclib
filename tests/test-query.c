@@ -13,6 +13,7 @@
  */
 
 
+#include <assert.h>
 #include <stdio.h>
 
 #include <SqQuery-macro.h>
@@ -23,6 +24,12 @@ void test_query_c1()
 {
 	SqQuery *query;
 	char    *sql;
+	const char* result = "SELECT DISTINCT id, age "
+	                     "FROM Company AS a "
+	                     "WHERE salary > '1200' OR id < 9 "
+	                     "JOIN city AS c ON city.id < 100 AND city.age > 10 "
+	                     "GROUP BY Company.age "
+	                     "ORDER BY Company.id ASC";
 
 	query = sq_query_new(NULL);
 
@@ -54,8 +61,9 @@ void test_query_c1()
 
 	sql = sq_query_to_sql(query);
 	puts(sql);
-	free(sql);
 
+	assert(strcmp(sql, result) == 0);
+	free(sql);
 	sq_query_free(query);
 }
 
@@ -63,6 +71,7 @@ void test_query_c2()
 {
 	SqQuery *query;
 	char    *sql;
+	const char *result = "SELECT * FROM Company WHERE salary > 2150 AND ( id > 22 AND age < 10 )";
 
 	query = sq_query_new(NULL);
 	// SELECT * FROM Company
@@ -78,8 +87,9 @@ void test_query_c2()
 
 	sql = sq_query_to_sql(query);
 	puts(sql);
-	free(sql);
 
+	assert(strcmp(sql, result) == 0);
+	free(sql);
 	sq_query_free(query);
 }
 
