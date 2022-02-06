@@ -39,6 +39,10 @@ static int  sqxc_value_send(SqxcValue *xcvalue, Sqxc *src)
 		}
 		// parse elements in array or entries in object
 		src->code = type->parse(instance, type, src);
+		// Start of unknown Array or Object
+		if (src->code == SQCODE_ENTRY_NOT_FOUND && src->type & SQXC_TYPE_NESTED)
+			sqxc_push_nested((Sqxc*)xcvalue);
+		// return result
 		return src->code;
 	}
 

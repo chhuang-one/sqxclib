@@ -21,10 +21,6 @@
 #include <SqError.h>
 #include <Sqxc.h>
 
-#ifdef SQ_CONFIG_SQXC_UNKNOWN_SKIP
-#include <SqxcUnknown.h>
-#endif
-
 #define NESTED_OUTER_ROOT    (&sqxc_nested_root)
 
 static SqxcNested sqxc_nested_root = {0};
@@ -200,13 +196,6 @@ Sqxc  *sqxc_send(Sqxc *xc)
 			// change current Sqxc element
 			if (cur->nested_count == 0 && cur->dest) {
 				xc = cur->dest;
-#ifdef SQ_CONFIG_SQXC_UNKNOWN_SKIP
-				// remove SqxcUnknown if it has reached end of unknown object or array
-				if (cur->info == SQXC_INFO_UNKNOWN) {
-					sqxc_steal(xc, cur);
-					sqxc_free(cur);
-				}
-#endif  // SQ_CONFIG_SQXC_UNKNOWN_SKIP
 				cur = xc;
 			}
 			cur->code = SQCODE_OK;    // set code for convenient
@@ -215,17 +204,6 @@ Sqxc  *sqxc_send(Sqxc *xc)
 		else if (xc->code == SQCODE_ENTRY_NOT_FOUND)
 			break;
 	}
-
-#ifdef SQ_CONFIG_SQXC_UNKNOWN_SKIP
-	// use SqxcUnknown if elements can't handle unknown object or array
-	if (xc->type & SQXC_TYPE_NESTED) {
-		// insert SqxcUnknown after current element.
-		cur = sqxc_new(SQXC_INFO_UNKNOWN);
-		cur->dest = xc;
-		sqxc_insert(xc, cur, 1);
-		return cur;
-	}
-#endif  // SQ_CONFIG_SQXC_UNKNOWN_SKIP
 
 	return xc;
 }

@@ -50,26 +50,33 @@
 #endif
 #undef HAVE_MYSQL
 
-/* SqEntry.c, SqRelation-migration.c */
-// #define SQ_CONFIG_SQL_CASE_SENSITIVE
-
-/* Sqxc can process (skip) unknown array & object */
-// #define SQ_CONFIG_SQXC_UNKNOWN_SKIP
-
-/* Enable "SQL_table_name" <-> "C struct type_name" converting. (SqSchema.h, SqUtil.h)
+/* Enable "SQL_table_name" <-> "C struct type_name" converting.
    When calling sq_schema_create_xxx():
-     user only specify "SQL_table_name", program generate "C struct type_name".
-     user only specify "C struct type_name", program generate "SQL_table_name".
+   If user only specify "SQL_table_name", program generate "C struct type_name".
+   If user only specify "C struct type_name", program generate "SQL_table_name".
+   Affected source : SqSchema, SqUtil, SqAppTool
  */
 // #define SQ_CONFIG_NAMING_CONVENTION
 
-/* SqConsole.c */
+/* sqxclib is case-insensitive by default when parsing command from console.
+   User can enable SQ_CONFIG_COMMAND_CASE_SENSITIVE to change it.
+   Affected source : SqConsole
+ */
 // #define SQ_CONFIG_COMMAND_CASE_SENSITIVE
+
+/* sqxclib is case-insensitive by default when parsing SQL column name.
+   User can enable SQ_CONFIG_SQL_CASE_SENSITIVE to change it.
+   Affected source : SqEntry, SqRelation-migration
+ */
+// #define SQ_CONFIG_SQL_CASE_SENSITIVE
 
 // ----------------------------------------------------------------------------
 // Default length (size)
 
-/* Sqdb.c, SqSchema.c - SQL_STRING_LENGTH_DEFAULT */
+/* If user doesn't specify SQL string length, program will use it by default.
+   Affected source : Sqdb, SqSchema
+   SQL_STRING_LENGTH_DEFAULT
+ */
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT      191
 
 /* SqEntry.c, SqType.c, SqSchema.c - SQ_TYPE_N_ENTRY_DEFAULT */

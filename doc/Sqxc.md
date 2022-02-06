@@ -449,5 +449,4 @@ There is a JSON object defined below.
 }
 ```
 
-In this case, it will cause an error when Sqxc parsing above JSON object if no 'undefinedObject' defined by SqEntry/SqColumn.  
-If you want to skip unknown(undefine) object & array like 'undefinedObject', please enable SQ_CONFIG_SQXC_UNKNOWN_SKIP in SqConfig.h
+If no 'undefinedObject' defined by SqEntry/SqColumn, SqxcValue will ignore 'undefinedObject' when parsing above JSON object.

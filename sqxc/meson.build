@@ -20,7 +20,6 @@ sources = ['SqPtrArray.c',
 
            # Sqxc - Converter interface
            'Sqxc.c',
-           'SqxcUnknown.c',
            'SqxcValue.c',
            'SqxcSql.c',
           ]
@@ -49,7 +48,6 @@ headers = ['sqxclib.h',
 
            # Sqxc - Converter interface
            'Sqxc.h',
-           'SqxcUnknown.h',
            'SqxcValue.h',
            'SqxcSql.h',
           ]

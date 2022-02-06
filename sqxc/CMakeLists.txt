@@ -17,7 +17,6 @@ set(SOURCES
     SqQuery.c
     Sqdb.c
     Sqxc.c
-    SqxcUnknown.c
     SqxcValue.c
     SqxcSql.c
 )
@@ -44,7 +43,6 @@ set(HEADERS
     SqRelation.h
     Sqdb.h
     Sqxc.h
-    SqxcUnknown.h
     SqxcValue.h
     SqxcSql.h
 )
