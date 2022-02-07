@@ -12,6 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <assert.h>
 #include <stdio.h>
 
 #include <SqPtrArray.h>
@@ -175,7 +176,7 @@ void test_sqxc_jsonc_input()
 	sqxc_free_chain(xcchain);
 }
 
-User *test_sqxc_jsonc_input_user()
+void test_sqxc_jsonc_input_user()
 {
 	Sqxc *xcvalue;
 	User *user;
@@ -186,38 +187,78 @@ User *test_sqxc_jsonc_input_user()
 
 	sqxc_ready(xcvalue, NULL);
 
-#if 0
 	Sqxc *xcjsonc;
 	xcjsonc = sqxc_find(xcvalue, SQXC_INFO_JSONC_PARSER);
 	xcjsonc->type = SQXC_TYPE_STRING;
 	xcjsonc->name = NULL;
 	xcjsonc->value.string = (char*)json_object_string;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
-#else
+
+	sqxc_finish(xcvalue, NULL);
+
+	user = (User*)sqxc_value_instance(xcvalue);
+	assert(user->id == 10);
+
+	print_user(user);
+	free(user);
+	sqxc_free_chain(xcvalue);
+}
+
+void test_sqxc_jsonc_input_unknown()
+{
+	Sqxc *xcvalue;
+	User *user;
+
+	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
+	sqxc_value_element(xcvalue) = &UserType;
+	sqxc_value_container(xcvalue) = NULL;
+
+	sqxc_ready(xcvalue, NULL);
 	Sqxc *xc;
 	xc = xcvalue;
 
 	xc->type = SQXC_TYPE_OBJECT;
 	xc = sqxc_send(xc);
 
+	/* send unknown data to SqxcValue to test SQ_TYPE_UNKNOWN */
 	xc->type = SQXC_TYPE_OBJECT;
-	xc->name = "x1";
+	xc->name = "xobj";
+	xc = sqxc_send(xc);
+
+	xc->type = SQXC_TYPE_ARRAY;
+	xc->name = "xarray";
+	xc = sqxc_send(xc);
+
+	xc->type = SQXC_TYPE_INT;
+	xc->name = "xint";
+	xc->value.integer = 100;
+	xc = sqxc_send(xc);
+
+	xc->type = SQXC_TYPE_ARRAY_END;
+	xc->name = "xarray";
 	xc = sqxc_send(xc);
 
 	xc->type = SQXC_TYPE_OBJECT_END;
-	xc->name = "x1";
+	xc->name = "xobj";
+	xc = sqxc_send(xc);
+
+	/* send known data */
+	xc->type = SQXC_TYPE_INT;
+	xc->name = "id";
+	xc->value.integer = 99;
 	xc = sqxc_send(xc);
 
 	xc->type = SQXC_TYPE_OBJECT_END;
 	xc = sqxc_send(xc);
-#endif
 
 	sqxc_finish(xcvalue, NULL);
 
 	user = (User*)sqxc_value_instance(xcvalue);
-	print_user(user);
+	assert(user->id == 99);
 
-	return user;
+	print_user(user);
+	free(user);
+	sqxc_free_chain(xcvalue);
 }
 
 // ----------------------------------------------------------------------------
@@ -353,6 +394,7 @@ int  main(void)
 #ifdef SQ_CONFIG_HAVE_JSONC
 	test_sqxc_jsonc_input();
 	test_sqxc_jsonc_input_user();
+	test_sqxc_jsonc_input_unknown();
 	test_sqxc_jsonc_output(user);
 	test_sqxc_sql_output(true);
 #endif  // SQ_CONFIG_HAVE_JSONC
