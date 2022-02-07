@@ -12,6 +12,26 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <SqError.h>
 #include <SqType.h>
 
-const struct SqTypeFake SqType_Fake_ = {0};
+static int  sq_type_unknown_parse(void *instance, const SqType *type, Sqxc *src)
+{
+	return (src->code = SQCODE_ENTRY_NOT_FOUND);
+}
+
+static Sqxc *sq_type_unknown_write(void *instance, const SqType *type, Sqxc *dest)
+{
+	return dest;
+}
+
+const struct SqTypeFake SqType_Fake_ = {
+	.nth = {0},
+	.unknown = {
+		0,
+		NULL,
+		NULL,
+		sq_type_unknown_parse,
+		sq_type_unknown_write,
+	},
+};

@@ -446,7 +446,8 @@ enum {
 #define SQ_TYPE_FAKE3      ((SqType*)&SqType_Fake_.nth[3])
 #define SQ_TYPE_FAKE4      ((SqType*)&SqType_Fake_.nth[4])
 #define SQ_TYPE_FAKE5      ((SqType*)&SqType_Fake_.nth[5])
-#define SQ_TYPE_FAKE6      ((SqType*)&SqType_Fake_.dummy)
+#define SQ_TYPE_FAKE6      ((SqType*)&SqType_Fake_.unknown)
+#define SQ_TYPE_UNKNOWN    ((SqType*)&SqType_Fake_.unknown)
 
 // condition
 #define SQ_TYPE_IS_FAKE(type)     \
@@ -456,7 +457,7 @@ enum {
 
 struct SqTypeFake {
 	SqType *nth[SQ_TYPE_N_FAKE];
-	SqType  dummy;
+	SqType  unknown;
 };
 
 extern  const  struct SqTypeFake   SqType_Fake_;
