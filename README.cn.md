@@ -590,34 +590,62 @@ use C++ methods
 		storage->commitTrans();
 ```
 
+## Configuration Headers
+change build configuration.
+
+sqxclib is case-insensitive by default when parsing SQL column name. User can enable SQ_CONFIG_SQL_CASE_SENSITIVE in sqxc/[SqConfig.h](sqxc/SqConfig.h) to change it.
+
+```c
+// Common settings in SqConfig.h
+
+/* Enable "SQL_table_name" <-> "C struct type_name" converting.
+   When calling sq_schema_create_xxx():
+   If user only specify "SQL_table_name", program generate "C struct type_name".
+   If user only specify "C struct type_name", program generate "SQL_table_name".
+   Affected source : SqSchema, SqUtil, SqAppTool
+ */
+#define SQ_CONFIG_NAMING_CONVENTION
+
+/*  sqxclib is case-insensitive by default when parsing SQL column name.
+    User can enable SQ_CONFIG_SQL_CASE_SENSITIVE to change it.
+*/
+#define SQ_CONFIG_SQL_CASE_SENSITIVE
+
+/* If user doesn't specify SQL string length, program will use it by default.
+   SQL_STRING_LENGTH_DEFAULT
+ */
+#define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT      191
+```
+
 ## JSON support
 - This library use [json-c](https://github.com/json-c/json-c) to parse/write JSON.
 - all defined table/column can use to parse JSON object/field
 - program can also parse JSON object/array that store in column.
 
 ## Sqdb
- Sqdb is base structure for database product (SQLite, MySQL...etc).  
- SqdbSqlite.c implement Sqdb interface for SQLite.  
- SqdbMysql.c implement Sqdb interface for MySQL.  
- You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
+Sqdb is base structure for database product (SQLite, MySQL...etc).  
+SqdbSqlite.c implement Sqdb interface for SQLite.  
+SqdbMysql.c implement Sqdb interface for MySQL.  
+You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
 
 ## Sqxc
- Sqxc is interface for data parse and write.  
- User can link multiple Sqxc element to convert different types of data.  
- You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)  
+Sqxc is interface for data parse and write.  
+User can link multiple Sqxc element to convert different types of data.  
+You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)  
 
 ## SqApp
- SqApp use configuration file (SqApp-config.h) to initialize database and do migrations for user's application.  
- Document for SqApp in doc/[SqApp.md](doc/SqApp.md)  
+SqApp use configuration file (SqApp-config.h) to initialize database and do migrations for user's application.  
+It provide command-line program to generate migration and do migrate.  
+See document in doc/[SqApp.md](doc/SqApp.md)  
 
 ## SqConsole
- SqConsole provide command-line interface (mainly for SqAppTool).  
- Document for SqConsole in doc/[SqConsole.md](doc/SqConsole.md)  
+SqConsole provide command-line interface (mainly for SqAppTool).  
+Document for SqConsole in doc/[SqConsole.md](doc/SqConsole.md)  
 
 ## Others
- Document for SqEntry (SqColumn's base class/structure) in doc/[SqEntry.md](doc/SqEntry.md)  
- Document for SqColumn in doc/[SqColumn.md](doc/SqColumn.md)  
- Document for SqType in doc/[SqType.md](doc/SqType.md)  
+Document for SqEntry (SqColumn's base class/structure) in doc/[SqEntry.md](doc/SqEntry.md)  
+Document for SqColumn in doc/[SqColumn.md](doc/SqColumn.md)  
+Document for SqType in doc/[SqType.md](doc/SqType.md)  
 
 ## Licensing
 

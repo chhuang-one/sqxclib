@@ -4,29 +4,27 @@ SqConsole provide command-line interface (mainly for SqAppTool). It must use wit
   
 Relationship of SqConsole, SqCommand, and SqOption.
 
-	SqConsole ---┐
-	             ├--- SqCommand 1 ---  ...
+	SqConsole ---┬--- SqCommand 1 ---┬--- SqOption 1
+	             │                   │
+	             │                   └--- SqOption n
 	             │
-	             └--- SqCommand n ---┐
-	                                 ├--- SqOption 1
-	                                 │
-	                                 └--- SqOption n
+	             └--- SqCommand n ---  ...
 
 # SqCommand
 
-  User can use SqCommand to define command and it's options statically (or dynamically).
+User can use SqCommand to define command and it's options statically (or dynamically).
 SqConsole use this to parse data from command-line and store parsed data in SqCommandValue.
 
 	SqType
-	|
-	`--- SqCommand
+	│
+	└--- SqCommand
 
 # SqOption
-  define an option for command
+define an option for command
 
 	SqEntry
-	|
-	`--- SqOption
+	│
+	└--- SqOption
 
 ## 1 Define a new command statically
 
@@ -35,8 +33,8 @@ define 'mycommand' that has two options - '--help' and '--quiet'
 #### 1.1 define value of command
 
 	SqCommandValue
-	|
-	`--- MyCommandValue
+	│
+	└--- MyCommandValue
 
 ```c++
 // add this line if you use C language
