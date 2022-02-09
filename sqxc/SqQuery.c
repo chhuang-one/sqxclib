@@ -465,8 +465,10 @@ void sq_query_having_logical_va(SqQuery *query, uintptr_t sqn_type, const char *
 	SqQueryNode   *node;
 
 	having = sq_query_node_find(nested->parent, SQN_HAVING, &node);
-	if (having == NULL)
+	if (having == NULL) {
 		having = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
+		having->type = SQN_HAVING;
+	}
 
 	if (having->children) {
 		node = sq_query_node_append(having, sq_query_node_new(query));
