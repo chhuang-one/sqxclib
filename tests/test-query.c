@@ -20,7 +20,7 @@
 
 // ----------------------------------------------------------------------------
 
-void test_query_c1()
+void test_query_c()
 {
 	SqQuery *query;
 	char    *sql;
@@ -67,7 +67,7 @@ void test_query_c1()
 	sq_query_free(query);
 }
 
-void test_query_c2()
+void test_query_c_nested()
 {
 	SqQuery *query;
 	char    *sql;
@@ -93,7 +93,25 @@ void test_query_c2()
 	sq_query_free(query);
 }
 
-void test_query_macro()
+void test_query_c_no_select_from()
+{
+	SqQuery *query;
+	char    *sql;
+
+	query = sq_query_new(NULL);
+	sq_query_where(query, "id > 10", NULL);
+	sq_query_where(query, "id < %d", 99);
+	sq_query_having(query, "city_id > 3", NULL);
+	sq_query_or_having(query, "city_id < 9");
+	sql = sq_query_to_sql(query);
+	puts(sql);
+
+	assert(strcmp(sql, "WHERE id > 10 AND id < 99 HAVING city_id > 3 OR city_id < 9") == 0);
+	free(sql);
+}
+
+// SqQuery-macro.h
+void test_query_macro_get_table_as()
 {
 	SqQuery *query;
 	char    *sql;
@@ -125,22 +143,22 @@ void test_query_macro()
 	sq_query_get_table_as_names(query, table_as);
 	for (int i = 0;  i < table_as->length;  i += 2)
 		printf("%s - %s\n", (char*)table_as->data[i], (char*)table_as->data[i+1]);
+
+	assert(strcmp(table_as->data[0], "companies") == 0);
+	assert(strcmp(table_as->data[2], "city") == 0);
+	assert(strcmp(table_as->data[3], "c") == 0);
 	sq_ptr_array_free(table_as);
-
 	sq_query_free(query);
-}
-
-void test_query()
-{
-	test_query_c1();
-	test_query_c2();
-	test_query_macro();
 }
 
 // ----------------------------------------------------------------------------
 
 int main(int argc, char **argv)
 {
-	test_query();
+	test_query_c();
+	test_query_c_nested();
+	test_query_c_no_select_from();
+	test_query_macro_get_table_as();
+
 	return EXIT_SUCCESS;
 }
