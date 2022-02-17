@@ -20,25 +20,22 @@
 
 // ----------------------------------------------------------------------------
 
-void test_query_c()
+void test_query_c(SqQuery *query)
 {
-	SqQuery *query;
-	char    *sql;
-	const char* result = "SELECT DISTINCT id, age "
-	                     "FROM Company AS a "
+	char       *sql;
+	const char *result = "SELECT DISTINCT id, age "
+	                     "FROM companies AS a "
 	                     "WHERE salary > '1200' OR id < 9 "
 	                     "JOIN city AS c ON city.id < 100 AND city.age > 10 "
-	                     "GROUP BY Company.age "
-	                     "ORDER BY Company.id ASC";
-
-	query = sq_query_new(NULL);
+	                     "GROUP BY companies.age "
+	                     "ORDER BY companies.id ASC";
 
 	// "SELECT DISTINCT id, age"
 	sq_query_select(query, "id", "age", NULL);
 	sq_query_distinct(query);
 
-	// "FROM Company AS a"
-	sq_query_from(query, "Company");
+	// "FROM companies AS a"
+	sq_query_from(query, "companies");
 	sq_query_as(query, "a");
 
 	// "WHERE salary > '1200' OR id < 9"
@@ -52,31 +49,47 @@ void test_query_c()
 	sq_query_as(query, "c");
 	sq_query_on(query, "city.age", ">", "10");
 
-	// "GROUP BY Company.age"
-	sq_query_group_by(query, "Company.age", NULL);
+	// "GROUP BY companies.age"
+	sq_query_group_by(query, "companies.age", NULL);
 
-	// "ORDER BY Company.id ASC"
-	sq_query_order_by(query, "Company.id", NULL);
+	// "ORDER BY companies.id ASC"
+	sq_query_order_by(query, "companies.id", NULL);
 	sq_query_order_by_asc(query);
 
 	sql = sq_query_to_sql(query);
-	puts(sql);
+	sq_query_clear(query);
 
 	assert(strcmp(sql, result) == 0);
+	puts(sql);
 	free(sql);
-	sq_query_free(query);
 }
 
-void test_query_c_nested()
+void test_query_c_raw(SqQuery *query)
 {
-	SqQuery *query;
-	char    *sql;
-	const char *result = "SELECT * FROM Company WHERE salary > 2150 AND ( id > 22 AND age < 10 )";
+	char       *sql;
 
-	query = sq_query_new(NULL);
-	// SELECT * FROM Company
+	sq_query_table(query, "users");
+	// if 3rd argument is NULL, the 2nd argument is handled as raw string.
+	sq_query_select(query, "id, name", NULL);
+	// if 3rd argument is NULL, the string "city LIKE 'ber%'" is handled as raw string.
+	sq_query_where(query, "city LIKE 'ber%'", NULL);
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	assert(strcmp(sql, "SELECT id, name FROM users WHERE city LIKE 'ber%'") == 0);
+	puts(sql);
+	free(sql);
+}
+
+void test_query_c_nested(SqQuery *query)
+{
+	char       *sql;
+	const char *result = "SELECT * FROM companies WHERE salary > 2150 AND ( id > 22 AND age < 10 )";
+
+	// SELECT * FROM companies
 	// WHERE salary > 2150
-	sq_query_from(query, "Company");
+	sq_query_from(query, "companies");
 	sq_query_where(query, "salary > %d", 2150);
 
 	// AND ( id > 22 AND age < 10 )
@@ -86,37 +99,65 @@ void test_query_c_nested()
 	sq_query_pop_nested(query);              // end of Subquery/Nested
 
 	sql = sq_query_to_sql(query);
-	puts(sql);
+	sq_query_clear(query);
 
 	assert(strcmp(sql, result) == 0);
+	puts(sql);
 	free(sql);
-	sq_query_free(query);
 }
 
-void test_query_c_no_select_from()
+void test_query_c_no_select_from(SqQuery *query)
 {
-	SqQuery *query;
 	char    *sql;
 
-	query = sq_query_new(NULL);
 	sq_query_where(query, "id > 10", NULL);
 	sq_query_where(query, "id < %d", 99);
 	sq_query_having(query, "city_id > 3", NULL);
 	sq_query_or_having(query, "city_id < 9");
 	sql = sq_query_to_sql(query);
-	puts(sql);
+	sq_query_clear(query);
 
 	assert(strcmp(sql, "WHERE id > 10 AND id < 99 HAVING city_id > 3 OR city_id < 9") == 0);
+	puts(sql);
+	free(sql);
+}
+
+void test_query_c_delete(SqQuery *query)
+{
+	char    *sql;
+
+	sq_query_where(query, "id > 10", NULL);
+	sq_query_where(query, "id < %d", 99);
+	sq_query_table(query, "users");
+	sq_query_delete(query);
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	assert(strcmp(sql, "DELETE FROM users WHERE id > 10 AND id < 99") == 0);
+	puts(sql);
+	free(sql);
+}
+
+void test_query_c_truncate(SqQuery *query)
+{
+	char    *sql;
+
+	sq_query_table(query, "users");
+	sq_query_truncate(query);
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	assert(strcmp(sql, "TRUNCATE TABLE users") == 0);
+	puts(sql);
 	free(sql);
 }
 
 // SqQuery-macro.h
-void test_query_macro_get_table_as()
+void test_query_macro_get_table_as(SqQuery *query)
 {
-	SqQuery *query;
 	char    *sql;
-
-	query = sq_query_new(NULL);
 
 	/*
 		SELECT id, age
@@ -134,10 +175,6 @@ void test_query_macro_get_table_as()
 		SQQ_WHERE("age > 5");
 	});
 
-	sql = sq_query_to_sql(query);
-	puts(sql);
-	free(sql);
-
 	// get table name and it's as name in query.
 	SqPtrArray *table_as = sq_ptr_array_new(4, NULL);
 	sq_query_get_table_as_names(query, table_as);
@@ -148,17 +185,31 @@ void test_query_macro_get_table_as()
 	assert(strcmp(table_as->data[2], "city") == 0);
 	assert(strcmp(table_as->data[3], "c") == 0);
 	sq_ptr_array_free(table_as);
-	sq_query_free(query);
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	puts(sql);
+	free(sql);
 }
 
 // ----------------------------------------------------------------------------
 
 int main(int argc, char **argv)
 {
-	test_query_c();
-	test_query_c_nested();
-	test_query_c_no_select_from();
-	test_query_macro_get_table_as();
+	SqQuery *query;
+
+	query = sq_query_new(NULL);
+
+	test_query_c(query);
+	test_query_c_raw(query);
+	test_query_c_nested(query);
+	test_query_c_no_select_from(query);
+	test_query_c_delete(query);
+	test_query_c_truncate(query);
+	test_query_macro_get_table_as(query);
+
+	sq_query_free(query);
 
 	return EXIT_SUCCESS;
 }

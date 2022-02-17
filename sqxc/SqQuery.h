@@ -23,7 +23,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
-#include <SqPtrArray.h>
+#include <SqPtrArray.h>    // used by sq_query_get_table_as_names()
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
@@ -48,10 +48,13 @@ extern "C" {
 /*	SqQuery C functions
 
 
-	** below functions support printf format string:
+	** below functions support printf format string in 2nd argument:
 		sq_query_join(), sq_query_on(),     sq_query_or_on(),
 		                 sq_query_where(),  sq_query_or_where(),
 		                 sq_query_having(), sq_query_or_having(),
+
+	If the 3rd argument of above C functions is NULL, the 2nd argument is handled as raw string.
+	If you want to use SQL Wildcard Characters '%' in these functions, you must print “%” using “%%”.
 
 	// e.g. "WHERE id < 100"
 	sq_query_where(query, "id < %d", 100);
@@ -67,7 +70,7 @@ extern "C" {
 	sq_query_pop_nested(query);                 // end of Subquery
 
 
-	** below function support Subquery/Nested: (second argument must be NULL)
+	** below function support Subquery/Nested: (2nd argument must be NULL)
 		sq_query_from();
 		sq_query_join();
 		sq_query_on();     sq_query_or_on();
@@ -81,16 +84,19 @@ extern "C" {
 	sq_query_pop_nested(query);                 // end of Subquery/Nested
 
 
-	** below function support SQL raw statements: (third argument must be NULL)
+	** below function support SQL raw statements: (3rd argument must be NULL)
+		sq_query_select(),
 		sq_query_on(),     sq_query_or_on(),
 		sq_query_where(),  sq_query_or_where(),
 		sq_query_having(), sq_query_or_having(),
+		sq_query_order_by(),
+		sq_query_group_by(),
 
 	// e.g. "WHERE id = 1"
 	sq_query_where(query, "id = 1", NULL);
 
 
-	** below function support SQL raw statements: (fourth argument must be NULL)
+	** below function support SQL raw statements: (4th argument must be NULL)
 		sq_query_join()
 
 	// e.g. "JOIN city ON city.id > 10"

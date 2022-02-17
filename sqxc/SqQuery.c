@@ -619,18 +619,29 @@ static SqQueryNode *sq_query_condition(SqQuery *query, const char *first, va_lis
 	//
 	temp.length = (int)strcspn(argv[0], "%");
 	if (*(argv[0] +temp.length) == '%') {
-		// printf format
+		// raw string or printf format string
 		va_list  arg_copy;
 		va_copy(arg_copy, arg_list);
-#ifdef _MSC_VER		// for MS C only
-		temp.length = _vscprintf (argv[0], arg_list) + 1;
-#else				// for C99 standard
-		temp.length = vsnprintf (NULL, 0, argv[0], arg_list) + 1;
-#endif
-		node->type = SQN_VALUE;
-		node->value = malloc(temp.length);
-		vsprintf(node->value, argv[0], arg_copy);
+		argv[1] = va_arg(arg_copy, const char*);
 		va_end(arg_copy);
+		if (argv[1] == NULL) {
+			// raw string
+			node->type = SQN_VALUE;
+			node->value = strdup(argv[0]);
+		}
+		else {
+			// printf format string
+			va_copy(arg_copy, arg_list);
+#ifdef _MSC_VER		// for MS C only
+			temp.length = _vscprintf(argv[0], arg_list) + 1;
+#else				// for C99 standard
+			temp.length = vsnprintf(NULL, 0, argv[0], arg_list) + 1;
+#endif
+			node->type = SQN_VALUE;
+			node->value = malloc(temp.length);
+			vsprintf(node->value, argv[0], arg_copy);
+			va_end(arg_copy);
+		}
 		return node;
 	}
 	temp.length++;       // + " "
