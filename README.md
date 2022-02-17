@@ -466,6 +466,9 @@ use C++ methods to open SQLite database
 
 ## Query builder
 
+SqQuery can generate SQL statement by using C functions or C++ methods.
+To get more information and sample, you can see doc/[SqQuery.md](doc/SqQuery.md)  
+  
 SQL statement
 
 ```sql
@@ -484,7 +487,7 @@ use C++ methods to produce query
 	         query->from("city")
 	              ->where("id", "<", "100");
 	     })->as("c")->on("c.id = companies.city_id")
-	     ->where("age > 5");
+	     ->where("age > %d", 5);
 ```
 
 use C functions to produce query
@@ -501,7 +504,7 @@ use C functions to produce query
 	sq_query_pop_nested(query);
 	sq_query_as(query, "c");
 	sq_query_on(query, "c.id = companies.city_id");
-	sq_query_where(query, "age > 5");
+	sq_query_where(query, "age > %d", 5);
 ```
 
 use C macro to produce query
@@ -519,6 +522,16 @@ use C macro to produce query
 		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
 		SQQ_WHERE("age > 5");
 	});
+```
+
+To use SqQuery with SqStorage, call C function sq_storage_query() or C++ method query()
+
+```c++
+	// C function
+	array = sq_storage_query(storage, query, NULL, NULL);
+
+	// C++ method
+	array = storage->query(query);
 ```
 
 ## JOIN support
@@ -608,8 +621,8 @@ sqxclib is case-insensitive by default when parsing SQL column name. User can en
  */
 #define SQ_CONFIG_NAMING_CONVENTION
 
-/*  sqxclib is case-insensitive by default when parsing SQL column name.
-    User can enable SQ_CONFIG_SQL_CASE_SENSITIVE to change it.
+/* sqxclib is case-insensitive by default when parsing SQL column name.
+   User can enable SQ_CONFIG_SQL_CASE_SENSITIVE to change it.
 */
 #define SQ_CONFIG_SQL_CASE_SENSITIVE
 
