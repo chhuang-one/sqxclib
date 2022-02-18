@@ -383,7 +383,7 @@ use C functions
 ```c
 	User  *user;
 
-	array = sq_storage_get_all(storage, "users", NULL, NULL);
+	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
 	user  = sq_storage_get(storage, "users", NULL, 2);
 
 	sq_storage_insert(storage, "users", NULL, user);
@@ -411,7 +411,7 @@ use C++ template functions
 
 	vector = storage->getAll<std::vector<User>>();
 	// or
-	array  = storage->getAll<User>(NULL);
+	array  = storage->getAll<User>(NULL, NULL);
 
 	user = storage->get<User>(2);
 

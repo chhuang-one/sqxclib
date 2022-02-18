@@ -119,8 +119,8 @@ int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int index
 		mtable.batch = batch;
 		if (mtable.migration == NULL)
 			mtable.migration = "";
-		sq_storage_insert_full(storage, SQ_MIGRATION_TABLE_NAME, NULL,
-		                       &mtable, &SqType_migration_table_);
+		sq_storage_insert(storage, SQ_MIGRATION_TABLE_NAME,
+		                  &SqType_migration_table_, &mtable);
 	}
 
 	// commit transaction to improve SQLite performance
@@ -136,6 +136,6 @@ void  sq_migration_remove(SqStorage *storage, int begin)
 
 	sq_buffer_alloc(&buffer, snprintf(NULL, 0, "WHERE id >= %d", begin));
 	snprintf(buffer.mem, buffer.size, "WHERE id >= %d", begin);
-	sq_storage_remove_by_sql(storage, SQ_MIGRATION_TABLE_NAME, buffer.mem);
+	sq_storage_remove_all(storage, SQ_MIGRATION_TABLE_NAME, buffer.mem);
 	sq_buffer_final(&buffer);
 }

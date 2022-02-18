@@ -288,7 +288,7 @@ void  storage_ptr_array_get_all(Sq::Storage *storage)
 	Sq::PtrArray *array;
 	Company      *company;
 
-	array = (Sq::PtrArray*)storage->getAll<Company>(NULL);
+	array = (Sq::PtrArray*)storage->getAll<Company>(NULL, NULL);
 	if (array) {
 		for (int i = 0;  i < array->length;  i++) {
 			company = (Company*)array->data[i];

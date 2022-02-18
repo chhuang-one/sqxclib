@@ -15,19 +15,8 @@
 
 #include <stdio.h>
 
-#include <SqConfig.h>
-#ifdef SQ_CONFIG_HAVE_SQLITE
-
-#include <sqlite3.h>
-
-#include <SqError.h>
-#include <SqPtrArray.h>
-#include <SqTable.h>
+#include <sqxclib.h>
 #include <SqSchema-macro.h>
-#include <SqStorage.h>
-#include <SqdbSqlite.h>
-#include <SqxcSql.h>
-#include <SqxcValue.h>
 
 typedef struct Company    Company;
 
@@ -45,30 +34,6 @@ void company_free(Company *company)
 	free(company->name);
 	free(company->address);
 	free(company);
-}
-
-void create_company_table(SqSchema *schema)
-{
-	SQ_SCHEMA_CREATE(schema, "COMPANY", Company, {
-		SQT_INTEGER("ID", Company, id); SQC_PRIMARY();
-		SQT_STRING("NAME", Company, name, -1);
-		SQT_INTEGER("AGE", Company, age);
-		SQT_STRING("ADDRESS", Company, address, 50);
-		SQT_DOUBLE("SALARY", Company, salary, 0, 0);
-	});
-}
-
-SqStorage *create_storage(sqlite3 *sqlitedb)
-{
-	Sqdb       *db;
-	SqStorage  *storage;
-
-	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
-	((SqdbSqlite*)db)->self = sqlitedb;
-
-	storage = sq_storage_new(db);
-	create_company_table(storage->schema);
-	return storage;
 }
 
 void  company_object_print(Company *company)
@@ -93,6 +58,32 @@ void  company_array_print(SqPtrArray *array)
 	}
 }
 
+void create_company_table(SqSchema *schema)
+{
+	SQ_SCHEMA_CREATE(schema, "companies", Company, {
+		SQT_INTEGER("id", Company, id); SQC_PRIMARY();
+		SQT_STRING("name", Company, name, -1);
+		SQT_INTEGER("age", Company, age);
+		SQT_STRING("address", Company, address, 50);
+		SQT_DOUBLE("salary", Company, salary, 0, 0);
+	});
+}
+
+#ifdef SQ_CONFIG_HAVE_SQLITE
+
+SqStorage *create_storage(sqlite3 *sqlitedb)
+{
+	Sqdb       *db;
+	SqStorage  *storage;
+
+	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+	((SqdbSqlite*)db)->self = sqlitedb;
+
+	storage = sq_storage_new(db);
+	create_company_table(storage->schema);
+	return storage;
+}
+
 static int callback(void *user_data, int argc, char **argv, char **columnName)
 {
 	int i;
@@ -103,7 +94,7 @@ static int callback(void *user_data, int argc, char **argv, char **columnName)
 	return 0;
 }
 
-int main (int argc, char *argv[])
+int  test_sqlite_c(int argc, char *argv[])
 {
 	sqlite3 *db;
 	char  *errorMsg;
@@ -171,7 +162,7 @@ int main (int argc, char *argv[])
 	// sqxc
 	puts("\n");
 	storage = create_storage(db);
-	array = sq_storage_get_all(storage, "COMPANY", NULL, NULL);
+	array = sq_storage_get_all(storage, "COMPANY", NULL, NULL, NULL);
 	company_array_print(array);
 	sq_ptr_array_foreach(array, element) {
 		company_free((Company*)element);
@@ -205,3 +196,13 @@ int main (int argc, char *argv[])
 }
 
 #endif  // SQ_CONFIG_HAVE_SQLITE
+
+
+int  main(int argc, char *argv[])
+{
+#ifdef SQ_CONFIG_HAVE_SQLITE
+	test_sqlite_c(argc, argv);
+#endif
+
+	return EXIT_SUCCESS;
+}

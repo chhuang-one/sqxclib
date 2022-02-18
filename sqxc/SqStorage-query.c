@@ -78,26 +78,29 @@ SqType  *sq_storage_type_from_query(SqStorage *storage, SqQuery *query, int *n_t
 	return type;
 }
 
-void *sq_storage_query(SqStorage *storage, SqQuery *query, const SqType *container, const SqType *type)
+void *sq_storage_query(SqStorage    *storage,
+                       SqQuery      *query,
+                       const SqType *table_type,
+                       const SqType *container_type)
 {
 	SqType     *type_cur;
 	Sqxc       *xcvalue;
 	char       *sql;
 	void       *instance;
 
-	if (container == NULL)
-		container = storage->container_default;
-	if (type)
-		type_cur = (SqType*)type;
+	if (container_type == NULL)
+		container_type = storage->container_default;
+	if (table_type)
+		type_cur = (SqType*)table_type;
 	else {
 		type_cur = sq_storage_type_from_query(storage, query, NULL);
 		if (type_cur == NULL)
 			return NULL;
 		// special case for SqPtrArray: if there is only 1 table in query
-		if (container == SQ_TYPE_PTR_ARRAY && type_cur->n_entry == 1) {
-			type = type_cur->entry[0]->type;
+		if (container_type == SQ_TYPE_PTR_ARRAY && type_cur->n_entry == 1) {
+			table_type = type_cur->entry[0]->type;
 			sq_type_unref(type_cur);
-			type_cur = (SqType*)type;
+			type_cur = (SqType*)table_type;
 		}
 	}
 
@@ -106,7 +109,7 @@ void *sq_storage_query(SqStorage *storage, SqQuery *query, const SqType *contain
 	// destination of input
 	xcvalue = (Sqxc*) storage->xc_input;
 	sqxc_value_element(xcvalue)   = type_cur;
-	sqxc_value_container(xcvalue) = (container) ? container : (SqType*)storage->container_default;
+	sqxc_value_container(xcvalue) = (container_type) ? container_type : (SqType*)storage->container_default;
 	sqxc_value_instance(xcvalue)  = NULL;
 
 	// get input from SQL
@@ -117,7 +120,7 @@ void *sq_storage_query(SqStorage *storage, SqQuery *query, const SqType *contain
 	// free SQL statement string
 	free(sql);
 
-	if (type == NULL)
+	if (table_type == NULL)
 		sq_type_unref(type_cur);
 	return instance;
 }

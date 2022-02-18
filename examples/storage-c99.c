@@ -437,7 +437,7 @@ int  main(void)
 		user_free(user);
 	}
 
-	array = sq_storage_get_all(storage, "cities", NULL, NULL);
+	array = sq_storage_get_all(storage, "cities", NULL, NULL, NULL);
 	if (array) {
 		for (int i = 0;  i < array->length;  i++) {
 			city = array->data[i];

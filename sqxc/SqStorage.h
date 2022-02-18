@@ -64,98 +64,43 @@ int   sq_storage_migrate(SqStorage *storage, SqSchema *schema);
 
 /* ------------------------------------
 	CRUD functions:
-	1. can work if user only specify one of 'table_name' or 'type_name'.
-	2. can run a bit faster if user specify 'table_name' and 'type' at the same time.
+	1. These can work if user only specify 'table_name'.
+	2. These can run a bit faster if user specify 'table_name' and 'table_type' at the same time.
  */
-void *sq_storage_get_full(SqStorage    *storage,
-                          const char   *table_name,
-                          const char   *type_name,
-                          int           id,
-                          const SqType *type);
-
-// sq_storage_get_all_full() can run a bit faster if user specify 'table_name' and 'type' at the same time.
-void *sq_storage_get_all_full(SqStorage    *storage,
-                              const char   *table_name,
-                              const char   *type_name,
-                              const SqType *container_type,
-                              const char   *sql_where_having,
-                              const SqType *type);
-/*
 void *sq_storage_get(SqStorage    *storage,
                      const char   *table_name,
-                     const char   *type_name,
+                     const SqType *table_type,
                      int           id);
- */
-#define sq_storage_get(storage, table_name, type_name, id)    \
-		sq_storage_get_full(storage, table_name, type_name, id, NULL)
-/*
+
+// parameter 'sql_where_having' is SQL statement that exclude "SELECT * FROM table_name"
 void *sq_storage_get_all(SqStorage    *storage,
                          const char   *table_name,
-                         const char   *type_name,
-                         const SqType *container_type);
- */
-#define sq_storage_get_all(storage, table_name, type_name, container_type)    \
-		sq_storage_get_all_full(storage, table_name, type_name, container_type, NULL, NULL)
-/*
- * This function will generate below SQL statement to get rows
- * SELECT * FROM table_name + 'sql_where_having'
-void *sq_storage_get_by_sql(SqStorage    *storage,
-                            const char   *table_name,
-                            const char   *type_name,
-                            const SqType *container_type,
-                            const char   *sql_where_having);
- */
-#define sq_storage_get_by_sql(storage, table_name, type_name, container_type, sql_where_having)    \
-		sq_storage_get_all_full(storage, table_name, type_name, container_type, sql_where_having, NULL)
+                         const SqType *table_type,
+                         const SqType *container_type,
+                         const char   *sql_where_having);
 
 /* return id if no error
    return -1 if error occurred (or id is unknown while TRANSACTION)
  */
-int   sq_storage_insert_full(SqStorage    *storage,
-                             const char   *table_name,
-                             const char   *type_name,
-                             void         *instance,
-                             const SqType *type);
-/*
-int   sq_storage_insert(SqStorage  *storage,
-                        const char *table_name,
-                        const char *type_name,
-                        void       *instance);
- */
-#define sq_storage_insert(storage, table_name, type_name, instance)    \
-		sq_storage_insert_full(storage, table_name, type_name, instance, NULL)
+int   sq_storage_insert(SqStorage    *storage,
+                        const char   *table_name,
+                        const SqType *table_type,
+                        void         *instance);
 
-void  sq_storage_update_full(SqStorage    *storage,
-                             const char   *table_name,
-                             const char   *type_name,
-                             void         *instance,
-                             const SqType *type);
-/*
-void  sq_storage_update(SqStorage  *storage,
-                        const char *table_name,
-                        const char *type_name,
-                        void       *instance);
- */
-#define sq_storage_update(storage, table_name, type_name, instance)    \
-		sq_storage_update_full(storage, table_name, type_name, instance, NULL)
+void  sq_storage_update(SqStorage    *storage,
+                        const char   *table_name,
+                        const SqType *table_type,
+                        void         *instance);
 
-void  sq_storage_remove_full(SqStorage    *storage,
-                             const char   *table_name,
-                             const char   *type_name,
-                             int           id,
-                             const SqType *type);
-/*
-void  sq_storage_remove(SqStorage  *storage,
-                        const char *table_name,
-                        const char *type_name,
-                        int         id);
- */
-#define sq_storage_remove(storage, table_name, type_name, id)    \
-		sq_storage_remove_full(storage, table_name, type_name, id, NULL)
+void  sq_storage_remove(SqStorage    *storage,
+                        const char   *table_name,
+                        const SqType *table_type,
+                        int           id);
 
-void  sq_storage_remove_by_sql(SqStorage    *storage,
-                               const char   *table_name,
-                               const char   *sql_where_having);
+// parameter 'sql_where_having' is SQL statement that exclude "DELETE FROM table_name"
+void  sq_storage_remove_all(SqStorage    *storage,
+                            const char   *table_name,
+                            const char   *sql_where_having);
 
 // ------------------------------------
 // find table by SqTable.name or SqType.name
@@ -178,7 +123,10 @@ SqType  *sq_storage_type_from_query(SqStorage *storage, SqQuery *query, int *n_t
 // element[1] = table2
 // element[2] = table3
 // ...etc
-void *sq_storage_query(SqStorage *storage, SqQuery *query, const SqType *container, const SqType *type);
+void *sq_storage_query(SqStorage    *storage,
+                       SqQuery      *query,
+                       const SqType *table_type,
+                       const SqType *container_type);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -212,27 +160,22 @@ struct StorageMethod
 
 	template <class StructType>
 	StructType *get(int id);
-	void       *get(const char *table_name, int id, const SqType *type = NULL);
+	void       *get(const char *table_name, int id);
+	void       *get(const char *table_name, const SqType *table_type, int id);
 
 	template <class Element, class StlContainer>
-	StlContainer *getBySql(const char *sql_where_having);
+	StlContainer *getAll(const char *sql_where_having = NULL);
 	template <class StlContainer>
-	StlContainer *getBySql(const char *sql_where_having);
+	StlContainer *getAll(const char *sql_where_having = NULL);
 	template <class StructType>
-	void *getBySql(const SqType *container, const char *sql_where_having);
-	void *getBySql(const char *table_name, const SqType *container, const char *sql_where_having, const SqType *type = NULL);
-
-	template <class Element, class StlContainer>
-	StlContainer *getAll();
-	template <class StlContainer>
-	StlContainer *getAll();
-	template <class StructType>
-	void *getAll(const SqType *container);
-	void *getAll(const char *table_name, const SqType *container, const SqType *type = NULL);
+	void *getAll(const SqType *container_type, const char *sql_where_having);
+	void *getAll(const char *table_name, const SqType *container_type = NULL, const char *sql_where_having = NULL);
+	void *getAll(const char *table_name, const SqType *table_type, const SqType *container_type, const char *sql_where_having = NULL);
 
 	template <class StlContainer>
 	StlContainer *query(Sq::QueryMethod *query);
-	void *query(Sq::QueryMethod *query, const SqType *container = NULL, const SqType *type = NULL);
+	void *query(Sq::QueryMethod *query, const SqType *container_type = NULL);
+	void *query(Sq::QueryMethod *query, const SqType *table_type, const SqType *container_type);
 
 	template <class StructType>
 	int   insert(StructType& instance);
@@ -240,7 +183,8 @@ struct StorageMethod
 	int   insert(StructType *instance);
 	template <class StructType>
 	int   insert(void *instance);
-	int   insert(const char *table_name, void *instance, const SqType *type = NULL);
+	int   insert(const char *table_name, void *instance);
+	int   insert(const char *table_name, const SqType *table_type, void *instance);
 
 	template <class StructType>
 	void  update(StructType& instance);
@@ -248,13 +192,15 @@ struct StorageMethod
 	void  update(StructType *instance);
 	template <class StructType>
 	void  update(void *instance);
-	void  update(const char *table_name, void *instance, const SqType *type = NULL);
+	void  update(const char *table_name, void *instance);
+	void  update(const char *table_name, const SqType *table_type, void *instance);
 
 	template <class StructType>
 	void  remove(int id);
-	void  remove(const char *table_name, int id, const SqType *type = NULL);
+	void  remove(const char *table_name, int id);
+	void  remove(const char *table_name, const SqType *table_type, int id);
 
-	void  removeBySql(const char *table_name, const char *sql_where_having);
+	void  removeAll(const char *table_name, const char *sql_where_having = NULL);
 
 	int   beginTrans();
 	int   commitTrans();
@@ -373,132 +319,138 @@ inline int   StorageMethod::migrate(SqSchema *schema) {
 
 template <class StructType>
 inline StructType *StorageMethod::get(int id) {
-	return (StructType*)sq_storage_get((SqStorage*)this, NULL, typeid(StructType).name(), id);
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table == NULL)
+		return NULL;
+	return (StructType*)sq_storage_get((SqStorage*)this, table->name, table->type, id);
 }
-inline void       *StorageMethod::get(const char *table_name, int id, const SqType *type) {
-	return (void*)sq_storage_get_full((SqStorage*)this, table_name, NULL, id, type);
+inline void  *StorageMethod::get(const char *table_name, int id) {
+	return sq_storage_get((SqStorage*)this, table_name, NULL, id);
+}
+inline void  *StorageMethod::get(const char *table_name, const SqType *table_type, int id) {
+	return sq_storage_get((SqStorage*)this, table_name, table_type, id);
 }
 
 template <class StlContainer>
-inline StlContainer *StorageMethod::getBySql(const char *sql_where_having) {
+inline StlContainer *StorageMethod::getAll(const char *sql_where_having) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
 	if (table == NULL)
 		return NULL;
 	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
-	StlContainer *instance = (StlContainer*) sq_storage_get_by_sql((SqStorage*)this, table->name, NULL, containerType, sql_where_having);
+	StlContainer *instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, table->type, containerType, sql_where_having);
 	delete containerType;
 	return instance;
 }
 template <class ElementType, class StlContainer>
-inline StlContainer *StorageMethod::getBySql(const char *sql_where_having) {
+inline StlContainer *StorageMethod::getAll(const char *sql_where_having) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
 	if (table == NULL)
 		return NULL;
 	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
-	StlContainer *instance = (StlContainer*) sq_storage_get_by_sql((SqStorage*)this, table->name, NULL, containerType, sql_where_having);
+	StlContainer *instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, table->type, containerType, sql_where_having);
 	delete containerType;
 	return instance;
 }
-
 template <class StructType>
-inline void *StorageMethod::getBySql(const SqType *container_type, const char *sql_where_having) {
-	return sq_storage_get_all_full((SqStorage*)this, NULL, typeid(StructType).name(),
-	                               container_type, sql_where_having, NULL);
-}
-inline void *StorageMethod::getBySql(const char *table_name, const SqType *container_type, const char *sql_where_having, const SqType *type) {
-	return sq_storage_get_all_full((SqStorage*)this, table_name, NULL,
-	                               container_type, sql_where_having, type);
-}
-
-template <class StlContainer>
-inline StlContainer *StorageMethod::getAll() {
-	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
+inline void *StorageMethod::getAll(const SqType *container_type, const char *sql_where_having) {
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
 		return NULL;
-	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
-	StlContainer *instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, NULL, containerType);
-	delete containerType;
-	return instance;
+	return sq_storage_get_all((SqStorage*)this, table->name, table->type, container_type, sql_where_having);
 }
-template <class ElementType, class StlContainer>
-inline StlContainer *StorageMethod::getAll() {
-	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
-	if (table == NULL)
-		return NULL;
-	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
-	StlContainer *instance = (StlContainer*) sq_storage_get_all((SqStorage*)this, table->name, NULL, containerType);
-	delete containerType;
-	return instance;
+inline void *StorageMethod::getAll(const char *table_name, const SqType *container_type, const char *sql_where_having) {
+	return sq_storage_get_all((SqStorage*)this, table_name, NULL, container_type, sql_where_having);
 }
-
-template <class StructType>
-inline void *StorageMethod::getAll(const SqType *container_type) {
-	return sq_storage_get_all_full((SqStorage*)this, NULL, typeid(StructType).name(),
-			                       container_type, NULL, NULL);
-}
-inline void *StorageMethod::getAll(const char *table_name, const SqType *container_type, const SqType *type) {
-	return sq_storage_get_all_full((SqStorage*)this, table_name, NULL,
-	                               container_type, NULL, type);
+inline void *StorageMethod::getAll(const char *table_name, const SqType *table_type, const SqType *container_type, const char *sql_where_having) {
+	return sq_storage_get_all((SqStorage*)this, table_name, table_type, container_type, sql_where_having);
 }
 
 template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryMethod *query) {
-	void    *instance = NULL;
-	SqType  *type = sq_storage_type_from_query((SqStorage*)this, (SqQuery*)query, NULL);
-	if (type) {
-		Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(type);
-		instance = sq_storage_query((SqStorage*)this, (SqQuery*)query, containerType, type);
+	void    *instance  = NULL;
+	SqType  *tableType = sq_storage_type_from_query((SqStorage*)this, (SqQuery*)query, NULL);
+	if (tableType) {
+		Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
+		instance = sq_storage_query((SqStorage*)this, (SqQuery*)query, tableType, containerType);
 		delete containerType;
-		sq_type_unref(type);
+		sq_type_unref(tableType);
 	}
 	return (StlContainer*)instance;
 }
-inline void *StorageMethod::query(Sq::QueryMethod *query, const SqType *container, const SqType *type) {
-	return sq_storage_query((SqStorage*)this, (SqQuery*)query, container, type);
+inline void *StorageMethod::query(Sq::QueryMethod *query, const SqType *container_type) {
+	return sq_storage_query((SqStorage*)this, (SqQuery*)query, NULL, container_type);
+}
+inline void *StorageMethod::query(Sq::QueryMethod *query, const SqType *table_type, const SqType *container_type) {
+	return sq_storage_query((SqStorage*)this, (SqQuery*)query, table_type, container_type);
 }
 
 template <class StructType>
 inline int   StorageMethod::insert(StructType& instance) {
-	return sq_storage_insert((SqStorage*)this, NULL, typeid(StructType).name(), &instance);
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table)
+		return sq_storage_insert((SqStorage*)this, table->name, table->type, &instance);
 }
 template <class StructType>
 inline int   StorageMethod::insert(StructType *instance) {
-	return sq_storage_insert((SqStorage*)this, NULL, typeid(StructType).name(), instance);
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table == NULL)
+		return -1;
+	return sq_storage_insert((SqStorage*)this, table->name, table->type, instance);
 }
 template <class StructType>
 inline int   StorageMethod::insert(void *instance) {
-	return sq_storage_insert((SqStorage*)this, NULL, typeid(StructType).name(), instance);
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table == NULL)
+		return -1;
+	return sq_storage_insert((SqStorage*)this, table->name, table->type, instance);
 }
-inline int   StorageMethod::insert(const char *table_name, void *instance, const SqType *type) {
-	return sq_storage_insert_full((SqStorage*)this, table_name, NULL, instance, type);
+inline int   StorageMethod::insert(const char *table_name, void *instance) {
+	return sq_storage_insert((SqStorage*)this, table_name, NULL, instance);
+}
+inline int   StorageMethod::insert(const char *table_name, const SqType *table_type, void *instance) {
+	return sq_storage_insert((SqStorage*)this, table_name, table_type, instance);
 }
 
 template <class StructType>
 inline void  StorageMethod::update(StructType& instance) {
-	sq_storage_update((SqStorage*)this, NULL, typeid(StructType).name(), &instance);
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table)
+		sq_storage_update((SqStorage*)this, table->name, table->type, &instance);
 }
 template <class StructType>
 inline void  StorageMethod::update(StructType *instance) {
-	sq_storage_update((SqStorage*)this, NULL, typeid(StructType).name(), instance);
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table)
+		sq_storage_update((SqStorage*)this, table->name, table->type, instance);
 }
 template <class StructType>
 inline void  StorageMethod::update(void *instance) {
-	sq_storage_update((SqStorage*)this, NULL, typeid(StructType).name(), instance);
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table)
+		sq_storage_update((SqStorage*)this, table->name, table->type, instance);
 }
-inline void  StorageMethod::update(const char *table_name, void *instance, const SqType *type) {
-	sq_storage_update_full((SqStorage*)this, table_name, NULL, instance, type);
+inline void  StorageMethod::update(const char *table_name, void *instance) {
+	sq_storage_update((SqStorage*)this, table_name, NULL, instance);
+}
+inline void  StorageMethod::update(const char *table_name, const SqType *table_type, void *instance) {
+	sq_storage_update((SqStorage*)this, table_name, table_type, instance);
 }
 
 template <class StructType>
 inline void StorageMethod::remove(int id) {
-	sq_storage_remove((SqStorage*)this, NULL, typeid(StructType).name(), id);
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table)
+		sq_storage_remove((SqStorage*)this, table->name, table->type, id);
 }
-inline void StorageMethod::remove(const char *table_name, int id, const SqType *type) {
-	sq_storage_remove_full((SqStorage*)this, table_name, NULL, id, type);
+inline void StorageMethod::remove(const char *table_name, int id) {
+	sq_storage_remove((SqStorage*)this, table_name, NULL, id);
+}
+inline void StorageMethod::remove(const char *table_name, const SqType *table_type, int id) {
+	sq_storage_remove((SqStorage*)this, table_name, table_type, id);
 }
 
-inline void StorageMethod::removeBySql(const char *table_name, const char *sql_where_having) {
-	sq_storage_remove_by_sql((SqStorage*)this, table_name, sql_where_having);
+inline void StorageMethod::removeAll(const char *table_name, const char *sql_where_having) {
+	sq_storage_remove_all((SqStorage*)this, table_name, sql_where_having);
 }
 
 inline int  StorageMethod::beginTrans() {
