@@ -165,8 +165,8 @@ struct SqdbInfo
 	int  (*close)(Sqdb *db);
 	// executes the SQL statement
 	int  (*exec)(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
-	// migrate schema from 'schema_next' to 'schema_cur'
-	int  (*migrate)(Sqdb *db, SqSchema *schema_cur, SqSchema *schema_next);
+	// migrate schema. It apply changes of 'schema_next' to 'schema_current'
+	int  (*migrate)(Sqdb *db, SqSchema *schema_current, SqSchema *schema_next);
 };
 
 /*	Sqdb - It is a base structure for database product (SQLite, MySQL...etc).
@@ -185,12 +185,12 @@ struct SqdbInfo
 	int             version
 
 #ifdef __cplusplus
-struct Sqdb : Sq::DbMethod               // <-- 1. inherit member function(method)
+struct Sqdb : Sq::DbMethod                 // <-- 1. inherit member function(method)
 #else
 struct Sqdb
 #endif
 {
-	SQDB_MEMBERS;                        // <-- 2. inherit member variable
+	SQDB_MEMBERS;                          // <-- 2. inherit member variable
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
 
@@ -199,7 +199,10 @@ struct Sqdb
  */
 };
 
-/* SqdbConfig - setting of SQL product */
+/*	SqdbConfig - setting of SQL product
+
+	SqdbConfig must have no base struct because I need use aggregate initialization with it.
+ */
 
 #define SQDB_CONFIG_MEMBERS    \
 	unsigned int    product;   \
@@ -207,7 +210,7 @@ struct Sqdb
 
 struct SqdbConfig
 {
-	SQDB_CONFIG_MEMBERS;
+	SQDB_CONFIG_MEMBERS;                   // <-- 1. inherit member variable
 /*	// ------ SqdbConfig members ------
 	unsigned int    product;
 	unsigned int    bit_field;    // reserve. constant or dynamic config data

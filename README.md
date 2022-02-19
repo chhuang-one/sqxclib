@@ -351,29 +351,33 @@ use C++ methods to change constraint (dynamic)
 use C++ methods to migrate schema and synchronize to database
 
 ```c++
-	storage->migrate(schema_v1); // migrate schema_v1
-	storage->migrate(schema_v2); // migrate schema_v2
+	// migrate 'schema_v1' and 'schema_v2'
+	storage->migrate(schema_v1);
+	storage->migrate(schema_v2);
 
 	// synchronize schema to database and update schema/table status
 	// This is mainly used by SQLite
 	storage->migrate(NULL);
 
-	delete schema_v1;            // free unused schema_v1
-	delete schema_v2;            // free unused schema_v2
+	// free unused 'schema_v1' and 'schema_v2'
+	delete schema_v1;
+	delete schema_v2;
 ```
 
 use C functions to migrate schema and synchronize to database
 
 ```c
-	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
-	sq_storage_migrate(storage, schema_v2); // migrate schema_v2
+	// migrate 'schema_v1' and 'schema_v2'
+	sq_storage_migrate(storage, schema_v1);
+	sq_storage_migrate(storage, schema_v2);
 
 	// synchronize schema to database and update schema/table status
 	// This is mainly used by SQLite
 	sq_storage_migrate(storage, NULL);
 
-	sq_schema_free(schema_v1);              // free unused schema_v1
-	sq_schema_free(schema_v2);              // free unused schema_v2
+	// free unused 'schema_v1' and 'schema_v2'
+	sq_schema_free(schema_v1);
+	sq_schema_free(schema_v2);
 ```
 
 ## CRUD

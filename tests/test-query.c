@@ -113,7 +113,7 @@ void test_query_c_no_select_from(SqQuery *query)
 	sq_query_where(query, "id > 10", NULL);
 	sq_query_where(query, "id < %d", 99);
 	sq_query_having(query, "city_id > 3", NULL);
-	sq_query_or_having(query, "city_id < 9");
+	sq_query_or_having(query, "city_id < 9", NULL);
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 

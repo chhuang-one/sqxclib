@@ -71,10 +71,12 @@ struct SqdbEmpty
 	SqdbConfig
 	|
 	`--- SqdbConfigEmpty
+
+	SqdbConfigEmpty must have no base struct because I need use aggregate initialization with it.
  */
 struct SqdbConfigEmpty
 {
-	SQDB_CONFIG_MEMBERS;
+	SQDB_CONFIG_MEMBERS;                   // <-- 1. inherit member variable
 /*	// ------ SqdbConfig members ------
 	unsigned int    product;
 	unsigned int    bit_field;   // reserve

@@ -255,7 +255,7 @@ use C++ language
 // This is header file - SqxcText.h
 #include <Sqxc.h>
 
-// define type - SqxcText for C Language
+// define type - SqxcText for C language
 typedef struct SqxcText   SqxcText;
 
 // define in SqxcText.c
@@ -379,7 +379,7 @@ Note: If new Sqxc element want to parse/write data in SQL column, it must:
 
 create custom Sqxc element and insert it to SqStorage::xc_input list.
 
-use C Language
+use C language
 
 ```c++
 	Sqxc *xc_text;

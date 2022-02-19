@@ -1,8 +1,8 @@
 # SqQuery
 
-SqQuery is query builder that supports nested and subquery.
-If you remove sq_query_get_table_as_names() in SqQuery.c, it can work independently without sqxclib.
-You can also use other query builder to replace SqQuery in sqxclib by removing SqStorage-query.c from Makefile.
+SqQuery is query builder that supports nested and subquery.  
+It can work independently without sqxclib if you remove sq_query_get_table_as_names() in SqQuery.c.  
+You can also use other query builder to replace SqQuery in sqxclib by removing SqQuery.c and SqStorage-query.c from Makefile.  
 
 ## create query and generate SQL statement
 
@@ -12,7 +12,7 @@ e.g. generate below SQL statement. It select all columns from a database table "
 SELECT * FROM companies
 ```
 
-use C Language
+use C language
 
 ```c
 	SqQuery *query;
@@ -90,7 +90,7 @@ below C++ methods support printf format string in 1st argument:
 
 You can specify columns for the query by using select method.  
 
-use C Language
+use C language
 
 ```c
 	sq_query_select(query, "id", "name", NULL);
@@ -114,7 +114,7 @@ use C++ Language
 SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR members < 100
 ```
 
-use C Language
+use C language
 
 ```c
 	sq_query_table(query, "companies");
@@ -134,7 +134,7 @@ use C++ Language
 
 #### having / orHaving
 
-use C Language
+use C language
 
 ```c
 	sq_query_table(query, "companies");
@@ -152,7 +152,7 @@ use C++ Language
 
 #### groupBy / orderBy
 
-use C Language
+use C language
 
 ```c
 	// "GROUP BY companies.age"
@@ -174,6 +174,51 @@ use C++ Language
 	     ->asc();
 ```
 
+#### deleteFrom / truncate
+
+call these function at last (before generating SQL statement).  
+  
+DELETE FROM
+
+```c++
+	// C functions
+	sq_query_table(query, "companies");
+	sq_query_delete(query);
+	sql = sq_query_to_sql(query);
+
+	// C++ methods
+	query->table("companies");
+	query->deleteFrom();
+	sql = query->toSql();
+```
+
+TRUNCATE TABLE
+
+```c++
+	// C functions
+	sq_query_table(query, "companies");
+	sq_query_truncate(query);
+	sql = sq_query_to_sql(query);
+
+	// C++ methods
+	query->table("companies");
+	query->truncate();
+	sql = query->toSql();
+```
+
+## SQL statement exclude "SELECT * FROM table_name"
+
+If you don't specify table name and column name in SqQuery, it will generate SQL statement exclude "SELECT * FROM table_name".  
+The last parameter in sq_storage_get_all() and sq_storage_remove_all() can use this.
+
+```c++
+	sq_query_where(query, "id > 10", NULL);
+	sq_query_or_where(query, "city_id < 9", NULL);
+
+	// WHERE id > 10 OR city_id < 9
+	sql = sq_query_to_sql(query);
+```
+
 ## Raw Methods
 
 insert a raw expression into various parts of your query.  
@@ -183,7 +228,7 @@ insert a raw expression into various parts of your query.
 
 #### selectRaw
 
-use C Language
+use C language
 
 ```c
 	sq_query_table(query, "users");
@@ -199,7 +244,7 @@ use C++ Language
 
 #### whereRaw / orWhereRaw
 
-use C Language
+use C language
 
 ```c
 	sq_query_table(query, "users");
@@ -219,7 +264,7 @@ use C++ Language
 
 #### havingRaw / orHavingRaw
 
-use C Language
+use C language
 
 ```c
 	sq_query_table(query, "orders");
@@ -235,7 +280,7 @@ use C++ Language
 
 #### orderByRaw
 
-use C Language
+use C language
 
 ```c
 	sq_query_table(query, "orders");
@@ -251,7 +296,7 @@ use C++ Language
 
 #### groupByRaw
 
-use C Language
+use C language
 
 ```c
 	sq_query_table(query, "companies");
@@ -267,7 +312,7 @@ use C++ Language
 
 ## Joins
 
-use C Language
+use C language
 
 ```c
 	sq_query_table(query, "companies");

@@ -64,7 +64,7 @@ int   sq_storage_migrate(SqStorage *storage, SqSchema *schema);
 
 /* ------------------------------------
 	CRUD functions:
-	1. These can work if user only specify 'table_name'.
+	1. Parameter 'table_type' can be NULL.
 	2. These can run a bit faster if user specify 'table_name' and 'table_type' at the same time.
  */
 void *sq_storage_get(SqStorage    *storage,
@@ -215,6 +215,7 @@ struct StorageMethod
 // C/C++ common definitions: define structue
 
 /*	SqStorage
+	  It access database by using Sqxc to convert data to/from Sqdb interface.
 
 	Notes about multithreading:
 	1. 'schema', 'tables', 'tables_version' must be shared between threads.

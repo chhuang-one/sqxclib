@@ -82,11 +82,13 @@ struct SqdbSqlite
 	|
 	`--- SqdbConfigSqlite
 
+	SqdbConfigSqlite must have no base struct because I need use aggregate initialization with it.
+
 	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
  */
 struct SqdbConfigSqlite
 {
-	SQDB_CONFIG_MEMBERS;
+	SQDB_CONFIG_MEMBERS;                   // <-- 1. inherit member variable
 /*	// ------ SqdbConfig members ------
 	unsigned int    product;
 	unsigned int    bit_field;

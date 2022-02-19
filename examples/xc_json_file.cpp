@@ -67,7 +67,7 @@ void json_file_writer_cpp()
 	xcfile->freeChain();
 }
 
-// create and write JSON file by using C Language
+// create and write JSON file by using C language
 void json_file_writer_c(void)
 {
 	Sqxc       *xc;

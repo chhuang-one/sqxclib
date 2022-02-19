@@ -31,16 +31,16 @@
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
 #define SQ_TYPE_N_ENTRY_DEFAULT      SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 
-void  sq_schema_init(SqSchema* schema, const char* name)
+void  sq_schema_init(SqSchema *schema, const char *name)
 {
 	static int cur_version = SCHEMA_INITIAL_VERSION;
-	SqType* typeinfo;
+	SqType    *table_type;
 
-	typeinfo = sq_type_new(SQ_TYPE_N_ENTRY_DEFAULT, (SqDestroyFunc)sq_table_free);
-	typeinfo->parse = NULL;
-	typeinfo->write = NULL;
+	table_type = sq_type_new(SQ_TYPE_N_ENTRY_DEFAULT, (SqDestroyFunc)sq_table_free);
+	table_type->parse = NULL;
+	table_type->write = NULL;
 
-	sq_entry_init((SqEntry*)schema, typeinfo);
+	sq_entry_init((SqEntry*)schema, table_type);
 	schema->name = name ? strdup(name) : NULL;
 	// version count
 	schema->version = cur_version++;
@@ -49,7 +49,7 @@ void  sq_schema_init(SqSchema* schema, const char* name)
 	schema->relation_pool = NULL;
 }
 
-void  sq_schema_final(SqSchema* schema)
+void  sq_schema_final(SqSchema *schema)
 {
 	// reduce the stack frame:
 	// sq_type_unref() will not be called by below sq_entry_final()
@@ -66,33 +66,33 @@ void  sq_schema_final(SqSchema* schema)
 #endif
 }
 
-SqSchema*  sq_schema_new(const char* name)
+SqSchema *sq_schema_new(const char *name)
 {
-	SqSchema* schema;
+	SqSchema *schema;
 
 	schema = malloc(sizeof(SqSchema));
 	sq_schema_init(schema, name);
 	return schema;
 }
 
-void  sq_schema_free(SqSchema* schema)
+void  sq_schema_free(SqSchema *schema)
 {
 	sq_schema_final(schema);
 	free(schema);
 }
 
-SqTable* sq_schema_create_full(SqSchema* schema,
-                               const char* table_name,
-                               const char* type_name,
-                               const SqType* type_info,
-                               size_t  instance_size)
+SqTable *sq_schema_create_full(SqSchema     *schema,
+                               const char   *table_name,
+                               const char   *type_name,
+                               const SqType *table_type,
+                               size_t        instance_size)
 {
-	SqTable*  table;
+	SqTable  *table;
 
-	table = sq_table_new(table_name, type_info);
-	// if type_info == NULL,
+	table = sq_table_new(table_name, table_type);
+	// if table_type == NULL,
 	// table->type is dynamic type and table->bit_field has SQB_TYPE_DYNAMIC
-	if (type_info == NULL) {
+	if (table_type == NULL) {
 		((SqType*)table->type)->size = (unsigned int)instance_size;
 		if (type_name)
 			((SqType*)table->type)->name = strdup(type_name);
@@ -111,11 +111,11 @@ SqTable* sq_schema_create_full(SqSchema* schema,
 	return table;
 }
 
-SqTable* sq_schema_alter(SqSchema* schema, const char* name, const SqType* type_info)
+SqTable *sq_schema_alter(SqSchema *schema, const char *name, const SqType *table_type)
 {
-	SqTable*  table;
+	SqTable  *table;
 
-	table = sq_table_new(name, type_info);
+	table = sq_table_new(name, table_type);
 	table->bit_field |= SQB_CHANGED;
 
 	sq_type_add_entry((SqType*)schema->type, (SqEntry*)table, 1, 0);
@@ -123,9 +123,9 @@ SqTable* sq_schema_alter(SqSchema* schema, const char* name, const SqType* type_
 	return table;
 }
 
-void sq_schema_drop(SqSchema* schema, const char* name)
+void sq_schema_drop(SqSchema *schema, const char *name)
 {
-	SqTable* table;
+	SqTable *table;
 
 	table = calloc(1, sizeof(SqTable));
 	table->old_name = strdup(name);
@@ -143,9 +143,9 @@ void sq_schema_drop(SqSchema* schema, const char* name)
 #endif
 }
 
-void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
+void sq_schema_rename(SqSchema *schema, const char *from, const char *to)
 {
-	SqTable* table;
+	SqTable *table;
 
 	table = calloc(1, sizeof(SqTable));
 	table->old_name = strdup(from);
@@ -172,9 +172,9 @@ void sq_schema_rename(SqSchema* schema, const char* from, const char* to)
 #endif
 }
 
-SqTable* sq_schema_find(SqSchema* schema, const char* name)
+SqTable *sq_schema_find(SqSchema *schema, const char *name)
 {
-	void** addr;
+	void **addr;
 
 	addr = sq_type_find_entry(schema->type, name, NULL);
 	if (addr)

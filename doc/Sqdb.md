@@ -1,5 +1,5 @@
 # Sqdb
-  Sqdb is a base structure for database product (SQLite, MySQL...etc).  
+Sqdb is a base structure for database product (SQLite, MySQL...etc).  
 
 | derived structure | Database name | source file  |
 | ----------------- | ------------- | ------------ |
@@ -17,7 +17,7 @@ struct Sqdb
 
 # SqdbInfo
 
- SqdbInfo is data and function interface for database product.
+SqdbInfo is data and function interface for database product.
 
 ```c
 struct SqdbInfo
@@ -47,14 +47,14 @@ struct SqdbInfo
 	int  (*close)(Sqdb *db);
 	// executes the SQL statement
 	int  (*exec)(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
-	// migrate schema from 'schema_next' to 'schema_cur'
-	int  (*migrate)(Sqdb *db, SqSchema *schema_cur, SqSchema *schema_next);
+	// migrate schema. It apply changes of 'schema_next' to 'schema_current'
+	int  (*migrate)(Sqdb *db, SqSchema *schema_current, SqSchema *schema_next);
 };
 ```
 
 # SqdbConfig
 
- SqdbConfig is setting of SQL product
+SqdbConfig is setting of SQL product
 
 ```c
 struct SqdbConfig
@@ -63,6 +63,52 @@ struct SqdbConfig
 	unsigned int    product;
 	unsigned int    bit_field;    // reserve. constant or dynamic config data
 };
+```
+
+## open / close
+
+sqdb_open() will get current schema version number while opening database.  
+* SQLite user can set 'folder' and 'extension' in SqdbConfigSqlite, these affect database filename and path.
+
+```c
+	SqdbConfigSqlite config = { .folder = "/home/dir", .extension = "db" };
+	Sqdb  *db;
+
+	// create SqdbSqlite with config
+	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
+
+	// open database file - "/home/dir/local-base.db"
+	sqdb_open(db, "local-base");
+
+	// close database
+	sqdb_close(db);
+```
+
+## migrate
+
+sqdb_migrate() migrate schema by it's version number and apply changes of 'schema_next' to 'schema_current'.  
+This function may move data from 'schema_next' to 'schema_current', you can't reuse 'schema_next' after migration.
+
+use C functions
+
+```c
+	// apply changes of 'schema_next' to 'schema_current'
+	sqdb_migrate(db, schema_current, schema_next);
+
+	// synchronize 'schema_current' to database and update schema/table status
+	// This is mainly used by SQLite
+	sqdb_migrate(db, schema_current, NULL);
+```
+
+use C++ methods
+
+```c++
+	// apply changes of 'schema_next' to 'schema_current'
+	db->migrate(schema_current, schema_next);
+
+	// synchronize 'schema_current' to database and update schema/table status
+	// This is mainly used by SQLite
+	db->migrate(schema_current, NULL);
 ```
 
 ## Get result from SQL query
@@ -169,17 +215,19 @@ Use C++ language to get multiple rows of "migrations" table
 ```
 
 ## How to support new SQL product:
- User can refer SqdbMysql.h and SqdbMysql.c to support new SQL product.  
- SqdbEmpty.h and SqdbEmpty.c is a workable sample, but it do nothing.  
+
+User can refer SqdbMysql.h and SqdbMysql.c to support new SQL product.  
+SqdbEmpty.h and SqdbEmpty.c is a workable sample, but it do nothing.  
 
 #### 1. define new structure that derived from SqdbConfig and Sqdb
- All derived structure must conforme C++11 standard-layout
+
+All derived structure must conforme C++11 standard-layout
 
 ```c++
 // This is header file - SqdbXxsql.h
 #include <Sqdb.h>
 
-// define types - SqdbXxsql and SqdbConfigXxsql for C Language
+// define types - SqdbXxsql and SqdbConfigXxsql for C language
 typedef struct SqdbXxsql          SqdbXxsql;
 typedef struct SqdbConfigXxsql    SqdbConfigXxsql;
 
@@ -285,6 +333,7 @@ static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name)
 static int  sqdb_xxsql_close(SqdbXxsql *sqdb)
 {
 	// close database
+	return SQCODE_OK;
 }
 
 static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
@@ -305,7 +354,7 @@ static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *re
 		}
 	}
 
-	if (error occurred)
+	if (error_occurred)
 		return SQCODE_EXEC_ERROR;
 	else
 		return SQCODE_OK;

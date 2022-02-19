@@ -25,17 +25,13 @@
 
 typedef struct SqTable        SqTable;
 
-// SqTable::bit_field
+/* SqTable::bit_field for SQLite migration */
+
+// current table has been created in database
 #define SQB_TABLE_SQL_CREATED             (1 << 13)
 
-// REO = reference each other
-// SqTable::bit_field for checking foreign reference each other (avoid infinite recursive)
-#define SQB_TABLE_REO_CHECKING            (1 << 14)
-// SqTable::bit_field for SQLite (constraint reference each other)
-#define SQB_TABLE_REO_CONSTRAINT          (1 << 15)
-
+// use these bit fields to decide whether or not to recreate table
 // COL = column
-// SqTable::bit_field for SQLite (decide to recreate)
 #define SQB_TABLE_COL_ALTERED             (1 << 16)
 #define SQB_TABLE_COL_RENAMED             (1 << 17)
 #define SQB_TABLE_COL_DROPPED             (1 << 18)
@@ -45,10 +41,10 @@ typedef struct SqTable        SqTable;
 #define SQB_TABLE_COL_ADDED_EXPRESSION    (1 << 22)    // DEFAULT (expression)
 #define SQB_TABLE_COL_ADDED_CURRENT_TIME  (1 << 23)    // DEFAULT CURRENT_TIME or CURRENT_DATE...etc
 
-#define SQB_TABLE_COL_CHANGED             (SQB_TABLE_COL_ALTERED | \
-                                           SQB_TABLE_COL_RENAMED | \
-                                           SQB_TABLE_COL_DROPPED | \
-                                           SQB_TABLE_COL_ADDED   | \
+#define SQB_TABLE_COL_CHANGED             (SQB_TABLE_COL_ALTERED          | \
+                                           SQB_TABLE_COL_RENAMED          | \
+                                           SQB_TABLE_COL_DROPPED          | \
+                                           SQB_TABLE_COL_ADDED            | \
                                            SQB_TABLE_COL_ADDED_UNIQUE     | \
                                            SQB_TABLE_COL_ADDED_CONSTRAINT | \
                                            SQB_TABLE_COL_ADDED_EXPRESSION | \

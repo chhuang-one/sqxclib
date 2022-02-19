@@ -255,7 +255,7 @@ C++ Language: The change method allows you to modify the type and attributes of 
 	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
 ```
 
-C Language: set SQB_CHANGE in bit_field allows you to modify the type and attributes of existing columns.
+C language: set SQB_CHANGE in bit_field allows you to modify the type and attributes of existing columns.
 
 ```c
 	/* C sample code */

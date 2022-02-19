@@ -70,6 +70,9 @@ schema builder C++ sample code:
 	// synchronize schema_v1 to database and update schema/table status
 	// This is mainly used by SQLite
 	storage->migrate(NULL);
+
+	// free unused 'schema_v1'
+	delete schema_v1;
 ```
 
 ## 2. Create table by existed SqType (static or dynamic)

@@ -16,7 +16,7 @@
 #define SQDB_MYSQL_H
 
 /* --- set 0 or 1 to choose one of include path for mysql.h --- */
-#if 1
+#if 0
 #include <mysql.h>
 #else
 #include <mysql/mysql.h>
@@ -86,11 +86,13 @@ struct SqdbMysql
 	|
 	`--- SqdbConfigMysql
 
+	SqdbConfigMysql must have no base struct because I need use aggregate initialization with it.
+
 	Note: use 'const char*' to declare string here, C++ user can initialize static struct easily.
  */
 struct SqdbConfigMysql
 {
-	SQDB_CONFIG_MEMBERS;
+	SQDB_CONFIG_MEMBERS;                   // <-- 1. inherit member variable
 /*	// ------ SqdbConfig members ------
 	unsigned int    product;
 	unsigned int    bit_field;

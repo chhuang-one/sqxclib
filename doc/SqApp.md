@@ -178,7 +178,7 @@ Rollback the last database migration
 sqtool  migrate:rollback
 ```
 
-#### migrate by C Language
+#### migrate by C language
 
 Run all of your outstanding migrations
 

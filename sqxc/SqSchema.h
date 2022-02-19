@@ -50,25 +50,25 @@ void    sq_schema_init(SqSchema *schema, const char *name);
 void    sq_schema_final(SqSchema *schema);
 
 /*	sq_schema_create_full()
-  if 'type_info' == NULL, program will use 'type_name' and 'instance_size' to create 'type_info'.
+  if 'table_type' == NULL, program will use 'type_name' and 'instance_size' to create 'table_type'.
   You can pass 0 to 'instance_size' because program calculate 'instance_size' automatically.
 
-  C Language
+  C language
   #define SQ_CONFIG_NAMING_CONVENTION to enable "SQL_table_name" <-> "type_name" converting,
-  program only need one of table_name, type_name, or type_info->name.
+  program only need one of table_name, type_name, or table_type->name.
 
   C++ Language
   It doesn't need #define SQ_CONFIG_NAMING_CONVENTION because program
   use typeid(Type).name() to get "type_name".
  */
-SqTable *sq_schema_create_full(SqSchema *schema,
-                               const char *table_name,
-                               const char *type_name,
-                               const SqType *type_info,
-                               size_t instance_size);
+SqTable *sq_schema_create_full(SqSchema     *schema,
+                               const char   *table_name,
+                               const char   *type_name,
+                               const SqType *table_type,
+                               size_t        instance_size);
 
-#define sq_schema_create_by_type(schema, table_name, type_info)  \
-		sq_schema_create_full(schema, table_name, NULL, type_info, 0)
+#define sq_schema_create_by_type(schema, table_name, table_type)  \
+		sq_schema_create_full(schema, table_name, NULL, table_type, 0)
 
 #define sq_schema_create(schema, table_name, StructType)  \
 		sq_schema_create_full(schema, table_name, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType))
@@ -78,7 +78,7 @@ SqTable *sq_schema_create_full(SqSchema *schema,
 		sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType))
 #endif
 
-SqTable *sq_schema_alter(SqSchema *schema, const char *table_name, const SqType *type_info);
+SqTable *sq_schema_alter(SqSchema *schema, const char *table_name, const SqType *table_type);
 void     sq_schema_drop(SqSchema *schema, const char *name);
 void     sq_schema_rename(SqSchema *schema, const char *from, const char *to);
 
@@ -103,22 +103,22 @@ struct SchemaMethod
 {
 	Sq::Table *create(const char   *table_name,
 	                  const char   *type_name,
-	                  const SqType *type_info = NULL,
+	                  const SqType *table_type = NULL,
 	                  size_t        instance_size = 0);
 
 	Sq::Table *create(const char           *table_name,
 	                  const char           *type_name,
-	                  const Sq::TypeMethod *type_info,
+	                  const Sq::TypeMethod *table_type,
 	                  size_t                instance_size);
 
-	Sq::Table *create(const char *table_name, const SqType *type_info);
-	Sq::Table *create(const char *table_name, const Sq::TypeMethod *type_info);
+	Sq::Table *create(const char *table_name, const SqType *table_type);
+	Sq::Table *create(const char *table_name, const Sq::TypeMethod *table_type);
 
 	template <class StructType>
 	Sq::Table *create(const char *name);
 
-	Sq::Table *alter(const char *name, const SqType *type_info = NULL);
-	Sq::Table *alter(const char *name, const Sq::TypeMethod *type_info);
+	Sq::Table *alter(const char *name, const SqType *table_type = NULL);
+	Sq::Table *alter(const char *name, const Sq::TypeMethod *table_type);
 	void       drop(const char *name);
 	void       rename(const char *from, const char *to);
 
@@ -177,24 +177,24 @@ namespace Sq {
 
 inline Sq::Table *SchemaMethod::create(const char   *table_name,
                                        const char   *type_name,
-                                       const SqType *type_info,
+                                       const SqType *table_type,
                                        size_t        instance_size)
 {
-	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, type_name, type_info, instance_size);
+	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, type_name, table_type, instance_size);
 }
 inline Sq::Table *SchemaMethod::create(const char           *table_name,
                                        const char           *type_name,
-                                       const Sq::TypeMethod *type_info,
+                                       const Sq::TypeMethod *table_type,
                                        size_t                instance_size)
 {
-	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, type_name, (const SqType*)type_info, instance_size);
+	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, type_name, (const SqType*)table_type, instance_size);
 }
 
-inline Sq::Table *SchemaMethod::create(const char *table_name, const SqType *type_info) {
-	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, NULL, type_info, 0);
+inline Sq::Table *SchemaMethod::create(const char *table_name, const SqType *table_type) {
+	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, NULL, table_type, 0);
 }
-inline Sq::Table *SchemaMethod::create(const char *table_name, const Sq::TypeMethod *type_info) {
-	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, NULL, (const SqType*)type_info, 0);
+inline Sq::Table *SchemaMethod::create(const char *table_name, const Sq::TypeMethod *table_type) {
+	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, table_name, NULL, (const SqType*)table_type, 0);
 }
 
 template <class StructType>
@@ -202,11 +202,11 @@ inline Sq::Table *SchemaMethod::create(const char *name) {
 	return (Sq::Table*)sq_schema_create_full((SqSchema*)this, name, typeid(StructType).name(), NULL, sizeof(StructType));
 }
 
-inline Sq::Table *SchemaMethod::alter(const char *name, const SqType *type_info) {
-	return (Sq::Table*)sq_schema_alter((SqSchema*)this, name, type_info);
+inline Sq::Table *SchemaMethod::alter(const char *name, const SqType *table_type) {
+	return (Sq::Table*)sq_schema_alter((SqSchema*)this, name, table_type);
 }
-inline Sq::Table *SchemaMethod::alter(const char *name, const Sq::TypeMethod *type_info) {
-	return (Sq::Table*)sq_schema_alter((SqSchema*)this, name, (const SqType*)type_info);
+inline Sq::Table *SchemaMethod::alter(const char *name, const Sq::TypeMethod *table_type) {
+	return (Sq::Table*)sq_schema_alter((SqSchema*)this, name, (const SqType*)table_type);
 }
 inline void  SchemaMethod::drop(const char *name) {
 	sq_schema_drop((SqSchema*)this, name);
