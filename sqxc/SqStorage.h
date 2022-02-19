@@ -334,7 +334,8 @@ inline void  *StorageMethod::get(const char *table_name, const SqType *table_typ
 
 template <class StlContainer>
 inline StlContainer *StorageMethod::getAll(const char *sql_where_having) {
-	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<typename StlContainer::value_type>::type).name());
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this,
+			typeid(typename std::remove_reference< typename std::remove_pointer<typename StlContainer::value_type>::type >::type).name());
 	if (table == NULL)
 		return NULL;
 	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
@@ -344,7 +345,8 @@ inline StlContainer *StorageMethod::getAll(const char *sql_where_having) {
 }
 template <class ElementType, class StlContainer>
 inline StlContainer *StorageMethod::getAll(const char *sql_where_having) {
-	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(typename std::remove_pointer<ElementType>::type).name());
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this,
+			typeid(typename std::remove_reference< typename std::remove_pointer<ElementType>::type >::type).name());
 	if (table == NULL)
 		return NULL;
 	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(table->type);
