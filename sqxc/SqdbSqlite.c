@@ -359,22 +359,6 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 	return 0;
 }
 
-static int insert_callback(void *user_data, int argc, char **argv, char **columnName)
-{
-	Sqxc *xc = (Sqxc*)user_data;
-
-#if 0
-	if (((SqxcSql*)xc)->row_count > 0) {
-		for (int index = 0;  index < argc;  index++)
-			row[index] = strtol(argv[index], NULL, 10);
-	}
-#else
-	sqxc_sql_id(xc) = strtol(argv[0], NULL, 10);
-#endif
-
-	return 0;
-}
-
 #ifndef NDEBUG
 static int  debug_callback(void *user_data, int argc, char **argv, char **columnName)
 {
@@ -446,8 +430,15 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
+			rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
+			sqxc_sql_id(xc) = sqlite3_last_insert_rowid(sqdb->self);
+			// sqlite3_last_insert_rowid() returns 0 if failed.
+			if (sqxc_sql_id(xc) == 0)
+				sqxc_sql_id(xc) = -1;
+			break;
+
 		default:
-			rc = sqlite3_exec(sqdb->self, sql, insert_callback, xc, &errorMsg);
+			rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
 			break;
 		}
 	}
