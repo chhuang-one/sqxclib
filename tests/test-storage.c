@@ -14,6 +14,7 @@
 
 
 #include <stdio.h>
+#include <assert.h>
 
 #include <sqxclib.h>
 #include <SqSchema-macro.h>
@@ -61,17 +62,82 @@ void  company_array_print(SqPtrArray *array)
 void create_company_table(SqSchema *schema)
 {
 	SQ_SCHEMA_CREATE(schema, "companies", Company, {
-		SQT_INTEGER("id", Company, id); SQC_PRIMARY();
+		SQT_INTEGER("id", Company, id); SQC_PRIMARY(); SQC_INCREMENT();
 		SQT_STRING("name", Company, name, -1);
 		SQT_INTEGER("age", Company, age);
 		SQT_STRING("address", Company, address, 50);
 		SQT_DOUBLE("salary", Company, salary, 0, 0);
 	});
+
+	schema->version = 1;
 }
+
+void test_storage_insert_update(SqStorage *storage)
+{
+	Company *company_temp;
+	Company  company;
+	int      id;
+
+	company.id = 0;    // auto increment
+	company.name = "Tome";
+	company.salary = 10245;
+	company.age = 25;
+	company.address = "Texas";
+
+	// insert to companies and get row id.
+	id = sq_storage_insert(storage, "companies", NULL, &company);
+
+	if (id == -1)
+		fprintf(stderr, "test_storage_insert_update(): insert failed.\n");
+	assert(id != -1);
+
+	company_temp = sq_storage_get(storage, "companies", NULL, id);
+	assert(company_temp != NULL);
+	assert(company_temp->age == company.age);
+	fprintf(stderr, "test_storage_insert_update(): insert ok.\n");
+	company_free(company_temp);
+
+	// update
+	company.id = id;
+	company.name = "Alex Kuo";
+	company.salary = 15341;
+	company.age = 28;
+	sq_storage_update(storage, "companies", NULL, &company);
+
+	company_temp = sq_storage_get(storage, "companies", NULL, id);
+	assert(company_temp != NULL);
+	assert(company_temp->age == company.age);
+	fprintf(stderr, "test_storage_insert_update(): update ok.\n");
+	company_free(company_temp);
+}
+
+void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
+{
+	Sqdb      *db;
+	SqStorage *storage;
+	SqSchema  *schema;
+
+	db = sqdb_new(dbinfo, config);
+	storage = sq_storage_new(db);
+
+	sq_storage_open(storage, "test-storage");
+
+	schema = sq_schema_new(NULL);
+	create_company_table(schema);
+	sq_storage_migrate(storage, schema);
+	sq_storage_migrate(storage, NULL);
+	sq_schema_free(schema);
+
+	test_storage_insert_update(storage);
+
+	sq_storage_close(storage);
+}
+
+
 
 #ifdef SQ_CONFIG_HAVE_SQLITE
 
-SqStorage *create_storage(sqlite3 *sqlitedb)
+SqStorage *create_storage_by_sqlite(sqlite3 *sqlitedb)
 {
 	Sqdb       *db;
 	SqStorage  *storage;
@@ -118,7 +184,7 @@ int  test_sqlite_c(int argc, char *argv[])
 	}
 
 	/* Create SQL statement */
-	sql = "CREATE TABLE COMPANY("
+	sql = "CREATE TABLE companies("
 	      "ID INT PRIMARY KEY     NOT NULL,"
 	      "NAME           TEXT    NOT NULL,"
 	      "AGE            INT     NOT NULL,"
@@ -136,13 +202,13 @@ int  test_sqlite_c(int argc, char *argv[])
 	}
 
 	/* Create SQL statement */
-	sql = "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "
+	sql = "INSERT INTO companies (ID,NAME,AGE,ADDRESS,SALARY) "
 	      "VALUES (1, 'Paul', 32, 'California', 20000.00 ); "
-	      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "
+	      "INSERT INTO companies (ID,NAME,AGE,ADDRESS,SALARY) "
 	      "VALUES (2, 'Allen', 25, 'Texas', 15000.00 ); "
-	      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY)"
+	      "INSERT INTO companies (ID,NAME,AGE,ADDRESS,SALARY)"
 	      "VALUES (3, 'Teddy', 23, 'Norway', 20000.00 );"
-	      "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY)"
+	      "INSERT INTO companies (ID,NAME,AGE,ADDRESS,SALARY)"
 	      "VALUES (4, 'Mark', 25, 'Rich-Mond ', 65000.00 );";
 
 	/* Execute SQL statement */
@@ -155,21 +221,21 @@ int  test_sqlite_c(int argc, char *argv[])
 		fprintf(stdout, "Records created successfully\n");
 	}
 
-	sql = "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "
+	sql = "INSERT INTO companies (ID,NAME,AGE,ADDRESS,SALARY) "
 	      "VALUES (2, 'Allen', 25, 'Texas', 15000.00 ); ";
 	rc = sqlite3_exec(db, sql, callback, 0, &errorMsg);
 
 	// sqxc
 	puts("\n");
-	storage = create_storage(db);
-	array = sq_storage_get_all(storage, "COMPANY", NULL, NULL, NULL);
+	storage = create_storage_by_sqlite(db);
+	array = sq_storage_get_all(storage, "companies", NULL, NULL, NULL);
 	company_array_print(array);
 	sq_ptr_array_foreach(array, element) {
 		company_free((Company*)element);
 	}
 	sq_ptr_array_free(array);
 
-	company = sq_storage_get(storage, "COMPANY", NULL, 2);
+	company = sq_storage_get(storage, "companies", NULL, 2);
 	company_object_print(company);
 	// update after get
 	free(company->name);
@@ -177,16 +243,16 @@ int  test_sqlite_c(int argc, char *argv[])
 	company->age = 59;
 #if 1
 	company->id = 5;
-	sq_storage_insert(storage, "COMPANY", NULL, company);
+	sq_storage_insert(storage, "companies", NULL, company);
 #elif 1
-	sq_storage_remove(storage, "COMPANY", NULL, 5);
+	sq_storage_remove(storage, "companies", NULL, 5);
 #else
-	sq_storage_update(storage, "COMPANY", NULL, company);
+	sq_storage_update(storage, "companies", NULL, company);
 #endif
 	company_free(company);
 
-//  "DELETE from COMPANY where ID='2'; "
-	sql = "SELECT * FROM COMPANY";
+//  "DELETE from companies where ID='2'; "
+	sql = "SELECT * FROM companies";
 	rc = sqlite3_exec(db, sql, callback, 0, &errorMsg);
 
 //	rc = sqlite3_db_cacheflush(db);
@@ -197,11 +263,18 @@ int  test_sqlite_c(int argc, char *argv[])
 
 #endif  // SQ_CONFIG_HAVE_SQLITE
 
-
 int  main(int argc, char *argv[])
 {
 #ifdef SQ_CONFIG_HAVE_SQLITE
-	test_sqlite_c(argc, argv);
+//	test_sqlite_c(argc, argv);
+#endif
+
+#ifdef SQ_CONFIG_HAVE_SQLITE
+	test_storage(SQDB_INFO_SQLITE, NULL);
+#endif
+
+#ifdef SQ_CONFIG_HAVE_MYSQL
+//	test_storage(SQDB_INFO_MYSQL, NULL);
 #endif
 
 	return EXIT_SUCCESS;
