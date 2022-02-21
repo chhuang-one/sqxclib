@@ -308,12 +308,21 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 
 		case 'I':    // INSERT
 		case 'i':    // insert
+		case 'U':    // UPDATE
+		case 'u':    // update
 #ifndef NDEBUG
 			if (xc->info != SQXC_INFO_SQL) {
-				fprintf(stderr, "sqdb_mysql_exec(): INSERT command must use with SqxcSql.\n");
+				fprintf(stderr, "sqdb_mysql_exec(): INSERT and UPDATE command must use with SqxcSql.\n");
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
+			rc = mysql_query(sqdb->self, sql);
+			// set the last inserted row id
+			((SqxcSql*)xc)->id = mysql_insert_id(sqdb->self);
+			// set number of rows changed
+			((SqxcSql*)xc)->changes = mysql_affected_rows(sqdb->self);
+			break;
+
 		default:
 			rc = mysql_query(sqdb->self, sql);
 			break;

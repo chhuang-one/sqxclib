@@ -79,15 +79,14 @@ void *sq_storage_get_all(SqStorage    *storage,
                          const SqType *container_type,
                          const char   *sql_where_having);
 
-/* return id if no error
-   return -1 if error occurred (or id is unknown while TRANSACTION)
- */
-int   sq_storage_insert(SqStorage    *storage,
-                        const char   *table_name,
-                        const SqType *table_type,
-                        void         *instance);
+// return inserted row id if primary key has auto increment attribute.
+int64_t sq_storage_insert(SqStorage    *storage,
+                          const char   *table_name,
+                          const SqType *table_type,
+                          void         *instance);
 
-void  sq_storage_update(SqStorage    *storage,
+// return number of rows changed.
+int   sq_storage_update(SqStorage    *storage,
                         const char   *table_name,
                         const SqType *table_type,
                         void         *instance);
@@ -178,22 +177,22 @@ struct StorageMethod
 	void *query(Sq::QueryMethod *query, const SqType *table_type, const SqType *container_type);
 
 	template <class StructType>
-	int   insert(StructType& instance);
+	int64_t  insert(StructType& instance);
 	template <class StructType>
-	int   insert(StructType *instance);
+	int64_t  insert(StructType *instance);
 	template <class StructType>
-	int   insert(void *instance);
-	int   insert(const char *table_name, void *instance);
-	int   insert(const char *table_name, const SqType *table_type, void *instance);
+	int64_t  insert(void *instance);
+	int64_t  insert(const char *table_name, void *instance);
+	int64_t  insert(const char *table_name, const SqType *table_type, void *instance);
 
 	template <class StructType>
-	void  update(StructType& instance);
+	int   update(StructType& instance);
 	template <class StructType>
-	void  update(StructType *instance);
+	int   update(StructType *instance);
 	template <class StructType>
-	void  update(void *instance);
-	void  update(const char *table_name, void *instance);
-	void  update(const char *table_name, const SqType *table_type, void *instance);
+	int   update(void *instance);
+	int   update(const char *table_name, void *instance);
+	int   update(const char *table_name, const SqType *table_type, void *instance);
 
 	template <class StructType>
 	void  remove(int id);
@@ -388,55 +387,59 @@ inline void *StorageMethod::query(Sq::QueryMethod *query, const SqType *table_ty
 }
 
 template <class StructType>
-inline int   StorageMethod::insert(StructType& instance) {
-	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
-	if (table)
-		return sq_storage_insert((SqStorage*)this, table->name, table->type, &instance);
-}
-template <class StructType>
-inline int   StorageMethod::insert(StructType *instance) {
+inline int64_t  StorageMethod::insert(StructType& instance) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
-		return -1;
+		return 0;
+	return sq_storage_insert((SqStorage*)this, table->name, table->type, &instance);
+}
+template <class StructType>
+inline int64_t  StorageMethod::insert(StructType *instance) {
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table == NULL)
+		return 0;
 	return sq_storage_insert((SqStorage*)this, table->name, table->type, instance);
 }
 template <class StructType>
-inline int   StorageMethod::insert(void *instance) {
+inline int64_t  StorageMethod::insert(void *instance) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
-		return -1;
+		return 0;
 	return sq_storage_insert((SqStorage*)this, table->name, table->type, instance);
 }
-inline int   StorageMethod::insert(const char *table_name, void *instance) {
+inline int64_t  StorageMethod::insert(const char *table_name, void *instance) {
 	return sq_storage_insert((SqStorage*)this, table_name, NULL, instance);
 }
-inline int   StorageMethod::insert(const char *table_name, const SqType *table_type, void *instance) {
+inline int64_t  StorageMethod::insert(const char *table_name, const SqType *table_type, void *instance) {
 	return sq_storage_insert((SqStorage*)this, table_name, table_type, instance);
 }
 
 template <class StructType>
-inline void  StorageMethod::update(StructType& instance) {
+inline int  StorageMethod::update(StructType& instance) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
-	if (table)
-		sq_storage_update((SqStorage*)this, table->name, table->type, &instance);
+	if (table == NULL)
+		return 0;
+	return sq_storage_update((SqStorage*)this, table->name, table->type, &instance);
 }
 template <class StructType>
-inline void  StorageMethod::update(StructType *instance) {
+inline int  StorageMethod::update(StructType *instance) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
-	if (table)
-		sq_storage_update((SqStorage*)this, table->name, table->type, instance);
+	if (table == NULL)
+		return 0;
+	return sq_storage_update((SqStorage*)this, table->name, table->type, instance);
 }
 template <class StructType>
-inline void  StorageMethod::update(void *instance) {
+inline int  StorageMethod::update(void *instance) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
-	if (table)
-		sq_storage_update((SqStorage*)this, table->name, table->type, instance);
+	if (table == NULL)
+		return 0;
+	return sq_storage_update((SqStorage*)this, table->name, table->type, instance);
 }
-inline void  StorageMethod::update(const char *table_name, void *instance) {
-	sq_storage_update((SqStorage*)this, table_name, NULL, instance);
+inline int  StorageMethod::update(const char *table_name, void *instance) {
+	return sq_storage_update((SqStorage*)this, table_name, NULL, instance);
 }
-inline void  StorageMethod::update(const char *table_name, const SqType *table_type, void *instance) {
-	sq_storage_update((SqStorage*)this, table_name, table_type, instance);
+inline int  StorageMethod::update(const char *table_name, const SqType *table_type, void *instance) {
+	return sq_storage_update((SqStorage*)this, table_name, table_type, instance);
 }
 
 template <class StructType>

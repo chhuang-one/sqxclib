@@ -382,6 +382,8 @@ use C functions to migrate schema and synchronize to database
 
 ## CRUD
 
+To get more information and sample, you can see doc/[SqStorage.md](doc/SqStorage.md)  
+  
 use C functions
 
 ```c

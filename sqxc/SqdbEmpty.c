@@ -122,6 +122,20 @@ static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *re
 		if (xc == NULL || xc->info != SQXC_INFO_SQL)
 			return SQCODE_EXEC_ERROR;
 #endif
+		// set the last inserted row id
+		((SqxcSql*)xc)->id = 0;
+		break;
+
+	case 'U':    // UPDATE
+	case 'u':    // update
+#ifndef NDEBUG
+		if (xc == NULL || xc->info != SQXC_INFO_SQL)
+			return SQCODE_EXEC_ERROR;
+#endif
+		// set number of rows changed
+		((SqxcSql*)xc)->changes = 0;
+		break;
+
 	default:
 		break;
 	}

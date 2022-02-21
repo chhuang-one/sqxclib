@@ -241,6 +241,9 @@ typedef struct Company
 #define SQC_ON_UPDATE(act)  \
 		sq_column_on_update(column_cur_, act)
 
+#define SQC_AUTOINCREMENT()  \
+		column_cur_->bit_field   |= SQB_AUTOINCREMENT
+
 #define SQC_INCREMENT()  \
 		column_cur_->bit_field   |= SQB_INCREMENT
 

@@ -168,7 +168,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	schema->version++;
 
 	table = schema->create<Company>("companies");
-	table->integer("id", &Company::id)->primary()->increment();
+	table->integer("id", &Company::id)->primary()->autoIncrement();
 	table->string("name", &Company::name)->nullable();
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
@@ -214,7 +214,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	schemaVer1 = new Sq::Schema("Ver1");
 	schemaVer1->version = 1;
 	table = schemaVer1->create<Company>("companies");
-	table->integer("id", &Company::id)->primary()->increment();
+	table->integer("id", &Company::id)->primary()->autoIncrement();
 	table->string("name", &Company::name)->nullable();
 	table->integer("age", &Company::age);
 	table->string("address", &Company::address);
@@ -405,9 +405,26 @@ int  main(int argc, char *argv[])
 	check_standard_layout();
 
 #if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
-	db = new Sq::DbSqlite();
+
+	SqdbConfigSqlite  config_sqlite = {
+//		.folder = "/tmp",
+		.folder = ".",
+		.extension = "db",
+	};
+
+	db = new Sq::DbSqlite(&config_sqlite);
+
 #elif defined(SQ_CONFIG_HAVE_MYSQL)
-	db = new Sq::DbMysql();
+
+	SqdbConfigMysql  config_mysql = {
+		.host = "localhost",
+		.user = "root",
+		.password = "",
+		.port = 3306,
+	};
+
+	db = new Sq::DbMysql(&config_mysql);
+
 #else
 	std::cerr << "No supported database" << std::endl;
 	return EXIT_SUCCESS;

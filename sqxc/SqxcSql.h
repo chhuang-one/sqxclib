@@ -15,6 +15,8 @@
 #ifndef SQXC_SQL_H
 #define SQXC_SQL_H
 
+#include <stdint.h>
+
 #include <SqPtrArray.h>
 #include <Sqxc.h>
 #include <Sqdb.h>
@@ -37,7 +39,8 @@ extern const SqxcInfo        *SQXC_INFO_SQL;
 
 // macro for accessing variable of SqxcSqlite
 
-#define sqxc_sql_id(xcsql)    ((SqxcSql*)xcsql)->id
+#define sqxc_sql_id(xcsql)         ( ((SqxcSql*)xcsql)->id )
+#define sqxc_sql_changes(xcsql)    ( ((SqxcSql*)xcsql)->changes )
 #define sqxc_sql_set_db(xcsql, sqdb)         \
 		{	((SqxcSql*)xcsql)->db = sqdb;    \
 			((SqxcSql*)xcsql)->quote[0] = (sqdb)->info->quote.identifier[0];   \
@@ -147,8 +150,11 @@ struct SqxcSql
 
 	// controlled variable
 	unsigned int mode;        // 1 == INSERT, 0 == UPDATE
-	int          id;          // inserted id; update id if 'condition' == NULL
 	char        *condition;   // WHERE condition if mode == 0 (UPDATE)
+
+	// input / output variable
+	int64_t      id;          // inserted row id; update id if 'condition' == NULL
+	int64_t      changes;     // number of rows changed, deleted, or inserted.
 
 	// runtime variable
 	uint16_t     outer_type;  // SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY or SQXC_TYPE_NONE

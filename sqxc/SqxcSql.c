@@ -48,7 +48,6 @@
 
 static void sqxc_sql_use_insert_command(SqxcSql *xcsql, const char *table_name);
 static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name);
-static void sqxc_sql_use_where_condition(SqxcSql *xcsql, const char *condition);
 static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer);
 
 /* ----------------------------------------------------------------------------
@@ -191,7 +190,11 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 		xcsql->outer_type &= ~SQXC_TYPE_OBJECT;
 		xcsql->supported_type |= SQXC_TYPE_OBJECT;
 		// SQL statement
-		sqxc_sql_use_where_condition(xcsql, xcsql->condition);
+		if (xcsql->condition) {
+			// WHERE condition
+			sq_buffer_write_n(buffer, " WHERE ", 7);
+			sq_buffer_write(buffer, xcsql->condition);
+		}
 		sq_buffer_write_c(buffer, 0);    // null-terminated
 		return (src->code = SQCODE_OK);
 
@@ -203,9 +206,13 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 	if (entry) {
 		// Don't output primary key
 		if (entry->bit_field & SQB_PRIMARY) {
-			// get primary key id if possible
-			if (SQ_TYPE_IS_INT(entry->type) && xcsql->id == -1)
-				xcsql->id = src->value.integer;
+			// get primary key and it's value if possible
+			if (SQ_TYPE_IS_INT(entry->type)) {
+				if (entry->type == SQ_TYPE_INT64 || entry->type == SQ_TYPE_UINT64)
+					xcsql->id = src->value.int64;
+				else
+					xcsql->id = src->value.integer;
+			}
 			return (src->code = SQCODE_OK);
 		}
 		// Don't output column that has DEFAULT CURRENT_XXXX and value.rawtime is 0
@@ -319,7 +326,8 @@ static void  sqxc_sql_init(SqxcSql *xcsql)
 
 	xcsql->supported_type  = SQXC_TYPE_ALL;
 	xcsql->outer_type = SQXC_TYPE_NONE;
-	xcsql->id = -1;
+	xcsql->id = 0;
+	xcsql->changes = 0;
 	xcsql->quote[0] = '"';
 	xcsql->quote[1] = '"';
 }
@@ -369,24 +377,6 @@ static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name)
 	xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
 	// reuse after running Sqdb.exec()
 	xcsql->buf_reuse = xcsql->buf_writed;
-}
-
-static void sqxc_sql_use_where_condition(SqxcSql *xcsql, const char *condition)
-{
-	SqBuffer *buffer = sqxc_get_buffer(xcsql);
-	int       len;
-
-	// UPDATE (mode == 0)
-	if (xcsql->mode == 0) {
-		// WHERE condition
-		sq_buffer_write_n(buffer, " WHERE ", 7);
-		if (xcsql->condition)
-			sq_buffer_write(buffer, condition);
-		else {
-			len = snprintf(NULL, 0, "id=%d", xcsql->id);
-			sprintf(sq_buffer_alloc(buffer, len), "id=%d", xcsql->id);
-		}
-	}
 }
 
 static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)

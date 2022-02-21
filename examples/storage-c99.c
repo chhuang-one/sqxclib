@@ -377,9 +377,26 @@ int  main(void)
 	User       *user;
 
 #if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
-	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
+
+	SqdbConfigSqlite  config_sqlite = {
+//		.folder = "/tmp",
+		.folder = ".",
+		.extension = "db",
+	};
+
+	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config_sqlite);
+
 #elif defined(SQ_CONFIG_HAVE_MYSQL)
-	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
+
+	SqdbConfigMysql  config_mysql = {
+		.host = "localhost",
+		.port = 3306,
+		.user = "root",
+		.password = "",
+	};
+
+	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config_mysql);
+
 #else
 	printf("No supported database");
 	return EXIT_SUCCESS;

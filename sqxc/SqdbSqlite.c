@@ -424,17 +424,19 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 
 		case 'I':    // INSERT
 		case 'i':    // insert
+		case 'U':    // UPDATE
+		case 'u':    // update
 #ifndef NDEBUG
 			if (xc->info != SQXC_INFO_SQL) {
-				fprintf(stderr, "sqdb_sqlite_exec(): INSERT command must use with SqxcSql.\n");
+				fprintf(stderr, "sqdb_sqlite_exec(): INSERT and UPDATE command must use with SqxcSql.\n");
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
 			rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
-			sqxc_sql_id(xc) = sqlite3_last_insert_rowid(sqdb->self);
-			// sqlite3_last_insert_rowid() returns 0 if failed.
-			if (sqxc_sql_id(xc) == 0)
-				sqxc_sql_id(xc) = -1;
+			// set the last inserted row id
+			((SqxcSql*)xc)->id = sqlite3_last_insert_rowid(sqdb->self);
+			// set number of rows changed
+			((SqxcSql*)xc)->changes = sqlite3_changes(sqdb->self);
 			break;
 
 		default:

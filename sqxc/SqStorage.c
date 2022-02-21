@@ -207,10 +207,10 @@ void *sq_storage_get_all(SqStorage    *storage,
 	return temp.instance;
 }
 
-int   sq_storage_insert(SqStorage    *storage,
-                        const char   *table_name,
-                        const SqType *table_type,
-                        void         *instance)
+int64_t sq_storage_insert(SqStorage    *storage,
+                          const char   *table_name,
+                          const SqType *table_type,
+                          void         *instance)
 {
 	union {
 		SqTable   *table;
@@ -221,7 +221,7 @@ int   sq_storage_insert(SqStorage    *storage,
 		// find SqTable by table_name
 		temp.table = sq_schema_find(storage->schema, table_name);
 		if (temp.table == NULL)
-			return -1;
+			return 0;
 		table_type = temp.table->type;
 	}
 
@@ -234,10 +234,11 @@ int   sq_storage_insert(SqStorage    *storage,
 	table_type->write(instance, table_type, temp.xcsql);
 	sqxc_finish(temp.xcsql, NULL);
 
+	// return the last inserted row id
 	return sqxc_sql_id(temp.xcsql);
 }
 
-void  sq_storage_update(SqStorage    *storage,
+int   sq_storage_update(SqStorage    *storage,
                         const char   *table_name,
                         const SqType *table_type,
                         void         *instance)
@@ -252,13 +253,13 @@ void  sq_storage_update(SqStorage    *storage,
 		// find SqTable by table_name
 		temp.table = sq_schema_find(storage->schema, table_name);
 		if (temp.table == NULL)
-			return;
+			return 0;
 		table_type = temp.table->type;
 	}
 
 	where = get_primary_key_string(instance, table_type, storage->db->info->quote.identifier);
 	if (where == NULL)
-		return;
+		return 0;
 
 	// destination of output
 	temp.xcsql = storage->xc_output;
@@ -270,6 +271,9 @@ void  sq_storage_update(SqStorage    *storage,
 	sqxc_ready(temp.xcsql, NULL);
 	table_type->write(instance, table_type, temp.xcsql);
 	sqxc_finish(temp.xcsql, NULL);
+
+	// return number of rows changed
+	return (int)sqxc_sql_changes(temp.xcsql);
 }
 
 void  sq_storage_remove(SqStorage    *storage,
