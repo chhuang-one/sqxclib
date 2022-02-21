@@ -432,15 +432,14 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
+			// Don't break here
+//			break;
+		default:
 			rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
 			// set the last inserted row id
 			((SqxcSql*)xc)->id = sqlite3_last_insert_rowid(sqdb->self);
 			// set number of rows changed
 			((SqxcSql*)xc)->changes = sqlite3_changes(sqdb->self);
-			break;
-
-		default:
-			rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
 			break;
 		}
 	}

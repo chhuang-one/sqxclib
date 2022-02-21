@@ -205,16 +205,8 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 	entry = src->entry;
 	if (entry) {
 		// Don't output primary key
-		if (entry->bit_field & SQB_PRIMARY) {
-			// get primary key and it's value if possible
-			if (SQ_TYPE_IS_INT(entry->type)) {
-				if (entry->type == SQ_TYPE_INT64 || entry->type == SQ_TYPE_UINT64)
-					xcsql->id = src->value.int64;
-				else
-					xcsql->id = src->value.integer;
-			}
+		if (entry->bit_field & SQB_PRIMARY)
 			return (src->code = SQCODE_OK);
-		}
 		// Don't output column that has DEFAULT CURRENT_XXXX and value.rawtime is 0
 		if (entry->type == SQ_TYPE_TIME && src->type == SQXC_TYPE_TIME && src->value.rawtime == 0) {
 			if (entry->bit_field & SQB_CURRENT_ALL)
@@ -260,6 +252,9 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 	case SQXC_CTRL_READY:
 		xcsql->supported_type = SQXC_TYPE_ALL;
 		xcsql->outer_type = SQXC_TYPE_NONE;
+		// reset Sqdb result variable
+		xcsql->id = 0;
+		xcsql->changes = 0;
 		break;
 
 	case SQXC_CTRL_FINISH:
@@ -326,10 +321,12 @@ static void  sqxc_sql_init(SqxcSql *xcsql)
 
 	xcsql->supported_type  = SQXC_TYPE_ALL;
 	xcsql->outer_type = SQXC_TYPE_NONE;
-	xcsql->id = 0;
-	xcsql->changes = 0;
+	// default of quote identifier
 	xcsql->quote[0] = '"';
 	xcsql->quote[1] = '"';
+	// Sqdb result variable
+	xcsql->id = 0;
+	xcsql->changes = 0;
 }
 
 static void  sqxc_sql_final(SqxcSql *xcsql)

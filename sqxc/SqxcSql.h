@@ -152,8 +152,8 @@ struct SqxcSql
 	unsigned int mode;        // 1 == INSERT, 0 == UPDATE
 	char        *condition;   // WHERE condition if mode == 0 (UPDATE)
 
-	// input / output variable
-	int64_t      id;          // inserted row id; update id if 'condition' == NULL
+	// Sqdb result variable
+	int64_t      id;          // the last inserted row id.
 	int64_t      changes;     // number of rows changed, deleted, or inserted.
 
 	// runtime variable

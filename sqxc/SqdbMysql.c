@@ -316,15 +316,14 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
+			// Don't break here
+//			break;
+		default:
 			rc = mysql_query(sqdb->self, sql);
 			// set the last inserted row id
 			((SqxcSql*)xc)->id = mysql_insert_id(sqdb->self);
 			// set number of rows changed
 			((SqxcSql*)xc)->changes = mysql_affected_rows(sqdb->self);
-			break;
-
-		default:
-			rc = mysql_query(sqdb->self, sql);
 			break;
 		}
 	}
