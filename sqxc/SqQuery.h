@@ -104,13 +104,11 @@ extern "C" {
 
  */
 
+SqQuery *sq_query_new(const char *table_name);
+void     sq_query_free(SqQuery *query);
+
 SqQuery *sq_query_init(SqQuery *query, const char *table_name);
 SqQuery *sq_query_final(SqQuery *query);
-
-// SqQuery *sq_query_new(SqTable *table);
-#define sq_query_new(table)     sq_query_init((SqQuery*)malloc(sizeof(SqQuery)), table)
-// void     sq_query_free(SqQuery *query);
-#define sq_query_free(query)    free(sq_query_final(query))
 
 // It reset SqQuery and remove all statements.
 void    sq_query_clear(SqQuery *query);

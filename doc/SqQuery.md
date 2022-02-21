@@ -23,9 +23,6 @@ use C language
 
 	// generate SQL statement
 	sql = sq_query_to_sql(query);
-
-	// reset SqQuery and remove all statements
-	sq_query_clear(query);
 ```
 
 use C++ Language
@@ -39,17 +36,46 @@ use C++ Language
 
 	// generate SQL statement
 	sql = query->toSql();
-
-	// reset Sq::Query and remove all statements
-	query->clear();
 ```
 
-Note: If user doesn't specify column, it select all columns from a database table by default.
+Note: If user doesn't specify column by select(), it select all columns from a database table by default.
+
+## clear and reuse query instance
+
+After calling sq_query_clear(), user can generate new SQL statement in existed instance.  
+  
+use C language
+
+```c
+	// reset SqQuery and remove all statements
+	sq_query_clear(query);
+
+	// select columns from a database table "users"
+	sq_query_table(query, "users");
+
+	// generate new SQL statement
+	sql = sq_query_to_sql(query);
+```
+
+use C++ Language
+
+```c++
+	// reset Sq::Query and remove all statements
+	query->clear();
+
+	// select columns from a database table "users"
+	query->table("users");
+
+	// generate new SQL statement
+	sql = query->toSql();
+```
 
 ## SQL Statements
 
-There are many functions support printf format string. If you want to use SQL Wildcard Characters '%' in these functions, you must print “%” using “%%”.  
-  
+There are many functions support printf format string, so user need to pay attention:
+* If you want to use SQL Wildcard Characters '%' in these functions, you must print “%” using “%%”.  
+* If the 3rd argument of these C functions is NULL, the 2nd argument is handled as raw string.
+
 below C functions support printf format string in 2nd argument:
 
 	sq_query_join(),
@@ -59,7 +85,7 @@ below C functions support printf format string in 2nd argument:
 
 	sq_query_having(), sq_query_or_having(),
 
-* If the 3rd argument of above C functions is NULL, the 2nd argument is handled as raw string.
+C language example:
 
 ```c
 	sq_query_where(query, "id < %d", 100);
@@ -77,7 +103,7 @@ below C++ methods support printf format string in 1st argument:
 
 	having(), orHaving(),
 
-* If the 2nd argument of above C++ methods is NULL, the 1st argument is handled as raw string.
+C++ language example:
 
 ```c++
 	query->where("id < %d", 100);
@@ -359,14 +385,7 @@ e.g. generate below SQL statement.
 SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 ```
 
-use below C functions that support Nested/Subquery:  
-
-	sq_query_join(),
-	sq_query_on(),     sq_query_or_on(),
-	sq_query_where(),  sq_query_or_where(), sq_query_where_exists(),
-	sq_query_having(), sq_query_or_having()
-  
-Note: except sq_query_where_exists(), second argument of these functions must be NULL when you use nested/subquery.  
+use C functions to generate Nested:
 
 ```c
 	sq_query_table(query, "users");

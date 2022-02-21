@@ -136,6 +136,20 @@ const uintptr_t SQ_QUERYSORT_DESC = SQN_DESC;
 // ----------------------------------------------------------------------------
 // SqQuery
 
+SqQuery *sq_query_new(const char *table_name)
+{
+	SqQuery *query;
+
+	query = malloc(sizeof(SqQuery));
+	return sq_query_init(query, table_name);
+}
+
+void     sq_query_free(SqQuery *query)
+{
+	sq_query_final(query);
+	free(query);
+}
+
 SqQuery *sq_query_init(SqQuery *query, const char *table_name)
 {
 	memset(query, 0, sizeof(SqQuery));
