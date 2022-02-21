@@ -14,7 +14,7 @@ static void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
 	table  = sq_schema_create(schema, "{{ table_name }}", {{ struct_name }});
 /*
 	column = sq_table_add_uint(table, "id", offsetof({{ struct_name }}, id));
-	column->bit_field |= SQB_PRIMARY;
+	column->bit_field |= SQB_PRIMARY | SQB_AUTOINCREMENT;
 	sq_table_add_timestamps_struct(table, {{ struct_name }});
  */
 }

@@ -220,11 +220,11 @@ struct SqColumn
 		return *(Sq::Column*)this;
 	}
 	Sq::Column& increment() {
-		((SqColumn*)this)->bit_field |= SQB_INCREMENT;
+		((SqColumn*)this)->bit_field |= SQB_INCREMENT;    // equal SQB_AUTOINCREMENT
 		return *(Sq::Column*)this;
 	}
 	Sq::Column& autoIncrement() {
-		((SqColumn*)this)->bit_field |= SQB_INCREMENT;
+		((SqColumn*)this)->bit_field |= SQB_AUTOINCREMENT;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column& nullable() {
@@ -326,11 +326,11 @@ struct ColumnMethod
 		return *(Sq::Column*)this;
 	}
 	Sq::Column& increment() {
-		((SqColumn*)this)->bit_field |= SQB_INCREMENT;
+		((SqColumn*)this)->bit_field |= SQB_INCREMENT;    // equal SQB_AUTOINCREMENT
 		return *(Sq::Column*)this;
 	}
 	Sq::Column& autoIncrement() {
-		((SqColumn*)this)->bit_field |= SQB_INCREMENT;
+		((SqColumn*)this)->bit_field |= SQB_AUTOINCREMENT;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column& nullable() {

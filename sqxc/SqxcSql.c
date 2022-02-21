@@ -119,7 +119,7 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 	entry = src->entry;
 	if (entry) {
 		// Don't output column that has AUTO INCREMENT and value.integer is 0
-		if (entry->bit_field & SQB_INCREMENT) {
+		if (entry->bit_field & SQB_AUTOINCREMENT) {
 			if (src->value.int64 == 0)    //  && (entry->type == SQ_TYPE_INT64 || entry->type == SQ_TYPE_UINT64)
 				return (src->code = SQCODE_OK);
 			if (src->value.int_  == 0 && (entry->type == SQ_TYPE_INT   || entry->type == SQ_TYPE_UINT))

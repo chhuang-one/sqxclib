@@ -12,7 +12,7 @@ static void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 
 	table  = sq_schema_create(schema, "users", User);
 	column = sq_table_add_uint(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;
+	column->bit_field |= SQB_PRIMARY | SQB_AUTOINCREMENT;
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), 0);
 	column = sq_table_add_string(table, "email", offsetof(User, email), 0);

@@ -32,7 +32,7 @@
 static const SqColumn *column_ptrs[3] = {
 	&(SqColumn) {SQ_TYPE_INT,    "batch",     offsetof(SqMigrationTable, batch),     0,
 	             .size = 16},
-	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(SqMigrationTable, id),        SQB_PRIMARY | SQB_INCREMENT,
+	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(SqMigrationTable, id),        SQB_PRIMARY | SQB_AUTOINCREMENT,
 	             .size = 16},
 	&(SqColumn) {SQ_TYPE_STRING, "migration", offsetof(SqMigrationTable, migration), 0,
 	             .size = 255},

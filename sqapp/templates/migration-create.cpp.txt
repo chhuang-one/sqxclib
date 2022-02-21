@@ -12,7 +12,7 @@ const SqMigration {{ migration_name }}_{{ timestamp }} = {
 		SqTable  *table;
 /*
 		table = schema->create<{{ struct_name }}>("{{ table_name }}");
-		table->integer("id", &{{ struct_name }}::id)->primary()->increment();
+		table->integer("id", &{{ struct_name }}::id)->primary()->autoIncrement();
  */
 	},
 

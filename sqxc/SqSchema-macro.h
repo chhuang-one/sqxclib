@@ -245,7 +245,7 @@ typedef struct Company
 		column_cur_->bit_field   |= SQB_AUTOINCREMENT
 
 #define SQC_INCREMENT()  \
-		column_cur_->bit_field   |= SQB_INCREMENT
+		column_cur_->bit_field   |= SQB_INCREMENT    // equal SQB_AUTOINCREMENT
 
 #define SQC_NULLABLE()   \
 		column_cur_->bit_field   |= SQB_NULLABLE
