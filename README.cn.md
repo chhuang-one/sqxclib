@@ -98,8 +98,8 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 ```
 
 使用 C++ 聚合初始化在 schema_v1 中定义表/列 （静态）
-* This can reduce running time when making schema.
-* If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see doc/[SqColumn.md](doc/SqColumn.md)
+* 这可以减少制作模式时的运行时间。
+* 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 doc/[SqColumn.md](doc/SqColumn.md)
 
 ```c++
 /* define global type for C++ STL */
@@ -144,8 +144,8 @@ static const SqColumn  userColumns[8] = {
 ```
 
 使用 C99 指定初始化程序在 schema_v1 中定义表/列 （静态）
-* This can reduce running time when making schema.
-* If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see doc/[SqColumn.md](doc/SqColumn.md)
+* 这可以减少制作模式时的运行时间。
+* 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 doc/[SqColumn.md](doc/SqColumn.md)
 
 ```c
 static const SqColumn  userColumns[8] = {
@@ -286,7 +286,7 @@ static const SqColumn  userColumnsChanged[5] = {
 	sq_table_drop_column(table, "name");
 	sq_table_rename_column(table, "email", "email2");
 ```
-Other constraint sample:  
+其他 constraint 示例代码:  
 use C99 designated initializer to change constraint (static)
 
 ```c
@@ -311,7 +311,8 @@ static const SqColumn  otherSampleChanged_2[] = {
 };
 ```
 
-Other constraint sample (Schema Builder):  
+其他 constraint 示例代码 (Schema Builder):  
+  
 use C functions to change constraint (dynamic)
 
 ```c
@@ -326,7 +327,6 @@ use C functions to change constraint (dynamic)
 	sq_table_drop_primary(table, "other_primary");
 ```
 
-Other constraint sample (Schema Builder):  
 use C++ methods to change constraint (dynamic)
 
 ```c++
@@ -380,7 +380,7 @@ use C functions to migrate schema and synchronize to database
 
 ## 增删查改
 
-To get more information and sample, you can see doc/[SqStorage.md](doc/SqStorage.md)  
+要获取更多信息和示例，您可以查看 doc/[SqStorage.md](doc/SqStorage.md)  
   
 use C functions
 

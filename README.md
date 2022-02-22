@@ -314,6 +314,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 ```
 
 Other constraint sample (Schema Builder):  
+  
 use C functions to change constraint (dynamic)
 
 ```c
@@ -328,7 +329,6 @@ use C functions to change constraint (dynamic)
 	sq_table_drop_primary(table, "other_primary");
 ```
 
-Other constraint sample (Schema Builder):  
 use C++ methods to change constraint (dynamic)
 
 ```c++
