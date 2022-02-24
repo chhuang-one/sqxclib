@@ -102,7 +102,6 @@ typedef enum {
 	// SqxcSql
 	SQXC_SQL_CTRL_INSERT,     // const char *table_name
 	SQXC_SQL_CTRL_UPDATE,     // const char *table_name
-	SQXC_SQL_CTRL_WHERE,      // const char *condition
 } SqxcCtrlId;
 
 typedef int   (*SqxcCtrlFunc)(Sqxc *xc, int ctrl_id, void *data);

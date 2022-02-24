@@ -41,6 +41,7 @@ extern const SqxcInfo        *SQXC_INFO_SQL;
 
 #define sqxc_sql_id(xcsql)         ( ((SqxcSql*)xcsql)->id )
 #define sqxc_sql_changes(xcsql)    ( ((SqxcSql*)xcsql)->changes )
+#define sqxc_sql_condition(xcsql)  ( ((SqxcSql*)xcsql)->condition )
 #define sqxc_sql_set_db(xcsql, sqdb)         \
 		{	((SqxcSql*)xcsql)->db = sqdb;    \
 			((SqxcSql*)xcsql)->quote[0] = (sqdb)->info->quote.identifier[0];   \
@@ -150,7 +151,7 @@ struct SqxcSql
 
 	// controlled variable
 	unsigned int mode;        // 1 == INSERT, 0 == UPDATE
-	char        *condition;   // WHERE condition if mode == 0 (UPDATE)
+	const char  *condition;   // WHERE condition. It used by UPDATE command (mode == 0)
 
 	// Sqdb result variable
 	int64_t      id;          // the last inserted row id.

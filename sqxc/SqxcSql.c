@@ -258,7 +258,6 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 		break;
 
 	case SQXC_CTRL_FINISH:
-		free(xcsql->condition);
 		xcsql->condition = NULL;
 		// write INSERT VALUES to xcsql->buf
 		if (xcsql->mode == 1) {
@@ -298,14 +297,6 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 		sqxc_sql_use_update_command(xcsql, data);
 		break;
 
-	case SQXC_SQL_CTRL_WHERE:
-		free(xcsql->condition);
-		if (data)
-			xcsql->condition = strdup((char*)data);
-		else
-			xcsql->condition = NULL;
-		break;
-
 	default:
 		return (xcsql->code = SQCODE_NOT_SUPPORT);
 	}
@@ -319,11 +310,14 @@ static void  sqxc_sql_init(SqxcSql *xcsql)
 	sq_buffer_resize(sqxc_get_buffer(xcsql), SQ_CONFIG_SQXC_SQL_BUFFER_SIZE_DEAULT);
 	sq_buffer_init(&xcsql->values_buf);
 
-	xcsql->supported_type  = SQXC_TYPE_ALL;
+	xcsql->supported_type = SQXC_TYPE_ALL;
 	xcsql->outer_type = SQXC_TYPE_NONE;
 	// default of quote identifier
 	xcsql->quote[0] = '"';
 	xcsql->quote[1] = '"';
+	// controlled variable
+//	xcsql->mode = 1;
+//	xcsql->condition = NULL;
 	// Sqdb result variable
 	xcsql->id = 0;
 	xcsql->changes = 0;

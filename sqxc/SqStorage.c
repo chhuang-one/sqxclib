@@ -264,13 +264,15 @@ int   sq_storage_update(SqStorage    *storage,
 	// destination of output
 	temp.xcsql = storage->xc_output;
 	sqxc_sql_set_db(temp.xcsql, storage->db);
+	sqxc_sql_condition(temp.xcsql) = where;
 	sqxc_ctrl(temp.xcsql, SQXC_SQL_CTRL_UPDATE, table_name);
-	sqxc_ctrl(temp.xcsql, SQXC_SQL_CTRL_WHERE,  where);
-	free(where);
 
 	sqxc_ready(temp.xcsql, NULL);
 	table_type->write(instance, table_type, temp.xcsql);
 	sqxc_finish(temp.xcsql, NULL);
+	// free WHERE condition
+//	sqxc_sql_condition(temp.xcsql) = NULL;    // this has been done in sqxc_finish()
+	free(where);
 
 	// return number of rows changed
 	return (int)sqxc_sql_changes(temp.xcsql);
