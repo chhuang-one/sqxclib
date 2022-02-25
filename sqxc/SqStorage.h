@@ -70,7 +70,7 @@ int   sq_storage_migrate(SqStorage *storage, SqSchema *schema);
 void *sq_storage_get(SqStorage    *storage,
                      const char   *table_name,
                      const SqType *table_type,
-                     int           id);
+                     int64_t       id);
 
 // parameter 'sql_where_having' is SQL statement that exclude "SELECT * FROM table_name"
 void *sq_storage_get_all(SqStorage    *storage,
@@ -94,7 +94,7 @@ int   sq_storage_update(SqStorage    *storage,
 void  sq_storage_remove(SqStorage    *storage,
                         const char   *table_name,
                         const SqType *table_type,
-                        int           id);
+                        int64_t       id);
 
 // parameter 'sql_where_having' is SQL statement that exclude "DELETE FROM table_name"
 void  sq_storage_remove_all(SqStorage    *storage,
@@ -158,9 +158,9 @@ struct StorageMethod
 	int   migrate(SqSchema *schema);
 
 	template <class StructType>
-	StructType *get(int id);
-	void       *get(const char *table_name, int id);
-	void       *get(const char *table_name, const SqType *table_type, int id);
+	StructType *get(int64_t id);
+	void       *get(const char *table_name, int64_t id);
+	void       *get(const char *table_name, const SqType *table_type, int64_t id);
 
 	template <class Element, class StlContainer>
 	StlContainer *getAll(const char *sql_where_having = NULL);
@@ -195,9 +195,9 @@ struct StorageMethod
 	int   update(const char *table_name, const SqType *table_type, void *instance);
 
 	template <class StructType>
-	void  remove(int id);
-	void  remove(const char *table_name, int id);
-	void  remove(const char *table_name, const SqType *table_type, int id);
+	void  remove(int64_t id);
+	void  remove(const char *table_name, int64_t id);
+	void  remove(const char *table_name, const SqType *table_type, int64_t id);
 
 	void  removeAll(const char *table_name, const char *sql_where_having = NULL);
 
@@ -318,16 +318,16 @@ inline int   StorageMethod::migrate(SqSchema *schema) {
 }
 
 template <class StructType>
-inline StructType *StorageMethod::get(int id) {
+inline StructType *StorageMethod::get(int64_t id) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
 		return NULL;
 	return (StructType*)sq_storage_get((SqStorage*)this, table->name, table->type, id);
 }
-inline void  *StorageMethod::get(const char *table_name, int id) {
+inline void  *StorageMethod::get(const char *table_name, int64_t id) {
 	return sq_storage_get((SqStorage*)this, table_name, NULL, id);
 }
-inline void  *StorageMethod::get(const char *table_name, const SqType *table_type, int id) {
+inline void  *StorageMethod::get(const char *table_name, const SqType *table_type, int64_t id) {
 	return sq_storage_get((SqStorage*)this, table_name, table_type, id);
 }
 
@@ -443,15 +443,15 @@ inline int  StorageMethod::update(const char *table_name, const SqType *table_ty
 }
 
 template <class StructType>
-inline void StorageMethod::remove(int id) {
+inline void StorageMethod::remove(int64_t id) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table)
 		sq_storage_remove((SqStorage*)this, table->name, table->type, id);
 }
-inline void StorageMethod::remove(const char *table_name, int id) {
+inline void StorageMethod::remove(const char *table_name, int64_t id) {
 	sq_storage_remove((SqStorage*)this, table_name, NULL, id);
 }
-inline void StorageMethod::remove(const char *table_name, const SqType *table_type, int id) {
+inline void StorageMethod::remove(const char *table_name, const SqType *table_type, int64_t id) {
 	sq_storage_remove((SqStorage*)this, table_name, table_type, id);
 }
 

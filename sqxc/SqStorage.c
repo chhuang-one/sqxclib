@@ -38,7 +38,7 @@
 
 #define STORAGE_SCHEMA_INITIAL_VERSION       0
 
-static char    *get_primary_key_string(void *instance, const SqType *type, const char quote[2]);
+static int  print_column(const SqColumn *column, void *instance, SqBuffer *buf, const char quote[2]);
 
 void  sq_storage_init(SqStorage *storage, Sqdb *db)
 {
@@ -104,7 +104,7 @@ int   sq_storage_migrate(SqStorage *storage, SqSchema *schema)
 void *sq_storage_get(SqStorage    *storage,
                      const char   *table_name,
                      const SqType *table_type,
-                     int           id)
+                     int64_t       id)
 {
 	SqBuffer *buf;
 	Sqxc     *xcvalue;
@@ -137,16 +137,8 @@ void *sq_storage_get(SqStorage    *storage,
 	buf->writed = 0;
 	sqdb_sql_from(storage->db, buf, table_name, false);
 	sq_buffer_write(buf, "WHERE");
-	sq_buffer_alloc(buf, 2);
-	sq_buffer_r_at(buf, 1) = ' ';
-	sq_buffer_r_at(buf, 0) = storage->db->info->quote.identifier[0];
-	sq_buffer_write(buf, temp.column->name);
-	sq_buffer_alloc(buf, 2);
-	sq_buffer_r_at(buf, 1) = storage->db->info->quote.identifier[1];
-	sq_buffer_r_at(buf, 0) = '=';
-
-	temp.len = snprintf(NULL, 0, "%d", id);
-	sprintf(sq_buffer_alloc(buf, temp.len), "%d", id);
+	sq_buffer_write_c(buf, ' ');
+	print_column(temp.column, &id, buf, storage->db->info->quote.identifier);
 
 	sqxc_ready(xcvalue, NULL);
 	temp.code = sqdb_exec(storage->db, buf->mem, xcvalue, NULL);
@@ -243,9 +235,10 @@ int   sq_storage_update(SqStorage    *storage,
                         const SqType *table_type,
                         void         *instance)
 {
-	char      *where;
+	SqBuffer  *buf;
 	union {
 		SqTable   *table;
+		SqColumn  *column;
 		Sqxc      *xcsql;
 	} temp;
 
@@ -257,14 +250,17 @@ int   sq_storage_update(SqStorage    *storage,
 		table_type = temp.table->type;
 	}
 
-	where = get_primary_key_string(instance, table_type, storage->db->info->quote.identifier);
-	if (where == NULL)
-		return 0;
+	// SQL statement. Because input buffer doesn't use here, I use it temporary.
+	buf = sqxc_get_buffer(storage->xc_input);
+	buf->writed = 0;
+	temp.column = sq_table_get_primary(NULL, table_type);
+	print_column(temp.column, (char*)instance + temp.column->offset,
+	             buf, storage->db->info->quote.identifier);
 
 	// destination of output
 	temp.xcsql = storage->xc_output;
 	sqxc_sql_set_db(temp.xcsql, storage->db);
-	sqxc_sql_condition(temp.xcsql) = where;
+	sqxc_sql_condition(temp.xcsql) = buf->mem;
 	sqxc_ctrl(temp.xcsql, SQXC_SQL_CTRL_UPDATE, table_name);
 
 	sqxc_ready(temp.xcsql, NULL);
@@ -272,7 +268,6 @@ int   sq_storage_update(SqStorage    *storage,
 	sqxc_finish(temp.xcsql, NULL);
 	// free WHERE condition
 //	sqxc_sql_condition(temp.xcsql) = NULL;    // this has been done in sqxc_finish()
-	free(where);
 
 	// return number of rows changed
 	return (int)sqxc_sql_changes(temp.xcsql);
@@ -281,10 +276,9 @@ int   sq_storage_update(SqStorage    *storage,
 void  sq_storage_remove(SqStorage    *storage,
                         const char   *table_name,
                         const SqType *table_type,
-                        int           id)
+                        int64_t       id)
 {
 	SqBuffer  *buf;
-	int        len;
 	union {
 		SqTable   *table;
 		SqColumn  *column;
@@ -304,16 +298,8 @@ void  sq_storage_remove(SqStorage    *storage,
 	buf->writed = 0;
 	sqdb_sql_from(storage->db, buf, table_name, true);
 	sq_buffer_write(buf, "WHERE");
-	len = snprintf(NULL, 0, " %c%s%c=%d",
-	               storage->db->info->quote.identifier[0],
-	               temp.column->name,
-	               storage->db->info->quote.identifier[1],
-	               id);
-	sprintf(sq_buffer_alloc(buf, len), " %c%s%c=%d",
-	        storage->db->info->quote.identifier[0],
-	        temp.column->name,
-	        storage->db->info->quote.identifier[1],
-	        id);
+	sq_buffer_write_c(buf, ' ');
+	print_column(temp.column, &id, buf, storage->db->info->quote.identifier);
 	sqdb_exec(storage->db, buf->mem, NULL, NULL);
 }
 
@@ -363,51 +349,41 @@ SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 // ----------------------------------------------------------------------------
 // static function
 
-static char  *get_primary_key_string(void *instance, const SqType *type, const char quote[2])
+static int  print_column(const SqColumn *column, void *instance, SqBuffer *buf, const char quote[2])
 {
-	SqColumn   *column;
-	char       *condition = NULL;
-	int         len;
-
-	column = sq_table_get_primary(NULL, type);
+	int   len;
 
 	// integer
-	instance = (char*)instance + column->offset;
 	switch(SQ_TYPE_BUILTIN_INDEX(column->type)) {
 	case SQ_TYPE_INT_INDEX:
 		len = snprintf(NULL, 0, "%c%s%c=%d",
-				quote[0], column->name, quote[1], *(int*)instance) +1;
-		condition = malloc(len);
-		snprintf(condition, len, "%c%s%c=%d",
+				quote[0], column->name, quote[1], *(int*)instance);
+		snprintf(sq_buffer_alloc(buf, len), len+1, "%c%s%c=%d",
 				quote[0], column->name, quote[1], *(int*)instance);
 		break;
 
 	case SQ_TYPE_UINT_INDEX:
 		len = snprintf(NULL, 0, "%c%s%c=%u",
-				quote[0], column->name, quote[1], *(unsigned int*)instance) +1;
-		condition = malloc(len);
-		snprintf(condition, len, "%c%s%c=%u",
+				quote[0], column->name, quote[1], *(unsigned int*)instance);
+		snprintf(sq_buffer_alloc(buf, len), len+1, "%c%s%c=%u",
 				quote[0], column->name, quote[1], *(unsigned int*)instance);
 		break;
 
 	case SQ_TYPE_INT64_INDEX:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "%c%s%c=%I64d",
-				quote[0], column->name, quote[1], *(int64_t*)instance) +1;
-		condition = malloc(len);
-		snprintf(condition, len, "%c%s%c=%I64d",
+				quote[0], column->name, quote[1], *(int64_t*)instance);
+		snprintf(sq_buffer_alloc(buf, len), len+1, "%c%s%c=%I64d",
 				quote[0], column->name, quote[1], *(int64_t*)instance);
 #elif defined(__WORDSIZE) && (__WORDSIZE == 64) && !defined(__APPLE__)
 		len = snprintf(NULL, 0, "%c%s%c=%ld",
-				quote[0], column->name, quote[1], *(int64_t*)instance) +1;
-		condition = malloc(len);
-		snprintf(condition, len, "%c%s%c=%ld",
+				quote[0], column->name, quote[1], *(int64_t*)instance);
+		snprintf(sq_buffer_alloc(buf, len), len+1, "%c%s%c=%ld",
 				quote[0], column->name, quote[1], *(int64_t*)instance);
 #else
 		len = snprintf(NULL, 0, "%c%s%c=%lld",
-				quote[0], column->name, quote[1], (long long int) *(int64_t*)instance) +1;
-		condition = malloc(len);
-		snprintf(condition, len, "%c%s%c=%lld",
+				quote[0], column->name, quote[1], (long long int) *(int64_t*)instance);
+		snprintf(sq_buffer_alloc(buf, len), len+1, "%c%s%c=%lld",
 				quote[0], column->name, quote[1], (long long int) *(int64_t*)instance);
 #endif
 		break;
@@ -415,31 +391,29 @@ static char  *get_primary_key_string(void *instance, const SqType *type, const c
 	case SQ_TYPE_UINT64_INDEX:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		len = snprintf(NULL, 0, "%c%s%c=%I64u",
-				quote[0], column->name, quote[1], *(uint64_t*)instance) +1;
-		condition = malloc(len);
-		snprintf(condition, len, "%c%s%c=%I64u",
+				quote[0], column->name, quote[1], *(uint64_t*)instance);
+		snprintf(sq_buffer_alloc(buf, len), len+1, "%c%s%c=%I64u",
 				quote[0], column->name, quote[1], *(uint64_t*)instance);
 #elif defined(__WORDSIZE) && (__WORDSIZE == 64) && !defined(__APPLE__)
 		len = snprintf(NULL, 0, "%c%s%c=%lu",
-				quote[0], column->name, quote[1], *(uint64_t*)instance) +1;
-		condition = malloc(len);
-		snprintf(condition, len, "%c%s%c=%lu",
+				quote[0], column->name, quote[1], *(uint64_t*)instance);
+		snprintf(sq_buffer_alloc(buf, len), len+1, "%c%s%c=%lu",
 				quote[0], column->name, quote[1], *(uint64_t*)instance);
 #else
 		len = snprintf(NULL, 0, "%c%s%c=%llu",
-				quote[0], column->name, quote[1], (long long unsigned int) *(int64_t*)instance) +1;
-		condition = malloc(len);
-		snprintf(condition, len, "%c%s%c=%llu",
+				quote[0], column->name, quote[1], (long long unsigned int) *(int64_t*)instance);
+		snprintf(sq_buffer_alloc(buf, len), len+1, "%c%s%c=%llu",
 				quote[0], column->name, quote[1], (long long unsigned int) *(int64_t*)instance);
 #endif
 		break;
 
 	default:
-		return NULL;
+		return 0;
 	}
 
-	return condition;
+	return len;
 }
+
 
 // ----------------------------------------------------------------------------
 // If compiler doesn't support C99 inline functions
