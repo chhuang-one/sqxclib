@@ -49,6 +49,9 @@
 static void sqxc_sql_use_insert_command(SqxcSql *xcsql, const char *table_name);
 static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name);
 static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer);
+static int  sq_cmp_pointer(void *ptr1, void *ptr2) {
+	return (*(char**)ptr1 - *(char**)ptr2);
+}
 
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - destination of output chain
@@ -189,12 +192,9 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 			return (src->code = SQCODE_TYPE_END_ERROR);
 		xcsql->outer_type &= ~SQXC_TYPE_OBJECT;
 		xcsql->supported_type |= SQXC_TYPE_OBJECT;
-		// SQL statement
-		if (xcsql->condition) {
-			// WHERE condition
-			sq_buffer_write_n(buffer, " WHERE ", 7);
+		// SQL statement: WHERE condition
+		if (xcsql->condition)
 			sq_buffer_write(buffer, xcsql->condition);
-		}
 		sq_buffer_write_c(buffer, 0);    // null-terminated
 		return (src->code = SQCODE_OK);
 
@@ -204,6 +204,16 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 
 	entry = src->entry;
 	if (entry) {
+		// output specified columns
+		if (xcsql->columns.length > 0) {
+			if (xcsql->columns_sorted == false) {
+				xcsql->columns_sorted =  true;
+				sq_ptr_array_sort(&xcsql->columns, sq_cmp_pointer);
+			}
+			// skip unspecified columns
+			if (sq_ptr_array_search(&xcsql->columns, &entry, sq_cmp_pointer) == NULL)
+				return (src->code = SQCODE_OK);
+		}
 		// Don't output primary key
 		if (entry->bit_field & SQB_PRIMARY)
 			return (src->code = SQCODE_OK);
@@ -258,7 +268,6 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 		break;
 
 	case SQXC_CTRL_FINISH:
-		xcsql->condition = NULL;
 		// write INSERT VALUES to xcsql->buf
 		if (xcsql->mode == 1) {
 			SqBuffer *buffer = sqxc_get_buffer(xcsql);
@@ -281,6 +290,10 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 		sqxc_clear_nested((Sqxc*)xcsql);
 		// reset buffer
 		xcsql->buf_writed = 0;
+		// reset UPDATE command variable
+		xcsql->condition = NULL;
+		xcsql->columns.length = 0;
+		xcsql->columns_sorted = false;
 		break;
 
 	case SQXC_SQL_CTRL_INSERT:
@@ -318,6 +331,8 @@ static void  sqxc_sql_init(SqxcSql *xcsql)
 	// controlled variable
 //	xcsql->mode = 1;
 //	xcsql->condition = NULL;
+	xcsql->columns.data = NULL;
+	xcsql->columns_sorted = false;
 	// Sqdb result variable
 	xcsql->id = 0;
 	xcsql->changes = 0;
@@ -326,6 +341,7 @@ static void  sqxc_sql_init(SqxcSql *xcsql)
 static void  sqxc_sql_final(SqxcSql *xcsql)
 {
 	sq_buffer_final(&xcsql->values_buf);
+	sq_ptr_array_final(&xcsql->columns);
 }
 
 // ----------------------------------------------------------------------------

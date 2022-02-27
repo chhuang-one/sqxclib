@@ -76,13 +76,13 @@ void create_company_table(SqSchema *schema)
 
 void test_storage_crud(SqStorage *storage)
 {
-	Company *company_temp;
+	Company *company_ptr;
 	Company  company;
 	int      id;
 	int      n_changes;
 
 	company.id = 0;    // for auto increment
-	company.name = "Tome";
+	company.name = "Tom";
 	company.salary = 10245;
 	company.age = 25;
 	company.address = "Texas";
@@ -93,10 +93,10 @@ void test_storage_crud(SqStorage *storage)
 	fprintf(stderr, "insert(): inserted id = %d.\n", id);
 	assert(id != 0);
 
-	company_temp = sq_storage_get(storage, "companies", NULL, id);
-	assert(company_temp != NULL);
-	assert(company_temp->age == company.age);
-	company_free(company_temp);
+	company_ptr = sq_storage_get(storage, "companies", NULL, id);
+	assert(company_ptr != NULL);
+	assert(company_ptr->age == company.age);
+	company_free(company_ptr);
 	fprintf(stderr, "insert(): ok.\n");
 
 	// update
@@ -109,18 +109,82 @@ void test_storage_crud(SqStorage *storage)
 	fprintf(stderr, "update(): number of changes = %d.\n", n_changes);
 	assert(n_changes == 1);
 
-	company_temp = sq_storage_get(storage, "companies", NULL, id);
-	assert(company_temp != NULL);
-	assert(company_temp->age == company.age);
-	company_free(company_temp);
+	company_ptr = sq_storage_get(storage, "companies", NULL, id);
+	assert(company_ptr != NULL);
+	assert(company_ptr->age == company.age);
+	company_free(company_ptr);
 	fprintf(stderr, "update(): ok.\n");
 
 	// remove
 	sq_storage_remove(storage, "companies", NULL, id);
 
-	company_temp = sq_storage_get(storage, "companies", NULL, id);
-	assert(company_temp == NULL);
+	company_ptr = sq_storage_get(storage, "companies", NULL, id);
+	assert(company_ptr == NULL);
 	fprintf(stderr, "remove(): ok.\n");
+}
+
+void test_storage_xxx_all(SqStorage *storage)
+{
+	SqPtrArray *array;
+	Company *company_ptr;
+	Company  company;
+	int      id[2];
+	int      n_changes;
+
+	company.id = 0;    // for auto increment
+	company.name = "McD";
+	company.salary = 10245;
+	company.age = 25;
+	company.address = "Texas";
+
+	// insert to companies and get inserted row id.
+	id[0] = sq_storage_insert(storage, "companies", NULL, &company);
+	// insert to companies and get inserted row id.
+	id[1] = sq_storage_insert(storage, "companies", NULL, &company);
+	printf("inserted id = %d, %d\n", id[0], id[1]);
+
+	// update_all
+	// update 2 columns only - "name" and "age".
+	company.name = "KFC";
+	company.salary = 22345;
+	company.age = 55;
+	n_changes = sq_storage_update_all(storage, "companies", NULL,
+	                                  &company, NULL,
+	                                  "name", "age", NULL);
+	assert(n_changes == 2);
+
+	// get_all
+	array = sq_storage_get_all(storage, "companies", NULL, NULL, NULL);\
+	assert(array != NULL);
+	assert(array->length == 2);
+	printf("get_all(): ok.\n");
+
+	company_ptr = array->data[0];
+	company_object_print(company_ptr);
+	assert(strcmp(company_ptr->name, company.name) == 0);
+	assert(company_ptr->age    == company.age);
+	assert(company_ptr->salary != company.salary);
+	company_free(company_ptr);
+
+	company_ptr = array->data[1];
+	company_object_print(company_ptr);
+	assert(strcmp(company_ptr->name, company.name) == 0);
+	assert(company_ptr->age    == company.age);
+	assert(company_ptr->salary != company.salary);
+	company_free(company_ptr);
+
+	// update 2 columns only - "name" and "age".
+	printf("update_all(): ok.\n");
+
+	sq_ptr_array_free(array);
+
+	// remove_all
+	sq_storage_remove_all(storage, "companies", NULL);
+	company_ptr = sq_storage_get(storage, "companies", NULL, id[0]);
+	assert(company_ptr == NULL);
+	company_ptr = sq_storage_get(storage, "companies", NULL, id[1]);
+	assert(company_ptr == NULL);
+	printf("remove_all(): ok.\n");
 }
 
 void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
@@ -143,6 +207,7 @@ void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
 
 	// test get, insert, update, and remove
 	test_storage_crud(storage);
+	test_storage_xxx_all(storage);
 
 	sq_storage_close(storage);
 }

@@ -91,6 +91,23 @@ int   sq_storage_update(SqStorage    *storage,
                         const SqType *table_type,
                         void         *instance);
 
+// pass column_name list after 'sql_where_having' and  the last argument must be NULL
+// return number of rows changed.
+int64_t sq_storage_update_all(SqStorage    *storage,
+                              const char   *table_name,
+                              const SqType *table_type,
+                              void         *instance,
+                              const char   *sql_where_having, ...);
+
+// if 'arg_list' is list of column_name, 'arg_mode' must be 1.
+int64_t sq_storage_update_all_va(SqStorage    *storage,
+                                 const char   *table_name,
+                                 const SqType *table_type,
+                                 void         *instance,
+                                 const char   *sql_where_having,
+                                 int           arg_mode,
+                                 va_list       arg_list);
+
 void  sq_storage_remove(SqStorage    *storage,
                         const char   *table_name,
                         const SqType *table_type,
@@ -107,6 +124,13 @@ void  sq_storage_remove_all(SqStorage    *storage,
 #define  sq_storage_find(storage, table_name)    sq_schema_find((storage)->schema, table_name)
 
 SqTable *sq_storage_find_by_type(SqStorage *storage, const char *type_name);
+
+// for internal use only
+int   sq_storage_set_update_condition(SqStorage    *storage,
+                                      const SqType *table_type,
+                                      const char   *sql_where_having,
+                                      int           arg_mode,
+                                      va_list       arg_list);
 
 // ------------------------------------
 // SqStorage-query.c
@@ -179,8 +203,6 @@ struct StorageMethod
 	template <class StructType>
 	int64_t  insert(StructType& instance);
 	template <class StructType>
-	int64_t  insert(StructType *instance);
-	template <class StructType>
 	int64_t  insert(void *instance);
 	int64_t  insert(const char *table_name, void *instance);
 	int64_t  insert(const char *table_name, const SqType *table_type, void *instance);
@@ -188,11 +210,16 @@ struct StorageMethod
 	template <class StructType>
 	int   update(StructType& instance);
 	template <class StructType>
-	int   update(StructType *instance);
-	template <class StructType>
 	int   update(void *instance);
 	int   update(const char *table_name, void *instance);
 	int   update(const char *table_name, const SqType *table_type, void *instance);
+
+	template <class StructType>
+	int64_t  updateAll(StructType& instance, const char *sql_where_having, ...);
+	template <class StructType>
+	int64_t  updateAll(void *instance, const char *sql_where_having, ...);
+	int64_t  updateAll(const char *table_name, void *instance, const char *sql_where_having, ...);
+	int64_t  updateAll(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having, ...);
 
 	template <class StructType>
 	void  remove(int64_t id);
@@ -204,6 +231,15 @@ struct StorageMethod
 	int   beginTrans();
 	int   commitTrans();
 	int   rollbackTrans();
+
+	/*
+	template <class StructType>
+	int64_t  insert(StructType *instance);
+	template <class StructType>
+	int   update(StructType *instance);
+	template <class StructType>
+	int64_t  updateAll(StructType *instance, const char *sql_where_having, ...);
+	 */
 };
 
 };  // namespace Sq
@@ -394,13 +430,6 @@ inline int64_t  StorageMethod::insert(StructType& instance) {
 	return sq_storage_insert((SqStorage*)this, table->name, table->type, &instance);
 }
 template <class StructType>
-inline int64_t  StorageMethod::insert(StructType *instance) {
-	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
-	if (table == NULL)
-		return 0;
-	return sq_storage_insert((SqStorage*)this, table->name, table->type, instance);
-}
-template <class StructType>
 inline int64_t  StorageMethod::insert(void *instance) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
@@ -422,13 +451,6 @@ inline int  StorageMethod::update(StructType& instance) {
 	return sq_storage_update((SqStorage*)this, table->name, table->type, &instance);
 }
 template <class StructType>
-inline int  StorageMethod::update(StructType *instance) {
-	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
-	if (table == NULL)
-		return 0;
-	return sq_storage_update((SqStorage*)this, table->name, table->type, instance);
-}
-template <class StructType>
 inline int  StorageMethod::update(void *instance) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
@@ -440,6 +462,51 @@ inline int  StorageMethod::update(const char *table_name, void *instance) {
 }
 inline int  StorageMethod::update(const char *table_name, const SqType *table_type, void *instance) {
 	return sq_storage_update((SqStorage*)this, table_name, table_type, instance);
+}
+
+template <class StructType>
+inline int64_t  StorageMethod::updateAll(StructType& instance, const char *sql_where_having, ...) {
+	va_list  arg_list;
+	int64_t  result;
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table == NULL)
+		return 0;
+
+	va_start(arg_list, sql_where_having);
+	result = sq_storage_update_all_va((SqStorage*)this, table->name, table->type, &instance, sql_where_having, 1, arg_list);
+	va_end(arg_list);
+	return result;
+}
+template <class StructType>
+inline int64_t  StorageMethod::updateAll(void *instance, const char *sql_where_having, ...) {
+	va_list  arg_list;
+	int64_t  result;
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table == NULL)
+		return 0;
+
+	va_start(arg_list, sql_where_having);
+	result = sq_storage_update_all_va((SqStorage*)this, table->name, table->type, instance, sql_where_having, 1, arg_list);
+	va_end(arg_list);
+	return result;
+}
+inline int64_t  StorageMethod::updateAll(const char *table_name, void *instance, const char *sql_where_having, ...) {
+	va_list  arg_list;
+	int64_t  result;
+
+	va_start(arg_list, sql_where_having);
+	result = sq_storage_update_all_va((SqStorage*)this, table_name, NULL, instance, sql_where_having, 1, arg_list);
+	va_end(arg_list);
+	return result;
+}
+inline int64_t  StorageMethod::updateAll(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having, ...) {
+	va_list  arg_list;
+	int64_t  result;
+
+	va_start(arg_list, sql_where_having);
+	result = sq_storage_update_all_va((SqStorage*)this, table_name, table_type, instance, sql_where_having, 1, arg_list);
+	va_end(arg_list);
+	return result;
 }
 
 template <class StructType>
@@ -468,6 +535,36 @@ inline int  StorageMethod::commitTrans() {
 inline int  StorageMethod::rollbackTrans() {
 	return SQ_STORAGE_ROLLBACK_TRANS((SqStorage*)this);
 }
+
+/*
+template <class StructType>
+inline int64_t  StorageMethod::insert(StructType *instance) {
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table == NULL)
+		return 0;
+	return sq_storage_insert((SqStorage*)this, table->name, table->type, instance);
+}
+template <class StructType>
+inline int  StorageMethod::update(StructType *instance) {
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table == NULL)
+		return 0;
+	return sq_storage_update((SqStorage*)this, table->name, table->type, instance);
+}
+template <class StructType>
+inline int64_t  StorageMethod::updateAll(StructType *instance, const char *sql_where_having, ...) {
+	va_list  arg_list;
+	int64_t  result;
+	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
+	if (table == NULL)
+		return 0;
+
+	va_start(arg_list, sql_where_having);
+	result = sq_storage_update_all_va((SqStorage*)this, table->name, table->type, instance, sql_where_having, 1, arg_list);
+	va_end(arg_list);
+	return result;
+}
+*/
 
 /* All derived struct/class must be C++11 standard-layout. */
 

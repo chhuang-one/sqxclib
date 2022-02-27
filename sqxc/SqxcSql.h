@@ -150,8 +150,12 @@ struct SqxcSql
 	char         quote[2];
 
 	// controlled variable
-	unsigned int mode;        // 1 == INSERT, 0 == UPDATE
-	const char  *condition;   // WHERE condition. It used by UPDATE command (mode == 0)
+	int          mode;        // 1 == INSERT, 0 == UPDATE
+
+	// variable for UPDATE command
+	const char  *condition;   // WHERE condition.
+	SqPtrArray   columns;     // UPDATE column list
+	bool         columns_sorted;
 
 	// Sqdb result variable
 	int64_t      id;          // the last inserted row id.
