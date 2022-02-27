@@ -12,8 +12,13 @@
  * See the Mulan PSL v2 for more details.
  */
 
+/* This is sample code for sqapp and sqxclib */
+
+#include <stdio.h>
+
 #include <sqxclib.h>
 #include <SqApp.h>
+#include <CStructs.h>  // struct User
 
 typedef struct MyApp    MyApp;
 
@@ -64,7 +69,45 @@ int  main(void)
 			return EXIT_FAILURE;
 	}
 
-	// run your code here...
+
+	/*	SQL table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
+		strcut User defined in  sqapp/CStructs.h
+	 */
+	SqStorage *storage = myapp->base.storage;
+	User  user = {0};
+	User *user_ptr;
+	int   id[2];
+	int   n;
+
+	user.age   = 18;
+	user.email = "alex@guest";
+	user.name  = "Alex";
+	id[0] = sq_storage_insert(storage, "users", NULL, &user);
+	user.age   = 28;
+	user.name  = "Alan";
+	user.email = "alan@guest";
+	id[1] = sq_storage_insert(storage, "users", NULL, &user);
+
+	// update columns - "age" and "name"
+	user.age   = 21;
+	user.name  = "Ti";
+	n = sq_storage_update_all(storage, "users", NULL, &user,
+	                          "WHERE id > 0",
+	                          "age", "name", NULL);
+	printf("number of rows changed : %d"  "\n", n);
+
+	user_ptr = sq_storage_get(storage, "users", NULL, id[0]);
+	if (user_ptr) {
+		printf("\n"
+		       "User::age   = %d" "\n"
+		       "User::name  = %s" "\n"
+		       "User::email = %s" "\n",
+		       user_ptr->age,
+		       user_ptr->name,
+		       user_ptr->email);
+	}
+	sq_storage_remove_all(storage, "users", NULL);
+
 
 	sq_app_close_database(&myapp->base);
 	my_app_free(myapp);

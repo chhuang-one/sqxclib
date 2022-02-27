@@ -12,11 +12,14 @@
  * See the Mulan PSL v2 for more details.
  */
 
+/* This is sample code for sqapp and sqxclib */
+
 #include <iostream>     // cout
 #include <type_traits>  // is_standard_layout<>
 
 #include <sqxclib.h>
 #include <SqApp.h>
+#include <CStructs.h>   // struct User
 
 #define USE_DERVIDED_MYAPP    0
 
@@ -43,6 +46,10 @@ public:
 	int   rollback(int step = 0) {
 		return base.rollback(step);
 	}
+
+	Sq::Storage *getStorage() {
+		return (Sq::Storage*)base.storage;
+	}
 };
 
 #else
@@ -63,6 +70,10 @@ struct MyApp : Sq::AppMethod                  // <-- 1. inherit C++ member funct
 	}
 	~MyApp() {
 		final();    // call Sq::AppMethod::final()
+	}
+
+	Sq::Storage *getStorage() {
+		return (Sq::Storage*)storage;
 	}
 };
 #endif  // USE_DERVIDED_MYAPP
@@ -92,7 +103,54 @@ int  main(void)
 			return EXIT_FAILURE;
 	}
 
-	// run your code here...
+
+	/*	SQL table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
+		strcut User defined in  sqapp/CStructs.h
+
+		Because SQL table "users" defined in C language,
+		you may NOT use below C++ template functions to access SQL table "users":
+			storage->insert<User>(...)
+			storage->update<User>(...)
+			storage->updateAll<User>(...)
+			storage->remove<User>(...)
+			storage->removeAll<User>(...)
+			storage->get<User>(...)
+			storage->getAll<User>(...)
+	
+		To get more information about this, you can see document doc/SqSchema.md
+	 */
+	Sq::Storage *storage = myapp->getStorage();
+	User  user = {0};
+	User *userPtr;
+	int   id[2];
+	int   n;
+
+	user.age   = 18;
+	user.email = (char*)"alex@guest";
+	user.name  = (char*)"Alex";
+	id[0] = storage->insert("users", &user);
+	user.age   = 28;
+	user.name  = (char*)"Alan";
+	user.email = (char*)"alan@guest";
+	id[1] = storage->insert("users", &user);
+
+	// update columns - "age" and "name"
+	user.age   = 21;
+	user.name  = (char*)"Ti";
+	n = storage->updateAll("users", &user,
+	                       "WHERE id > 0",
+	                       "age", "name", NULL);
+	std::cout << "number of rows changed : " << n << std::endl;
+
+	userPtr = (User*)storage->get("users", id[0]);
+	if (userPtr) {
+		std::cout << std::endl
+		          << "User::age   = " << userPtr->age   << std::endl
+		          << "User::name  = " << userPtr->name  << std::endl
+		          << "User::email = " << userPtr->email << std::endl;
+	}
+	storage->removeAll("users");
+
 
 	myapp->closeDatabase();
 	delete myapp;
