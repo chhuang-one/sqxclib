@@ -389,12 +389,26 @@ use C functions
 ```c
 	User  *user;
 
+	// get multiple rows
+	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
+	// get all rows
 	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
+	// get one row
 	user  = sq_storage_get(storage, "users", NULL, 2);
 
 	sq_storage_insert(storage, "users", NULL, user);
+
+	// update one row
 	sq_storage_update(storage, "users", NULL, user);
+	// update specific columns - "name" and "email" in multiple rows.
+	sq_storage_update_all(storage, "users", NULL, user, 
+	                      "WHERE id > 11 AND id < 28",
+	                      "name", "email", NULL);
+
+	// remove one row
 	sq_storage_remove(storage, "users", NULL, 5);
+	// remove multiple rows
+	sq_storage_remove_all(storage, "users", "WHERE id < 5");
 ```
 
 use C++ methods
@@ -402,12 +416,27 @@ use C++ methods
 ```c++
 	User  *user;
 
+	// get multiple rows
+	array = storage->getAll("users", NULL, "WHERE id > 8 AND id < 20");
+	// get all rows
 	array = storage->getAll("users", NULL);
+	// get one row
 	user  = storage->get("users", 2);
 
+	// insert one row
 	storage->insert("users", user);
-	storage->update("users", user);
+
+	// update one row
+	storage->update("users", user)
+	// update specific columns - "name" and "email" in multiple rows.
+	storage->updateAll("users", user,
+	                   "WHERE id > 11 AND id < 28",
+	                   "name", "email", NULL);
+
+	// remove one row
 	storage->remove("users", 5);
+	// remove multiple rows
+	storage->removeAll("users", "WHERE id < 5");
 ```
 
 use C++ template functions
@@ -415,19 +444,34 @@ use C++ template functions
 ```c++
 	User  *user;
 
+	// get multiple rows
+	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
+	// get all rows
 	vector = storage->getAll<std::vector<User>>();
-	// or
+		// or
 	array  = storage->getAll<User>(NULL, NULL);
-
+	// get one row
 	user = storage->get<User>(2);
 
-	storage->remove<User>(5);
-
+	// insert one row
 	storage->insert<User>(user);
-	storage->update<User>(user);
-	// or
+		// or
 	storage->insert(user);
+
+	// update one row
+	storage->update<User>(user);
+		// or
 	storage->update(user);
+
+	// update specific columns - "name" and "email" in multiple rows.
+	storage->updateAll<User>(user,
+	                         "WHERE id > 11 AND id < 28",
+	                         "name", "email", NULL);
+
+	// remove one row
+	storage->remove<User>(5);
+	// remove multiple rows
+	storage->removeAll<User>("WHERE id < 5");
 ```
 
 ## Database support

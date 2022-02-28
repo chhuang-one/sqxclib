@@ -2,7 +2,7 @@
 
 SqStorage access database by using Sqxc to convert data to/from Sqdb interface.
 
-## create SqStorage
+## create storage
 
 User must specify [Sqdb](Sqdb.md) instance when creating SqStorage.  
   
@@ -38,6 +38,7 @@ typedef struct User  User;
 struct User {
 	int   id;
 	char *name;
+	char *email;
 };
 ```
 
@@ -54,6 +55,7 @@ use C functions
 	column = sq_table_int(table, "id", offsetof(User, id));
 	column-bit_field |= SQB_PRIMARY;
 	column = sq_table_string(table, "name", offsetof(User, name), -1);
+	column = sq_table_string(table, "email", offsetof(User, email), -1);
 
 	// migrate schema
 	sq_storage_migrate(storage, schema);
@@ -73,6 +75,7 @@ use C++ methods
 	table = schema->create<User>("users");
 	table->integer("id", &User::id)->primary()->autoIncrement();  // PRIMARY KEY
 	table->string("name", &User::name);
+	table->string("email", &User::email);
 
 	// migrate schema
 	storage->migrate(schema);
@@ -211,7 +214,7 @@ use C++ methods
 
 ## update
 
-sq_storage_update() return number of rows changed  
+sq_storage_update() update one row in database and return number of rows changed.  
   
 use C functions
 
@@ -220,7 +223,7 @@ use C functions
 	int   n_changes;
 
 	user.id   = id;
-	user.name = "yname";
+	user.name = "yael";
 	n_changes = sq_storage_update(storage, "users", NULL, &user);
 ```
 
@@ -231,8 +234,50 @@ use C++ methods
 	int   n_changes;
 
 	user.id   = id;
-	user.name = "yname";
+	user.name = "yael";
 	n_changes = storage->update("users", &user);
+```
+
+## updateAll (Where conditions)
+
+update specific columns in multiple rows.
+
+```sql
+UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
+```
+
+sq_storage_update_all() return number of rows changed. They have parameter for SQL statement that exclude "UPDATE table_name SET column=value".  
+  
+Note: SqQuery can generate SQL statement exclude "UPDATE table_name SET column=value".  
+  
+use C functions
+
+```c
+	User  user;
+	int   n_changes;
+
+	user.name  = "yael";
+	user.email = "user@server";
+	n_changes  = sq_storage_update_all(storage, "users", NULL, &user,
+	                                   "WHERE id > 10",
+	                                   "name", "email", NULL);
+```
+
+use C++ methods
+
+```c++
+	User  user;
+	int   n_changes;
+
+	user.name  = "yael";
+	user.email = "user@server";
+	n_changes  = storage->updateAll("users", &user,
+	                                "WHERE id > 10",
+	                                "name", "email", NULL);
+	// or
+	n_changes  = storage->updateAll<User>(user,
+	                                      "WHERE id > 10",
+	                                      "name", "email", NULL);
 ```
 
 ## remove
@@ -261,26 +306,46 @@ use C++ methods
 
 remove all rows from database table "users".
 
-```c++
-	// C function
-	sq_storage_remove_all(storage, "users", NULL);
+```sql
+DELETE FROM users
+```
 
-	// C++ method
+use C functions
+
+```c
+	sq_storage_remove_all(storage, "users", NULL);
+```
+
+use C++ methods
+
+```c++
 	storage->removeAll("users");
+	// or
+	storage->removeAll<User>();
 ```
 
 ## removeAll (Where conditions)
+
+remove multiple rows from database table "users" with where conditions.
+
+```sql
+DELETE FROM users WHERE id > 50
+```
 
 The last parameter in sq_storage_remove_all() and Sq::Storage.removeAll() is SQL statement that exclude "DELETE FROM table_name".  
   
 Note: SqQuery can generate SQL statement exclude "DELETE FROM table_name".  
   
-remove multiple rows from database table "users" with where conditions.
+use C functions
+
+```c
+	sq_storage_remove_all(storage, "users", "WHERE id > 50");
+```
+
+use C++ methods
 
 ```c++
-	// C function
-	sq_storage_remove_all(storage, "users", "WHERE id > 50");
-
-	// C++ method
 	storage->removeAll("users", "WHERE id > 50");
+	// or
+	storage->removeAll<User>("WHERE id > 50");
 ```

@@ -48,9 +48,22 @@ struct User {
 ```
 
 ### Creating Tables (dynamic)
+ 
+You will get difference type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.  
+**Please create or define type of SqTable in C++ language if your application written in C++ language.**  
+  
+If SqTable::type defined in C language, you may NOT use below C++ template functions to access SQL table.
+
+	storage->insert<StructType>(...)
+	storage->update<StructType>(...)
+	storage->updateAll<StructType>(...)
+	storage->remove<StructType>(...)
+	storage->removeAll<StructType>(...)
+	storage->get<StructType>(...)
+	storage->getAll<StructType>(...)
 
 use the create method/function in the schema to create a new database table.  
-The method/function accepts two arguments: one argument is the name of table, another is structured data type.
+The method/function accepts two arguments: one argument is the name of table, another is structured data type.  
 
 ```c++
 	/* C++ sample code */
