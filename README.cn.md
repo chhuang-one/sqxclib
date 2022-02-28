@@ -388,7 +388,7 @@ use C functions
 	User  *user;
 
 	// get multiple rows
-	array = sq_storage_get_all(storage, "users", NULsL, NULL, "WHERE id > 8 AND id < 20");
+	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
 	// get all rows
 	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
 	// get one row
