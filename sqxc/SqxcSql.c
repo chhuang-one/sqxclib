@@ -193,8 +193,10 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 		xcsql->outer_type &= ~SQXC_TYPE_OBJECT;
 		xcsql->supported_type |= SQXC_TYPE_OBJECT;
 		// SQL statement: WHERE condition
-		if (xcsql->condition)
+		if (xcsql->condition) {
+			sq_buffer_write_c(buffer, ' ');
 			sq_buffer_write(buffer, xcsql->condition);
+		}
 		sq_buffer_write_c(buffer, 0);    // null-terminated
 		return (src->code = SQCODE_OK);
 
