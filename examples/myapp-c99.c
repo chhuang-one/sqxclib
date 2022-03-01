@@ -62,6 +62,9 @@ int  main(void)
 		return EXIT_FAILURE;
 #endif
 
+	/*	If you use command-line program "sqtool" to do migrate,
+		you can remove below sq_app_migrate() code.
+	 */
 	// if the database vesion is 0 (no migrations have been done)
 	if (sq_app_make_schema(&myapp->base, 0) == SQCODE_DB_VERSION_0) {
 		// run migrations that defined in ../database/migrations
@@ -93,7 +96,8 @@ int  main(void)
 	user.name  = "Ti";
 	n = sq_storage_update_all(storage, "users", NULL, &user,
 	                          "WHERE id > 0",
-	                          "age", "name", NULL);
+	                          "age", "name",
+	                          NULL);
 	printf("number of rows changed : %d"  "\n", n);
 
 	user_ptr = sq_storage_get(storage, "users", NULL, id[0]);
@@ -106,6 +110,29 @@ int  main(void)
 		       user_ptr->name,
 		       user_ptr->email);
 	}
+
+	// update fields - User::name and User::email
+	user.age   = 38;
+	user.name  = "Sky";
+	user.email = "sky@host";
+	n = sq_storage_update_field(storage, "users", NULL, &user,
+	                            "WHERE id > 0",
+	                            offsetof(User, name),
+	                            offsetof(User, email),
+	                            -1);
+	printf("number of rows changed : %d"  "\n", n);
+
+	user_ptr = sq_storage_get(storage, "users", NULL, id[1]);
+	if (user_ptr) {
+		printf("\n"
+		       "User::age   = %d" "\n"
+		       "User::name  = %s" "\n"
+		       "User::email = %s" "\n",
+		       user_ptr->age,
+		       user_ptr->name,
+		       user_ptr->email);
+	}
+
 	sq_storage_remove_all(storage, "users", NULL);
 
 

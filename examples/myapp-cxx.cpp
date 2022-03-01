@@ -96,6 +96,9 @@ int  main(void)
 		return EXIT_FAILURE;
 #endif
 
+	/*	If you use command-line program "sqtoolcpp" to do migrate,
+		you can remove below migrate() code.
+	 */
 	// if the database vesion is 0 (no migrations have been done)
 	if (myapp->makeSchema() == SQCODE_DB_VERSION_0) {
 		// run migrations that defined in ../database/migrations
@@ -139,7 +142,7 @@ int  main(void)
 	user.name  = (char*)"Ti";
 	n = storage->updateAll("users", &user,
 	                       "WHERE id > 0",
-	                       "age", "name", NULL);
+	                       "age", "name");
 	std::cout << "number of rows changed : " << n << std::endl;
 
 	userPtr = (User*)storage->get("users", id[0]);
@@ -149,6 +152,25 @@ int  main(void)
 		          << "User::name  = " << userPtr->name  << std::endl
 		          << "User::email = " << userPtr->email << std::endl;
 	}
+
+	// update fields - User::email and User::name
+	user.age   = 38;
+	user.name  = (char*)"Sky";
+	user.email = (char*)"sky@host";
+	n = storage->updateField("users", &user,
+	                         "WHERE id > 0",
+	                         &User::name,
+	                         &User::email);
+	std::cout << "number of rows changed : " << n << std::endl;
+
+	userPtr = (User*)storage->get("users", id[1]);
+	if (userPtr) {
+		std::cout << std::endl
+		          << "User::age   = " << userPtr->age   << std::endl
+		          << "User::name  = " << userPtr->name  << std::endl
+		          << "User::email = " << userPtr->email << std::endl;
+	}
+
 	storage->removeAll("users");
 
 

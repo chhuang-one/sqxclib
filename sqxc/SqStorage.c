@@ -39,6 +39,15 @@
 #define STORAGE_SCHEMA_INITIAL_VERSION       0
 
 static int  print_where_column(const SqColumn *column, void *instance, SqBuffer *buf, const char quote[2]);
+static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
+                                const SqType *table_type,
+                                const char   *sql_where_having,
+                                va_list       arg_list);
+
+static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
+                                 const SqType *table_type,
+                                 const char   *sql_where_having,
+                                 va_list       arg_list);
 
 void  sq_storage_init(SqStorage *storage, Sqdb *db)
 {
@@ -276,43 +285,64 @@ int64_t sq_storage_update_all(SqStorage    *storage,
                               const char   *table_name,
                               const SqType *table_type,
                               void         *instance,
-                              const char   *sql_where_having, ...)
+                              const char   *sql_where_having,
+                              ...)
 {
-	int64_t  result;
 	va_list  arg_list;
+	union {
+		SqTable  *table;
+		SqxcSql  *xcsql;
+	} temp;
 
-	va_start(arg_list, sql_where_having);
-	result = sq_storage_update_all_va(storage, table_name, table_type,
-	                                  instance, sql_where_having,
-	                                  1, arg_list);
-	va_end(arg_list);
-
-	return result;
-}
-
-int64_t sq_storage_update_all_va(SqStorage    *storage,
-                                 const char   *table_name,
-                                 const SqType *table_type,
-                                 void         *instance,
-                                 const char   *sql_where_having,
-                                 int           arg_mode,
-                                 va_list       arg_list)
-{
 	if (table_type == NULL) {
 		// find SqTable by table_name
-		table_type = (void*)sq_schema_find(storage->schema, table_name);
-		if (table_type == NULL)
+		temp.table = sq_schema_find(storage->schema, table_name);
+		if (temp.table == NULL)
 			return 0;
-		table_type = ((SqTable*)table_type)->type;
+		table_type = temp.table->type;
 	}
 
-	sq_storage_set_update_condition(storage, table_type,
-	                                sql_where_having,
-	                                arg_mode, arg_list);
+	// set SqxcSql's variable for UPDATE command
+	temp.xcsql = (SqxcSql*)storage->xc_output;
+	va_start(arg_list, sql_where_having);
+	sqxc_sql_set_columns(temp.xcsql, table_type, sql_where_having, arg_list);
+	va_end(arg_list);
 
 	sq_storage_update(storage, table_name, table_type, instance);
 	// return number of rows changed
-	return ((SqxcSql*)storage->xc_output)->changes;
+	return temp.xcsql->changes;
+}
+
+int64_t sq_storage_update_field(SqStorage    *storage,
+                                const char   *table_name,
+                                const SqType *table_type,
+                                void         *instance,
+                                const char   *sql_where_having,
+                                ...)
+{
+	va_list  arg_list;
+	union {
+		SqTable  *table;
+		SqxcSql  *xcsql;
+	} temp;
+
+	if (table_type == NULL) {
+		// find SqTable by table_name
+		temp.table = sq_schema_find(storage->schema, table_name);
+		if (temp.table == NULL)
+			return 0;
+		table_type = temp.table->type;
+	}
+
+	// set SqxcSql's variable for UPDATE command
+	temp.xcsql = (SqxcSql*)storage->xc_output;
+	va_start(arg_list, sql_where_having);
+	sqxc_sql_set_fields(temp.xcsql, table_type, sql_where_having, arg_list);
+	va_end(arg_list);
+
+	sq_storage_update(storage, table_name, table_type, instance);
+	// return number of rows changed
+	return temp.xcsql->changes;
 }
 
 void  sq_storage_remove(SqStorage    *storage,
@@ -386,25 +416,29 @@ SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 	return NULL;
 }
 
-// for internal use only
-int   sq_storage_set_update_condition(SqStorage    *storage,
-                                      const SqType *table_type,
-                                      const char   *sql_where_having,
-                                      int           arg_mode,
-                                      va_list       arg_list)
+// ----------------------------------------------------------------------------
+// static function
+
+static void sqxc_sql_init_columns(SqxcSql *xcsql, const char *sql_where_having)
 {
-	SqxcSql  *xcsql;
+	// set SqxcSql's variable for UPDATE command
+	xcsql->condition = (sql_where_having) ? sql_where_having : "";
+	if (xcsql->columns.data == NULL)
+		sq_ptr_array_init(&xcsql->columns, 0, NULL);
+}
+
+static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
+                                 const SqType *table_type,
+                                 const char   *sql_where_having,
+                                 va_list       arg_list)
+{
 	union {
 		const char *name;
 		SqColumn  **column_addr;
 		SqColumn   *column;
 	} temp;
 
-	xcsql = (SqxcSql*)storage->xc_output;
-	xcsql->condition = (sql_where_having) ? sql_where_having : "";
-	if (xcsql->columns.data == NULL)
-		sq_ptr_array_init(&xcsql->columns, 0, NULL);
-
+	sqxc_sql_init_columns(xcsql, sql_where_having);
 	for(;;) {
 		temp.name = va_arg(arg_list, const char*);
 		if (temp.name == NULL)
@@ -416,22 +450,64 @@ int   sq_storage_set_update_condition(SqStorage    *storage,
 		sq_ptr_array_append(&xcsql->columns, temp.column);
 	}
 
-	return ((SqxcSql*)xcsql)->columns.length;
+	return xcsql->columns.length;
 }
 
-// ----------------------------------------------------------------------------
-// static function
+// used by sqxc_sql_set_fields()
+static int  sq_entry_cmp_offset(SqEntry **entry1, SqEntry **entry2)
+{
+	return (int)(*entry1)->offset - (int)(*entry2)->offset;
+}
+
+// used by sqxc_sql_set_fields()
+static int  sq_entry_cmp_size_t__offset(size_t offset, SqEntry **entry2)
+{
+	return (int)offset - (int)(*entry2)->offset;
+}
+
+static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
+                                const SqType *table_type,
+                                const char   *sql_where_having,
+                                va_list       arg_list)
+{
+	SqPtrArray  array;
+	union {
+		size_t      offset;
+		SqColumn  **column_addr;
+		SqColumn   *column;
+	} temp;
+
+	// sort table_type->entry by entry->offset
+	sq_ptr_array_init(&array, table_type->n_entry, NULL);
+	memcpy(array.data, table_type->entry, table_type->n_entry * sizeof(void*));
+	array.length = table_type->n_entry;
+	sq_ptr_array_sort(&array, sq_entry_cmp_offset);
+
+	sqxc_sql_init_columns(xcsql, sql_where_having);
+	for(;;) {
+		temp.offset = va_arg(arg_list, size_t);
+		if (temp.offset == -1)
+			break;
+		temp.column_addr = (SqColumn**)sq_ptr_array_search(&array, temp.offset, sq_entry_cmp_size_t__offset);
+		if (temp.column_addr == NULL)
+			continue;
+		temp.column = *temp.column_addr;
+		sq_ptr_array_append(&xcsql->columns, temp.column);
+	}
+
+	sq_ptr_array_final(&array);
+	return xcsql->columns.length;
+}
 
 static int  print_where_column(const SqColumn *column, void *instance, SqBuffer *buf, const char quote[2])
 {
 	int   len;
 	char *mem;
 
-	// " WHERE " string length = 7
-	mem = sq_buffer_alloc(buf, 7);
-	memcpy(&mem[1], "WHERE", 5);
-	mem[0] = ' ';
-	mem[6] = ' ';
+	// "WHERE" + " " string length = 6
+	mem = sq_buffer_alloc(buf, 6);
+	memcpy(mem, "WHERE", 5);
+	mem[5] = ' ';
 
 	// integer
 	switch(SQ_TYPE_BUILTIN_INDEX(column->type)) {

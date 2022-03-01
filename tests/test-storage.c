@@ -148,9 +148,10 @@ void test_storage_xxx_all(SqStorage *storage)
 	company.name = "KFC";
 	company.salary = 22345;
 	company.age = 55;
-	n_changes = sq_storage_update_all(storage, "companies", NULL,
-	                                  &company, NULL,
-	                                  "name", "age", NULL);
+	n_changes = sq_storage_update_all(storage, "companies", NULL, &company,
+	                                  NULL,
+	                                  "name", "age",
+	                                  NULL);
 	assert(n_changes == 2);
 
 	// get_all
@@ -160,23 +161,48 @@ void test_storage_xxx_all(SqStorage *storage)
 	printf("get_all(): ok.\n");
 
 	company_ptr = array->data[0];
-	company_object_print(company_ptr);
-	assert(strcmp(company_ptr->name, company.name) == 0);
 	assert(company_ptr->age    == company.age);
 	assert(company_ptr->salary != company.salary);
+	assert(strcmp(company_ptr->name, company.name) == 0);
+	company_object_print(company_ptr);
 	company_free(company_ptr);
 
 	company_ptr = array->data[1];
-	company_object_print(company_ptr);
-	assert(strcmp(company_ptr->name, company.name) == 0);
 	assert(company_ptr->age    == company.age);
 	assert(company_ptr->salary != company.salary);
+	assert(strcmp(company_ptr->name, company.name) == 0);
+	company_object_print(company_ptr);
 	company_free(company_ptr);
+	// free array
+	sq_ptr_array_free(array);
 
 	// update 2 columns only - "name" and "age".
 	printf("update_all(): ok.\n");
 
-	sq_ptr_array_free(array);
+	// update_field by offsetof(User, name) and offsetof(User, email)
+	company.name = "Panda";
+	company.salary = 18765;
+	company.age = 35;
+	n_changes = sq_storage_update_field(storage, "companies", NULL, &company,
+	                                    NULL,
+	                                    offsetof(Company, name),
+	                                    offsetof(Company, age),
+	                                    -1);
+	assert(n_changes == 2);
+	company_ptr = sq_storage_get(storage, "companies", NULL, id[0]);
+	assert(company_ptr != NULL);
+	assert(company_ptr->age    == company.age);
+	assert(company_ptr->salary != company.salary);
+	assert(strcmp(company_ptr->name, company.name) == 0);
+	company_free(company_ptr);
+
+	company_ptr = sq_storage_get(storage, "companies", NULL, id[1]);
+	assert(company_ptr != NULL);
+	assert(company_ptr->age    == company.age);
+	assert(company_ptr->salary != company.salary);
+	assert(strcmp(company_ptr->name, company.name) == 0);
+	company_free(company_ptr);
+	printf("update_field(): ok.\n");
 
 	// remove_all
 	sq_storage_remove_all(storage, "companies", NULL);

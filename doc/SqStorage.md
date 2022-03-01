@@ -197,7 +197,7 @@ use C functions
 	int   inserted_id;
 
 	user.id   = 0;       // primary key set to 0 for auto increment
-	user.name = "xname";
+	user.name = "xman";
 	inserted_id = sq_storage_insert(storage, "users", NULL, &user);
 ```
 
@@ -208,7 +208,7 @@ use C++ methods
 	int   inserted_id;
 
 	user.id   = 0;       // primary key set to 0 for auto increment
-	user.name = "xname";
+	user.name = "xman";
 	inserted_id = storage->insert("users", &user);
 ```
 
@@ -246,7 +246,7 @@ update specific columns in multiple rows.
 UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
 ```
 
-sq_storage_update_all() return number of rows changed. They have parameter for SQL statement that exclude "UPDATE table_name SET column=value".  
+sq_storage_update_all() return number of rows changed. They have parameter for SQL statement that exclude "UPDATE table_name SET column=value". User must pass column_name list after parameter 'SQL statement' and the last argument must be NULL.  
   
 Note: SqQuery can generate SQL statement exclude "UPDATE table_name SET column=value".  
   
@@ -260,7 +260,8 @@ use C functions
 	user.email = "user@server";
 	n_changes  = sq_storage_update_all(storage, "users", NULL, &user,
 	                                   "WHERE id > 10",
-	                                   "name", "email", NULL);
+	                                   "name", "email",
+	                                   NULL);
 ```
 
 use C++ methods
@@ -273,11 +274,60 @@ use C++ methods
 	user.email = "user@server";
 	n_changes  = storage->updateAll("users", &user,
 	                                "WHERE id > 10",
-	                                "name", "email", NULL);
+	                                "name", "email");
 	// or
 	n_changes  = storage->updateAll<User>(user,
 	                                      "WHERE id > 10",
-	                                      "name", "email", NULL);
+	                                      "name", "email");
+	// simplify the above template function
+	n_changes  = storage->updateAll(user,
+	                                "WHERE id > 10",
+	                                "name", "email");
+```
+
+## updateField (Where conditions)
+
+update specific fields in multiple rows.  
+  
+sq_storage_update_field() is similar to sq_storage_update_all(). User must pass field_offset list after parameter 'SQL statement' and the last argument must be -1.  
+  
+use C functions
+
+```c
+	User  user;
+	int   n_changes;
+
+	user.name  = "yael";
+	user.email = "user@server";
+	n_changes  = sq_storage_update_field(storage, "users", NULL, &user,
+	                                     "WHERE id > 10",
+	                                     offsetof(User, name),
+	                                     offsetof(User, email),
+	                                     -1);
+```
+
+use C++ methods
+
+```c++
+	User  user;
+	int   n_changes;
+
+	user.name  = "yael";
+	user.email = "user@server";
+	n_changes  = storage->updateField("users", &user,
+	                                  "WHERE id > 10",
+	                                  &User::name,
+	                                  &User::email);
+	// or
+	n_changes  = storage->updateField<User>(user,
+	                                        "WHERE id > 10",
+	                                        &User::name,
+	                                        &User::email);
+	// simplify the above template function
+	n_changes  = storage->updateField(user,
+	                                  "WHERE id > 10",
+	                                  &User::name,
+	                                  &User::email);
 ```
 
 ## remove

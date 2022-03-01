@@ -401,7 +401,14 @@ use C functions
 	// update specific columns - "name" and "email" in multiple rows.
 	sq_storage_update_all(storage, "users", NULL, user, 
 	                      "WHERE id > 11 AND id < 28",
-	                      "name", "email", NULL);
+	                      "name", "email",
+	                      NULL);
+	// update specific fields - User::name and User::email in multiple rows.
+	sq_storage_update_field(storage, "users", NULL, user, 
+	                        "WHERE id > 11 AND id < 28",
+	                        offsetof(User, name),
+	                        offsetof(User, email),
+	                        -1);
 
 	// remove one row
 	sq_storage_remove(storage, "users", NULL, 5);
@@ -429,7 +436,11 @@ use C++ methods
 	// update specific columns - "name" and "email" in multiple rows.
 	storage->updateAll("users", user,
 	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email", NULL);
+	                   "name", "email");
+	// update specific fields - User::name and User::email in multiple rows.
+	storage->updateField("users", user,
+	                     "WHERE id > 11 AND id < 28",
+	                     &User::name, &User::email);
 
 	// remove one row
 	storage->remove("users", 5);
@@ -464,7 +475,11 @@ use C++ template functions
 	// update specific columns - "name" and "email" in multiple rows.
 	storage->updateAll<User>(user,
 	                         "WHERE id > 11 AND id < 28",
-	                         "name", "email", NULL);
+	                         "name", "email");
+	// update specific fields - User::name and User::email in multiple rows.
+	storage->updateField<User>(user,
+	                           "WHERE id > 11 AND id < 28",
+	                           &User::name, &User::email);
 
 	// remove one row
 	storage->remove<User>(5);
