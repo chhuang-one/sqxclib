@@ -419,12 +419,13 @@ use C functions
 use C++ methods
 
 ```c++
-	User  *user;
+	User         *user;
+	Sq::PtrArray *array;
 
 	// get multiple rows
-	array = storage->getAll("users", NULL, "WHERE id > 8 AND id < 20");
+	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
 	// get all rows
-	array = storage->getAll("users", NULL);
+	array = storage->getAll("users");
 	// get one row
 	user  = storage->get("users", 2);
 
@@ -432,7 +433,7 @@ use C++ methods
 	storage->insert("users", user);
 
 	// update one row
-	storage->update("users", user)
+	storage->update("users", user);
 	// update specific columns - "name" and "email" in multiple rows.
 	storage->updateAll("users", user,
 	                   "WHERE id > 11 AND id < 28",
@@ -451,14 +452,13 @@ use C++ methods
 use C++ template functions
 
 ```c++
-	User  *user;
+	User              *user;
+	std::vector<User> *vector;
 
 	// get multiple rows
 	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
 	// get all rows
 	vector = storage->getAll<std::vector<User>>();
-		// or
-	array  = storage->getAll<User>(NULL, NULL);
 	// get one row
 	user = storage->get<User>(2);
 
@@ -473,13 +473,15 @@ use C++ template functions
 	storage->update(user);
 
 	// update specific columns - "name" and "email" in multiple rows.
-	storage->updateAll<User>(user,
-	                         "WHERE id > 11 AND id < 28",
-	                         "name", "email");
+	// call updateAll<User>(...)
+	storage->updateAll(user,
+	                   "WHERE id > 11 AND id < 28",
+	                   "name", "email");
 	// update specific fields - User::name and User::email in multiple rows.
-	storage->updateField<User>(user,
-	                           "WHERE id > 11 AND id < 28",
-	                           &User::name, &User::email);
+	// call updateField<User>(...)
+	storage->updateField(user,
+	                     "WHERE id > 11 AND id < 28",
+	                     &User::name, &User::email);
 
 	// remove one row
 	storage->remove<User>(5);
@@ -661,7 +663,7 @@ use C++ methods
 	User  *user;
 
 	storage->beginTrans();
-	storage->insert<User>(user);
+	storage->insert(user);
 	if (abort)
 		storage->rollbackTrans();
 	else

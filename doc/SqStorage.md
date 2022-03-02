@@ -136,8 +136,6 @@ use C++ language
 	Sq::PtrArray *array;
 
 	array = storage->getAll("users");
-	// or
-	array = storage->getAll<User>(NULL, NULL);
 ```
 
 use C++ Standard Template Library (STL)
@@ -173,9 +171,9 @@ use C++ language
 ```c++
 	Sq::PtrArray *array;
 
-	array = storage->getAll("users", NULL, "WHERE id > 10 AND id < 100");
-	// or
-	array = storage->getAll<User>(NULL, "WHERE id > 10 AND id < 100");
+	array = storage->getAll("users", "WHERE id > 10 AND id < 100");
+	// or specify container type
+	array = storage->getAll<User>(SQ_TYPE_PTR_ARRAY, "WHERE id > 10 AND id < 100");
 ```
 
 use C++ Standard Template Library (STL)
@@ -210,6 +208,8 @@ use C++ methods
 	user.id   = 0;       // primary key set to 0 for auto increment
 	user.name = "xman";
 	inserted_id = storage->insert("users", &user);
+	// or call template function: insert<User>(...)
+	inserted_id = storage->insert(user);
 ```
 
 ## update
@@ -236,6 +236,8 @@ use C++ methods
 	user.id   = id;
 	user.name = "yael";
 	n_changes = storage->update("users", &user);
+	// or call template function: update<User>(...)
+	n_changes = storage->update(user);
 ```
 
 ## updateAll (Where conditions)
@@ -275,11 +277,7 @@ use C++ methods
 	n_changes  = storage->updateAll("users", &user,
 	                                "WHERE id > 10",
 	                                "name", "email");
-	// or
-	n_changes  = storage->updateAll<User>(user,
-	                                      "WHERE id > 10",
-	                                      "name", "email");
-	// simplify the above template function
+	// or call template function: updateAll<User>(...)
 	n_changes  = storage->updateAll(user,
 	                                "WHERE id > 10",
 	                                "name", "email");
@@ -318,12 +316,7 @@ use C++ methods
 	                                  "WHERE id > 10",
 	                                  &User::name,
 	                                  &User::email);
-	// or
-	n_changes  = storage->updateField<User>(user,
-	                                        "WHERE id > 10",
-	                                        &User::name,
-	                                        &User::email);
-	// simplify the above template function
+	// or call template function: updateField<User>(...)
 	n_changes  = storage->updateField(user,
 	                                  "WHERE id > 10",
 	                                  &User::name,
