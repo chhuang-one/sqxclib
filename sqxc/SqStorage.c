@@ -39,15 +39,16 @@
 #define STORAGE_SCHEMA_INITIAL_VERSION       0
 
 static int  print_where_column(const SqColumn *column, void *instance, SqBuffer *buf, const char quote[2]);
-static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
-                                const SqType *table_type,
-                                const char   *sql_where_having,
-                                va_list       arg_list);
-
 static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
                                  const SqType *table_type,
                                  const char   *sql_where_having,
                                  va_list       arg_list);
+#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
+                                const SqType *table_type,
+                                const char   *sql_where_having,
+                                va_list       arg_list);
+#endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 void  sq_storage_init(SqStorage *storage, Sqdb *db)
 {
@@ -313,6 +314,8 @@ int64_t sq_storage_update_all(SqStorage    *storage,
 	return temp.xcsql->changes;
 }
 
+#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+
 int64_t sq_storage_update_field(SqStorage    *storage,
                                 const char   *table_name,
                                 const SqType *table_type,
@@ -344,6 +347,7 @@ int64_t sq_storage_update_field(SqStorage    *storage,
 	// return number of rows changed
 	return temp.xcsql->changes;
 }
+#endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 void  sq_storage_remove(SqStorage    *storage,
                         const char   *table_name,
@@ -453,6 +457,8 @@ static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
 	return xcsql->columns.length;
 }
 
+#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+
 // used by sqxc_sql_set_fields()
 static int  sq_entry_cmp_offset(SqEntry **entry1, SqEntry **entry2)
 {
@@ -498,6 +504,7 @@ static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
 	sq_ptr_array_final(&array);
 	return xcsql->columns.length;
 }
+#endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 static int  print_where_column(const SqColumn *column, void *instance, SqBuffer *buf, const char quote[2])
 {

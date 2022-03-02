@@ -58,6 +58,11 @@
  */
 // #define SQ_CONFIG_NAMING_CONVENTION
 
+/* Enable it will add sq_storage_update_field() and C++ updateField() to sqxclib.
+   Disable it if you don't use these and want to reduce binary size.
+ */
+#define SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+
 /* If you enable this, sq_time_to_string() will use gmtime() to convert calendar time */
 // #define SQ_CONFIG_CONVERT_TIME_TO_GMT
 

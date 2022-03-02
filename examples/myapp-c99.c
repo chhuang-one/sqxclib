@@ -111,6 +111,7 @@ int  main(void)
 		       user_ptr->email);
 	}
 
+#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 	// update fields - User::name and User::email
 	user.age   = 38;
 	user.name  = "Sky";
@@ -121,6 +122,7 @@ int  main(void)
 	                            offsetof(User, email),
 	                            -1);
 	printf("number of rows changed : %d"  "\n", n);
+#endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 	user_ptr = sq_storage_get(storage, "users", NULL, id[1]);
 	if (user_ptr) {

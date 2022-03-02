@@ -153,6 +153,7 @@ int  main(void)
 		          << "User::email = " << userPtr->email << std::endl;
 	}
 
+#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 	// update fields - User::email and User::name
 	user.age   = 38;
 	user.name  = (char*)"Sky";
@@ -162,6 +163,7 @@ int  main(void)
 	                         &User::name,
 	                         &User::email);
 	std::cout << "number of rows changed : " << n << std::endl;
+#endif // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 	userPtr = (User*)storage->get("users", id[1]);
 	if (userPtr) {

@@ -179,6 +179,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	// update 2 columns only - "name" and "age".
 	printf("update_all(): ok.\n");
 
+#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 	// update_field by offsetof(User, name) and offsetof(User, email)
 	company.name = "Panda";
 	company.salary = 18765;
@@ -203,6 +204,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	assert(strcmp(company_ptr->name, company.name) == 0);
 	company_free(company_ptr);
 	printf("update_field(): ok.\n");
+#endif // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 	// remove_all
 	sq_storage_remove_all(storage, "companies", NULL);

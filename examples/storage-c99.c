@@ -330,7 +330,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	sq_storage_migrate(storage, NULL);
 }
 
-void  storage_query(SqStorage *storage)
+void  storage_query_join(SqStorage *storage)
 {
 	SqPtrArray *array;
 	SqQuery    *query;
@@ -475,7 +475,7 @@ int  main(void)
 		user_free(user);
 	}
 
-	storage_query(storage);
+	storage_query_join(storage);
 
 	sq_storage_close(storage);
 	return EXIT_SUCCESS;

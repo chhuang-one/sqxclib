@@ -101,6 +101,7 @@ int64_t sq_storage_update_all(SqStorage    *storage,
                               const char   *sql_where_having,
                               ...);
 
+#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 // parameter 'sql_where_having' is SQL statement that exclude "UPDATE table_name SET column=value"
 // pass field_offset list after parameter 'sql_where_having' and the last argument must be -1
 // return number of rows changed.
@@ -110,6 +111,7 @@ int64_t sq_storage_update_field(SqStorage    *storage,
                                 void         *instance,
                                 const char   *sql_where_having,
                                 ...);
+#endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 void  sq_storage_remove(SqStorage    *storage,
                         const char   *table_name,
@@ -251,6 +253,7 @@ struct StorageMethod
 	template <typename... Args>
 	int64_t  updateAll(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having = NULL, const Args... args);
 
+#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 	// updateField(struct_reference)
 	template <typename StructType, typename... Args>
 	int64_t  updateField(StructType& instance, const char *sql_where_having = NULL, const Args... args);
@@ -265,6 +268,7 @@ struct StorageMethod
 	int64_t  updateField(const char *table_name, void *instance, const char *sql_where_having = NULL, const Args... args);
 	template <typename... Args>
 	int64_t  updateField(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having = NULL, const Args... args);
+#endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 	template <class StructType>
 	void  remove(int64_t id);
@@ -567,6 +571,8 @@ inline int64_t  StorageMethod::updateAll(const char *table_name, const SqType *t
 	return sq_storage_update_all((SqStorage*)this, table_name, table_type, instance, sql_where_having, args..., NULL);
 }
 
+#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+
 template <typename StructType, typename... Args>
 inline int64_t  StorageMethod::updateField(StructType& instance, const char *sql_where_having, const Args... args) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
@@ -596,6 +602,7 @@ template <typename... Args>
 inline int64_t  StorageMethod::updateField(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having, const Args... args) {
 	return sq_storage_update_field((SqStorage*)this, table_name, table_type, instance, sql_where_having, Sq::offsetOf(args)..., (size_t) -1);
 }
+#endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 template <class StructType>
 inline void StorageMethod::remove(int64_t id) {

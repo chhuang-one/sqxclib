@@ -316,7 +316,7 @@ void  storage_stl_container_get_all(Sq::Storage *storage)
 	}
 }
 
-void  storage_ptr_array_query(Sq::Storage *storage)
+void  storage_ptr_array_query_join(Sq::Storage *storage)
 {
 	Sq::PtrArray  *array;
 	Sq::Query     *query;
@@ -345,7 +345,7 @@ void  storage_ptr_array_query(Sq::Storage *storage)
 	delete query;
 }
 
-void  storage_stl_container_query(Sq::Storage *storage)
+void  storage_stl_container_query_join(Sq::Storage *storage)
 {
 	std::vector< Sq::Joint<2> > *j2vector;
 	std::vector< Sq::Joint<2> >::iterator cur, end;
@@ -500,8 +500,8 @@ int  main(int argc, char *argv[])
 	storage_stl_container_get_all(storage);
 
 	// call Sq::Storage.query()
-	storage_ptr_array_query(storage);
-	storage_stl_container_query(storage);
+	storage_ptr_array_query_join(storage);
+	storage_stl_container_query_join(storage);
 
 	storage->close();
 	delete storage;
