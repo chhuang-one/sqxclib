@@ -673,7 +673,7 @@ use C++ methods
 ## Configuration Headers
 change build configuration.
 
-sqxclib is case-insensitive by default when parsing SQL column name. User can enable SQ_CONFIG_SQL_CASE_SENSITIVE in sqxc/[SqConfig.h](sqxc/SqConfig.h) to change it.
+sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default. User can change it in sqxc/[SqConfig.h](sqxc/SqConfig.h).
 
 ```c
 // Common settings in SqConfig.h
@@ -686,10 +686,11 @@ sqxclib is case-insensitive by default when parsing SQL column name. User can en
  */
 #define SQ_CONFIG_NAMING_CONVENTION
 
-/* sqxclib is case-insensitive by default when parsing SQL column name.
-   User can enable SQ_CONFIG_SQL_CASE_SENSITIVE to change it.
-*/
-#define SQ_CONFIG_SQL_CASE_SENSITIVE
+/* sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default.
+   You may disable this for some old SQL product.
+   Affected source : SqEntry, SqRelation-migration
+ */
+#define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE
 
 /* If user doesn't specify SQL string length, program will use it by default.
    SQL_STRING_LENGTH_DEFAULT

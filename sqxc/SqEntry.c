@@ -79,7 +79,7 @@ int  sq_entry_cmp_str__name(const char *str, SqEntry **entry)
 	const char *name;
 
 	name = (*entry) ? (*entry)->name : "";
-#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
+#ifdef SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE
 	return strcmp(str, name);
 #else
 	return strcasecmp(str, name);
@@ -94,7 +94,7 @@ int  sq_entry_cmp_name(SqEntry **entry1, SqEntry **entry2)
 
 	name1 = (*entry1) ? (*entry1)->name : "";
 	name2 = (*entry2) ? (*entry2)->name : "";
-#ifdef SQ_CONFIG_SQL_CASE_SENSITIVE
+#ifdef SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE
 	return strcmp(name1, name2);
 #else
 	return strcasecmp(name1, name2);
