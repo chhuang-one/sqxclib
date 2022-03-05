@@ -20,7 +20,6 @@
 #include <functional>
 #endif
 
-#include <stdarg.h>
 #include <stdbool.h>
 
 #include <SqPtrArray.h>    // used by sq_query_get_table_as_names()
@@ -190,21 +189,6 @@ void    sq_query_truncate(SqQuery *query);
 // generate SQL statements
 char   *sq_query_to_sql(SqQuery *query);
 
-// va_list
-void    sq_query_join_va(SqQuery *query, const char *table,
-                         const char *condition, va_list arg_list);
-void    sq_query_on_logical_va(SqQuery *query, uintptr_t sqn_type,
-                               const char *condition, va_list arg_list);
-void    sq_query_where_logical_va(SqQuery *query, uintptr_t sqn_type,
-                                  const char *condition, va_list arg_list);
-void    sq_query_group_by_va(SqQuery *query,
-                             const char *column, va_list arg_list);
-void    sq_query_having_logical_va(SqQuery *query, uintptr_t sqn_type,
-                                   const char *condition, va_list arg_list);
-bool    sq_query_select_va(SqQuery *query,
-                           const char *column, va_list arg_list);
-void    sq_query_order_by_va(SqQuery *query,
-                             const char *column, va_list arg_list);
 
 // get all of table_name and it's as_name in current SQL SELECT statement
 // return number of tables in query.
@@ -245,49 +229,69 @@ struct QueryMethod
 
 	Sq::Query& as(const char *name);
 
-	Sq::Query& join(const char *table, const char *condition = NULL, ...);
+	// join(table, condition...)
+	template <typename... Args>
+	Sq::Query& join(const char *table, const Args... args);
 	Sq::Query& join(std::function<void()> func);
 
-	Sq::Query& on(const char *condition, ...);
+	// on(condition, ...)
+	template <typename... Args>
+	Sq::Query& on(const char *condition, const Args ...args);
 	Sq::Query& on(std::function<void()> func);
 
 	Sq::Query& onRaw(const char *raw);
 
-	Sq::Query& orOn(const char *condition, ...);
+	// orOn(condition, ...)
+	template <typename... Args>
+	Sq::Query& orOn(const char *condition, const Args... args);
 	Sq::Query& orOn(std::function<void()> func);
 
 	Sq::Query& orOnRaw(const char *raw);
 
-	Sq::Query& where(const char *condition, ...);
+	// where(condition, ...);
+	template <typename... Args>
+	Sq::Query& where(const char *condition, const Args... args);
 	Sq::Query& where(std::function<void()> func);
 
 	Sq::Query& whereRaw(const char *raw);
 
-	Sq::Query& orWhere(const char *condition, ...);
+	// orWhere(condition, ...)
+	template <typename... Args>
+	Sq::Query& orWhere(const char *condition, const Args... args);
 	Sq::Query& orWhere(std::function<void()> func);
 
 	Sq::Query& orWhereRaw(const char *raw);
 
 	Sq::Query& whereExists(std::function<void()> func);
 
-	Sq::Query& groupBy(const char *column, ...);
+	// groupBy(column...)
+	template <typename... Args>
+	Sq::Query& groupBy(const Args... args);
 	Sq::Query& groupByRaw(const char *raw);
 
-	Sq::Query& having(const char *condition, ...);
+	// having(condition, ...)
+	template <typename... Args>
+	Sq::Query& having(const char *condition, const Args... args);
 	Sq::Query& having(std::function<void()> func);
 
 	Sq::Query& havingRaw(const char *raw);
 
-	Sq::Query& orHaving(const char *condition, ...);
+	// orHaving(condition, ...)
+	template <typename... Args>
+	Sq::Query& orHaving(const char *condition, const Args... args);
 	Sq::Query& orHaving(std::function<void()> func);
 
 	Sq::Query& orHavingRaw(const char *raw);
 
-	Sq::Query& select(const char *column, ...);
+	// select(column...)
+	template <typename... Args>
+	Sq::Query& select(const Args... args);
 	Sq::Query& selectRaw(const char *raw);
 	Sq::Query& distinct();
 
-	Sq::Query& orderBy(const char *column, ...);
+	// orderBy(column...)
+	template <typename... Args>
+	Sq::Query& orderBy(const Args... args);
 	Sq::Query& orderByRaw(const char *raw);
 	Sq::Query& asc();
 	Sq::Query& desc();
@@ -438,11 +442,9 @@ inline Sq::Query&  QueryMethod::as(const char *name) {
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::join(const char *table, const char *condition, ...) {
-	va_list  arg_list;
-	va_start(arg_list, condition);
-	sq_query_join_va((SqQuery*)this, table, condition, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::join(const char *table, const Args... args) {
+	sq_query_join((SqQuery*)this, table, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::join(std::function<void()> func) {
@@ -452,11 +454,9 @@ inline Sq::Query&  QueryMethod::join(std::function<void()> func) {
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::on(const char *condition, ...) {
-	va_list  arg_list;
-	va_start(arg_list, condition);
-	sq_query_on_logical_va((SqQuery*)this, SQ_QUERYLOGI_AND, condition, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::on(const char *condition, const Args... args) {
+	sq_query_on_logical((SqQuery*)this, SQ_QUERYLOGI_AND, condition, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::on(std::function<void()> func) {
@@ -471,11 +471,9 @@ inline Sq::Query&  QueryMethod::onRaw(const char *raw) {
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::orOn(const char *condition, ...) {
-	va_list  arg_list;
-	va_start(arg_list, condition);
-	sq_query_on_logical_va((SqQuery*)this, SQ_QUERYLOGI_OR, condition, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::orOn(const char *condition, const Args... args) {
+	sq_query_on_logical((SqQuery*)this, SQ_QUERYLOGI_OR, condition, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::orOn(std::function<void()> func) {
@@ -490,11 +488,9 @@ inline Sq::Query&  QueryMethod::orOnRaw(const char *raw) {
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::where(const char *condition, ...) {
-	va_list  arg_list;
-	va_start(arg_list, condition);
-	sq_query_where_logical_va((SqQuery*)this, SQ_QUERYLOGI_AND, condition, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::where(const char *condition, const Args... args) {
+	sq_query_where_logical((SqQuery*)this, SQ_QUERYLOGI_AND, condition, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::where(std::function<void()> func) {
@@ -509,11 +505,9 @@ inline Sq::Query&  QueryMethod::whereRaw(const char *raw) {
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::orWhere(const char *condition, ...) {
-	va_list  arg_list;
-	va_start(arg_list, condition);
-	sq_query_where_logical_va((SqQuery*)this, SQ_QUERYLOGI_OR, condition, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::orWhere(const char *condition, const Args... args) {
+	sq_query_where_logical((SqQuery*)this, SQ_QUERYLOGI_OR, condition, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::orWhere(std::function<void()> func) {
@@ -535,23 +529,19 @@ inline Sq::Query&  QueryMethod::whereExists(std::function<void()> func) {
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::groupBy(const char *column, ...) {
-	va_list  arg_list;
-	va_start(arg_list, column);
-	sq_query_group_by_va((SqQuery*)this, column, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::groupBy(const Args... args) {
+	sq_query_group_by((SqQuery*)this, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::groupByRaw(const char *raw) {
-	sq_query_group_by_va((SqQuery*)this, raw, NULL);
+	sq_query_group_by((SqQuery*)this, raw, NULL);
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::having(const char *condition, ...) {
-	va_list  arg_list;
-	va_start(arg_list, condition);
-	sq_query_having_logical_va((SqQuery*)this, SQ_QUERYLOGI_AND, condition, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::having(const char *condition, const Args... args) {
+	sq_query_having_logical((SqQuery*)this, SQ_QUERYLOGI_AND, condition, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::having(std::function<void()> func) {
@@ -566,11 +556,9 @@ inline Sq::Query&  QueryMethod::havingRaw(const char *raw) {
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::orHaving(const char *condition, ...) {
-	va_list  arg_list;
-	va_start(arg_list, condition);
-	sq_query_having_logical_va((SqQuery*)this, SQ_QUERYLOGI_OR, condition, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::orHaving(const char *condition, const Args... args) {
+	sq_query_having_logical((SqQuery*)this, SQ_QUERYLOGI_OR, condition, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::orHaving(std::function<void()> func) {
@@ -585,11 +573,9 @@ inline Sq::Query&  QueryMethod::orHavingRaw(const char *raw) {
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::select(const char *column, ...) {
-	va_list  arg_list;
-	va_start(arg_list, column);
-	sq_query_select_va((SqQuery*)this, column, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::select(const Args... args) {
+	sq_query_select((SqQuery*)this, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::selectRaw(const char *raw) {
@@ -601,11 +587,9 @@ inline Sq::Query&  QueryMethod::distinct() {
 	return *(Sq::Query*)this;
 }
 
-inline Sq::Query&  QueryMethod::orderBy(const char *column, ...) {
-	va_list  arg_list;
-	va_start(arg_list, column);
-	sq_query_order_by_va((SqQuery*)this, column, arg_list);
-	va_end(arg_list);
+template <typename... Args>
+inline Sq::Query&  QueryMethod::orderBy(const Args... args) {
+	sq_query_order_by((SqQuery*)this, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::orderByRaw(const char *raw) {
