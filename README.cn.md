@@ -546,7 +546,7 @@ SQL statement
 use C++ methods to produce query
 
 ```c++
-	query->select("id", "age", NULL)
+	query->select("id", "age")
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")
