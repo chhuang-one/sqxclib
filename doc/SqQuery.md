@@ -128,7 +128,7 @@ use C language
 use C++ Language
 
 ```c++
-	query->select("id", "name", NULL);
+	query->select("id", "name");
 
 	// The distinct method allows you to force the query to return distinct results
 	query->distinct();
@@ -181,23 +181,24 @@ use C++ Language
 use C language
 
 ```c
-	// "GROUP BY companies.age"
-	sq_query_group_by(query, "companies.age", NULL);
+	// "GROUP BY companies.age, companies.name"
+	sq_query_group_by(query, "companies.age", "companies.name", NULL);
 
-	// "ORDER BY companies.id ASC"
+	// "ORDER BY companies.id DESC"
 	sq_query_order_by(query, "companies.id", NULL);
-	sq_query_order_by_asc(query);
+	sq_query_order_by_desc(query);
 ```
 
 use C++ Language
 
 ```c++
-	// "GROUP BY companies.age"
-	query->groupBy("companies.age", NULL);
+	// "GROUP BY companies.age, companies.name"
+	query->groupBy("companies.age", "companies.name");
 
-	// "ORDER BY companies.id ASC"
-	query->orderBy("companies.id", NULL)
-	     ->asc();
+	// "ORDER BY companies.id DESC"
+	query->orderBy("companies.id")->desc();
+	// or
+	query->orderByDesc("companies.id");
 ```
 
 #### deleteFrom / truncate
@@ -421,7 +422,7 @@ WHERE age > 5
 use C++ lambda functions to generate subquery:
 
 ```c++
-	query->select("id", "age", NULL)
+	query->select("id", "age")
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")

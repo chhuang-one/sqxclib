@@ -293,6 +293,7 @@ struct QueryMethod
 	template <typename... Args>
 	Sq::Query& orderBy(const Args... args);
 	Sq::Query& orderByRaw(const char *raw);
+	Sq::Query& orderByDesc(const char *column_name);
 	Sq::Query& asc();
 	Sq::Query& desc();
 
@@ -594,6 +595,11 @@ inline Sq::Query&  QueryMethod::orderBy(const Args... args) {
 }
 inline Sq::Query&  QueryMethod::orderByRaw(const char *raw) {
 	sq_query_order_by((SqQuery*)this, raw, NULL);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::orderByDesc(const char *column_name) {
+	sq_query_order_by((SqQuery*)this, column_name, NULL);
+	sq_query_order_by_desc((SqQuery*)this);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::asc() {

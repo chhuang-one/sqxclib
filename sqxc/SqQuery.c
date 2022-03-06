@@ -469,12 +469,13 @@ void sq_query_order_sorted(SqQuery *query, uintptr_t sqn_type)
 	SqQueryNode   *node;
 
 	orderby = sq_query_node_find(nested->parent, SQN_ORDER_BY, &node);
-	if (orderby == NULL) {
-		orderby = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-		orderby->type = SQN_ORDER_BY;
-	}
+	if (orderby == NULL)
+		return;
 	node = sq_query_node_last(orderby->children);
-	if (node == NULL || node->type == SQN_VALUE)
+	if (node == NULL)
+		return;
+
+	if (node->type == SQN_VALUE)
 		node = sq_query_node_append(orderby, sq_query_node_new(query));
 	node->type = sqn_type;
 }
@@ -509,7 +510,6 @@ void sq_query_truncate(SqQuery *query)
 static void sq_query_column(SqQuery *query, SqQueryNode *node, va_list arg_list)
 {
 	const char   *name;
-	uintptr_t     sqn_type;
 	SqQueryNode  *sub_node;
 
 	// get last column
@@ -520,18 +520,16 @@ static void sq_query_column(SqQuery *query, SqQueryNode *node, va_list arg_list)
 		node->children = sub_node;
 	}
 	node = sub_node;
-	// store last SqQueryNode->type for "ASC" or "DESC".
-	sqn_type = node->type;
 
 	while ( (name = va_arg(arg_list, const char*)) ) {
-		// replace '*', "ASC", or "DESC" if user specify column
-		if (node->type != SQN_VALUE) {
+		// replace '*' if user specify column
+		if (node->type == SQN_ASTERISK) {
 			node->type  = SQN_VALUE;
 			node->value = strdup(name);
 			continue;
 		}
-		// if node->type == SQN_VALUE, add ',' if user specify multiple column
-		else {
+		// add ',' if user specify multiple column
+		else if (node->type != SQN_NONE) {
 			sub_node = sq_query_node_new(query);
 			sub_node->type = SQN_COMMA;
 			node->next = sub_node;
@@ -545,13 +543,6 @@ static void sq_query_column(SqQuery *query, SqQueryNode *node, va_list arg_list)
 		node = sub_node;
 		// for sq_query_as()
 		query->nested_cur->aliasable = node;
-	}
-
-	// restore last SqQueryNode->type for "ASC" or "DESC".
-	if (sqn_type == SQN_ASC || sqn_type == SQN_DESC) {
-		sub_node = sq_query_node_new(query);
-		sub_node->type = sqn_type;
-		node->next = sub_node;
 	}
 }
 

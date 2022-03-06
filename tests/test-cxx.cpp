@@ -103,13 +103,13 @@ void test_query_cpp()
 	const char *result = "SELECT DISTINCT age, name, u.id "
 	                     "FROM city "
 	                     "JOIN ( SELECT * FROM User WHERE name = tom ) AS u ON u.city_id = city.id "
-	                     "WHERE id > 30 AND ( age < 15 AND name = 'abc' )";
+	                     "WHERE id > 30 AND ( age < 15 AND name = 'abc' ) ORDER BY name DESC, name";
 
 	/*
 		SELECT DISTINCT age, name, u.id
 		FROM city
 		JOIN ( SELECT * FROM User WHERE name = tom ) AS u ON u.city_id = city.id
-		WHERE id > 30 AND ( age < '15' AND name = 'abc' )
+		WHERE id > 30 AND ( age < '15' AND name = 'abc' ) ORDER BY name DESC, name
 	 */
 	query = new Sq::Query();
 	query->from("city")
@@ -123,7 +123,8 @@ void test_query_cpp()
 			query->where("age", "<", "15")
 				 ->whereRaw("name = 'abc'");
 		 })
-		 ->select("age", "name", "u.id", NULL)->distinct();
+		 ->select("age", "name", "u.id")->distinct()
+		 ->orderByDesc("name")->orderBy("name");
 
 	sql = query->toSql();
 	puts(sql);
