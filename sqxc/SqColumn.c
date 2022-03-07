@@ -182,16 +182,14 @@ void  sq_column_on_update(SqColumn *column, const char *act)
 
 void  sq_column_set_composite(SqColumn *column, ...)
 {
-	const char *first;
 	va_list  arg_list;
 
 	va_start(arg_list, column);
-	first = va_arg(arg_list, const char*);
-	sq_column_set_composite_va(column, first, arg_list);
+	sq_column_set_composite_va(column, arg_list);
 	va_end(arg_list);
 }
 
-void  sq_column_set_composite_va(SqColumn *column, const char *name, va_list arg_list)
+void  sq_column_set_composite_va(SqColumn *column, va_list arg_list)
 {
 	int   index, allocated;
 
@@ -215,12 +213,13 @@ void  sq_column_set_composite_va(SqColumn *column, const char *name, va_list arg
 			column->composite = sq_composite_realloc(column->composite, allocated);
 			sq_composite_allocated(column->composite) = allocated;
 		}
-		column->composite[index] = name ? strdup(name) : NULL;
-		// break if name is NULL
+		const char *name = va_arg(arg_list, const char*);
 		if (name)
-			name = va_arg(arg_list, const char*);
-		else
+			column->composite[index] = strdup(name);
+		else {
+			column->composite[index] = NULL;
 			break;
+		}
 	}
 }
 

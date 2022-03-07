@@ -152,35 +152,38 @@ void      sq_table_drop_composite(SqTable *table,
                                   unsigned int bit_field,
                                   const char  *name);
 
+// sq_table_add_index(table, index_name, column_name..., NULL);
 // CREATE INDEX "index_name" ON "table" ("column");
 // CREATE INDEX "index_name" ON "table" ("column1", "column2");
 // the last argument must be NULL
 SqColumn *sq_table_add_index(SqTable *table,
                              const char *index_name,
-                             const char *column1_name, ...);
+                             ...);
 
 // MySQL: ALTER TABLE table_name DROP INDEX index_name;
 // DROP INDEX index_name
 // DROP INDEX table_name.index_name;
 void      sq_table_drop_index(SqTable *table, const char *index_name);
 
+// sq_table_add_unique(table, unique_name, column_name..., NULL);
 // CONSTRAINT "unique_name" UNIQUE ("column1_name", "column2_name")
 // ADD CONSTRAINT "unique_name" UNIQUE ("column1_name", "column2_name")
 // the last argument must be NULL
 SqColumn *sq_table_add_unique(SqTable *table,
                               const char *unique_name,
-                              const char *column1_name, ...);
+                              ...);
 
 // MySQL: ALTER TABLE "table" DROP INDEX "unique_name";
 // other: ALTER TABLE "table" DROP CONSTRAINT "unique_name";
 void      sq_table_drop_unique(SqTable *table, const char *unique_name);
 
+// sq_table_add_primary(table, primary_name, column_name..., NULL);
 // CONSTRAINT "primary_name" PRIMARY KEY ("column1_name", "column2_name");
 // ADD CONSTRAINT "primary_name" PRIMARY KEY ("column1_name", "column2_name");
 // the last argument must be NULL
 SqColumn *sq_table_add_primary(SqTable *table,
                                const char *primary_name,
-                               const char *column1_name, ...);
+                               ...);
 
 // MySQL: ALTER TABLE "customer" DROP PRIMARY KEY;
 // other: ALTER TABLE "customer" DROP CONSTRAINT "name";
@@ -276,36 +279,40 @@ struct TableMethod
 	// ----------------------------------------------------
 	// composite (constraint)
 
-	Sq::Column *index(const char *name, const char *column1_name, ...);
-	Sq::Column *addIndex(const char *name, const char *column1_name, ...);
-	void        dropIndex(const char *name);
+	// index(index_name, column_name...)
+	template <typename... Args>
+	Sq::Column *index(const char *index_name, const Args... args);
+	template <typename... Args>
+	Sq::Column *addIndex(const char *index_name, const Args... args);
+	void        dropIndex(const char *index_name);
 
-	Sq::Column *unique(const char *name, const char *column1_name, ...);
-	Sq::Column *addUnique(const char *name, const char *column1_name, ...);
-	void        dropUnique(const char *name);
+	// unique(unique_name, column_name...)
+	template <typename... Args>
+	Sq::Column *unique(const char *unique_name, const Args... args);
+	template <typename... Args>
+	Sq::Column *addUnique(const char *unique_name, const Args... args);
+	void        dropUnique(const char *unique_name);
 
-	Sq::Column *primary(const char *name, const char *column1_name, ...);
-	Sq::Column *addPrimary(const char *name, const char *column1_name, ...);
-	void        dropPrimary(const char *name);
+	// primary(primary_name, column_name...)
+	template <typename... Args>
+	Sq::Column *primary(const char *primary_name, const Args... args);
+	template <typename... Args>
+	Sq::Column *addPrimary(const char *primary_name, const Args... args);
+	void        dropPrimary(const char *primary_name);
 
-	Sq::Column *foreign(const char *name, const char *column_name);
-	Sq::Column *addForeign(const char *name, const char *column_name);
-	void        dropForeign(const char *name);
+	Sq::Column *foreign(const char *foreign_name, const char *column_name);
+	Sq::Column *addForeign(const char *foreign_name, const char *column_name);
+	void        dropForeign(const char *foreign_name);
 
 /*
 	template<int N>
 	Sq::Column *index(const char *(&column_array)[N], const char *name = NULL)
-	Sq::Column *index(const char *column1_name, ...);
 
 	template<int N>
 	Sq::Column *unique(const char *(&column_array)[N], const char *name = NULL);
-	Sq::Column *unique(const char *column1_name, ...);
 
 	template<int N>
 	Sq::Column *primary(const char *(&column_array)[N], const char *name = NULL);
-	Sq::Column *primary(const char *column1_name, ...);
-
-	Sq::Column *foreign(const char *column_name, const char *name = NULL);
  */
 };
 
@@ -526,100 +533,61 @@ inline Sq::Column&  TableMethod::stdstring(const char *column_name, Type Store::
 
 // define composite (constraint) methods of TableMethod
 
-inline Sq::Column *TableMethod::index(const char *name, const char *column1_name, ...) {
-	va_list   arg_list;
-	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_INDEX, 0, name);
-	va_start(arg_list, column1_name);
-	sq_column_set_composite_va(column, column1_name, arg_list);
-	va_end(arg_list);
-	return (Sq::Column*)column;
+template <typename... Args>
+inline Sq::Column *TableMethod::index(const char *index_name, const Args... args) {
+	return (Sq::Column*)sq_table_add_index((SqTable*)this, index_name, args..., NULL);
 }
-inline Sq::Column *TableMethod::addIndex(const char *name, const char *column1_name, ...) {
-	va_list   arg_list;
-	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_INDEX, 0, name);
-	va_start(arg_list, column1_name);
-	sq_column_set_composite_va(column, column1_name, arg_list);
-	va_end(arg_list);
-	return (Sq::Column*)column;
+template <typename... Args>
+inline Sq::Column *TableMethod::addIndex(const char *index_name, const Args... args) {
+	return (Sq::Column*)sq_table_add_index((SqTable*)this, index_name, args..., NULL);
 }
-inline void  TableMethod::dropIndex(const char *name) {
-	sq_table_drop_composite((SqTable*)this, SQ_TYPE_INDEX, 0, name);
+inline void  TableMethod::dropIndex(const char *index_name) {
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_INDEX, 0, index_name);
 }
 
-inline Sq::Column *TableMethod::unique(const char *name, const char *column1_name, ...) {
-	va_list   arg_list;
-	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, name);
-	va_start(arg_list, column1_name);
-	sq_column_set_composite_va(column, column1_name, arg_list);
-	va_end(arg_list);
-	return (Sq::Column*)column;
+template <typename... Args>
+inline Sq::Column *TableMethod::unique(const char *unique_name, const Args... args) {
+	return (Sq::Column*)sq_table_add_unique((SqTable*)this, unique_name, args..., NULL);
 }
-inline Sq::Column *TableMethod::addUnique(const char *name, const char *column1_name, ...) {
-	va_list   arg_list;
-	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, name);
-	va_start(arg_list, column1_name);
-	sq_column_set_composite_va(column, column1_name, arg_list);
-	va_end(arg_list);
-	return (Sq::Column*)column;
+template <typename... Args>
+inline Sq::Column *TableMethod::addUnique(const char *unique_name, const Args... args) {
+	return (Sq::Column*)sq_table_add_unique((SqTable*)this, unique_name, args..., NULL);
 }
-inline void  TableMethod::dropUnique(const char *name) {
-	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, name);
+inline void  TableMethod::dropUnique(const char *unique_name) {
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, unique_name);
 }
 
-inline Sq::Column *TableMethod::primary(const char *name, const char *column1_name, ...) {
-	va_list   arg_list;
-	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, name);
-	va_start(arg_list, column1_name);
-	sq_column_set_composite_va(column, column1_name, arg_list);
-	va_end(arg_list);
-	return (Sq::Column*)column;
+template <typename... Args>
+inline Sq::Column *TableMethod::primary(const char *primary_name, const Args... args) {
+	return (Sq::Column*)sq_table_add_primary((SqTable*)this, primary_name, args..., NULL);
 }
-inline Sq::Column *TableMethod::addPrimary(const char *name, const char *column1_name, ...) {
-	va_list   arg_list;
-	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, name);
-	va_start(arg_list, column1_name);
-	sq_column_set_composite_va(column, column1_name, arg_list);
-	va_end(arg_list);
-	return (Sq::Column*)column;
+template <typename... Args>
+inline Sq::Column *TableMethod::addPrimary(const char *primary_name, const Args... args) {
+	return (Sq::Column*)sq_table_add_primary((SqTable*)this, primary_name, args..., NULL);
 }
-inline void  TableMethod::dropPrimary(const char *name) {
-	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, name);
+inline void  TableMethod::dropPrimary(const char *primary_name) {
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, primary_name);
 }
 
-inline Sq::Column *TableMethod::foreign(const char *name, const char *column_name) {
-	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
-	sq_column_set_composite(column, column_name, NULL);
-	return (Sq::Column*)column;
+inline Sq::Column *TableMethod::foreign(const char *foreign_name, const char *column_name) {
+	return (Sq::Column*)sq_table_add_foreign((SqTable*)this, foreign_name, column_name);
 }
-inline Sq::Column *TableMethod::addForeign(const char *name, const char *column_name) {
-	SqColumn *column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
-	sq_column_set_composite(column, column_name, NULL);
-	return (Sq::Column*)column;
+inline Sq::Column *TableMethod::addForeign(const char *foreign_name, const char *column_name) {
+	return (Sq::Column*)sq_table_add_foreign((SqTable*)this, foreign_name, column_name);
 }
-inline void  TableMethod::dropForeign(const char *name) {
-	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
+inline void  TableMethod::dropForeign(const char *foreign_name) {
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, foreign_name);
 }
 
 /*
 template<int N>
 inline Sq::Column *TableMethod::index(const char *(&column_array)[N], const char *name)
-inline Sq::Column *TableMethod::index(const char *column1_name, ...);
 
 template<int N>
 inline Sq::Column *TableMethod::unique(const char *(&column_array)[N], const char *name);
-inline Sq::Column *TableMethod::unique(const char *column1_name, ...);
 
 template<int N>
 inline Sq::Column *TableMethod::primary(const char *(&column_array)[N], const char *name);
-inline Sq::Column *TableMethod::primary(const char *column1_name, ...);
-
-inline Sq::Column *TableMethod::foreign(const char *column_name, const char *name) {
-	SqColumn column;
-
-	column = sq_table_add_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
-	sq_column_set_composite(column, column_name, NULL);
-	return (Sq::Column*)column;
-}
  */
 
 

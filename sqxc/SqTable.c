@@ -407,14 +407,14 @@ void      sq_table_drop_composite(SqTable *table,
 
 SqColumn *sq_table_add_index(SqTable *table,
                              const char *index_name,
-                             const char *column1_name, ...)
+                             ...)
 {
 	SqColumn *column;
 	va_list   arg_list;
 
 	column = sq_table_add_composite(table, SQ_TYPE_INDEX, 0, index_name);
-	va_start(arg_list, column1_name);
-	sq_column_set_composite_va(column, column1_name, arg_list);
+	va_start(arg_list, index_name);
+	sq_column_set_composite_va(column, arg_list);
 	va_end(arg_list);
 	return column;
 }
@@ -426,14 +426,14 @@ void   sq_table_drop_index(SqTable *table, const char *index_name)
 
 SqColumn *sq_table_add_unique(SqTable *table,
                               const char *unique_name,
-                              const char *column1_name, ...)
+                              ...)
 {
 	SqColumn *column;
 	va_list   arg_list;
 
 	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, unique_name);
-	va_start(arg_list, column1_name);
-	sq_column_set_composite_va(column, column1_name, arg_list);
+	va_start(arg_list, unique_name);
+	sq_column_set_composite_va(column, arg_list);
 	va_end(arg_list);
 	return column;
 }
@@ -445,14 +445,14 @@ void   sq_table_drop_unique(SqTable *table, const char *unique_name)
 
 SqColumn *sq_table_add_primary(SqTable *table,
                                const char *primary_name,
-                               const char *column1_name, ...)
+                               ...)
 {
 	SqColumn *column;
 	va_list   arg_list;
 
 	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, primary_name);
-	va_start(arg_list, column1_name);
-	sq_column_set_composite_va(column, column1_name, arg_list);
+	va_start(arg_list, primary_name);
+	sq_column_set_composite_va(column, arg_list);
 	va_end(arg_list);
 	return column;
 }

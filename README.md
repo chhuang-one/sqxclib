@@ -75,7 +75,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	table->foreign("users_city_id_foreign", "city_id")
 	     ->reference("cities", "id")->onDelete("NO ACTION")->onUpdate("NO ACTION");
 	// CREATE INDEX
-	table->index("users_id_index", "id", NULL);
+	table->index("users_id_index", "id");
 
 	// If columns and members use default names - 'created_at' and 'updated_at',
 	// you can use below line to replace above 2 timestamp() methods.
@@ -333,9 +333,9 @@ use C++ methods to change constraint (dynamic)
 
 ```c++
 	// ADD CONSTRAINT UNIQUE
-	table->addUnique("other_unique", "column1", "column2", NULL);
+	table->addUnique("other_unique", "column1", "column2");
 	// ADD CONSTRAINT PRIMARY KEY
-	table->addPrimary("other_primary", "column1", "column2", NULL);
+	table->addPrimary("other_primary", "column1", "column2");
 
 	// DROP CONSTRAINT UNIQUE
 	table->dropUnique("other_unique");

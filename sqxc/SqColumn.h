@@ -64,7 +64,7 @@ void       sq_column_on_update(SqColumn *column, const char *act);
 // the last argument must be NULL
 // sq_column_set_composite(column, colume_name1, column_name2, NULL);
 void       sq_column_set_composite(SqColumn *column, ...);
-void       sq_column_set_composite_va(SqColumn *column, const char *name, va_list arg_list);
+void       sq_column_set_composite_va(SqColumn *column, va_list arg_list);
 
 // used by sq_table_arrange()
 // primary key = 0
@@ -187,11 +187,9 @@ struct SqColumn
 		sq_column_on_update((SqColumn*)this, act);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& setComposite(const char *name, ...) {
-		va_list  arg_list;
-		va_start(arg_list, name);
-		sq_column_set_composite_va((SqColumn*)this, name, arg_list);
-		va_end(arg_list);
+	template <typename... Args>
+	Sq::Column& setComposite(const Args... args) {
+		sq_column_set_composite((SqColumn*)this, args..., NULL);
 		return *(Sq::Column*)this;
 	}
 
@@ -293,11 +291,9 @@ struct ColumnMethod
 		sq_column_on_update((SqColumn*)this, act);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& setComposite(const char *name, ...) {
-		va_list  arg_list;
-		va_start(arg_list, name);
-		sq_column_set_composite_va((SqColumn*)this, name, arg_list);
-		va_end(arg_list);
+	template <typename... Args>
+	Sq::Column& setComposite(const Args... args) {
+		sq_column_set_composite((SqColumn*)this, args..., NULL);
 		return *(Sq::Column*)this;
 	}
 

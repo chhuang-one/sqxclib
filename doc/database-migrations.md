@@ -237,7 +237,6 @@ Below methods/functions are correspond to Column Modifiers
 | -------------------- | ------------------- | --------------------- |
 | primary()            |                     | SQB_PRIMARY           |
 | unique()             |                     | SQB_UNIQUE            |
-| primary()            |                     | SQB_PRIMARY           |
 | autoIncrement()      |                     | SQB_AUTOINCREMENT     |
 | nullable()           |                     | SQB_NULLABLE          |
 | useCurrent()         |                     | SQB_CURRENT           |
@@ -327,11 +326,11 @@ The first argument specify the unique/index/primary name, others are list of col
 ```c++
 	/* C++ sample code */
 
-	table->index("index_email_account_id", "email", "account_id", NULL);
+	table->index("index_email_account_id", "email", "account_id");
 
-	table->unique("unique_email_account_id", "email", "account_id", NULL);
+	table->unique("unique_email_account_id", "email", "account_id");
 
-	table->primary("primary_email_account_id", "email", "account_id", NULL);
+	table->primary("primary_email_account_id", "email", "account_id");
 
 	/* C sample code */
 

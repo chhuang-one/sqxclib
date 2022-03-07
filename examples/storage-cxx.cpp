@@ -195,7 +195,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->addForeign("users_companies_id_foreign", "company_id")
 	     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");
 	// INDEX
-	table->addIndex("users_id_index", "id", NULL);
+	table->addIndex("users_id_index", "id");
 #endif
 
 	// synchronize schema to database. create/alter SQL tables based on storage->schema
@@ -251,7 +251,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 #endif
 	table->addForeign("users_companies_id_foreign", "company_id")
 	     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");;
-	table->addIndex("users_id_index", "id", NULL);
+	table->addIndex("users_id_index", "id");
 
 	// --- schema version 3 ---
 	schemaVer3 = new Sq::Schema("Ver3");
@@ -502,6 +502,9 @@ int  main(int argc, char *argv[])
 	// call Sq::Storage.query()
 	storage_ptr_array_query_join(storage);
 	storage_stl_container_query_join(storage);
+
+//	test_joint(storage);
+//	test_joint2(storage);
 
 	storage->close();
 	delete storage;
