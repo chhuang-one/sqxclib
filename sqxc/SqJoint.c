@@ -27,22 +27,30 @@
 #define strdup       _strdup
 #endif
 
-static void sq_type_joint_init(void *instance, const SqType *type);
-static void sq_type_joint_final(void *instance, const SqType *type);
+static void sq_type_joint_init_instance(void *instance, const SqType *type);
+static void sq_type_joint_final_instance(void *instance, const SqType *type);
 static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src);
 
-SqType *sq_type_joint_new(void)
+SqTypeJoint *sq_type_joint_new(void)
 {
-	SqType *type = sq_type_new(4, (SqDestroyFunc)sq_entry_free);
-	type->init = sq_type_joint_init;
-	type->final = sq_type_joint_final;
-	type->parse = sq_type_joint_parse;
-	type->write = NULL;
-	type->size = sizeof(void*);    // default size
-	return type;
+	SqTypeJoint *type_joint;
+
+	type_joint = malloc(sizeof(SqTypeJoint));
+	sq_type_joint_init(type_joint);
+	return type_joint;
 }
 
-void    sq_type_joint_add(SqType *type_joint, SqTable *table, const char *table_as_name)
+void    sq_type_joint_init(SqTypeJoint *type_joint)
+{
+	sq_type_init_self((SqType*)type_joint, 4, (SqDestroyFunc)sq_entry_free);
+	type_joint->init  = sq_type_joint_init_instance;
+	type_joint->final = sq_type_joint_final_instance;
+	type_joint->parse = sq_type_joint_parse;
+	type_joint->write = NULL;
+	type_joint->size  = sizeof(void*);    // default size
+}
+
+void    sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name)
 {
 	SqEntry *jentry;
 
@@ -53,14 +61,35 @@ void    sq_type_joint_add(SqType *type_joint, SqTable *table, const char *table_
 		jentry->name = strdup(table->name);
 	jentry->bit_field |= SQB_POINTER;
 	jentry->offset = type_joint->n_entry * sizeof(void*);
-	sq_type_add_entry(type_joint, jentry, 1, 0);
-	sq_type_decide_size(type_joint, jentry, false);
+	sq_type_add_entry((SqType*)type_joint, jentry, 1, 0);
+	sq_type_decide_size((SqType*)type_joint, jentry, false);
+}
+
+void    sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name)
+{
+	union {
+		const char  *name;
+		SqTable    **table_addr;	
+	} temp;
+
+	if (table_as_name)
+		temp.name = table_as_name;
+	else if (table)
+		temp.name = table->name;
+	else
+		return;
+
+	temp.table_addr = (SqTable**)sq_type_find_entry((SqType*)type_joint, temp.name, NULL);
+	if (temp.table_addr) {
+		sq_type_decide_size((SqType*)type_joint, *(SqEntry**)temp.table_addr, true);
+		sq_type_erase_entry_addr((SqType*)type_joint, (void**)temp.table_addr, 1);
+	}
 }
 
 // ----------------------------------------------------------------------------
 // static function
 
-static void sq_type_joint_init(void *instance, const SqType *type)
+static void sq_type_joint_init_instance(void *instance, const SqType *type)
 {
 	SqEntry    *table;
 
@@ -71,7 +100,7 @@ static void sq_type_joint_init(void *instance, const SqType *type)
 	}
 }
 
-static void sq_type_joint_final(void *instance, const SqType *type)
+static void sq_type_joint_final_instance(void *instance, const SqType *type)
 {
 	SqEntry    *table;
 

@@ -18,6 +18,11 @@
 #include <SqTable.h>
 
 // ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
+
+typedef struct SqType         SqTypeJoint;
+
+// ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
 #ifdef __cplusplus
@@ -61,12 +66,48 @@ extern "C" {
 	table2 = instance[1];
  */
 
-SqType  *sq_type_joint_new();
-void     sq_type_joint_add(SqType *type_joint, SqTable *table, const char *table_as_name);
+SqTypeJoint *sq_type_joint_new();
+
+// call sq_type_unref(type_joint) to free SqTypeJoint
+
+void  sq_type_joint_init(SqTypeJoint *type_joint);
+
+void  sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
+void  sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
+
+// ----------------------------------------------------------------------------
+// C++ declarations: declare C++ data, function, method, and others.
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+/*	TypeJointMethod is used by SqTypeJoint's children.
+
+	It's derived struct/class must be C++11 standard-layout and has TypeJoint members.
+ */
+struct TypeJointMethod {
+	void  add(SqTable *table, const char *table_as_name = NULL);
+	void  erase(SqTable *table, const char *table_as_name = NULL);
+};
+
+};  // namespace Sq
+
+#endif  // __cplusplus
+
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define structue
+
+/*	SqTypeJoint - combine multiple table's type (SQL joined table)
+
+	SqType
+	|
+	`--- SqTypeJoint
+ */
 
 // ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.
@@ -74,6 +115,24 @@ void     sq_type_joint_add(SqType *type_joint, SqTable *table, const char *table
 #ifdef __cplusplus
 
 namespace Sq {
+
+inline void  TypeJointMethod::add(SqTable *table, const char *table_as_name) {
+	sq_type_joint_add((SqTypeJoint*)this, table, table_as_name);
+}
+inline void  TypeJointMethod::erase(SqTable *table, const char *table_as_name) {
+	sq_type_joint_erase((SqTypeJoint*)this, table, table_as_name);
+}
+
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct TypeJoint : SqTypeJoint, TypeJointMethod {
+	TypeJoint() {
+		sq_type_joint_init((SqTypeJoint*)this);
+	}
+	~TypeJoint() {
+		sq_type_final_self((SqType*)this);
+	}
+};
 
 // These are for directly use only. You can NOT derived it.
 template <unsigned int n_tables>
