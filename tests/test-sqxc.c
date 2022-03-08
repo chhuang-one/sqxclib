@@ -99,7 +99,7 @@ void test_sqxc_joint_input()
 	void    **instance;
 
 	table = sq_table_new("users", &UserType);
-	type = sq_type_joint_new();
+	type  = sq_type_joint_new();
 	sq_type_joint_add(type, table, "tb1");
 	sq_type_joint_add(type, table, "tb2");
 
@@ -385,10 +385,10 @@ int  main(void)
 	user->id = 10;
 	user->name = "Bob";
 	user->email = "guest@";
-	sq_ptr_array_init(&user->strs, 8, NULL);
-	sq_ptr_array_append(&user->strs, strdup("first"));
-	sq_ptr_array_init(&user->ints, 8, NULL);
-	sq_ptr_array_append(&user->ints, (void*)(intptr_t)1);
+	sq_string_array_init(&user->strs, 8, NULL);
+	sq_string_array_append(&user->strs, strdup("first"));
+	sq_intptr_array_init(&user->ints, 8);
+	sq_intptr_array_append(&user->ints, 1);
 
 	test_sqxc_joint_input();
 #ifdef SQ_CONFIG_HAVE_JSONC

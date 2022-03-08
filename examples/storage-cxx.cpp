@@ -503,9 +503,6 @@ int  main(int argc, char *argv[])
 	storage_ptr_array_query_join(storage);
 	storage_stl_container_query_join(storage);
 
-//	test_joint(storage);
-//	test_joint2(storage);
-
 	storage->close();
 	delete storage;
 	delete db;

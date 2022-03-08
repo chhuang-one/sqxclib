@@ -17,6 +17,7 @@
 #endif
 #include <limits.h>     // __WORDSIZE
 #include <stdint.h>     // __WORDSIZE (Apple)
+#include <stdarg.h>     // va_list, va_start, va_end, va_arg...etc
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>

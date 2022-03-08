@@ -79,9 +79,6 @@ extern "C" {
 #define sq_ptr_array_init(array, allocated_length, destroy_func)  \
 		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, destroy_func)
 
-#define sq_intptr_array_init(array, allocated_length)    \
-		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL)
-
 //void *sq_ptr_array_new(int allocated_length, SqDestroyFunc destroy_func);
 #define sq_ptr_array_new(allocated_length, destroy_func)  \
 		sq_ptr_array_init_full(NULL, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, destroy_func)
@@ -155,30 +152,6 @@ extern "C" {
 		     element_addr < element_addr##_end;                     \
 		     element_addr++)
 
-// void sq_string_array_foreach(void *array, char *element)
-#define sq_string_array_foreach(array, element)                 \
-		for (char **element##_end  = (char**)sq_ptr_array_end(array),   \
-		          **element##_addr = (char**)sq_ptr_array_begin(array), \
-		           *element = *element##_addr;                  \
-		     element##_addr < element##_end;                    \
-		     element##_addr++, element = *element##_addr)
-
-// void sq_intptr_array_foreach(void *array, intptr_t *element_addr)
-#define sq_intptr_array_foreach(array, element)                \
-		for (intptr_t *element##_end  = (intptr_t*)sq_ptr_array_end(array),   \
-		              *element##_addr = (intptr_t*)sq_ptr_array_begin(array), \
-		               element        = *element##_addr;       \
-		     element##_addr < element##_end;                   \
-		     element##_addr++, element = *element##_addr)
-
-// void sq_uintptr_array_foreach(void *array, uintptr_t *element_addr)
-#define sq_uintptr_array_foreach(array, element)                \
-		for (uintptr_t *element##_end  = (uintptr_t*)sq_ptr_array_end(array),   \
-		               *element##_addr = (uintptr_t*)sq_ptr_array_begin(array), \
-		                element        = *element##_addr;       \
-		     element##_addr < element##_end;                    \
-		     element##_addr++, element = *element##_addr)
-
 /* macro for maintaining C/C++ inline functions easily */
 
 //void *sq_ptr_array_insert_n(void *array, int index, const void *values, int count);
@@ -208,6 +181,101 @@ extern "C" {
 		        sizeof(void*) * (sq_ptr_array_length(array) -(count) -((void**)(element_addr) - sq_ptr_array_data(array))) );  \
 		((SqPtrArray*)(array))->length -= (count);               \
 		}
+
+/* macro for SqIntptrArray */
+
+#define sq_intptr_array_length(array)    \
+		((SqIntptrArray*)(array))->length
+
+#define sq_intptr_array_allocated(array)  \
+		*(intptr_t*)(((SqIntptrArray*)(array))->data -2)
+
+#define sq_intptr_array_capacity(array)  \
+		*(intptr_t*)(((SqIntptrArray*)(array))->data -2)
+
+//void  sq_intptr_array_init(void *array, int allocated_length);
+#define sq_intptr_array_init(array, allocated_length)    \
+		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL)
+
+//void *sq_intptr_array_final(void *array);
+#define sq_intptr_array_final    sq_ptr_array_final
+
+// void sq_intptr_array_insert(void *array, int index, void *value);
+#define sq_intptr_array_insert(array, index, value)  \
+		*sq_ptr_array_alloc_at(array, index, 1) = (void*)(value)
+
+// void sq_intptr_array_append(void *array, void *value);
+#define sq_intptr_array_append(array, value)  \
+		*sq_ptr_array_alloc_at(array, sq_intptr_array_length(array), 1) = (void*)(value)
+
+// void sq_intptr_array_erase(void *array, int index, int count);
+#define sq_intptr_array_erase    sq_ptr_array_erase
+
+// void sq_intptr_array_foreach(void *array, intptr_t element)
+#define sq_intptr_array_foreach(array, element)                \
+		for (intptr_t *element##_end  = (intptr_t*)sq_ptr_array_end(array),   \
+		              *element##_addr = (intptr_t*)sq_ptr_array_begin(array), \
+		               element        = *element##_addr;       \
+		     element##_addr < element##_end;                   \
+		     element##_addr++, element = *element##_addr)
+
+// void sq_uintptr_array_foreach(void *array, uintptr_t element)
+#define sq_uintptr_array_foreach(array, element)                \
+		for (uintptr_t *element##_end  = (uintptr_t*)sq_ptr_array_end(array),   \
+		               *element##_addr = (uintptr_t*)sq_ptr_array_begin(array), \
+		                element        = *element##_addr;       \
+		     element##_addr < element##_end;                    \
+		     element##_addr++, element = *element##_addr)
+
+/* macro for SqStringArray */
+
+#define sq_string_array_length(array)    \
+		((SqStringArray*)(array))->length
+
+#define sq_string_array_allocated(array)  \
+		*(intptr_t*)(((SqStringArray*)(array))->data -2)
+
+#define sq_string_array_capacity(array)  \
+		*(intptr_t*)(((SqStringArray*)(array))->data -2)
+
+#define sq_string_array_destroy_func(array)  \
+		*(SqDestroyFunc*)(((SqStringArray*)(array))->data -3)
+
+//void  sq_string_array_init(void *array, int allocated_length, SqDestroyFunc destroy_func);
+#define sq_string_array_init(array, allocated_length, destroy_func)    \
+		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, destroy_func)
+
+//void *sq_string_array_final(void *array);
+#define sq_string_array_final    sq_ptr_array_final
+
+// void sq_string_array_insert(void *array, int index, void *value);
+#define sq_string_array_insert(array, index, value)  \
+		*sq_ptr_array_alloc_at(array, index, 1) = (void*)(value)
+
+// void sq_string_array_append(void *array, void *value);
+#define sq_string_array_append(array, value)  \
+		*sq_ptr_array_alloc_at(array, sq_string_array_length(array), 1) = (void*)(value)
+
+// void sq_string_array_erase(void *array, int index, int count);
+#define sq_string_array_erase    sq_ptr_array_erase
+
+// void sq_string_array_steal(void *array, int index, int count);
+#define sq_string_array_steal    sq_ptr_array_steal
+
+// void sq_string_array_foreach(void *array, char *element)
+#define sq_string_array_foreach(array, element)                 \
+		for (char **element##_end  = (char**)sq_ptr_array_end(array),   \
+		          **element##_addr = (char**)sq_ptr_array_begin(array), \
+		           *element = *element##_addr;                  \
+		     element##_addr < element##_end;                    \
+		     element##_addr++, element = *element##_addr)
+
+// void sq_string_array_foreach_addr(void *array, char **element_addr)
+#define sq_string_array_foreach_addr(array, element_addr)              \
+		for (void **element_addr##_end = sq_ptr_array_end(array),   \
+		          **element_addr       = sq_ptr_array_begin(array); \
+		     element_addr < element_addr##_end;                     \
+		     element_addr++)
 
 /* C functions */
 
@@ -640,9 +708,9 @@ struct StringArray : SqStringArray
 	StringArray(StringArray& src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
 		duplicateElement(0, length);
-		sq_ptr_array_destroy_func(this) = sq_ptr_array_destroy_func(&src);
-		if (sq_ptr_array_destroy_func(this) == NULL)
-			sq_ptr_array_destroy_func(this) = free;
+		sq_string_array_destroy_func(this) = sq_string_array_destroy_func(&src);
+		if (sq_string_array_destroy_func(this) == NULL)
+			sq_string_array_destroy_func(this) = free;
 	}
 	// move constructor
 	StringArray(StringArray&& src) {

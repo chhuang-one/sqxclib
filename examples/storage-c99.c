@@ -183,7 +183,7 @@ User *user_new(void) {
 }
 
 void user_free(User *user) {
-	sq_ptr_array_final(&user->ints);
+	sq_intptr_array_final(&user->ints);
 	free(user->name);
 	free(user->email);
 	if (user->post) {
@@ -433,8 +433,8 @@ int  main(void)
 		user->city_id = 1;
 		user->name = strdup("Paul");
 		user->email = strdup("guest@");
-		sq_ptr_array_append(&user->ints, (intptr_t)3);
-		sq_ptr_array_append(&user->ints, (intptr_t)6);
+		sq_intptr_array_append(&user->ints, 3);
+		sq_intptr_array_append(&user->ints, 6);
 #if 1
 		user->post = calloc(1, sizeof(Post));
 		user->post->title = strdup("PostTitle");

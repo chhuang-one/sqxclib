@@ -185,7 +185,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	company.salary = 18765;
 	company.age = 35;
 	n_changes = sq_storage_update_field(storage, "companies", NULL, &company,
-	                                    NULL,
+	                                    "WHERE id > 0",
 	                                    offsetof(Company, name),
 	                                    offsetof(Company, age),
 	                                    -1);
