@@ -82,6 +82,24 @@ void test_query_c_raw(SqQuery *query)
 	free(sql);
 }
 
+void test_query_c_raw_statement(SqQuery *query)
+{
+	char       *sql;
+
+	// "SELECT * FROM users"
+	sq_query_table(query, "users");
+
+	sq_query_raw(query, "WHERE city LIKE 'ber%'", NULL);
+	sq_query_raw(query, "LIMIT %d OFFSET %d", 10, 5);
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	assert(strcmp(sql, "SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 10 OFFSET 5") == 0);
+	puts(sql);
+	free(sql);
+}
+
 void test_query_c_nested(SqQuery *query)
 {
 	char       *sql;
@@ -203,6 +221,7 @@ int main(int argc, char **argv)
 
 	test_query_c(query);
 	test_query_c_raw(query);
+	test_query_c_raw_statement(query);
 	test_query_c_nested(query);
 	test_query_c_no_select_from(query);
 	test_query_c_delete(query);

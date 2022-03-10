@@ -31,11 +31,11 @@ typedef struct SqQuery           SqQuery;
 typedef struct SqQueryNode       SqQueryNode;
 typedef struct SqQueryNested     SqQueryNested;
 
-extern const uintptr_t SQ_QUERYLOGI_OR;
-extern const uintptr_t SQ_QUERYLOGI_AND;
+extern const int SQ_QUERYLOGI_OR;
+extern const int SQ_QUERYLOGI_AND;
 
-extern const uintptr_t SQ_QUERYSORT_ASC;
-extern const uintptr_t SQ_QUERYSORT_DESC;
+extern const int SQ_QUERYSORT_ASC;
+extern const int SQ_QUERYSORT_DESC;
 
 // ----------------------------------------------------------------------------
 // C data and functions declaration
@@ -48,9 +48,11 @@ extern "C" {
 
 
 	** below functions support printf format string in 2nd argument:
-		sq_query_join(), sq_query_on(),     sq_query_or_on(),
-		                 sq_query_where(),  sq_query_or_where(),
-		                 sq_query_having(), sq_query_or_having(),
+		sq_query_raw(),
+		sq_query_join(),
+		sq_query_on(),     sq_query_or_on(),
+		sq_query_where(),  sq_query_or_where(),
+		sq_query_having(), sq_query_or_having(),
 
 	If the 3rd argument of above C functions is NULL, the 2nd argument is handled as raw string.
 	If you want to use SQL Wildcard Characters '%' in these functions, you must print “%” using “%%”.
@@ -121,6 +123,9 @@ void    sq_query_clear(SqQuery *query);
 SqQueryNested *sq_query_push_nested(SqQuery *query, SqQueryNode *parent);
 void           sq_query_pop_nested(SqQuery *query);
 
+// append raw SQL statement in current nested/subquery
+void    sq_query_raw(SqQuery *query, ...);
+
 // SQL: FROM
 bool    sq_query_from(SqQuery *query, const char *table);
 
@@ -133,7 +138,7 @@ void    sq_query_as(SqQuery *query, const char *name);
 
 // SQL: JOIN ON
 void    sq_query_join(SqQuery *query, const char *table, ...);
-void    sq_query_on_logical(SqQuery *query, uintptr_t sqn_type, ...);
+void    sq_query_on_logical(SqQuery *query, int sqn_type, ...);
 
 #define sq_query_on(query, ...)        \
 		sq_query_on_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
@@ -141,7 +146,7 @@ void    sq_query_on_logical(SqQuery *query, uintptr_t sqn_type, ...);
 		sq_query_on_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
 // SQL: WHERE
-void    sq_query_where_logical(SqQuery *query, uintptr_t sqn_type, ...);
+void    sq_query_where_logical(SqQuery *query, int sqn_type, ...);
 bool    sq_query_where_exists(SqQuery *query);
 
 #define sq_query_where(query, ...)        \
@@ -150,10 +155,12 @@ bool    sq_query_where_exists(SqQuery *query);
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
 // SQL: GROUP BY
+// the last argument of sq_query_group_by() must be NULL.
+// e.g. sq_query_group_by(query, column_name..., NULL)
 void    sq_query_group_by(SqQuery *query, ...);
 
 // SQL: HAVING
-void    sq_query_having_logical(SqQuery *query, uintptr_t sqn_type, ...);
+void    sq_query_having_logical(SqQuery *query, int sqn_type, ...);
 
 #define sq_query_having(query, ...)        \
 		sq_query_having_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
@@ -161,12 +168,16 @@ void    sq_query_having_logical(SqQuery *query, uintptr_t sqn_type, ...);
 		sq_query_having_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
 // SQL: SELECT
+// the last argument of sq_query_select() must be NULL.
+// e.g. sq_query_select(query, column_name..., NULL)
 bool    sq_query_select(SqQuery *query, ...);
 bool    sq_query_distinct(SqQuery *query);
 
 // SQL: ORDER BY
+// the last argument of sq_query_order_by() must be NULL.
+// e.g. sq_query_order_by(query, column_name..., NULL)
 void    sq_query_order_by(SqQuery *query, ...);
-void    sq_query_order_sorted(SqQuery *query, uintptr_t sqn_type);
+void    sq_query_order_sorted(SqQuery *query, int sqn_type);
 
 #define sq_query_order_by_asc(query)     \
 		sq_query_order_sorted(query, SQ_QUERYSORT_ASC)
@@ -220,6 +231,9 @@ struct QueryMethod
 	Sq::Query *operator->();
 
 	Sq::Query& clear();
+
+	template <typename... Args>
+	Sq::Query& raw(const Args... args);
 
 	Sq::Query& from(const char *table);
 	Sq::Query& from(std::function<void()> func);
@@ -364,7 +378,7 @@ struct QueryMethod
 
 struct SqQueryNode
 {
-	uintptr_t      type;       // SqQueryNodeType
+	int            type;       // SqQueryNodeType
 	SqQueryNode   *next;
 	SqQueryNode   *children;   // arguments, nested, or inserted string
 	char          *value;
@@ -414,6 +428,12 @@ inline Sq::Query *QueryMethod::operator->() {
 
 inline Sq::Query& QueryMethod::clear() {
 	sq_query_clear((SqQuery*)this);
+	return *(Sq::Query*)this;
+}
+
+template <typename... Args>
+inline Sq::Query& QueryMethod::raw(const Args... args) {
+	sq_query_raw((SqQuery*)this, args..., NULL);
 	return *(Sq::Query*)this;
 }
 

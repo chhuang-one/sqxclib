@@ -25,7 +25,7 @@ use C language
 	sql = sq_query_to_sql(query);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	Sq::Query *query;
@@ -57,7 +57,7 @@ use C language
 	sql = sq_query_to_sql(query);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	// reset Sq::Query and remove all statements
@@ -77,12 +77,10 @@ There are many functions support printf format string, so user need to pay atten
 * If the 3rd argument of these C functions is NULL, the 2nd argument is handled as raw string.
 
 below C functions support printf format string in 2nd argument:
-
+	sq_query_raw(),
 	sq_query_join(),
 	sq_query_on(),     sq_query_or_on(),
-
 	sq_query_where(),  sq_query_or_where(),
-
 	sq_query_having(), sq_query_or_having(),
 
 C language example:
@@ -98,9 +96,7 @@ below C++ methods support printf format string in 1st argument:
 
 	join(),
 	on(),     orOn(),
-
 	where(),  orWhere(),
-
 	having(), orHaving(),
 
 C++ language example:
@@ -115,17 +111,21 @@ C++ language example:
 #### select
 
 You can specify columns for the query by using select method.  
-
+sq_query_select() can specify multiple columns in argument (the last argument must be NULL).  
+  
 use C language
 
 ```c
+	// the last argument of sq_query_select() must be NULL
 	sq_query_select(query, "id", "name", NULL);
 
 	// The sq_query_distinct() allows you to force the query to return distinct results
 	sq_query_distinct(query);
 ```
 
-use C++ Language
+Because C++ method select() use parameter pack, the last argument can pass (or not) NULL.  
+  
+use C++ language
 
 ```c++
 	query->select("id", "name");
@@ -149,7 +149,7 @@ use C language
 	sq_query_or_where(query, "members < %d", 100);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	query->table("companies")
@@ -168,7 +168,7 @@ use C language
 	sq_query_or_having(query, "members < %d", 50);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	query->table("companies")
@@ -178,18 +178,25 @@ use C++ Language
 
 #### groupBy / orderBy
 
+sq_query_order_by() and sq_query_group_by() can specify multiple columns in argument (the last argument must be NULL).  
+  
 use C language
 
 ```c
 	// "GROUP BY companies.age, companies.name"
+	// the last argument of sq_query_group_by() must be NULL
 	sq_query_group_by(query, "companies.age", "companies.name", NULL);
 
 	// "ORDER BY companies.id DESC"
+	// the last argument of sq_query_order_by() must be NULL
 	sq_query_order_by(query, "companies.id", NULL);
 	sq_query_order_by_desc(query);
 ```
 
-use C++ Language
+Because C++ method orderBy() and groupBy() use parameter pack, the last argument can pass (or not) NULL.  
+* The usage of orderBy() is different from Laravel.  
+  
+use C++ language
 
 ```c++
 	// "GROUP BY companies.age, companies.name"
@@ -262,7 +269,7 @@ use C language
 	sq_query_select(query, "COUNT(column_name)", NULL);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	query->table("users")
@@ -281,7 +288,7 @@ use C language
 	sq_query_where(query, "city LIKE 'ber%'", NULL);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	query->table("users")
@@ -298,7 +305,7 @@ use C language
 	sq_query_having(query, "SUM(price) > 3000", NULL);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	query->table("orders")
@@ -314,7 +321,7 @@ use C language
 	sq_query_order_by(query, "updated_at DESC", NULL);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	query->table("orders")
@@ -330,11 +337,47 @@ use C language
 	sq_query_group_by(query, "city, state", NULL);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	query->table("companies")
 	     ->groupByRaw("city, state");
+```
+
+#### raw SQL statement
+
+sq_query_raw() can append raw SQL statement in current nested/subquery.  
+  
+e.g. generate below SQL statement.
+
+```sql
+SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
+```
+
+use C language
+
+```c
+	// "SELECT * FROM users"
+	sq_query_table(query, "users");
+
+	// Because the 3rd argument is NULL, the 2nd argument is handled as raw string.
+	sq_query_raw(query, "WHERE city LIKE 'ber%'", NULL);
+
+	// Because the 3rd argument is NOT NULL, the 2nd argument is handled as printf format string.
+	sq_query_raw(query, "LIMIT %d OFFSET %d", 20, 10);
+```
+
+use C++ language
+
+```c++
+	// "SELECT * FROM users"
+	query->table("users");
+
+	// The 1st argument is handled as raw string.
+	query->raw("WHERE city LIKE 'ber%'");
+
+	// Because the 2nd argument is NOT NULL, the 1st argument is handled as printf format string.
+	query->raw("LIMIT %d OFFSET %d", 20, 10);
 ```
 
 ## Joins
@@ -346,7 +389,7 @@ use C language
 	sq_query_join(query, "city", "city.id", "<", "100");
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	query->table("companies")
@@ -361,9 +404,7 @@ below C functions support Subquery/Nested:
 
 	sq_query_join(),
 	sq_query_on(),     sq_query_or_on(),
-
 	sq_query_where(),  sq_query_or_where(), sq_query_where_exists(),
-	
 	sq_query_having(), sq_query_or_having()
 
 Note1: except sq_query_where_exists(), second argument of these functions must be NULL.  
@@ -373,9 +414,7 @@ below C++ method use lambda function to support Subquery/Nested, user don't need
 
 	join(),
 	on(),     orOn(),
-
-	where(),  orWhere(),  whereExists()
-	
+	where(),  orWhere(),  whereExists(),
 	having(), orHaving()
   
 #### Nested

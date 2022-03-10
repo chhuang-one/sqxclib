@@ -41,7 +41,7 @@ static void         sq_query_node_free(SqQueryNode *node, SqQuery *query);
 
 static SqQueryNode *sq_query_node_insert(SqQueryNode *parent, SqQueryNode *prev, SqQueryNode *node);
 static SqQueryNode *sq_query_node_last(SqQueryNode *node);
-static SqQueryNode *sq_query_node_find(SqQueryNode *parent, uintptr_t sqn_cmd, SqQueryNode **insert_pos);
+static SqQueryNode *sq_query_node_find(SqQueryNode *parent, int sqn_cmd, SqQueryNode **insert_pos);
 
 enum SqQueryNodeType {
 	SQN_NONE,    // 0, empty string
@@ -126,12 +126,12 @@ struct SqQueryNested
 
 static const char  *sqnword[38];
 
-const uintptr_t SQ_QUERYLOGI_OR   = SQN_OR;
-const uintptr_t SQ_QUERYLOGI_AND  = SQN_AND;
-//const uintptr_t SQ_QUERYLOGI_NOT = SQN_NOT;
+const int SQ_QUERYLOGI_OR   = SQN_OR;
+const int SQ_QUERYLOGI_AND  = SQN_AND;
+//const int SQ_QUERYLOGI_NOT = SQN_NOT;
 
-const uintptr_t SQ_QUERYSORT_ASC  = SQN_ASC;
-const uintptr_t SQ_QUERYSORT_DESC = SQN_DESC;
+const int SQ_QUERYSORT_ASC  = SQN_ASC;
+const int SQ_QUERYSORT_DESC = SQN_DESC;
 
 // ----------------------------------------------------------------------------
 // SqQuery
@@ -184,6 +184,16 @@ void  sq_query_clear(SqQuery *query)
 	query->freed = NULL;
 	// sq_query_init() also do this
 	sq_query_push_nested(query, &query->root);
+}
+
+void sq_query_raw(SqQuery *query, ...)
+{
+	va_list        arg_list;
+	SqQueryNested *nested = query->nested_cur;
+
+	va_start(arg_list, query);
+	sq_query_node_append(nested->parent, sq_query_condition(query, arg_list));
+	va_end(arg_list);
 }
 
 bool sq_query_from(SqQuery *query, const char *table)
@@ -291,7 +301,7 @@ bool sq_query_distinct(SqQuery *query)
 	return true;
 }
 
-void sq_query_where_logical(SqQuery *query, uintptr_t sqn_type, ...)
+void sq_query_where_logical(SqQuery *query, int sqn_type, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -379,7 +389,7 @@ void sq_query_join(SqQuery *query, const char *table, ...)
 	va_end(arg_list);
 }
 
-void sq_query_on_logical(SqQuery *query, uintptr_t sqn_type, ...)
+void sq_query_on_logical(SqQuery *query, int sqn_type, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -420,7 +430,7 @@ void sq_query_group_by(SqQuery *query, ...)
 	nested->aliasable = NULL;
 }
 
-void sq_query_having_logical(SqQuery *query, uintptr_t sqn_type, ...)
+void sq_query_having_logical(SqQuery *query, int sqn_type, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -462,7 +472,7 @@ void sq_query_order_by(SqQuery *query, ...)
 	nested->aliasable = NULL;
 }
 
-void sq_query_order_sorted(SqQuery *query, uintptr_t sqn_type)
+void sq_query_order_sorted(SqQuery *query, int sqn_type)
 {
 	SqQueryNested *nested = query->nested_cur;
 	SqQueryNode   *orderby;
@@ -507,6 +517,9 @@ void sq_query_truncate(SqQuery *query)
 		node->type = SQN_NONE;
 }
 
+// ----------------------------------------------------------------------------
+// static functions
+
 static void sq_query_column(SqQuery *query, SqQueryNode *node, va_list arg_list)
 {
 	const char   *name;
@@ -529,7 +542,7 @@ static void sq_query_column(SqQuery *query, SqQueryNode *node, va_list arg_list)
 			continue;
 		}
 		// add ',' if user specify multiple column
-		else if (node->type != SQN_NONE) {
+		if (node->type != SQN_NONE) {
 			sub_node = sq_query_node_new(query);
 			sub_node->type = SQN_COMMA;
 			node->next = sub_node;
@@ -904,7 +917,7 @@ static SqQueryNode *sq_query_node_insert(SqQueryNode *parent, SqQueryNode *prev,
 }
 
 // insert_pos: 'sqn_cmd' must insert in this position
-static SqQueryNode *sq_query_node_find(SqQueryNode *node, uintptr_t sqn_cmd, SqQueryNode **insert_pos)
+static SqQueryNode *sq_query_node_find(SqQueryNode *node, int sqn_cmd, SqQueryNode **insert_pos)
 {
 	SqQueryNode *prev = NULL;
 
