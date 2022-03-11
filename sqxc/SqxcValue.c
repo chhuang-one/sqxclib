@@ -28,8 +28,8 @@ static int  sqxc_value_send(SqxcValue *xcvalue, Sqxc *src)
 	SqxcNested   *nested;
 	void         *instance;
 
-	nested = xcvalue->nested;
-	if (nested->data != NULL) {
+	if (xcvalue->nested_count != 0) {
+		nested   = xcvalue->nested;
 		instance = nested->data;
 		type     = nested->data2;
 		// End of Array or Object
@@ -42,6 +42,7 @@ static int  sqxc_value_send(SqxcValue *xcvalue, Sqxc *src)
 		// Start of unknown Array or Object
 		if (src->code == SQCODE_ENTRY_NOT_FOUND && src->type & SQXC_TYPE_NESTED) {
 			nested = sqxc_push_nested((Sqxc*)xcvalue);
+//			nested->data  = instance;
 			nested->data2 = (void*)SQ_TYPE_UNKNOWN;
 		}
 		// return result

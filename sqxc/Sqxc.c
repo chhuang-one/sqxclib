@@ -21,9 +21,16 @@
 #include <SqError.h>
 #include <Sqxc.h>
 
-#define NESTED_OUTER_ROOT    (&sqxc_nested_root)
+/*	after sqxc_init():
+	Sqxc.nested_count = 0
+	Sqxc.nested       = SQXC_NESTED_EMPTY
 
-static SqxcNested sqxc_nested_root = {0};
+	Sqxc.nested_count used by sqxc_push_nested() and sqxc_pop_nested(). They use it to alloc/free chunk.
+	SQXC_NESTED_EMPTY is used to reduce "If Statements".
+ */
+static const SqxcNested SqxcNested_Empty_ = {0};
+
+#define SQXC_NESTED_EMPTY    (&SqxcNested_Empty_)
 
 // ----------------------------------------------------------------------------
 // Sqxc functions
@@ -33,7 +40,7 @@ void   sqxc_init(Sqxc *xc, const SqxcInfo *xcinfo)
 	SqInitFunc init;
 
 	memset(xc, 0, xcinfo->size);
-	xc->nested = NESTED_OUTER_ROOT;
+	xc->nested = (SqxcNested*)SQXC_NESTED_EMPTY;
 	init = xcinfo->init;
 	if (init)
 		init(xc);
@@ -216,7 +223,7 @@ Sqxc  *sqxc_send(Sqxc *xc)
 
 void  sqxc_clear_nested(Sqxc *xc)
 {
-	while (xc->nested != NESTED_OUTER_ROOT)
+	while (xc->nested != SQXC_NESTED_EMPTY)
 		sqxc_pop_nested(xc);
 	xc->nested_count = 0;
 }
@@ -240,7 +247,7 @@ SqxcNested *sqxc_push_nested(Sqxc *xc)
 	SqxcNested *nested;
 
 /*	// every outer has one inner at the same time
-	if (outer != NESTED_OUTER_ROOT && outer->inner) {
+	if (outer != SQXC_NESTED_EMPTY && outer->inner) {
 		xc->code = SQCODE_TOO_MANY_NESTED;
 		return NULL;
 	}
@@ -254,7 +261,7 @@ SqxcNested *sqxc_push_nested(Sqxc *xc)
 	xc->nested_count++;
 
 	// link
-	if (outer != NESTED_OUTER_ROOT)
+	if (outer != SQXC_NESTED_EMPTY)
 		outer->inner = nested;
 	nested->outer = outer;
 	nested->inner = NULL;
@@ -266,9 +273,9 @@ void sqxc_pop_nested(Sqxc *xc)
 {
 	SqxcNested *outer;
 
-	if (xc->nested != NESTED_OUTER_ROOT) {
+	if (xc->nested != SQXC_NESTED_EMPTY) {
 		outer = xc->nested->outer;
-		if (outer != NESTED_OUTER_ROOT)
+		if (outer != SQXC_NESTED_EMPTY)
 			outer->inner = NULL;
 		// free multiple SqxcNested each time
 		xc->nested_count--;
