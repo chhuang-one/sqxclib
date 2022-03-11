@@ -220,8 +220,8 @@ struct Type;
 	char             *name;       \
 	SqEntry         **entry;      \
 	int               n_entry;    \
-	uint16_t          bit_field;  \
-	uint16_t          ref_count
+	unsigned int      bit_field;  \
+	int               ref_count
 
 struct SqType
 {
@@ -247,8 +247,8 @@ struct SqType
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
 	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
-	uint16_t       bit_field;
-	uint16_t       ref_count;    // reference count for dynamic SqType only
+	unsigned int   bit_field;
+	int            ref_count;    // reference count for dynamic SqType only
  */
 
 #ifdef __cplusplus

@@ -189,8 +189,8 @@ struct SqCommand
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
 	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
-	uint16_t       bit_field;
-	uint16_t       ref_count;    // reference count for dynamic SqType only
+	unsigned int   bit_field;
+	int            ref_count;    // reference count for dynamic SqType only
 
 	// ------ SqCommand members ------
 	SqCommandFunc  handle;
