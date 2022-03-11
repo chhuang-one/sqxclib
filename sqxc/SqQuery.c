@@ -75,6 +75,8 @@ enum SqQueryNodeType {
 	SQN_GROUP_BY,
 	SQN_HAVING,
 	SQN_ORDER_BY,
+	SQN_UNION,
+	SQN_UNION_ALL,
 
 	// --------------------------------
 
@@ -124,7 +126,7 @@ struct SqQueryNested
 };
 
 
-static const char  *sqnword[38];
+static const char  *sqnword[SQN_N_CODE];
 
 const int SQ_QUERYLOGI_OR   = SQN_OR;
 const int SQ_QUERYLOGI_AND  = SQN_AND;
@@ -490,6 +492,23 @@ void sq_query_order_sorted(SqQuery *query, int sqn_type)
 	node->type = sqn_type;
 }
 
+void *sq_query_union(SqQuery *query)
+{
+	SqQueryNested *nested = query->nested_cur;
+	SqQueryNode   *union_node;
+
+	union_node = sq_query_node_append(nested->parent, sq_query_node_new(query));
+	union_node->type = SQN_UNION;
+
+	sq_query_push_nested(query, union_node);
+	return union_node;
+}
+
+void sq_query_union_all(SqQuery *query)
+{
+	((SqQueryNode*)sq_query_union(query))->type = SQN_UNION_ALL;
+}
+
 void sq_query_delete(SqQuery *query)
 {
 	SqQueryNested *nested = query->nested_cur;
@@ -804,12 +823,15 @@ void  sq_query_pop_nested(SqQuery *query)
 			}
 			else if (nested->where)
 				nested->where->type = SQN_NONE;
-			// insert '(' to beginning of list
-			node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
-			node->type = SQN_BRACKETS_L;
-			// append ')' to ending of list
-			node = sq_query_node_append(nested->parent, sq_query_node_new(query));
-			node->type = SQN_BRACKETS_R;
+
+			if (nested->parent->type != SQN_UNION && nested->parent->type != SQN_UNION_ALL) {
+				// insert '(' to beginning of list
+				node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
+				node->type = SQN_BRACKETS_L;
+				// append ')' to ending of list
+				node = sq_query_node_append(nested->parent, sq_query_node_new(query));
+				node->type = SQN_BRACKETS_R;
+			}
 		}
 		// pop nested from stack
 		nested = nested->outer;
@@ -941,7 +963,7 @@ static SqQueryNode *sq_query_node_find(SqQueryNode *node, int sqn_cmd, SqQueryNo
 
 // ----------------------------------------------------------------------------
 
-static const char *sqnword[38] = {
+static const char *sqnword[SQN_N_CODE] = {
 	"",                  // SQN_NONE
 
 	"CREATE TABLE",      // SQN_CREATE_TABLE
@@ -965,6 +987,8 @@ static const char *sqnword[38] = {
 	"GROUP BY",          // SQN_GROUP_BY
 	"HAVING",            // SQN_HAVING
 	"ORDER BY",          // SQN_ORDER_BY
+	"UNION",             // SQN_UNION
+	"UNION ALL",         // SQN_UNION_ALL
 
 	"DISTINCT",          // SQN_DISTINCT   // SELECT
 	"AS",                // SQN_AS         // SELECT: alias name for table or column

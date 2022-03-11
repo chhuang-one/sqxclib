@@ -118,6 +118,7 @@ use C language
 ```c
 	// the last argument of sq_query_select() must be NULL
 	sq_query_select(query, "id", "name", NULL);
+	sq_query_select(query, "email", NULL);
 
 	// The sq_query_distinct() allows you to force the query to return distinct results
 	sq_query_distinct(query);
@@ -129,6 +130,7 @@ use C++ language
 
 ```c++
 	query->select("id", "name");
+	query->select("email");
 
 	// The distinct method allows you to force the query to return distinct results
 	query->distinct();
@@ -190,7 +192,7 @@ use C language
 	// "ORDER BY companies.id DESC"
 	// the last argument of sq_query_order_by() must be NULL
 	sq_query_order_by(query, "companies.id", NULL);
-	sq_query_order_by_desc(query);
+	sq_query_desc(query);
 ```
 
 Because C++ method orderBy() and groupBy() use parameter pack, the last argument can pass (or not) NULL.  
@@ -373,7 +375,7 @@ use C++ language
 	// "SELECT * FROM users"
 	query->table("users");
 
-	// The 1st argument is handled as raw string.
+	// Because the 2rd argument does not exist, the 1st argument is handled as raw string.
 	query->raw("WHERE city LIKE 'ber%'");
 
 	// Because the 2nd argument is NOT NULL, the 1st argument is handled as printf format string.
@@ -396,6 +398,42 @@ use C++ language
 	     ->join("city", "city.id", "<", "100");
 ```
 
+## Unions
+
+"union" two or more queries together.  
+
+```sql
+SELECT name1 FROM product1 UNION SELECT name2 FROM product2
+```
+
+User must add other query after calling sq_query_union() or sq_query_union_all(), and calling sq_query_pop_nested() in end of query.  
+  
+use C language
+
+```c
+	sq_query_select(query, "name1", NULL);
+	sq_query_from(query, "product1");
+
+	sq_query_union(query);                   // start of query
+		sq_query_select(query, "name2", NULL);
+		sq_query_from(query, "product2");
+	sq_query_pop_nested(query);              // end of query
+```
+
+C++ method union_() and unionAll() use lambda function to add other query.  
+  
+use C++ language
+
+```c++
+	query->select("name1");
+	query->from("product1");
+
+	query->union_([query] {
+		query->select("name2");
+		query->from("product2");
+	});
+```
+
 ## Nested and Subquery (experimental)
 
 * SqQuery can produce limited Nested and Subquery. You may also use Raw Methods to do these.
@@ -416,7 +454,7 @@ below C++ method use lambda function to support Subquery/Nested, user don't need
 	on(),     orOn(),
 	where(),  orWhere(),  whereExists(),
 	having(), orHaving()
-  
+
 #### Nested
 
 e.g. generate below SQL statement.

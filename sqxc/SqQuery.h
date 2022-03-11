@@ -62,13 +62,18 @@ extern "C" {
 
 
 	** below function must use with Subquery
-		sq_query_where_exists()
+		sq_query_where_exists(),
 
 	// e.g. "WHERE EXISTS ( SELECT * FROM table WHERE id > 20 )"
 	sq_query_where_exists(query);               // start of Subquery
 	sq_query_from("table");
 	sq_query_where("id > 20", NULL);
 	sq_query_pop_nested(query);                 // end of Subquery
+
+
+	** below function must use with other query
+		sq_query_union(),
+		sq_query_union_all()
 
 
 	** below function support Subquery/Nested: (2nd argument must be NULL)
@@ -179,15 +184,13 @@ bool    sq_query_distinct(SqQuery *query);
 void    sq_query_order_by(SqQuery *query, ...);
 void    sq_query_order_sorted(SqQuery *query, int sqn_type);
 
-#define sq_query_order_by_asc(query)     \
+#define sq_query_asc(query)     \
 		sq_query_order_sorted(query, SQ_QUERYSORT_ASC)
-#define sq_query_order_by_desc(query)    \
+#define sq_query_desc(query)    \
 		sq_query_order_sorted(query, SQ_QUERYSORT_DESC)
-#define sq_query_order_by_default(query) \
-		sq_query_order_sorted(query, 0)
 
-#define sq_query_asc     sq_query_order_by_asc
-#define sq_query_desc    sq_query_order_by_desc
+void   *sq_query_union(SqQuery *query);
+void    sq_query_union_all(SqQuery *query);
 
 // SQL: DELETE FROM
 // call this function at last (before generating SQL statement).
@@ -262,7 +265,7 @@ struct QueryMethod
 
 	Sq::Query& orOnRaw(const char *raw);
 
-	// where(condition, ...);
+	// where(condition, ...)
 	template <typename... Args>
 	Sq::Query& where(const char *condition, const Args... args);
 	Sq::Query& where(std::function<void()> func);
@@ -310,6 +313,10 @@ struct QueryMethod
 	Sq::Query& orderByDesc(const char *column_name);
 	Sq::Query& asc();
 	Sq::Query& desc();
+
+	// union(lambda function)
+	Sq::Query& union_(std::function<void()> func);
+	Sq::Query& unionAll(std::function<void()> func);
 
 	// call these function at last (before generating SQL statement).
 	Sq::Query& delete_();
@@ -619,15 +626,28 @@ inline Sq::Query&  QueryMethod::orderByRaw(const char *raw) {
 }
 inline Sq::Query&  QueryMethod::orderByDesc(const char *column_name) {
 	sq_query_order_by((SqQuery*)this, column_name, NULL);
-	sq_query_order_by_desc((SqQuery*)this);
+	sq_query_desc((SqQuery*)this);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::asc() {
-	sq_query_order_by_asc((SqQuery*)this);
+	sq_query_asc((SqQuery*)this);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::desc() {
-	sq_query_order_by_desc((SqQuery*)this);
+	sq_query_desc((SqQuery*)this);
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query&  QueryMethod::union_(std::function<void()> func) {
+	sq_query_union((SqQuery*)this);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::unionAll(std::function<void()> func) {
+	sq_query_union_all((SqQuery*)this);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
 	return *(Sq::Query*)this;
 }
 

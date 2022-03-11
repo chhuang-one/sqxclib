@@ -54,7 +54,7 @@ void test_query_c(SqQuery *query)
 
 	// "ORDER BY companies.id ASC"
 	sq_query_order_by(query, "companies.id", NULL);
-	sq_query_order_by_asc(query);
+	sq_query_asc(query);
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -115,6 +115,27 @@ void test_query_c_nested(SqQuery *query)
 		sq_query_where(query, "id",  ">", "22");
 		sq_query_where(query, "age", "<", "10");
 	sq_query_pop_nested(query);              // end of Subquery/Nested
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	assert(strcmp(sql, result) == 0);
+	puts(sql);
+	free(sql);
+}
+
+void test_query_c_union(SqQuery *query)
+{
+	char       *sql;
+	const char *result = "SELECT name FROM product1 UNION SELECT name FROM product2";
+
+	sq_query_select(query, "name", NULL);
+	sq_query_from(query, "product1");
+
+	sq_query_union(query);                   // start of query
+		sq_query_select(query, "name", NULL);
+		sq_query_from(query, "product2");
+	sq_query_pop_nested(query);              // end of query
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -223,6 +244,7 @@ int main(int argc, char **argv)
 	test_query_c_raw(query);
 	test_query_c_raw_statement(query);
 	test_query_c_nested(query);
+	test_query_c_union(query);
 	test_query_c_no_select_from(query);
 	test_query_c_delete(query);
 	test_query_c_truncate(query);
