@@ -54,8 +54,8 @@ static const SqdbInfo dbinfo = {
 	.product = SQDB_PRODUCT_MYSQL,
 	.column  = {
 		.has_boolean = 1,
-		.use_alter  = 1,
-		.use_modify = 0,
+		.use_alter  = 0,
+		.use_modify = 1,
 	},
 	.quote = {
 		.identifier = {'`', '`'}
@@ -117,6 +117,7 @@ static int  sqdb_mysql_open(SqdbMysql *sqdb, const char *database_name)
 static int  sqdb_mysql_close(SqdbMysql *sqdb)
 {
 	mysql_close(sqdb->self);
+	sqdb->self = NULL;
 	return SQCODE_OK;
 }
 
