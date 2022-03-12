@@ -95,7 +95,7 @@ void test_buffer(void)
 	buf = sq_buffer_new();
 
 	len = snprintf(NULL, 0, "%d", 13254);
-	sprintf(sq_buffer_alloc(buf, len), "%d", 13254);
+	snprintf(sq_buffer_alloc(buf, len), len+1, "%d", 13254);
 
 //	sq_buffer_insert(buf, 2, "xyz");
 	sq_buffer_insert_n(buf, 2, "xyz", 3);
