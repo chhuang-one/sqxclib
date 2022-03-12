@@ -403,7 +403,7 @@ use C language
 	}
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	SqxcText  *xc_text;

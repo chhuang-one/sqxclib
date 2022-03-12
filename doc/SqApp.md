@@ -122,7 +122,7 @@ const SqMigration create_companies_table_2021_12_12_180000 = {
 };
 ```
 
-#### alter table by sqtoolcpp (C++ Language)
+#### alter table by sqtoolcpp (C++ language)
 
 generate C++ migration file to alter companies table
 
@@ -205,7 +205,7 @@ Rollback the last database migration
 	sq_app_rollback(app, step);
 ```
 
-#### migrate by C++ Language
+#### migrate by C++ language
 
 Run all of your outstanding migrations
 

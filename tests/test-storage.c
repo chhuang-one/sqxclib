@@ -220,11 +220,14 @@ void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
 	Sqdb      *db;
 	SqStorage *storage;
 	SqSchema  *schema;
+	int        code;
 
 	db = sqdb_new(dbinfo, config);
 	storage = sq_storage_new(db);
 
-	sq_storage_open(storage, "test-storage");
+	code = sq_storage_open(storage, "test-storage");
+	if (code != SQCODE_OK)
+		return;
 
 	// migrate
 	schema = sq_schema_new(NULL);

@@ -7,11 +7,12 @@ Note: Because many users have used Laravel, there are many sqxclib C++ method na
 Actually the design of sqxclib is different from Laravel, so the usage cannot be the same.  
 
 ## Running Migrations
-You can use method/function to migrate schema and synchronize to database.
+
+migrate schema and synchronize to database.  
+  
+use C++ language  
 
 ```c++
-	/* C++ sample code */
-
 	storage->migrate(schema_v1); // migrate schema_v1
 	storage->migrate(schema_v2); // migrate schema_v2
 	storage->migrate(NULL);      // synchronize schema to database. (Mainly used by SQLite)
@@ -19,9 +20,9 @@ You can use method/function to migrate schema and synchronize to database.
 	delete schema_v2;            // free unused schema_v2
 ```
 
-```c
-	/* C sample code */
+use C language
 
+```c
 	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
 	sq_storage_migrate(storage, schema_v2); // migrate schema_v2
 	sq_storage_migrate(storage, NULL);      // synchronize schema to database. (Mainly used by SQLite)
@@ -255,7 +256,7 @@ Special methods/functions for structured data type.
 
 ### Updating Column Attributes
 
-C++ Language: The change method allows you to modify the type and attributes of existing columns.
+C++ language: The change method allows you to modify the type and attributes of existing columns.
 
 ```c++
 	/* C++ sample code */
@@ -320,25 +321,30 @@ use the unique method onto the column definition:
 	column->bit_field |= SQB_UNIQUE;
 ```
 
-use method/function to create composite unique/index/primary key.  
-The first argument specify the unique/index/primary name, others are list of column name that must be null-terminated.
+To use C functions to create composite unique/index/primary key,
+the 2nd argument specify the unique/index/primary name, others are list of column name that must be null-terminated.  
+  
+use C language
 
-```c++
-	/* C++ sample code */
-
-	table->index("index_email_account_id", "email", "account_id");
-
-	table->unique("unique_email_account_id", "email", "account_id");
-
-	table->primary("primary_email_account_id", "email", "account_id");
-
-	/* C sample code */
-
+```c
 	column = sq_table_add_index(table, "index_email_account_id", "email", "account_id", NULL);
 
 	column = sq_table_add_unique(table, "unique_email_account_id", "email", "account_id", NULL);
 
 	column = sq_table_add_primary(table, "primary_email_account_id", "email", "account_id", NULL);
+```
+
+The 1st argument specify the unique/index/primary name, others are list of column name.  
+Because C++ methods use parameter pack, the last argument can pass (or not) NULL.  
+  
+use C++ language
+
+```c++
+	table->index("index_email_account_id", "email", "account_id");
+
+	table->unique("unique_email_account_id", "email", "account_id");
+
+	table->primary("primary_email_account_id", "email", "account_id");
 ```
 
 ### Dropping Indexes

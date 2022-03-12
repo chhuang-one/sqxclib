@@ -16,7 +16,7 @@ use C language
 	storage = sq_storage_new(db);
 ```
 
-use C++ Language
+use C++ language
 
 ```c++
 	Sq::DbSqlite *db;
@@ -266,6 +266,8 @@ use C functions
 	                                   NULL);
 ```
 
+Because C++ method updateAll() use parameter pack, the last argument can pass (or not) NULL.  
+  
 use C++ methods
 
 ```c++
@@ -304,6 +306,8 @@ use C functions
 	                                     -1);
 ```
 
+Because C++ method updateField() use parameter pack, the last argument can pass (or not) -1.  
+  
 use C++ methods
 
 ```c++
