@@ -21,7 +21,7 @@
 	     SQXC_TYPE_XXXX            SQXC_TYPE_STRING
  */
 
-// create and write JSON file by using C++ Language
+// create and write JSON file by using C++ language
 void json_file_writer_cpp()
 {
 	Sq::Xc            *xc;

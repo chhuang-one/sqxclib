@@ -257,9 +257,9 @@ int  main(int argc, char *argv[])
 #elif defined(SQ_CONFIG_HAVE_MYSQL)
 
 	SqdbConfigMysql  config_mysql = {
-		.host = "localhost",
-		.port = 3306,
-		.user = "root",
+		.host     = "localhost",
+		.port     = 3306,
+		.user     = "root",
 		.password = "",
 	};
 

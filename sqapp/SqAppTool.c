@@ -12,6 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <time.h>             // time_t, struct tm
 #include <stdio.h>            // FILE
 #include <ctype.h>            // toupper()
@@ -71,13 +74,20 @@ struct CommandList
 
 static void list(SqCommandValue *cmd_value, SqConsole *console, void *data)
 {
+	CommandList *value = (CommandList*)cmd_value;
 //	SqAppTool *app = data;
 //	console = app->console;
+
+	if (value->help) {
+		sq_console_print_help(console, value->type);
+		return;
+	}
 
 	sq_console_print_list(console, NULL);
 }
 
 static const SqOption *list_options[] = {
+	COMMAND_COMMON_OPTION_HELP,
 };
 
 static const SqCommand list_command = SQ_COMMAND_INITIALIZER(
@@ -232,7 +242,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		table_name = strchr(migration_name, '_');
 		if (table_name) {
 			table_name++;
-			temp.len = strcspn(table_name, "_");
+			temp.len = (int)strcspn(table_name, "_");
 			table_name = strncpy(malloc(temp.len+1), table_name, temp.len);
 			table_name[temp.len] = 0;
 		}
@@ -275,7 +285,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, migration_name);
 	// strcspn() count length of template file extension
 	sq_buffer_write_n(buf, app->template_extension,
-	                  strcspn(app->template_extension+1, ".") + 1);
+	                  (int)strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	out.path = strdup(buf->mem);
 
@@ -304,7 +314,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, migration_name);
 	// strcspn() count length of template file extension
 	sq_buffer_write_n(buf, app->template_extension,
-	                  strcspn(app->template_extension+1, ".") + 1);
+	                  (int)strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	in.path = strdup(buf->mem);
 
@@ -316,7 +326,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, "migrations-files");
 	// strcspn() count length of template file extension
 	sq_buffer_write_n(buf, app->template_extension,
-	                  strcspn(app->template_extension+1, ".") + 1);
+	                  (int)strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	out.file = fopen(buf->mem, "a");
 	if (out.file == NULL)
@@ -422,7 +432,7 @@ char *sq_template_write_buffer(const char *template_string, SqPairs *pairs, SqBu
 		// get key
 		while(temp_beg[0] == ' ')
 			temp_beg++;
-		len = strcspn(temp_beg, " }");
+		len = (int)strcspn(temp_beg, " }");
 		str = sq_buffer_write_n(buffer, temp_beg, len);
 		str[len] = 0;
 		buffer->writed -= len;

@@ -68,20 +68,20 @@ int  sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
 			sq_buffer_write(buffer, option->shortcut);
 			sq_buffer_write_n(buffer, ", ", 2);
 		}
-		length += strlen(option->shortcut) + 2 + 1;
+		length += (int)strlen(option->shortcut) + 2 + 1;
 	}
 	if (option->name) {
 		if (buffer) {
 			sq_buffer_write_n(buffer, "--", 2);
 			sq_buffer_write(buffer, option->name);
 		}
-		length += strlen(option->name) + 2;
+		length += (int)strlen(option->name) + 2;
 	}
 
 	if (option->value_description) {
 		if (buffer)
 			sq_buffer_write(buffer, option->value_description);
-		length += strlen(option->value_description);
+		length += (int)strlen(option->value_description);
 	}
 
 	if (opt_max_length < length)

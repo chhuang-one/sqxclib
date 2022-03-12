@@ -44,9 +44,9 @@ static void sqdb_mysql_schema_set_version(SqdbMysql *sqdb, int version);
 
 static const SqdbConfigMysql db_default = {
 	.host     = MYSQL_DEFAULT_HOST,
+	.port     = MYSQL_DEFAULT_PORT,
 	.user     = MYSQL_DEFAULT_USER,
 	.password = MYSQL_DEFAULT_PASSWORD,
-	.port     = MYSQL_DEFAULT_PORT,
 };
 
 static const SqdbInfo dbinfo = {

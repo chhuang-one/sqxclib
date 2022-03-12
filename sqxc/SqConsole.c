@@ -221,7 +221,7 @@ void  sq_console_print_list(SqConsole  *console, const char *program_description
 
 	for (int i = 0;  i < console->commands.length;  i++) {
 		cmd_type = console->commands.data[i];
-		length = strlen(cmd_type->name);
+		length = (int)strlen(cmd_type->name);
 		if (command_max_length < length)
 			command_max_length = length;
 	}

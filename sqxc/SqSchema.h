@@ -57,7 +57,7 @@ void    sq_schema_final(SqSchema *schema);
   #define SQ_CONFIG_NAMING_CONVENTION to enable "SQL_table_name" <-> "type_name" converting,
   program only need one of table_name, type_name, or table_type->name.
 
-  C++ Language
+  C++ language
   It doesn't need #define SQ_CONFIG_NAMING_CONVENTION because program
   use typeid(Type).name() to get "type_name".
  */

@@ -100,10 +100,10 @@ struct SqdbConfigMysql
 
 	// ------ SqdbConfigMysql members ------
 	const char   *host;
+	unsigned int  port;
 	const char   *user;
 	const char   *password;
 	const char   *db;
-	unsigned int  port;
 };
 
 

@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.14)
 
 project(sqxclib)
 
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 11)
+if (NOT MSVC)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+	set(CMAKE_CXX_STANDARD 11)
+endif()
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
@@ -108,7 +110,11 @@ endif (MYSQL_FOUND)
 configure_file("${CMAKE_SOURCE_DIR}/sqxc/config.h.in"
                "${CMAKE_SOURCE_DIR}/sqxc/config.h")
 
+# Enable testing for the project
+enable_testing()
+
 # --- subdirectory ---
 add_subdirectory(sqxc)
 add_subdirectory(sqapp)
+add_subdirectory(tests)
 add_subdirectory(examples)
