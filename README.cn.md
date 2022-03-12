@@ -113,8 +113,9 @@ static const SqColumn  userColumns[8] = {
 
 	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
 
-	{SQ_TYPE_STRING, "email",      offsetof(User, email),
-		.size = 60},    // VARCHAR(60)
+	{SQ_TYPE_STRING, "email",      offsetof(User, email),      0,
+		NULL,                          // .old_name
+		60},                           // .size    // VARCHAR(60)
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
@@ -123,8 +124,9 @@ static const SqColumn  userColumns[8] = {
 	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
 	// FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
-		.foreign = (SqForeign*) &userForeign},
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    0,
+		NULL, 0, 0, NULL, NULL,        // .old_name, .size, .digits, .default_value, .check
+		(SqForeign*) &userForeign},    // .foreign
 
 	// C++ std::string
 	{SQ_TYPE_STD_STRING, "strCpp", offsetof(User, strCpp)     },

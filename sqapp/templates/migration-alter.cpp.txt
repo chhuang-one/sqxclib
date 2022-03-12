@@ -8,20 +8,23 @@
 const SqMigration {{ migration_name }}_{{ timestamp }} = {
 
 	// Run the migrations.
-	.up = [](SqSchema *schema, SqStorage *storage) {
+//	.up = 
+	[](SqSchema *schema, SqStorage *storage) {
 		SqTable  *table;
 
 		table = schema->alter("{{ table_name }}");
 	},
 
 	// Reverse the migrations.
-	.down = [](SqSchema *schema, SqStorage *storage) {
+//	.down = 
+	[](SqSchema *schema, SqStorage *storage) {
 		SqTable  *table;
 
 		table = schema->alter("{{ table_name }}");
 	},
 
 #ifdef SQ_APP_TOOL
-	.name = "{{ timestamp }}_{{ migration_name }}",
+//	.name = 
+	"{{ timestamp }}_{{ migration_name }}",
 #endif
 };

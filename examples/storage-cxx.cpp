@@ -139,19 +139,25 @@ static const char     *userIndexComposite[]   = {"id", NULL};
 static const SqColumn userColumns[] = {
 	{SQ_TYPE_INT,    "id",           offsetof(User, id),           SQB_PRIMARY | SQB_HIDDEN},
 	{SQ_TYPE_STRING, "name",         offsetof(User, name),         0,
-		.size = 50},    // VARCHAR(50)
+		NULL,                              // .old_name
+		50},                               // .size    // VARCHAR(50)
 	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),   SQB_CURRENT},    // DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at",   offsetof(User, updated_at),   SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
-	// FOREIGN KEY
+	/* FOREIGN KEY
 	{SQ_TYPE_INT,    "company_id",   offsetof(User, company_id),   0,
-		.foreign = (SqForeign*)&userForeign},
+		NULL, 0, 0, NULL, NULL,            // .old_name, .size, .digits, .default_value, .check
+		(SqForeign*)&userForeign},         // .foreign
+	 */
 	// CONSTRAINT FOREIGN KEY
-	{SQ_TYPE_CONSTRAINT,   "users_companies_id_foreign",
-		.foreign = (SqForeign*)&userForeign,
-		.composite = (char **)  userForeignComposite },
+	{SQ_TYPE_CONSTRAINT,   "users_companies_id_foreign", 0, 0,
+		NULL, 0, 0, NULL, NULL,            // .old_name, .size, .digits, .default_value, .check
+		(SqForeign*)&userForeign,          // .foreign
+		(char **) userForeignComposite },  // .composite
 	// INDEX
-	{SQ_TYPE_INDEX,  "users_id_index",
-		.composite = (char **)  userIndexComposite },
+	{SQ_TYPE_INDEX,  "users_id_index", 0, 0,
+		NULL, 0, 0, NULL, NULL,            // .old_name, .size, .digits, .default_value, .check
+		NULL,                              // .foreign
+		(char **) userIndexComposite },    // .composite
 };
 #endif  // USE_CXX_AGGREGATE_INITIALIZATION
 
@@ -406,22 +412,38 @@ int  main(int argc, char *argv[])
 
 #if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
 
+#if 0    // Designated initializers
 	SqdbConfigSqlite  config_sqlite = {
 //		.folder = "/tmp",
 		.folder = ".",
 		.extension = "db",
 	};
+#else
+	SqdbConfigSqlite  config_sqlite;
+
+	config_sqlite.folder    = ".";    // "/tmp"
+	config_sqlite.extension = "db";
+#endif
 
 	db = new Sq::DbSqlite(&config_sqlite);
 
 #elif defined(SQ_CONFIG_HAVE_MYSQL)
 
+#if 0    // Designated initializers
 	SqdbConfigMysql  config_mysql = {
 		.host     = "localhost",
 		.port     = 3306,
 		.user     = "root",
 		.password = "",
 	};
+#else
+	SqdbConfigMysql  config_mysql;
+
+	config_mysql.host = "localhost";
+	config_mysql.port = 3306;
+	config_mysql.user = "root";
+	config_mysql.password = "";
+#endif
 
 	db = new Sq::DbMysql(&config_mysql);
 
