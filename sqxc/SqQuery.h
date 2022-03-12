@@ -31,18 +31,19 @@ typedef struct SqQuery           SqQuery;
 typedef struct SqQueryNode       SqQueryNode;
 typedef struct SqQueryNested     SqQueryNested;
 
-extern const int SQ_QUERYLOGI_OR;
-extern const int SQ_QUERYLOGI_AND;
-
-extern const int SQ_QUERYSORT_ASC;
-extern const int SQ_QUERYSORT_DESC;
-
 // ----------------------------------------------------------------------------
 // C data and functions declaration
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// join on, where, having
+extern const int SQ_QUERYLOGI_OR;
+extern const int SQ_QUERYLOGI_AND;
+// order by
+extern const int SQ_QUERYSORT_ASC;
+extern const int SQ_QUERYSORT_DESC;
 
 /*	SqQuery C functions
 
