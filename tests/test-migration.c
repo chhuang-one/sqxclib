@@ -54,16 +54,16 @@ struct Company {
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
-	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE set null ON UPDATE cascade
+	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
 	&(SqColumn) {SQ_TYPE_INT,    "city_id", offsetof(User, city_id),    SQB_HIDDEN,
-	             .foreign = &(SqForeign) {"cities", "id",  "set null",  "cascade"} },
-	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE cascade ON UPDATE set null
+	             .foreign = &(SqForeign) {"cities", "id",  "CASCADE",  "CASCADE"} },
+	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
 	&(SqColumn) {SQ_TYPE_INT, "company_id", offsetof(User, company_id), SQB_HIDDEN,
-	             .foreign = &(SqForeign) {"companies", "id",  "cascade",  "set null"} },
+	             .foreign = &(SqForeign) {"companies", "id",  "CASCADE",  "CASCADE"} },
 
-	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE cascade ON UPDATE set null
+	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_HIDDEN,
-	             .foreign = &(SqForeign) {"companies", "id",  "cascade",  "set null"} },
+	             .foreign = &(SqForeign) {"companies", "id",  "NO ACTION",  "NO ACTION"} },
 
 	// "email"  VARCHAR
 	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
@@ -102,8 +102,8 @@ static const SqColumn  *UserColumnsChange[] = {
 	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGED)
 //	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
 
-	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE cascade ON UPDATE set null
-	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_CHANGED },
+	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_NULLABLE | SQB_CHANGED },
 
 	// DROP CONSTRAINT FOREIGN KEY "fk_cities_id"
 	&(SqColumn) {SQ_TYPE_CONSTRAINT,  .old_name = "fk_cities_id",  .name = NULL,
@@ -237,7 +237,7 @@ void create_company_table_by_c(SqSchema *schema)
 //	sq_column_on_delete(column, "set null");
 }
 
-void create_city_table_and_rename_by_c(SqSchema *schema)
+void create_city_table_by_c(SqSchema *schema)
 {
 	SqTable  *table;
 	SqColumn *column;
@@ -247,14 +247,56 @@ void create_city_table_and_rename_by_c(SqSchema *schema)
 	column = sq_table_add_integer(table, "id", offsetof(City, id));
 	column->bit_field |= SQB_PRIMARY;
 	column = sq_table_add_string(table, "name", offsetof(City, name), 0);
-
-	sq_schema_rename(schema, "cities", "cities2");
-//	sq_schema_drop(schema, "cities2");
 }
 
 // ----------------------------------------------------------------------------
 
 void test_sqdb_migrate(Sqdb *db)
+{
+	SqSchema   *schema;
+	SqSchema   *schema_v1;
+	SqSchema   *schema_v2;
+	SqSchema   *schema_v3;
+	SqSchema   *schema_v4;
+
+	schema  = sq_schema_new("current");
+	schema->version = 0;
+
+	schema_v1  = sq_schema_new("ver1");
+	schema_v1->version = 1;
+	create_city_table_by_c(schema_v1);
+
+	schema_v2 = sq_schema_new("ver2");
+	schema_v2->version = 2;
+	create_company_table_by_c(schema_v2);
+
+	schema_v3 = sq_schema_new("ver3");
+	schema_v3->version = 3;
+	create_user_table_by_type(schema_v3);
+//	create_user_table_by_macro(schema_v3);
+//	create_user_table_by_c(schema_v3);
+
+	schema_v4 = sq_schema_new("ver4");
+	schema_v4->version = 4;
+	change_user_table_by_c_type(schema_v4);
+	// other testing in 'schema_v4'
+	sq_schema_rename(schema_v4, "cities", "cities2");
+//	sq_schema_drop(schema_v4, "users");
+
+	sqdb_migrate(db, schema, schema_v1);
+	sqdb_migrate(db, schema, schema_v2);
+	sqdb_migrate(db, schema, schema_v3);
+	sqdb_migrate(db, schema, schema_v4);
+	sqdb_migrate(db, schema, NULL);
+
+	sq_schema_free(schema);
+	sq_schema_free(schema_v1);
+	sq_schema_free(schema_v2);
+	sq_schema_free(schema_v3);
+	sq_schema_free(schema_v4);
+}
+
+void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 {
 	SqSchema   *schema;
 	SqSchema   *schema_v1;
@@ -281,7 +323,10 @@ void test_sqdb_migrate(Sqdb *db)
 
 	schema_v4 = sq_schema_new("ver4");
 	schema_v4->version = 4;
-	create_city_table_and_rename_by_c(schema_v4);
+	create_city_table_by_c(schema_v4);
+	// other testing in 'schema_v4'
+	sq_schema_rename(schema_v4, "cities", "cities2");
+//	sq_schema_drop(schema_v4, "users");
 
 	sqdb_migrate(db, schema, schema_v1);
 	sqdb_migrate(db, schema, schema_v2);
@@ -310,12 +355,16 @@ int  main(void)
 	#error No supported database
 #endif
 
-	if (sqdb_open(db, "test-migrate") != SQCODE_OK) {
-		fprintf(stderr, "Can't open database - %s\n", "test-migrate");
+	if (sqdb_open(db, "test-migration") != SQCODE_OK) {
+		fprintf(stderr, "Can't open database - %s\n", "test-migration");
 		return EXIT_SUCCESS;
 	}
 
+#if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
+	test_sqdb_migrate_sqlite_sync(db);
+#elif defined(SQ_CONFIG_HAVE_MYSQL)
 	test_sqdb_migrate(db);
+#endif
 
 	sqdb_close(db);
 
