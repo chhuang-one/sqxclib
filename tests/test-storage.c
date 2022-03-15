@@ -78,7 +78,7 @@ void test_storage_crud(SqStorage *storage)
 {
 	Company *company_ptr;
 	Company  company;
-	int      id;
+	int64_t  id;
 	int      n_changes;
 
 	company.id = 0;    // for auto increment
@@ -90,7 +90,7 @@ void test_storage_crud(SqStorage *storage)
 	// insert to companies and get inserted row id.
 	id = sq_storage_insert(storage, "companies", NULL, &company);
 
-	fprintf(stderr, "insert(): inserted id = %d.\n", id);
+	fprintf(stderr, "insert(): inserted id = %d.\n", (int)id);
 	assert(id != 0);
 
 	company_ptr = sq_storage_get(storage, "companies", NULL, id);
@@ -100,7 +100,7 @@ void test_storage_crud(SqStorage *storage)
 	fprintf(stderr, "insert(): ok.\n");
 
 	// update
-	company.id = id;
+	company.id = (int)id;
 	company.name = "Alex";
 	company.salary = 15341;
 	company.age = 28;
@@ -128,7 +128,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	SqPtrArray *array;
 	Company *company_ptr;
 	Company  company;
-	int      id[2];
+	int64_t  id[2];
 	int      n_changes;
 
 	company.id = 0;    // for auto increment
@@ -141,7 +141,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	id[0] = sq_storage_insert(storage, "companies", NULL, &company);
 	// insert to companies and get inserted row id.
 	id[1] = sq_storage_insert(storage, "companies", NULL, &company);
-	printf("inserted id = %d, %d\n", id[0], id[1]);
+	printf("inserted id = %d, %d\n", (int)id[0], (int)id[1]);
 
 	// update_all
 	// update 2 columns only - "name" and "age".

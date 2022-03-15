@@ -426,7 +426,7 @@ char *sq_template_write_buffer(const char *template_string, SqPairs *pairs, SqBu
 			break;
 		}
 
-		sq_buffer_write_n(buffer, template_string, temp_beg - template_string);
+		sq_buffer_write_n(buffer, template_string, (int)(temp_beg - template_string));
 		// + "{{"
 		temp_beg += 2;
 		// get key

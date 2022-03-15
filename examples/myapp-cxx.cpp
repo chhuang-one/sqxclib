@@ -14,6 +14,9 @@
 
 /* This is sample code for sqapp and sqxclib */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <iostream>     // cout
 #include <type_traits>  // is_standard_layout<>
 
@@ -123,10 +126,10 @@ int  main(void)
 		To get more information about this, you can see document doc/SqSchema.md
 	 */
 	Sq::Storage *storage = myapp->getStorage();
-	User  user = {0};
-	User *userPtr;
-	int   id[2];
-	int   n;
+	User     user = {0};
+	User    *userPtr;
+	int64_t  id[2];
+	int      n;
 
 	user.age   = 18;
 	user.email = (char*)"alex@guest";

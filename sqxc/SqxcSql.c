@@ -50,7 +50,17 @@ static void sqxc_sql_use_insert_command(SqxcSql *xcsql, const char *table_name);
 static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name);
 static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer);
 static int  sq_cmp_pointer(void *ptr1, void *ptr2) {
+#ifdef _MSC_VER
+	char *addr1 = *(char**)ptr1, *addr2 = *(char**)ptr2;
+
+	if (addr1 < addr2)
+		return -1;
+	if (addr1 > addr2)
+		return  1;
+	return 0;
+#else
 	return (*(char**)ptr1 - *(char**)ptr2);
+#endif
 }
 
 /* ----------------------------------------------------------------------------

@@ -100,7 +100,7 @@ extern "C" {
 
 // void sq_ptr_array_erase_addr(void *array, void **element_addr, int count);
 #define sq_ptr_array_erase_addr(array, element_addr, count)    \
-		sq_ptr_array_erase(array, (void**)element_addr - sq_ptr_array_data(array), count)
+		sq_ptr_array_erase(array, (int)((void**)(element_addr) - sq_ptr_array_data(array)), count)
 
 // bool sq_ptr_array_empty(void *array)
 #define sq_ptr_array_empty(array)  \

@@ -77,10 +77,10 @@ int  main(void)
 		strcut User defined in  sqapp/CStructs.h
 	 */
 	SqStorage *storage = myapp->base.storage;
-	User  user = {0};
-	User *user_ptr;
-	int   id[2];
-	int   n;
+	User     user = {0};
+	User    *user_ptr;
+	int64_t  id[2];
+	int      n;
 
 	user.age   = 18;
 	user.email = "alex@guest";
