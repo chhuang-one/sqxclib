@@ -80,7 +80,7 @@ int  main(void)
 	User     user = {0};
 	User    *user_ptr;
 	int64_t  id[2];
-	int      n;
+	int64_t  n;
 
 	user.age   = 18;
 	user.email = "alex@guest";
@@ -98,7 +98,7 @@ int  main(void)
 	                          "WHERE id > 0",
 	                          "age", "name",
 	                          NULL);
-	printf("number of rows changed : %d"  "\n", n);
+	printf("number of rows changed : %d"  "\n", (int)n);
 
 	user_ptr = sq_storage_get(storage, "users", NULL, id[0]);
 	if (user_ptr) {
@@ -121,7 +121,7 @@ int  main(void)
 	                            offsetof(User, name),
 	                            offsetof(User, email),
 	                            -1);
-	printf("number of rows changed : %d"  "\n", n);
+	printf("number of rows changed : %d"  "\n", (int)n);
 #endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 	user_ptr = sq_storage_get(storage, "users", NULL, id[1]);

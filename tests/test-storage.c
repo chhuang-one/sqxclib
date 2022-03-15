@@ -129,7 +129,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	Company *company_ptr;
 	Company  company;
 	int64_t  id[2];
-	int      n_changes;
+	int64_t  n_changes;
 
 	company.id = 0;    // for auto increment
 	company.name = "McD";

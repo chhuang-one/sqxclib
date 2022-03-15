@@ -30,6 +30,10 @@
 #include <SqxcEmpty.h>
 #include <SqStorage.h>
 
+#ifdef _MSC_VER
+#define strdup       _strdup
+#endif
+
 using namespace std;
 
 

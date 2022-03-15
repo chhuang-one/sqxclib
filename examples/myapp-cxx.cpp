@@ -129,7 +129,7 @@ int  main(void)
 	User     user = {0};
 	User    *userPtr;
 	int64_t  id[2];
-	int      n;
+	int64_t  n;
 
 	user.age   = 18;
 	user.email = (char*)"alex@guest";
