@@ -74,10 +74,9 @@ use C++ language
 
 There are many functions support printf format string, so user need to pay attention:
 * If you want to use SQL Wildcard Characters '%' in these functions, you must print “%” using “%%”.  
-* If the 3rd argument of these C functions is NULL, the 2nd argument is handled as raw string.
 
 below C functions support printf format string in 2nd argument:
-	sq_query_raw(),
+	sq_query_printf(),
 	sq_query_join(),
 	sq_query_on(),     sq_query_or_on(),
 	sq_query_where(),  sq_query_or_where(),
@@ -88,8 +87,8 @@ C language example:
 ```c
 	sq_query_where(query, "id < %d", 100);
 
-	// Because the 3rd argument is NULL, the 2nd argument is handled as raw string.
-	sq_query_where(query, "city LIKE 'ber%'", NULL);
+	// output "city LIKE 'ber%'"
+	sq_query_where(query, "city LIKE 'ber%%'");
 ```
 
 below C++ methods support printf format string in 1st argument:
@@ -104,8 +103,8 @@ C++ language example:
 ```c++
 	query->where("id < %d", 100);
 
-	// Because the 2nd argument is NULL, the 1st argument is handled as raw string.
-	query->where("city LIKE 'ber%'", NULL);
+	// output "city LIKE 'ber%'"
+	query->where("city LIKE 'ber%%'");
 ```
 
 #### select
@@ -248,8 +247,8 @@ If you don't specify table name and column name in SqQuery, it will generate SQL
 The last parameter in sq_storage_get_all() and sq_storage_remove_all() can use this.
 
 ```c++
-	sq_query_where(query, "id > 10", NULL);
-	sq_query_or_where(query, "city_id < 9", NULL);
+	sq_query_where(query, "id > 10");
+	sq_query_or_where(query, "city_id < 9");
 
 	// WHERE id > 10 OR city_id < 9
 	sql = sq_query_to_sql(query);
@@ -259,16 +258,13 @@ The last parameter in sq_storage_get_all() and sq_storage_remove_all() can use t
 
 insert a raw expression into various parts of your query.  
 
-* If the 3rd argument of these C functions is NULL, the 2nd argument is handled as raw string.
-* C++ users don't need to care this because sqxclib provide raw methods to do these.
-
 #### selectRaw
 
 use C language
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_select(query, "COUNT(column_name)", NULL);
+	sq_query_select_raw(query, "COUNT(column_name)");
 ```
 
 use C++ language
@@ -284,10 +280,8 @@ use C language
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_where(query, "id > 100 AND id < 300", NULL);
-
-	// Because the 3rd argument is NULL, the 2nd argument is handled as raw string.
-	sq_query_where(query, "city LIKE 'ber%'", NULL);
+	sq_query_where_raw(query, "id > 100 AND id < 300");
+	sq_query_where_raw(query, "city LIKE 'ber%'");
 ```
 
 use C++ language
@@ -304,7 +298,7 @@ use C language
 
 ```c
 	sq_query_table(query, "orders");
-	sq_query_having(query, "SUM(price) > 3000", NULL);
+	sq_query_having_raw(query, "SUM(price) > 3000");
 ```
 
 use C++ language
@@ -320,7 +314,7 @@ use C language
 
 ```c
 	sq_query_table(query, "orders");
-	sq_query_order_by(query, "updated_at DESC", NULL);
+	sq_query_order_by_raw(query, "updated_at DESC");
 ```
 
 use C++ language
@@ -336,7 +330,7 @@ use C language
 
 ```c
 	sq_query_table(query, "companies");
-	sq_query_group_by(query, "city, state", NULL);
+	sq_query_group_by_raw(query, "city, state");
 ```
 
 use C++ language
@@ -348,7 +342,7 @@ use C++ language
 
 #### raw SQL statement
 
-sq_query_raw() can append raw SQL statement in current nested/subquery.  
+sq_query_raw() and sq_query_printf() can append raw SQL statement in current nested/subquery.  
   
 e.g. generate below SQL statement.
 
@@ -362,11 +356,11 @@ use C language
 	// "SELECT * FROM users"
 	sq_query_table(query, "users");
 
-	// Because the 3rd argument is NULL, the 2nd argument is handled as raw string.
-	sq_query_raw(query, "WHERE city LIKE 'ber%'", NULL);
+	// "WHERE city LIKE 'ber%'" is raw string
+	sq_query_raw(query, "WHERE city LIKE 'ber%'");
 
-	// Because the 3rd argument is NOT NULL, the 2nd argument is handled as printf format string.
-	sq_query_raw(query, "LIMIT %d OFFSET %d", 20, 10);
+	// the 2nd argument is printf format string.
+	sq_query_printf(query, "LIMIT %d OFFSET %d", 20, 10);
 ```
 
 use C++ language
@@ -375,10 +369,10 @@ use C++ language
 	// "SELECT * FROM users"
 	query->table("users");
 
-	// Because the 2rd argument does not exist, the 1st argument is handled as raw string.
+	// Because the 2rd argument does not exist, the 1st argument is raw string.
 	query->raw("WHERE city LIKE 'ber%'");
 
-	// Because the 2nd argument is NOT NULL, the 1st argument is handled as printf format string.
+	// Because the 2nd argument does exist, the 1st argument is printf format string.
 	query->raw("LIMIT %d OFFSET %d", 20, 10);
 ```
 

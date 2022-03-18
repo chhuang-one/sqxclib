@@ -69,10 +69,8 @@ void test_query_c_raw(SqQuery *query)
 	char       *sql;
 
 	sq_query_table(query, "users");
-	// if 3rd argument is NULL, the 2nd argument is handled as raw string.
-	sq_query_select(query, "id, name", NULL);
-	// if 3rd argument is NULL, the string "city LIKE 'ber%'" is handled as raw string.
-	sq_query_where(query, "city LIKE 'ber%'", NULL);
+	sq_query_select_raw(query, "id, name");
+	sq_query_where_raw(query, "city LIKE 'ber%'");
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -89,8 +87,8 @@ void test_query_c_raw_statement(SqQuery *query)
 	// "SELECT * FROM users"
 	sq_query_table(query, "users");
 
-	sq_query_raw(query, "WHERE city LIKE 'ber%'", NULL);
-	sq_query_raw(query, "LIMIT %d OFFSET %d", 10, 5);
+	sq_query_raw(query, "WHERE city LIKE 'ber%'");
+	sq_query_printf(query, "LIMIT %d OFFSET %d", 10, 5);
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
