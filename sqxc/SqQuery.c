@@ -332,33 +332,17 @@ void sq_query_where_logical(SqQuery *query, int sqn_type, ...)
 
 	if (where->children) {
 		node = sq_query_node_append(where, sq_query_node_new(query));
-		node->type = sqn_type;
+		node->type = sqn_type & (SQ_QUERYARG_RAW-1);
 	}
+
 	va_start(arg_list, sqn_type);
-	sq_query_node_append(where, sq_query_condition(query, arg_list));
+	if (sqn_type & SQ_QUERYARG_RAW) {
+		char *raw = va_arg(arg_list, char*);
+		sq_query_append(query, raw, where);
+	}
+	else
+		sq_query_node_append(where, sq_query_condition(query, arg_list));
 	va_end(arg_list);
-}
-
-void sq_query_where_logical_raw(SqQuery *query, int sqn_type, const char *raw)
-{
-	SqQueryNested *nested = query->nested_cur;
-	SqQueryNode   *where = nested->where;
-	SqQueryNode   *node;
-
-	if (where == NULL) {
-		// insert 'WHERE' in specify position
-		sq_query_node_find(nested->parent, SQN_WHERE, &node);
-		where = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-		where->type = SQN_WHERE;
-		nested->where = where;
-	}
-
-	if (where->children) {
-		node = sq_query_node_append(where, sq_query_node_new(query));
-		node->type = sqn_type;
-	}
-
-	sq_query_append(query, raw, where);
 }
 
 bool sq_query_where_exists(SqQuery *query)
@@ -428,8 +412,7 @@ void sq_query_join(SqQuery *query, const char *table, ...)
 void sq_query_on_logical(SqQuery *query, int sqn_type, ...)
 {
 	va_list        arg_list;
-	SqQueryNested *nested = query->nested_cur;
-	SqQueryNode   *joinon = nested->joinon;
+	SqQueryNode   *joinon = query->nested_cur->joinon;
 	SqQueryNode   *node;
 
 	if (joinon == NULL)
@@ -438,30 +421,17 @@ void sq_query_on_logical(SqQuery *query, int sqn_type, ...)
 	if (node->type == SQN_NONE || node->type == SQN_VALUE) {
 		node->next = sq_query_node_new(query);
 		node = node->next;
-		node->type = sqn_type;
+		node->type = sqn_type & (SQ_QUERYARG_RAW-1);
 	}
 
 	va_start(arg_list, sqn_type);
-	sq_query_node_append(joinon, sq_query_condition(query, arg_list));
-	va_end(arg_list);
-}
-
-void sq_query_on_logical_raw(SqQuery *query, int sqn_type, const char *raw)
-{
-	SqQueryNested *nested = query->nested_cur;
-	SqQueryNode   *joinon = nested->joinon;
-	SqQueryNode   *node;
-
-	if (joinon == NULL)
-		return;
-	node = sq_query_node_last(joinon->children);
-	if (node->type == SQN_NONE || node->type == SQN_VALUE) {
-		node->next = sq_query_node_new(query);
-		node = node->next;
-		node->type = sqn_type;
+	if (sqn_type & SQ_QUERYARG_RAW) {
+		char *raw = va_arg(arg_list, char*);
+		sq_query_append(query, raw, joinon);
 	}
-
-	sq_query_append(query, raw, joinon);
+	else
+		sq_query_node_append(joinon, sq_query_condition(query, arg_list));
+	va_end(arg_list);
 }
 
 void sq_query_group_by(SqQuery *query, ...)
@@ -499,31 +469,17 @@ void sq_query_having_logical(SqQuery *query, int sqn_type, ...)
 
 	if (having->children) {
 		node = sq_query_node_append(having, sq_query_node_new(query));
-		node->type = sqn_type;
+		node->type = sqn_type & (SQ_QUERYARG_RAW-1);
 	}
+
 	va_start(arg_list, sqn_type);
-	sq_query_node_append(having, sq_query_condition(query, arg_list));
+	if (sqn_type & SQ_QUERYARG_RAW) {
+		char *raw = va_arg(arg_list, char*);
+		sq_query_append(query, raw, having);
+	}
+	else
+		sq_query_node_append(having, sq_query_condition(query, arg_list));
 	va_end(arg_list);
-}
-
-void sq_query_having_logical_raw(SqQuery *query, int sqn_type, const char *raw)
-{
-	SqQueryNested *nested = query->nested_cur;
-	SqQueryNode   *having;
-	SqQueryNode   *node;
-
-	having = sq_query_node_find(nested->parent, SQN_HAVING, &node);
-	if (having == NULL) {
-		having = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-		having->type = SQN_HAVING;
-	}
-
-	if (having->children) {
-		node = sq_query_node_append(having, sq_query_node_new(query));
-		node->type = sqn_type;
-	}
-
-	sq_query_append(query, raw, having);
 }
 
 void sq_query_order_by(SqQuery *query, ...)

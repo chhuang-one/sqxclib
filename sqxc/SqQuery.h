@@ -44,6 +44,8 @@ extern const int SQ_QUERYLOGI_AND;
 // order by
 extern const int SQ_QUERYSORT_ASC;
 extern const int SQ_QUERYSORT_DESC;
+// raw
+#define SQ_QUERYARG_RAW    (0x8000)
 
 /*	SqQuery C functions
 
@@ -144,7 +146,6 @@ void    sq_query_as(SqQuery *query, const char *name);
 // SQL: JOIN ON
 void    sq_query_join(SqQuery *query, const char *table, ...);
 void    sq_query_on_logical(SqQuery *query, int sqn_type, ...);
-void    sq_query_on_logical_raw(SqQuery *query, int sqn_type, const char *raw);
 
 #define sq_query_on(query, ...)        \
 		sq_query_on_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
@@ -152,13 +153,12 @@ void    sq_query_on_logical_raw(SqQuery *query, int sqn_type, const char *raw);
 		sq_query_on_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
 #define sq_query_on_raw(query, raw)        \
-		sq_query_on_logical_raw(query, SQ_QUERYLOGI_AND, raw)
+		sq_query_on_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARG_RAW, raw)
 #define sq_query_or_on_raw(query, raw)     \
-		sq_query_on_logical_raw(query, SQ_QUERYLOGI_OR,  raw)
+		sq_query_on_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
 
 // SQL: WHERE
 void    sq_query_where_logical(SqQuery *query, int sqn_type, ...);
-void    sq_query_where_logical_raw(SqQuery *query, int sqn_type, const char *raw);
 bool    sq_query_where_exists(SqQuery *query);
 
 #define sq_query_where(query, ...)        \
@@ -167,9 +167,9 @@ bool    sq_query_where_exists(SqQuery *query);
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
 #define sq_query_where_raw(query, raw)        \
-		sq_query_where_logical_raw(query, SQ_QUERYLOGI_AND, raw)
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARG_RAW, raw)
 #define sq_query_or_where_raw(query, raw)     \
-		sq_query_where_logical_raw(query, SQ_QUERYLOGI_OR,  raw)
+		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
 
 // SQL: GROUP BY
 // the last argument of sq_query_group_by() must be NULL.
@@ -181,7 +181,6 @@ void    sq_query_group_by(SqQuery *query, ...);
 
 // SQL: HAVING
 void    sq_query_having_logical(SqQuery *query, int sqn_type, ...);
-void    sq_query_having_logical_raw(SqQuery *query, int sqn_type, const char *raw);
 
 #define sq_query_having(query, ...)        \
 		sq_query_having_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
@@ -189,9 +188,9 @@ void    sq_query_having_logical_raw(SqQuery *query, int sqn_type, const char *ra
 		sq_query_having_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
 #define sq_query_having_raw(query, raw)        \
-		sq_query_having_logical_raw(query, SQ_QUERYLOGI_AND, raw)
+		sq_query_having_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARG_RAW, raw)
 #define sq_query_or_having_raw(query, raw)     \
-		sq_query_having_logical_raw(query, SQ_QUERYLOGI_OR,  raw)
+		sq_query_having_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
 
 // SQL: SELECT
 // the last argument of sq_query_select() must be NULL.
@@ -527,7 +526,7 @@ inline Sq::Query&  QueryMethod::on(std::function<void()> func) {
 }
 
 inline Sq::Query&  QueryMethod::onRaw(const char *raw) {
-	sq_query_on_logical_raw((SqQuery*)this, SQ_QUERYLOGI_AND, raw);
+	sq_query_on_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 
@@ -544,7 +543,7 @@ inline Sq::Query&  QueryMethod::orOn(std::function<void()> func) {
 }
 
 inline Sq::Query&  QueryMethod::orOnRaw(const char *raw) {
-	sq_query_on_logical_raw((SqQuery*)this, SQ_QUERYLOGI_OR, raw);
+	sq_query_or_on_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 
@@ -561,7 +560,7 @@ inline Sq::Query&  QueryMethod::where(std::function<void()> func) {
 }
 
 inline Sq::Query&  QueryMethod::whereRaw(const char *raw) {
-	sq_query_where_logical_raw((SqQuery*)this, SQ_QUERYLOGI_AND, raw);
+	sq_query_where_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 
@@ -578,7 +577,7 @@ inline Sq::Query&  QueryMethod::orWhere(std::function<void()> func) {
 }
 
 inline Sq::Query&  QueryMethod::orWhereRaw(const char *raw) {
-	sq_query_where_logical_raw((SqQuery*)this, SQ_QUERYLOGI_OR, raw);
+	sq_query_or_where_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 
@@ -595,7 +594,7 @@ inline Sq::Query&  QueryMethod::groupBy(const Args... args) {
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::groupByRaw(const char *raw) {
-	sq_query_group_by((SqQuery*)this, raw, NULL);
+	sq_query_group_by_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 
@@ -612,7 +611,7 @@ inline Sq::Query&  QueryMethod::having(std::function<void()> func) {
 }
 
 inline Sq::Query&  QueryMethod::havingRaw(const char *raw) {
-	sq_query_having_logical_raw((SqQuery*)this, SQ_QUERYLOGI_AND, raw);
+	sq_query_having_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 
@@ -629,7 +628,7 @@ inline Sq::Query&  QueryMethod::orHaving(std::function<void()> func) {
 }
 
 inline Sq::Query&  QueryMethod::orHavingRaw(const char *raw) {
-	sq_query_having_logical_raw((SqQuery*)this, SQ_QUERYLOGI_OR, raw);
+	sq_query_or_having_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 
@@ -639,7 +638,7 @@ inline Sq::Query&  QueryMethod::select(const Args... args) {
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::selectRaw(const char *raw) {
-	sq_query_select((SqQuery*)this, raw, NULL);
+	sq_query_select_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::distinct() {
@@ -653,7 +652,7 @@ inline Sq::Query&  QueryMethod::orderBy(const Args... args) {
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::orderByRaw(const char *raw) {
-	sq_query_order_by((SqQuery*)this, raw, NULL);
+	sq_query_order_by_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::orderByDesc(const char *column_name) {
