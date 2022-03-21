@@ -64,12 +64,11 @@ enum SqQueryNodeType {
 	// SELECT (these must keep order)
 
 	SQN_FROM,
-	SQN_JOIN,
+	SQN_JOIN,      // INNER JOIN
 	SQN_LEFT_JOIN,
 	SQN_RIGHT_JOIN,
-	SQN_INNER_JOIN,
-	SQN_OUTER_JOIN,
 	SQN_FULL_JOIN,
+	SQN_CROSS_JOIN,
 	SQN_SET,       // UPDATE
 	SQN_WHERE,     // SELECT, UPDATE, DELETE
 	SQN_GROUP_BY,
@@ -127,13 +126,6 @@ struct SqQueryNested
 
 
 static const char  *sqnword[SQN_N_CODE];
-
-const int SQ_QUERYLOGI_OR   = SQN_OR;
-const int SQ_QUERYLOGI_AND  = SQN_AND;
-//const int SQ_QUERYLOGI_NOT = SQN_NOT;
-
-const int SQ_QUERYSORT_ASC  = SQN_ASC;
-const int SQ_QUERYSORT_DESC = SQN_DESC;
 
 // ----------------------------------------------------------------------------
 // SqQuery
@@ -315,7 +307,7 @@ bool sq_query_distinct(SqQuery *query)
 	return true;
 }
 
-void sq_query_where_logical(SqQuery *query, int sqn_type, ...)
+void sq_query_where_logical(SqQuery *query, int logi_type, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -332,11 +324,11 @@ void sq_query_where_logical(SqQuery *query, int sqn_type, ...)
 
 	if (where->children) {
 		node = sq_query_node_append(where, sq_query_node_new(query));
-		node->type = sqn_type & (SQ_QUERYARG_RAW-1);
+		node->type = SQN_OR + (logi_type & (SQ_QUERYARG_RAW-1));
 	}
 
-	va_start(arg_list, sqn_type);
-	if (sqn_type & SQ_QUERYARG_RAW) {
+	va_start(arg_list, logi_type);
+	if (logi_type & SQ_QUERYARG_RAW) {
 		char *raw = va_arg(arg_list, char*);
 		sq_query_append(query, raw, where);
 	}
@@ -366,7 +358,7 @@ bool sq_query_where_exists(SqQuery *query)
 	return true;
 }
 
-void sq_query_join(SqQuery *query, const char *table, ...)
+void sq_query_join_full(SqQuery *query, int join_type, const char *table, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -376,7 +368,7 @@ void sq_query_join(SqQuery *query, const char *table, ...)
 
 	// get last JOIN node
 	for (node = nested->parent->children;  node;  node = node->next) {
-		if (node->type >= SQN_JOIN && node->type <= SQN_FULL_JOIN)
+		if (node->type >= SQN_JOIN && node->type <= SQN_CROSS_JOIN)
 			joinon = node;
 		prev = node;
 	}
@@ -384,14 +376,16 @@ void sq_query_join(SqQuery *query, const char *table, ...)
 	node = joinon ? joinon : prev;
 	// insert new JOIN node
 	joinon = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-	joinon->type = SQN_JOIN;
+	joinon->type = SQN_JOIN + join_type;
 	nested->joinon = joinon;
 	// table node
 	joinon->children = sq_query_node_new(query);
 	nested->aliasable = joinon->children;    // for sq_query_as()
 	// ON
-	node = sq_query_node_append(joinon, sq_query_node_new(query));
-	node->type = SQN_ON;
+	if (join_type != SQ_QUERYJOIN_CROSS) {
+		node = sq_query_node_append(joinon, sq_query_node_new(query));
+		node->type = SQN_ON;
+	}
 	// assign table name
 	node = joinon->children;
 	if (table == NULL) {
@@ -404,12 +398,14 @@ void sq_query_join(SqQuery *query, const char *table, ...)
 		node->value = strdup(table);
 	}
 
+	if (join_type == SQ_QUERYJOIN_CROSS)
+		return;
 	va_start(arg_list, table);
 	sq_query_node_append(joinon, sq_query_condition(query, arg_list));
 	va_end(arg_list);
 }
 
-void sq_query_on_logical(SqQuery *query, int sqn_type, ...)
+void sq_query_on_logical(SqQuery *query, int logi_type, ...)
 {
 	va_list        arg_list;
 	SqQueryNode   *joinon = query->nested_cur->joinon;
@@ -421,11 +417,11 @@ void sq_query_on_logical(SqQuery *query, int sqn_type, ...)
 	if (node->type == SQN_NONE || node->type == SQN_VALUE) {
 		node->next = sq_query_node_new(query);
 		node = node->next;
-		node->type = sqn_type & (SQ_QUERYARG_RAW-1);
+		node->type = SQN_OR + (logi_type & (SQ_QUERYARG_RAW-1));
 	}
 
-	va_start(arg_list, sqn_type);
-	if (sqn_type & SQ_QUERYARG_RAW) {
+	va_start(arg_list, logi_type);
+	if (logi_type & SQ_QUERYARG_RAW) {
 		char *raw = va_arg(arg_list, char*);
 		sq_query_append(query, raw, joinon);
 	}
@@ -454,7 +450,7 @@ void sq_query_group_by(SqQuery *query, ...)
 	nested->aliasable = NULL;
 }
 
-void sq_query_having_logical(SqQuery *query, int sqn_type, ...)
+void sq_query_having_logical(SqQuery *query, int logi_type, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -469,11 +465,11 @@ void sq_query_having_logical(SqQuery *query, int sqn_type, ...)
 
 	if (having->children) {
 		node = sq_query_node_append(having, sq_query_node_new(query));
-		node->type = sqn_type & (SQ_QUERYARG_RAW-1);
+		node->type = SQN_OR + (logi_type & (SQ_QUERYARG_RAW-1));
 	}
 
-	va_start(arg_list, sqn_type);
-	if (sqn_type & SQ_QUERYARG_RAW) {
+	va_start(arg_list, logi_type);
+	if (logi_type & SQ_QUERYARG_RAW) {
 		char *raw = va_arg(arg_list, char*);
 		sq_query_append(query, raw, having);
 	}
@@ -502,7 +498,7 @@ void sq_query_order_by(SqQuery *query, ...)
 	nested->aliasable = NULL;
 }
 
-void sq_query_order_sorted(SqQuery *query, int sqn_type)
+void sq_query_order_sorted(SqQuery *query, int sort_type)
 {
 	SqQueryNested *nested = query->nested_cur;
 	SqQueryNode   *orderby;
@@ -517,7 +513,7 @@ void sq_query_order_sorted(SqQuery *query, int sqn_type)
 
 	if (node->type == SQN_VALUE)
 		node = sq_query_node_append(orderby, sq_query_node_new(query));
-	node->type = sqn_type;
+	node->type = SQN_ASC + sort_type;
 }
 
 void *sq_query_union(SqQuery *query)
@@ -773,7 +769,7 @@ int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
 	// JOIN table2_name AS table2_as_name
 	for (qnode = query->root.children; qnode;  qnode = qnode->next) {
 		if (qnode->type != SQN_FROM) {
-			if (qnode->type < SQN_JOIN || qnode->type > SQN_FULL_JOIN)
+			if (qnode->type < SQN_JOIN || qnode->type > SQN_CROSS_JOIN)
 				continue;
 		}
 		// table name
@@ -996,9 +992,8 @@ static const char *sqnword[SQN_N_CODE] = {
 	"JOIN",              // SQN_JOIN
 	"LEFT JOIN",         // SQN_LEFT_JOIN
 	"RIGHT JOIN",        // SQN_RIGHT_JOIN
-	"INNER JOIN",        // SQN_INNER_JOIN
-	"OUTER JOIN",        // SQN_OUTER_JOIN
 	"FULL JOIN",         // SQN_FULL_JOIN
+	"CROSS JOIN",        // SQN_CROSS_JOIN
 	"SET",               // SQN_SET        // UPDATE
 	"WHERE",             // SQN_WHERE      // SELECT, UPDATE, DELETE
 	"GROUP BY",          // SQN_GROUP_BY

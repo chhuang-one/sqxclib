@@ -171,9 +171,41 @@
 #define SQQ_JOIN(table, ...)   \
 		sq_query_join(query_cur_, table, ##__VA_ARGS__, NULL)
 
-#define SQQ_JOIN_SUB(lambda)               \
-		sq_query_join(query_cur_, NULL);  \
-		lambda;                           \
+#define SQQ_JOIN_SUB(lambda)                          \
+		sq_query_join(query_cur_, NULL);              \
+		lambda;                                       \
+		sq_query_pop_nested(query_cur_)
+
+#define SQQ_LEFT_JOIN(table, ...)   \
+		sq_query_left_join(query_cur_, table, ##__VA_ARGS__, NULL)
+
+#define SQQ_LEFT_JOIN_SUB(lambda)                     \
+		sq_query_left_join(query_cur_, NULL);         \
+		lambda;                                       \
+		sq_query_pop_nested(query_cur_)
+
+#define SQQ_RIGHT_JOIN(table, ...)   \
+		sq_query_right_join(query_cur_, table, ##__VA_ARGS__, NULL)
+
+#define SQQ_RIGHT_JOIN_SUB(lambda)                    \
+		sq_query_right_join(query_cur_, NULL);        \
+		lambda;                                       \
+		sq_query_pop_nested(query_cur_)
+
+#define SQQ_FULL_JOIN(table, ...)   \
+		sq_query_full_join(query_cur_, table, ##__VA_ARGS__, NULL)
+
+#define SQQ_FULL_JOIN_SUB(lambda)                     \
+		sq_query_full_join(query_cur_, NULL);         \
+		lambda;                                       \
+		sq_query_pop_nested(query_cur_)
+
+#define SQQ_CROSS_JOIN(table)   \
+		sq_query_cross_join(query_cur_, table)
+
+#define SQQ_CROSS_JOIN_SUB(lambda)                    \
+		sq_query_cross_join(query_cur_, NULL);        \
+		lambda;                                       \
 		sq_query_pop_nested(query_cur_)
 
 #define SQQ_ON(...)   \

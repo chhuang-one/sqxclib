@@ -39,13 +39,22 @@ extern "C" {
 #endif
 
 // join on, where, having
-extern const int SQ_QUERYLOGI_OR;
-extern const int SQ_QUERYLOGI_AND;
+#define SQ_QUERYLOGI_OR       0
+#define SQ_QUERYLOGI_AND      1
+
+// join
+#define SQ_QUERYJOIN_INNER    0
+#define SQ_QUERYJOIN_LEFT     1
+#define SQ_QUERYJOIN_RIGHT    2
+#define SQ_QUERYJOIN_FULL     3
+#define SQ_QUERYJOIN_CROSS    4
+
 // order by
-extern const int SQ_QUERYSORT_ASC;
-extern const int SQ_QUERYSORT_DESC;
+#define SQ_QUERYSORT_ASC      0
+#define SQ_QUERYSORT_DESC     1
+
 // raw
-#define SQ_QUERYARG_RAW    (0x8000)
+#define SQ_QUERYARG_RAW       (0x8000)
 
 /*	SqQuery C functions
 
@@ -53,6 +62,9 @@ extern const int SQ_QUERYSORT_DESC;
 	** below functions support printf format string in 2nd argument:
 		sq_query_printf(),
 		sq_query_join(),
+		sq_query_left_join(),
+		sq_query_right_join(),
+		sq_query_full_join(),
 		sq_query_on(),     sq_query_or_on(),
 		sq_query_where(),  sq_query_or_where(),
 		sq_query_having(), sq_query_or_having(),
@@ -79,10 +91,14 @@ extern const int SQ_QUERYSORT_DESC;
 
 
 	** below function support Subquery/Nested: (2nd argument must be NULL)
-		sq_query_from();
-		sq_query_join();
-		sq_query_on();     sq_query_or_on();
-		sq_query_where();  sq_query_or_where();
+		sq_query_from(),
+		sq_query_join(),
+		sq_query_left_join(),
+		sq_query_right_join(),
+		sq_query_full_join(),
+		sq_query_cross_join(),
+		sq_query_on(),     sq_query_or_on(),
+		sq_query_where(),  sq_query_or_where(),
 		sq_query_having(), sq_query_or_having(),
 
 	// e.g. "WHERE (salary > 45 AND age < 21)"
@@ -144,30 +160,58 @@ bool    sq_query_from(SqQuery *query, const char *table);
 void    sq_query_as(SqQuery *query, const char *name);
 
 // SQL: JOIN ON
-void    sq_query_join(SqQuery *query, const char *table, ...);
-void    sq_query_on_logical(SqQuery *query, int sqn_type, ...);
+void    sq_query_join_full(SqQuery *query, int join_type, const char *table, ...);
+void    sq_query_on_logical(SqQuery *query, int logi_type, ...);
 
+// void sq_query_join(SqQuery *query, const char *table, ...);
+#define sq_query_join(query, ...)          \
+		sq_query_join_full(query, SQ_QUERYJOIN_INNER, __VA_ARGS__)
+
+// void sq_query_left_join(SqQuery *query, const char *table, ...);
+#define sq_query_left_join(query, ...)     \
+		sq_query_join_full(query, SQ_QUERYJOIN_LEFT,  __VA_ARGS__)
+
+// void sq_query_right_join(SqQuery *query, const char *table, ...);
+#define sq_query_right_join(query, ...)    \
+		sq_query_join_full(query, SQ_QUERYJOIN_RIGHT, __VA_ARGS__)
+
+// void sq_query_full_join(SqQuery *query, const char *table, ...);
+#define sq_query_full_join(query, ...)     \
+		sq_query_join_full(query, SQ_QUERYJOIN_FULL,  __VA_ARGS__)
+
+// void sq_query_cross_join(SqQuery *query, const char *table);
+#define sq_query_cross_join(query, table)  \
+		sq_query_join_full(query, SQ_QUERYJOIN_CROSS, table, NULL)
+
+// void sq_query_on(SqQuery *query, ...);
 #define sq_query_on(query, ...)        \
 		sq_query_on_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
+// void sq_query_or_on(SqQuery *query, ...);
 #define sq_query_or_on(query, ...)     \
 		sq_query_on_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
+// void sq_query_on_raw(SqQuery *query, const char *raw);
 #define sq_query_on_raw(query, raw)        \
 		sq_query_on_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARG_RAW, raw)
+// void sq_query_or_on_raw(SqQuery *query, const char *raw);
 #define sq_query_or_on_raw(query, raw)     \
 		sq_query_on_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
 
 // SQL: WHERE
-void    sq_query_where_logical(SqQuery *query, int sqn_type, ...);
+void    sq_query_where_logical(SqQuery *query, int logi_type, ...);
 bool    sq_query_where_exists(SqQuery *query);
 
+// void sq_query_where(SqQuery *query, ...)
 #define sq_query_where(query, ...)        \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
+// void sq_query_or_where(SqQuery *query, ...)
 #define sq_query_or_where(query, ...)     \
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
+// void sq_query_where_raw(SqQuery *query, const char *raw)
 #define sq_query_where_raw(query, raw)        \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARG_RAW, raw)
+// void sq_query_or_where_raw(SqQuery *query, const char *raw)
 #define sq_query_or_where_raw(query, raw)     \
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
 
@@ -176,19 +220,24 @@ bool    sq_query_where_exists(SqQuery *query);
 // e.g. sq_query_group_by(query, column_name..., NULL)
 void    sq_query_group_by(SqQuery *query, ...);
 
+// void sq_query_group_by_raw(SqQuery *query, const char *raw)
 #define sq_query_group_by_raw(query, raw)    \
 		sq_query_group_by(query, raw, NULL)
 
 // SQL: HAVING
-void    sq_query_having_logical(SqQuery *query, int sqn_type, ...);
+void    sq_query_having_logical(SqQuery *query, int logi_type, ...);
 
+// void sq_query_having(SqQuery *query, ...)
 #define sq_query_having(query, ...)        \
 		sq_query_having_logical(query, SQ_QUERYLOGI_AND, __VA_ARGS__)
+// void sq_query_or_having(SqQuery *query, ...)
 #define sq_query_or_having(query, ...)     \
 		sq_query_having_logical(query, SQ_QUERYLOGI_OR,  __VA_ARGS__)
 
+// void sq_query_having_raw(SqQuery *query, const char *raw)
 #define sq_query_having_raw(query, raw)        \
 		sq_query_having_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARG_RAW, raw)
+// void sq_query_or_having_raw(SqQuery *query, const char *raw)
 #define sq_query_or_having_raw(query, raw)     \
 		sq_query_having_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
 
@@ -198,6 +247,7 @@ void    sq_query_having_logical(SqQuery *query, int sqn_type, ...);
 bool    sq_query_select(SqQuery *query, ...);
 bool    sq_query_distinct(SqQuery *query);
 
+// void sq_query_select_raw(SqQuery *query, const char *raw)
 #define sq_query_select_raw(query, raw)    \
 		sq_query_select(query, raw, NULL)
 
@@ -205,13 +255,16 @@ bool    sq_query_distinct(SqQuery *query);
 // the last argument of sq_query_order_by() must be NULL.
 // e.g. sq_query_order_by(query, column_name..., NULL)
 void    sq_query_order_by(SqQuery *query, ...);
-void    sq_query_order_sorted(SqQuery *query, int sqn_type);
+void    sq_query_order_sorted(SqQuery *query, int sort_type);
 
+// void sq_query_order_by_raw(SqQuery *query, const char *raw);
 #define sq_query_order_by_raw(query, raw)    \
 		sq_query_order_by(query, raw, NULL)
 
+// void sq_query_asc(SqQuery *query);
 #define sq_query_asc(query)     \
 		sq_query_order_sorted(query, SQ_QUERYSORT_ASC)
+// void sq_query_desc(SqQuery *query);
 #define sq_query_desc(query)    \
 		sq_query_order_sorted(query, SQ_QUERYSORT_DESC)
 
@@ -277,6 +330,21 @@ struct QueryMethod
 	template <typename... Args>
 	Sq::Query& join(const char *table, const Args... args);
 	Sq::Query& join(std::function<void()> func);
+	// leftJoin(table, condition...)
+	template <typename... Args>
+	Sq::Query& leftJoin(const char *table, const Args... args);
+	Sq::Query& leftJoin(std::function<void()> func);
+	// rightJoin(table, condition...)
+	template <typename... Args>
+	Sq::Query& rightJoin(const char *table, const Args... args);
+	Sq::Query& rightJoin(std::function<void()> func);
+	// fullJoin(table, condition...)
+	template <typename... Args>
+	Sq::Query& fullJoin(const char *table, const Args... args);
+	Sq::Query& fullJoin(std::function<void()> func);
+	// crossJoin(table)
+	Sq::Query& crossJoin(const char *table);
+	Sq::Query& crossJoin(std::function<void()> func);
 
 	// on(condition, ...)
 	template <typename... Args>
@@ -507,9 +575,52 @@ inline Sq::Query&  QueryMethod::join(const char *table, const Args... args) {
 	return *(Sq::Query*)this;
 }
 inline Sq::Query&  QueryMethod::join(std::function<void()> func) {
-	sq_query_join((SqQuery*)this, NULL);    // start of Subquery/Nested
+	sq_query_join((SqQuery*)this, NULL);          // start of Subquery/Nested
 	func();
-	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	sq_query_pop_nested((SqQuery*)this);          // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+template <typename... Args>
+inline Sq::Query&  QueryMethod::leftJoin(const char *table, const Args... args) {
+	sq_query_left_join((SqQuery*)this, table, args..., NULL);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::leftJoin(std::function<void()> func) {
+	sq_query_left_join((SqQuery*)this, NULL);     // start of Subquery/Nested
+	func();
+	sq_query_pop_nested((SqQuery*)this);          // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+template <typename... Args>
+inline Sq::Query&  QueryMethod::rightJoin(const char *table, const Args... args) {
+	sq_query_right_join((SqQuery*)this, table, args..., NULL);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::rightJoin(std::function<void()> func) {
+	sq_query_right_join((SqQuery*)this, NULL);    // start of Subquery/Nested
+	func();
+	sq_query_pop_nested((SqQuery*)this);          // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+template <typename... Args>
+inline Sq::Query&  QueryMethod::fullJoin(const char *table, const Args... args) {
+	sq_query_full_join((SqQuery*)this, table, args..., NULL);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::fullJoin(std::function<void()> func) {
+	sq_query_full_join((SqQuery*)this, NULL);     // start of Subquery/Nested
+	func();
+	sq_query_pop_nested((SqQuery*)this);          // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::crossJoin(const char *table) {
+	sq_query_cross_join((SqQuery*)this, table);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query&  QueryMethod::crossJoin(std::function<void()> func) {
+	sq_query_cross_join((SqQuery*)this, NULL);    // start of Subquery/Nested
+	func();
+	sq_query_pop_nested((SqQuery*)this);          // end of Subquery/Nested
 	return *(Sq::Query*)this;
 }
 

@@ -78,6 +78,9 @@ There are many functions support printf format string, so user need to pay atten
 below C functions support printf format string in 2nd argument:
 	sq_query_printf(),
 	sq_query_join(),
+	sq_query_left_join(),
+	sq_query_right_join(),
+	sq_query_full_join(),
 	sq_query_on(),     sq_query_or_on(),
 	sq_query_where(),  sq_query_or_where(),
 	sq_query_having(), sq_query_or_having(),
@@ -94,6 +97,9 @@ C language example:
 below C++ methods support printf format string in 1st argument:
 
 	join(),
+	leftJoin(),
+	rightJoin(),
+	fullJoin(),
 	on(),     orOn(),
 	where(),  orWhere(),
 	having(), orHaving(),
@@ -378,6 +384,10 @@ use C++ language
 
 ## Joins
 
+#### Inner Join
+
+To generate "inner join" statement , you may use the sq_query_join() on a SqQuery instance.  
+  
 use C language
 
 ```c
@@ -390,6 +400,50 @@ use C++ language
 ```c++
 	query->table("companies")
 	     ->join("city", "city.id", "<", "100");
+```
+
+#### Left Join / Right Join / Full Join
+
+use C language
+
+```
+	sq_query_table(query, "users");
+	sq_query_left_join(query, "posts", "users.id", "=", "posts.user_id");
+
+	sq_query_table(query, "users");
+	sq_query_right_join(query, "posts", "users.id", "=", "posts.user_id");
+
+	sq_query_table(query, "users");
+	sq_query_full_join(query, "posts", "users.id", "=", "posts.user_id");
+```
+
+use C++ language
+
+```c++
+	query->table("users")
+	     ->leftJoin("posts", "users.id", "=", "posts.user_id");
+
+	query->table("users")
+	     ->rightJoin("posts", "users.id", "=", "posts.user_id");
+
+	query->table("users")
+	     ->fullJoin("posts", "users.id", "=", "posts.user_id");
+```
+
+#### Cross Join
+
+use C language
+
+```c
+	sq_query_table(query, "users");
+	sq_query_cross_join(query, "posts");
+```
+
+use C++ language
+
+```c++
+	query->table("users")
+	     ->crossJoin("posts");
 ```
 
 ## Unions
@@ -435,8 +489,12 @@ use C++ language
 below C functions support Subquery/Nested:  
 
 	sq_query_join(),
+	sq_query_left_join(),
+	sq_query_right_join(),
+	sq_query_full_join(),
+	sq_query_cross_join(),
 	sq_query_on(),     sq_query_or_on(),
-	sq_query_where(),  sq_query_or_where(), sq_query_where_exists(),
+	sq_query_where(),  sq_query_or_where(),  sq_query_where_exists(),
 	sq_query_having(), sq_query_or_having()
 
 Note1: except sq_query_where_exists(), second argument of these functions must be NULL.  
@@ -445,6 +503,10 @@ Note2: you must call sq_query_pop_nested() in end of Subquery/Nested.
 below C++ method use lambda function to support Subquery/Nested, user don't need to call sq_query_pop_nested()  
 
 	join(),
+	leftJoin(),
+	rightJoin(),
+	fullJoin(),
+	crossJoin(),
 	on(),     orOn(),
 	where(),  orWhere(),  whereExists(),
 	having(), orHaving()
