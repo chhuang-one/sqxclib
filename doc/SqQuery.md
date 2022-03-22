@@ -76,6 +76,7 @@ There are many functions support printf format string, so user need to pay atten
 * If you want to use SQL Wildcard Characters '%' in these functions, you must print “%” using “%%”.  
 
 below C functions support printf format string in 2nd argument:
+
 	sq_query_printf(),
 	sq_query_join(),
 	sq_query_left_join(),

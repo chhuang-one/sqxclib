@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <inttypes.h>   // PRId64, PRIu64
 
 #include <sqxclib.h>
 #include <SqSchema-macro.h>
@@ -90,7 +91,7 @@ void test_storage_crud(SqStorage *storage)
 	// insert to companies and get inserted row id.
 	id = sq_storage_insert(storage, "companies", NULL, &company);
 
-	fprintf(stderr, "insert(): inserted id = %d.\n", (int)id);
+	fprintf(stderr, "insert(): inserted id = %"PRId64"\n", id);
 	assert(id != 0);
 
 	company_ptr = sq_storage_get(storage, "companies", NULL, id);
@@ -141,7 +142,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	id[0] = sq_storage_insert(storage, "companies", NULL, &company);
 	// insert to companies and get inserted row id.
 	id[1] = sq_storage_insert(storage, "companies", NULL, &company);
-	printf("inserted id = %d, %d\n", (int)id[0], (int)id[1]);
+	fprintf(stderr, "inserted id = %"PRId64", %"PRId64"\n", id[0], id[1]);
 
 	// update_all
 	// update 2 columns only - "name" and "age".
@@ -155,10 +156,10 @@ void test_storage_xxx_all(SqStorage *storage)
 	assert(n_changes == 2);
 
 	// get_all
-	array = sq_storage_get_all(storage, "companies", NULL, NULL, NULL);\
+	array = sq_storage_get_all(storage, "companies", NULL, NULL, NULL);
 	assert(array != NULL);
 	assert(array->length == 2);
-	printf("get_all(): ok.\n");
+	fprintf(stderr, "get_all(): ok.\n");
 
 	company_ptr = array->data[0];
 	assert(company_ptr->age    == company.age);
@@ -177,7 +178,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	sq_ptr_array_free(array);
 
 	// update 2 columns only - "name" and "age".
-	printf("update_all(): ok.\n");
+	fprintf(stderr, "update_all(): ok.\n");
 
 #ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 	// update_field by offsetof(User, name) and offsetof(User, email)
@@ -203,7 +204,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	assert(company_ptr->salary != company.salary);
 	assert(strcmp(company_ptr->name, company.name) == 0);
 	company_free(company_ptr);
-	printf("update_field(): ok.\n");
+	fprintf(stderr, "update_field(): ok.\n");
 #endif // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 	// remove_all
@@ -212,7 +213,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	assert(company_ptr == NULL);
 	company_ptr = sq_storage_get(storage, "companies", NULL, id[1]);
 	assert(company_ptr == NULL);
-	printf("remove_all(): ok.\n");
+	fprintf(stderr, "remove_all(): ok.\n");
 }
 
 void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
@@ -229,15 +230,16 @@ void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
 	if (code != SQCODE_OK)
 		return;
 
-	// migrate
+	// migrate schema version 1
 	schema = sq_schema_new(NULL);
 	create_company_table(schema);
 	sq_storage_migrate(storage, schema);
 	sq_storage_migrate(storage, NULL);
 	sq_schema_free(schema);
 
-	// test get, insert, update, and remove
+	// test get(), insert(), update(), and remove()
 	test_storage_crud(storage);
+	// test update_all(), get_all(), and remove_all()
 	test_storage_xxx_all(storage);
 
 	sq_storage_close(storage);
@@ -270,7 +272,7 @@ int  main(int argc, char *argv[])
 	test_storage(SQDB_INFO_MYSQL, (SqdbConfig*) &config_mysql);
 
 #else
-	printf("No supported database");
+	fprintf(stderr, "No supported database");
 #endif
 
 	return EXIT_SUCCESS;

@@ -15,6 +15,9 @@
 #ifndef SQ_DEFINE_H
 #define SQ_DEFINE_H
 
+// ----------------------------------------------------------------------------
+// C declarations: declare C data, function, and others.
+
 #ifdef __cplusplus
 extern "C" {
 #endif

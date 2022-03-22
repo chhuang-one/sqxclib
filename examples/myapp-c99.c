@@ -15,6 +15,7 @@
 /* This is sample code for sqapp and sqxclib */
 
 #include <stdio.h>
+#include <inttypes.h>   // PRId64, PRIu64
 
 #include <sqxclib.h>
 #include <SqApp.h>
@@ -98,7 +99,7 @@ int  main(void)
 	                          "WHERE id > 0",
 	                          "age", "name",
 	                          NULL);
-	printf("number of rows changed : %d"  "\n", (int)n);
+	printf("number of rows changed : %"PRId64 "\n", n);
 
 	user_ptr = sq_storage_get(storage, "users", NULL, id[0]);
 	if (user_ptr) {
@@ -121,7 +122,7 @@ int  main(void)
 	                            offsetof(User, name),
 	                            offsetof(User, email),
 	                            -1);
-	printf("number of rows changed : %d"  "\n", (int)n);
+	printf("number of rows changed : %"PRId64 "\n", n);
 #endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 	user_ptr = sq_storage_get(storage, "users", NULL, id[1]);

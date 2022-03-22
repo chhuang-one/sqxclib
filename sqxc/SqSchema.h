@@ -225,6 +225,10 @@ struct Schema : SqSchema {
 	Schema(const char *name = NULL) {
 		sq_schema_init(this, name);
 	}
+	Schema(int version) {
+		sq_schema_init(this, NULL);
+		this->version = version;
+	}
 	~Schema() {
 		sq_schema_final(this);
 	}
