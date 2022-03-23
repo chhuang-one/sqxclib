@@ -251,14 +251,30 @@ TRUNCATE TABLE
 ## SQL statement exclude "SELECT * FROM table_name"
 
 If you don't specify table name and column name in SqQuery, it will generate SQL statement exclude "SELECT * FROM table_name".  
-The last parameter in sq_storage_get_all() and sq_storage_remove_all() can use this.
+The SQL statement parameter in sq_storage_get_all(), sq_query_update_all(), and sq_storage_remove_all() can use this.  
+  
+use C language
 
-```c++
+```c
 	sq_query_where(query, "id > 10");
 	sq_query_or_where(query, "city_id < 9");
 
 	// WHERE id > 10 OR city_id < 9
-	sql = sq_query_to_sql(query);
+	sql_where = sq_query_to_sql(query);
+
+	array = sq_storage_remove_all(storage, "users", sql_where);
+```
+
+use C++ language
+
+```c++
+	query->where("id > 10");
+	query->orWhere("city_id < 9");
+
+	// WHERE id > 10 OR city_id < 9
+	sql_where = query->toSql();
+
+	array = storage->removeAll("users", sql_where);
 ```
 
 ## Raw Methods
