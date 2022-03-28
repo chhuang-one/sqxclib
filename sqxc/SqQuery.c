@@ -168,8 +168,6 @@ SqQuery *sq_query_final(SqQuery *query)
 
 void  sq_query_clear(SqQuery *query)
 {
-	// clear query->root 
-	query->root.children = NULL;
 	// run finalize function
 	sq_query_final(query);
 	// sq_query_free_all_node() doesn't reset these
@@ -877,6 +875,7 @@ static void sq_query_free_all_node(SqQuery *query)
 	struct NodeChunk  *prev;
 
 	sq_query_node_free(query->root.children, query);
+	query->root.children = NULL;
 	// free chunk of SqQueryNode
 	while (chunk) {
 		prev = chunk->prev;
