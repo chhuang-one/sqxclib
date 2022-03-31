@@ -171,7 +171,7 @@ void  sq_query_clear(SqQuery *query)
 	// run finalize function
 	sq_query_final(query);
 	// sq_query_free_all_node() doesn't reset these
-	query->node = NULL;
+	query->used = NULL;
 	query->node_chunk = NULL;
 	query->node_count = 0;
 	query->freed = NULL;
@@ -889,26 +889,30 @@ static SqQueryNode *sq_query_node_new(SqQuery *query)
 	SqQueryNode *node;
 	struct NodeChunk  *chunk;
 
-	// reuse freed SqQueryNode
+	// reuse freed(recycled) SqQueryNode
 	if (query->freed) {
 		node = query->freed;
 		query->freed = node->next;
-		query->node = node;
 	}
-	// alloc multiple SqQueryNode each time
-	else if ((query->node_count & NODE_CHUNK_MASK) == 0) {
-		chunk = malloc(sizeof(struct NodeChunk));
-		chunk->prev = query->node_chunk;
-		query->node_chunk = chunk;
-		query->node = chunk->nodes;
+	else {
+		// get unused SqQueryNode in node_chunk
+		if ((query->node_count & NODE_CHUNK_MASK))
+			query->used++;
+		// allocate multiple SqQueryNode each time
+		else {
+			chunk = malloc(sizeof(struct NodeChunk));
+			chunk->prev = query->node_chunk;
+			query->node_chunk = chunk;
+			query->used = chunk->nodes;
+		}
+		query->node_count++;
+		node = query->used;
 	}
-	else
-		query->node++;
-	query->node_count++;
 
-	node = query->node;
+//	node->type = 0;
 	node->next = NULL;
 	node->children = NULL;
+//	node->value = NULL;
 
 	return node;
 }
@@ -922,7 +926,7 @@ static void sq_query_node_free(SqQueryNode *node, SqQuery *query)
 			free(node->value);
 		if (node->children)
 			sq_query_node_free(node->children, query);
-		// add SqQueryNode to freed list
+		// recycle SqQueryNode by adding it to freed list
 		next = node->next;
 		node->next = query->freed;
 		query->freed = node;

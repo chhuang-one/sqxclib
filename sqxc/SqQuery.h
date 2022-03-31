@@ -490,7 +490,7 @@ struct SqQueryNode
  */
 #define SQ_QUERY_MEMBERS          \
 	SqQueryNode    root;          \
-	SqQueryNode   *node;          \
+	SqQueryNode   *used;          \
 	SqQueryNode   *freed;         \
 	void          *node_chunk;    \
 	int            node_count;    \
@@ -506,10 +506,10 @@ struct SqQuery
 	SQ_QUERY_MEMBERS;                        // <-- 2. inherit member variable
 /*	// ------ SqQuery members ------
 	SqQueryNode    root;
-	SqQueryNode   *node;
-	SqQueryNode   *freed;      // freed SqQueryNode.
-	void          *node_chunk;
-	int            node_count;
+	SqQueryNode   *used;          // used  SqQueryNode in node_chunk
+	SqQueryNode   *freed;         // freed SqQueryNode (recycled)
+	void          *node_chunk;    // The last of allocated chunk
+	int            node_count;    // number of used nodes in chunks
 	SqQueryNested *nested_cur;
 	int            nested_count;
  */
