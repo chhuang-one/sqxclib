@@ -143,6 +143,17 @@ void test_query_c_union(SqQuery *query)
 	free(sql);
 }
 
+void test_query_c_str(SqQuery *query)
+{
+	sq_query_from(query, "users");
+
+	sq_query_c(query);
+	puts(sq_query_c(query));
+	assert(strcmp(query->str, "SELECT * FROM users") == 0);
+
+	sq_query_clear(query);
+}
+
 void test_query_c_no_select_from(SqQuery *query)
 {
 	char    *sql;
@@ -243,6 +254,7 @@ int main(int argc, char **argv)
 	test_query_c_raw_statement(query);
 	test_query_c_nested(query);
 	test_query_c_union(query);
+	test_query_c_str(query);
 	test_query_c_no_select_from(query);
 	test_query_c_delete(query);
 	test_query_c_truncate(query);

@@ -150,12 +150,10 @@ use C++ Standard Template Library (STL)
 
 The last parameter in sq_storage_get_all() and Sq::Storage.getAll() is SQL statement that exclude "SELECT * FROM table_name".  
   
-Note: SqQuery can generate SQL statement exclude "SELECT * FROM table_name"  
-  
 get multiple rows from database table "users" with where conditions.
 
 ```sql
-SELECT * FROM users WHERE id > 10 AND id < 100
+SELECT * FROM users WHERE id > 10 AND id < 99
 ```
 
 use C language
@@ -163,7 +161,8 @@ use C language
 ```c
 	SqPtrArray *array;
 
-	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 10 AND id < 100");
+	array = sq_storage_get_all(storage, "users", NULL, NULL,
+	                           "WHERE id > 10 AND id < 99");
 ```
 
 use C++ language
@@ -171,9 +170,11 @@ use C++ language
 ```c++
 	Sq::PtrArray *array;
 
-	array = storage->getAll("users", "WHERE id > 10 AND id < 100");
+	array = storage->getAll("users",
+	                        "WHERE id > 10 AND id < 99");
 	// or specify container type
-	array = storage->getAll<User>(SQ_TYPE_PTR_ARRAY, "WHERE id > 10 AND id < 100");
+	array = storage->getAll<User>(SQ_TYPE_PTR_ARRAY,
+	                              "WHERE id > 10 AND id < 99");
 ```
 
 use C++ Standard Template Library (STL)
@@ -181,7 +182,29 @@ use C++ Standard Template Library (STL)
 ```c++
 	std::list<User> *list;
 
-	list = storage->getAll<std::list<User>>("WHERE id > 10 AND id < 100");
+	list = storage->getAll<std::list<User>>("WHERE id > 10 AND id < 99");
+```
+
+## getAll (with SqQuery)
+
+Note: SqQuery can generate SQL statement exclude "SELECT * FROM table_name"  
+  
+use C language
+
+```c
+	SqQuery *query = sq_query_new(NULL);
+	sq_query_where(query, "id > %d", 10);
+	sq_query_where(query, "id < %d", 99);
+
+	array = sq_storage_get_all(storage, "users", NULL, NULL,
+	                           sq_query_c(query));
+```
+
+use C++ language
+
+```c++
+	array = storage->getAll("users",
+			Sq::Query().where("id > %d", 10).where("id < %d", 99).c());
 ```
 
 ## insert
@@ -250,7 +273,7 @@ UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
 
 sq_storage_update_all() return number of rows changed. They have parameter for SQL statement that exclude "UPDATE table_name SET column=value". User must pass column_name list after parameter 'SQL statement' and the last argument must be NULL.  
   
-Note: SqQuery can generate SQL statement exclude "UPDATE table_name SET column=value".  
+Note: SqQuery can generate SQL statement exclude "UPDATE table_name SET column=value". Please see above "getAll (with SqQuery)".  
   
 use C functions
 
@@ -381,7 +404,7 @@ DELETE FROM users WHERE id > 50
 
 The last parameter in sq_storage_remove_all() and Sq::Storage.removeAll() is SQL statement that exclude "DELETE FROM table_name".  
   
-Note: SqQuery can generate SQL statement exclude "DELETE FROM table_name".  
+Note: SqQuery can generate SQL statement exclude "DELETE FROM table_name". Please see above "getAll (with SqQuery)".  
   
 use C functions
 

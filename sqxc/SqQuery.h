@@ -80,8 +80,8 @@ extern "C" {
 
 	// e.g. "WHERE EXISTS ( SELECT * FROM table WHERE id > 20 )"
 	sq_query_where_exists(query);               // start of Subquery
-	sq_query_from("table");
-	sq_query_where("id > 20", NULL);
+		sq_query_from("table");
+		sq_query_where("id > 20", NULL);
 	sq_query_pop_nested(query);                 // end of Subquery
 
 
@@ -103,8 +103,8 @@ extern "C" {
 
 	// e.g. "WHERE (salary > 45 AND age < 21)"
 	sq_query_where(query, NULL);                // start of Subquery/Nested
-	sq_query_where(query, "salary", ">", "45");
-	sq_query_where(query, "age", "<", "21");
+		sq_query_where(query, "salary", ">", "45");
+		sq_query_where(query, "age", "<", "21");
 	sq_query_pop_nested(query);                 // end of Subquery/Nested
 
 
@@ -280,8 +280,11 @@ void    sq_query_delete(SqQuery *query);
 void    sq_query_truncate(SqQuery *query);
 
 // generate SQL statements
-char   *sq_query_to_sql(SqQuery *query);
-
+// The result of sq_query_to_sql() must free when you don't need it.
+char       *sq_query_to_sql(SqQuery *query);
+// You can NOT free the result of sq_query_c(), it managed by SqQuery.
+// After calling sq_query_c(), user can access SqQuery::str to reuse generated SQL statement.
+const char *sq_query_c(SqQuery *query);
 
 // get all of table_name and it's as_name in current SQL SELECT statement
 // return number of tables in query.
@@ -419,7 +422,8 @@ struct QueryMethod
 	Sq::Query& truncate();
 
 	// generate SQL statement
-	char *toSql();
+	char       *toSql();
+	const char *c();
 
 	// deprecated functions
 	Sq::Query& from(std::function<void(SqQuery& query)> func);
@@ -495,7 +499,10 @@ struct SqQueryNode
 	void          *node_chunk;    \
 	int            node_count;    \
 	SqQueryNested *nested_cur;    \
-	int            nested_count
+	int            nested_count;  \
+	char          *str;           \
+	int            length;        \
+	int            allocated
 
 #ifdef __cplusplus
 struct SqQuery : Sq::QueryMethod             // <-- 1. inherit C++ member function(method)
@@ -512,6 +519,11 @@ struct SqQuery
 	int            node_count;    // number of used nodes in chunks
 	SqQueryNested *nested_cur;
 	int            nested_count;
+
+	// sq_query_c() and sq_query_to_sql() use these
+	char          *str;
+	int            length;
+	int            allocated;
  */
 };
 
@@ -809,6 +821,9 @@ inline Sq::Query&  QueryMethod::truncate() {
 inline char *QueryMethod::toSql() {
 	return sq_query_to_sql((SqQuery*)this);
 }
+inline const char *QueryMethod::c() {
+	return sq_query_c((SqQuery*)this);
+}
 
 // deprecated QueryMethod functions
 
@@ -870,8 +885,8 @@ inline Sq::Query&  QueryMethod::orHaving(std::function<void(SqQuery& query)> fun
 /* All derived struct/class must be C++11 standard-layout. */
 
 struct Query : SqQuery {
-	Query() {
-		sq_query_init(this, NULL);
+	Query(const char *table_name = NULL) {
+		sq_query_init(this, table_name);
 	}
 	~Query() {
 		sq_query_final(this);

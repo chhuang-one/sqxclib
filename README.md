@@ -593,7 +593,9 @@ use C macro to produce query
 	});
 ```
 
-To use SqQuery with SqStorage, call C function sq_storage_query() or C++ method query()
+#### Using SqQuery with SqStorage  
+  
+use C function sq_storage_query() or C++ method query() with SqQuery
 
 ```c++
 	// C function
@@ -601,6 +603,31 @@ To use SqQuery with SqStorage, call C function sq_storage_query() or C++ method 
 
 	// C++ method
 	array = storage->query(query);
+```
+
+use C function sq_query_c() or C++ method c() with SqStorage  
+  
+use C language
+
+```c
+	// SQL statement exclude "SELECT * FROM table_name"
+	sq_query_clear(query);
+	sq_query_where(query, "id > %d", 10);
+	sq_query_where(query, "id < %d", 99);
+
+	array = sq_storage_get_all(storage, "users", NULL, NULL
+	                           sq_query_c(query));
+```
+
+use C++ language
+
+```c++
+	// SQL statement exclude "SELECT * FROM table_name"
+	query->clear()
+	     ->where("id > %d", 10)
+	     ->where("id < %d", 99);
+
+	array = storage->getAll("users", query->c());
 ```
 
 ## JOIN support

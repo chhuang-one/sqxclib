@@ -12,6 +12,13 @@ e.g. generate below SQL statement. It select all columns from a database table "
 SELECT * FROM companies
 ```
 
+SqQuery provide sq_query_to_sql() and sq_query_c() to generate SQL statement.
+* The result of sq_query_to_sql() must free when you don't need it.
+* You can NOT free the result of sq_query_c(), it managed by SqQuery.
+* After calling sq_query_c(), user can access SqQuery::str to reuse generated SQL statement.
+  
+Note: If user doesn't specify column by select(), it select all columns from a database table by default.  
+  
 use C language
 
 ```c
@@ -23,6 +30,9 @@ use C language
 
 	// generate SQL statement
 	sql = sq_query_to_sql(query);
+
+	// free 'sql' when you don't need it.
+	free(sql);
 ```
 
 use C++ language
@@ -36,9 +46,10 @@ use C++ language
 
 	// generate SQL statement
 	sql = query->toSql();
-```
 
-Note: If user doesn't specify column by select(), it select all columns from a database table by default.
+	// free 'sql' when you don't need it.
+	free(sql);
+```
 
 ## clear and reuse query instance
 
@@ -54,7 +65,10 @@ use C language
 	sq_query_table(query, "users");
 
 	// generate new SQL statement
-	sql = sq_query_to_sql(query);
+	sql = sq_query_c(query);
+
+	// After calling sq_query_c(), user can access SqQuery::str to reuse generated SQL statement.
+	sql = query->str;
 ```
 
 use C++ language
@@ -67,7 +81,10 @@ use C++ language
 	query->table("users");
 
 	// generate new SQL statement
-	sql = query->toSql();
+	sql = query->c();
+
+	// After calling Sq::Query::c(), user can access SqQuery::str to reuse generated SQL statement.
+	sql = query->str;
 ```
 
 ## SQL Statements
@@ -251,30 +268,42 @@ TRUNCATE TABLE
 ## SQL statement exclude "SELECT * FROM table_name"
 
 If you don't specify table name and column name in SqQuery, it will generate SQL statement exclude "SELECT * FROM table_name".  
-The SQL statement parameter in sq_storage_get_all(), sq_query_update_all(), and sq_storage_remove_all() can use this.  
+The SQL statement parameter in sq_storage_get_all(), sq_storage_update_all(), and sq_storage_remove_all() can use this.  
   
 use C language
 
 ```c
+	sq_query_clear(query);
+	// WHERE id > 10 OR city_id < 9
 	sq_query_where(query, "id > 10");
 	sq_query_or_where(query, "city_id < 9");
 
-	// WHERE id > 10 OR city_id < 9
-	sql_where = sq_query_to_sql(query);
+	// use sq_query_c() to generate SQL statement
+	array = sq_storage_remove_all(storage, "users",
+	                              sq_query_c(query));
 
-	array = sq_storage_remove_all(storage, "users", sql_where);
+	// or use sq_query_to_sql() to generate SQL statement
+	sql_where = sq_query_to_sql(query);
+	array = sq_storage_remove_all(storage, "users",
+	                              sql_where);
+	free(sql_where);
 ```
 
 use C++ language
 
 ```c++
+	query->clear();
+	// WHERE id > 10 OR city_id < 9
 	query->where("id > 10");
 	query->orWhere("city_id < 9");
 
-	// WHERE id > 10 OR city_id < 9
-	sql_where = query->toSql();
+	// use Sq::Query::c() to generate SQL statement
+	array = storage->removeAll("users", query->c());
 
+	// or use Sq::Query::toSql() to generate SQL statement
+	sql_where = query->toSql();
 	array = storage->removeAll("users", sql_where);
+	free(sql_where);
 ```
 
 ## Raw Methods

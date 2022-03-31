@@ -27,6 +27,8 @@
 #define strdup       _strdup
 #endif
 
+#define SQ_QUERY_STR_SIZE_DEFAULT  256
+
 static SqQueryNode *sq_query_condition(SqQuery *query, va_list arg_list);
 static void         sq_query_column(SqQuery *query, SqQueryNode *parent, va_list arg_list);
 static void         sq_query_free_all_node(SqQuery *query);
@@ -156,25 +158,34 @@ SqQuery *sq_query_init(SqQuery *query, const char *table_name)
 	return query;
 }
 
-SqQuery *sq_query_final(SqQuery *query)
+static void sq_query_clear_internal(SqQuery *query)
 {
 	// free SqQueryNested
 	while(query->nested_cur)
 		sq_query_pop_nested(query);
 	// free SqQueryNode
 	sq_query_free_all_node(query);
+}
+
+SqQuery *sq_query_final(SqQuery *query)
+{
+	sq_query_clear_internal(query);
+	// free str
+	free(query->str);
+	// return pointer
 	return query;
 }
 
 void  sq_query_clear(SqQuery *query)
 {
-	// run finalize function
-	sq_query_final(query);
+	sq_query_clear_internal(query);
+
 	// sq_query_free_all_node() doesn't reset these
-	query->used = NULL;
+	query->used  = NULL;
+	query->freed = NULL;
 	query->node_chunk = NULL;
 	query->node_count = 0;
-	query->freed = NULL;
+
 	// sq_query_init() also do this
 	sq_query_push_nested(query, &query->root);
 }
@@ -677,66 +688,74 @@ static SqQueryNode *sq_query_condition(SqQuery *query, va_list arg_list)
 // ------------------------------------
 // sq_query_to_sql()
 
-struct Sqbuf
+static void node_to_buf(SqQueryNode *node, SqQuery *query)
 {
-	char *beg;
-	char *cur;
-	char *end;
-	int   length;
-};
-
-static void node_to_buf(SqQueryNode *node, struct Sqbuf *buf)
-{
-	char *cur;
-	int   temp;
+	char *src;
+	char *dest;
+	int   value_len;
 
 	for (;  node;  node = node->next) {
 		if (node->type < SQN_N_CODE) {
 			node->value = (char*) sqnword[node->type];
 			if (node->type == SQN_COMMA)
-				buf->cur--;
+				query->length--;
 		}
-		cur = node->value;
-		if (*cur) {
-			temp = (int)strlen(cur) + 1;    // + " "
-			if (buf->cur +temp >= buf->end) {
-				temp = (int)(buf->cur - buf->beg);
-				buf->length *= 2;
-				buf->beg = realloc(buf->beg, buf->length);
-				buf->end = buf->beg + buf->length;
-				buf->cur = buf->beg + temp;
+		src = node->value;
+		if (*src) {
+			value_len = (int)strlen(src) + 1;    // + " "
+			if (query->length +value_len >= query->allocated) {
+				query->allocated *= 2;
+				query->str = realloc(query->str, query->allocated);
 			}
-			while (*cur)
-				*buf->cur++ = *cur++;
-			*buf->cur++ = ' ';
+			dest = query->str + query->length;
+			query->length += value_len; 
+			while (*src)
+				*dest++ = *src++;
+			*dest++ = ' ';
 		}
-		node_to_buf(node->children, buf);
+		node_to_buf(node->children, query);
 	}
+}
+
+const char *sq_query_c(SqQuery *query)
+{
+	union {
+		SqQueryNested *nested;
+		char          *dest;
+	} temp;
+
+	temp.nested = query->nested_cur;
+	if (temp.nested->name) {
+		if (temp.nested->command == NULL)
+			sq_query_select(query, NULL);
+	}
+
+	if (query->str == NULL) {
+		query->str = malloc(SQ_QUERY_STR_SIZE_DEFAULT);
+		query->allocated = SQ_QUERY_STR_SIZE_DEFAULT;
+	}
+	query->length = 0;
+	node_to_buf(query->root.children, query);
+
+	temp.dest = query->str + query->length;
+	if (query->length > 0)
+		temp.dest--;
+	*temp.dest = 0;
+
+	return query->str;
 }
 
 char *sq_query_to_sql(SqQuery *query)
 {
-	SqQueryNested *nested = query->nested_cur;
-	struct Sqbuf   buf;
+	char *result;
 
-	if (nested->name) {
-		if (nested->command == NULL)
-			sq_query_select(query, NULL);
-	}
+	sq_query_c(query);
+	result = realloc(query->str, query->length);
+	query->str = NULL;
+	query->length = 0;
+//	query->allocated = 0;
 
-	buf.length = 1024;
-	buf.beg = malloc(buf.length);
-	buf.end = buf.beg + buf.length;
-	buf.cur = buf.beg;
-	node_to_buf(query->root.children, &buf);
-
-	if (buf.cur > buf.beg)
-		*(buf.cur-1) = 0;
-	else
-		*buf.cur = 0;
-	buf.beg = realloc(buf.beg, buf.cur - buf.beg);
-
-	return buf.beg;
+	return result;
 }
 
 static const char *get_table(SqQueryNode *parent)
@@ -882,6 +901,13 @@ static void sq_query_free_all_node(SqQuery *query)
 		free(chunk);
 		chunk = prev;
 	}
+
+	/* sq_query_clear() will reset these
+	query->used  = NULL;
+	query->freed = NULL;
+	query->node_chunk = NULL;
+	query->node_count = 0;
+	 */
 }
 
 static SqQueryNode *sq_query_node_new(SqQuery *query)
