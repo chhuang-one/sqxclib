@@ -71,7 +71,7 @@ static const SqColumn  *UserColumns[] = {
 	&UserColumnArray[2],
 };
 
-void test_schema_with_designated_initializer()
+void test_schema_with_aggregate_initializer()
 {
 	Sq::Schema* schema;
 	Sq::Table*  table;
@@ -141,9 +141,27 @@ void test_query_cpp()
 	delete query;
 }
 
+void test_query_cpp_convenient_struct()
+{
+	std::string sql;
+
+	sql = Sq::Query("users").where("id < 20").c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "SELECT * FROM users WHERE id < 20") == 0);
+
+	sql = Sq::where("id > %d", 10)->where("id < %d", 99)->c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "WHERE id > 10 AND id < 99") == 0);
+
+	sql = Sq::whereRaw("id < 13")->orWhere("city_id < %d", 22)->c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "WHERE id < 13 OR city_id < 22") == 0);
+}
+
 void test_query()
 {
 	test_query_cpp();
+	test_query_cpp_convenient_struct();
 }
 
 // ----------------------------------------------------------------------------

@@ -306,6 +306,14 @@ use C++ language
 	free(sql_where);
 ```
 
+use C++ language with convenient structure/function
+
+```c++
+	// use Sq::where to generate SQL statement
+	array = storage->removeAll("users",
+			Sq::where("id < %d", 11)->orWhere("city_id < %d", 33)->c());
+```
+
 ## Raw Methods
 
 insert a raw expression into various parts of your query.  

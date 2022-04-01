@@ -207,6 +207,14 @@ use C++ language
 			Sq::Query().where("id > %d", 10).where("id < %d", 99).c());
 ```
 
+use C++ language with convenient structure/function
+
+```c++
+	// use Sq::where to generate SQL statement
+	array = storage->getAll("users",
+			Sq::where("id > %d", 10)->where("id < %d", 99)->c());
+```
+
 ## insert
 
 sq_storage_insert() return inserted row id if primary key has auto increment attribute.  

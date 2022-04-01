@@ -628,6 +628,14 @@ use C++ language
 	array = storage->getAll("users", query->c());
 ```
 
+use C++ language with convenient structure/function
+
+```c++
+	// use Sq::where to generate SQL statement
+	array = storage->getAll("users",
+			Sq::where("id > %d", 10)->where("id < %d", 99)->c());
+```
+
 ## JOIN support
 
 use C functions

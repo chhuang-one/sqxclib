@@ -893,6 +893,55 @@ struct Query : SqQuery {
 	}
 };
 
+/*	convenient structure/function for Sq::Storage
+
+	// below code output string "WHERE id < 15 OR city_id < 20"
+	std::cout << Sq::where("id < %d", 15)->orWhere("city_id < %d", 20)->c();
+ */
+
+struct where
+{
+	SqQuery  *query;
+
+	template <typename... Args>
+	where(const char *condition, const Args... args) {
+		query = sq_query_new(NULL);
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND, condition, args..., NULL);
+	}
+	where(std::function<void()> func) {
+		query = sq_query_new(NULL);
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
+		func();
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+	}
+
+	~where() {
+		sq_query_free(query);
+	}
+
+	SqQuery *operator->() {
+		return query;
+	}
+};
+
+struct whereRaw
+{
+	SqQuery  *query;
+
+	whereRaw(const char *raw) {
+		query = sq_query_new(NULL);
+		sq_query_where_raw(query, raw);
+	}
+
+	~whereRaw() {
+		sq_query_free(query);
+	}
+
+	SqQuery *operator->() {
+		return query;
+	}
+};
+
 };  // namespace Sq
 
 #endif  // __cplusplus
