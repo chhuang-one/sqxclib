@@ -127,8 +127,27 @@ C++ language example:
 ```c++
 	query->where("id < %d", 100);
 
+	// If the 2nd argument is exist, the 1st argument is handled as printf format string.
 	// output "city LIKE 'ber%'"
-	query->where("city LIKE 'ber%%'");
+	query->where("city LIKE 'ber%%'", NULL);
+```
+
+If the 2nd argument of below C++ methods is NOT exist, the 1st argument is handled as raw string.  
+These C++ methods has overloaded function to handle raw string:
+
+	on(),     orOn(),
+	where(),  orWhere(),
+	having(), orHaving(),
+	select(),
+	groupBy(),
+	orderBy()
+
+C++ language example:
+
+```c++
+	// If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+	// output "city LIKE 'ber%'"
+	query->where("city LIKE 'ber%'");
 ```
 
 #### select
@@ -334,6 +353,14 @@ use C++ language
 	     ->selectRaw("COUNT(column_name)");
 ```
 
+C++ method select() has overloaded function to handle raw string.  
+If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+
+```c++
+	query->table("users")
+	     ->select("COUNT(column_name)");
+```
+
 #### whereRaw / orWhereRaw
 
 use C language
@@ -352,6 +379,15 @@ use C++ language
 	     ->whereRaw("city LIKE 'ber%'");
 ```
 
+C++ method where()/orWhere() has overloaded function to handle raw string.  
+If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+
+```c++
+	query->table("users")
+	     ->where("id > 100 AND id < 300")
+	     ->where("city LIKE 'ber%'");
+```
+
 #### havingRaw / orHavingRaw
 
 use C language
@@ -366,6 +402,14 @@ use C++ language
 ```c++
 	query->table("orders")
 	     ->havingRaw("SUM(price) > 3000");
+```
+
+C++ method having()/orHaving() has overloaded function to handle raw string.  
+If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+
+```c++
+	query->table("orders")
+	     ->having("SUM(price) > 3000");
 ```
 
 #### orderByRaw
@@ -384,6 +428,14 @@ use C++ language
 	     ->orderByRaw("updated_at DESC");
 ```
 
+C++ method orderBy() has overloaded function to handle raw string.  
+If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+
+```c++
+	query->table("orders")
+	     ->orderBy("updated_at DESC");
+```
+
 #### groupByRaw
 
 use C language
@@ -398,6 +450,14 @@ use C++ language
 ```c++
 	query->table("companies")
 	     ->groupByRaw("city, state");
+```
+
+C++ method groupBy() has overloaded function to handle raw string.  
+If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+
+```c++
+	query->table("companies")
+	     ->groupBy("city, state");
 ```
 
 #### raw SQL statement

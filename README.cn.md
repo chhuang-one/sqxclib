@@ -591,8 +591,8 @@ use C macro to produce query
 	});
 ```
 
-#### Using SqQuery with SqStorage  
-  
+#### Using SqQuery with SqStorage
+
 use C function sq_storage_query() or C++ method query() with SqQuery
 
 ```c++

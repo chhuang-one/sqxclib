@@ -210,18 +210,20 @@
 
 #define SQQ_ON(...)   \
 		sq_query_on(query_cur_, ##__VA_ARGS__, NULL)
-#define SQQ_ON_RAW    SQQ_ON
+#define SQQ_ON_RAW(raw)    \
+		sq_query_on_raw(query_cur_, raw)
 
-#define SQQ_ON_SUB(lambda)                 \
+#define SQQ_ON_SUB(lambda)                \
 		sq_query_on(query_cur_, NULL);    \
 		lambda;                           \
 		sq_query_pop_nested(query_cur_)
 
 #define SQQ_OR_ON(...)   \
 		sq_query_or_on(query_cur_, ##__VA_ARGS__, NULL)
-#define SQQ_OR_ON_RAW    SQQ_OR_ON
+#define SQQ_OR_ON_RAW(raw)    \
+		sq_query_or_on_raw(query_cur_, raw)
 
-#define SQQ_OR_ON_SUB(lambda)               \
+#define SQQ_OR_ON_SUB(lambda)              \
 		sq_query_or_on(query_cur_, NULL);  \
 		lambda;                            \
 		sq_query_pop_nested(query_cur_)
@@ -230,23 +232,25 @@
 
 #define SQQ_WHERE(...)  \
 		sq_query_where(query_cur_, ##__VA_ARGS__, NULL)
-#define SQQ_WHERE_RAW    SQQ_WHERE
+#define SQQ_WHERE_RAW(raw)    \
+		sq_query_where_raw(query_cur_, raw)
 
-#define SQQ_WHERE_SUB(lambda)                \
+#define SQQ_WHERE_SUB(lambda)               \
 		sq_query_where(query_cur_, NULL);   \
 		lambda;                             \
 		sq_query_pop_nested(query_cur_)
 
 #define SQQ_OR_WHERE(...)  \
 		sq_query_or_where(query_cur_, ##__VA_ARGS__, NULL)
-#define SQQ_OR_WHERE_RAW    SQQ_OR_WHERE
+#define SQQ_OR_WHERE_RAW(raw)    \
+		sq_query_or_where_raw(query_cur_, raw)
 
-#define SQQ_OR_WHERE_SUB(lambda)               \
+#define SQQ_OR_WHERE_SUB(lambda)              \
 		sq_query_or_where(query_cur_, NULL);  \
 		lambda;                               \
 		sq_query_pop_nested(query_cur_)
 
-#define SQQ_WHERE_EXISTS(lambda)             \
+#define SQQ_WHERE_EXISTS(lambda)            \
 		sq_query_where_exists(query_cur_);  \
 		lambda;                             \
 		sq_query_pop_nested(query_cur_)
@@ -255,24 +259,27 @@
 
 #define SQQ_GROUP_BY(...)  \
 		sq_query_group_by(query_cur_, ##__VA_ARGS__, NULL)
-#define SQQ_GROUP_BY_RAW    SQQ_GROUP_BY
+#define SQQ_GROUP_BY_RAW(raw)    \
+		sq_query_group_by_raw(query_cur_, raw)
 
 // --------------------------------------------------------
 
 #define SQQ_HAVING(...)  \
 		sq_query_having(query_cur_, ##__VA_ARGS__, NULL)
-#define SQQ_HAVING_RAW    SQQ_HAVING
+#define SQQ_HAVING_RAW(raw)    \
+		sq_query_having_raw(query_cur_, raw)
 
-#define SQQ_HAVING_SUB(lambda)               \
+#define SQQ_HAVING_SUB(lambda)              \
 		sq_query_having(query_cur_, NULL);  \
 		lambda;                             \
 		sq_query_pop_nested(query_cur_)
 
 #define SQQ_OR_HAVING(...)  \
 		sq_query_or_having(query_cur_, ##__VA_ARGS__, NULL)
-#define SQQ_OR_HAVING_RAW    SQQ_OR_HAVING
+#define SQQ_OR_HAVING_RAW(raw)    \
+		sq_query_or_having_raw(query_cur_, raw)
 
-#define SQQ_OR_HAVING_SUB(lambda)              \
+#define SQQ_OR_HAVING_SUB(lambda)             \
 		sq_query_or_having(query_cur_, NULL); \
 		lambda;                               \
 		sq_query_pop_nested(query_cur_)
@@ -281,7 +288,8 @@
 
 #define SQQ_SELECT(...)   \
 		sq_query_select(query_cur_, ##__VA_ARGS__, NULL)
-#define SQQ_SELECT_RAW    SQQ_SELECT
+#define SQQ_SELECT_RAW(raw)    \
+		sq_query_select_raw(query_cur_, raw)
 
 #define SQQ_DISTINCT()   \
 		sq_query_distinct(query_cur_)
@@ -290,7 +298,8 @@
 
 #define SQQ_ORDER_BY(...)   \
 		sq_query_order_by(query_cur_, ##__VA_ARGS__, NULL)
-#define SQQ_ORDER_BY_RAW    SQQ_ORDER_BY
+#define SQQ_ORDER_BY_RAW(raw)    \
+		sq_query_order_by_raw(query_cur_, raw)
 
 #define SQQ_ASC()   \
 		sq_query_asc(query_cur_)
