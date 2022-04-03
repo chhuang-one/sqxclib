@@ -940,7 +940,16 @@ struct Query : SqQuery {
 
 /*	convenient structure/function for Sq::Storage
 
-	// below code output string "WHERE id < 15 OR city_id < 20"
+	// e.g. generate SQL statement "WHERE id < 15 OR city_id < 20"
+
+	// 1. use operator() of Sq::where
+	Sq::where  where;
+	std::cout << where("id < %d", 15).orWhere("city_id < %d", 20).c();
+
+	// 2. use default constructor and operator()
+	std::cout << Sq::where()("id < %d", 15).orWhere("city_id < %d", 20).c();
+
+	// 3. use parameter pack constructor (Visual C++ can NOT use this currently)
 	std::cout << Sq::where("id < %d", 15)->orWhere("city_id < %d", 20)->c();
  */
 
@@ -948,10 +957,16 @@ struct where
 {
 	SqQuery  *query;
 
+#ifndef _MSC_VER
 	template <typename... Args>
 	where(const char *condition, const Args... args) {
 		query = sq_query_new(NULL);
-		sq_query_where_logical(query, SQ_QUERYLOGI_AND, condition, args..., NULL);
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND, condition, args...);
+	}
+#endif
+	where(const char *raw) {
+		query = sq_query_new(NULL);
+		sq_query_where_raw(query, raw);
 	}
 	where(std::function<void()> func) {
 		query = sq_query_new(NULL);
@@ -959,13 +974,43 @@ struct where
 		func();
 		sq_query_pop_nested(query);    // end of Subquery/Nested
 	}
+	where() {
+		query = sq_query_new(NULL);
+	}
 
 	~where() {
 		sq_query_free(query);
 	}
 
+	template <typename... Args>
+	SqQuery& operator()(const char *condition, const Args... args) {
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND, condition, args...);
+		return *query;
+	}
+	SqQuery& operator()(const char *raw) {
+		sq_query_where_raw(query, raw);
+		return *query;
+	}
+	SqQuery& operator()(std::function<void()> func) {
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
+		func();
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+		return *query;
+	}
+
 	SqQuery *operator->() {
 		return query;
+	}
+
+	SqQuery& clear() {
+		sq_query_clear(query);
+		return *query;
+	}
+	const char *c() {
+		return sq_query_c(query);
+	}
+	const char *str() {
+		return query->str;
 	}
 };
 
@@ -977,13 +1022,32 @@ struct whereRaw
 		query = sq_query_new(NULL);
 		sq_query_where_raw(query, raw);
 	}
+	whereRaw() {
+		query = sq_query_new(NULL);
+	}
 
 	~whereRaw() {
 		sq_query_free(query);
 	}
 
+	SqQuery& operator()(const char *raw) {
+		sq_query_where_raw(query, raw);
+		return *query;
+	}
+
 	SqQuery *operator->() {
 		return query;
+	}
+
+	SqQuery& clear() {
+		sq_query_clear(query);
+		return *query;
+	}
+	const char *c() {
+		return sq_query_c(query);
+	}
+	const char *str() {
+		return query->str;
 	}
 };
 

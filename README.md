@@ -613,7 +613,7 @@ use C language
 	// SQL statement exclude "SELECT * FROM table_name"
 	sq_query_clear(query);
 	sq_query_where(query, "id > %d", 10);
-	sq_query_where(query, "id < %d", 99);
+	sq_query_or_where(query, "city_id < %d", 22);
 
 	array = sq_storage_get_all(storage, "users", NULL, NULL
 	                           sq_query_c(query));
@@ -625,17 +625,32 @@ use C++ language
 	// SQL statement exclude "SELECT * FROM table_name"
 	query->clear()
 	     ->where("id > %d", 10)
-	     ->where("id < %d", 99);
+	     ->orWhere("city_id < %d", 22);
 
 	array = storage->getAll("users", query->c());
 ```
 
-use C++ language with convenient structure/function
+use C++ language with Sq::where and Sq::whereRaw  
+  
+use operator() of Sq::where
 
 ```c++
-	// use Sq::where to generate SQL statement
+	Sq::where  where;
+
 	array = storage->getAll("users",
-			Sq::where("id > %d", 10)->where("id < %d", 99)->c());
+			where("id > %d", 10).orWhere("city_id < %d", 22).c());
+```
+
+use constructor and operator of Sq::where
+
+```c++
+	// use default constructor and operator()
+	array = storage->getAll("users",
+			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22).c());
+
+	// use parameter pack constructor (Visual C++ can NOT use this currently)
+	array = storage->getAll("users",
+			Sq::where("id > %d", 10)->orWhere("city_id < %d", 22)->c());
 ```
 
 ## JOIN support

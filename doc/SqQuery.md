@@ -325,10 +325,29 @@ use C++ language
 	free(sql_where);
 ```
 
-use C++ language with convenient structure/function
+#### convenient structure/function
+
+use C++ Sq::where and Sq::whereRaw to generate SQL statement  
+  
+1. use operator() of Sq::where
 
 ```c++
-	// use Sq::where to generate SQL statement
+	Sq::where  where;
+
+	array = storage->removeAll("users",
+			where("id < %d", 11).orWhere("city_id < %d", 33).c());
+```
+
+2. use default constructor and operator()
+
+```c++
+	array = storage->removeAll("users",
+			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33).c());
+```
+
+3. use parameter pack constructor (Visual C++ can NOT use this currently)
+
+```c++
 	array = storage->removeAll("users",
 			Sq::where("id < %d", 11)->orWhere("city_id < %d", 33)->c());
 ```
