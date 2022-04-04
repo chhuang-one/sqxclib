@@ -325,14 +325,14 @@ use C++ language
 	free(sql_where);
 ```
 
-#### convenient structure/function
+#### convenient C++ class
 
-use C++ Sq::where and Sq::whereRaw to generate SQL statement  
+use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate SQL statement  
   
-1. use operator() of Sq::where
+1. use operator() of Sq::Where (or Sq::where)
 
 ```c++
-	Sq::where  where;
+	Sq::Where  where;
 
 	array = storage->removeAll("users",
 			where("id < %d", 11).orWhere("city_id < %d", 33).c());
@@ -349,7 +349,7 @@ use C++ Sq::where and Sq::whereRaw to generate SQL statement
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::where("id < %d", 11)->orWhere("city_id < %d", 33)->c());
+			Sq::where("id < %d", 11).orWhere("city_id < %d", 33).c());
 ```
 
 ## Raw Methods

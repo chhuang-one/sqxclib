@@ -8,7 +8,7 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## 目前的功能:
-1. 用户可以使用 C99 指定初始化器(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL表/列/迁移。
+1. 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL表/列/迁移。
    也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
 2. 所有定义的 SQL表/列 都可以用于解析 JSON 对象/字段。也可以从 SQL 列 解析 JSON 对象/数组。
@@ -628,12 +628,12 @@ use C++ language
 	array = storage->getAll("users", query->c());
 ```
 
-use C++ language with Sq::where and Sq::whereRaw  
+use C++ language with convenient C++ class  
   
-use operator() of Sq::where
+use operator() of Sq::Where (or Sq::where)
 
 ```c++
-	Sq::where  where;
+	Sq::Where  where;
 
 	array = storage->getAll("users",
 			where("id > %d", 10).orWhere("city_id < %d", 22).c());
@@ -648,7 +648,7 @@ use constructor and operator of Sq::where
 
 	// use parameter pack constructor (Visual C++ can NOT use this currently)
 	array = storage->getAll("users",
-			Sq::where("id > %d", 10)->orWhere("city_id < %d", 22)->c());
+			Sq::where("id > %d", 10).orWhere("city_id < %d", 22).c());
 ```
 
 ## JOIN support

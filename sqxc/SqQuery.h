@@ -310,6 +310,8 @@ struct Query;
 /*	QueryMethod is used by SqQuery and it's children.
 
 	It's derived struct/class must be C++11 standard-layout and has SqQuery members.
+
+	Note: If you add, remove, or change methods here, do the same things in Sq::QueryProxy.
  */
 struct QueryMethod
 {
@@ -537,7 +539,7 @@ struct SqQuery
 };
 
 // ----------------------------------------------------------------------------
-// C++ other definitions
+// C++ definitions
 
 #ifdef __cplusplus
 
@@ -938,7 +940,20 @@ struct Query : SqQuery {
 	}
 };
 
-/*	convenient structure/function for Sq::Storage
+};  // namespace Sq
+
+#endif  // __cplusplus
+
+// ----------------------------------------------------------------------------
+// C++ other definitions
+
+#include <SqQuery-proxy.h>    // Sq::QueryProxy
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+/*	convenient C++ class for Sq::Storage
 
 	// e.g. generate SQL statement "WHERE id < 15 OR city_id < 20"
 
@@ -950,109 +965,94 @@ struct Query : SqQuery {
 	std::cout << Sq::where()("id < %d", 15).orWhere("city_id < %d", 20).c();
 
 	// 3. use parameter pack constructor (Visual C++ can NOT use this currently)
-	std::cout << Sq::where("id < %d", 15)->orWhere("city_id < %d", 20)->c();
+	std::cout << Sq::where("id < %d", 15).orWhere("city_id < %d", 20).c();
  */
 
-struct where
+/*
+	QueryProxy
+	|
+	+--- Where
+	|
+	`--- WhereRaw
+ */
+class Where : public Sq::QueryProxy
 {
-	SqQuery  *query;
-
+public:
+	// constructor
 #ifndef _MSC_VER
 	template <typename... Args>
-	where(const char *condition, const Args... args) {
-		query = sq_query_new(NULL);
+	Where(const char *condition, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, condition, args...);
 	}
 #endif
-	where(const char *raw) {
-		query = sq_query_new(NULL);
+	Where(const char *raw) {
+		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_raw(query, raw);
 	}
-	where(std::function<void()> func) {
-		query = sq_query_new(NULL);
+	Where(std::function<void()> func) {
+		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
 		func();
 		sq_query_pop_nested(query);    // end of Subquery/Nested
 	}
-	where() {
-		query = sq_query_new(NULL);
+	Where() {
+		query = (Sq::Query*)sq_query_new(NULL);
 	}
 
-	~where() {
+	// destructor
+	~Where() {
 		sq_query_free(query);
 	}
 
+	// operator
 	template <typename... Args>
-	SqQuery& operator()(const char *condition, const Args... args) {
+	Sq::Query& operator()(const char *condition, const Args... args) {
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, condition, args...);
 		return *query;
 	}
-	SqQuery& operator()(const char *raw) {
+	Sq::Query& operator()(const char *raw) {
 		sq_query_where_raw(query, raw);
 		return *query;
 	}
-	SqQuery& operator()(std::function<void()> func) {
+	Sq::Query& operator()(std::function<void()> func) {
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
 		func();
 		sq_query_pop_nested(query);    // end of Subquery/Nested
 		return *query;
 	}
-
-	SqQuery *operator->() {
-		return query;
-	}
-
-	SqQuery& clear() {
-		sq_query_clear(query);
-		return *query;
-	}
-	const char *c() {
-		return sq_query_c(query);
-	}
-	const char *str() {
-		return query->str;
-	}
 };
 
-struct whereRaw
+class WhereRaw : public Sq::QueryProxy
 {
-	SqQuery  *query;
-
-	whereRaw(const char *raw) {
-		query = sq_query_new(NULL);
+public:
+	// constructor
+	WhereRaw(const char *raw) {
+		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_raw(query, raw);
 	}
-	whereRaw() {
-		query = sq_query_new(NULL);
+	WhereRaw() {
+		query = (Sq::Query*)sq_query_new(NULL);
 	}
 
-	~whereRaw() {
+	// destructor
+	~WhereRaw() {
 		sq_query_free(query);
 	}
 
-	SqQuery& operator()(const char *raw) {
+	// operator
+	Sq::Query& operator()(const char *raw) {
 		sq_query_where_raw(query, raw);
 		return *query;
 	}
-
-	SqQuery *operator->() {
-		return query;
-	}
-
-	SqQuery& clear() {
-		sq_query_clear(query);
-		return *query;
-	}
-	const char *c() {
-		return sq_query_c(query);
-	}
-	const char *str() {
-		return query->str;
-	}
 };
+
+typedef Where       where;
+typedef WhereRaw    whereRaw;
 
 };  // namespace Sq
 
 #endif  // __cplusplus
+
 
 #endif  // SQ_QUERY_H

@@ -630,12 +630,12 @@ use C++ language
 	array = storage->getAll("users", query->c());
 ```
 
-use C++ language with Sq::where and Sq::whereRaw  
+use C++ language with convenient C++ class  
   
-use operator() of Sq::where
+use operator() of Sq::Where (or Sq::where)
 
 ```c++
-	Sq::where  where;
+	Sq::Where  where;
 
 	array = storage->getAll("users",
 			where("id > %d", 10).orWhere("city_id < %d", 22).c());
@@ -650,7 +650,7 @@ use constructor and operator of Sq::where
 
 	// use parameter pack constructor (Visual C++ can NOT use this currently)
 	array = storage->getAll("users",
-			Sq::where("id > %d", 10)->orWhere("city_id < %d", 22)->c());
+			Sq::where("id > %d", 10).orWhere("city_id < %d", 22).c());
 ```
 
 ## JOIN support

@@ -193,7 +193,7 @@ use C language
 
 ```c
 	SqQuery *query = sq_query_new(NULL);
-	sq_query_where(query, "id > %d", 10);
+	sq_query_where_raw(query, "id > 10");
 	sq_query_where(query, "id < %d", 99);
 
 	array = sq_storage_get_all(storage, "users", NULL, NULL,
@@ -204,15 +204,16 @@ use C++ language
 
 ```c++
 	array = storage->getAll("users",
-			Sq::Query().where("id > %d", 10).where("id < %d", 99).c());
+			Sq::Query().whereRaw("id > 10").where("id < %d", 99).c());
 ```
 
-use C++ language with convenient structure/function
+#### convenient C++ class
+
+use C++ Sq::where and Sq::whereRaw to generate SQL statement
 
 ```c++
-	// use Sq::where to generate SQL statement
 	array = storage->getAll("users",
-			Sq::where("id > %d", 10)->where("id < %d", 99)->c());
+			Sq::whereRaw("id > 10").where("id < %d", 99).c());
 ```
 
 ## insert
