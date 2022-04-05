@@ -288,8 +288,10 @@ static const SqColumn  userColumnsChanged[5] = {
 	sq_table_drop_column(table, "name");
 	sq_table_rename_column(table, "email", "email2");
 ```
+
 其他 constraint 示例代码:  
-use C99 designated initializer to change constraint (static)
+  
+使用 C99 指定初始化器更改 constraint（静态）
 
 ```c
 static const SqColumn  otherSampleChanged_1[] = {
@@ -315,7 +317,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 
 其他 constraint 示例代码 (Schema Builder):  
   
-use C functions to change constraint (dynamic)
+使用 C 函数更改 constraint（动态）
 
 ```c
 	// ADD CONSTRAINT UNIQUE
@@ -329,7 +331,7 @@ use C functions to change constraint (dynamic)
 	sq_table_drop_primary(table, "other_primary");
 ```
 
-use C++ methods to change constraint (dynamic)
+使用 C++ 方法更改 constraint（动态）
 
 ```c++
 	// ADD CONSTRAINT UNIQUE
@@ -343,12 +345,12 @@ use C++ methods to change constraint (dynamic)
 	table->dropPrimary("other_primary");
 ```
 
-* To use C macro to define (or change) table dynamically, see doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
-* You can get more information about schema and migrations in doc/[database-migrations.md](doc/database-migrations.md)
+* 要使用宏动态定义（或更改）表，请参阅 doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
+* 您可以在 doc/[database-migrations.md](doc/database-migrations.md) 中获得有关架构和迁移的更多信息
 
 ## Database synchronization (Migration)
 
-use C++ methods to migrate schema and synchronize to database
+使用 C++ 方法迁移架构并同步到数据库
 
 ```c++
 	// migrate 'schema_v1' and 'schema_v2'
@@ -364,7 +366,7 @@ use C++ methods to migrate schema and synchronize to database
 	delete schema_v2;
 ```
 
-use C functions to migrate schema and synchronize to database
+使用 C 函数迁移架构并同步到数据库
 
 ```c
 	// migrate 'schema_v1' and 'schema_v2'
@@ -384,7 +386,7 @@ use C functions to migrate schema and synchronize to database
 
 要获取更多信息和示例，您可以查看 doc/[SqStorage.md](doc/SqStorage.md)  
   
-use C functions
+使用 C 函数
 
 ```c
 	User  *user;
@@ -418,7 +420,7 @@ use C functions
 	sq_storage_remove_all(storage, "users", "WHERE id < 5");
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	User         *user;
@@ -451,7 +453,7 @@ use C++ methods
 	storage->removeAll("users", "WHERE id < 5");
 ```
 
-use C++ template functions
+使用 C++ 模板函数
 
 ```c++
 	User              *user;
@@ -493,7 +495,7 @@ use C++ template functions
 
 ## Database support
 
-use C functions to open SQLite database
+使用 C 函数打开 SQLite 数据库
 
 ```c
 	SqdbConfigSqlite  config = { .folder = "/path", .extension = "db" };
@@ -505,7 +507,7 @@ use C functions to open SQLite database
 	sq_storage_open(storage, "sqxc_local");    // This will open file "sqxc_local.db"
 ```
 
-use C functions to open MySQL database
+使用 C 函数打开 MySQL 数据库
 
 ```c
 	SqdbConfigMysql  config = { .host = "localhost", .port = 3306,
@@ -518,7 +520,7 @@ use C functions to open MySQL database
 	sq_storage_open(storage, "sqxc_local");
 ```
 
-use C++ methods to open SQLite database
+使用 C++ 方法打开 SQLite 数据库
 
 ```c++
 	Sq::DbConfigSqlite  config = { .folder = "/path", .extension = "db" };
@@ -533,10 +535,10 @@ use C++ methods to open SQLite database
 
 ## 查询生成器
 
-SqQuery can generate SQL statement by using C functions or C++ methods.
-To get more information and sample, you can see doc/[SqQuery.md](doc/SqQuery.md)  
+SqQuery 可以使用 C 函数或 C++ 方法生成 SQL 语句。
+要获取更多信息和示例，您可以查看 doc/[SqQuery.md](doc/SqQuery.md)
   
-SQL statement
+SQL 语句
 
 ```sql
 	SELECT id, age
@@ -545,7 +547,7 @@ SQL statement
 	WHERE age > 5
 ```
 
-use C++ methods to produce query
+使用 C++ 方法生成查询
 
 ```c++
 	query->select("id", "age")
@@ -557,10 +559,10 @@ use C++ methods to produce query
 	     ->where("age > %d", 5);
 ```
 
-use C functions to produce query
+使用 C 函数生成查询
 
-* sq_query_join(query, NULL) is start of Subquery. It call sq_query_push_nested()
-* sq_query_pop_nested(query) is end of Subquery.
+* sq_query_join(query, NULL) 是子查询的开始。 它调用 sq_query_push_nested()
+* sq_query_pop_nested(query) 是子查询的结尾。
 
 ```c
 	sq_query_select(query, "id", "age", NULL);
@@ -574,7 +576,7 @@ use C functions to produce query
 	sq_query_where(query, "age > %d", 5);
 ```
 
-use C macro to produce query
+使用宏生成查询
 
 ```c
 #include <sqxclib.h>
@@ -591,9 +593,9 @@ use C macro to produce query
 	});
 ```
 
-#### Using SqQuery with SqStorage
+#### 将 SqQuery 与 SqStorage 一起使用
 
-use C function sq_storage_query() or C++ method query() with SqQuery
+SqStorage 有 sq_storage_query() 和 C++ 方法 query() 来处理查询。
 
 ```c++
 	// C function
@@ -603,9 +605,9 @@ use C function sq_storage_query() or C++ method query() with SqQuery
 	array = storage->query(query);
 ```
 
-use C function sq_query_c() or C++ method c() with SqStorage  
+SqQuery 有 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语句。  
   
-use C language
+使用 C 函数
 
 ```c
 	// SQL statement exclude "SELECT * FROM table_name"
@@ -613,11 +615,11 @@ use C language
 	sq_query_where(query, "id > %d", 10);
 	sq_query_or_where(query, "city_id < %d", 22);
 
-	array = sq_storage_get_all(storage, "users", NULL, NULL
+	array = sq_storage_get_all(storage, "users", NULL, NULL,
 	                           sq_query_c(query));
 ```
 
-use C++ language
+使用 C++ 方法
 
 ```c++
 	// SQL statement exclude "SELECT * FROM table_name"
@@ -628,9 +630,9 @@ use C++ language
 	array = storage->getAll("users", query->c());
 ```
 
-use C++ language with convenient C++ class  
+方便的 C++ 类  
   
-use operator() of Sq::Where (or Sq::where)
+使用 Sq::Where（或 Sq::where）的 operator()
 
 ```c++
 	Sq::Where  where;
@@ -639,7 +641,7 @@ use operator() of Sq::Where (or Sq::where)
 			where("id > %d", 10).orWhere("city_id < %d", 22).c());
 ```
 
-use constructor and operator of Sq::where
+使用 Sq::where 的构造函数和运算符
 
 ```c++
 	// use default constructor and operator()
@@ -651,9 +653,9 @@ use constructor and operator of Sq::where
 			Sq::where("id > %d", 10).orWhere("city_id < %d", 22).c());
 ```
 
-## JOIN support
+## JOIN 支持
 
-use C functions
+使用 C 函数
 
 ```c
 	SqPtrArray *array;
@@ -671,7 +673,7 @@ use C functions
 	}
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	query->from("cities")->join("users",  "cities.id", "users.city_id");
@@ -696,7 +698,7 @@ use C++ methods
 
 ## 交易 Transaction
 
-use C functions
+使用 C 函数
 
 ```c
 	User  *user;
@@ -709,7 +711,7 @@ use C functions
 		sq_storage_commit_trans(storage);
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	User  *user;
@@ -722,10 +724,11 @@ use C++ methods
 		storage->commitTrans();
 ```
 
-## Configuration Headers
-change build configuration.
+## 配置头文件
 
-sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default. User can change it in sqxc/[SqConfig.h](sqxc/SqConfig.h).
+更改构建配置。  
+  
+sqxclib 在搜索/排序 SQL 列名和 JSON 字段名时默认区分大小写。 用户可以在 sqxc/[SqConfig.h](sqxc/SqConfig.h) 中更改它。
 
 ```c
 // Common settings in SqConfig.h
@@ -750,39 +753,39 @@ sqxclib is case-sensitive when searching/sorting SQL column name and JSON field 
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT      191
 ```
 
-## JSON support
-- This library use [json-c](https://github.com/json-c/json-c) to parse/write JSON.
-- all defined table/column can use to parse JSON object/field
-- program can also parse JSON object/array that store in column.
+## JSON 支持
+- 这个库使用 [json-c](https://github.com/json-c/json-c) 来解析/写入 JSON。
+- 所有定义的表/列都可以用来解析 JSON 对象/字段。
+- 程序还可以解析存储在列中的 JSON 对象/数组。
 
 ## Sqdb
-Sqdb is base structure for database product (SQLite, MySQL...etc).  
-SqdbSqlite.c implement Sqdb interface for SQLite.  
-SqdbMysql.c implement Sqdb interface for MySQL.  
-You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
+Sqdb 是数据库产品（SQLite、MySQL 等）的基础结构。  
+SqdbSqlite.c 为 SQLite 实现 Sqdb 接口。  
+SqdbMysql.c 为 MySQL 实现 Sqdb 接口。  
+您可以在 doc/[Sqdb.md](doc/Sqdb.md) 中获得更多描述和示例。  
 
 ## Sqxc
-Sqxc is interface for data parse and write.  
-User can link multiple Sqxc element to convert different types of data.  
-You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)  
+Sqxc 是数据解析和写入的接口。  
+用户可以链接多个 Sqxc 元素来转换不同类型的数据。  
+您可以在 doc/[Sqxc.md](doc/Sqxc.md) 中获得更多描述和示例。  
 
 ## SqApp
-SqApp use configuration file (SqApp-config.h) to initialize database and do migrations for user's application.  
-It provide command-line program to generate migration and do migrate.  
-See document in doc/[SqApp.md](doc/SqApp.md)  
+SqApp 使用配置文件（SqApp-config.h）来初始化数据库并为用户的应用程序进行迁移。  
+它提供命令行程序来生成迁移并进行迁移。  
+请参阅文档 doc/[SqApp.md](doc/SqApp.md)。  
 
 ## SqConsole
-SqConsole provide command-line interface (mainly for SqAppTool).  
-Document for SqConsole in doc/[SqConsole.md](doc/SqConsole.md)  
+SqConsole 提供命令行界面（主要用于 SqAppTool）。  
+请参阅文档 doc/[SqConsole.md](doc/SqConsole.md)。  
 
-## Others
-Document for SqEntry (SqColumn's base class/structure) in doc/[SqEntry.md](doc/SqEntry.md)  
-Document for SqColumn in doc/[SqColumn.md](doc/SqColumn.md)  
-Document for SqType in doc/[SqType.md](doc/SqType.md)  
+## 其他
+SqType 文档: doc/[SqType.md](doc/SqType.md)  
+SqEntry （SqColumn 的基类/结构） 文档: doc/[SqEntry.md](doc/SqEntry.md)  
+SqColumn 文档: doc/[SqColumn.md](doc/SqColumn.md)  
 
 ## Licensing
 
-sqxc is licensed under the Mulan PSL v2.
+sqxclib 在 Mulan PSL v2 下获得许可。
 
 
 ---

@@ -1,4 +1,4 @@
-[中文(未完成)](README.cn.md)
+[中文](README.cn.md)
 
 [![Donate using PayPal](https://img.shields.io/badge/donate-PayPal-brightgreen.svg)](https://paypal.me/CHHUANGONE)
 
@@ -290,7 +290,9 @@ use C functions (Schema Builder) to change table/column in schema_v2 (dynamic)
 	sq_table_drop_column(table, "name");
 	sq_table_rename_column(table, "email", "email2");
 ```
+
 Other constraint sample:  
+  
 use C99 designated initializer to change constraint (static)
 
 ```c
@@ -345,7 +347,7 @@ use C++ methods to change constraint (dynamic)
 	table->dropPrimary("other_primary");
 ```
 
-* To use C macro to define (or change) table dynamically, see doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
+* To use macro to define (or change) table dynamically, see doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
 * You can get more information about schema and migrations in doc/[database-migrations.md](doc/database-migrations.md)
 
 ## Database synchronization (Migration)
@@ -576,7 +578,7 @@ use C functions to produce query
 	sq_query_where(query, "age > %d", 5);
 ```
 
-use C macro to produce query
+use macro to produce query
 
 ```c
 #include <sqxclib.h>
@@ -595,7 +597,7 @@ use C macro to produce query
 
 #### Using SqQuery with SqStorage
 
-use C function sq_storage_query() or C++ method query() with SqQuery
+SqStorage has sq_storage_query() and C++ method query() to handle query.
 
 ```c++
 	// C function
@@ -605,9 +607,9 @@ use C function sq_storage_query() or C++ method query() with SqQuery
 	array = storage->query(query);
 ```
 
-use C function sq_query_c() or C++ method c() with SqStorage  
+SqQuery has sq_query_c() or C++ method c() to generate SQL statement for SqStorage.  
   
-use C language
+use C functions
 
 ```c
 	// SQL statement exclude "SELECT * FROM table_name"
@@ -615,11 +617,11 @@ use C language
 	sq_query_where(query, "id > %d", 10);
 	sq_query_or_where(query, "city_id < %d", 22);
 
-	array = sq_storage_get_all(storage, "users", NULL, NULL
+	array = sq_storage_get_all(storage, "users", NULL, NULL,
 	                           sq_query_c(query));
 ```
 
-use C++ language
+use C++ methods
 
 ```c++
 	// SQL statement exclude "SELECT * FROM table_name"
@@ -630,7 +632,7 @@ use C++ language
 	array = storage->getAll("users", query->c());
 ```
 
-use C++ language with convenient C++ class  
+convenient C++ class  
   
 use operator() of Sq::Where (or Sq::where)
 
@@ -724,9 +726,10 @@ use C++ methods
 		storage->commitTrans();
 ```
 
-## Configuration Headers
-change build configuration.
+## Configuration header file
 
+change build configuration.  
+  
 sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default. User can change it in sqxc/[SqConfig.h](sqxc/SqConfig.h).
 
 ```c
@@ -754,7 +757,7 @@ sqxclib is case-sensitive when searching/sorting SQL column name and JSON field 
 
 ## JSON support
 - This library use [json-c](https://github.com/json-c/json-c) to parse/write JSON.
-- all defined table/column can use to parse JSON object/field
+- all defined table/column can use to parse JSON object/field.
 - program can also parse JSON object/array that store in column.
 
 ## Sqdb
@@ -775,16 +778,16 @@ See document in doc/[SqApp.md](doc/SqApp.md)
 
 ## SqConsole
 SqConsole provide command-line interface (mainly for SqAppTool).  
-Document for SqConsole in doc/[SqConsole.md](doc/SqConsole.md)  
+See document in doc/[SqConsole.md](doc/SqConsole.md)  
 
 ## Others
-Document for SqEntry (SqColumn's base class/structure) in doc/[SqEntry.md](doc/SqEntry.md)  
-Document for SqColumn in doc/[SqColumn.md](doc/SqColumn.md)  
-Document for SqType in doc/[SqType.md](doc/SqType.md)  
+SqType document: doc/[SqType.md](doc/SqType.md)  
+SqEntry document (SqColumn's base class/structure): doc/[SqEntry.md](doc/SqEntry.md)  
+SqColumn document: doc/[SqColumn.md](doc/SqColumn.md)  
 
 ## Licensing
 
-sqxc is licensed under the Mulan PSL v2.
+sqxclib is licensed under the Mulan PSL v2.
 
 
 ---
