@@ -113,6 +113,7 @@ enable_testing()
 
 # --- subdirectory ---
 add_subdirectory(sqxc)
+add_subdirectory(sqxcsupport)
 add_subdirectory(sqapp)
 add_subdirectory(tests)
 add_subdirectory(examples)

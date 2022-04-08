@@ -49,6 +49,7 @@ else
 endif
 
 subdir('sqxc')
+subdir('sqxcsupport')
 subdir('sqapp')
 subdir('tests')
 subdir('examples')

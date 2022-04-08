@@ -495,7 +495,7 @@ use C++ template functions
 	storage->removeAll<User>("WHERE id < 5");
 ```
 
-## Database support
+## Database product
 
 use C functions to open SQLite database
 
@@ -597,7 +597,7 @@ use macro to produce query
 
 #### Using SqQuery with SqStorage
 
-SqStorage has sq_storage_query() and C++ method query() to handle query.
+SqStorage provides sq_storage_query() and C++ method query() to handle query.
 
 ```c++
 	// C function
@@ -607,7 +607,7 @@ SqStorage has sq_storage_query() and C++ method query() to handle query.
 	array = storage->query(query);
 ```
 
-SqQuery has sq_query_c() or C++ method c() to generate SQL statement for SqStorage.  
+SqQuery provides sq_query_c() or C++ method c() to generate SQL statement for SqStorage.  
   
 use C functions
 

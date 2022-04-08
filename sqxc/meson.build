@@ -1,96 +1,76 @@
-sources = ['SqPtrArray.c',
-           'SqBuffer.c',
-#           'SqThread.c',
-           'SqUtil.c',
-           'SqType.c',
-           'SqType-built-in.c',
-           'SqType-PtrArray.c',
-           'SqType-fake.c',
-           'SqEntry.c',
-           'SqColumn.c',
-           'SqTable.c',
-           'SqJoint.c',
-           'SqSchema.c',
-           'SqStorage.c',
-           'SqStorage-query.c',
-           'SqQuery.c',
+sources = [
+    'SqPtrArray.c',
+    'SqBuffer.c',
+#    'SqThread.c',
+    'SqUtil.c',
+    'SqType.c',
+    'SqType-built-in.c',
+    'SqType-PtrArray.c',
+    'SqType-fake.c',
+    'SqEntry.c',
+    'SqColumn.c',
+    'SqTable.c',
+    'SqJoint.c',
+    'SqSchema.c',
+    'SqStorage.c',
+    'SqStorage-query.c',
+    'SqQuery.c',
 
-           # Sqdb - Database interface
-           'Sqdb.c',
+    # Sqdb - Database interface
+    'Sqdb.c',
 
-           # Sqxc - Converter interface
-           'Sqxc.c',
-           'SqxcValue.c',
-           'SqxcSql.c',
-          ]
+    # Sqxc - Converter interface
+    'Sqxc.c',
+    'SqxcValue.c',
+    'SqxcSql.c',
+]
 
-headers = ['sqxclib.h',
-           'SqConfig.h',
-           'SqDefine.h',
-           'SqError.h',
+headers = [
+    'sqxclib.h',
+    'SqConfig.h',
+    'SqDefine.h',
+    'SqError.h',
 
-           'SqPtrArray.h',
-           'SqBuffer.h',
-#           'SqThread.h',
-           'SqUtil.h',
-           'SqType.h',
-           'SqEntry.h',
-           'SqColumn.h',
-           'SqTable.h',
-           'SqJoint.h',
-           'SqSchema.h', 'SqSchema-macro.h',
-           'SqStorage.h',
-           'SqQuery.h', 'SqQuery-macro.h',
-           'SqRelation.h',
+    'SqPtrArray.h',
+    'SqBuffer.h',
+#    'SqThread.h',
+    'SqUtil.h',
+    'SqType.h',
+    'SqEntry.h',
+    'SqColumn.h',
+    'SqTable.h',
+    'SqJoint.h',
+    'SqSchema.h', 'SqSchema-macro.h',
+    'SqStorage.h',
+    'SqQuery.h', 'SqQuery-macro.h',
+    'SqRelation.h',
 
-           # Sqdb - Database interface
-           'Sqdb.h',
+    # Sqdb - Database interface
+    'Sqdb.h',
 
-           # Sqxc - Converter interface
-           'Sqxc.h',
-           'SqxcValue.h',
-           'SqxcSql.h',
-          ]
+    # Sqxc - Converter interface
+    'Sqxc.h',
+    'SqxcValue.h',
+    'SqxcSql.h',
+]
 
 # C++ sources & headers
 
-sources_cpp = ['SqType-std-string.cpp',
-              ]
+sources_cpp = [
+    'SqType-std-string.cpp',
+]
 
-headers_cpp = ['SqType-stl-cpp.h',
-              ]
-
-# console sources & headers
-
-sources_console = ['SqConsole.c',
-                   'SqCommand.c',
-                   'SqOption.c',
-                  ]
-
-headers_console = ['SqConsole.h',
-                   'SqCommand.h',
-                   'SqOption.h',
-                  ]
-
-# test sources & headers
-
-sources_test = ['SqdbEmpty.c',
-                'SqxcEmpty.c',
-                'SqxcFile.c',
-               ]
-
-headers_test = ['SqdbEmpty.h',
-                'SqxcEmpty.h',
-                'SqxcFile.h',
-               ]
+headers_cpp = [
+    'SqType-stl-cpp.h',
+]
 
 dependencies = []
 
-if host_machine.system() != 'windows'
-	if thread.found() == true
-		dependencies += thread
-	endif
-endif
+#if host_machine.system() != 'windows'
+#	if thread.found() == true
+#		dependencies += thread
+#	endif
+#endif
 
 if jsonc.found() == true
 	sources += ['SqxcJsonc.c']
@@ -132,18 +112,6 @@ sqxcpp_lib = static_library('sqxcpp',
                             include_directories: sqxc_inc,
                             dependencies : dependencies,
                             install: false)
-
-sqxconsole_lib = static_library('sqxconsole',
-                                sources_console,
-                                include_directories: sqxc_inc,
-                                dependencies : dependencies,
-                                install: false)
-
-sqxctest_lib = static_library('sqxctest',
-                              sources_test,
-                              include_directories: sqxc_inc,
-                              dependencies : dependencies,
-                              install: false)
 
 sqxc = declare_dependency(include_directories : sqxc_inc,
                           link_with : [sqxc_lib, sqxcpp_lib],

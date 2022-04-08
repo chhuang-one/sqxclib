@@ -88,6 +88,31 @@ use C++ methods
 Note1: Don't reuse 'schema_next' after migration because data is moved from 'schema_next' to 'schema_current'.  
 Note2: If you use SQLite, you must synchronize schema to database after migration.  
 
+## access database with user defined data type
+
+below C functions and C++ methods can return user defined data type ( [SqType](SqType.md) ):
+
+| C functions               | C++ methods   |
+| ------------------------- | ------------- |
+| sq_storage_get()          | get()         |
+| sq_storage_get_all()      | getAll()      |
+| sq_storage_query()        | query()       |
+
+below functions can run a bit faster if user specify 'table_name' and 'table_type' at the same time.
+
+| C functions               | C++ methods   |
+| ------------------------- | ------------- |
+| sq_storage_get()          | get()         |
+| sq_storage_get_all()      | getAll()      |
+| sq_storage_query()        | query()       |
+| sq_storage_insert()       | insert()      |
+| sq_storage_update()       | update()      |
+| sq_storage_update_all()   | updateAll()   |
+| sq_storage_update_field() | updateField() |
+
+Note: SqStorage will try to find matched type if user does NOT specify object type.  
+Note: SqStorage will use default container type if user does NOT specify container type.  
+
 ## get
 
 get one row from database table "users".
@@ -427,4 +452,31 @@ use C++ methods
 	storage->removeAll("users", "WHERE id > 50");
 	// or
 	storage->removeAll<User>("WHERE id > 50");
+```
+
+## run custom query (SqQuery)
+
+SqStorage provides sq_storage_query() and C++ method query() to running database queries.  
+  
+use C function
+
+```c
+	SqType *userType;
+	SqType *containerType;
+
+	// find matched type and use default container
+	array = sq_storage_query(storage, query, NULL, NULL);
+
+	// return user defined data type
+	container = sq_storage_query(storage, query, userType, containerType);
+```
+
+use C++ method
+
+```c++
+	// find matched type and use default container
+	array = storage->query(query);
+
+	// return user defined data type
+	container = storage->query(query, userType, containerType);
 ```

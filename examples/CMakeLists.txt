@@ -24,6 +24,6 @@ target_link_libraries(myapp-cxx  ${SQAPP_LIBRARIES})
 # --- json-c is required
 if (JSONC_INCLUDE_DIRS)
 add_executable(xc_json_file  xc_json_file.cpp)
-target_include_directories(xc_json_file  PUBLIC  ${SQXC_INCLUDE_DIRS})
+target_include_directories(xc_json_file  PUBLIC  ${SQXCSUPPORT_INCLUDE_DIRS})
 target_link_libraries(xc_json_file  sqxctest  ${SQXC_LIBRARIES})
 endif()

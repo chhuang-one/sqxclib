@@ -44,7 +44,6 @@ set(SQAPP_LIBRARIES
 # --- sqapptool ---
 set(SOURCES_APPTOOL
     SqApp.c
-    SqPairs.c
     SqAppTool.c
     SqAppTool-migrations-files.c
     SqMigration.c
@@ -62,7 +61,6 @@ set(SOURCES_APPTOOL_CPP
 set(HEADERS_APPTOOL
     SqApp.h
     SqApp-config.h
-    SqPairs.h
     SqAppTool.h
     SqMigration.h
     migrations.h
@@ -72,14 +70,14 @@ set(HEADERS_APPTOOL
 )
 
 set(SQAPPTOOL_INCLUDE_DIRS
-    ${SQAPP_INCLUDE_DIRS}
+    ${SQXCSUPPORT_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set(SQAPPTOOL_LIBRARIES
     sqapptool
     sqapptoolcpp
-    sqxconsole
-    ${SQXC_LIBRARIES}
+    ${SQXCSUPPORT_LIBRARIES}
 )
 
 # set SQAPPTOOL_INCLUDE_DIRS to PARENT_SCOPE
@@ -104,7 +102,7 @@ set(SOURCES_CPP
 )
 
 # ---
-include_directories(${SQAPP_INCLUDE_DIRS})
+include_directories(${SQAPPTOOL_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 
 add_library(sqapp

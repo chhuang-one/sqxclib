@@ -29,10 +29,6 @@
 #include <SqQuery.h>
 #include <SqJoint.h>
 
-// library: sqxconsole
-#include <SqCommand.h>
-#include <SqConsole.h>
-
 // ------------------------------------
 #include <Sqdb.h>
 

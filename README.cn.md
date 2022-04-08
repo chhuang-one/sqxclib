@@ -348,7 +348,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 * 要使用宏动态定义（或更改）表，请参阅 doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
 * 您可以在 doc/[database-migrations.md](doc/database-migrations.md) 中获得有关架构和迁移的更多信息
 
-## Database synchronization (Migration)
+## 数据库同步（迁移）
 
 使用 C++ 方法迁移架构并同步到数据库
 
@@ -493,7 +493,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	storage->removeAll<User>("WHERE id < 5");
 ```
 
-## Database support
+## 数据库产品
 
 使用 C 函数打开 SQLite 数据库
 
@@ -595,7 +595,7 @@ SQL 语句
 
 #### 将 SqQuery 与 SqStorage 一起使用
 
-SqStorage 有 sq_storage_query() 和 C++ 方法 query() 来处理查询。
+SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来处理查询。
 
 ```c++
 	// C function
@@ -605,7 +605,7 @@ SqStorage 有 sq_storage_query() 和 C++ 方法 query() 来处理查询。
 	array = storage->query(query);
 ```
 
-SqQuery 有 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语句。  
+SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语句。  
   
 使用 C 函数
 
@@ -783,7 +783,7 @@ SqType 文档: doc/[SqType.md](doc/SqType.md)
 SqEntry （SqColumn 的基类/结构） 文档: doc/[SqEntry.md](doc/SqEntry.md)  
 SqColumn 文档: doc/[SqColumn.md](doc/SqColumn.md)  
 
-## Licensing
+## 许可
 
 sqxclib 在 Mulan PSL v2 下获得许可。
 

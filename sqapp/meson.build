@@ -1,42 +1,48 @@
 # --- sqapp ---
-sources_app = ['SqApp.c',
-               'SqMigration.c',
-               'migrations.c',
-               'migrations-files.c'
+sources_app = [
+    'SqApp.c',
+    'SqMigration.c',
+    'migrations.c',
+    'migrations-files.c'
 ]
 
-sources_app_cpp = ['migrations-files.cpp']
+sources_app_cpp = [
+    'migrations-files.cpp'
+]
 
-headers_app = ['SqApp.h',
-               'SqApp-config.h',
-               'SqMigration.h',
-               'migrations.h',
+headers_app = [
+    'SqApp.h',
+    'SqApp-config.h',
+    'SqMigration.h',
+    'migrations.h',
 ]
 
 # --- sqapptool ---
-sources_apptool = ['SqApp.c',
-                   'SqPairs.c',
-                   'SqAppTool.c',
-                   'SqAppTool-migrations-files.c',
-                   'SqMigration.c',
-                   'migrations.c',
-                   'CommandCommon.c',
-                   'CommandMigrate.c',
-                   'CommandMake.c',
+sources_apptool = [
+    'SqApp.c',
+    'SqAppTool.c',
+    'SqAppTool-migrations-files.c',
+    'SqMigration.c',
+    'migrations.c',
+    'CommandCommon.c',
+    'CommandMigrate.c',
+    'CommandMake.c',
 ]
 
-sources_apptool_cpp = ['SqAppTool-migrations-files.cpp']
+sources_apptool_cpp = [
+    'SqAppTool-migrations-files.cpp'
+]
 
-headers_apptool = ['SqApp.h',
-                   'SqApp-config.h',
-                   'SqPairs.h',
-                   'SqAppTool.h',
-                   'SqAppTool-config.h',
-                   'SqMigration.h',
-                   'migrations.h',
-                   'CommandCommon.h',
-                   'CommandMigrate.h',
-                   'CommandMake.h',
+headers_apptool = [
+    'SqApp.h',
+    'SqApp-config.h',
+    'SqAppTool.h',
+    'SqAppTool-config.h',
+    'SqMigration.h',
+    'migrations.h',
+    'CommandCommon.h',
+    'CommandMigrate.h',
+    'CommandMake.h',
 ]
 
 # --- sqtool ---
@@ -64,13 +70,13 @@ sqapptool_inc = sqapp_inc
 sqapptool_lib = static_library('sqapptool',
                                sources_apptool,
                                include_directories: sqapp_inc,
-                               dependencies : sqxc,
+                               dependencies : sqxcsupport,
                                install: false)
 
 sqapptoolcpp_lib = static_library('sqapptoolcpp',
                                   sources_apptool_cpp,
                                   include_directories: sqapp_inc,
-                                  dependencies : sqxc,
+                                  dependencies : sqxcsupport,
                                   install: false)
 
 sqapp = declare_dependency(include_directories : sqapp_inc,
@@ -78,8 +84,8 @@ sqapp = declare_dependency(include_directories : sqapp_inc,
                            dependencies : sqxc)
 
 sqapptool = declare_dependency(include_directories : sqapp_inc,
-                               link_with : [sqapptool_lib, sqapptoolcpp_lib, sqxconsole_lib],
-                               dependencies : sqxc)
+                               link_with : [sqapptool_lib, sqapptoolcpp_lib],
+                               dependencies : sqxcsupport)
 
 executable('sqtool',
            sources,
