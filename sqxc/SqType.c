@@ -36,20 +36,11 @@ SqType *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
 	return type;
 }
 
-void  sq_type_ref(SqType *type)
-{
-	if (type->bit_field & SQB_TYPE_DYNAMIC)
-		type->ref_count++;
-}
-
-void  sq_type_unref(SqType *type)
+void  sq_type_free(SqType *type)
 {
 	if (type->bit_field & SQB_TYPE_DYNAMIC) {
-		type->ref_count--;
-		if (type->ref_count == 0) {
-			sq_type_final_self(type);
-			free(type);
-		}
+		sq_type_final_self(type);
+		free(type);
 	}
 }
 
@@ -61,7 +52,6 @@ SqType  *sq_type_copy_static(SqType *type_dest, const SqType *static_type_src, S
 		type_dest = malloc(sizeof(SqType));
 	memcpy(type_dest, static_type_src, sizeof(SqType));
 	type_dest->bit_field |= SQB_TYPE_DYNAMIC;
-	type_dest->ref_count = 1;
 	// alloc & copy SqEntry pointer array
 	sq_ptr_array_init(sq_type_get_ptr_array(type_dest), static_type_src->n_entry, entry_free_func);
 	type_dest->n_entry = static_type_src->n_entry;
@@ -82,7 +72,6 @@ void  sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_des
 	type->write = sq_type_object_write;
 	type->name  = NULL;
 	type->bit_field = SQB_TYPE_DYNAMIC;
-	type->ref_count = 1;
 
 	if (prealloc_size == -1) {
 		// SqType.entry can't be freed if SqType.n_entry == -1

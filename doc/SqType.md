@@ -40,7 +40,6 @@ Declaring bit_field in SqType
 * User can NOT change or free SqType if SqType.bit_field has NOT set SQB_TYPE_DYNAMIC.
 * User must use bitwise operators to set/clear bits in SqType.bit_field.
 * It is better to use constant or static SqEntry with constant or static SqType.
-* Dynamic SqType has reference count. It increase when dynamic SqEntry use it.
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
 ## 1. use SqType to define basic (not structured) data type
@@ -294,28 +293,14 @@ use C++ language to find & remove SqEntry
 //	type->decideSize(*entry_addr, true);
 ```
 
-## 5. reference count in dynamic SqType
+## 5. free dynamic SqType
 
-It will increase reference count of SqType if a dynamic SqEntry use a dynamic SqType.  
-User can call function to increase reference count.  
-
-```c++
-	/* C function */
-	sq_type_ref(type);
-
-	/* C++ method */
-	type->ref();
-```
-
-It will decrease reference count of SqType if user free a dynamic SqEntry that having a dynamic SqType.  
-User can call function to decrease reference count.
+sq_type_free() can destroy dynamic SqType (SqType.bit_field has SQB_TYPE_DYNAMIC).
 
 ```c++
 	/* C function */
-	sq_type_unref(type);
+	sq_type_free(type);
 
 	/* C++ method */
-	type->unref();
+	delete type;
 ```
-
-If an dynamic SqType's reference count reaches zero, it will be destroyed.

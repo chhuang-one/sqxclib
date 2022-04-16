@@ -51,12 +51,6 @@ SqColumn  *sq_column_new(const char *name, const SqType *typeinfo)
 void  sq_column_free(SqColumn *column)
 {
 	if (column->bit_field & SQB_DYNAMIC) {
-		// reduce the stack frame:
-		// sq_type_unref() will not be called by below sq_entry_final()
-		if (column->type) {
-			sq_type_unref((SqType*)column->type);
-			column->type = NULL;
-		}
 		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)column);
 		// free SqColumn

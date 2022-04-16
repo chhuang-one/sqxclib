@@ -41,12 +41,9 @@ SqTable *sq_table_new(const char *name, const SqType *typeinfo)
 void  sq_table_free(SqTable *table)
 {
 	if (table->bit_field & SQB_DYNAMIC) {
-		// reduce the stack frame:
-		// sq_type_unref() will not be called by below sq_entry_final()
-		if (table->type) {
-			sq_type_unref((SqType*)table->type);
-			table->type = NULL;
-		}
+		// table->type == NULL if 'table' is migration record
+		if (table->type)
+			sq_type_free((SqType*)table->type);
 		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)table);
 		free((char*)table->old_name);

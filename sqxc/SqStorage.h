@@ -134,7 +134,7 @@ SqTable *sq_storage_find_by_type(SqStorage *storage, const char *type_name);
 // SqStorage-query.c
 
 // sq_storage_type_from_query() is for internal use only.
-// return: table's type in query. It must call sq_type_unref() to free.
+// return SqTypeJoint that contain table's type in query. It must call sq_type_free() to free.
 SqType  *sq_storage_type_from_query(SqStorage *storage, SqQuery *query, int *n_tables_in_query);
 
 // 'query' must has FROM table_name or JOIN table_name
@@ -456,7 +456,7 @@ inline StlContainer *StorageMethod::query(Sq::QueryMethod& query) {
 		Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
 		instance = sq_storage_query((SqStorage*)this, (SqQuery*)&query, tableType, containerType);
 		delete containerType;
-		sq_type_unref(tableType);
+		sq_type_free(tableType);
 	}
 	return (StlContainer*)instance;
 }
@@ -468,7 +468,7 @@ inline StlContainer *StorageMethod::query(Sq::QueryMethod *query) {
 		Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
 		instance = sq_storage_query((SqStorage*)this, (SqQuery*)query, tableType, containerType);
 		delete containerType;
-		sq_type_unref(tableType);
+		sq_type_free(tableType);
 	}
 	return (StlContainer*)instance;
 }

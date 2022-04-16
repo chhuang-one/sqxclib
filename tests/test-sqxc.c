@@ -138,7 +138,7 @@ void test_sqxc_joint_input()
 	printf("tb2.id = %d\n", user->id);
 
 	sqxc_free(xc);
-	sq_type_unref(type);
+	sq_type_free(type);
 	sq_table_free(table);
 }
 

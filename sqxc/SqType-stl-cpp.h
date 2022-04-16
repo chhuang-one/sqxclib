@@ -23,6 +23,8 @@
 #include <SqType.h>
 #include <SqxcValue.h>
 
+#define SQ_TYPE_STL_ENABLE_DYNAMIC     0
+
 namespace Sq {
 
 // SqType for C++ STL containers
@@ -115,22 +117,25 @@ struct TypeStl : SqType {
 		this->parse = cxxParse;
 		this->write = cxxWrite;
 		this->name  = NULL;
-		this->ref_count = 1;
 		this->n_entry = -1;                       // SqType.entry can't be freed if SqType.n_entry == -1
 		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
-		sq_type_ref((SqType*)element_type);
+#if SQ_TYPE_STL_ENABLE_DYNAMIC == 1
 		// reset SqType.bit_field if it has not been set by operator new()
-		// cast to SqType to avoid compiling warning
-		if ( ((SqType*)this)->bit_field != SQB_TYPE_DYNAMIC )
+		if (this->bit_field != SQB_TYPE_DYNAMIC)
 			this->bit_field = 0;
+#else
+		this->bit_field = 0;
+#endif
 	}
+
+#if SQ_TYPE_STL_ENABLE_DYNAMIC == 1
 	~TypeStl() {
-//		if (this->bit_field & SQB_TYPE_DYNAMIC) {
-			sq_type_unref((SqType*)this->entry);      // TypeStl use SqType.entry to store element type
-			//// The destructor of the base class was originally called here.
-			//// But it just doesn't need to call this.
-			// sq_type_final_self(this);
-//		}
+		/*
+		// The destructor of the base class was originally called here.
+		// But it just doesn't need to call this.
+		if (this->bit_field & SQB_TYPE_DYNAMIC)
+			sq_type_final_self(this);
+		 */
 	}
 
 	// for dynamic allocated Sq::TypeStl
@@ -142,11 +147,13 @@ struct TypeStl : SqType {
 	void operator delete(void *instance) {
 		free(instance);
 	}
+#endif  // SQ_TYPE_STL_ENABLE_DYNAMIC
 };
 
 };  // namespace Sq
 
 #endif  // __cplusplus
 
+#undef SQ_TYPE_STL_ENABLE_DYNAMIC
 
 #endif  // SQ_TYPE_STL_CPP_H

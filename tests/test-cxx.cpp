@@ -229,9 +229,10 @@ void test_storage()
 // ----------------------------------------------------------------------------
 void test_type()
 {
-	Sq::Type   *type;
-	Sq::Entry  *entry;
-	Sq::Entry **entry_addr;
+	Sq::Type      *type;
+	Sq::Entry     *entry;
+	Sq::Entry    **entry_addr;
+	unsigned int   type_size;
 
 	type = new Sq::Type;
 	type->initSelf(8, sq_entry_free);
@@ -255,6 +256,9 @@ void test_type()
 	entry->offset = offsetof(User, email);
 	type->addEntry(entry);
 
+	// type size before remove entry "email"
+	type_size = type->size;
+
 	entry_addr = type->findEntry("email");
 	type->stealEntry(entry_addr);
 	type->decideSize(*entry_addr, true);
@@ -264,8 +268,8 @@ void test_type()
 	type->decideSize();
 	printf("type instance size = %d\n", type->size);
 
-	assert(type->size == 12);
-	type->unref();
+	assert(type->size == type_size);
+	delete type;
 }
 // ----------------------------------------------------------------------------
 

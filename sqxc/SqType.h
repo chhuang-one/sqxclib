@@ -58,30 +58,28 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 
 #define SQ_TYPE_INITIALIZER(StructType, EntryPtrArray, bit_value)  \
 {                                                                  \
-	.size  = sizeof(StructType),                                   \
-	.init  = (SqTypeFunc) NULL,                                    \
-	.final = (SqTypeFunc) NULL,                                    \
-	.parse = sq_type_object_parse,                                 \
-	.write = sq_type_object_write,                                 \
-	.name  = SQ_GET_TYPE_NAME(StructType),                         \
-	.entry   = (SqEntry**) EntryPtrArray,                          \
-	.n_entry = sizeof(EntryPtrArray) / sizeof(SqEntry*),           \
-	.bit_field = bit_value,                                        \
-	.ref_count = 0,                                                \
+	sizeof(StructType),                                            \
+	(SqTypeFunc) NULL,                                             \
+	(SqTypeFunc) NULL,                                             \
+	sq_type_object_parse,                                          \
+	sq_type_object_write,                                          \
+	SQ_GET_TYPE_NAME(StructType),                                  \
+	(SqEntry**) EntryPtrArray,                                     \
+	sizeof(EntryPtrArray) / sizeof(SqEntry*),                      \
+	bit_value,                                                     \
 }
 
 #define SQ_TYPE_INITIALIZER_FULL(StructType, EntryPtrArray, bit_value, init_func, final_func) \
 {                                                                  \
-	.size  = sizeof(StructType),                                   \
-	.init  = (SqTypeFunc) init_func,                               \
-	.final = (SqTypeFunc) final_func,                              \
-	.parse = sq_type_object_parse,                                 \
-	.write = sq_type_object_write,                                 \
-	.name  = SQ_GET_TYPE_NAME(StructType),                         \
-	.entry   = (SqEntry**) EntryPtrArray,                          \
-	.n_entry = sizeof(EntryPtrArray) / sizeof(SqEntry*),           \
-	.bit_field = bit_value,                                        \
-	.ref_count = 0,                                                \
+	sizeof(StructType),                                            \
+	(SqTypeFunc) init_func,                                        \
+	(SqTypeFunc) final_func,                                       \
+	sq_type_object_parse,                                          \
+	sq_type_object_write,                                          \
+	SQ_GET_TYPE_NAME(StructType),                                  \
+	(SqEntry**) EntryPtrArray,                                     \
+	sizeof(EntryPtrArray) / sizeof(SqEntry*),                      \
+	bit_value,                                                     \
 }
 
 /* SqType::bit_field - SQB_TYPE_xxxx */
@@ -119,10 +117,7 @@ extern "C" {
 // if 'prealloc_size' is 0, allocate default size.
 // if user want create a basic (not structured) data type, pass 'prealloc_size' = -1 and 'entry_destroy_func' = NULL.
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
-
-// these function only work if SqType.bit_field has SQB_TYPE_DYNAMIC
-void     sq_type_ref(SqType *type);
-void     sq_type_unref(SqType *type);
+void     sq_type_free(SqType *type);
 
 // copy data from static SqType to dynamic SqType. 'type_dest' must be raw memory.
 // if 'type_dest' is NULL, function will create dynamic SqType.
@@ -220,8 +215,7 @@ struct Type;
 	char             *name;       \
 	SqEntry         **entry;      \
 	int               n_entry;    \
-	unsigned int      bit_field;  \
-	int               ref_count
+	unsigned int      bit_field
 
 struct SqType
 {
@@ -248,19 +242,10 @@ struct SqType
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
 	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
 	unsigned int   bit_field;
-	int            ref_count;    // reference count for dynamic SqType only
  */
 
 #ifdef __cplusplus
 	/* Note: If you add, remove, or change methods here, do the same things in Sq::TypeMethod. */
-
-	// these methods only work if SqType.bit_field has SQB_TYPE_DYNAMIC
-	void  ref() {
-		sq_type_ref((SqType*)this);
-	}
-	void  unref() {
-		sq_type_unref((SqType*)this);
-	}
 
 	// create dynamic SqType and copy data from static SqType
 	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) {
@@ -522,14 +507,6 @@ namespace Sq {
 	Note: If you add, remove, or change methods here, do the same things in SqType.
  */
 struct TypeMethod {
-	// these methods only work if SqType.bit_field has SQB_TYPE_DYNAMIC
-	void  ref() {
-		sq_type_ref((SqType*)this);
-	}
-	void  unref() {
-		sq_type_unref((SqType*)this);
-	}
-
 	// create dynamic SqType and copy data from static SqType
 	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) {
 		return (Sq::Type*)sq_type_copy_static(NULL, (const SqType*)this, entry_free_func);

@@ -54,20 +54,19 @@ typedef struct SqCommandValue    SqCommandValue;
  */
 #define SQ_COMMAND_INITIALIZER(StructType, bit_value, command_string, command_options, handle_func, parameter_string, description_string) \
 {                                                                  \
-	.size  = sizeof(StructType),                                   \
-	.init  = (SqTypeFunc) NULL,                                    \
-	.final = (SqTypeFunc) NULL,                                    \
-	.parse = sq_command_parse_option,                              \
-	.write = NULL,                                                 \
-	.name  = command_string,                                       \
-	.entry   = (SqEntry**) command_options,                        \
-	.n_entry = sizeof(command_options) / sizeof(SqOption*),        \
-	.bit_field = bit_value,                                        \
-	.ref_count = 0,                                                \
+	sizeof(StructType),                                            \
+	(SqTypeFunc) NULL,                                             \
+	(SqTypeFunc) NULL,                                             \
+	sq_command_parse_option,                                       \
+	NULL,                                                          \
+	command_string,                                                \
+	(SqEntry**) command_options,                                   \
+	sizeof(command_options) / sizeof(SqOption*),                   \
+	bit_value,                                                     \
 	                                                               \
-	.handle      = (SqCommandFunc) handle_func,                    \
-	.parameter   = parameter_string,                               \
-	.description = description_string,                             \
+	(SqCommandFunc) handle_func,                                   \
+	parameter_string,                                              \
+	description_string,                                            \
 }
 
 // ----------------------------------------------------------------------------
@@ -89,13 +88,10 @@ void  sq_command_value_final(SqCommandValue *cmd_value);
 
 /* --- SqCommand C functions --- */
 SqCommand *sq_command_new(const char *cmd_name);
+void       sq_command_free(SqCommand *cmd_type);
 
 void  sq_command_init_self(SqCommand *cmd_type, const char *cmd_name);
 void  sq_command_final_self(SqCommand *cmd_type);
-
-// these function only work if SqCommand.bit_field has SQB_TYPE_DYNAMIC
-void  sq_command_ref(SqCommand *cmd_type);
-void  sq_command_unref(SqCommand *cmd_type);
 
 // copy data from static SqCommand to dynamic SqCommand. 'cmd_type_dest' must be raw memory.
 // if 'cmd_type_dest' is NULL, function will create dynamic SqCommand.
@@ -190,7 +186,6 @@ struct SqCommand
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
 	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
 	unsigned int   bit_field;
-	int            ref_count;    // reference count for dynamic SqType only
 
 	// ------ SqCommand members ------
 	SqCommandFunc  handle;
@@ -207,14 +202,6 @@ struct SqCommand
 	}
 	void  finalSelf() {
 		sq_command_final_self((SqCommand*)this);
-	}
-
-	// these function only work if SqCommand.bit_field has SQB_TYPE_DYNAMIC
-	void  ref() {
-		sq_command_ref((SqCommand*)this);
-	}
-	void  unref() {
-		sq_command_unref((SqCommand*)this);
 	}
 
 	// create dynamic SqCommand and copy data from static SqCommand
@@ -292,14 +279,6 @@ struct CommandMethod {
 	}
 	void  finalSelf() {
 		sq_command_final_self((SqCommand*)this);
-	}
-
-	// these function only work if SqCommand.bit_field has SQB_TYPE_DYNAMIC
-	void  ref() {
-		sq_command_ref((SqCommand*)this);
-	}
-	void  unref() {
-		sq_command_unref((SqCommand*)this);
 	}
 
 	// create dynamic SqCommand and copy data from static SqCommand

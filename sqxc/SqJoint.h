@@ -68,7 +68,7 @@ extern "C" {
 
 SqTypeJoint *sq_type_joint_new();
 
-// call sq_type_unref(type_joint) to free SqTypeJoint
+// call sq_type_free(type_joint) to free SqTypeJoint
 
 void  sq_type_joint_init(SqTypeJoint *type_joint);
 

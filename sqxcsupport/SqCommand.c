@@ -40,10 +40,7 @@ void  sq_command_value_free(SqCommandValue *cmd_value)
 
 void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommand *cmd_type)
 {
-	if (cmd_type) {
-		sq_command_ref((SqCommand*)cmd_type);
-		sq_type_init_instance((SqType*)cmd_type, cmd_value, 0);
-	}
+	sq_type_init_instance((SqType*)cmd_type, cmd_value, 0);
 	cmd_value->type = cmd_type;
 	sq_ptr_array_init(&cmd_value->shortcuts, 8, NULL);
 	sq_ptr_array_init(&cmd_value->arguments, 8, NULL);
@@ -52,14 +49,9 @@ void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommand *cmd_type
 
 void  sq_command_value_final(SqCommandValue *cmd_value)
 {
-	const SqCommand *cmd_type = cmd_value->type;
-
 	sq_ptr_array_final(&cmd_value->arguments);
 	sq_ptr_array_final(&cmd_value->shortcuts);
-	if (cmd_type) {
-		sq_type_final_instance((SqType*)cmd_value->type, cmd_value, 0);
-		sq_command_unref((SqCommand*)cmd_value->type);
-	}
+	sq_type_final_instance((SqType*)cmd_value->type, cmd_value, 0);
 }
 
 // ----------------------------------------------------------------------------
@@ -72,6 +64,14 @@ SqCommand *sq_command_new(const char *cmd_name)
 	cmd_type = malloc(sizeof(SqCommand));
 	sq_command_init_self(cmd_type, cmd_name);
 	return cmd_type;
+}
+
+void  sq_command_free(SqCommand *cmd_type)
+{
+	if (cmd_type->bit_field & SQB_TYPE_DYNAMIC) {
+		sq_command_final_self(cmd_type);
+		free(cmd_type);
+	}
 }
 
 void  sq_command_init_self(SqCommand *cmd_type, const char *cmd_name)
@@ -94,25 +94,6 @@ void  sq_command_final_self(SqCommand *cmd_type)
 	// free SqCommand members
 	free((char*)cmd_type->parameter);
 	free((char*)cmd_type->description);
-}
-
-void sq_command_ref(SqCommand *cmd_type)
-{
-	// below code is the same as sq_type_ref()
-	if (cmd_type->bit_field & SQB_TYPE_DYNAMIC)
-		cmd_type->ref_count++;
-}
-
-void sq_command_unref(SqCommand *cmd_type)
-{
-	if (cmd_type->bit_field & SQB_TYPE_DYNAMIC) {
-		cmd_type->ref_count--;
-		if (cmd_type->ref_count == 0) {
-			sq_command_final_self(cmd_type);
-			// free SqCommand struct
-			free(cmd_type);
-		}
-	}
 }
 
 SqCommand *sq_command_copy_static(SqCommand       *cmd_type_dest,

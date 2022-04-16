@@ -73,7 +73,6 @@ void  sq_storage_init(SqStorage *storage, Sqdb *db)
 
 void  sq_storage_final(SqStorage *storage)
 {
-//	sq_type_unref(storage->container_default);
 	sq_schema_free(storage->schema);
 	sq_ptr_array_final(&storage->tables);
 
