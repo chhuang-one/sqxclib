@@ -375,7 +375,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 {
 	int   rc;
 	int   code = SQCODE_OK;
-	char *errorMsg;
+	char *errorMsg = NULL;
 
 #ifndef NDEBUG
 	fprintf(stderr, "SQL: %s\n", sql);
@@ -448,8 +448,8 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 	if (rc != SQLITE_OK) {
 #ifndef NDEBUG
 		fprintf(stderr, "SQLite: %s\n", errorMsg);
-		sqlite3_free(errorMsg);
 #endif
+		sqlite3_free(errorMsg);
 		return SQCODE_EXEC_ERROR;
 	}
 	return code;
