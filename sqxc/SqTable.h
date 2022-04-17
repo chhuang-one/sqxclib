@@ -57,8 +57,10 @@ typedef struct SqTable        SqTable;
 extern "C" {
 #endif
 
-SqTable  *sq_table_new(const char *name, const SqType *type_info);
-void      sq_table_free(SqTable *table_pub);
+// If 'table_type' == NULL, program will create dynamic SqType in it.
+// If 'table_type' is dynamic SqType, it will be freed when program free table.
+SqTable  *sq_table_new(const char *name, const SqType *table_type);
+void      sq_table_free(SqTable *table);
 
 bool      sq_table_has_column(SqTable *table, const char *column_name);
 void      sq_table_drop_column(SqTable *table, const char *column_name);

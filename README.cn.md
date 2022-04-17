@@ -785,7 +785,7 @@ SqColumn 文档: doc/[SqColumn.md](doc/SqColumn.md)
 
 ## 许可
 
-sqxclib 在 Mulan PSL v2 下获得许可。
+sqxclib 在 木兰宽松许可证 第2版 下获得许可。
 
 
 ---

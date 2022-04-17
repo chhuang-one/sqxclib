@@ -21,15 +21,15 @@
 #define strdup       _strdup
 #endif
 
-SqTable *sq_table_new(const char *name, const SqType *typeinfo)
+SqTable *sq_table_new(const char *name, const SqType *table_type)
 {
 	SqTable *table;
 
 	table = malloc(sizeof(SqTable));
 	// create dynamic SqType
-	if (typeinfo == NULL)
-		typeinfo = sq_type_new(8, (SqDestroyFunc)sq_column_free);
-	sq_entry_init((SqEntry*)table, typeinfo);
+	if (table_type == NULL)
+		table_type = sq_type_new(8, (SqDestroyFunc)sq_column_free);
+	sq_entry_init((SqEntry*)table, table_type);
 	table->name = (name) ? strdup(name) : NULL;
 	table->bit_field |= SQB_POINTER;
 	table->old_name = NULL;

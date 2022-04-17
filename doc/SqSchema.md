@@ -89,7 +89,8 @@ schema builder C++ sample code:
 ```
 
 ## 2. Create table by existed SqType (static or dynamic)
-You can see documents [SqColumn.md](SqColumn.md) to get more information about creating SqType with SqColumn.
+You can see documents [SqColumn.md](SqColumn.md) to get more information about creating SqType with SqColumn.  
+Note: If 'type' is dynamic SqType, it will be freed when program free 'table'.
 
 ```c++
 	// C function

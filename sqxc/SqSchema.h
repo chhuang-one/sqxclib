@@ -50,7 +50,8 @@ void    sq_schema_init(SqSchema *schema, const char *name);
 void    sq_schema_final(SqSchema *schema);
 
 /*	sq_schema_create_full()
-  if 'table_type' == NULL, program will use 'type_name' and 'instance_size' to create 'table_type'.
+  If 'table_type' == NULL, program will use 'type_name' and 'instance_size' to create 'table_type'.
+  If 'table_type' is dynamic SqType, it will be freed when program free table.
   You can pass 0 to 'instance_size' because program calculate 'instance_size' automatically.
 
   C language
