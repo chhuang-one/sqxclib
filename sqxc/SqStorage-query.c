@@ -85,7 +85,6 @@ void *sq_storage_query(SqStorage    *storage,
 {
 	SqType     *type_cur;
 	Sqxc       *xcvalue;
-	char       *sql;
 	void       *instance;
 
 	if (container_type == NULL)
@@ -104,21 +103,17 @@ void *sq_storage_query(SqStorage    *storage,
 		}
 	}
 
-	// get SQL statement string
-	sql = sq_query_to_sql(query);
 	// destination of input
 	xcvalue = (Sqxc*) storage->xc_input;
 	sqxc_value_element(xcvalue)   = type_cur;
-	sqxc_value_container(xcvalue) = (container_type) ? container_type : (SqType*)storage->container_default;
+	sqxc_value_container(xcvalue) = container_type;
 	sqxc_value_instance(xcvalue)  = NULL;
 
-	// get input from SQL
+	// execute SQL statement and get result
 	sqxc_ready(xcvalue, NULL);
-	sqdb_exec(storage->db, sql, xcvalue, NULL);
+	sqdb_exec(storage->db, sq_query_c(query), xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
 	instance = sqxc_value_instance(xcvalue);
-	// free SQL statement string
-	free(sql);
 
 	if (table_type == NULL)
 		sq_type_free(type_cur);
