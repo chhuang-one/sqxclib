@@ -15,6 +15,15 @@
 #ifndef SQ_DEFINE_H
 #define SQ_DEFINE_H
 
+#include <stdint.h>     // int64_t, intptr_t...etc
+#include <stdbool.h>    // bool
+#include <time.h>       // time_t
+
+// ----------------------------------------------------------------------------
+// C/C++ common declarations: declare type, structue, macro, enumeration.
+
+typedef union SqValue        SqValue;
+
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
@@ -30,5 +39,40 @@ typedef int   (*SqCompareFunc)(const void *a, const void *b);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
+
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define structue
+
+union SqValue
+{
+	bool          boolean;
+	int           integer;
+	int           int_;
+	unsigned int  uinteger;
+	unsigned int  uint;
+	int64_t       int64;
+	uint64_t      uint64;
+	time_t        rawtime;
+	double        fraction;
+	double        double_;
+	const char   *string;
+	const char   *stream;     // Text stream must be null-terminated string
+	void         *pointer;
+};
+
+// ----------------------------------------------------------------------------
+// C++ definitions: define C++ data, function, method, and others.
+
+#ifdef __cplusplus
+
+namespace Sq {
+
+/* All derived struct/class must be C++11 standard-layout. */
+
+typedef union SqValue    Value;
+
+};  // namespace Sq
+
+#endif  // __cplusplus
 
 #endif  // SQ_DEFINE_H

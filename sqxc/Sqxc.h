@@ -45,9 +45,6 @@
 #define SQXC_H
 
 #include <stddef.h>
-#include <stdint.h>     // int64_t
-#include <stdbool.h>    // bool
-#include <time.h>       // time_t
 
 #include <SqDefine.h>
 #include <SqBuffer.h>
@@ -402,21 +399,7 @@ struct SqxcNested
 	uint16_t     code;                 \
 	uint16_t     type;                 \
 	const char  *name;                 \
-	union {                            \
-		bool          boolean;         \
-		int           integer;         \
-		int           int_;            \
-		unsigned int  uinteger;        \
-		unsigned int  uint;            \
-		int64_t       int64;           \
-		uint64_t      uint64;          \
-		time_t        rawtime;         \
-		double        fraction;        \
-		double        double_;         \
-		const char   *string;          \
-		const char   *stream;          \
-		void         *pointer;         \
-	} value;                           \
+	SqValue      value;                \
 	SqEntry     *entry;                \
 	void       **error
 
@@ -463,21 +446,7 @@ struct Sqxc
 	// input arguments
 	uint16_t     type;            // input SqxcType
 	const char  *name;
-	union {
-		bool          boolean;
-		int           integer;
-		int           int_;
-		unsigned int  uinteger;
-		unsigned int  uint;
-		int64_t       int64;
-		int64_t       uint64;
-		time_t        rawtime;
-		double        fraction;
-		double        double_;
-		const char   *string;
-		const char   *stream;     // Text stream must be null-terminated string
-		void         *pointer;
-	} value;
+	SqValue      value;           // union SqValue defined in SqDefine.h
 
 	// special input arguments
 	SqEntry     *entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
