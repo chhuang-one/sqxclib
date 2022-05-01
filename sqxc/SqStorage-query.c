@@ -60,7 +60,7 @@ SqType  *sq_storage_type_from_query(SqStorage *storage, SqQuery *query, int *n_t
 		for (int index = 0;  index < names.length;  index+=2) {
 			table = sq_schema_find(storage->schema, names.data[index]);
 			if (table == NULL) {
-				sq_type_free(type);
+				sq_type_joint_free(type);
 				type = NULL;
 				n = 0;
 				break;
@@ -98,7 +98,7 @@ void *sq_storage_query(SqStorage    *storage,
 		// special case for SqPtrArray: if there is only 1 table in query
 		if (container_type == SQ_TYPE_PTR_ARRAY && type_cur->n_entry == 1) {
 			table_type = type_cur->entry[0]->type;
-			sq_type_free(type_cur);
+			sq_type_joint_free(type_cur);
 			type_cur = (SqType*)table_type;
 		}
 	}

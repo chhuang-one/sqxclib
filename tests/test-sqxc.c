@@ -96,7 +96,7 @@ SqTable *create_user_table_by_type(SqSchema *schema)
 
 void test_sqxc_joint_input()
 {
-	SqType   *type;
+	SqTypeJoint  *type;
 	SqTable  *table;
 	Sqxc     *xc;
 	User     *user;
@@ -138,7 +138,7 @@ void test_sqxc_joint_input()
 	printf("tb2.id = %d\n", user->id);
 
 	sqxc_free(xc);
-	sq_type_free(type);
+	sq_type_joint_free(type);
 	sq_table_free(table);
 }
 

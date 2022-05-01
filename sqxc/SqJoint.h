@@ -68,9 +68,15 @@ extern "C" {
 
 SqTypeJoint *sq_type_joint_new();
 
-// call sq_type_free(type_joint) to free SqTypeJoint
+// void sq_type_joint_free(SqTypeJoint *type_joint);
+#define sq_type_joint_free(type_joint)    \
+		sq_type_free((SqType*)(type_joint))
 
-void  sq_type_joint_init(SqTypeJoint *type_joint);
+void    sq_type_joint_init(SqTypeJoint *type_joint);
+
+// void sq_type_joint_final(SqTypeJoint *type_joint);
+#define sq_type_joint_final(type_joint)    \
+		sq_type_final_self((SqType*)(type_joint))
 
 void  sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
 void  sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
@@ -108,6 +114,7 @@ struct TypeJointMethod {
 	|
 	`--- SqTypeJoint
  */
+#define SQ_TYPE_JOINT_MEMBERS    SQ_TYPE_MEMBERS
 
 // ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.
@@ -130,7 +137,7 @@ struct TypeJoint : SqTypeJoint, TypeJointMethod {
 		sq_type_joint_init((SqTypeJoint*)this);
 	}
 	~TypeJoint() {
-		sq_type_final_self((SqType*)this);
+		sq_type_joint_final((SqTypeJoint*)this);
 	}
 };
 
