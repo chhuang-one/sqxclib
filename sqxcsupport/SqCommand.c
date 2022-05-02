@@ -148,13 +148,13 @@ int  sq_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 			nested = sqxc_push_nested((Sqxc*)xc_value);
 			nested->data  = instance;
 			nested->data2 = (SqType*)type;
-			nested->data3 = NULL;
+			nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 		}
 		if (src->type != SQXC_TYPE_OBJECT) {
 //			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		// ready to parse object
+		// SqxcNested is ready to parse object, type has been matched.
 		nested->data3 = instance;
 		return (src->code = SQCODE_OK);
 	}

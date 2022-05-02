@@ -108,6 +108,10 @@ void test_sqxc_joint_input()
 	sq_type_joint_add(type, table, "tb2");
 
 	xc = sqxc_new(SQXC_INFO_VALUE);
+#if defined SQ_CONFIG_HAVE_JSONC
+	sqxc_insert(xc, sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
+#endif
+
 	sqxc_value_element(xc) = type;
 
 	sqxc_ready(xc, NULL);
@@ -121,6 +125,12 @@ void test_sqxc_joint_input()
 	xc->value.int_ = 1233;
 	sqxc_send(xc);
 
+	// program can't parse JSON array string if no JSON parser in sqxc chain
+	xc->name = "tb2.strs";
+	xc->type = SQXC_TYPE_STRING;
+	xc->value.string = "[ \"str0\", \"str1\", \"str2\" ]";
+	sqxc_send(xc);
+
 	xc->name = "tb2.id";
 	xc->type = SQXC_TYPE_INT;
 	xc->value.int_ = 233;
@@ -131,13 +141,26 @@ void test_sqxc_joint_input()
 	sqxc_send(xc);
 
 	sqxc_finish(xc, NULL);
+
 	instance = sqxc_value_instance(xc);
 	user = instance[0];
 	printf("tb1.id = %d\n", user->id);
+	assert(user->id == 1233);
+	free(user);
+
 	user = instance[1];
 	printf("tb2.id = %d\n", user->id);
+	assert(user->id == 233);
+#if defined SQ_CONFIG_HAVE_JSONC
+	assert(user->strs.length == 3);
+#else
+	// program can't parse JSON array string if no JSON parser in sqxc chain
+	assert(user->strs.length == 0);
+#endif
+	free(user);
+	free(instance);
 
-	sqxc_free(xc);
+	sqxc_free_chain(xc);
 	sq_type_joint_free(type);
 	sq_table_free(table);
 }

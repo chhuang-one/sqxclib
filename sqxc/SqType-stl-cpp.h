@@ -51,13 +51,13 @@ struct TypeStl : SqType {
 				nested = sqxc_push_nested((Sqxc*)xc_value);
 				nested->data = instance;
 				nested->data2 = (void*)type;
-				nested->data3 = NULL;
+				nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 			}
 			if (src->type != SQXC_TYPE_ARRAY) {
 //				src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 				return (src->code = SQCODE_TYPE_NOT_MATCH);
 			}
-			// ready to parse array (container)
+			// SqxcNested is ready to parse array (container), type has been matched.
 			nested->data3 = instance;
 			return (src->code = SQCODE_OK);
 		}

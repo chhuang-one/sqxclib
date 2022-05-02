@@ -72,13 +72,13 @@ static int  sq_type_ptr_array_parse(void *array, const SqType *type, Sqxc *src)
 			nested = sqxc_push_nested((Sqxc*)xc_value);
 			nested->data = array;
 			nested->data2 = (void*)type;
-			nested->data3 = NULL;
+			nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 		}
 		if (src->type != SQXC_TYPE_ARRAY) {
 //			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		// ready to parse array
+		// SqxcNested is ready to parse array, type has been matched.
 		nested->data3 = array;
 		return (src->code = SQCODE_OK);
 	}
@@ -167,13 +167,13 @@ static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *sr
 			nested = sqxc_push_nested((Sqxc*)xc_value);
 			nested->data = array;
 			nested->data2 = (void*)type;
-			nested->data3 = NULL;
+			nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 		}
 		if (src->type != SQXC_TYPE_ARRAY) {
 //			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		// ready to parse array
+		// SqxcNested is ready to parse array, type has been matched.
 		nested->data3 = array;
 		return (src->code = SQCODE_OK);
 	}

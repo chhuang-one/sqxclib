@@ -106,6 +106,8 @@ typedef enum {
 typedef int   (*SqxcCtrlFunc)(Sqxc *xc, int ctrl_id, void *data);
 typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 
+#define SQXC_IS_DOING_TYPE_MATCH(sqxc)    ((sqxc) == (sqxc)->nested->data3)
+
 /*
    macro for maintaining C/C++ inline functions easily
 
@@ -363,16 +365,25 @@ struct SqxcInfo
 	SqxcSendFunc send;
 };
 
-/* SqxcNested - pointer to current nested object/array */
+/*	SqxcNested - stack data for Sqxc parser or writer
+
+	SqxcNested.data3 has special usage that can run a bit faster when doing object and array type match.
+	1. When SqxcNested.data3 pointer to it's Sqxc and Sqxc.send() return SQCODE_TYPE_NOT_MATCH,
+	   current SqxcNested is NOT ready to parse object or array, it is doing type match.
+	2. When SqxcNested.data3 pointer to SqxcNested.data,
+	   current SqxcNested is ready to parse object or array, type has been matched.
+
+	SqxcNested.data3 pointer to other address (or NULL) if you don't use fast type match.
+ */
 
 struct SqxcNested
 {
 	SqxcNested  *outer;
 	SqxcNested  *inner;
 
-	void  *data;    // void    *instance;
-	void  *data2;   // SqType  *type;
-	void  *data3;   // void    *data;    // other data
+	void  *data;
+	void  *data2;
+	void  *data3;
 };
 
 /*	Sqxc - Interface for data parse and write

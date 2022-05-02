@@ -209,9 +209,16 @@ Sqxc  *sqxc_send(Sqxc *xc)
 			return cur;
 		}
 		else if (xc->code == SQCODE_ENTRY_NOT_FOUND)
-			break;
+			return xc;
 	}
 
+//	if (cur == NULL)
+	// check remaining SqxcNested if destination Sqxc use fast type match
+	if (xc->code == SQCODE_TYPE_NOT_MATCH) {
+		// pop SqxcNested if it is doing type match
+		if (SQXC_IS_DOING_TYPE_MATCH(xc))
+			sqxc_pop_nested(xc);
+	}
 	return xc;
 }
 

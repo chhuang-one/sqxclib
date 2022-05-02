@@ -134,13 +134,13 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 			nested = sqxc_push_nested((Sqxc*)xc_value);
 			nested->data = instance;
 			nested->data2 = (void*)type;
-			nested->data3 = NULL;
+			nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 		}
 		if (src->type != SQXC_TYPE_OBJECT) {
 //			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
-		// ready to parse joint object
+		// SqxcNested is ready to parse joint object, type has been matched.
 		nested->data3 = instance;
 		return (src->code = SQCODE_OK);
 	}
@@ -171,7 +171,7 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data = *(void**)((char*)instance +table->offset);
 		nested->data2 = (void*)table->type;
-		nested->data3 = nested->data;
+		nested->data3 = nested->data;    // SqxcNested is ready to parse, type has been matched.
 		// call parser of 'table'
 		src->name += temp.len;
 		src->code  = table->type->parse(nested->data, nested->data2, src);
