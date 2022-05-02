@@ -168,7 +168,7 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 	if (table) {
 		table = *(SqEntry**)table;
 		// push nested for parser of 'table'
-		nested = sqxc_push_nested(src);
+		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data = *(void**)((char*)instance +table->offset);
 		nested->data2 = (void*)table->type;
 		nested->data3 = nested->data;
@@ -177,7 +177,7 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 		src->code  = table->type->parse(nested->data, nested->data2, src);
 		src->name -= temp.len;
 		// erase nested for 'table'
-		sqxc_erase_nested(src, nested);
+		sqxc_erase_nested((Sqxc*)xc_value, nested);
 		return src->code;
 	}
 
