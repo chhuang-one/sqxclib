@@ -66,6 +66,7 @@ static int  sq_type_ptr_array_parse(void *array, const SqType *type, Sqxc *src)
 
 	// Start of Array
 	nested = xc_value->nested;
+#if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	if (nested->data3 != array) {
 		if (nested->data != array) {
 			// Frist time to call this function to parse array
@@ -82,6 +83,20 @@ static int  sq_type_ptr_array_parse(void *array, const SqType *type, Sqxc *src)
 		nested->data3 = array;
 		return (src->code = SQCODE_OK);
 	}
+#else
+	if (nested->data != array) {
+		// do type match
+		if (src->type != SQXC_TYPE_ARRAY) {
+//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			return (src->code = SQCODE_TYPE_NOT_MATCH);
+		}
+		// ready to parse
+		nested = sqxc_push_nested((Sqxc*)xc_value);
+		nested->data = array;
+		nested->data2 = (void*)type;
+		return (src->code = SQCODE_OK);
+	}
+#endif  // SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	/*
 	// End of Array : sqxc_value_send() have done it.
 	else if (src->type == SQXC_TYPE_ARRAY_END) {
@@ -161,6 +176,7 @@ static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *sr
 
 	// Start of Array
 	nested = xc_value->nested;
+#if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	if (nested->data3 != array) {
 		if (nested->data != array) {
 			// Frist time to call this function to parse array
@@ -177,6 +193,20 @@ static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *sr
 		nested->data3 = array;
 		return (src->code = SQCODE_OK);
 	}
+#else
+	if (nested->data != array) {
+		// do type match
+		if (src->type != SQXC_TYPE_ARRAY) {
+//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			return (src->code = SQCODE_TYPE_NOT_MATCH);
+		}
+		// ready to parse
+		nested = sqxc_push_nested((Sqxc*)xc_value);
+		nested->data = array;
+		nested->data2 = (void*)type;
+		return (src->code = SQCODE_OK);
+	}
+#endif  // SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	/*
 	// End of Array : sqxc_value_send() have done it.
 	else if (src->type == SQXC_TYPE_ARRAY_END) {

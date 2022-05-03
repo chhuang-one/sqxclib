@@ -415,6 +415,7 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 
 	// Start of Object
 	nested = xc_value->nested;
+#if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	if (nested->data3 != instance) {
 		if (nested->data != instance) {
 			// Frist time to call this function to parse object
@@ -431,6 +432,20 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 		nested->data3 = instance;
 		return (src->code = SQCODE_OK);
 	}
+#else
+	if (nested->data != instance) {
+		// do type match
+		if (src->type != SQXC_TYPE_OBJECT) {
+//			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			return (src->code = SQCODE_TYPE_NOT_MATCH);
+		}
+		// ready to parse
+		nested = sqxc_push_nested((Sqxc*)xc_value);
+		nested->data = instance;
+		nested->data2 = (void*)type;
+		return (src->code = SQCODE_OK);
+	}
+#endif  // SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	/*
 	// End of Object : sqxc_value_send() have done it.
 	else if (src->type == SQXC_TYPE_OBJECT_END) {

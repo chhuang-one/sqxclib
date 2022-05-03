@@ -50,6 +50,13 @@
 #endif
 #undef HAVE_MYSQL
 
+/* Enable SqxcNested.data3 to do fast type match.
+   Sqxc can run a bit faster when doing object and array type match.
+   Disable it to reduce code size.
+   Affected source : SqJoint, SqType, SqCommand
+ */
+#define SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
+
 /* Enable "SQL_table_name" <-> "C struct type_name" converting.
    When calling sq_schema_create_xxx():
    If user only specify "SQL_table_name", program generate "C struct type_name".

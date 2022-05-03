@@ -19,6 +19,7 @@
 
 #include <type_traits>    // std::is_pointer
 
+#include <SqConfig.h>
 #include <SqError.h>
 #include <SqType.h>
 #include <SqxcValue.h>
@@ -45,6 +46,7 @@ struct TypeStl : SqType {
 
 		// Start of Array (Container)
 		nested = xc_value->nested;
+#if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 		if (nested->data3 != instance) {
 			if (nested->data != instance) {
 				// Frist time to call this function to parse array (container)
@@ -61,13 +63,27 @@ struct TypeStl : SqType {
 			nested->data3 = instance;
 			return (src->code = SQCODE_OK);
 		}
+#else
+	if (nested->data != instance) {
+		// do type match
+		if (src->type != SQXC_TYPE_ARRAY) {
+//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			return (src->code = SQCODE_TYPE_NOT_MATCH);
+		}
+		// ready to parse
+		nested = sqxc_push_nested((Sqxc*)xc_value);
+		nested->data = instance;
+		nested->data2 = (void*)type;
+		return (src->code = SQCODE_OK);
+	}
+#endif  // SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 		/*
 		// End of Array (Container) : sqxc_value_send() have done it.
 		else if (src->type == SQXC_TYPE_ARRAY_END) {
 			sqxc_pop_nested(src);
 			return (src->code = SQCODE_OK);
 		}
-		*/
+		 */
 
 		((Container*)instance)->emplace_back(typename Container::value_type());
 		element = (void*) std::addressof(((Container*)instance)->back());

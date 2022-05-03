@@ -106,7 +106,9 @@ typedef enum {
 typedef int   (*SqxcCtrlFunc)(Sqxc *xc, int ctrl_id, void *data);
 typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 
+// #if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 #define SQXC_IS_DOING_TYPE_MATCH(sqxc)    ((sqxc) == (sqxc)->nested->data3)
+// #endif
 
 /*
    macro for maintaining C/C++ inline functions easily
@@ -368,12 +370,15 @@ struct SqxcInfo
 /*	SqxcNested - stack data for Sqxc parser or writer
 
 	SqxcNested.data3 has special usage that can run a bit faster when doing object and array type match.
-	1. When SqxcNested.data3 pointer to it's Sqxc and Sqxc.send() return SQCODE_TYPE_NOT_MATCH,
+	1. Enable SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH In SqConfig.h
+	2. When SqxcNested.data3 pointer to it's Sqxc and Sqxc.send() return SQCODE_TYPE_NOT_MATCH,
 	   current SqxcNested is NOT ready to parse object or array, it is doing type match.
-	2. When SqxcNested.data3 pointer to SqxcNested.data,
+	3. When SqxcNested.data3 pointer to SqxcNested.data,
 	   current SqxcNested is ready to parse object or array, type has been matched.
 
 	SqxcNested.data3 pointer to other address (or NULL) if you don't use fast type match.
+
+	Because fast type match may change in future, I recommend that user don't use it in their custom parser.
  */
 
 struct SqxcNested
