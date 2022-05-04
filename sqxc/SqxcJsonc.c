@@ -106,6 +106,9 @@ static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 {
 	json_object *jobject;
 
+	if (src->type != SQXC_TYPE_STRING && src->type != SQXC_TYPE_STREAM)
+		return (src->code = SQCODE_TYPE_NOT_SUPPORT);
+
 	jobject = json_tokener_parse(src->value.string);
 	if (jobject == NULL) {
 		// incomplete JSON data
