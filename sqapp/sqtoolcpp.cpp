@@ -36,8 +36,27 @@ const int   test_argc = sizeof(test_argv) / sizeof(char*);
 int  main(int argc, char **argv)
 {
 	Sq::AppTool *apptool;
+	char        *program_name;
 
-	apptool = new Sq::AppTool("sqtoolcpp");
+	// get program_name
+#if defined(_WIN32) || defined(_WIN64)
+	program_name = strrchr(argv[0], '\\');
+#else
+	program_name = strrchr(argv[0], '/');
+#endif
+	if (program_name)
+		program_name++;
+	else
+		program_name = argv[0];
+
+	// create Sq::AppTool with program_name
+	apptool = new Sq::AppTool(program_name);
+
+	// if program_name contains "cpp", program outputs cpp files.
+	if (strstr(program_name, "cpp"))
+		apptool->template_extension = ".cpp.txt";
+	else
+		apptool->template_extension = ".c.txt";
 
 #ifdef TEST_ARGV
 	argc = test_argc;
