@@ -164,6 +164,11 @@ const SqType SqType_PtrArray_ =
 	SQ_TYPE_STRING_ARRAY and SQ_TYPE_INTPTR_ARRAY
  */
 
+static void sq_type_string_array_init(void *array, const SqType *type)
+{
+	sq_string_array_init(array, SQ_TYPE_PTR_ARRAY_SIZE_DEFAULT, free);
+}
+
 static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *src)
 {
 	const SqType *element_type;
@@ -258,7 +263,7 @@ static Sqxc *sq_type_notptr_array_write(void *array, const SqType *type, Sqxc *d
 const SqType SqType_StringArray_ =
 {
 	sizeof(SqPtrArray),
-	sq_type_ptr_array_init,
+	sq_type_string_array_init,
 	(SqTypeFunc)sq_ptr_array_final,
 	sq_type_notptr_array_parse,
 	sq_type_notptr_array_write,
