@@ -14,6 +14,7 @@ data type for Sqxc converter
 
 | Sqxc type name   | description                                |
 | ---------------- | ------------------------------------------ |
+| SQXC_TYPE_NULL   | corresponds to C value:      NULL          |
 | SQXC_TYPE_BOOL   | corresponds to C data type:  bool          |
 | SQXC_TYPE_INT    | corresponds to C data type:  int           |
 | SQXC_TYPE_UINT   | corresponds to C data type:  unsigned int  |

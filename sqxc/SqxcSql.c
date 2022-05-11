@@ -407,6 +407,10 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 		buffer = sqxc_get_buffer(xcsql);
 
 	switch (src->type) {
+	case SQXC_TYPE_NULL:
+		sq_buffer_write(buffer, "NULL");
+		break;
+
 	case SQXC_TYPE_BOOL:
 #if 1
 		if (src->value.boolean)

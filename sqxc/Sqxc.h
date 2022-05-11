@@ -62,24 +62,25 @@ typedef struct SqEntry          SqEntry;    // define in SqEntry.h
 
 typedef enum {
 	SQXC_TYPE_NONE     =  0,
-	SQXC_TYPE_BOOL     = (1 << 0),    // 0x0001
-	SQXC_TYPE_INT      = (1 << 1),    // 0x0002
-	SQXC_TYPE_UINT     = (1 << 2),    // 0x0004
-	SQXC_TYPE_INT64    = (1 << 3),    // 0x0008
-	SQXC_TYPE_UINT64   = (1 << 4),    // 0x0010
-	SQXC_TYPE_TIME     = (1 << 5),    // 0x0020
-	SQXC_TYPE_DOUBLE   = (1 << 6),    // 0x0040
-	SQXC_TYPE_ARITHMETIC = 0x7F,
+	SQXC_TYPE_NULL     = (1 << 0),    // 0x0001 , Sqxc.value.pointer = NULL;
+	SQXC_TYPE_BOOL     = (1 << 1),    // 0x0002
+	SQXC_TYPE_INT      = (1 << 2),    // 0x0004
+	SQXC_TYPE_UINT     = (1 << 3),    // 0x0008
+	SQXC_TYPE_INT64    = (1 << 4),    // 0x0010
+	SQXC_TYPE_UINT64   = (1 << 5),    // 0x0020
+	SQXC_TYPE_TIME     = (1 << 6),    // 0x0040
+	SQXC_TYPE_DOUBLE   = (1 << 7),    // 0x0080
+	SQXC_TYPE_ARITHMETIC = 0xFF,
 
-	SQXC_TYPE_STRING   = (1 << 7),    // 0x0080
-	SQXC_TYPE_OBJECT   = (1 << 8),    // 0x0100
-	SQXC_TYPE_ARRAY    = (1 << 9),    // 0x0200    // array or other storage structure
-	SQXC_TYPE_NESTED   = SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY,    // 0x0300
-	SQXC_TYPE_BASIC    =  0x3FF,
+	SQXC_TYPE_STRING   = (1 << 8),    // 0x0100
+	SQXC_TYPE_OBJECT   = (1 << 9),    // 0x0200
+	SQXC_TYPE_ARRAY    = (1 << 10),   // 0x0400    // array or other storage structure
+	SQXC_TYPE_NESTED   = SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY,    // 0x0600
+	SQXC_TYPE_BASIC    =  0x7FF,
 
 	// Text stream must be null-terminated string
-	SQXC_TYPE_STREAM   = (1 << 10),   // 0x0400    // e.g. file stream
-	SQXC_TYPE_ALL      =  0x7FF,
+	SQXC_TYPE_STREAM   = (1 << 11),   // 0x0800    // e.g. file stream
+	SQXC_TYPE_ALL      =  0xFFF,
 
 	// End of SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY, or SQXC_TYPE_STREAM
 	SQXC_TYPE_END      = (1 << 15),   // 0x8000

@@ -34,9 +34,9 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 
 	switch(json_object_get_type(value)) {
 	case json_type_null:
-		xcjson->type = SQXC_TYPE_STRING;
+		xcjson->type = SQXC_TYPE_NULL;
 		xcjson->name = name;
-		xcjson->value.string = NULL;
+		xcjson->value.pointer = NULL;
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		break;
 
@@ -169,6 +169,9 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 		return (src->code = SQCODE_OK);
 
 	switch(src->type) {
+	case SQXC_TYPE_NULL:
+		jobject = json_object_new_null();
+
 	case SQXC_TYPE_BOOL:
 		jobject = json_object_new_boolean(src->value.boolean);
 		break;

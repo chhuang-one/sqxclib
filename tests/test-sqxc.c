@@ -136,6 +136,11 @@ void test_sqxc_joint_input()
 	xc->value.int_ = 233;
 	sqxc_send(xc);
 
+	xc->name = "tb2.name";
+	xc->type = SQXC_TYPE_NULL;
+	xc->value.pointer = NULL;
+	sqxc_send(xc);
+
 	xc->name = NULL;
 	xc->type = SQXC_TYPE_OBJECT_END;
 	sqxc_send(xc);

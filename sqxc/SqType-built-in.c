@@ -41,6 +41,7 @@ int  sq_type_bool_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	char  ch;
 
 	switch (src->type) {
+	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_BOOL:
 		*(bool*)instance = src->value.boolean;
 		break;
@@ -83,6 +84,7 @@ Sqxc *sq_type_bool_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_int_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_INT:
 		*(int*)instance = src->value.integer;
 		break;
@@ -120,6 +122,7 @@ Sqxc *sq_type_int_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_uint_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_UINT:
 		*(unsigned int*)instance = src->value.uinteger;
 		break;
@@ -157,6 +160,7 @@ Sqxc *sq_type_uint_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_intptr_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_INT:
 		*(intptr_t*)instance = src->value.integer;
 		break;
@@ -194,6 +198,7 @@ Sqxc *sq_type_intptr_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_int64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_INT:
 		*(int64_t*)instance = src->value.integer;
 		break;
@@ -231,6 +236,7 @@ Sqxc *sq_type_int64_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_uint64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_UINT:
 		*(uint64_t*)instance = src->value.integer;
 		break;
@@ -268,6 +274,7 @@ Sqxc *sq_type_uint64_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_double_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_INT:
 		*(double*)instance = src->value.integer;
 		break;
@@ -305,6 +312,7 @@ Sqxc *sq_type_double_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_time_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_INT:
 		*(time_t*)instance = src->value.int_;
 		break;
@@ -364,6 +372,7 @@ int  sq_type_string_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 	 */
 
+	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_STRING:
 		// free existed string
 		if (*(char**)instance)
@@ -467,7 +476,8 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 			// try to use existed instance
 			if (*(void**)instance)
 				instance = *(void**)instance;
-			else if (src->type != SQXC_TYPE_STRING || src->value.string != NULL)
+			// allocate & initialize instance if source is not NULL
+			else if (src->type != SQXC_TYPE_NULL)
 				instance = sq_type_init_instance(type, instance, true);
 			else
 				return (src->code = SQCODE_OK);
@@ -502,8 +512,8 @@ Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *dest)
 		if (entry->bit_field & SQB_POINTER) {
 			member = *(void**)member;
 			if (member == NULL) {
-				dest->type = SQXC_TYPE_STRING;
-				dest->value.string = NULL;
+				dest->type = SQXC_TYPE_NULL;
+				dest->value.pointer = NULL;
 				dest = sqxc_send(dest);
 				if (dest->code != SQCODE_OK)
 					return dest;
