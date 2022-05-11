@@ -27,6 +27,7 @@ static Sqxc *sq_type_unknown_write(void *instance, const SqType *type, Sqxc *des
 
 const struct SqTypeFake SqType_Fake_ = {
 	.nth = {0},
+	.spacing = NULL,
 	.unknown = {
 		0,
 		NULL,

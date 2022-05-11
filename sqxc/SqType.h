@@ -441,7 +441,11 @@ enum {
 		( (SqType*)(type)> SQ_TYPE_FAKE6 || (SqType*)(type)< SQ_TYPE_FAKE0 )
 
 struct SqTypeFake {
+	// SQ_TYPE_FAKEx
 	SqType *nth[SQ_TYPE_N_FAKE];
+	// add spacing, this avoid that nth[SQ_TYPE_N_FAKE-1].write pointer to unknown.parse
+	void   *spacing;
+	// SQ_TYPE_UNKNOWN
 	SqType  unknown;
 };
 
