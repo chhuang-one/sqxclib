@@ -78,16 +78,20 @@ typedef enum {
 	SQXC_TYPE_NESTED   = SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY,    // 0x0600
 	SQXC_TYPE_BASIC    =  0x7FF,
 
+#if 1
+	SQXC_TYPE_ALL      =  0x7FF,
+#else
 	// Text stream must be null-terminated string
 	SQXC_TYPE_STREAM   = (1 << 11),   // 0x0800    // e.g. file stream
 	SQXC_TYPE_ALL      =  0xFFF,
+	SQXC_TYPE_STREAM_END = SQXC_TYPE_END | SQXC_TYPE_STREAM,    // reserve (unused now)
+#endif
 
-	// End of SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY, or SQXC_TYPE_STREAM
+	// End of SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY.
 	SQXC_TYPE_END      = (1 << 15),   // 0x8000
 
 	SQXC_TYPE_OBJECT_END = SQXC_TYPE_END | SQXC_TYPE_OBJECT,
 	SQXC_TYPE_ARRAY_END  = SQXC_TYPE_END | SQXC_TYPE_ARRAY,
-	SQXC_TYPE_STREAM_END = SQXC_TYPE_END | SQXC_TYPE_STREAM,    // reserve (unused now)
 } SqxcType;
 
 /* --- control id that used by SqxcInfo.ctrl() --- */
@@ -127,6 +131,15 @@ typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 
 	SQXC_SEND_ARRAY_END(sqxc, NULL);        //  ]
  */
+
+// void sqxc_send_null(Sqxc *sqxc, const char *entry_name);
+#define SQXC_SEND_NULL(sqxc, entry_name)                 \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_NULL;      \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.pointer = NULL;       \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
 
 // void sqxc_send_bool(Sqxc *sqxc, const char *entry_name, bool value);
 #define SQXC_SEND_BOOL(sqxc, entry_name, value_)         \
@@ -335,6 +348,7 @@ struct XcMethod
 	/* --- These are called by data source side. --- */
 
 	Sq::Xc  *send(void);
+	Sq::Xc  *sendNull(const char *entry_name);
 	Sq::Xc  *sendBool(const char *entry_name, bool value);
 	Sq::Xc  *sendInt(const char *entry_name, int value);
 	Sq::Xc  *sendInt64(const char *entry_name, int64_t value);
@@ -535,6 +549,11 @@ inline int  XcMethod::send(XcMethod *arguments_src) {
 
 inline Sq::Xc  *XcMethod::send(void) {
 	return (Sq::Xc*)sqxc_send((Sqxc*)this);
+}
+inline Sq::Xc  *XcMethod::sendNull(const char *entry_name) {
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_NULL(xc, entry_name);
+	return (Sq::Xc*)xc;
 }
 inline Sq::Xc  *XcMethod::sendBool(const char *entry_name, bool value) {
 	Sqxc *xc = (Sqxc*)this;

@@ -20,13 +20,13 @@
 
 /* ----------------------------------------------------------------------------
 	*** In output chain:
-	SQXC_TYPE_STREAM ---> SqxcFile Writer
+	SQXC_TYPE_STRING ---> SqxcFile Writer
  */
 
 static int  sqxc_file_writer_send(SqxcFile *xcfile, Sqxc *src)
 {
-	if (src->type != SQXC_TYPE_STREAM && src->type != SQXC_TYPE_STRING) {
-//		src->required_type = SQXC_TYPE_STREAM;    // set required type if return SQCODE_TYPE_NOT_MATCH
+	if (src->type != SQXC_TYPE_STRING) {
+//		src->required_type = SQXC_TYPE_STRING;    // set required type if return SQCODE_TYPE_NOT_MATCH
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 

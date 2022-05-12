@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-// error code type is uint16_t
+// result code type is uint16_t
 
 #define SQCODE_OK                    0
 
@@ -50,8 +50,11 @@ extern "C" {
 #define SQCODE_EXEC_ERROR            52
 #define SQCODE_NO_DATA               53    // if the result set is empty.
 
-// JSON error
-#define SQCODE_UNCOMPLETED_JSON      61
+// JSON - warning
+#define SQCODE_UNCOMPLETED_JSON      61    // @deprecated
+#define SQCODE_JSON_CONTINUE         61
+// JSON - error
+#define SQCODE_JSON_ERROR            62
 
 
 #ifdef __cplusplus

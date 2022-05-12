@@ -21,8 +21,6 @@
 
 	  (JSON string)
 	SQXC_TYPE_STRING ---> SqxcJsonc Parser ---> SQXC_TYPE_xxxx
-           or
-	SQXC_TYPE_STREAM
  */
 
 // send data(arguments) from SqxcJsonc(source) to SqxcValue(destination)
@@ -105,18 +103,20 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 {
 	json_object *jobject;
+	enum json_tokener_error  jerror;
 
-	if (src->type != SQXC_TYPE_STRING && src->type != SQXC_TYPE_STREAM)
-		return (src->code = SQCODE_TYPE_NOT_SUPPORT);
+	if (src->type != SQXC_TYPE_STRING) {
+//		src->required_type = SQXC_TYPE_STRING;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		return (src->code = SQCODE_TYPE_NOT_MATCH);
+	}
 
-	jobject = json_tokener_parse(src->value.string);
+	jobject = json_tokener_parse_verbose(src->value.string, &jerror);
 	if (jobject == NULL) {
-		// incomplete JSON data
-		if (src->type == SQXC_TYPE_STREAM) {
-			// JSON stream (completed in future)
-			return (src->code = SQCODE_OK);
-		}
-		return (src->code = SQCODE_UNCOMPLETED_JSON);
+		// incomplete JSON string
+		if (jerror == json_tokener_continue)
+			return (src->code = SQCODE_JSON_CONTINUE);
+		// parse failed
+		return (src->code = SQCODE_JSON_ERROR);
 	}
 
 	// send xc data from xcjson to dest
