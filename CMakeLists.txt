@@ -12,12 +12,12 @@ set(CMAKE_MODULE_PATH
 
 # set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H")
 
-# find pthread
-if (UNIX)
-	set(THREADS_PREFER_PTHREAD_FLAG ON)
-	find_package(Threads REQUIRED)
-	set(Threads_LIBRARIES Threads::Threads)
-endif (UNIX)
+## find pthread
+#if (UNIX)
+#	set(THREADS_PREFER_PTHREAD_FLAG ON)
+#	find_package(Threads REQUIRED)
+#	set(Threads_LIBRARIES Threads::Threads)
+#endif (UNIX)
 
 # find SQLite3
 find_package(SQLite3)
@@ -36,7 +36,7 @@ if (PKG_CONFIG_FOUND)
 	endif()
 endif (PKG_CONFIG_FOUND)
 
-# --- thrread ---
+# --- thread ---
 if (Threads_FOUND)
 	set(SQXC_INCLUDE_DIRS
 	    ${SQXC_INCLUDE_DIRS}
@@ -64,6 +64,9 @@ if (JSONC_FOUND)
 	    ${SQXC_LIBRARIES}
 	    ${JSONC_LIBRARIES}
 	)
+	# --- debug message ---
+	message(STATUS "json-c include dirs: ${JSONC_INCLUDE_DIRS}")
+	message(STATUS "json-c libraries: ${JSONC_LIBRARIES}")
 	# --- config.h ---
 	set(have_jsonc     1)
 else()
@@ -80,6 +83,9 @@ if (SQLite3_FOUND)
 	    ${SQXC_LIBRARIES}
 	    ${SQLite3_LIBRARIES}
 	)
+	# --- debug message ---
+	message(STATUS "SQLite include dirs: ${SQLite3_INCLUDE_DIRS}")
+	message(STATUS "SQLite libraries: ${SQLite3_LIBRARIES}")
 	# --- config.h ---
 	set(have_sqlite    1)
 else()
@@ -125,3 +131,7 @@ add_subdirectory(sqxcsupport)
 add_subdirectory(sqxcapp)
 add_subdirectory(tests)
 add_subdirectory(examples)
+
+# --- debug message ---
+message(STATUS "sqxclib include dirs: ${SQXC_INCLUDE_DIRS}")
+message(STATUS "sqxclib libraries: ${SQXC_LIBRARIES}")

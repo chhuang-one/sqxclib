@@ -148,7 +148,7 @@ struct SqxcSql
 	int64_t      changes;     // number of rows changed, deleted, or inserted.
 
 	// runtime variable
-	uint16_t     outer_type;  // SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY or SQXC_TYPE_NONE
+	uint16_t     outer_type;  // SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY or SQXC_TYPE_UNKNOWN
 	int          row_count;   // used by INSERT
 	int          col_count;   // used by INSERT and UPDATE
 	int          buf_reuse;   // used by INSERT and UPDATE

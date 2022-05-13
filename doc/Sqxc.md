@@ -12,21 +12,22 @@ User can link multiple Sqxc elements to convert different types of data.
 
 data type for Sqxc converter
 
-| Sqxc type name   | description                                |
-| ---------------- | ------------------------------------------ |
-| SQXC_TYPE_NULL   | corresponds to C value:      NULL          |
-| SQXC_TYPE_BOOL   | corresponds to C data type:  bool          |
-| SQXC_TYPE_INT    | corresponds to C data type:  int           |
-| SQXC_TYPE_UINT   | corresponds to C data type:  unsigned int  |
-| SQXC_TYPE_INT64  | corresponds to C data type:  int64_t       |
-| SQXC_TYPE_UINT64 | corresponds to C data type:  uint64_t      |
-| SQXC_TYPE_TIME   | corresponds to C data type:  time_t        |
-| SQXC_TYPE_DOUBLE | corresponds to C data type:  double        |
-| SQXC_TYPE_STRING | corresponds to C data type:  char*         |
-| SQXC_TYPE_OBJECT | Start of object                            |
-| SQXC_TYPE_ARRAY  | Start of array (or other container)        |
-| SQXC_TYPE_OBJECT_END | End of object                          |
-| SQXC_TYPE_ARRAY_END  | End of array (or other container)      |
+| Sqxc type name       | description                                |
+| -------------------- | ------------------------------------------ |
+| SQXC_TYPE_UNKNOWN    | unspecified                                |
+| SQXC_TYPE_NULL       | corresponds to C value:      NULL          |
+| SQXC_TYPE_BOOL       | corresponds to C data type:  bool          |
+| SQXC_TYPE_INT        | corresponds to C data type:  int           |
+| SQXC_TYPE_UINT       | corresponds to C data type:  unsigned int  |
+| SQXC_TYPE_INT64      | corresponds to C data type:  int64_t       |
+| SQXC_TYPE_UINT64     | corresponds to C data type:  uint64_t      |
+| SQXC_TYPE_TIME       | corresponds to C data type:  time_t        |
+| SQXC_TYPE_DOUBLE     | corresponds to C data type:  double        |
+| SQXC_TYPE_STRING     | corresponds to C data type:  char*         |
+| SQXC_TYPE_OBJECT     | Start of object                            |
+| SQXC_TYPE_ARRAY      | Start of array (or other container)        |
+| SQXC_TYPE_OBJECT_END | End of object                              |
+| SQXC_TYPE_ARRAY_END  | End of array (or other container)          |
 
 Note: SQXC_TYPE_OBJECT corresponds to SQL row.  
 Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.  
@@ -130,6 +131,7 @@ use C++ language
 
 	xcur->type = SQXC_TYPE_OBJECT;      // {
 	xcur->name = NULL;
+	xcur->value.pointer = NULL;
 	xcur = sqxc_send(xcur);
 
 	xcur->type = SQXC_TYPE_INT;         // "id": 1
@@ -139,6 +141,7 @@ use C++ language
 
 	xcur->type = SQXC_TYPE_ARRAY;       // "int_array": [
 	xcur->name = "int_array";
+	xcur->value.pointer = NULL;
 	xcur = sqxc_send(xcur);
 
 	xcur->type = SQXC_TYPE_INT;         // 2,
@@ -153,10 +156,12 @@ use C++ language
 
 	xcur->type = SQXC_TYPE_ARRAY_END;   // ]
 	xcur->name = NULL;
+	xcur->value.pointer = NULL;
 	xcur = sqxc_send(xcur);
 
 	xcur->type = SQXC_TYPE_OBJECT_END;  // }
 	xcur->name = NULL;
+	xcur->value.pointer = NULL;
 	xcur = sqxc_send(xcur);
 
 	sqxc_finish(xc);    // notify Sqxc elements to finish

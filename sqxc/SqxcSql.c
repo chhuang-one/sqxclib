@@ -273,7 +273,7 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 	switch (id) {
 	case SQXC_CTRL_READY:
 		xcsql->supported_type = SQXC_TYPE_ALL;
-		xcsql->outer_type = SQXC_TYPE_NONE;
+		xcsql->outer_type = SQXC_TYPE_UNKNOWN;
 		// reset Sqdb result variable
 		xcsql->id = 0;
 		xcsql->changes = 0;
@@ -336,7 +336,7 @@ static void  sqxc_sql_init(SqxcSql *xcsql)
 	sq_buffer_init(&xcsql->values_buf);
 
 	xcsql->supported_type = SQXC_TYPE_ALL;
-	xcsql->outer_type = SQXC_TYPE_NONE;
+	xcsql->outer_type = SQXC_TYPE_UNKNOWN;
 	// default of quote identifier
 	xcsql->quote[0] = '"';
 	xcsql->quote[1] = '"';

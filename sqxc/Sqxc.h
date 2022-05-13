@@ -61,7 +61,7 @@ typedef struct SqEntry          SqEntry;    // define in SqEntry.h
 /* --- define data type for Sqxc converter --- */
 
 typedef enum {
-	SQXC_TYPE_NONE     =  0,
+	SQXC_TYPE_UNKNOWN  =  0,
 	SQXC_TYPE_NULL     = (1 << 0),    // 0x0001 , Sqxc.value.pointer = NULL;
 	SQXC_TYPE_BOOL     = (1 << 1),    // 0x0002
 	SQXC_TYPE_INT      = (1 << 2),    // 0x0004

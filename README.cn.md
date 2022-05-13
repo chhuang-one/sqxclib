@@ -783,6 +783,11 @@ SqType 文档: doc/[SqType.md](doc/SqType.md)
 SqEntry （SqColumn 的基类/结构） 文档: doc/[SqEntry.md](doc/SqEntry.md)  
 SqColumn 文档: doc/[SqColumn.md](doc/SqColumn.md)  
 
+## sqxc 怎么念
+
+sqxc 中文发音「思库可思」，还可以翻译成白话文。
+備註：中文发音是在 2022年5月14日 凌晨4点左右决定的。
+
 ## 许可
 
 sqxclib 在 木兰宽松许可证 第2版 下获得许可。
