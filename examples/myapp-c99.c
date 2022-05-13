@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-/* This is sample code for sqapp and sqxclib */
+/* This is sample code for sqxclib and sqxcapp */
 
 #include <stdio.h>
 #include <inttypes.h>   // PRId64, PRIu64
@@ -63,7 +63,7 @@ int  main(void)
 		return EXIT_FAILURE;
 #endif
 
-	/*	If you use command-line program "sqtool" to do migrate,
+	/*	If you use command-line program "sqxctool" to do migrate,
 		you can remove below sq_app_migrate() code.
 	 */
 	// if the database vesion is 0 (no migrations have been done)
@@ -75,7 +75,7 @@ int  main(void)
 
 
 	/*	SQL table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
-		strcut User defined in  sqapp/CStructs.h
+		strcut User defined in  sqxcapp/CStructs.h
 	 */
 	SqStorage *storage = myapp->base.storage;
 	User     user = {0};

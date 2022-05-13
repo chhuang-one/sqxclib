@@ -306,7 +306,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 
 	// relative path of migration file for SqApp
 	buf->writed = 0;
-	sq_buffer_write(buf, "..");    // current dir of sqapp is "workspace folder/sqapp"
+	sq_buffer_write(buf, "..");    // current dir of sqxcapp is "workspace folder/sqxcapp"
 	sq_buffer_write(buf, SQ_TOOL_PATH_MIGRATIONS);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, temp.timestr);

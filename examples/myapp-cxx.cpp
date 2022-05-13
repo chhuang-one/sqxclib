@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-/* This is sample code for sqapp and sqxclib */
+/* This is sample code for sqxclib and sqxcapp */
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
@@ -99,7 +99,7 @@ int  main(void)
 		return EXIT_FAILURE;
 #endif
 
-	/*	If you use command-line program "sqtoolcpp" to do migrate,
+	/*	If you use command-line program "sqxcpptool" to do migrate,
 		you can remove below migrate() code.
 	 */
 	// if the database vesion is 0 (no migrations have been done)
@@ -111,7 +111,7 @@ int  main(void)
 
 
 	/*	SQL table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
-		strcut User defined in  sqapp/CStructs.h
+		strcut User defined in  sqxcapp/CStructs.h
 
 		Because SQL table "users" defined in C language,
 		you may NOT use below C++ template functions to access SQL table "users":

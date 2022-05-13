@@ -1,4 +1,4 @@
-# --- sqapp ---
+# --- sqxcapp ---
 set(SOURCES_APP
     SqApp.c
     SqMigration.c
@@ -6,7 +6,7 @@ set(SOURCES_APP
     migrations-files.c
 )
 
-# sqapp C++ source files
+# sqxcapp C++ source files
 set(SOURCES_APP_CPP
     migrations-files.cpp
 )
@@ -18,30 +18,30 @@ set(HEADERS_APP
     migrations.h
 )
 
-set(SQAPP_INCLUDE_DIRS
+set(SQXCAPP_INCLUDE_DIRS
     ${SQXC_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(SQAPP_LIBRARIES
-    sqapp
-    sqappcpp
+set(SQXCAPP_LIBRARIES
+    sqxcapp
+    sqxcppapp
     ${SQXC_LIBRARIES}
 )
 
-# set SQAPP_INCLUDE_DIRS to PARENT_SCOPE
-set(SQAPP_INCLUDE_DIRS
-    ${SQAPP_INCLUDE_DIRS}
+# set SQXCAPP_INCLUDE_DIRS to PARENT_SCOPE
+set(SQXCAPP_INCLUDE_DIRS
+    ${SQXCAPP_INCLUDE_DIRS}
     PARENT_SCOPE
 )
 
-# set SQAPP_LIBRARIES to PARENT_SCOPE
-set(SQAPP_LIBRARIES
-    ${SQAPP_LIBRARIES}
+# set SQXCAPP_LIBRARIES to PARENT_SCOPE
+set(SQXCAPP_LIBRARIES
+    ${SQXCAPP_LIBRARIES}
     PARENT_SCOPE
 )
 
-# --- sqapptool ---
+# --- sqxcapptool ---
 set(SOURCES_APPTOOL
     SqApp.c
     SqAppTool.c
@@ -53,7 +53,7 @@ set(SOURCES_APPTOOL
     CommandMake.c
 )
 
-# sqapptool C++ source files
+# sqxcapptool C++ source files
 set(SOURCES_APPTOOL_CPP
     SqAppTool-migrations-files.cpp
 )
@@ -69,69 +69,69 @@ set(HEADERS_APPTOOL
     CommandMake.h
 )
 
-set(SQAPPTOOL_INCLUDE_DIRS
+set(SQXCAPPTOOL_INCLUDE_DIRS
     ${SQXCSUPPORT_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(SQAPPTOOL_LIBRARIES
-    sqapptool
-    sqapptoolcpp
+set(SQXCAPPTOOL_LIBRARIES
+    sqxcapptool
+    sqxcppapptool
     ${SQXCSUPPORT_LIBRARIES}
 )
 
-# set SQAPPTOOL_INCLUDE_DIRS to PARENT_SCOPE
-set(SQAPPTOOL_INCLUDE_DIRS
-    ${SQAPPTOOL_INCLUDE_DIRS}
+# set SQXCAPPTOOL_INCLUDE_DIRS to PARENT_SCOPE
+set(SQXCAPPTOOL_INCLUDE_DIRS
+    ${SQXCAPPTOOL_INCLUDE_DIRS}
     PARENT_SCOPE
 )
 
-# set SQAPPTOOL_LIBRARIES to PARENT_SCOPE
-set(SQAPPTOOL_LIBRARIES
-    ${SQAPPTOOL_LIBRARIES}
+# set SQXCAPPTOOL_LIBRARIES to PARENT_SCOPE
+set(SQXCAPPTOOL_LIBRARIES
+    ${SQXCAPPTOOL_LIBRARIES}
     PARENT_SCOPE
 )
 
-# --- sqtool ---
+# --- sqxctool ---
 set(SOURCES
-    sqtool.c
+    sqxctool.c
 )
 
 set(SOURCES_CPP
-    sqtoolcpp.cpp
+    sqxcpptool.cpp
 )
 
 # ---
-include_directories(${SQAPPTOOL_INCLUDE_DIRS})
+include_directories(${SQXCAPPTOOL_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 
-add_library(sqapp
+add_library(sqxcapp
             STATIC
             ${SOURCES_APP}
             ${HEADERS_APP}
 )
 
-add_library(sqappcpp
+add_library(sqxcppapp
             STATIC
             ${SOURCES_APP_CPP}
             ${HEADERS_APP}
 )
 
-add_library(sqapptool
+add_library(sqxcapptool
             STATIC
             ${SOURCES_APPTOOL}
             ${HEADERS_APPTOOL}
 )
 
-add_library(sqapptoolcpp
+add_library(sqxcppapptool
             STATIC
             ${SOURCES_APPTOOL_CPP}
             ${HEADERS_APPTOOL}
 )
 
 
-add_executable(sqtool  ${SOURCES})
-target_link_libraries(sqtool  ${SQAPPTOOL_LIBRARIES})
+add_executable(sqxctool  ${SOURCES})
+target_link_libraries(sqxctool  ${SQXCAPPTOOL_LIBRARIES})
 
-add_executable(sqtoolcpp  ${SOURCES_CPP})
-target_link_libraries(sqtoolcpp  ${SQAPPTOOL_LIBRARIES})
+add_executable(sqxcpptool  ${SOURCES_CPP})
+target_link_libraries(sqxcpptool  ${SQXCAPPTOOL_LIBRARIES})

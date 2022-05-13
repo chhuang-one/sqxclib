@@ -8,9 +8,9 @@ SqApp use configuration file (SqApp-config.h) to initialize database and do migr
 
 # SqAppTool
 
-SqAppTool is used by command-line program - **sqtool** and **sqtoolcpp**.  
+SqAppTool is used by command-line program - **sqxctool** and **sqxcpptool**.  
   
-Both **sqtool** and **sqtoolcpp** can generate migration and do migrate. They can help with the user's application that using SqApp library. The difference is that sqtool generate C migration file and sqtoolcpp generate C++ migration file.
+Both **sqxctool** and **sqxcpptool** can generate migration and do migrate. They can help with the user's application that using SqApp library. The difference is that sqxctool generate C migration file and sqxcpptool generate C++ migration file.
 
 ## Configuration (SqApp-config.h)
 
@@ -18,14 +18,14 @@ Both **sqtool** and **sqtoolcpp** can generate migration and do migrate. They ca
 
 user can define macro SQ_APP_CONFIG_FILE to replace SqApp-config.h when compiling.  
   
-e.g. use workspace/myapp-config.h to replace default workspace/sqapp/SqApp-config.h  
+e.g. use workspace/myapp-config.h to replace default workspace/sqxcapp/SqApp-config.h  
 if myapp-config.h place in C include directories...
 
 ```
 gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
 ```
 
-OR use relative path of workspace/sqapp
+OR use relative path of workspace/sqxcapp
 
 ```
 gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
@@ -52,42 +52,42 @@ User can use only one SQL products here (e.g. use MySQL)
 #define DB_PASSWORD    ""
 
 // common configuration values
-#define DB_DATABASE    "sqapp-example"
+#define DB_DATABASE    "sqxcapp-example"
 
 // SQLite configuration values
 #define DB_FOLDER      NULL
 #define DB_EXTENSION   NULL
 ```
 
-* Please make sure that your app and it's sqtool use the same database file if you enable SQLite.
+* Please make sure that your app and it's sqxctool use the same database file if you enable SQLite.
 
 ## Migrations
 
-### use sqtool (or sqtoolcpp)
+### use sqxctool (or sqxcpptool)
 
-sqtool (or sqtoolcpp) use the same configuration values as library sqapp.  
+sqxctool (or sqxcpptool) use the same configuration values as library sqxcapp.  
 
 ```
-sqtool  make:migration  migration_name
+sqxctool  make:migration  migration_name
 ```
 * This command will:
 1. generate migration file - workspace/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c
-2. append relative path of migration file in workspace/sqapp/migrations.c
-3. append declaration of migration to workspace/sqapp/migrations-declarations
-4. append element of migrations array to workspace/sqapp/migrations-elements
+2. append relative path of migration file in workspace/sqxcapp/migrations.c
+3. append declaration of migration to workspace/sqxcapp/migrations-declarations
+4. append element of migrations array to workspace/sqxcapp/migrations-elements
 
-* If you use C++ to do migration, you can replace sqtool by sqtoolcpp. It will create yyyy_MM_dd_HHmmss_migration_name.cpp and append it to migrations.cpp
+* If you use C++ to do migration, you can replace sqxctool by sqxcpptool. It will create yyyy_MM_dd_HHmmss_migration_name.cpp and append it to migrations.cpp
 
-#### create table by sqtool (C language)
+#### create table by sqxctool (C language)
 
 generate C migration file to create companies table
 
 ```
-sqtool  make:migration  create_companies_table
+sqxctool  make:migration  create_companies_table
 ```
 
 Above command will create file in workspace/database/migrations/yyyy_MM_dd_HHmmss_create_companies_table.c  
-It is suggested that user define struct Company in workspace/sqapp/CStructs.h in this case.  
+It is suggested that user define struct Company in workspace/sqxcapp/CStructs.h in this case.  
 The file looks like below:
 
 ```c
@@ -122,19 +122,19 @@ const SqMigration create_companies_table_2021_12_12_180000 = {
 };
 ```
 
-#### alter table by sqtoolcpp (C++ language)
+#### alter table by sqxcpptool (C++ language)
 
 generate C++ migration file to alter companies table
 
 ```
-sqtoolcpp  make:migration  --table=companies  alter_companies_table
+sqxcpptool  make:migration  --table=companies  alter_companies_table
 ```
 
 Above command will create file in workspace/database/migrations/yyyy_MM_dd_HHmmss_alter_companies_table.cpp  
 The file looks like below:
 
 ```c++
-/* This template file is used by sqtoolcpp
+/* This template file is used by sqxcpptool
 // migrations-files.cpp has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
@@ -144,38 +144,41 @@ The file looks like below:
 const SqMigration alter_companies_table_2021_12_26_191532 = {
 
 	// Run the migrations.
-	.up = [](SqSchema *schema, SqStorage *storage) {
+//	.up = 
+	[](SqSchema *schema, SqStorage *storage) {
 		SqTable  *table;
 
 		table = schema->alter("companies");
 	},
 
 	// Reverse the migrations.
-	.down = [](SqSchema *schema, SqStorage *storage) {
+//	.down =
+	[](SqSchema *schema, SqStorage *storage) {
 		SqTable  *table;
 
 		table = schema->alter("companies");
 	},
 
 #ifdef SQ_APP_TOOL
-	.name = "2021_12_26_191532_alter_companies_table",
+//	.name = 
+	"2021_12_26_191532_alter_companies_table",
 #endif
 };
 
 ```
 
-#### migrate by sqtool (or sqtoolcpp)
+#### migrate by sqxctool (or sqxcpptool)
 
 Run all of your outstanding migrations
 
 ```
-sqtool  migrate
+sqxctool  migrate
 ```
 
 Rollback the last database migration
 
 ```
-sqtool  migrate:rollback
+sqxctool  migrate:rollback
 ```
 
 #### migrate by C language

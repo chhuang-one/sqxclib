@@ -1,4 +1,5 @@
-/* migrations-files.c has included below headers.
+/* This template file is used by sqxctool
+// migrations-files.c has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
 #include <CStructs.h>        // define struct User in CStructs.h
@@ -19,7 +20,7 @@ static void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 
 	sq_table_add_timestamps_struct(table, User);
 
-/* sq_table_add_timestamps_struct(table, User) will do these
+/*	// sq_table_add_timestamps_struct(table, User) will do these
 	column = sq_table_add_timestamp(table, "created_at", offsetof(User, created_at));
 	column->bit_field |= SQB_CURRENT;
 	column = sq_table_add_timestamp(table, "updated_at", offsetof(User, updated_at));

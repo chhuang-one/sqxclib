@@ -14,12 +14,12 @@ add_executable(storage-c99  storage-c99.c)
 add_executable(storage-cxx  storage-cxx.cpp)
 
 add_executable(myapp-c99  myapp-c99.c)
-target_include_directories(myapp-c99  PUBLIC  ${SQAPP_INCLUDE_DIRS})
-target_link_libraries(myapp-c99  ${SQAPP_LIBRARIES})
+target_include_directories(myapp-c99  PUBLIC  ${SQXCAPP_INCLUDE_DIRS})
+target_link_libraries(myapp-c99  ${SQXCAPP_LIBRARIES})
 
 add_executable(myapp-cxx  myapp-cxx.cpp)
-target_include_directories(myapp-cxx  PUBLIC  ${SQAPP_INCLUDE_DIRS})
-target_link_libraries(myapp-cxx  ${SQAPP_LIBRARIES})
+target_include_directories(myapp-cxx  PUBLIC  ${SQXCAPP_INCLUDE_DIRS})
+target_link_libraries(myapp-cxx  ${SQXCAPP_LIBRARIES})
 
 # --- json-c is required
 if (JSONC_INCLUDE_DIRS)

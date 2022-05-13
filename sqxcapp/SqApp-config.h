@@ -34,7 +34,7 @@
 #define DB_PASSWORD    ""
 
 // common configuration values
-#define DB_DATABASE    "sqapp-example"
+#define DB_DATABASE    "sqxcapp-example"
 
 // SQLite configuration values
 #define DB_FOLDER      "."

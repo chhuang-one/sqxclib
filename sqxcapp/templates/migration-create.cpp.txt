@@ -1,4 +1,4 @@
-/* This template file is used by sqtoolcpp
+/* This template file is used by sqxcpptool
 // migrations-files.cpp has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>

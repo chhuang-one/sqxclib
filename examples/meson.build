@@ -9,11 +9,11 @@ executable('storage-cxx',
 
 executable('myapp-c99',
            'myapp-c99.c',
-           dependencies : [sqapp])
+           dependencies : [sqxcapp])
 
 executable('myapp-cxx',
            'myapp-cxx.cpp',
-           dependencies : [sqapp])
+           dependencies : [sqxcapp])
 
 # --- json-c is required
 if jsonc.found() == true

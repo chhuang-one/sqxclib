@@ -50,7 +50,7 @@ endif
 
 subdir('sqxc')
 subdir('sqxcsupport')
-subdir('sqapp')
+subdir('sqxcapp')
 subdir('tests')
 subdir('examples')
 

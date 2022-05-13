@@ -21,7 +21,7 @@
 
 #define SQ_TOOL_PATH_DATABASE        "/database"
 #define SQ_TOOL_PATH_MIGRATIONS      SQ_TOOL_PATH_DATABASE "/migrations"
-#define SQ_TOOL_PATH_APP             "/sqapp"
+#define SQ_TOOL_PATH_APP             "/sqxcapp"
 #define SQ_TOOL_PATH_TEMPLATES       SQ_TOOL_PATH_APP  "/templates"
 
 
