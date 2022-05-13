@@ -1,11 +1,3 @@
-# --- Visual Studio 2015 and later ---
-if (MSVC AND NOT (MSVC_VERSION LESS 1900))
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
-	    legacy_stdio_definitions.lib
-	)
-endif()
-
 include_directories(${SQXC_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 

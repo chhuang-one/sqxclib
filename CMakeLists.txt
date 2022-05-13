@@ -96,6 +96,14 @@ if (MYSQL_FOUND)
 	    ${SQXC_LIBRARIES}
 	    ${MYSQL_LIBRARIES}
 	)
+	# --- Visual Studio 2015 and later ---
+	if (MSVC AND NOT (MSVC_VERSION LESS 1900))
+		set(SQXC_LIBRARIES
+		    ${SQXC_LIBRARIES}
+		    legacy_stdio_definitions.lib
+		)
+	endif()
+	# --- debug message ---
 	message(STATUS "MySQL include dirs: ${MYSQL_INCLUDE_DIRS}")
 	message(STATUS "MySQL libraries: ${MYSQL_LIBRARIES}")
 	# --- config.h ---
