@@ -121,8 +121,8 @@ set(SQXC_INCLUDE_DIRS
 
 # set SQXC_LIBRARIES to PARENT_SCOPE
 set(SQXC_LIBRARIES
-    ${SQXC_LIBRARIES}
-    sqxc
     sqxcpp
+    sqxc
+    ${SQXC_LIBRARIES}
     PARENT_SCOPE
 )

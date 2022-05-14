@@ -114,5 +114,5 @@ sqxcpp_lib = static_library('sqxcpp',
                             install: false)
 
 sqxc = declare_dependency(include_directories : sqxc_inc,
-                          link_with : [sqxc_lib, sqxcpp_lib],
+                          link_with : [sqxcpp_lib, sqxc_lib],
                           dependencies : dependencies)
