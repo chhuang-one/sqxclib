@@ -57,14 +57,6 @@
  */
 #define SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 
-/* Enable "SQL_table_name" <-> "C struct type_name" converting.
-   When calling sq_schema_create_xxx():
-   If user only specify "SQL_table_name", program generate "C struct type_name".
-   If user only specify "C struct type_name", program generate "SQL_table_name".
-   Affected source : SqSchema, SqUtil, SqAppTool
- */
-// #define SQ_CONFIG_NAMING_CONVENTION
-
 /* Enable it will add sq_storage_update_field() and C++ updateField() to sqxclib.
    Disable it if you don't use these and want to reduce binary size.
  */

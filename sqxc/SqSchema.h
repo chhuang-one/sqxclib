@@ -22,7 +22,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include <SqConfig.h>    // SQ_CONFIG_NAMING_CONVENTION
 #include <SqPtrArray.h>
 #include <SqRelation.h>
 #include <SqTable.h>
@@ -54,13 +53,10 @@ void    sq_schema_final(SqSchema *schema);
   If 'table_type' is dynamic SqType, it will be freed when program free table.
   You can pass 0 to 'instance_size' because program calculate 'instance_size' automatically.
 
-  C language
-  #define SQ_CONFIG_NAMING_CONVENTION to enable "SQL_table_name" <-> "type_name" converting,
-  program only need one of table_name, type_name, or table_type->name.
-
+  You can use sq_str_table_name() and sq_str_type_name() in sqxcsupport if you want to
+  convert table name (snake case) and type name (upper camel case) at run time.
   C++ language
-  It doesn't need #define SQ_CONFIG_NAMING_CONVENTION because program
-  use typeid(Type).name() to get "type_name".
+  Program can use typeid(Type).name() to get "type_name".
  */
 SqTable *sq_schema_create_full(SqSchema     *schema,
                                const char   *table_name,
@@ -73,11 +69,6 @@ SqTable *sq_schema_create_full(SqSchema     *schema,
 
 #define sq_schema_create(schema, table_name, StructType)  \
 		sq_schema_create_full(schema, table_name, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType))
-
-#ifdef SQ_CONFIG_NAMING_CONVENTION
-#define sq_schema_create_as(schema, StructType)  \
-		sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType))
-#endif
 
 SqTable *sq_schema_alter(SqSchema *schema, const char *table_name, const SqType *table_type);
 void     sq_schema_drop(SqSchema *schema, const char *name);

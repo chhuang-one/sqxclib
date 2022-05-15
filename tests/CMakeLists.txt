@@ -18,6 +18,8 @@ target_link_libraries(test-sqxc  sqxctest  ${SQXC_LIBRARIES})
 add_executable(test-storage  test-storage.c)
 
 add_executable(test-util  test-util.c)
+target_include_directories(test-util  PUBLIC  ${SQXCSUPPORT_INCLUDE_DIRS})
+target_link_libraries(test-util  ${SQXCSUPPORT_LIBRARIES})
 
 # --- test ---
 add_test(NAME test-container-cxx COMMAND test-container-cxx)

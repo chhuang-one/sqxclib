@@ -18,77 +18,76 @@
 #include <stdio.h>
 
 #include <SqUtil.h>
+#include <SqStr.h>     // sqxcsupport
 
 
 void test_name_convention()
 {
-#ifdef SQ_CONFIG_NAMING_CONVENTION
 	const char *src;
 	char *name;
 	int   len;
 
-	len = sq_camel_from_snake(NULL, "custom_name", true);
+	len = sq_snake2camel(NULL, "custom_name", true);
 	name = malloc(len +2 +1);  // + plural character + null-terminated
-	sq_camel_from_snake(name, "custom_name", true);
-	printf("sq_camel_from_snake() - %s\n", name);
+	sq_snake2camel(name, "custom_name", true);
+	printf("sq_snake2camel() - %s\n", name);
 	assert(strcmp(name, "CustomName") == 0);
 
-	len = sq_noun2plural(name, name);
-	printf("sq_noun2plural() - %d, %s\n", len, name);
+	len = sq_singular2plural(name, name);
+	printf("sq_singular2plural() - %d, %s\n", len, name);
 	assert(strcmp(name, "CustomNames") == 0);
 	free(name);
 
 
-	len = sq_snake_from_camel(NULL, "CustomName");
+	len = sq_camel2snake(NULL, "CustomName");
 	name = malloc(len +2 +1);  // + plural character + null-terminated
-	sq_snake_from_camel(name, "CustomName");
-	printf("sq_snake_from_camel() - %s\n", name);
+	sq_camel2snake(name, "CustomName");
+	printf("sq_camel2snake() - %s\n", name);
 	assert(strcmp(name, "custom_name") == 0);
 
-	len = sq_noun2plural(name, name);
-	printf("sq_noun2plural() - %d, %s\n", len, name);
+	len = sq_singular2plural(name, name);
+	printf("sq_singular2plural() - %d, %s\n", len, name);
 	assert(strcmp(name, "custom_names") == 0);
 	free(name);
 
 
 	src = "boy";
-	len = sq_noun2plural(NULL, src);
+	len = sq_singular2plural(NULL, src);
 	name = malloc(len +1);  // + null-terminated
-	len = sq_noun2plural(name, src);
-	printf("sq_noun2plural() - %d, %s\n", len, name);
+	len = sq_singular2plural(name, src);
+	printf("sq_singular2plural() - %d, %s\n", len, name);
 	assert(strcmp(name, "boys") == 0);
 
-	len = sq_noun2singular(name, name);
-	printf("sq_noun2singular() - %d, %s\n", len, name);
+	len = sq_plural2singular(name, name);
+	printf("sq_plural2singular() - %d, %s\n", len, name);
 	assert(strcmp(name, "boy") == 0);
 	free(name);
 
 
 	src = "Company";
-	len = sq_noun2plural(NULL, src);
+	len = sq_singular2plural(NULL, src);
 	name = malloc(len +1);  // + null-terminated
-	sq_noun2plural(name, src);
-	printf("sq_noun2plural() - %d, %s\n", len, name);
+	sq_singular2plural(name, src);
+	printf("sq_singular2plural() - %d, %s\n", len, name);
 	assert(strcmp(name, "Companies") == 0);
 
-	len = sq_noun2singular(name, name);
-	printf("sq_noun2singular() - %d, %s\n", len, name);
+	len = sq_plural2singular(name, name);
+	printf("sq_plural2singular() - %d, %s\n", len, name);
 	assert(strcmp(name, "Company") == 0);
 	free(name);
 
 
 	src = "Watch";
-	len = sq_noun2plural(NULL, src);
+	len = sq_singular2plural(NULL, src);
 	name = malloc(len +1);  // + null-terminated
-	sq_noun2plural(name, src);
-	printf("sq_noun2plural() - %d, %s\n", len, name);
+	sq_singular2plural(name, src);
+	printf("sq_singular2plural() - %d, %s\n", len, name);
 	assert(strcmp(name, "Watches") == 0);
 
-	len = sq_noun2singular(name, name);
-	printf("sq_noun2singular() - %d, %s\n", len, name);
+	len = sq_plural2singular(name, name);
+	printf("sq_plural2singular() - %d, %s\n", len, name);
 	assert(strcmp(name, "Watch") == 0);
 	free(name);
-#endif  // SQ_CONFIG_NAMING_CONVENTION
 }
 
 void test_time_string()

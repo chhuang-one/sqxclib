@@ -20,6 +20,7 @@
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
+#include <SqConfig.h>
 #include <SqBuffer.h>
 #include <SqUtil.h>
 #include <SqTable.h>

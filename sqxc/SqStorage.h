@@ -16,6 +16,7 @@
 #ifndef SQ_STORAGE
 #define SQ_STORAGE
 
+#include <SqConfig.h>
 #include <Sqdb.h>
 #include <SqSchema.h>
 #include <SqJoint.h>

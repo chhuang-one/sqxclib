@@ -27,5 +27,5 @@ executable('test-storage',
 
 executable('test-util',
            'test-util.c',
-           dependencies : sqxc)
+           dependencies : sqxcsupport)
 

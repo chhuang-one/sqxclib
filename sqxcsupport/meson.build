@@ -1,3 +1,11 @@
+sources_helpers = [
+    'SqStr.c',
+]
+
+headers_helpers = [
+    'SqStr.h',
+]
+
 sources_structs = [
     'SqPairs.c',
 #    'SqCollection.c',
@@ -36,11 +44,18 @@ headers_test = [
     'SqxcFile.h',
 ]
 
+install_headers(headers_helpers, subdir: 'sqxc')
 install_headers(headers_structs, subdir: 'sqxc')
 install_headers(headers_console, subdir: 'sqxc')
 install_headers(headers_test,    subdir: 'sqxc')
 
 sqxcsupport_inc = include_directories('./')
+
+sqxchelpers_lib = static_library('sqxchelpers',
+                                 sources_helpers,
+                                 include_directories: sqxcsupport_inc,
+                                 dependencies : sqxc,
+                                 install: false)
 
 sqxcstructs_lib = static_library('sqxcstructs',
                                  sources_structs,
@@ -61,5 +76,5 @@ sqxctest_lib = static_library('sqxctest',
                               install: false)
 
 sqxcsupport = declare_dependency(include_directories : sqxcsupport_inc,
-                                 link_with : [sqxcstructs_lib, sqxconsole_lib, sqxctest_lib],
+                                 link_with : [sqxchelpers_lib, sqxcstructs_lib, sqxconsole_lib, sqxctest_lib],
                                  dependencies : sqxc)

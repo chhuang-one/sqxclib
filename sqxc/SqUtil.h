@@ -16,9 +16,6 @@
 #define SQ_UTIL_H
 
 #include <time.h>        // time_t, struct tm
-#include <stdbool.h>     // bool
-
-#include <SqConfig.h>    // SQ_CONFIG_NAMING_CONVENTION
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +31,7 @@ time_t  sq_time_from_string(const char *timestr);
 // return NULL if error
 char   *sq_time_to_string(time_t time, int format_type);
 
-
+#if 0
 /* ----------------------------------------------------------------------------
 	C string to/from SQL string
 
@@ -47,53 +44,16 @@ char   *sq_time_to_string(time_t time, int format_type);
 // parameter: 'dest' output
 // pass NULL to 'dest' to calculate length
 // return length of SQL string
-int  sq_str_c2sql(char *dest, const char *c_string);
+int  sq_cstr2sql(char *dest, const char *c_string);
 
 // SQL string to C string
 // parameter: 'sql_string' input
 // parameter: 'dest' output
 // pass NULL to 'dest' to calculate length
 // return length of C string
-int  sq_str_sql2c(char *dest, char *sql_string);
+int  sq_sql2cstr(char *dest, char *sql_string);
 
-
-#ifdef SQ_CONFIG_NAMING_CONVENTION
-
-/* ----------------------------------------------------------------------------
-	camel case and snake case
-
-	e.g. snake case       : question_mark
-	     lower camel case : questionMark
-	     upper camel case : QuestionMark
- */
-
-// pass NULL to 'camel_name' to calculate length
-// return length of camel_name
-int  sq_camel_from_snake(char *camel_name, const char *snake_name, bool upper_camel_case);
-
-// pass NULL to 'snake_name' to calculate length
-// return length of snake_name
-int  sq_snake_from_camel(char *snake_name, const char *camel_name);
-
-// ----------------------------------------------------------------------------
-//	singular noun and plural noun
-
-// pass NULL to 'dest' to calculate length
-// return length of singular noun
-int  sq_noun2singular(char *dest, const char *src_plural_noun);
-
-// pass NULL to 'dest' to calculate length
-// return length of plural noun
-int  sq_noun2plural(char *dest, const char *src_singular_noun);
-
-// ----------------------------------------------------------------------------
-//	table name (snake case) and type name (upper camel case)
-
-char *sq_name2table(const char *type_name);
-char *sq_name2type(const char *table_name);
-
-#endif  // SQ_CONFIG_NAMING_CONVENTION
-
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

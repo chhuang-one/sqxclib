@@ -1,3 +1,11 @@
+set(SOURCES_HELPERS
+    SqStr.c
+)
+
+set(HEADERS_HELPERS
+    SqStr.h
+)
+
 set(SOURCES_STRUCTS
     SqPairs.c
 #    SqCollection.c
@@ -37,6 +45,7 @@ set(SQXCSUPPORT_INCLUDE_DIRS
 )
 
 set(SQXCSUPPORT_LIBRARIES
+    sqxchelpers
     sqxcstructs
     sqxconsole
     sqxctest
@@ -58,6 +67,12 @@ set(SQXCSUPPORT_LIBRARIES
 # --- sqxc ---
 include_directories(${SQXC_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
 link_libraries(${SQXC_LIBRARIES})
+
+add_library(sqxchelpers
+            STATIC
+            ${SOURCES_HELPERS}
+            ${HEADERS_HELPERS}
+)
 
 add_library(sqxcstructs
             STATIC

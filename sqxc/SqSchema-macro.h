@@ -35,19 +35,6 @@ typedef struct Company
 		SQT_STRING("address", Company, address, 50);  SQC_HIDDEN_NULL();
 		SQT_DOUBLE("salary", Company, salary);
 	});
-
-	// --- or ---
-
-	SQ_SCHEMA_CREATE_AS(schema, Company, {
-		SQT_INTEGER_AS(Company, id);  SQC_PRIMARY();  SQC_HIDDEN();
-		SQT_STRING_AS(Company, name, -1);
-		SQT_INTEGER_AS(Company, age);
-		SQT_STRING_AS(Company, address, 50);  SQC_HIDDEN_NULL();
-		SQT_DOUBLE_AS(Company, salary);
-	});
-
-	// *** To use SQ_SCHEMA_CREATE_AS(), you must
-	// *** #define SQ_CONFIG_NAMING_CONVENTION
 */
 
 // SQ_SCHEMA_C_DEF() define variable for these macro.
@@ -73,16 +60,6 @@ typedef struct Company
 			lambda;                         \
 		}
 
-#ifdef SQ_CONFIG_NAMING_CONVENTION
-#define SQ_SCHEMA_CREATE_AS(schema, StructType, lambda)  \
-		{                                   \
-			SqTable  *table_cur_;           \
-			SqColumn *column_cur_;          \
-			table_cur_ = sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType));  \
-			lambda;                         \
-		}
-#endif  // SQ_CONFIG_NAMING_CONVENTION
-
 #define SQ_SCHEMA_ALTER(schema, name, lambda)  \
 		{                                      \
 			SqTable  *table_cur_;              \
@@ -101,11 +78,6 @@ typedef struct Company
 
 #define SQT_CREATE(table_name, StructType)    \
 		table_cur_ = sq_schema_create_full(schema, table_name, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType));
-
-#ifdef SQ_CONFIG_NAMING_CONVENTION
-#define SQT_CREATE_AS(StructType)    \
-		table_cur_ = sq_schema_create_full(schema, NULL, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType));
-#endif
 
 // void SQT_COLUMN_PTRS(const SqColumn **column_ptrs, int n_column_ptrs);
 #define SQT_COLUMN_PTRS(column_ptrs, n_column_ptrs)    \

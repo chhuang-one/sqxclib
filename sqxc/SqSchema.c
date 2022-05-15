@@ -87,20 +87,13 @@ SqTable *sq_schema_create_full(SqSchema     *schema,
 	SqTable  *table;
 
 	table = sq_table_new(table_name, table_type);
-	// if table_type == NULL,
+	// if 'table_type' is NULL,
 	// table->type is dynamic type and table->bit_field has SQB_TYPE_DYNAMIC
 	if (table_type == NULL) {
 		((SqType*)table->type)->size = (unsigned int)instance_size;
 		if (type_name)
 			((SqType*)table->type)->name = strdup(type_name);
 	}
-
-#ifdef SQ_CONFIG_NAMING_CONVENTION
-	if (table->name == NULL)
-		table->name = sq_name2table(table->type->name);
-	if (table->type->name == NULL  &&  table->type->bit_field & SQB_DYNAMIC)
-		((SqType*)table->type)->name = sq_name2type(table->name);
-#endif
 
 	// add table in schema->type
 	sq_type_add_entry((SqType*)schema->type, (SqEntry*)table, 1, 0);

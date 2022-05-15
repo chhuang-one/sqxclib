@@ -20,7 +20,8 @@
 #include <ctype.h>            // toupper()
 #include <string.h>           // strchr()
 #include <SqError.h>
-#include <SqUtil.h>           // sq_name2type()
+#include <SqUtil.h>           // sq_time_to_string()
+#include <SqStr.h>            // sq_str_type_name()
 #include <SqBuffer.h>
 #include <SqAppTool.h>
 #include <SqAppTool-config.h>
@@ -254,15 +255,8 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 
 	struct_name = sq_pairs_find(pairs, "struct_name");
 	if (struct_name == NULL) {
-#ifdef SQ_CONFIG_NAMING_CONVENTION
 		if (table_name)
-			struct_name = sq_name2type(table_name);
-#else
-		if (table_name) {
-			struct_name = strdup(table_name);
-			struct_name[0] = toupper(struct_name[0]);
-		}
-#endif
+			struct_name = sq_str_type_name(table_name);
 		else
 			struct_name = strdup("YourStructName");
 		sq_pairs_add(pairs, "struct_name", struct_name);

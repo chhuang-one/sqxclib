@@ -735,14 +735,6 @@ sqxclib is case-sensitive when searching/sorting SQL column name and JSON field 
 ```c
 // Common settings in SqConfig.h
 
-/* Enable "SQL_table_name" <-> "C struct type_name" converting.
-   When calling sq_schema_create_xxx():
-   If user only specify "SQL_table_name", program generate "C struct type_name".
-   If user only specify "C struct type_name", program generate "SQL_table_name".
-   Affected source : SqSchema, SqUtil, SqAppTool
- */
-#define SQ_CONFIG_NAMING_CONVENTION
-
 /* sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default.
    You may disable this for some old SQL product.
    Affected source : SqEntry, SqRelation-migration
