@@ -12,6 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <ctype.h>    // tolower(), toupper()
 #include <stddef.h>
 #include <stdint.h>
@@ -20,10 +23,12 @@
 
 #include <SqStr.h>
 
+#ifdef _MSC_VER
+#define strcasecmp   _stricmp
+#endif
+
 // ----------------------------------------------------------------------------
 // Naming convention
-
-#define PLURAL_LENGTH    2
 
 // camel case form snake case
 int  sq_snake2camel(char *dest_camel, const char *src_snake_name, bool prev_underline)
@@ -112,29 +117,30 @@ struct
 // singular to plural
 int sq_singular2plural(char *dest, const char *src)
 {
-	const char *tail;
+	char tail[2];   // last 2 characters in src string
 	int  index;
 	int  length;
 
-	length = strlen(src);
+	length = (int)strlen(src);
 	if (length == 0)
 		return 0;
-	tail = src + length -1;
+	tail[1] = tolower(src[length-1]);
 
 	index = 2;
 	// "s", "x"
-	if (*tail == 's' || *tail == 'x')
+	if (tail[1] == 's' || tail[1] == 'x')
 		index = 1;
-	else if (tail != src) {
+	else if (length > 2) {
+		tail[0] = tolower(src[length-2]);
 		// "ch", "sh"
-		if (*tail == 'h' && (*(tail-1) == 'c' || *(tail-1) == 's'))
+		if (tail[1] == 'h' && (tail[0] == 'c' || tail[0] == 's'))
 			index = 1;
 		// "y"
-		if (*tail == 'y' && *(tail-1) != 'o')
+		if (tail[1] == 'y' &&  tail[0] != 'o')
 			index = 0;
 	}
 	// "y"
-	else if (*tail == 'y')
+	else if (tail[1] == 'y')
 		index = 0;
 
 	if (dest) {
@@ -142,6 +148,10 @@ int sq_singular2plural(char *dest, const char *src)
 			strcpy(dest, src);
 		dest += length + plural_[index].offset;
 		strcpy(dest, plural_[index].string);
+		// to upper case
+		if (isupper(src[length-1]))
+			for (;  *dest;  dest++)
+				*dest = toupper(*dest);
 	}
 	//     length + (change in length)
 	return length + plural_[index].length + plural_[index].offset;
@@ -151,30 +161,34 @@ int sq_singular2plural(char *dest, const char *src)
 int sq_plural2singular(char *dest, const char *src)
 {
 	int  index;
-	int  offset;
+	int  diff_pos;
 	int  length;
 
-	offset = 0;
-	length = strlen(src);
+	diff_pos = 0;
+	length = (int)strlen(src);
 
 	for (index = 0;  index < 3;  index++) {
 		if (length < plural_[index].length)
 			continue;
-		offset = length - plural_[index].length;
-		if (strcasecmp(src + offset, plural_[index].string) == 0)
+		diff_pos = length - plural_[index].length;
+		if (strcasecmp(src + diff_pos, plural_[index].string) == 0)
 			break;
 	}
+	//     = length - plural_[index].length - plural_[index].offset;
+	length = diff_pos - plural_[index].offset;
 
 	if (dest) {
 		if (dest != src)
-			strcpy(dest, src);
-		if (index == 0)
-			dest[offset++] = 'y';
+			strncpy(dest, src, length);
+		if (index == 0) {
+			dest[diff_pos] = isupper(src[diff_pos]) ? 'Y' : 'y';
+			diff_pos++;
+		}
 		if (index != 3)
-			dest[offset] = 0;
+			dest[diff_pos] = 0;
 	}
-	//     length - (change in length)
-	return length - plural_[index].length - plural_[index].offset;
+
+	return length;
 }
 
 char* sq_str_singular(const char *plural)
@@ -200,30 +214,26 @@ char* sq_str_plural(const char *singular)
 
 char *sq_str_table_name(const char *src_type_name)
 {
-	char  *table_name;
-	int    length;
+	char  *plural_noun;
+	char  *snake_case;
 
 	if (src_type_name == NULL)
 		return NULL;
-	// length = snake case name + plural character + null-terminated
-	length = sq_camel2snake(NULL, src_type_name) +PLURAL_LENGTH +1;
-	table_name = malloc(length);
-	sq_camel2snake(table_name, src_type_name);
-	sq_singular2plural(table_name, table_name);
-	return table_name;
+	snake_case  = sq_str_snake(src_type_name);
+	plural_noun = sq_str_plural(snake_case);
+	free(snake_case);
+	return plural_noun;
 }
 
 char *sq_str_type_name(const char *src_table_name)
 {
-	char  *type_name;
-	int    length;
+	char  *singular_noun;
+	char  *camel_case;
 
 	if (src_table_name == NULL)
 		return NULL;
-	// length = snake case name + null-terminated
-	length = sq_snake2camel(NULL, src_table_name, true) +1;
-	type_name = malloc(length);
-	sq_snake2camel(type_name, src_table_name, true);
-	sq_plural2singular(type_name, type_name);
-	return type_name;
+	camel_case    = sq_str_camel(src_table_name, true);
+	singular_noun = sq_str_singular(camel_case);
+	free(camel_case);
+	return singular_noun;
 }
