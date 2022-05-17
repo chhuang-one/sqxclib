@@ -81,6 +81,30 @@ char *sq_str_type_name(const char *src_table_name);
 
 namespace Sq {
 
+namespace Str {
+
+	// naming convention
+	char* camel(const char *snake_name, bool upper_camel_case = true) {
+		return sq_str_camel(snake_name, upper_camel_case);
+	}
+	char* snake(const char *camel_name) {
+		return sq_str_snake(camel_name);
+	}
+	char* singular(const char *plural) {
+		return sq_str_singular(plural);
+	}
+	char* plural(const char *singular) {
+		return sq_str_plural(singular);
+	}
+	char *tableName(const char *type_name) {
+		return sq_str_table_name(type_name);
+	}
+	char *typeName(const char *table_name) {
+		return sq_str_type_name(table_name);
+	}
+
+};  // namespace Str
+
 };  // namespace Sq
 
 #endif  // __cplusplus
