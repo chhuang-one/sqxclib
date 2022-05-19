@@ -91,7 +91,7 @@ void  sq_type_final_self(SqType *type)
 	free(type->name);
 	// SqType.entry can't be freed if SqType.n_entry == -1
 	if (type->n_entry != -1)
-		sq_ptr_array_final(&type->entry);
+		sq_ptr_array_final(sq_type_get_ptr_array(type));
 }
 
 void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
@@ -157,6 +157,12 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 	// free memory if this instance is C pointer
 	if (is_pointer)
 		free(instance);
+}
+
+void  sq_type_clear_entry(SqType *type)
+{
+	if (type->bit_field & SQB_TYPE_DYNAMIC && type->n_entry > 0)
+		sq_ptr_array_erase(sq_type_get_ptr_array(type), 0, type->n_entry);
 }
 
 void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry)

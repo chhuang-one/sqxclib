@@ -91,6 +91,11 @@ void    sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char 
 	}
 }
 
+void  sq_type_joint_clear(SqTypeJoint *type_joint)
+{
+	sq_type_clear_entry((SqType*)type_joint);
+}
+
 // ----------------------------------------------------------------------------
 // static function
 

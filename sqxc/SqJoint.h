@@ -80,6 +80,7 @@ void    sq_type_joint_init(SqTypeJoint *type_joint);
 
 void  sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
 void  sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
+void  sq_type_joint_clear(SqTypeJoint *type_joint);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -99,6 +100,7 @@ namespace Sq {
 struct TypeJointMethod {
 	void  add(SqTable *table, const char *table_as_name = NULL);
 	void  erase(SqTable *table, const char *table_as_name = NULL);
+	void  clear();
 };
 
 };  // namespace Sq
@@ -128,6 +130,9 @@ inline void  TypeJointMethod::add(SqTable *table, const char *table_as_name) {
 }
 inline void  TypeJointMethod::erase(SqTable *table, const char *table_as_name) {
 	sq_type_joint_erase((SqTypeJoint*)this, table, table_as_name);
+}
+inline void  TypeJointMethod::clear() {
+	sq_type_joint_clear((SqTypeJoint*)this);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */

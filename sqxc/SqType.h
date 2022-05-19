@@ -134,6 +134,9 @@ void     sq_type_final_self(SqType *type);
 void    *sq_type_init_instance(const SqType *type, void *instance, int is_pointer);
 void     sq_type_final_instance(const SqType *type, void *instance, int is_pointer);
 
+// clear entry from SqEntry array in dynamic SqType.
+void     sq_type_clear_entry(SqType *type);
+
 // add entry from SqEntry array (NOT pointer array) to dynamic SqType.
 // if 'sizeof_entry' == 0, 'sizeof_entry' will equal sizeof(SqEntry)
 void     sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry);
@@ -269,6 +272,11 @@ struct SqType
 	}
 	void  finalInstance(void *instance, int is_pointer = 0) {
 		sq_type_final_instance((const SqType*)this, instance, is_pointer);
+	}
+
+	// clear entry from SqEntry array in dynamic SqType.
+	void  clearEntry() {
+		sq_type_clear_entry((SqType*)this);
 	}
 
 	// add entry from SqEntry array (NOT pointer array) to dynamic SqType.
@@ -533,6 +541,11 @@ struct TypeMethod {
 	}
 	void  finalInstance(void *instance, int is_pointer = 0) {
 		sq_type_final_instance((const SqType*)this, instance, is_pointer);
+	}
+
+	// clear entry from SqEntry array in dynamic SqType.
+	void  clearEntry() {
+		sq_type_clear_entry((SqType*)this);
 	}
 
 	// add entry from SqEntry array (NOT pointer array) to dynamic SqType.
