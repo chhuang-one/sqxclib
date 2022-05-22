@@ -1,3 +1,4 @@
+# helpers sources & headers
 set(SOURCES_HELPERS
     SqStr.c
 )
@@ -6,6 +7,7 @@ set(HEADERS_HELPERS
     SqStr.h
 )
 
+# data structs sources & headers
 set(SOURCES_STRUCTS
     SqPairs.c
 #    SqCollection.c
@@ -16,6 +18,7 @@ set(HEADERS_STRUCTS
 #    SqCollection.h
 )
 
+# console sources & headers
 set(SOURCES_CONSOLE
     SqConsole.c
     SqCommand.c
@@ -28,6 +31,7 @@ set(HEADERS_CONSOLE
     SqOption.h
 )
 
+# test sources & headers
 set(SOURCES_TEST
     SqdbEmpty.c
     SqxcEmpty.c
@@ -39,16 +43,14 @@ set(HEADERS_TEST
     SqxcFile.h
 )
 
+# --- sqxcsupport ---
 set(SQXCSUPPORT_INCLUDE_DIRS
     ${SQXC_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set(SQXCSUPPORT_LIBRARIES
-    sqxchelpers
-    sqxcstructs
-    sqxconsole
-    sqxctest
+    sqxcsupport
     ${SQXC_LIBRARIES}
 )
 
@@ -64,30 +66,19 @@ set(SQXCSUPPORT_LIBRARIES
     PARENT_SCOPE
 )
 
-# --- sqxc ---
+# library
 include_directories(${SQXC_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
 link_libraries(${SQXC_LIBRARIES})
 
-add_library(sqxchelpers
+add_library(sqxcsupport
             STATIC
             ${SOURCES_HELPERS}
-            ${HEADERS_HELPERS}
-)
-
-add_library(sqxcstructs
-            STATIC
             ${SOURCES_STRUCTS}
-            ${HEADERS_STRUCTS}
-)
-
-add_library(sqxconsole
-            STATIC
             ${SOURCES_CONSOLE}
-            ${HEADERS_CONSOLE}
-)
-
-add_library(sqxctest
-            STATIC
             ${SOURCES_TEST}
+
+            ${HEADERS_HELPERS}
+            ${HEADERS_STRUCTS}
+            ${HEADERS_CONSOLE}
             ${HEADERS_TEST}
 )

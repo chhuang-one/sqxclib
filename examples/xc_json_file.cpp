@@ -13,7 +13,7 @@
  */
 
 #include <sqxclib.h>
-#include <SqxcFile.h>    // SqxcFile in sqxctest library
+#include <SqxcFile.h>    // SqxcFile in sqxcsupport library
 
 /*	Sqxc chain data flow in this file
 
@@ -44,6 +44,7 @@ void json_file_writer_cpp()
 
 	xc->name = NULL;
 	xc->type = SQXC_TYPE_OBJECT;
+	xc->value.pointer = NULL;
 	xcjson->send(xc);
 
 	xc->name = "id";
@@ -58,6 +59,7 @@ void json_file_writer_cpp()
 
 	xc->name = NULL;
 	xc->type = SQXC_TYPE_OBJECT_END;
+	xc->value.pointer = NULL;
 	xcjson->send(xc);
 
 	// --- Sqxc chain finish work ---
@@ -90,6 +92,7 @@ void json_file_writer_c(void)
 
 	xc->name = NULL;
 	xc->type = SQXC_TYPE_OBJECT;
+	xc->value.pointer = NULL;
 	sqxc_send_to((Sqxc*)xcjson, xc);
 
 	xc->name = "id";
@@ -104,6 +107,7 @@ void json_file_writer_c(void)
 
 	xc->name = NULL;
 	xc->type = SQXC_TYPE_OBJECT_END;
+	xc->value.pointer = NULL;
 	sqxc_send_to((Sqxc*)xcjson, xc);
 
 	// --- Sqxc chain finish work ---

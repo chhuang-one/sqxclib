@@ -1,3 +1,4 @@
+# helpers sources & headers
 sources_helpers = [
     'SqStr.c',
 ]
@@ -6,6 +7,7 @@ headers_helpers = [
     'SqStr.h',
 ]
 
+# data structs sources & headers
 sources_structs = [
     'SqPairs.c',
 #    'SqCollection.c',
@@ -17,7 +19,6 @@ headers_structs = [
 ]
 
 # console sources & headers
-
 sources_console = [
     'SqConsole.c',
     'SqCommand.c',
@@ -31,7 +32,6 @@ headers_console = [
 ]
 
 # test sources & headers
-
 sources_test = [
     'SqdbEmpty.c',
     'SqxcEmpty.c',
@@ -44,37 +44,24 @@ headers_test = [
     'SqxcFile.h',
 ]
 
-install_headers(headers_helpers, subdir: 'sqxc')
-install_headers(headers_structs, subdir: 'sqxc')
-install_headers(headers_console, subdir: 'sqxc')
-install_headers(headers_test,    subdir: 'sqxc')
+# --- sqxcsupport ---
+headers_support = [
+    headers_helpers,
+    headers_structs,
+    headers_console,
+    headers_test,
+]
+
+install_headers(headers_support, subdir: 'sqxc')
 
 sqxcsupport_inc = include_directories('./')
 
-sqxchelpers_lib = static_library('sqxchelpers',
-                                 sources_helpers,
+sqxcsupport_lib = static_library('sqxcsupport',
+                                 [sources_helpers, sources_structs, sources_console, sources_test],
                                  include_directories: sqxcsupport_inc,
                                  dependencies : sqxc,
                                  install: false)
-
-sqxcstructs_lib = static_library('sqxcstructs',
-                                 sources_structs,
-                                 include_directories: sqxcsupport_inc,
-                                 dependencies : sqxc,
-                                 install: false)
-
-sqxconsole_lib = static_library('sqxconsole',
-                                sources_console,
-                                include_directories: sqxcsupport_inc,
-                                dependencies : sqxc,
-                                install: false)
-
-sqxctest_lib = static_library('sqxctest',
-                              sources_test,
-                              include_directories: sqxcsupport_inc,
-                              dependencies : sqxc,
-                              install: false)
 
 sqxcsupport = declare_dependency(include_directories : sqxcsupport_inc,
-                                 link_with : [sqxchelpers_lib, sqxcstructs_lib, sqxconsole_lib, sqxctest_lib],
+                                 link_with : sqxcsupport_lib,
                                  dependencies : sqxc)

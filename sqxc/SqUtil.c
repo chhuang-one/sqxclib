@@ -23,9 +23,7 @@
 #include <SqUtil.h>
 
 #ifdef _MSC_VER
-#define strcasecmp   _stricmp
 #define snprintf     _snprintf
-#define strtoll      _strtoi64
 #endif
 
 /* ----------------------------------------------------------------------------
