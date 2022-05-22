@@ -806,6 +806,27 @@ int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
 	return table_and_as_names->length / 2;
 }
 
+void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_as_name)
+{
+	SqType   *type = (SqType*)table->type;
+	SqColumn *column;
+	char     *buffer = NULL;
+	int       buf_len;
+
+	if (table_as_name == NULL)
+		table_as_name = table->name;
+	for (int index = 0;  index < type->n_entry;  index++) {
+		column = (SqColumn*)type->entry[index];
+		if (SQ_TYPE_IS_FAKE(column->type))
+			continue;
+		buf_len = snprintf(NULL, 0, "%s.%s AS '%s.%s'", table->name, column->name, table_as_name, column->name) + 1;
+		buffer = realloc(buffer, buf_len);
+		snprintf(buffer, buf_len, "%s.%s AS '%s.%s'", table->name, column->name, table_as_name, column->name);
+		sq_query_select(query, buffer, NULL);
+	}
+	free(buffer);
+}
+
 // ----------------------------------------------------------------------------
 // push/pop SqQueryNested
 

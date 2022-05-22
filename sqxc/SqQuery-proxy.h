@@ -29,7 +29,7 @@ namespace Sq {
 
 class QueryProxy {
 protected:
-	Sq::Query*  query;
+	Sq::Query *query;
 
 public:
 	Sq::Query *operator->();

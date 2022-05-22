@@ -26,25 +26,6 @@
 #define snprintf     _snprintf
 #endif
 
-static void query_add_column_as_names(SqQuery *query, SqTable *table)
-{
-	SqType   *type = (SqType*)table->type;
-	SqColumn *column;
-	char     *buffer = NULL;
-	int       buf_len;
-
-	for (int index = 0;  index < type->n_entry;  index++) {
-		column = (SqColumn*)type->entry[index];
-		if (SQ_TYPE_IS_FAKE(column->type))
-			continue;
-		buf_len = snprintf(NULL, 0, "%s.%s AS '%s.%s'", table->name, column->name, table->name, column->name) + 1;
-		buffer = realloc(buffer, buf_len);
-		snprintf(buffer, buf_len, "%s.%s AS '%s.%s'", table->name, column->name, table->name, column->name);
-		sq_query_select(query, buffer, NULL);
-	}
-	free(buffer);
-}
-
 SqType  *sq_storage_type_from_query(SqStorage *storage, SqQuery *query, int *n_tables_in_query)
 {
 	SqPtrArray  names;
@@ -68,7 +49,7 @@ SqType  *sq_storage_type_from_query(SqStorage *storage, SqQuery *query, int *n_t
 			sq_type_joint_add(type, table, names.data[index+1]);
 			// add 'SELECT' columns in query if there are multiple table's names in query
 			if (n > 1)
-				query_add_column_as_names(query, table);
+				sq_query_select_table_as(query, table, NULL);
 		}
 	}
 
