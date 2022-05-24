@@ -161,8 +161,10 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 
 void  sq_type_clear_entry(SqType *type)
 {
-	if (type->bit_field & SQB_TYPE_DYNAMIC && type->n_entry > 0)
+	if (type->bit_field & SQB_TYPE_DYNAMIC && type->n_entry > 0) {
 		sq_ptr_array_erase(sq_type_get_ptr_array(type), 0, type->n_entry);
+		type->size = 0;
+	}
 }
 
 void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry)
