@@ -161,6 +161,7 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 
 void  sq_type_clear_entry(SqType *type)
 {
+	// SqType.entry can't be freed if SqType.n_entry == -1
 	if (type->bit_field & SQB_TYPE_DYNAMIC && type->n_entry > 0) {
 		sq_ptr_array_erase(sq_type_get_ptr_array(type), 0, type->n_entry);
 		type->size = 0;
@@ -196,6 +197,23 @@ void  sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_ent
 		SQ_PTR_ARRAY_APPEND_N(array, entry_ptrs, n_entry_ptrs);
 		for (int index = 0;  index < n_entry_ptrs;  index++, entry_ptrs++)
 			sq_type_decide_size(type, *entry_ptrs, false);
+	}
+}
+
+void  sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count)
+{
+	if ((type)->bit_field & SQB_TYPE_DYNAMIC) {
+		sq_type_decide_size(type, *inner_entry_addr, true);
+		sq_ptr_array_erase(sq_type_get_ptr_array(type),
+				(int)(inner_entry_addr - type->entry), count);
+	}
+}
+
+void  sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count)
+{
+	if ((type)->bit_field & SQB_TYPE_DYNAMIC) {
+		sq_type_decide_size(type, *inner_entry_addr, true);
+		SQ_PTR_ARRAY_STEAL_ADDR(&(type)->entry, inner_entry_addr, count);
 	}
 }
 
@@ -284,15 +302,5 @@ unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool
 
 #else   // __STDC_VERSION__
 // declare functions here if compiler does NOT support inline function.
-
-void  sq_type_erase_entry_addr(SqType *type, void **element_addr, int count)
-{
-	SQ_TYPE_ERASE_ENTRY_ADDR(type, element_addr, count);
-}
-
-void  sq_type_steal_entry_addr(SqType *type, void **element_addr, int count)
-{
-	SQ_TYPE_STEAL_ENTRY_ADDR(type, element_addr, count);
-}
 
 #endif  // __STDC_VERSION__

@@ -89,23 +89,6 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 /* macro for accessing variable of SqType */
 #define sq_type_get_ptr_array(type)    ((SqPtrArray*)&(type)->entry)
 
-/* macro for maintaining C/C++ inline functions easily */
-
-// void SQ_TYPE_ERASE_ENTRY_ADDR(SqType *type, void **element_addr, int count)
-#define SQ_TYPE_ERASE_ENTRY_ADDR(type, element_addr, count)    \
-		{                                                      \
-		if ((type)->bit_field & SQB_TYPE_DYNAMIC)              \
-			sq_ptr_array_erase(&(type)->entry,                 \
-					(int)((SqEntry**)element_addr - (type)->entry), count); \
-		}
-
-// void SQ_TYPE_STEAL_ENTRY_ADDR(SqType *type, void **element_addr, int count)
-#define SQ_TYPE_STEAL_ENTRY_ADDR(type, element_addr, count)    \
-		{                                                      \
-		if ((type)->bit_field & SQB_TYPE_DYNAMIC)              \
-			SQ_PTR_ARRAY_STEAL_ADDR(&(type)->entry, element_addr, count); \
-		}
-
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
@@ -142,6 +125,9 @@ void     sq_type_clear_entry(SqType *type);
 void     sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry);
 // add entry from SqEntry pointer array to dynamic SqType.
 void     sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_entry_ptrs);
+
+void     sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count);
+void     sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count);
 
 // find SqEntry in SqType.entry.
 // If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
@@ -318,30 +304,30 @@ struct SqType
 	}
 
 	// erase entry in SqType if SqType is dynamic.
-	void     eraseEntry(void **element_addr, int count = 1) {
-		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, element_addr, count);
+	void     eraseEntry(void **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
-	void     eraseEntry(SqEntry **element_addr, int count = 1) {
-		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, element_addr, count);
+	void     eraseEntry(SqEntry **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, inner_entry_addr, count);
 	}
-	void     eraseEntry(Sq::Entry **element_addr, int count = 1) {
-		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
+	void     eraseEntry(Sq::Entry **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
-	void     eraseEntry(Sq::EntryMethod **element_addr, int count = 1) {
-		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
+	void     eraseEntry(Sq::EntryMethod **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
 	// steal entry in SqType if SqType is dynamic.
-	void     stealEntry(void **element_addr, int count = 1) {
-		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, element_addr, count);
+	void     stealEntry(void **inner_entry_addr, int count = 1) {
+		sq_type_steal_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
-	void     stealEntry(SqEntry **element_addr, int count = 1) {
-		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, element_addr, count);
+	void     stealEntry(SqEntry **inner_entry_addr, int count = 1) {
+		sq_type_steal_entry_addr((SqType*)this, inner_entry_addr, count);
 	}
-	void     stealEntry(Sq::Entry **element_addr, int count = 1) {
-		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
+	void     stealEntry(Sq::Entry **inner_entry_addr, int count = 1) {
+		sq_type_steal_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
-	void     stealEntry(Sq::EntryMethod **element_addr, int count = 1) {
-		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
+	void     stealEntry(Sq::EntryMethod **inner_entry_addr, int count = 1) {
+		sq_type_steal_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
 #endif  // __cplusplus
 };
@@ -468,33 +454,8 @@ extern  const  struct SqTypeFake   SqType_Fake_;
 
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
 // C99 or C++ inline functions
-
-#ifdef __cplusplus  // C++
-inline
-#else               // C99
-static inline
-#endif
-void  sq_type_erase_entry_addr(SqType *type, void **element_addr, int count)
-{
-	SQ_TYPE_ERASE_ENTRY_ADDR(type, element_addr, count);
-}
-
-#ifdef __cplusplus  // C++
-inline
-#else               // C99
-static inline
-#endif
-void  sq_type_steal_entry_addr(SqType *type, void **element_addr, int count)
-{
-	SQ_TYPE_STEAL_ENTRY_ADDR(type, element_addr, count);
-}
-
 #else   // __STDC_VERSION__ || __cplusplus
-
 // C functions
-void  sq_type_erase_entry_addr(SqType *type, void **element_addr, int count);
-void  sq_type_steal_entry_addr(SqType *type, void **element_addr, int count);
-
 #endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------
@@ -587,30 +548,30 @@ struct TypeMethod {
 	}
 
 	// erase entry in SqType if SqType is dynamic.
-	void     eraseEntry(void **element_addr, int count = 1) {
-		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, element_addr, count);
+	void     eraseEntry(void **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
-	void     eraseEntry(SqEntry **element_addr, int count = 1) {
-		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, element_addr, count);
+	void     eraseEntry(SqEntry **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, inner_entry_addr, count);
 	}
-	void     eraseEntry(Sq::Entry **element_addr, int count = 1) {
-		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
+	void     eraseEntry(Sq::Entry **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
-	void     eraseEntry(Sq::EntryMethod **element_addr, int count = 1) {
-		SQ_TYPE_ERASE_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
+	void     eraseEntry(Sq::EntryMethod **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
 	// steal entry in SqType if SqType is dynamic.
-	void     stealEntry(void **element_addr, int count = 1) {
-		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, element_addr, count);
+	void     stealEntry(void **inner_entry_addr, int count = 1) {
+		sq_type_steal_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
-	void     stealEntry(SqEntry **element_addr, int count = 1) {
-		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, element_addr, count);
+	void     stealEntry(SqEntry **inner_entry_addr, int count = 1) {
+		sq_type_steal_entry_addr((SqType*)this, inner_entry_addr, count);
 	}
-	void     stealEntry(Sq::Entry **element_addr, int count = 1) {
-		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
+	void     stealEntry(Sq::Entry **inner_entry_addr, int count = 1) {
+		sq_type_steal_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
-	void     stealEntry(Sq::EntryMethod **element_addr, int count = 1) {
-		SQ_TYPE_STEAL_ENTRY_ADDR((SqType*)this, (SqEntry**)element_addr, count);
+	void     stealEntry(Sq::EntryMethod **inner_entry_addr, int count = 1) {
+		sq_type_steal_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
 };
 

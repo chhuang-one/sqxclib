@@ -65,7 +65,6 @@ void    sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *t
 	jentry->bit_field |= SQB_POINTER;
 	jentry->offset = type_joint->n_entry * sizeof(void*);
 	sq_type_add_entry((SqType*)type_joint, jentry, 1, 0);
-	sq_type_decide_size((SqType*)type_joint, jentry, false);
 }
 
 void    sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name)
@@ -85,10 +84,8 @@ void    sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char 
 		return;
 
 	temp.table_addr = (SqTable**)sq_type_find_entry((SqType*)type_joint, temp.name, NULL);
-	if (temp.table_addr) {
-		sq_type_decide_size((SqType*)type_joint, *(SqEntry**)temp.table_addr, true);
-		sq_type_erase_entry_addr((SqType*)type_joint, (void**)temp.table_addr, 1);
-	}
+	if (temp.table_addr)
+		sq_type_erase_entry_addr((SqType*)type_joint, (SqEntry**)temp.table_addr, 1);
 }
 
 void  sq_type_joint_clear(SqTypeJoint *type_joint)
