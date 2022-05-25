@@ -146,10 +146,20 @@ struct TypeJoint : SqTypeJoint, TypeJointMethod {
 	}
 };
 
-// These are for directly use only. You can NOT derived it.
+// This is for directly use only. You can NOT derived it.
 template <unsigned int n_tables>
-struct Joint {
-	void *t[n_tables];
+union Joint {
+	void *data[n_tables];
+	void *t[n_tables];       // 't' deprecated
+
+	// operator
+	void *&operator[](int index) {
+		return data[index];
+	}
+	// const Joint will use this function.
+	void  *operator[](int index) const {
+		return data[index];
+	}
 };
 
 };  // namespace Sq
@@ -163,7 +173,7 @@ struct Joint {
 #ifdef __cplusplus
 #define SQ_JOINT(n_tables)    Sq::Joint<n_tables>
 #else
-#define SQ_JOINT(n_tables)    struct { void *t[n_tables]; }
+#define SQ_JOINT(n_tables)    union { void *data[n_tables];  void *t[n_tables]; /* 't' deprecated */ }
 #endif
 
 

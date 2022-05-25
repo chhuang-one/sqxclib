@@ -655,17 +655,19 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 
 ## JOIN 支持
 
+SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的结果创建指针数组。  
+  
+例如 从连接多表的查询中获取结果。  
+  
 使用 C 函数
 
 ```c
-	SqPtrArray *array;
-
 	sq_query_from(query, "cities");
 	sq_query_join(query, "users",  "cities.id", "users.city_id");
 
-	array = sq_storage_query(storage, query, NULL, NULL);
+	SqPtrArray *array = sq_storage_query(storage, query, NULL, NULL);
 	for (int i = 0;  i < array->length;  i++) {
-		element = (void**)array->data[i];
+		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
 		user = (User*)element[1];    // sq_query_join(query, "users", ...);
 		// free 'element' before you free 'array'
@@ -678,21 +680,29 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 ```c++
 	query->from("cities")->join("users",  "cities.id", "users.city_id");
 
-	typedef  Sq::Joint<2>  SqJoint2;
-	vector = storage->query<std::vector<SqJoint2>>(query);
-	for (unsigned int index = 0;  index < vector->size();  index++) {
-		SqJoint2 *joint = vector->at(index);
-		city = (City*)joint.t[0];
-		user = (User*)joint.t[1];
-	}
-	// or
 	SqPtrArray *array = (Sq::PtrArray*) storage->query(query);
 	for (int i = 0;  i < array->length;  i++) {
-		element = (void**)array->data[i];
+		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
 		user = (User*)element[1];    // join("users")
 		// free 'element' before you free 'array'
 		// free(element);
+	}
+```
+
+使用 C++ STL  
+  
+Sq::Joint 是 STL 容器使用的指针数组。
+
+```c++
+	query->from("cities")->join("users",  "cities.id", "users.city_id");
+
+	std::vector< Sq::Joint<2> > *vector;
+	vector = storage->query<std::vector< Sq::Joint<2> >>(query);
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		Sq::Joint<2> &joint = vector->at(index);
+		city = (City*)joint[0];      // from("cities")
+		user = (User*)joint[1];      // join("users")
 	}
 ```
 

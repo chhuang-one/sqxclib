@@ -356,7 +356,6 @@ void  storage_stl_container_query_join(Sq::Storage *storage)
 	std::vector< Sq::Joint<2> > *j2vector;
 	std::vector< Sq::Joint<2> >::iterator cur, end;
 	Sq::Query   *query;
-	Sq::Joint<2> element;
 	Company     *company;
 	User        *user;
 
@@ -367,11 +366,11 @@ void  storage_stl_container_query_join(Sq::Storage *storage)
 	j2vector = storage->query< std::vector< Sq::Joint<2> > >(query);
 	if (j2vector) {
 		for (cur = j2vector->begin(), end = j2vector->end();  cur != end;  cur++) {
-			element = (*cur);
-			company = (Company*)element.t[0];
+			Sq::Joint<2> &element = (*cur);
+			company = (Company*)element[0];
 			company->print();
 			delete company;
-			user = (User*)element.t[1];
+			user = (User*)element[1];
 			user->print();
 			delete user;
 		}
