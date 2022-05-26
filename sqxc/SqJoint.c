@@ -57,11 +57,11 @@ void    sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *t
 
 //	if ((type_joint->bit_field & SQB_TYPE_DYNAMIC) == 0)
 //		return;
-	jentry = sq_entry_new(table->type);
-	if (table_as_name)
-		jentry->name = strdup(table_as_name);
-	else
-		jentry->name = strdup(table->name);
+	if (table == NULL && table_as_name == NULL)
+		return;  // error
+
+	jentry = sq_entry_new(table ? table->type : NULL);
+	jentry->name = strdup(table_as_name ? table_as_name : table->name);
 	jentry->bit_field |= SQB_POINTER;
 	jentry->offset = type_joint->n_entry * sizeof(void*);
 	sq_type_add_entry((SqType*)type_joint, jentry, 1, 0);

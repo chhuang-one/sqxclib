@@ -59,6 +59,7 @@ void  sq_storage_init(SqStorage *storage, Sqdb *db)
 	storage->tables_version  = STORAGE_SCHEMA_INITIAL_VERSION;
 	sq_ptr_array_init(&storage->tables, 16, NULL);
 
+	storage->joint_default     = sq_type_joint_new();
 	storage->container_default = SQ_TYPE_PTR_ARRAY;
 
 	storage->xc_input  = sqxc_new(SQXC_INFO_VALUE);

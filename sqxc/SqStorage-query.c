@@ -26,37 +26,46 @@
 #define snprintf     _snprintf
 #endif
 
-SqType  *sq_storage_type_from_query(SqStorage *storage, SqQuery *query, int *n_tables_in_query)
+SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint)
 {
+	SqType     *table_type = NULL;
 	SqPtrArray  names;
 	SqTable    *table;
-	SqType     *type = NULL;
-	int         n;
+	int         n_table;
 
 	sq_ptr_array_init(&names, 8, NULL);
-	n = sq_query_get_table_as_names(query, &names);
-	if (n != 0) {
-		// multiple table names, query has 'FROM' and 'JOIN'.
-		type = sq_type_joint_new();
-		for (int index = 0;  index < names.length;  index+=2) {
-			table = sq_schema_find(storage->schema, names.data[index]);
-			if (table == NULL) {
-				sq_type_joint_free(type);
-				type = NULL;
-				n = 0;
-				break;
-			}
-			sq_type_joint_add(type, table, names.data[index+1]);
-			// add 'SELECT' columns in query if there are multiple table's names in query
-			if (n > 1)
-				sq_query_select_table_as(query, table, NULL);
+	n_table = sq_query_get_table_as_names(query, &names);
+	if (n_table > 1)
+		sq_type_joint_clear(type_joint);
+	// multiple table names, query has 'FROM' and 'JOIN'.
+	for (int index = 0;  index < names.length;  index+=2) {
+		table = sq_schema_find(storage->schema, names.data[index]);
+		if (table == NULL) {
+			if (type_joint->bit_field & SQB_TYPE_JOINT_SUPPORT_UNKNOWN_TYPE)
+				continue;
+			n_table = 0;
+			break;
+		}
+		table_type = (SqType*)table->type;
+		// if there are multiple table's names in 'query'
+		if (n_table > 1) {
+			// add table and it's name to SqTypeJoint
+			sq_type_joint_add(type_joint, table, names.data[index+1]);
+			// add "SELECT table.column AS 'table_as_name.column'" in query
+			sq_query_select_table_as(query, table, names.data[index+1]);
 		}
 	}
 
 	sq_ptr_array_final(&names);
-	if (n_tables_in_query)
-		*n_tables_in_query = n;
-	return type;
+
+	if (n_table > 1)
+		return type_joint;
+	if (table_type == NULL && type_joint->bit_field & SQB_TYPE_JOINT_SUPPORT_UNKNOWN_TYPE)
+		return type_joint;
+	// special case: if there is only 1 table in 'query'
+	if (n_table == 1)
+		return table_type;
+	return NULL;
 }
 
 void *sq_storage_query(SqStorage    *storage,
@@ -64,29 +73,20 @@ void *sq_storage_query(SqStorage    *storage,
                        const SqType *table_type,
                        const SqType *container_type)
 {
-	SqType     *type_cur;
 	Sqxc       *xcvalue;
 	void       *instance;
 
 	if (container_type == NULL)
 		container_type = storage->container_default;
-	if (table_type)
-		type_cur = (SqType*)table_type;
-	else {
-		type_cur = sq_storage_type_from_query(storage, query, NULL);
-		if (type_cur == NULL)
+	if (table_type == NULL) {
+		table_type = sq_storage_setup_query(storage, query, storage->joint_default);
+		if (table_type == NULL)
 			return NULL;
-		// special case for SqPtrArray: if there is only 1 table in query
-		if (container_type == SQ_TYPE_PTR_ARRAY && type_cur->n_entry == 1) {
-			table_type = type_cur->entry[0]->type;
-			sq_type_joint_free(type_cur);
-			type_cur = (SqType*)table_type;
-		}
 	}
 
 	// destination of input
 	xcvalue = (Sqxc*) storage->xc_input;
-	sqxc_value_element(xcvalue)   = type_cur;
+	sqxc_value_element(xcvalue)   = table_type;
 	sqxc_value_container(xcvalue) = container_type;
 	sqxc_value_instance(xcvalue)  = NULL;
 
@@ -96,7 +96,5 @@ void *sq_storage_query(SqStorage    *storage,
 	sqxc_finish(xcvalue, NULL);
 	instance = sqxc_value_instance(xcvalue);
 
-	if (table_type == NULL)
-		sq_type_free(type_cur);
 	return instance;
 }

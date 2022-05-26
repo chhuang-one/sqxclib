@@ -134,9 +134,11 @@ SqTable *sq_storage_find_by_type(SqStorage *storage, const char *type_name);
 // ------------------------------------
 // SqStorage-query.c
 
-// sq_storage_type_from_query() is for internal use only.
-// return SqTypeJoint that contain table's type in query. It must call sq_type_free() to free.
-SqType  *sq_storage_type_from_query(SqStorage *storage, SqQuery *query, int *n_tables_in_query);
+// sq_storage_setup_query() setup 'query' and return SqType for calling sq_storage_query() with 'query'.
+// return NULL if table not found and 'type_joint' can NOT handle unknown table type.
+// return 'type_joint' if 'query' has joined multi-table. It will setup 'type_joint' and 'query'.
+// return other SqType pointer if 'query' has only 1 table. It does keep 'type_joint' no change.
+SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);
 
 // 'query' must has FROM table_name or JOIN table_name
 // e.g. SELECT * FROM table1 JOIN table2 ON ... JOIN table3 ON ...
@@ -302,13 +304,14 @@ struct StorageMethod
 	   each thread has its Sqxc chain ('xc_input' and 'xc_output').
  */
 
-#define SQ_STORAGE_MEMBERS     \
-	Sqdb      *db;             \
-	SqSchema  *schema;         \
-	SqPtrArray tables;         \
-	int        tables_version; \
-	Sqxc      *xc_input;       \
-	Sqxc      *xc_output;      \
+#define SQ_STORAGE_MEMBERS               \
+	Sqdb      *db;                       \
+	SqSchema  *schema;                   \
+	SqPtrArray tables;                   \
+	int        tables_version;           \
+	Sqxc      *xc_input;                 \
+	Sqxc      *xc_output;                \
+	SqTypeJoint    *joint_default;       \
 	const SqType   *container_default
 
 #ifdef __cplusplus
@@ -330,6 +333,7 @@ struct SqStorage
 	Sqxc      *xc_input;    // SqxcValue
 	Sqxc      *xc_output;   // SqxcSql
 
+	SqTypeJoint    *joint_default;
 	const SqType   *container_default;
  */
 };
@@ -450,26 +454,24 @@ inline void *StorageMethod::getAll(const char *table_name, const SqType *table_t
 }
 
 template <class StlContainer>
-inline StlContainer *StorageMethod::query(Sq::QueryMethod& query) {
+inline StlContainer *StorageMethod::query(Sq::QueryMethod &query) {
 	void    *instance  = NULL;
-	SqType  *tableType = sq_storage_type_from_query((SqStorage*)this, (SqQuery*)&query, NULL);
+	SqType  *tableType = sq_storage_setup_query((SqStorage*)this, (SqQuery*)&query, ((SqStorage*)this)->joint_default);
 	if (tableType) {
 		Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
 		instance = sq_storage_query((SqStorage*)this, (SqQuery*)&query, tableType, containerType);
 		delete containerType;
-		sq_type_free(tableType);
 	}
 	return (StlContainer*)instance;
 }
 template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryMethod *query) {
 	void    *instance  = NULL;
-	SqType  *tableType = sq_storage_type_from_query((SqStorage*)this, (SqQuery*)query, NULL);
+	SqType  *tableType = sq_storage_setup_query((SqStorage*)this, (SqQuery*)query, ((SqStorage*)this)->joint_default);
 	if (tableType) {
 		Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
 		instance = sq_storage_query((SqStorage*)this, (SqQuery*)query, tableType, containerType);
 		delete containerType;
-		sq_type_free(tableType);
 	}
 	return (StlContainer*)instance;
 }

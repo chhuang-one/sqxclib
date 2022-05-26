@@ -22,6 +22,9 @@
 
 typedef struct SqType         SqTypeJoint;
 
+// if derived struct support unknown type
+#define SQB_TYPE_JOINT_SUPPORT_UNKNOWN_TYPE    (1 << 4)
+
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
@@ -78,6 +81,7 @@ void    sq_type_joint_init(SqTypeJoint *type_joint);
 #define sq_type_joint_final(type_joint)    \
 		sq_type_final_self((SqType*)(type_joint))
 
+// derived struct can use these functions
 void  sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
 void  sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
 void  sq_type_joint_clear(SqTypeJoint *type_joint);
