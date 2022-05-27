@@ -122,8 +122,8 @@ struct SqxcFile
 
 namespace Sq {
 
-// conforming C++11 standard-layout
-// This is for directly use only. You can NOT derived it.
+/* All derived struct/class must be C++11 standard-layout. */
+
 struct XcFileWriter : SqxcFile
 {
 	XcFileWriter() {

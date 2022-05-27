@@ -175,86 +175,86 @@ struct SqColumn
 		return (Sq::Column*)this;
 	}
 
-	Sq::Column& reference(const char *table_name, const char *column_name) {
+	Sq::Column &reference(const char *table_name, const char *column_name) {
 		sq_column_reference((SqColumn*)this, table_name, column_name);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& onDelete(const char *act) {
+	Sq::Column &onDelete(const char *act) {
 		sq_column_on_delete((SqColumn*)this, act);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& onUpdate(const char *act) {
+	Sq::Column &onUpdate(const char *act) {
 		sq_column_on_update((SqColumn*)this, act);
 		return *(Sq::Column*)this;
 	}
 	template <typename... Args>
-	Sq::Column& setComposite(const Args... args) {
+	Sq::Column &setComposite(const Args... args) {
 		sq_column_set_composite((SqColumn*)this, args..., NULL);
 		return *(Sq::Column*)this;
 	}
 
 	/* --- Column Modifiers --- */
 	// C/C++ pointer
-	Sq::Column& pointer() {
+	Sq::Column &pointer() {
 		((SqColumn*)this)->bit_field |= SQB_POINTER;
 		return *(Sq::Column*)this;
 	}
 	// JSON
-	Sq::Column& hidden() {
+	Sq::Column &hidden() {
 		((SqColumn*)this)->bit_field |= SQB_HIDDEN;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& hiddenNull() {
+	Sq::Column &hiddenNull() {
 		((SqColumn*)this)->bit_field |= SQB_HIDDEN_NULL;
 		return *(Sq::Column*)this;
 	}
 	// SQL column property
-	Sq::Column& primary() {
+	Sq::Column &primary() {
 		((SqColumn*)this)->bit_field |= SQB_PRIMARY;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& unique() {
+	Sq::Column &unique() {
 		((SqColumn*)this)->bit_field |= SQB_UNIQUE;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& increment() {
+	Sq::Column &increment() {
 		((SqColumn*)this)->bit_field |= SQB_INCREMENT;    // equal SQB_AUTOINCREMENT
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& autoIncrement() {
+	Sq::Column &autoIncrement() {
 		((SqColumn*)this)->bit_field |= SQB_AUTOINCREMENT;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& nullable() {
+	Sq::Column &nullable() {
 		((SqColumn*)this)->bit_field |= SQB_NULLABLE;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& change() {
+	Sq::Column &change() {
 		((SqColumn*)this)->bit_field |= SQB_CHANGED;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& useCurrent() {
+	Sq::Column &useCurrent() {
 		((SqColumn*)this)->bit_field |= SQB_CURRENT;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& useCurrentOnUpdate() {
+	Sq::Column &useCurrentOnUpdate() {
 		((SqColumn*)this)->bit_field |= SQB_CURRENT_ON_UPDATE;
 		return *(Sq::Column*)this;
 	}
 
-	Sq::Column& default_(const char *default_val) {
+	Sq::Column &default_(const char *default_val) {
 		sq_column_default((SqColumn*)this, default_val);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& defaultValue(const char *default_val) {
+	Sq::Column &defaultValue(const char *default_val) {
 		sq_column_default((SqColumn*)this, default_val);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& raw_(const char *raw_property) {
+	Sq::Column &raw_(const char *raw_property) {
 		sq_column_raw((SqColumn*)this, raw_property);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& rawProperty(const char *raw_property) {
+	Sq::Column &rawProperty(const char *raw_property) {
 		sq_column_raw((SqColumn*)this, raw_property);
 		return *(Sq::Column*)this;
 	}
@@ -279,86 +279,86 @@ struct ColumnMethod
 		return (Sq::Column*)this;
 	}
 
-	Sq::Column& reference(const char *table_name, const char *column_name) {
+	Sq::Column &reference(const char *table_name, const char *column_name) {
 		sq_column_reference((SqColumn*)this, table_name, column_name);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& onDelete(const char *act) {
+	Sq::Column &onDelete(const char *act) {
 		sq_column_on_delete((SqColumn*)this, act);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& onUpdate(const char *act) {
+	Sq::Column &onUpdate(const char *act) {
 		sq_column_on_update((SqColumn*)this, act);
 		return *(Sq::Column*)this;
 	}
 	template <typename... Args>
-	Sq::Column& setComposite(const Args... args) {
+	Sq::Column &setComposite(const Args... args) {
 		sq_column_set_composite((SqColumn*)this, args..., NULL);
 		return *(Sq::Column*)this;
 	}
 
 	/* --- Column Modifiers --- */
 	// C/C++ pointer
-	Sq::Column& pointer() {
+	Sq::Column &pointer() {
 		((SqColumn*)this)->bit_field |= SQB_POINTER;
 		return *(Sq::Column*)this;
 	}
 	// JSON
-	Sq::Column& hidden() {
+	Sq::Column &hidden() {
 		((SqColumn*)this)->bit_field |= SQB_HIDDEN;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& hiddenNull() {
+	Sq::Column &hiddenNull() {
 		((SqColumn*)this)->bit_field |= SQB_HIDDEN_NULL;
 		return *(Sq::Column*)this;
 	}
 	// SQL column property
-	Sq::Column& primary() {
+	Sq::Column &primary() {
 		((SqColumn*)this)->bit_field |= SQB_PRIMARY;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& unique() {
+	Sq::Column &unique() {
 		((SqColumn*)this)->bit_field |= SQB_UNIQUE;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& increment() {
+	Sq::Column &increment() {
 		((SqColumn*)this)->bit_field |= SQB_INCREMENT;    // equal SQB_AUTOINCREMENT
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& autoIncrement() {
+	Sq::Column &autoIncrement() {
 		((SqColumn*)this)->bit_field |= SQB_AUTOINCREMENT;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& nullable() {
+	Sq::Column &nullable() {
 		((SqColumn*)this)->bit_field |= SQB_NULLABLE;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& change() {
+	Sq::Column &change() {
 		((SqColumn*)this)->bit_field |= SQB_CHANGED;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& useCurrent() {
+	Sq::Column &useCurrent() {
 		((SqColumn*)this)->bit_field |= SQB_CURRENT;
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& useCurrentOnUpdate() {
+	Sq::Column &useCurrentOnUpdate() {
 		((SqColumn*)this)->bit_field |= SQB_CURRENT_ON_UPDATE;
 		return *(Sq::Column*)this;
 	}
 
-	Sq::Column& default_(const char *default_val) {
+	Sq::Column &default_(const char *default_val) {
 		sq_column_default((SqColumn*)this, default_val);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& defaultValue(const char *default_val) {
+	Sq::Column &defaultValue(const char *default_val) {
 		sq_column_default((SqColumn*)this, default_val);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& raw_(const char *raw_property) {
+	Sq::Column &raw_(const char *raw_property) {
 		sq_column_raw((SqColumn*)this, raw_property);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column& rawProperty(const char *raw_property) {
+	Sq::Column &rawProperty(const char *raw_property) {
 		sq_column_raw((SqColumn*)this, raw_property);
 		return *(Sq::Column*)this;
 	}

@@ -176,7 +176,7 @@ struct SqThread
 		sq_thread_unjoin(this);
 	}
 
-	SqThread& operator=(SqThreadData rvalue) {
+	SqThread &operator=(SqThreadData rvalue) {
 		this->data = rvalue;
 		return *this;
 	}
@@ -218,7 +218,7 @@ struct SqMutex
 		sq_mutex_unlock(this);
 	}
 
-	SqMutex& operator=(SqMutexData rvalue) {
+	SqMutex &operator=(SqMutexData rvalue) {
 		this->data = rvalue;
 		return *this;
 	}
@@ -262,7 +262,7 @@ struct SqRwlock
 		sq_rwlock_writer_unlock(this);
 	}
 
-	SqRwlock& operator=(SqRwlockData rvalue) {
+	SqRwlock &operator=(SqRwlockData rvalue) {
 		this->data = rvalue;
 		return *this;
 	}

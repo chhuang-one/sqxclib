@@ -624,12 +624,12 @@ struct PtrArray : SqPtrArray
 		sq_ptr_array_final(this);
 	}
 	// copy constructor
-	PtrArray(SqPtrArray& src) {
+	PtrArray(SqPtrArray &src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
 //		sq_ptr_array_destroy_func(this) = sq_ptr_array_destroy_func(&src);
 	}
 	// move constructor
-	PtrArray(SqPtrArray&& src) {
+	PtrArray(SqPtrArray &&src) {
 		this->data = src.data;
 		this->length = src.length;
 		src.data = NULL;
@@ -648,11 +648,11 @@ struct IntptrArray : SqIntptrArray
 		sq_ptr_array_final(this);
 	}
 	// copy constructor
-	IntptrArray(IntptrArray& src) {
+	IntptrArray(IntptrArray &src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
 	}
 	// move constructor
-	IntptrArray(IntptrArray&& src) {
+	IntptrArray(IntptrArray &&src) {
 		data = src.data;
 		length = src.length;
 		src.data = NULL;
@@ -671,11 +671,11 @@ struct UintptrArray : SqUintptrArray
 		sq_ptr_array_final(this);
 	}
 	// copy constructor
-	UintptrArray(UintptrArray& src) {
+	UintptrArray(UintptrArray &src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
 	}
 	// move constructor
-	UintptrArray(UintptrArray&& src) {
+	UintptrArray(UintptrArray &&src) {
 		data = src.data;
 		length = src.length;
 		src.data = NULL;
@@ -705,7 +705,7 @@ struct StringArray : SqStringArray
 		sq_ptr_array_final(this);
 	}
 	// copy constructor
-	StringArray(StringArray& src) {
+	StringArray(StringArray &src) {
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
 		duplicateElement(0, length);
 		sq_string_array_destroy_func(this) = sq_string_array_destroy_func(&src);
@@ -713,7 +713,7 @@ struct StringArray : SqStringArray
 			sq_string_array_destroy_func(this) = free;
 	}
 	// move constructor
-	StringArray(StringArray&& src) {
+	StringArray(StringArray &&src) {
 		this->data = src.data;
 		this->length = src.length;
 		src.data = NULL;

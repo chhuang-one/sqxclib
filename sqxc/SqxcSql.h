@@ -163,8 +163,8 @@ struct SqxcSql
 
 namespace Sq {
 
-// conforming C++11 standard-layout
-// These are for directly use only. You can NOT derived it.
+/* All derived struct/class must be C++11 standard-layout. */
+
 struct XcSql : SqxcSql
 {
 	XcSql() {
