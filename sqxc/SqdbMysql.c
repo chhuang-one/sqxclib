@@ -96,7 +96,7 @@ static int  sqdb_mysql_open(SqdbMysql *sqdb, const char *database_name)
 	if (database_name == NULL) {
 		database_name = config->db;
 		if (database_name == NULL)
-			return SQCODE_OPEN_FAIL;
+			return SQCODE_OPEN_FAILED;
 	}
 	if (sqdb->self == NULL)
 		sqdb->self = mysql_init(NULL);
@@ -108,7 +108,7 @@ static int  sqdb_mysql_open(SqdbMysql *sqdb, const char *database_name)
 	if (conres == NULL) {
 		mysql_close(sqdb->self);
 		sqdb->self = NULL;
-		return SQCODE_OPEN_FAIL;
+		return SQCODE_OPEN_FAILED;
 	}
 	sqdb->version = sqdb_mysql_schema_get_version(sqdb);
 	return SQCODE_OK;

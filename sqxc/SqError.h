@@ -21,40 +21,41 @@ extern "C" {
 
 // result code type is uint16_t
 
-#define SQCODE_OK                    0
+#define SQCODE_STATUS                (0)
+#define SQCODE_WARNING               (2000)
+#define SQCODE_ERROR                 (3000)
 
-// error
-#define SQCODE_ERROR                 1
-#define SQCODE_NOT_SUPPORT           2
+#define SQCODE_OK                    (0   + SQCODE_STATUS)
 
-// parser - warning
-#define SQCODE_ENTRY_NOT_FOUND       11
-// parser - error
-#define SQCODE_TYPE_NOT_MATCH        21
-#define SQCODE_TYPE_NOT_SUPPORT      22
-#define SQCODE_TYPE_END_ERROR        23
-#define SQCODE_TOO_MANY_NESTED       24
-#define SQCODE_NO_ELEMENT_TYPE       25
+// sqxc_ctrl() result code
+#define SQCODE_NOT_SUPPORT           (2   + SQCODE_ERROR)
 
-// migration - warning
-#define SQCODE_REENTRY_DROPPED       31
-#define SQCODE_CAN_NOT_SYNC          32    // schema version is older than database
-// migration - error
-#define SQCODE_REFERENCE_NOT_FOUND   41
-#define SQCODE_DB_VERSION_0          42    // SqApp
-#define SQCODE_DB_VERSION_MISMATCH   43    // SqApp
-#define SQCODE_DB_NO_MIGRATIONS      44    // SqApp
+// parser
+#define SQCODE_TYPE_NOT_MATCH        (11  + SQCODE_STATUS)
+#define SQCODE_TYPE_NOT_SUPPORT      (12  + SQCODE_WARNING)
+#define SQCODE_TYPE_END_ERROR        (13  + SQCODE_ERROR)
+#define SQCODE_ENTRY_NOT_FOUND       (21  + SQCODE_WARNING)
+#define SQCODE_TOO_MANY_NESTED       (24  + SQCODE_ERROR)
+#define SQCODE_NO_ELEMENT_TYPE       (25  + SQCODE_ERROR)
 
-// SQL - error
-#define SQCODE_OPEN_FAIL             51
-#define SQCODE_EXEC_ERROR            52
-#define SQCODE_NO_DATA               53    // if the result set is empty.
+// migration
+#define SQCODE_REENTRY_DROPPED       (31  + SQCODE_WARNING)
+#define SQCODE_CAN_NOT_SYNC          (32  + SQCODE_ERROR)    // schema version is older than database
+#define SQCODE_REFERENCE_NOT_FOUND   (41  + SQCODE_ERROR)
+#define SQCODE_DB_VERSION_0          (42  + SQCODE_ERROR)    // SqApp
+#define SQCODE_DB_VERSION_MISMATCH   (43  + SQCODE_ERROR)    // SqApp
+#define SQCODE_DB_NO_MIGRATIONS      (44  + SQCODE_ERROR)    // SqApp
 
-// JSON - warning
-#define SQCODE_UNCOMPLETED_JSON      61    // @deprecated
-#define SQCODE_JSON_CONTINUE         61
-// JSON - error
-#define SQCODE_JSON_ERROR            62
+// SQL
+#define SQCODE_OPEN_FAIL             (51  + SQCODE_ERROR)    // @deprecated
+#define SQCODE_OPEN_FAILED           (51  + SQCODE_ERROR)
+#define SQCODE_EXEC_ERROR            (52  + SQCODE_ERROR)
+#define SQCODE_NO_DATA               (53  + SQCODE_ERROR)    // if the result set is empty.
+
+// JSON
+#define SQCODE_UNCOMPLETED_JSON      (61  + SQCODE_STATUS)   // @deprecated
+#define SQCODE_JSON_CONTINUE         (61  + SQCODE_STATUS)
+#define SQCODE_JSON_ERROR            (62  + SQCODE_ERROR)
 
 
 #ifdef __cplusplus

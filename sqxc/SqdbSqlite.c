@@ -116,7 +116,7 @@ static int  sqdb_sqlite_open(SqdbSqlite *sqdb, const char *database_name)
 	free(buf);
 
 	if (rc != SQLITE_OK)
-		return SQCODE_OPEN_FAIL;
+		return SQCODE_OPEN_FAILED;
 	rc = sqlite3_exec(sqdb->self, "PRAGMA user_version;", int_callback, &sqdb->version, NULL);
 	return SQCODE_OK;
 }
