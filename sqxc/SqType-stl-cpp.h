@@ -17,7 +17,7 @@
 
 #ifdef __cplusplus
 
-#include <type_traits>    // std::is_pointer
+#include <type_traits>    // std::is_pointer, std::is_reference
 
 #include <SqConfig.h>
 #include <SqError.h>
@@ -88,7 +88,8 @@ struct TypeStl : SqType {
 		((Container*)instance)->emplace_back(typename Container::value_type());
 		element = (void*) std::addressof(((Container*)instance)->back());
 		element = sq_type_init_instance(element_type, element,
-				std::is_pointer<typename Container::value_type>::value);
+				std::is_pointer<typename Container::value_type>::value ||
+				std::is_reference<typename Container::value_type>::value);
 		src->name = NULL;    // set "name" before calling parse()
 		src->code = element_type->parse(element, element_type, src);
 		return src->code;
@@ -112,7 +113,7 @@ struct TypeStl : SqType {
 		// output elements
 		for (cur = container->begin(), end = container->end(); cur != end;  cur++) {
 			element = (void*) &*cur;
-			if (std::is_pointer<typename Container::value_type>::value)
+			if (std::is_pointer<typename Container::value_type>::value || std::is_reference<typename Container::value_type>::value)
 				element = *(void**)element;
 			dest = element_type->write(element, element_type, dest);
 			if (dest->code != SQCODE_OK)
@@ -122,6 +123,7 @@ struct TypeStl : SqType {
 		// End of SQXC_TYPE_ARRAY
 		dest->type = SQXC_TYPE_ARRAY_END;
 		dest->name = array_name;
+//		dest->value.pointer = NULL;
 		dest = sqxc_send(dest);
 		return dest;
 	}
