@@ -122,8 +122,11 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	SqxcValue  *xc_value = (SqxcValue*)src->dest;
 	SqxcNested *nested;
-	SqEntry    *table;
 	SqBuffer   *buf;
+	union {
+		void   **addr;
+		SqEntry *entry;
+	} p;
 	union {
 		char   *dot;
 		int     len;
@@ -172,29 +175,39 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 
 	// get table name from "table.column" string
 	temp.dot = strchr(src->name, '.');
-	if (temp.dot == NULL || temp.dot == src->name)
-		return (src->code = SQCODE_ENTRY_NOT_FOUND);
-	temp.len = (int)(temp.dot - src->name);
-	// use SqxcValue.buf to find entry
-	buf = sqxc_get_buffer(xc_value);
-	buf->writed = 0;
-	strncpy(sq_buffer_alloc(buf, temp.len*2), src->name, temp.len);   // alloc(buf, (temp.len+1)*2)
-	buf->mem[temp.len] = 0;    // null-terminated
-	temp.len++;                // + '.'
+	if (type->n_entry == 1 && temp.dot == NULL) {
+		// There is only 1 table in SqTypeJoint and no table name in 'src->name'
+		p.addr = (void**)type->entry;
+		temp.len = 0;
+	}
+	else {
+		// There are multiple tables in SqTypeJoint
+		if (temp.dot == NULL || temp.dot == src->name)
+			return (src->code = SQCODE_ENTRY_NOT_FOUND);
+		temp.len = (int)(temp.dot - src->name);
+		// use SqxcValue.buf to find entry
+		buf = sqxc_get_buffer(xc_value);
+		buf->writed = 0;
+		strncpy(sq_buffer_alloc(buf, temp.len*2), src->name, temp.len);   // alloc(buf, (temp.len+1)*2)
+		buf->mem[temp.len] = 0;    // null-terminated
+		temp.len++;                // + '.'
+		// find table by it's name in SqTypeRow.entry
+		p.addr = sq_type_find_entry(type, buf->mem, NULL);
+	}
 
-	table = (SqEntry*)sq_type_find_entry(type, buf->mem, NULL);
-	if (table) {
-		table = *(SqEntry**)table;
-		// push nested for parser of 'table'
+	if (p.addr) {
+		// 'p.entry' pointer to element of SqTypeRow.entry
+		p.entry = *p.addr;
+		// push nested for parser of 'p.entry' ('p.entry->type' pointer to SqTable.type)
 		nested = sqxc_push_nested((Sqxc*)xc_value);
-		nested->data = *(void**)((char*)instance +table->offset);
-		nested->data2 = (void*)table->type;
+		nested->data = *(void**)((char*)instance +p.entry->offset);
+		nested->data2 = (void*)p.entry->type;
 #if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 		nested->data3 = nested->data;    // SqxcNested is ready to parse, type has been matched.
 #endif
 		// call parser of 'table'
 		src->name += temp.len;
-		src->code  = table->type->parse(nested->data, nested->data2, src);
+		src->code  = p.entry->type->parse(nested->data, nested->data2, src);
 		src->name -= temp.len;
 		// erase nested for 'table'
 		sqxc_erase_nested((Sqxc*)xc_value, nested);
