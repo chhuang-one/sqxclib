@@ -35,8 +35,7 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 
 	sq_ptr_array_init(&names, 8, NULL);
 	n_table = sq_query_get_table_as_names(query, &names);
-	if (n_table > 1)
-		sq_type_joint_clear(type_joint);
+	sq_type_joint_clear(type_joint);
 	// multiple table names, query has 'FROM' and 'JOIN'.
 	for (int index = 0;  index < names.length;  index+=2) {
 		table = sq_schema_find(storage->schema, names.data[index]);
