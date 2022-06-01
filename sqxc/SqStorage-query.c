@@ -47,10 +47,10 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 			break;
 		}
 		table_type = (SqType*)table->type;
+		// add table and it's name to SqTypeJoint
+		sq_type_joint_add(type_joint, table, names.data[index+1]);
 		// if there are multiple table's names in 'query'
 		if (n_table > 1) {
-			// add table and it's name to SqTypeJoint
-			sq_type_joint_add(type_joint, table, names.data[index+1]);
 			// add "SELECT table.column AS 'table_as_name.column'" in query
 			sq_query_select_table_as(query, table, names.data[index+1]);
 		}

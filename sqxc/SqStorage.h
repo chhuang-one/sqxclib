@@ -134,19 +134,32 @@ SqTable *sq_storage_find_by_type(SqStorage *storage, const char *type_name);
 // ------------------------------------
 // SqStorage-query.c
 
-// sq_storage_setup_query() setup 'query' and return SqType for calling sq_storage_query() with 'query'.
-// return NULL if table not found and 'type_joint' can NOT handle unknown table type.
-// return 'type_joint' if 'query' has joined multi-table. It will setup 'type_joint' and 'query'.
-// return other SqType pointer if 'query' has only 1 table. It does keep 'type_joint' no change.
+/* sq_storage_setup_query() setup 'query' and return SqType for calling sq_storage_query() with 'query'.
+
+   return NULL          if table not found and 'type_joint' can NOT handle unknown table type.
+
+   return 'type_joint'  if 'query' has joined multi-table. It will setup 'type_joint' and 'query'.
+
+   return type of table if 'query' has only 1 table. It will setup 'type_joint' but keep 'query' no change.
+                        In this case, user can call sq_storage_query() with returned type or 'type_joint'.
+ */
 SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);
 
-// 'query' must has FROM table_name or JOIN table_name
-// e.g. SELECT * FROM table1 JOIN table2 ON ... JOIN table3 ON ...
-// void **element = row;
-// element[0] = table1
-// element[1] = table2
-// element[2] = table3
-// ...etc
+/* sq_storage_query() execute 'query' and get result.
+
+   If 'query' has only 1 table, it use type of table to create row data.
+   If 'query' has joined multi-table, it use SqStorage.joint_default to create row data.
+
+   SqTypeJoint is default type of SqStorage.joint_default, it can be replaced by user custom type.
+
+   e.g. execute statement "SELECT * FROM table1 JOIN table2 ON ... JOIN table3 ON ..."
+        if you use SqTypeJoint to create row data, the result looks like:
+   void **element = row;
+   table1 = element[0];
+   table2 = element[1];
+   table3 = element[2];
+   ...etc
+ */
 void *sq_storage_query(SqStorage    *storage,
                        SqQuery      *query,
                        const SqType *table_type,
