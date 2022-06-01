@@ -7,6 +7,10 @@ executable('storage-cxx',
            'storage-cxx.cpp',
            dependencies : [sqxc])
 
+executable('storage-row',
+           'storage-row.cpp',
+           dependencies : [sqxcsupport])
+
 executable('myapp-c99',
            'myapp-c99.c',
            dependencies : [sqxcapp])

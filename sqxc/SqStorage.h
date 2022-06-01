@@ -151,6 +151,7 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
    If 'query' has joined multi-table, it use SqStorage.joint_default to create row data.
 
    SqTypeJoint is default type of SqStorage.joint_default, it can be replaced by user custom type.
+   SqTypeRow is derived from SqTypeJoint, it can handle unknown result.
 
    e.g. execute statement "SELECT * FROM table1 JOIN table2 ON ... JOIN table3 ON ..."
         if you use SqTypeJoint to create row data, the result looks like:

@@ -10,11 +10,13 @@ set(HEADERS_HELPERS
 # data structs sources & headers
 set(SOURCES_STRUCTS
     SqPairs.c
+    SqRow.c
 #    SqCollection.c
 )
 
 set(HEADERS_STRUCTS
     SqPairs.h
+    SqRow.h
 #    SqCollection.h
 )
 

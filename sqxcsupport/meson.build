@@ -10,11 +10,13 @@ headers_helpers = [
 # data structs sources & headers
 sources_structs = [
     'SqPairs.c',
+    'SqRow.c',
 #    'SqCollection.c',
 ]
 
 headers_structs = [
     'SqPairs.h',
+    'SqRow.h',
 #    'SqCollection.h',
 ]
 
