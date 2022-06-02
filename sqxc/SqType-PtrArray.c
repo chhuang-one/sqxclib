@@ -146,6 +146,7 @@ static Sqxc *sq_type_ptr_array_write(void *array, const SqType *type, Sqxc *dest
 	// End of SQXC_TYPE_ARRAY
 	dest->type = SQXC_TYPE_ARRAY_END;
 	dest->name = array_name;
+//	dest->value.pointer = NULL;
 	dest = sqxc_send(dest);
 	return dest;
 }

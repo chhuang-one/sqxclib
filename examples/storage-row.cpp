@@ -91,7 +91,6 @@ void printRow(Sq::Row *row)
 {
 	SqRowColumn *col;
 	SqValue     *val;
-	int          type_index;
 
 	for (int i = 0;  i < row->length;  i++) {
 		col = row->cols + i;
@@ -105,8 +104,7 @@ void printRow(Sq::Row *row)
 				std::cout << "not built-in type";
 		}
 		else {
-			type_index = SQ_TYPE_BUILTIN_INDEX(col->type);
-			switch (type_index) {
+			switch (SQ_TYPE_BUILTIN_INDEX(col->type)) {
 			case SQ_TYPE_INT_INDEX:
 				std::cout << val->int_;
 				break;

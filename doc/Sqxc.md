@@ -223,7 +223,7 @@ JSON look like this:
 
 	user output ────> SqxcJsonWriter ────> SqxcFile ────> fwrite()
 
-Note: SqxcFile is in sqxctest library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)
+Note: SqxcFile is in sqxcsupport library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)
 
 use C language
 

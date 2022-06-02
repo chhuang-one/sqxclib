@@ -69,6 +69,7 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 	case json_type_object:
 		xcjson->type = SQXC_TYPE_OBJECT;
 		xcjson->name = name;
+//		xcjson->value.pointer = NULL;
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		{	// this can avoid many problem...
 			json_object_object_foreach(value, fname, fvalue)
@@ -76,12 +77,14 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 		}
 		xcjson->type = SQXC_TYPE_OBJECT_END;
 		xcjson->name = name;
+//		xcjson->value.pointer = NULL;
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		break;
 
 	case json_type_array:
 		xcjson->type = SQXC_TYPE_ARRAY;
 		xcjson->name = name;
+//		xcjson->value.pointer = NULL;
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 
 		len = json_object_array_length(value);
@@ -93,6 +96,7 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 
 		xcjson->type = SQXC_TYPE_ARRAY_END;
 		xcjson->name = name;
+//		xcjson->value.pointer = NULL;
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		break;
 	}

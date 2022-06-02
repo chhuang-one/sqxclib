@@ -1,6 +1,7 @@
 # SqConsole
 
 SqConsole provide command-line interface (mainly for SqAppTool). It must use with SqCommand and SqOption.  
+Note: SqConsole is in sqxcsupport library.  
   
 Relationship of SqConsole, SqCommand, and SqOption.
 

@@ -1,6 +1,7 @@
 # SqApp
 
-SqApp use configuration file (SqApp-config.h) to initialize database and do migrations. It used by user's application.
+SqApp use configuration file (SqApp-config.h) to initialize database and do migrations. It used by user's application.  
+Note: SqApp is in sqxcapp library.  
 
 	SqApp
 	│

@@ -327,6 +327,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	}
 
 	// synchronize schema to database. create/alter SQL tables based on storage->schema
+	// This is mainly used by SQLite
 	sq_storage_migrate(storage, NULL);
 }
 

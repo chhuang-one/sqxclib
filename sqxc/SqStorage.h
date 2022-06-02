@@ -134,7 +134,8 @@ SqTable *sq_storage_find_by_type(SqStorage *storage, const char *type_name);
 // ------------------------------------
 // SqStorage-query.c
 
-/* sq_storage_setup_query() setup 'query' and return SqType for calling sq_storage_query() with 'query'.
+/* sq_storage_setup_query() setup 'query' and return SqType that used by sq_storage_query().
+   If 'query' has joined multi-table, it will add "SELECT table.column AS 'table.column'" in 'query'.
 
    return NULL          if table not found and 'type_joint' can NOT handle unknown table type.
 

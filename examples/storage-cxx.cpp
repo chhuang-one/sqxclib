@@ -205,6 +205,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 #endif
 
 	// synchronize schema to database. create/alter SQL tables based on storage->schema
+	// This is mainly used by SQLite
 	storage->migrate(NULL);
 }
 

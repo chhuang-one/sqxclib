@@ -712,6 +712,7 @@ Sq::Joint is pointer array that used by STL container.
 #### use SqTypeRow to get JOIN result
 
 SqTypeRow is derived from SqTypeJoint. It can handle unknown (or known) result, table, and column.  
+SqTypeRow sample code is in [storage-row.cpp](examples/storage-row.cpp)  
 Note: SqTypeRow can also use with get() and getAll().  
 Note: SqTypeRow is in sqxcsupport library.  
 
@@ -730,8 +731,9 @@ You can use SqTypeRow to replace default joint type in SqStorage:
 	delete typeDefault;
 ```
 
-SqRow is created by SqTypeRow.  
-If 'query' has joined multi-table and SqTypeRow is default joint type, the element type of query() result is SqRow.
+SqRow is created by SqTypeRow. The element type of query() result is SqRow in the following cases:  
+1. 'query' has joined multi-table and SqTypeRow is default joint type.  
+2. 'query' has unknown table or unknown result.
 
 ```c++
 	std::vector<Sq::Row> *vector;
@@ -755,12 +757,30 @@ If 'query' has joined multi-table and SqTypeRow is default joint type, the eleme
 If you don't want to change default joint type:
 1. call sq_storage_setup_query() to setup 'query' and 'typeRow'.
 2. call sq_storage_query() with 'typeRow'.
+  
+sq_storage_setup_query() can setup 'query' and return SqType for calling sq_storage_query().  
+It will add "SELECT table.column AS 'table.column'" in 'query' if 'query' has joined multi-table.  
+  
+SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);  
 
+| Return value  | Description                                                                |
+| ------------- | ---------------------------------------------------------------------------|
+| NULL          | if table not found and 'type_joint' can NOT handle unknown table type.     |
+| 'type_joint'  | if 'query' has joined multi-table. It will setup 'type_joint' and 'query'. |
+| type of table | if 'query' has only 1 table. It will setup 'type_joint' but keep 'query' no change. In this case, user can call sq_storage_query() with returned type or 'type_joint'. |
+  
 use C functions
 
 ```c
 	sq_storage_setup_query(storage, query, typeRow);
 	vector = sq_storage_query(storage, query, typeRow, NULL);
+```
+
+use C++ methods
+
+```c++
+	storage->setupQuery(query, typeRow);
+	container = storage->query(query, typeRow, typeContainer);
 ```
 
 use C++ STL
