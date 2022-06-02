@@ -682,7 +682,7 @@ use C++ methods
 ```c++
 	query->from("cities")->join("users",  "cities.id", "users.city_id");
 
-	SqPtrArray *array = (Sq::PtrArray*) storage->query(query);
+	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
 	for (int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
@@ -697,15 +697,77 @@ use C++ STL
 Sq::Joint is pointer array that used by STL container.
 
 ```c++
+	std::vector< Sq::Joint<2> > *vector;
+
 	query->from("cities")->join("users",  "cities.id", "users.city_id");
 
-	std::vector< Sq::Joint<2> > *vector;
 	vector = storage->query<std::vector< Sq::Joint<2> >>(query);
 	for (unsigned int index = 0;  index < vector->size();  index++) {
 		Sq::Joint<2> &joint = vector->at(index);
 		city = (City*)joint[0];      // from("cities")
 		user = (User*)joint[1];      // join("users")
 	}
+```
+
+#### use SqTypeRow to get JOIN result
+
+SqTypeRow is derived from SqTypeJoint. It can handle unknown (or known) result, table, and column.  
+Note: SqTypeRow can also use with get() and getAll().  
+Note: SqTypeRow is in sqxcsupport library.  
+
+	SqType
+	│
+	└─── SqTypeJoint
+	     │
+	     └─── SqTypeRow
+
+You can use SqTypeRow to replace default joint type in SqStorage:
+
+```c++
+	Sq::TypeRow   *typeRow     = new Sq::TypeRow();
+	Sq::TypeJoint *typeDefault = storage->joint_default;
+	storage->joint_default = typeRow;
+	delete typeDefault;
+```
+
+SqRow is created by SqTypeRow.  
+If 'query' has joined multi-table and SqTypeRow is default joint type, the element type of query() result is SqRow.
+
+```c++
+	std::vector<Sq::Row> *vector;
+
+	query->from("cities")->join("users",  "cities.id", "users.city_id");
+
+	vector = storage->query<std::vector<Sq::Row>>(query);
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		Sq::Row &row = vector->at(index);
+		for (unsigned int nth = 0;  nth < row.length;  nth++) {
+			std::cout << row.cols[nth].name << " = ";
+			if (row.cols[nth].type == SQ_TYPE_INT)
+				std::cout << row.data[nth].integer << std::endl;
+			if (row.cols[nth].type == SQ_TYPE_STRING)
+				std::cout << row.data[nth].string  << std::endl;
+			// other type...
+		}
+	}
+```
+
+If you don't want to change default joint type:
+1. call sq_storage_setup_query() to setup 'query' and 'typeRow'.
+2. call sq_storage_query() with 'typeRow'.
+
+use C functions
+
+```c
+	sq_storage_setup_query(storage, query, typeRow);
+	vector = sq_storage_query(storage, query, typeRow, NULL);
+```
+
+use C++ STL
+
+```c++
+	storage->setupQuery(query, typeRow);
+	vector = storage->query<std::vector<Sq::Row>>(query, typeRow);
 ```
 
 ## Transaction

@@ -680,7 +680,7 @@ SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的�
 ```c++
 	query->from("cities")->join("users",  "cities.id", "users.city_id");
 
-	SqPtrArray *array = (Sq::PtrArray*) storage->query(query);
+	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
 	for (int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
@@ -704,6 +704,67 @@ Sq::Joint 是 STL 容器使用的指针数组。
 		city = (City*)joint[0];      // from("cities")
 		user = (User*)joint[1];      // join("users")
 	}
+```
+
+#### 使用 SqTypeRow 获取 JOIN 结果
+
+SqTypeRow 派生自 SqTypeJoint。 它可以处理未知（或已知）的结果、表和列。  
+注意：SqTypeRow 也可以与 get() 和 getAll() 一起使用。  
+注意：SqTypeRow 在 sqxcsupport 库中。  
+
+	SqType
+	│
+	└─── SqTypeJoint
+	     │
+	     └─── SqTypeRow
+
+您可以使用 SqTypeRow 替换 SqStorage 中的默认联合类型:
+
+```c++
+	Sq::TypeRow   *typeRow     = new Sq::TypeRow();
+	Sq::TypeJoint *typeDefault = storage->joint_default;
+	storage->joint_default = typeRow;
+	delete typeDefault;
+```
+
+SqRow 由 SqTypeRow 创建。  
+如果 'query' 已经加入了多表并且 SqTypeRow 是默认的联合类型，那么 query() 结果的元素类型是 SqRow。
+
+```c++
+	std::vector<Sq::Row> *vector;
+
+	query->from("cities")->join("users",  "cities.id", "users.city_id");
+
+	vector = storage->query<std::vector<Sq::Row>>(query);
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		Sq::Row &row = vector->at(index);
+		for (unsigned int nth = 0;  nth < row.length;  nth++) {
+			std::cout << row.cols[nth].name << " = ";
+			if (row.cols[nth].type == SQ_TYPE_INT)
+				std::cout << row.data[nth].integer << std::endl;
+			if (row.cols[nth].type == SQ_TYPE_STRING)
+				std::cout << row.data[nth].string  << std::endl;
+			// other type...
+		}
+	}
+```
+
+如果您不想更改默认联合类型：
+1. 调用 sq_storage_setup_query() 来设置 'query' 和 'typeRow'。
+2. 调用 sq_storage_query() 時指定使用 'typeRow'。
+
+使用 C 函数
+
+```c
+	sq_storage_setup_query(storage, query, typeRow);
+	vector = sq_storage_query(storage, query, typeRow, NULL);
+```
+
+使用 C++ STL
+
+```c++
+	storage->setupQuery(query, typeRow);
+	vector = storage->query<std::vector<Sq::Row>>(query, typeRow);
 ```
 
 ## 交易 Transaction
