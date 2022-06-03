@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(sqxclib VERSION 0.6.2)
+project(sqxclib VERSION 0.6.3)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 11)
