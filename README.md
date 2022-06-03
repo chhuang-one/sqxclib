@@ -709,9 +709,9 @@ Sq::Joint is pointer array that used by STL container.
 	}
 ```
 
-#### use SqTypeRow to get JOIN result
+#### use SqTypeRow to get result
 
-SqTypeRow is derived from SqTypeJoint. It can handle unknown (or known) result, table, and column.  
+SqTypeRow is derived from SqTypeJoint. It create SqRow and handle unknown (or known) result, table, and column.  
 SqTypeRow sample code is in [storage-row.cpp](examples/storage-row.cpp)  
 Note: SqTypeRow can also use with get() and getAll().  
 Note: SqTypeRow is in sqxcsupport library.  
@@ -722,6 +722,24 @@ Note: SqTypeRow is in sqxcsupport library.
 	     │
 	     └─── SqTypeRow
 
+Directly use without setup:  
+In this case, all data type in SqRow is C string because SqTypeRow don't known type of column.
+
+```c
+	SqTypeRow  *typeRow;
+	SqRow      *row;
+
+	// C function
+	row = sq_storage_get(storage, "users", typeRow, 12);
+
+	// C++ method
+//	row = storage->get("users", typeRow, 12);
+
+	for (int  index = 0;  index < row->length;  index++)
+		if (row->cols[nth].type == SQ_TYPE_STRING)
+			puts(row->data[nth].string);
+```
+
 You can use SqTypeRow to replace default joint type in SqStorage:
 
 ```c++
@@ -731,8 +749,8 @@ You can use SqTypeRow to replace default joint type in SqStorage:
 	delete typeDefault;
 ```
 
-SqRow is created by SqTypeRow. The element type of query() result is SqRow in the following cases:  
-1. 'query' has joined multi-table and SqTypeRow is default joint type.  
+When SqTypeRow is default joint type, the element type of query() result is SqRow in the following cases:
+1. 'query' has joined multi-table.
 2. 'query' has unknown table or unknown result.
 
 ```c++
@@ -757,17 +775,7 @@ SqRow is created by SqTypeRow. The element type of query() result is SqRow in th
 If you don't want to change default joint type:
 1. call sq_storage_setup_query() to setup 'query' and 'typeRow'.
 2. call sq_storage_query() with 'typeRow'.
-  
-sq_storage_setup_query() can setup 'query' and return SqType for calling sq_storage_query().  
-It will add "SELECT table.column AS 'table.column'" in 'query' if 'query' has joined multi-table.  
-  
-SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);  
-
-| Return value  | Description                                                                |
-| ------------- | ---------------------------------------------------------------------------|
-| NULL          | if table not found and 'type_joint' can NOT handle unknown table type.     |
-| 'type_joint'  | if 'query' has joined multi-table. It will setup 'type_joint' and 'query'. |
-| type of table | if 'query' has only 1 table. It will setup 'type_joint' but keep 'query' no change. In this case, user can call sq_storage_query() with returned type or 'type_joint'. |
+3. If you skip step 1, all data type in SqRow is C string because SqTypeRow don't known type of column.
   
 use C functions
 
@@ -789,6 +797,17 @@ use C++ STL
 	storage->setupQuery(query, typeRow);
 	vector = storage->query<std::vector<Sq::Row>>(query, typeRow);
 ```
+
+About sq_storage_setup_query()  
+SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);  
+It setup 'query' and 'type_joint' then return SqType for calling sq_storage_query().  
+It will add "SELECT table.column AS 'table.column'" in 'query' if 'query' has joined multi-table.  
+
+| Return value  | Description                                                                |
+| ------------- | ---------------------------------------------------------------------------|
+| NULL          | if table not found and 'type_joint' can NOT handle unknown table type.     |
+| 'type_joint'  | if 'query' has joined multi-table. It will setup 'type_joint' and 'query'. |
+| type of table | if 'query' has only 1 table. It will setup 'type_joint' but keep 'query' no change. In this case, user can call sq_storage_query() with returned type or 'type_joint'. |
 
 ## Transaction
 
