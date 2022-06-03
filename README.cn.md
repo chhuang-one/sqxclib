@@ -733,8 +733,8 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 //	row = storage->get("users", typeRow, 12);
 
 	for (int  index = 0;  index < row->length;  index++)
-		if (row->cols[nth].type == SQ_TYPE_STRING)
-			puts(row->data[nth].string);
+		if (row->cols[index].type == SQ_TYPE_STRING)
+			puts(row->data[index].string);
 ```
 
 您可以使用 SqTypeRow 替换 SqStorage 中的默认联合类型:

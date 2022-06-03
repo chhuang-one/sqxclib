@@ -736,8 +736,8 @@ In this case, all data type in SqRow is C string because SqTypeRow don't known t
 //	row = storage->get("users", typeRow, 12);
 
 	for (int  index = 0;  index < row->length;  index++)
-		if (row->cols[nth].type == SQ_TYPE_STRING)
-			puts(row->data[nth].string);
+		if (row->cols[index].type == SQ_TYPE_STRING)
+			puts(row->data[index].string);
 ```
 
 You can use SqTypeRow to replace default joint type in SqStorage:
