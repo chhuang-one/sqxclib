@@ -292,6 +292,28 @@ void queryOneTable(Sq::Storage *storage)
 	delete query;
 }
 
+void getRow(Sq::Storage *storage)
+{
+	Sq::TypeRow *rowType;
+	Sq::Row     *row;
+
+	rowType = new Sq::TypeRow();
+	row = (Sq::Row*)storage->get("users", rowType, 1);
+	printRow(row);
+	delete row;
+
+	Sq::PtrArray *array = (Sq::PtrArray*)storage->getAll("users", rowType, NULL, NULL);
+	if (array) {
+		for (int  index = 0;  index < array->length;  index++) {
+			row = (Sq::Row*)array->data[index];
+			std::cout << "--- Sq::Row ---" << std::endl;
+			printRow(row);
+			delete row;
+		}
+	}
+	delete rowType;
+}
+
 int  main(int argc, char *argv[])
 {
 //	Sq::DbConfigSqlite *dbconfig;
@@ -335,4 +357,5 @@ int  main(int argc, char *argv[])
 	queryUnknown(storage);
 	queryKnown(storage);
 	queryOneTable(storage);
+	getRow(storage);
 }
