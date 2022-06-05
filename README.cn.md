@@ -710,8 +710,8 @@ Sq::Joint 是 STL 容器使用的指针数组。
 
 SqTypeRow 派生自 SqTypeJoint。它创建 SqRow 并处理未知（或已知）的结果、表和列。  
 SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)  
-注意：SqTypeRow 也可以与 get() 和 getAll() 一起使用。  
-注意：SqTypeRow 在 sqxcsupport 库中。  
+注意1：SqTypeRow 也可以与 get() 和 getAll() 一起使用。  
+注意2：SqTypeRow 在 sqxcsupport 库中。  
 
 	SqType
 	│
@@ -719,7 +719,7 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 	     │
 	     └─── SqTypeRow
 
-无需设置直接使用：  
+**无需设置直接使用：**  
 在这种情况下，SqRow 中的所有数据类型都是 C 字符串，因为 SqTypeRow 不知道列的类型。
 
 ```c
@@ -746,7 +746,7 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 	delete typeDefault;
 ```
 
-当 SqTypeRow 为默认联合类型时，在以下情况下 query() 结果的元素类型为 SqRow：
+**当 SqTypeRow 为默认联合类型时，在以下情况下 query() 结果的元素类型为 SqRow：**
 1. 'query' 已经加入了多表。
 2. 'query' 有未知表或未知结果。
 
@@ -769,7 +769,7 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 	}
 ```
 
-如果您不想更改默认联合类型：
+**如果您不想更改默认联合类型：**
 1. 调用 sq_storage_setup_query() 来设置 'query' 和 'typeRow'。
 2. 调用 sq_storage_query() 時指定使用 'typeRow'。
 3. 如果您跳过第 1 步，则 SqRow 中的所有数据类型都是 C 字符串，因为 SqTypeRow 不知道列的类型。
@@ -795,7 +795,7 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 	vector = storage->query<std::vector<Sq::Row>>(query, typeRow);
 ```
 
-关于 sq_storage_setup_query()：  
+**关于 sq_storage_setup_query()**：  
 SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);  
 它设置 'query' 和 'type_joint' 然后返回 SqType 以调用 sq_storage_query()。  
 如果 'query' 已加入多表，它将在 'query' 中添加 "SELECT table.column AS 'table.column'"。  

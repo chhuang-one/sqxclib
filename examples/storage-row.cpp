@@ -310,6 +310,7 @@ void getRow(Sq::Storage *storage)
 			printRow(row);
 			delete row;
 		}
+		delete array;
 	}
 	delete rowType;
 }

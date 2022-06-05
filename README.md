@@ -713,8 +713,8 @@ Sq::Joint is pointer array that used by STL container.
 
 SqTypeRow is derived from SqTypeJoint. It create SqRow and handle unknown (or known) result, table, and column.  
 SqTypeRow sample code is in [storage-row.cpp](examples/storage-row.cpp)  
-Note: SqTypeRow can also use with get() and getAll().  
-Note: SqTypeRow is in sqxcsupport library.  
+Note1: SqTypeRow can also use with get() and getAll().  
+Note2: SqTypeRow is in sqxcsupport library.  
 
 	SqType
 	│
@@ -722,7 +722,7 @@ Note: SqTypeRow is in sqxcsupport library.
 	     │
 	     └─── SqTypeRow
 
-Directly use without setup:  
+**Directly use without setup:**  
 In this case, all data type in SqRow is C string because SqTypeRow don't known type of column.
 
 ```c
@@ -749,7 +749,7 @@ You can use SqTypeRow to replace default joint type in SqStorage:
 	delete typeDefault;
 ```
 
-When SqTypeRow is default joint type, the element type of query() result is SqRow in the following cases:
+**When SqTypeRow is default joint type, the element type of query() result is SqRow in the following cases:**
 1. 'query' has joined multi-table.
 2. 'query' has unknown table or unknown result.
 
@@ -772,7 +772,7 @@ When SqTypeRow is default joint type, the element type of query() result is SqRo
 	}
 ```
 
-If you don't want to change default joint type:
+**If you don't want to change default joint type:**
 1. call sq_storage_setup_query() to setup 'query' and 'typeRow'.
 2. call sq_storage_query() with 'typeRow'.
 3. If you skip step 1, all data type in SqRow is C string because SqTypeRow don't known type of column.
@@ -798,7 +798,7 @@ use C++ STL
 	vector = storage->query<std::vector<Sq::Row>>(query, typeRow);
 ```
 
-About sq_storage_setup_query()  
+**About sq_storage_setup_query()**  
 SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);  
 It setup 'query' and 'type_joint' then return SqType for calling sq_storage_query().  
 It will add "SELECT table.column AS 'table.column'" in 'query' if 'query' has joined multi-table.  
