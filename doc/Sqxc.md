@@ -61,19 +61,35 @@ use C++ language
 	xcsql->insert(xcjson);
 ```
 
+**Default link direction of Sqxc chain:**  
+[Sqxc element 1] is head of Sqxc chain, 'peer' is single linked list, 'dest' is data flow.
+
+	                    peer                      peer
+	┌----------------┐  <---  ┌----------------┐  <---  ┌----------------┐
+	| Sqxc element 3 |        | Sqxc element 2 |        | Sqxc element 1 |
+	└----------------┘        └----------------┘  --->  └----------------┘
+	        |                                     dest          ^
+	        |           dest                                    |
+	        └---------------------------------------------------┘
+
+Function insert() and steal() only link/unlink 'peer' ('peer' is single linked list),
+user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especially custom data flow.
+
 ## Send data according to data type
-  Use sqxc_send() to send data(arguments) between Sqxc elements.  
+sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc.dest) at runtime.  
+  
+**Data flow 1:** sqxc_send() send from SQL result (column has JSON) to C value
+If SqxcValue can't match current data type, it will forward data to SqxcJsonParser.  
 
 	input ─>         ┌─> SqxcJsonParser ──┐
 	Sqdb.exec()    ──┴────────────────────┴──> SqxcValue ───> SqType.parse()
 
-Note: If SqxcValue can't match current data type, it will forward data to SqxcJsonParser (or other element).  
 
+**Data flow 2:** sqxc_send() send from C value to SQL (column has JSON)
+If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter.  
 
 	output ─>        ┌─> SqxcJsonWriter ──┐
 	SqType.write() ──┴────────────────────┴──> SqxcSql   ───> Sqdb.exec()
-
-Note: If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter (or other element).  
 
 sqxc_send() is called by data source side. It send data(arguments) to Sqxc element and try to match type in Sqxc chain.  
 Because difference data type is processed by difference Sqxc element, It returns current Sqxc elements.  
@@ -431,7 +447,7 @@ use C++ language
 	}
 ```
 
-The Sqxc input dataflow in your SqStorage object will look like this:
+The Sqxc input data flow in your SqStorage object will look like this:
 
 	input ->         ┌-> SqxcTextParser --┐
 	Sqdb.exec()    --┴--------------------┴-> SqxcValue ---> SqType.parse()

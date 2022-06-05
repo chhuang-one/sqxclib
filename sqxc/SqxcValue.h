@@ -81,8 +81,8 @@ struct SqxcValue
 	const SqxcInfo  *info;
 
 	// Sqxc chain
-	Sqxc        *peer;     // pointer to other Sqxc elements
-	Sqxc        *dest;     // pointer to current destination in Sqxc chain
+	Sqxc        *peer;     // pointer to other Sqxc elements (single linked list)
+	Sqxc        *dest;     // pointer to current destination in Sqxc chain (data flow)
 
 	// stack of SqxcNested
 	SqxcNested  *nested;          // current nested object/array

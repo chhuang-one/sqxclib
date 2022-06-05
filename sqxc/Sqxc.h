@@ -16,29 +16,43 @@
 	Entry and value convert X to/from C  (X = SQL, JSON...etc)
 	xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
-	SqxcXml     - convert to/from XML     - SqxcXml.c     (doesn't implement)
-	SqxcJsonc   - convert to/from JSON    - SqxcJsonc.c
 	SqxcSql     - convert to SQL (Sqdb)   - SqxcSql.c
+	SqxcJsonc   - convert to/from JSON    - SqxcJsonc.c
 	SqxcValue   - convert to C structure  - SqxcValue.c
-	SqxcUnknown - unknown object or array - SqxcUnknown.c
 
 	User can link multiple Sqxc element to convert different types of data.
 
-	                 +-> SqxcJsonParser --+
+	Default link direction of Sqxc chain:
+	[Sqxc element 1] is head of Sqxc chain, 'peer' is single linked list, 'dest' is data flow.
+
+	                    peer                      peer
+	┌----------------┐  <---  ┌----------------┐  <---  ┌----------------┐
+	| Sqxc element 3 |        | Sqxc element 2 |        | Sqxc element 1 |
+	└----------------┘        └----------------┘  --->  └----------------┘
+	        |                                     dest          ^
+	        |           dest                                    |
+	        └---------------------------------------------------┘
+
+	Function insert() and steal() only link/unlink 'peer' ('peer' is single linked list),
+	user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especially custom data flow.
+
+	===========================================================================
+	sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc.dest) at runtime.
+
+	Data flow 1: sqxc_send() send from SQL result (column has JSON) to C value
+	If SqxcValue can't match current data type, it will forward data to SqxcJsonParser.
+
+	                 ┌-> SqxcJsonParser --┐
 	( input )        |                    |
-	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
-	                 |                    |
-	                 +--> SqxcXmlParser --+
+	Sqdb.exec()    --┴--------------------┴--> SqxcValue ---> SqType.parse()
 
-	Note: SqxcXmlParser doesn't implement yet because it is rarely used.
 
-	                 +-> SqxcJsonWriter --+
+	Data flow 2: sqxc_send() send from C value to SQL (column has JSON)
+	If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter.
+
+	                 ┌-> SqxcJsonWriter --┐
 	( output )       |                    |
-	SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
-	                 |                    |
-	                 +--> SqxcXmlWriter --+
-
-	Note: SqxcXmlWriter doesn't implement yet because it is rarely used.
+	SqType.write() --┴--------------------┴--> SqxcSql   ---> Sqdb.exec()
  */
 
 #ifndef SQXC_H
@@ -445,8 +459,8 @@ struct Sqxc
 	const SqxcInfo  *info;
 
 	// Sqxc chain
-	Sqxc        *peer;     // pointer to other Sqxc elements
-	Sqxc        *dest;     // pointer to current destination in Sqxc chain
+	Sqxc        *peer;     // pointer to other Sqxc elements (single linked list)
+	Sqxc        *dest;     // pointer to current destination in Sqxc chain (data flow)
 
 	// stack of SqxcNested
 	SqxcNested  *nested;          // current nested object/array

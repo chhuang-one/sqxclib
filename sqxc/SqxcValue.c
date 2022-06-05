@@ -63,8 +63,12 @@ static int  sqxc_value_ctrl(SqxcValue *xcvalue, int id, void *data)
 
 	switch (id) {
 	case SQXC_CTRL_READY:
+		// SqTypeParseFunc like sq_type_object_parse(), sq_type_xxx_array_parse() need this line
+		xcvalue->dest = (Sqxc*)xcvalue;
+		// if instance already exist
 		if (xcvalue->instance)
 			break;
+		// create instance
 		type = xcvalue->container;
 		if (type == NULL)
 			type = xcvalue->element;
