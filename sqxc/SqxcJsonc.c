@@ -109,10 +109,12 @@ static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 	json_object *jobject;
 	enum json_tokener_error  jerror;
 
+#if 0
 	if (src->type != SQXC_TYPE_STRING) {
 //		src->required_type = SQXC_TYPE_STRING;    // set required type if return SQCODE_TYPE_NOT_MATCH
-		return (src->code = SQCODE_TYPE_NOT_MATCH);
+		return (src->code = SQCODE_TYPE_NOT_SUPPORT);
 	}
+#endif
 
 	jobject = json_tokener_parse_verbose(src->value.string, &jerror);
 	if (jobject == NULL) {
@@ -149,7 +151,7 @@ static int  sqxc_jsonc_ctrl_in(SqxcJsonc *xcjson, int id, void *data)
 static void  sqxc_jsonc_init_in(SqxcJsonc *xcjson)
 {
 //	memset(xcjson, 0, sizeof(SqxcJsonc));
-	xcjson->supported_type = SQXC_TYPE_ALL;
+	xcjson->supported_type = SQXC_TYPE_STRING;
 }
 
 static void  sqxc_jsonc_final_in(SqxcJsonc *xcjson)
