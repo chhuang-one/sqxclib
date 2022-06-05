@@ -32,6 +32,8 @@ static const SqxcNested SqxcNested_Empty_ = {0};
 
 #define SQXC_NESTED_EMPTY    (&SqxcNested_Empty_)
 
+#define SQXC_CONTINUOUS_DESTINATION    0
+
 // ----------------------------------------------------------------------------
 // Sqxc functions
 
@@ -79,6 +81,7 @@ Sqxc *sqxc_new_chain(const SqxcInfo *info, ...)
 {
 	va_list    arg_list;
 	Sqxc      *xc = NULL;
+	Sqxc      *xc_element;
 	Sqxc      *cur;
 
 	cur = xc = sqxc_new(info);
@@ -89,9 +92,17 @@ Sqxc *sqxc_new_chain(const SqxcInfo *info, ...)
 		if (info == NULL)
 			break;
 		// append new element
-		cur->peer = sqxc_new(info);
-		cur->peer->dest = xc;
-		cur = cur->peer;
+		xc_element = sqxc_new(info);
+		// link peer
+		cur->peer = xc_element;
+#if SQXC_CONTINUOUS_DESTINATION
+		// link destination (only change continuous destination)
+		if (xc_element->dest == NULL)
+			xc_element->dest = cur;
+#else
+		xc_element->dest = xc;
+#endif
+		cur = xc_element;
 	};
 	va_end(arg_list);
 
@@ -123,14 +134,24 @@ Sqxc   *sqxc_insert(Sqxc *xc, Sqxc *xc_element, int position)
 	// if 'xc_element' is NULL, return Sqxc element at the given position.
 	if (xc_element == NULL)
 		return cur;
-	// insert a new Sqxc element into the chain
+
+	// if user insert to head of Sqxc chain
+	if (xc == cur)
+		xc = xc_element;
+	// link peer
 	if (prev)
 		prev->peer = xc_element;
-	if (cur)
-		xc_element->peer = cur;
-	// set default destination
+	xc_element->peer = cur;
+#if SQXC_CONTINUOUS_DESTINATION
+	// link destination (only change continuous destination)
+	if (cur && cur->dest == prev)
+		cur->dest = xc_element;
+	if (xc_element->dest == NULL)
+		xc_element->dest = prev;
+#else
 	xc_element->dest = xc;
-	return (prev) ? xc : xc_element;
+#endif
+	return xc;
 }
 
 Sqxc   *sqxc_steal(Sqxc *xc, Sqxc *xc_element)
@@ -140,13 +161,25 @@ Sqxc   *sqxc_steal(Sqxc *xc, Sqxc *xc_element)
 
 	for (cur = xc;  cur;  cur = cur->peer) {
 		if (cur == xc_element) {
+			// if user remove head of Sqxc chain
+			if (xc == cur)
+				xc = xc->peer;
+#if SQXC_CONTINUOUS_DESTINATION
+			// unlink destination (only change continuous destination)
+			if (cur->peer && cur->peer->dest == cur)
+				cur->peer->dest = prev;
+			if (cur->dest == prev)
+				cur->dest = NULL;
+#endif
+			// unlink peer
 			if (prev)
 				prev->peer = cur->peer;
 			cur->peer = NULL;
+			break;
 		}
 		prev = cur;
 	}
-	return (prev) ? xc : xc->peer;
+	return xc;
 }
 
 Sqxc   *sqxc_find(Sqxc *xc, const SqxcInfo *info)
