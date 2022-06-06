@@ -22,7 +22,7 @@
 // SQL products
 
 /* ------ SQLite ------ */
-#if defined(DB_SQLITE) && SQ_CONFIG_HAVE_SQLITE
+#if   DB_SQLITE && SQ_CONFIG_HAVE_SQLITE
 
 #include <SqdbSqlite.h>
 #define DB_CONNECTION    SQDB_INFO_SQLITE
@@ -33,12 +33,12 @@ static const SqdbConfigSqlite  db_config_sqlite = {
 	.extension = DB_EXTENSION,
 };
 
-#elif defined(DB_SQLITE)
+#elif DB_SQLITE
 #define DB_PRODUCT_ERROR    "sqxclib does not enable SQLite support when compiling."
 #endif  // DB_SQLITE
 
 /* ------ MySQL ------ */
-#if defined(DB_MYSQL) && SQ_CONFIG_HAVE_MYSQL
+#if   DB_MYSQL && SQ_CONFIG_HAVE_MYSQL
 
 #include <SqdbMysql.h>
 #define DB_CONNECTION    SQDB_INFO_MYSQL
@@ -51,7 +51,7 @@ static const SqdbConfigMysql  db_config_mysql = {
 	.password = DB_PASSWORD,
 };
 
-#elif defined(DB_MYSQL)
+#elif DB_MYSQL
 #define DB_PRODUCT_ERROR    "sqxclib does not enable MySQL support when compiling."
 #endif  // DB_MYSQL
 

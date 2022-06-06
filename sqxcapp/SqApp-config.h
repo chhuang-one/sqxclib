@@ -21,8 +21,8 @@
 // ----------------------------------------------------------------------------
 // --- SQL products --- You can enable only one SQL products here
 
-#define DB_SQLITE
-// #define DB_MYSQL
+#define DB_SQLITE      1
+// #define DB_MYSQL       1
 
 // ----------------------------------------------------------------------------
 // --- Database Configuration ---
