@@ -125,7 +125,7 @@ typedef enum {
 typedef int   (*SqxcCtrlFunc)(Sqxc *xc, int ctrl_id, void *data);
 typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 
-// #if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
+// #if SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 #define SQXC_IS_DOING_TYPE_MATCH(sqxc)    ((sqxc) == (sqxc)->nested->data3)
 // #endif
 

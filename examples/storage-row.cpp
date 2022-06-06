@@ -321,7 +321,7 @@ int  main(int argc, char *argv[])
 	Sq::DbMethod *db;
 	Sq::Storage  *storage;
 
-#if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 
 	SqdbConfigSqlite  config_sqlite;
 
@@ -330,7 +330,7 @@ int  main(int argc, char *argv[])
 
 	db = new Sq::DbSqlite(&config_sqlite);
 
-#elif defined(SQ_CONFIG_HAVE_MYSQL)
+#elif SQ_CONFIG_HAVE_MYSQL
 
 	SqdbConfigMysql  config_mysql;
 

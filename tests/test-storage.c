@@ -180,7 +180,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	// update 2 columns only - "name" and "age".
 	fprintf(stderr, "update_all(): ok.\n");
 
-#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 	// update_field by offsetof(User, name) and offsetof(User, email)
 	company.name = "Panda";
 	company.salary = 18765;
@@ -248,7 +248,7 @@ void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
 
 int  main(int argc, char *argv[])
 {
-#if defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
+#if SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 
 	SqdbConfigSqlite  config_sqlite = {
 //		.folder = "/tmp",
@@ -259,7 +259,7 @@ int  main(int argc, char *argv[])
 	fprintf(stderr, "\n\n" "test SqStorage with SQLite..." "\n\n");
 	test_storage(SQDB_INFO_SQLITE, (SqdbConfig*) &config_sqlite);
 
-#elif defined(SQ_CONFIG_HAVE_MYSQL)
+#elif SQ_CONFIG_HAVE_MYSQL
 
 	SqdbConfigMysql  config_mysql = {
 		.host     = "localhost",

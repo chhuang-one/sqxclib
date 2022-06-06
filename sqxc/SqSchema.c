@@ -54,7 +54,7 @@ void  sq_schema_final(SqSchema *schema)
 	sq_type_free((SqType*)schema->type);
 	// finalize parent struct - SqEntry
 	sq_entry_final((SqEntry*)schema);
-#ifdef SQ_CONFIG_HAVE_SQLITE
+#if SQ_CONFIG_HAVE_SQLITE
 	// free relation after sq_entry_final()
 	if (schema->relation) {
 		sq_relation_free(schema->relation);

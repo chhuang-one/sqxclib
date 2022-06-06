@@ -32,11 +32,11 @@
 // ------------------------------------
 #include <Sqdb.h>
 
-#ifdef SQ_CONFIG_HAVE_SQLITE
+#if SQ_CONFIG_HAVE_SQLITE
 #include <SqdbSqlite.h>
 #endif
 
-#ifdef SQ_CONFIG_HAVE_MYSQL
+#if SQ_CONFIG_HAVE_MYSQL
 #include <SqdbMysql.h>
 #endif
 
@@ -46,7 +46,7 @@
 #include <SqxcSql.h>
 #include <SqxcValue.h>
 
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 #include <SqxcJsonc.h>
 #endif
 

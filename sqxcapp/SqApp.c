@@ -22,7 +22,7 @@
 // SQL products
 
 /* ------ SQLite ------ */
-#if defined(DB_SQLITE) && defined(SQ_CONFIG_HAVE_SQLITE)
+#if defined(DB_SQLITE) && SQ_CONFIG_HAVE_SQLITE
 
 #include <SqdbSqlite.h>
 #define DB_CONNECTION    SQDB_INFO_SQLITE
@@ -38,7 +38,7 @@ static const SqdbConfigSqlite  db_config_sqlite = {
 #endif  // DB_SQLITE
 
 /* ------ MySQL ------ */
-#if defined(DB_MYSQL) && defined(SQ_CONFIG_HAVE_MYSQL)
+#if defined(DB_MYSQL) && SQ_CONFIG_HAVE_MYSQL
 
 #include <SqdbMysql.h>
 #define DB_CONNECTION    SQDB_INFO_MYSQL

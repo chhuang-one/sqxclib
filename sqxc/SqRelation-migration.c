@@ -59,7 +59,7 @@ void *sq_relation_trace_reentry(SqRelation *relation, const char *old_name) {
 		if (rnode == NULL)
 			return NULL;
 		reentry = rnode->object;
-#ifdef SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE
+#if SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE
 		if (strcmp(reentry->old_name, old_name) == 0)
 #else
 		if (strcasecmp(reentry->old_name, old_name) == 0)

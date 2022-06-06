@@ -16,7 +16,7 @@
 #include <string.h>
 
 #include <SqConfig.h>
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 #include <SqxcJsonc.h>
 #endif
 #include <SqxcValue.h>
@@ -56,7 +56,7 @@ void  sq_console_init(SqConsole *console)
 
 	console->program_name = NULL;
 	console->xc_input = sqxc_new(SQXC_INFO_VALUE);
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 	// append JSON parser to tail of list
 	sqxc_insert(console->xc_input,  sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
 #endif
@@ -258,7 +258,7 @@ static int  sq_command_cmp_name(SqCommand **cmd_type1, SqCommand **cmd_type2)
 
 	name1 = (*cmd_type1) ? (*cmd_type1)->name : "";
 	name2 = (*cmd_type2) ? (*cmd_type2)->name : "";
-#ifdef SQ_CONFIG_COMMAND_CASE_SENSITIVE
+#if SQ_CONFIG_COMMAND_CASE_SENSITIVE
 	return strcmp(name1, name2);
 #else
 	return strcasecmp(name1, name2);
@@ -270,7 +270,7 @@ static int  sq_command_cmp_str__name(const char *str,  SqCommand **cmd_type)
 	const char *name;
 
 	name = (*cmd_type) ? (*cmd_type)->name : "";
-#ifdef SQ_CONFIG_COMMAND_CASE_SENSITIVE
+#if SQ_CONFIG_COMMAND_CASE_SENSITIVE
 	return strcmp(str, name);
 #else
 	return strcasecmp(str, name);

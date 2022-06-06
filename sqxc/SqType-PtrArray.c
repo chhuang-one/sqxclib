@@ -66,7 +66,7 @@ static int  sq_type_ptr_array_parse(void *array, const SqType *type, Sqxc *src)
 
 	// Start of Array
 	nested = xc_value->nested;
-#if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
+#if SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	if (nested->data3 != array) {
 		if (nested->data != array) {
 			// Frist time to call this function to parse array
@@ -182,7 +182,7 @@ static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *sr
 
 	// Start of Array
 	nested = xc_value->nested;
-#if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
+#if SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	if (nested->data3 != array) {
 		if (nested->data != array) {
 			// Frist time to call this function to parse array

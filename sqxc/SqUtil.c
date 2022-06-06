@@ -125,7 +125,7 @@ char   *sq_time_to_string(time_t timeraw, int format_type)
 	struct tm  *timeinfo;
 	char       *timestr;
 
-#if defined(SQ_CONFIG_CONVERT_TIME_TO_GMT)
+#if SQ_CONFIG_CONVERT_TIME_TO_GMT
 	timeinfo = gmtime((time_t*) &timeraw);
 #else
 	timeinfo = localtime((time_t*) &timeraw);

@@ -180,7 +180,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
 	table->stdstring("strCpp", &Company::strCpp);
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 	table->custom("strs", &Company::strs, SQ_TYPE_STRING_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
@@ -227,7 +227,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
 	table->stdstring("strCpp", &Company::strCpp);
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 	table->custom("strs", &Company::strs, SQ_TYPE_STRING_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
@@ -410,7 +410,7 @@ int  main(int argc, char *argv[])
 
 	check_standard_layout();
 
-#if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 
 #if 0    // Designated initializers
 	SqdbConfigSqlite  config_sqlite = {
@@ -427,7 +427,7 @@ int  main(int argc, char *argv[])
 
 	db = new Sq::DbSqlite(&config_sqlite);
 
-#elif defined(SQ_CONFIG_HAVE_MYSQL)
+#elif SQ_CONFIG_HAVE_MYSQL
 
 #if 0    // Designated initializers
 	SqdbConfigMysql  config_mysql = {

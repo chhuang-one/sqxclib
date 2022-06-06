@@ -97,7 +97,7 @@ static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   0,
 		.foreign = &(SqForeign) {"cities",  "id",  "CASCADE",  "CASCADE"} },
 
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 	{SQ_TYPE_INTPTR_ARRAY, "ints",  offsetof(User, ints),    0},
 	{SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER | SQB_NULLABLE},    // User.post is pointer
 #endif
@@ -377,7 +377,7 @@ int  main(void)
 	City       *city;
 	User       *user;
 
-#if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 
 	SqdbConfigSqlite  config_sqlite = {
 //		.folder = "/tmp",
@@ -387,7 +387,7 @@ int  main(void)
 
 	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config_sqlite);
 
-#elif defined(SQ_CONFIG_HAVE_MYSQL)
+#elif SQ_CONFIG_HAVE_MYSQL
 
 	SqdbConfigMysql  config_mysql = {
 		.host     = "localhost",

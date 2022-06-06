@@ -16,7 +16,7 @@
 #define SQ_THREAD_H
 
 #include <SqConfig.h>
-#if defined(SQ_CONFIG_HAVE_THREAD) || defined(_WIN32) || defined(_WIN64)
+#if SQ_CONFIG_HAVE_THREAD || defined(_WIN32) || defined(_WIN64)
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>

@@ -26,27 +26,35 @@
 #endif
 
 
-#if HAVE_THREAD == 1
 /* SqStorage.c */
-#define SQ_CONFIG_HAVE_THREAD
+#if HAVE_THREAD == 1
+#define SQ_CONFIG_HAVE_THREAD        1
+#else
+#define SQ_CONFIG_HAVE_THREAD        0
 #endif
 #undef HAVE_THREAD
 
-#if HAVE_JSONC == 1
 /* SqxcJsonc.c, SqxcJsonc.h, SqStorage.c */
-#define SQ_CONFIG_HAVE_JSONC
+#if HAVE_JSONC == 1
+#define SQ_CONFIG_HAVE_JSONC         1
+#else
+#define SQ_CONFIG_HAVE_JSONC         0
 #endif
 #undef HAVE_JSONC
 
-#if HAVE_SQLITE == 1
 /* SqdbSqlite.h */
-#define SQ_CONFIG_HAVE_SQLITE
+#if HAVE_SQLITE == 1
+#define SQ_CONFIG_HAVE_SQLITE        1
+#else
+#define SQ_CONFIG_HAVE_SQLITE        0
 #endif
 #undef HAVE_SQLITE
 
-#if HAVE_MYSQL == 1
 /* SqdbMysql.h */
-#define SQ_CONFIG_HAVE_MYSQL
+#if HAVE_MYSQL == 1
+#define SQ_CONFIG_HAVE_MYSQL         1
+#else
+#define SQ_CONFIG_HAVE_MYSQL         0
 #endif
 #undef HAVE_MYSQL
 
@@ -55,27 +63,27 @@
    Disable it to reduce code size.
    Affected source : SqJoint, SqType, SqCommand
  */
-#define SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
+#define SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH      1
 
 /* Enable it will add sq_storage_update_field() and C++ updateField() to sqxclib.
    Disable it if you don't use these and want to reduce binary size.
  */
-#define SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+#define SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD         1
 
 /* If you enable this, sq_time_to_string() will use gmtime() to convert calendar time */
-// #define SQ_CONFIG_CONVERT_TIME_TO_GMT
+#define SQ_CONFIG_CONVERT_TIME_TO_GMT              0
 
 /* sqxclib is case-insensitive by default when parsing command from console.
    User can enable SQ_CONFIG_COMMAND_CASE_SENSITIVE to change it.
    Affected source : SqConsole
  */
-// #define SQ_CONFIG_COMMAND_CASE_SENSITIVE
+#define SQ_CONFIG_COMMAND_CASE_SENSITIVE           0
 
 /* sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default.
    You may disable this for some old SQL product.
    Affected source : SqEntry, SqRelation-migration
  */
-#define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE
+#define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
 // ----------------------------------------------------------------------------
 // Default length (size)

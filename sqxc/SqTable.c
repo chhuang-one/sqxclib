@@ -47,7 +47,7 @@ void  sq_table_free(SqTable *table)
 		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)table);
 		free((char*)table->old_name);
-#ifdef SQ_CONFIG_HAVE_SQLITE
+#if SQ_CONFIG_HAVE_SQLITE
 		// free relation data
 		if (table->relation) {
 			sq_relation_clear(table->relation);

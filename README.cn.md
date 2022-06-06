@@ -847,7 +847,7 @@ sqxclib 在搜索/排序 SQL 列名和 JSON 字段名时默认区分大小写。
    You may disable this for some old SQL product.
    Affected source : SqEntry, SqRelation-migration
  */
-#define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE
+#define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
 /* If user doesn't specify SQL string length, program will use it by default.
    SQL_STRING_LENGTH_DEFAULT

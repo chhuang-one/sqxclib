@@ -102,7 +102,7 @@ int64_t sq_storage_update_all(SqStorage    *storage,
                               const char   *sql_where_having,
                               ...);
 
-#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 // parameter 'sql_where_having' is SQL statement that exclude "UPDATE table_name SET column=value"
 // pass field_offset list after parameter 'sql_where_having' and the last argument must be -1
 // return number of rows changed.
@@ -281,7 +281,7 @@ struct StorageMethod
 	template <typename... Args>
 	int64_t  updateAll(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having = NULL, const Args... args);
 
-#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 	// updateField(struct_reference)
 	template <typename StructType, typename... Args>
 	int64_t  updateField(StructType &instance, const char *sql_where_having = NULL, const Args... args);
@@ -622,7 +622,7 @@ inline int64_t  StorageMethod::updateAll(const char *table_name, const SqType *t
 	return sq_storage_update_all((SqStorage*)this, table_name, table_type, instance, sql_where_having, args..., NULL);
 }
 
-#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 template <typename StructType, typename... Args>
 inline int64_t  StorageMethod::updateField(StructType &instance, const char *sql_where_having, const Args... args) {

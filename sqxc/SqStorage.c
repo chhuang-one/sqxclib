@@ -24,7 +24,7 @@
 #include <SqStorage.h>
 #include <SqxcSql.h>
 #include <SqxcValue.h>
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 #include <SqxcJsonc.h>
 #endif
 
@@ -44,7 +44,7 @@ static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
                                  const SqType *table_type,
                                  const char   *sql_where_having,
                                  va_list       arg_list);
-#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
                                 const SqType *table_type,
                                 const char   *sql_where_having,
@@ -65,7 +65,7 @@ void  sq_storage_init(SqStorage *storage, Sqdb *db)
 	storage->xc_input  = sqxc_new(SQXC_INFO_VALUE);
 	storage->xc_output = sqxc_new(SQXC_INFO_SQL);
 
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 	// append JSON parser/writer to tail of list
 	sqxc_insert(storage->xc_input,  sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
 	sqxc_insert(storage->xc_output, sqxc_new(SQXC_INFO_JSONC_WRITER), -1);
@@ -315,7 +315,7 @@ int64_t sq_storage_update_all(SqStorage    *storage,
 	return temp.xcsql->changes;
 }
 
-#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 int64_t sq_storage_update_field(SqStorage    *storage,
                                 const char   *table_name,
@@ -457,7 +457,7 @@ static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
 	return xcsql->columns.length;
 }
 
-#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 // used by sqxc_sql_set_fields()
 static int  sq_entry_cmp_offset(SqEntry **entry1, SqEntry **entry2)

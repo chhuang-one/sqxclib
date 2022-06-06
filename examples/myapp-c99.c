@@ -112,7 +112,7 @@ int  main(void)
 		       user_ptr->email);
 	}
 
-#ifdef SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 	// update fields - User::name and User::email
 	user.age   = 38;
 	user.name  = "Sky";

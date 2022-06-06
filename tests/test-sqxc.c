@@ -23,7 +23,7 @@
 #include <SqxcSql.h>
 #include <SqxcValue.h>
 #include <SqxcEmpty.h>
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 #include <SqxcJsonc.h>
 #endif
 
@@ -110,7 +110,7 @@ void test_sqxc_joint_input()
 	sq_type_joint_add(type, table, "tb2");
 
 	xc = sqxc_new(SQXC_INFO_VALUE);
-#if defined SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 	sqxc_insert(xc, sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
 #endif
 
@@ -160,7 +160,7 @@ void test_sqxc_joint_input()
 	user = instance[1];
 	printf("tb2.id = %d\n", user->id);
 	assert(user->id == 233);
-#if defined SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 	assert(user->strs.length == 3);
 #else
 	// program can't parse JSON array string if no JSON parser in sqxc chain
@@ -187,7 +187,7 @@ void test_sqxc_row_input_output()
 	sq_type_row_add(type, table, "tb2");
 
 	xc = sqxc_new(SQXC_INFO_VALUE);
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 	sqxc_insert(xc, sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
 #endif
 	sqxc_value_element(xc) = type;
@@ -255,7 +255,7 @@ void test_sqxc_row_input_output()
 	sq_type_row_free(type);
 }
 
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 
 const char *json_array_string =
 "["
@@ -515,7 +515,7 @@ int  main(void)
 
 	test_sqxc_joint_input();
 	test_sqxc_row_input_output();
-#ifdef SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSONC
 	test_sqxc_jsonc_input();
 	test_sqxc_jsonc_input_user();
 	test_sqxc_jsonc_input_unknown();

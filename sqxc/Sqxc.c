@@ -245,7 +245,7 @@ Sqxc  *sqxc_send(Sqxc *xc)
 			return xc;
 	}
 
-#if defined SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
+#if SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 //	if (cur == NULL)
 	// check remaining SqxcNested if destination Sqxc use fast type match
 	if (xc->code == SQCODE_TYPE_NOT_MATCH) {

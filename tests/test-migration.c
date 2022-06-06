@@ -347,9 +347,9 @@ int  main(void)
 {
 	Sqdb   *db;
 
-#if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
-#elif defined(SQ_CONFIG_HAVE_MYSQL)
+#elif SQ_CONFIG_HAVE_MYSQL
 	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
 #else
 	#error No supported database
@@ -360,9 +360,9 @@ int  main(void)
 		return EXIT_SUCCESS;
 	}
 
-#if   defined(SQ_CONFIG_HAVE_SQLITE) && USE_SQLITE_IF_POSSIBLE == 1
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 	test_sqdb_migrate_sqlite_sync(db);
-#elif defined(SQ_CONFIG_HAVE_MYSQL)
+#elif SQ_CONFIG_HAVE_MYSQL
 	test_sqdb_migrate(db);
 #endif
 
