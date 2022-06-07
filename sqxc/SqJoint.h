@@ -22,8 +22,8 @@
 
 typedef struct SqType         SqTypeJoint;
 
-// if derived struct support unknown type
-#define SQB_TYPE_JOINT_SUPPORT_UNKNOWN_TYPE    (1 << 4)
+// if derived struct support unknown type @deprecated
+#define SQB_TYPE_JOINT_SUPPORT_UNKNOWN_TYPE    SQB_TYPE_PARSE_UNKNOWN
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.

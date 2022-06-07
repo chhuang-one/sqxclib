@@ -141,7 +141,7 @@ void  sq_type_row_init(SqTypeRow *type_row)
 	type_row->parse = (SqTypeParseFunc)sq_type_row_parse;
 	type_row->write = (SqTypeWriteFunc)sq_type_row_write;
 	type_row->size  = sizeof(SqRow);
-	type_row->bit_field |= SQB_TYPE_JOINT_SUPPORT_UNKNOWN_TYPE;
+	type_row->bit_field |= SQB_TYPE_PARSE_UNKNOWN;
 }
 
 void  sq_type_row_final(SqTypeRow *type_row)

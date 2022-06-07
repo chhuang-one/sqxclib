@@ -34,5 +34,7 @@ const struct SqTypeFake SqType_Fake_ = {
 		NULL,
 		sq_type_unknown_parse,
 		sq_type_unknown_write,
+
+		.bit_field = SQB_TYPE_PARSE_UNKNOWN,
 	},
 };

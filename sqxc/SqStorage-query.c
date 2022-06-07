@@ -40,7 +40,7 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 	for (int index = 0;  index < names.length;  index+=2) {
 		table = sq_schema_find(storage->schema, names.data[index]);
 		if (table == NULL) {
-			if (type_joint->bit_field & SQB_TYPE_JOINT_SUPPORT_UNKNOWN_TYPE)
+			if (type_joint->bit_field & SQB_TYPE_PARSE_UNKNOWN)
 				continue;
 			n_table = 0;
 			break;
@@ -59,7 +59,7 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 
 	if (n_table > 1)
 		return type_joint;
-	if (table_type == NULL && type_joint->bit_field & SQB_TYPE_JOINT_SUPPORT_UNKNOWN_TYPE)
+	if (table_type == NULL && type_joint->bit_field & SQB_TYPE_PARSE_UNKNOWN)
 		return type_joint;
 	// special case: if there is only 1 table in 'query'
 	if (n_table == 1)

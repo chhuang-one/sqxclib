@@ -83,8 +83,11 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 }
 
 /* SqType::bit_field - SQB_TYPE_xxxx */
-#define SQB_TYPE_DYNAMIC     (1<<0)    // equal SQB_DYNAMIC, for internal use only
-#define SQB_TYPE_SORTED      (1<<1)
+#define SQB_TYPE_DYNAMIC                  (1<<0)    // equal SQB_DYNAMIC, for internal use only
+#define SQB_TYPE_SORTED                   (1<<1)
+#define SQB_TYPE_PARSE_UNKNOWN            (1<<2)
+#define SQB_TYPE_RESERVE_BEG              (1<<3)
+#define SQB_TYPE_RESERVE_END              (1<<7)
 
 /* macro for accessing variable of SqType */
 #define sq_type_get_ptr_array(type)    ((SqPtrArray*)&(type)->entry)
