@@ -17,6 +17,12 @@
 
 #include <SqMigration.h>
 
+/* When user migrate at runtime, column 'migrations.name' in database will be empty string
+   because SqApp does NOT contain SqMigration.name string by default.
+   Disable it to reduce code size of SqApp.
+ */
+#define SQ_APP_HAS_MIGRATION_NAME    0
+
 // How to mix C and C++ - https://isocpp.org/wiki/faq/mixing-c-and-cpp
 #ifdef __cplusplus
 extern "C" {

@@ -38,7 +38,7 @@ const SqMigration CreateUsersTable_2021_10_12_000000 = {
 	.up   = up_2021_10_12_000000,
 	.down = down_2021_10_12_000000,
 
-#ifdef SQ_APP_TOOL
+#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
 	.name = "2021_10_12_000000_create_user_table",
 #endif
 };

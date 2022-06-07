@@ -25,7 +25,7 @@ const SqMigration alter_users_table_2021_11_26_091532 = {
 		table->dropColumn("age");
 	},
 
-#ifdef SQ_APP_TOOL
+#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
 //	.name =
 	"2021_11_26_091532_alter_users_table",
 #endif

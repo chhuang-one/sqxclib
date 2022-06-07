@@ -23,7 +23,7 @@ const SqMigration {{ migration_name }}_{{ timestamp }} = {
 		table = schema->alter("{{ table_name }}");
 	},
 
-#ifdef SQ_APP_TOOL
+#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
 //	.name = 
 	"{{ timestamp }}_{{ migration_name }}",
 #endif

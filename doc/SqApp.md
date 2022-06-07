@@ -73,11 +73,11 @@ sqxctool  make:migration  migration_name
 ```
 * This command will:
 1. generate migration file - workspace/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c
-2. append relative path of migration file in workspace/sqxcapp/migrations.c
+2. append relative path of migration file in workspace/sqxcapp/migrations-files.c
 3. append declaration of migration to workspace/sqxcapp/migrations-declarations
 4. append element of migrations array to workspace/sqxcapp/migrations-elements
 
-* If you use C++ to do migration, you can replace sqxctool by sqxcpptool. It will create yyyy_MM_dd_HHmmss_migration_name.cpp and append it to migrations.cpp
+* If you use C++ to do migration, you can replace sqxctool by sqxcpptool. It will create workspace/database/migrations/yyyy_MM_dd_HHmmss_migration_name.cpp and append it to workspace/sqxcapp/migrations-files.cpp
 
 #### create table by sqxctool (C language)
 
@@ -117,7 +117,7 @@ const SqMigration create_companies_table_2021_12_12_180000 = {
 	.up   = up_2021_12_12_180000,
 	.down = down_2021_12_12_180000,
 
-#ifdef SQ_APP_TOOL
+#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
 	.name = "2021_12_12_180000_create_companies_table",
 #endif
 };
@@ -160,7 +160,7 @@ const SqMigration alter_companies_table_2021_12_26_191532 = {
 		table = schema->alter("companies");
 	},
 
-#ifdef SQ_APP_TOOL
+#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
 //	.name = 
 	"2021_12_26_191532_alter_companies_table",
 #endif
@@ -182,9 +182,13 @@ Rollback the last database migration
 sqxctool  migrate:rollback
 ```
 
-#### migrate by C language
-
-Run all of your outstanding migrations
+### migrate at runtime
+When user migrate at runtime, column 'migrations.name' in database will be empty string because SqApp does NOT contain SqMigration.name string by default.  
+Enable SQ_APP_HAS_MIGRATION_NAME in "migrations.h" to change default setting.  
+  
+**Run all of your outstanding migrations**  
+  
+use C functions
 
 ```c
 	SqApp *sqapp = sq_app_new();
@@ -201,17 +205,7 @@ Run all of your outstanding migrations
 	}
 ```
 
-Rollback the last database migration
-
-```c
-	int  step = 0;
-
-	sq_app_rollback(app, step);
-```
-
-#### migrate by C++ language
-
-Run all of your outstanding migrations
+use C++ methods
 
 ```c++
 	Sq::App *sqapp = new Sq::App;
@@ -228,7 +222,17 @@ Run all of your outstanding migrations
 	}
 ```
 
-Rollback the last database migration
+**Rollback the last database migration**  
+  
+use C functions
+
+```c
+	int  step = 0;
+
+	sq_app_rollback(app, step);
+```
+
+use C++ methods
 
 ```c++
 	int  step = 0;
