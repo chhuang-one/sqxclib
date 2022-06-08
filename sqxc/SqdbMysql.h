@@ -37,7 +37,8 @@ typedef struct SqdbConfigMysql     SqdbConfigMysql;
 extern "C" {
 #endif
 
-extern const SqdbInfo    *SQDB_INFO_MYSQL;
+extern const SqdbInfo        SqdbInfo_MySQL_;
+#define SQDB_INFO_MYSQL    (&SqdbInfo_MySQL_)
 
 #define sqdb_mysql_new(sqdb_config)    sqdb_new(SQDB_INFO_MYSQL, sqdb_config)
 

@@ -30,8 +30,10 @@ typedef struct SqxcJsonc        SqxcJsonc;
 extern "C" {
 #endif
 
-extern const SqxcInfo    *SQXC_INFO_JSONC_PARSER;
-extern const SqxcInfo    *SQXC_INFO_JSONC_WRITER;
+extern const SqxcInfo               SqxcInfo_JsoncParser_;
+extern const SqxcInfo               SqxcInfo_JsoncWriter_;
+#define SQXC_INFO_JSONC_PARSER    (&SqxcInfo_JsoncParser_)
+#define SQXC_INFO_JSONC_WRITER    (&SqxcInfo_JsoncWriter_)
 
 #define sqxc_jsonc_parser_new()        sqxc_new(SQXC_INFO_JSONC_PARSER)
 #define sqxc_jsonc_writer_new()        sqxc_new(SQXC_INFO_JSONC_WRITER)

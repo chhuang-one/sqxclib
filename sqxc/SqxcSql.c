@@ -508,7 +508,7 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 // ----------------------------------------------------------------------------
 // SqxcInfo
 
-const SqxcInfo sqxc_info_sql =
+const SqxcInfo SqxcInfo_SQL_ =
 {
 	sizeof(SqxcSql),
 	(SqInitFunc)sqxc_sql_init,
@@ -516,5 +516,3 @@ const SqxcInfo sqxc_info_sql =
 	(SqxcCtrlFunc)sqxc_sql_ctrl,
 	(SqxcSendFunc)sqxc_sql_send,
 };
-
-const SqxcInfo *SQXC_INFO_SQL = &sqxc_info_sql;

@@ -30,7 +30,8 @@ typedef struct SqxcValue        SqxcValue;
 extern "C" {
 #endif
 
-extern const SqxcInfo          *SQXC_INFO_VALUE;
+extern const SqxcInfo        SqxcInfo_Value_;
+#define SQXC_INFO_VALUE    (&SqxcInfo_Value_)
 
 #define sqxc_value_new()        sqxc_new(SQXC_INFO_VALUE)
 

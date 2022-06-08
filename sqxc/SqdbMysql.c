@@ -49,7 +49,7 @@ static const SqdbConfigMysql db_default = {
 	.password = MYSQL_DEFAULT_PASSWORD,
 };
 
-static const SqdbInfo dbinfo = {
+const SqdbInfo SqdbInfo_MySQL_ = {
 	.size    = sizeof(SqdbMysql),
 	.product = SQDB_PRODUCT_MYSQL,
 	.column  = {
@@ -68,8 +68,6 @@ static const SqdbInfo dbinfo = {
 	.exec    = (void*)sqdb_mysql_exec,
 	.migrate = (void*)sqdb_mysql_migrate,
 };
-
-const SqdbInfo *SQDB_INFO_MYSQL = &dbinfo;
 
 // ----------------------------------------------------------------------------
 // SqdbInfo

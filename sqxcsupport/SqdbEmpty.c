@@ -34,7 +34,7 @@ static int  sqdb_empty_close(SqdbEmpty *sqdb);
 static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *reserve);
 static int  sqdb_empty_migrate(SqdbEmpty *sqdb, SqSchema *schema, SqSchema *schema_next);
 
-static const SqdbInfo dbinfo = {
+const SqdbInfo SqdbInfo_Empty_ = {
 	.size    = sizeof(SqdbEmpty),
 	.product = SQDB_PRODUCT_UNKNOWN,
 	.column  = {
@@ -52,8 +52,6 @@ static const SqdbInfo dbinfo = {
     .exec    = (void*)sqdb_empty_exec,
     .migrate = (void*)sqdb_empty_migrate,
 };
-
-const SqdbInfo *SQDB_INFO_EMPTY = &dbinfo;
 
 // ----------------------------------------------------------------------------
 // SqdbInfo

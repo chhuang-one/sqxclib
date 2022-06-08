@@ -188,7 +188,7 @@ static void  sqxc_empty_final(SqxcEmpty *xcempty)
 // ----------------------------------------------------------------------------
 // SqxcInfo
 
-static const SqxcInfo sqxc_info_empty =
+const SqxcInfo SqxcInfo_Empty_ =
 {
 	sizeof(SqxcEmpty),
 	(SqInitFunc)sqxc_empty_init,
@@ -196,5 +196,3 @@ static const SqxcInfo sqxc_info_empty =
 	(SqxcCtrlFunc)sqxc_empty_ctrl,
 	(SqxcSendFunc)sqxc_empty_send,
 };
-
-const SqxcInfo *SQXC_INFO_EMPTY = &sqxc_info_empty;

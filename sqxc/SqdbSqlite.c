@@ -38,7 +38,7 @@ static int  sqdb_sqlite_close(SqdbSqlite *sqdb);
 static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *reserve);
 static int  sqdb_sqlite_migrate(SqdbSqlite *sqdb, SqSchema *schema, SqSchema *schema_next);
 
-static const SqdbInfo dbinfo = {
+const SqdbInfo SqdbInfo_SQLite_ = {
 	.size    = sizeof(SqdbSqlite),
 	.product = SQDB_PRODUCT_SQLITE,
 	.column  = {
@@ -57,8 +57,6 @@ static const SqdbInfo dbinfo = {
 	.exec    = (void*)sqdb_sqlite_exec,
 	.migrate = (void*)sqdb_sqlite_migrate,
 };
-
-const SqdbInfo *SQDB_INFO_SQLITE = &dbinfo;
 
 // ----------------------------------------------------------------------------
 // SqdbInfo
