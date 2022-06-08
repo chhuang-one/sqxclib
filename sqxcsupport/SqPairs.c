@@ -27,7 +27,8 @@ struct SqPair
 	void  *value;
 };
 
-#define PAIR_N_PTR    2        // SqPair has 2 pointers
+#define PAIR_N_PTR           2        // SqPair has 2 pointers
+#define N_PAIRS_ALLOCATED    16       // number of pairs allocated at startup
 
 //                                (pairs->x2length / PAIR_N_PTR)
 #define SQ_PAIRS_LENGTH(pairs)    (pairs->x2length >> 1)
@@ -41,7 +42,7 @@ struct SqPair
 
 void  sq_pairs_init(SqPairs *pairs, SqCompareFunc key_compare_func)
 {
-	sq_ptr_array_init(pairs, 8 * PAIR_N_PTR, NULL);
+	sq_ptr_array_init(pairs, N_PAIRS_ALLOCATED * PAIR_N_PTR, NULL);
 	pairs->sorted = 0;
 	pairs->key_compare_func   = key_compare_func;
 	pairs->key_destroy_func   = NULL;
