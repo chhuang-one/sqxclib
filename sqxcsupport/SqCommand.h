@@ -63,6 +63,7 @@ typedef struct SqCommandValue    SqCommandValue;
 	(SqEntry**) command_options,                                   \
 	sizeof(command_options) / sizeof(SqOption*),                   \
 	bit_value,                                                     \
+	NULL,                                                          \
 	                                                               \
 	(SqCommandFunc) handle_func,                                   \
 	parameter_string,                                              \
@@ -186,6 +187,8 @@ struct SqCommand
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
 	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
 	unsigned int   bit_field;
+
+	void          *reserve;
 
 	// ------ SqCommand members ------
 	SqCommandFunc  handle;

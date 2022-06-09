@@ -67,6 +67,7 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 	(SqEntry**) EntryPtrArray,                                     \
 	sizeof(EntryPtrArray) / sizeof(SqEntry*),                      \
 	bit_value,                                                     \
+	NULL,                                                          \
 }
 
 #define SQ_TYPE_INITIALIZER_FULL(StructType, EntryPtrArray, bit_value, init_func, final_func) \
@@ -80,6 +81,7 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 	(SqEntry**) EntryPtrArray,                                     \
 	sizeof(EntryPtrArray) / sizeof(SqEntry*),                      \
 	bit_value,                                                     \
+	NULL,                                                          \
 }
 
 /* SqType::bit_field - SQB_TYPE_xxxx */
@@ -207,7 +209,8 @@ struct Type;
 	char             *name;       \
 	SqEntry         **entry;      \
 	int               n_entry;    \
-	unsigned int      bit_field
+	unsigned int      bit_field;  \
+	void             *reserve
 
 struct SqType
 {
@@ -234,6 +237,8 @@ struct SqType
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
 	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
 	unsigned int   bit_field;
+
+	void          *reserve;
  */
 
 #ifdef __cplusplus

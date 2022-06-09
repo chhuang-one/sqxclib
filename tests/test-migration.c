@@ -88,7 +88,7 @@ const SqType UserType = {
 	.name  = SQ_GET_TYPE_NAME(User),
 	.entry   = (SqEntry**) UserColumns,
 	.n_entry = sizeof(UserColumns) / sizeof(SqColumn*),
-	.bit_field  = SQB_TYPE_SORTED                           // UserColumns is sorted
+	.bit_field  = SQB_TYPE_SORTED,                          // UserColumns is sorted
 };
  */
 
