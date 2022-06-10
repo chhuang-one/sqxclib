@@ -58,12 +58,16 @@ install_headers(headers_support, subdir: 'sqxc')
 
 sqxcsupport_inc = include_directories('./')
 
-sqxcsupport_lib = static_library('sqxcsupport',
-                                 [sources_helpers, sources_structs, sources_console, sources_test],
-                                 include_directories: sqxcsupport_inc,
-                                 dependencies : sqxc,
-                                 install: false)
+sqxcsupport_lib = static_library(
+    'sqxcsupport',
+    [sources_helpers, sources_structs, sources_console, sources_test],
+    include_directories: sqxcsupport_inc,
+    dependencies : sqxc,
+    install: false
+)
 
-sqxcsupport = declare_dependency(include_directories : sqxcsupport_inc,
-                                 link_with : sqxcsupport_lib,
-                                 dependencies : sqxc)
+sqxcsupport = declare_dependency(
+    include_directories : sqxcsupport_inc,
+    link_with : sqxcsupport_lib,
+    dependencies : sqxc
+)

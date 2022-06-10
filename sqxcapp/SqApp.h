@@ -31,10 +31,28 @@ typedef struct SqApp             SqApp;
 extern "C" {
 #endif
 
-SqApp *sq_app_new(void);
+/* struct SqAppSetting for internal use only.
+   used by SqApp.c and SqApp-config.c
+ */
+struct SqAppSetting {
+	const SqdbInfo      *db_info;
+	const SqdbConfig    *db_config;
+	const char          *db_database;
+	const SqMigration  **migrations;
+	const int           *n_migrations;
+
+    const char          *error;
+};
+
+// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+extern const struct SqAppSetting   SqAppSetting_default_;
+#define SQ_APP_DEFAULT           (&SqAppSetting_default_)
+
+/* SqApp C functions */
+SqApp *sq_app_new(const struct SqAppSetting *setting);
 void   sq_app_free(SqApp *app);
 
-void  sq_app_init(SqApp *app);
+void  sq_app_init(SqApp *app, const struct SqAppSetting *setting);
 void  sq_app_final(SqApp *app);
 
 // if db_database is NULL, open default database that specify in SqAppConfig.h
@@ -69,7 +87,7 @@ namespace Sq {
 	It's derived struct/class must be C++11 standard-layout and has SqApp members.
  */
 struct AppMethod {
-	void  init();
+	void  init(const struct SqAppSetting *setting = SQ_APP_DEFAULT);
 	void  final();
 
 	int   openDatabase(const char *db_database = NULL);
@@ -140,8 +158,8 @@ namespace Sq {
 
 /* define AppMethod functions. */
 
-inline void  AppMethod::init() {
-	sq_app_init((SqApp*)this);
+inline void  AppMethod::init(const struct SqAppSetting *setting) {
+	sq_app_init((SqApp*)this, setting);
 }
 inline void  AppMethod::final() {
 	sq_app_final((SqApp*)this);
@@ -168,8 +186,8 @@ inline int   AppMethod::rollback(int step) {
 /* All derived struct/class must be C++11 standard-layout. */
 
 struct App : SqApp {
-	App() {
-		sq_app_init(this);
+	App(const struct SqAppSetting *setting = SQ_APP_DEFAULT) {
+		sq_app_init(this, setting);
 	}
 	~App() {
 		sq_app_final(this);

@@ -48,7 +48,8 @@ int  main(int argc, char **argv)
 
 	// create SqAppTool with 'program_name'
 	apptool = malloc(sizeof(SqAppTool));
-	sq_app_tool_init(apptool, program_name);
+	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+	sq_app_tool_init(apptool, program_name, SQ_APP_DEFAULT);
 
 	// if 'program_name' contains "cpp", program outputs cpp files.
 	if (strstr(program_name, "cpp"))

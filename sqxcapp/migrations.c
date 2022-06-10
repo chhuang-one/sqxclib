@@ -17,10 +17,10 @@
 #include <CStructs.h>
 #include "migrations.h"
 
-const SqMigration *migrations[] = {
+const SqMigration *migrations_default_[] = {
 	NULL,                              // migration not existed or deleted
 
 	#include "migrations-elements"
 };
 
-const int  n_migrations = sizeof(migrations) / sizeof(void*);
+const int  n_migrations_default_ = sizeof(migrations_default_) / sizeof(void*);

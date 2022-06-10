@@ -35,7 +35,8 @@ MyApp *my_app_new()
 	MyApp *myapp;
 
 	myapp = malloc(sizeof(MyApp));
-	sq_app_init(&myapp->base);
+	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+	sq_app_init(&myapp->base, SQ_APP_DEFAULT);
 
 	return myapp;
 }

@@ -66,18 +66,19 @@ User can use only one SQL products here (e.g. use MySQL)
 
 ### use sqxctool (or sqxcpptool)
 
-sqxctool (or sqxcpptool) use the same configuration values as library sqxcapp.  
+**sqxctool** (or **sqxcpptool**) use the same configuration values as library sqxcapp.  
 
 ```
 sqxctool  make:migration  migration_name
 ```
-* This command will:
+This command will:  
 1. generate migration file - workspace/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c
-2. append relative path of migration file in workspace/sqxcapp/migrations-files.c
+2. append relative path of migration file to workspace/sqxcapp/migrations-files.c
 3. append declaration of migration to workspace/sqxcapp/migrations-declarations
 4. append element of migrations array to workspace/sqxcapp/migrations-elements
 
-* If you use C++ to do migration, you can replace sqxctool by sqxcpptool. It will create workspace/database/migrations/yyyy_MM_dd_HHmmss_migration_name.cpp and append it to workspace/sqxcapp/migrations-files.cpp
+If you use C++ to do migration, you can replace sqxctool by sqxcpptool. The difference is
+**sqxcpptool** can generate C++ migration file and append path to workspace/sqxcapp/migrations-files.cpp
 
 #### create table by sqxctool (C language)
 
@@ -188,10 +189,13 @@ Enable SQ_APP_HAS_MIGRATION_NAME in "migrations.h" to change default setting.
   
 **Run all of your outstanding migrations**  
   
+sq_app_migrate() will run all of your outstanding migrations if 'step' is 0.  
+  
 use C functions
 
 ```c
-	SqApp *sqapp = sq_app_new();
+	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
 
 	// open database that defined in SqApp-config.h
 	if (sq_app_open_database(sqapp, NULL) != SQCODE_OK)
@@ -223,6 +227,8 @@ use C++ methods
 ```
 
 **Rollback the last database migration**  
+  
+sq_app_rollback() will roll back the latest migration operation if 'step' is 0.  
   
 use C functions
 

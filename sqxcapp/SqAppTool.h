@@ -33,7 +33,7 @@ extern "C" {
 
 /* --- SqAppTool functions --- */
 
-void    sq_app_tool_init(SqAppTool *app, const char *program_name);
+void    sq_app_tool_init(SqAppTool *app, const char *program_name, const struct SqAppSetting *setting);
 void    sq_app_tool_final(SqAppTool *app);
 
 int     sq_app_tool_run(SqAppTool *app, int argc, char **argv);
@@ -76,7 +76,7 @@ namespace Sq {
 	It's derived struct/class must be C++11 standard-layout and has SqAppTool members.
  */
 struct AppToolMethod : AppMethod {
-	void init(const char *program_name);
+	void init(const char *program_name, const struct SqAppSetting *setting = SQ_APP_DEFAULT);
 	void final();
 
 	int  run(int argc, char **argv);
@@ -152,8 +152,8 @@ namespace Sq {
 
 /* define AppToolMethod functions. */
 
-inline void AppToolMethod::init(const char *program_name) {
-	sq_app_tool_init((SqAppTool*)this, program_name);
+inline void AppToolMethod::init(const char *program_name, const struct SqAppSetting *setting) {
+	sq_app_tool_init((SqAppTool*)this, program_name, setting);
 	((SqAppTool*)this)->template_extension = ".cpp.txt";
 }
 inline void AppToolMethod::final() {

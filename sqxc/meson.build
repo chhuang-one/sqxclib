@@ -101,18 +101,24 @@ configure_file(input : 'config.h.in',
 
 sqxc_inc = include_directories('./')
 
-sqxc_lib = static_library('sqxc',
-                          sources,
-                          include_directories: sqxc_inc,
-                          dependencies : dependencies,
-                          install: false)
+sqxc_lib = static_library(
+    'sqxc',
+    sources,
+    include_directories: sqxc_inc,
+    dependencies : dependencies,
+    install: false
+)
 
-sqxcpp_lib = static_library('sqxcpp',
-                            sources_cpp,
-                            include_directories: sqxc_inc,
-                            dependencies : dependencies,
-                            install: false)
+sqxcpp_lib = static_library(
+    'sqxcpp',
+    sources_cpp,
+    include_directories: sqxc_inc,
+    dependencies : dependencies,
+    install: false
+)
 
-sqxc = declare_dependency(include_directories : sqxc_inc,
-                          link_with : [sqxcpp_lib, sqxc_lib],
-                          dependencies : dependencies)
+sqxc = declare_dependency(
+    include_directories : sqxc_inc,
+    link_with : [sqxcpp_lib, sqxc_lib],
+    dependencies : dependencies
+)

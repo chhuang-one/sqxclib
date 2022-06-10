@@ -12,65 +12,23 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <assert.h>
+#include <stdio.h>    // puts()
+
 #include <SqConfig.h>
 #include <SqError.h>
 #include <migrations.h>
 #include <SqApp.h>
-#include <SqApp-config.h>    // include SqApp-config.h at last
-
-// ----------------------------------------------------------------------------
-// SQL products
-
-/* ------ SQLite ------ */
-#if   DB_SQLITE && SQ_CONFIG_HAVE_SQLITE
-
-#include <SqdbSqlite.h>
-#define DB_CONNECTION    SQDB_INFO_SQLITE
-#define DB_CONFIG        ((SqdbConfig*) &db_config_sqlite)
-
-static const SqdbConfigSqlite  db_config_sqlite = {
-	.folder    = DB_FOLDER,
-	.extension = DB_EXTENSION,
-};
-
-#elif DB_SQLITE
-#define DB_PRODUCT_ERROR    "sqxclib does not enable SQLite support when compiling."
-#endif  // DB_SQLITE
-
-/* ------ MySQL ------ */
-#if   DB_MYSQL && SQ_CONFIG_HAVE_MYSQL
-
-#include <SqdbMysql.h>
-#define DB_CONNECTION    SQDB_INFO_MYSQL
-#define DB_CONFIG        ((SqdbConfig*) &db_config_mysql)
-
-static const SqdbConfigMysql  db_config_mysql = {
-	.host     = DB_HOST,
-	.port     = DB_PORT,
-	.user     = DB_USERNAME,
-	.password = DB_PASSWORD,
-};
-
-#elif DB_MYSQL
-#define DB_PRODUCT_ERROR    "sqxclib does not enable MySQL support when compiling."
-#endif  // DB_MYSQL
-
-/* ------ error ------ */
-#ifdef DB_PRODUCT_ERROR
-#include <stdio.h>    // puts
-#define DB_CONNECTION    NULL
-#define DB_CONFIG        NULL
-#endif
 
 // ----------------------------------------------------------------------------
 // SqApp functions
 
-SqApp *sq_app_new(void)
+SqApp *sq_app_new(const struct SqAppSetting *setting)
 {
 	SqApp *app;
 
 	app = malloc(sizeof(SqApp));
-	sq_app_init(app);
+	sq_app_init(app, setting);
 	return app;
 }
 
@@ -80,18 +38,20 @@ void   sq_app_free(SqApp *app)
 	free(app);
 }
 
-void  sq_app_init(SqApp *app)
+void  sq_app_init(SqApp *app, const struct SqAppSetting *setting)
 {
-#ifdef DB_PRODUCT_ERROR
-	puts(DB_PRODUCT_ERROR);
-	exit(EXIT_FAILURE);
-#endif
+	assert(setting != NULL);
 
-	app->db = sqdb_new(DB_CONNECTION, DB_CONFIG);
-	app->db_config    = DB_CONFIG;
-	app->db_database  = DB_DATABASE;
-	app->migrations   = migrations;
-	app->n_migrations = n_migrations;
+	if (setting->error) {
+		puts(setting->error);
+		exit(EXIT_FAILURE);
+	}
+
+	app->db = sqdb_new(setting->db_info, setting->db_config);
+	app->db_config    = setting->db_config;
+	app->db_database  = setting->db_database;
+	app->migrations   = setting->migrations;
+	app->n_migrations = setting->n_migrations[0];
 
 	app->storage = sq_storage_new(app->db);
 }
@@ -105,7 +65,7 @@ void  sq_app_final(SqApp *app)
 int   sq_app_open_database(SqApp *app, const char *db_database)
 {
 	if (db_database == NULL)
-		db_database = DB_DATABASE;
+		db_database = app->db_database;
 	return sq_storage_open(app->storage, db_database);
 }
 

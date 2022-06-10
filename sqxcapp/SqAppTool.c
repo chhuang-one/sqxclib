@@ -119,9 +119,9 @@ static const SqCommand list_command = {
 // ----------------------------------------------------------------------------
 /* --- SqAppTool functions --- */
 
-void   sq_app_tool_init(SqAppTool *app, const char *program_name)
+void   sq_app_tool_init(SqAppTool *app, const char *program_name, const struct SqAppSetting *setting)
 {
-	sq_app_init((SqApp*)app);
+	sq_app_init((SqApp*)app, setting);
 
 	// console
 	app->console = sq_console_new();

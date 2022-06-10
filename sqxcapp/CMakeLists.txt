@@ -2,19 +2,22 @@
 set(SOURCES_APP
     SqApp.c
     SqMigration.c
-    migrations.c
-    migrations-files.c
 )
 
-# sqxcapp C++ source files
-set(SOURCES_APP_CPP
+set(SOURCES_APP_USER
+    SqApp-config.c
+    migrations.c
+    migrations-files.c
     migrations-files.cpp
 )
 
 set(HEADERS_APP
     SqApp.h
-    SqApp-config.h
     SqMigration.h
+)
+
+set(HEADERS_APP_USER
+    SqApp-config.h
     migrations.h
 )
 
@@ -24,8 +27,8 @@ set(SQXCAPP_INCLUDE_DIRS
 )
 
 set(SQXCAPP_LIBRARIES
+    sqxcapp-user
     sqxcapp
-    sqxcppapp
     ${SQXC_LIBRARIES}
 )
 
@@ -43,27 +46,22 @@ set(SQXCAPP_LIBRARIES
 
 # --- sqxcapptool ---
 set(SOURCES_APPTOOL
-    SqApp.c
     SqAppTool.c
-    SqAppTool-migrations-files.c
-    SqMigration.c
-    migrations.c
     CommandCommon.c
     CommandMigrate.c
     CommandMake.c
 )
 
-# sqxcapptool C++ source files
-set(SOURCES_APPTOOL_CPP
+set(SOURCES_APPTOOL_USER
+    SqApp-config.c
+    migrations.c
+    SqAppTool-migrations-files.c
     SqAppTool-migrations-files.cpp
 )
 
 set(HEADERS_APPTOOL
-    SqApp.h
-    SqApp-config.h
     SqAppTool.h
-    SqMigration.h
-    migrations.h
+    SqAppTool-config.h
     CommandCommon.h
     CommandMigrate.h
     CommandMake.h
@@ -75,8 +73,9 @@ set(SQXCAPPTOOL_INCLUDE_DIRS
 )
 
 set(SQXCAPPTOOL_LIBRARIES
+    sqxcapptool-user
     sqxcapptool
-    sqxcppapptool
+    sqxcapp
     ${SQXCSUPPORT_LIBRARIES}
 )
 
@@ -111,9 +110,10 @@ add_library(sqxcapp
             ${HEADERS_APP}
 )
 
-add_library(sqxcppapp
+# 'sqxcapp-user' has database settings and migration data for user application.
+add_library(sqxcapp-user
             STATIC
-            ${SOURCES_APP_CPP}
+            ${SOURCES_APP_USER}
             ${HEADERS_APP}
 )
 
@@ -123,9 +123,10 @@ add_library(sqxcapptool
             ${HEADERS_APPTOOL}
 )
 
-add_library(sqxcppapptool
+# 'sqxcapptool-user' has database settings and migration data for user application.
+add_library(sqxcapptool-user
             STATIC
-            ${SOURCES_APPTOOL_CPP}
+            ${SOURCES_APPTOOL_USER}
             ${HEADERS_APPTOOL}
 )
 
