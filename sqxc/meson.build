@@ -103,22 +103,28 @@ sqxc_inc = include_directories('./')
 
 sqxc_lib = static_library(
     'sqxc',
-    sources,
+    [sources, sources_cpp],
     include_directories: sqxc_inc,
     dependencies : dependencies,
-    install: false
+    install: true
 )
 
-sqxcpp_lib = static_library(
-    'sqxcpp',
-    sources_cpp,
+sqxc_shared_lib = shared_library(
+    'sqxc',
+    [sources, sources_cpp],
     include_directories: sqxc_inc,
     dependencies : dependencies,
-    install: false
+    install: true
 )
 
 sqxc = declare_dependency(
     include_directories : sqxc_inc,
-    link_with : [sqxcpp_lib, sqxc_lib],
+    link_with : sqxc_lib,
+    dependencies : dependencies
+)
+
+sqxc_shared = declare_dependency(
+    include_directories : sqxc_inc,
+    link_with : sqxc_shared_lib,
     dependencies : dependencies
 )

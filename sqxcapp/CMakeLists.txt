@@ -104,11 +104,18 @@ set(SOURCES_CPP
 include_directories(${SQXCAPPTOOL_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 
+# 'sqxcapp' library
 add_library(sqxcapp
-            STATIC
             ${SOURCES_APP}
             ${HEADERS_APP}
 )
+set_target_properties(sqxcapp
+    PROPERTIES
+    PUBLIC_HEADER "${HEADERS_APP}"
+)
+if (BUILD_SHARED_LIBS)
+    target_link_libraries(sqxcapp sqxc)
+endif(BUILD_SHARED_LIBS)
 
 # 'sqxcapp-user' has database settings and migration data for user application.
 add_library(sqxcapp-user
@@ -117,11 +124,18 @@ add_library(sqxcapp-user
             ${HEADERS_APP}
 )
 
+# 'sqxcapptool' library
 add_library(sqxcapptool
-            STATIC
             ${SOURCES_APPTOOL}
             ${HEADERS_APPTOOL}
 )
+set_target_properties(sqxcapptool
+    PROPERTIES 
+    PUBLIC_HEADER "${HEADERS_APPTOOL}"
+)
+if (BUILD_SHARED_LIBS)
+    target_link_libraries(sqxcapptool sqxcapp sqxcsupport)
+endif(BUILD_SHARED_LIBS)
 
 # 'sqxcapptool-user' has database settings and migration data for user application.
 add_library(sqxcapptool-user
@@ -130,7 +144,14 @@ add_library(sqxcapptool-user
             ${HEADERS_APPTOOL}
 )
 
+# install
+install(
+    TARGETS sqxcapp sqxcapptool
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc/app
+)
 
+# 'sqxctool'
 add_executable(sqxctool  ${SOURCES})
 target_link_libraries(sqxctool  ${SQXCAPPTOOL_LIBRARIES})
 

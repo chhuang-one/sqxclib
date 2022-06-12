@@ -12,6 +12,8 @@ set(CMAKE_MODULE_PATH
 
 # set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H")
 
+option(BUILD_SHARED_LIBS "Build the shared library" OFF)
+
 ## find pthread
 #if (UNIX)
 #	set(THREADS_PREFER_PTHREAD_FLAG ON)

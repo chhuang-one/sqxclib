@@ -100,17 +100,32 @@ endif()
 include_directories(${SQXC_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
 link_libraries(${SQXC_LIBRARIES})
 
+# 'sqxc' library
 add_library(sqxc
-            STATIC
             ${SOURCES}
-            ${HEADERS}
-)
-
-add_library(sqxcpp
-            STATIC
             ${SOURCES_CPP}
+            ${HEADERS}
             ${HEADERS_CPP}
 )
+set_target_properties(sqxc
+    PROPERTIES
+    PUBLIC_HEADER "${HEADERS};${HEADERS_CPP}"
+)
+
+# 'sqxc' static library
+#if (BUILD_SHARED_LIBS)
+#    add_library(sqxc-static
+#                STATIC
+#                ${SOURCES}
+#                ${SOURCES_CPP}
+#                ${HEADERS}
+#                ${HEADERS_CPP}
+#    )
+#    set_target_properties(sqxc-static
+#        PROPERTIES
+#        OUTPUT_NAME sqxc
+#    )
+#endif(BUILD_SHARED_LIBS)
 
 # set SQXC_INCLUDE_DIRS to PARENT_SCOPE
 set(SQXC_INCLUDE_DIRS
@@ -121,8 +136,14 @@ set(SQXC_INCLUDE_DIRS
 
 # set SQXC_LIBRARIES to PARENT_SCOPE
 set(SQXC_LIBRARIES
-    sqxcpp
     sqxc
     ${SQXC_LIBRARIES}
     PARENT_SCOPE
+)
+
+# install
+install(
+    TARGETS sqxc
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
 )

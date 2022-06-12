@@ -39,10 +39,19 @@ set(SOURCES_TEST
     SqxcEmpty.c
     SqxcFile.c
 )
+
 set(HEADERS_TEST
     SqdbEmpty.h
     SqxcEmpty.h
     SqxcFile.h
+)
+
+# all headers
+set(HEADERS
+    ${HEADERS_HELPERS}
+    ${HEADERS_STRUCTS}
+    ${HEADERS_CONSOLE}
+    ${HEADERS_TEST}
 )
 
 # --- sqxcsupport ---
@@ -73,7 +82,6 @@ include_directories(${SQXC_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
 link_libraries(${SQXC_LIBRARIES})
 
 add_library(sqxcsupport
-            STATIC
             ${SOURCES_HELPERS}
             ${SOURCES_STRUCTS}
             ${SOURCES_CONSOLE}
@@ -83,4 +91,18 @@ add_library(sqxcsupport
             ${HEADERS_STRUCTS}
             ${HEADERS_CONSOLE}
             ${HEADERS_TEST}
+)
+set_target_properties(sqxcsupport
+    PROPERTIES
+    PUBLIC_HEADER "${HEADERS}"
+)
+if (BUILD_SHARED_LIBS)
+    target_link_libraries(sqxcsupport sqxc)
+endif(BUILD_SHARED_LIBS)
+
+#install
+install(
+    TARGETS sqxcsupport
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc/support
 )
