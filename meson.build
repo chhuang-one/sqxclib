@@ -5,6 +5,9 @@ project('sqxclib', 'c', 'cpp',
 # add_project_arguments('-DHAVE_CONFIG_H', language : ['c', 'cpp'])
 # add_project_arguments('-DNDEBUG', language : ['c', 'cpp'])
 
+sqxclib_version = meson.project_version()
+sqxclib_soversion = 0
+
 config_data = configuration_data()
 
 # --- therad ---

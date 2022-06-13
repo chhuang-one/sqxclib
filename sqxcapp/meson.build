@@ -1,4 +1,4 @@
-# --- sqxcapp ---
+# --- 'sqxcapp' sources and headers ---
 sources_app = [
     'SqApp.c',
     'SqMigration.c',
@@ -21,7 +21,7 @@ headers_app_user = [
     'migrations.h',
 ]
 
-# --- sqxcapptool ---
+# --- 'sqxcapptool' sources and headers ---
 sources_apptool = [
     'SqAppTool.c',
     'CommandCommon.c',
@@ -44,7 +44,7 @@ sources_apptool_user = [
     'SqAppTool-migrations-files.cpp'
 ]
 
-# --- sqxctool ---
+# --- 'sqxctool' sources ---
 sources = ['sqxctool.c']
 
 sources_cpp = ['sqxcpptool.cpp']
@@ -57,7 +57,7 @@ install_headers(headers_apptool, subdir: 'sqxc/app')
 sqxcapp_inc = include_directories('./')
 sqxcapptool_inc = sqxcapp_inc
 
-# 'sqxcapp' library
+# --- 'sqxcapp' library ---
 sqxcapp_lib = static_library(
     'sqxcapp',
     sources_app,
@@ -71,10 +71,13 @@ sqxcapp_shared_lib = shared_library(
     sources_app,
     include_directories: sqxcapp_inc,
     dependencies : sqxc_shared,
+#    version : sqxclib_version,
+#    soversion : sqxclib_soversion,
     install: true
 )
 
 # 'sqxcapp-user' has database settings and migration data for user application.
+# The difference is that it links STATIC 'sqxc' library.
 sqxcapp_user_lib = static_library(
     'sqxcapp-user',
     sources_app_user,
@@ -83,7 +86,9 @@ sqxcapp_user_lib = static_library(
     install: false
 )
 
-sqxcapp_user_lib_link_shared = static_library(
+# 'sqxcapp-user-link_shared' has database settings and migration data for user application.
+# The difference is that it links SHARED 'sqxc' library.
+sqxcapp_user_link_shared_lib = static_library(
     'sqxcapp-user-link-shared',
     sources_app_user,
     include_directories: sqxcapp_inc,
@@ -91,7 +96,7 @@ sqxcapp_user_lib_link_shared = static_library(
     install: false
 )
 
-# 'sqxcapptool' library
+# --- 'sqxcapptool' library ---
 sqxcapptool_lib = static_library(
     'sqxcapptool',
     sources_apptool,
@@ -106,10 +111,13 @@ sqxcapptool_shared_lib = shared_library(
     include_directories: sqxcapp_inc,
     link_with : sqxcapp_shared_lib,
     dependencies : sqxcsupport_shared,
+#    version : sqxclib_version,
+#    soversion : sqxclib_soversion,
     install: true
 )
 
 # 'sqxcapptool-user' has database settings and migration data for user application.
+# The difference is that it links STATIC 'sqxc' and 'sqxcsupport' library.
 sqxcapptool_user_lib = static_library(
     'sqxcapptool-user',
     sources_apptool_user,
@@ -118,7 +126,9 @@ sqxcapptool_user_lib = static_library(
     install: false
 )
 
-sqxcapptool_user_lib_link_shared = static_library(
+# 'sqxcapptool-user-link-shared' has database settings and migration data for user application.
+# The difference is that it links SHARED 'sqxc' and 'sqxcsupport' library.
+sqxcapptool_user_link_shared_lib = static_library(
     'sqxcapptool-user-link-shared',
     sources_apptool_user,
     include_directories: sqxcapp_inc,
@@ -126,16 +136,11 @@ sqxcapptool_user_lib_link_shared = static_library(
     install: false
 )
 
+# static dependency
 sqxcapp = declare_dependency(
     include_directories : sqxcapp_inc,
     link_with : [sqxcapp_user_lib, sqxcapp_lib],
     dependencies : sqxc
-)
-
-sqxcapp_shared = declare_dependency(
-    include_directories : sqxcapp_inc,
-    link_with : [sqxcapp_user_lib_link_shared, sqxcapp_shared_lib],
-    dependencies : sqxc_shared
 )
 
 sqxcapptool = declare_dependency(
@@ -144,16 +149,25 @@ sqxcapptool = declare_dependency(
     dependencies : sqxcsupport
 )
 
+# shared dependency
+sqxcapp_shared = declare_dependency(
+    include_directories : sqxcapp_inc,
+    link_with : [sqxcapp_user_link_shared_lib, sqxcapp_shared_lib],
+    dependencies : sqxc_shared
+)
+
 sqxcapptool_shared = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with : [sqxcapptool_user_lib_link_shared, sqxcapptool_shared_lib, sqxcapp_shared_lib],
+    link_with : [sqxcapptool_user_link_shared_lib, sqxcapptool_shared_lib, sqxcapp_shared_lib],
     dependencies : sqxcsupport_shared
 )
 
+# --- 'sqxctool' executable file ---
 executable('sqxctool',
            sources,
            dependencies : sqxcapptool)
 
+# --- 'sqxcpptool' executable file ---
 executable('sqxcpptool',
            sources_cpp,
            dependencies : sqxcapptool)

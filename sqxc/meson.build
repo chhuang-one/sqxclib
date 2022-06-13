@@ -1,3 +1,4 @@
+# --- 'sqxc' sources and headers ---
 sources = [
     'SqPtrArray.c',
     'SqBuffer.c',
@@ -55,7 +56,6 @@ headers = [
 ]
 
 # C++ sources & headers
-
 sources_cpp = [
     'SqType-std-string.cpp',
 ]
@@ -72,18 +72,21 @@ dependencies = []
 #	endif
 #endif
 
+# --- json-c ---
 if jsonc.found() == true
 	sources += ['SqxcJsonc.c']
 	headers += ['SqxcJsonc.h']
 	dependencies += jsonc
 endif
 
+# --- MySQL ---
 if mysql_config.found()
 	sources += ['SqdbMysql.c', 'Sqdb-migration.c']
 	headers += ['SqdbMysql.h', 'Sqdb-migration.h']
 	dependencies += mysql
 endif
 
+# --- SQLite ---
 if sqlite.found() == true
 	sources += ['SqdbSqlite.c', 'SqRelation-migration.c', 'SqRelation.c']
 	headers += ['SqdbSqlite.h', 'SqRelation-migration.h']
@@ -101,30 +104,55 @@ configure_file(input : 'config.h.in',
 
 sqxc_inc = include_directories('./')
 
+# --- 'sqxc' static library ---
 sqxc_lib = static_library(
     'sqxc',
-    [sources, sources_cpp],
+    sources,
     include_directories: sqxc_inc,
     dependencies : dependencies,
     install: true
 )
 
+# --- 'sqxcpp' static library ---
+sqxcpp_lib = static_library(
+    'sqxcpp',
+    sources_cpp,
+    include_directories: sqxc_inc,
+    dependencies : dependencies,
+    install: true
+)
+
+# --- 'sqxc' shared library ---
 sqxc_shared_lib = shared_library(
     'sqxc',
-    [sources, sources_cpp],
+    sources,
     include_directories: sqxc_inc,
+    dependencies : dependencies,
+#    version : sqxclib_version,
+#    soversion : sqxclib_soversion,
+    install: true
+)
+
+# --- 'sqxcpp' shared library ---
+sqxcpp_shared_lib = shared_library(
+    'sqxcpp',
+    sources_cpp,
+    include_directories: sqxc_inc,
+    link_with : sqxc_shared_lib,
     dependencies : dependencies,
     install: true
 )
 
+# static dependency
 sqxc = declare_dependency(
     include_directories : sqxc_inc,
-    link_with : sqxc_lib,
+    link_with : [sqxcpp_lib, sqxc_lib],
     dependencies : dependencies
 )
 
+# shared dependency
 sqxc_shared = declare_dependency(
     include_directories : sqxc_inc,
-    link_with : sqxc_shared_lib,
+    link_with : [sqxcpp_shared_lib, sqxc_shared_lib],
     dependencies : dependencies
 )

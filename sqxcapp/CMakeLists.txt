@@ -1,4 +1,4 @@
-# --- sqxcapp ---
+# --- 'sqxcapp' sources and headers ---
 set(SOURCES_APP
     SqApp.c
     SqMigration.c
@@ -8,8 +8,15 @@ set(SOURCES_APP_USER
     SqApp-config.c
     migrations.c
     migrations-files.c
-    migrations-files.cpp
 )
+
+if (DEFINED CMAKE_CXX_COMPILER)
+    # add 'sqxcapp' C++ source file
+    set(SOURCES_APP_USER
+        ${SOURCES_APP_USER}
+        migrations-files.cpp
+    )
+endif (CMAKE_CXX_COMPILER)
 
 set(HEADERS_APP
     SqApp.h
@@ -32,19 +39,7 @@ set(SQXCAPP_LIBRARIES
     ${SQXC_LIBRARIES}
 )
 
-# set SQXCAPP_INCLUDE_DIRS to PARENT_SCOPE
-set(SQXCAPP_INCLUDE_DIRS
-    ${SQXCAPP_INCLUDE_DIRS}
-    PARENT_SCOPE
-)
-
-# set SQXCAPP_LIBRARIES to PARENT_SCOPE
-set(SQXCAPP_LIBRARIES
-    ${SQXCAPP_LIBRARIES}
-    PARENT_SCOPE
-)
-
-# --- sqxcapptool ---
+# --- 'sqxcapptool' sources and headers ---
 set(SOURCES_APPTOOL
     SqAppTool.c
     CommandCommon.c
@@ -56,8 +51,15 @@ set(SOURCES_APPTOOL_USER
     SqApp-config.c
     migrations.c
     SqAppTool-migrations-files.c
-    SqAppTool-migrations-files.cpp
 )
+
+if (DEFINED CMAKE_CXX_COMPILER)
+    # add 'sqxcapptool' C++ source file
+    set(SOURCES_APPTOOL_USER
+        ${SOURCES_APPTOOL_USER}
+        SqAppTool-migrations-files.cpp
+    )
+endif (CMAKE_CXX_COMPILER)
 
 set(HEADERS_APPTOOL
     SqAppTool.h
@@ -79,19 +81,7 @@ set(SQXCAPPTOOL_LIBRARIES
     ${SQXCSUPPORT_LIBRARIES}
 )
 
-# set SQXCAPPTOOL_INCLUDE_DIRS to PARENT_SCOPE
-set(SQXCAPPTOOL_INCLUDE_DIRS
-    ${SQXCAPPTOOL_INCLUDE_DIRS}
-    PARENT_SCOPE
-)
-
-# set SQXCAPPTOOL_LIBRARIES to PARENT_SCOPE
-set(SQXCAPPTOOL_LIBRARIES
-    ${SQXCAPPTOOL_LIBRARIES}
-    PARENT_SCOPE
-)
-
-# --- sqxctool ---
+# --- 'sqxctool' sources ---
 set(SOURCES
     sqxctool.c
 )
@@ -100,17 +90,19 @@ set(SOURCES_CPP
     sqxcpptool.cpp
 )
 
-# ---
+# --- build library ---
 include_directories(${SQXCAPPTOOL_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 
-# 'sqxcapp' library
+# --- 'sqxcapp' library ---
 add_library(sqxcapp
             ${SOURCES_APP}
             ${HEADERS_APP}
 )
 set_target_properties(sqxcapp
     PROPERTIES
+#    VERSION        ${PROJECT_VERSION}
+#    SOVERSION      ${SQXCLIB_SOVERSION}
     PUBLIC_HEADER "${HEADERS_APP}"
 )
 if (BUILD_SHARED_LIBS)
@@ -124,13 +116,15 @@ add_library(sqxcapp-user
             ${HEADERS_APP}
 )
 
-# 'sqxcapptool' library
+# --- 'sqxcapptool' library ---
 add_library(sqxcapptool
             ${SOURCES_APPTOOL}
             ${HEADERS_APPTOOL}
 )
 set_target_properties(sqxcapptool
     PROPERTIES 
+#    VERSION        ${PROJECT_VERSION}
+#    SOVERSION      ${SQXCLIB_SOVERSION}
     PUBLIC_HEADER "${HEADERS_APPTOOL}"
 )
 if (BUILD_SHARED_LIBS)
@@ -151,9 +145,36 @@ install(
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc/app
 )
 
-# 'sqxctool'
+# --- 'sqxctool' executable file ---
 add_executable(sqxctool  ${SOURCES})
 target_link_libraries(sqxctool  ${SQXCAPPTOOL_LIBRARIES})
 
+# --- 'sqxcpptool' executable file ---
+if (DEFINED CMAKE_CXX_COMPILER)
 add_executable(sqxcpptool  ${SOURCES_CPP})
 target_link_libraries(sqxcpptool  ${SQXCAPPTOOL_LIBRARIES})
+endif (CMAKE_CXX_COMPILER)
+
+# set SQXCAPP_INCLUDE_DIRS to PARENT_SCOPE
+set(SQXCAPP_INCLUDE_DIRS
+    ${SQXCAPP_INCLUDE_DIRS}
+    PARENT_SCOPE
+)
+
+# set SQXCAPP_LIBRARIES to PARENT_SCOPE
+set(SQXCAPP_LIBRARIES
+    ${SQXCAPP_LIBRARIES}
+    PARENT_SCOPE
+)
+
+# set SQXCAPPTOOL_INCLUDE_DIRS to PARENT_SCOPE
+set(SQXCAPPTOOL_INCLUDE_DIRS
+    ${SQXCAPPTOOL_INCLUDE_DIRS}
+    PARENT_SCOPE
+)
+
+# set SQXCAPPTOOL_LIBRARIES to PARENT_SCOPE
+set(SQXCAPPTOOL_LIBRARIES
+    ${SQXCAPPTOOL_LIBRARIES}
+    PARENT_SCOPE
+)

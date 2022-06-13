@@ -71,6 +71,8 @@ sqxcsupport_shared_lib = shared_library(
     [sources_helpers, sources_structs, sources_console, sources_test],
     include_directories: sqxcsupport_inc,
     dependencies : sqxc_shared,
+#    version : sqxclib_version,
+#    soversion : sqxclib_soversion,
     install: true
 )
 
