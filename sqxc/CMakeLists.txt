@@ -110,7 +110,7 @@ set_target_properties(sqxc
     PROPERTIES
 #    VERSION        ${PROJECT_VERSION}
 #    SOVERSION      ${SQXCLIB_SOVERSION}
-    PUBLIC_HEADER  ${HEADERS}
+    PUBLIC_HEADER "${HEADERS}"
 )
 # add 'sqxc' to SQXC_LIBRARIES
 set(SQXC_LIBRARIES
@@ -153,7 +153,7 @@ if (DEFINED CMAKE_CXX_COMPILER)
         PROPERTIES
 #            VERSION        ${PROJECT_VERSION}
 #            SOVERSION      ${SQXCLIB_SOVERSION}
-            PUBLIC_HEADER  ${HEADERS_CPP}
+            PUBLIC_HEADER "${HEADERS_CPP}"
     )
     # add 'sqxcpp' to SQXC_LIBRARIES
     set(SQXC_LIBRARIES
