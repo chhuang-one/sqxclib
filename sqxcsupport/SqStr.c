@@ -111,7 +111,7 @@ struct
 	{-1, 3, "ies"},
 	{0,  2, "es"},
 	{0,  1, "s"},
-	{0,  0, ""}
+	{0,  0, ""}        // sq_plural2singular() need this element
 };
 
 // singular to plural
@@ -164,13 +164,12 @@ int sq_plural2singular(char *dest, const char *src)
 	int  diff_pos;
 	int  length;
 
-	diff_pos = 0;
 	length = (int)strlen(src);
 
-	for (index = 0;  index < 3;  index++) {
+	for (index = 0;  ;  index++) {
+		diff_pos = length - plural_[index].length;
 		if (length < plural_[index].length)
 			continue;
-		diff_pos = length - plural_[index].length;
 		if (strcasecmp(src + diff_pos, plural_[index].string) == 0)
 			break;
 	}
@@ -184,8 +183,7 @@ int sq_plural2singular(char *dest, const char *src)
 			dest[diff_pos] = isupper(src[diff_pos]) ? 'Y' : 'y';
 			diff_pos++;
 		}
-		if (index != 3)
-			dest[diff_pos] = 0;
+		dest[diff_pos] = 0;
 	}
 
 	return length;
