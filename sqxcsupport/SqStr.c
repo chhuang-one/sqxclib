@@ -84,7 +84,7 @@ char* sq_str_camel(const char *snake_name, bool upper_camel_case)
 {
     char *camel;
 
-    camel = malloc(sq_snake2camel(NULL, snake_name, upper_camel_case));
+    camel = malloc(sq_snake2camel(NULL, snake_name, upper_camel_case) +1);    // + '\0'
     sq_snake2camel(camel, snake_name, upper_camel_case);
     return camel;
 }
@@ -93,7 +93,7 @@ char* sq_str_snake(const char *camel_name)
 {
     char *snake;
 
-    snake = malloc(sq_camel2snake(NULL, camel_name));
+    snake = malloc(sq_camel2snake(NULL, camel_name) +1);    // + '\0'
     sq_camel2snake(snake, camel_name);
     return snake;
 }
@@ -195,7 +195,7 @@ char* sq_str_singular(const char *plural)
 {
     char *singular;
 
-    singular = malloc(sq_plural2singular(NULL, plural));
+    singular = malloc(sq_plural2singular(NULL, plural) +1);    // + '\0'
     sq_plural2singular(singular, plural);
     return singular;
 }
@@ -204,7 +204,7 @@ char* sq_str_plural(const char *singular)
 {
     char *plural;
 
-    plural = malloc(sq_singular2plural(NULL, singular));
+    plural = malloc(sq_singular2plural(NULL, singular) +1);    // + '\0'
     sq_singular2plural(plural, singular);
     return plural;
 }
