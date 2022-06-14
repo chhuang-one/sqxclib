@@ -16,7 +16,7 @@ if (DEFINED CMAKE_CXX_COMPILER)
         ${SOURCES_APP_USER}
         migrations-files.cpp
     )
-endif (CMAKE_CXX_COMPILER)
+endif (DEFINED CMAKE_CXX_COMPILER)
 
 set(HEADERS_APP
     SqApp.h
@@ -59,7 +59,7 @@ if (DEFINED CMAKE_CXX_COMPILER)
         ${SOURCES_APPTOOL_USER}
         SqAppTool-migrations-files.cpp
     )
-endif (CMAKE_CXX_COMPILER)
+endif (DEFINED CMAKE_CXX_COMPILER)
 
 set(HEADERS_APPTOOL
     SqAppTool.h
@@ -153,7 +153,7 @@ target_link_libraries(sqxctool  ${SQXCAPPTOOL_LIBRARIES})
 if (DEFINED CMAKE_CXX_COMPILER)
 add_executable(sqxcpptool  ${SOURCES_CPP})
 target_link_libraries(sqxcpptool  ${SQXCAPPTOOL_LIBRARIES})
-endif (CMAKE_CXX_COMPILER)
+endif (DEFINED CMAKE_CXX_COMPILER)
 
 # set SQXCAPP_INCLUDE_DIRS to PARENT_SCOPE
 set(SQXCAPP_INCLUDE_DIRS
