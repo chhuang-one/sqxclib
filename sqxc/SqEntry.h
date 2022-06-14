@@ -33,25 +33,31 @@ typedef struct SqReentry        SqReentry;
 #define SQB_HIDDEN         (1 << 3)   // JSON: hidden entry
 #define SQB_HIDDEN_NULL    (1 << 4)   // JSON: hidden entry if value is NULL
 #define SQB_RESERVE_1      (1 << 5)   // reserve
-#define SQB_ENTRY_END      SQB_RESERVE_1
 
-/* --- SqColumn::bit_field (Column Modifiers) --- */
-#define SQB_PRIMARY        (1 << 6)   // SQL: PRIMARY KEY
-#define SQB_FOREIGN        (1 << 7)   // SQL: FOREIGN KEY
-#define SQB_UNIQUE         (1 << 8)   // SQL: UNIQUE
-#define SQB_INCREMENT      (1 << 9)   // SQL: AUTOINCREMENT == SQB_AUTOINCREMENT
-#define SQB_AUTOINCREMENT  (1 << 9)   // SQL: AUTOINCREMENT == SQB_INCREMENT
-#define SQB_NULLABLE       (1 << 10)  // SQL: remove "NOT NULL"
+// SQL common bit_field.
+#define SQB_CHANGED        (1 << 6)   // SQL: alter/modify. column/table has been altered.
+// SQL common bit_field (for internal use only. use it when SQLite recreate)
+#define SQB_RENAMED        (1 << 7)   // SQL: rename. column/table has been renamed.
+// derived class/struct need this
+#define SQB_RESERVE_END    (1 << 8)
+
+/* --- SqReentry::bit_field (Column Modifiers) --- */
+#define SQB_REENTRY_RENAMED        SQB_RENAMED
+
+/* --- SqColumn::bit_field (Column Modifiers) ---
+   SqColumn::bit_field must large then SQB_RESERVE_END
+ */
+#define SQB_PRIMARY        (1 << 9)   // SQL: PRIMARY KEY
+#define SQB_FOREIGN        (1 << 10)  // SQL: FOREIGN KEY
+#define SQB_UNIQUE         (1 << 11)  // SQL: UNIQUE
+#define SQB_INCREMENT      (1 << 12)  // SQL: AUTOINCREMENT == SQB_AUTOINCREMENT
+#define SQB_AUTOINCREMENT  (1 << 12)  // SQL: AUTOINCREMENT == SQB_INCREMENT
+#define SQB_NULLABLE       (1 << 13)  // SQL: remove "NOT NULL"
 
 // SqColumn::type == SQ_TYPE_TIME (use CURRENT_TIMESTAMP)
-#define SQB_CURRENT              (1 << 11)    // SQL: DEFAULT CURRENT_TIMESTAMP
-#define SQB_CURRENT_ON_UPDATE    (1 << 12)    // SQL: CREATE TRIGGER AFTER UPDATE
+#define SQB_CURRENT              (1 << 14)    // SQL: DEFAULT CURRENT_TIMESTAMP
+#define SQB_CURRENT_ON_UPDATE    (1 << 15)    // SQL: CREATE TRIGGER AFTER UPDATE
 #define SQB_CURRENT_ALL          (SQB_CURRENT | SQB_CURRENT_ON_UPDATE)
-
-// SQL common bit_field (for internal use only. use it when SQLite recreate)
-#define SQB_RENAMED        (1 << 30)  // SQL: rename. column/table has been renamed.
-// SQL common bit_field
-#define SQB_CHANGED        (1 << 31)  // SQL: alter/modify. column/table has been altered.
 
 /* SQ_N_PTRS() calculate number of pointer in array. for example:
 	SqEntry *FooEntries[] = {...};

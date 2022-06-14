@@ -31,9 +31,8 @@
 
 typedef struct SqSchema       SqSchema;
 
-// SqSchema::bit_field
-// Can't steal column from this schema. It is not database no-steal
-#define SQB_SCHEMA_NO_STEAL                (1 << 15)
+// SQL common bit_field
+#define SQB_SCHEMA_CHANGED                 SQB_CHANGED         // SQL: alter/modify. column/table has been altered.
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.

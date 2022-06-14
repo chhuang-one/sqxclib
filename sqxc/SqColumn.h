@@ -26,11 +26,34 @@
 typedef struct SqColumn       SqColumn;
 typedef struct SqForeign      SqForeign;    // used by SqColumn
 
+
 // SQL special type
 #define SQ_TYPE_CONSTRAINT    SQ_TYPE_FAKE0
 #define SQ_TYPE_INDEX         SQ_TYPE_FAKE1
 
 #define SQ_N_COLUMNS(ColumnArray)    ( sizeof(ColumnArray) / sizeof(SqColumn) )
+
+// SQL common bit_field
+#define SQB_COLUMN_CHANGED              SQB_CHANGED         // SQL: alter/modify. column/table has been altered.
+// SQL common bit_field (for internal use only. use it when SQLite recreate)
+#define SQB_COLUMN_RENAMED              SQB_RENAMED         // SQL: rename. column/table has been renamed.
+
+/* SqColumn::bit_field for SQLite migration
+   SQB_COLUMN_XXX must large then SQB_RESERVE_END because it derived from SqEntry. (SqEntry.h)
+   SQB_COLUMN_XXX can overlap SQB_TABLE_XXX (SqTable.h)
+ */
+/* --- SqColumn::bit_field (Column Modifiers) --- */
+#define SQB_COLUMN_PRIMARY              SQB_PRIMARY         // SQL: PRIMARY KEY
+#define SQB_COLUMN_FOREIGN              SQB_FOREIGN         // SQL: FOREIGN KEY
+#define SQB_COLUMN_UNIQUE               SQB_UNIQUE          // SQL: UNIQUE
+#define SQB_COLUMN_INCREMENT            SQB_INCREMENT       // SQL: AUTOINCREMENT == SQB_AUTOINCREMENT
+#define SQB_COLUMN_AUTOINCREMENT        SQB_AUTOINCREMENT   // SQL: AUTOINCREMENT == SQB_INCREMENT
+#define SQB_COLUMN_NULLABLE             SQB_NULLABLE        // SQL: remove "NOT NULL"
+
+// SqColumn::type == SQ_TYPE_TIME (use CURRENT_TIMESTAMP)
+#define SQB_COLUMN_CURRENT              SQB_CURRENT              // SQL: DEFAULT CURRENT_TIMESTAMP
+#define SQB_COLUMN_CURRENT_ON_UPDATE    SQB_CURRENT_ON_UPDATE    // SQL: CREATE TRIGGER AFTER UPDATE
+#define SQB_COLUMN_CURRENT_ALL          SQB_CURRENT_ALL
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
