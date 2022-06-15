@@ -241,9 +241,19 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	table_name = sq_pairs_find(pairs, "table_name");
 	if (table_name == NULL) {
 		table_name = strchr(migration_name, '_');
-		if (table_name) {
+		// if 'table_name' found and 'table_name' is NOT empty string
+		if (table_name && table_name[1]) {
 			table_name++;
 			temp.len = (int)strcspn(table_name, "_");
+			// handle long table name
+			if (table_name[temp.len] != 0) {
+				for (;;) {
+					int cur_len = (int)strcspn(table_name + temp.len + 1, "_");
+					if (table_name[temp.len + 1 + cur_len] == 0)
+						break;
+					temp.len = temp.len + 1 + cur_len;    // temp.len + '_' + cur_len
+				}
+			}
 			table_name = strncpy(malloc(temp.len+1), table_name, temp.len);
 			table_name[temp.len] = 0;
 		}
