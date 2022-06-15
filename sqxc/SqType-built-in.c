@@ -366,17 +366,16 @@ int  sq_type_string_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	/* TODO: convert to string
 	case SQXC_TYPE_INT:
 	case SQXC_TYPE_INT64:
-		// free existed string
-		if (*(char**)instance)
-			free(*(char**)instance);
 		break;
 	 */
 
 	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_STRING:
+		/* Don't free existed string in container. It may cause memory corruption.
 		// free existed string
 		if (*(char**)instance)
 			free(*(char**)instance);
+		*/
 
 		if (src->value.string)
 			*(char**)instance = strdup(src->value.string);
