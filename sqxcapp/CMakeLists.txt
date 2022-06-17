@@ -42,9 +42,9 @@ set(SQXCAPP_LIBRARIES
 # --- 'sqxcapptool' sources and headers ---
 set(SOURCES_APPTOOL
     SqAppTool.c
-    CommandCommon.c
-    CommandMigrate.c
-    CommandMake.c
+    SqCommandCommon.c
+    SqCommandMigrate.c
+    SqCommandMake.c
 )
 
 set(SOURCES_APPTOOL_USER
@@ -63,10 +63,10 @@ endif (DEFINED CMAKE_CXX_COMPILER)
 
 set(HEADERS_APPTOOL
     SqAppTool.h
-    SqAppTool-config.h
-    CommandCommon.h
-    CommandMigrate.h
-    CommandMake.h
+#    SqAppTool-config.h
+    SqCommandCommon.h
+    SqCommandMigrate.h
+    SqCommandMake.h
 )
 
 set(SQXCAPPTOOL_INCLUDE_DIRS

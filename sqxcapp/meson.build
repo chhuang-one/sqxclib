@@ -24,17 +24,17 @@ headers_app_user = [
 # --- 'sqxcapptool' sources and headers ---
 sources_apptool = [
     'SqAppTool.c',
-    'CommandCommon.c',
-    'CommandMigrate.c',
-    'CommandMake.c',
+    'SqCommandCommon.c',
+    'SqCommandMigrate.c',
+    'SqCommandMake.c',
 ]
 
 headers_apptool = [
     'SqAppTool.h',
-    'SqAppTool-config.h',
-    'CommandCommon.h',
-    'CommandMigrate.h',
-    'CommandMake.h',
+#    'SqAppTool-config.h',
+    'SqCommandCommon.h',
+    'SqCommandMigrate.h',
+    'SqCommandMake.h',
 ]
 
 sources_apptool_user = [

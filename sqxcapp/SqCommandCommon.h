@@ -12,16 +12,27 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef COMMAND_MAKE_H
-#define COMMAND_MAKE_H
+#ifndef SQ_COMMAND_COMMON_H
+#define SQ_COMMAND_COMMON_H
 
 #include <SqCommand.h>
-#include <CommandCommon.h>
+
+/*
+	SqCommandValue
+	|
+	`--- SqCommandCommon
+	     |
+	     +--- SqCommandList    (defined in SqAppTool.c)
+	     |
+	     +--- SqCommandMake
+	     |
+	     `--- SqCommandMigrate
+ */
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
-typedef struct CommandMake        CommandMake;
+typedef struct SqCommandCommon        SqCommandCommon;
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -30,7 +41,13 @@ typedef struct CommandMake        CommandMake;
 extern "C" {
 #endif
 
-void  sq_console_add_command_make(SqConsole *console);
+extern const SqOption SqOption_CommandCommonHelp_;
+extern const SqOption SqOption_CommandCommonQuiet_;
+extern const SqOption SqOption_CommandCommonVersion_;
+
+#define SQ_OPTION_COMMAND_COMMON_HELP       (&SqOption_CommandCommonHelp_)
+#define SQ_OPTION_COMMAND_COMMON_QUIET      (&SqOption_CommandCommonQuiet_)
+#define SQ_OPTION_COMMAND_COMMON_VERSION    (&SqOption_CommandCommonVersion_)
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -39,22 +56,26 @@ void  sq_console_add_command_make(SqConsole *console);
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*	CommandMake: make command
+/*	SqCommandCommon: SqCommandValue + common command options
 
 	SqCommandValue
 	|
-	`--- CommandCommon
-	     |
-	     `--- CommandMake
+	`--- SqCommandCommon
  */
 
+#define SQ_COMMAND_COMMON_MEMBERS    \
+	SQ_COMMAND_VALUE_MEMBERS;        \
+	bool           help;             \
+	bool           quiet;            \
+    bool           version
+
 #ifdef __cplusplus
-struct CommandMake : Sq::CommandValueMethod        // <-- 1. inherit C++ member function(method)
+struct SqCommandCommon : Sq::CommandValueMethod    // <-- 1. inherit C++ member function(method)
 #else
-struct CommandMake
+struct SqCommandCommon
 #endif
 {
-	COMMAND_COMMON_MEMBERS;                        // <-- 2. inherit member variable
+	SQ_COMMAND_COMMON_MEMBERS;                     // <-- 2. inherit member variable
 /*	// ------ SqCommandValue members ------
 	const SqCommand  *type;
 
@@ -62,17 +83,11 @@ struct CommandMake
 	SqPtrArray     shortcuts;
 	SqPtrArray     arguments;
 
-	// ------ CommandCommon members ------
+	// ------ SqCommandCommon members ------       // <-- 3. Add variable and non-virtual function in derived struct.
 	bool           help;
 	bool           quiet;
 	bool           version;    // Display this application version
  */
-
-	// ------ CommandMigrate members ------        // <-- 3. Add variable and non-virtual function in derived struct.
-	char          *table_to_create;
-	char          *table_to_migrate;
-	int            step;
 };
 
-
-#endif  // COMMAND_MAKE_H
+#endif  // SQ_COMMAND_COMMON_H

@@ -12,27 +12,16 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef COMMAND_COMMON_H
-#define COMMAND_COMMON_H
+#ifndef SQ_COMMAND_MIGRATE_H
+#define SQ_COMMAND_MIGRATE_H
 
 #include <SqCommand.h>
-
-/*
-	SqCommandValue
-	|
-	`--- CommandCommon
-	     |
-	     +--- CommandList    (defined in SqAppTool.c)
-	     |
-	     +--- CommandMake
-	     |
-	     `--- CommandMigrate
- */
+#include <SqCommandCommon.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
-typedef struct CommandCommon        CommandCommon;
+typedef struct SqCommandMigrate        SqCommandMigrate;
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -41,13 +30,7 @@ typedef struct CommandCommon        CommandCommon;
 extern "C" {
 #endif
 
-extern const SqOption command_common_help_option;
-extern const SqOption command_common_quiet_option;
-extern const SqOption command_common_version_option;
-
-#define COMMAND_COMMON_OPTION_HELP       (&command_common_help_option)
-#define COMMAND_COMMON_OPTION_QUIET      (&command_common_quiet_option)
-#define COMMAND_COMMON_OPTION_VERSION    (&command_common_version_option)
+void  sq_console_add_command_migrate(SqConsole *console);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -56,26 +39,27 @@ extern const SqOption command_common_version_option;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*	CommandCommon: SqCommandValue + common command options
+/*	SqCommandMigrate: migrate command
 
 	SqCommandValue
 	|
-	`--- CommandCommon
+	`--- SqCommandCommon
+	     |
+	     `--- SqCommandMigrate
  */
 
-#define COMMAND_COMMON_MEMBERS    \
-    SQ_COMMAND_VALUE_MEMBERS;     \
-	bool           help;          \
-	bool           quiet;         \
-    bool           version
+#define SQ_COMMAND_MIGRATE_MEMBERS      \
+	SQ_COMMAND_COMMON_MEMBERS;          \
+	char          *database;            \
+	int            step
 
 #ifdef __cplusplus
-struct CommandCommon : Sq::CommandValueMethod      // <-- 1. inherit C++ member function(method)
+struct SqCommandMigrate : Sq::CommandValueMethod   // <-- 1. inherit C++ member function(method)
 #else
-struct CommandCommon
+struct SqCommandMigrate
 #endif
 {
-	COMMAND_COMMON_MEMBERS;                        // <-- 2. inherit member variable
+	SQ_COMMAND_MIGRATE_MEMBERS;                    // <-- 2. inherit member variable
 /*	// ------ SqCommandValue members ------
 	const SqCommand  *type;
 
@@ -83,11 +67,16 @@ struct CommandCommon
 	SqPtrArray     shortcuts;
 	SqPtrArray     arguments;
 
-	// ------ CommandCommon members ------         // <-- 3. Add variable and non-virtual function in derived struct.
+	// ------ SqCommandCommon members ------
 	bool           help;
 	bool           quiet;
 	bool           version;    // Display this application version
+
+	// ------ SqCommandMigrate members ------      // <-- 3. Add variable and non-virtual function in derived struct.
+	char          *database;
+	int            step;
  */
 };
 
-#endif  // COMMAND_COMMON_H
+
+#endif  // End of SQ_COMMAND_MIGRATE_H

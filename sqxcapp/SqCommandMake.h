@@ -12,16 +12,16 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef COMMAND_MIGRATE_H
-#define COMMAND_MIGRATE_H
+#ifndef SQ_COMMAND_MAKE_H
+#define SQ_COMMAND_MAKE_H
 
 #include <SqCommand.h>
-#include <CommandCommon.h>
+#include <SqCommandCommon.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
-typedef struct CommandMigrate        CommandMigrate;
+typedef struct SqCommandMake        SqCommandMake;
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -30,7 +30,7 @@ typedef struct CommandMigrate        CommandMigrate;
 extern "C" {
 #endif
 
-void  sq_console_add_command_migrate(SqConsole *console);
+void  sq_console_add_command_make(SqConsole *console);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -39,22 +39,27 @@ void  sq_console_add_command_migrate(SqConsole *console);
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structue
 
-/*	CommandMigrate: migrate command
+/*	SqCommandMake: make command
 
 	SqCommandValue
 	|
-	`--- CommandCommon
+	`--- SqCommandCommon
 	     |
-	     `--- CommandMigrate
+	     `--- SqCommandMake
  */
 
+#define SQ_COMMAND_MAKE_MEMBERS      \
+	SQ_COMMAND_COMMON_MEMBERS;       \
+	char          *table_to_create;  \
+	char          *table_to_migrate
+
 #ifdef __cplusplus
-struct CommandMigrate : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
+struct SqCommandMake : Sq::CommandValueMethod      // <-- 1. inherit C++ member function(method)
 #else
-struct CommandMigrate
+struct SqCommandMake
 #endif
 {
-	COMMAND_COMMON_MEMBERS;                        // <-- 2. inherit member variable
+	SQ_COMMAND_MAKE_MEMBERS;                       // <-- 2. inherit member variable
 /*	// ------ SqCommandValue members ------
 	const SqCommand  *type;
 
@@ -62,16 +67,16 @@ struct CommandMigrate
 	SqPtrArray     shortcuts;
 	SqPtrArray     arguments;
 
-	// ------ CommandCommon members ------
+	// ------ SqCommandCommon members ------
 	bool           help;
 	bool           quiet;
 	bool           version;    // Display this application version
- */
 
-	// ------ CommandMigrate members ------        // <-- 3. Add variable and non-virtual function in derived struct.
-	char          *database;
-	int            step;
+	// ------ SqCommandMigrate members ------      // <-- 3. Add variable and non-virtual function in derived struct.
+	char          *table_to_create;
+	char          *table_to_migrate;
+ */
 };
 
 
-#endif  // End of COMMAND_MIGRATE_H
+#endif  // SQ_COMMAND_MAKE_H

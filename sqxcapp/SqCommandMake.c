@@ -15,14 +15,14 @@
 #include <stdio.h>
 #include <SqError.h>
 #include <SqAppTool.h>
-#include <CommandMake.h>
+#include <SqCommandMake.h>
 
 // ----------------------------------------------------------------------------
 // make:migration
 
 static void make_migration(SqCommandValue *cmd_value, SqConsole *console, void *data)
 {
-	CommandMake *value = (CommandMake*)cmd_value;
+	SqCommandMake *value = (SqCommandMake*)cmd_value;
 	SqAppTool   *app = data;
 	const char  *template_file = NULL;
 	int          code;
@@ -53,21 +53,22 @@ static void make_migration(SqCommandValue *cmd_value, SqConsole *console, void *
 }
 
 static const SqOption *make_migration_options[] = {
-	// --- CommandCommon options ---
-	COMMAND_COMMON_OPTION_HELP,
-//	COMMAND_COMMON_OPTION_QUIET,
+	// --- SqCommandCommon options ---
+	SQ_OPTION_COMMAND_COMMON_HELP,
+//	SQ_OPTION_COMMAND_COMMON_QUIET,
 
-	// --- CommandMake options ---
-	&(SqOption) {SQ_TYPE_STRING, "create",  offsetof(CommandMake, table_to_create),
+	// --- SqCommandMake options ---
+	&(SqOption) {SQ_TYPE_STRING, "create",  offsetof(SqCommandMake, table_to_create),
 		.value_description = "[=CREATE]",
 		.description = "The table to be created"},
-	&(SqOption) {SQ_TYPE_STRING, "table",   offsetof(CommandMake, table_to_migrate),
+	&(SqOption) {SQ_TYPE_STRING, "table",   offsetof(SqCommandMake, table_to_migrate),
 		.value_description = "[=TABLE]",
 		.description = "The table to migrate"},
 };
 
 static const SqCommand make_migration_command = SQ_COMMAND_INITIALIZER(
-	CommandMake, 0,                                // StructureType, bit_field
+	SqCommandMake,                                 // StructureType
+	0,                                             // bit_field
 	"make:migration",                              // command string
 	make_migration_options,                        // SqOption pointer array
 	make_migration,                                // handle function
@@ -78,7 +79,7 @@ static const SqCommand make_migration_command = SQ_COMMAND_INITIALIZER(
 /* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand make_migration_command = {
 	// --- SqType members ---
-	.size  = sizeof(CommandMake),
+	.size  = sizeof(SqCommandMake),
 	.parse = sq_command_parse_option,
 	.name  = "make:migration",
 	.entry   = (SqEntry**) make_migration_options,

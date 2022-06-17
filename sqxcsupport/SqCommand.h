@@ -157,7 +157,7 @@ struct CommandValueMethod {
  */
 
 #define SQ_COMMAND_MEMBERS        \
-    SQ_TYPE_MEMBERS;              \
+	SQ_TYPE_MEMBERS;              \
 	SqCommandFunc  handle;        \
 	const char    *parameter;     \
 	const char    *description
