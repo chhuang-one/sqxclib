@@ -63,10 +63,13 @@ endif (DEFINED CMAKE_CXX_COMPILER)
 
 set(HEADERS_APPTOOL
     SqAppTool.h
-#    SqAppTool-config.h
     SqCommandCommon.h
     SqCommandMigrate.h
     SqCommandMake.h
+)
+
+set(HEADERS_APPTOOL_USER
+    SqAppTool-config.h
 )
 
 set(SQXCAPPTOOL_INCLUDE_DIRS

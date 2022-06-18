@@ -176,17 +176,23 @@ int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
 	return SQCODE_OK;
 }
 
-int    sq_app_tool_decide_path(SqAppTool  *app)
+void   sq_app_tool_set_path(SqAppTool *app, const char *path)
+{
+	free(app->path);
+	app->path = strdup(path);
+}
+
+int    sq_app_tool_decide_path(SqAppTool *app)
 {
 	SqBuffer *buf = &app->buffer;
 	FILE     *file = NULL;
-	char     *array[] = {".", "..", "../..", SQ_TOOL_PATH_BASE, NULL};
+	char     *array[] = {".", "..", "../..", SQ_APP_TOOL_PATH_BASE, NULL};
 
 	buf->writed = 0;
 	// workspace folder
 	for (int i = 0;  array[i];  i++) {
 		sq_buffer_write(buf, array[i]);
-		sq_buffer_write(buf, SQ_TOOL_PATH_TEMPLATES);
+		sq_buffer_write(buf, SQ_APP_TOOL_PATH_TEMPLATES);
 		sq_buffer_write_c(buf, '/');
 		sq_buffer_write(buf, "migration-create.c.txt");
 		file = fopen(buf->mem, "r");
@@ -283,7 +289,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 
 	buf->writed = 0;
 	sq_buffer_write(buf, app->path);    // workspace folder
-	sq_buffer_write(buf, SQ_TOOL_PATH_MIGRATIONS);
+	sq_buffer_write(buf, SQ_APP_TOOL_PATH_MIGRATIONS);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, temp.timestr);
 	sq_buffer_write_c(buf, '_');
@@ -296,7 +302,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 
 	buf->writed = 0;
 	sq_buffer_write(buf, app->path);    // workspace folder
-	sq_buffer_write(buf, SQ_TOOL_PATH_TEMPLATES);
+	sq_buffer_write(buf, SQ_APP_TOOL_PATH_TEMPLATES);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, template_filename);
 	sq_buffer_write(buf, app->template_extension);
@@ -312,7 +318,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	// relative path of migration file for SqApp
 	buf->writed = 0;
 	sq_buffer_write(buf, "..");    // current dir of sqxcapp is "workspace folder/sqxcapp"
-	sq_buffer_write(buf, SQ_TOOL_PATH_MIGRATIONS);
+	sq_buffer_write(buf, SQ_APP_TOOL_PATH_MIGRATIONS);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, temp.timestr);
 	sq_buffer_write_c(buf, '_');
@@ -326,7 +332,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	// append filename in migrations-files.c (or .cpp)
 	buf->writed = 0;
 	sq_buffer_write(buf, app->path);    // workspace folder
-	sq_buffer_write(buf, SQ_TOOL_PATH_APP);
+	sq_buffer_write(buf, SQ_APP_TOOL_PATH_SOURCE);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, "migrations-files");
 	// strcspn() count length of template file extension
@@ -344,7 +350,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	// append element in migrations-declarations
 	buf->writed = 0;
 	sq_buffer_write(buf, app->path);    // workspace folder
-	sq_buffer_write(buf, SQ_TOOL_PATH_APP);
+	sq_buffer_write(buf, SQ_APP_TOOL_PATH_SOURCE);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, "migrations-declarations");
 	buf->mem[buf->writed] = 0;
@@ -365,7 +371,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	// append element in migrations-elements
 	buf->writed = 0;
 	sq_buffer_write(buf, app->path);    // workspace folder
-	sq_buffer_write(buf, SQ_TOOL_PATH_APP);
+	sq_buffer_write(buf, SQ_APP_TOOL_PATH_SOURCE);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, "migrations-elements");
 	buf->mem[buf->writed] = 0;

@@ -38,6 +38,9 @@ void    sq_app_tool_final(SqAppTool *app);
 
 int     sq_app_tool_run(SqAppTool *app, int argc, char **argv);
 
+// set workspace folder and save it in app->path
+void    sq_app_tool_set_path(SqAppTool *app, const char *path);
+
 // decide workspace folder and save it in app->path
 int     sq_app_tool_decide_path(SqAppTool *app);
 

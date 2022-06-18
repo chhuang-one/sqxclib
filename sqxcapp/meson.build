@@ -31,7 +31,6 @@ sources_apptool = [
 
 headers_apptool = [
     'SqAppTool.h',
-#    'SqAppTool-config.h',
     'SqCommandCommon.h',
     'SqCommandMigrate.h',
     'SqCommandMake.h',
@@ -42,6 +41,10 @@ sources_apptool_user = [
     'migrations.c',
     'SqAppTool-migrations-files.c',
     'SqAppTool-migrations-files.cpp'
+]
+
+headers_apptool_user = [
+    'SqAppTool-config.h',
 ]
 
 # --- 'sqxctool' sources ---

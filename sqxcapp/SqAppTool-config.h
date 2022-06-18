@@ -12,17 +12,17 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef SQ_TOOL_CONFIG_H
-#define SQ_TOOL_CONFIG_H
+#ifndef SQ_APP_TOOL_CONFIG_H
+#define SQ_APP_TOOL_CONFIG_H
 
-#ifndef SQ_TOOL_PATH_BASE
-#define SQ_TOOL_PATH_BASE            NULL
+#ifndef SQ_APP_TOOL_PATH_BASE
+#define SQ_APP_TOOL_PATH_BASE            NULL
 #endif
 
-#define SQ_TOOL_PATH_DATABASE        "/database"
-#define SQ_TOOL_PATH_MIGRATIONS      SQ_TOOL_PATH_DATABASE "/migrations"
-#define SQ_TOOL_PATH_APP             "/sqxcapp"
-#define SQ_TOOL_PATH_TEMPLATES       SQ_TOOL_PATH_APP  "/templates"
+#define SQ_APP_TOOL_PATH_DATABASE        "/database"
+#define SQ_APP_TOOL_PATH_MIGRATIONS      SQ_APP_TOOL_PATH_DATABASE "/migrations"
+#define SQ_APP_TOOL_PATH_SOURCE          "/sqxcapp"
+#define SQ_APP_TOOL_PATH_TEMPLATES       SQ_APP_TOOL_PATH_SOURCE "/templates"
 
 
-#endif  // SQ_TOOL_CONFIG_H
+#endif  // SQ_APP_TOOL_CONFIG_H
