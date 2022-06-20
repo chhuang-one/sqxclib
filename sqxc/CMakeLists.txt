@@ -40,6 +40,7 @@ set(HEADERS
     SqSchema-macro.h
     SqStorage.h
     SqQuery.h
+    SqQuery-proxy.h
     SqQuery-macro.h
     SqRelation.h
     Sqdb.h
@@ -122,6 +123,10 @@ install(
     TARGETS sqxc
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
+)
+install(
+    FILES config.h ${CMAKE_CURRENT_SOURCE_DIR}/config.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
 )
 
 # 'sqxc' static library

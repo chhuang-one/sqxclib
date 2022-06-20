@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(sqxclib VERSION 0.6.3)
+
 set(SQXCLIB_SOVERSION   0)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -12,6 +13,9 @@ set(CMAKE_MODULE_PATH
 )
 
 # set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H")
+
+# define CMAKE_INSTALL_<dir> and CMAKE_INSTALL_FULL_<dir>
+include(GNUInstallDirs)
 
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 

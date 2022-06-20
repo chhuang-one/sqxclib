@@ -52,6 +52,7 @@ set(HEADERS
     ${HEADERS_STRUCTS}
     ${HEADERS_CONSOLE}
     ${HEADERS_TEST}
+    sqxcsupport.h
 )
 
 # --- sqxcsupport ---

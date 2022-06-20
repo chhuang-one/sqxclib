@@ -52,6 +52,7 @@ headers_support = [
     headers_structs,
     headers_console,
     headers_test,
+    'sqxcsupport.h',
 ]
 
 install_headers(headers_support, subdir: 'sqxc/support')
