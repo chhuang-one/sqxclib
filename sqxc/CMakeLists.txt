@@ -118,15 +118,20 @@ set(SQXC_LIBRARIES
     sqxc
     ${SQXC_LIBRARIES}
 )
-# install
-install(
-    TARGETS sqxc
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
+# configure file
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
 )
 install(
     FILES config.h ${CMAKE_CURRENT_SOURCE_DIR}/config.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
+)
+# install header files
+install(
+    TARGETS sqxc
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
 )
 
 # 'sqxc' static library

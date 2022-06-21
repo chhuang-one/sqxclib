@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.14)
 
 project(sqxclib VERSION 0.6.3)
 
-set(SQXCLIB_SOVERSION   0)
+# set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING " " FORCE )
+
+set(SQXCLIB_VERSION        ${PROJECT_VERSION})
+set(SQXCLIB_SOVERSION      0)
+set(SQXCLIB_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 11)
@@ -54,11 +58,11 @@ if (Threads_FOUND)
 	    ${Threads_LIBRARIES}
 	)
 # --- config.h ---
-	set(have_thread    1)
+	set(SQXCLIB_HAVE_THREAD    1)
 elseif (WIN32)
-	set(have_thread    1)
+	set(SQXCLIB_HAVE_THREAD    1)
 else()
-	set(have_thread    0)
+	set(SQXCLIB_HAVE_THREAD    0)
 endif (Threads_FOUND)
 
 # --- json-c ---
@@ -75,9 +79,9 @@ if (JSONC_FOUND)
 	message(STATUS "json-c include dirs: ${JSONC_INCLUDE_DIRS}")
 	message(STATUS "json-c libraries: ${JSONC_LIBRARIES}")
 	# --- config.h ---
-	set(have_jsonc     1)
+	set(SQXCLIB_HAVE_JSONC     1)
 else()
-	set(have_jsonc     0)
+	set(SQXCLIB_HAVE_JSONC     0)
 endif (JSONC_FOUND)
 
 # --- SQLite ---
@@ -94,9 +98,9 @@ if (SQLite3_FOUND)
 	message(STATUS "SQLite include dirs: ${SQLite3_INCLUDE_DIRS}")
 	message(STATUS "SQLite libraries: ${SQLite3_LIBRARIES}")
 	# --- config.h ---
-	set(have_sqlite    1)
+	set(SQXCLIB_HAVE_SQLITE    1)
 else()
-	set(have_sqlite    0)
+	set(SQXCLIB_HAVE_SQLITE    0)
 endif (SQLite3_FOUND)
 
 # --- MySQL ---
@@ -120,14 +124,21 @@ if (MYSQL_FOUND)
 	message(STATUS "MySQL include dirs: ${MYSQL_INCLUDE_DIRS}")
 	message(STATUS "MySQL libraries: ${MYSQL_LIBRARIES}")
 	# --- config.h ---
-	set(have_mysql     1)
+	set(SQXCLIB_HAVE_MYSQL     1)
 else()
-	set(have_mysql     0)
+	set(SQXCLIB_HAVE_MYSQL     0)
 endif (MYSQL_FOUND)
 
-# --- config.h ---
-configure_file("${CMAKE_SOURCE_DIR}/sqxc/config.h.in"
-               "${CMAKE_SOURCE_DIR}/sqxc/config.h")
+# --- pkg-config configure file ---
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
+    @ONLY
+)
+install(
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig
+)
 
 # Enable testing for the project
 enable_testing()

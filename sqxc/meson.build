@@ -99,7 +99,7 @@ install_headers(headers_cpp, subdir: 'sqxc')
 configure_file(input : 'config.h.in',
                output : 'config.h',
                install : true,
-               install_dir : 'include/sqxc',
+               install_dir : 'include' / 'sqxc',
                configuration : config_data)
 
 sqxc_inc = include_directories('./')

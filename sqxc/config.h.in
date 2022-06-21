@@ -14,10 +14,10 @@
 
 // Build option
 
-#define HAVE_THREAD @have_thread@
+#define HAVE_THREAD @SQXCLIB_HAVE_THREAD@
 
-#define HAVE_JSONC  @have_jsonc@
+#define HAVE_JSONC  @SQXCLIB_HAVE_JSONC@
 
-#define HAVE_SQLITE @have_sqlite@
+#define HAVE_SQLITE @SQXCLIB_HAVE_SQLITE@
 
-#define HAVE_MYSQL  @have_mysql@
+#define HAVE_MYSQL  @SQXCLIB_HAVE_MYSQL@
