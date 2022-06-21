@@ -6,6 +6,3 @@
 
 // defined in ../database/migrations/2021_10_12_000000_create_users_table.c
 extern const SqMigration  CreateUsersTable_2021_10_12_000000;
-
-// defined in ../database/migrations/2021_11_26_091532_alter_users_table.cpp
-extern const SqMigration  alter_users_table_2021_11_26_091532;

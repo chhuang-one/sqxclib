@@ -3,16 +3,19 @@ link_libraries(${SQXC_LIBRARIES})
 
 add_executable(storage-c99  storage-c99.c)
 
+if (DEFINED CMAKE_CXX_COMPILER)
 add_executable(storage-cxx  storage-cxx.cpp)
 
 add_executable(storage-row  storage-row.cpp)
 target_include_directories(storage-row  PUBLIC  ${SQXCSUPPORT_INCLUDE_DIRS})
 target_link_libraries(storage-row  ${SQXCSUPPORT_LIBRARIES})
+endif (DEFINED CMAKE_CXX_COMPILER)
 
 add_executable(myapp-c99  myapp-c99.c)
 target_include_directories(myapp-c99  PUBLIC  ${SQXCAPP_INCLUDE_DIRS})
 target_link_libraries(myapp-c99  ${SQXCAPP_LIBRARIES})
 
+if (DEFINED CMAKE_CXX_COMPILER)
 add_executable(myapp-cxx  myapp-cxx.cpp)
 target_include_directories(myapp-cxx  PUBLIC  ${SQXCAPP_INCLUDE_DIRS})
 target_link_libraries(myapp-cxx  ${SQXCAPP_LIBRARIES})
@@ -22,4 +25,5 @@ if (JSONC_INCLUDE_DIRS)
 add_executable(xc_json_file  xc_json_file.cpp)
 target_include_directories(xc_json_file  PUBLIC  ${SQXCSUPPORT_INCLUDE_DIRS})
 target_link_libraries(xc_json_file  ${SQXCSUPPORT_LIBRARIES})
-endif()
+endif (JSONC_INCLUDE_DIRS)
+endif (DEFINED CMAKE_CXX_COMPILER)
