@@ -4,9 +4,7 @@ project(sqxclib VERSION 0.6.3)
 
 # set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING " " FORCE )
 
-set(SQXCLIB_VERSION        ${PROJECT_VERSION})
 set(SQXCLIB_SOVERSION      0)
-set(SQXCLIB_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 
 if (DEFINED CMAKE_CXX_COMPILER)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -131,7 +129,25 @@ else()
 	set(SQXCLIB_HAVE_MYSQL     0)
 endif (MYSQL_FOUND)
 
-# --- pkg-config configure file ---
+# --- pkg-config metadata file --- share/pkgconfig/sqxclib.pc
+set(SQXCLIB_PC_PREFIX  ${CMAKE_INSTALL_PREFIX})
+set(SQXCLIB_PC_VERSION ${PROJECT_VERSION})
+
+if (DEFINED SQXCLIB_HAVE_JSONC)
+	set(SQXCLIB_PC_REQUIRE_JSONC    "json-c")
+endif ()
+if (DEFINED SQXCLIB_HAVE_SQLITE)
+	set(SQXCLIB_PC_REQUIRE_SQLITE   "sqlite3")
+endif ()
+if (DEFINED SQXCLIB_HAVE_MYSQL)
+	# MySQL pkg-config name: mariadb  or  mysqlclient
+#	set(SQXCLIB_PC_REQUIRE_MYSQL    "mariadb")
+#	set(SQXCLIB_PC_REQUIRE_MYSQL    "mysqlclient")
+endif ()
+if (DEFINED CMAKE_CXX_COMPILER)
+	set(SQXCLIB_PC_LIB_CXX          "-lsqxcpp")
+endif ()
+
 configure_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}.pc.in
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc

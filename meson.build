@@ -10,7 +10,7 @@ sqxclib_soversion = 0
 
 config_data = configuration_data()
 
-# --- therad ---
+# --- thread ---
 if host_machine.system() == 'windows'
 	config_data.set('SQXCLIB_HAVE_THREAD',  '1')
 else
@@ -51,15 +51,33 @@ else
 	config_data.set('SQXCLIB_HAVE_MYSQL',  '0')
 endif
 
-config_data.set('SQXCLIB_INSTALL_PREFIX', get_option('prefix'))
-config_data.set('SQXCLIB_VERSION', sqxclib_version)
-# share/pkgconfig/sqxclib.pc
+# --- pkg-config metadata file --- share/pkgconfig/sqxclib.pc
+config_data.set('SQXCLIB_PC_PREFIX', get_option('prefix'))
+config_data.set('SQXCLIB_PC_VERSION', sqxclib_version)
+
+config_data.set('SQXCLIB_PC_REQUIRE_JSONC', '')
+config_data.set('SQXCLIB_PC_REQUIRE_SQLITE', '')
+config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', '')
+if jsonc.found() == true
+	config_data.set('SQXCLIB_PC_REQUIRE_JSONC', 'json-c')
+endif
+if sqlite.found() == true
+	config_data.set('SQXCLIB_PC_REQUIRE_SQLITE', 'sqlite3')
+endif
+if mysql_config.found() == true
+	# MySQL pkg-config name: mariadb  or  mysqlclient
+#	config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', 'mariadb')
+#	config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', 'mysqlclient')
+endif
+config_data.set('SQXCLIB_PC_LIB_CXX', '-lsqxcpp')
+
 configure_file(input : 'sqxclib.pc.in',
                output : 'sqxclib.pc',
                install : true,
                install_dir : get_option('datadir') / 'pkgconfig',
                configuration : config_data)
 
+# --- subdirectory ---
 subdir('sqxc')
 subdir('sqxcsupport')
 subdir('sqxcapp')

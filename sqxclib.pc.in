@@ -1,11 +1,11 @@
-prefix=@SQXCLIB_INSTALL_PREFIX@
+prefix=@SQXCLIB_PC_PREFIX@
 exec_prefix=${prefix}
 includedir=${prefix}/include
 libdir=${exec_prefix}/lib
 
 Name: sqxclib
 Description: sqxclib is a library to convert SQL (or JSON...etc) data to/from C language.
-Version: @SQXCLIB_VERSION@
-# Requires: json-c sqlite mysql
+Version: @SQXCLIB_PC_VERSION@
+Requires: @SQXCLIB_PC_REQUIRE_MYSQL@ @SQXCLIB_PC_REQUIRE_SQLITE@ @SQXCLIB_PC_REQUIRE_JSONC@
 Cflags: -I${includedir}/sqxc -I${includedir}/sqxc/app -I${includedir}/sqxc/support
-Libs: -L${libdir} -lsqxcapptool -lsqxcsupport -lsqxcapp -lsqxc
+Libs: -L${libdir} -lsqxcapptool -lsqxcsupport -lsqxcapp @SQXCLIB_PC_LIB_CXX@ -lsqxc
