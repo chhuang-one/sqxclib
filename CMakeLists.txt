@@ -7,8 +7,8 @@ project(sqxclib VERSION 0.6.3)
 set(SQXCLIB_SOVERSION      0)
 
 if (DEFINED CMAKE_CXX_COMPILER)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 11)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+	set(CMAKE_CXX_STANDARD 11)
 endif (DEFINED CMAKE_CXX_COMPILER)
 
 set(CMAKE_MODULE_PATH
@@ -23,6 +23,29 @@ include(GNUInstallDirs)
 
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 
+# use find_package(PkgConfig REQUIRED) before use pkg-config module
+find_package(PkgConfig REQUIRED)
+
+# pkg-config module
+if (PKG_CONFIG_FOUND)
+	pkg_check_modules(JSONC json-c)
+
+	pkg_check_modules(SQLite3 sqlite3)
+	if (SQLite3_FOUND)
+		set(SQLITE3_PC_FOUND true)
+	endif (SQLite3_FOUND)
+
+	pkg_check_modules(MYSQL mysqlclient)
+	if (MYSQL_FOUND)
+		set(MYSQLCLIENT_PC_FOUND true)
+	else ()
+		pkg_check_modules(MYSQL mariadb)
+		if (MYSQL_FOUND)
+			set(MARIADB_PC_FOUND true)
+		endif()
+	endif(MYSQL_FOUND)
+endif (PKG_CONFIG_FOUND)
+
 ## find pthread
 #if (UNIX)
 #	set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -30,22 +53,15 @@ option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 #	set(Threads_LIBRARIES Threads::Threads)
 #endif (UNIX)
 
-# find SQLite3
-find_package(SQLite3)
+# find SQLite3 if sqlite3.pc not found
+if (NOT DEFINED SQLite3_FOUND OR NOT SQLite3_FOUND)
+	find_package(SQLite3)
+endif ()
 
-# find MySQL
-find_package(MYSQL)
-
-# use find_package(PkgConfig REQUIRED) before use pkg-config module
-find_package(PkgConfig REQUIRED)
-
-# pkg-config module
-if (PKG_CONFIG_FOUND)
-	pkg_check_modules(JSONC json-c)
-	if (NOT SQLite3_FOUND)
-		pkg_check_modules(SQLite3 sqlite3)
-	endif()
-endif (PKG_CONFIG_FOUND)
+# find MySQL if mysqlclient.pc (or mariadb.pc) not found
+if (NOT DEFINED MYSQL_FOUND OR NOT MYSQL_FOUND)
+	find_package(MYSQL)
+endif()
 
 # --- thread ---
 if (Threads_FOUND)
@@ -136,13 +152,16 @@ set(SQXCLIB_PC_VERSION ${PROJECT_VERSION})
 if (DEFINED SQXCLIB_HAVE_JSONC)
 	set(SQXCLIB_PC_REQUIRE_JSONC    "json-c")
 endif ()
-if (DEFINED SQXCLIB_HAVE_SQLITE)
+if (DEFINED SQXCLIB_HAVE_SQLITE AND DEFINED SQLITE3_PC_FOUND)
 	set(SQXCLIB_PC_REQUIRE_SQLITE   "sqlite3")
 endif ()
 if (DEFINED SQXCLIB_HAVE_MYSQL)
-	# MySQL pkg-config name: mariadb  or  mysqlclient
-#	set(SQXCLIB_PC_REQUIRE_MYSQL    "mariadb")
-#	set(SQXCLIB_PC_REQUIRE_MYSQL    "mysqlclient")
+	# MySQL pkg-config name: mysqlclient or mariadb
+	if (DEFINED MYSQLCLIENT_PC_FOUND)
+		set(SQXCLIB_PC_REQUIRE_MYSQL    "mysqlclient")
+	elseif (DEFINED MARIADB_PC_FOUND)
+		set(SQXCLIB_PC_REQUIRE_MYSQL    "mariadb")
+	endif ()
 endif ()
 if (DEFINED CMAKE_CXX_COMPILER)
 	set(SQXCLIB_PC_LIB_CXX          "-lsqxcpp")

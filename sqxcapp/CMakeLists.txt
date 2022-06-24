@@ -11,11 +11,11 @@ set(SOURCES_APP_USER
 )
 
 if (DEFINED CMAKE_CXX_COMPILER)
-    # add 'sqxcapp' C++ source file
-    set(SOURCES_APP_USER
-        ${SOURCES_APP_USER}
-        migrations-files.cpp
-    )
+	# add 'sqxcapp' C++ source file
+	set(SOURCES_APP_USER
+	    ${SOURCES_APP_USER}
+	    migrations-files.cpp
+	)
 endif (DEFINED CMAKE_CXX_COMPILER)
 
 set(HEADERS_APP
@@ -54,11 +54,11 @@ set(SOURCES_APPTOOL_USER
 )
 
 if (DEFINED CMAKE_CXX_COMPILER)
-    # add 'sqxcapptool' C++ source file
-    set(SOURCES_APPTOOL_USER
-        ${SOURCES_APPTOOL_USER}
-        SqAppTool-migrations-files.cpp
-    )
+	# add 'sqxcapptool' C++ source file
+	set(SOURCES_APPTOOL_USER
+	    ${SOURCES_APPTOOL_USER}
+	    SqAppTool-migrations-files.cpp
+	)
 endif (DEFINED CMAKE_CXX_COMPILER)
 
 set(HEADERS_APPTOOL
@@ -109,7 +109,7 @@ set_target_properties(sqxcapp
     PUBLIC_HEADER "${HEADERS_APP}"
 )
 if (BUILD_SHARED_LIBS)
-    target_link_libraries(sqxcapp sqxc)
+	target_link_libraries(sqxcapp sqxc)
 endif(BUILD_SHARED_LIBS)
 
 # 'sqxcapp-user' has database settings and migration data for user application.
@@ -131,7 +131,7 @@ set_target_properties(sqxcapptool
     PUBLIC_HEADER "${HEADERS_APPTOOL}"
 )
 if (BUILD_SHARED_LIBS)
-    target_link_libraries(sqxcapptool sqxcapp sqxcsupport)
+	target_link_libraries(sqxcapptool sqxcapp sqxcsupport)
 endif(BUILD_SHARED_LIBS)
 
 # 'sqxcapptool-user' has database settings and migration data for user application.
@@ -154,8 +154,8 @@ target_link_libraries(sqxctool  ${SQXCAPPTOOL_LIBRARIES})
 
 # --- 'sqxcpptool' executable file ---
 if (DEFINED CMAKE_CXX_COMPILER)
-add_executable(sqxcpptool  ${SOURCES_CPP})
-target_link_libraries(sqxcpptool  ${SQXCAPPTOOL_LIBRARIES})
+	add_executable(sqxcpptool  ${SOURCES_CPP})
+	target_link_libraries(sqxcpptool  ${SQXCAPPTOOL_LIBRARIES})
 endif (DEFINED CMAKE_CXX_COMPILER)
 
 # set SQXCAPP_INCLUDE_DIRS to PARENT_SCOPE

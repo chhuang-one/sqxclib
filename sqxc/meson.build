@@ -79,18 +79,18 @@ if jsonc.found() == true
 	dependencies += jsonc
 endif
 
-# --- MySQL ---
-if mysql_config.found()
-	sources += ['SqdbMysql.c', 'Sqdb-migration.c']
-	headers += ['SqdbMysql.h', 'Sqdb-migration.h']
-	dependencies += mysql
-endif
-
 # --- SQLite ---
 if sqlite.found() == true
 	sources += ['SqdbSqlite.c', 'SqRelation-migration.c', 'SqRelation.c']
 	headers += ['SqdbSqlite.h', 'SqRelation-migration.h']
 	dependencies += sqlite
+endif
+
+# --- MySQL ---
+if mysql.found()
+	sources += ['SqdbMysql.c', 'Sqdb-migration.c']
+	headers += ['SqdbMysql.h', 'Sqdb-migration.h']
+	dependencies += mysql
 endif
 
 install_headers(headers, subdir: 'sqxc')

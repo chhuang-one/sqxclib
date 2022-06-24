@@ -57,7 +57,7 @@ set(HEADERS_CPP
 )
 
 # --- json-c ---
-if (JSONC_INCLUDE_DIRS)
+if (JSONC_FOUND)    # if (JSONC_INCLUDE_DIRS)
 	set(SOURCES
 	    ${SOURCES}
 	    SqxcJsonc.c
@@ -69,7 +69,7 @@ if (JSONC_INCLUDE_DIRS)
 endif()
 
 # --- SQLite ---
-if (SQLite3_INCLUDE_DIRS)
+if (SQLite3_FOUND)    #if (SQLite3_INCLUDE_DIRS)
 	set(SOURCES
 	    ${SOURCES}
 	    SqdbSqlite.c
@@ -136,46 +136,46 @@ install(
 
 # 'sqxc' static library
 #if (BUILD_SHARED_LIBS)
-#    add_library(sqxc-static
-#                STATIC
-#                ${SOURCES}
-#                ${SOURCES_CPP}
-#                ${HEADERS}
-#                ${HEADERS_CPP}
-#    )
-#    set_target_properties(sqxc-static
-#        PROPERTIES
-#        OUTPUT_NAME sqxc
-#    )
+#	add_library(sqxc-static
+#	            STATIC
+#	            ${SOURCES}
+#	            ${SOURCES_CPP}
+#	            ${HEADERS}
+#	            ${HEADERS_CPP}
+#	)
+#	set_target_properties(sqxc-static
+#	    PROPERTIES
+#	    OUTPUT_NAME sqxc
+#	)
 #endif(BUILD_SHARED_LIBS)
 
 # --- 'sqxcpp' library ---
 if (DEFINED CMAKE_CXX_COMPILER)
-    add_library(sqxcpp
-                ${SOURCES_CPP}
-                ${HEADERS_CPP}
-    )
-    if (BUILD_SHARED_LIBS)
-        target_link_libraries(sqxcpp sqxc)
-    endif(BUILD_SHARED_LIBS)
+	add_library(sqxcpp
+	            ${SOURCES_CPP}
+	            ${HEADERS_CPP}
+	)
+	if (BUILD_SHARED_LIBS)
+		target_link_libraries(sqxcpp sqxc)
+	endif(BUILD_SHARED_LIBS)
 
-    set_target_properties(sqxcpp
-        PROPERTIES
-#            VERSION        ${PROJECT_VERSION}
-#            SOVERSION      ${SQXCLIB_SOVERSION}
-            PUBLIC_HEADER "${HEADERS_CPP}"
-    )
-    # add 'sqxcpp' to SQXC_LIBRARIES
-    set(SQXC_LIBRARIES
-        sqxcpp
-        ${SQXC_LIBRARIES}
-    )
-    # install
-    install(
-        TARGETS sqxcpp
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
-    )
+	set_target_properties(sqxcpp
+	    PROPERTIES
+#	         VERSION        ${PROJECT_VERSION}
+#	         SOVERSION      ${SQXCLIB_SOVERSION}
+	        PUBLIC_HEADER "${HEADERS_CPP}"
+	)
+	# add 'sqxcpp' to SQXC_LIBRARIES
+	set(SQXC_LIBRARIES
+	    sqxcpp
+	    ${SQXC_LIBRARIES}
+	)
+	# install
+	install(
+	    TARGETS sqxcpp
+	    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
+	)
 endif (DEFINED CMAKE_CXX_COMPILER)
 
 # set SQXC_INCLUDE_DIRS to PARENT_SCOPE

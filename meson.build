@@ -11,16 +11,17 @@ sqxclib_soversion = 0
 config_data = configuration_data()
 
 # --- thread ---
-if host_machine.system() == 'windows'
-	config_data.set('SQXCLIB_HAVE_THREAD',  '1')
-else
-	thread = dependency('threads', required: false)
-	if thread.found() == true
-		config_data.set('SQXCLIB_HAVE_THREAD',  '1')
-	else
-		config_data.set('SQXCLIB_HAVE_THREAD',  '0')
-	endif
-endif
+config_data.set('SQXCLIB_HAVE_THREAD',  '0')
+#if host_machine.system() == 'windows'
+#	config_data.set('SQXCLIB_HAVE_THREAD',  '1')
+#else
+#	thread = dependency('threads', required: false)
+#	if thread.found() == true
+#		config_data.set('SQXCLIB_HAVE_THREAD',  '1')
+#	else
+#		config_data.set('SQXCLIB_HAVE_THREAD',  '0')
+#	endif
+#endif
 
 # --- json-c ---
 jsonc = dependency('json-c', required: false)
@@ -39,16 +40,32 @@ else
 endif
 
 # --- MySQL, MariaDB ---
-mysql_config = find_program('mariadb_config', required: false)
-if mysql_config.found() == false
-	mysql_config = find_program('mysql_config', required: false)
-endif
-if mysql_config.found()
-	mysql = declare_dependency(compile_args: run_command([mysql_config, '--cflags']).stdout().split(),
-	                           link_args: run_command([mysql_config, '--libs']).stdout().split() )
+mariadb_pc_found = false
+mysqlclient_pc_found = false
+mysql = dependency('mysqlclient', required: false)
+if mysql.found() == true
+	mysqlclient_pc_found = true
 	config_data.set('SQXCLIB_HAVE_MYSQL',  '1')
 else
-	config_data.set('SQXCLIB_HAVE_MYSQL',  '0')
+	mysql = dependency('mariadb', required: false)
+	if mysql.found() == true
+		mariadb_pc_found = true
+		config_data.set('SQXCLIB_HAVE_MYSQL',  '1')
+	endif
+endif
+# find MySQL if mysqlclient.pc (or mariadb.pc) not found
+if mysql.found() == false
+	mysql_config = find_program('mysql_config', required: false)
+	if mysql_config.found() == false
+		mysql_config = find_program('mariadb_config', required: false)
+	endif
+	if mysql_config.found() == true
+		mysql = declare_dependency(compile_args: run_command([mysql_config, '--cflags']).stdout().split(),
+		                           link_args: run_command([mysql_config, '--libs']).stdout().split() )
+		config_data.set('SQXCLIB_HAVE_MYSQL',  '1')
+	else
+		config_data.set('SQXCLIB_HAVE_MYSQL',  '0')
+	endif
 endif
 
 # --- pkg-config metadata file --- share/pkgconfig/sqxclib.pc
@@ -64,11 +81,15 @@ endif
 if sqlite.found() == true
 	config_data.set('SQXCLIB_PC_REQUIRE_SQLITE', 'sqlite3')
 endif
-if mysql_config.found() == true
-	# MySQL pkg-config name: mariadb  or  mysqlclient
-#	config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', 'mariadb')
-#	config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', 'mysqlclient')
+if mysql.found() == true
+	# MySQL pkg-config name: mysqlclient or mariadb
+	if mysqlclient_pc_found == true
+		config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', 'mysqlclient')
+	elif mariadb_pc_found == true
+		config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', 'mariadb')
+	endif
 endif
+# has c++ compiler
 config_data.set('SQXCLIB_PC_LIB_CXX', '-lsqxcpp')
 
 configure_file(input : 'sqxclib.pc.in',

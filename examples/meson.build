@@ -21,7 +21,7 @@ executable('myapp-cxx',
 
 # --- json-c is required
 if jsonc.found() == true
-executable('xc_json_file',
-           'xc_json_file.cpp',
-           dependencies : [sqxcsupport])
+	executable('xc_json_file',
+	           'xc_json_file.cpp',
+	           dependencies : [sqxcsupport])
 endif
