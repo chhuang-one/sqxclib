@@ -1,0 +1,33 @@
+/* This template file is used by sqxctool
+// migrations-files.c has included below headers.
+#include <SqStorage.h>
+#include <SqMigration.h>
+#include <CStructs.h>
+ */
+
+// Run the migrations.
+static void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
+{
+	SqTable  *table;
+	SqColumn *column;
+
+	table = sq_schema_alter(schema, "{{ table_name }}", NULL);
+}
+
+// Reverse the migrations.
+static void down_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
+{
+	SqTable  *table;
+	SqColumn *column;
+
+	table = sq_schema_alter(schema, "{{ table_name }}", NULL);
+}
+
+const SqMigration {{ migration_name }}_{{ timestamp }} = {
+	.up   = up_{{ timestamp }},
+	.down = down_{{ timestamp }},
+
+#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
+	.name = "{{ timestamp }}_{{ migration_name }}",
+#endif
+};

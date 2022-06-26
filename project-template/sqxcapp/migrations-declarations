@@ -1,0 +1,5 @@
+/*
+   migrations.h will include this file
+   below are declarations of SqMigration
+   if migration not existed or deleted, erase it's declarations.
+ */
