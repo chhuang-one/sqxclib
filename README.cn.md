@@ -13,13 +13,15 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
 
 2. 所有定义的 SQL表/列 都可以用于解析 JSON 对象/字段。也可以从 SQL 列 解析 JSON 对象/数组。
 
-3. 可以在低端硬件上工作.
+3. 可以在低端硬件上工作。
 
-4. 单一头文件 〈 **sqxclib.h** 〉 (注意：不包含特殊宏)
+4. 单一头文件 〈 **sqxclib.h** 〉 (注意：不包含特殊宏和支持库)
 
-5. 命令行工具可以生成迁移并进行迁移. 见 doc/[SqApp.md](doc/SqApp.md)
+5. 命令行工具可以生成迁移并进行迁移。 见 doc/[SqApp.md](doc/SqApp.md)。
 
-6. 支持 SQLite, MySQL / MariaDB.
+6. 支持 SQLite, MySQL / MariaDB。
+
+7. 提供项目模板。 见目录 [project-template](project-template)。
 
 ## 数据库架构
 
@@ -98,7 +100,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 ```
 
 使用 C++ 聚合初始化在 schema_v1 中定义表/列 （静态）
-* 这可以减少制作模式时的运行时间。
+* 这可以减少制作 schema 时的运行时间。
 * 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 doc/[SqColumn.md](doc/SqColumn.md)
 
 ```c++
@@ -146,7 +148,7 @@ static const SqColumn  userColumns[8] = {
 ```
 
 使用 C99 指定初始化程序在 schema_v1 中定义表/列 （静态）
-* 这可以减少制作模式时的运行时间。
+* 这可以减少制作 schema 时的运行时间。
 * 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 doc/[SqColumn.md](doc/SqColumn.md)
 
 ```c
@@ -711,7 +713,7 @@ Sq::Joint 是 STL 容器使用的指针数组。
 SqTypeRow 派生自 SqTypeJoint。它创建 SqRow 并处理未知（或已知）的结果、表和列。  
 SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)  
 注意1：SqTypeRow 也可以与 get() 和 getAll() 一起使用。  
-注意2：SqTypeRow 在 sqxcsupport 库中。  
+注意2：SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
 
 	SqType
 	│
@@ -777,13 +779,17 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 使用 C 函数
 
 ```c
+	SqType *typeContainer = NULL;
+
 	sq_storage_setup_query(storage, query, typeRow);
-	vector = sq_storage_query(storage, query, typeRow, NULL);
+	vector = sq_storage_query(storage, query, typeRow, typeContainer);
 ```
 
 使用 C++ 方法
 
 ```c++
+	Sq::Type *typeContainer = NULL;
+
 	storage->setupQuery(query, typeRow);
 	container = storage->query(query, typeRow, typeContainer);
 ```

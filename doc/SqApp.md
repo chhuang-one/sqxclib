@@ -78,7 +78,9 @@ This command will:
 4. append element of migrations array to workspace/sqxcapp/migrations-elements
 
 If you use C++ to do migration, you can replace sqxctool by sqxcpptool. The difference is
-**sqxcpptool** can generate C++ migration file and append path to workspace/sqxcapp/migrations-files.cpp
+**sqxcpptool** can generate C++ migration file and append path to workspace/sqxcapp/migrations-files.cpp  
+  
+Finally, you must recompile migration code after defining table.
 
 #### create table by sqxctool (C language)
 

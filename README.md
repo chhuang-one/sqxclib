@@ -17,11 +17,13 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 3. It can work in low-end hardware.
 
-4. Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros)
+4. Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros and support libraries)
 
 5. Command-line tools can generate migration and do migrate. See doc/[SqApp.md](doc/SqApp.md)
 
 6. Supports SQLite, MySQL / MariaDB.
+
+7. Provide project template. see directory [project-template](project-template).
 
 ## Database schema
 
@@ -714,7 +716,7 @@ Sq::Joint is pointer array that used by STL container.
 SqTypeRow is derived from SqTypeJoint. It create SqRow and handle unknown (or known) result, table, and column.  
 SqTypeRow sample code is in [storage-row.cpp](examples/storage-row.cpp)  
 Note1: SqTypeRow can also use with get() and getAll().  
-Note2: SqTypeRow is in sqxcsupport library.  
+Note2: SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
 
 	SqType
 	│
@@ -780,13 +782,17 @@ You can use SqTypeRow to replace default joint type in SqStorage:
 use C functions
 
 ```c
+	SqType *typeContainer = NULL;
+
 	sq_storage_setup_query(storage, query, typeRow);
-	vector = sq_storage_query(storage, query, typeRow, NULL);
+	vector = sq_storage_query(storage, query, typeRow, typeContainer);
 ```
 
 use C++ methods
 
 ```c++
+	Sq::Type *typeContainer = NULL;
+
 	storage->setupQuery(query, typeRow);
 	container = storage->query(query, typeRow, typeContainer);
 ```

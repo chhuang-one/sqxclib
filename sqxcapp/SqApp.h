@@ -44,7 +44,9 @@ struct SqAppSetting {
     const char          *error;
 };
 
-// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+/* 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+ * It should define in user's project (static library 'sqxcapp-user' or 'sqxcapptool-user').
+ */
 extern const struct SqAppSetting   SqAppSetting_default_;
 #define SQ_APP_DEFAULT           (&SqAppSetting_default_)
 

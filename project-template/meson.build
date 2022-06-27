@@ -29,7 +29,9 @@ if mysql.found() == false
 	endif
 endif
 
-# add mysql to dependency if mysqlclient.pc (or mariadb.pc) not found
+# --- dependencies ---
+
+# append mysql to dependencies if mysqlclient.pc (or mariadb.pc) not found
 dependencies = [sqxclib]
 if mysql.found() == true and (mariadb_pc_found == false and mysqlclient_pc_found == false)
 	dependencies += mysql
