@@ -44,7 +44,9 @@ void  sq_schema_init(SqSchema *schema, const char *name)
 	schema->name = name ? strdup(name) : NULL;
 	// version count
 	schema->version = cur_version++;
-	// new relation
+	// callback for derived Sqdb
+	schema->on_destory = NULL;
+	// for (SQLite) migration.
 	schema->relation = NULL;
 	schema->relation_pool = NULL;
 }
@@ -54,13 +56,10 @@ void  sq_schema_final(SqSchema *schema)
 	sq_type_free((SqType*)schema->type);
 	// finalize parent struct - SqEntry
 	sq_entry_final((SqEntry*)schema);
-#if SQ_CONFIG_HAVE_SQLITE
-	// free relation after sq_entry_final()
-	if (schema->relation) {
-		sq_relation_free(schema->relation);
-		sq_relation_pool_destroy(schema->relation_pool);
-	}
-#endif
+
+	// call on_destory() callback to free 'relation' and 'relation-pool' for SQLite
+	if (schema->on_destory)
+		schema->on_destory(schema);
 }
 
 SqSchema *sq_schema_new(const char *name)

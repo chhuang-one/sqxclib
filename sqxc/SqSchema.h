@@ -133,9 +133,10 @@ struct SchemaMethod
 
 #define SQ_SCHEMA_MEMBERS          \
 	SQ_ENTRY_MEMBERS;              \
+	int             version;       \
+	SqDestroyFunc   on_destory;    \
 	SqRelationPool *relation_pool; \
-	SqRelation     *relation;      \
-	int             version
+	SqRelation     *relation
 
 #ifdef __cplusplus
 struct SqSchema : Sq::SchemaMethod       // <-- 1. inherit C++ member function(method)
@@ -145,15 +146,17 @@ struct SqSchema
 {
 	SQ_SCHEMA_MEMBERS;                   // <-- 2. inherit member variable
 /*	// ------ SqEntry members ------
-	const SqType *type;        // type information for this entry
-	const char   *name;
-	size_t        offset;      // migration use this. Number of tables have existed in database
-	unsigned int  bit_field;
+	const SqType   *type;        // type information for this entry
+	const char     *name;
+	size_t          offset;      // migration use this. Number of tables have existed in database
+	unsigned int    bit_field;
 
 	// ------ SqSchema members ------
+	int             version;
+
+	SqDestroyFunc   on_destory;       // on destroy callback. It is used by derived Sqdb.
 	SqRelationPool *relation_pool;    // relation pool for (SQLite) migration
 	SqRelation     *relation;         // relation of tables
-	int             version;
  */
 };
 

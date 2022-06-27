@@ -114,12 +114,21 @@ void  sq_relation_erase_unsynced(SqRelation *relation, SqDestroyFunc destroy_fun
 // ----------------------------------------------------------------------------
 // SqTable functions for migration that using SqRelation
 
+static void sq_table_on_destroy(SqTable *table)
+{
+//	if (table->relation) {
+		sq_relation_clear(table->relation);
+		sq_relation_free(table->relation);
+//	}
+}
+
 void  sq_table_create_relation(SqTable *table, SqRelationPool *pool) {
 	SqType   *type;
 	SqColumn *column;
 //	int       n_foreign = 0;
 
 	table->relation = sq_relation_new(pool, SQ_TABLE_RELATION_SIZE);
+	table->on_destory = (SqDestroyFunc)sq_table_on_destroy;
 	type = (SqType*)table->type;
 	for (int i = 0;  i < type->n_entry;  i++) {
 		column = (SqColumn*)type->entry[i];
@@ -420,12 +429,22 @@ void   sq_table_complete(SqTable *table, bool no_need_to_sync)
 // ----------------------------------------------------------------------------
 // SqSchema functions for migration that using SqRelation
 
-void  sq_schema_create_relation(SqSchema *schema) {
+static void sq_schema_on_destroy(SqSchema *schema)
+{
+//	if (schema->relation) {
+		sq_relation_free(schema->relation);
+		sq_relation_pool_destroy(schema->relation_pool);
+//	}
+}
+
+void  sq_schema_create_relation(SqSchema *schema)
+{
 	SqType  *type = (SqType*)schema->type;
 	SqTable *table;
 
 	schema->relation_pool = sq_relation_pool_create(SQ_SCHEMA_RELATION_POOL_SIZE);
 	schema->relation = sq_relation_new(schema->relation_pool, SQ_SCHEMA_RELATION_SIZE);
+	schema->on_destory = (SqDestroyFunc)sq_schema_on_destroy;
 
 	for (int i = 0;  i < type->n_entry;  i++) {
 		table = (SqTable*)type->entry[i];

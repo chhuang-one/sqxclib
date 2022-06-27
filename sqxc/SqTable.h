@@ -348,11 +348,12 @@ struct TableMethod
 
 	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
 	      C++ user can initialize static structure easily.
-*/
+ */
 
-#define SQ_TABLE_MEMBERS     \
-	SQ_REENTRY_MEMBERS;      \
-	SqRelation  *relation
+#define SQ_TABLE_MEMBERS       \
+	SQ_REENTRY_MEMBERS;        \
+	SqDestroyFunc  on_destory; \
+	SqRelation    *relation
 
 #ifdef __cplusplus
 struct SqTable : Sq::TableMethod         // <-- 1. inherit C++ member function(method)
@@ -371,12 +372,13 @@ struct SqTable
 	const char   *old_name;    // rename or drop
 
 	// ------ SqTable members ------
+	SqDestroyFunc on_destory;  // on destroy callback. It is used by derived Sqdb.
 
 	// SqColumn's relation for (SQLite) migration.
 	// sq_table_include() and sq_schema_include() store columns that having foreign reference.
 	// sq_schema_trace_name() use these to trace renamed (or dropped) column that was referenced by others.
 	// free it if you don't need to sync table changed to database.
-	SqRelation  *relation;
+	SqRelation   *relation;
  */
 };
 

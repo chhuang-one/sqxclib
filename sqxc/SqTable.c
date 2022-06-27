@@ -33,6 +33,9 @@ SqTable *sq_table_new(const char *name, const SqType *table_type)
 	table->name = (name) ? strdup(name) : NULL;
 	table->bit_field |= SQB_POINTER;
 	table->old_name = NULL;
+	// callback for derived Sqdb
+	table->on_destory = NULL;
+	// for (SQLite) migration.
 	table->relation = NULL;
 
 	return (SqTable*)table;
@@ -47,13 +50,11 @@ void  sq_table_free(SqTable *table)
 		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)table);
 		free((char*)table->old_name);
-#if SQ_CONFIG_HAVE_SQLITE
-		// free relation data
-		if (table->relation) {
-			sq_relation_clear(table->relation);
-			sq_relation_free(table->relation);
-		}
-#endif
+
+		// call on_destory() callback to free 'relation' for SQLite
+		if (table->on_destory)
+			table->on_destory(table);
+
 		// free SqTable
 		free(table);
 	}
