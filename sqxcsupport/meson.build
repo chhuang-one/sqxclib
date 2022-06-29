@@ -77,14 +77,16 @@ sqxcsupport_shared_lib = shared_library(
     install: true
 )
 
+# static dependency
 sqxcsupport = declare_dependency(
     include_directories : sqxcsupport_inc,
     link_with : sqxcsupport_lib,
     dependencies : sqxc
 )
 
+# shared dependency
 sqxcsupport_shared = declare_dependency(
     include_directories : sqxcsupport_inc,
     link_with : sqxcsupport_shared_lib,
-    dependencies : sqxc
+    dependencies : sqxc_shared
 )
