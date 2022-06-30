@@ -180,6 +180,10 @@ install(
 # Enable testing for the project
 enable_testing()
 
+# install project-template
+install(DIRECTORY   project-template
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/sqxclib)
+
 # --- subdirectory ---
 add_subdirectory(sqxc)
 add_subdirectory(sqxcsupport)

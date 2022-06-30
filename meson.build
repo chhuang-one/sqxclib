@@ -98,6 +98,9 @@ configure_file(input : 'sqxclib.pc.in',
                install_dir : get_option('datadir') / 'pkgconfig',
                configuration : config_data)
 
+# install project-template
+install_subdir('project-template', install_dir : get_option('datadir') / 'sqxclib')
+
 # --- subdirectory ---
 subdir('sqxc')
 subdir('sqxcsupport')
