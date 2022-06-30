@@ -61,8 +61,10 @@ void  sq_relation_erase_unsynced(SqRelation *relation, SqDestroyFunc destroy_fun
 void      sq_table_create_relation(SqTable *table, SqRelationPool *pool);
 SqColumn *sq_table_replace_column(SqTable *table, SqColumn *old_column, SqColumn *new_column);
 
-// This used by migration: include and apply changes from 'table_src'.
-// It may move/steal columns from 'table_src'.
+/* This used by migration: include and apply changes from 'table_src'.
+   It may move/steal columns from 'table_src'.
+   sq_table_include() will create and reserve data for SQLite table recreating.
+ */
 int       sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema);
 
 /* erase ernamed & dropped records after calling sq_schema_include() and sq_schema_trace_name()
@@ -80,8 +82,10 @@ void      sq_table_complete(SqTable *table, bool no_need_to_sync);
 
 void  sq_schema_create_relation(SqSchema *schema);
 
-// This used by migration: include and apply changes from 'schema_src'.
-// It may move/steal tables and column from 'schema_src'.
+/* This used by migration: include and apply changes from 'schema_src'.
+   It may move/steal tables and column from 'schema_src'.
+   sq_schema_include() will create and reserve data for SQLite table recreating.
+ */
 int   sq_schema_include(SqSchema *schema, SqSchema *schema_src);
 
 // It trace renamed (or dropped) table/column that was referenced by others and update others references.

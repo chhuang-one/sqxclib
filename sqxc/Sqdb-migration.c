@@ -21,7 +21,19 @@
 #define strdup       _strdup
 #endif
 
-int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_func) {
+static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_func);
+
+
+int  sq_schema_update(SqSchema *schema, SqSchema *schema_src)
+{
+	return sq_entry_update((SqEntry*)schema, (SqEntry*)schema_src, (SqDestroyFunc)sq_table_free);
+}
+
+// ----------------------------------------------------------------------------
+// static function
+
+static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_func)
+{
 	//         *entry,     *entry_src
 	SqReentry  *reentry,   *reentry_src;
 	SqPtrArray *reentries, *reentries_src;

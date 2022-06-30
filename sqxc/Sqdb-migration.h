@@ -24,11 +24,11 @@
 extern "C" {
 #endif
 
-
-int   sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_func);
-
-#define sq_schema_update(schema, schema_src)    \
-        sq_entry_update((SqEntry*)schema, (SqEntry*)schema_src, (SqDestroyFunc)sq_table_free)
+/* This used by migration: include and apply changes from 'schema_src'.
+   It may move/steal tables and column from 'schema_src'.
+   sq_schema_update() doesn't create and reserve data for SQLite table recreating.
+ */
+int  sq_schema_update(SqSchema *schema, SqSchema *schema_src);
 
 #ifdef __cplusplus
 }  // extern "C"
