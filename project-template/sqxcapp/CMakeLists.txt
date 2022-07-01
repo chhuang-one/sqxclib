@@ -54,7 +54,7 @@ set(SQXCAPPTOOL_INCLUDE_DIRS
 
 set(SQXCAPPTOOL_LIBRARIES
     sqxcapptool-user
-    ${SQXCSUPPORT_LIBRARIES}
+    ${SQXC_LIBRARIES}
 )
 
 # --- 'sqxctool' sources ---

@@ -17,6 +17,7 @@ set(SOURCES
     SqStorage-query.c
     SqQuery.c
     Sqdb.c
+	Sqdb-migration.c    # Most of the SQL products may use this (exclude SQLite)
     Sqxc.c
     SqxcValue.c
     SqxcSql.c
@@ -44,6 +45,7 @@ set(HEADERS
     SqQuery-macro.h
     SqRelation.h
     Sqdb.h
+	Sqdb-migration.h    # Most of the SQL products may use this (exclude SQLite)
     Sqxc.h
     SqxcValue.h
     SqxcSql.h
@@ -70,31 +72,25 @@ endif()
 
 # --- SQLite ---
 if (SQLite3_FOUND)    #if (SQLite3_INCLUDE_DIRS)
-	set(SOURCES
-	    ${SOURCES}
+	set(SOURCES_SQLITE
 	    SqdbSqlite.c
-	    SqRelation-migration.c
 	    SqRelation.c
+	    SqRelation-migration.c
 	)
-	set(HEADERS
-	    ${HEADERS}
+	set(HEADERS_SQLITE
 	    SqdbSqlite.h
-	    SqRelation-migration.h
 #	    SqRelation.h
+	    SqRelation-migration.h
 	)
 endif()
 
 # --- MySQL ---
 if (MYSQL_FOUND)
-	set(SOURCES
-	    ${SOURCES}
+	set(SOURCES_MYSQL
 	    SqdbMysql.c
-	    Sqdb-migration.c
 	)
-	set(HEADERS
-	    ${HEADERS}
+	set(HEADERS_MYSQL
 	    SqdbMysql.h
-	    Sqdb-migration.h
 	)
 endif()
 
@@ -161,9 +157,9 @@ if (DEFINED CMAKE_CXX_COMPILER)
 
 	set_target_properties(sqxcpp
 	    PROPERTIES
-#	         VERSION        ${PROJECT_VERSION}
-#	         SOVERSION      ${SQXCLIB_SOVERSION}
-	        PUBLIC_HEADER "${HEADERS_CPP}"
+#	    VERSION        ${PROJECT_VERSION}
+#	    SOVERSION      ${SQXCLIB_SOVERSION}
+	    PUBLIC_HEADER "${HEADERS_CPP}"
 	)
 	# add 'sqxcpp' to SQXC_LIBRARIES
 	set(SQXC_LIBRARIES
@@ -177,6 +173,60 @@ if (DEFINED CMAKE_CXX_COMPILER)
 	    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
 	)
 endif (DEFINED CMAKE_CXX_COMPILER)
+
+# --- 'sqxc_sqlite' library ---
+if (SQLite3_FOUND)
+	add_library(sqxc_sqlite
+	            ${SOURCES_SQLITE}
+	            ${HEADERS_SQLITE}
+	)
+	if (BUILD_SHARED_LIBS)
+		target_link_libraries(sqxc_sqlite sqxc)
+	endif(BUILD_SHARED_LIBS)
+
+	set_target_properties(sqxc_sqlite
+	    PROPERTIES
+	    PUBLIC_HEADER "${HEADERS_SQLITE}"
+	)
+	# add 'sqxc_sqlite' to SQXC_LIBRARIES
+	set(SQXC_LIBRARIES
+	    sqxc_sqlite
+	    ${SQXC_LIBRARIES}
+	)
+	# install
+	install(
+	    TARGETS sqxc_sqlite
+	    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
+	)
+endif (SQLite3_FOUND)
+
+# --- 'sqxc_mysql' library ---
+if (MYSQL_FOUND)
+	add_library(sqxc_mysql
+	            ${SOURCES_MYSQL}
+	            ${HEADERS_MYSQL}
+	)
+	if (BUILD_SHARED_LIBS)
+		target_link_libraries(sqxc_mysql sqxc)
+	endif(BUILD_SHARED_LIBS)
+
+	set_target_properties(sqxc_mysql
+	    PROPERTIES
+	    PUBLIC_HEADER "${HEADERS_MYSQL}"
+	)
+	# add 'sqxc_mysql' to SQXC_LIBRARIES
+	set(SQXC_LIBRARIES
+	    sqxc_mysql
+	    ${SQXC_LIBRARIES}
+	)
+	# install
+	install(
+	    TARGETS sqxc_mysql
+	    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
+	)
+endif (MYSQL_FOUND)
 
 # set SQXC_INCLUDE_DIRS to PARENT_SCOPE
 set(SQXC_INCLUDE_DIRS

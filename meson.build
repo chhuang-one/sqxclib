@@ -80,6 +80,7 @@ if jsonc.found() == true
 endif
 if sqlite.found() == true
 	config_data.set('SQXCLIB_PC_REQUIRE_SQLITE', 'sqlite3')
+	config_data.set('SQXCLIB_PC_LIB_SQLITE', '-lsqxc_sqlite')
 endif
 if mysql.found() == true
 	# MySQL pkg-config name: mysqlclient or mariadb
@@ -88,6 +89,7 @@ if mysql.found() == true
 	elif mariadb_pc_found == true
 		config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', 'mariadb')
 	endif
+	config_data.set('SQXCLIB_PC_LIB_MYSQL', '-lsqxc_mysql')
 endif
 # has c++ compiler
 config_data.set('SQXCLIB_PC_LIB_CXX', '-lsqxcpp')

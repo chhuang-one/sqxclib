@@ -19,6 +19,7 @@ sources = [
 
     # Sqdb - Database interface
     'Sqdb.c',
+    'Sqdb-migration.c',    # Most of the SQL products may use this (exclude SQLite)
 
     # Sqxc - Converter interface
     'Sqxc.c',
@@ -48,6 +49,7 @@ headers = [
 
     # Sqdb - Database interface
     'Sqdb.h',
+    'Sqdb-migration.h',    # Most of the SQL products may use this (exclude SQLite)
 
     # Sqxc - Converter interface
     'Sqxc.h',
@@ -81,16 +83,22 @@ endif
 
 # --- SQLite ---
 if sqlite.found() == true
-	sources += ['SqdbSqlite.c', 'SqRelation-migration.c', 'SqRelation.c']
-	headers += ['SqdbSqlite.h', 'SqRelation-migration.h']
-	dependencies += sqlite
+	sources_sqlite = ['SqdbSqlite.c',
+	                  'SqRelation.c',
+	                  'SqRelation-migration.c',
+	]
+	headers_sqlite = ['SqdbSqlite.h',
+#	                  'SqRelation.h',
+	                  'SqRelation-migration.h',
+	]
+	install_headers(headers_sqlite, subdir: 'sqxc')
 endif
 
 # --- MySQL ---
-if mysql.found()
-	sources += ['SqdbMysql.c', 'Sqdb-migration.c']
-	headers += ['SqdbMysql.h', 'Sqdb-migration.h']
-	dependencies += mysql
+if mysql.found() == true
+	sources_mysql = ['SqdbMysql.c']
+	headers_mysql = ['SqdbMysql.h']
+	install_headers(headers_mysql, subdir: 'sqxc')
 endif
 
 install_headers(headers, subdir: 'sqxc')
@@ -113,15 +121,6 @@ sqxc_lib = static_library(
     install: true
 )
 
-# --- 'sqxcpp' static library ---
-sqxcpp_lib = static_library(
-    'sqxcpp',
-    sources_cpp,
-    include_directories: sqxc_inc,
-    dependencies : dependencies,
-    install: true
-)
-
 # --- 'sqxc' shared library ---
 sqxc_shared_lib = shared_library(
     'sqxc',
@@ -133,26 +132,75 @@ sqxc_shared_lib = shared_library(
     install: true
 )
 
+# --- 'sqxcpp' static library ---
+sqxcpp_lib = static_library(
+    'sqxcpp',
+    sources_cpp,
+    include_directories: sqxc_inc,
+#    dependencies : dependencies,
+    install: true
+)
+
 # --- 'sqxcpp' shared library ---
 sqxcpp_shared_lib = shared_library(
     'sqxcpp',
     sources_cpp,
     include_directories: sqxc_inc,
     link_with : sqxc_shared_lib,
-    dependencies : dependencies,
+#    dependencies : dependencies,
     install: true
 )
+
+# --- 'sqxc_sqlite' library ---
+if sqlite.found() == true
+    dependencies += sqlite
+	sqxc_sqlite_lib = static_library(
+	    'sqxc_sqlite',
+	    sources_sqlite,
+	    include_directories: sqxc_inc,
+	    dependencies : sqlite,
+	    install: true
+	)
+	sqxc_sqlite_shared_lib = shared_library(
+	    'sqxc_sqlite',
+	    sources_sqlite,
+	    include_directories: sqxc_inc,
+	    link_with : sqxc_shared_lib,
+	    dependencies : sqlite,
+	    install: true
+	)
+endif
+
+# --- 'sqxc_mysql' library ---
+if mysql.found() == true
+    dependencies += mysql
+	sqxc_mysql_lib = static_library(
+	    'sqxc_mysql',
+	    sources_mysql,
+	    include_directories: sqxc_inc,
+	    dependencies : mysql,
+	    install: true
+	)
+	sqxc_mysql_shared_lib = shared_library(
+	    'sqxc_mysql',
+	    sources_mysql,
+	    include_directories: sqxc_inc,
+	    link_with : sqxc_shared_lib,
+	    dependencies : mysql,
+	    install: true
+	)
+endif
 
 # static dependency
 sqxc = declare_dependency(
     include_directories : sqxc_inc,
-    link_with : [sqxcpp_lib, sqxc_lib],
+    link_with : [sqxc_mysql_lib, sqxc_sqlite_lib, sqxcpp_lib, sqxc_lib],
     dependencies : dependencies
 )
 
 # shared dependency
 sqxc_shared = declare_dependency(
     include_directories : sqxc_inc,
-    link_with : [sqxcpp_shared_lib, sqxc_shared_lib],
+    link_with : [sqxc_mysql_shared_lib, sqxc_sqlite_shared_lib, sqxcpp_shared_lib, sqxc_shared_lib],
     dependencies : dependencies
 )

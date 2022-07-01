@@ -399,14 +399,14 @@ int  main(void)
 	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config_mysql);
 
 #else
-	printf("No supported database");
+	fprintf(stderr, "No supported database\n");
 	return EXIT_SUCCESS;
 #endif
 
 	storage = sq_storage_new(db);
 
 	if (sq_storage_open(storage, "sample-c99") != SQCODE_OK) {
-		printf("Can't open database - %s\n", "sample-c99");
+		fprintf(stderr, "Can't open database - %s\n", "sample-c99");
 		return EXIT_FAILURE;
 	}
 
