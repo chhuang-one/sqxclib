@@ -86,6 +86,12 @@ extern "C" {
 //void  sq_ptr_array_free(void *array);
 #define sq_ptr_array_free(array)    free(sq_ptr_array_final(array))
 
+//bool  sq_ptr_array_is_inited(void *array);
+#define sq_ptr_array_is_inited(array)    (sq_ptr_array_data(array) != NULL)
+
+//bool  sq_ptr_array_not_inited(void *array);
+#define sq_ptr_array_not_inited(array)   (sq_ptr_array_data(array) == NULL)
+
 //void **sq_ptr_array_alloc(void *array, int count)
 #define sq_ptr_array_alloc(array, count)               \
 		sq_ptr_array_alloc_at(array, sq_ptr_array_length(array), count)
@@ -320,6 +326,10 @@ struct PtrArrayMethod
 	// member functions
 	void   init(int allocated_length = 0, SqDestroyFunc func = NULL);
 	void   final(void);
+
+	bool   isInited(void);
+	bool   notInited(void);
+
 	Type **alloc(int length);
 	Type **alloc(int index, int length);
 
@@ -503,6 +513,16 @@ template<class Type>
 inline void  PtrArrayMethod<Type>::final(void) {
 	sq_ptr_array_final(this);
 }
+
+template<class Type>
+inline bool  PtrArrayMethod<Type>::isInited(void) {
+	return sq_ptr_array_is_inited(this);
+}
+template<class Type>
+inline bool  PtrArrayMethod<Type>::notInited(void) {
+	return sq_ptr_array_not_inited(this);
+}
+
 template<class Type>
 inline Type **PtrArrayMethod<Type>::alloc(int length) {
 	return (Type**) sq_ptr_array_alloc(this, length);

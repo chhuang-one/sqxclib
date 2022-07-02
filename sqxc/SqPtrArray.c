@@ -42,7 +42,7 @@ void *sq_ptr_array_final(void *array)
 	SqDestroyFunc  destroy;
 
 	// it doesn't initialize.
-	if (sq_ptr_array_data(array) == NULL)
+	if (sq_ptr_array_not_inited(array))
 		return array;
 
 	destroy = sq_ptr_array_destroy_func(array);
@@ -68,7 +68,7 @@ void **sq_ptr_array_alloc_at(void *array, int index, int count)
 	int   length;
 
 	// it doesn't initialize.
-//	if (sq_ptr_array_data(array) == NULL)
+//	if (sq_ptr_array_not_inited(array))
 //		sq_ptr_array_init_full(array, count*2, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL);
 
 	length     = sq_ptr_array_length(array);
@@ -110,7 +110,7 @@ void sq_ptr_array_erase(void *array, int index, int count)
 	SqDestroyFunc  destroy_func;
 
 	// it doesn't initialize.
-//	if (sq_ptr_array_data(array) == NULL)
+//	if (sq_ptr_array_not_inited(array))
 //		return;
 
 	// destroy elements
