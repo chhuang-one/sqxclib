@@ -74,7 +74,7 @@ sqxcapp_shared_lib = shared_library(
     sources_app,
     include_directories: sqxcapp_inc,
     dependencies : sqxc_shared,
-#    version : sqxclib_version,
+    version : sqxclib_version,
 #    soversion : sqxclib_soversion,
     install: true
 )
@@ -114,7 +114,7 @@ sqxcapptool_shared_lib = shared_library(
     include_directories: sqxcapp_inc,
     link_with : sqxcapp_shared_lib,
     dependencies : sqxcsupport_shared,
-#    version : sqxclib_version,
+    version : sqxclib_version,
 #    soversion : sqxclib_soversion,
     install: true
 )

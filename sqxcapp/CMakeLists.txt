@@ -104,7 +104,7 @@ add_library(sqxcapp
 )
 set_target_properties(sqxcapp
     PROPERTIES
-#    VERSION        ${PROJECT_VERSION}
+    VERSION        ${PROJECT_VERSION}
 #    SOVERSION      ${SQXCLIB_SOVERSION}
     PUBLIC_HEADER "${HEADERS_APP}"
 )
@@ -126,7 +126,7 @@ add_library(sqxcapptool
 )
 set_target_properties(sqxcapptool
     PROPERTIES 
-#    VERSION        ${PROJECT_VERSION}
+    VERSION        ${PROJECT_VERSION}
 #    SOVERSION      ${SQXCLIB_SOVERSION}
     PUBLIC_HEADER "${HEADERS_APPTOOL}"
 )

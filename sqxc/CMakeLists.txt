@@ -105,7 +105,7 @@ add_library(sqxc
 )
 set_target_properties(sqxc
     PROPERTIES
-#    VERSION        ${PROJECT_VERSION}
+    VERSION        ${PROJECT_VERSION}
 #    SOVERSION      ${SQXCLIB_SOVERSION}
     PUBLIC_HEADER "${HEADERS}"
 )
@@ -157,7 +157,7 @@ if (DEFINED CMAKE_CXX_COMPILER)
 
 	set_target_properties(sqxcpp
 	    PROPERTIES
-#	    VERSION        ${PROJECT_VERSION}
+	    VERSION        ${PROJECT_VERSION}
 #	    SOVERSION      ${SQXCLIB_SOVERSION}
 	    PUBLIC_HEADER "${HEADERS_CPP}"
 	)
@@ -186,6 +186,8 @@ if (SQLite3_FOUND)
 
 	set_target_properties(sqxc_sqlite
 	    PROPERTIES
+	    VERSION        ${PROJECT_VERSION}
+#	    SOVERSION      ${SQXCLIB_SOVERSION}
 	    PUBLIC_HEADER "${HEADERS_SQLITE}"
 	)
 	# add 'sqxc_sqlite' to SQXC_LIBRARIES
@@ -213,6 +215,8 @@ if (MYSQL_FOUND)
 
 	set_target_properties(sqxc_mysql
 	    PROPERTIES
+	    VERSION        ${PROJECT_VERSION}
+#	    SOVERSION      ${SQXCLIB_SOVERSION}
 	    PUBLIC_HEADER "${HEADERS_MYSQL}"
 	)
 	# add 'sqxc_mysql' to SQXC_LIBRARIES

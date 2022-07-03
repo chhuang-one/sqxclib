@@ -127,7 +127,7 @@ sqxc_shared_lib = shared_library(
     sources,
     include_directories: sqxc_inc,
     dependencies : dependencies,
-#    version : sqxclib_version,
+    version : sqxclib_version,
 #    soversion : sqxclib_soversion,
     install: true
 )
@@ -148,6 +148,8 @@ sqxcpp_shared_lib = shared_library(
     include_directories: sqxc_inc,
     link_with : sqxc_shared_lib,
 #    dependencies : dependencies,
+    version : sqxclib_version,
+#    soversion : sqxclib_soversion,
     install: true
 )
 
@@ -167,6 +169,8 @@ if sqlite.found() == true
 	    include_directories: sqxc_inc,
 	    link_with : sqxc_shared_lib,
 	    dependencies : sqlite,
+	    version : sqxclib_version,
+#	    soversion : sqxclib_soversion,
 	    install: true
 	)
 endif
@@ -187,6 +191,8 @@ if mysql.found() == true
 	    include_directories: sqxc_inc,
 	    link_with : sqxc_shared_lib,
 	    dependencies : mysql,
+	    version : sqxclib_version,
+#	    soversion : sqxclib_soversion,
 	    install: true
 	)
 endif

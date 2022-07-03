@@ -95,7 +95,7 @@ add_library(sqxcsupport
 )
 set_target_properties(sqxcsupport
     PROPERTIES
-#    VERSION        ${PROJECT_VERSION}
+    VERSION        ${PROJECT_VERSION}
 #    SOVERSION      ${SQXCLIB_SOVERSION}
     PUBLIC_HEADER "${HEADERS}"
 )
