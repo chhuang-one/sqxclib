@@ -98,7 +98,7 @@ The file looks like below:
 /* migrations-files.c has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
-#include <CStructs.h>        // define struct Company in CStructs.h
+#include "CStructs.h"        // define struct Company in CStructs.h
  */
 
 // Run the migrations.
@@ -142,7 +142,7 @@ The file looks like below:
 // migrations-files.cpp has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
-#include <CStructs.h>
+#include "CStructs.h"
  */
 
 const SqMigration alter_companies_table_2021_12_26_191532 = {

@@ -14,7 +14,6 @@
 
 #include <SqStorage.h>
 #include <SqMigration.h>
-#include <CStructs.h>
 #include "migrations.h"
 
 const SqMigration *migrations_default_[] = {

@@ -2,7 +2,7 @@
 // migrations-files.c has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
-#include <CStructs.h>        // define struct User in CStructs.h
+#include "CStructs.h"        // define struct User in CStructs.h
  */
 
 // Run the migrations.
