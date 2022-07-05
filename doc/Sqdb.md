@@ -380,9 +380,11 @@ static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema, SqSchema *schema
 	}
 
 	if (db->version < schema_next->version) {
-		// do migrations
+		// do migrations by 'schema_next'
 	}
 
+	// include and apply changes from 'schema_next'
+	sq_schema_update(schema, schema_next);
 	schema->version = schema_next->version;
 }
 ```

@@ -128,16 +128,20 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 
 	if (db->self == NULL)
 		return SQCODE_ERROR;
+
+	// If 'schema_next' is NULL, synchronize schema to database. This is mainly used by SQLite.
 	if (schema_next == NULL)
 		return SQCODE_OK;
 
-	sq_buffer_init(&sql_buf);    // buffer for SQL statement
-	reentries = sq_type_get_ptr_array(schema_next->type);
+	// buffer for SQL statement
+	sq_buffer_init(&sql_buf);
 
 	if (db->version < schema_next->version) {
+		// do migrations by 'schema_next'
 #ifndef NDEBUG
 		fprintf(stderr, "MySQL: start of migration ------\n");
 #endif
+		reentries = sq_type_get_ptr_array(schema_next->type);
 		for (int index = 0;  index < reentries->length;  index++) {
 			table = (SqTable*)reentries->data[index];
 
@@ -187,6 +191,8 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 		db->version = schema_next->version;
 		sqdb_mysql_schema_set_version(db, db->version);
 	}
+
+	// include and apply changes from 'schema_next'
 	sq_schema_update(schema, schema_next);
 	schema->version = schema_next->version;
 
