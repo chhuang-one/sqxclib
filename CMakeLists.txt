@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(sqxclib VERSION 0.6.3)
+project(sqxclib VERSION 0.7)
 
 # set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING " " FORCE )
 
