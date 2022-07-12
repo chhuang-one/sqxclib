@@ -61,7 +61,7 @@ void  sq_relation_erase_unsynced(SqRelation *relation, SqDestroyFunc destroy_fun
 void      sq_table_create_relation(SqTable *table, SqRelationPool *pool);
 SqColumn *sq_table_replace_column(SqTable *table, SqColumn *old_column, SqColumn *new_column);
 
-/* This used by migration: include and apply changes from 'table_src'.
+/* This is used by migration: include and apply changes from 'table_src'.
    It may move/steal columns from 'table_src'.
    sq_table_include() will create and reserve data for SQLite table recreating.
  */
@@ -82,7 +82,7 @@ void      sq_table_complete(SqTable *table, bool no_need_to_sync);
 
 void  sq_schema_create_relation(SqSchema *schema);
 
-/* This used by migration: include and apply changes from 'schema_src'.
+/* This is used by migration: include and apply changes from 'schema_src'.
    It may move/steal tables and column from 'schema_src'.
    sq_schema_include() will create and reserve data for SQLite table recreating.
  */

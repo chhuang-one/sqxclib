@@ -65,6 +65,13 @@
  */
 #define SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH      1
 
+/* Enable it will remove columns that have fake type when synchronize schema to database.
+   Sqxc can run hardly faster when parsing input data. It is no effect if you use SQLite.
+   Disable it to reduce code size.
+   Affected source : Sqdb-migration, SqdbMysql
+ */
+#define SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB     0
+
 /* Enable it will add sq_storage_update_field() and C++ updateField() to sqxclib.
    Disable it if you don't use these and want to reduce binary size.
  */

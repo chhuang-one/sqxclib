@@ -130,8 +130,12 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 		return SQCODE_ERROR;
 
 	// If 'schema_next' is NULL, synchronize schema to database. This is mainly used by SQLite.
-	if (schema_next == NULL)
+	if (schema_next == NULL) {
+#if SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB
+		sq_schema_erase_fake_type(schema);
+#endif
 		return SQCODE_OK;
+	}
 
 	// buffer for SQL statement
 	sq_buffer_init(&sql_buf);

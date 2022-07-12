@@ -216,10 +216,10 @@ struct SqType
 {
 	SQ_TYPE_MEMBERS;
 /*	// ------ SqType members ------
-	unsigned int   size;        // instance size
+	unsigned int   size;           // instance size
 
-	SqTypeFunc     init;        // initialize instance
-	SqTypeFunc     final;       // finalize instance
+	SqTypeFunc     init;           // initialize instance
+	SqTypeFunc     final;          // finalize instance
 
 	SqTypeParseFunc   parse;       // parse Sqxc(SQL/JSON) data to instance
 	SqTypeWriteFunc   write;       // write instance data to Sqxc(SQL/JSON)
@@ -232,7 +232,9 @@ struct SqType
 	// SqType.entry can't be freed if SqType.n_entry == -1
 	SqEntry      **entry;          // SqPtrArray.data
 	int            n_entry;        // SqPtrArray.length
-	// macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) expands to above 2 fields.
+	// *** About above 2 fields:
+	// 1. They are expanded by macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
+	// 2. They can NOT change data type and order.
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
 	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.

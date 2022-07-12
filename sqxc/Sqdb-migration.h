@@ -15,6 +15,7 @@
 #ifndef SQDB_MIGRATION_H
 #define SQDB_MIGRATION_H
 
+#include <SqConfig.h>
 #include <SqSchema.h>
 
 // ----------------------------------------------------------------------------
@@ -24,11 +25,22 @@
 extern "C" {
 #endif
 
-/* This used by migration: include and apply changes from 'schema_src'.
+/* This is used by migration: include and apply changes from 'schema_src'.
    It may move/steal tables and column from 'schema_src'.
    sq_schema_update() doesn't create and reserve data for SQLite table recreating.
  */
 int  sq_schema_update(SqSchema *schema, SqSchema *schema_src);
+
+
+#if SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB
+
+/* This is used by migration: remove columns that have fake type.
+   call this function when program synchronize schema to database.
+ */
+void sq_schema_erase_fake_type(SqSchema *schema);
+
+#endif  // SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB
+
 
 #ifdef __cplusplus
 }  // extern "C"

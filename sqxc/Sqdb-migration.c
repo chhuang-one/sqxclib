@@ -174,3 +174,31 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 	return SQCODE_OK;
 }
 
+#if SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB
+
+void sq_schema_erase_fake_type(SqSchema *schema)
+{
+	SqType   *table_type;
+	SqColumn *column;
+	int  n_tables = schema->type->n_entry;
+	int  n_nulls = 0;
+
+	for (int i = 0;  i < n_tables;  i++) {
+		table_type = (SqType*)schema->type->entry[i]->type;
+		if ((table_type->bit_field & SQB_TYPE_DYNAMIC) == 0)
+			continue;
+		for (int j = 0;  j < table_type->n_entry;  j++) {
+			column = (SqColumn*)table_type->entry[j];
+			if (SQ_TYPE_IS_FAKE(column->type)) {
+				table_type->entry[j] = NULL;
+				n_nulls++;
+			}
+		}
+		if (n_nulls > 0) {
+			n_nulls = 0;
+			sq_reentries_remove_null(sq_type_get_ptr_array(table_type), 0);
+		}
+	}
+}
+
+#endif  // SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB
