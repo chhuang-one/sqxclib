@@ -154,11 +154,7 @@ void test_query_cpp_convenient_class()
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "SELECT * FROM users WHERE id < 20") == 0);
 
-#ifdef _MSC_VER
-	sql = Sq::where()("id > %d", 10).where("id < %d", 99).c();
-#else
 	sql = Sq::where("id > %d", 10).where("id < %d", 99).c();
-#endif
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE id > 10 AND id < 99") == 0);
 

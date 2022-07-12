@@ -969,11 +969,11 @@ namespace Sq {
 	Sq::where  where;
 	std::cout << where("id < %d", 15).orWhere("city_id < %d", 20).c();
 
-	// 2. use default constructor and operator()
-	std::cout << Sq::where()("id < %d", 15).orWhere("city_id < %d", 20).c();
-
-	// 3. use parameter pack constructor (Visual C++ can NOT use this currently)
+	// 2. use parameter pack constructor
 	std::cout << Sq::where("id < %d", 15).orWhere("city_id < %d", 20).c();
+
+	// 3. use default constructor and operator()
+	std::cout << Sq::where()("id < %d", 15).orWhere("city_id < %d", 20).c();
  */
 
 /*
@@ -987,13 +987,11 @@ class Where : public Sq::QueryProxy
 {
 public:
 	// constructor
-#ifndef _MSC_VER
 	template <typename... Args>
 	Where(const char *condition, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, condition, args...);
 	}
-#endif
 	Where(const char *raw) {
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_raw(query, raw);

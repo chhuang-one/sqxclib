@@ -338,18 +338,18 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 			where("id < %d", 11).orWhere("city_id < %d", 33).c());
 ```
 
-2. use default constructor and operator()
-
-```c++
-	array = storage->removeAll("users",
-			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33).c());
-```
-
-3. use parameter pack constructor (Visual C++ can NOT use this currently)
+2. use parameter pack constructor
 
 ```c++
 	array = storage->removeAll("users",
 			Sq::where("id < %d", 11).orWhere("city_id < %d", 33).c());
+```
+
+3. use default constructor and operator()
+
+```c++
+	array = storage->removeAll("users",
+			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33).c());
 ```
 
 ## Raw Methods
