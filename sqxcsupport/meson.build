@@ -63,30 +63,31 @@ sqxcsupport_lib = static_library(
     'sqxcsupport',
     [sources_helpers, sources_structs, sources_console, sources_test],
     include_directories: sqxcsupport_inc,
-    dependencies : sqxc,
+    dependencies: sqxc,
     install: true
 )
 
 sqxcsupport_shared_lib = shared_library(
     'sqxcsupport',
     [sources_helpers, sources_structs, sources_console, sources_test],
-    include_directories: sqxcsupport_inc,
-    dependencies : sqxc_shared,
-    version : sqxclib_version,
-#    soversion : sqxclib_soversion,
+    include_directories: [sqxcsupport_inc, sqxc_inc],
+    link_with: sqxc_shared_lib,
+#    dependencies: sqxc_shared,
+    version: sqxclib_version,
+#    soversion: sqxclib_soversion,
     install: true
 )
 
 # static dependency
 sqxcsupport = declare_dependency(
-    include_directories : sqxcsupport_inc,
-    link_with : sqxcsupport_lib,
-    dependencies : sqxc
+    include_directories: sqxcsupport_inc,
+    link_with: sqxcsupport_lib,
+    dependencies: sqxc
 )
 
 # shared dependency
 sqxcsupport_shared = declare_dependency(
-    include_directories : sqxcsupport_inc,
-    link_with : sqxcsupport_shared_lib,
-    dependencies : sqxc_shared
+    include_directories: sqxcsupport_inc,
+    link_with: sqxcsupport_shared_lib,
+    dependencies: sqxc_shared
 )

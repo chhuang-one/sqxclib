@@ -65,17 +65,18 @@ sqxcapp_lib = static_library(
     'sqxcapp',
     sources_app,
     include_directories: sqxcapp_inc,
-    dependencies : sqxc,
+    dependencies: sqxc,
     install: true
 )
 
 sqxcapp_shared_lib = shared_library(
     'sqxcapp',
     sources_app,
-    include_directories: sqxcapp_inc,
-    dependencies : sqxc_shared,
-    version : sqxclib_version,
-#    soversion : sqxclib_soversion,
+    include_directories: [sqxcapp_inc, sqxc_inc],
+    link_with: sqxc_shared_lib,
+#    dependencies: sqxc_shared,
+    version: sqxclib_version,
+#    soversion: sqxclib_soversion,
     install: true
 )
 
@@ -95,7 +96,7 @@ sqxcapp_user_link_shared_lib = static_library(
     'sqxcapp-user-link-shared',
     sources_app_user,
     include_directories: sqxcapp_inc,
-    dependencies : sqxc_shared,
+    dependencies: sqxc_shared,
     install: false
 )
 
@@ -104,18 +105,18 @@ sqxcapptool_lib = static_library(
     'sqxcapptool',
     sources_apptool,
     include_directories: sqxcapp_inc,
-    dependencies : sqxcsupport,
+    dependencies: sqxcsupport,
     install: true
 )
 
 sqxcapptool_shared_lib = shared_library(
     'sqxcapptool',
     sources_apptool,
-    include_directories: sqxcapp_inc,
-    link_with : sqxcapp_shared_lib,
-    dependencies : sqxcsupport_shared,
-    version : sqxclib_version,
-#    soversion : sqxclib_soversion,
+    include_directories: [sqxcapp_inc, sqxcsupport_inc, sqxc_inc],
+    link_with: [sqxcapp_shared_lib, sqxcsupport_shared_lib, sqxc_shared_lib],
+#    dependencies: sqxcsupport_shared,
+    version: sqxclib_version,
+#    soversion: sqxclib_soversion,
     install: true
 )
 
@@ -125,7 +126,7 @@ sqxcapptool_user_lib = static_library(
     'sqxcapptool-user',
     sources_apptool_user,
     include_directories: sqxcapp_inc,
-    dependencies : sqxcsupport,
+    dependencies: sqxcsupport,
     install: false
 )
 
@@ -135,42 +136,42 @@ sqxcapptool_user_link_shared_lib = static_library(
     'sqxcapptool-user-link-shared',
     sources_apptool_user,
     include_directories: sqxcapp_inc,
-    dependencies : sqxcsupport_shared,
+    dependencies: sqxcsupport_shared,
     install: false
 )
 
 # static dependency
 sqxcapp = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with : [sqxcapp_user_lib, sqxcapp_lib],
-    dependencies : sqxc
+    link_with: [sqxcapp_user_lib, sqxcapp_lib],
+    dependencies: sqxc
 )
 
 sqxcapptool = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with : [sqxcapptool_user_lib, sqxcapptool_lib, sqxcapp_lib],
-    dependencies : sqxcsupport
+    link_with: [sqxcapptool_user_lib, sqxcapptool_lib, sqxcapp_lib],
+    dependencies: sqxcsupport
 )
 
 # shared dependency
 sqxcapp_shared = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with : [sqxcapp_user_link_shared_lib, sqxcapp_shared_lib],
-    dependencies : sqxc_shared
+    link_with: [sqxcapp_user_link_shared_lib, sqxcapp_shared_lib],
+    dependencies: sqxc_shared
 )
 
 sqxcapptool_shared = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with : [sqxcapptool_user_link_shared_lib, sqxcapptool_shared_lib, sqxcapp_shared_lib],
-    dependencies : sqxcsupport_shared
+    link_with: [sqxcapptool_user_link_shared_lib, sqxcapptool_shared_lib, sqxcapp_shared_lib],
+    dependencies: sqxcsupport_shared
 )
 
 # --- 'sqxctool' executable file ---
 executable('sqxctool',
            sources,
-           dependencies : sqxcapptool)
+           dependencies: sqxcapptool)
 
 # --- 'sqxcpptool' executable file ---
 executable('sqxcpptool',
            sources_cpp,
-           dependencies : sqxcapptool)
+           dependencies: sqxcapptool)
