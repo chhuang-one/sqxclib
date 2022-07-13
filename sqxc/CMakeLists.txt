@@ -180,9 +180,17 @@ if (SQLite3_FOUND)
 	            ${SOURCES_SQLITE}
 	            ${HEADERS_SQLITE}
 	)
+	target_include_directories(sqxc_sqlite
+	    PUBLIC
+	    ${SQXC_INCLUDE_DIRS}
+	    ${SQLite3_INCLUDE_DIRS}
+	)
 	if (BUILD_SHARED_LIBS)
-		target_link_libraries(sqxc_sqlite sqxc)
-	endif(BUILD_SHARED_LIBS)
+		target_link_libraries(sqxc_sqlite
+		    sqxc
+		    ${SQLite3_LIBRARIES}
+		)
+	endif (BUILD_SHARED_LIBS)
 
 	set_target_properties(sqxc_sqlite
 	    PROPERTIES
@@ -209,9 +217,17 @@ if (MYSQL_FOUND)
 	            ${SOURCES_MYSQL}
 	            ${HEADERS_MYSQL}
 	)
+	target_include_directories(sqxc_mysql
+	    PUBLIC
+	    ${SQXC_INCLUDE_DIRS}
+	    ${MYSQL_INCLUDE_DIRS}
+	)
 	if (BUILD_SHARED_LIBS)
-		target_link_libraries(sqxc_mysql sqxc)
-	endif(BUILD_SHARED_LIBS)
+		target_link_libraries(sqxc_mysql
+		    sqxc
+		    ${MYSQL_LIBRARIES}
+		)
+	endif (BUILD_SHARED_LIBS)
 
 	set_target_properties(sqxc_mysql
 	    PROPERTIES
@@ -230,6 +246,36 @@ if (MYSQL_FOUND)
 	    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
 	)
+endif (MYSQL_FOUND)
+
+# update SQXC_INCLUDE_DIRS and SQXC_LIBRARIES
+if (SQLite3_FOUND)
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${SQLite3_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${SQLite3_LIBRARIES}
+	)
+endif (SQLite3_FOUND)
+
+if (MYSQL_FOUND)
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${MYSQL_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${MYSQL_LIBRARIES}
+	)
+	# --- Visual Studio 2015 and later ---
+	if (MSVC AND NOT (MSVC_VERSION LESS 1900))
+		set(SQXC_LIBRARIES
+		    ${SQXC_LIBRARIES}
+		    legacy_stdio_definitions.lib
+		)
+	endif ()
 endif (MYSQL_FOUND)
 
 # set SQXC_INCLUDE_DIRS to PARENT_SCOPE

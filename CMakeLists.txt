@@ -105,14 +105,6 @@ endif (JSONC_FOUND)
 
 # --- SQLite ---
 if (SQLite3_FOUND)
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
-	    ${SQLite3_INCLUDE_DIRS}
-	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
-	    ${SQLite3_LIBRARIES}
-	)
 	# --- debug message ---
 	message(STATUS "SQLite include dirs: ${SQLite3_INCLUDE_DIRS}")
 	message(STATUS "SQLite libraries: ${SQLite3_LIBRARIES}")
@@ -124,21 +116,6 @@ endif (SQLite3_FOUND)
 
 # --- MySQL ---
 if (MYSQL_FOUND)
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
-	    ${MYSQL_INCLUDE_DIRS}
-	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
-	    ${MYSQL_LIBRARIES}
-	)
-	# --- Visual Studio 2015 and later ---
-	if (MSVC AND NOT (MSVC_VERSION LESS 1900))
-		set(SQXC_LIBRARIES
-		    ${SQXC_LIBRARIES}
-		    legacy_stdio_definitions.lib
-		)
-	endif()
 	# --- debug message ---
 	message(STATUS "MySQL include dirs: ${MYSQL_INCLUDE_DIRS}")
 	message(STATUS "MySQL libraries: ${MYSQL_LIBRARIES}")
