@@ -6,11 +6,13 @@ project(sqxclib VERSION 0.7)
 
 set(SQXCLIB_SOVERSION      0)
 
+# Don't specify version of the C or C++ language standard for user.
+# Note: Developer still need to specify version of language standard currently.
 if (DEFINED CMAKE_CXX_COMPILER)
 	# MSVC++ must support parameter pack in constructor
 	if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-		set(CMAKE_CXX_STANDARD_REQUIRED ON)
-		set(CMAKE_CXX_STANDARD 11)
+#		set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#		set(CMAKE_CXX_STANDARD 11)
 	endif ()
 endif (DEFINED CMAKE_CXX_COMPILER)
 

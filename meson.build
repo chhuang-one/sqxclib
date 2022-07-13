@@ -1,5 +1,7 @@
+# Don't specify version of the C or C++ language standard for user.
+# Note: Developer still need to specify version of language standard currently.
 project('sqxclib', 'c', 'cpp',
-        default_options : ['c_std=c99', 'cpp_std=c++11'],
+#        default_options : ['c_std=c99', 'cpp_std=c++11'],
         version: '0.7')
 
 # add_project_arguments('-DHAVE_CONFIG_H', language : ['c', 'cpp'])
