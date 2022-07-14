@@ -2,6 +2,19 @@ cmake_minimum_required(VERSION 3.14)
 
 project(user-project VERSION 1.0)
 
+if (DEFINED CMAKE_CXX_COMPILER)
+	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		# AppleClang use old C++ standard by default
+		set(CMAKE_CXX_STANDARD_REQUIRED ON)
+		set(CMAKE_CXX_STANDARD 11)
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+		# MSVC++ must support parameter pack in constructor
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		# GCC has link flags to avoid linking unused shared libraries
+		set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
+	endif ()
+endif (DEFINED CMAKE_CXX_COMPILER)
+
 set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
     "${CMAKE_SOURCE_DIR}/cmake/"

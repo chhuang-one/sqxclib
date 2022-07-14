@@ -1,9 +1,3 @@
-# link flags for gcc to avoid link with unused shared libraries
-SET(SQXC_GCC_EXE_LINKER_FLAGS  "-Wl,--as-needed")
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${SQXC_GCC_EXE_LINKER_FLAGS}")
-endif ()
-
 include_directories(${SQXC_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 

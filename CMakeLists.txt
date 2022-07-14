@@ -1,19 +1,28 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(sqxclib VERSION 0.7)
-
-# set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING " " FORCE )
+project(sqxclib
+    VERSION 0.7
+    HOMEPAGE_URL https://github.com/chhuang-one/sqxclib/
+)
 
 set(SQXCLIB_SOVERSION      0)
 
 # Don't specify version of the C or C++ language standard for user.
-# Note: Developer still need to specify version of language standard currently.
+# Note: sqxclib code still compile with C99 and C++11 currently.
 if (DEFINED CMAKE_CXX_COMPILER)
-	if (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		# AppleClang use old C++ standard by default
 		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 		set(CMAKE_CXX_STANDARD 11)
-	# MSVC++ must support parameter pack in constructor
-#	elseif (NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+		# MSVC++ must support parameter pack in constructor
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		# GCC has link flags to avoid linking unused shared libraries
+		set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
+#		set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#		set(CMAKE_CXX_STANDARD 11)
+	else ()
+		# Other C++ compilers
 #		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #		set(CMAKE_CXX_STANDARD 11)
 	endif ()
@@ -25,10 +34,12 @@ set(CMAKE_MODULE_PATH
 )
 
 # set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H")
+# set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING " " FORCE )
 
 # define CMAKE_INSTALL_<dir> and CMAKE_INSTALL_FULL_<dir>
 include(GNUInstallDirs)
 
+# options
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 
 # use find_package(PkgConfig REQUIRED) before use pkg-config module
