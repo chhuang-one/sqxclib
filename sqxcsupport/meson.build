@@ -62,8 +62,8 @@ sqxcsupport_inc = include_directories('./')
 sqxcsupport_lib = static_library(
     'sqxcsupport',
     [sources_helpers, sources_structs, sources_console, sources_test],
-    include_directories: sqxcsupport_inc,
-    dependencies: sqxc,
+    include_directories: [sqxcsupport_inc, sqxc_inc],
+#    dependencies: sqxc,
     install: true
 )
 

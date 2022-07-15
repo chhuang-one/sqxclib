@@ -17,7 +17,7 @@ set(SOURCES
     SqStorage-query.c
     SqQuery.c
     Sqdb.c
-	Sqdb-migration.c    # Most of the SQL products may use this (exclude SQLite)
+    Sqdb-migration.c    # Most of the SQL products may use this (exclude SQLite)
     Sqxc.c
     SqxcValue.c
     SqxcSql.c
@@ -45,7 +45,7 @@ set(HEADERS
     SqQuery-macro.h
     SqRelation.h
     Sqdb.h
-	Sqdb-migration.h    # Most of the SQL products may use this (exclude SQLite)
+    Sqdb-migration.h    # Most of the SQL products may use this (exclude SQLite)
     Sqxc.h
     SqxcValue.h
     SqxcSql.h
@@ -94,9 +94,8 @@ if (MYSQL_FOUND)
 	)
 endif()
 
-# --- build library ---
+# --- build ---
 include_directories(${SQXC_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
-link_libraries(${SQXC_LIBRARIES})
 
 # --- 'sqxc' library ---
 add_library(sqxc
@@ -109,6 +108,10 @@ set_target_properties(sqxc
 #    SOVERSION      ${SQXCLIB_SOVERSION}
     PUBLIC_HEADER "${HEADERS}"
 )
+if (BUILD_SHARED_LIBS)
+	target_link_libraries(sqxc ${SQXC_LIBRARIES})
+endif(BUILD_SHARED_LIBS)
+
 # add 'sqxc' to SQXC_LIBRARIES
 set(SQXC_LIBRARIES
     sqxc

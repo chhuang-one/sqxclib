@@ -93,9 +93,8 @@ set(SOURCES_CPP
     sqxcpptool.cpp
 )
 
-# --- build library ---
+# --- build ---
 include_directories(${SQXCAPPTOOL_INCLUDE_DIRS})
-link_libraries(${SQXC_LIBRARIES})
 
 # --- 'sqxcapp' library ---
 add_library(sqxcapp

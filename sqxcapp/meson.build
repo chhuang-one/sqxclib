@@ -64,8 +64,8 @@ sqxcapptool_inc = sqxcapp_inc
 sqxcapp_lib = static_library(
     'sqxcapp',
     sources_app,
-    include_directories: sqxcapp_inc,
-    dependencies: sqxc,
+    include_directories: [sqxcapp_inc, sqxc_inc],
+#    dependencies: sqxc,
     install: true
 )
 
@@ -86,7 +86,7 @@ sqxcapp_user_lib = static_library(
     'sqxcapp-user',
     sources_app_user,
     include_directories: sqxcapp_inc,
-    dependencies : sqxc,
+    dependencies: sqxc,
     install: false
 )
 
@@ -104,8 +104,8 @@ sqxcapp_user_link_shared_lib = static_library(
 sqxcapptool_lib = static_library(
     'sqxcapptool',
     sources_apptool,
-    include_directories: sqxcapp_inc,
-    dependencies: sqxcsupport,
+    include_directories: [sqxcapp_inc, sqxcsupport_inc, sqxc_inc],
+#    dependencies: sqxcsupport,
     install: true
 )
 

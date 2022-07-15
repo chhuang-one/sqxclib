@@ -1,3 +1,7 @@
+sqxc_dependencies = []
+sqxc_static_link_libs = []
+sqxc_shared_link_libs = []
+
 # --- 'sqxc' sources and headers ---
 sources = [
     'SqPtrArray.c',
@@ -56,8 +60,9 @@ headers = [
     'SqxcValue.h',
     'SqxcSql.h',
 ]
+install_headers(headers, subdir: 'sqxc')
 
-# C++ sources & headers
+# --- 'sqxcpp' C++ sources and headers ---
 sources_cpp = [
     'SqType-std-string.cpp',
 ]
@@ -65,12 +70,12 @@ sources_cpp = [
 headers_cpp = [
     'SqType-stl-cpp.h',
 ]
+install_headers(headers_cpp, subdir: 'sqxc')
 
-dependencies = []
-
+# --- thread ---
 #if host_machine.system() != 'windows'
 #	if thread.found() == true
-#		dependencies += thread
+#		sqxc_dependencies += thread
 #	endif
 #endif
 
@@ -78,7 +83,7 @@ dependencies = []
 if jsonc.found() == true
 	sources += ['SqxcJsonc.c']
 	headers += ['SqxcJsonc.h']
-	dependencies += jsonc
+	sqxc_dependencies += jsonc
 endif
 
 # --- SQLite ---
@@ -101,14 +106,12 @@ if mysql.found() == true
 	install_headers(headers_mysql, subdir: 'sqxc')
 endif
 
-install_headers(headers, subdir: 'sqxc')
-install_headers(headers_cpp, subdir: 'sqxc')
-
 configure_file(input : 'config.h.in',
                output : 'config.h',
                install : true,
                install_dir : 'include' / 'sqxc',
-               configuration : config_data)
+               configuration : config_data
+)
 
 sqxc_inc = include_directories('./')
 
@@ -117,29 +120,32 @@ sqxc_lib = static_library(
     'sqxc',
     sources,
     include_directories: sqxc_inc,
-    dependencies: dependencies,
+    dependencies: sqxc_dependencies,
     install: true
 )
+sqxc_static_link_libs += sqxc_lib
 
 # --- 'sqxc' shared library ---
 sqxc_shared_lib = shared_library(
     'sqxc',
     sources,
     include_directories: sqxc_inc,
-    dependencies: dependencies,
+    dependencies: sqxc_dependencies,
     version: sqxclib_version,
 #    soversion: sqxclib_soversion,
     install: true
 )
+sqxc_shared_link_libs += sqxc_shared_lib
 
 # --- 'sqxcpp' static library ---
 sqxcpp_lib = static_library(
     'sqxcpp',
     sources_cpp,
     include_directories: sqxc_inc,
-#    dependencies: dependencies,
+#    dependencies: sqxc_dependencies,
     install: true
 )
+sqxc_static_link_libs += sqxcpp_lib
 
 # --- 'sqxcpp' shared library ---
 sqxcpp_shared_lib = shared_library(
@@ -147,15 +153,15 @@ sqxcpp_shared_lib = shared_library(
     sources_cpp,
     include_directories: sqxc_inc,
     link_with: sqxc_shared_lib,
-#    dependencies: dependencies,
+#    dependencies: sqxc_dependencies,
     version: sqxclib_version,
 #    soversion: sqxclib_soversion,
     install: true
 )
+sqxc_shared_link_libs += sqxcpp_shared_lib
 
 # --- 'sqxc_sqlite' library ---
 if sqlite.found() == true
-    dependencies += sqlite
 	sqxc_sqlite_lib = static_library(
 	    'sqxc_sqlite',
 	    sources_sqlite,
@@ -173,11 +179,13 @@ if sqlite.found() == true
 #	    soversion: sqxclib_soversion,
 	    install: true
 	)
+    sqxc_dependencies += sqlite
+    sqxc_static_link_libs += sqxc_sqlite_lib
+    sqxc_shared_link_libs += sqxc_sqlite_shared_lib
 endif
 
 # --- 'sqxc_mysql' library ---
 if mysql.found() == true
-    dependencies += mysql
 	sqxc_mysql_lib = static_library(
 	    'sqxc_mysql',
 	    sources_mysql,
@@ -195,18 +203,21 @@ if mysql.found() == true
 #	    soversion: sqxclib_soversion,
 	    install: true
 	)
+    sqxc_dependencies += mysql
+    sqxc_static_link_libs += sqxc_mysql_lib
+    sqxc_shared_link_libs += sqxc_mysql_shared_lib
 endif
 
 # static dependency
 sqxc = declare_dependency(
     include_directories: sqxc_inc,
-    link_with: [sqxc_mysql_lib, sqxc_sqlite_lib, sqxcpp_lib, sqxc_lib],
-    dependencies: dependencies
+    link_with: sqxc_static_link_libs,
+    dependencies: sqxc_dependencies
 )
 
 # shared dependency
 sqxc_shared = declare_dependency(
     include_directories: sqxc_inc,
-    link_with: [sqxc_mysql_shared_lib, sqxc_sqlite_shared_lib, sqxcpp_shared_lib, sqxc_shared_lib],
-    dependencies: dependencies
+    link_with: sqxc_shared_link_libs,
+    dependencies: sqxc_dependencies
 )
