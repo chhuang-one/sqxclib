@@ -8,8 +8,9 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## 目前的功能:
-1. 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL表/列/迁移。
-   也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
+1. 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL表/列/迁移，
+   这可以减少制作 schema 时的运行时间，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)。
+   当然也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
 2. 所有定义的 SQL表/列 都可以用于解析 JSON 对象/字段。也可以从 SQL 列 解析 JSON 对象/数组。
 
@@ -25,10 +26,10 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
 
 ## 数据库架构
 
-定义映射到数据库表 “users” 的 C 结构化数据类型。
+定义映射到数据库表 "users" 的 C 结构化数据类型。
 
 ```c++
-typedef struct  User    User;    // add this line if you use C language
+typedef struct  User    User;    // 如果您使用 C 语言，请添加此行
 
 struct User {
 	int     id;          // primary key
@@ -39,26 +40,26 @@ struct User {
 	time_t  created_at;
 	time_t  updated_at;
 
-#ifdef __cplusplus       // C++ Only
+#ifdef __cplusplus       // C++ 数据类型
 	std::string       strCpp;
 	std::vector<int>  intsCpp;
 #endif
 };
 ```
 
-使用 C++ 方法（Schema Builder）在 schema_v1 中定义表/列 （动态）
+使用 C++ 方法在 schema_v1 中定义表/列 （动态）
 
 ```c++
-/* define global type for C++ STL */
+/* 为 C++ STL 定义全局类型 */
 Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
-	/* create schema version 1 */
+	/* 创建架构版本 1 */
 	schema_v1 = new Sq::Schema("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
+	schema_v1->version = 1;    // 指定版本号或自动生成
 
-	// create table "users"
+	// 创建表 "users"
 	table = schema_v1->create<User>("users");
-	// add dynamic columns to table
+	// 向表中添加列
 	table->integer("id", &User::id)->primary();  // PRIMARY KEY
 	table->string("name", &User::name);
 	table->string("email", &User::email, 60);    // VARCHAR(60)
@@ -77,161 +78,40 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	// CREATE INDEX
 	table->index("users_id_index", "id");
 
-	// If columns and members use default names - 'created_at' and 'updated_at',
-	// you can use below line to replace above 2 timestamp() methods.
+	/* 如果您将当前时间存储在列/成员中并且它们使用默认名称 - 'created_at' 和 'updated_at',
+	   您可以使用下面的行替换上述 2 个 timestamp() 方法。
+	 */
 //	table->timestamps<User>();
 ```
 
-使用 C++ 方法（Schema Builder）更改 schema_v2 中的表/列 （动态）
+使用 C++ 方法更改 schema_v2 中的表/列 （动态）
 
 ```c++
-	/* create schema version 2 */
+	/* 创建架构版本 2 */
 	schema_v2 = new Sq::Schema("Ver 2");
-	schema_v2->version = 2;    // specify version number or auto generate it
+	schema_v2->version = 2;    // 指定版本号或自动生成
 
-	// alter table "users"
+	// 更改表 "users"
 	table = schema_v2->alter("users");
-	// add dynamic columns/records to table
+	// 向表中添加列
 	table->integer("test_add", &User::test_add);
+	// 更改表中的列
 	table->integer("city_id", &User::city_id)->change();
-	table->dropForeign("users_city_id_foreign");    // DROP CONSTRAINT FOREIGN KEY
-	table->drop("name");
-	table->rename("email", "email2");
-```
-
-使用 C++ 聚合初始化在 schema_v1 中定义表/列 （静态）
-* 这可以减少制作 schema 时的运行时间。
-* 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 doc/[SqColumn.md](doc/SqColumn.md)
-
-```c++
-/* define global type for C++ STL */
-Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
-
-static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
-
-static const SqColumn  userColumns[8] = {
-	// PRIMARY KEY
-	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
-
-	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
-
-	{SQ_TYPE_STRING, "email",      offsetof(User, email),      0,
-		NULL,                          // .old_name
-		60},                           // .size    // VARCHAR(60)
-
-	// DEFAULT CURRENT_TIMESTAMP
-	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
-
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
-
-	// FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    0,
-		NULL, 0, 0, NULL, NULL,        // .old_name, .size, .digits, .default_value, .check
-		(SqForeign*) &userForeign},    // .foreign
-
-	// C++ std::string
-	{SQ_TYPE_STD_STRING, "strCpp", offsetof(User, strCpp)     },
-
-	// C++ std::vector
-	{&SqTypeIntVector,  "intsCpp", offsetof(User, intsCpp)    },
-};
-
-	/* create schema version 1 */
-	schema_v1 = new Sq::Schema("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
-
-	// create table "users"
-	table = schema_v1->create<User>("users");
-	// add static 'userColumns' that has 8 elements to table
-	table->addColumn(userColumns, 8);
-```
-
-使用 C99 指定初始化程序在 schema_v1 中定义表/列 （静态）
-* 这可以减少制作 schema 时的运行时间。
-* 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 doc/[SqColumn.md](doc/SqColumn.md)
-
-```c
-static const SqColumn  userColumns[8] = {
-	// PRIMARY KEY
-	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
-
-	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
-
-	{SQ_TYPE_STRING, "email",      offsetof(User, email),
-		.size = 60},    // VARCHAR(60)
-
-	// DEFAULT CURRENT_TIMESTAMP
-	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
-
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
-
-	// FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
-		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
-
-	// CONSTRAINT FOREIGN KEY
-	{SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
-		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
-		.composite = (char *[]) {"city_id", NULL} },
-
-	// CREATE INDEX
-	{SQ_TYPE_INDEX,       "users_id_index",
-		.composite = (char *[]) {"id", NULL} },
-};
-
-	/* create schema version 1 */
-	schema_v1 = sq_schema_new("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
-
-	// create table "users"
-	table = sq_schema_create(schema_v1, "users", User);
-
-	// add static 'userColumns' that has 8 elements to table
-	sq_table_add_column(table, userColumns, 8);
-```
-
-使用 C99 指定初始化程序更改 schema_v2 中的表/列 （静态）
-
-```c
-static const SqColumn  userColumnsChanged[5] = {
-	// ADD COLUMN "test_add"
-	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
-
-	// ALTER COLUMN "city_id"
-	{SQ_TYPE_INT,  "city_id",  offsetof(User, city_id), SQB_CHANGED},
-
 	// DROP CONSTRAINT FOREIGN KEY
-	{.old_name = "users_city_id_foreign",     .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_FOREIGN },
+	table->dropForeign("users_city_id_foreign");
 
-	// DROP COLUMN "name"
-	{.old_name = "name",      .name = NULL},
-
-	// RENAME COLUMN "email" TO "email2"
-	{.old_name = "email",     .name = "email2"},
-};
-
-	/* create schema version 2 */
-	schema_v2 = sq_schema_new("Ver 2");
-	schema_v2->version = 2;    // specify version number or auto generate it
-
-	// alter table "users"
-	table = sq_schema_alter(schema_v2, "users", NULL);
-
-	// add static 'userColumnsChanged' that has 5 elements to table
-	sq_table_add_column(table, userColumnsChanged, 5);
+	table->dropColumn("name");
+	table->renameColumn("email", "email2");
 ```
 
-使用 C 函数（Schema Builder）在 schema_v1 中定义表/列 （动态）
+使用 C 函数在 schema_v1 中定义表/列 （动态）
 
 ```c
-	/* create schema version 1 */
+	/* 创建架构版本 1 */
 	schema_v1 = sq_schmea_new("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
+	schema_v1->version = 1;    // 指定版本号或自动生成
 
-	// create table "users"
+	// 创建表 "users"
 	table = sq_schema_create(schema_v1, "users", User);
 
 	// PRIMARY KEY
@@ -263,26 +143,26 @@ static const SqColumn  userColumnsChanged[5] = {
 	// CREATE INDEX
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
 
-
-	// If columns and members use default names - 'created_at' and 'updated_at',
-	// you can use below line to replace above 2 sq_table_add_timestamp() functions.
+	/* 如果您将当前时间存储在列/成员中并且它们使用默认名称 - 'created_at' 和 'updated_at',
+	   您可以使用下面的行替换上述 2 个 sq_table_add_timestamp() 函数。
+	 */
 //	sq_table_add_timestamps_struct(table, User);
 ```
 
-使用 C 函数（Schema Builder）更改 schema_v2 中的表/列 （动态）
+使用 C 函数更改 schema_v2 中的表/列 （动态）
 
 ```c
-	/* create schema version 2 */
+	/* 创建架构版本 2 */
 	schema_v2 = sq_schema_new("Ver 2");
-	schema_v2->version = 2;    // specify version number or auto generate it
+	schema_v2->version = 2;    // 指定版本号或自动生成
 
-	// alter table "users"
+	// 更改表 "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
 
-	// add column to table
+	// 将列添加到表中
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 
-	// alter column in table
+	// 更改表中的列
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	column->bit_field |= SQB_CHANGED;        // set bit in SqColumn.bit_field
 
@@ -291,222 +171,24 @@ static const SqColumn  userColumnsChanged[5] = {
 	sq_table_rename_column(table, "email", "email2");
 ```
 
-其他 constraint 示例代码:  
-  
-使用 C99 指定初始化器更改 constraint（静态）
-
-```c
-static const SqColumn  otherSampleChanged_1[] = {
-	// CONSTRAINT PRIMARY KEY
-	{SQ_TYPE_CONSTRAINT,  "other_primary", 0,  SQB_PRIMARY,
-		.composite = (char *[]) {"column1", "column2", NULL} },
-
-	// CONSTRAINT UNIQUE
-	{SQ_TYPE_CONSTRAINT,  "other_unique",  0,  SQB_UNIQUE,
-		.composite = (char *[]) {"column1", "column2", NULL} },
-};
-
-static const SqColumn  otherSampleChanged_2[] = {
-	// DROP CONSTRAINT PRIMARY KEY
-	{.old_name = "other_primary",  .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_PRIMARY },
-
-	// DROP CONSTRAINT UNIQUE
-	{.old_name = "other_unique",   .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_UNIQUE },
-};
-```
-
-其他 constraint 示例代码 (Schema Builder):  
-  
-使用 C 函数更改 constraint（动态）
-
-```c
-	// ADD CONSTRAINT UNIQUE
-	sq_table_add_unique(table, "other_unique", "column1", "column2", NULL);
-	// ADD CONSTRAINT PRIMARY KEY
-	sq_table_add_primary(table, "other_primary", "column1", "column2", NULL);
-
-	// DROP CONSTRAINT UNIQUE
-	sq_table_drop_unique(table, "other_unique");
-	// DROP CONSTRAINT PRIMARY KEY
-	sq_table_drop_primary(table, "other_primary");
-```
-
-使用 C++ 方法更改 constraint（动态）
-
-```c++
-	// ADD CONSTRAINT UNIQUE
-	table->addUnique("other_unique", "column1", "column2");
-	// ADD CONSTRAINT PRIMARY KEY
-	table->addPrimary("other_primary", "column1", "column2");
-
-	// DROP CONSTRAINT UNIQUE
-	table->dropUnique("other_unique");
-	// DROP CONSTRAINT PRIMARY KEY
-	table->dropPrimary("other_primary");
-```
-
-* 要使用宏动态定义（或更改）表，请参阅 doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
 * 您可以在 doc/[database-migrations.md](doc/database-migrations.md) 中获得有关架构和迁移的更多信息
-
-## 数据库同步（迁移）
-
-使用 C++ 方法迁移架构并同步到数据库
-
-```c++
-	// migrate 'schema_v1' and 'schema_v2'
-	storage->migrate(schema_v1);
-	storage->migrate(schema_v2);
-
-	// synchronize schema to database and update schema/table status
-	// This is mainly used by SQLite
-	storage->migrate(NULL);
-
-	// free unused 'schema_v1' and 'schema_v2'
-	delete schema_v1;
-	delete schema_v2;
-```
-
-使用 C 函数迁移架构并同步到数据库
-
-```c
-	// migrate 'schema_v1' and 'schema_v2'
-	sq_storage_migrate(storage, schema_v1);
-	sq_storage_migrate(storage, schema_v2);
-
-	// synchronize schema to database and update schema/table status
-	// This is mainly used by SQLite
-	sq_storage_migrate(storage, NULL);
-
-	// free unused 'schema_v1' and 'schema_v2'
-	sq_schema_free(schema_v1);
-	sq_schema_free(schema_v2);
-```
-
-## 增删查改
-
-要获取更多信息和示例，您可以查看 doc/[SqStorage.md](doc/SqStorage.md)  
-  
-使用 C 函数
-
-```c
-	User  *user;
-
-	// get multiple rows
-	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
-	// get all rows
-	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
-	// get one row
-	user  = sq_storage_get(storage, "users", NULL, 2);
-
-	sq_storage_insert(storage, "users", NULL, user);
-
-	// update one row
-	sq_storage_update(storage, "users", NULL, user);
-	// update specific columns - "name" and "email" in multiple rows.
-	sq_storage_update_all(storage, "users", NULL, user, 
-	                      "WHERE id > 11 AND id < 28",
-	                      "name", "email",
-	                      NULL);
-	// update specific fields - User::name and User::email in multiple rows.
-	sq_storage_update_field(storage, "users", NULL, user, 
-	                        "WHERE id > 11 AND id < 28",
-	                        offsetof(User, name),
-	                        offsetof(User, email),
-	                        -1);
-
-	// remove one row
-	sq_storage_remove(storage, "users", NULL, 5);
-	// remove multiple rows
-	sq_storage_remove_all(storage, "users", "WHERE id < 5");
-```
-
-使用 C++ 方法
-
-```c++
-	User         *user;
-	Sq::PtrArray *array;
-
-	// get multiple rows
-	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
-	// get all rows
-	array = storage->getAll("users");
-	// get one row
-	user  = storage->get("users", 2);
-
-	// insert one row
-	storage->insert("users", user);
-
-	// update one row
-	storage->update("users", user);
-	// update specific columns - "name" and "email" in multiple rows.
-	storage->updateAll("users", user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
-	// update specific fields - User::name and User::email in multiple rows.
-	storage->updateField("users", user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
-
-	// remove one row
-	storage->remove("users", 5);
-	// remove multiple rows
-	storage->removeAll("users", "WHERE id < 5");
-```
-
-使用 C++ 模板函数
-
-```c++
-	User              *user;
-	std::vector<User> *vector;
-
-	// get multiple rows
-	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
-	// get all rows
-	vector = storage->getAll<std::vector<User>>();
-	// get one row
-	user = storage->get<User>(2);
-
-	// insert one row
-	storage->insert<User>(user);
-		// or
-	storage->insert(user);
-
-	// update one row
-	storage->update<User>(user);
-		// or
-	storage->update(user);
-
-	// update specific columns - "name" and "email" in multiple rows.
-	// call updateAll<User>(...)
-	storage->updateAll(user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
-	// update specific fields - User::name and User::email in multiple rows.
-	// call updateField<User>(...)
-	storage->updateField(user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
-
-	// remove one row
-	storage->remove<User>(5);
-	// remove multiple rows
-	storage->removeAll<User>("WHERE id < 5");
-```
+* 要使用初始化器静态定义（或更改）表，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)
+* 要使用宏动态定义（或更改）表，请参阅 doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
 
 ## 数据库产品
 
+**Sqdb** 是数据库产品（SQLite、MySQL 等）的基础结构。 您可以在 doc/[Sqdb.md](doc/Sqdb.md) 中获得更多描述和示例。  
+  
 使用 C 函数打开 SQLite 数据库
 
 ```c
 	SqdbConfigSqlite  config = { .folder = "/path", .extension = "db" };
 
 	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
-//	db = sqdb_new(SQDB_INFO_SQLITE, NULL);     // use default setting if config is NULL.
+//	db = sqdb_new(SQDB_INFO_SQLITE, NULL);     // 如果 config 为 NULL，则使用默认设置。
 
 	storage = sq_storage_new(db);
-	sq_storage_open(storage, "sqxc_local");    // This will open file "sqxc_local.db"
+	sq_storage_open(storage, "sqxc_local");    // 这将打开文件 "sqxc_local.db"
 ```
 
 使用 C 函数打开 MySQL 数据库
@@ -516,7 +198,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 	                            .user = "name", .password = "xxx" };
 
 	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config);
-//	db = sqdb_new(SQDB_INFO_MYSQL, NULL);    // use default setting if config is NULL.
+//	db = sqdb_new(SQDB_INFO_MYSQL, NULL);    // 如果 config 为 NULL，则使用默认设置。
 
 	storage = sq_storage_new(db);
 	sq_storage_open(storage, "sqxc_local");
@@ -528,11 +210,159 @@ static const SqColumn  otherSampleChanged_2[] = {
 	Sq::DbConfigSqlite  config = { .folder = "/path", .extension = "db" };
 
 	db = new Sq::DbSqlite(&config);
-//	db = new Sq::DbSqlite(NULL);    // use default setting if config is NULL.
+//	db = new Sq::DbSqlite(NULL);    // 如果 config 为 NULL，则使用默认设置。
 //	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);    // this also works.
 
 	storage = new Sq::Storage(db);
-	storage->open("sqxc_local");    // This will open file "sqxc_local.db"
+	storage->open("sqxc_local");    // 这将打开文件 "sqxc_local.db"
+```
+
+## 数据库同步（迁移）
+
+使用 C++ 方法迁移架构并同步到数据库
+
+```c++
+	// 迁移 'schema_v1' and 'schema_v2'
+	storage->migrate(schema_v1);
+	storage->migrate(schema_v2);
+
+	// 将架构同步到数据库并更新架构/表状态
+	// 这主要由 SQLite 使用
+	storage->migrate(NULL);
+
+	// 释放未使用的 'schema_v1' 和 'schema_v2'
+	delete schema_v1;
+	delete schema_v2;
+```
+
+使用 C 函数迁移架构并同步到数据库
+
+```c
+	// 迁移 'schema_v1' 和 'schema_v2'
+	sq_storage_migrate(storage, schema_v1);
+	sq_storage_migrate(storage, schema_v2);
+
+	// 将架构同步到数据库并更新架构/表状态
+	// 这主要由 SQLite 使用
+	sq_storage_migrate(storage, NULL);
+
+	// 释放未使用的 'schema_v1' 和 'schema_v2'
+	sq_schema_free(schema_v1);
+	sq_schema_free(schema_v2);
+```
+
+## 增删查改
+
+要获取更多信息和示例，您可以查看 doc/[SqStorage.md](doc/SqStorage.md)  
+  
+使用 C++ 方法
+
+```c++
+	User         *user;
+	Sq::PtrArray *array;
+
+	// 获取多行
+	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
+	// 使用方便的 C++ 类获取多行（稍后解释）
+	array = storage->getAll("users", Sq::where("id > 8").where("id < %d", 20));
+
+	// 获取所有行
+	array = storage->getAll("users");
+	// 获取一行
+	user  = storage->get("users", 2);
+
+	// 插入一行
+	storage->insert("users", user);
+
+	// 更新一行
+	storage->update("users", user);
+	// 更新特定列 - 多行中的 "name" 和 "email"。
+	storage->updateAll("users", user,
+	                   "WHERE id > 11 AND id < 28",
+	                   "name", "email");
+	// 更新特定字段 - 多行中的 User::name 和 User::email。
+	storage->updateField("users", user,
+	                     "WHERE id > 11 AND id < 28",
+	                     &User::name, &User::email);
+
+	// 删除一行
+	storage->remove("users", 5);
+	// 删除多行
+	storage->removeAll("users", "WHERE id < 5");
+```
+
+使用 C++ 模板函数
+
+```c++
+	User              *user;
+	std::vector<User> *vector;
+
+	// 获取多行
+	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
+	// 获取所有行
+	vector = storage->getAll<std::vector<User>>();
+	// 获取一行
+	user = storage->get<User>(2);
+
+	// 插入一行
+	storage->insert<User>(user);
+		// 或
+	storage->insert(user);
+
+	// 更新一行
+	storage->update<User>(user);
+		// 或
+	storage->update(user);
+
+	// 更新特定列 - 多行中的 "name" 和 "email"。
+	// call updateAll<User>(...)
+	storage->updateAll(user,
+	                   "WHERE id > 11 AND id < 28",
+	                   "name", "email");
+	// 更新特定字段 - 多行中的 User::name 和 User::email。
+	// call updateField<User>(...)
+	storage->updateField(user,
+	                     "WHERE id > 11 AND id < 28",
+	                     &User::name, &User::email);
+
+	// 删除一行
+	storage->remove<User>(5);
+	// 删除多行
+	storage->removeAll<User>("WHERE id < 5");
+```
+
+使用 C 函数
+
+```c
+	User  *user;
+
+	// 获取多行
+	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
+	// 获取所有行
+	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
+	// 获取一行
+	user  = sq_storage_get(storage, "users", NULL, 2);
+
+	sq_storage_insert(storage, "users", NULL, user);
+
+	// 更新一行
+	sq_storage_update(storage, "users", NULL, user);
+	// 更新特定列 - 多行中的 "name" 和 "email"。
+	sq_storage_update_all(storage, "users", NULL, user, 
+	                      "WHERE id > 11 AND id < 28",
+	                      "name", "email",
+	                      NULL);
+	// 更新特定字段 - 多行中的 User::name 和 User::email。
+	sq_storage_update_field(storage, "users", NULL, user, 
+	                        "WHERE id > 11 AND id < 28",
+	                        offsetof(User, name),
+	                        offsetof(User, email),
+	                        -1);
+
+	// 删除一行
+	sq_storage_remove(storage, "users", NULL, 5);
+	// 删除多行
+	sq_storage_remove_all(storage, "users", "WHERE id < 5");
 ```
 
 ## 查询生成器
@@ -600,10 +430,10 @@ SQL 语句
 SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来处理查询。
 
 ```c++
-	// C function
+	// C 函数
 	array = sq_storage_query(storage, query, NULL, NULL);
 
-	// C++ method
+	// C++ 方法
 	array = storage->query(query);
 ```
 
@@ -650,7 +480,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 	array = storage->getAll("users",
 			Sq::where("id > %d", 10).orWhere("city_id < %d", 22).c());
 
-	// use default constructor and operator()
+	// use default constructor 和 operator()
 	array = storage->getAll("users",
 			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22).c());
 ```
@@ -672,7 +502,7 @@ SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的�
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
 		user = (User*)element[1];    // sq_query_join(query, "users", ...);
-		// free 'element' before you free 'array'
+		// 在释放 'array' 之前释放 'element'
 		// free(element);
 	}
 ```
@@ -687,7 +517,7 @@ SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的�
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
 		user = (User*)element[1];    // join("users")
-		// free 'element' before you free 'array'
+		// 在释放 'array' 之前释放 'element'
 		// free(element);
 	}
 ```
@@ -728,10 +558,10 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 	SqTypeRow  *typeRow;
 	SqRow      *row;
 
-	// C function
+	// C 函数
 	row = sq_storage_get(storage, "users", typeRow, 12);
 
-	// C++ method
+	// C++ 方法
 //	row = storage->get("users", typeRow, 12);
 
 	for (int  index = 0;  index < row->length;  index++)
@@ -849,13 +679,13 @@ sqxclib 在搜索/排序 SQL 列名和 JSON 字段名时默认区分大小写。
 ```c
 // Common settings in SqConfig.h
 
-/* sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default.
-   You may disable this for some old SQL product.
-   Affected source : SqEntry, SqRelation-migration
+/* sqxclib 在搜索/排序 SQL 列名和 JSON 字段名时默认区分大小写。
+   某些旧的 SQL 产品可能需要禁用此功能。
+   受影响的源代码 : SqEntry, SqRelation-migration
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
-/* If user doesn't specify SQL string length, program will use it by default.
+/* 如果用户没有指定 SQL 字符串长度，程序将默认使用它。
    SQL_STRING_LENGTH_DEFAULT
  */
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT      191
@@ -865,12 +695,6 @@ sqxclib 在搜索/排序 SQL 列名和 JSON 字段名时默认区分大小写。
 - 这个库使用 [json-c](https://github.com/json-c/json-c) 来解析/写入 JSON。
 - 所有定义的表/列都可以用来解析 JSON 对象/字段。
 - 程序还可以解析存储在列中的 JSON 对象/数组。
-
-## Sqdb
-Sqdb 是数据库产品（SQLite、MySQL 等）的基础结构。  
-SqdbSqlite.c 为 SQLite 实现 Sqdb 接口。  
-SqdbMysql.c 为 MySQL 实现 Sqdb 接口。  
-您可以在 doc/[Sqdb.md](doc/Sqdb.md) 中获得更多描述和示例。  
 
 ## Sqxc
 Sqxc 是数据解析和写入的接口。  

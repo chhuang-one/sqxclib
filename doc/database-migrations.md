@@ -1,4 +1,4 @@
-# Database: Migrations (Draft)
+# Database: Migrations
 
 This document describe how to define SQL table/column/migration dynamically.
 You can also use SqApp to run and reverse migrations with command-line tool, see [SqApp.md](SqApp.md)  
@@ -72,7 +72,7 @@ The method/function accepts two arguments: one argument is the name of table, an
 	// create table "users"
 	table = schema->create<User>("users");
 
-	// add dynamic columns to table
+	// add columns to table
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->string("email", &User::email, 60);    // VARCHAR(60)
@@ -85,7 +85,7 @@ The method/function accepts two arguments: one argument is the name of table, an
 	// create table "users"
 	table = sq_schema_create(schema, "users", User);
 
-	// add dynamic columns to table
+	// add columns to table
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	column->bit_field |= SQB_PRIMARY;        // set bit in SqColumn.bit_field
 

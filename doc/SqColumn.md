@@ -56,12 +56,12 @@ Declaring bit_field in SqColumn
 
 * All items that need attention are the same as the [SqEntry](SqEntry.md)
 
-## 1. Create table and column by schema builder (dynamic)
+## 1. Create table and column by methods/functions (dynamic)
 
-It is recommended to use schema builder to create dynamic table and column.  
+It is recommended to use C++ methods or C functions to create dynamic table and column.  
 To get more information and sample, you can see below documents:  
 1. [database-migrations.md](database-migrations.md)
-2. **(Schema Builder)** parts of "**Database schema**" in ../[README.md](../README.md#database-schema)
+2. "**Database schema**" in ../[README.md](../README.md#database-schema)
 
 ## 2. Define constant SqColumn that used by constant SqType (static)
 This can reduce running time when making schema if your SQL table is fixed and not changed in future.  
