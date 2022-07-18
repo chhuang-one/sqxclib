@@ -1,18 +1,18 @@
-[中文](database-migrations.cn.md)
+[English](database-migrations.md)
 
-# Database: Migrations
+# 数据库：迁移
 
-This document describe how to define SQL table, column, and migration dynamically.
-You can also use SqApp to run and reverse migrations with command-line tool, see [SqApp.md](SqApp.md)  
+本文档描述了如何动态定义 SQL 表、列、迁移。
+您还可以使用 SqApp 通过命令行工具运行和反向迁移，请参阅 [SqApp.md](SqApp.md)  
 
-Note: Because many users have used Laravel, there are many sqxclib C++ method names are similar to it.
-Actually the design of sqxclib is different from Laravel, so the usage cannot be the same.  
+注意：因为很多用户使用过 Laravel，所以有很多 sqxclib C++ 方法名和它类似。
+实际上 sqxclib 的设计与 Laravel 不同，所以用法不可能相同。  
 
-## Running Migrations
+## 运行迁移
 
-migrate schema and synchronize to database.  
+迁移 schema 并同步到数据库。  
   
-use C++ language  
+使用 C++ 语言  
 
 ```c++
 	storage->migrate(schema_v1); // migrate schema_v1
@@ -22,7 +22,7 @@ use C++ language
 	delete schema_v2;            // free unused schema_v2
 ```
 
-use C language
+使用 C 语言
 
 ```c
 	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
@@ -32,15 +32,15 @@ use C language
 	sq_schema_free(schema_v2);              // free unused schema_v2
 ```
 
-## Tables
+## 表
 
-First, we define a C structured data type that mappings to your database table "users".
+首先，我们定义一个映射到您的数据库表 "users" 的 C 结构化数据类型。
 
 ```c
-typedef struct  User    User;    // add this line if you use C language
+typedef struct  User    User;    // 如果您使用 C 语言，请添加此行
 
 struct User {
-	int     id;          // primary key
+	int     id;          // 主键
 	char   *name;
 	char   *email;
 
@@ -50,12 +50,12 @@ struct User {
 };
 ```
 
-### Creating Tables (dynamic)
+### 创建表（动态）
 
-You will get difference type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.  
-**Please create or define type of SqTable in C++ language if your application written in C++ language.**  
+因为 gcc 的 typeid(Type).name() 会返回奇怪的名称，你会从 C 和 C++ 源代码中得到不同的类型名称。  
+**如果您的应用程序是用 C++ 语言编写的，请用 C++ 语言创建或定义 SqTable 的类型。**  
   
-If SqTable::type defined in C language, you may NOT use below C++ template functions to access SQL table.
+如果 SqTable::type 用 C 语言定义，你不能使用下面的 C++ 模板函数来访问 SQL 表.
 
 	storage->insert<StructType>(...)
 	storage->update<StructType>(...)
@@ -65,16 +65,16 @@ If SqTable::type defined in C language, you may NOT use below C++ template funct
 	storage->get<StructType>(...)
 	storage->getAll<StructType>(...)
 
-use the create method (C function) in the schema to create a new database table.  
-The method/function accepts two arguments: one argument is the name of table, another is structured data type.  
+使用 Schema 的 create 方法 (C函数) 来创建一个新的数据库表。  
+该方法/函数接受两个参数：一个参数是表的名称，另一个是结构类型。  
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 
-	// create table "users"
+	// 创建表 "users"
 	table = schema->create<User>("users");
 
-	// add columns to table
+	// 向表中添加列
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->string("email", &User::email, 60);    // VARCHAR(60)
@@ -82,12 +82,12 @@ The method/function accepts two arguments: one argument is the name of table, an
 ```
 
 ```c
-	/* C sample code */
+	/* C 示例代码 */
 
-	// create table "users"
+	// 创建表 "users"
 	table = sq_schema_create(schema, "users", User);
 
-	// add columns to table
+	// 向表中添加列
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	column->bit_field |= SQB_PRIMARY;        // set bit in SqColumn.bit_field
 
@@ -98,84 +98,84 @@ The method/function accepts two arguments: one argument is the name of table, an
 	sq_column_default("CURRENT_TIMESTAMP");
 ```
 
-#### Checking For Table Existence
+#### 检查表是否存在
 
-You may check for the existence of a table using the find method/function:
-* This method (C function) doesn't look for table in the database, it looks up table in instance of schema.
+您可以使用 find 方法 (C函数) 检查表是否存在:
+* 此方法 (C函数) 不在数据库找表，它在 schema 实例中找表.
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 	if (schema->find("users") == NULL) {
 		// The "users" table exists...
 	}
 
-	/* C sample code */
+	/* C 示例代码 */
 	if (sq_schema_find(schema, "users") == NULL) {
 		// The "users" table exists...
 	}
 ```
 
-### Updating Tables (dynamic)
+### 更新表（动态）
 
-use the alter method (C function) to update existing tables.
+使用 alter 方法 (C函数) 更新现有表.
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 
-	// alter table "users"
+	// 更改表 "users"
 	table = schema->alter("users");
 
-	// add column to table
+	// 将列添加到表中
 	table->integer("test_add", &User::test_add);
-	// alter column "email" in table
+	// 更改表中的 "email" 列
 	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
 ```
 
 ```c
-	/* C sample code */
+	/* C 示例代码 */
 
-	// alter table "users"
+	// 更改表 "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
-	// add columns to table
+	// 向表中添加列
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
-	// alter column "email" in table
+	// 更改表中的 "email" 列
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
 	column->bit_field |= SQB_CHANGED;
 ```
 
-### Renaming / Dropping Tables (dynamic)
+### 重命名/删除表（动态）
 
-use the rename method (C function) to rename an existing database table.
+使用 rename 方法 (C函数) 来重命名现有的数据库表。
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 	schema->rename("old table name", "new table name");
 
-	/* C sample code */
+	/* C 示例代码 */
 	sq_schema_rename(schema, "old table name", "new table name");
 ```
 
-You can use the drop method (C function) to drop an existing table.
+您可以使用 drop 方法 (C函数) 来删除现有的表。
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 	schema->drop("users");
 
-	/* C sample code */
+	/* C 示例代码 */
 	sq_schema_drop(schema, "users");
 ```
 
 
-## Columns
+## 列
 
-### Creating Columns (dynamic)
+### 创建列（动态）
 
-To add columns to the table, you can use methods (C functions) in the SqTable.
-You will get instance of SqTable after calling alter or create method/function in schema.
+要将列添加到表中，您可以使用 SqTable 中的方法/函数。
+在模式中调用 alter 或 create 方法 (C函数) 后，您将获得 SqTable 的实例。
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 
 	// alter table "users"
 	table = schema->alter("users");
@@ -185,7 +185,7 @@ You will get instance of SqTable after calling alter or create method/function i
 ```
 
 ```c
-	/* C sample code */
+	/* C 示例代码 */
 
 	// alter table "users"
 	table = sq_schema_alter(schema, "users", NULL);
@@ -194,11 +194,11 @@ You will get instance of SqTable after calling alter or create method/function i
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 ```
 
-### Available Column Types (dynamic)
+### 可用的列类型（动态）
 
-Below methods/functions are correspond to the different types of columns that you can add to your database tables.
+下面的方法 (C函数) 对应于您可以添加到数据库表中的不同类型的列。
 
-| C++ methods | C functions             | C data type   |
+| C++ 方法    | C 函数                  | C 数据类型    |
 | ----------- | ----------------------- | ------------- |
 | boolean     | sq_table_add_bool       | bool          |
 | bool_       | sq_table_add_bool       | bool          |
@@ -212,31 +212,31 @@ Below methods/functions are correspond to the different types of columns that yo
 | string      | sq_table_add_string     | char*         |
 | custom      | sq_table_add_custom     | *User define* |
 
-* Because 'bool', 'int', and 'double' are C/C++ keywords, I must append '_' in tail of these method.
+* 因为 'bool'、'int' 和 'double' 是 C/C++ 关键字，我必须在这些方法的尾部附加 '_'。
 
-Below method is for C++ data type only.
+以下方法仅适用于 C++ 数据类型。
 
-| C++ methods | C++ data type |
+| C++ 方法    | C 数据类型    |
 | ----------- | ------------- |
 | stdstring   | std::string   |
 
-### Column Modifiers (dynamic)
+### 列修饰符（动态）
 
-There are several "modifiers" you may use when adding a column to table or a entry to structure.
-For example, to make the column "nullable":
+在将列添加到表或将条目添加到结构时，您可以使用几个“修饰符”。
+例如，使列 "nullable":
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 	table->string("name", &User::name)->nullable();
 
-	/* C sample code */
+	/* C 示例代码 */
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column->bit_field |= SQB_NULLABLE;
 ```
 
-Below methods (C functions) are correspond to Column Modifiers:
+以下 方法 (C函数) 对应于列修饰符：
 
-| C++ methods          | C functions         | C bit field name      |
+| C++ 方法             | C 函数              | C 位字段名             |
 | -------------------- | ------------------- | --------------------- |
 | primary()            |                     | SQB_PRIMARY           |
 | unique()             |                     | SQB_UNIQUE            |
@@ -246,85 +246,85 @@ Below methods (C functions) are correspond to Column Modifiers:
 | useCurrentOnUpdate() |                     | SQB_CURRENT_ON_UPDATE |
 | default_(string)     | sq_column_default() |                       |
 
-* Because 'default' is C/C++ keywords, I must append '_' in tail of this method.
+* 因为 "default" 是 C/C++ 关键字，所以我必须在此方法的尾部附加 "_"。
 
-Special methods for structured data type.
+结构类型的特殊方法。
 
-| C++ methods      | C bit field name  | Description                                                  |
-| ---------------- | ----------------- | ------------------------------------------------------------ |
-| pointer()        | SQB_POINTER       | This data member is a pointer.                               |
-| hidden()         | SQB_HIDDEN        | Don't output this data member to JSON.                       |
-| hiddenNull()     | SQB_HIDDEN_NULL   | Don't output this data member to JSON if it's value is NULL. |
+| C++ 方法         | C 位字段名        | 描述                                               |
+| ---------------- | ----------------- | -------------------------------------------------- |
+| pointer()        | SQB_POINTER       | 这个数据成员是一个指针。                           |
+| hidden()         | SQB_HIDDEN        | 不要将此数据成员输出到 JSON。                      |
+| hiddenNull()     | SQB_HIDDEN_NULL   | 如果它的值为 NULL，则不要将此数据成员输出到 JSON。 |
 
-### Updating Column Attributes
+### 更新列属性
 
-C++ language: The change method allows you to modify the type and attributes of existing columns.
+C++ 语言：change 方法允许您修改现有列的类型和属性。
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 
-	// alter table "users"
+	// 更改表 "users"
 	table = schema->alter("users");
 
-	// alter column "email" in table
+	// 更改表中的 "email" 列
 	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
 ```
 
-C language: set SQB_CHANGE in bit_field allows you to modify the type and attributes of existing columns.
+C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型和属性。
 
 ```c
-	/* C sample code */
+	/* C 示例代码 */
 
-	// alter table "users"
+	// 更改表 "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
-	// alter column "email" in table
+	// 更改表中的 "email" 列
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
 	column->bit_field |= SQB_CHANGED;
 ```
 
-### Renaming and Dropping Columns
+### 重命名和删除列
 
-use C++ method renameColumn and C function sq_table_rename_column to rename a column.  
-use C++ method dropColumn and C function sq_table_drop_column to drop a column.
+使用 C++ 方法 renameColumn 和 C 函数 sq_table_rename_column 重命名列。  
+使用 C++ 方法 dropColumn 和 C 函数 sq_table_drop_column 删除列。
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 
-	// alter table "users"
+	// 更改表 "users"
 	table = schema->alter("users");
-	// rename column
+	// 重命名列
 	table->renameColumn("from", "to");
-	// drop column
+	// 删除列
 	table->dropColumn("columnName");
 
-	/* C sample code */
+	/* C 示例代码 */
 
-	// alter table "users"
+	// 更改表 "users"
 	table = sq_schema_alter(schema, "users", NULL);
-	// rename column
+	// 重命名列
 	sq_table_rename_column(table, "from", "to");
-	// drop column
+	// 删除列
 	sq_table_drop_column(table, "columnName");
 ```
 
-## Indexes
+## 索引
 
-### Creating Indexes
+### 创建索引
 
-use the unique method onto the column definition:
+在列定义上使用 unique 方法：
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 	table->string("email", &User::email)->unique();
 
-	/* C sample code */
+	/* C 示例代码 */
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 	column->bit_field |= SQB_UNIQUE;
 ```
 
-To use C functions to create composite unique, index, and primary key,
-the 2nd argument specify the name of unique, index, primary key, others are list of column name that must be null-terminated.
+要使用 C 函数创建复合 唯一、索引、主键，
+第二个参数指定 唯一、索引、主键的名称，其他是必须以空值结尾的列名列表。
 
 ```c
 	column = sq_table_add_index(table, "index_email_account_id", "email", "account_id", NULL);
@@ -334,9 +334,9 @@ the 2nd argument specify the name of unique, index, primary key, others are list
 	column = sq_table_add_primary(table, "primary_email_account_id", "email", "account_id", NULL);
 ```
 
-To use C++ methods to create composite unique, index, and primary key,
-the 1st argument specify the name of unique, index, primary key, others are list of column name.  
-Because C++ methods use parameter pack, the last argument can pass (or not) NULL.
+要使用 C++ 方法创建复合 唯一、索引、主键，
+第一个参数指定 唯一、索引、主键的名称，其他是列名列表。  
+因为 C++ 方法使用参数包，所以最后一个参数可以传递（或不传递）NULL。
 
 ```c++
 	table->index("index_email_account_id", "email", "account_id");
@@ -346,12 +346,12 @@ Because C++ methods use parameter pack, the last argument can pass (or not) NULL
 	table->primary("primary_email_account_id", "email", "account_id");
 ```
 
-### Dropping Indexes
+### 删除索引
 
-User must specify name of index, unique, and primary key to drop them.
+用户必须指定要删除的 索引、唯一、主键的名称。
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 
 	table->dropIndex("index_email_account_id");
 
@@ -359,7 +359,7 @@ User must specify name of index, unique, and primary key to drop them.
 
 	table->dropPrimary("primary_email_account_id");
 
-	/* C sample code */
+	/* C 示例代码 */
 
 	sq_table_drop_index(table, "index_email_account_id");
 
@@ -368,18 +368,18 @@ User must specify name of index, unique, and primary key to drop them.
 	sq_table_drop_primary(table, "primary_email_account_id");
 ```
 
-### Foreign Key Constraints
+### 外键约束
 
-use method (C function) to create composite foreign key.  
-The first argument specify the foreign key name, second is column name.
+使用方法 (C函数) 创建复合外键。  
+第一个参数指定外键名称，第二个是列名。
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 
 	table->foreign("users_city_id_foreign", "city_id")
 	     ->reference("cities", "id")->onDelete("NO ACTION")->onUpdate("NO ACTION");
 
-	/* C sample code */
+	/* C 示例代码 */
 
 	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
 	sq_column_reference(column, "cities", "id");
@@ -387,14 +387,14 @@ The first argument specify the foreign key name, second is column name.
 	sq_column_on_update(column, "NO ACTION");
 ```
 
-#### Dropping Foreign Keys
+#### 删除外键
 
-passing the name of the foreign key constraint to delete it.
+传递外键约束的名称来删除。
 
 ```c++
-	/* C++ sample code */
+	/* C++ 示例代码 */
 	table->dropForeign("users_city_id_foreign");
 
-	/* C sample code */
+	/* C 示例代码 */
 	sq_table_drop_foreign(table, "users_city_id_foreign");
 ```

@@ -86,7 +86,7 @@
  */
 #define SQ_CONFIG_COMMAND_CASE_SENSITIVE           0
 
-/* sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default.
+/* sqxclib is case-sensitive when searching and sorting SQL column name and JSON field name by default.
    You may disable this for some old SQL product.
    Affected source : SqEntry, SqRelation-migration
  */

@@ -12,7 +12,7 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
    这可以减少制作 schema 时的运行时间，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)。
    当然也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
-2. 所有定义的 SQL表/列 都可以用于解析 JSON 对象/字段。也可以从 SQL 列 解析 JSON 对象/数组。
+2. 所有定义的 SQL表和列 都可以用于解析 JSON 对象和字段。也可以从 SQL 列 解析 JSON 对象和数组。
 
 3. 可以在低端硬件上工作。
 
@@ -32,10 +32,10 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
 typedef struct  User    User;    // 如果您使用 C 语言，请添加此行
 
 struct User {
-	int     id;          // primary key
+	int     id;          // 主键
 	char   *name;
 	char   *email;
-	int     city_id;     // foreign key
+	int     city_id;     // 外键
 
 	time_t  created_at;
 	time_t  updated_at;
@@ -47,7 +47,7 @@ struct User {
 };
 ```
 
-使用 C++ 方法在 schema_v1 中定义表/列 （动态）
+使用 C++ 方法在 schema_v1 中定义表和列 （动态）
 
 ```c++
 /* 为 C++ STL 定义全局类型 */
@@ -70,12 +70,12 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	// C++ types - std::string and std::vector
 	table->stdstring("strCpp", &User::strCpp);
 	table->custom("intsCpp", &User::intsCpp, &SqTypeIntVector);
-	// FOREIGN KEY
+	// 外键 FOREIGN KEY
 	table->integer("city_id", &User::city_id)->reference("cities", "id");
-	// CONSTRAINT FOREIGN KEY
+	// 约束外键 CONSTRAINT FOREIGN KEY
 	table->foreign("users_city_id_foreign", "city_id")
 	     ->reference("cities", "id")->onDelete("NO ACTION")->onUpdate("NO ACTION");
-	// CREATE INDEX
+	// 创建索引 CREATE INDEX
 	table->index("users_id_index", "id");
 
 	/* 如果您将当前时间存储在列/成员中并且它们使用默认名称 - 'created_at' 和 'updated_at',
@@ -84,7 +84,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 //	table->timestamps<User>();
 ```
 
-使用 C++ 方法更改 schema_v2 中的表/列 （动态）
+使用 C++ 方法更改 schema_v2 中的表和列 （动态）
 
 ```c++
 	/* 创建架构版本 2 */
@@ -97,14 +97,14 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	table->integer("test_add", &User::test_add);
 	// 更改表中的列
 	table->integer("city_id", &User::city_id)->change();
-	// DROP CONSTRAINT FOREIGN KEY
+	// 删除约束外键 DROP CONSTRAINT FOREIGN KEY
 	table->dropForeign("users_city_id_foreign");
 
 	table->dropColumn("name");
 	table->renameColumn("email", "email2");
 ```
 
-使用 C 函数在 schema_v1 中定义表/列 （动态）
+使用 C 函数在 schema_v1 中定义表和列 （动态）
 
 ```c
 	/* 创建架构版本 1 */
@@ -114,7 +114,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	// 创建表 "users"
 	table = sq_schema_create(schema_v1, "users", User);
 
-	// PRIMARY KEY
+	// 主键 PRIMARY KEY
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	column->bit_field |= SQB_PRIMARY;        // set bit in SqColumn.bit_field
 
@@ -130,26 +130,26 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	column = sq_table_add_timestamp(table, "updated_at", offset(User, updated_at));
 	column->bit_field |= SQB_CURRENT | SQB_CURRENT_ON_UPDATE;
 
-	// FOREIGN KEY
+	// 外键 FOREIGN KEY
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id");
 
-	// CONSTRAINT FOREIGN KEY
+	// 约束外键 CONSTRAINT FOREIGN KEY
 	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
 	sq_column_reference(column, "cities", "id");
 	sq_column_on_delete(column, "NO ACTION");
 	sq_column_on_update(column, "NO ACTION");
 
-	// CREATE INDEX
+	// 创建索引 CREATE INDEX
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
 
-	/* 如果您将当前时间存储在列/成员中并且它们使用默认名称 - 'created_at' 和 'updated_at',
+	/* 如果您将当前时间存储在列和成员中并且它们使用默认名称 - 'created_at' 和 'updated_at',
 	   您可以使用下面的行替换上述 2 个 sq_table_add_timestamp() 函数。
 	 */
 //	sq_table_add_timestamps_struct(table, User);
 ```
 
-使用 C 函数更改 schema_v2 中的表/列 （动态）
+使用 C 函数更改 schema_v2 中的表和列 （动态）
 
 ```c
 	/* 创建架构版本 2 */
@@ -158,20 +158,19 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// 更改表 "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
-
 	// 将列添加到表中
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
-
 	// 更改表中的列
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	column->bit_field |= SQB_CHANGED;        // set bit in SqColumn.bit_field
-
+	// 删除约束外键 DROP CONSTRAINT FOREIGN KEY
 	sq_table_drop_foreign(table, "users_city_id_foreign");
+
 	sq_table_drop_column(table, "name");
 	sq_table_rename_column(table, "email", "email2");
 ```
 
-* 您可以在 doc/[database-migrations.md](doc/database-migrations.md) 中获得有关架构和迁移的更多信息
+* 您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关架构和迁移的更多信息
 * 要使用初始化器静态定义（或更改）表，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)
 * 要使用宏动态定义（或更改）表，请参阅 doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
 
@@ -222,7 +221,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C++ 方法迁移架构并同步到数据库
 
 ```c++
-	// 迁移 'schema_v1' and 'schema_v2'
+	// 迁移 'schema_v1' 和 'schema_v2'
 	storage->migrate(schema_v1);
 	storage->migrate(schema_v2);
 
@@ -263,7 +262,8 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// 获取多行
 	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
-	// 使用方便的 C++ 类获取多行（稍后解释）
+
+	// 使用 C++ 类 'where' 获取多行（在下面的 "查询生成器" 中說明）
 	array = storage->getAll("users", Sq::where("id > 8").where("id < %d", 20));
 
 	// 获取所有行
@@ -674,18 +674,18 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 
 更改构建配置。  
   
-sqxclib 在搜索/排序 SQL 列名和 JSON 字段名时默认区分大小写。 用户可以在 sqxc/[SqConfig.h](sqxc/SqConfig.h) 中更改它。
+sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写。 用户可以在 sqxc/[SqConfig.h](sqxc/SqConfig.h) 中更改。
 
 ```c
 // Common settings in SqConfig.h
 
-/* sqxclib 在搜索/排序 SQL 列名和 JSON 字段名时默认区分大小写。
+/* sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写。
    某些旧的 SQL 产品可能需要禁用此功能。
    受影响的源代码 : SqEntry, SqRelation-migration
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
-/* 如果用户没有指定 SQL 字符串长度，程序将默认使用它。
+/* 如果用户没有指定 SQL 字符串长度，程序将使用默认值。
    SQL_STRING_LENGTH_DEFAULT
  */
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT      191

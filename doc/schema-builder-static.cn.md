@@ -1,3 +1,5 @@
+[English](schema-builder-static.md)
+
 # Schema Builder (静态)
 
 本文档介绍如何使用 C99 指定初始化器（或 C++ 聚合初始化）来定义表。

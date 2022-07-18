@@ -1,3 +1,5 @@
+[中文](README.cn.md)
+
 # Project template for sqxclib
 
 This directory contain files and directories that used to create sqxclib project.  
@@ -8,7 +10,7 @@ You must install sqxclib headers and libraries in system before you use these fi
 You can use CMake or meson to build and install sqxclib.  
 If you get error while loading shared libraries, you may need setup LD_LIBRARY_PATH environment variable.  
   
-for example:  
+For example:  
 sqxclib shared libraries installed in /usr/local/lib
 
 ```

@@ -1,3 +1,5 @@
+[中文](schema-builder-static.cn.md)
+
 # Schema Builder (static)
 
 This document introduce how to use C99 designated initializer (or C++ aggregate initialization) to define table.

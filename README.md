@@ -13,8 +13,8 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
    this can reduce running time when making schema, see doc/[schema-builder-static.md](doc/schema-builder-static.md).
    You can also use C functions or C++ methods to do these dynamically.
 
-2. All defined table/column can use to parse JSON object/field.
-   Program can also parse JSON object/array from SQL column.
+2. All defined table and column can use to parse JSON object and field.
+   Program can also parse JSON object and array from SQL column.
 
 3. It can work in low-end hardware.
 
@@ -86,7 +86,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 //	table->timestamps<User>();
 ```
 
-use C++ methods to change table/column in schema_v2 (dynamic)
+use C++ methods to change table and column in schema_v2 (dynamic)
 
 ```c++
 	/* create schema version 2 */
@@ -106,7 +106,7 @@ use C++ methods to change table/column in schema_v2 (dynamic)
 	table->renameColumn("email", "email2");
 ```
 
-use C functions to define table/column in schema_v1 (dynamic)
+use C functions to define table and column in schema_v1 (dynamic)
 
 ```c
 	/* create schema version 1 */
@@ -151,7 +151,7 @@ use C functions to define table/column in schema_v1 (dynamic)
 //	sq_table_add_timestamps_struct(table, User);
 ```
 
-use C functions to change table/column in schema_v2 (dynamic)
+use C functions to change table and column in schema_v2 (dynamic)
 
 ```c
 	/* create schema version 2 */
@@ -160,15 +160,14 @@ use C functions to change table/column in schema_v2 (dynamic)
 
 	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
-
 	// add column to table
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
-
 	// alter column in table
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	column->bit_field |= SQB_CHANGED;        // set bit in SqColumn.bit_field
-
+	// DROP CONSTRAINT FOREIGN KEY
 	sq_table_drop_foreign(table, "users_city_id_foreign");
+
 	sq_table_drop_column(table, "name");
 	sq_table_rename_column(table, "email", "email2");
 ```
@@ -265,7 +264,8 @@ use C++ methods
 
 	// get multiple rows
 	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
-	// get multiple rows with convenient C++ class (explain later)
+
+	// get multiple rows with C++ class 'where' (explain in below "Query builder")
 	array = storage->getAll("users", Sq::where("id > 8").where("id < %d", 20));
 
 	// get all rows
@@ -677,12 +677,12 @@ use C++ methods
 
 change build configuration.  
   
-sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default. User can change it in sqxc/[SqConfig.h](sqxc/SqConfig.h).
+sqxclib is case-sensitive when searching and sorting SQL column name and JSON field name by default. User can change it in sqxc/[SqConfig.h](sqxc/SqConfig.h).
 
 ```c
 // Common settings in SqConfig.h
 
-/* sqxclib is case-sensitive when searching/sorting SQL column name and JSON field name by default.
+/* sqxclib is case-sensitive when searching and sorting SQL column name and JSON field name by default.
    You may disable this for some old SQL product.
    Affected source : SqEntry, SqRelation-migration
  */
