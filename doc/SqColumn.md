@@ -1,6 +1,8 @@
-﻿# SqColumn
+﻿[中文](SqColumn.cn.md)
 
-SqColumn derives from [SqEntry](SqEntry.md) and defines column in SQL table.
+# SqColumn
+
+SqColumn derives from [SqEntry](SqEntry.md), it defines columns in SQL table.
 When it works with SqType is very similar to SqEntry.
 
 	SqEntry
@@ -15,57 +17,61 @@ Structure Definition:
 struct SqColumn
 {
 	// ------ SqEntry members ------
-	const SqType *type;        // field type
-	const char   *name;        // field name
-	size_t        offset;      // offset of field in structure/class
-	unsigned int  bit_field;   // declare below
+	const SqType *type;             // field type
+	const char   *name;             // column name
+	size_t        offset;           // offset of field in structure
+	unsigned int  bit_field;        // explain below
 
 
 	// ------ SqReentry members ------
-	const char   *old_name;    // rename or drop
+	const char   *old_name;         // use this when renaming or dropping
 
 
 	// ------ SqColumn members ------
-	int16_t      size;             // total digits or length of string
-	int16_t      digits;           // decimal digits
 
-	const char  *default_value;    // DEFAULT
-	const char  *check;            // CHECK (condition)
+	// size  : total number of digits is specified in size, or length of string
+	int16_t       size;
+	// digits: number of digits after the decimal point.
+	int16_t       digits;
 
-	SqForeign   *foreign;          // foreign key
-	char       **composite;        // Null-terminated (column-name) string array
+	const char   *default_value;    // DEFAULT
+	const char   *check;            // CHECK (condition)
 
-	const char  *raw;              // raw SQL column property
+	SqForeign    *foreign;          // foreign key
+	char        **composite;        // Null-terminated (column-name) string array
+
+	const char   *raw;              // raw SQL column property
 };
 ```
 
-Declaring bit_field in SqColumn
+Declaring bit_field that used by SqColumn:
 
-| name                   | description                                   | 
-| ---------------------- | --------------------------------------------- |
-| SQB_PRIMARY            | SQL property: PRIMARY KEY                     |
-| SQB_FOREIGN            | SQL property: FOREIGN KEY                     |
-| SQB_UNIQUE             | SQL property: UNIQUE                          |
-| SQB_INCREMENT          | SQL property: AUTOINCREMENT                   |
-| SQB_AUTOINCREMENT      | SQL property: the same as SQB_INCREMENT       |
-| SQB_NULLABLE           | SQL property: remove "NOT NULL"               |
-| SQB_CURRENT            | SQL property: DEFAULT CURRENT_TIMESTAMP       |
+| name                   | description                                     | 
+| ---------------------- | ----------------------------------------------- |
+| SQB_PRIMARY            | SQL property: PRIMARY KEY                       |
+| SQB_FOREIGN            | SQL property: FOREIGN KEY                       |
+| SQB_UNIQUE             | SQL property: UNIQUE                            |
+| SQB_INCREMENT          | SQL property: AUTOINCREMENT                     |
+| SQB_AUTOINCREMENT      | SQL property: the same as SQB_INCREMENT         |
+| SQB_NULLABLE           | SQL property: remove "NOT NULL"                 |
+| SQB_CURRENT            | SQL property: DEFAULT CURRENT_TIMESTAMP         |
 | SQB_CURRENT_ON_UPDATE  | SQL property: use CURRENT_TIMESTAMP when a record is updated. |
-| SQB_RENAMED            | column/table has been renamed.                |
-| SQB_CHANGED            | alter/modify. column/table has been altered.  |
+| SQB_RENAMED            | column or table has been renamed.               |
+| SQB_CHANGED            | column or table has been altered.               |
 
 * All items that need attention are the same as the [SqEntry](SqEntry.md)
 
-## 1. Create table and column by methods/functions (dynamic)
+## 1. Create table and column by methods and functions (dynamic)
 
 It is recommended to use C++ methods or C functions to create dynamic table and column.  
 To get more information and sample, you can see below documents:  
 1. [database-migrations.md](database-migrations.md)
-2. "**Database schema**" in ../[README.md](../README.md#database-schema)
+2. "**Database schema**" section in ../[README.md](../README.md#database-schema)
 
 ## 2. Define constant SqColumn that used by constant SqType (static)
+
 This can reduce running time when making schema if your SQL table is fixed and not changed in future.  
-* Note: If you define constant SqType for structure, it must use with SqColumn **pointer array**.
+* Note: If you define constant SqType for structure, it must use with **pointer array** of SqColumn.
 
 ```c++
 static const SqColumn  columnArray[2] = {

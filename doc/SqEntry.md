@@ -1,5 +1,7 @@
+[中文](SqEntry.cn.md)
+
 # SqEntry
-SqEntry define constant or dynamic field in structure.
+SqEntry define field in structure.
 It must use [SqType](SqType.md) to declare data type of field.
 
 	SqEntry
@@ -17,34 +19,34 @@ struct SqEntry
 {
 	const SqType *type;        // field type
 	const char   *name;        // field name
-	size_t        offset;      // offset of field in structure/class
-	unsigned int  bit_field;   // declare below
+	size_t        offset;      // offset of field in structure
+	unsigned int  bit_field;   // explain below
 };
 
 // Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
-//       C++ user can initialize static structure easily.
+//       C++ user can initialize static SqEntry easily.
 ```
 
-Declaring bit_field in SqEntry
+Declaring bit_field of SqEntry
 
 | name            | description                                   | 
 | --------------- | --------------------------------------------- |
 | SQB_DYNAMIC     | entry can be changed and freed                |
 | SQB_POINTER     | entry's instance is pointer                   |
-| SQB_HIDDEN      | Converter will not output value in this entry |
+| SQB_HIDDEN      | Converter will not output value of this entry |
 | SQB_HIDDEN_NULL | Converter will not output if value is NULL    |
 
 * SQB_DYNAMIC is for internal use only. User should NOT set/clear this bit.
 * User can NOT change or free SqEntry if SqEntry.bit_field has NOT set SQB_DYNAMIC.
 * User must use bitwise operators to set/clear bits in SqEntry.bit_field.
-* It is better to use constant or static SqEntry with constant or static SqType.
+* It is better to use constant (or static) SqEntry with constant (or static) SqType.
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
 ## Define structured data type
 You can see [SqType](SqType.md) to get more sample.
 
-#### 1. define constant SqEntry pointer array that used by constant SqType
-* Note: If you define constant SqType for structure, it must use with SqEntry **pointer array**.
+#### 1. define constant pointer array of SqEntry that used by constant SqType
+* Note: If you define constant SqType for structure, it must use with **pointer array** of SqEntry.
 
 ```c
 static const SqEntry  entryArray[2] = {

@@ -30,6 +30,8 @@ static const SqOption option_database = {
 		.description = "The database connection to use.",
 };
 
+#define SQ_OPTION_COMMAND_MIGRATE_DATABASE    (&option_database)
+
 // ----------------------------------------------------------------------------
 // migrate
 
@@ -66,7 +68,8 @@ static const SqOption *migrate_options[] = {
 //	SQ_OPTION_COMMAND_COMMON_QUIET,
 
 	// --- SqCommandMigrate options ---
-	&option_database,
+	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
+
 	&(SqOption) {SQ_TYPE_INT, "step",   offsetof(SqCommandMigrate, step),
 		.default_value = "1",
 		.description = "Force the migrations to be run so they can be rolled back individually"},
@@ -76,7 +79,7 @@ static const SqCommand migrate_command = SQ_COMMAND_INITIALIZER(
 	SqCommandMigrate,                              // StructureType
 	0,                                             // bit_field
 	"migrate",                                     // command string
-	migrate_options,                               // SqOption pointer array
+	migrate_options,                               // pointer array of SqOption
 	migrate,                                       // handle function
 	NULL,                                          // parameter string
 	"Run the database migrations"                  // description string
@@ -132,14 +135,14 @@ static const SqOption *migrate_install_options[] = {
 //	SQ_OPTION_COMMAND_COMMON_QUIET,
 
 	// --- SqCommandMigrate options ---
-	&option_database,
+	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
 };
 
 static const SqCommand migrate_install_command = SQ_COMMAND_INITIALIZER(
 	SqCommandMigrate,                             // StructureType
 	0,                                            // bit_field
 	"migrate:install",                            // command string
-	migrate_install_options,                      // SqOption pointer array
+	migrate_install_options,                      // pointer array of SqOption
 	migrate_install,                              // handle function
 	NULL,                                         // parameter string
 	"Create the migration repository"             // description string
@@ -197,7 +200,8 @@ static const SqOption *migrate_rollback_options[] = {
 //	SQ_OPTION_COMMAND_COMMON_QUIET,
 
 	// --- SqCommandMigrate options ---
-	&option_database,
+	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
+
 	&(SqOption) {SQ_TYPE_INT,  "step",   offsetof(SqCommandMigrate, step),
 		.default_value = "0",
 		.value_description = "[=STEP]",
@@ -208,7 +212,7 @@ static const SqCommand migrate_rollback_command = SQ_COMMAND_INITIALIZER(
 	SqCommandMigrate,                             // StructureType
 	0,                                            // bit_field
 	"migrate:rollback",                           // command string
-	migrate_rollback_options,                     // SqOption pointer array
+	migrate_rollback_options,                     // pointer array of SqOption
 	migrate_rollback,                             // handle function
 	NULL,                                         // parameter string
 	"Rollback the last database migration"        // description string
@@ -266,14 +270,14 @@ static const SqOption *migrate_reset_options[] = {
 //	SQ_OPTION_COMMAND_COMMON_QUIET,
 
 	// --- SqCommandMigrate options ---
-	&option_database,
+	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
 };
 
 static const SqCommand migrate_reset_command = SQ_COMMAND_INITIALIZER(
 	SqCommandMigrate,                             // StructureType
 	0,                                            // bit_field
 	"migrate:reset",                              // command string
-	migrate_reset_options,                        // SqOption pointer array
+	migrate_reset_options,                        // pointer array of SqOption
 	migrate_reset,                                // handle function
 	NULL,                                         // parameter string
 	"Rollback all database migrations"            // description string
@@ -323,14 +327,14 @@ static const SqOption *migrate_refresh_options[] = {
 //	SQ_OPTION_COMMAND_COMMON_QUIET,
 
 	// --- SqCommandMigrate options ---
-	&option_database,
+	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
 };
 
 static const SqCommand migrate_refresh_command = SQ_COMMAND_INITIALIZER(
 	SqCommandMigrate,                             // StructureType
 	0,                                            // bit_field
 	"migrate:refresh",                            // command string
-	migrate_refresh_options,                      // SqOption pointer array
+	migrate_refresh_options,                      // pointer array of SqOption
 	migrate_refresh,                              // handle function
 	NULL,                                         // parameter string
 	"Reset and re-run all migrations"             // description string

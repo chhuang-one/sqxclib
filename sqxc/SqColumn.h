@@ -159,31 +159,31 @@ struct SqColumn
 {
 	SQ_COLUMN_MEMBERS;
 /*	// ------ SqEntry members ------
-	const SqType *type;        // type information for this entry
-	const char   *name;
+	const SqType *type;             // field type
+	const char   *name;             // column name
 	size_t        offset;
 	unsigned int  bit_field;
 
 	// ------ SqReentry members ------
-	const char   *old_name;    // rename or drop
+	const char   *old_name;         // use this when renaming or dropping
 
 	// ------ SqColumn members ------
 
-	// size  : total number of digits is specified in size or length of string
+	// size  : total number of digits is specified in size, or length of string
+	int16_t       size;
 	// digits: number of digits after the decimal point.
-	int16_t      size;             // total digits   (precision) or length of string
-	int16_t      digits;           // decimal digits (scale)
+	int16_t       digits;
 
-	const char  *default_value;    // DEFAULT
-	const char  *check;            // CHECK (condition)
+	const char   *default_value;    // DEFAULT
+	const char   *check;            // CHECK (condition)
 
-	SqForeign   *foreign;          // foreign key
-	char       **composite;        // Null-terminated (column-name) string array
+	SqForeign    *foreign;          // foreign key
+	char        **composite;        // Null-terminated (column-name) string array
 
-	const char  *raw;              // raw SQL column property
+	const char   *raw;              // raw SQL column property
 
 //	struct SqExtra {
-//		char    *comment;          // COMMENT
+//		char    *comment;           // COMMENT
 //		char    *others;
 //	} *extra;
 

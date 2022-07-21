@@ -13,7 +13,7 @@
  */
 
 /*
-	This example code use C99 designated initializer to define table/column.
+	This example code use C99 designated initializer to define table and column.
  */
 
 #ifdef _MSC_VER
@@ -67,7 +67,7 @@ struct User {
 // use C99 designated initializer to define object (JSON object in SQL column)
 // SqType for structure Post. It also work if SqEntry is replaced by SqColumn.
 
-// If you define constant SqType for structure, it must use with SqEntry pointer array.
+// If you define constant SqType for structure, it must use with pointer array of SqEntry.
 static const SqEntry *postEntryPointers[] = {
 	&(SqEntry) {SQ_TYPE_STRING, "title",      offsetof(Post, title),     0},
 	&(SqEntry) {SQ_TYPE_STRING, "desc",       offsetof(Post, desc),      0},
@@ -77,7 +77,7 @@ static const SqType   typePost = SQ_TYPE_INITIALIZER(Post, postEntryPointers, 0)
 #define SQ_TYPE_POST &typePost
 
 // ----------------------------------------------------------------------------
-// use C99 designated initializer to define table/column
+// use C99 designated initializer to define table and column
 
 // Define SqEntry array (NOT pointer array) because it use with dynamic SqType (in SqTable).
 

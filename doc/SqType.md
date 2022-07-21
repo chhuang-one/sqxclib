@@ -1,8 +1,10 @@
+[中文](SqType.cn.md)
+
 # SqType
 
 It define how to initialize, finalize, and convert C data type.
 SqEntry use it to declare data type. Sqxc use it to convert data.
-
+  
 Built-in SqType with it's C data type
 
 | SqType          | C data type  |
@@ -18,6 +20,7 @@ Built-in SqType with it's C data type
 | SQ_TYPE_STRING  | char*        |
 
 Built-in SqType with it's SQL data type
+
 | SqType          | C data type  | SQL data type |
 | --------------- | ------------ | ------------- |
 | SQ_TYPE_CHAR    | char*        | CHAR          |
@@ -29,16 +32,16 @@ SqType with it's C++ data type
 | SQ_TYPE_STD_STRING     | std::string    |
 | Sq::TypeStl<Container> | STL containers |
 
-Declaring bit_field in SqType
+Define bit_field of SqType
 
 | name             | description                            | 
 | ---------------- | -------------------------------------- |
 | SQB_TYPE_DYNAMIC | type can be changed and freed          |
 | SQB_TYPE_SORTED  | type->entry is sorted by SqEntry.name  |
 
-* SQB_TYPE_DYNAMIC is for internal use only. User should NOT set/clear this bit.
+* SQB_TYPE_DYNAMIC is for internal use only. User should NOT set or clear this bit.
 * User can NOT change or free SqType if SqType.bit_field has NOT set SQB_TYPE_DYNAMIC.
-* User must use bitwise operators to set/clear bits in SqType.bit_field.
+* User must use bitwise operators to set or clear bits in SqType.bit_field.
 * It is better to use constant or static SqEntry with constant or static SqType.
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
@@ -61,13 +64,16 @@ const SqType type_int = {
 
 #### 1.2. Define dynamic basic (not structured) data type
 
+function sq_type_new() declarations:
+
+```c++
+SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
+```
+
 1. pass argument 'prealloc_size' = -1, 'entry_destroy_func' = NULL to sq_type_new()
 2. assign size, init, final, parse, and write in SqType structure.
 
 ```c++
-/* sq_type_new() declarations: */
-// SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
-
 	SqType *type;
 
 	/* C function */
@@ -84,7 +90,7 @@ const SqType type_int = {
 ```
 
 ## 2. use SqType to define structured data type
-User can define a constant or dynamic SqType. If you define constant SqType for structure, it must use with SqEntry pointer array.
+User can define a constant or dynamic SqType. If you define constant SqType for structure, it must use with **pointer array** of SqEntry.
 
 First, we define a custom structured data type:
 ```c
@@ -97,11 +103,12 @@ struct User {
 };
 ```
 
-#### 2.1. Define constant SqType with constant 'unsorted' SqEntry pointer array
-use C99 designated initializer to define struct that has 'unsorted' SqEntry pointer array.
+#### 2.1. constant SqType use 'unsorted' constant pointer array of SqEntry
+1. use C99 designated initializer to define 'unsorted' **pointer array** of SqEntry.
+2. define constant SqType to use **pointer array** of SqEntry.
 
 ```c
-/* entryPointers is 'unsorted' SqEntry pointer array */
+/* entryPointers is 'unsorted' pointer array of SqEntry */
 static const SqEntry  *entryPointers[] = {
 	&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
 	&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
@@ -116,6 +123,7 @@ const SqType typeUser = {
 	.parse = sq_type_object_parse,
 	.write = sq_type_object_write,
 	.name  = SQ_GET_TYPE_NAME(User),
+
 	.entry   = entryPointers,
 	.n_entry = sizeof(entryPointers) / sizeof(SqEntry*),
 	.bit_field = 0,
@@ -126,9 +134,10 @@ about above macro SQ_GET_TYPE_NAME(Type):
 * It is used to get name of structured data type in C and C++ code.
 * warning: You will get difference type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.
 
-#### 2.2. Define constant SqType with constant 'sorted' SqEntry pointer array
-
-use C99 designated initializer to define struct that has 'sorted' SqEntry pointer array.
+#### 2.2. constant SqType use 'sorted' constant pointer array of SqEntry
+1. use C99 designated initializer to define 'sorted' **pointer array** of SqEntry.
+2. define constant SqType to use **pointer array** of SqEntry.
+3. SqType.bit_field must set SQB_TYPE_SORTED.
 
 ```c
 /* sortedEntryPointers is 'sorted' entryPointers (sorted by name) */
@@ -147,7 +156,7 @@ const SqType sortedTypeUser = {
 	.write = sq_type_object_write,
 	.name  = SQ_GET_TYPE_NAME(User),
 
-	// --- The following is the difference from typeUser
+	// --- The following are differences from typeUser
 	.entry   = sortedEntryPointers,
 	.n_entry = sizeof(sortedEntryPointers) / sizeof(SqEntry*),
 	.bit_field = SQB_TYPE_SORTED,
@@ -156,9 +165,10 @@ const SqType sortedTypeUser = {
 };
 ```
 
-#### 2.3. Define constant SqType with constant SqEntry pointer array (use C macro)
+#### 2.3. constant SqType use constant pointer array of SqEntry (use C macro)
 
-use macro SQ_TYPE_INITIALIZER() and SQ_TYPE_INITIALIZER_FULL()
+use macro SQ_TYPE_INITIALIZER() and SQ_TYPE_INITIALIZER_FULL() to define constant SqType.
+
 ```c
 /* Because entryPointers is 'unsorted' entries, you can pass 0 to last argument. */
 const SqType  typeUserM = SQ_TYPE_INITIALIZER(User, entryPointers, 0);
@@ -167,9 +177,9 @@ const SqType  typeUserM = SQ_TYPE_INITIALIZER(User, entryPointers, 0);
 const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, SQB_TYPE_SORTED);
 ```
 
-#### 2.4. Define dynamic SqType with constant SqEntry pointer array
+#### 2.4. dynamic SqType use constant pointer array of SqEntry
 
-use C language to add static SqEntry pointer array.
+use C language to add static **pointer array** of SqEntry.
 
 ```c
 	SqType  *type;
@@ -179,7 +189,7 @@ use C language to add static SqEntry pointer array.
 	sq_type_add_entry_ptrs(type, entryPointers, n_entry);
 ```
 
-use C++ language to add static SqEntry pointer array.
+use C++ language to add static **pointer array** of SqEntry.
 
 ```c++
 	Sq::Type  *type;
@@ -189,7 +199,7 @@ use C++ language to add static SqEntry pointer array.
 	type->addEntry(entryPointers, n_entry);
 ```
 
-#### 2.5. Define dynamic SqType with dynamic SqEntry
+#### 2.5. dynamic SqType use dynamic SqEntry
 
 use C language to add dynamic SqEntry.
 
@@ -246,22 +256,22 @@ use C++ language to add dynamic SqEntry.
 * User can use C function sq_type_decide_size(), C++ method decideSize() to calculate instance size.
 * You don't need to call function to calculate instance size after adding entry because program will do it automatically.
 * You must call function to calculate instance size after removing entry from type.
+  
+function sq_type_decide_size() declarations:
 
 ```c++
-/* sq_type_decide_size() declarations: */
-// unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
+/* C function */
+unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
 
-	/* C function */
-	sq_type_decide_size(type, NULL, false);
-	/* C++ method */
-	type->decideSize(NULL, false);
+/* C++ method */
+unsigned int  Sq::Type::decideSize(const SqEntry *inner_entry, bool entry_removed);
 ```
 
-* if 'inner_entry' == NULL, it use all entries in SqType to calculate size.
+* if 'inner_entry' == NULL, it use all entries in SqType to recalculate size.
 * if user add 'inner_entry' to SqType, pass argument 'entry_removed' = false.
 * if user remove 'inner_entry' from SqType, pass argument 'entry_removed' = true.
 
-## 4. find & remove entry from dynamic SqType that defined structured data type
+## 4. find & remove entry from dynamic SqType
 
 use C language to find & remove SqEntry
 

@@ -95,7 +95,7 @@ static const SqCommand list_command = SQ_COMMAND_INITIALIZER(
 	SqCommandList,                                 // StructureType
 	0,                                             // bit_field
 	"list",                                        // command string
-	list_options,                                  // SqOption pointer array
+	list_options,                                  // pointer array of SqOption
 	list,                                          // handle function
 	NULL,                                          // parameter string
 	"lists all commands"                           // description string

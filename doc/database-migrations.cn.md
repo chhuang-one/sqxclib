@@ -65,8 +65,8 @@ struct User {
 	storage->get<StructType>(...)
 	storage->getAll<StructType>(...)
 
-使用 Schema 的 create 方法 (C函数) 来创建一个新的数据库表。  
-该方法/函数接受两个参数：一个参数是表的名称，另一个是结构类型。  
+使用 Schema 的 create 函数来创建一个新的数据库表。  
+该函数接受两个参数：一个参数是表的名称，另一个是结构类型。  
 
 ```c++
 	/* C++ 示例代码 */
@@ -89,7 +89,7 @@ struct User {
 
 	// 向表中添加列
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;        // set bit in SqColumn.bit_field
+	column->bit_field |= SQB_PRIMARY;        // 设置 SqColumn.bit_field
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
@@ -100,24 +100,24 @@ struct User {
 
 #### 检查表是否存在
 
-您可以使用 find 方法 (C函数) 检查表是否存在:
-* 此方法 (C函数) 不在数据库找表，它在 schema 实例中找表.
+您可以使用 find 函数检查表是否存在:
+* 此函数不在数据库找表，它在 schema 实例中找表.
 
 ```c++
 	/* C++ 示例代码 */
 	if (schema->find("users") == NULL) {
-		// The "users" table exists...
+		// 'schema' 中不存在 "users" 表.
 	}
 
 	/* C 示例代码 */
 	if (sq_schema_find(schema, "users") == NULL) {
-		// The "users" table exists...
+		// 'schema' 中不存在 "users" 表.
 	}
 ```
 
 ### 更新表（动态）
 
-使用 alter 方法 (C函数) 更新现有表.
+使用 alter 函数更新现有表.
 
 ```c++
 	/* C++ 示例代码 */
@@ -146,7 +146,7 @@ struct User {
 
 ### 重命名/删除表（动态）
 
-使用 rename 方法 (C函数) 来重命名现有的数据库表。
+使用 rename 函数来重命名现有的数据库表。
 
 ```c++
 	/* C++ 示例代码 */
@@ -156,7 +156,7 @@ struct User {
 	sq_schema_rename(schema, "old table name", "new table name");
 ```
 
-您可以使用 drop 方法 (C函数) 来删除现有的表。
+您可以使用 drop 函数来删除现有的表。
 
 ```c++
 	/* C++ 示例代码 */
@@ -171,8 +171,8 @@ struct User {
 
 ### 创建列（动态）
 
-要将列添加到表中，您可以使用 SqTable 中的方法/函数。
-在模式中调用 alter 或 create 方法 (C函数) 后，您将获得 SqTable 的实例。
+要将列添加到表中，您可以使用 SqTable 中的函数。
+在模式中调用 alter 或 create 函数后，您将获得 SqTable 的实例。
 
 ```c++
 	/* C++ 示例代码 */
@@ -196,7 +196,7 @@ struct User {
 
 ### 可用的列类型（动态）
 
-下面的方法 (C函数) 对应于您可以添加到数据库表中的不同类型的列。
+下面的 C++ 方法 (和 C 函数)对应于您可以添加到数据库表中的不同类型的列。
 
 | C++ 方法    | C 函数                  | C 数据类型    |
 | ----------- | ----------------------- | ------------- |
@@ -210,9 +210,10 @@ struct User {
 | timestamp   | sq_table_add_timestamp  | time_t        |
 | double_     | sq_table_add_double     | double        |
 | string      | sq_table_add_string     | char*         |
+| char_       | sq_table_add_char       | char*         |
 | custom      | sq_table_add_custom     | *User define* |
 
-* 因为 'bool'、'int' 和 'double' 是 C/C++ 关键字，我必须在这些方法的尾部附加 '_'。
+* 因为 'bool'、'int'、'double' 和 'char' 是 C/C++ 关键字，所以在这些方法的尾部附加 '_'。
 
 以下方法仅适用于 C++ 数据类型。
 
@@ -234,7 +235,7 @@ struct User {
 	column->bit_field |= SQB_NULLABLE;
 ```
 
-以下 方法 (C函数) 对应于列修饰符：
+以下 C++ 方法 (和 C 函数) 对应于列修饰符：
 
 | C++ 方法             | C 函数              | C 位字段名             |
 | -------------------- | ------------------- | --------------------- |
@@ -246,7 +247,7 @@ struct User {
 | useCurrentOnUpdate() |                     | SQB_CURRENT_ON_UPDATE |
 | default_(string)     | sq_column_default() |                       |
 
-* 因为 "default" 是 C/C++ 关键字，所以我必须在此方法的尾部附加 "_"。
+* 因为 "default" 是 C/C++ 关键字，所以在此方法的尾部附加 "_"。
 
 结构类型的特殊方法。
 
@@ -370,7 +371,7 @@ C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型�
 
 ### 外键约束
 
-使用方法 (C函数) 创建复合外键。  
+使用 foreign 函数创建外键。  
 第一个参数指定外键名称，第二个是列名。
 
 ```c++
@@ -389,7 +390,7 @@ C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型�
 
 #### 删除外键
 
-传递外键约束的名称来删除。
+使用外键约束的名称来删除。
 
 ```c++
 	/* C++ 示例代码 */

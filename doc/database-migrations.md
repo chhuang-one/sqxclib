@@ -65,8 +65,8 @@ If SqTable::type defined in C language, you may NOT use below C++ template funct
 	storage->get<StructType>(...)
 	storage->getAll<StructType>(...)
 
-use the create method (C function) in the schema to create a new database table.  
-The method/function accepts two arguments: one argument is the name of table, another is structured data type.  
+use the create function in the schema to create a new database table.  
+The function accepts two arguments: one argument is the name of table, another is structured data type.  
 
 ```c++
 	/* C++ sample code */
@@ -100,24 +100,24 @@ The method/function accepts two arguments: one argument is the name of table, an
 
 #### Checking For Table Existence
 
-You may check for the existence of a table using the find method/function:
-* This method (C function) doesn't look for table in the database, it looks up table in instance of schema.
+You may check for the existence of a table using the find function:
+* This function doesn't look for table in the database, it looks up table in instance of schema.
 
 ```c++
 	/* C++ sample code */
 	if (schema->find("users") == NULL) {
-		// The "users" table exists...
+		// The "users" table doesn't exists in 'schema'.
 	}
 
 	/* C sample code */
 	if (sq_schema_find(schema, "users") == NULL) {
-		// The "users" table exists...
+		// The "users" table doesn't exists in 'schema'.
 	}
 ```
 
 ### Updating Tables (dynamic)
 
-use the alter method (C function) to update existing tables.
+use the alter function to update existing tables.
 
 ```c++
 	/* C++ sample code */
@@ -146,7 +146,7 @@ use the alter method (C function) to update existing tables.
 
 ### Renaming / Dropping Tables (dynamic)
 
-use the rename method (C function) to rename an existing database table.
+use the rename function to rename an existing database table.
 
 ```c++
 	/* C++ sample code */
@@ -156,7 +156,7 @@ use the rename method (C function) to rename an existing database table.
 	sq_schema_rename(schema, "old table name", "new table name");
 ```
 
-You can use the drop method (C function) to drop an existing table.
+You can use the drop function to drop an existing table.
 
 ```c++
 	/* C++ sample code */
@@ -171,8 +171,8 @@ You can use the drop method (C function) to drop an existing table.
 
 ### Creating Columns (dynamic)
 
-To add columns to the table, you can use methods (C functions) in the SqTable.
-You will get instance of SqTable after calling alter or create method/function in schema.
+To add columns to the table, you can use functions of SqTable.
+You will get instance of SqTable after calling alter or create function in schema.
 
 ```c++
 	/* C++ sample code */
@@ -196,7 +196,7 @@ You will get instance of SqTable after calling alter or create method/function i
 
 ### Available Column Types (dynamic)
 
-Below methods/functions are correspond to the different types of columns that you can add to your database tables.
+Below C++ methods (and C functions) are correspond to the different types of columns that you can add to your database tables.
 
 | C++ methods | C functions             | C data type   |
 | ----------- | ----------------------- | ------------- |
@@ -210,9 +210,10 @@ Below methods/functions are correspond to the different types of columns that yo
 | timestamp   | sq_table_add_timestamp  | time_t        |
 | double_     | sq_table_add_double     | double        |
 | string      | sq_table_add_string     | char*         |
+| char_       | sq_table_add_char       | char*         |
 | custom      | sq_table_add_custom     | *User define* |
 
-* Because 'bool', 'int', and 'double' are C/C++ keywords, I must append '_' in tail of these method.
+* Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, I must append '_' in tail of these method.
 
 Below method is for C++ data type only.
 
@@ -234,7 +235,7 @@ For example, to make the column "nullable":
 	column->bit_field |= SQB_NULLABLE;
 ```
 
-Below methods (C functions) are correspond to Column Modifiers:
+Below C++ methods (and C functions) are correspond to Column Modifiers:
 
 | C++ methods          | C functions         | C bit field name      |
 | -------------------- | ------------------- | --------------------- |
@@ -370,7 +371,7 @@ User must specify name of index, unique, and primary key to drop them.
 
 ### Foreign Key Constraints
 
-use method (C function) to create composite foreign key.  
+use foreign function to create foreign key.  
 The first argument specify the foreign key name, second is column name.
 
 ```c++
@@ -389,7 +390,7 @@ The first argument specify the foreign key name, second is column name.
 
 #### Dropping Foreign Keys
 
-passing the name of the foreign key constraint to delete it.
+use the name of the foreign key constraint to delete it.
 
 ```c++
 	/* C++ sample code */

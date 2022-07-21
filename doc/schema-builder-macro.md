@@ -17,7 +17,7 @@ struct User {
 };
 ```
 
-use C macro to define table/column in schema_v1 (dynamic)
+use C macro to define table and column in schema_v1 (dynamic)
 
 ```c
 #include <sqxclib.h>
@@ -49,7 +49,7 @@ use C macro to define table/column in schema_v1 (dynamic)
 	});
 ```
 
-use C macro to change table/column in schema_v2 (dynamic)
+use C macro to change table and column in schema_v2 (dynamic)
 
 ```c
 	schema_v2 = sq_schema_new("Ver 2");

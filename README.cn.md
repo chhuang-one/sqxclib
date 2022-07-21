@@ -8,7 +8,7 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## 目前的功能:
-1. 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL表/列/迁移，
+1. 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL 表、列、迁移，
    这可以减少制作 schema 时的运行时间，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)。
    当然也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
@@ -78,7 +78,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	// 创建索引 CREATE INDEX
 	table->index("users_id_index", "id");
 
-	/* 如果您将当前时间存储在列/成员中并且它们使用默认名称 - 'created_at' 和 'updated_at',
+	/* 如果您将当前时间存储在列和成员中并且它们使用默认名称 - 'created_at' 和 'updated_at',
 	   您可以使用下面的行替换上述 2 个 timestamp() 方法。
 	 */
 //	table->timestamps<User>();
@@ -605,7 +605,26 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 1. 调用 sq_storage_setup_query() 来设置 'query' 和 'typeRow'。
 2. 调用 sq_storage_query() 時指定使用 'typeRow'。
 3. 如果您跳过第 1 步，则 SqRow 中的所有数据类型都是 C 字符串，因为 SqTypeRow 不知道列的类型。
-  
+
+函数 sq_storage_setup_query() 声明：
+
+```c++
+// C 函数
+SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);
+
+// C++ 方法
+Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod *jointType);
+```
+
+它设置 'query' 和 'type_joint' 然后返回 SqType 以调用 sq_storage_query()。  
+如果 'query' 已加入多表，它将在 'query' 中添加 "SELECT table.column AS 'table.column'"。  
+
+| 返回值       | 描述                                                                       |
+| ------------ | ---------------------------------------------------------------------------|
+| NULL         | 如果找不到表 并且 'type_joint' 不能处理未知的表类型。                      |
+| 'type_joint' | 如果 'query' 已加入多表。它将设置 'type_joint' 和 'query'。                |
+| 其他表类型   | 如果 'query' 只有 1个表。它将设置 'type_joint' 但保持 'query' 不变。在这种情况下，用户可以使用返回的类型或'type_joint' 调用 sq_storage_query()。 |
+
 使用 C 函数
 
 ```c
@@ -630,17 +649,6 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 	storage->setupQuery(query, typeRow);
 	vector = storage->query<std::vector<Sq::Row>>(query, typeRow);
 ```
-
-**关于 sq_storage_setup_query()**：  
-SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);  
-它设置 'query' 和 'type_joint' 然后返回 SqType 以调用 sq_storage_query()。  
-如果 'query' 已加入多表，它将在 'query' 中添加 "SELECT table.column AS 'table.column'"。  
-
-| 返回值       | 描述                                                                       |
-| ------------ | ---------------------------------------------------------------------------|
-| NULL         | 如果找不到表 并且 'type_joint' 不能处理未知的表类型。                      |
-| 'type_joint' | 如果 'query' 已加入多表。它将设置 'type_joint' 和 'query'。                |
-| 其他表类型   | 如果 'query' 只有 1个表。它将设置 'type_joint' 但保持 'query' 不变。在这种情况下，用户可以使用返回的类型或'type_joint' 调用 sq_storage_query()。 |
 
 ## 交易 Transaction
 
@@ -693,8 +701,8 @@ sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写�
 
 ## JSON 支持
 - 这个库使用 [json-c](https://github.com/json-c/json-c) 来解析/写入 JSON。
-- 所有定义的表/列都可以用来解析 JSON 对象/字段。
-- 程序还可以解析存储在列中的 JSON 对象/数组。
+- 所有定义的表和列都可以用来解析 JSON 对象和字段。
+- 程序还可以解析存储在列中的 JSON 对象和数组。
 
 ## Sqxc
 Sqxc 是数据解析和写入的接口。  
@@ -711,9 +719,9 @@ SqConsole 提供命令行界面（主要用于 SqAppTool）。
 请参阅文档 doc/[SqConsole.md](doc/SqConsole.md)。  
 
 ## 其他
-SqType 文档: doc/[SqType.md](doc/SqType.md)  
-SqEntry （SqColumn 的基类/结构） 文档: doc/[SqEntry.md](doc/SqEntry.md)  
-SqColumn 文档: doc/[SqColumn.md](doc/SqColumn.md)  
+SqType 文档: doc/[SqType.cn.md](doc/SqType.cn.md)  
+SqEntry （SqColumn 的基类/结构） 文档: doc/[SqEntry.cn.md](doc/SqEntry.cn.md)  
+SqColumn 文档: doc/[SqColumn.cn.md](doc/SqColumn.cn.md)  
 
 ## sqxc 怎么念
 

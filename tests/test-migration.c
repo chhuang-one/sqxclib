@@ -50,7 +50,7 @@ struct Company {
 };
 
 // ----------------------------------------------------------------------------
-// use C99 designated initializer to define table/column
+// use C99 designated initializer to define table and column
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
@@ -93,7 +93,7 @@ const SqType UserType = {
  */
 
 /* ----------------------------------------------------------------------------
-   use C99 designated initializer to define table/column changed (migration)
+   use C99 designated initializer to define table and column changed (migration)
 */
 static const SqColumn  *UserColumnsChange[] = {
 	// ADD COLUMN "test_add"
@@ -139,7 +139,7 @@ SqTable *change_user_table_by_c_type(SqSchema *schema)
 }
 
 // ----------------------------------------------------------------------------
-// define table/column
+// define table and column
 
 SqTable *create_user_table_by_c(SqSchema *schema)
 {
@@ -187,7 +187,7 @@ SqTable *change_user_table_by_c(SqSchema *schema)
 }
 
 // ----------------------------------------------------------------------------
-// use C macro to define dynamic table/column
+// use C macro to define dynamic table and column
 
 void  create_user_table_by_macro(SqSchema *schema)
 {

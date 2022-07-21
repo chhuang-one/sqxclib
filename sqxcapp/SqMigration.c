@@ -27,7 +27,7 @@
 #endif
 
 /* use C99 designated initializer to
-   define constant SqColumn pointer array that used by constant SqType
+   define constant pointer array of SqColumn that used by constant SqType
  */
 static const SqColumn *column_ptrs[3] = {
 	&(SqColumn) {SQ_TYPE_INT,    "batch",     offsetof(SqMigrationTable, batch),     0,

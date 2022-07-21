@@ -70,7 +70,7 @@ static const SqCommand make_migration_command = SQ_COMMAND_INITIALIZER(
 	SqCommandMake,                                 // StructureType
 	0,                                             // bit_field
 	"make:migration",                              // command string
-	make_migration_options,                        // SqOption pointer array
+	make_migration_options,                        // pointer array of SqOption
 	make_migration,                                // handle function
 	"<name>",                                      // parameter string
 	"Create a new migration file"                  // description string

@@ -46,7 +46,7 @@ typedef struct SqCommandValue    SqCommandValue;
 	const SqCommand  mycommand = SQ_COMMAND_INITIALIZER(
 		MyCommandValue, 0,                             // StructureType, bit_field
 		"mycommand",                                   // command string
-		mycommand_options,                             // SqOption pointer array
+		mycommand_options,                             // pointer array of SqOption
 		mycommand_handle,                              // handle function
 		"mycommand parameterName",                     // parameter string
 		"mycommand description"                        // description string

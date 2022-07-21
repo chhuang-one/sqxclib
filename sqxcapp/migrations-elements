@@ -1,6 +1,6 @@
 /*
    migrations.c will include this file
-   below are elements of SqMigration pointer array
+   below are elements of SqMigration's pointer array
    if migration not existed or deleted, specify NULL in list.
  */
 

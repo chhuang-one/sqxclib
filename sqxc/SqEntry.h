@@ -89,7 +89,7 @@ int  sq_entry_cmp_str__type_name(const char *str,  SqEntry **entry);
 int  sq_entry_cmp_type_name(SqEntry **entry1, SqEntry **entry2);
 
 
-/*	SqReentries: unsorted SqReentry pointer array.
+/*	SqReentries: unsorted pointer array of SqReentry.
 	             element can be NULL in array.
 	             It used by migration, change list...etc
  */

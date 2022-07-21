@@ -42,7 +42,7 @@ SqTable defines SQL table
 It is recommended to use C++ methods or C functions to create dynamic table.  
 To get more information and sample, you can see below documents:  
 1. [database-migrations.md](database-migrations.md)
-2. "**Database schema**" in ../[README.md](../README.md#database-schema)
+2. "**Database schema**" section in ../[README.md](../README.md#database-schema)
   
 You will get difference type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.  
 **Please create or define type of SqTable in C++ language if your application written in C++ language.**  

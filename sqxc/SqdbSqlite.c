@@ -145,7 +145,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 			// sq_schema_erase_records(schema, '=') was called by sqdb_sqlite_migrate()
 			// when database schema version = (equal) current schema version
 
-			// sort table/column by name and free temporary data after migration.
+			// sort table and column by name and free temporary data after migration.
 			sq_schema_complete(schema, false);
 		}
 		return SQCODE_OK;
@@ -154,7 +154,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	// buffer for SQL statement
 	sq_buffer_init(&sql_buf);
 
-	// trace renamed (or dropped) table/column that was referenced by others
+	// trace renamed (or dropped) table and column that was referenced by others
 	if (schema->relation)
 		sq_schema_trace_name(schema);
 
@@ -244,7 +244,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 		// clear all renamed and dropped records
 		// database schema version = (equal) current schema version
 		sq_schema_erase_records(schema, '=');
-		// sort table/column by name and free temporary data after migration.
+		// sort table and column by name and free temporary data after migration.
 		sq_schema_complete(schema, false);
 	}
 
@@ -288,7 +288,7 @@ static int  sqdb_sqlite_migrate(SqdbSqlite *sqdb, SqSchema *schema, SqSchema *sc
 
 	// current database schema
 	if (sqdb->version == schema->version) {
-		// trace renamed (or dropped) table/column that was referenced by others
+		// trace renamed (or dropped) table (and column) that was referenced by others
 		sq_schema_trace_name(schema);
 		// clear changed records and remove NULL records in schema
 		// database schema version = (equal) current schema version

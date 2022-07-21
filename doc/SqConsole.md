@@ -55,7 +55,7 @@ struct MyCommandValue
 ```
 
 #### 1.2 define options of command statically
-* Note: If you define constant SqCommand, it must use with SqOption **pointer array**.
+* Note: If you define constant SqCommand, it must use with **pointer array** of SqOption.
 
 ```c
 static const SqOption  mycommand_option_array[] = {
@@ -87,9 +87,10 @@ static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void
 
 ```c++
 static const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
-	MyCommandValue, 0,                             // StructureType, bit_field
+	MyCommandValue,                                // StructureType
+	0,                                             // bit_field
 	"mycommand",                                   // command string
-	mycommand_options,                             // SqOption pointer array
+	mycommand_options,                             // pointer array of SqOption
 	mycommand_handle,                              // handle function
 	"mycommand parameterName",                     // parameter string
 	"mycommand description"                        // description string

@@ -4,7 +4,7 @@
 
 本文档介绍如何使用 C99 指定初始化器（或 C++ 聚合初始化）来定义表。
 * 这可以减少制作 schema 时的运行时间。
-* 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 doc/[SqColumn.md](doc/SqColumn.md)
+* 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 doc/[SqColumn.cn.md](doc/SqColumn.cn.md)
 
 定义 C 结构化数据类型以映射数据库表 "users"。
 
@@ -12,10 +12,10 @@
 typedef struct  User    User;    // 如果您使用 C 语言，请添加此行
 
 struct User {
-	int     id;          // primary key
+	int     id;          // 主键
 	char   *name;
 	char   *email;
-	int     city_id;     // foreign key
+	int     city_id;     // 外键
 
 	time_t  created_at;
 	time_t  updated_at;
@@ -29,13 +29,13 @@ struct User {
 
 ## C99 designated initializer
 
-使用 C99 指定初始化程序在 schema_v1 中定义表/列 （静态）
+使用 C99 指定初始化程序在 schema_v1 中定义表和列 （静态）
 
 ```c
 #include <sqxclib.h>
 
 static const SqColumn  userColumns[8] = {
-	// PRIMARY KEY
+	// 主键 PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
 	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
@@ -49,16 +49,16 @@ static const SqColumn  userColumns[8] = {
 	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
-	// FOREIGN KEY
+	// 外键 FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
 		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
 
-	// CONSTRAINT FOREIGN KEY
+	// 约束外键 CONSTRAINT FOREIGN KEY
 	{SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
 		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
 		.composite = (char *[]) {"city_id", NULL} },
 
-	// CREATE INDEX
+	// 创建索引 CREATE INDEX
 	{SQ_TYPE_INDEX,       "users_id_index",
 		.composite = (char *[]) {"id", NULL} },
 };
@@ -74,24 +74,24 @@ static const SqColumn  userColumns[8] = {
 	sq_table_add_column(table, userColumns, 8);
 ```
 
-使用 C99 指定初始化程序更改 schema_v2 中的表/列 （静态）
+使用 C99 指定初始化程序更改 schema_v2 中的表和列 （静态）
 
 ```c
 static const SqColumn  userColumnsChanged[5] = {
-	// ADD COLUMN "test_add"
+	// 向表中添加列 ADD COLUMN "test_add"
 	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
 
-	// ALTER COLUMN "city_id"
+	// 更改表中的列 ALTER COLUMN "city_id"
 	{SQ_TYPE_INT,  "city_id",  offsetof(User, city_id), SQB_CHANGED},
 
-	// DROP CONSTRAINT FOREIGN KEY
+	// 删除约束外键 DROP CONSTRAINT FOREIGN KEY
 	{.old_name = "users_city_id_foreign",     .name = NULL,
 	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_FOREIGN },
 
-	// DROP COLUMN "name"
+	// 删除列 DROP COLUMN "name"
 	{.old_name = "name",      .name = NULL},
 
-	// RENAME COLUMN "email" TO "email2"
+	// 重命名列 RENAME COLUMN "email" TO "email2"
 	{.old_name = "email",     .name = "email2"},
 };
 
@@ -110,21 +110,21 @@ static const SqColumn  userColumnsChanged[5] = {
 
 ```c
 static const SqColumn  otherSampleChanged_1[] = {
-	// CONSTRAINT PRIMARY KEY
+	// 约束主键 CONSTRAINT PRIMARY KEY
 	{SQ_TYPE_CONSTRAINT,  "other_primary", 0,  SQB_PRIMARY,
 		.composite = (char *[]) {"column1", "column2", NULL} },
 
-	// CONSTRAINT UNIQUE
+	// 约束唯一 CONSTRAINT UNIQUE
 	{SQ_TYPE_CONSTRAINT,  "other_unique",  0,  SQB_UNIQUE,
 		.composite = (char *[]) {"column1", "column2", NULL} },
 };
 
 static const SqColumn  otherSampleChanged_2[] = {
-	// DROP CONSTRAINT PRIMARY KEY
+	// 删除约束主键 DROP CONSTRAINT PRIMARY KEY
 	{.old_name = "other_primary",  .name = NULL,
 	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_PRIMARY },
 
-	// DROP CONSTRAINT UNIQUE
+	// 删除约束唯一 DROP CONSTRAINT UNIQUE
 	{.old_name = "other_unique",   .name = NULL,
 	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_UNIQUE },
 };
@@ -134,7 +134,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 
 成员中的所有数据与上面的示例代码相同。  
   
-使用 C++ 聚合初始化在 schema_v1 中定义表/列 （静态）
+使用 C++ 聚合初始化在 schema_v1 中定义表和列 （静态）
 
 ```c++
 #include <sqxclib.h>
@@ -160,7 +160,7 @@ static const SqColumn  userColumns[8] = {
 	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
-	// FOREIGN KEY
+	// 外键 FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    0,
 		NULL, 0, 0, NULL, NULL,        // .old_name, .size, .digits, .default_value, .check
 		(SqForeign*) &userForeign},    // .foreign

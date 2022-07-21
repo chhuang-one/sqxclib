@@ -29,7 +29,7 @@ struct User {
 
 ## C99 designated initializer
 
-use C99 designated initializer to define table/column in schema_v1 (static)
+use C99 designated initializer to define table and column in schema_v1 (static)
 
 ```c
 #include <sqxclib.h>
@@ -74,7 +74,7 @@ static const SqColumn  userColumns[8] = {
 	sq_table_add_column(table, userColumns, 8);
 ```
 
-use C99 designated initializer to change table/column in schema_v2 (static)
+use C99 designated initializer to change table and column in schema_v2 (static)
 
 ```c
 static const SqColumn  userColumnsChanged[5] = {
@@ -133,7 +133,7 @@ static const SqColumn  otherSampleChanged_2[] = {
 ## C++ aggregate initialization
 All data in members are the same as above sample code.  
   
-use C++ aggregate initialization to define table/column in schema_v1 (static)
+use C++ aggregate initialization to define table and column in schema_v1 (static)
 
 ```c++
 #include <sqxclib.h>

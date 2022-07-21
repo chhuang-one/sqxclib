@@ -88,7 +88,7 @@ void  sq_schema_create_relation(SqSchema *schema);
  */
 int   sq_schema_include(SqSchema *schema, SqSchema *schema_src);
 
-// It trace renamed (or dropped) table/column that was referenced by others and update others references.
+// It trace renamed (or dropped) table (and column) that was referenced by others and update others references.
 // use this function after calling sq_schema_include()
 int   sq_schema_trace_name(SqSchema *schema);
 
