@@ -32,7 +32,7 @@
 typedef struct SqSchema       SqSchema;
 
 // SQL common bit_field
-#define SQB_SCHEMA_CHANGED                 SQB_CHANGED         // SQL: alter/modify. column/table has been altered.
+#define SQB_SCHEMA_CHANGED                 SQB_CHANGED         // SQL: column or table has been changed.
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -146,9 +146,9 @@ struct SqSchema
 {
 	SQ_SCHEMA_MEMBERS;                   // <-- 2. inherit member variable
 /*	// ------ SqEntry members ------
-	const SqType   *type;        // type information for this entry
-	const char     *name;
-	size_t          offset;      // migration use this. Number of tables have existed in database
+	const SqType   *type;        // tables and their migrations data.
+	const char     *name;        // schema name. It can be NULL.
+	size_t          offset;
 	unsigned int    bit_field;
 
 	// ------ SqSchema members ------

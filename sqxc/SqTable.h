@@ -27,9 +27,9 @@ typedef struct SqTable        SqTable;
 
 
 // SQL common bit_field
-#define SQB_TABLE_CHANGED                 SQB_CHANGED         // SQL: alter/modify. column/table has been altered.
+#define SQB_TABLE_CHANGED                 SQB_CHANGED         // SQL: table has been changed.
 // SQL common bit_field (for internal use only. use it when SQLite recreate)
-#define SQB_TABLE_RENAMED                 SQB_RENAMED         // SQL: rename. column/table has been renamed.
+#define SQB_TABLE_RENAMED                 SQB_RENAMED         // SQL: table has been renamed.
 
 /* SqTable::bit_field for SQLite migration
    SQB_TABLE_XXX must large then SQB_RESERVE_END because it derived from SqEntry. (SqEntry.h)

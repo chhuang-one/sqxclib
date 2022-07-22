@@ -4,7 +4,7 @@
 
 This document introduce how to use C99 designated initializer (or C++ aggregate initialization) to define table.
 * This can reduce running time when making schema.
-* If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see doc/[SqColumn.md](doc/SqColumn.md)
+* If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see [SqColumn.md](SqColumn.md)
 
 Define a C structured data type to map database table "users".
 

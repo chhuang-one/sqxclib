@@ -707,6 +707,10 @@ sqxclib is case-sensitive when searching and sorting SQL column name and JSON fi
 - all defined table and column can use to parse JSON object and field.
 - program can also parse JSON object and array that store in column.
 
+## Sqdb
+Sqdb is base structure for database product (SQLite, MySQL...etc).  
+You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
+
 ## Sqxc
 Sqxc is interface for data parse and write.  
 User can link multiple Sqxc element to convert different types of data.  

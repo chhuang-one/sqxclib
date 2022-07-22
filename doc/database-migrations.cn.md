@@ -3,7 +3,7 @@
 # 数据库：迁移
 
 本文档描述了如何动态定义 SQL 表、列、迁移。
-您还可以使用 SqApp 通过命令行工具运行和反向迁移，请参阅 [SqApp.md](SqApp.md)  
+您还可以使用 SqApp 通过命令行工具运行和反向迁移，请参阅 [SqApp.cn.md](SqApp.cn.md)  
 
 注意：因为很多用户使用过 Laravel，所以有很多 sqxclib C++ 方法名和它类似。
 实际上 sqxclib 的设计与 Laravel 不同，所以用法不可能相同。  

@@ -145,11 +145,11 @@ struct SqdbInfo
 
 	struct {
 		unsigned int has_boolean:1;      // has Boolean Data Type
-		unsigned int use_alter:1;        // ALTER COLUMN
-		unsigned int use_modify:1;       // MODIFY COLUMN
+		unsigned int use_alter:1;        // use "ALTER COLUMN" to change column
+		unsigned int use_modify:1;       // use "MODIFY COLUMN" to change column
 	} column;
 
-	// for  Database column/table identifiers
+	// for  Database column and table identifiers
 	struct {
 		char         identifier[2];      // SQLite is "", MySQL is ``, SQL Server is []
 	} quote;
@@ -213,7 +213,7 @@ struct SqdbConfig
 	SQDB_CONFIG_MEMBERS;                   // <-- 1. inherit member variable
 /*	// ------ SqdbConfig members ------
 	unsigned int    product;
-	unsigned int    bit_field;    // reserve. constant or dynamic config data
+	unsigned int    bit_field;    // reserve. Is the instance of config constant or dynamic?
  */
 };
 

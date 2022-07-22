@@ -18,7 +18,7 @@ sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提�
 
 4. 单一头文件 〈 **sqxclib.h** 〉 (注意：不包含特殊宏和支持库)
 
-5. 命令行工具可以生成迁移并进行迁移。 见 doc/[SqApp.md](doc/SqApp.md)。
+5. 命令行工具可以生成迁移并进行迁移。 见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
 
 6. 支持 SQLite, MySQL / MariaDB。
 
@@ -176,7 +176,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 ## 数据库产品
 
-**Sqdb** 是数据库产品（SQLite、MySQL 等）的基础结构。 您可以在 doc/[Sqdb.md](doc/Sqdb.md) 中获得更多描述和示例。  
+**Sqdb** 是数据库产品（SQLite、MySQL 等）的基础结构。 您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
   
 使用 C 函数打开 SQLite 数据库
 
@@ -315,12 +315,12 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	storage->update(user);
 
 	// 更新特定列 - 多行中的 "name" 和 "email"。
-	// call updateAll<User>(...)
+	// 调用 updateAll<User>(...)
 	storage->updateAll(user,
 	                   "WHERE id > 11 AND id < 28",
 	                   "name", "email");
 	// 更新特定字段 - 多行中的 User::name 和 User::email。
-	// call updateField<User>(...)
+	// 调用 updateField<User>(...)
 	storage->updateField(user,
 	                     "WHERE id > 11 AND id < 28",
 	                     &User::name, &User::email);
@@ -685,7 +685,7 @@ Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod 
 sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写。 用户可以在 sqxc/[SqConfig.h](sqxc/SqConfig.h) 中更改。
 
 ```c
-// Common settings in SqConfig.h
+// SqConfig.h 中的常用设置
 
 /* sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写。
    某些旧的 SQL 产品可能需要禁用此功能。
@@ -704,6 +704,10 @@ sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写�
 - 所有定义的表和列都可以用来解析 JSON 对象和字段。
 - 程序还可以解析存储在列中的 JSON 对象和数组。
 
+## Sqdb
+Sqdb 是数据库产品（SQLite、MySQL 等）的基础结构。  
+您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
+
 ## Sqxc
 Sqxc 是数据解析和写入的接口。  
 用户可以链接多个 Sqxc 元素来转换不同类型的数据。  
@@ -712,7 +716,7 @@ Sqxc 是数据解析和写入的接口。
 ## SqApp
 SqApp 使用配置文件（SqApp-config.h）来初始化数据库并为用户的应用程序进行迁移。  
 它提供命令行程序来生成迁移并进行迁移。  
-请参阅文档 doc/[SqApp.md](doc/SqApp.md)。  
+请参阅文档 doc/[SqApp.cn.md](doc/SqApp.cn.md)。  
 
 ## SqConsole
 SqConsole 提供命令行界面（主要用于 SqAppTool）。  

@@ -1,3 +1,5 @@
+[中文](SqApp.cn.md)
+
 # SqApp
 
 SqApp use configuration file (SqApp-config.h) to initialize database and do migrations. It used by user's application.  
@@ -17,10 +19,11 @@ Both **sqxctool** and **sqxcpptool** can generate migration and do migrate. They
 
 ### replace SqApp-config.h by other config file
 
-user can define macro SQ_APP_CONFIG_FILE to replace SqApp-config.h when compiling.  
+User can define macro SQ_APP_CONFIG_FILE to replace SqApp-config.h when compiling.  
   
 e.g. use workspace/myapp-config.h to replace default workspace/sqxcapp/SqApp-config.h  
-if myapp-config.h place in C include directories...
+  
+If myapp-config.h place in C include directories...
 
 ```
 gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
@@ -71,7 +74,8 @@ User can use only one SQL products here (e.g. use MySQL)
 ```
 sqxctool  make:migration  migration_name
 ```
-This command will:  
+
+This command will:
 1. generate migration file - workspace/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c
 2. append relative path of migration file to workspace/sqxcapp/migrations-files.c
 3. append declaration of migration to workspace/sqxcapp/migrations-declarations
@@ -84,21 +88,21 @@ Finally, you must recompile migration code after defining table.
 
 #### create table by sqxctool (C language)
 
-generate C migration file to create companies table
+generate C migration file to create "companies" table
 
 ```
 sqxctool  make:migration  create_companies_table
 ```
 
-Above command will create file in workspace/database/migrations/yyyy_MM_dd_HHmmss_create_companies_table.c  
-It is suggested that user define struct Company in workspace/sqxcapp/CStructs.h in this case.  
+Above command will create file workspace/database/migrations/yyyy_MM_dd_HHmmss_create_companies_table.c  
+It is suggested that user define structure "Company" in workspace/sqxcapp/CStructs.h in this case.  
 The file looks like below:
 
 ```c
 /* migrations-files.c has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
-#include "CStructs.h"        // define struct Company in CStructs.h
+#include "CStructs.h"        // define struct "Company" in CStructs.h
  */
 
 // Run the migrations.
@@ -128,7 +132,7 @@ const SqMigration create_companies_table_2021_12_12_180000 = {
 
 #### alter table by sqxcpptool (C++ language)
 
-generate C++ migration file to alter companies table
+generate C++ migration file to alter "companies" table
 
 ```
 sqxcpptool  make:migration  --table=companies  alter_companies_table
@@ -139,7 +143,7 @@ The file looks like below:
 
 ```c++
 /* This template file is used by sqxcpptool
-// migrations-files.cpp has included below headers.
+// migrations-files.cpp has included below header files.
 #include <SqStorage.h>
 #include <SqMigration.h>
 #include "CStructs.h"

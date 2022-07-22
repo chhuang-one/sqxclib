@@ -23,18 +23,18 @@
 // C/C++ common declarations: declare type, structue, macro, enumeration.
 
 // These types are for internal use only
-#define SQ_TYPE_TRACING    SQ_TYPE_FAKE4    // column/table has foreign/composite key
-#define SQ_TYPE_UNSYNCED   SQ_TYPE_FAKE5    // records/columns/tables that doesn't yet synchronize to database
+#define SQ_TYPE_TRACING    SQ_TYPE_FAKE4    // column (or table) has foreign/composite key
+#define SQ_TYPE_UNSYNCED   SQ_TYPE_FAKE5    // records, columns, or tables that doesn't yet synchronize to database
 #define SQ_TYPE_REENTRY    SQ_TYPE_FAKE6    // renamed and dropped records
 
 /*
 Relation:
     SQ_TYPE_REENTRY: It contain renamed and dropped records that used by sq_relation_trace_reentry()
-        renamed record <-----> renamed column/table
+        renamed record <-----> renamed column (or table)
         renamed record <-----> dropped record
         dropped record
 
-    SQ_TYPE_UNSYNCED: It contain records/columns/tables that have not synchronize to database.
+    SQ_TYPE_UNSYNCED: It contain records, columns, or tables that have not synchronize to database.
                       sq_relation_erase_unsynced() can free dropped records and clear renaming data.
  */
 

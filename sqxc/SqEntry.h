@@ -35,9 +35,9 @@ typedef struct SqReentry        SqReentry;
 #define SQB_RESERVE_1      (1 << 5)   // reserve
 
 // SQL common bit_field.
-#define SQB_CHANGED        (1 << 6)   // SQL: alter/modify. column/table has been altered.
+#define SQB_CHANGED        (1 << 6)   // SQL: column (or table) has been changed.
 // SQL common bit_field (for internal use only. use it when SQLite recreate)
-#define SQB_RENAMED        (1 << 7)   // SQL: rename. column/table has been renamed.
+#define SQB_RENAMED        (1 << 7)   // SQL: column (or table) has been renamed.
 // derived class/struct need this
 #define SQB_RESERVE_END    (1 << 8)
 

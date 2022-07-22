@@ -1,126 +1,126 @@
-[中文](Sqdb.cn.md)
+[English](Sqdb.md)
 
 # Sqdb
-Sqdb is a base structure for database product (SQLite, MySQL...etc).  
+Sqdb 是数据库产品（SQLite、MySQL...等）的基础结构。  
 
-| derived structure | Database product | source file  |
-| ----------------- | ---------------- | ------------ |
-| SqdbSqlite        | SQLite           | SqdbSqlite.c |
-| SqdbMysql         | MySQL            | SqdbMysql.c  |
+| 派生结构      | 数据库产品 | 源代码文件   |
+| ------------- | ---------- | ------------ |
+| SqdbSqlite    | SQLite     | SqdbSqlite.c |
+| SqdbMysql     | MySQL      | SqdbMysql.c  |
 
 ```c
 struct Sqdb
 {
-	// you can use SQDB_MEMBERS to define below members
-	const SqdbInfo *info;       // data and function interface
-	int             version;    // schema version in SQL database
+	// 您可以使用 SQDB_MEMBERS 定义以下成员
+	const SqdbInfo *info;       // 数据与功能接口
+	int             version;    // SQL 数据库中的架构 (schema) 版本
 };
 ```
 
 # SqdbInfo
 
-SqdbInfo is data and function interface for database product.
+SqdbInfo 是数据库产品的数据和函数接口。
 
 ```c
 struct SqdbInfo
 {
-	uintptr_t      size;       // Sqdb instance size
-	SqdbProduct    product;    // SqdbProduct product = SQLite, MySQL...etc
+	uintptr_t      size;       // Sqdb 实例大小
+	SqdbProduct    product;    // SqdbProduct 产品 = SQLite、MySQL...等
 
 	struct {
-		unsigned int has_boolean:1;      // has Boolean Data Type
-		unsigned int use_alter:1;        // use "ALTER COLUMN" to change column
-		unsigned int use_modify:1;       // use "MODIFY COLUMN" to change column
+		unsigned int has_boolean:1;      // 具有布尔数据类型
+		unsigned int use_alter:1;        // 使用 "ALTER COLUMN" 更改列
+		unsigned int use_modify:1;       // 使用 "MODIFY COLUMN" 更改列
 	} column;
 
-	// for  Database column and table identifiers
+	// 用于数据库列和表标识符
 	struct {
-		char         identifier[2];      // SQLite is "", MySQL is ``, SQL Server is []
+		char         identifier[2];      // SQLite 使用 "", MySQL 使用 ``, SQL Server 使用 []
 	} quote;
 
-	// initialize derived structure of Sqdb
+	// 初始化 Sqdb 的派生结构
 	void (*init)(Sqdb *db, SqdbConfig *config);
-	// finalize derived structure of Sqdb
+	// 终结 Sqdb 的派生结构
 	void (*final)(Sqdb *db);
 
-	// open a database file or establish a connection to a database server
+	// 打开数据库文件或建立与数据库服务器的连接
 	int  (*open)(Sqdb *db, const char *name);
-	// close a previously opened file or connection.
+	// 关闭以前打开的文件或连接。
 	int  (*close)(Sqdb *db);
-	// executes the SQL statement
+	// 执行 SQL 语句
 	int  (*exec)(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
-	// migrate schema. It apply changes of 'schema_next' to 'schema_current'
+	// 迁移架构。 它将 'schema_next' 的更改应用于 'schema_current'
 	int  (*migrate)(Sqdb *db, SqSchema *schema_current, SqSchema *schema_next);
 };
 ```
 
 # SqdbConfig
 
-SqdbConfig is setting of SQL product
+SqdbConfig 是 SQL 产品的设置
 
 ```c
 struct SqdbConfig
 {
-	// you can use SQDB_CONFIG_MEMBERS to define below members
+	// 你可以使用 SQDB_CONFIG_MEMBERS 来定义下面的成员
 	unsigned int    product;
-	unsigned int    bit_field;    // reserve. Is the instance of config constant or dynamic?
+	unsigned int    bit_field;    // 保留。config 的实例是常量还是动态的？
 };
 ```
 
-## open and close database
+## 打开和关闭数据库
 
-sqdb_open() will get current schema version number while opening database.  
-* SQLite user can set 'folder' and 'extension' in SqdbConfigSqlite, these affect database filename and path.
+sqdb_open() 将在打开数据库时获取当前 schema 版本号。  
+* SQLite 用户可以在 SqdbConfigSqlite 中设置 '文件夹' 和 '扩展名'，这些会影响数据库文件名和路径。
 
 ```c
 	SqdbConfigSqlite config = { .folder = "/home/dir", .extension = "db" };
 	Sqdb  *db;
 
-	// create SqdbSqlite with 'config'
+	// 使用 'config' 创建 SqdbSqlite
 	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
 
-	// open database file - "/home/dir/local-base.db"
+	// 打开数据库文件 - "/home/dir/local-base.db"
 	sqdb_open(db, "local-base");
 
-	// close database
+	// 关闭数据库
 	sqdb_close(db);
 ```
 
-## migrate
+## 迁移
 
-sqdb_migrate() use schema's version to decide to migrate or not. It apply changes of 'schema_next' to 'schema_current'.  
-This function may move data from 'schema_next' to 'schema_current', you can't reuse 'schema_next' after migration.
+sqdb_migrate() 使用 schema 的版本来决定是否迁移。它将 'schema_next' 的更改应用于 'schema_current'。  
+此函数可能会将数据从 'schema_next' 移动到 'schema_current'，迁移后您不能重用 'schema_next'。
 
-use C functions
+使用 C 函数
 
 ```c
-	// apply changes of 'schema_next' to 'schema_current'
+	// 将 'schema_next' 的更改应用于 'schema_current'
 	sqdb_migrate(db, schema_current, schema_next);
 
-	// synchronize 'schema_current' to database and update schema and table
-	// This is mainly used by SQLite
+	// 将 'schema_current' 同步到数据库并更新 schema 和表
+	// 这主要由 SQLite 使用
 	sqdb_migrate(db, schema_current, NULL);
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c++
-	// apply changes of 'schema_next' to 'schema_current'
+	// 将 'schema_next' 的更改应用于 'schema_current'
 	db->migrate(schema_current, schema_next);
 
-	// synchronize 'schema_current' to database and update schema/table status
-	// This is mainly used by SQLite
+	// 将 'schema_current' 同步到数据库并更新 schema 和表
+	// 这主要由 SQLite 使用
 	db->migrate(schema_current, NULL);
 ```
 
-## Get result from SQL query
+## 从 SQL 查询中获取结果
 
-User can use sqdb_exec() to execute a query and get result by Sqxc elements.  
-If you want to parse object or array and reuse Sqxc elements:
-1. call sqxc_ready() before sqdb_exec().
-2. call sqxc_finish() after sqdb_exec().
+用户可以使用 sqdb_exec() 执行查询并通过 Sqxc 元素获取结果。  
+如果要解析对象或数组并重用 Sqxc 元素：
+1. 在 sqdb_exec() 之前调用 sqxc_ready()。
+2. 在 sqdb_exec() 之后调用 sqxc_finish()。
 
-#### Get an integer value
+#### 获取一个整数值
 
 ```c
 	SqxcValue *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
@@ -137,7 +137,7 @@ If you want to parse object or array and reuse Sqxc elements:
 		return integer;
 ```
 
-#### Get a row from "migrations" table
+#### 从 "migrations" 表中获取一行
 
 ```c
 	SqxcValue        *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
@@ -148,12 +148,12 @@ If you want to parse object or array and reuse Sqxc elements:
 	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
 	xc_input->instance  = mtable;
 
-	// call sqxc_ready() before sqdb_exec() if you want to reuse Sqxc elements
+	// 如果要重用 Sqxc 元素，请在 sqdb_exec() 之前调用 sqxc_ready()
 	sqxc_ready(xc_input, NULL);
 
 	code = sqdb_exec(db, "SELECT * FROM migrations WHERE id = 1", (Sqxc*)xc_input, NULL);
 
-	// call sqxc_finish() after sqdb_exec() if you want to reuse Sqxc elements
+	// 如果要重用 Sqxc 元素，请在 sqdb_exec() 之后调用 sqxc_finish()
 	sqxc_finish(xc_input, NULL);
 
 	if (code == SQCODE_OK)
@@ -164,9 +164,9 @@ If you want to parse object or array and reuse Sqxc elements:
 	}
 ```
 
-#### Get multiple rows from "migrations" table
+#### 从 "migrations" 表中获取多行
 
-Use C language to get multiple rows from "migrations" table
+使用 C 语言从 "migrations" 表中获取多行
 
 ```c
 	SqxcValue  *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
@@ -177,12 +177,12 @@ Use C language to get multiple rows from "migrations" table
 	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
 	xc_input->instance  = array;
 
-	// call sqxc_ready() before sqdb_exec() if you want to reuse Sqxc elements
+	// 如果要重用 Sqxc 元素，请在 sqdb_exec() 之前调用 sqxc_ready()
 	sqxc_ready(xc_input, NULL);
 
 	code = sqdb_exec(db, "SELECT * FROM migrations", (Sqxc*)xc_input, NULL);
 
-	// call sqxc_finish() after sqdb_exec() if you want to reuse Sqxc elements
+	// 如果要重用 Sqxc 元素，请在 sqdb_exec() 之后调用 sqxc_finish()
 	sqxc_finish(xc_input, NULL);
 
 	if (code == SQCODE_OK)
@@ -193,7 +193,7 @@ Use C language to get multiple rows from "migrations" table
 	}
 ```
 
-Use C++ language to get multiple rows from "migrations" table
+使用 C++ 语言从 "migrations" 表中获取多行
 
 ```c++
 	Sq::XcValue   *xc_input = new Sq::XcValue();
@@ -216,80 +216,80 @@ Use C++ language to get multiple rows from "migrations" table
 	}
 ```
 
-## How to support new SQL product:
+## 如何支持新的 SQL 产品：
 
-User can refer SqdbMysql.h and SqdbMysql.c to support new SQL product.  
-SqdbEmpty.h and SqdbEmpty.c is a workable sample, but it do nothing.  
+用户可以参考 SqdbMysql.h 和 SqdbMysql.c 来支持新的 SQL 产品。  
+SqdbEmpty.h 和 SqdbEmpty.c 是一个可行的示例，但它什么也不做。
 
-#### 1. define new structure that derived from SqdbConfig and Sqdb
+#### 1. 定义从 SqdbConfig 和 Sqdb 派生的新结构
 
-All derived structure must conforme C++11 standard-layout
+所有派生结构必须符合 C++11 标准布局
 
 ```c++
-// This is header file - SqdbXxsql.h
+// 这是头文件 - SqdbXxsql.h
 #include <Sqdb.h>
 
-// define types - SqdbXxsql and SqdbConfigXxsql for C language
+// 定义类型 - C 语言的 SqdbXxsql 和 SqdbConfigXxsql
 typedef struct SqdbXxsql          SqdbXxsql;
 typedef struct SqdbConfigXxsql    SqdbConfigXxsql;
 
-// define SQL product id
+// 定义 SQL 产品 ID
 #define  SQDB_PRODUCT_XXSQL    (SQDB_PRODUCT_CUSTOM + 1)
 
-#ifdef __cplusplus    // mix C and C++
+#ifdef __cplusplus    // 混合 C 和 C++
 extern "C" {
 #endif
 
-// define in SqdbXxsql.c
+// 在 SqdbXxsql.c 中定义
 extern const SqdbInfo        SqdbInfo_XXSQL_;
 #define SQDB_INFO_XXSQL    (&SqdbInfo_XXSQL_)
 
-#ifdef __cplusplus    // mix C and C++
+#ifdef __cplusplus    // 混合 C 和 C++
 }  // extern "C"
 #endif
 
-// config data structure that derived from SqdbConfig
+// 从 SqdbConfig 派生的配置数据结构
 struct SqdbConfigXxsql
 {
-	SQDB_CONFIG_MEMBERS;                   // <-- 1. inherit member variable
+	SQDB_CONFIG_MEMBERS;                   // <-- 1. 继承成员变量
 
-	int   xxsql_setting;                   // <-- 2. Add variable and non-virtual function in derived struct.
+	int   xxsql_setting;                   // <-- 2. 在派生结构中添加变量和非虚函数。
 };
 
-// structure that derived from Sqdb
+// 源自 Sqdb 的结构
 #ifdef __cplusplus
-struct SqdbXxsql : Sq::DbMethod            // <-- 1. inherit C++ member function(method)
+struct SqdbXxsql : Sq::DbMethod            // <-- 1. 继承 C++ 成员函数（方法）
 #else
 struct SqdbXxsql
 #endif
 {
-	SQDB_MEMBERS;                          // <-- 2. inherit member variable
+	SQDB_MEMBERS;                          // <-- 2. 继承成员变量
 
-	SqdbConfigXxsql *config;               // <-- 3. Add variable and non-virtual function in derived struct.
+	SqdbConfigXxsql *config;               // <-- 3. 在派生结构中添加变量和非虚函数。
 	int            variable;
 
 
 #ifdef __cplusplus
-	// define C++ constructor and destructor here if you use C++ language.
+	// 如果您使用 C++ 语言，请在此处定义 C++ 构造函数和析构函数。
 	SqdbXxsql(const SqdbConfigXxsql *config) {
-		// call Sq::DbMethod::init()
+		// 调用 Sq::DbMethod::init()
 		init(SQDB_INFO_XXSQL, (SqdbConfig*)config);
 	}
 	~SqdbXxsql() {
-		// call Sq::DbMethod::final()
+		// 调用 Sq::DbMethod::final()
 		final();
 	}
 #endif
 };
 ```
 
-#### 2. implement SqdbInfo interface
+#### 2. 实现 SqdbInfo 接口
 
 ```c
-// This is source file - SqdbXxsql.c
+// 这是源文件 - SqdbXxsql.c
 #include <SqdbXxsql.h>
 
-// declare functions for SqdbInfo
+// 为 SqdbInfo 声明函数
 static void sqdb_xxsql_init(SqdbXxsql *sqdb, const SqdbConfigXxsql *config);
 static void sqdb_xxsql_final(SqdbXxsql *sqdb);
 static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name);
@@ -297,7 +297,7 @@ static int  sqdb_xxsql_close(SqdbXxsql *sqdb);
 static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
 static int  sqdb_xxsql_migrate(SqdbXxsql *sqdb, SqSchema *schema, SqSchema *schema_next);
 
-// used by SqdbXxsql.h
+// 由 SqdbXxsql.h 使用
 const SqdbInfo SqdbInfo_XXSQL_ = {
 	.size    = sizeof(SqdbXxsql),
 	.product = SQDB_PRODUCT_XXSQL,
@@ -307,7 +307,7 @@ const SqdbInfo SqdbInfo_XXSQL_ = {
 		.use_modify = 0,
 	},
 	.quote = {
-		.identifier = {'"', '"'}     // ANSI-SQL quote identifier is ""
+		.identifier = {'"', '"'}     // ANSI-SQL 引用标识符是 ""
 	},
 
 	.init    = (void*) sqdb_xxsql_init,
@@ -318,59 +318,59 @@ const SqdbInfo SqdbInfo_XXSQL_ = {
 	.migrate = (void*) sqdb_xxsql_migrate,
 };
 
-// implement functions of SqdbXxsql here
+// 在这里实现 SqdbXxsql 的函数
 
 static void sqdb_xxsql_init(SqdbXxsql *sqdb, const SqdbConfigXxsql *config)
 {
-	// initialize SqdbXxsql instance
+	// 初始化 SqdbXxsql 实例
 	sqdb->version  = 0;
 	sqdb->config   = config;
 }
 
 static void sqdb_xxsql_final(SqdbXxsql *sqdb)
 {
-	// finalize SqdbXxsql instance
+	// 终结 SqdbXxsql 实例
 }
 
 static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name)
 {
-	// open database and get it's schema version
+	// 打开数据库并获取它的 schema 版本
 	sqdb->version = db_schema_version;
 	return SQCODE_OK;
 }
 
 static int  sqdb_xxsql_close(SqdbXxsql *sqdb)
 {
-	// close database
+	// 关闭数据库
 	return SQCODE_OK;
 }
 
 static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
 {
 	if (xc == NULL) {
-		// execute query
+		// 执行查询
 	}
 	else {
 		switch (sql[0]) {
 		case 'S':    // SELECT
 		case 's':    // select
-			// get rows from xxsql and send them to 'xc'
+			// 从 xxsql 获取行并将它们发送到 'xc'
 			break;
 
 		case 'I':    // INSERT
 		case 'i':    // insert
-			// set inserted row id to SqxcSql.id
+			// 将插入的行 id 设置为 SqxcSql.id
 			((SqxcSql*)xc)->id = inserted_id;
 			break;
 
 		case 'U':    // UPDATE
 		case 'u':    // update
-			// set number of rows changed to SqxcSql.changes
+			// 设置 SqxcSql.changes 为更改行数
 			((SqxcSql*)xc)->changes = number_of_rows_changed;
 			break;
 
 		default:
-			// execute query
+			// 执行查询
 			break;
 		}
 	}
@@ -384,38 +384,38 @@ static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *re
 static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema_current, SqSchema *schema_next)
 {
 	if (schema_next == NULL) {
-		// synchronize 'schema_current' to database. This is mainly used by SQLite
+		// 将 'schema_current' 同步到数据库。这主要由 SQLite 使用
 		return SQCODE_OK;
 	}
 
 	if (db->version < schema_next->version) {
-		// do migrations by 'schema_next'
+		// 通过 'schema_next' 进行迁移
 		for (int index = 0;  index < schema_next->type->n_entry;  index++) {
 			SqTable *table = (SqTable*)schema_next->type->entry[index];
 			if (table->bit_field & SQB_CHANGED) {
-				// ALTER TABLE
+				// 更改表   ALTER TABLE
 			}
 			else if (table->name == NULL) {
-				// DROP TABLE
+				// 删除表   DROP TABLE
 			}
 			else if (table->old_name && (table->bit_field & SQB_RENAMED) == 0) {
-				// RENAME TABLE
+				// 重命名表 RENAME TABLE
 			}
 			else {
-				// CREATE TABLE
+				// 创建表   CREATE TABLE
 			}
 		}
 	}
 
-	// include and apply changes from 'schema_next'
+	// 包含并应用来自 'schema_next' 的更改
 	sq_schema_update(schema_current, schema_next);
 	schema_current->version = schema_next->version;
 }
 ```
 
-#### 3. use custom Sqdb
+#### 3. 使用自定义 Sqdb
 
-use C language
+使用 C 语言
 
 ```c++
 	SqdbConfigXxsql  config = {
@@ -424,14 +424,14 @@ use C language
 	Sqdb            *db;
 	SqStorage       *storage;
 
-	// create custom Sqdb object with config data
+	// 使用配置数据创建自定义 Sqdb 对象
 	db = sqdb_new(SQDB_INFO_XXSQL, (SqdbConfig*) &config);
 
-	// create storage object that use new Sqdb
+	// 创建使用新 Sqdb 的存储对象
 	storage = sq_storage_new(db);
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	SqdbConfigXxsql  config = {
@@ -440,9 +440,9 @@ use C++ language
 	SqdbXxsql       *db;
 	Sq::Storage     *storage;
 
-	// create custom Sqdb object with config data
+	// 使用配置数据创建自定义 Sqdb 对象
 	db = new SqdbXxsql(&config);
 
-	// create storage object that use new Sqdb
+	// 创建使用新 Sqdb 的存储对象
 	storage = new Sq::Storage(db);
 ```

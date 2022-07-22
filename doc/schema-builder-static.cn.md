@@ -4,7 +4,7 @@
 
 本文档介绍如何使用 C99 指定初始化器（或 C++ 聚合初始化）来定义表。
 * 这可以减少制作 schema 时的运行时间。
-* 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 doc/[SqColumn.cn.md](doc/SqColumn.cn.md)
+* 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 [SqColumn.cn.md](SqColumn.cn.md)
 
 定义 C 结构化数据类型以映射数据库表 "users"。
 
@@ -27,7 +27,7 @@ struct User {
 };
 ```
 
-## C99 designated initializer
+## C99 指定初始化
 
 使用 C99 指定初始化程序在 schema_v1 中定义表和列 （静态）
 
@@ -145,7 +145,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
 
 static const SqColumn  userColumns[8] = {
-	// PRIMARY KEY
+	// 主键 PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
 	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
