@@ -122,8 +122,8 @@ int  main(void)
 			storage->removeAll<User>(...)
 			storage->get<User>(...)
 			storage->getAll<User>(...)
-	
-		To get more information about this, you can see document doc/SqSchema.md
+
+		To get more information about this, you can see document doc/database-migrations.md
 	 */
 	Sq::Storage *storage = myapp->getStorage();
 	User     user = {0};

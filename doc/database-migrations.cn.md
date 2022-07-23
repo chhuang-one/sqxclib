@@ -10,26 +10,38 @@
 
 ## 运行迁移
 
-迁移 schema 并同步到数据库。  
+迁移架构并同步到数据库。  
   
 使用 C++ 语言  
 
 ```c++
-	storage->migrate(schema_v1); // migrate schema_v1
-	storage->migrate(schema_v2); // migrate schema_v2
-	storage->migrate(NULL);      // synchronize schema to database. (Mainly used by SQLite)
-	delete schema_v1;            // free unused schema_v1
-	delete schema_v2;            // free unused schema_v2
+	// 迁移 'schema_v1' 和 'schema_v2'
+	storage->migrate(schema_v1);
+	storage->migrate(schema_v2);
+
+	// 将架构同步到数据库并更新 'storage' 中的架构
+	// 这主要由 SQLite 使用
+	storage->migrate(NULL);
+
+	// 释放未使用的 'schema_v1' 和 'schema_v2'
+	delete schema_v1;
+	delete schema_v2;
 ```
 
 使用 C 语言
 
 ```c
-	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
-	sq_storage_migrate(storage, schema_v2); // migrate schema_v2
-	sq_storage_migrate(storage, NULL);      // synchronize schema to database. (Mainly used by SQLite)
-	sq_schema_free(schema_v1);              // free unused schema_v1
-	sq_schema_free(schema_v2);              // free unused schema_v2
+	// 迁移 'schema_v1' 和 'schema_v2'
+	sq_storage_migrate(storage, schema_v1);
+	sq_storage_migrate(storage, schema_v2);
+
+	// 将架构同步到数据库并更新 'storage' 中的架构
+	// 这主要由 SQLite 使用
+	sq_storage_migrate(storage, NULL);
+
+	// 释放未使用的 'schema_v1' 和 'schema_v2'
+	sq_schema_free(schema_v1);
+	sq_schema_free(schema_v2);
 ```
 
 ## 表
@@ -37,7 +49,8 @@
 首先，我们定义一个映射到您的数据库表 "users" 的 C 结构化数据类型。
 
 ```c
-typedef struct  User    User;    // 如果您使用 C 语言，请添加此行
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
+typedef struct  User    User;
 
 struct User {
 	int     id;          // 主键
@@ -101,7 +114,7 @@ struct User {
 #### 检查表是否存在
 
 您可以使用 find 函数检查表是否存在:
-* 此函数不在数据库找表，它在 schema 实例中找表.
+* 此函数不在数据库找表，它在 SqSchema 的实例中找表.
 
 ```c++
 	/* C++ 示例代码 */
@@ -172,25 +185,25 @@ struct User {
 ### 创建列（动态）
 
 要将列添加到表中，您可以使用 SqTable 中的函数。
-在模式中调用 alter 或 create 函数后，您将获得 SqTable 的实例。
+在 'schema' 中调用 alter 或 create 函数后，您将获得 SqTable 的实例。
 
 ```c++
 	/* C++ 示例代码 */
 
-	// alter table "users"
+	// 更改表 "users"
 	table = schema->alter("users");
 
-	// add column to table
+	// 将列添加到表中
 	column = table->integer("test_add", &User::test_add);
 ```
 
 ```c
 	/* C 示例代码 */
 
-	// alter table "users"
+	// 更改表 "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
-	// add columns to table
+	// 将列添加到表中
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 ```
 

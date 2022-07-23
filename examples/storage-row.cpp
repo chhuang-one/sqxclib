@@ -51,7 +51,7 @@ struct User {
 		table->integer("id", &User::id)->primary();
 		table->string("name", &User::name);
 		table->integer("company_id", &User::company_id);
-		// call table->timestamps() to use default column/member names
+		// call table->timestamps() to use default column and member names
 		table->timestamps<User>();
 		table->addForeign("users_companies_id_foreign", "company_id")
 		     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");;

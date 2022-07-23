@@ -200,6 +200,8 @@ sqxctool  migrate:rollback
 使用 C 函数
 
 ```c
+	int  step = 0;
+
 	// 'SQ_APP_DEFAULT' 具有用户应用程序的数据库设置和迁移数据。
 	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
 
@@ -210,7 +212,7 @@ sqxctool  migrate:rollback
 	// 如果数据库版本为 0（未完成迁移）
 	if (sq_app_make_schema(sqapp, 0) == SQCODE_DB_VERSION_0) {
 		// 运行在 ../database/migrations 中定义的迁移
-		if (sq_app_migrate(sqapp, 0) != SQCODE_OK)
+		if (sq_app_migrate(sqapp, step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```

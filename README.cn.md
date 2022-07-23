@@ -4,12 +4,12 @@
 
 # sqxclib
 
-sqxclib 用于将 SQL 或 JSON 的资料与 C 语言的资料互相转换并提供 ORM 的功能和 C++ 包装器 (C++ wrapper)  
+sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。它提供 ORM 的功能和 C++ 包装器 (C++ wrapper)  
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## 目前的功能:
 1. 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL 表、列、迁移，
-   这可以减少制作 schema 时的运行时间，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)。
+   这可以减少制作架构时的运行时间，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)。
    当然也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
 2. 所有定义的 SQL表和列 都可以用于解析 JSON 对象和字段。也可以从 SQL 列 解析 JSON 对象和数组。
@@ -225,7 +225,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	storage->migrate(schema_v1);
 	storage->migrate(schema_v2);
 
-	// 将架构同步到数据库并更新架构/表状态
+	// 将架构同步到数据库并更新 'storage' 中的架构
 	// 这主要由 SQLite 使用
 	storage->migrate(NULL);
 
@@ -241,7 +241,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	sq_storage_migrate(storage, schema_v1);
 	sq_storage_migrate(storage, schema_v2);
 
-	// 将架构同步到数据库并更新架构/表状态
+	// 将架构同步到数据库并更新 'storage' 中的架构
 	// 这主要由 SQLite 使用
 	sq_storage_migrate(storage, NULL);
 
@@ -711,7 +711,7 @@ Sqdb 是数据库产品（SQLite、MySQL 等）的基础结构。
 ## Sqxc
 Sqxc 是数据解析和写入的接口。  
 用户可以链接多个 Sqxc 元素来转换不同类型的数据。  
-您可以在 doc/[Sqxc.md](doc/Sqxc.md) 中获得更多描述和示例。  
+您可以在 doc/[Sqxc.cn.md](doc/Sqxc.cn.md) 中获得更多描述和示例。  
 
 ## SqApp
 SqApp 使用配置文件（SqApp-config.h）来初始化数据库并为用户的应用程序进行迁移。  
@@ -720,7 +720,7 @@ SqApp 使用配置文件（SqApp-config.h）来初始化数据库并为用户的
 
 ## SqConsole
 SqConsole 提供命令行界面（主要用于 SqAppTool）。  
-请参阅文档 doc/[SqConsole.md](doc/SqConsole.md)。  
+请参阅文档 doc/[SqConsole.cn.md](doc/SqConsole.cn.md)。  
 
 ## 其他
 SqType 文档: doc/[SqType.cn.md](doc/SqType.cn.md)  

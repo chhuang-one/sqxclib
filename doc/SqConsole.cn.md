@@ -1,11 +1,11 @@
-[中文](SqConsole.cn.md)
+[English](SqConsole.md)
 
 # SqConsole
 
-SqConsole provide command-line interface (mainly for SqAppTool). It must use with SqCommand and SqOption.  
-Note: SqConsole is in sqxcsupport library.  
+SqConsole 提供命令行界面（主要用于 SqAppTool）。 它必须与 SqCommand 和 SqOption 一起使用。  
+注意：SqConsole 在 sqxcsupport 库中。  
   
-Relationship of SqConsole, SqCommand, and SqOption.
+SqConsole、SqCommand 和 SqOption 的关系。
 
 	SqConsole ---┬--- SqCommand 1 ---┬--- SqOption 1
 	             │                   │
@@ -15,50 +15,50 @@ Relationship of SqConsole, SqCommand, and SqOption.
 
 # SqCommand
 
-User can use SqCommand to define command and it's options statically (or dynamically).
-SqConsole use this to parse data from command-line and store parsed data in SqCommandValue.
+用户可以使用 SqCommand 静态（或动态）定义命令及其选项。
+SqConsole 使用它来解析来自命令行的数据并将解析的数据存储在 SqCommandValue 中。
 
 	SqType
 	│
 	└--- SqCommand
 
 # SqOption
-define an option for command
+为命令定义选项
 
 	SqEntry
 	│
 	└--- SqOption
 
-## 1 Define a new command statically
+## 1 静态定义新命令
 
-define 'mycommand' that has two options - '--help' and '--quiet'
+定义 'mycommand' 有两个选项 - '--help' 和 '--quiet'
 
-#### 1.1 define value of command
+#### 1.1 定义命令的值
 
 	SqCommandValue
 	│
 	└--- MyCommandValue
 
 ```c++
-// If you use C language, please use 'typedef' to to give a struct type a new name.
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
 typedef struct MyCommandValue    MyCommandValue;
 
 #ifdef __cplusplus
-struct MyCommandValue : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
+struct MyCommandValue : Sq::CommandValueMethod     // <-- 1. 继承C++成员函数（方法）
 #else
 struct MyCommandValue
 #endif
 {
-	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
+	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. 继承成员变量
 
-	bool    help;                                  // <-- 3. Add variable and non-virtual function in derived struct.
+	bool    help;                                  // <-- 3. 在派生结构中添加变量和非虚函数。
 	bool    quiet;
 };
 ```
 
-#### 1.2 define options of command statically
+#### 1.2 静态定义命令选项
 
-If you define constant SqCommand, it must use with **pointer array** of SqOption.
+如果定义常量 SqCommand，它必须与 SqOption 的**指针数组**一起使用。
 
 ```c
 static const SqOption  mycommand_option_array[] = {
@@ -77,31 +77,31 @@ static const SqOption *mycommand_options[] = {
 };
 ```
 
-#### 1.3 define function of command handler
+#### 1.3 定义命令处理程序的功能
 
 ```c++
 static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void *data)
 {
-	// The function will be called when your command is executed.
+	// 执行命令时将调用该函数。
 }
 ```
 
-#### 1.4 define command statically
+#### 1.4 静态定义命令
 
 ```c++
 static const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
-	MyCommandValue,                                // StructureType
+	MyCommandValue,                                // 结构类型
 	0,                                             // bit_field
-	"mycommand",                                   // command name
-	mycommand_options,                             // pointer array of SqOption
-	mycommand_handle,                              // handle function
-	"mycommand parameterName",                     // parameter string
-	"mycommand description"                        // description string
+	"mycommand",                                   // 命令名称
+	mycommand_options,                             // SqOption 的指针数组
+	mycommand_handle,                              // 处理函数
+	"mycommand parameterName",                     // 参数字符串
+	"mycommand description"                        // 描述字符串
 );
 
-/* above SQ_COMMAND_INITIALIZER() Macro Expands to
+/* 以上 SQ_COMMAND_INITIALIZER() 宏扩展为
 static const SqCommand mycommand = {
-	// --- SqType members ---
+	// --- SqType 成员 ---
 	.size  = sizeof(MyCommandValue),
 	.parse = sq_command_parse_option,
 	.name  = "mycommand",
@@ -109,7 +109,7 @@ static const SqCommand mycommand = {
 	.n_entry = sizeof(mycommand_options) / sizeof(SqOption*),
 	.bit_field = 0,
 
-	// --- SqCommand members ---
+	// --- SqCommand 成员 ---
 	.handle      = (SqCommandFunc) mycommand_handle,
 	.parameter   = "mycommand parameterName",
 	.description = "mycommand description",
@@ -117,9 +117,9 @@ static const SqCommand mycommand = {
  */
 ```
 
-## 2 Define a new command dynamically
+## 2 动态定义新命令
 
-use C language
+使用 C 语言
 
 ```c
 	SqOption  *option;
@@ -141,7 +141,7 @@ use C language
 	sq_command_add_option(mycommand, option);
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	Sq::Option  *option;
@@ -163,13 +163,13 @@ use C++ language
 	mycommand->addOption(option);
 ```
 
-## 3 add command to SqConsole
+## 3 将命令添加到 SqConsole
 
 ```c
-	// C function
+	// C 函数
 	sq_console_add(console, &mycommand);
 
-	// C++ method
+	// C++ 方法
 	console->add(&mycommand)
 ```
 

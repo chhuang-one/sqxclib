@@ -141,7 +141,7 @@ struct DbMethod
 struct SqdbInfo
 {
 	uintptr_t      size;       // Sqdb instance size
-	SqdbProduct    product;    // SqdbProduct product = SQLite, MySQL...etc
+	SqdbProduct    product;    // SQL  product code
 
 	struct {
 		unsigned int has_boolean:1;      // has Boolean Data Type

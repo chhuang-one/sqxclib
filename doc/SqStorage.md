@@ -1,6 +1,6 @@
 # SqStorage
 
-SqStorage access database by using Sqxc to convert data to/from Sqdb interface.
+SqStorage access database. It using Sqxc to convert data between C language and Sqdb interface.
 
 ## create storage
 
@@ -60,7 +60,7 @@ use C functions
 	// migrate schema
 	sq_storage_migrate(storage, schema);
 
-	// synchronize schema to database and update schema/table status
+	// synchronize schema to database and update schema in 'storage'
 	// This is mainly used by SQLite
 	sq_storage_migrate(storage, NULL);
 ```
@@ -80,7 +80,7 @@ use C++ methods
 	// migrate schema
 	storage->migrate(schema);
 
-	// synchronize schema to database and update schema/table status
+	// synchronize schema to database and update schema in 'storage'
 	// This is mainly used by SQLite
 	storage->migrate(NULL);
 ```

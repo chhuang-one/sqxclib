@@ -33,7 +33,7 @@ char   *sq_time_to_string(time_t time, int format_type);
 
 #if 0
 /* ----------------------------------------------------------------------------
-	C string to/from SQL string
+	convert string between C and SQL
 
 	e.g.   C string:   "I'm worker."
 	       SQL string: 'I''m worker.'

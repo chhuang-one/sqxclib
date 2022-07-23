@@ -1,4 +1,6 @@
-﻿# SqSchema
+﻿[中文](SqSchema.cn.md)
+
+# SqSchema
 SqSchema defines database schema
 
 	SqEntry
@@ -37,13 +39,13 @@ SqTable defines SQL table
 	     │
 	     └─── SqColumn
 
-## 1. Create table and column by methods/functions (dynamic)
+## 1. Create table and column by functions (dynamic)
 
 It is recommended to use C++ methods or C functions to create dynamic table.  
 To get more information and sample, you can see below documents:  
 1. [database-migrations.md](database-migrations.md)
 2. "**Database schema**" section in ../[README.md](../README.md#database-schema)
-  
+
 You will get difference type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.  
 **Please create or define type of SqTable in C++ language if your application written in C++ language.**  
   
@@ -73,14 +75,14 @@ C++ sample code:
 	// create table "areas"
 	table = schema_v1->create<Area>("areas");
 
-	// add dynamic columns to table
+	// add columns to table
 	table->integer("id", &Area::id)->primary();  // PRIMARY KEY
 	table->string("name", &Area::name);
 
 	// do migration
-	storage->migrate(schema_v1);   // migrate schema_v1
+	storage->migrate(schema_v1);   // migrate 'schema_v1'
 
-	// synchronize schema_v1 to database and update schema/table status
+	// synchronize schema_v1 to database and update schema in 'storage'
 	// This is mainly used by SQLite
 	storage->migrate(NULL);
 
@@ -90,7 +92,7 @@ C++ sample code:
 
 ## 2. Create table by existed SqType (static or dynamic)
 You can see documents [SqColumn.md](SqColumn.md) to get more information about creating SqType with SqColumn.  
-Note: If 'type' is dynamic SqType, it will be freed when program free 'table'.
+Note: If 'type' is dynamic SqType, it will be freed when the program frees 'table'.
 
 ```c++
 	// C function

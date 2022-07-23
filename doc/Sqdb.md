@@ -25,7 +25,7 @@ SqdbInfo is data and function interface for database product.
 struct SqdbInfo
 {
 	uintptr_t      size;       // Sqdb instance size
-	SqdbProduct    product;    // SqdbProduct product = SQLite, MySQL...etc
+	SqdbProduct    product;    // SQL  product code
 
 	struct {
 		unsigned int has_boolean:1;      // has Boolean Data Type
@@ -97,7 +97,7 @@ use C functions
 	// apply changes of 'schema_next' to 'schema_current'
 	sqdb_migrate(db, schema_current, schema_next);
 
-	// synchronize 'schema_current' to database and update schema and table
+	// synchronize 'schema_current' to database and update 'schema_current'
 	// This is mainly used by SQLite
 	sqdb_migrate(db, schema_current, NULL);
 ```
@@ -108,7 +108,7 @@ use C++ methods
 	// apply changes of 'schema_next' to 'schema_current'
 	db->migrate(schema_current, schema_next);
 
-	// synchronize 'schema_current' to database and update schema/table status
+	// synchronize 'schema_current' to database and update 'schema_current'
 	// This is mainly used by SQLite
 	db->migrate(schema_current, NULL);
 ```
@@ -229,11 +229,11 @@ All derived structure must conforme C++11 standard-layout
 // This is header file - SqdbXxsql.h
 #include <Sqdb.h>
 
-// define types - SqdbXxsql and SqdbConfigXxsql for C language
+// If you use C language, please use 'typedef' to to give a struct type a new name.
 typedef struct SqdbXxsql          SqdbXxsql;
 typedef struct SqdbConfigXxsql    SqdbConfigXxsql;
 
-// define SQL product id
+// define SQL product code
 #define  SQDB_PRODUCT_XXSQL    (SQDB_PRODUCT_CUSTOM + 1)
 
 #ifdef __cplusplus    // mix C and C++

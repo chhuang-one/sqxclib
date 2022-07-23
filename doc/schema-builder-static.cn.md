@@ -3,13 +3,14 @@
 # Schema Builder (静态)
 
 本文档介绍如何使用 C99 指定初始化器（或 C++ 聚合初始化）来定义表。
-* 这可以减少制作 schema 时的运行时间。
+* 这可以减少制作架构时的运行时间。
 * 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 [SqColumn.cn.md](SqColumn.cn.md)
 
 定义 C 结构化数据类型以映射数据库表 "users"。
 
 ```c++
-typedef struct  User    User;    // 如果您使用 C 语言，请添加此行
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
+typedef struct  User    User;
 
 struct User {
 	int     id;          // 主键

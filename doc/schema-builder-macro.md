@@ -5,7 +5,8 @@ This document introduce how to use C macro to define table dynamically.
 There is a C structured data type that mappings to your database table "users".
 
 ```c++
-typedef struct  User    User;    // add this line if you use C language
+// If you use C language, please use 'typedef' to to give a struct type a new name.
+typedef struct  User    User;
 
 struct User {
 	int     id;          // primary key

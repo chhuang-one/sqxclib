@@ -15,21 +15,33 @@ migrate schema and synchronize to database.
 use C++ language  
 
 ```c++
-	storage->migrate(schema_v1); // migrate schema_v1
-	storage->migrate(schema_v2); // migrate schema_v2
-	storage->migrate(NULL);      // synchronize schema to database. (Mainly used by SQLite)
-	delete schema_v1;            // free unused schema_v1
-	delete schema_v2;            // free unused schema_v2
+	// migrate 'schema_v1' and 'schema_v2'
+	storage->migrate(schema_v1);
+	storage->migrate(schema_v2);
+
+	// synchronize schema to database and update schema in 'storage'
+	// This is mainly used by SQLite
+	storage->migrate(NULL);
+
+	// free unused 'schema_v1' and 'schema_v2'
+	delete schema_v1;
+	delete schema_v2;
 ```
 
 use C language
 
 ```c
-	sq_storage_migrate(storage, schema_v1); // migrate schema_v1
-	sq_storage_migrate(storage, schema_v2); // migrate schema_v2
-	sq_storage_migrate(storage, NULL);      // synchronize schema to database. (Mainly used by SQLite)
-	sq_schema_free(schema_v1);              // free unused schema_v1
-	sq_schema_free(schema_v2);              // free unused schema_v2
+	// migrate 'schema_v1' and 'schema_v2'
+	sq_storage_migrate(storage, schema_v1);
+	sq_storage_migrate(storage, schema_v2);
+
+	// synchronize schema to database and update schema in 'storage'
+	// This is mainly used by SQLite
+	sq_storage_migrate(storage, NULL);
+
+	// free unused 'schema_v1' and 'schema_v2'
+	sq_schema_free(schema_v1);
+	sq_schema_free(schema_v2);
 ```
 
 ## Tables
@@ -37,7 +49,8 @@ use C language
 First, we define a C structured data type that mappings to your database table "users".
 
 ```c
-typedef struct  User    User;    // add this line if you use C language
+// If you use C language, please use 'typedef' to to give a struct type a new name.
+typedef struct  User    User;
 
 struct User {
 	int     id;          // primary key
@@ -101,7 +114,7 @@ The function accepts two arguments: one argument is the name of table, another i
 #### Checking For Table Existence
 
 You may check for the existence of a table using the find function:
-* This function doesn't look for table in the database, it looks up table in instance of schema.
+* This function doesn't look for table in the database, it looks up table in instance of SqSchema.
 
 ```c++
 	/* C++ sample code */

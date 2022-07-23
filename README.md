@@ -4,7 +4,7 @@
 
 # sqxclib
 
-sqxclib is a library to convert SQL (or JSON...etc) data to/from C language.
+sqxclib is a library to convert data between C language and SQL (or JSON...etc).
 It provides ORM features and C++ wrapper.  
 Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
@@ -227,7 +227,7 @@ use C++ methods to migrate schema and synchronize to database
 	storage->migrate(schema_v1);
 	storage->migrate(schema_v2);
 
-	// synchronize schema to database and update schema/table status
+	// synchronize schema to database and update schema in 'storage'
 	// This is mainly used by SQLite
 	storage->migrate(NULL);
 
@@ -243,7 +243,7 @@ use C functions to migrate schema and synchronize to database
 	sq_storage_migrate(storage, schema_v1);
 	sq_storage_migrate(storage, schema_v2);
 
-	// synchronize schema to database and update schema/table status
+	// synchronize schema to database and update schema in 'storage'
 	// This is mainly used by SQLite
 	sq_storage_migrate(storage, NULL);
 

@@ -25,7 +25,7 @@ SqdbInfo 是数据库产品的数据和函数接口。
 struct SqdbInfo
 {
 	uintptr_t      size;       // Sqdb 实例大小
-	SqdbProduct    product;    // SqdbProduct 产品 = SQLite、MySQL...等
+	SqdbProduct    product;    // SQL  产品代码
 
 	struct {
 		unsigned int has_boolean:1;      // 具有布尔数据类型
@@ -69,7 +69,7 @@ struct SqdbConfig
 
 ## 打开和关闭数据库
 
-sqdb_open() 将在打开数据库时获取当前 schema 版本号。  
+sqdb_open() 将在打开数据库时获取当前架构版本号。  
 * SQLite 用户可以在 SqdbConfigSqlite 中设置 '文件夹' 和 '扩展名'，这些会影响数据库文件名和路径。
 
 ```c
@@ -88,7 +88,7 @@ sqdb_open() 将在打开数据库时获取当前 schema 版本号。
 
 ## 迁移
 
-sqdb_migrate() 使用 schema 的版本来决定是否迁移。它将 'schema_next' 的更改应用于 'schema_current'。  
+sqdb_migrate() 使用架构的版本来决定是否迁移。它将 'schema_next' 的更改应用于 'schema_current'。  
 此函数可能会将数据从 'schema_next' 移动到 'schema_current'，迁移后您不能重用 'schema_next'。
 
 使用 C 函数
@@ -97,7 +97,7 @@ sqdb_migrate() 使用 schema 的版本来决定是否迁移。它将 'schema_nex
 	// 将 'schema_next' 的更改应用于 'schema_current'
 	sqdb_migrate(db, schema_current, schema_next);
 
-	// 将 'schema_current' 同步到数据库并更新 schema 和表
+	// 将 'schema_current' 同步到数据库并更新 'schema_current'
 	// 这主要由 SQLite 使用
 	sqdb_migrate(db, schema_current, NULL);
 ```
@@ -108,7 +108,7 @@ sqdb_migrate() 使用 schema 的版本来决定是否迁移。它将 'schema_nex
 	// 将 'schema_next' 的更改应用于 'schema_current'
 	db->migrate(schema_current, schema_next);
 
-	// 将 'schema_current' 同步到数据库并更新 schema 和表
+	// 将 'schema_current' 同步到数据库并更新 'schema_current'
 	// 这主要由 SQLite 使用
 	db->migrate(schema_current, NULL);
 ```
@@ -229,11 +229,11 @@ SqdbEmpty.h 和 SqdbEmpty.c 是一个可行的示例，但它什么也不做。
 // 这是头文件 - SqdbXxsql.h
 #include <Sqdb.h>
 
-// 定义类型 - C 语言的 SqdbXxsql 和 SqdbConfigXxsql
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
 typedef struct SqdbXxsql          SqdbXxsql;
 typedef struct SqdbConfigXxsql    SqdbConfigXxsql;
 
-// 定义 SQL 产品 ID
+// 定义 SQL 产品代码
 #define  SQDB_PRODUCT_XXSQL    (SQDB_PRODUCT_CUSTOM + 1)
 
 #ifdef __cplusplus    // 混合 C 和 C++
@@ -334,7 +334,7 @@ static void sqdb_xxsql_final(SqdbXxsql *sqdb)
 
 static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name)
 {
-	// 打开数据库并获取它的 schema 版本
+	// 打开数据库并获取它的架构版本
 	sqdb->version = db_schema_version;
 	return SQCODE_OK;
 }

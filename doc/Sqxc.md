@@ -1,6 +1,8 @@
+[中文](Sqxc.cn.md)
+
 # Sqxc
 
-Sqxc convert X to/from C value (X = SQL, JSON...etc)  
+Sqxc convert data between X and C language (X = SQL, JSON...etc)  
 It contain status, buffer, and input/output arguments in one C structure.  
 User can link multiple Sqxc elements to convert different types of data.  
 
@@ -24,17 +26,17 @@ data type for Sqxc converter
 | SQXC_TYPE_TIME       | corresponds to C data type:  time_t        |
 | SQXC_TYPE_DOUBLE     | corresponds to C data type:  double        |
 | SQXC_TYPE_STRING     | corresponds to C data type:  char*         |
-| SQXC_TYPE_OBJECT     | Start of object                            |
-| SQXC_TYPE_ARRAY      | Start of array (or other container)        |
-| SQXC_TYPE_OBJECT_END | End of object                              |
-| SQXC_TYPE_ARRAY_END  | End of array (or other container)          |
+| SQXC_TYPE_OBJECT     | The beginning of the object                |
+| SQXC_TYPE_ARRAY      | The beginning of the array (or container)  |
+| SQXC_TYPE_OBJECT_END | The end of object                          |
+| SQXC_TYPE_ARRAY_END  | The end of array (or container)            |
 
 Note: SQXC_TYPE_OBJECT corresponds to SQL row.  
 Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.  
 
 ## Create Sqxc elements
-create element to convert data to SQL INSERT/UPDATE statement and add element to convert data to JSON array/object in SQL column.
-
+create element to convert data to SQL INSERT/UPDATE statement and add element to convert data to JSON array/object in SQL column.  
+  
 use C language
 
 ```c
@@ -78,15 +80,15 @@ user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especi
 ## Send data according to data type
 sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc.dest) at runtime.  
   
-**Data flow 1:** sqxc_send() send from SQL result (column has JSON) to C value
-If SqxcValue can't match current data type, it will forward data to SqxcJsonParser.  
+**Data flow 1:** sqxc_send() send from SQL result (column has JSON data) to C value  
+If SqxcValue can't match current data type, it will forward data to SqxcJsonParser.
 
 	input ─>         ┌─> SqxcJsonParser ──┐
 	Sqdb.exec()    ──┴────────────────────┴──> SqxcValue ───> SqType.parse()
 
 
-**Data flow 2:** sqxc_send() send from C value to SQL (column has JSON)
-If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter.  
+**Data flow 2:** sqxc_send() send from C value to SQL (column has JSON data)  
+If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter.
 
 	output ─>        ┌─> SqxcJsonWriter ──┐
 	SqType.write() ──┴────────────────────┴──> SqxcSql   ───> Sqdb.exec()
@@ -95,8 +97,8 @@ sqxc_send() is called by data source side. It send data(arguments) to Sqxc eleme
 Because difference data type is processed by difference Sqxc element, It returns current Sqxc elements.  
   
 Before you call sqxc_send(), set data type, data name, and data value in Sqxc structure.
-These data(arguments) will be processed between Sqxc elements.
-
+These data(arguments) will be processed between Sqxc elements.  
+  
 use C language
 
 ```c
@@ -107,8 +109,8 @@ use C language
 	xc->name = "id";
 	xc->value.integer = 105;
 
-	// sqxc_send() pass data(arguments) between Sqxc elements and
-	//             return current Sqxc element that processing data(arguments)
+	// sqxc_send() pass data(arguments) between Sqxc elements.
+	//             It return current Sqxc element that processing data(arguments)
 	xc = sqxc_send(xc);
 
 	// get error code from current Sqxc element
@@ -126,8 +128,8 @@ use C++ language
 	xc->name = "id";
 	xc->value.integer = 105;
 
-	// send() pass data(arguments) between Sqxc elements and
-	//        return current Sqxc element that processing data(arguments)
+	// send() pass data(arguments) between Sqxc elements.
+	//        It return current Sqxc element that processing data(arguments)
 	xc = xc->send();
 
 	// get error code from current Sqxc element
@@ -136,7 +138,7 @@ use C++ language
 ```
 
 #### use C language to send object data to Sqxc elements
-- If you want to parse/write object or array and reuse Sqxc elements:
+If you want to parse/write object or array and reuse Sqxc elements:
 1. call sqxc_ready() before sending data.
 2. call sqxc_finish() after sending data.
 
@@ -183,25 +185,28 @@ use C++ language
 	sqxc_finish(xc);    // notify Sqxc elements to finish
 ```
 
-SqxcSql will output SQL statement:
+SqxcSql will output SQL statement in above example:
+
 ```sql
 INSERT INTO table_name (id, int_array) VALUES (1, '[ 2, 4 ]');
 ```
 
 SQL table look like this:
+
 | id | int_array |
 | -- | --------- |
 | 1  | [ 2, 4 ]  |
 
 JSON look like this:
+
 ```json
 { "id": 1, "int_array": [ 2, 4] }
 ```
 
 #### use C++ language to send array to Sqxc elements
-- If you want to parse/write object or array and reuse Sqxc elements:
-1. call xc->ready() before sending data.
-2. call xc->finish() after sending data.
+If you want to parse/write object or array and reuse Sqxc elements:
+1. call ready() before sending data.
+2. call finish() after sending data.
 
 ```c++
 	Sq::Xc *xcur = xc; // current Sqxc element
@@ -230,17 +235,19 @@ JSON look like this:
 ```
 
 JSON look like this:
+
 ```json
 [ 1, 3]
 ```
 
 ## Send data to user specified Sqxc element
-  Use sqxc_send_to() to pass data(arguments) to specified Sqxc elements.  
+
+Use sqxc_send_to() to pass data(arguments) to specified Sqxc elements.
 
 	user output ────> SqxcJsonWriter ────> SqxcFile ────> fwrite()
 
-Note: SqxcFile is in sqxcsupport library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)
-
+Note: SqxcFile is in sqxcsupport library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)  
+  
 use C language
 
 ```c
@@ -264,22 +271,31 @@ use C++ language
 ```
 
 ## How to support new format:
- User can refer SqxcJsonc.h and SqxcJsonc.c to support new format.  
- SqxcFile.h and SqxcFile.c is the simplest sample code, it just write string to file.  
- SqxcEmpty.h and SqxcEmpty.c is a workable sample, but it do nothing.  
+User can refer SqxcJsonc.h and SqxcJsonc.c to support new format.  
+SqxcFile.h and SqxcFile.c is the simplest sample code, it just write string to file.  
+SqxcEmpty.h and SqxcEmpty.c is a workable sample, but it do nothing.  
 
 #### 1. define new structure that derived from Sqxc
- All derived structure must conforme C++11 standard-layout
+All derived structure must conforme C++11 standard-layout
 
 ```c++
 // This is header file - SqxcText.h
 #include <Sqxc.h>
 
-// define type - SqxcText for C language
+// If you use C language, please use 'typedef' to to give a struct type a new name.
 typedef struct SqxcText   SqxcText;
 
+#ifdef __cplusplus    // mix C and C++
+extern "C" {
+#endif
+
 // define in SqxcText.c
-extern const SqxcInfo    *SQXC_INFO_TEXT_PARSER;
+extern const SqxcInfo               SqxcInfo_TextParser_;
+#define SQXC_INFO_TEXT_PARSER     (&SqxcInfo_TextParser_)
+
+#ifdef __cplusplus    // mix C and C++
+}  // extern "C"
+#endif
 
 #ifdef __cplusplus
 struct SqxcText : Sq::XcMethod           // <-- 1. inherit C++ member function(method)
@@ -316,7 +332,8 @@ static void sqxc_text_parser_final(SqxcText *xctext);
 static int  sqxc_text_parser_ctrl(SqxcText *xctext, int id, void *data);
 static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src);
 
-static const SqxcInfo sqxc_text_parser =
+// used by SqxcText.h
+const SqxcInfo SqxcInfo_TextParser_ =
 {
 	.size  = sizeof(SqxcText),
 	.init  = (SqInitFunc)   sqxc_text_parser_init,
@@ -324,9 +341,6 @@ static const SqxcInfo sqxc_text_parser =
 	.ctrl  = (SqxcCtrlFunc) sqxc_text_parser_ctrl,
 	.send  = (SqxcSendFunc) sqxc_text_parser_send,
 };
-
-// used by SqxcText.h
-const SqxcInfo *SQXC_INFO_TEXT_PARSER = &sqxc_text_parser;
 
 // implement sqxc_text_parser_xxxx() functions here
 
@@ -374,19 +388,19 @@ static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src)
 }
 ```
 
-Note: If new Sqxc element want to parse/write data in SQL column, it must:  
+If new Sqxc element want to parse/write data in SQL column, it must:  
 1. support SQXC_TYPE_ARRAY or SQXC_TYPE_OBJECT.
-2. send converted data to dest (next) element. see below:
+2. send converted data to dest (or next) element. see below:
 
 ```c++
 	Sqxc *xc_dest;
 
-	// set converted data in xc_text
+	// set converted data in 'xc_text'
 	xc_text->type = SQXC_TYPE_INT;
 	xc_text->name = NULL;
 	xc_text->value.integer = 3;
 
-	// send data from xc_text to xc_dest element
+	// send data from 'xc_text' to 'xc_dest' element
 	xc_dest = xc_text->dest;
 	/* C function */
 	sqxc_send_to(xc_dest, xc_text);
@@ -397,8 +411,8 @@ Note: If new Sqxc element want to parse/write data in SQL column, it must:
 
 #### 3. use new Sqxc element
 
-create custom Sqxc element and insert it to SqStorage::xc_input list.
-
+create custom Sqxc element and insert it to SqStorage::xc_input list.  
+  
 use C language
 
 ```c++

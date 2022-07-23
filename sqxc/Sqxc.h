@@ -13,7 +13,7 @@
  */
 
 /*	The origin of the name 'Sqxc'
-	Entry and value convert X to/from C  (X = SQL, JSON...etc)
+	Sqxc convert data between X and C language (X = SQL, JSON...etc)
 	xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
 	SqxcSql     - convert to SQL (Sqdb)   - SqxcSql.c
@@ -39,7 +39,7 @@
 	===========================================================================
 	sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc.dest) at runtime.
 
-	Data flow 1: sqxc_send() send from SQL result (column has JSON) to C value
+	Data flow 1: sqxc_send() send from SQL result (column has JSON data) to C value
 	If SqxcValue can't match current data type, it will forward data to SqxcJsonParser.
 
 	                 ┌-> SqxcJsonParser --┐
@@ -47,7 +47,7 @@
 	Sqdb.exec()    --┴--------------------┴--> SqxcValue ---> SqType.parse()
 
 
-	Data flow 2: sqxc_send() send from C value to SQL (column has JSON)
+	Data flow 2: sqxc_send() send from C value to SQL (column has JSON data)
 	If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter.
 
 	                 ┌-> SqxcJsonWriter --┐

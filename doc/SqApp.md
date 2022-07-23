@@ -200,6 +200,8 @@ sq_app_migrate() will run all of your outstanding migrations if 'step' is 0.
 use C functions
 
 ```c
+	int  step = 0;
+
 	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
 	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
 
@@ -210,7 +212,7 @@ use C functions
 	// if the database vesion is 0 (no migrations have been done)
 	if (sq_app_make_schema(sqapp, 0) == SQCODE_DB_VERSION_0) {
 		// run migrations that defined in ../database/migrations
-		if (sq_app_migrate(sqapp, 0) != SQCODE_OK)
+		if (sq_app_migrate(sqapp, step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
