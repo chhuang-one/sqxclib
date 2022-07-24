@@ -1,14 +1,14 @@
-[中文](SqStorage.cn.md)
+[English](SqStorage.md)
 
 # SqStorage
 
-SqStorage access database. It using Sqxc to convert data between C language and Sqdb interface.
+SqStorage 访问数据库。它使用 Sqxc 在 C 语言和 Sqdb 接口之间转换数据。
 
 ## create storage
 
-User must specify [Sqdb](Sqdb.md) instance when creating SqStorage.  
+用户在创建 SqStorage 时必须指定 [Sqdb](Sqdb.md) 实例。  
   
-use C language
+使用 C 语言
 
 ```c
 	Sqdb      *db;
@@ -18,7 +18,7 @@ use C language
 	storage = sq_storage_new(db);
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	Sq::DbSqlite *db;
@@ -28,11 +28,11 @@ use C++ language
 	storage = new Sq::Storage(db);
 ```
 
-## access database
+## 访问数据库
 
-SqStorage use [Sqdb](Sqdb.md) to access database.  
+SqStorage 使用 [Sqdb](Sqdb.md) 访问数据库。  
   
-Define a data structure 'User' for SQL table "users".
+为 SQL 表 "users" 定义数据结构 'User'。
 
 ```c++
 typedef struct User  User;
@@ -44,65 +44,65 @@ struct User {
 };
 ```
 
-## open database and do migration
+## 打开数据库并进行迁移
 
-use C functions
+使用 C 函数
 
 ```c
-	// open database "sqxc_local"
+	// 打开数据库 "sqxc_local"
 	sq_storage_open(storage, "sqxc_local");
 
-	// create table "users" in schema
+	// 在架构中创建表 "users"
 	table = sq_schema_create(schema, "users", User);
 	column = sq_table_int(table, "id", offsetof(User, id));
 	column-bit_field |= SQB_PRIMARY;
 	column = sq_table_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_string(table, "email", offsetof(User, email), -1);
 
-	// migrate schema
+	// 迁移架构
 	sq_storage_migrate(storage, schema);
 
-	// synchronize schema to database and update schema in 'storage'
-	// This is mainly used by SQLite
+	// 将架构同步到数据库并更新 'storage' 中的架构
+	// 这主要由 SQLite 使用
 	sq_storage_migrate(storage, NULL);
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c
-	// open database "sqxc_local"
+	// 打开数据库 "sqxc_local"
 	storage->open("sqxc_local");
 
-	// create table "users" in schema
+	// 在架构中创建表 "users"
 	table = schema->create<User>("users");
-	table->integer("id", &User::id)->primary()->autoIncrement();  // PRIMARY KEY
+	table->integer("id", &User::id)->primary()->autoIncrement();  // 主键
 	table->string("name", &User::name);
 	table->string("email", &User::email);
 
-	// migrate schema
+	// 迁移架构
 	storage->migrate(schema);
 
-	// synchronize schema to database and update schema in 'storage'
-	// This is mainly used by SQLite
+	// 将架构同步到数据库并更新 'storage' 中的架构
+	// 这主要由 SQLite 使用
 	storage->migrate(NULL);
 ```
 
-Note1: Don't reuse 'schema_next' after migration because data is moved from 'schema_next' to 'schema_current'.  
-Note2: If you use SQLite, you must synchronize schema to database after migration.  
+注意1：迁移后不要重复使用 'schema_next'，因为数据会从 'schema_next' 移动到 'schema_current'。  
+注意2：如果使用 SQLite，迁移后必须将架构同步到数据库。  
 
-## access database with user defined data type
+## 使用用户定义的数据类型访问数据库
 
-below C functions and C++ methods can return instance of user defined data type ( [SqType](SqType.md) ):
+以下 C 函数和 C++ 方法可以返回用户定义数据类型 ( [SqType](SqType.md) ) 的实例：
 
-| C functions               | C++ methods   |
+| C 函数                    | C++ 方法      |
 | ------------------------- | ------------- |
 | sq_storage_get()          | get()         |
 | sq_storage_get_all()      | getAll()      |
 | sq_storage_query()        | query()       |
 
-below functions can run a bit faster if user specify 'table_name' and 'table_type' at the same time.
+如果用户同时指定 'table_name' 和 'table_type'，下面的函数可以运行得更快一些。
 
-| C functions               | C++ methods   |
+| C 函数                    | C++ 方法      |
 | ------------------------- | ------------- |
 | sq_storage_get()          | get()         |
 | sq_storage_get_all()      | getAll()      |
@@ -112,18 +112,18 @@ below functions can run a bit faster if user specify 'table_name' and 'table_typ
 | sq_storage_update_all()   | updateAll()   |
 | sq_storage_update_field() | updateField() |
 
-Note: SqStorage will try to find matched type if user does NOT specify object type.  
-Note: SqStorage will use default container type if user does NOT specify container type.  
+注意：如果用户未指定对象类型，SqStorage 将尝试查找匹配的类型。  
+注意：如果用户未指定容器类型，SqStorage 将使用默认容器类型。  
 
 ## get
 
-e.g. get one row from database table "users".
+例如 从数据库表 "users" 中获取一行。
 
 ```sql
 SELECT * FROM users WHERE id = 3
 ```
 
-use C language
+使用 C 语言
 
 ```c
 	User *user;
@@ -131,7 +131,7 @@ use C language
 	user = sq_storage_get(storage, "users", NULL, 3);
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	User *user;
@@ -143,13 +143,13 @@ use C++ language
 
 ## getAll
 
-e.g. get all rows from database table "users".
+例如 从数据库表 "users" 中获取所有行。
 
 ```sql
 SELECT * FROM users
 ```
 
-use C language
+使用 C 语言
 
 ```c
 	SqPtrArray *array;
@@ -157,7 +157,7 @@ use C language
 	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	Sq::PtrArray *array;
@@ -165,7 +165,7 @@ use C++ language
 	array = storage->getAll("users");
 ```
 
-use C++ Standard Template Library (STL)
+使用 C++ 标准模板库 (STL)
 
 ```c++
 	std::list<User> *list;
@@ -173,17 +173,17 @@ use C++ Standard Template Library (STL)
 	list = storage->getAll<std::list<User>>();
 ```
 
-## getAll (Where conditions)
+## getAll (Where 条件)
 
-The last parameter in sq_storage_get_all() is SQL statement that exclude "SELECT * FROM table_name".  
+sq_storage_get_all() 中的最后一个参数是排除 "SELECT * FROM table_name" 的 SQL 语句。  
   
-e.g. get multiple rows from database table "users" with where conditions.
+例如 从具有 where 条件的数据库表 "users" 中获取多行。
 
 ```sql
 SELECT * FROM users WHERE id > 10 AND id < 99
 ```
 
-use C language
+使用 C 语言
 
 ```c
 	SqPtrArray *array;
@@ -192,19 +192,19 @@ use C language
 	                           "WHERE id > 10 AND id < 99");
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	Sq::PtrArray *array;
 
 	array = storage->getAll("users",
 	                        "WHERE id > 10 AND id < 99");
-	// or specify container type
+	// 或指定容器类型
 	array = storage->getAll<User>(SQ_TYPE_PTR_ARRAY,
 	                              "WHERE id > 10 AND id < 99");
 ```
 
-use C++ Standard Template Library (STL)
+使用 C++ 标准模板库 (STL)
 
 ```c++
 	std::list<User> *list;
@@ -212,11 +212,11 @@ use C++ Standard Template Library (STL)
 	list = storage->getAll<std::list<User>>("WHERE id > 10 AND id < 99");
 ```
 
-## getAll (with SqQuery)
+## getAll (配合 SqQuery)
 
-SqQuery can generate SQL statement that exclude "SELECT * FROM table_name"  
+SqQuery 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句  
   
-use C language
+使用 C 语言
 
 ```c
 	SqQuery *query = sq_query_new(NULL);
@@ -227,16 +227,16 @@ use C language
 	                           sq_query_c(query));
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	array = storage->getAll("users",
 			Sq::Query().whereRaw("id > 10").where("id < %d", 99).c());
 ```
 
-#### convenient C++ class
+#### 方便的 C++ 类
 
-use C++ Sq::where and Sq::whereRaw to generate SQL statement
+使用 C++ Sq::where 和 Sq::whereRaw 生成 SQL 语句
 
 ```c++
 	array = storage->getAll("users",
@@ -245,37 +245,37 @@ use C++ Sq::where and Sq::whereRaw to generate SQL statement
 
 ## insert
 
-sq_storage_insert() is used to insert a new record in a table and return inserted row id.  
+sq_storage_insert() 用于在表中插入一个新记录并返回插入的行 ID。  
   
-use C functions
+使用 C 函数
 
 ```c
 	User  user;
 	int   inserted_id;
 
-	user.id   = 0;       // primary key set to 0 for auto increment
+	user.id   = 0;       // 主键设置为 0 用于自动递增
 	user.name = "xman";
 	inserted_id = sq_storage_insert(storage, "users", NULL, &user);
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	User  user;
 	int   inserted_id;
 
-	user.id   = 0;       // primary key set to 0 for auto increment
+	user.id   = 0;       // 主键设置为 0 用于自动递增
 	user.name = "xman";
 	inserted_id = storage->insert("users", &user);
-	// or call template function: insert<User>(...)
+	// 或调用模板函数： insert<User>(...)
 	inserted_id = storage->insert(user);
 ```
 
 ## update
 
-sq_storage_update() is used to modify an existing record in a table and return number of rows changed.  
+sq_storage_update() 用于修改表中的一个现有记录并返回更改的行数。  
   
-use C functions
+使用 C 函数
 
 ```c
 	User  user;
@@ -286,7 +286,7 @@ use C functions
 	n_changes = sq_storage_update(storage, "users", NULL, &user);
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	User  user;
@@ -295,24 +295,24 @@ use C++ methods
 	user.id   = id;
 	user.name = "yael";
 	n_changes = storage->update("users", &user);
-	// or call template function: update<User>(...)
+	// 或调用模板函数： update<User>(...)
 	n_changes = storage->update(user);
 ```
 
-## updateAll (Where conditions)
+## updateAll (Where 条件)
 
-sq_storage_update_all() is used to modify the existing records in a table and return number of rows changed.  
-Parameter 'SQL statement' must exclude "UPDATE table_name SET column=value". Then append list of column name, the last argument must be NULL.  
+sq_storage_update_all() 用于修改表中的多条现有记录并返回更改的行数。  
+参数 'SQL 语句' 必须排除 "UPDATE table_name SET column=value"。然后追加列名列表，最后一个参数必须为 NULL。  
   
-Note: SqQuery can generate SQL statement exclude "UPDATE table_name SET column=value". Please see above "getAll (with SqQuery)".  
+注意：SqQuery 可以生成排除 "UPDATE table_name SET column=value" 的 SQL 语句。请参阅上面的 "getAll (配合 SqQuery)"。  
   
-e.g. update specific columns in rows.
+例如 更新行中的特定列。
 
 ```sql
 UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
 ```
 
-use C functions
+使用 C 函数
 
 ```c
 	User  user;
@@ -326,9 +326,9 @@ use C functions
 	                                   NULL);
 ```
 
-Because C++ method updateAll() use parameter pack, the last argument can pass (or not) NULL.  
+因为 C++ 方法 updateAll() 使用参数包，所以最后一个参数可以传递（或不传递）NULL。  
   
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	User  user;
@@ -339,17 +339,17 @@ use C++ methods
 	n_changes  = storage->updateAll("users", &user,
 	                                "WHERE id > 10",
 	                                "name", "email");
-	// or call template function: updateAll<User>(...)
+	// 或调用模板函数： updateAll<User>(...)
 	n_changes  = storage->updateAll(user,
 	                                "WHERE id > 10",
 	                                "name", "email");
 ```
 
-## updateField (Where conditions)
+## updateField (Where 条件)
 
-sq_storage_update_field() is similar to sq_storage_update_all(). User must append list of field_offset after parameter 'SQL statement' and the last argument must be -1.  
+sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参数 'SQL 语句' 之后附加 field_offset 列表，最后一个参数必须为 -1。  
   
-use C functions
+使用 C 函数
 
 ```c
 	User  user;
@@ -364,9 +364,9 @@ use C functions
 	                                     -1);
 ```
 
-Because C++ method updateField() use parameter pack, the last argument can pass (or not) -1.  
+因为 C++ 方法 updateField() 使用参数包，所以最后一个参数可以传递（或不传递）-1。  
   
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	User  user;
@@ -378,7 +378,7 @@ use C++ methods
 	                                  "WHERE id > 10",
 	                                  &User::name,
 	                                  &User::email);
-	// or call template function: updateField<User>(...)
+	// 或调用模板函数： updateField<User>(...)
 	n_changes  = storage->updateField(user,
 	                                  "WHERE id > 10",
 	                                  &User::name,
@@ -387,21 +387,21 @@ use C++ methods
 
 ## remove
 
-sq_storage_remove() is used to delete an existing record in a table.  
+sq_storage_remove() 用于删除表中的一个现有记录。  
   
-e.g. remove one rows from database table "users".
+例如 从数据库表 "users" 中删除一行。
 
 ```sql
 DELETE FROM users WHERE id = 3
 ```
 
-use C functions
+使用 C 函数
 
 ```c
 	sq_storage_remove(storage, "users", NULL, 3);
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	storage->remove("users", 3);
@@ -411,46 +411,46 @@ use C++ methods
 
 ## removeAll
 
-e.g. remove all rows from database table "users".
+例如 从数据库表 "users" 中删除所有行。
 
 ```sql
 DELETE FROM users
 ```
 
-use C functions
+使用 C 函数
 
 ```c
 	sq_storage_remove_all(storage, "users", NULL);
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	storage->removeAll("users");
-	// or
+	// 或
 	storage->removeAll<User>();
 ```
 
-## removeAll (Where conditions)
+## removeAll (Where 条件)
 
-sq_storage_remove_all() is used to delete existing records in a table.  
-The last parameter is SQL statement that exclude "DELETE FROM table_name".  
+sq_storage_remove_all() 用于删除表中的多条现有记录。  
+最后一个参数是排除 "DELETE FROM table_name" 的 SQL 语句。  
   
-Note: SqQuery can generate SQL statement exclude "DELETE FROM table_name". Please see above "getAll (with SqQuery)".  
+注意：SqQuery 可以生成排除 "DELETE FROM table_name" 的 SQL 语句。 请参阅上面的 "getAll (配合 SqQuery)"。  
   
-e.g. remove multiple rows from database table "users" with where conditions.
+例如 使用 where 条件从数据库表 "users" 中删除多行。
 
 ```sql
 DELETE FROM users WHERE id > 50
 ```
 
-use C functions
+使用 C 函数
 
 ```c
 	sq_storage_remove_all(storage, "users", "WHERE id > 50");
 ```
 
-use C++ methods
+使用 C++ 方法
 
 ```c++
 	storage->removeAll("users", "WHERE id > 50");
@@ -458,29 +458,29 @@ use C++ methods
 	storage->removeAll<User>("WHERE id > 50");
 ```
 
-## run custom query (with SqQuery)
+## 运行自定义查询 (使用 SqQuery)
 
-SqStorage provides sq_storage_query() and C++ method query() to running database queries.  
+SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查询。  
   
-use C function
+使用 C 函数
 
 ```c
 	SqType *userType;
 	SqType *containerType;
 
-	// find matched type and use default container
+	// 查找匹配类型并使用默认容器
 	array = sq_storage_query(storage, query, NULL, NULL);
 
-	// return user defined data type
+	// 返回用户定义的数据类型
 	container = sq_storage_query(storage, query, userType, containerType);
 ```
 
-use C++ method
+使用 C++ 方法
 
 ```c++
-	// find matched type and use default container
+	// 查找匹配类型并使用默认容器
 	array = storage->query(query);
 
-	// return user defined data type
+	// 返回用户定义的数据类型
 	container = storage->query(query, userType, containerType);
 ```

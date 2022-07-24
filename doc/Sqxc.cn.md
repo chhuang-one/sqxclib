@@ -483,4 +483,4 @@ SqStorage 对象中的 Sqxc 输入数据流如下所示：
 }
 ```
 
-如果 SqEntry/SqColumn 没有定义“undefinedObject”，则 SqxcValue 在解析上述 JSON 对象时将忽略“undefinedObject”。
+如果 SqEntry (或 SqColumn) 没有定义 'undefinedObject' ，则 SqxcValue 在解析上述 JSON 对象时将忽略 'undefinedObject'。

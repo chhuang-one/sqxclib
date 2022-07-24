@@ -1,38 +1,39 @@
-[中文](SqQuery.cn.md)
+[English](SqQuery.md)
 
 # SqQuery
 
-SqQuery is query builder that supports nested and subquery. It can work independently without sqxclib if you remove sq_query_get_table_as_names() and sq_query_select_table_as() in SqQuery.c.  
-You can also use other query builder to replace SqQuery in sqxclib by removing SqQuery.c and SqStorage-query.c from Makefile.
+SqQuery 是支持嵌套和子查询的查询构建器。
+如果在 SqQuery.c 中删除 sq_query_get_table_as_names() 和 sq_query_select_table_as()，它可以在没有 sqxclib 的情况下独立工作。  
+您还可以通过从 Makefile 中删除 SqQuery.c 和 SqStorage-query.c 来使用其他查询构建器来替换 sqxclib 中的 SqQuery。
 
-## create query and generate SQL statement
+## 创建查询并生成 SQL 语句
 
-e.g. generate below SQL statement. It select all columns from a database table "companies".
+例如: 生成下面的 SQL 语句。它从数据库表 "companies" 中选择所有列。
 
 ```sql
 SELECT * FROM companies
 ```
 
-SqQuery provide sq_query_to_sql() and sq_query_c() to generate SQL statement.
-* The result of sq_query_to_sql() must free when you don't need it.
-* You can NOT free the result of sq_query_c(), it managed by SqQuery.
-* After calling sq_query_c(), user can access SqQuery::str to reuse generated SQL statement.
+SqQuery 提供 sq_query_to_sql() 和 sq_query_c() 来生成 SQL 语句。
+* sq_query_to_sql() 的结果在您不需要时必须释放。
+* 您不能释放 sq_query_c() 的结果，它由 SqQuery 管理。
+* 调用 sq_query_c() 后，用户可以访问 SqQuery::str 以重用生成的 SQL 语句。
 
-Note: If user doesn't specify column by select(), it select all columns from a database table by default.  
+注意：如果用户没有通过 select() 指定列，则默认选择数据库表中的所有列。  
   
-use C language
+使用 C 语言
 
 ```c
 	SqQuery *query;
 	char    *sql;
 
-	// create query and specify database table "companies"
+	// 创建查询并指定数据库表 "companies"
 	query = sq_query_new("companies");
 
-	// generate SQL statement
+	// 生成 SQL 语句
 	sql = sq_query_to_sql(query);
 
-	// free 'sql' when you don't use it
+	// 不使用时释放 'sql'
 	free(sql);
 ```
 
@@ -42,57 +43,57 @@ use C++ language
 	Sq::Query *query;
 	char      *sql;
 
-	// create query and specify database table "companies"
+	// 创建查询并指定数据库表 "companies"
 	query = new Sq::Query("companies");
 
-	// generate SQL statement
+	// 生成 SQL 语句
 	sql = query->toSql();
 
-	// free 'sql' when you don't use it.
+	// 不使用时释放 'sql'
 	free(sql);
 ```
 
-## clear and reuse query instance
+## 清除和重用查询实例
 
-After calling sq_query_clear(), user can generate new SQL statement in existed instance.  
+调用 sql_query clear() 后，用户可以在现有实例中生成新的 SQL 语句。  
   
-use C language
+使用 C 语言
 
 ```c
-	// reset SqQuery (remove all statements)
+	// 重置 SqQuery (删除所有语句)
 	sq_query_clear(query);
 
-	// select columns from a database table "users"
+	// 从数据库表 "users" 中选择列
 	sq_query_table(query, "users");
 
-	// generate new SQL statement
+	// 生成新的 SQL 语句
 	sql = sq_query_c(query);
 
-	// After calling sq_query_c(), user can access SqQuery::str to reuse generated SQL statement.
+	// 调用 sq_query_c() 后，用户可以访问 SqQuery::str 以重用生成的 SQL 语句。
 	sql = query->str;
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
-	// reset Sq::Query (remove all statements)
+	// 重置 SqQuery (删除所有语句)
 	query->clear();
 
-	// select columns from a database table "users"
+	// 从数据库表 "users" 中选择列
 	query->table("users");
 
-	// generate new SQL statement
+	// 生成新的 SQL 语句
 	sql = query->c();
 
-	// After calling Sq::Query::c(), user can access SqQuery::str to reuse generated SQL statement.
+	// 调用 sq_query_c() 后，用户可以访问 SqQuery::str 以重用生成的 SQL 语句。
 	sql = query->str;
 ```
 
-## SQL Statements
+## SQL 语句
 
-There are many functions support printf format string. If you want to use SQL Wildcard Characters '%' in these functions, you must print "%" using "%%".  
+支持 printf 格式字符串的函数有很多。如果要在这些函数中使用 SQL 通配符 '%'，则必须使用 "%%" 打印 "%"。  
   
-below C functions support printf format string in 2nd argument:
+以下 C 函数在第二个参数中支持 printf 格式字符串：
 
 	sq_query_printf(),
 	sq_query_join(),
@@ -103,7 +104,7 @@ below C functions support printf format string in 2nd argument:
 	sq_query_where(),  sq_query_or_where(),
 	sq_query_having(), sq_query_or_having(),
 
-C language example:
+C 语言示例：
 
 ```c
 	sq_query_where(query, "id < %d", 100);
@@ -112,7 +113,7 @@ C language example:
 	sq_query_where(query, "city LIKE 'ber%%'");
 ```
 
-below C++ methods support printf format string in 1st argument:
+以下 C++ 方法在第一个参数中支持 printf 格式字符串：
 
 	join(),
 	leftJoin(),
@@ -122,18 +123,18 @@ below C++ methods support printf format string in 1st argument:
 	where(),  orWhere(),
 	having(), orHaving(),
 
-C++ language example:
+C++ 语言示例：
 
 ```c++
 	query->where("id < %d", 100);
 
-	// If the 2nd argument is exist, the 1st argument is handled as printf format string.
-	// output "city LIKE 'ber%'"
+	// 如果存在第二个参数，则将第一个参数作为 printf 格式字符串处理。
+	// 输出 "city LIKE 'ber%'"
 	query->where("city LIKE 'ber%%'", NULL);
 ```
 
-If the 2nd argument of below C++ methods is NOT exist, the 1st argument is handled as raw string.  
-These C++ methods has overloaded function to handle raw string:
+如果以下 C++ 方法的第二个参数不存在，则将第一个参数作为原始字符串处理。  
+这些 C++ 方法具有处理原始字符串的重载函数：
 
 	on(),     orOn(),
 	where(),  orWhere(),
@@ -142,51 +143,51 @@ These C++ methods has overloaded function to handle raw string:
 	groupBy(),
 	orderBy()
 
-C++ language example:
+C++ 语言示例：
 
 ```c++
-	// If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
-	// output "city LIKE 'ber%'"
+	// 如果第二个参数不存在，则将第一个参数作为原始字符串处理。
+	// 输出 "city LIKE 'ber%'"
 	query->where("city LIKE 'ber%'");
 ```
 
 #### select
 
-You can specify columns for the query by using select method.  
-sq_query_select() can specify multiple columns in argument (the last argument must be NULL).  
+您可以使用 select 方法为查询指定列。  
+sq_query_select() 可以在参数中指定多个列（最后一个参数必须为 NULL）。  
   
-use C language
+使用 C 语言
 
 ```c
-	// the last argument of sq_query_select() must be NULL
+	//sq_query_select() 的最后一个参数必须为 NULL
 	sq_query_select(query, "id", "name", NULL);
 	sq_query_select(query, "email", NULL);
 
-	// The sq_query_distinct() allows you to force the query to return distinct results
+	// sq_query_distinct() 允许您强制查询返回不同的结果
 	sq_query_distinct(query);
 ```
 
-Because C++ method select() use parameter pack, the last argument can pass (or not) NULL.  
+因为 C++ 方法 select() 使用参数包，所以最后一个参数可以传递（或不传递）NULL。  
   
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->select("id", "name");
 	query->select("email");
 
-	// The distinct method allows you to force the query to return distinct results
+	// distinct 方法允许您强制查询返回不同的结果
 	query->distinct();
 ```
 
 #### where / orWhere
 
-e.g. generate below SQL statement.
+例如: 生成下面的 SQL 语句。
 
 ```sql
 SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR members < 100
 ```
 
-use C language
+使用 C 语言
 
 ```c
 	sq_query_table(query, "companies");
@@ -195,7 +196,7 @@ use C language
 	sq_query_or_where(query, "members < %d", 100);
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("companies")
@@ -206,7 +207,7 @@ use C++ language
 
 #### having / orHaving
 
-use C language
+使用 C 语言
 
 ```c
 	sq_query_table(query, "companies");
@@ -214,7 +215,7 @@ use C language
 	sq_query_or_having(query, "members < %d", 50);
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("companies")
@@ -224,25 +225,25 @@ use C++ language
 
 #### groupBy / orderBy
 
-sq_query_order_by() and sq_query_group_by() can specify multiple columns in argument (the last argument must be NULL).  
+sq_query_order_by() 和 sq_query_group_by() 可以在参数中指定多个列（最后一个参数必须为 NULL）。  
   
-use C language
+使用 C 语言
 
 ```c
 	// "GROUP BY companies.age, companies.name"
-	// the last argument of sq_query_group_by() must be NULL
+	// sq_query_group_by() 的最后一个参数必须为 NULL
 	sq_query_group_by(query, "companies.age", "companies.name", NULL);
 
 	// "ORDER BY companies.id DESC"
-	// the last argument of sq_query_order_by() must be NULL
+	// sq_query_order_by() 的最后一个参数必须为 NULL
 	sq_query_order_by(query, "companies.id", NULL);
 	sq_query_desc(query);
 ```
 
-Because C++ method orderBy() and groupBy() use parameter pack, the last argument can pass (or not) NULL.  
-* The usage of orderBy() is different from Laravel.  
+因为 C++ 方法 orderBy() 和 groupBy() 使用参数包，所以最后一个参数可以传递（或不传递）NULL。  
+* orderBy() 的用法与 Laravel 不同。  
   
-use C++ language
+使用 C++ 语言
 
 ```c++
 	// "GROUP BY companies.age, companies.name"
@@ -250,56 +251,56 @@ use C++ language
 
 	// "ORDER BY companies.id DESC"
 	query->orderBy("companies.id")->desc();
-	// or
+	// 或
 	query->orderByDesc("companies.id");
 ```
 
 #### deleteFrom / truncate
 
-call these function at last (before generating SQL statement).  
+最后调用这些函数（在生成 SQL 语句之前）。  
   
-e.g. generate below SQL statement.
+例如: 生成下面的 SQL 语句。
 
 ```sql
 DELETE FROM companies
 ```
 
 ```c++
-	// C functions
+	// C 函数
 	sq_query_table(query, "companies");
 	sq_query_delete(query);
 	sql = sq_query_to_sql(query);
 
-	// C++ methods
+	// C++ 方法
 	query->table("companies");
 	query->deleteFrom();
 	sql = query->toSql();
 ```
 
-e.g. generate below SQL statement.
+例如: 生成下面的 SQL 语句。
 
 ```sql
 TRUNCATE TABLE companies
 ```
 
 ```c++
-	// C functions
+	// C 函数
 	sq_query_table(query, "companies");
 	sq_query_truncate(query);
 	sql = sq_query_to_sql(query);
 
-	// C++ methods
+	// C++ 方法
 	query->table("companies");
 	query->truncate();
 	sql = query->toSql();
 ```
 
-## SQL statement that exclude "SELECT * FROM table_name"
+## 排除 "SELECT * FROM table_name" 的 SQL 语句
 
-If you don't specify table name and column name in SqQuery, it will generate SQL statement that exclude "SELECT * FROM table_name".  
-The 'SQL statement' parameter in sq_storage_get_all(), sq_storage_update_all(), and sq_storage_remove_all() can use this.  
+如果在 SqQuery 中不指定表名和列名，它将生成排除 "SELECT * FROM table_name" 的 SQL 语句。  
+sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中的 'SQL 语句' 参数可以使用这个。  
   
-use C language
+使用 C 语言
 
 ```c
 	sq_query_clear(query);
@@ -307,18 +308,18 @@ use C language
 	sq_query_where(query, "id > 10");
 	sq_query_or_where(query, "city_id < 9");
 
-	// use sq_query_c() to generate SQL statement
+	// 使用 sq_query_c() 生成 SQL 语句
 	array = sq_storage_remove_all(storage, "users",
 	                              sq_query_c(query));
 
-	// or use sq_query_to_sql() to generate SQL statement
+	// 或使用 sq_query_to_sql() 生成 SQL 语句
 	sql_where = sq_query_to_sql(query);
 	array = sq_storage_remove_all(storage, "users",
 	                              sql_where);
 	free(sql_where);
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->clear();
@@ -326,20 +327,20 @@ use C++ language
 	query->where("id > 10");
 	query->orWhere("city_id < 9");
 
-	// use Sq::Query::c() to generate SQL statement
+	// 使用 Sql::Query::c() 生成 SQL 语句
 	array = storage->removeAll("users", query->c());
 
-	// or use Sq::Query::toSql() to generate SQL statement
+	// 或使用 Sql::Query::to Sql() 生成 SQL 语句
 	sql_where = query->toSql();
 	array = storage->removeAll("users", sql_where);
 	free(sql_where);
 ```
 
-#### convenient C++ class
+#### 方便的 C++ 类
 
-use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate SQL statement  
+使用 C++ Sq::Where 和 Sq::WhereRaw（或 Sq::where 和 Sq::whereRaw）生成 SQL 语句  
   
-1. use operator() of Sq::Where (or Sq::where)
+1. 使用 Sq::Where（或 Sq::where）的 operator()
 
 ```c++
 	Sq::Where  where;
@@ -348,42 +349,42 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 			where("id < %d", 11).orWhere("city_id < %d", 33).c());
 ```
 
-2. use parameter pack constructor
+2. 使用参数包构造函数
 
 ```c++
 	array = storage->removeAll("users",
 			Sq::where("id < %d", 11).orWhere("city_id < %d", 33).c());
 ```
 
-3. use default constructor and operator()
+3. 使用默认构造函数和 operator()
 
 ```c++
 	array = storage->removeAll("users",
 			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33).c());
 ```
 
-## Raw Methods
+## 原始方法 Raw Methods
 
-insert a raw expression into various parts of your query.  
+将原始表达式插入查询的各个部分。  
 
 #### selectRaw
 
-use C language
+使用 C 语言
 
 ```c
 	sq_query_table(query, "users");
 	sq_query_select_raw(query, "COUNT(column_name)");
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("users")
 	     ->selectRaw("COUNT(column_name)");
 ```
 
-C++ method select() has overloaded function to handle raw string.  
-If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+C++ 方法 select() 具有处理原始字符串的重载函数。  
+如果第二个参数不存在，则将第一个参数作为原始字符串处理。
 
 ```c++
 	query->table("users")
@@ -392,7 +393,7 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 #### whereRaw / orWhereRaw
 
-use C language
+使用 C 语言
 
 ```c
 	sq_query_table(query, "users");
@@ -400,7 +401,7 @@ use C language
 	sq_query_where_raw(query, "city LIKE 'ber%'");
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("users")
@@ -408,8 +409,8 @@ use C++ language
 	     ->whereRaw("city LIKE 'ber%'");
 ```
 
-C++ method where()/orWhere() has overloaded function to handle raw string.  
-If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+C++ 方法 where()/orWhere() 具有处理原始字符串的重载函数。  
+如果第二个参数不存在，则将第一个参数作为原始字符串处理。
 
 ```c++
 	query->table("users")
@@ -419,22 +420,22 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 #### havingRaw / orHavingRaw
 
-use C language
+使用 C 语言
 
 ```c
 	sq_query_table(query, "orders");
 	sq_query_having_raw(query, "SUM(price) > 3000");
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("orders")
 	     ->havingRaw("SUM(price) > 3000");
 ```
 
-C++ method having()/orHaving() has overloaded function to handle raw string.  
-If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+C++ 方法 have()/orHaving() 具有处理原始字符串的重载函数。  
+如果第二个参数不存在，则将第一个参数作为原始字符串处理。
 
 ```c++
 	query->table("orders")
@@ -443,22 +444,22 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 #### orderByRaw
 
-use C language
+使用 C 语言
 
 ```c
 	sq_query_table(query, "orders");
 	sq_query_order_by_raw(query, "updated_at DESC");
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("orders")
 	     ->orderByRaw("updated_at DESC");
 ```
 
-C++ method orderBy() has overloaded function to handle raw string.  
-If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+C++ 方法 orderBy() 具有处理原始字符串的重载函数。  
+如果第二个参数不存在，则将第一个参数作为原始字符串处理。
 
 ```c++
 	query->table("orders")
@@ -467,61 +468,61 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 #### groupByRaw
 
-use C language
+使用 C 语言
 
 ```c
 	sq_query_table(query, "companies");
 	sq_query_group_by_raw(query, "city, state");
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("companies")
 	     ->groupByRaw("city, state");
 ```
 
-C++ method groupBy() has overloaded function to handle raw string.  
-If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+C++ 方法 groupBy() 具有处理原始字符串的重载函数。  
+如果第二个参数不存在，则将第一个参数作为原始字符串处理。
 
 ```c++
 	query->table("companies")
 	     ->groupBy("city, state");
 ```
 
-#### raw SQL statement
+#### 原始 SQL 语句
 
-sq_query_raw() and sq_query_printf() can append raw SQL statement in current nested or subquery.  
+sq_query_raw() 和 sq_query_printf() 可以在当前嵌套或子查询中附加原始 SQL 语句。  
   
-e.g. generate below SQL statement.
+例如 生成下面的 SQL 语句。
 
 ```sql
 SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 ```
 
-use C language
+使用 C 语言
 
 ```c
 	// "SELECT * FROM users"
 	sq_query_table(query, "users");
 
-	// "WHERE city LIKE 'ber%'" is raw string
+	// "WHERE city LIKE 'ber%'" 是原始字符串
 	sq_query_raw(query, "WHERE city LIKE 'ber%'");
 
-	// the 2nd argument is printf format string.
+	// 第二个参数是 printf 格式字符串。
 	sq_query_printf(query, "LIMIT %d OFFSET %d", 20, 10);
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	// "SELECT * FROM users"
 	query->table("users");
 
-	// Because the 2rd argument does not exist, the 1st argument is raw string.
+	// 因为第二个参数不存在，所以第一个参数是原始字符串。
 	query->raw("WHERE city LIKE 'ber%'");
 
-	// Because the 2nd argument does exist, the 1st argument is printf format string.
+	// 因为第二个参数确实存在，所以第一个参数是 printf 格式字符串。
 	query->raw("LIMIT %d OFFSET %d", 20, 10);
 ```
 
@@ -529,16 +530,16 @@ use C++ language
 
 #### Inner Join
 
-To generate "inner join" statement , you may use the sq_query_join() on a SqQuery instance.  
+要生成 "内连接" 语句，您可以在 SqQuery 实例上使用 sq_query_join()。  
   
-use C language
+使用 C 语言
 
 ```c
 	sq_query_table(query, "companies");
 	sq_query_join(query, "city", "city.id", "<", "100");
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("companies")
@@ -547,7 +548,7 @@ use C++ language
 
 #### Left Join / Right Join / Full Join
 
-use C language
+使用 C 语言
 
 ```
 	sq_query_table(query, "users");
@@ -560,7 +561,7 @@ use C language
 	sq_query_full_join(query, "posts", "users.id", "=", "posts.user_id");
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("users")
@@ -575,31 +576,31 @@ use C++ language
 
 #### Cross Join
 
-use C language
+使用 C 语言
 
 ```c
 	sq_query_table(query, "users");
 	sq_query_cross_join(query, "posts");
 ```
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->table("users")
 	     ->crossJoin("posts");
 ```
 
-## Unions
+## 联合 Unions
 
-"union" two or more queries together.  
+将两个或多个查询 “联合” 在一起。  
 
 ```sql
 SELECT name1 FROM product1 UNION SELECT name2 FROM product2
 ```
 
-User must add other query after calling sq_query_union() or sq_query_union_all(), and calling sq_query_pop_nested() in end of query.  
+用户必须在调用 sq_query_union() 或 sq_query_union_all() 后添加其他查询，并在查询结束时调用 sq_query_pop_nested()。  
   
-use C language
+使用 C 语言
 
 ```c
 	sq_query_select(query, "name1", NULL);
@@ -611,10 +612,10 @@ use C language
 	sq_query_pop_nested(query);              // end of query
 ```
 
-C++ method union_() and unionAll() use lambda function to add other query.
-* Because 'union' is C/C++ keyword, I must append '_' in tail of this method.
+C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
+* 因为 'union' 是 C/C++ 关键字，所以我必须在此方法的尾部附加 '_'。
 
-use C++ language
+使用 C++ 语言
 
 ```c++
 	query->select("name1");
@@ -626,11 +627,11 @@ use C++ language
 	});
 ```
 
-## Nested and Subquery
+## 嵌套和子查询
 
-SqQuery can produce limited Nested and Subquery. You may also use Raw Methods to do these.  
+SqQuery 可以产生有限的嵌套和子查询。 您也可以使用原始方法来执行这些操作。  
   
-below C functions support Subquery or Nested:
+以下 C 函数支持子查询或嵌套：
 
 	sq_query_join(),
 	sq_query_left_join(),
@@ -641,10 +642,10 @@ below C functions support Subquery or Nested:
 	sq_query_where(),  sq_query_or_where(),  sq_query_where_exists(),
 	sq_query_having(), sq_query_or_having()
 
-Note1: except sq_query_where_exists(), second argument of these functions must be NULL.  
-Note2: you must call sq_query_pop_nested() in end of Subquery (or Nested).  
+注意 1：除了 sq_query_where_exists()，这些函数的第二个参数必须为 NULL。  
+注意 2：您必须在子查询或嵌套的末尾调用 sq_query_pop_nested()。  
   
-below C++ method use lambda function to support Subquery or Nested, user don't need to call sq_query_pop_nested()  
+下面的 C++ 方法使用 lambda 函数来支持子查询或嵌套，用户不需要调用 sq_query_pop_nested()  
 
 	join(),
 	leftJoin(),
@@ -655,26 +656,26 @@ below C++ method use lambda function to support Subquery or Nested, user don't n
 	where(),  orWhere(),  whereExists(),
 	having(), orHaving()
 
-#### Nested
+#### 嵌套 Nested
 
-e.g. generate below SQL statement.
+例如 生成下面的 SQL 语句。
 
 ```sql
 SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 ```
 
-use C functions to generate Nested:
+使用 C 函数生成嵌套：
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_where(query, NULL);                // start of Nested
+	sq_query_where(query, NULL);                // 嵌套的开始
 		sq_query_where(query, "salary", ">", "45");
 		sq_query_where(query, "age", "<", "21");
-	sq_query_pop_nested(query);                 // end of Nested
+	sq_query_pop_nested(query);                 // 嵌套结束
 	sq_query_or_where(query, "id > %d", 100);
 ```
 
-use C++ lambda functions to generate Nested:
+使用 C++ lambda 函数生成嵌套：
 
 ```c++
 	query->table("users")
@@ -685,9 +686,9 @@ use C++ lambda functions to generate Nested:
 	     ->orWhere("id > %d", 100);
 ```
 
-#### Subquery
+#### 子查询
 
-e.g. below is SQL statement that has subquery.
+例如 下面是具有子查询的 SQL 语句。
 
 ```sql
 SELECT id, age
@@ -696,7 +697,7 @@ JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
 WHERE age > 5
 ```
 
-use C++ lambda functions to generate subquery:
+使用 C++ lambda 函数生成子查询：
 
 ```c++
 	query->select("id", "age")

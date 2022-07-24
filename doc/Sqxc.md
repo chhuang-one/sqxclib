@@ -483,4 +483,4 @@ There is a JSON object defined below.
 }
 ```
 
-If no 'undefinedObject' defined by SqEntry/SqColumn, SqxcValue will ignore 'undefinedObject' when parsing above JSON object.
+If no 'undefinedObject' defined by SqEntry (or SqColumn), SqxcValue will ignore 'undefinedObject' when parsing above JSON object.

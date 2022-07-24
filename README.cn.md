@@ -172,7 +172,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 * 您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关架构和迁移的更多信息
 * 要使用初始化器静态定义（或更改）表，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)
-* 要使用宏动态定义（或更改）表，请参阅 doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
+* 要使用宏动态定义（或更改）表，请参阅 doc/[schema-builder-macro.cn.md](doc/schema-builder-macro.cn.md)
 
 ## 数据库产品
 
@@ -252,7 +252,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 ## 增删查改
 
-要获取更多信息和示例，您可以查看 doc/[SqStorage.md](doc/SqStorage.md)  
+要获取更多信息和示例，您可以查看 doc/[SqStorage.cn.md](doc/SqStorage.cn.md)  
   
 使用 C++ 方法
 
@@ -368,7 +368,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 ## 查询生成器
 
 SqQuery 可以使用 C 函数或 C++ 方法生成 SQL 语句。
-要获取更多信息和示例，您可以查看 doc/[SqQuery.md](doc/SqQuery.md)
+要获取更多信息和示例，您可以查看 doc/[SqQuery.cn.md](doc/SqQuery.cn.md)
   
 SQL 语句
 

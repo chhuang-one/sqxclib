@@ -226,7 +226,7 @@ Below C++ methods (and C functions) are correspond to the different types of col
 | char_       | sq_table_add_char       | char*         |
 | custom      | sq_table_add_custom     | *User define* |
 
-* Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, I must append '_' in tail of these method.
+* Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, I must append '_' in tail of these methods.
 
 Below method is for C++ data type only.
 
