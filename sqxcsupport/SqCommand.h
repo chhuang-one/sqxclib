@@ -226,7 +226,7 @@ struct SqCommand
 #endif  // __cplusplus
 };
 
-/*	SqCommandValue: define a command that used by command line interface.
+/*	SqCommandValue: It stores value of option from command-line.
  */
 #define SQ_COMMAND_VALUE_MEMBERS \
 	const SqCommand  *type;      \

@@ -1,8 +1,7 @@
 [中文](SqEntry.cn.md)
 
 # SqEntry
-SqEntry define field in structure.
-It must use [SqType](SqType.md) to declare data type of field.
+SqEntry define field in structure. It must use [SqType](SqType.md) to declare data type of field.
 
 	SqEntry
 	│
@@ -36,9 +35,9 @@ Declaring bit_field of SqEntry
 | SQB_HIDDEN      | Converter will not output value of this entry |
 | SQB_HIDDEN_NULL | Converter will not output if value is NULL    |
 
-* SQB_DYNAMIC is for internal use only. User should NOT set/clear this bit.
+* SQB_DYNAMIC is for internal use only. User should NOT set or clear this bit.
 * User can NOT change or free SqEntry if SqEntry.bit_field has NOT set SQB_DYNAMIC.
-* User must use bitwise operators to set/clear bits in SqEntry.bit_field.
+* User must use bitwise operators to set or clear bits in SqEntry.bit_field.
 * It is better to use constant (or static) SqEntry with constant (or static) SqType.
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 

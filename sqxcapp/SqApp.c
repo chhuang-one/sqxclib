@@ -82,12 +82,12 @@ int   sq_app_make_schema(SqApp *app, int cur)
 
 	if (cur == 0)
 		cur = app->db->version;
-	// if the database vesion is 0 (no migrations have been done), return SQCODE_DB_VERSION_0
+	// if the database vesion is 0 (no migrations have been done), return SQCODE_DB_SCHEMA_VERSION_0
 	if (cur == 0)
-		return SQCODE_DB_VERSION_0;
-	// if these migrations are not for this database, return SQCODE_DB_VERSION_MISMATCH
+		return SQCODE_DB_SCHEMA_VERSION_0;
+	// if these migrations are not for this database, return SQCODE_DB_WRONG_MIGRATIONS
 	if (cur >= app->n_migrations)
-		return SQCODE_DB_VERSION_MISMATCH;
+		return SQCODE_DB_WRONG_MIGRATIONS;
 
 	schema = malloc(sizeof(SqSchema));
 	for (int i = 1;  i <= cur;  i++) {
@@ -127,7 +127,7 @@ int   sq_app_migrate(SqApp *app, int step)
 	end = app->n_migrations;
 	cur = app->db->version;
 	if (cur >= end)
-		return SQCODE_DB_VERSION_MISMATCH;
+		return SQCODE_DB_WRONG_MIGRATIONS;
 	if (step > 0) {
 		end = cur + step + 1;
 		if (end > app->n_migrations)
@@ -174,7 +174,7 @@ int   sq_app_rollback(SqApp *app, int step)
 	code = SQCODE_OK;
 	cur = app->db->version;
 	if (cur >= app->n_migrations)
-		return SQCODE_DB_VERSION_MISMATCH;
+		return SQCODE_DB_WRONG_MIGRATIONS;
 	if (step == 0) {
 		if (sq_migration_get_last(app->storage, &batch) == 0)
 			return SQCODE_DB_NO_MIGRATIONS;

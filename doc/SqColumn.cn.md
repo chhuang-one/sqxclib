@@ -2,8 +2,7 @@
 
 # SqColumn
 
-SqColumn 派生自 [SqEntry](SqEntry.cn.md)，它定义 SQL 表中的列。
-当它与 SqType 一起工作时，它与 SqEntry 非常相似。
+SqColumn 派生自 [SqEntry](SqEntry.cn.md)。它定义 SQL 表中的列并与 SqType 一起使用。
 
 	SqEntry
 	│
@@ -59,11 +58,11 @@ struct SqColumn
 | SQB_RENAMED            | 列或表已重命名。                              |
 | SQB_CHANGED            | 列或表已更改。                                |
 
-* 所有需要注意的事项与 [SqEntry](SqEntry.cn.md) 相同。
+* SqColumn 也继承了 [SqEntry](SqEntry.md) 中 bit_field 的定义。
 
 ## 1. 通过方法和函数创建表和列（动态）
 
-建议使用 C++ 方法或 C 函数来创建动态表和列。  
+它使用 C++ 方法或 C 函数来创建动态表和列。  
 要获取更多信息和示例，您可以查看以下文档：  
 1. [database-migrations.md](database-migrations.md)
 2. ../[README.md](../README.md#database-schema) 中的 "**数据库架构**" 部分
@@ -71,7 +70,7 @@ struct SqColumn
 ## 2. 定义由常量 SqType 使用的常量 SqColumn（静态）
 
 如果您的 SQL 表是固定的并且将来不会更改，这可以减少创架构时的运行时间。  
-* 注意：如果为结构定义常量 SqType，它必须与 SqColumn 的**指针数组**一起使用。
+* 注意: 如果为结构定义常量 SqType，它必须与 SqColumn 的**指针数组**一起使用。
 
 ```c++
 static const SqColumn  columnArray[2] = {
@@ -120,7 +119,7 @@ const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 
 添加一个动态列来输入
 
-* 注意：**不推荐**使用这种方式。
+* 注意: **不推荐**使用这种方式。
 
 ```c++
 	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STRING);

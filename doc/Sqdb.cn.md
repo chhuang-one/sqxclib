@@ -221,7 +221,7 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它将 'schema_next'
 用户可以参考 SqdbMysql.h 和 SqdbMysql.c 来支持新的 SQL 产品。  
 SqdbEmpty.h 和 SqdbEmpty.c 是一个可行的示例，但它什么也不做。
 
-#### 1. 定义从 SqdbConfig 和 Sqdb 派生的新结构
+#### 1 定义从 SqdbConfig 和 Sqdb 派生的新结构
 
 所有派生结构必须符合 C++11 标准布局
 
@@ -258,7 +258,7 @@ struct SqdbConfigXxsql
 
 // 源自 Sqdb 的结构
 #ifdef __cplusplus
-struct SqdbXxsql : Sq::DbMethod            // <-- 1. 继承 C++ 成员函数（方法）
+struct SqdbXxsql : Sq::DbMethod            // <-- 1. 继承 C++ 成员函数 (方法)
 #else
 struct SqdbXxsql
 #endif
@@ -283,7 +283,7 @@ struct SqdbXxsql
 };
 ```
 
-#### 2. 实现 SqdbInfo 接口
+#### 2 实现 SqdbInfo 接口
 
 ```c
 // 这是源文件 - SqdbXxsql.c
@@ -413,7 +413,7 @@ static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema_current, SqSchema
 }
 ```
 
-#### 3. 使用自定义 Sqdb
+#### 3 使用自定义 Sqdb
 
 使用 C 语言
 

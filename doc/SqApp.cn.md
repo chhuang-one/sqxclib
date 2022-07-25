@@ -2,8 +2,8 @@
 
 # SqApp
 
-SqApp 使用配置文件 (SqApp-config.h) 来初始化数据库并进行迁移。它由用户的应用程序使用。  
-注意：SqApp 在 sqxcapp 库中。  
+SqApp 使用配置文件 (SqApp-config.h) 来初始化数据库并进行迁移。它由应用程序使用。  
+注意: SqApp 在 sqxcapp 库中。  
 
 	SqApp
 	│
@@ -11,13 +11,13 @@ SqApp 使用配置文件 (SqApp-config.h) 来初始化数据库并进行迁移�
 
 # SqAppTool
 
-SqAppTool 由命令行程序使用 - **sqxctool** 和 **sqxcpptool**。  
+SqAppTool 由命令行程序使用 - **sqxctool** 和 **sqxcpptool**。它使用与 SqApp 相同的配置值。  
   
 **sqxctool** 和 **sqxcpptool** 都可以生成迁移并执行迁移。他们可以帮助使用 SqApp 库的用户应用程序。区别在于 sqxctool 生成 C 迁移文件，而 sqxcpptool 生成 C++ 迁移文件。
 
-## 配置 (SqApp-config.h)
+## 1 配置 (SqApp-config.h)
 
-### 用其他配置文件替换 SqApp-config.h
+### 1.1 用其他配置文件替换 SqApp-config.h
 
 用户可以在编译时定义宏 SQ_APP_CONFIG_FILE 来替换 SqApp-config.h。  
   
@@ -35,7 +35,7 @@ gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
 gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
 ```
 
-### 选择 SQL 产品
+### 1.2 选择 SQL 产品
 
 用户在这里只能使用一种 SQL 产品（例如使用 MySQL）
 
@@ -46,7 +46,7 @@ gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
 #define DB_MYSQL       1
 ```
 
-### 数据库配置值
+### 1.3 数据库配置值
 
 ```c++
 // 连接配置值
@@ -65,11 +65,11 @@ gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
 
 * 如果您启用 SQLite，请确保您的应用程序和它的 sqxctool 使用相同的数据库文件。
 
-## 迁移
+## 2 迁移
 
-### 使用 sqxctool（或 sqxcpptool）
+### 2.1 创建迁移文件
 
-**sqxctool**（或 **sqxcpptool**）使用与库 sqxcapp 相同的配置值。  
+通过命令行程序生成 C 迁移文件
 
 ```
 sqxctool  make:migration  migration_name
@@ -86,9 +86,9 @@ sqxctool  make:migration  migration_name
   
 最后，您必须在定义表后重新编译迁移代码。
 
-#### sqxctool 建表（C语言）
+#### 2.1.1 sqxctool 建表 (C 语言)
 
-生成 C 迁移文件以创建 "companies" 表
+例如: 生成 C 迁移文件以创建 "companies" 表
 
 ```
 sqxctool  make:migration  create_companies_table
@@ -130,9 +130,9 @@ const SqMigration create_companies_table_2021_12_12_180000 = {
 };
 ```
 
-#### 通过 sqxcpptool 更改表（C++ 语言）
+#### 2.1.2 通过 sqxcpptool 更改表（C++ 语言）
 
-生成 C++ 迁移文件以更改 "companies" 表
+例如: 生成 C++ 迁移文件以更改 "companies" 表
 
 ```
 sqxcpptool  make:migration  --table=companies  alter_companies_table
@@ -175,7 +175,7 @@ const SqMigration alter_companies_table_2021_12_26_191532 = {
 
 ```
 
-#### 通过 sqxctool（或 sqxcpptool）迁移
+#### 2.1.3 通过 sqxctool（或 sqxcpptool）迁移
 
 运行所有未完成的迁移
 
@@ -189,13 +189,21 @@ sqxctool  migrate
 sqxctool  migrate:rollback
 ```
 
-### 在运行时迁移
+您可以通过向 rollback 命令提供 step 选项来回滚有限数量的迁移。
+
+```
+sqxctool  migrate:rollback --step=5
+```
+
+### 2.2 在运行时迁移
+
 当用户在运行时迁移时，数据库中的 'migrations.name' 列将为空字符串，因为 SqApp 默认不包含 SqMigration.name 字符串。  
 在 "migrations.h" 中启用 SQ_APP_HAS_MIGRATION_NAME 以更改默认设置。  
-  
-**运行所有未完成的迁移**  
-  
-如果 'step' 为 0， sq_app_migrate() 将运行所有未完成的迁移。  
+
+#### 2.2.1 运行所有未完成的迁移
+
+sq_app_migrate() 的 'step' 参数如果为 0，将运行所有未完成的迁移。  
+sq_app_make_schema() 通过迁移创建当前架构。如果 'migration_id' 为 0，'migration_id' 将使用数据库中的架构版本。  
   
 使用 C 函数
 
@@ -209,8 +217,8 @@ sqxctool  migrate:rollback
 	if (sq_app_open_database(sqapp, NULL) != SQCODE_OK)
 		return EXIT_FAILURE;
 
-	// 如果数据库版本为 0（未完成迁移）
-	if (sq_app_make_schema(sqapp, 0) == SQCODE_DB_VERSION_0) {
+	// 如果数据库中的架构版本为 0 (未进行任何迁移)
+	if (sq_app_make_schema(sqapp, 0) == SQCODE_DB_SCHEMA_VERSION_0) {
 		// 运行在 ../database/migrations 中定义的迁移
 		if (sq_app_migrate(sqapp, step) != SQCODE_OK)
 			return EXIT_FAILURE;
@@ -226,16 +234,16 @@ sqxctool  migrate:rollback
 	if (sqapp->openDatabase(NULL) != SQCODE_OK)
 		return EXIT_FAILURE;
 
-	// 如果数据库版本为 0（未完成迁移）
-	if (sqapp->makeSchema() == SQCODE_DB_VERSION_0) {
+	// 如果数据库中的架构版本为 0 (未进行任何迁移)
+	if (sqapp->makeSchema() == SQCODE_DB_SCHEMA_VERSION_0) {
 		// 运行在 ../database/migrations 中定义的迁移
 		if (sqapp->migrate() != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
 
-**回滚上次数据库迁移**  
-  
+#### 2.2.2 回滚上次数据库迁移
+
 如果 'step' 为 0， sq_app_rollback() 将回滚最新的迁移操作。  
   
 使用 C 函数

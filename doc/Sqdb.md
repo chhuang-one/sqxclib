@@ -221,7 +221,7 @@ Use C++ language to get multiple rows from "migrations" table
 User can refer SqdbMysql.h and SqdbMysql.c to support new SQL product.  
 SqdbEmpty.h and SqdbEmpty.c is a workable sample, but it do nothing.  
 
-#### 1. define new structure that derived from SqdbConfig and Sqdb
+#### 1 define new structure that derived from SqdbConfig and Sqdb
 
 All derived structure must conforme C++11 standard-layout
 
@@ -283,7 +283,7 @@ struct SqdbXxsql
 };
 ```
 
-#### 2. implement SqdbInfo interface
+#### 2 implement SqdbInfo interface
 
 ```c
 // This is source file - SqdbXxsql.c
@@ -413,7 +413,7 @@ static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema_current, SqSchema
 }
 ```
 
-#### 3. use custom Sqdb
+#### 3 use custom Sqdb
 
 use C language
 

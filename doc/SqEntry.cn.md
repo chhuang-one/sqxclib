@@ -1,8 +1,7 @@
 [English](SqEntry.md)
 
 # SqEntry
-SqEntry 在结构中定义字段。
-它必须使用 [SqType](SqType.cn.md) 来声明字段的数据类型。
+SqEntry 在结构中定义字段。它必须使用 [SqType](SqType.cn.md) 来声明字段的数据类型。
 
 	SqEntry
 	│
@@ -36,9 +35,9 @@ struct SqEntry
 | SQB_HIDDEN      | (JSON) 转换器不会输出该条目的值               |
 | SQB_HIDDEN_NULL | 如果值为 NULL，(JSON) 转换器将不会输出        |
 
-* SQB_DYNAMIC 仅供内部使用。 用户不应设置/清除该位。
+* SQB_DYNAMIC 仅供内部使用。用户不应设置或清除该位。
 * 如果 SqEntry.bit_field 没有设置 SQB_DYNAMIC，用户不能更改或释放 SqEntry。
-* 用户必须使用位运算符来设置/清除 SqEntry.bit_field 中的位。
+* 用户必须使用位运算符来设置或清除 SqEntry.bit_field 中的位。
 * 最好将常量(或静态)的 SqEntry 与常量(或静态)的 SqType 一起使用。
 * 动态 SqEntry 可以与动态、常量或静态 SqType 一起使用。
 
@@ -46,7 +45,7 @@ struct SqEntry
 您可以查看 [SqType](SqType.cn.md) 以获取更多样本。
 
 #### 1. 定义由常量 SqType 使用的 SqEntry 常量指针数组
-* 注意：如果为结构定义了常量 SqType，它必须与 SqEntry 的**指针数组**一起使用。
+* 注意: 如果为结构定义了常量 SqType，它必须与 SqEntry 的**指针数组**一起使用。
 
 ```c
 static const SqEntry  entryArray[2] = {

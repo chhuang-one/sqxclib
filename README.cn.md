@@ -16,7 +16,7 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 
 3. 可以在低端硬件上工作。
 
-4. 单一头文件 〈 **sqxclib.h** 〉 (注意：不包含特殊宏和支持库)
+4. 单一头文件 〈 **sqxclib.h** 〉 (注意: 不包含特殊宏和支持库)
 
 5. 命令行工具可以生成迁移并进行迁移。 见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
 
@@ -29,7 +29,8 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 定义映射到数据库表 "users" 的 C 结构化数据类型。
 
 ```c++
-typedef struct  User    User;    // 如果您使用 C 语言，请添加此行
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
+typedef struct  User    User;
 
 struct User {
 	int     id;          // 主键
@@ -489,7 +490,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 
 SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的结果创建指针数组。  
   
-例如 从连接多表的查询中获取结果。  
+例如: 从连接多表的查询中获取结果。  
   
 使用 C 函数
 
@@ -542,8 +543,8 @@ Sq::Joint 是 STL 容器使用的指针数组。
 
 SqTypeRow 派生自 SqTypeJoint。它创建 SqRow 并处理未知（或已知）的结果、表和列。  
 SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)  
-注意1：SqTypeRow 也可以与 get() 和 getAll() 一起使用。  
-注意2：SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
+注意1: SqTypeRow 也可以与 get() 和 getAll() 一起使用。  
+注意2: SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
 
 	SqType
 	│

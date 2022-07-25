@@ -3,7 +3,7 @@
 # SqConsole
 
 SqConsole 提供命令行界面（主要用于 SqAppTool）。 它必须与 SqCommand 和 SqOption 一起使用。  
-注意：SqConsole 在 sqxcsupport 库中。  
+注意: SqConsole 在 sqxcsupport 库中。  
   
 SqConsole、SqCommand 和 SqOption 的关系。
 
@@ -23,17 +23,24 @@ SqConsole 使用它来解析来自命令行的数据并将解析的数据存储�
 	└--- SqCommand
 
 # SqOption
-为命令定义选项
+
+它在命令中定义选项。
 
 	SqEntry
 	│
 	└--- SqOption
 
+# SqCommandValue
+
+它存储来自命令行的选项值。
+
 ## 1 静态定义新命令
 
-定义 'mycommand' 有两个选项 - '--help' 和 '--quiet'
+例如: 定义 'mycommand' 有两个选项 - '--help' 和 '--quiet'
 
-#### 1.1 定义命令的值
+#### 1.1 定义命令选项的值
+
+定义派生自 SqCommandValue 的 MyCommandValue。
 
 	SqCommandValue
 	│
@@ -44,7 +51,7 @@ SqConsole 使用它来解析来自命令行的数据并将解析的数据存储�
 typedef struct MyCommandValue    MyCommandValue;
 
 #ifdef __cplusplus
-struct MyCommandValue : Sq::CommandValueMethod     // <-- 1. 继承C++成员函数（方法）
+struct MyCommandValue : Sq::CommandValueMethod     // <-- 1. 继承 C++ 成员函数 (方法)
 #else
 struct MyCommandValue
 #endif
@@ -119,10 +126,11 @@ static const SqCommand mycommand = {
 
 ## 2 动态定义新命令
 
+例如: 通过函数创建 "mycommand"。  
+  
 使用 C 语言
 
 ```c
-	SqOption  *option;
 	SqCommand *mycommand;
 
 	mycommand = sq_command_new("mycommand");
@@ -130,6 +138,36 @@ static const SqCommand mycommand = {
 	mycommand->handle = mycommand_handle;
 	mycommand->parameter   = strdup("mycommand parameterName");
 	mycommand->description = strdup("mycommand description");
+```
+
+使用 C++ 语言
+
+```c++
+	Sq::Command *mycommand;
+
+	mycommand = new Sq::Command("mycommand");
+	mycommand->size   = sizeof(MyCommandValue);
+	mycommand->handle = mycommand_handle;
+	mycommand->parameter   = strdup("mycommand parameterName");
+	mycommand->description = strdup("mycommand description");
+```
+
+#### 2.1 动态 SqCommand 使用 SqOption 的常量数组
+
+```c++
+	// C 函数
+	sq_command_add_option(mycommand, mycommand_option_array, 2);
+
+	// C++ 方法
+	mycommand->addOption(mycommand_option_array, 2);
+```
+
+#### 2.2 动态 SqCommand 使用动态 SqOption
+
+使用 C 语言
+
+```c
+	SqOption  *option;
 
 	option = sq_option_new(SQ_TYPE_BOOL);
 	option->offset        = offsetof(MyCommandValue, help);
@@ -138,20 +176,13 @@ static const SqCommand mycommand = {
 	option->default_value = strdup("true");
 	option->description   = strdup("Display help for the given command.");
 
-	sq_command_add_option(mycommand, option);
+	sq_command_add_option(mycommand, option, 1);
 ```
 
 使用 C++ 语言
 
 ```c++
 	Sq::Option  *option;
-	Sq::Command *mycommand;
-
-	mycommand = new Sq::Command("mycommand");
-	mycommand->size   = sizeof(MyCommandValue);
-	mycommand->handle = mycommand_handle;
-	mycommand->parameter   = strdup("mycommand parameterName");
-	mycommand->description = strdup("mycommand description");
 
 	option = new Sq::Option(SQ_TYPE_BOOL);
 	option->offset        = offsetof(MyCommandValue, help);
@@ -172,4 +203,3 @@ static const SqCommand mycommand = {
 	// C++ 方法
 	console->add(&mycommand)
 ```
-

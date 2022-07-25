@@ -42,8 +42,8 @@ extern "C" {
 #define SQCODE_REENTRY_DROPPED       (31  + SQCODE_WARNING)
 #define SQCODE_CAN_NOT_SYNC          (32  + SQCODE_ERROR)    // schema version is older than database
 #define SQCODE_REFERENCE_NOT_FOUND   (41  + SQCODE_ERROR)
-#define SQCODE_DB_VERSION_0          (42  + SQCODE_ERROR)    // SqApp
-#define SQCODE_DB_VERSION_MISMATCH   (43  + SQCODE_ERROR)    // SqApp
+#define SQCODE_DB_SCHEMA_VERSION_0   (42  + SQCODE_ERROR)    // SqApp
+#define SQCODE_DB_WRONG_MIGRATIONS   (43  + SQCODE_ERROR)    // SqApp
 #define SQCODE_DB_NO_MIGRATIONS      (44  + SQCODE_ERROR)    // SqApp
 
 // SQL
@@ -56,6 +56,10 @@ extern "C" {
 #define SQCODE_UNCOMPLETED_JSON      (61  + SQCODE_STATUS)   // @deprecated
 #define SQCODE_JSON_CONTINUE         (61  + SQCODE_STATUS)
 #define SQCODE_JSON_ERROR            (62  + SQCODE_ERROR)
+
+// deprecated
+#define SQCODE_DB_VERSION_0          SQCODE_DB_SCHEMA_VERSION_0
+#define SQCODE_DB_VERSION_MISMATCH   SQCODE_DB_WRONG_MIGRATIONS
 
 
 #ifdef __cplusplus

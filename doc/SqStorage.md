@@ -35,7 +35,8 @@ SqStorage use [Sqdb](Sqdb.md) to access database.
 Define a data structure 'User' for SQL table "users".
 
 ```c++
-typedef struct User  User;
+// If you use C language, please use 'typedef' to to give a struct type a new name.
+typedef struct User    User;
 
 struct User {
 	int   id;

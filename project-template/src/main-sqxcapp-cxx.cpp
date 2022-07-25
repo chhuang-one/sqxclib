@@ -24,7 +24,7 @@ int  main(void)
 		you can remove below migrate() code.
 	 */
 	// if the database vesion is 0 (no migrations have been done)
-	if (myapp->makeSchema() == SQCODE_DB_VERSION_0) {
+	if (myapp->makeSchema() == SQCODE_DB_SCHEMA_VERSION_0) {
 		// run migrations that defined in ../database/migrations
 		if (myapp->migrate() != SQCODE_OK)
 			return EXIT_FAILURE;

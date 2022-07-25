@@ -45,10 +45,10 @@ SqType 及其 C++ 数据类型
 * 最好将常量或静态 SqEntry 与常量或静态 SqType 一起使用。
 * 动态 SqEntry 可以与动态、常量或静态 SqType 一起使用。
 
-## 1. 使用 SqType 定义基本（非结构化）数据类型
+## 1 使用 SqType 定义基本（非结构化）数据类型
 参考源代码 SqType-built-in.c 以获得更多示例。
 
-#### 1.1. 定义常量基本（非结构化）数据类型
+#### 1.1 定义常量基本（非结构化）数据类型
 
 使用 C99 指定初始化器或 C++ 聚合初始化来定义静态 SqType。
 ```
@@ -62,7 +62,7 @@ const SqType type_int = {
 
 ```
 
-#### 1.2. 定义动态基本（非结构化）数据类型
+#### 1.2 定义动态基本（非结构化）数据类型
 
 函数 sq_type_new() 声明：
 
@@ -89,11 +89,13 @@ SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 	type->write = int_write_function;
 ```
 
-## 2. 使用 SqType 定义结构化数据类型
+## 2 使用 SqType 定义结构化数据类型
 用户可以定义常量或动态 SqType。 如果为结构定义常量 SqType，它必须与 SqEntry 的**指针数组**一起使用。
 
 首先，我们定义一个自定义的结构化数据类型：
+
 ```c
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
 typedef struct User     User;
 
 struct User {
@@ -103,7 +105,7 @@ struct User {
 };
 ```
 
-#### 2.1. 常量 SqType 使用 SqEntry '未排序'的常量指针数组
+#### 2.1 常量 SqType 使用 SqEntry '未排序'的常量指针数组
 1. 使用 C99 指定初始化程序来定义 SqEntry '未排序'的**指针数组**。
 2. 定义常量 SqType 以使用 SqEntry 的**指针数组**。
 
@@ -134,7 +136,7 @@ const SqType typeUser = {
 * 它用于获取 C 和 C++ 代码中结构化数据类型的名称。
 * 警告：当你使用 gcc 编译时，你会从 C 和 C++ 源代码中得到不同的类型名称，因为 gcc 的 typeid(Type).name() 会返回奇怪的名称。
 
-#### 2.2. 常量 SqType 使用 SqEntry '已排序'的常量指针数组
+#### 2.2 常量 SqType 使用 SqEntry '已排序'的常量指针数组
 1. 使用 C99 指定初始化器定义 SqEntry '已排序'的**指针数组**。
 2. 定义常量 SqType 以使用 SqEntry 的**指针数组**。
 3. SqType.bit_field 必须设置 SQB_TYPE_SORTED。
@@ -165,7 +167,7 @@ const SqType sortedTypeUser = {
 };
 ```
 
-#### 2.3. 常量 SqType 使用 SqEntry 的常量指针数组（使用 C 宏）
+#### 2.3 常量 SqType 使用 SqEntry 的常量指针数组（使用 C 宏）
 
 使用宏 SQ_TYPE_INITIALIZER() 和 SQ_TYPE_INITIALIZER_FULL() 来定义常量 SqType。
 
@@ -177,7 +179,7 @@ const SqType  typeUserM = SQ_TYPE_INITIALIZER(User, entryPointers, 0);
 const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, SQB_TYPE_SORTED);
 ```
 
-#### 2.4. 动态 SqType 使用 SqEntry 的常量指针数组
+#### 2.4 动态 SqType 使用 SqEntry 的常量指针数组
 
 使用 C 语言添加 SqEntry 的静态**指针数组**。
 
@@ -199,7 +201,7 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 	type->addEntry(entryPointers, n_entry);
 ```
 
-#### 2.5. 动态 SqType 使用动态 SqEntry
+#### 2.5 动态 SqType 使用动态 SqEntry
 
 使用 C 语言添加动态 SqEntry。
 
@@ -251,7 +253,7 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 	type->addEntry(entry);
 ```
 
-## 3. 计算动态结构化数据类型的实例大小
+## 3 计算动态结构化数据类型的实例大小
 
 * 用户可以使用 C 函数 sq_type_decide_size()、C++ 方法 decisionSize() 来计算实例大小。
 * 添加 SqEntry 后，您无需调用函数来计算实例大小，因为程序会自动执行此操作。
@@ -271,7 +273,7 @@ unsigned int  Sq::Type::decideSize(const SqEntry *inner_entry, bool entry_remove
 * 如果用户将 'inner_entry' 添加到 SqType，则传递参数 'entry_removed' = false。
 * 如果用户从 SqType 中删除 'inner_entry'，则传递参数 'entry_removed' = true。
 
-## 4. 从动态 SqType 中查找并删除 SqEntry
+## 4 从动态 SqType 中查找并删除 SqEntry
 
 使用 C 语言查找和删除 SqEntry
 
@@ -303,7 +305,7 @@ unsigned int  Sq::Type::decideSize(const SqEntry *inner_entry, bool entry_remove
 //	type->decideSize(*entry_addr, true);
 ```
 
-## 5. 释放动态 SqType
+## 5 释放动态 SqType
 
 sq_type_free() 可以释放动态 SqType（SqType.bit_field 有 SQB_TYPE_DYNAMIC）。
 

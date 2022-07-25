@@ -19,7 +19,7 @@ SqQuery 提供 sq_query_to_sql() 和 sq_query_c() 来生成 SQL 语句。
 * 您不能释放 sq_query_c() 的结果，它由 SqQuery 管理。
 * 调用 sq_query_c() 后，用户可以访问 SqQuery::str 以重用生成的 SQL 语句。
 
-注意：如果用户没有通过 select() 指定列，则默认选择数据库表中的所有列。  
+注意: 如果用户没有通过 select() 指定列，则默认选择数据库表中的所有列。  
   
 使用 C 语言
 
@@ -494,7 +494,7 @@ C++ 方法 groupBy() 具有处理原始字符串的重载函数。
 
 sq_query_raw() 和 sq_query_printf() 可以在当前嵌套或子查询中附加原始 SQL 语句。  
   
-例如 生成下面的 SQL 语句。
+例如: 生成下面的 SQL 语句。
 
 ```sql
 SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
@@ -658,7 +658,7 @@ SqQuery 可以产生有限的嵌套和子查询。 您也可以使用原始方�
 
 #### 嵌套 Nested
 
-例如 生成下面的 SQL 语句。
+例如: 生成下面的 SQL 语句。
 
 ```sql
 SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
@@ -688,7 +688,7 @@ SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 
 #### 子查询
 
-例如 下面是具有子查询的 SQL 语句。
+例如: 下面是具有子查询的 SQL 语句。
 
 ```sql
 SELECT id, age

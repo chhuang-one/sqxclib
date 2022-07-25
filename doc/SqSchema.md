@@ -39,7 +39,7 @@ SqTable defines SQL table
 	     │
 	     └─── SqColumn
 
-## 1. Create table and column by functions (dynamic)
+## 1 Create table and column by functions (dynamic)
 
 It is recommended to use C++ methods or C functions to create dynamic table.  
 To get more information and sample, you can see below documents:  
@@ -90,7 +90,7 @@ C++ sample code:
 	delete schema_v1;
 ```
 
-## 2. Create table by existed SqType (static or dynamic)
+## 2 Create table by existed SqType (static or dynamic)
 You can see documents [SqColumn.md](SqColumn.md) to get more information about creating SqType with SqColumn.  
 Note: If 'type' is dynamic SqType, it will be freed when the program frees 'table'.
 

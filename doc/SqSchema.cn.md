@@ -39,7 +39,7 @@ SqTable 定义 SQL 表
 	     │
 	     └─── SqColumn
 
-## 1. 通过函数创建表和列（动态）
+## 1 通过函数创建表和列（动态）
 
 建议使用 C++ 方法或 C 函数创建动态表。  
 要获取更多信息和示例，您可以查看以下文档：  
@@ -90,9 +90,9 @@ C++ 示例代码：
 	delete schema_v1;
 ```
 
-## 2. 按现有 SqType 创建表（静态或动态）
+## 2 按现有 SqType 创建表（静态或动态）
 您可以查看文档 [SqColumn.md](SqColumn.md) 以获取有关使用 SqColumn 创建 SqType 的更多信息。  
-注意：如果 'type' 是动态 SqType，它会在程序释放 'table' 时被一起释放。
+注意: 如果 'type' 是动态 SqType，它会在程序释放 'table' 时被一起释放。
 
 ```c++
 	// C 函数

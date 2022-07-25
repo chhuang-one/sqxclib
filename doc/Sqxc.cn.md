@@ -31,8 +31,8 @@ Sqxc 转换器的数据类型
 | SQXC_TYPE_OBJECT_END | 对象结束                       |
 | SQXC_TYPE_ARRAY_END  | 数组结束 (或其他容器)          |
 
-注意：SQXC_TYPE_OBJECT 对应 SQL 行。  
-注意：SQXC_TYPE_ARRAY  对应 SQL 多行。  
+注意: SQXC_TYPE_OBJECT 对应 SQL 行。  
+注意: SQXC_TYPE_ARRAY  对应 SQL 多行。  
 
 ## 创建 Sqxc 元素
 创建元素以将数据转换为 SQL INSERT/UPDATE 语句，并添加元素以将数据转换为 SQL 列中的 JSON 数组/对象。  
@@ -246,7 +246,7 @@ JSON 看起来像这样：
 
 	user output ────> SqxcJsonWriter ────> SqxcFile ────> fwrite()
 
-注意：SqxcFile 在 sqxcsupport 库中。示例代码在 [xc_json_file.cpp](../examples/xc_json_file.cpp)  
+注意: SqxcFile 在 sqxcsupport 库中。示例代码在 [xc_json_file.cpp](../examples/xc_json_file.cpp)  
   
 使用 C 语言
 
@@ -298,7 +298,7 @@ extern const SqxcInfo               SqxcInfo_TextParser_;
 #endif
 
 #ifdef __cplusplus
-struct SqxcText : Sq::XcMethod           // <-- 1. 继承 C++ 成员函数（方法）
+struct SqxcText : Sq::XcMethod           // <-- 1. 继承 C++ 成员函数 (方法)
 #else
 struct SqxcText
 #endif
@@ -466,7 +466,7 @@ SqStorage 对象中的 Sqxc 输入数据流如下所示：
 	input ->         ┌-> SqxcTextParser --┐
 	Sqdb.exec()    --┴--------------------┴-> SqxcValue ---> SqType.parse()
 
-注意：您还需要在 SqStorage::xc_output 中将 SqxcJsoncWriter 替换为 SqxcTextWriter。
+注意: 您还需要在 SqStorage::xc_output 中将 SqxcJsoncWriter 替换为 SqxcTextWriter。
 
 ## 处理（跳过）未知对象和数组
 

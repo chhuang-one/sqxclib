@@ -35,7 +35,8 @@ SqStorage 使用 [Sqdb](Sqdb.md) 访问数据库。
 为 SQL 表 "users" 定义数据结构 'User'。
 
 ```c++
-typedef struct User  User;
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
+typedef struct User    User;
 
 struct User {
 	int   id;
@@ -87,8 +88,8 @@ struct User {
 	storage->migrate(NULL);
 ```
 
-注意1：迁移后不要重复使用 'schema_next'，因为数据会从 'schema_next' 移动到 'schema_current'。  
-注意2：如果使用 SQLite，迁移后必须将架构同步到数据库。  
+注意1: 迁移后不要重复使用 'schema_next'，因为数据会从 'schema_next' 移动到 'schema_current'。  
+注意2: 如果使用 SQLite，迁移后必须将架构同步到数据库。  
 
 ## 使用用户定义的数据类型访问数据库
 
@@ -112,12 +113,12 @@ struct User {
 | sq_storage_update_all()   | updateAll()   |
 | sq_storage_update_field() | updateField() |
 
-注意：如果用户未指定对象类型，SqStorage 将尝试查找匹配的类型。  
-注意：如果用户未指定容器类型，SqStorage 将使用默认容器类型。  
+注意: 如果用户未指定对象类型，SqStorage 将尝试查找匹配的类型。  
+注意: 如果用户未指定容器类型，SqStorage 将使用默认容器类型。  
 
 ## get
 
-例如 从数据库表 "users" 中获取一行。
+例如: 从数据库表 "users" 中获取一行。
 
 ```sql
 SELECT * FROM users WHERE id = 3
@@ -143,7 +144,7 @@ SELECT * FROM users WHERE id = 3
 
 ## getAll
 
-例如 从数据库表 "users" 中获取所有行。
+例如: 从数据库表 "users" 中获取所有行。
 
 ```sql
 SELECT * FROM users
@@ -177,7 +178,7 @@ SELECT * FROM users
 
 sq_storage_get_all() 中的最后一个参数是排除 "SELECT * FROM table_name" 的 SQL 语句。  
   
-例如 从具有 where 条件的数据库表 "users" 中获取多行。
+例如: 从具有 where 条件的数据库表 "users" 中获取多行。
 
 ```sql
 SELECT * FROM users WHERE id > 10 AND id < 99
@@ -304,9 +305,9 @@ sq_storage_update() 用于修改表中的一个现有记录并返回更改的行
 sq_storage_update_all() 用于修改表中的多条现有记录并返回更改的行数。  
 参数 'SQL 语句' 必须排除 "UPDATE table_name SET column=value"。然后追加列名列表，最后一个参数必须为 NULL。  
   
-注意：SqQuery 可以生成排除 "UPDATE table_name SET column=value" 的 SQL 语句。请参阅上面的 "getAll (配合 SqQuery)"。  
+注意: SqQuery 可以生成排除 "UPDATE table_name SET column=value" 的 SQL 语句。请参阅上面的 "getAll (配合 SqQuery)"。  
   
-例如 更新行中的特定列。
+例如: 更新行中的特定列。
 
 ```sql
 UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
@@ -389,7 +390,7 @@ sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参
 
 sq_storage_remove() 用于删除表中的一个现有记录。  
   
-例如 从数据库表 "users" 中删除一行。
+例如: 从数据库表 "users" 中删除一行。
 
 ```sql
 DELETE FROM users WHERE id = 3
@@ -411,7 +412,7 @@ DELETE FROM users WHERE id = 3
 
 ## removeAll
 
-例如 从数据库表 "users" 中删除所有行。
+例如: 从数据库表 "users" 中删除所有行。
 
 ```sql
 DELETE FROM users
@@ -436,9 +437,9 @@ DELETE FROM users
 sq_storage_remove_all() 用于删除表中的多条现有记录。  
 最后一个参数是排除 "DELETE FROM table_name" 的 SQL 语句。  
   
-注意：SqQuery 可以生成排除 "DELETE FROM table_name" 的 SQL 语句。 请参阅上面的 "getAll (配合 SqQuery)"。  
+注意: SqQuery 可以生成排除 "DELETE FROM table_name" 的 SQL 语句。 请参阅上面的 "getAll (配合 SqQuery)"。  
   
-例如 使用 where 条件从数据库表 "users" 中删除多行。
+例如: 使用 where 条件从数据库表 "users" 中删除多行。
 
 ```sql
 DELETE FROM users WHERE id > 50

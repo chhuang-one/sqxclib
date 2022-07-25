@@ -23,17 +23,24 @@ SqConsole use this to parse data from command-line and store parsed data in SqCo
 	└--- SqCommand
 
 # SqOption
-define an option for command
+
+It defines option in command.
 
 	SqEntry
 	│
 	└--- SqOption
 
+# SqCommandValue
+
+It stores value of option from command-line.
+
 ## 1 Define a new command statically
 
-define 'mycommand' that has two options - '--help' and '--quiet'
+e.g. define 'mycommand' that has two options - '--help' and '--quiet'
 
-#### 1.1 define value of command
+#### 1.1 define value of command option
+
+Define MyCommandValue that is derived from SqCommandValue.
 
 	SqCommandValue
 	│
@@ -119,10 +126,11 @@ static const SqCommand mycommand = {
 
 ## 2 Define a new command dynamically
 
+e.g. create 'mycommand' by function.  
+  
 use C language
 
 ```c
-	SqOption  *option;
 	SqCommand *mycommand;
 
 	mycommand = sq_command_new("mycommand");
@@ -130,6 +138,36 @@ use C language
 	mycommand->handle = mycommand_handle;
 	mycommand->parameter   = strdup("mycommand parameterName");
 	mycommand->description = strdup("mycommand description");
+```
+
+use C++ language
+
+```c++
+	Sq::Command *mycommand;
+
+	mycommand = new Sq::Command("mycommand");
+	mycommand->size   = sizeof(MyCommandValue);
+	mycommand->handle = mycommand_handle;
+	mycommand->parameter   = strdup("mycommand parameterName");
+	mycommand->description = strdup("mycommand description");
+```
+
+#### 2.1 dynamic SqCommand use constant array of SqOption
+
+```c++
+	// C function
+	sq_command_add_option(mycommand, mycommand_option_array, 2);
+
+	// C++ method
+	mycommand->addOption(mycommand_option_array, 2);
+```
+
+#### 2.2 dynamic SqCommand use dynamic SqOption
+
+use C language
+
+```c
+	SqOption  *option;
 
 	option = sq_option_new(SQ_TYPE_BOOL);
 	option->offset        = offsetof(MyCommandValue, help);
@@ -138,20 +176,13 @@ use C language
 	option->default_value = strdup("true");
 	option->description   = strdup("Display help for the given command.");
 
-	sq_command_add_option(mycommand, option);
+	sq_command_add_option(mycommand, option, 1);
 ```
 
 use C++ language
 
 ```c++
 	Sq::Option  *option;
-	Sq::Command *mycommand;
-
-	mycommand = new Sq::Command("mycommand");
-	mycommand->size   = sizeof(MyCommandValue);
-	mycommand->handle = mycommand_handle;
-	mycommand->parameter   = strdup("mycommand parameterName");
-	mycommand->description = strdup("mycommand description");
 
 	option = new Sq::Option(SQ_TYPE_BOOL);
 	option->offset        = offsetof(MyCommandValue, help);
@@ -172,4 +203,3 @@ use C++ language
 	// C++ method
 	console->add(&mycommand)
 ```
-

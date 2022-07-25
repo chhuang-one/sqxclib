@@ -2,8 +2,7 @@
 
 # SqColumn
 
-SqColumn derives from [SqEntry](SqEntry.md), it defines columns in SQL table.
-When it works with SqType is very similar to SqEntry.
+SqColumn derives from [SqEntry](SqEntry.md). It defines columns in SQL table and works with SqType.
 
 	SqEntry
 	│
@@ -59,11 +58,11 @@ Declaring bit_field that used by SqColumn:
 | SQB_RENAMED            | column or table has been renamed.               |
 | SQB_CHANGED            | column or table has been altered.               |
 
-* All items that need attention are the same as the [SqEntry](SqEntry.md)
+* SqColumn also inherits the definition of bit_field in [SqEntry](SqEntry.md).
 
 ## 1. Create table and column by methods and functions (dynamic)
 
-It is recommended to use C++ methods or C functions to create dynamic table and column.  
+It use C++ methods or C functions to create dynamic table and column.  
 To get more information and sample, you can see below documents:  
 1. [database-migrations.md](database-migrations.md)
 2. "**Database schema**" section in ../[README.md](../README.md#database-schema)

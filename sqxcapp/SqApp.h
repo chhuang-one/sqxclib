@@ -61,10 +61,10 @@ void  sq_app_final(SqApp *app);
 int   sq_app_open_database(SqApp *app, const char *db_database);
 void  sq_app_close_database(SqApp *app);
 
-// make schema by migrations (defined in ../database/migrations)
-// if 'migration_id' is 0, 'migration_id' will use version of database schema.
-// return SQCODE_DB_VERSION_0 : if the database vesion is 0 (no migrations have been done)
-// return SQCODE_DB_VERSION_MISMATCH : if these migrations are not for this database
+// sq_app_make_schema() make current schema by migrations (defined in ../database/migrations).
+// If 'migration_id' is 0, 'migration_id' will use version of schema in database.
+// return SQCODE_DB_SCHEMA_VERSION_0 : if the version of schema in database is 0 (no migrations have been done)
+// return SQCODE_DB_WRONG_MIGRATIONS : if these migrations are not for this database
 int   sq_app_make_schema(SqApp *app, int migration_id);
 
 // if 'step' is 0:
