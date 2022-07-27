@@ -20,7 +20,7 @@
 #include <SqPairs.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqAppTool         SqAppTool;
 
@@ -94,7 +94,7 @@ struct AppToolMethod : AppMethod {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqAppTool is used by command-line program - sqxctool and sqxcpptool.
 

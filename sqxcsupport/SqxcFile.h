@@ -19,7 +19,7 @@
 #include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqxcFile        SqxcFile;
 
@@ -40,7 +40,7 @@ extern const SqxcInfo              SqxcInfo_FileWriter_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqxcFile - output to a file.
 

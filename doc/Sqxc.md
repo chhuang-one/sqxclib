@@ -74,7 +74,7 @@ use C++ language
 	        |           dest                                    |
 	        └---------------------------------------------------┘
 
-Function insert() and steal() only link/unlink 'peer' ('peer' is single linked list),
+Function insert() and steal() only link or unlink 'peer' ('peer' is single linked list),
 user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especially custom data flow.
 
 ## Send data according to data type
@@ -94,7 +94,7 @@ If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWr
 	SqType.write() ──┴────────────────────┴──> SqxcSql   ───> Sqdb.exec()
 
 sqxc_send() is called by data source side. It send data(arguments) to Sqxc element and try to match type in Sqxc chain.  
-Because difference data type is processed by difference Sqxc element, It returns current Sqxc elements.  
+Because different data type is processed by different Sqxc element, It returns current Sqxc elements.  
   
 Before you call sqxc_send(), set data type, data name, and data value in Sqxc structure.
 These data(arguments) will be processed between Sqxc elements.  
@@ -204,7 +204,7 @@ JSON look like this:
 ```
 
 #### use C++ language to send array to Sqxc elements
-If you want to parse/write object or array and reuse Sqxc elements:
+If you want to parse/write object or array, and reuse Sqxc elements:
 1. call ready() before sending data.
 2. call finish() after sending data.
 

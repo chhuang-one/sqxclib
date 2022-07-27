@@ -81,7 +81,7 @@ sqxctool  make:migration  migration_name
 3. 将迁移声明附加到 工作区目录/sqxcapp/migrations-declarations
 4. 将迁移数组的元素附加到 工作区目录/sqxcapp/migrations-elements
 
-如果使用 C++ 进行迁移，可以将 sqxctool 替换为 sqxcpptool。 不同的是
+如果使用 C++ 进行迁移，可以将 sqxctool 替换为 sqxcpptool。不同的是
 **sqxcpptool** 可以生成 C++ 迁移文件并将路径附加到 工作区目录/sqxcapp/migrations-files.cpp  
   
 最后，您必须在定义表后重新编译迁移代码。

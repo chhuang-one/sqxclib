@@ -19,7 +19,7 @@
 #include <stdbool.h>   // bool, true, false
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqType           SqType;
 typedef struct SqEntry          SqEntry;
@@ -117,9 +117,9 @@ struct TypeMethod;    // define in SqType.h
 #endif // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
-/*	SqEntry: define object/field in structure/class.
+/*	SqEntry:  define field of structure type.
 	SqColumn: define SQL column (field) in SQL table (structure/class).
 
 	SqEntry
@@ -130,8 +130,8 @@ struct TypeMethod;    // define in SqType.h
 	     |
 	     `--- SqColumn
 
-	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
-	      C++ user can initialize static structure easily.
+	Because 'const' is used to define string 'char*' and type 'SqType*',
+	C++ user can initialize static structure easily.
 
 	SqEntry must have no base struct because I need use aggregate initialization with it.
  */
@@ -170,8 +170,8 @@ struct SqEntry
 /*	SqReentry: reentry previously-defined entries.
 	           add old_name in SqEntry to record changes (rename or drop).
 
-	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
-	      C++ user can initialize static structure easily.
+	Because 'const' is used to define string 'char*' and type 'SqType*',
+	C++ user can initialize static structure easily.
 */
 
 #define SQ_REENTRY_MEMBERS      \

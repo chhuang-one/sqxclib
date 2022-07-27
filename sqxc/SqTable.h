@@ -21,7 +21,7 @@
 #include <SqRelation.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqTable        SqTable;
 
@@ -332,7 +332,7 @@ struct TableMethod
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqTable defines SQL Table
 
@@ -346,8 +346,8 @@ struct TableMethod
 	Migration - Drop   : table->name = NULL, table->old_name = column_name
 	Migration - Rename : table->name = new_name, table->old_name = old_name
 
-	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
-	      C++ user can initialize static structure easily.
+	Because 'const' is used to define string 'char*' and type 'SqType*',
+	C++ user can initialize static structure easily.
  */
 
 #define SQ_TABLE_MEMBERS       \

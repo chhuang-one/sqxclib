@@ -18,7 +18,7 @@
 
 /* about macro SQ_GET_TYPE_NAME(Type):
  * It is used to get name of structured data type in C and C++ code.
- * warning: You will get difference type name from C and C++ source code when you use gcc to compile
+ * warning: You will get different type name from C and C++ source code when you use gcc to compile
  *          because gcc's typeid(Type).name() will return strange name.
  */
 #ifdef __cplusplus
@@ -33,7 +33,7 @@
 #include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 //typedef struct SqType        SqType;
 
@@ -192,7 +192,7 @@ struct Type;
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqType - define how to initialize, finalize, and convert instance.
 	         User can define constant or dynamic SqType.
@@ -229,7 +229,7 @@ struct SqType
 	char          *name;
 
 	// SqType.entry is array of SqEntry pointer if current SqType is for C struct type.
-	// SqType.entry can't be freed if SqType.n_entry == -1
+	// SqType.entry isn't freed if SqType.n_entry == -1
 	SqEntry      **entry;          // SqPtrArray.data
 	int            n_entry;        // SqPtrArray.length
 	// *** About above 2 fields:
@@ -460,12 +460,14 @@ extern  const  struct SqTypeFake   SqType_Fake_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ inline functions
+// C/C++ common definitions: define global inline function
 
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
-// C99 or C++ inline functions
+// define inline functions here if compiler supports inline function.
+
 #else   // __STDC_VERSION__ || __cplusplus
-// C functions
+// declare functions here if compiler does NOT support inline function.
+
 #endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------

@@ -25,7 +25,7 @@
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqThread    SqThread;
 typedef struct SqMutex     SqMutex;
@@ -156,7 +156,7 @@ typedef SqThreadResult (*SqThreadFunc)(void*);
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /* ------ SqThread ------ */
 struct SqThread

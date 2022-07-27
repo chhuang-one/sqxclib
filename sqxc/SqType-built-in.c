@@ -63,7 +63,9 @@ int  sq_type_bool_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 
 	default:
-//		src->required_type = SQXC_TYPE_BOOL;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_BOOL;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
@@ -101,7 +103,9 @@ int  sq_type_int_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 
 	default:
-//		src->required_type = SQXC_TYPE_INT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_INT;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
@@ -139,7 +143,9 @@ int  sq_type_uint_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 
 	default:
-//		src->required_type = SQXC_TYPE_UINT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_UINT;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
@@ -177,7 +183,9 @@ int  sq_type_intptr_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 
 	default:
-//		src->required_type = SQXC_TYPE_INT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_INT;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
@@ -215,7 +223,9 @@ int  sq_type_int64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 
 	default:
-//		src->required_type = SQXC_TYPE_INT64;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_INT64;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
@@ -253,7 +263,9 @@ int  sq_type_uint64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 
 	default:
-//		src->required_type = SQXC_TYPE_UINT64;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_UINT64;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
@@ -291,7 +303,9 @@ int  sq_type_double_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 
 	default:
-//		src->required_type = SQXC_TYPE_DOUBLE;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_DOUBLE;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
@@ -336,7 +350,9 @@ int  sq_type_time_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 
 	default:
-//		src->required_type = SQXC_TYPE_INT64;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_INT64;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
@@ -384,7 +400,9 @@ int  sq_type_string_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		break;
 
 	default:
-//		src->required_type = SQXC_TYPE_STRING;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_STRING;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
@@ -433,7 +451,9 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 			nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 		}
 		if (src->type != SQXC_TYPE_OBJECT) {
-//			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			src->required_type = SQXC_TYPE_OBJECT;
+			*/
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
 		// SqxcNested is ready to parse object, type has been matched.
@@ -444,7 +464,9 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 	if (nested->data != instance) {
 		// do type match
 		if (src->type != SQXC_TYPE_OBJECT) {
-//			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			src->required_type = SQXC_TYPE_OBJECT;
+			*/
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
 		// ready to parse

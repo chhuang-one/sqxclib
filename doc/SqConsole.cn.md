@@ -2,7 +2,7 @@
 
 # SqConsole
 
-SqConsole 提供命令行界面（主要用于 SqAppTool）。 它必须与 SqCommand 和 SqOption 一起使用。  
+SqConsole 提供命令行界面（主要用于 SqAppTool）。它必须与 SqCommand 和 SqOption 一起使用。  
 注意: SqConsole 在 sqxcsupport 库中。  
   
 SqConsole、SqCommand 和 SqOption 的关系。

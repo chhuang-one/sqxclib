@@ -20,7 +20,7 @@
 #include <SqStorage.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqMigration         SqMigration;
 typedef struct SqMigrationTable    SqMigrationTable;
@@ -67,7 +67,7 @@ namespace Sq {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 struct SqMigration {
 	SqMigrationFunc  up;

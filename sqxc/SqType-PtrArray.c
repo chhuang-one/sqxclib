@@ -57,7 +57,7 @@ static int  sq_type_ptr_array_parse(void *array, const SqType *type, Sqxc *src)
 	void         *element;
 
 	// get element type information
-	if (type->n_entry == -1)    // SqType.entry can't be freed if SqType.n_entry == -1
+	if (type->n_entry == -1)    // SqType.entry isn't freed if SqType.n_entry == -1
 		element_type = (SqType*)type->entry;
 	else if (xc_value->nested_count < 2)
 		element_type = xc_value->element;
@@ -76,7 +76,9 @@ static int  sq_type_ptr_array_parse(void *array, const SqType *type, Sqxc *src)
 			nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 		}
 		if (src->type != SQXC_TYPE_ARRAY) {
-//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			src->required_type = SQXC_TYPE_ARRAY;
+			*/
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
 		// SqxcNested is ready to parse array, type has been matched.
@@ -87,7 +89,9 @@ static int  sq_type_ptr_array_parse(void *array, const SqType *type, Sqxc *src)
 	if (nested->data != array) {
 		// do type match
 		if (src->type != SQXC_TYPE_ARRAY) {
-//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			src->required_type = SQXC_TYPE_ARRAY;
+			*/
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
 		// ready to parse
@@ -118,7 +122,7 @@ static Sqxc *sq_type_ptr_array_write(void *array, const SqType *type, Sqxc *dest
 	const char   *array_name = dest->name;
 
 	// get element type information.
-	if (type->n_entry == -1)    // SqType.entry can't be freed if SqType.n_entry == -1
+	if (type->n_entry == -1)    // SqType.entry isn't freed if SqType.n_entry == -1
 		element_type = (SqType*)type->entry;
 //	else if (dest->nested_count < 1)
 //		element_type = ((SqxcValue*)dest)->element;
@@ -178,7 +182,7 @@ static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *sr
 	void         *element;
 
 	// get element type information. different from sq_type_ptr_array_parse()
-	element_type = (SqType*)type->entry;    // SqPtrArray assign element type in SqType.entry
+	element_type = (SqType*)type->entry;    // assign element type in SqType.entry
 
 	// Start of Array
 	nested = xc_value->nested;
@@ -192,7 +196,9 @@ static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *sr
 			nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 		}
 		if (src->type != SQXC_TYPE_ARRAY) {
-//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			src->required_type = SQXC_TYPE_ARRAY;
+			*/
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
 		// SqxcNested is ready to parse array, type has been matched.
@@ -203,7 +209,9 @@ static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *sr
 	if (nested->data != array) {
 		// do type match
 		if (src->type != SQXC_TYPE_ARRAY) {
-//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			src->required_type = SQXC_TYPE_ARRAY;
+			*/
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
 		// ready to parse
@@ -234,7 +242,7 @@ static Sqxc *sq_type_notptr_array_write(void *array, const SqType *type, Sqxc *d
 	const char   *array_name = dest->name;
 
 	// get element type information. different from sq_type_ptr_array_write()
-	element_type = (SqType*)type->entry;    // SqPtrArray assign element type in SqType.entry
+	element_type = (SqType*)type->entry;    // assign element type in SqType.entry
 
 	// Begin of SQXC_TYPE_ARRAY
 	dest->type = SQXC_TYPE_ARRAY;
@@ -269,8 +277,8 @@ const SqType SqType_StringArray_ =
 	sq_type_notptr_array_parse,
 	sq_type_notptr_array_write,
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE_STRING,    // entry      // SqPtrArray assign element type in SqType.entry
-	-1,                            // n_entry    // SqType.entry can't be freed if SqType.n_entry == -1
+	(SqEntry**) SQ_TYPE_STRING,    // entry   : assign element type in SqType.entry
+	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
 };
 
 // extern
@@ -282,7 +290,7 @@ const SqType SqType_IntptrArray_ =
 	sq_type_notptr_array_parse,
 	sq_type_notptr_array_write,
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE_INTPTR,    // entry      // SqPtrArray assign element type in SqType.entry
-	-1,                            // n_entry    // SqType.entry can't be freed if SqType.n_entry == -1
+	(SqEntry**) SQ_TYPE_INTPTR,    // entry   : assign element type in SqType.entry
+	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
 };
 

@@ -56,7 +56,9 @@ struct TypeStl : SqType {
 				nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 			}
 			if (src->type != SQXC_TYPE_ARRAY) {
-//				src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
+				/* set required type if return SQCODE_TYPE_NOT_MATCH
+				src->required_type = SQXC_TYPE_ARRAY;
+				*/
 				return (src->code = SQCODE_TYPE_NOT_MATCH);
 			}
 			// SqxcNested is ready to parse array (container), type has been matched.
@@ -67,7 +69,9 @@ struct TypeStl : SqType {
 	if (nested->data != instance) {
 		// do type match
 		if (src->type != SQXC_TYPE_ARRAY) {
-//			src->required_type = SQXC_TYPE_ARRAY;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			src->required_type = SQXC_TYPE_ARRAY;
+			*/
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
 		// ready to parse
@@ -135,7 +139,7 @@ struct TypeStl : SqType {
 		this->parse = cxxParse;
 		this->write = cxxWrite;
 		this->name  = NULL;
-		this->n_entry = -1;                       // SqType.entry can't be freed if SqType.n_entry == -1
+		this->n_entry = -1;                       // SqType.entry isn't freed if SqType.n_entry == -1
 		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
 #if SQ_TYPE_STL_ENABLE_DYNAMIC == 1
 		// reset SqType.bit_field if it has not been set by operator new()

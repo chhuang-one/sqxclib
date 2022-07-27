@@ -2,7 +2,7 @@
 
 # SqQuery
 
-SqQuery 是支持嵌套和子查询的查询构建器。
+SqQuery 是支持嵌套和子查询的查询构建器。  
 如果在 SqQuery.c 中删除 sq_query_get_table_as_names() 和 sq_query_select_table_as()，它可以在没有 sqxclib 的情况下独立工作。  
 您还可以通过从 Makefile 中删除 SqQuery.c 和 SqStorage-query.c 来使用其他查询构建器来替换 sqxclib 中的 SqQuery。
 
@@ -629,7 +629,7 @@ C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
 
 ## 嵌套和子查询
 
-SqQuery 可以产生有限的嵌套和子查询。 您也可以使用原始方法来执行这些操作。  
+SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法来执行这些操作。  
   
 以下 C 函数支持子查询或嵌套：
 

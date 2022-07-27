@@ -19,7 +19,7 @@
 #include <SqJoint.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqRow              SqRow;
 typedef struct SqRowColumn        SqRowColumn;
@@ -111,7 +111,7 @@ struct RowMethod {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*
 	SqRow.cols.type is type of SqRow.data.xxx

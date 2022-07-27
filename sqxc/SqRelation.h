@@ -18,7 +18,7 @@
 #include <SqPtrArray.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqRelation        SqRelation;
 typedef struct SqRelationNode    SqRelationNode;
@@ -123,7 +123,7 @@ struct RelationNodeMethod {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqRelation: record relation of object
 	            SqRelationNode is the element type in in pool and array

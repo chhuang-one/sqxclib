@@ -78,7 +78,9 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 
 	switch (src->type) {
 	case SQXC_TYPE_ARRAY:
-//		src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_OBJECT;
+		*/
 		if (xcsql->outer_type & (SQXC_TYPE_ARRAY | SQXC_TYPE_OBJECT))
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		xcsql->outer_type |= SQXC_TYPE_ARRAY;
@@ -89,7 +91,9 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 		return (src->code = SQCODE_OK);
 
 	case SQXC_TYPE_OBJECT:
-//		src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_OBJECT;
+		*/
 		if (xcsql->outer_type & SQXC_TYPE_OBJECT)
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		xcsql->outer_type |= SQXC_TYPE_OBJECT;
@@ -181,15 +185,19 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 
 	switch (src->type) {
 	case SQXC_TYPE_ARRAY:
-//		if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
-//			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
+			src->required_type = SQXC_TYPE_OBJECT;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 
 	case SQXC_TYPE_ARRAY_END:
 		return (src->code = SQCODE_TYPE_END_ERROR);
 
 	case SQXC_TYPE_OBJECT:
-//		src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_OBJECT;
+		*/
 		if (xcsql->outer_type & SQXC_TYPE_OBJECT)
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		xcsql->outer_type |= SQXC_TYPE_OBJECT;

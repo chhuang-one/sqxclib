@@ -594,10 +594,10 @@ static int  print_where_column(const SqColumn *column, void *instance, SqBuffer 
 // If compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-// C99 or C++ inline functions in SqStorage.h
+// C99 or C++ inline functions has defined in SqStorage.h
 
 #else   // __STDC_VERSION__
-// declare functions here if compiler does NOT support inline function.
+// define functions here if compiler does NOT support inline function.
 
 int  sq_storage_begin_trans(SqStorage *storage) {
 	return SQ_STORAGE_BEGIN_TRANS(storage);

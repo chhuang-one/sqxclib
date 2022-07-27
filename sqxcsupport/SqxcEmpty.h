@@ -18,7 +18,7 @@
 #include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqxcEmpty        SqxcEmpty;
 
@@ -39,7 +39,7 @@ extern const SqxcInfo        SqxcInfo_Empty_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqxcEmpty - A sample of Sqxc element.
 

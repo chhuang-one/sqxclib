@@ -3,7 +3,7 @@
 # SqType
 
 It define how to initialize, finalize, and convert C data type.
-SqEntry use it to declare data type. Sqxc use it to convert data.
+SqEntry use it to define data type. Sqxc use it to convert data.
   
 Built-in SqType with it's C data type
 
@@ -24,6 +24,14 @@ Built-in SqType with it's SQL data type
 | SqType          | C data type  | SQL data type |
 | --------------- | ------------ | ------------- |
 | SQ_TYPE_CHAR    | char*        | CHAR          |
+
+SqType with it's C container type
+
+| SqType                | C data type    |
+| --------------------- | -------------- |
+| SQ_TYPE_PTR_ARRAY     | SqPtrArray     |
+| SQ_TYPE_INTPTR_ARRAY  | SqIntptrArray  |
+| SQ_TYPE_STRING_ARRAY  | SqStringArray  |
 
 SqType with it's C++ data type
 
@@ -54,10 +62,10 @@ use C99 designated initializer or C++ aggregate initialization to define static 
 ```
 const SqType type_int = {
 	.size  = sizeof(int),
-	.init  = NULL,            // initialize function
-	.final = NULL,            // finalize function
-	.parse = int_parse_function,
-	.write = int_write_function,
+	.init  = NULL,                  // initialize function
+	.final = NULL,                  // finalize function
+	.parse = int_parse_function,    // Function that parse data from Sqxc instance
+	.write = int_write_function,    // Function that write data to   Sqxc instance
 };
 
 ```
@@ -83,10 +91,10 @@ SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 //	type = new Sq::Type(-1, NULL);
 
 	type->size  = sizeof(int);
-	type->init  = NULL;           // initialize function
-	type->final = NULL;           // finalize function
-	type->parse = int_parse_function;
-	type->write = int_write_function;
+	type->init  = NULL;                  // initialize function
+	type->final = NULL;                  // finalize function
+	type->parse = int_parse_function;    // Function that parse data from Sqxc instance
+	type->write = int_write_function;    // Function that write data to   Sqxc instance
 ```
 
 ## 2 use SqType to define structured data type
@@ -134,7 +142,7 @@ const SqType typeUser = {
 
 about above macro SQ_GET_TYPE_NAME(Type):
 * It is used to get name of structured data type in C and C++ code.
-* warning: You will get difference type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.
+* warning: You will get different type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.
 
 #### 2.2 constant SqType use 'sorted' constant pointer array of SqEntry
 1. use C99 designated initializer to define 'sorted' **pointer array** of SqEntry.
@@ -253,7 +261,7 @@ use C++ language to add dynamic SqEntry.
 	type->addEntry(entry);
 ```
 
-## 3 calculate instance size for dynamic structured data type
+#### 2.6 calculate instance size for dynamic structured data type
 
 * User can use C function sq_type_decide_size(), C++ method decideSize() to calculate instance size.
 * You don't need to call function to calculate instance size after adding entry because program will do it automatically.
@@ -273,7 +281,7 @@ unsigned int  Sq::Type::decideSize(const SqEntry *inner_entry, bool entry_remove
 * if user add 'inner_entry' to SqType, pass argument 'entry_removed' = false.
 * if user remove 'inner_entry' from SqType, pass argument 'entry_removed' = true.
 
-## 4 find & remove entry from dynamic SqType
+#### 2.7 find & remove entry from dynamic SqType
 
 use C language to find & remove SqEntry
 
@@ -305,7 +313,146 @@ use C++ language to find & remove SqEntry
 //	type->decideSize(*entry_addr, true);
 ```
 
-## 5 free dynamic SqType
+## 3 How to support new container type
+
+User must implement 4 functions to support a new type and must handle data of SQXC_TYPE_XXXX in parser and writer of type.  
+All container type like array, vector, or list...etc corresponds to SQXC_TYPE_ARRAY.  
+All structured type corresponds to SQXC_TYPE_OBJECT.  
+
+#### 3.1 declare SqType for container
+
+e.g. MyList is list data type
+
+```c++
+// This is header file
+
+/* MyList is a list data type
+
+struct MyListNode {
+	MyListNode *next;    // pointer to next MyListNode
+	void       *data;    // pointer to element data
+};
+
+struct MyList {
+	MyListNode *head;    // pointer to first MyListNode
+}
+ */
+
+#ifdef __cplusplus    // mix C and C++
+extern "C" {
+#endif
+
+// SqType_MyList_ is defined in source file.
+extern const SqType                 SqType_MyList_
+
+#define SQ_TYPE_MY_LIST           (&SqType_MyList_)
+
+#ifdef __cplusplus    // mix C and C++
+}  // extern "C"
+#endif
+```
+
+#### 3.2 implement SqType interface for container
+
+sqxc_push_nested() is used to push current SqType and it's instance to stack.  
+sqxc_pop_nested()  is used to restore previous SqType and it's instance from stack.  
+  
+call sqxc_push_nested() when you parse SQXC_TYPE_OBJECT or SQXC_TYPE_ARRAY.  
+call sqxc_pop_nested()  when you parse SQXC_TYPE_OBJECT_END or SQXC_TYPE_ARRAY_END.
+
+```c++
+// This is source file
+
+static void sq_type_my_list_init(void *mylist, const SqType *type)
+{
+	// initialize MyList instance
+}
+
+static void sq_type_my_list_final(void *mylist, const SqType *type)
+{
+	// finalize MyList instance
+}
+
+static int  sq_type_my_list_parse(void *mylist, const SqType *type, Sqxc *src)
+{
+	SqxcValue    *xc_value = (SqxcValue*)src->dest;
+	SqxcNested   *nested   = xc_value->nested;
+	const SqType *element_type;
+
+	// You can assign element type in SqType.entry
+	element_type = (SqType*)type->entry;
+
+	// Start of Container
+	if (nested->data != mylist) {
+		// do type match
+		if (src->type != SQXC_TYPE_ARRAY)
+			return (src->code = SQCODE_TYPE_NOT_MATCH);
+		// ready to parse
+		nested = sqxc_push_nested((Sqxc*)xc_value);
+		nested->data = mylist;
+		nested->data2 = (void*)type;
+		return (src->code = SQCODE_OK);
+	}
+	// End of Container
+	// sqxc_value_send() have handled SQXC_TYPE_ARRAY_END. User doesn't need to handle it.
+
+	// parse elements of MyList
+	void *element = calloc(1, element_type->size);
+	src->name = NULL;    // set "name" before calling parse()
+	src->code = element_type->parse(element, element_type, src);
+	my_list_append(mylist, element);
+	return src->code;
+}
+
+static Sqxc *sq_type_my_list_write(void *mylist, const SqType *type, Sqxc *dest)
+{
+	const SqType *element_type;
+	const char   *container_name = dest->name;
+
+	// You can assign element type in SqType.entry
+	element_type = (SqType*)type->entry;
+
+	// Begin of Container
+	dest->type = SQXC_TYPE_ARRAY;
+//	dest->name = container_name;    // "name" was set by caller of this function
+//	dest->value.pointer = NULL;
+	dest = sqxc_send(dest);
+	if (dest->code != SQCODE_OK)
+		return dest;
+
+	// output elements of MyList
+	for (MyListNode *node = mylist->head;  node;  node = node->next) {
+		void *element = node->data;
+		dest->name = NULL;      // set "name" before calling write()
+		dest = element_type->write(element, element_type, dest);
+		if (dest->code != SQCODE_OK)
+			return dest;
+	}
+
+	// End of Container
+	dest->type = SQXC_TYPE_ARRAY_END;
+	dest->name = container_name;
+//	dest->value.pointer = NULL;
+	dest = sqxc_send(dest);
+	return dest;
+}
+
+// used by header file.
+const SqType SqType_MyList_ =
+{
+	sizeof(MyList),                // size
+	sq_type_my_list_init,          // init
+	sq_type_my_list_final,         // final
+	sq_type_my_list_parse,         // parse
+	sq_type_my_list_write,         // write
+
+	NULL,                          // name
+	(SqEntry**) SQ_TYPE_ELEMENT,   // entry   : You can assign element type in SqType.entry
+	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
+};
+```
+
+## 4 free dynamic SqType
 
 sq_type_free() can destroy dynamic SqType (SqType.bit_field has SQB_TYPE_DYNAMIC).
 

@@ -25,7 +25,7 @@
 #include <Sqdb.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqdbMysql           SqdbMysql;
 typedef struct SqdbConfigMysql     SqdbConfigMysql;
@@ -47,7 +47,7 @@ extern const SqdbInfo        SqdbInfo_MySQL_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqdbMysql - Sqdb for MySQL
 

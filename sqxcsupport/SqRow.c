@@ -246,7 +246,9 @@ static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 			nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 		}
 		if (src->type != SQXC_TYPE_OBJECT) {
-//			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			src->required_type = SQXC_TYPE_OBJECT;
+			*/
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
 		// SqxcNested is ready to parse object, type has been matched.
@@ -257,7 +259,9 @@ static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 	if (nested->data != instance) {
 		// do type match
 		if (src->type != SQXC_TYPE_OBJECT) {
-//			src->required_type = SQXC_TYPE_OBJECT;    // set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			src->required_type = SQXC_TYPE_OBJECT;
+			*/
 			return (src->code = SQCODE_TYPE_NOT_MATCH);
 		}
 		// ready to parse

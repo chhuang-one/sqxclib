@@ -59,7 +59,9 @@ static int  sq_type_std_string_parse(void *instance, const SqType *type, Sqxc *s
 	}
 	else {
 		// TODO: convert to string
-//		src->required_type = SQXC_TYPE_STRING;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_STRING;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 

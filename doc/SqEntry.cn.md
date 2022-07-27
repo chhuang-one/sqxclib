@@ -1,7 +1,7 @@
 [English](SqEntry.md)
 
 # SqEntry
-SqEntry 在结构中定义字段。它必须使用 [SqType](SqType.cn.md) 来声明字段的数据类型。
+SqEntry 定义结构类型的字段。它必须使用 [SqType](SqType.cn.md) 来定义字段的数据类型。
 
 	SqEntry
 	│
@@ -22,8 +22,8 @@ struct SqEntry
 	unsigned int  bit_field;   // 下面解释
 };
 
-// Note: 因为使用 'const char*' 来声明字符串并使用 'const SqType*' 来声明类型，
-//       C++ 用户可以轻松初始化静态 SqEntry。
+// 因为使用 'const' 来定义字符串 'char*' 和类型 'SqType*'，
+// 所以 C++ 用户可以轻松初始化静态 SqEntry。
 ```
 
 声明 SqEntry 的 bit_field

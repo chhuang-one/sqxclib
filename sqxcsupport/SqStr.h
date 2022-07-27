@@ -18,7 +18,7 @@
 #include <stdbool.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.

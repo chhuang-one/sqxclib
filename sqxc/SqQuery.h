@@ -26,7 +26,7 @@
 #include <SqTable.h>       // used by sq_query_select_table_as()
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqQuery           SqQuery;
 typedef struct SqQueryNode       SqQueryNode;
@@ -462,7 +462,7 @@ struct QueryMethod
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-//  C/C++ structue definition
+//  C/C++ structure definition
 
 /*	SqQueryNode - store elements of SQL Statements
 

@@ -18,7 +18,7 @@
 #include <SqTable.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqType         SqTypeJoint;
 
@@ -112,7 +112,7 @@ struct TypeJointMethod {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqTypeJoint - combine multiple table's type (SQL joined table)
 

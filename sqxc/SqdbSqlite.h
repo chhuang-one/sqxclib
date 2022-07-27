@@ -20,7 +20,7 @@
 #include <Sqdb.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqdbSqlite          SqdbSqlite;
 typedef struct SqdbConfigSqlite    SqdbConfigSqlite;
@@ -42,7 +42,7 @@ extern const SqdbInfo         SqdbInfo_SQLite_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqdbSqlite - Sqdb for SQLite
 

@@ -18,7 +18,7 @@
 #include <Sqdb.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqdbEmpty          SqdbEmpty;
 typedef struct SqdbConfigEmpty    SqdbConfigEmpty;
@@ -40,7 +40,7 @@ extern const SqdbInfo        SqdbInfo_Empty_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqdbEmpty - Sqdb for debug/sample
 

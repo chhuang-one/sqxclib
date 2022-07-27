@@ -25,7 +25,7 @@
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqStorage         SqStorage;
 
@@ -317,7 +317,7 @@ struct StorageMethod
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqStorage
 	  SqStorage access database. It using Sqxc to convert data between C language and Sqdb interface.

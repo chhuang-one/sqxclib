@@ -20,7 +20,7 @@
 #include <SqMigration.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqApp             SqApp;
 
@@ -106,7 +106,7 @@ struct AppMethod {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqApp use configuration file (SqApp-config.h) to initialize database and do migrations. It used by user's application.
 

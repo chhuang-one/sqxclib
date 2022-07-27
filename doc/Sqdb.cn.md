@@ -19,7 +19,7 @@ struct Sqdb
 
 # SqdbInfo
 
-SqdbInfo 是数据库产品的数据和函数接口。
+SqdbInfo 是数据库产品的接口。
 
 ```c
 struct SqdbInfo
@@ -49,7 +49,7 @@ struct SqdbInfo
 	int  (*close)(Sqdb *db);
 	// 执行 SQL 语句
 	int  (*exec)(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
-	// 迁移架构。 它将 'schema_next' 的更改应用于 'schema_current'
+	// 迁移架构。它将 'schema_next' 的更改应用于 'schema_current'
 	int  (*migrate)(Sqdb *db, SqSchema *schema_current, SqSchema *schema_next);
 };
 ```

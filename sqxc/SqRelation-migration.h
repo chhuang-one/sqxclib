@@ -20,7 +20,7 @@
 #include <SqSchema.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 // These types are for internal use only
 #define SQ_TYPE_TRACING    SQ_TYPE_FAKE4    // column (or table) has foreign/composite key

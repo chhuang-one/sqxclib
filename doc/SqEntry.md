@@ -1,7 +1,7 @@
 [中文](SqEntry.cn.md)
 
 # SqEntry
-SqEntry define field in structure. It must use [SqType](SqType.md) to declare data type of field.
+SqEntry define field of structure type. It must use [SqType](SqType.md) to define data type of field.
 
 	SqEntry
 	│
@@ -22,8 +22,8 @@ struct SqEntry
 	unsigned int  bit_field;   // explain below
 };
 
-// Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
-//       C++ user can initialize static SqEntry easily.
+// Because 'const' is used to define string 'char*' and type 'SqType*',
+// C++ user can initialize static SqEntry easily.
 ```
 
 Declaring bit_field of SqEntry

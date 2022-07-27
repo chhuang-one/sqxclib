@@ -21,7 +21,7 @@
 #include <SqEntry.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqColumn       SqColumn;
 typedef struct SqForeign      SqForeign;    // used by SqColumn
@@ -114,7 +114,7 @@ struct Column;
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqForeign: foreign key data in SqColumn
  */
@@ -139,8 +139,8 @@ struct SqForeign
 	Migration - Drop   : column->name = NULL, column->old_name = column_name
 	Migration - Rename : column->name = new_name, column->old_name = old_name
 
-	Note: use 'const char*' to declare string and use 'const SqType*' to declare type,
-	      C++ user can initialize static structure easily.
+	Because 'const' is used to define string 'char*' and type 'SqType*',
+	C++ user can initialize static structure easily.
 
 	SqColumn must have no base struct because I need use aggregate initialization with it.
 */

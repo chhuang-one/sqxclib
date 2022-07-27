@@ -18,11 +18,11 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 
 4. 单一头文件 〈 **sqxclib.h** 〉 (注意: 不包含特殊宏和支持库)
 
-5. 命令行工具可以生成迁移并进行迁移。 见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
+5. 命令行工具可以生成迁移并进行迁移。见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
 
 6. 支持 SQLite, MySQL / MariaDB。
 
-7. 提供项目模板。 见目录 [project-template](project-template)。
+7. 提供项目模板。见目录 [project-template](project-template)。
 
 ## 数据库架构
 
@@ -177,7 +177,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 ## 数据库产品
 
-**Sqdb** 是数据库产品（SQLite、MySQL 等）的基础结构。 您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
+**Sqdb** 是数据库产品（SQLite、MySQL 等）的基础结构。您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
   
 使用 C 函数打开 SQLite 数据库
 
@@ -394,7 +394,7 @@ SQL 语句
 
 使用 C 函数生成查询
 
-* sq_query_join(query, NULL) 是子查询的开始。 它调用 sq_query_push_nested()
+* sq_query_join(query, NULL) 是子查询的开始。它调用 sq_query_push_nested()
 * sq_query_pop_nested(query) 是子查询的结尾。
 
 ```c
@@ -683,7 +683,7 @@ Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod 
 
 更改构建配置。  
   
-sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写。 用户可以在 sqxc/[SqConfig.h](sqxc/SqConfig.h) 中更改。
+sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写。用户可以在 sqxc/[SqConfig.h](sqxc/SqConfig.h) 中更改。
 
 ```c
 // SqConfig.h 中的常用设置

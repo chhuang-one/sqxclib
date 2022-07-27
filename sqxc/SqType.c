@@ -74,7 +74,7 @@ void  sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_des
 	type->bit_field = SQB_TYPE_DYNAMIC;
 
 	if (prealloc_size == -1) {
-		// SqType.entry can't be freed if SqType.n_entry == -1
+		// SqType.entry isn't freed if SqType.n_entry == -1
 		type->n_entry = -1;
 		type->entry = NULL;
 	}
@@ -89,7 +89,7 @@ void  sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_des
 void  sq_type_final_self(SqType *type)
 {
 	free(type->name);
-	// SqType.entry can't be freed if SqType.n_entry == -1
+	// SqType.entry isn't freed if SqType.n_entry == -1
 	if (type->n_entry != -1)
 		sq_ptr_array_final(sq_type_get_ptr_array(type));
 }
@@ -161,7 +161,7 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 
 void  sq_type_clear_entry(SqType *type)
 {
-	// SqType.entry can't be freed if SqType.n_entry == -1
+	// SqType.entry isn't freed if SqType.n_entry == -1
 	if (type->bit_field & SQB_TYPE_DYNAMIC && type->n_entry > 0) {
 		sq_ptr_array_erase(sq_type_get_ptr_array(type), 0, type->n_entry);
 		type->size = 0;
@@ -298,9 +298,9 @@ unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool
 // If compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-// C99 or C++ inline functions in SqType.h
+// C99 or C++ inline functions has defined in SqType.h
 
 #else   // __STDC_VERSION__
-// declare functions here if compiler does NOT support inline function.
+// define functions here if compiler does NOT support inline function.
 
 #endif  // __STDC_VERSION__

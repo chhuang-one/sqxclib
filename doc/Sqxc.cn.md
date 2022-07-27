@@ -74,7 +74,7 @@ Sqxc 转换器的数据类型
 	        |           dest                                    |
 	        └---------------------------------------------------┘
 
-函数 insert() 和steal() 仅链接/取消链接 'peer' （'peer' 是单链表），
+函数 insert() 和 steal() 仅链接或取消链接 'peer' （'peer' 是单链表），
 用户可能需要自己在 Sqxc 链中链接 'dest'（'dest' 是数据流），尤其是自定义数据流。
 
 ## 根据数据类型发送数据
@@ -93,8 +93,8 @@ sqxc_send() 可以在 Sqxc 元素之间发送数据（参数）并在运行时�
 	output ─>        ┌─> SqxcJsonWriter ──┐
 	SqType.write() ──┴────────────────────┴──> SqxcSql   ───> Sqdb.exec()
 
-sqxc_send() 由数据源端调用。 它将数据（参数）发送到 Sqxc 元素并尝试匹配 Sqxc 链中的类型。  
-因为差异数据类型是由差异 Sqxc 元素处理的，所以它返回当前的 Sqxc 元素。  
+sqxc_send() 由数据源端调用。它将数据（参数）发送到 Sqxc 元素并尝试匹配 Sqxc 链中的类型。  
+因为不同的数据类型是由不同的 Sqxc 元素处理的，所以它返回当前的 Sqxc 元素。  
   
 在调用 sqxc_send() 之前，在 Sqxc 结构中设置数据类型、数据名称和数据值。
 这些数据（参数）将在 Sqxc 元素之间进行处理。  
@@ -137,8 +137,8 @@ use C++ language
 		return;    // error
 ```
 
-#### 使用C语言向 Sqxc 元素发送对象数据
-如果要解析/写入对象或数组并重用 Sqxc 元素：
+#### 使用 C 语言向 Sqxc 元素发送对象数据
+如果要解析/写入对象或数组, 并重用 Sqxc 元素：
 1. 在发送数据之前调用 sqxc_ready()。
 2. 发送数据后调用 sqxc_finish()。
 
@@ -204,7 +204,7 @@ JSON 看起来像这样：
 ```
 
 #### 使用 C++ 语言将数组发送到 Sqxc 元素
-如果要解析/写入对象或数组并重用 Sqxc 元素：
+如果要解析/写入对象或数组, 并重用 Sqxc 元素：
 1. 在发送数据之前调用 ready()。
 2. 发送数据后调用 finish()。
 
@@ -390,7 +390,7 @@ static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src)
 
 如果新的 Sqxc 元素要解析/写入 SQL 列中的数据，它必须：  
 1. 支持 SQXC_TYPE_ARRAY 或 SQXC_TYPE_OBJECT。
-2. 将转换后的数据发送到 dest（或下一个）元素。 见下文：
+2. 将转换后的数据发送到 dest（或下一个）元素。见下文：
 
 ```c++
 	Sqxc *xc_dest;

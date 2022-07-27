@@ -27,7 +27,7 @@
 #include <SqTable.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqSchema       SqSchema;
 
@@ -122,7 +122,7 @@ struct SchemaMethod
 
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqSchema
 

@@ -19,7 +19,7 @@ struct Sqdb
 
 # SqdbInfo
 
-SqdbInfo is data and function interface for database product.
+SqdbInfo is interface for database product.
 
 ```c
 struct SqdbInfo

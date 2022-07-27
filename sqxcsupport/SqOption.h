@@ -19,7 +19,7 @@
 #include <SqType.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqOption          SqOption;
 
@@ -60,7 +60,7 @@ namespace Sq {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqOption: define an option for command
 	          format : -shortcut, --name[=value_description]  description
@@ -68,6 +68,9 @@ namespace Sq {
 	SqEntry
 	|
 	`--- SqOption
+
+	Because 'const' is used to define string 'char*' and type 'SqType*',
+	C++ user can initialize static structure easily.
 
 	SqOption must have no base struct because I need use aggregate initialization with it.
 */

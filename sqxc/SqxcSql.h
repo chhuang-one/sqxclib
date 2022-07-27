@@ -22,7 +22,7 @@
 #include <Sqdb.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqxcSql        SqxcSql;
 
@@ -54,7 +54,7 @@ extern const SqxcInfo      SqxcInfo_SQL_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqxcSql - Sqxc data convert to SQL statement. (destination of output chain)
 

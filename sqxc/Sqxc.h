@@ -33,7 +33,7 @@
 	        |           dest                                    |
 	        └---------------------------------------------------┘
 
-	Function insert() and steal() only link/unlink 'peer' ('peer' is single linked list),
+	Function insert() and steal() only link or unlink 'peer' ('peer' is single linked list),
 	user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especially custom data flow.
 
 	===========================================================================
@@ -64,7 +64,7 @@
 #include <SqBuffer.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct Sqxc             Sqxc;
 typedef struct SqxcInfo         SqxcInfo;
@@ -307,7 +307,7 @@ int     sqxc_broadcast(Sqxc *xc, int id, void *data);
 /* sqxc_send() is called by data source side.
    It send data to Sqxc element and try to match type in Sqxc chain.
 
-   Because difference data type is processed by difference Sqxc element,
+   Because different data type is processed by different Sqxc element,
    It returns current Sqxc elements.
  */
 Sqxc   *sqxc_send(Sqxc *xc);
@@ -382,7 +382,7 @@ struct XcMethod
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /* SqxcInfo */
 

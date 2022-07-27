@@ -19,7 +19,7 @@
 extern "C" {
 #endif
 
-// result code type is uint16_t
+// internal result code type is uint16_t
 
 #define SQCODE_STATUS                (0)
 #define SQCODE_WARNING               (2000)
@@ -47,19 +47,19 @@ extern "C" {
 #define SQCODE_DB_NO_MIGRATIONS      (44  + SQCODE_ERROR)    // SqApp
 
 // SQL
-#define SQCODE_OPEN_FAIL             (51  + SQCODE_ERROR)    // @deprecated
 #define SQCODE_OPEN_FAILED           (51  + SQCODE_ERROR)
 #define SQCODE_EXEC_ERROR            (52  + SQCODE_ERROR)
 #define SQCODE_NO_DATA               (53  + SQCODE_ERROR)    // if the result set is empty.
 
 // JSON
-#define SQCODE_UNCOMPLETED_JSON      (61  + SQCODE_STATUS)   // @deprecated
 #define SQCODE_JSON_CONTINUE         (61  + SQCODE_STATUS)
 #define SQCODE_JSON_ERROR            (62  + SQCODE_ERROR)
 
 // deprecated
 #define SQCODE_DB_VERSION_0          SQCODE_DB_SCHEMA_VERSION_0
 #define SQCODE_DB_VERSION_MISMATCH   SQCODE_DB_WRONG_MIGRATIONS
+#define SQCODE_OPEN_FAIL             SQCODE_OPEN_FAILED
+#define SQCODE_UNCOMPLETED_JSON      SQCODE_JSON_CONTINUE
 
 
 #ifdef __cplusplus

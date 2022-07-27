@@ -26,7 +26,9 @@
 static int  sqxc_file_writer_send(SqxcFile *xcfile, Sqxc *src)
 {
 	if (src->type != SQXC_TYPE_STRING) {
-//		src->required_type = SQXC_TYPE_STRING;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = SQXC_TYPE_STRING;
+		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 

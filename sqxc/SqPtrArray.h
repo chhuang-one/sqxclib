@@ -30,7 +30,7 @@
 #define SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT     3
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqPtrArray       SqPtrArray;
 typedef struct SqStringArray    SqStringArray;
@@ -374,7 +374,7 @@ struct PtrArrayMethod
 #endif // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /* SqPtrArray is array of pointer */
 
@@ -439,7 +439,7 @@ struct SqUintptrArray
 // C/C++ common definitions: define global inline function
 
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
-// C99 or C++ inline functions
+// define inline functions here if compiler supports inline function.
 
 #ifdef __cplusplus  // C++
 inline
@@ -482,8 +482,8 @@ void  sq_ptr_array_append_n(void *array, const void *values, int count)
 }
 
 #else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
 
-// C functions  (If C compiler doesn't support C99 inline function.)
 void  sq_ptr_array_steal(void *array, int index, int count);
 void  sq_ptr_array_steal_addr(void *array, void **element_addr, int count);
 void  sq_ptr_array_insert_n(void *array, int index, const void *values, int count);

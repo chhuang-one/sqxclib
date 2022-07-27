@@ -18,7 +18,7 @@
 #include <SqCommand.h>    // typedef struct SqConsole
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 // typedef struct SqConsole         SqConsole;    // declare in SqCommand.h
 
@@ -77,7 +77,7 @@ struct ConsoleMethod {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqConsole: command-line interface
  */

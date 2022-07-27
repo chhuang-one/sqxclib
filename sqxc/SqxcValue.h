@@ -19,7 +19,7 @@
 #include <SqEntry.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqxcValue        SqxcValue;
 
@@ -49,7 +49,7 @@ extern const SqxcInfo        SqxcInfo_Value_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqxcValue - convert data to C language Value. (destination of input chain)
 

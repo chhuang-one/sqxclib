@@ -33,7 +33,9 @@
 static int  sqxc_empty_send(SqxcEmpty *xcempty, Sqxc *args_src)
 {
 	if (args_src->type & xcempty->not_matched_type) {
-//		src->required_type = args_src->type;    // set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		src->required_type = args_src->type;
+		*/
 		return SQCODE_TYPE_NOT_MATCH;
 	}
 

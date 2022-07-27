@@ -18,7 +18,7 @@
 #include <SqPtrArray.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqPairs       SqPairs;    // array of SqPair
 
@@ -70,7 +70,7 @@ struct PairsMethod {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqPairs is array of key-value pairs.
  */

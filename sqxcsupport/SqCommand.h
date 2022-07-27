@@ -20,7 +20,7 @@
 #include <SqOption.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqConsole         SqConsole;
 typedef struct SqCommand         SqCommand;
@@ -141,7 +141,7 @@ struct CommandValueMethod {
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqCommand: User can use SqCommand to define command and it's options
 	           statically (or dynamically).
@@ -179,7 +179,7 @@ struct SqCommand
 	char          *name;
 
 	// SqType.entry is array of SqEntry pointer if current SqType is for C struct type.
-	// SqType.entry can't be freed if SqType.n_entry == -1
+	// SqType.entry isn't freed if SqType.n_entry == -1
 	SqEntry      **entry;          // SqPtrArray.data
 	int            n_entry;        // SqPtrArray.length
 	// macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) expands to above 2 fields.

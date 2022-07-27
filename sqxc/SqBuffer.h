@@ -22,7 +22,7 @@
 #include <string.h>    // memcpy(), strcpy(), strlen()
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqBuffer    SqBuffer;
 
@@ -143,7 +143,7 @@ struct BufferMethod {
 #endif // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 #define SQ_BUFFER_MEMBERS(mem_name, size_name, writed_name)  \
 	char  *mem_name;      \
@@ -168,7 +168,7 @@ struct SqBuffer
 // C/C++ common definitions: define global inline function
 
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
-// C99 or C++ inline functions
+// define inline functions here if compiler supports inline function.
 
 #ifdef __cplusplus  // C++
 inline
@@ -222,8 +222,7 @@ char *sq_buffer_require(SqBuffer *buffer, int length)
 }
 
 #else   // __STDC_VERSION__ || __cplusplus
-
-// C functions  (If C compiler doesn't support C99 inline function.)
+// declare functions here if compiler does NOT support inline function.
 
 char *sq_buffer_write(SqBuffer *buffer, const char *string);
 char *sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);

@@ -30,7 +30,7 @@
  */
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqCommandCommon        SqCommandCommon;
 
@@ -54,7 +54,7 @@ extern const SqOption SqOption_CommandCommonVersion_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqCommandCommon: SqCommandValue + common command options
 

@@ -19,7 +19,7 @@
 #include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqxcJsonc        SqxcJsonc;
 
@@ -43,7 +43,7 @@ extern const SqxcInfo               SqxcInfo_JsoncWriter_;
 #endif
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
 /*	SqxcJsonc - Middleware of input/output chain. It use json-c to implement.
 

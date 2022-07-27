@@ -24,7 +24,7 @@
 #include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
-// C/C++ common declarations: declare type, structue, macro, enumeration.
+// C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct Sqdb             Sqdb;
 typedef struct SqdbInfo         SqdbInfo;
@@ -133,9 +133,9 @@ struct DbMethod
 #endif  // __cplusplus
 
 // ----------------------------------------------------------------------------
-// C/C++ common definitions: define structue
+// C/C++ common definitions: define structure
 
-/* SqdbInfo - It is data and function interface for database product.
+/* SqdbInfo - It is interface for database product.
  */
 
 struct SqdbInfo
