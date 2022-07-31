@@ -1013,19 +1013,19 @@ public:
 
 	// operator
 	template <typename... Args>
-	Sq::Query &operator()(const char *condition, const Args... args) {
+	Where &operator()(const char *condition, const Args... args) {
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, condition, args...);
-		return *query;
+		return *this;
 	}
-	Sq::Query &operator()(const char *raw) {
+	Where &operator()(const char *raw) {
 		sq_query_where_raw(query, raw);
-		return *query;
+		return *this;
 	}
-	Sq::Query &operator()(std::function<void()> func) {
+	Where &operator()(std::function<void()> func) {
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
 		func();
 		sq_query_pop_nested(query);    // end of Subquery/Nested
-		return *query;
+		return *this;
 	}
 };
 
@@ -1047,9 +1047,9 @@ public:
 	}
 
 	// operator
-	Sq::Query &operator()(const char *raw) {
+	WhereRaw &operator()(const char *raw) {
 		sq_query_where_raw(query, raw);
-		return *query;
+		return *this;
 	}
 };
 
