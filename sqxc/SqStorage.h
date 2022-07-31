@@ -20,6 +20,7 @@
 #include <Sqdb.h>
 #include <SqSchema.h>
 #include <SqJoint.h>
+#include <SqQuery.h>
 #ifdef __cplusplus
 #include <SqType-stl-cpp.h>
 #endif
@@ -28,8 +29,6 @@
 // C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqStorage         SqStorage;
-
-typedef struct SqQuery           SqQuery;    // define in SqQuery.h
 
 /* macro for maintaining C/C++ inline functions easily */
 
@@ -179,8 +178,6 @@ void *sq_storage_query(SqStorage    *storage,
 
 namespace Sq {
 
-struct QueryMethod;    // define in SqQuery.h
-
 /*	StorageMethod is used by SqStorage and it's children.
 
 	It's derived struct/class must be C++11 standard-layout and has SqStorage members.
@@ -208,16 +205,26 @@ struct StorageMethod
 	// getAll<StructType, std::vector<StructType>>()
 	template <class Element, class StlContainer>
 	StlContainer *getAll(const char *sql_where_having = NULL);
+	template <class Element, class StlContainer>
+	StlContainer *getAll(const QueryProxy &qproxy);
 	// getAll<std::vector<StructType>>()
 	template <class StlContainer>
 	StlContainer *getAll(const char *sql_where_having = NULL);
+	template <class StlContainer>
+	StlContainer *getAll(const QueryProxy &qproxy);
 	// getAll<StructType>(NULL, NULL)
 	template <class StructType>
 	void *getAll(const SqType *container_type, const char *sql_where_having);
-	// getAll without template
+	template <class StructType>
+	void *getAll(const SqType *container_type, const QueryProxy &qproxy);
+	// getAll() with tableName
 	void *getAll(const char *table_name, const char *sql_where_having = NULL);
+	void *getAll(const char *table_name, const QueryProxy &qproxy);
 	void *getAll(const char *table_name, const SqType *container_type, const char *sql_where_having = NULL);
+	void *getAll(const char *table_name, const SqType *container_type, const QueryProxy &qproxy);
+	// getAll() with tableName + tableType
 	void *getAll(const char *table_name, const SqType *table_type, const SqType *container_type, const char *sql_where_having = NULL);
+	void *getAll(const char *table_name, const SqType *table_type, const SqType *container_type, const QueryProxy &qproxy);
 
 	Sq::Type *setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod *jointType);
 	Sq::Type *setupQuery(Sq::QueryMethod *query, Sq::TypeJointMethod *jointType);
@@ -269,33 +276,55 @@ struct StorageMethod
 	// updateAll(struct_reference)
 	template <typename StructType, typename... Args>
 	int64_t  updateAll(StructType &instance, const char *sql_where_having = NULL, const Args... args);
+	template <typename StructType, typename... Args>
+	int64_t  updateAll(StructType &instance, const QueryProxy &qproxy, const Args... args);
 	// updateAll(struct_pointer)
 	template <typename StructType, typename... Args>
 	int64_t  updateAll(StructType *instance, const char *sql_where_having = NULL, const Args... args);
+	template <typename StructType, typename... Args>
+	int64_t  updateAll(StructType *instance, const QueryProxy &qproxy, const Args... args);
 	// updateAll<StructType>(struct_pointer)
 	template <typename StructType, typename... Args>
 	int64_t  updateAll(void *instance, const char *sql_where_having = NULL, const Args... args);
-	// updateAll() without StructType
+	template <typename StructType, typename... Args>
+	int64_t  updateAll(void *instance, const QueryProxy &qproxy, const Args... args);
+	// updateAll() with tableName
 	template <typename... Args>
 	int64_t  updateAll(const char *table_name, void *instance, const char *sql_where_having = NULL, const Args... args);
 	template <typename... Args>
+	int64_t  updateAll(const char *table_name, void *instance, const QueryProxy &qproxy, const Args... args);
+	// updateAll() with tableName + tableType
+	template <typename... Args>
 	int64_t  updateAll(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having = NULL, const Args... args);
+	template <typename... Args>
+	int64_t  updateAll(const char *table_name, const SqType *table_type, void *instance, const QueryProxy &qproxy, const Args... args);
 
 #if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 	// updateField(struct_reference)
 	template <typename StructType, typename... Args>
 	int64_t  updateField(StructType &instance, const char *sql_where_having = NULL, const Args... args);
+	template <typename StructType, typename... Args>
+	int64_t  updateField(StructType &instance, const QueryProxy &qproxy, const Args... args);
 	// updateField(struct_pointer)
 	template <typename StructType, typename... Args>
 	int64_t  updateField(StructType *instance, const char *sql_where_having = NULL, const Args... args);
+	template <typename StructType, typename... Args>
+	int64_t  updateField(StructType *instance, const QueryProxy &qproxy, const Args... args);
 	// updateField<StructType>(struct_pointer)
 	template <typename StructType, typename... Args>
 	int64_t  updateField(void *instance, const char *sql_where_having = NULL, const Args... args);
-	// updateField() without StructType
+	template <typename StructType, typename... Args>
+	int64_t  updateField(void *instance, const QueryProxy &qproxy, const Args... args);
+	// updateField() with tableName
 	template <typename... Args>
 	int64_t  updateField(const char *table_name, void *instance, const char *sql_where_having = NULL, const Args... args);
 	template <typename... Args>
+	int64_t  updateField(const char *table_name, void *instance, const QueryProxy &qproxy, const Args... args);
+	// updateField() with tableName + tableType
+	template <typename... Args>
 	int64_t  updateField(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having = NULL, const Args... args);
+	template <typename... Args>
+	int64_t  updateField(const char *table_name, const SqType *table_type, void *instance, const QueryProxy &qproxy, const Args... args);
 #endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
 	template <class StructType>
@@ -303,9 +332,14 @@ struct StorageMethod
 	void  remove(const char *table_name, int64_t id);
 	void  remove(const char *table_name, const SqType *table_type, int64_t id);
 
+	// removeAll<StructType>()
 	template <class StructType>
 	void  removeAll(const char *sql_where_having = NULL);
+	template <class StructType>
+	void  removeAll(const QueryProxy &qproxy);
+	// removeAll() with tableName
 	void  removeAll(const char *table_name, const char *sql_where_having = NULL);
+	void  removeAll(const char *table_name, const QueryProxy &qproxy);
 
 	int   beginTrans();
 	int   commitTrans();
@@ -367,7 +401,7 @@ struct SqStorage
 // C/C++ common definitions: define global inline function
 
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
-// C99 or C++ inline functions
+// define inline functions here if compiler supports inline function.
 
 #ifdef __cplusplus  // C++
 inline
@@ -397,6 +431,7 @@ int      sq_storage_rollback_trans(SqStorage *storage) {
 }
 
 #else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
 
 // C functions
 int      sq_storage_begin_trans(SqStorage *storage);
@@ -450,6 +485,11 @@ inline StlContainer *StorageMethod::getAll(const char *sql_where_having) {
 	delete containerType;
 	return instance;
 }
+template <class StlContainer>
+inline StlContainer *StorageMethod::getAll(const QueryProxy &qproxy) {
+	return getAll<StlContainer>(((QueryProxy&)qproxy).c());
+}
+
 template <class ElementType, class StlContainer>
 inline StlContainer *StorageMethod::getAll(const char *sql_where_having) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this,
@@ -461,6 +501,11 @@ inline StlContainer *StorageMethod::getAll(const char *sql_where_having) {
 	delete containerType;
 	return instance;
 }
+template <class ElementType, class StlContainer>
+inline StlContainer *StorageMethod::getAll(const QueryProxy &qproxy) {
+	return getAll<ElementType, StlContainer>(((QueryProxy&)qproxy).c());
+}
+
 template <class StructType>
 inline void *StorageMethod::getAll(const SqType *container_type, const char *sql_where_having) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
@@ -468,14 +513,30 @@ inline void *StorageMethod::getAll(const SqType *container_type, const char *sql
 		return NULL;
 	return sq_storage_get_all((SqStorage*)this, table->name, table->type, container_type, sql_where_having);
 }
+template <class StructType>
+inline void *StorageMethod::getAll(const SqType *container_type, const QueryProxy &qproxy) {
+	return getAll<StructType>(container_type, ((QueryProxy&)qproxy).c());
+}
+
 inline void *StorageMethod::getAll(const char *table_name, const char *sql_where_having) {
 	return sq_storage_get_all((SqStorage*)this, table_name, NULL, NULL, sql_where_having);
 }
+inline void *StorageMethod::getAll(const char *table_name, const QueryProxy &qproxy) {
+	return sq_storage_get_all((SqStorage*)this, table_name, NULL, NULL, ((QueryProxy&)qproxy).c());
+}
+
 inline void *StorageMethod::getAll(const char *table_name, const SqType *container_type, const char *sql_where_having) {
 	return sq_storage_get_all((SqStorage*)this, table_name, NULL, container_type, sql_where_having);
 }
+inline void *StorageMethod::getAll(const char *table_name, const SqType *container_type, const QueryProxy &qproxy) {
+	return sq_storage_get_all((SqStorage*)this, table_name, NULL, container_type, ((QueryProxy&)qproxy).c());
+}
+
 inline void *StorageMethod::getAll(const char *table_name, const SqType *table_type, const SqType *container_type, const char *sql_where_having) {
 	return sq_storage_get_all((SqStorage*)this, table_name, table_type, container_type, sql_where_having);
+}
+inline void *StorageMethod::getAll(const char *table_name, const SqType *table_type, const SqType *container_type, const QueryProxy &qproxy) {
+	return sq_storage_get_all((SqStorage*)this, table_name, table_type, container_type, ((QueryProxy&)qproxy).c());
 }
 
 inline Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod *jointType) {
@@ -600,6 +661,11 @@ inline int64_t  StorageMethod::updateAll(StructType &instance, const char *sql_w
 	return sq_storage_update_all((SqStorage*)this, table->name, table->type, &instance, sql_where_having, args..., NULL);
 }
 template <typename StructType, typename... Args>
+inline int64_t  StorageMethod::updateAll(StructType &instance, const QueryProxy &qproxy, const Args... args) {
+	return updateAll<StructType>(instance, ((QueryProxy&)qproxy).c(), args...);
+}
+
+template <typename StructType, typename... Args>
 inline int64_t  StorageMethod::updateAll(StructType *instance, const char *sql_where_having, const Args... args) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
@@ -607,19 +673,38 @@ inline int64_t  StorageMethod::updateAll(StructType *instance, const char *sql_w
 	return sq_storage_update_all((SqStorage*)this, table->name, table->type, instance, sql_where_having, args..., NULL);
 }
 template <typename StructType, typename... Args>
+inline int64_t  StorageMethod::updateAll(StructType *instance, const QueryProxy &qproxy, const Args... args) {
+	return updateAll<StructType>(instance, ((QueryProxy&)qproxy).c(), args...);
+}
+
+template <typename StructType, typename... Args>
 inline int64_t  StorageMethod::updateAll(void *instance, const char *sql_where_having, const Args... args) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
 		return 0;
 	return sq_storage_update_all((SqStorage*)this, table->name, table->type, instance, sql_where_having, args..., NULL);
 }
+template <typename StructType, typename... Args>
+inline int64_t  StorageMethod::updateAll(void *instance, const QueryProxy &qproxy, const Args... args) {
+	return updateAll<StructType>(instance, ((QueryProxy&)qproxy).c(), args...);
+}
+
 template <typename... Args>
 inline int64_t  StorageMethod::updateAll(const char *table_name, void *instance, const char *sql_where_having, const Args... args) {
 	return sq_storage_update_all((SqStorage*)this, table_name, NULL, instance, sql_where_having, args..., NULL);
 }
 template <typename... Args>
+inline int64_t  StorageMethod::updateAll(const char *table_name, void *instance, const QueryProxy &qproxy, const Args... args) {
+	return sq_storage_update_all((SqStorage*)this, table_name, NULL, instance, ((QueryProxy&)qproxy).c(), args..., NULL);
+}
+
+template <typename... Args>
 inline int64_t  StorageMethod::updateAll(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having, const Args... args) {
 	return sq_storage_update_all((SqStorage*)this, table_name, table_type, instance, sql_where_having, args..., NULL);
+}
+template <typename... Args>
+inline int64_t  StorageMethod::updateAll(const char *table_name, const SqType *table_type, void *instance, const QueryProxy &qproxy, const Args... args) {
+	return sq_storage_update_all((SqStorage*)this, table_name, table_type, instance, ((QueryProxy&)qproxy).c(), args..., NULL);
 }
 
 #if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
@@ -632,6 +717,11 @@ inline int64_t  StorageMethod::updateField(StructType &instance, const char *sql
 	return sq_storage_update_field((SqStorage*)this, table->name, table->type, &instance, sql_where_having, Sq::offsetOf(args)..., (size_t) -1);
 }
 template <typename StructType, typename... Args>
+inline int64_t  StorageMethod::updateField(StructType &instance, const QueryProxy &qproxy, const Args... args) {
+	return updateField<StructType>(instance, ((QueryProxy&)qproxy).c(), args...);
+}
+
+template <typename StructType, typename... Args>
 inline int64_t  StorageMethod::updateField(StructType *instance, const char *sql_where_having, const Args... args) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
@@ -639,19 +729,38 @@ inline int64_t  StorageMethod::updateField(StructType *instance, const char *sql
 	return sq_storage_update_field((SqStorage*)this, table->name, table->type, instance, sql_where_having, Sq::offsetOf(args)..., (size_t) -1);
 }
 template <typename StructType, typename... Args>
+inline int64_t  StorageMethod::updateField(StructType *instance, const QueryProxy &qproxy, const Args... args) {
+	return updateField<StructType>(instance, ((QueryProxy&)qproxy).c(), args...);
+}
+
+template <typename StructType, typename... Args>
 inline int64_t  StorageMethod::updateField(void *instance, const char *sql_where_having, const Args... args) {
 	SqTable *table = sq_storage_find_by_type((SqStorage*)this, typeid(StructType).name());
 	if (table == NULL)
 		return 0;
 	return sq_storage_update_field((SqStorage*)this, table->name, table->type, instance, sql_where_having, Sq::offsetOf(args)..., (size_t) -1);
 }
+template <typename StructType, typename... Args>
+inline int64_t  StorageMethod::updateField(void *instance, const QueryProxy &qproxy, const Args... args) {
+	return updateField<StructType>(instance, ((QueryProxy&)qproxy).c(), args...);
+}
+
 template <typename... Args>
 inline int64_t  StorageMethod::updateField(const char *table_name, void *instance, const char *sql_where_having, const Args... args) {
 	return sq_storage_update_field((SqStorage*)this, table_name, NULL, instance, sql_where_having, Sq::offsetOf(args)..., (size_t) -1);
 }
 template <typename... Args>
+inline int64_t  StorageMethod::updateField(const char *table_name, void *instance, const QueryProxy &qproxy, const Args... args) {
+	return sq_storage_update_field((SqStorage*)this, table_name, NULL, instance, ((QueryProxy&)qproxy).c(), Sq::offsetOf(args)..., (size_t) -1);
+}
+
+template <typename... Args>
 inline int64_t  StorageMethod::updateField(const char *table_name, const SqType *table_type, void *instance, const char *sql_where_having, const Args... args) {
 	return sq_storage_update_field((SqStorage*)this, table_name, table_type, instance, sql_where_having, Sq::offsetOf(args)..., (size_t) -1);
+}
+template <typename... Args>
+inline int64_t  StorageMethod::updateField(const char *table_name, const SqType *table_type, void *instance, const QueryProxy &qproxy, const Args... args) {
+	return sq_storage_update_field((SqStorage*)this, table_name, table_type, instance, ((QueryProxy&)qproxy).c(), Sq::offsetOf(args)..., (size_t) -1);
 }
 #endif  // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
@@ -674,8 +783,16 @@ inline void StorageMethod::removeAll(const char *sql_where_having) {
 	if (table)
 		sq_storage_remove_all((SqStorage*)this, table->name, sql_where_having);
 }
+template <class StructType>
+inline void StorageMethod::removeAll(const QueryProxy &qproxy) {
+	removeAll<StructType>(((QueryProxy&)qproxy).c());
+}
+
 inline void StorageMethod::removeAll(const char *table_name, const char *sql_where_having) {
 	sq_storage_remove_all((SqStorage*)this, table_name, sql_where_having);
+}
+inline void StorageMethod::removeAll(const char *table_name, const QueryProxy &qproxy) {
+	sq_storage_remove_all((SqStorage*)this, table_name, ((QueryProxy&)qproxy).c());
 }
 
 inline int  StorageMethod::beginTrans() {

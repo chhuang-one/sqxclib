@@ -591,7 +591,7 @@ static int  print_where_column(const SqColumn *column, void *instance, SqBuffer 
 
 
 // ----------------------------------------------------------------------------
-// If compiler doesn't support C99 inline functions
+// If C compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 // C99 or C++ inline functions has defined in SqStorage.h
