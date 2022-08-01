@@ -235,13 +235,13 @@ use C++ language
 			Sq::Query().whereRaw("id > 10").where("id < %d", 99).c());
 ```
 
-#### convenient C++ class
+#### convenient C++ class 'where'
 
 use C++ Sq::where and Sq::whereRaw to generate SQL statement
 
 ```c++
 	array = storage->getAll("users",
-			Sq::whereRaw("id > 10").where("id < %d", 99).c());
+			Sq::whereRaw("id > 10").where("id < %d", 99));
 ```
 
 ## insert

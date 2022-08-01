@@ -447,7 +447,7 @@ const SqType SqType_MyList_ =
 	sq_type_my_list_write,         // write
 
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE_ELEMENT,   // entry   : You can assign element type in SqType.entry
+	(SqEntry**) SQ_TYPE__yours_,   // entry   : You can assign element type in SqType.entry
 	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
 };
 ```

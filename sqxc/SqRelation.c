@@ -333,7 +333,7 @@ static SqRelationNode *ptr_x2_array_find_sorted(SqPtrArray *array, const void *k
 }
 
 // ----------------------------------------------------------------------------
-// If compiler doesn't support C99 inline functions
+// If C compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 // C99 or C++ inline functions has defined in SqRelation.h

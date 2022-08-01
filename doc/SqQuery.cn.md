@@ -336,7 +336,7 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 	free(sql_where);
 ```
 
-#### 方便的 C++ 类
+#### 方便的 C++ 类 'where'
 
 使用 C++ Sq::Where 和 Sq::WhereRaw（或 Sq::where 和 Sq::whereRaw）生成 SQL 语句  
   
@@ -346,21 +346,21 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 	Sq::Where  where;
 
 	array = storage->removeAll("users",
-			where("id < %d", 11).orWhere("city_id < %d", 33).c());
+			where("id < %d", 11).orWhere("city_id < %d", 33));
 ```
 
 2. 使用参数包构造函数
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::where("id < %d", 11).orWhere("city_id < %d", 33).c());
+			Sq::where("id < %d", 11).orWhere("city_id < %d", 33));
 ```
 
 3. 使用默认构造函数和 operator()
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33).c());
+			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33));
 ```
 
 ## 原始方法 Raw Methods

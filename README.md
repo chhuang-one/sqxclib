@@ -209,7 +209,10 @@ use C functions to open MySQL database
 use C++ methods to open SQLite database
 
 ```c++
-	Sq::DbConfigSqlite  config = { .folder = "/path", .extension = "db" };
+	Sq::DbConfigSqlite  config = {
+		"/path",        // .folder    = "/path",
+		"db",           // .extension = "db",
+	};
 
 	db = new Sq::DbSqlite(&config);
 //	db = new Sq::DbSqlite(NULL);    // use default setting if config is NULL.
@@ -302,6 +305,10 @@ use C++ template functions
 
 	// get multiple rows
 	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
+
+	// get multiple rows with C++ class 'where' (explain below "Query builder")
+	vector = storage->getAll<std::vector<User>>(Sq::where("id > 8").where("id < %d", 20));
+
 	// get all rows
 	vector = storage->getAll<std::vector<User>>();
 	// get one row
@@ -465,15 +472,22 @@ use C++ methods
 	array = storage->getAll("users", query->c());
 ```
 
-**convenient C++ class**  
+**convenient C++ class 'where'**  
   
 use operator() of Sq::Where (or Sq::where)
 
 ```c++
 	Sq::Where  where;
 
+	// If you clone source code in 2022-08-01 and later, It doesn't need to call c() to get string of query here.
+
+	// before 2022-08-01
 	array = storage->getAll("users",
 			where("id > %d", 10).orWhere("city_id < %d", 22).c());
+
+	// 2022-08-01 and later
+	array = storage->getAll("users",
+			where("id > %d", 10).orWhere("city_id < %d", 22));
 ```
 
 use constructor and operator of Sq::where
@@ -481,11 +495,11 @@ use constructor and operator of Sq::where
 ```c++
 	// use parameter pack constructor
 	array = storage->getAll("users",
-			Sq::where("id > %d", 10).orWhere("city_id < %d", 22).c());
+			Sq::where("id > %d", 10).orWhere("city_id < %d", 22));
 
 	// use default constructor and operator()
 	array = storage->getAll("users",
-			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22).c());
+			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22));
 ```
 
 ## JOIN support

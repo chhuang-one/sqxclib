@@ -4,7 +4,7 @@
 
 SqStorage 访问数据库。它使用 Sqxc 在 C 语言和 Sqdb 接口之间转换数据。
 
-## create storage
+## 创建 storage
 
 用户在创建 SqStorage 时必须指定 [Sqdb](Sqdb.md) 实例。  
   
@@ -235,13 +235,13 @@ SqQuery 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句
 			Sq::Query().whereRaw("id > 10").where("id < %d", 99).c());
 ```
 
-#### 方便的 C++ 类
+#### 方便的 C++ 类 'where'
 
 使用 C++ Sq::where 和 Sq::whereRaw 生成 SQL 语句
 
 ```c++
 	array = storage->getAll("users",
-			Sq::whereRaw("id > 10").where("id < %d", 99).c());
+			Sq::whereRaw("id > 10").where("id < %d", 99));
 ```
 
 ## insert

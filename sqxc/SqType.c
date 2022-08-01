@@ -295,7 +295,7 @@ unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool
 }
 
 // ----------------------------------------------------------------------------
-// If compiler doesn't support C99 inline functions
+// If C compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 // C99 or C++ inline functions has defined in SqType.h

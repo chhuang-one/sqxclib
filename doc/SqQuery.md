@@ -336,7 +336,7 @@ use C++ language
 	free(sql_where);
 ```
 
-#### convenient C++ class
+#### convenient C++ class 'where'
 
 use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate SQL statement  
   
@@ -346,21 +346,21 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 	Sq::Where  where;
 
 	array = storage->removeAll("users",
-			where("id < %d", 11).orWhere("city_id < %d", 33).c());
+			where("id < %d", 11).orWhere("city_id < %d", 33));
 ```
 
 2. use parameter pack constructor
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::where("id < %d", 11).orWhere("city_id < %d", 33).c());
+			Sq::where("id < %d", 11).orWhere("city_id < %d", 33));
 ```
 
 3. use default constructor and operator()
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33).c());
+			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33));
 ```
 
 ## Raw Methods

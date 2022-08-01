@@ -447,7 +447,7 @@ const SqType SqType_MyList_ =
 	sq_type_my_list_write,         // write
 
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE_ELEMENT,   // entry   : 您可以在 SqType.entry 中指定元素类型
+	(SqEntry**) SQ_TYPE__yours_,   // entry   : 您可以在 SqType.entry 中指定元素类型
 	-1,                            // n_entry : 如果 SqType.n_entry == -1，则不会释放 SqType.entry
 };
 ```

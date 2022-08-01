@@ -207,11 +207,14 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C++ 方法打开 SQLite 数据库
 
 ```c++
-	Sq::DbConfigSqlite  config = { .folder = "/path", .extension = "db" };
+	Sq::DbConfigSqlite  config = {
+		"/path",        // .folder    = "/path",
+		"db",           // .extension = "db",
+	};
 
 	db = new Sq::DbSqlite(&config);
 //	db = new Sq::DbSqlite(NULL);    // 如果 config 为 NULL，则使用默认设置。
-//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);    // this also works.
+//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);    // 这也能用。
 
 	storage = new Sq::Storage(db);
 	storage->open("sqxc_local");    // 这将打开文件 "sqxc_local.db"
@@ -300,6 +303,10 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// 获取多行
 	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
+
+	// 使用 C++ 类 'where' 获取多行（在下面的 "查询生成器" 中說明）
+	vector = storage->getAll<std::vector<User>>(Sq::where("id > 8").where("id < %d", 20));
+
 	// 获取所有行
 	vector = storage->getAll<std::vector<User>>();
 	// 获取一行
@@ -413,7 +420,7 @@ SQL 语句
 
 ```c
 #include <sqxclib.h>
-#include <SqQuery-macro.h>    // sqxclib.h doesn't contain special macros
+#include <SqQuery-macro.h>    // sqxclib.h 不包含特殊的宏
 
 	SQ_QUERY_DO(query, {
 		SQQ_SELECT("id", "age");
@@ -443,7 +450,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 使用 C 函数
 
 ```c
-	// SQL statement exclude "SELECT * FROM table_name"
+	// SQL 语句排除 "SELECT * FROM table_name"
 	sq_query_clear(query);
 	sq_query_where(query, "id > %d", 10);
 	sq_query_or_where(query, "city_id < %d", 22);
@@ -455,7 +462,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 使用 C++ 方法
 
 ```c++
-	// SQL statement exclude "SELECT * FROM table_name"
+	// SQL 语句排除 "SELECT * FROM table_name"
 	query->clear()
 	     ->where("id > %d", 10)
 	     ->orWhere("city_id < %d", 22);
@@ -463,27 +470,34 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 	array = storage->getAll("users", query->c());
 ```
 
-**方便的 C++ 类**  
+**方便的 C++ 类 'where'**  
   
 使用 Sq::Where（或 Sq::where）的 operator()
 
 ```c++
 	Sq::Where  where;
 
+	// 如果您在 2022-08-01 及以后克隆源代码，这里不需要调用 c() 来获取查询字符串。
+
+	// 2022-08-01 之前
 	array = storage->getAll("users",
 			where("id > %d", 10).orWhere("city_id < %d", 22).c());
+
+	// 2022-08-01 及以后
+	array = storage->getAll("users",
+			where("id > %d", 10).orWhere("city_id < %d", 22));
 ```
 
 使用 Sq::where 的构造函数和运算符
 
 ```c++
-	// use parameter pack constructor
+	// 使用参数包构造函数
 	array = storage->getAll("users",
-			Sq::where("id > %d", 10).orWhere("city_id < %d", 22).c());
+			Sq::where("id > %d", 10).orWhere("city_id < %d", 22));
 
-	// use default constructor 和 operator()
+	// 使用默认构造函数和 operator()
 	array = storage->getAll("users",
-			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22).c());
+			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22));
 ```
 
 ## JOIN 支持

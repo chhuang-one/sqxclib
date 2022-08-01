@@ -164,7 +164,7 @@ void **sq_ptr_array_find_sorted(void *array, const void *key,
 }
 
 // ----------------------------------------------------------------------------
-// If compiler doesn't support C99 inline functions
+// If C compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
 // C99 or C++ inline functions has defined in SqPtrArray.h

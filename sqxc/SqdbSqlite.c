@@ -59,7 +59,7 @@ const SqdbInfo SqdbInfo_SQLite_ = {
 };
 
 // ----------------------------------------------------------------------------
-// SqdbInfo
+// SqdbInfo functions
 
 static void sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);
 static void sqdb_sqlite_create_dependent(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *table);

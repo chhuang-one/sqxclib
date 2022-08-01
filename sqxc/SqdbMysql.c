@@ -70,7 +70,7 @@ const SqdbInfo SqdbInfo_MySQL_ = {
 };
 
 // ----------------------------------------------------------------------------
-// SqdbInfo
+// SqdbInfo functions
 
 static void sqdb_mysql_init(SqdbMysql *sqdb, const SqdbConfigMysql *config_src)
 {
