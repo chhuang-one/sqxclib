@@ -294,6 +294,18 @@ unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool
 	return type->size;
 }
 
+// for internal use only
+void  sq_type_set_str_addr(SqType *type, char **str_addr, const char *str_src)
+{
+	if (type->bit_field & SQB_TYPE_DYNAMIC) {
+		free(*str_addr);
+		if (str_src)
+			*str_addr = strdup(str_src);
+		else
+			*str_addr = NULL;
+	}
+}
+
 // ----------------------------------------------------------------------------
 // If C compiler doesn't support C99 inline functions
 

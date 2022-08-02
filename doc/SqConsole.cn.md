@@ -136,8 +136,8 @@ static const SqCommand mycommand = {
 	mycommand = sq_command_new("mycommand");
 	mycommand->size   = sizeof(MyCommandValue);
 	mycommand->handle = mycommand_handle;
-	mycommand->parameter   = strdup("mycommand parameterName");
-	mycommand->description = strdup("mycommand description");
+	sq_command_set_parameter(mycommand, "mycommand parameterName");
+	sq_command_set_description(mycommand, "mycommand description");
 ```
 
 使用 C++ 语言
@@ -148,8 +148,8 @@ static const SqCommand mycommand = {
 	mycommand = new Sq::Command("mycommand");
 	mycommand->size   = sizeof(MyCommandValue);
 	mycommand->handle = mycommand_handle;
-	mycommand->parameter   = strdup("mycommand parameterName");
-	mycommand->description = strdup("mycommand description");
+	mycommand->setParameter("mycommand parameterName");
+	mycommand->setDescription("mycommand description");
 ```
 
 #### 2.1 动态 SqCommand 使用 SqOption 的常量数组
@@ -170,11 +170,11 @@ static const SqCommand mycommand = {
 	SqOption  *option;
 
 	option = sq_option_new(SQ_TYPE_BOOL);
-	option->offset        = offsetof(MyCommandValue, help);
-	option->name          = strdup("help");
-	option->shortcut      = strdup("h");
-	option->default_value = strdup("true");
-	option->description   = strdup("Display help for the given command.");
+	option->offset = offsetof(MyCommandValue, help);
+	sq_option_set_name(option, "help");
+	sq_option_set_shortcut(option, "h");
+	sq_option_set_default_value(option, "true");
+	sq_option_set_description(option, "Display help for the given command.");
 
 	sq_command_add_option(mycommand, option, 1);
 ```
@@ -185,11 +185,11 @@ static const SqCommand mycommand = {
 	Sq::Option  *option;
 
 	option = new Sq::Option(SQ_TYPE_BOOL);
-	option->offset        = offsetof(MyCommandValue, help);
-	option->name          = strdup("help");
-	option->shortcut      = strdup("h");
-	option->default_value = strdup("true");
-	option->description   = strdup("Display help for the given command.");
+	option->offset = offsetof(MyCommandValue, help);
+	option->setName("help");
+	option->setShortcut("h");
+	option->setDefault("true");
+	option->setDescription("Display help for the given command.");
 
 	mycommand->addOption(option);
 ```

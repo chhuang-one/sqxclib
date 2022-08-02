@@ -79,6 +79,13 @@ extern "C" {
 
 typedef void (*SqCommandFunc)(SqCommandValue *cmd_value, SqConsole *console, void *data);
 
+/* --- macro functions --- for maintaining C/C++ inline functions easily */
+#define SQ_COMMAND_SET_PARAMETER(command, parameter)    \
+		sq_type_set_str_addr((SqType*)command, (char**) &((SqCommand*)command)->parameter, parameter)
+
+#define SQ_COMMAND_SET_DESCRIPTION(command, description)    \
+		sq_type_set_str_addr((SqType*)command, (char**) &((SqCommand*)command)->description, description)
+
 /* --- SqCommandValue C functions --- */
 SqCommandValue *sq_command_value_new(const SqCommand *cmd_type);
 void            sq_command_value_free(SqCommandValue *cmd_value);
@@ -207,6 +214,13 @@ struct SqCommand
 		sq_command_final_self((SqCommand*)this);
 	}
 
+	void  setParameter(const char *parameter) {
+		SQ_COMMAND_SET_PARAMETER(this, parameter);
+	}
+	void  setDescription(const char *description) {
+		SQ_COMMAND_SET_DESCRIPTION(this, description);
+	}
+
 	// create dynamic SqCommand and copy data from static SqCommand
 	Sq::Command *copyStatic(SqDestroyFunc option_free_func = NULL) {
 		return (Sq::Command*)sq_command_copy_static(NULL, (const SqCommand*)this, option_free_func);
@@ -257,8 +271,31 @@ struct SqCommandValue
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
 // define inline functions here if compiler supports inline function.
 
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_command_set_parameter(SqCommand *command, const char *parameter)
+{
+	SQ_COMMAND_SET_PARAMETER(command, parameter);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_command_set_description(SqCommand *command, const char *description)
+{
+	SQ_COMMAND_SET_DESCRIPTION(command, description);
+}
+
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
+
+void  sq_command_set_parameter(SqCommand *command, const char *parameter);
+void  sq_command_set_description(SqCommand *command, const char *description);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -282,6 +319,13 @@ struct CommandMethod {
 	}
 	void  finalSelf() {
 		sq_command_final_self((SqCommand*)this);
+	}
+
+	void  setParameter(const char *parameter) {
+		SQ_COMMAND_SET_PARAMETER(this, parameter);
+	}
+	void  setDescription(const char *description) {
+		SQ_COMMAND_SET_DESCRIPTION(this, description);
 	}
 
 	// create dynamic SqCommand and copy data from static SqCommand

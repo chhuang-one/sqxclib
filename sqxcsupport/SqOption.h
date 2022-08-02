@@ -30,6 +30,22 @@ typedef struct SqOption          SqOption;
 extern "C" {
 #endif
 
+/* --- macro functions --- for maintaining C/C++ inline functions easily */
+#define SQ_OPTION_SET_NAME(option, name)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->name, name)
+
+#define SQ_OPTION_SET_SHORTCUT(option, shortcut)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->shortcut, shortcut)
+
+#define SQ_OPTION_SET_DEFAULT(option, default_value)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->default_value, default_value)
+
+#define SQ_OPTION_SET_VALUE_DESCRIPTION(option, value_description)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->value_description, value_description)
+
+#define SQ_OPTION_SET_DESCRIPTION(option, description)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->description, description)
+
 /* --- SqOption C functions --- */
 SqOption *sq_option_new(const SqType *type);
 void      sq_option_free(SqOption *option);
@@ -110,6 +126,22 @@ struct SqOption
 		sq_option_final((SqOption*)this);
 	}
 
+	void  setName(const char *name) {
+		SQ_OPTION_SET_NAME(this, name);
+	}
+	void  setShortcut(const char *shortcut) {
+		SQ_OPTION_SET_SHORTCUT(this, shortcut);
+	}
+	void  setDefault(const char *default_value) {
+		SQ_OPTION_SET_DEFAULT(this, default_value);
+	}
+	void  setValueDescription(const char *value_description) {
+		SQ_OPTION_SET_VALUE_DESCRIPTION(this, value_description);
+	}
+	void  setDescription(const char *description) {
+		SQ_OPTION_SET_DESCRIPTION(this, description);
+	}
+
 	int   print(Sq::BufferMethod *buffer, int opt_max_length) {
 		return sq_option_print((SqOption*)this, (SqBuffer*)buffer, opt_max_length);
 	}
@@ -122,8 +154,64 @@ struct SqOption
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
 // define inline functions here if compiler supports inline function.
 
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_option_set_name(SqOption *option, const char *name)
+{
+	SQ_OPTION_SET_NAME(option, name);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_option_set_shortcut(SqOption *option, const char *shortcut)
+{
+	SQ_OPTION_SET_SHORTCUT(option, shortcut);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_option_set_default(SqOption *option, const char *default_value)
+{
+	SQ_OPTION_SET_DEFAULT(option, default_value);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_option_set_value_description(SqOption *option, const char *value_description)
+{
+	SQ_OPTION_SET_VALUE_DESCRIPTION(option, value_description);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_option_set_description(SqOption *option, const char *description)
+{
+	SQ_OPTION_SET_DESCRIPTION(option, description);
+}
+
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
+
+void  sq_option_set_name(SqOption *option, const char *name);
+void  sq_option_set_shortcut(SqOption *option, const char *shortcut);
+void  sq_option_set_default(SqOption *option, const char *default_value);
+void  sq_option_set_value_description(SqOption *option, const char *value_description);
+void  sq_option_set_description(SqOption *option, const char *description);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -149,6 +237,22 @@ struct OptionMethod {
 	}
 	void  final() {
 		sq_option_final((SqOption*)this);
+	}
+
+	void  setName(const char *name) {
+		SQ_OPTION_SET_NAME(this, name);
+	}
+	void  setShortcut(const char *shortcut) {
+		SQ_OPTION_SET_SHORTCUT(this, shortcut);
+	}
+	void  setDefault(const char *default_value) {
+		SQ_OPTION_SET_DEFAULT(this, default_value);
+	}
+	void  setValueDescription(const char *value_description) {
+		SQ_OPTION_SET_VALUE_DESCRIPTION(this, value_description);
+	}
+	void  setDescription(const char *description) {
+		SQ_OPTION_SET_DESCRIPTION(this, description);
 	}
 
 	int   print(Sq::BufferMethod *buffer, int opt_max_length) {

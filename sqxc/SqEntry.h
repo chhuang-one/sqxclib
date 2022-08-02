@@ -88,6 +88,9 @@ int  sq_entry_cmp_name(SqEntry **entry1, SqEntry **entry2);
 int  sq_entry_cmp_str__type_name(const char *str,  SqEntry **entry);
 int  sq_entry_cmp_type_name(SqEntry **entry1, SqEntry **entry2);
 
+// for internal use only
+void sq_entry_set_str_addr(SqEntry *entry, char **str_addr, const char *str_src);
+
 
 /*	SqReentries: unsorted pointer array of SqReentry.
 	             element can be NULL in array.

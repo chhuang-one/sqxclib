@@ -147,6 +147,9 @@ void     sq_type_sort_entry(SqType *type);
 // if you recalculate instance size of SqType, pass 'inner_entry' = NULL and don't care argument 'entry_removed'.
 unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed);
 
+// for internal use only
+void     sq_type_set_str_addr(SqType *type, char **str_addr, const char *str_src);
+
 /* SqType-built-in.c - SqTypeFunc and SqTypeXcFunc functions */
 
 int   sq_type_int_parse(void *instance, const SqType *type, Sqxc *xc_src);

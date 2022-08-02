@@ -117,3 +117,39 @@ int  sq_option_cmp_shortcut(SqOption **option1, SqOption **option2)
 	shortcut2 = (*option2) ? (*option2)->shortcut : "";
 	return strcmp(shortcut1, shortcut2);
 }
+
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline functions
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqOption.h
+
+#else   // __STDC_VERSION__
+// define C/C++ functions here if compiler does NOT support inline function.
+
+void  sq_option_set_name(SqOption *option, const char *name)
+{
+	SQ_OPTION_SET_NAME(option, name);
+}
+
+void  sq_option_set_shortcut(SqOption *option, const char *shortcut)
+{
+	SQ_OPTION_SET_SHORTCUT(option, shortcut);
+}
+
+void  sq_option_set_default(SqOption *option, const char *default_value)
+{
+	SQ_OPTION_SET_DEFAULT(option, default_value);
+}
+
+void  sq_option_set_value_description(SqOption *option, const char *value_description)
+{
+	SQ_OPTION_SET_VALUE_DESCRIPTION(option, value_description);
+}
+
+void  sq_option_set_description(SqOption *option, const char *description)
+{
+	SQ_OPTION_SET_DESCRIPTION(option, description);
+}
+
+#endif  // __STDC_VERSION__

@@ -107,6 +107,19 @@ int  sq_entry_cmp_type_name(SqEntry **entry1, SqEntry **entry2)
 	return strcmp(name1, name2);
 }
 
+// ------------------------------------
+// for internal use only
+void  sq_entry_set_str_addr(SqEntry *entry, char **str_addr, const char *str_src)
+{
+	if (entry->bit_field & SQB_DYNAMIC) {
+		free(*str_addr);
+		if (str_src)
+			*str_addr = strdup(str_src);
+		else
+			*str_addr = NULL;
+	}
+}
+
 // ----------------------------------------------------------------------------
 // SqReentry functions for SqPtrArray
 

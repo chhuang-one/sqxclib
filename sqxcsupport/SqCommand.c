@@ -219,3 +219,23 @@ int  sq_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 	return (src->code = SQCODE_ENTRY_NOT_FOUND);
 }
 
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline functions
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqCommand.h
+
+#else   // __STDC_VERSION__
+// define C/C++ functions here if compiler does NOT support inline function.
+
+void  sq_command_set_parameter(SqCommand *command, const char *parameter)
+{
+	SQ_COMMAND_SET_PARAMETER(command, parameter);
+}
+
+void  sq_command_set_description(SqCommand *command, const char *description)
+{
+	SQ_COMMAND_SET_DESCRIPTION(command, description);
+}
+
+#endif  // __STDC_VERSION__
