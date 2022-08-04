@@ -217,32 +217,6 @@ void  sq_column_set_composite_va(SqColumn *column, va_list arg_list)
 	}
 }
 
-// used by sq_table_arrange()
-// primary key = 0
-// foreign key = 1
-// normal      = 2
-// constraint  = 3
-int  sq_column_cmp_attrib(SqColumn **column1, SqColumn **column2)
-{
-	int  var1 = 0, var2 = 0;
-
-	if ((*column1)->type == SQ_TYPE_CONSTRAINT || (*column1)->type == SQ_TYPE_INDEX)
-		var1 += 3;
-	if ((*column1)->foreign || (*column1)->bit_field & SQB_FOREIGN)
-		var1 += 1;
-	else if (((*column1)->bit_field & SQB_PRIMARY) == 0)
-		var1 += 2;
-
-	if ((*column2)->type == SQ_TYPE_CONSTRAINT || (*column2)->type == SQ_TYPE_INDEX)
-		var2 += 3;
-	if ((*column2)->foreign || (*column2)->bit_field & SQB_FOREIGN)
-		var2 += 1;
-	else if (((*column2)->bit_field & SQB_PRIMARY) == 0)
-		var2 += 2;
-
-	return var1 - var2;
-}
-
 // ----------------------------------------------------------------------------
 // SqForeign C functions
 
@@ -266,3 +240,58 @@ static SqForeign *sq_foreign_copy(SqForeign *src)
 	foreign->on_update = strdup(src->on_update);
 	return foreign;
 }
+
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline function.
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqBuffer.h
+
+#else   // __STDC_VERSION__
+// define functions here if compiler does NOT support inline function.
+
+void  sq_column_pointer(SqColumn *column) {
+	column->bit_field |= SQB_POINTER;
+}
+
+void  sq_column_hidden(SqColumn *column) {
+	column->bit_field |= SQB_HIDDEN;
+}
+
+void  sq_column_hidden_null(SqColumn *column) {
+	column->bit_field |= SQB_HIDDEN_NULL;
+}
+
+void  sq_column_primary(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_PRIMARY;
+}
+
+void  sq_column_unique(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_UNIQUE;
+}
+
+void  sq_column_increment(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_INCREMENT;    // equal SQB_COLUMN_AUTOINCREMENT
+}
+
+void  sq_column_auto_increment(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_AUTOINCREMENT;
+}
+
+void  sq_column_nullable(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_NULLABLE;
+}
+
+void  sq_column_change(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_CHANGED;
+}
+
+void  sq_column_use_current(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_CURRENT;
+}
+
+void  sq_column_use_current_on_update(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_CURRENT_ON_UPDATE;
+}
+
+#endif  // __STDC_VERSION__

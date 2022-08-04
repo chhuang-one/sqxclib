@@ -708,3 +708,20 @@ WHERE age > 5
 	     })->as("c")->on("c.id = companies.city_id")
 	     ->where("age > 5");
 ```
+
+## 使用宏生成查询
+
+```c
+#include <sqxclib.h>
+#include <SqQuery-macro.h>    // sqxclib.h 不包含特殊的宏
+
+	SQ_QUERY_DO(query, {
+		SQQ_SELECT("id", "age");
+		SQQ_FROM("companies");
+		SQQ_JOIN_SUB({
+			SQQ_FROM("city");
+			SQQ_WHERE("id", "<", "100");
+		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
+		SQQ_WHERE("age > 5");
+	});
+```

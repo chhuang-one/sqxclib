@@ -66,7 +66,7 @@ static const SqColumn  userColumns[8] = {
 
 	/* 创建架构版本 1 */
 	schema_v1 = sq_schema_new("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
+	schema_v1->version = 1;    // 指定版本号或自动生成
 
 	// 创建表 "users"
 	table = sq_schema_create(schema_v1, "users", User);
@@ -98,7 +98,7 @@ static const SqColumn  userColumnsChanged[5] = {
 
 	/* 创建架构版本 2 */
 	schema_v2 = sq_schema_new("Ver 2");
-	schema_v2->version = 2;    // specify version number or auto generate it
+	schema_v2->version = 2;    // 指定版本号或自动生成
 
 	// 更改表 "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
@@ -175,7 +175,7 @@ static const SqColumn  userColumns[8] = {
 
 	/* 创建架构版本 1 */
 	schema_v1 = new Sq::Schema("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
+	schema_v1->version = 1;    // 指定版本号或自动生成
 
 	// 创建表 "users"
 	table = schema_v1->create<User>("users");

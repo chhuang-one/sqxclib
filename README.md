@@ -119,7 +119,7 @@ use C functions to define table and column in schema_v1 (dynamic)
 
 	// PRIMARY KEY
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;        // set bit in SqColumn.bit_field
+	sq_column_primary(column);
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 
@@ -127,11 +127,12 @@ use C functions to define table and column in schema_v1 (dynamic)
 
 	// DEFAULT CURRENT_TIMESTAMP
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
-	column->bit_field |= SQB_CURRENT;
+	sq_column_use_current(column);
 
 	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	column = sq_table_add_timestamp(table, "updated_at", offset(User, updated_at));
-	column->bit_field |= SQB_CURRENT | SQB_CURRENT_ON_UPDATE;
+	sq_column_use_current(column);
+	sq_column_use_current_on_update(column);
 
 	// FOREIGN KEY
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
@@ -165,7 +166,7 @@ use C functions to change table and column in schema_v2 (dynamic)
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	// alter column in table
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
-	column->bit_field |= SQB_CHANGED;        // set bit in SqColumn.bit_field
+	sq_column_change(column);
 	// DROP CONSTRAINT FOREIGN KEY
 	sq_table_drop_foreign(table, "users_city_id_foreign");
 
@@ -416,23 +417,6 @@ use C functions to produce query
 	sq_query_as(query, "c");
 	sq_query_on(query, "c.id = companies.city_id");
 	sq_query_where(query, "age > %d", 5);
-```
-
-use macro to produce query
-
-```c
-#include <sqxclib.h>
-#include <SqQuery-macro.h>    // sqxclib.h doesn't contain special macros
-
-	SQ_QUERY_DO(query, {
-		SQQ_SELECT("id", "age");
-		SQQ_FROM("companies");
-		SQQ_JOIN_SUB({
-			SQQ_FROM("city");
-			SQQ_WHERE("id", "<", "100");
-		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
-		SQQ_WHERE("age > 5");
-	});
 ```
 
 #### Using SqQuery with SqStorage

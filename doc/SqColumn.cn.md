@@ -124,8 +124,7 @@ const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 ```c++
 	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STRING);
 	column->offset = offsetof(YourStruct, name);
-	column->bit_field |= SQB_PRIMARY;    // 设置 SqColumn.bit_field
-//	column->bit_field &= ~SQB_PRIMARY;   // 清除 SqColumn.bit_field
+	sq_column_primary(column);           // 设置主键 PRIMARY KEY
 
 	/* 使用 C 函数添加列 */
 	SqType *type = sq_type_new(0, (SqDestroyFunc)sq_column_free);

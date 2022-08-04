@@ -102,7 +102,7 @@ The function accepts two arguments: one argument is the name of table, another i
 
 	// add columns to table
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;        // set bit in SqColumn.bit_field
+	sq_column_primary(column);
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
@@ -154,7 +154,7 @@ use the alter function to update existing tables.
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	// alter column "email" in table
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
-	column->bit_field |= SQB_CHANGED;
+	sq_column_change(column);
 ```
 
 ### Renaming / Dropping Tables (dynamic)
@@ -245,20 +245,20 @@ For example, to make the column "nullable":
 
 	/* C sample code */
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
-	column->bit_field |= SQB_NULLABLE;
+	sq_column_nullable(column);
 ```
 
 Below C++ methods (and C functions) are correspond to Column Modifiers:
 
-| C++ methods          | C functions         | C bit field name      |
-| -------------------- | ------------------- | --------------------- |
-| primary()            |                     | SQB_PRIMARY           |
-| unique()             |                     | SQB_UNIQUE            |
-| autoIncrement()      |                     | SQB_AUTOINCREMENT     |
-| nullable()           |                     | SQB_NULLABLE          |
-| useCurrent()         |                     | SQB_CURRENT           |
-| useCurrentOnUpdate() |                     | SQB_CURRENT_ON_UPDATE |
-| default_(string)     | sq_column_default() |                       |
+| C++ methods          | C functions                        | C bit field name      |
+| -------------------- | ---------------------------------- | --------------------- |
+| primary()            | sq_column_primary()                | SQB_PRIMARY           |
+| unique()             | sq_column_unique()                 | SQB_UNIQUE            |
+| autoIncrement()      | sq_column_auto_increment()         | SQB_AUTOINCREMENT     |
+| nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
+| useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
+| useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
+| default_(string)     | sq_column_default()                |                       |
 
 * Because 'default' is C/C++ keywords, I must append '_' in tail of this method.
 
@@ -294,7 +294,7 @@ C language: set SQB_CHANGE in bit_field allows you to modify the type and attrib
 
 	// alter column "email" in table
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
-	column->bit_field |= SQB_CHANGED;
+	sq_column_change(column);
 ```
 
 ### Renaming and Dropping Columns
@@ -334,7 +334,7 @@ use the unique method onto the column definition:
 
 	/* C sample code */
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
-	column->bit_field |= SQB_UNIQUE;
+	sq_column_unique(column);
 ```
 
 To use C functions to create composite unique, index, and primary key,

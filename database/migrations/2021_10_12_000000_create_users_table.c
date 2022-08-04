@@ -13,7 +13,8 @@ static void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 
 	table  = sq_schema_create(schema, "users", User);
 	column = sq_table_add_uint(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY | SQB_AUTOINCREMENT;
+	sq_column_primary(column);
+	sq_column_auto_increment(column);
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), 0);
 	column = sq_table_add_string(table, "email", offsetof(User, email), 0);
@@ -22,9 +23,11 @@ static void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 
 /*	// sq_table_add_timestamps_struct(table, User) will do these
 	column = sq_table_add_timestamp(table, "created_at", offsetof(User, created_at));
-	column->bit_field |= SQB_CURRENT;
+	sq_column_use_current(column);
+
 	column = sq_table_add_timestamp(table, "updated_at", offsetof(User, updated_at));
-	column->bit_field |= SQB_CURRENT | SQB_CURRENT_ON_UPDATE;
+	sq_column_use_current(column);
+	sq_column_use_current_on_update(column);
  */
 }
 

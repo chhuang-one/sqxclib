@@ -708,3 +708,20 @@ use C++ lambda functions to generate subquery:
 	     })->as("c")->on("c.id = companies.city_id")
 	     ->where("age > 5");
 ```
+
+## use macro to produce query
+
+```c
+#include <sqxclib.h>
+#include <SqQuery-macro.h>    // sqxclib.h doesn't contain special macros
+
+	SQ_QUERY_DO(query, {
+		SQQ_SELECT("id", "age");
+		SQQ_FROM("companies");
+		SQQ_JOIN_SUB({
+			SQQ_FROM("city");
+			SQQ_WHERE("id", "<", "100");
+		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
+		SQQ_WHERE("age > 5");
+	});
+```

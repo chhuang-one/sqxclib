@@ -285,7 +285,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 		sq_table_add_column(table, userColumnsVer3, SQ_N_COLUMNS(userColumnsVer3));
 		// add "test_drop" after dropping "test_drop"
 		column = sq_table_add_uint(table, "test_drop", offsetof(User, test_drop));
-		column->bit_field |= SQB_NULLABLE;
+		sq_column_nullable(column);
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -310,7 +310,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 		// ALTER TABLE "cities" ADD COLUMN "visited"    (dynamic)
 		table = sq_schema_alter(schema, "cities", NULL);
 		column = sq_table_add_bool(table, "visited", offsetof(City, visited));
-		column->bit_field |= SQB_NULLABLE;
+		sq_column_nullable(column);
 		// migrate changed of "users" and "cities"
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);

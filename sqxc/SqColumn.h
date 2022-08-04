@@ -82,19 +82,13 @@ void       sq_column_on_delete(SqColumn *column, const char *act);
 // foreign key on update
 void       sq_column_on_update(SqColumn *column, const char *act);
 
+// void sq_column_foreign(SqColumn *column, const char *foreign_table_name, const char *foreign_column_name);
 #define sq_column_foreign    sq_column_reference
 
 // the last argument must be NULL
 // sq_column_set_composite(column, colume_name1, column_name2, NULL);
 void       sq_column_set_composite(SqColumn *column, ...);
 void       sq_column_set_composite_va(SqColumn *column, va_list arg_list);
-
-// used by sq_table_arrange()
-// primary key = 0
-// foreign key = 1
-// normal      = 2
-// constraint  = 3
-int  sq_column_cmp_attrib(SqColumn **column1, SqColumn **column2);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -135,7 +129,7 @@ struct SqForeign
 	     |
 	     `--- SqColumn
 
-	Migration - Alter Type : column->bit_field & SQB_CHANGED
+	Migration - Alter Type : column->bit_field & SQB_COLUMN_CHANGED
 	Migration - Drop   : column->name = NULL, column->old_name = column_name
 	Migration - Rename : column->name = new_name, column->old_name = old_name
 
@@ -233,35 +227,35 @@ struct SqColumn
 	}
 	// SQL column property
 	Sq::Column &primary() {
-		((SqColumn*)this)->bit_field |= SQB_PRIMARY;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_PRIMARY;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &unique() {
-		((SqColumn*)this)->bit_field |= SQB_UNIQUE;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_UNIQUE;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &increment() {
-		((SqColumn*)this)->bit_field |= SQB_INCREMENT;    // equal SQB_AUTOINCREMENT
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_INCREMENT;    // equal SQB_COLUMN_AUTOINCREMENT
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &autoIncrement() {
-		((SqColumn*)this)->bit_field |= SQB_AUTOINCREMENT;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_AUTOINCREMENT;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &nullable() {
-		((SqColumn*)this)->bit_field |= SQB_NULLABLE;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_NULLABLE;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &change() {
-		((SqColumn*)this)->bit_field |= SQB_CHANGED;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_CHANGED;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &useCurrent() {
-		((SqColumn*)this)->bit_field |= SQB_CURRENT;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_CURRENT;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &useCurrentOnUpdate() {
-		((SqColumn*)this)->bit_field |= SQB_CURRENT_ON_UPDATE;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_CURRENT_ON_UPDATE;
 		return *(Sq::Column*)this;
 	}
 
@@ -283,6 +277,128 @@ struct SqColumn
 	}
 #endif  // __cplusplus
 };
+
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define global inline function
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// define inline functions here if compiler supports inline function.
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_pointer(SqColumn *column) {
+	column->bit_field |= SQB_POINTER;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_hidden(SqColumn *column) {
+	column->bit_field |= SQB_HIDDEN;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_hidden_null(SqColumn *column) {
+	column->bit_field |= SQB_HIDDEN_NULL;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_primary(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_PRIMARY;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_unique(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_UNIQUE;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_increment(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_INCREMENT;    // equal SQB_COLUMN_AUTOINCREMENT
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_auto_increment(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_AUTOINCREMENT;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_nullable(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_NULLABLE;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_change(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_CHANGED;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_use_current(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_CURRENT;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_use_current_on_update(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_CURRENT_ON_UPDATE;
+}
+
+#else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
+
+void  sq_column_pointer(SqColumn *column);
+void  sq_column_hidden(SqColumn *column);
+void  sq_column_hidden_null(SqColumn *column);
+void  sq_column_primary(SqColumn *column);
+void  sq_column_unique(SqColumn *column);
+void  sq_column_increment(SqColumn *column);
+void  sq_column_auto_increment(SqColumn *column);
+void  sq_column_nullable(SqColumn *column);
+void  sq_column_change(SqColumn *column);
+void  sq_column_use_current(SqColumn *column);
+void  sq_column_use_current_on_update(SqColumn *column);
+
+#endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.
@@ -337,35 +453,35 @@ struct ColumnMethod
 	}
 	// SQL column property
 	Sq::Column &primary() {
-		((SqColumn*)this)->bit_field |= SQB_PRIMARY;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_PRIMARY;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &unique() {
-		((SqColumn*)this)->bit_field |= SQB_UNIQUE;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_UNIQUE;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &increment() {
-		((SqColumn*)this)->bit_field |= SQB_INCREMENT;    // equal SQB_AUTOINCREMENT
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_INCREMENT;    // equal SQB_COLUMN_AUTOINCREMENT
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &autoIncrement() {
-		((SqColumn*)this)->bit_field |= SQB_AUTOINCREMENT;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_AUTOINCREMENT;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &nullable() {
-		((SqColumn*)this)->bit_field |= SQB_NULLABLE;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_NULLABLE;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &change() {
-		((SqColumn*)this)->bit_field |= SQB_CHANGED;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_CHANGED;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &useCurrent() {
-		((SqColumn*)this)->bit_field |= SQB_CURRENT;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_CURRENT;
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &useCurrentOnUpdate() {
-		((SqColumn*)this)->bit_field |= SQB_CURRENT_ON_UPDATE;
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_CURRENT_ON_UPDATE;
 		return *(Sq::Column*)this;
 	}
 

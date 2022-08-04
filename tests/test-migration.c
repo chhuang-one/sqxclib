@@ -164,7 +164,7 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 	sq_column_on_update(column, "cascade");
 
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;
+	sq_column_primary(column);
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_custom(table, "posts", offsetof(User, posts), SQ_TYPE_INTPTR_ARRAY, -1);
@@ -230,7 +230,7 @@ void create_company_table_by_c(SqSchema *schema)
 	// change schema
 	table = sq_schema_create(schema, "companies", Company);
 	column = sq_table_add_integer(table, "id", offsetof(Company, id));
-	column->bit_field |= SQB_PRIMARY;
+	sq_column_primary(column);
 	column = sq_table_add_string(table, "name", offsetof(Company, name), 0);
 	column = sq_table_add_integer(table, "city_id", offsetof(Company, city_id));
 	sq_column_foreign(column, "cities", "id");
@@ -245,7 +245,7 @@ void create_city_table_by_c(SqSchema *schema)
 	// change schema
 	table = sq_schema_create(schema, "cities", City);
 	column = sq_table_add_integer(table, "id", offsetof(City, id));
-	column->bit_field |= SQB_PRIMARY;
+	sq_column_primary(column);
 	column = sq_table_add_string(table, "name", offsetof(City, name), 0);
 }
 

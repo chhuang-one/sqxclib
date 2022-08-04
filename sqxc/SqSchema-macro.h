@@ -195,6 +195,9 @@ typedef struct Company
 
 // ----------------------------------------------------------------------------
 
+#define SQC_POINTER()     \
+		column_cur_->bit_field   |= SQB_POINTER
+
 #define SQC_HIDDEN()     \
 		column_cur_->bit_field   |= SQB_HIDDEN
 
@@ -202,13 +205,13 @@ typedef struct Company
 		column_cur_->bit_field   |= SQB_HIDDEN_NULL
 
 #define SQC_PRIMARY()    \
-		column_cur_->bit_field   |= SQB_PRIMARY
+		column_cur_->bit_field   |= SQB_COLUMN_PRIMARY
 
 #define SQC_FOREIGN(table_name, column_name)   \
-		column_cur_->bit_field   |= SQB_FOREIGN
+		column_cur_->bit_field   |= SQB_COLUMN_FOREIGN
 
 #define SQC_UNIQUE()  \
-		column_cur_->bit_field   |= SQB_UNIQUE
+		column_cur_->bit_field   |= SQB_COLUMN_UNIQUE
 
 #define SQC_REFERENCE(table_name, column_name)   \
 		sq_column_reference(column_cur_, table_name, column_name)
@@ -220,22 +223,22 @@ typedef struct Company
 		sq_column_on_update(column_cur_, act)
 
 #define SQC_AUTOINCREMENT()  \
-		column_cur_->bit_field   |= SQB_AUTOINCREMENT
+		column_cur_->bit_field   |= SQB_COLUMN_AUTOINCREMENT
 
 #define SQC_INCREMENT()  \
-		column_cur_->bit_field   |= SQB_INCREMENT    // equal SQB_AUTOINCREMENT
+		column_cur_->bit_field   |= SQB_COLUMN_INCREMENT    // equal SQB_COLUMN_AUTOINCREMENT
 
 #define SQC_NULLABLE()   \
-		column_cur_->bit_field   |= SQB_NULLABLE
+		column_cur_->bit_field   |= SQB_COLUMN_NULLABLE
 
 #define SQC_CHANGE()   \
-		column_cur_->bit_field   |= SQB_CHANGED
+		column_cur_->bit_field   |= SQB_COLUMN_CHANGED
 
 #define SQC_USE_CURRENT()   \
-		column_cur_->bit_field   |= SQB_CURRENT
+		column_cur_->bit_field   |= SQB_COLUMN_CURRENT
 
 #define SQC_USE_CURRENT_ON_UPDATE()   \
-		column_cur_->bit_field   |= SQB_CURRENT_ON_UPDATE
+		column_cur_->bit_field   |= SQB_COLUMN_CURRENT_ON_UPDATE
 
 #define SQC_DEFAULT(default_val)   \
 		sq_column_default(default_val)

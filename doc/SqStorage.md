@@ -56,7 +56,7 @@ use C functions
 	// create table "users" in schema
 	table = sq_schema_create(schema, "users", User);
 	column = sq_table_int(table, "id", offsetof(User, id));
-	column-bit_field |= SQB_PRIMARY;
+	sq_column_primary(column);
 	column = sq_table_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_string(table, "email", offsetof(User, email), -1);
 

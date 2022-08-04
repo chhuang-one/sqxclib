@@ -61,7 +61,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	// 创建表 "users"
 	table = schema_v1->create<User>("users");
 	// 向表中添加列
-	table->integer("id", &User::id)->primary();  // PRIMARY KEY
+	table->integer("id", &User::id)->primary();  // 主键 PRIMARY KEY
 	table->string("name", &User::name);
 	table->string("email", &User::email, 60);    // VARCHAR(60)
 	// DEFAULT CURRENT_TIMESTAMP
@@ -117,7 +117,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// 主键 PRIMARY KEY
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;        // set bit in SqColumn.bit_field
+	sq_column_primary(column);
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 
@@ -125,11 +125,12 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// DEFAULT CURRENT_TIMESTAMP
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
-	column->bit_field |= SQB_CURRENT;
+	sq_column_use_current(column);
 
 	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	column = sq_table_add_timestamp(table, "updated_at", offset(User, updated_at));
-	column->bit_field |= SQB_CURRENT | SQB_CURRENT_ON_UPDATE;
+	sq_column_use_current(column);
+	sq_column_use_current_on_update(column);
 
 	// 外键 FOREIGN KEY
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
@@ -163,7 +164,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	// 更改表中的列
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
-	column->bit_field |= SQB_CHANGED;        // set bit in SqColumn.bit_field
+	sq_column_change(column);
 	// 删除约束外键 DROP CONSTRAINT FOREIGN KEY
 	sq_table_drop_foreign(table, "users_city_id_foreign");
 
@@ -414,23 +415,6 @@ SQL 语句
 	sq_query_as(query, "c");
 	sq_query_on(query, "c.id = companies.city_id");
 	sq_query_where(query, "age > %d", 5);
-```
-
-使用宏生成查询
-
-```c
-#include <sqxclib.h>
-#include <SqQuery-macro.h>    // sqxclib.h 不包含特殊的宏
-
-	SQ_QUERY_DO(query, {
-		SQQ_SELECT("id", "age");
-		SQQ_FROM("companies");
-		SQQ_JOIN_SUB({
-			SQQ_FROM("city");
-			SQQ_WHERE("id", "<", "100");
-		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
-		SQQ_WHERE("age > 5");
-	});
 ```
 
 #### 将 SqQuery 与 SqStorage 一起使用

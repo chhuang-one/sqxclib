@@ -102,7 +102,7 @@ struct User {
 
 	// 向表中添加列
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
-	column->bit_field |= SQB_PRIMARY;        // 设置 SqColumn.bit_field
+	sq_column_primary(column);
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
@@ -154,7 +154,7 @@ struct User {
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	// 更改表中的 "email" 列
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
-	column->bit_field |= SQB_CHANGED;
+	sq_column_change(column);
 ```
 
 ### 重命名/删除表（动态）
@@ -245,20 +245,20 @@ struct User {
 
 	/* C 示例代码 */
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
-	column->bit_field |= SQB_NULLABLE;
+	sq_column_nullable(column);
 ```
 
 以下 C++ 方法 (和 C 函数) 对应于列修饰符：
 
-| C++ 方法             | C 函数              | C 位字段名             |
-| -------------------- | ------------------- | --------------------- |
-| primary()            |                     | SQB_PRIMARY           |
-| unique()             |                     | SQB_UNIQUE            |
-| autoIncrement()      |                     | SQB_AUTOINCREMENT     |
-| nullable()           |                     | SQB_NULLABLE          |
-| useCurrent()         |                     | SQB_CURRENT           |
-| useCurrentOnUpdate() |                     | SQB_CURRENT_ON_UPDATE |
-| default_(string)     | sq_column_default() |                       |
+| C++ 方法             | C 函数                             | C 位字段名            |
+| -------------------- | ---------------------------------- | --------------------- |
+| primary()            | sq_column_primary()                | SQB_PRIMARY           |
+| unique()             | sq_column_unique()                 | SQB_UNIQUE            |
+| autoIncrement()      | sq_column_auto_increment()         | SQB_AUTOINCREMENT     |
+| nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
+| useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
+| useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
+| default_(string)     | sq_column_default()                |                       |
 
 * 因为 "default" 是 C/C++ 关键字，所以在此方法的尾部附加 "_"。
 
@@ -294,7 +294,7 @@ C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型�
 
 	// 更改表中的 "email" 列
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
-	column->bit_field |= SQB_CHANGED;
+	sq_column_change(column);
 ```
 
 ### 重命名和删除列
@@ -334,7 +334,7 @@ C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型�
 
 	/* C 示例代码 */
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
-	column->bit_field |= SQB_UNIQUE;
+	sq_column_unique(column);
 ```
 
 要使用 C 函数创建复合 唯一、索引、主键，

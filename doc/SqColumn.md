@@ -124,8 +124,7 @@ add one dynamic column to type
 ```c++
 	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STRING);
 	column->offset = offsetof(YourStruct, name);
-	column->bit_field |= SQB_PRIMARY;    // set bit in SqColumn.bit_field
-//	column->bit_field &= ~SQB_PRIMARY;   // clear bit in SqColumn.bit_field
+	sq_column_primary(column);           // set PRIMARY KEY
 
 	/* use C functions to add column */
 	SqType *type = sq_type_new(0, (SqDestroyFunc)sq_column_free);
