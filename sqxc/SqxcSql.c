@@ -137,7 +137,7 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 	entry = src->entry;
 	if (entry) {
 		// Don't output column that has AUTO INCREMENT and value.integer is 0
-		if (entry->bit_field & SQB_AUTOINCREMENT) {
+		if (entry->bit_field & SQB_COLUMN_AUTOINCREMENT) {
 			if (src->value.int64 == 0)    //  && (entry->type == SQ_TYPE_INT64 || entry->type == SQ_TYPE_UINT64)
 				return (src->code = SQCODE_OK);
 			if (src->value.int_  == 0 && (entry->type == SQ_TYPE_INT   || entry->type == SQ_TYPE_UINT))
@@ -145,7 +145,7 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 		}
 		// Don't output column that has DEFAULT CURRENT_XXXX and value.rawtime is 0
 		if (entry->type == SQ_TYPE_TIME && src->type == SQXC_TYPE_TIME && src->value.rawtime == 0) {
-			if (entry->bit_field & SQB_CURRENT)
+			if (entry->bit_field & SQB_COLUMN_CURRENT)
 				return (src->code = SQCODE_OK);
 			if ( ((SqColumn*)entry)->default_value && strncasecmp("CURRENT_", ((SqColumn*)entry)->default_value, 8) == 0 )
 				return (src->code = SQCODE_OK);
@@ -236,11 +236,11 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 				return (src->code = SQCODE_OK);
 		}
 		// Don't output primary key
-		if (entry->bit_field & SQB_PRIMARY)
+		if (entry->bit_field & SQB_COLUMN_PRIMARY)
 			return (src->code = SQCODE_OK);
 		// Don't output column that has DEFAULT CURRENT_XXXX and value.rawtime is 0
 		if (entry->type == SQ_TYPE_TIME && src->type == SQXC_TYPE_TIME && src->value.rawtime == 0) {
-			if (entry->bit_field & SQB_CURRENT_ALL)
+			if (entry->bit_field & SQB_COLUMN_CURRENT_ALL)
 				return (src->code = SQCODE_OK);
 			if ( ((SqColumn*)entry)->default_value && strncasecmp("CURRENT_", ((SqColumn*)entry)->default_value, 8) == 0 )
 				return (src->code = SQCODE_OK);

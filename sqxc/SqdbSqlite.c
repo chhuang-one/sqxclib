@@ -540,7 +540,7 @@ static void sqdb_sqlite_create_dependent(SqdbSqlite *db, SqBuffer *sql_buf, SqTa
 			sq_buffer_write_c(sql_buf, ';');
 		}
 		// CREATE TRIGGER
-		else if (column->bit_field & SQB_CURRENT_ON_UPDATE)
+		else if (column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE)
 			sqdb_sqlite_create_trigger(db, sql_buf, table, column);
 	}
 }
@@ -655,7 +655,7 @@ static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *
 				sq_buffer_write_c(sql_buf, ';');
 
 				// ON UPDATE CURRENT_TIMESTAMP
-				if (column->bit_field & SQB_CURRENT_ON_UPDATE)
+				if (column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE)
 					sqdb_sqlite_create_trigger(db, sql_buf, table, column);
 			}
 		}

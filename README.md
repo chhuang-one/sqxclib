@@ -60,12 +60,14 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	schema_v1 = new Sq::Schema("Ver 1");
 	schema_v1->version = 1;    // specify version number or auto generate it
 
-	// create table "users"
+	// create table "users", then add columns to table.
 	table = schema_v1->create<User>("users");
-	// add columns to table
-	table->integer("id", &User::id)->primary();  // PRIMARY KEY
+	// PRIMARY KEY
+	table->integer("id", &User::id)->primary();
+	// VARCHAR
 	table->string("name", &User::name);
-	table->string("email", &User::email, 60);    // VARCHAR(60)
+	// VARCHAR(60)
+	table->string("email", &User::email, 60);
 	// DEFAULT CURRENT_TIMESTAMP
 	table->timestamp("created_at", &User::created_at)->useCurrent();
 	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -102,8 +104,9 @@ use C++ methods to change table and column in schema_v2 (dynamic)
 	table->integer("city_id", &User::city_id)->change();
 	// DROP CONSTRAINT FOREIGN KEY
 	table->dropForeign("users_city_id_foreign");
-
+	// drop column
 	table->dropColumn("name");
+	// rename column
 	table->renameColumn("email", "email2");
 ```
 
@@ -121,9 +124,10 @@ use C functions to define table and column in schema_v1 (dynamic)
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	sq_column_primary(column);
 
+	// VARCHAR
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
-
-	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
+	// VARCHAR(60)
+	column = sq_table_add_string(table, "email", offsetof(User, email), 60);
 
 	// DEFAULT CURRENT_TIMESTAMP
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
@@ -169,11 +173,14 @@ use C functions to change table and column in schema_v2 (dynamic)
 	sq_column_change(column);
 	// DROP CONSTRAINT FOREIGN KEY
 	sq_table_drop_foreign(table, "users_city_id_foreign");
-
+	// drop column
 	sq_table_drop_column(table, "name");
+	// rename column
 	sq_table_rename_column(table, "email", "email2");
 ```
 
+**There are more...**  
+  
 * You can get more information about schema and migrations in doc/[database-migrations.md](doc/database-migrations.md)
 * To use initializer to define (or change) table statically, see doc/[schema-builder-static.md](doc/schema-builder-static.md)
 * To use macro to define (or change) table dynamically, see doc/[schema-builder-macro.md](doc/schema-builder-macro.md)

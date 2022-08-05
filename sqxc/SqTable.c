@@ -153,8 +153,8 @@ int  sq_table_get_columns(SqTable *table, SqPtrArray *ptrarray,
 		matched_count = 0;
 		bit_field = bit_field_orig;
 		// check special case of foreign key
-		if (column->foreign  &&  bit_field & SQB_FOREIGN)
-			bit_field &= ~SQB_FOREIGN;
+		if (column->foreign  &&  bit_field & SQB_COLUMN_FOREIGN)
+			bit_field &= ~SQB_COLUMN_FOREIGN;
 		// check 2 conditions
 		if ((column->bit_field & bit_field) == bit_field)
 			matched_count++;
@@ -182,7 +182,7 @@ SqColumn *sq_table_get_primary(SqTable *table, const SqType *type_in_table)
 
 	for (int index = 0;  index < array->length;  index++) {
 		column = array->data[index];
-		if (column->bit_field & SQB_PRIMARY && SQ_TYPE_IS_INT(column->type))
+		if (column->bit_field & SQB_COLUMN_PRIMARY && SQ_TYPE_IS_INT(column->type))
 			return column;
 	}
 	return NULL;
@@ -277,14 +277,14 @@ void  sq_table_add_timestamps(SqTable *table,
 		created_at_name = "created_at";
 	column = sq_column_new(created_at_name, SQ_TYPE_TIME);
 	column->offset = created_at_offset;
-	column->bit_field |= SQB_CURRENT;
+	column->bit_field |= SQB_COLUMN_CURRENT;
 	sq_table_add_column(table, column, 1);
 
 	if (updated_at_name == NULL)
 		updated_at_name = "updated_at";
 	column = sq_column_new(updated_at_name, SQ_TYPE_TIME);
 	column->offset = updated_at_offset;
-	column->bit_field |= SQB_CURRENT | SQB_CURRENT_ON_UPDATE;
+	column->bit_field |= SQB_COLUMN_CURRENT | SQB_COLUMN_CURRENT_ON_UPDATE;
 	sq_table_add_column(table, column, 1);
 }
 
@@ -350,19 +350,15 @@ SqColumn *sq_table_add_composite(SqTable *table,
 		int  name_length;
 
 		switch(bit_field) {
-		case SQB_INDEX:
-			post_string = "_index";
-			name_length = 5;
-			break;
-		case SQB_UNIQUE:
+		case SQB_COLUMN_UNIQUE:
 			post_string = "_unique";
 			name_length = 7;
 			break;
-		case SQB_PRIMARY:
+		case SQB_COLUMN_PRIMARY:
 			post_string = "_primary";
 			name_length = 8;
 			break;
-		case SQB_FOREIGN:
+		case SQB_COLUMN_FOREIGN:
 			post_string = "_foreign";
 			name_length = 8;
 			break;
@@ -429,7 +425,7 @@ SqColumn *sq_table_add_unique(SqTable *table,
 	SqColumn *column;
 	va_list   arg_list;
 
-	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, unique_name);
+	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_COLUMN_UNIQUE, unique_name);
 	va_start(arg_list, unique_name);
 	sq_column_set_composite_va(column, arg_list);
 	va_end(arg_list);
@@ -438,7 +434,7 @@ SqColumn *sq_table_add_unique(SqTable *table,
 
 void   sq_table_drop_unique(SqTable *table, const char *unique_name)
 {
-	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, unique_name);
+	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_COLUMN_UNIQUE, unique_name);
 }
 
 SqColumn *sq_table_add_primary(SqTable *table,
@@ -448,7 +444,7 @@ SqColumn *sq_table_add_primary(SqTable *table,
 	SqColumn *column;
 	va_list   arg_list;
 
-	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, primary_name);
+	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_COLUMN_PRIMARY, primary_name);
 	va_start(arg_list, primary_name);
 	sq_column_set_composite_va(column, arg_list);
 	va_end(arg_list);
@@ -457,19 +453,19 @@ SqColumn *sq_table_add_primary(SqTable *table,
 
 void   sq_table_drop_primary(SqTable *table, const char *primary_name)
 {
-	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, primary_name);
+	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_COLUMN_PRIMARY, primary_name);
 }
 
 SqColumn *sq_table_add_foreign(SqTable *table, const char *name, const char *column_name)
 {
 	SqColumn *column;
 
-	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
+	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_COLUMN_FOREIGN, name);
 	sq_column_set_composite(column, column_name, NULL);
 	return column;
 }
 
 void   sq_table_drop_foreign(SqTable *table, const char *name)
 {
-	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, name);
+	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_COLUMN_FOREIGN, name);
 }

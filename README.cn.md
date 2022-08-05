@@ -58,17 +58,19 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	schema_v1 = new Sq::Schema("Ver 1");
 	schema_v1->version = 1;    // 指定版本号或自动生成
 
-	// 创建表 "users"
+	// 创建表 "users"，然后将列添加到表中。
 	table = schema_v1->create<User>("users");
-	// 向表中添加列
-	table->integer("id", &User::id)->primary();  // 主键 PRIMARY KEY
+	// 主键 PRIMARY KEY
+	table->integer("id", &User::id)->primary();
+	// VARCHAR
 	table->string("name", &User::name);
-	table->string("email", &User::email, 60);    // VARCHAR(60)
+	// VARCHAR(60)
+	table->string("email", &User::email, 60);
 	// DEFAULT CURRENT_TIMESTAMP
 	table->timestamp("created_at", &User::created_at)->useCurrent();
 	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	table->timestamp("updated_at", &User::updated_at)->useCurrent()->useCurrentOnUpdate();
-	// C++ types - std::string and std::vector
+	// C++ 类型 - std::string 和 std::vector
 	table->stdstring("strCpp", &User::strCpp);
 	table->custom("intsCpp", &User::intsCpp, &SqTypeIntVector);
 	// 外键 FOREIGN KEY
@@ -100,8 +102,9 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	table->integer("city_id", &User::city_id)->change();
 	// 删除约束外键 DROP CONSTRAINT FOREIGN KEY
 	table->dropForeign("users_city_id_foreign");
-
+	// 删除列
 	table->dropColumn("name");
+	// 重命名列
 	table->renameColumn("email", "email2");
 ```
 
@@ -119,9 +122,10 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	sq_column_primary(column);
 
+	// VARCHAR
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
-
-	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
+	// VARCHAR(60)
+	column = sq_table_add_string(table, "email", offsetof(User, email), 60);
 
 	// DEFAULT CURRENT_TIMESTAMP
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
@@ -167,11 +171,14 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	sq_column_change(column);
 	// 删除约束外键 DROP CONSTRAINT FOREIGN KEY
 	sq_table_drop_foreign(table, "users_city_id_foreign");
-
+	// 删除列
 	sq_table_drop_column(table, "name");
+	// 重命名列
 	sq_table_rename_column(table, "email", "email2");
 ```
 
+**還有更多...**  
+  
 * 您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关架构和迁移的更多信息
 * 要使用初始化器静态定义（或更改）表，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)
 * 要使用宏动态定义（或更改）表，请参阅 doc/[schema-builder-macro.cn.md](doc/schema-builder-macro.cn.md)

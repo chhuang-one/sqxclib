@@ -39,10 +39,12 @@ static const SqColumn  userColumns[8] = {
 	// 主键 PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
+	// VARCHAR
 	{SQ_TYPE_STRING, "name",       offsetof(User, name)  },
 
+	// VARCHAR(60)
 	{SQ_TYPE_STRING, "email",      offsetof(User, email),
-		.size = 60},    // VARCHAR(60)
+		.size = 60},
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},

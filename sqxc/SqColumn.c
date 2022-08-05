@@ -108,7 +108,7 @@ SqColumn *sq_column_copy_static(const SqColumn *column_src)
 	column->foreign = NULL;
 	if (column_src->foreign) {
 		column->foreign = sq_foreign_copy(column_src->foreign);
-		column->bit_field |= SQB_FOREIGN;
+		column->bit_field |= SQB_COLUMN_FOREIGN;
 	}
 
 	column->composite = NULL;

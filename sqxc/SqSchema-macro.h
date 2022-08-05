@@ -241,9 +241,9 @@ typedef struct Company
 		column_cur_->bit_field   |= SQB_COLUMN_CURRENT_ON_UPDATE
 
 #define SQC_DEFAULT(default_val)   \
-		sq_column_default(default_val)
+		sq_column_default(column_cur_, default_val)
 
 #define SQC_RAW(raw_property)   \
-		sq_column_raw(raw_property)
+		sq_column_raw(column_cur_, raw_property)
 
 #endif  // SQ_SCHEMA_MACRO_H

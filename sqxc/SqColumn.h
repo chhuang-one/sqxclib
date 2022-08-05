@@ -38,7 +38,7 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 // SQL common bit_field (for internal use only. use it when SQLite recreate)
 #define SQB_COLUMN_RENAMED              SQB_RENAMED         // SQL: column has been renamed.
 
-/* SqColumn::bit_field for SQLite migration
+/* SqColumn::bit_field for migration
    SQB_COLUMN_XXX must large then SQB_RESERVE_END because it derived from SqEntry. (SqEntry.h)
    SQB_COLUMN_XXX can overlap SQB_TABLE_XXX (SqTable.h)
  */

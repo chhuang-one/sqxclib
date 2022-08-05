@@ -30,12 +30,12 @@
    define constant pointer array of SqColumn that used by constant SqType
  */
 static const SqColumn *column_ptrs[3] = {
-	&(SqColumn) {SQ_TYPE_INT,    "batch",     offsetof(SqMigrationTable, batch),     0,
-	             .size = 16},
-	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(SqMigrationTable, id),        SQB_PRIMARY | SQB_AUTOINCREMENT,
-	             .size = 16},
-	&(SqColumn) {SQ_TYPE_STRING, "migration", offsetof(SqMigrationTable, migration), 0,
-	             .size = 255},
+	&(SqColumn) {SQ_TYPE_INT,    "batch",     offsetof(SqMigrationTable, batch),
+	             0,                                              .size = 16},
+	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(SqMigrationTable, id),
+	             SQB_COLUMN_PRIMARY | SQB_COLUMN_AUTOINCREMENT,  .size = 16},
+	&(SqColumn) {SQ_TYPE_STRING, "migration", offsetof(SqMigrationTable, migration),
+	             0,                                              .size = 255},
 };
 
 static void sq_migration_table_free(SqMigrationTable *mtable)

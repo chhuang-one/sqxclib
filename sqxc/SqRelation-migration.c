@@ -346,14 +346,14 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				// set bit_field: column added
 				if (column_src->type == SQ_TYPE_CONSTRAINT)
 					table->bit_field |= SQB_TABLE_COL_ADDED_CONSTRAINT;
-				else if (column_src->bit_field & (SQB_UNIQUE | SQB_PRIMARY))
+				else if (column_src->bit_field & (SQB_COLUMN_UNIQUE | SQB_COLUMN_PRIMARY))
 					table->bit_field |= SQB_TABLE_COL_ADDED_UNIQUE;
 				else if (column_src->default_value) {
 					// DEFAULT (expression)
 					if (column_src->default_value[0] == '(')
 						table->bit_field |= SQB_TABLE_COL_ADDED_EXPRESSION;
 					// DEFAULT CURRENT_TIME, CURRENT_DATE, or CURRENT_TIMESTAMP...etc
-					else if (column_src->bit_field & SQB_CURRENT || strncasecmp("CURRENT_", column_src->default_value, 8) == 0)
+					else if (column_src->bit_field & SQB_COLUMN_CURRENT || strncasecmp("CURRENT_", column_src->default_value, 8) == 0)
 						table->bit_field |= SQB_TABLE_COL_ADDED_CURRENT_TIME;
 					else
 						table->bit_field |= SQB_TABLE_COL_ADDED;

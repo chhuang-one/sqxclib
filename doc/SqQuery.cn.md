@@ -711,6 +711,8 @@ WHERE age > 5
 
 ## 使用宏生成查询
 
+宏 SQ_QUERY_DO() 用于构建查询。宏中的最后一个参数类似于 lambda 函数。
+
 ```c
 #include <sqxclib.h>
 #include <SqQuery-macro.h>    // sqxclib.h 不包含特殊的宏

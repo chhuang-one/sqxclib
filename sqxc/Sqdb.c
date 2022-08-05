@@ -106,7 +106,7 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 	// ALTER TABLE
 	for (index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
-		if (column->bit_field & SQB_CHANGED) {
+		if (column->bit_field & SQB_COLUMN_CHANGED) {
 			// ALTER COLUMN
 			sqdb_sql_alter_column(db, buffer, table, column);
 		}
@@ -114,7 +114,7 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 			// DROP COLUMN / CONSTRAINT / INDEX / KEY
 			sqdb_sql_drop_column(db, buffer, table, column);
 		}
-		else if (column->old_name && (column->bit_field & SQB_RENAMED) == 0) {
+		else if (column->old_name && (column->bit_field & SQB_COLUMN_RENAMED) == 0) {
 			// RENAME COLUMN
 			if (table_data) {
 				// MySQL "CHANGE COLUMN" need original column data
@@ -174,14 +174,14 @@ int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArr
 static int  column_cmp_pfk(SqColumn **col1, SqColumn **col2) {
 	int  val1, val2;
 
-	if ((*col1)->bit_field & SQB_PRIMARY)
+	if ((*col1)->bit_field & SQB_COLUMN_PRIMARY)
 		val1 = 1;
 	else if ((*col1)->foreign)
 		val1 = 2;
 	else
 		val1 = 3;
 
-	if ((*col2)->bit_field & SQB_PRIMARY)
+	if ((*col2)->bit_field & SQB_COLUMN_PRIMARY)
 		val2 = 1;
 	else if ((*col2)->foreign)
 		val2 = 2;
@@ -201,7 +201,7 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 	if (primary_first) {
 		// if first column is not primary key
 		column = (SqColumn*)arranged_columns->data[0];
-		if ((column->bit_field & SQB_PRIMARY) == 0) {
+		if ((column->bit_field & SQB_COLUMN_PRIMARY) == 0) {
 			// move primary and foreign key to beginning of array
 			sq_ptr_array_init(&array, arranged_columns->length, NULL);
 			memcpy(array.data, arranged_columns->data, sizeof(void*) * arranged_columns->length);
@@ -243,13 +243,13 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 			if (column->type == SQ_TYPE_CONSTRAINT || column->type == SQ_TYPE_INDEX)
 				continue;
 			// FOREIGN KEY
-			if (column->foreign)    // || column->bit_field & SQB_FOREIGN
+			if (column->foreign)    // || column->bit_field & SQB_COLUMN_FOREIGN
 				sq_buffer_write(buffer, ", FOREIGN KEY");
 			// PRIMARY KEY
-			else if (column->bit_field & SQB_PRIMARY && db->info->product != SQDB_PRODUCT_SQLITE)
+			else if (column->bit_field & SQB_COLUMN_PRIMARY && db->info->product != SQDB_PRODUCT_SQLITE)
 				sq_buffer_write(buffer, ", PRIMARY KEY");
 			// UNIQUE
-			else if (column->bit_field & SQB_UNIQUE)
+			else if (column->bit_field & SQB_COLUMN_UNIQUE)
 				sq_buffer_write(buffer, ", UNIQUE");
 			else
 				continue;
@@ -399,11 +399,11 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 		sq_buffer_write(buffer, "FOREIGN KEY");
 	}
 	// ADD PRIMARY KEY
-	else if (column->bit_field & SQB_PRIMARY) {
+	else if (column->bit_field & SQB_COLUMN_PRIMARY) {
 		sq_buffer_write(buffer, "PRIMARY KEY");
 	}
 	// ADD UNIQUE
-	else if (column->bit_field & SQB_UNIQUE) {
+	else if (column->bit_field & SQB_COLUMN_UNIQUE) {
 		sq_buffer_write(buffer, "UNIQUE");
 	}
 	// ADD COLUMN
@@ -531,11 +531,11 @@ void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 	// DROP CONSTRAINT
 	if (column->type == SQ_TYPE_CONSTRAINT) {
 		if (db->info->product == SQDB_PRODUCT_MYSQL) {
-			if (column->bit_field & SQB_FOREIGN || column->foreign)
+			if (column->bit_field & SQB_COLUMN_FOREIGN || column->foreign)
 				sq_buffer_write(buffer, "FOREIGN KEY");
-			else if (column->bit_field & SQB_PRIMARY)
+			else if (column->bit_field & SQB_COLUMN_PRIMARY)
 				sq_buffer_write(buffer, "PRIMARY KEY");
-			else if (column->bit_field & SQB_UNIQUE)
+			else if (column->bit_field & SQB_COLUMN_UNIQUE)
 				sq_buffer_write(buffer, "INDEX");
 		}
 		else
@@ -552,7 +552,7 @@ void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 	else
 		sq_buffer_write(buffer, "COLUMN");
 
-	if (db->info->product != SQDB_PRODUCT_MYSQL || (column->bit_field & SQB_PRIMARY) == 0) {
+	if (db->info->product != SQDB_PRODUCT_MYSQL || (column->bit_field & SQB_COLUMN_PRIMARY) == 0) {
 		// write "column old name"
 		sq_buffer_alloc(buffer, 2);
 		sq_buffer_r_at(buffer, 1) = ' ';
@@ -625,7 +625,7 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 	case SQ_TYPE_INT_INDEX:
 	case SQ_TYPE_UINT_INDEX:
 	case SQ_TYPE_INTPTR_INDEX:
-		if (column->bit_field & SQB_PRIMARY && db->info->product == SQDB_PRODUCT_SQLITE)
+		if (column->bit_field & SQB_COLUMN_PRIMARY && db->info->product == SQDB_PRODUCT_SQLITE)
 			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
 		else {
 			sq_buffer_write(buffer, "INT");
@@ -640,7 +640,7 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 
 	case SQ_TYPE_INT64_INDEX:
 	case SQ_TYPE_UINT64_INDEX:
-		if (column->bit_field & SQB_PRIMARY && db->info->product == SQDB_PRODUCT_SQLITE)
+		if (column->bit_field & SQB_COLUMN_PRIMARY && db->info->product == SQDB_PRODUCT_SQLITE)
 			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
 		else
 			sq_buffer_write(buffer, "BIGINT");
@@ -689,12 +689,12 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 	}
 
 	// "NOT NULL"
-	if ((column->bit_field & SQB_NULLABLE) == 0) {
-		if (db->info->product != SQDB_PRODUCT_SQLITE || (column->bit_field & SQB_PRIMARY) == 0)
+	if ((column->bit_field & SQB_COLUMN_NULLABLE) == 0) {
+		if (db->info->product != SQDB_PRODUCT_SQLITE || (column->bit_field & SQB_COLUMN_PRIMARY) == 0)
 			sq_buffer_write(buffer, " NOT NULL");
 	}
 	// "AUTOINCREMENT"
-	if (column->bit_field & SQB_AUTOINCREMENT) {
+	if (column->bit_field & SQB_COLUMN_AUTOINCREMENT) {
 		if (db->info->product == SQDB_PRODUCT_MYSQL)
 			sq_buffer_write(buffer, " AUTO_INCREMENT");    // MySQL
 		else
@@ -708,10 +708,10 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 			sqdb_sql_write_foreign_ref(db, buffer, column);
 		}
 		// "PRIMARY KEY"
-		else if (column->bit_field & SQB_PRIMARY)
+		else if (column->bit_field & SQB_COLUMN_PRIMARY)
 			sq_buffer_write(buffer, " PRIMARY KEY");
 		// "UNIQUE"
-		else if (column->bit_field & SQB_UNIQUE)
+		else if (column->bit_field & SQB_COLUMN_UNIQUE)
 			sq_buffer_write(buffer, " UNIQUE");
 	}
  */
@@ -719,13 +719,13 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 		sq_buffer_write(buffer, " DEFAULT ");
 		sq_buffer_write(buffer, column->default_value);
 	}
-	else if (column->bit_field & SQB_CURRENT) {
+	else if (column->bit_field & SQB_COLUMN_CURRENT) {
 		sq_buffer_write(buffer, " DEFAULT ");
 		sq_buffer_write(buffer, "CURRENT_TIMESTAMP");
 	}
 
 	// MySQL only: ON UPDATE CURRENT_TIMESTAMP
-	if (db->info->product == SQDB_PRODUCT_MYSQL && column->bit_field & SQB_CURRENT_ON_UPDATE) {
+	if (db->info->product == SQDB_PRODUCT_MYSQL && column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE) {
 		sq_buffer_write(buffer, " ON UPDATE ");
 		sq_buffer_write(buffer, "CURRENT_TIMESTAMP");
 	}
@@ -753,9 +753,9 @@ void sqdb_sql_write_constraint(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 
 	if (column->foreign)
 		sq_buffer_write(buffer, "FOREIGN KEY");
-	else if (column->bit_field & SQB_PRIMARY)
+	else if (column->bit_field & SQB_COLUMN_PRIMARY)
 		sq_buffer_write(buffer, "PRIMARY KEY");
-	else if (column->bit_field & SQB_UNIQUE)
+	else if (column->bit_field & SQB_COLUMN_UNIQUE)
 		sq_buffer_write(buffer, "UNIQUE");
 
 	sqdb_sql_write_composite_columns(db, buffer, column);

@@ -711,6 +711,8 @@ use C++ lambda functions to generate subquery:
 
 ## use macro to produce query
 
+macro SQ_QUERY_DO() is used to build query. The last parameter in macro is like lambda function.
+
 ```c
 #include <sqxclib.h>
 #include <SqQuery-macro.h>    // sqxclib.h doesn't contain special macros

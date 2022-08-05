@@ -567,7 +567,7 @@ inline Sq::Column *TableMethod::addUnique(const char *unique_name, const Args...
 	return (Sq::Column*)sq_table_add_unique((SqTable*)this, unique_name, args..., NULL);
 }
 inline void  TableMethod::dropUnique(const char *unique_name) {
-	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_UNIQUE, unique_name);
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_COLUMN_UNIQUE, unique_name);
 }
 
 template <typename... Args>
@@ -579,7 +579,7 @@ inline Sq::Column *TableMethod::addPrimary(const char *primary_name, const Args.
 	return (Sq::Column*)sq_table_add_primary((SqTable*)this, primary_name, args..., NULL);
 }
 inline void  TableMethod::dropPrimary(const char *primary_name) {
-	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_PRIMARY, primary_name);
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_COLUMN_PRIMARY, primary_name);
 }
 
 inline Sq::Column *TableMethod::foreign(const char *foreign_name, const char *column_name) {
@@ -589,7 +589,7 @@ inline Sq::Column *TableMethod::addForeign(const char *foreign_name, const char 
 	return (Sq::Column*)sq_table_add_foreign((SqTable*)this, foreign_name, column_name);
 }
 inline void  TableMethod::dropForeign(const char *foreign_name) {
-	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_FOREIGN, foreign_name);
+	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_COLUMN_FOREIGN, foreign_name);
 }
 
 /*
