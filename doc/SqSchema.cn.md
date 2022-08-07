@@ -43,8 +43,8 @@ SqTable 定义 SQL 表
 
 建议使用 C++ 方法或 C 函数创建动态表。  
 要获取更多信息和示例，您可以查看以下文档：  
-1. [database-migrations.md](database-migrations.md)
-2. ../[README.md](../README.md#database-schema) 中的“**数据库架构**”部分
+1. [database-migrations.cn.md](database-migrations.cn.md)
+2. ../[README.cn.md](../README.cn.md#数据库架构) 中的“**数据库架构**”部分
 
 当你使用 gcc 编译时，你会从 C 和 C++ 源代码中得到不同的类型名称，因为 gcc 的 typeid(Type).name() 会返回奇怪的名称。  
 **如果您的应用程序是用 C++ 语言编写的，请用 C++ 语言创建或定义 SqTable 的类型。**  
@@ -91,7 +91,7 @@ C++ 示例代码：
 ```
 
 ## 2 按现有 SqType 创建表（静态或动态）
-您可以查看文档 [SqColumn.md](SqColumn.md) 以获取有关使用 SqColumn 创建 SqType 的更多信息。  
+您可以查看文档 [SqColumn.cn.md](SqColumn.cn.md) 以获取有关使用 SqColumn 创建 SqType 的更多信息。  
 注意: 如果 'type' 是动态 SqType，它会在程序释放 'table' 时被一起释放。
 
 ```c++

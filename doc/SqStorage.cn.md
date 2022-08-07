@@ -6,7 +6,7 @@ SqStorage 访问数据库。它使用 Sqxc 在 C 语言和 Sqdb 接口之间转�
 
 ## 创建 storage
 
-用户在创建 SqStorage 时必须指定 [Sqdb](Sqdb.md) 实例。  
+用户在创建 SqStorage 时必须指定 [Sqdb](Sqdb.cn.md) 实例。  
   
 使用 C 语言
 
@@ -30,7 +30,7 @@ SqStorage 访问数据库。它使用 Sqxc 在 C 语言和 Sqdb 接口之间转�
 
 ## 访问数据库
 
-SqStorage 使用 [Sqdb](Sqdb.md) 访问数据库。  
+SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。  
   
 为 SQL 表 "users" 定义数据结构 'User'。
 
@@ -93,7 +93,7 @@ struct User {
 
 ## 使用用户定义的数据类型访问数据库
 
-以下 C 函数和 C++ 方法可以返回用户定义数据类型 ( [SqType](SqType.md) ) 的实例：
+以下 C 函数和 C++ 方法可以返回用户定义数据类型 ( [SqType](SqType.cn.md) ) 的实例：
 
 | C 函数                    | C++ 方法      |
 | ------------------------- | ------------- |

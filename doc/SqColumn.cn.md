@@ -58,14 +58,14 @@ struct SqColumn
 | SQB_RENAMED            | 列或表已重命名。                              |
 | SQB_CHANGED            | 列或表已更改。                                |
 
-* SqColumn 也继承了 [SqEntry](SqEntry.md) 中 bit_field 的定义。
+* SqColumn 也继承了 [SqEntry](SqEntry.cn.md) 中 bit_field 的定义。
 
 ## 1. 通过方法和函数创建表和列（动态）
 
 它使用 C++ 方法或 C 函数来创建动态表和列。  
 要获取更多信息和示例，您可以查看以下文档：  
-1. [database-migrations.md](database-migrations.md)
-2. ../[README.md](../README.md#database-schema) 中的 "**数据库架构**" 部分
+1. [database-migrations.cn.md](database-migrations.cn.md)
+2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
 
 ## 2. 定义由常量 SqType 使用的常量 SqColumn（静态）
 
