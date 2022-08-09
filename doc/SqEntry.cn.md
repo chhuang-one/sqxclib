@@ -44,7 +44,7 @@ struct SqEntry
 ## 定义结构化数据类型
 您可以查看 [SqType](SqType.cn.md) 以获取更多样本。
 
-#### 1. 定义由常量 SqType 使用的 SqEntry 常量指针数组
+#### 1 定义由常量 SqType 使用的 SqEntry 常量指针数组
 * 注意: 如果为结构定义了常量 SqType，它必须与 SqEntry 的**指针数组**一起使用。
 
 ```c
@@ -64,7 +64,7 @@ static const SqEntry *entryPointerArray[2] = {
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointerArray, 0);
 ```
 
-#### 2. 定义由动态 SqType 使用的 SqEntry 常量数组
+#### 2 定义由动态 SqType 使用的 SqEntry 常量数组
 
 e.g. 创建使用常量 SqEntry 的动态 SqType
 
@@ -92,7 +92,7 @@ e.g. 创建使用常量 SqEntry 的动态 SqType
 //	type->addEntry(entryArray, 2);
 ```
 
-#### 3. 创建由动态 SqType 使用的动态 SqEntry
+#### 3 创建由动态 SqType 使用的动态 SqEntry
 
 使用 C 语言
 

@@ -60,14 +60,14 @@ struct SqColumn
 
 * SqColumn 也继承了 [SqEntry](SqEntry.cn.md) 中 bit_field 的定义。
 
-## 1. 通过方法和函数创建表和列（动态）
+## 1 通过方法和函数创建表和列（动态）
 
 它使用 C++ 方法或 C 函数来创建动态表和列。  
 要获取更多信息和示例，您可以查看以下文档：  
 1. [database-migrations.cn.md](database-migrations.cn.md)
 2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
 
-## 2. 定义由常量 SqType 使用的常量 SqColumn（静态）
+## 2 定义由常量 SqType 使用的常量 SqColumn（静态）
 
 如果您的 SQL 表是固定的并且将来不会更改，这可以减少创架构时的运行时间。  
 * 注意: 如果为结构定义常量 SqType，它必须与 SqColumn 的**指针数组**一起使用。
@@ -89,7 +89,7 @@ static const SqColumn *columnPointerArray[2] = {
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 ```
 
-## 3. 定义由动态 SqType 使用的常量 SqColumn
+## 3 定义由动态 SqType 使用的常量 SqColumn
 
 使用 C 语言
 

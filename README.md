@@ -230,8 +230,10 @@ use C++ methods to open SQLite database
 	storage->open("sqxc_local");    // This will open file "sqxc_local.db"
 ```
 
-## Database synchronization (Migration)
+## Database migration
 
+You can get more description about migrations and schema in doc/[database-migrations.md](doc/database-migrations.md).  
+  
 use C++ methods to migrate schema and synchronize to database
 
 ```c++

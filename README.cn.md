@@ -228,8 +228,10 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	storage->open("sqxc_local");    // 这将打开文件 "sqxc_local.db"
 ```
 
-## 数据库同步（迁移）
+## 数据库迁移
 
+您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关迁移和架构的更多描述。  
+  
 使用 C++ 方法迁移架构并同步到数据库
 
 ```c++

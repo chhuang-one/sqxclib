@@ -60,14 +60,14 @@ Declaring bit_field that used by SqColumn:
 
 * SqColumn also inherits the definition of bit_field in [SqEntry](SqEntry.md).
 
-## 1. Create table and column by methods and functions (dynamic)
+## 1 Create table and column by methods and functions (dynamic)
 
 It use C++ methods or C functions to create dynamic table and column.  
 To get more information and sample, you can see below documents:  
 1. [database-migrations.md](database-migrations.md)
 2. "**Database schema**" section in ../[README.md](../README.md#database-schema)
 
-## 2. Define constant SqColumn that used by constant SqType (static)
+## 2 Define constant SqColumn that used by constant SqType (static)
 
 This can reduce running time when making schema if your SQL table is fixed and not changed in future.  
 * Note: If you define constant SqType for structure, it must use with **pointer array** of SqColumn.
@@ -89,7 +89,7 @@ static const SqColumn *columnPointerArray[2] = {
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 ```
 
-## 3. Define constant SqColumn that used by dynamic SqType
+## 3 Define constant SqColumn that used by dynamic SqType
 
 Use C language
 

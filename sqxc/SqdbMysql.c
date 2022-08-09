@@ -18,10 +18,10 @@
 #include <stdio.h>      // snprintf
 
 #include <SqError.h>
+#include <Sqdb-migration.h>
 #include <SqdbMysql.h>
 #include <SqxcValue.h>
 #include <SqxcSql.h>
-#include <Sqdb-migration.h>
 
 #ifdef _MSC_VER
 #define snprintf     _snprintf

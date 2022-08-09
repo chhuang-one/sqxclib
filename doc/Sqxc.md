@@ -275,7 +275,7 @@ User can refer SqxcJsonc.h and SqxcJsonc.c to support new format.
 SqxcFile.h and SqxcFile.c is the simplest sample code, it just write string to file.  
 SqxcEmpty.h and SqxcEmpty.c is a workable sample, but it do nothing.  
 
-#### 1. define new structure that derived from Sqxc
+#### 1 define new structure that derived from Sqxc
 All derived structure must conforme C++11 standard-layout
 
 ```c++
@@ -320,7 +320,7 @@ struct SqxcText
 
 ```
 
-#### 2. implement SqxcInfo interface
+#### 2 implement SqxcInfo interface
 
 ```c
 // This is source file - SqxcText.c
@@ -409,7 +409,7 @@ If new Sqxc element want to parse/write data in SQL column, it must:
 //	xc_dest->send(xc_text);
 ```
 
-#### 3. use new Sqxc element
+#### 3 use new Sqxc element
 
 create custom Sqxc element and insert it to SqStorage::xc_input list.  
   

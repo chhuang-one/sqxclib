@@ -275,7 +275,7 @@ JSON 看起来像这样：
 SqxcFile.h 和 SqxcFile.c 是最简单的示例代码，它只是将字符串写入文件。  
 SqxcEmpty.h 和 SqxcEmpty.c 是一个可行的示例，但它什么也不做。  
 
-#### 1. 定义从 Sqxc 派生的新结构
+#### 1 定义从 Sqxc 派生的新结构
 所有派生结构必须符合 C++11 标准布局
 
 ```c++
@@ -320,7 +320,7 @@ struct SqxcText
 
 ```
 
-#### 2. 实现 SqxcInfo 接口
+#### 2 实现 SqxcInfo 接口
 
 ```c
 // 这是源代码文件 - SqxcText.c
@@ -409,7 +409,7 @@ static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src)
 //	xc_dest->send(xc_text);
 ```
 
-#### 3. 使用新的 Sqxc 元素
+#### 3 使用新的 Sqxc 元素
 
 创建自定义 Sqxc 元素并将其插入 SqStorage::xc_input 列表。  
   

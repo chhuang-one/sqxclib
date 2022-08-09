@@ -627,6 +627,8 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 	case SQ_TYPE_INTPTR_INDEX:
 		if (column->bit_field & SQB_COLUMN_PRIMARY && db->info->product == SQDB_PRODUCT_SQLITE)
 			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
+		else if (column->bit_field & SQB_COLUMN_AUTOINCREMENT && db->info->product == SQDB_PRODUCT_POSTGRE)
+			sq_buffer_write(buffer, "SERIAL");
 		else {
 			sq_buffer_write(buffer, "INT");
 			if (size > 0) {
@@ -642,6 +644,8 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 	case SQ_TYPE_UINT64_INDEX:
 		if (column->bit_field & SQB_COLUMN_PRIMARY && db->info->product == SQDB_PRODUCT_SQLITE)
 			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
+		else if (column->bit_field & SQB_COLUMN_AUTOINCREMENT && db->info->product == SQDB_PRODUCT_POSTGRE)
+			sq_buffer_write(buffer, "BIGSERIAL");
 		else
 			sq_buffer_write(buffer, "BIGINT");
 		if (size > 0) {
@@ -695,10 +699,18 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 	}
 	// "AUTOINCREMENT"
 	if (column->bit_field & SQB_COLUMN_AUTOINCREMENT) {
-		if (db->info->product == SQDB_PRODUCT_MYSQL)
-			sq_buffer_write(buffer, " AUTO_INCREMENT");    // MySQL
-		else
-			sq_buffer_write(buffer, " AUTOINCREMENT");     // SQLite, Access
+		switch (db->info->product) {
+		case SQDB_PRODUCT_MYSQL:
+			sq_buffer_write(buffer, " AUTO_INCREMENT");
+			break;
+
+		case SQDB_PRODUCT_POSTGRE:
+			break;
+
+		default:
+			// SQLite, Access
+			sq_buffer_write(buffer, " AUTOINCREMENT");
+		}
 	}
 /*
 	if (db->info->product != SQDB_PRODUCT_MYSQL) {

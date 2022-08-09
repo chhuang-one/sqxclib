@@ -44,7 +44,7 @@ Declaring bit_field of SqEntry
 ## Define structured data type
 You can see [SqType](SqType.md) to get more sample.
 
-#### 1. define constant pointer array of SqEntry that used by constant SqType
+#### 1 define constant pointer array of SqEntry that used by constant SqType
 * Note: If you define constant SqType for structure, it must use with **pointer array** of SqEntry.
 
 ```c
@@ -64,7 +64,7 @@ static const SqEntry *entryPointerArray[2] = {
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointerArray, 0);
 ```
 
-#### 2. define constant SqEntry array that used by dynamic SqType
+#### 2 define constant SqEntry array that used by dynamic SqType
 
 e.g. create dynamic SqType that using constant SqEntry
 
@@ -92,7 +92,7 @@ use C++ language
 //	type->addEntry(entryArray, 2);
 ```
 
-#### 3. create dynamic SqEntry that used by dynamic SqType
+#### 3 create dynamic SqEntry that used by dynamic SqType
 
 use C language
 
