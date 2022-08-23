@@ -77,7 +77,7 @@ void    sqdb_final(Sqdb *db);
 /* --- execute SQL statement --- */
 
 int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns);
-int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns, SqTable *table_data);
+int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns, SqTable *old_table);
 
 /* --- write SQL statement to 'sql_buf' --- */
 
@@ -85,11 +85,12 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArr
 int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns, bool primary_first);
 int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arranged_columns, bool primary_first);
 void sqdb_sql_rename_table(Sqdb *db, SqBuffer *sql_buf, const char *old_name, const char *new_name);
+void sqdb_sql_alter_table_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column, SqTable *old_table);
 void sqdb_sql_drop_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool if_exist);
 
 void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, const char *table_name, bool is_delete);
 
-void sqdb_sql_rename_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column, SqColumn *column_data);
+void sqdb_sql_rename_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column, SqColumn *old_column);
 void sqdb_sql_add_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 void sqdb_sql_alter_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
 void sqdb_sql_drop_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
@@ -98,6 +99,8 @@ void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn
 
 /* --- write parameter,arguments to 'sql_buf' --- */
 
+void sqdb_sql_write_identifier(Sqdb *db, SqBuffer *sql_buf, const char *identifier, bool with_brackets);
+void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 void sqdb_sql_write_column(Sqdb *db, SqBuffer *sql_buf, SqColumn *column, const char *column_name);
 void sqdb_sql_write_constraint(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
 void sqdb_sql_write_composite_columns(Sqdb *db, SqBuffer *sql_buf, SqColumn *column);
