@@ -135,8 +135,11 @@ void     sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, int 
 void     sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count);
 
 // find SqEntry in SqType.entry.
-// If cmp_func is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
+// If 'cmp_func' is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
 void   **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc cmp_func);
+
+//void **sq_type_find_entry_addr(const SqType *type, const void *key, SqCompareFunc cmp_func);
+#define  sq_type_find_entry_addr    sq_type_find_entry
 
 // sort SqType.entry by name if SqType is dynamic.
 void     sq_type_sort_entry(SqType *type);

@@ -18,6 +18,8 @@
 #include <stddef.h>    // NULL
 #include <stdbool.h>   // bool, true, false
 
+#include <SqDefine.h>
+
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.
 
@@ -80,6 +82,9 @@ void     sq_entry_free(SqEntry *entry);
 void  sq_entry_init(SqEntry *entry, const SqType *type_info);
 void  sq_entry_final(SqEntry *entry);
 
+// If 'cmp_func' is NULL, it will use function - sq_entry_cmp_str__name()
+SqEntry *sq_entry_find(SqEntry *entry, const void *key, SqCompareFunc cmp_func);
+
 // SqCompareFunc for sorting and finding SqEntry
 int  sq_entry_cmp_str__name(const char *str,  SqEntry **entry);
 int  sq_entry_cmp_name(SqEntry **entry1, SqEntry **entry2);
@@ -113,7 +118,8 @@ int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
 
 namespace Sq {
 
-struct TypeMethod;    // define in SqType.h
+struct TypeMethod;    // defined in SqType.h
+struct Entry;
 
 };  // namespace Sq
 
@@ -166,6 +172,10 @@ struct SqEntry
 	}
 	void  final() {
 		sq_entry_final((SqEntry*)this);
+	}
+
+	Sq::Entry *find(const void *key, SqCompareFunc cmp_func = NULL) {
+		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, cmp_func);
 	}
 #endif  // __cplusplus
 };
@@ -221,6 +231,10 @@ struct EntryMethod
 	}
 	void  final() {
 		sq_entry_final((SqEntry*)this);
+	}
+
+	Sq::Entry *find(const void *key, SqCompareFunc cmp_func = NULL) {
+		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, cmp_func);
 	}
 };
 

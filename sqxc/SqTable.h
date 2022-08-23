@@ -71,7 +71,6 @@ extern "C" {
 SqTable  *sq_table_new(const char *name, const SqType *table_type);
 void      sq_table_free(SqTable *table);
 
-bool      sq_table_has_column(SqTable *table, const char *column_name);
 void      sq_table_drop_column(SqTable *table, const char *column_name);
 void      sq_table_rename_column(SqTable *table, const char *from, const char *to);
 
@@ -228,6 +227,7 @@ namespace Sq {
 struct TableMethod
 {
 	bool        hasColumn(const char *column_name);
+	Sq::Column *findColumn(const char *column_name);
 	void        dropColumn(const char *column_name);
 	void        renameColumn(const char *from, const char *to);
 	int         getColumns(SqPtrArray *ptr_array, const SqType *type, unsigned int bit_field);
@@ -383,6 +383,41 @@ struct SqTable
 };
 
 // ----------------------------------------------------------------------------
+// C/C++ common definitions: define global inline function
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// define inline functions here if compiler supports inline function.
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+bool      sq_table_has_column(SqTable *table, const char *column_name)
+{
+	return (sq_type_find_entry(table->type, column_name, NULL) != NULL);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+SqColumn *sq_table_find_column(SqTable *table, const char *column_name)
+{
+	return (SqColumn*)sq_entry_find((SqEntry*)table, column_name, NULL);
+}
+
+#else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
+
+// C functions
+bool      sq_table_has_column(SqTable *table, const char *column_name);
+SqColumn *sq_table_find_column(SqTable *table, const char *column_name);
+
+#endif  // __STDC_VERSION__ || __cplusplus
+
+// ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
@@ -407,6 +442,9 @@ template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
  */
 inline bool  TableMethod::hasColumn(const char *column_name) {
 	return sq_table_has_column((SqTable*)this, column_name);
+}
+inline Sq::Column *TableMethod::findColumn(const char *column_name) {
+	return (Sq::Column*)sq_table_find_column((SqTable*)this, column_name);
 }
 inline void  TableMethod::dropColumn(const char *column_name) {
 	sq_table_drop_column((SqTable*)this, column_name);

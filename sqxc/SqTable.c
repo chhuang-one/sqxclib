@@ -60,13 +60,6 @@ void  sq_table_free(SqTable *table)
 	}
 }
 
-bool  sq_table_has_column(SqTable *table, const char *column_name)
-{
-	if (sq_type_find_entry(table->type, column_name, NULL))
-		return true;
-	return false;
-}
-
 void  sq_table_add_column(SqTable *table, const SqColumn *column, int n_column)
 {
 	SqType *type = (SqType*)table->type;
@@ -469,3 +462,24 @@ void   sq_table_drop_foreign(SqTable *table, const char *name)
 {
 	sq_table_drop_composite(table, SQ_TYPE_CONSTRAINT, SQB_COLUMN_FOREIGN, name);
 }
+
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline functions
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqStorage.h
+
+#else   // __STDC_VERSION__
+// define functions here if compiler does NOT support inline function.
+
+bool  sq_table_has_column(SqTable *table, const char *column_name)
+{
+	return (sq_type_find_entry(table->type, column_name, NULL) != NULL);
+}
+
+SqColumn *sq_table_find_column(SqTable *table, const char *column_name)
+{
+	return (SqColumn*)sq_entry_find((SqEntry*)table, column_name, NULL);
+}
+
+#endif  // __STDC_VERSION

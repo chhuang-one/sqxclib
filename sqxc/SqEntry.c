@@ -58,6 +58,17 @@ void  sq_entry_final(SqEntry *entry)
 		free((char*)entry->name);
 }
 
+SqEntry *sq_entry_find(SqEntry *entry, const void *key, SqCompareFunc cmp_func)
+{
+	SqEntry **addr;
+
+	addr = (SqEntry**)sq_type_find_entry(entry->type, key, cmp_func);
+	if (addr)
+		return *addr;
+	else
+		return NULL;
+}
+
 // ------------------------------------
 // SqEntry SqCompareFunc
 

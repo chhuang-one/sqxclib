@@ -73,8 +73,6 @@ SqTable *sq_schema_alter(SqSchema *schema, const char *table_name, const SqType 
 void     sq_schema_drop(SqSchema *schema, const char *name);
 void     sq_schema_rename(SqSchema *schema, const char *from, const char *to);
 
-SqTable *sq_schema_find(SqSchema *schema, const char *table_name);
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -159,6 +157,30 @@ struct SqSchema
 	SqRelation     *relation;         // relation of tables
  */
 };
+
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define global inline function
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// define inline functions here if compiler supports inline function.
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+SqTable *sq_schema_find(SqSchema *schema, const char *table_name)
+{
+	return (SqTable*)sq_entry_find((SqEntry*)schema, table_name, NULL);
+}
+
+#else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
+
+// C functions
+SqTable *sq_schema_find(SqSchema *schema, const char *table_name);
+
+#endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.

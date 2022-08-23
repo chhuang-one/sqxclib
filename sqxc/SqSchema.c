@@ -161,13 +161,18 @@ void sq_schema_rename(SqSchema *schema, const char *from, const char *to)
 #endif
 }
 
-SqTable *sq_schema_find(SqSchema *schema, const char *name)
-{
-	void **addr;
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline functions
 
-	addr = sq_type_find_entry(schema->type, name, NULL);
-	if (addr)
-		return *addr;
-	else
-		return NULL;
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqStorage.h
+
+#else   // __STDC_VERSION__
+// define functions here if compiler does NOT support inline function.
+
+SqTable *sq_schema_find(SqSchema *schema, const char *table_name)
+{
+	return (SqTable*)sq_entry_find((SqEntry*)schema, table_name, NULL);
 }
+
+#endif  // __STDC_VERSION
