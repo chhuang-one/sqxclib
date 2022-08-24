@@ -97,7 +97,7 @@ int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrAr
 
 int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArray *arranged_columns, SqTable *old_table)
 {
-	SqColumn *column;
+	SqColumn *column, *old_column;
 	int       index;
 	int       rc;
 
@@ -106,7 +106,28 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 	// ALTER TABLE
 	for (index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
-		sqdb_sql_alter_table_column(db, buffer, table, column, old_table);
+
+		if (column->bit_field & SQB_COLUMN_CHANGED) {
+			// ALTER COLUMN
+			sqdb_sql_alter_column(db, buffer, table, column);
+		}
+		else if (column->name == NULL) {
+			// DROP COLUMN / CONSTRAINT / INDEX / KEY
+			sqdb_sql_drop_column(db, buffer, table, column);
+		}
+		else if (column->old_name && (column->bit_field & SQB_COLUMN_RENAMED) == 0) {
+			// RENAME COLUMN - MySQL "CHANGE COLUMN" need original column data
+			if (old_table)
+				old_column = sq_table_find_column(old_table, column->old_name);
+			else
+				old_column = NULL;
+			sqdb_sql_rename_column(db, buffer, table, column, old_column);
+		}
+		else {
+			// ADD COLUMN / CONSTRAINT / INDEX / KEY
+			sqdb_sql_add_column(db, buffer, table, column);
+		}
+
 		buffer->writed = 0;
 #ifndef NDEBUG
 		// Don't run this because sqdb_exec() will output this debug message.
@@ -255,34 +276,6 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 	sq_buffer_write_c(buffer, ')');
 	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 	return n_columns;  
-}
-
-void sqdb_sql_alter_table_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column, SqTable *old_table)
-{
-	SqColumn  *old_column;
-
-	if (column->bit_field & SQB_COLUMN_CHANGED) {
-		// ALTER COLUMN
-		sqdb_sql_alter_column(db, buffer, table, column);
-	}
-	else if (column->name == NULL) {
-		// DROP COLUMN / CONSTRAINT / INDEX / KEY
-		sqdb_sql_drop_column(db, buffer, table, column);
-	}
-	else if (column->old_name && (column->bit_field & SQB_COLUMN_RENAMED) == 0) {
-		// RENAME COLUMN - MySQL "CHANGE COLUMN" need original column data
-		if (old_table)
-			old_column = sq_table_find_column(old_table, column->old_name);
-		else
-			old_column = NULL;
-		sqdb_sql_rename_column(db, buffer, table, column, old_column);
-	}
-	else {
-		// ADD COLUMN / CONSTRAINT / INDEX / KEY
-		sqdb_sql_add_column(db, buffer, table, column);
-	}
-
-//	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
 void sqdb_sql_drop_table(Sqdb *db, SqBuffer *buffer, SqTable *table, bool if_exist)
