@@ -253,7 +253,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 	SqBuffer    sql_buf;
 	SqTable    *table, *old_table;
 	SqPtrArray *reentries;
-	PGresult   *results;
+	PGresult   *results = NULL;
 
 	if (sqdb->conn == NULL)
 		return SQCODE_ERROR;
@@ -331,7 +331,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 
 atExit:
 	sq_buffer_final(&sql_buf);
-	if (PQresultStatus(results) != PGRES_COMMAND_OK) {
+	if (results && PQresultStatus(results) != PGRES_COMMAND_OK) {
 #ifndef NDEBUG
 		fprintf(stderr, "PostgreSQL: %s\n", PQerrorMessage(sqdb->conn));
 #endif
@@ -370,10 +370,11 @@ static void sqdb_postgre_create_dependent(SqdbPostgre *sqdb, SqBuffer *sql_buf, 
 static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
 {
 	sq_buffer_write(sql_buf, "create or replace function ");
-	sq_buffer_write(sql_buf, "sqxc_on_");
+	sq_buffer_write(sql_buf, "sqxc_upd_");
 	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, "__");
 	sq_buffer_write(sql_buf, column->name);
-	sq_buffer_write(sql_buf, "_upd() returns trigger as "
+	sq_buffer_write(sql_buf, "() returns trigger as "
 	                         "$$ "
 	                         "begin "
 	                         "new.");
@@ -389,6 +390,7 @@ static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, Sq
 	// DROP trigger
 	sq_buffer_write(sql_buf, "DROP TRIGGER IF EXISTS sqxc_trig_");
 	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, "__");
 	sq_buffer_write(sql_buf, column->name);
 	sq_buffer_write(sql_buf, " ON");
 	sqdb_sql_write_identifier((Sqdb*)sqdb, sql_buf, table->name, false);
@@ -398,14 +400,16 @@ static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, Sq
 	sq_buffer_write(sql_buf, "create trigger sqxc_trig_");
 //	sq_buffer_write(sql_buf, "create or replace trigger sqxc_trig_");    // PostgresSQL 14
 	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, "__");
 	sq_buffer_write(sql_buf, column->name);
 	sq_buffer_write(sql_buf, " before update on ");
 	sq_buffer_write(sql_buf, table->name);
 	sq_buffer_write(sql_buf, " for each row execute procedure ");
-	sq_buffer_write(sql_buf, "sqxc_on_");
+	sq_buffer_write(sql_buf, "sqxc_upd_");
 	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, "__");
 	sq_buffer_write(sql_buf, column->name);
-	sq_buffer_write(sql_buf, "_upd();");
+	sq_buffer_write(sql_buf, "();");
 }
 
 static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable *table, SqTable *old_table)
@@ -532,8 +536,8 @@ static int  sqdb_postgre_schema_get_version(SqdbPostgre *sqdb)
 	if (PQresultStatus(results) == PGRES_COMMAND_OK) {
 		PQclear(results);
 		// try to get or set version
-		results = PQexec(sqdb->conn, "SELECT version from " SQDB_MIGRATIONS_TABLE " WHERE id = 0");
-		if (PQresultStatus(results) == PGRES_COMMAND_OK)
+		results = PQexec(sqdb->conn, "SELECT version FROM " SQDB_MIGRATIONS_TABLE " WHERE id = 0");
+		if (PQresultStatus(results) == PGRES_TUPLES_OK && PQntuples(results) > 0)
 			version = strtol(PQgetvalue(results, 0, 0), NULL, 10);
 		else {
 			PQclear(results);

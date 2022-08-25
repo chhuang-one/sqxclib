@@ -594,7 +594,10 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 		break;
 
 	case SQ_TYPE_DOUBLE_INDEX:
-		sq_buffer_write(buffer, "DOUBLE");    // FLOAT
+		if (db->info->product == SQDB_PRODUCT_POSTGRE)
+			sq_buffer_write(buffer, "DOUBLE PRECISION");
+		else
+			sq_buffer_write(buffer, "DOUBLE");    // FLOAT
 		if (size > 0 || digits > 0) {
 			sq_buffer_write_c(buffer, '(');
 			if (size > 0 && digits == 0) {
