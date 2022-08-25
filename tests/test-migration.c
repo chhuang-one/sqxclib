@@ -17,7 +17,9 @@
 #include <sqxclib.h>
 #include <SqSchema-macro.h>
 
-#define USE_SQLITE_IF_POSSIBLE    1
+#define USE_SQLITE_IF_POSSIBLE        1
+#define USE_MYSQL_IF_POSSIBLE         0
+#define USE_POSTGRESQL_IF_POSSIBLE    0
 
 // ----------------------------------------------------------------------------
 // C structure
@@ -33,9 +35,12 @@ struct User {
 	int    city_id;
 	int    company_id;
 
-	SqIntptrArray   posts;
+	SqIntptrArray  posts;
 
-	unsigned int test_add;
+	time_t         created_at;
+	time_t         updated_at;
+
+	unsigned int   test_add;
 };
 
 struct City {
@@ -61,9 +66,12 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_INT, "company_id", offsetof(User, company_id), SQB_HIDDEN,
 	             .foreign = &(SqForeign) {"companies", "id",  "CASCADE",  "CASCADE"} },
 
-	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+	// "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_HIDDEN,
 	             .foreign = &(SqForeign) {"companies", "id",  "NO ACTION",  "NO ACTION"} },
+
+	// "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+	&(SqColumn) {SQ_TYPE_TIME,   "created_at", offsetof(User, created_at),  SQB_CURRENT},
 
 	// "email"  VARCHAR
 	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
@@ -72,10 +80,15 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "fk_cities_id",
 	             .foreign = &(SqForeign) {"cities", "id", "no action", "cascade"},
 	             .composite = (char *[]) {"city_id", NULL} },
-	// COLUMN
+
+	// PRIMARY KEY
 	&(SqColumn) {SQ_TYPE_INT,    "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
+
 	&(SqColumn) {SQ_TYPE_STRING, "name",    offsetof(User, name),  0},
 	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "posts", offsetof(User, posts), 0},
+
+	// "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	&(SqColumn) {SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at),  SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 };
 
 // --- UserType use sorted UserColumns
@@ -168,6 +181,12 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_custom(table, "posts", offsetof(User, posts), SQ_TYPE_INTPTR_ARRAY, -1);
+
+	column = sq_table_add_timestamp(table, "created_at", offsetof(User, created_at));
+	sq_column_use_current(column);
+	column = sq_table_add_timestamp(table, "updated_at", offsetof(User, updated_at));
+	sq_column_use_current(column);
+	sq_column_use_current_on_update(column);
 
 	return table;
 }
@@ -343,14 +362,41 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 
 // ----------------------------------------------------------------------------
 
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
+SqdbConfigSqlite db_config = {
+//	.folder = "/tmp",
+	.folder = ".",
+	.extension = "db",
+};
+
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
+SqdbConfigMysql  db_config = {
+	.host     = "localhost",
+	.port     = 3306,
+	.user     = "root",
+	.password = "",
+};
+
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
+SqdbConfigPostgre  db_config = {
+	.host     = "localhost",
+	.port     = 5432,
+	.user     = "postgre",
+	.password = "",
+};
+
+#endif
+
 int  main(void)
 {
 	Sqdb   *db;
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-	db = sqdb_new(SQDB_INFO_SQLITE, NULL);
-#elif SQ_CONFIG_HAVE_MYSQL
-	db = sqdb_new(SQDB_INFO_MYSQL, NULL);
+	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &db_config);
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
+	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &db_config);
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
+	db = sqdb_new(SQDB_INFO_POSTGRE, (SqdbConfig*) &db_config);
 #else
 	#error No supported database
 #endif
@@ -362,7 +408,9 @@ int  main(void)
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 	test_sqdb_migrate_sqlite_sync(db);
-#elif SQ_CONFIG_HAVE_MYSQL
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
+	test_sqdb_migrate(db);
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
 	test_sqdb_migrate(db);
 #endif
 

@@ -124,7 +124,7 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 	SqBuffer    sql_buf;
 	SqTable    *table, *table_data;
 	SqPtrArray *reentries;
-	int    rc = 0;
+	int         rc = 0;
 
 	if (db->self == NULL)
 		return SQCODE_ERROR;

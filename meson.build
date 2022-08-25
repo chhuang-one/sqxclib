@@ -75,6 +75,14 @@ if mysql.found() == false
 	endif
 endif
 
+# --- PostgreSQL ---
+postgresql = dependency('libpq', required: false)
+if postgresql.found() == true
+	config_data.set('SQXCLIB_HAVE_POSTGRESQL', '1')
+else
+	config_data.set('SQXCLIB_HAVE_POSTGRESQL', '0')
+endif
+
 # --- pkg-config metadata file --- share/pkgconfig/sqxclib.pc
 config_data.set('SQXCLIB_PC_PREFIX', get_option('prefix'))
 config_data.set('SQXCLIB_PC_VERSION', sqxclib_version)
@@ -82,6 +90,7 @@ config_data.set('SQXCLIB_PC_VERSION', sqxclib_version)
 config_data.set('SQXCLIB_PC_REQUIRE_JSONC', '')
 config_data.set('SQXCLIB_PC_REQUIRE_SQLITE', '')
 config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', '')
+config_data.set('SQXCLIB_PC_REQUIRE_POSTGRESQL', '')
 if jsonc.found() == true
 	config_data.set('SQXCLIB_PC_REQUIRE_JSONC', 'json-c')
 endif
@@ -97,6 +106,10 @@ if mysql.found() == true
 		config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', 'mariadb')
 	endif
 	config_data.set('SQXCLIB_PC_LIB_MYSQL', '-lsqxc_mysql')
+endif
+if postgresql.found() == true
+	config_data.set('SQXCLIB_PC_REQUIRE_POSTGRESQL', 'libpq')
+	config_data.set('SQXCLIB_PC_LIB_POSTGRESQL', '-lsqxc_postgre')
 endif
 # has c++ compiler
 config_data.set('SQXCLIB_PC_LIB_CXX', '-lsqxcpp')

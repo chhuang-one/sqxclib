@@ -80,9 +80,9 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 #ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
-					fprintf(stderr, "SqTable: Can't alter column %s. It is not found.\n", reentry_src->name);
+					fprintf(stderr, "sq_entry_update(): Can't alter column %s in table %s.\n", reentry_src->name, entry->name);
 				else
-					fprintf(stderr, "SqSchema: Can't alter table %s. It is not found.\n", reentry_src->name);
+					fprintf(stderr, "sq_entry_update(): Can't alter table %s in schema %s.\n", reentry_src->name, entry->name);
 			}
 #endif
 		}
@@ -105,9 +105,9 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 #ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
-					fprintf(stderr, "SqTable: Can't drop column %s. It is not found.\n", reentry_src->old_name);
+					fprintf(stderr, "sq_entry_update(): Can't drop column %s in table %s.\n", reentry_src->old_name, entry->name);
 				else
-					fprintf(stderr, "SqSchema: Can't drop table %s. It is not found.\n", reentry_src->old_name);
+					fprintf(stderr, "sq_entry_update(): Can't drop table %s in schema %s.\n", reentry_src->old_name, entry->name);
 			}
 #endif
 		}
@@ -139,9 +139,9 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 #ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
-					fprintf(stderr, "SqTable: Can't rename column %s. It is not found.\n", reentry_src->old_name);
+					fprintf(stderr, "sq_entry_update(): Can't rename column %s in table %s.\n", reentry_src->old_name, entry->name);
 				else
-					fprintf(stderr, "SqSchema: Can't rename table %s. It is not found.\n", reentry_src->old_name);
+					fprintf(stderr, "sq_entry_update(): Can't rename table %s in schema %s.\n", reentry_src->old_name, entry->name);
 			}
 #endif
 		}
@@ -162,9 +162,9 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 #ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
-					fprintf(stderr, "SqTable: column %s is exist.\n", reentry_src->name);
+					fprintf(stderr, "sq_entry_update(): Can't add column %s to table %s.\n", reentry_src->name, entry->name);
 				else
-					fprintf(stderr, "SqSchema: table %s is exist.\n", reentry_src->name);
+					fprintf(stderr, "sq_entry_update(): Can't add table %s to schema %s.\n", reentry_src->name, entry->name);
 			}
 #endif
 		}

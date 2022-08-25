@@ -31,7 +31,7 @@ if (PKG_CONFIG_FOUND)
 
 	pkg_check_modules(SQLite3 sqlite3)
 	if (SQLite3_FOUND)
-		set(SQLITE3_PC_FOUND true)
+		set(SQLite3_PC_FOUND true)
 	endif (SQLite3_FOUND)
 
 	pkg_check_modules(MYSQL mysqlclient)
@@ -43,6 +43,11 @@ if (PKG_CONFIG_FOUND)
 			set(MARIADB_PC_FOUND true)
 		endif()
 	endif(MYSQL_FOUND)
+
+	pkg_check_modules(PostgreSQL libpq)
+	if (PostgreSQL_FOUND)
+		set(PostgreSQL_PC_FOUND true)
+	endif (PostgreSQL_FOUND)
 endif (PKG_CONFIG_FOUND)
 
 # find SQLite3 if sqlite3.pc not found
@@ -55,8 +60,13 @@ if (NOT DEFINED MYSQL_FOUND OR NOT MYSQL_FOUND)
 	find_package(MYSQL)
 endif()
 
+# find PostgreSQL if libpq.pc not found
+if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
+	find_package(PostgreSQL)
+endif ()
+
 # --- SQLite ---
-if (SQLite3_FOUND AND NOT DEFINED SQLITE3_PC_FOUND)
+if (SQLite3_FOUND AND NOT DEFINED SQLite3_PC_FOUND)
 	set(SQXC_INCLUDE_DIRS
 	    ${SQXC_INCLUDE_DIRS}
 	    ${SQLite3_INCLUDE_DIRS}
@@ -68,7 +78,7 @@ if (SQLite3_FOUND AND NOT DEFINED SQLITE3_PC_FOUND)
 	# --- debug message ---
 	message(STATUS "SQLite include dirs: ${SQLite3_INCLUDE_DIRS}")
 	message(STATUS "SQLite libraries: ${SQLite3_LIBRARIES}")
-endif (SQLite3_FOUND AND NOT DEFINED SQLITE3_PC_FOUND)
+endif (SQLite3_FOUND AND NOT DEFINED SQLite3_PC_FOUND)
 
 # --- MySQL ---
 if (MYSQL_FOUND AND (NOT DEFINED MYSQLCLIENT_PC_FOUND AND NOT DEFINED MARIADB_PC_FOUND))
@@ -91,6 +101,21 @@ if (MYSQL_FOUND AND (NOT DEFINED MYSQLCLIENT_PC_FOUND AND NOT DEFINED MARIADB_PC
 	message(STATUS "MySQL include dirs: ${MYSQL_INCLUDE_DIRS}")
 	message(STATUS "MySQL libraries: ${MYSQL_LIBRARIES}")
 endif (MYSQL_FOUND AND (NOT DEFINED MYSQLCLIENT_PC_FOUND AND NOT DEFINED MARIADB_PC_FOUND))
+
+# --- PostgreSQL ---
+if (PostgreSQL_FOUND AND NOT DEFINED PostgreSQL_PC_FOUND)
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${PostgreSQL_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${PostgreSQL_LIBRARIES}
+	)
+	# --- debug message ---
+	message(STATUS "PostgreSQL include dirs: ${PostgreSQL_INCLUDE_DIRS}")
+	message(STATUS "PostgreSQL libraries: ${PostgreSQL_LIBRARIES}")
+endif (PostgreSQL_FOUND AND NOT DEFINED PostgreSQL_PC_FOUND)
 
 # --- subdirectory ---
 add_subdirectory(sqxcapp)

@@ -58,6 +58,14 @@
 #endif
 #undef HAVE_MYSQL
 
+/* SqdbPostgre.h */
+#if HAVE_POSTGRESQL == 1
+#define SQ_CONFIG_HAVE_POSTGRESQL    1
+#else
+#define SQ_CONFIG_HAVE_POSTGRESQL    0
+#endif
+#undef HAVE_POSTGRESQL
+
 /* Enable SqxcNested.data3 to do fast type match.
    Sqxc can run a bit faster when doing object and array type match.
    Disable it to reduce code size.

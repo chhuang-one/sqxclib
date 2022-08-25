@@ -52,7 +52,7 @@ if (PKG_CONFIG_FOUND)
 
 	pkg_check_modules(SQLite3 sqlite3)
 	if (SQLite3_FOUND)
-		set(SQLITE3_PC_FOUND true)
+		set(SQLite3_PC_FOUND true)
 	endif (SQLite3_FOUND)
 
 	pkg_check_modules(MYSQL mysqlclient)
@@ -64,6 +64,11 @@ if (PKG_CONFIG_FOUND)
 			set(MARIADB_PC_FOUND true)
 		endif()
 	endif(MYSQL_FOUND)
+
+	pkg_check_modules(PostgreSQL libpq)
+	if (PostgreSQL_FOUND)
+		set(PostgreSQL_PC_FOUND true)
+	endif (PostgreSQL_FOUND)
 endif (PKG_CONFIG_FOUND)
 
 ## find pthread
@@ -82,6 +87,11 @@ endif ()
 if (NOT DEFINED MYSQL_FOUND OR NOT MYSQL_FOUND)
 	find_package(MYSQL)
 endif()
+
+# find PostgreSQL if libpq.pc not found
+if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
+	find_package(PostgreSQL)
+endif ()
 
 # --- thread ---
 if (Threads_FOUND)
@@ -142,6 +152,17 @@ else()
 	set(SQXCLIB_HAVE_MYSQL     0)
 endif (MYSQL_FOUND)
 
+# --- PostgreSQL ---
+if (PostgreSQL_FOUND)
+	# --- debug message ---
+	message(STATUS "PostgreSQL include dirs: ${PostgreSQL_INCLUDE_DIRS}")
+	message(STATUS "PostgreSQL libraries: ${PostgreSQL_LIBRARIES}")
+	# --- config.h ---
+	set(SQXCLIB_HAVE_POSTGRESQL     1)
+else()
+	set(SQXCLIB_HAVE_POSTGRESQL     0)
+endif (PostgreSQL_FOUND)
+
 # --- pkg-config metadata file --- share/pkgconfig/sqxclib.pc
 set(SQXCLIB_PC_PREFIX  ${CMAKE_INSTALL_PREFIX})
 set(SQXCLIB_PC_VERSION ${PROJECT_VERSION})
@@ -151,7 +172,7 @@ if (DEFINED SQXCLIB_HAVE_JSONC)
 endif ()
 
 if (DEFINED SQXCLIB_HAVE_SQLITE)
-	if (DEFINED SQLITE3_PC_FOUND)
+	if (DEFINED SQLite3_PC_FOUND)
 		set(SQXCLIB_PC_REQUIRE_SQLITE   "sqlite3")
 	endif()
 	set(SQXCLIB_PC_LIB_SQLITE       "-lsqxc_sqlite")
@@ -166,6 +187,13 @@ if (DEFINED SQXCLIB_HAVE_MYSQL)
 	endif ()
 	set(SQXCLIB_PC_LIB_MYSQL        "-lsqxc_mysql")
 endif (DEFINED SQXCLIB_HAVE_MYSQL)
+
+if (DEFINED SQXCLIB_HAVE_POSTGRESQL)
+	if (DEFINED PostgreSQL_PC_FOUND)
+		set(SQXCLIB_PC_REQUIRE_POSTGRESQL  "libpq")
+	endif()
+	set(SQXCLIB_PC_LIB_POSTGRESQL       "-lsqxc_postgre")
+endif (DEFINED SQXCLIB_HAVE_POSTGRESQL)
 
 if (DEFINED CMAKE_CXX_COMPILER)
 	set(SQXCLIB_PC_LIB_CXX          "-lsqxcpp")

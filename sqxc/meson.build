@@ -106,6 +106,13 @@ if mysql.found() == true
 	install_headers(headers_mysql, subdir: 'sqxc')
 endif
 
+# --- PostgreSQL ---
+if postgresql.found() == true
+	sources_postgresql = ['SqdbPostgre.c']
+	headers_postgresql = ['SqdbPostgre.h']
+	install_headers(headers_postgresql, subdir: 'sqxc')
+endif
+
 configure_file(input : 'config.h.in',
                output : 'config.h',
                install : true,
@@ -206,6 +213,30 @@ if mysql.found() == true
     sqxc_dependencies += mysql
     sqxc_static_link_libs += sqxc_mysql_lib
     sqxc_shared_link_libs += sqxc_mysql_shared_lib
+endif
+
+# --- 'sqxc_postgre' library ---
+if postgresql.found() == true
+	sqxc_postgresql_lib = static_library(
+	    'sqxc_postgre',
+	    sources_postgresql,
+	    include_directories: sqxc_inc,
+	    dependencies: postgresql,
+	    install: true
+	)
+	sqxc_postgresql_shared_lib = shared_library(
+	    'sqxc_postgre',
+	    sources_postgresql,
+	    include_directories: sqxc_inc,
+	    link_with: sqxc_shared_lib,
+	    dependencies: postgresql,
+	    version: sqxclib_version,
+#	    soversion: sqxclib_soversion,
+	    install: true
+	)
+    sqxc_dependencies += postgresql
+    sqxc_static_link_libs += sqxc_postgresql_lib
+    sqxc_shared_link_libs += sqxc_postgresql_shared_lib
 endif
 
 # static dependency

@@ -40,6 +40,10 @@
 #include <SqdbMysql.h>
 #endif
 
+#if SQ_CONFIG_HAVE_POSTGRESQL
+#include <SqdbPostgre.h>
+#endif
+
 // ------------------------------------
 #include <Sqxc.h>
 

@@ -94,6 +94,16 @@ if (MYSQL_FOUND)
 	)
 endif()
 
+# --- PostgreSQL ---
+if (PostgreSQL_FOUND)
+	set(SOURCES_POSTGRESQL
+	    SqdbPostgre.c
+	)
+	set(HEADERS_POSTGRESQL
+	    SqdbPostgre.h
+	)
+endif()
+
 # --- build ---
 include_directories(${SQXC_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -251,6 +261,43 @@ if (MYSQL_FOUND)
 	)
 endif (MYSQL_FOUND)
 
+# --- 'sqxc_postgre' library ---
+if (PostgreSQL_FOUND)
+	add_library(sqxc_postgre
+	            ${SOURCES_POSTGRESQL}
+	            ${HEADERS_POSTGRESQL}
+	)
+	target_include_directories(sqxc_postgre
+	    PUBLIC
+	    ${SQXC_INCLUDE_DIRS}
+	    ${PostgreSQL_INCLUDE_DIRS}
+	)
+	if (BUILD_SHARED_LIBS)
+		target_link_libraries(sqxc_postgre
+		    sqxc
+		    ${PostgreSQL_LIBRARIES}
+		)
+	endif (BUILD_SHARED_LIBS)
+
+	set_target_properties(sqxc_postgre
+	    PROPERTIES
+	    VERSION        ${PROJECT_VERSION}
+#	    SOVERSION      ${SQXCLIB_SOVERSION}
+	    PUBLIC_HEADER "${HEADERS_POSTGRESQL}"
+	)
+	# add 'sqxc_postgre' to SQXC_LIBRARIES
+	set(SQXC_LIBRARIES
+	    sqxc_postgre
+	    ${SQXC_LIBRARIES}
+	)
+	# install
+	install(
+	    TARGETS sqxc_postgre
+	    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
+	)
+endif (PostgreSQL_FOUND)
+
 # update SQXC_INCLUDE_DIRS and SQXC_LIBRARIES
 if (SQLite3_FOUND)
 	set(SQXC_INCLUDE_DIRS
@@ -280,6 +327,17 @@ if (MYSQL_FOUND)
 		)
 	endif ()
 endif (MYSQL_FOUND)
+
+if (PostgreSQL_FOUND)
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${PostgreSQL_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${PostgreSQL_LIBRARIES}
+	)
+endif (PostgreSQL_FOUND)
 
 # set SQXC_INCLUDE_DIRS to PARENT_SCOPE
 set(SQXC_INCLUDE_DIRS
