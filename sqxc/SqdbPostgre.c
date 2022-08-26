@@ -132,6 +132,9 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 	unsigned int n_fields;
 	unsigned int n_tuples;
 	int          code = SQCODE_OK;
+	// used by INSERT
+	int   sql_len;
+	char *sql_new = NULL;
 
 #ifndef NDEBUG
 	fprintf(stderr, "SQL: %s\n", sql);
@@ -150,7 +153,7 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 			}
 #endif
 			results = PQexec(sqdb->conn, sql);
-			if (PQresultStatus(results) != PGRES_COMMAND_OK)
+			if (PQresultStatus(results) != PGRES_TUPLES_OK)
 				break;
 
 			n_fields = PQnfields(results);
@@ -183,7 +186,7 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 
 				for (int j = 0;  j < n_fields;  j++) {
 					xc->type = SQXC_TYPE_STRING;
-					xc->name = PQfname(results, i);
+					xc->name = PQfname(results, j);
 					xc->value.string = PQgetvalue(results, i, j);
 					xc = sqxc_send(xc);
 #ifndef NDEBUG
@@ -216,11 +219,20 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 
 		case 'I':    // INSERT
 		case 'i':    // insert
+			// for last inserted row id
+			sql_len = strlen(sql);
+			sql_new = malloc(sql_len + 14);    // + " RETURNING id" "\0"
+			strcpy(sql_new, sql);
+			strcat(sql_new, " RETURNING id");
+			sql = sql_new;
+			// Don't break here
+//			break;
 		case 'U':    // UPDATE
 		case 'u':    // update
 #ifndef NDEBUG
 			if (xc->info != SQXC_INFO_SQL) {
 				fprintf(stderr, "sqdb_postgre_exec(): INSERT and UPDATE command must use with SqxcSql.\n");
+				free(sql_new);
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
@@ -229,14 +241,20 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 		default:
 			results = PQexec(sqdb->conn, sql);
 			// set the last inserted row id
-			((SqxcSql*)xc)->id = PQoidValue(results);
+			if (sql_new) {
+				if (PQntuples(results) > 0)
+					((SqxcSql*)xc)->id = strtol(PQgetvalue(results, 0, 0), NULL, 10);
+				else
+					((SqxcSql*)xc)->id = 0;
+				free(sql_new);
+			}
 			// set number of rows changed
 			((SqxcSql*)xc)->changes = (int64_t)strtoll(PQcmdTuples(results), NULL, 10);
 			break;
 		}
 	}
 
-	if (PQresultStatus(results) != PGRES_COMMAND_OK) {
+	if (PQresultStatus(results) != PGRES_COMMAND_OK && PQresultStatus(results) != PGRES_TUPLES_OK) {
 #ifndef NDEBUG
 		fprintf(stderr, "PostgreSQL: %s\n", PQerrorMessage(sqdb->conn));
 //		psql_error("%s", PQerrorMessage(sqdb->conn));

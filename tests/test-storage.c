@@ -20,7 +20,11 @@
 #include <sqxclib.h>
 #include <SqSchema-macro.h>
 
-#define USE_SQLITE_IF_POSSIBLE    1
+#define USE_SQLITE_IF_POSSIBLE        1
+#define USE_MYSQL_IF_POSSIBLE         0
+#define USE_POSTGRESQL_IF_POSSIBLE    0
+
+// ----------------------------------------------------------------------------
 
 typedef struct Company    Company;
 
@@ -245,34 +249,50 @@ void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
 	sq_storage_close(storage);
 }
 
+// ----------------------------------------------------------------------------
+
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
+SqdbConfigSqlite db_config_sqlite = {
+//	.folder = "/tmp",
+	.folder = ".",
+	.extension = "db",
+};
+
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
+SqdbConfigMysql  db_config_mysql = {
+	.host     = "localhost",
+	.port     = 3306,
+	.user     = "root",
+	.password = "",
+};
+
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
+SqdbConfigPostgre  db_config_postgre = {
+	.host     = "localhost",
+	.port     = 5432,
+	.user     = "postgre",
+	.password = "",
+};
+
+#endif
 
 int  main(int argc, char *argv[])
 {
-#if SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-
-	SqdbConfigSqlite  config_sqlite = {
-//		.folder = "/tmp",
-		.folder = ".",
-		.extension = "db",
-	};
-
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 	fprintf(stderr, "\n\n" "test SqStorage with SQLite..." "\n\n");
-	test_storage(SQDB_INFO_SQLITE, (SqdbConfig*) &config_sqlite);
+	test_storage(SQDB_INFO_SQLITE, (SqdbConfig*) &db_config_sqlite);
 
-#elif SQ_CONFIG_HAVE_MYSQL
-
-	SqdbConfigMysql  config_mysql = {
-		.host     = "localhost",
-		.port     = 3306,
-		.user     = "root",
-		.password = "",
-	};
-
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
 	fprintf(stderr, "\n\n" "test SqStorage with MySQL..." "\n\n");
-	test_storage(SQDB_INFO_MYSQL, (SqdbConfig*) &config_mysql);
+	test_storage(SQDB_INFO_MYSQL, (SqdbConfig*) &db_config_mysql);
+
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
+	fprintf(stderr, "\n\n" "test SqStorage with PostgreSQL..." "\n\n");
+	test_storage(SQDB_INFO_POSTGRE, (SqdbConfig*) &db_config_postgre);
 
 #else
 	fprintf(stderr, "No supported database");
+
 #endif
 
 	return EXIT_SUCCESS;

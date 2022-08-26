@@ -22,7 +22,7 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 5. Command-line tools can generate migration and do migrate. See doc/[SqApp.md](doc/SqApp.md)
 
-6. Supports SQLite, MySQL / MariaDB.
+6. Supports SQLite, MySQL / MariaDB, PostgreSQL (experimental).
 
 7. Provide project template. see directory [project-template](project-template).
 
