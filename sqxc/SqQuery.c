@@ -806,7 +806,7 @@ int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
 	return table_and_as_names->length / 2;
 }
 
-void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_as_name)
+void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_as_name, const char *quotes)
 {
 	SqType   *type = (SqType*)table->type;
 	SqColumn *column;
@@ -815,13 +815,21 @@ void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_
 
 	if (table_as_name == NULL)
 		table_as_name = table->name;
+	if (quotes == NULL)
+		quotes = "\"\"";
 	for (int index = 0;  index < type->n_entry;  index++) {
 		column = (SqColumn*)type->entry[index];
 		if (SQ_TYPE_IS_FAKE(column->type))
 			continue;
-		buf_len = snprintf(NULL, 0, "%s.%s AS '%s.%s'", table->name, column->name, table_as_name, column->name) + 1;
+		buf_len = snprintf(NULL, 0, "%c%s%c.%c%s%c AS %c%s.%s%c",
+				quotes[0], table->name,  quotes[1],
+				quotes[0], column->name, quotes[1],
+				quotes[0], table_as_name, column->name, quotes[1]) + 1;
 		buffer = realloc(buffer, buf_len);
-		snprintf(buffer, buf_len, "%s.%s AS '%s.%s'", table->name, column->name, table_as_name, column->name);
+		snprintf(buffer, buf_len, "%c%s%c.%c%s%c AS %c%s.%s%c",
+				quotes[0], table->name,  quotes[1],
+				quotes[0], column->name, quotes[1],
+				quotes[0], table_as_name, column->name, quotes[1]);
 		sq_query_select(query, buffer, NULL);
 	}
 	free(buffer);

@@ -295,12 +295,13 @@ const char *sq_query_c(SqQuery *query);
 //   elements are const string (const char*). User can't free elements in 'table_and_as_names'.
 int   sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names);
 
-/*	select all columns in 'table', format is "table_name.column AS 'table_as_name.column'"
+/*	select all columns in 'table', string format is - "table_name.column AS table_as_name.column"
+	parameter 'quotes' pointer to 'char array[2]'. If 'quotes' is NULL, it will default quote '"'. 
 	If 'table_as_name' is NULL, it will use name of 'table' instead.
 
 	This function used by SqTypeJoint and user custom type.
  */
-void  sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_as_name);
+void  sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_as_name, const char *quotes);
 
 #ifdef __cplusplus
 }  // extern "C"
