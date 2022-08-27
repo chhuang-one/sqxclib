@@ -23,6 +23,7 @@
 
 #define DB_SQLITE      1
 // #define DB_MYSQL       1
+// #define DB_POSTGRE     1
 
 // ----------------------------------------------------------------------------
 // --- Database Configuration ---
@@ -32,6 +33,9 @@
 #define DB_PORT        3306
 #define DB_USERNAME    "root"
 #define DB_PASSWORD    ""
+
+// #define DB_PORT        5432    // PostgreSQL
+// #define DB_PORT        3306    // MySQL / MariaDB
 
 // common configuration values
 #define DB_DATABASE    "sqxcapp-example"

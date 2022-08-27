@@ -3,10 +3,11 @@
 # Sqdb
 Sqdb is a base structure for database product (SQLite, MySQL...etc).  
 
-| derived structure | Database product | source file  |
-| ----------------- | ---------------- | ------------ |
-| SqdbSqlite        | SQLite           | SqdbSqlite.c |
-| SqdbMysql         | MySQL            | SqdbMysql.c  |
+| derived structure | Database product | source file    |
+| ----------------- | ---------------- | -------------- |
+| SqdbSqlite        | SQLite           | SqdbSqlite.c   |
+| SqdbMysql         | MySQL            | SqdbMysql.c    |
+| SqdbPostgre       | PostgreSQL       | SqdbPostgre.c  |
 
 ```c
 struct Sqdb

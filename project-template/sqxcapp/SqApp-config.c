@@ -53,6 +53,24 @@ static const SqdbConfigMysql  db_config_mysql = {
 #define DB_PRODUCT_ERROR    "sqxclib does not enable MySQL support when compiling."
 #endif  // DB_MYSQL
 
+/* ------ PostgreSQL ------ */
+#if   DB_POSTGRE && SQ_CONFIG_HAVE_POSTGRESQL
+
+#include <SqdbPostgre.h>
+#define DB_CONNECTION    SQDB_INFO_POSTGRE
+#define DB_CONFIG        ((SqdbConfig*) &db_config_postgre)
+
+static const SqdbConfigPostgre  db_config_postgre = {
+	.host     = DB_HOST,
+	.port     = DB_PORT,
+	.user     = DB_USERNAME,
+	.password = DB_PASSWORD,
+};
+
+#elif DB_POSTGRE
+#define DB_PRODUCT_ERROR    "sqxclib does not enable PostgreSQL support when compiling."
+#endif  // DB_POSTGRE
+
 /* ------ error ------ */
 #ifdef DB_PRODUCT_ERROR
 #define DB_CONNECTION    NULL

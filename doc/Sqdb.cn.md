@@ -3,10 +3,11 @@
 # Sqdb
 Sqdb 是数据库产品（SQLite、MySQL...等）的基础结构。  
 
-| 派生结构      | 数据库产品 | 源代码文件   |
-| ------------- | ---------- | ------------ |
-| SqdbSqlite    | SQLite     | SqdbSqlite.c |
-| SqdbMysql     | MySQL      | SqdbMysql.c  |
+| 派生结构      | 数据库产品 | 源代码文件     |
+| ------------- | ---------- | -------------- |
+| SqdbSqlite    | SQLite     | SqdbSqlite.c   |
+| SqdbMysql     | MySQL      | SqdbMysql.c    |
+| SqdbPostgre   | PostgreSQL | SqdbPostgre.c  |
 
 ```c
 struct Sqdb
