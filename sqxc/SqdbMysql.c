@@ -363,7 +363,7 @@ static int  sqdb_mysql_schema_get_version(SqdbMysql *sqdb)
 	                 ")");
 	if (rc == 0) {
 		// try to get or set version
-		mysql_query(sqdb->self, "SELECT version from " SQDB_MIGRATIONS_TABLE " WHERE id = 0");
+		mysql_query(sqdb->self, "SELECT version FROM " SQDB_MIGRATIONS_TABLE " WHERE id = 0");
 		result = mysql_store_result(sqdb->self);
 		if ((row = mysql_fetch_row(result)))
 			version = strtol(row[0], NULL, 10);

@@ -437,7 +437,10 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	SqxcValue  *xc_value = (SqxcValue*)src->dest;
 	SqxcNested *nested;
-	SqEntry    *entry;
+	union {
+		SqEntry    *entry;
+		void      **addr;
+	} p;
 
 	// Start of Object
 	nested = xc_value->nested;
@@ -485,15 +488,15 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 	 */
 
 	// parse entries in type
-	entry = (SqEntry*)sq_type_find_entry(type, src->name, NULL);
-	if (entry) {
-		entry = *(SqEntry**)entry;
-		type = entry->type;
+	p.addr = sq_type_find_entry(type, src->name, NULL);
+	if (p.addr) {
+		p.entry = *p.addr;
+		type = p.entry->type;
 		if (type->parse == NULL)  // don't parse anything if function pointer is NULL
 			return (src->code = SQCODE_OK);
-		instance = (char*)instance + entry->offset;
+		instance = (char*)instance + p.entry->offset;
 		// special case : pointer to instance
-		if (entry->bit_field & SQB_POINTER) {
+		if (p.entry->bit_field & SQB_POINTER) {
 			// try to use existed instance
 			if (*(void**)instance)
 				instance = *(void**)instance;

@@ -553,8 +553,9 @@ static void sqdb_sqlite_create_trigger(SqdbSqlite *db, SqBuffer *sql_buf, SqTabl
 	sq_buffer_alloc(sql_buf, 2);
 	sq_buffer_r_at(sql_buf, 1) = ' ';
 	sq_buffer_r_at(sql_buf, 0) = '[';
+	sq_buffer_write(sql_buf, "sqxc_trig_");
 	sq_buffer_write(sql_buf, table->name);
-	sq_buffer_write(sql_buf, "_trig_");
+	sq_buffer_write(sql_buf, "__");
 	sq_buffer_write(sql_buf, column->name);
 	sq_buffer_alloc(sql_buf, 2);
 	sq_buffer_r_at(sql_buf, 1) = ']';
@@ -563,13 +564,7 @@ static void sqdb_sqlite_create_trigger(SqdbSqlite *db, SqBuffer *sql_buf, SqTabl
 	sq_buffer_write(sql_buf, "AFTER UPDATE ");
 
 	sq_buffer_write(sql_buf, "ON");
-	sq_buffer_alloc(sql_buf, 2);
-	sq_buffer_r_at(sql_buf, 1) = ' ';
-	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
-	sq_buffer_write(sql_buf, table->name);
-	sq_buffer_alloc(sql_buf, 2);
-	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
-	sq_buffer_r_at(sql_buf, 0) = ' ';
+	sqdb_sql_write_identifier((Sqdb*)db, sql_buf, table->name, false);
 
 	// FOR EACH ROW
 	// WHEN NEW.updated_at <= OLD.updated_at
@@ -585,13 +580,7 @@ static void sqdb_sqlite_create_trigger(SqdbSqlite *db, SqBuffer *sql_buf, SqTabl
 	//   UPDATE table_name SET updated_at=CURRENT_TIMESTAMP WHERE id=OLD.id;
 	// END;
 	sq_buffer_write(sql_buf, " BEGIN " "UPDATE");
-	sq_buffer_alloc(sql_buf, 2);
-	sq_buffer_r_at(sql_buf, 1) = ' ';
-	sq_buffer_r_at(sql_buf, 0) = db->info->quote.identifier[0];
-	sq_buffer_write(sql_buf, table->name);
-	sq_buffer_alloc(sql_buf, 2);
-	sq_buffer_r_at(sql_buf, 1) = db->info->quote.identifier[1];
-	sq_buffer_r_at(sql_buf, 0) = ' ';
+	sqdb_sql_write_identifier((Sqdb*)db, sql_buf, table->name, false);
 	sq_buffer_write(sql_buf, "SET ");
 	sq_buffer_write(sql_buf, column->name);
 	sq_buffer_write(sql_buf, "=CURRENT_TIMESTAMP WHERE ");

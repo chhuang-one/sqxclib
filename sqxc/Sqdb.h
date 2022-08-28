@@ -37,9 +37,8 @@ typedef enum SqdbProduct {
 	SQDB_PRODUCT_SQLITE,
 	SQDB_PRODUCT_MYSQL,
 	SQDB_PRODUCT_POSTGRE,
-	SQDB_N_PRODUCT,
 
-	SQDB_PRODUCT_CUSTOM = 10,
+	SQDB_PRODUCT_CUSTOM   = 10,
 } SqdbProduct;
 
 // ----------------------------------------------------------------------------
