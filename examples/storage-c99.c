@@ -27,7 +27,9 @@
 #define strdup       _strdup
 #endif
 
-#define USE_SQLITE_IF_POSSIBLE    1
+#define USE_SQLITE_IF_POSSIBLE        1
+#define USE_MYSQL_IF_POSSIBLE         0
+#define USE_POSTGRESQL_IF_POSSIBLE    0
 
 typedef struct Post     Post;
 typedef struct City     City;
@@ -369,6 +371,33 @@ void  storage_query_join(SqStorage *storage)
 	sq_query_free(query);
 }
 
+// ----------------------------------------------------------------------------
+
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
+SqdbConfigSqlite db_config_sqlite = {
+//	.folder = "/tmp",
+	.folder = ".",
+	.extension = "db",
+};
+
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
+SqdbConfigMysql  db_config_mysql = {
+	.host     = "localhost",
+	.port     = 3306,
+	.user     = "root",
+	.password = "",
+};
+
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
+SqdbConfigPostgre  db_config_postgre = {
+	.host     = "localhost",
+	.port     = 5432,
+	.user     = "postgre",
+	.password = "",
+};
+
+#endif
+
 int  main(void)
 {
 	Sqdb       *db;
@@ -378,26 +407,11 @@ int  main(void)
 	User       *user;
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-
-	SqdbConfigSqlite  config_sqlite = {
-//		.folder = "/tmp",
-		.folder = ".",
-		.extension = "db",
-	};
-
-	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config_sqlite);
-
-#elif SQ_CONFIG_HAVE_MYSQL
-
-	SqdbConfigMysql  config_mysql = {
-		.host     = "localhost",
-		.port     = 3306,
-		.user     = "root",
-		.password = "",
-	};
-
-	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config_mysql);
-
+	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &db_config_sqlite);
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
+	db = sqdb_new(SQDB_INFO_MYSQL,  (SqdbConfig*) &db_config_mysql);
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
+	db = sqdb_new(SQDB_INFO_POSTGRE, (SqdbConfig*) &db_config_postgre);
 #else
 	fprintf(stderr, "No supported database\n");
 	return EXIT_SUCCESS;

@@ -27,7 +27,9 @@
 #define strdup       _strdup
 #endif
 
-#define USE_SQLITE_IF_POSSIBLE    1
+#define USE_SQLITE_IF_POSSIBLE        1
+#define USE_MYSQL_IF_POSSIBLE         0
+#define USE_POSTGRESQL_IF_POSSIBLE    0
 
 #define USE_CXX_AGGREGATE_INITIALIZATION    0
 
@@ -400,9 +402,10 @@ void check_standard_layout()
 	          << std::is_standard_layout<Company>::value << std::endl;
 }
 
+// ----------------------------------------------------------------------------
+
 int  main(int argc, char *argv[])
 {
-//	Sq::DbConfigSqlite *dbconfig;
 	Sq::DbMethod *db;
 	Sq::Storage  *storage;
 	Company      *company;
@@ -411,41 +414,32 @@ int  main(int argc, char *argv[])
 	check_standard_layout();
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-
-#if 0    // Designated initializers
-	SqdbConfigSqlite  config_sqlite = {
-//		.folder = "/tmp",
-		.folder = ".",
-		.extension = "db",
-	};
-#else
 	SqdbConfigSqlite  config_sqlite;
 
 	config_sqlite.folder    = ".";    // "/tmp"
 	config_sqlite.extension = "db";
-#endif
 
 	db = new Sq::DbSqlite(&config_sqlite);
 
-#elif SQ_CONFIG_HAVE_MYSQL
-
-#if 0    // Designated initializers
-	SqdbConfigMysql  config_mysql = {
-		.host     = "localhost",
-		.port     = 3306,
-		.user     = "root",
-		.password = "",
-	};
-#else
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
 	SqdbConfigMysql  config_mysql;
 
 	config_mysql.host = "localhost";
 	config_mysql.port = 3306;
 	config_mysql.user = "root";
 	config_mysql.password = "";
-#endif
 
 	db = new Sq::DbMysql(&config_mysql);
+
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
+	SqdbConfigPostgre  config_postgre;
+
+	config_postgre.host = "localhost";
+	config_postgre.port = 5432;
+	config_postgre.user = "postgre";
+	config_postgre.password = "";
+
+	db = new Sq::DbPostgre(&config_postgre);
 
 #else
 	std::cerr << "No supported database" << std::endl;

@@ -25,11 +25,14 @@
 #include <sqxclib.h>
 #include <SqRow.h>
 
-#define USE_SQLITE_IF_POSSIBLE    1
+#define USE_SQLITE_IF_POSSIBLE        1
+#define USE_MYSQL_IF_POSSIBLE         0
+#define USE_POSTGRESQL_IF_POSSIBLE    0
 
-
+/* If you use C language, please use 'typedef' to to give a struct type a new name.
 typedef struct User       User;
 typedef struct Company    Company;
+ */
 
 struct User {
 	int    id;
@@ -315,14 +318,14 @@ void getRow(Sq::Storage *storage)
 	delete rowType;
 }
 
+// ----------------------------------------------------------------------------
+
 int  main(int argc, char *argv[])
 {
-//	Sq::DbConfigSqlite *dbconfig;
 	Sq::DbMethod *db;
 	Sq::Storage  *storage;
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-
 	SqdbConfigSqlite  config_sqlite;
 
 	config_sqlite.folder    = ".";    // "/tmp"
@@ -330,8 +333,7 @@ int  main(int argc, char *argv[])
 
 	db = new Sq::DbSqlite(&config_sqlite);
 
-#elif SQ_CONFIG_HAVE_MYSQL
-
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
 	SqdbConfigMysql  config_mysql;
 
 	config_mysql.host = "localhost";
@@ -340,6 +342,16 @@ int  main(int argc, char *argv[])
 	config_mysql.password = "";
 
 	db = new Sq::DbMysql(&config_mysql);
+
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
+	SqdbConfigPostgre  config_postgre;
+
+	config_postgre.host = "localhost";
+	config_postgre.port = 5432;
+	config_postgre.user = "postgre";
+	config_postgre.password = "";
+
+	db = new Sq::DbPostgre(&config_postgre);
 
 #else
 	std::cerr << "No supported database" << std::endl;
