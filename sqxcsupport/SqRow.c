@@ -279,6 +279,12 @@ static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 	}
 	 */
 
+	if (type->n_entry == 0) {
+		// There is no table in SqTypeRow
+		sq_type_row_parse_unknown(instance, src);
+		return (src->code = SQCODE_OK);
+	}
+
 	// get table name from "table.column" string
 	temp.dot = strchr(src->name, '.');
 	if (type->n_entry == 1 && temp.dot == NULL) {
