@@ -272,6 +272,9 @@ void    sq_query_order_sorted(SqQuery *query, int sort_type);
 void   *sq_query_union(SqQuery *query);
 void    sq_query_union_all(SqQuery *query);
 
+void   *sq_query_limit(SqQuery *query, int64_t count);
+void    sq_query_offset(SqQuery *query, int64_t index);
+
 // SQL: DELETE FROM
 // call this function at last (before generating SQL statement).
 void    sq_query_delete(SqQuery *query);
@@ -435,6 +438,9 @@ struct QueryMethod
 	// union(lambda function)
 	Sq::Query &union_(std::function<void()> func);
 	Sq::Query &unionAll(std::function<void()> func);
+
+	Sq::Query &limit(int64_t count);
+	Sq::Query &offset(int64_t index);
 
 	// call these function at last (before generating SQL statement).
 	Sq::Query &delete_();
@@ -858,6 +864,15 @@ inline Sq::Query &QueryMethod::unionAll(std::function<void()> func) {
 	sq_query_union_all((SqQuery*)this);
 	func();
 	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query &QueryMethod::limit(int64_t count) {
+	sq_query_limit((SqQuery*)this, count);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query &QueryMethod::offset(int64_t index) {
+	sq_query_offset((SqQuery*)this, index);
 	return *(Sq::Query*)this;
 }
 

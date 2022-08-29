@@ -255,6 +255,28 @@ sq_query_order_by() 和 sq_query_group_by() 可以在参数中指定多个列（
 	query->orderByDesc("companies.id");
 ```
 
+#### limit / offset
+
+limit() 方法可以限制查询返回的结果数量，使用 offset() 方法跳过查询中指定数量的结果。  
+  
+使用 C 语言
+
+```c
+	// SELECT * FROM users LIMIT 5 OFFSET 10
+
+	sq_query_table("users");
+	sq_query_offset(10);
+	sq_query_limit(5);
+```
+
+使用 C++ 语言
+
+```c++
+	// SELECT * FROM users LIMIT 5 OFFSET 10
+
+	query->table("users")->offset(10)->limit(5);
+```
+
 #### deleteFrom / truncate
 
 最后调用这些函数（在生成 SQL 语句之前）。  

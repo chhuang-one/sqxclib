@@ -202,6 +202,26 @@ void test_query_c_truncate(SqQuery *query)
 	free(sql);
 }
 
+void test_query_c_limit(SqQuery *query)
+{
+	char    *sql;
+
+	sq_query_table(query, "users");
+//	sq_query_limit(query, 10);
+	sq_query_offset(query, 5);
+
+	// overwrite LIMIT and OFFSET
+	sq_query_limit(query, 100);
+	sq_query_offset(query, 55);
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	assert(strcmp(sql, "SELECT * FROM users LIMIT 100 OFFSET 55") == 0);
+	puts(sql);
+	free(sql);
+}
+
 // SqQuery-macro.h
 void test_query_macro_get_table_as(SqQuery *query)
 {
@@ -258,6 +278,7 @@ int main(int argc, char **argv)
 	test_query_c_no_select_from(query);
 	test_query_c_delete(query);
 	test_query_c_truncate(query);
+	test_query_c_limit(query);
 	test_query_macro_get_table_as(query);
 
 	sq_query_free(query);

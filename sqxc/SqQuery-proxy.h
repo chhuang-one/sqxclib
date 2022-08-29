@@ -144,6 +144,9 @@ public:
 	QueryProxy &union_(std::function<void()> func);
 	QueryProxy &unionAll(std::function<void()> func);
 
+	QueryProxy &limit(int64_t count);
+	QueryProxy &offset(int64_t index);
+
 	// call these function at last (before generating SQL statement).
 	QueryProxy &delete_();
 	QueryProxy &deleteFrom();
@@ -472,6 +475,15 @@ inline QueryProxy &QueryProxy::unionAll(std::function<void()> func) {
 	sq_query_union_all(query);
 	func();
 	sq_query_pop_nested(query);    // end of Subquery/Nested
+	return *this;
+}
+
+inline QueryProxy &QueryProxy::limit(int64_t count) {
+	sq_query_limit(query, count);
+	return *this;
+}
+inline QueryProxy &QueryProxy::offset(int64_t index) {
+	sq_query_offset(query, index);
 	return *this;
 }
 

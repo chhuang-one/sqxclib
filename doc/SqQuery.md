@@ -255,6 +255,28 @@ use C++ language
 	query->orderByDesc("companies.id");
 ```
 
+#### limit / offset
+
+the limit() methods can limit the number of results returned from the query, or use offset() method to skip a given number of results in the query.  
+  
+use C language
+
+```c
+	// SELECT * FROM users LIMIT 5 OFFSET 10
+
+	sq_query_table("users");
+	sq_query_offset(10);
+	sq_query_limit(5);
+```
+
+use C++ language
+
+```c++
+	// SELECT * FROM users LIMIT 5 OFFSET 10
+
+	query->table("users")->offset(10)->limit(5);
+```
+
 #### deleteFrom / truncate
 
 call these function at last (before generating SQL statement).  

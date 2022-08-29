@@ -20,11 +20,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>      // vsnprintf
+#include <inttypes.h>   // PRId64, PRIu64
 
 #include <SqQuery.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup
+#define snprintf     _snprintf
 #endif
 
 #define SQ_QUERY_STR_SIZE_DEFAULT  256
@@ -78,6 +80,7 @@ enum SqQueryNodeType {
 	SQN_ORDER_BY,
 	SQN_UNION,
 	SQN_UNION_ALL,
+	SQN_LIMIT,
 
 	// --------------------------------
 
@@ -94,6 +97,8 @@ enum SqQueryNodeType {
 
 	SQN_ASC,       // ORDER BY
 	SQN_DESC,      // ORDER BY
+
+	SQN_OFFSET,    // LIMIT
 
 	SQN_VALUES,    // INSERT INTO
 
@@ -541,6 +546,74 @@ void *sq_query_union(SqQuery *query)
 void sq_query_union_all(SqQuery *query)
 {
 	((SqQueryNode*)sq_query_union(query))->type = SQN_UNION_ALL;
+}
+
+void *sq_query_limit(SqQuery *query, int64_t count)
+{
+	SqQueryNested *nested = query->nested_cur;
+	union {
+		SqQueryNode *node;
+		SqQueryNode *count;
+	} limit;
+	union {
+		SqQueryNode *node;
+		int          len;
+	} temp;
+
+	limit.node = sq_query_node_find(nested->parent, SQN_LIMIT, &temp.node);
+	if (limit.node) {
+		limit.count = limit.node->children;
+		free(limit.count->value);
+	}
+	else {
+		limit.node = sq_query_node_insert(nested->parent, temp.node, sq_query_node_new(query));
+		limit.node->type = SQN_LIMIT;
+		limit.node->children = sq_query_node_new(query);
+		limit.count = limit.node->children;
+		limit.count->type = SQN_VALUE;
+	}
+	temp.len = snprintf(NULL, 0, "%"PRId64, count) + 1;
+	limit.count->value = malloc(temp.len);
+	snprintf(limit.count->value, temp.len, "%"PRId64, count);
+
+	return limit.count;
+}
+
+void sq_query_offset(SqQuery *query, int64_t index)
+{
+	SqQueryNested *nested = query->nested_cur;
+	union {
+		SqQueryNode *node;
+		SqQueryNode *count;
+		int          len;
+	} limit;
+	union {
+		SqQueryNode *node;
+		SqQueryNode *index;
+	} offset;
+
+	limit.node = sq_query_node_find(nested->parent, SQN_LIMIT, NULL);
+	if (limit.node == NULL)
+		limit.count = sq_query_limit(query, 1);
+	else
+		limit.count = limit.node->children;
+
+	if (limit.count->next == NULL) {
+		limit.count->next = sq_query_node_new(query);
+		offset.node = limit.count->next;
+		offset.node->type = SQN_OFFSET;
+		offset.node->next = sq_query_node_new(query);
+		offset.index = offset.node->next;
+		offset.index->type = SQN_VALUE;
+	}
+	else {
+		offset.index = sq_query_node_last(limit.count->next);
+		free(offset.index->value);
+	}
+
+	limit.len = snprintf(NULL, 0, "%"PRId64, index) + 1;
+	offset.index->value = malloc(limit.len);
+	snprintf(offset.index->value, limit.len, "%"PRId64, index);
 }
 
 void sq_query_delete(SqQuery *query)
@@ -1060,6 +1133,7 @@ static const char *sqnword[SQN_N_CODE] = {
 	"ORDER BY",          // SQN_ORDER_BY
 	"UNION",             // SQN_UNION
 	"UNION ALL",         // SQN_UNION_ALL
+	"LIMIT",             // SQN_LIMIT
 
 	"DISTINCT",          // SQN_DISTINCT   // SELECT
 	"AS",                // SQN_AS         // SELECT: alias name for table or column
@@ -1074,6 +1148,8 @@ static const char *sqnword[SQN_N_CODE] = {
 
 	"ASC",               // SQN_ASC        // ORDER BY
 	"DESC",              // SQN_DESC       // ORDER BY
+
+	"OFFSET",            // SQN_OFFSET     // SQN_LIMIT
 
 	"VALUES",            // SQN_VALUES     // INSERT INTO
 
