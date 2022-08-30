@@ -111,7 +111,7 @@ static int  sqdb_postgre_open(SqdbPostgre *sqdb, const char *database_name)
 	free(port_str);
 
 	if (PQstatus(sqdb->conn) != CONNECTION_OK) {
-		fprintf(stderr, "PostgreSQL: Connection to database failed: %s", PQerrorMessage(sqdb->conn));
+		fprintf(stderr, "PostgreSQL: failed to connect to database. %s", PQerrorMessage(sqdb->conn));
 		return SQCODE_OPEN_FAILED;
 	}
 	sqdb->version = sqdb_postgre_schema_get_version(sqdb);
@@ -322,11 +322,13 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 					if (PQresultStatus(results) != PGRES_COMMAND_OK)
 						goto atExit;
 				}
-				sql_buf.writed = 0;
+				sql_buf.writed = 0;    // write to start of buffer
 				sqdb_postgre_create_dependent(sqdb, &sql_buf, table);
 			}
 
 			if (sql_buf.writed > 0) {
+				// 'sql_buf' must become null-terminated string before executing
+				sq_buffer_write_c(&sql_buf, 0);  
 #ifndef NDEBUG
 				fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
