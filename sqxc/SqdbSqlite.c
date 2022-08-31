@@ -218,7 +218,8 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 
 		// exec SQL statement
 		if (sql_buf.writed > 0) {
-			sq_buffer_write_c(&sql_buf, 0);  // null-terminated
+			// 'sql_buf' must become null-terminated string before executing
+			sq_buffer_write_c(&sql_buf, 0);
 #ifndef NDEBUG
 			fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif

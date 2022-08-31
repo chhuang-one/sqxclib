@@ -258,23 +258,38 @@ use C++ language
 #### limit / offset
 
 the limit() methods can limit the number of results returned from the query, or use offset() method to skip a given number of results in the query.  
+User can call limit() and offset() multiple times. Arguments specified on the last call will override those specified on the previous call.  
   
 use C language
 
 ```c
-	// SELECT * FROM users LIMIT 5 OFFSET 10
-
 	sq_query_table("users");
+
+	// specifiy LIMIT 3 OFFSET 6
+	sq_query_offset(6);
+	sq_query_limit(3);
+
+	// override arguments on the previous call.
 	sq_query_offset(10);
 	sq_query_limit(5);
+
+	// The final result of SQL staement:
+	// SELECT * FROM users LIMIT 5 OFFSET 10
 ```
 
 use C++ language
 
 ```c++
-	// SELECT * FROM users LIMIT 5 OFFSET 10
+	query->table("users");
 
-	query->table("users")->offset(10)->limit(5);
+	// specifiy LIMIT 3 OFFSET 6
+	query->offset(6)->limit(3);
+
+	// override arguments on the previous call.
+	query->offset(10)->limit(5);
+
+	// The final result of SQL staement:
+	// SELECT * FROM users LIMIT 5 OFFSET 10
 ```
 
 #### deleteFrom / truncate

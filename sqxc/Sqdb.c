@@ -494,8 +494,10 @@ void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn
 
 	// write "table name"
 	sqdb_sql_write_identifier(db, sql_buf, table->name, false);
+	sql_buf->writed--;
 	// write columns
 	sqdb_sql_write_composite_columns(db, sql_buf, column);
+	sql_buf->writed--;
 
 	sql_buf->mem[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
 }

@@ -258,23 +258,38 @@ sq_query_order_by() 和 sq_query_group_by() 可以在参数中指定多个列（
 #### limit / offset
 
 limit() 方法可以限制查询返回的结果数量，使用 offset() 方法跳过查询中指定数量的结果。  
+用户可以多次调用 limit() 和 offset()。最后一次呼叫指定的引數將會覆寫上一次呼叫時指定的引數。  
   
 使用 C 语言
 
 ```c
-	// SELECT * FROM users LIMIT 5 OFFSET 10
-
 	sq_query_table("users");
+
+	// 指定 LIMIT 3 OFFSET 6
+	sq_query_offset(6);
+	sq_query_limit(3);
+
+	// 覆盖上一次调用的参数。
 	sq_query_offset(10);
 	sq_query_limit(5);
+
+	// SQL语句的最终结果：
+	// SELECT * FROM users LIMIT 5 OFFSET 10
 ```
 
 使用 C++ 语言
 
 ```c++
-	// SELECT * FROM users LIMIT 5 OFFSET 10
+	query->table("users");
 
-	query->table("users")->offset(10)->limit(5);
+	// 指定 LIMIT 3 OFFSET 6
+	query->offset(6)->limit(3);
+
+	// 覆盖上一次调用的参数。
+	query->offset(10)->limit(5);
+
+	// SQL语句的最终结果：
+	// SELECT * FROM users LIMIT 5 OFFSET 10
 ```
 
 #### deleteFrom / truncate
@@ -352,7 +367,7 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 	// 使用 Sql::Query::c() 生成 SQL 语句
 	array = storage->removeAll("users", query->c());
 
-	// 或使用 Sql::Query::to Sql() 生成 SQL 语句
+	// 或使用 Sql::Query::toSql() 生成 SQL 语句
 	sql_where = query->toSql();
 	array = storage->removeAll("users", sql_where);
 	free(sql_where);
