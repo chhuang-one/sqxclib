@@ -111,7 +111,7 @@ static int  sqdb_postgre_open(SqdbPostgre *sqdb, const char *database_name)
 	free(port_str);
 
 	if (PQstatus(sqdb->conn) != CONNECTION_OK) {
-		fprintf(stderr, "PostgreSQL: failed to connect to database. %s", PQerrorMessage(sqdb->conn));
+		fprintf(stderr, "PostgreSQL: %s\n", PQerrorMessage(sqdb->conn));
 		return SQCODE_OPEN_FAILED;
 	}
 	sqdb->version = sqdb_postgre_schema_get_version(sqdb);
@@ -471,9 +471,9 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 				sq_buffer_write(buffer, "ALTER COLUMN");
 				sqdb_sql_write_identifier((Sqdb*)db, buffer, column->name, false);
 				if (column->bit_field & SQB_COLUMN_NULLABLE)
-					sq_buffer_write(buffer, "SET NOT NULL");
-				else
 					sq_buffer_write(buffer, "DROP NOT NULL");
+				else
+					sq_buffer_write(buffer, "SET NOT NULL");
 				temp++;
 			}
 
