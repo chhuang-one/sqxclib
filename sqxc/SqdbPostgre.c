@@ -466,10 +466,26 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 			sq_buffer_write(buffer, "ALTER TABLE");
 			sqdb_sql_write_identifier((Sqdb*)db, buffer, table->name, false);
 
-			if ((column->bit_field & SQB_COLUMN_NULLABLE) != (old_column->bit_field & SQB_COLUMN_NULLABLE)) {
+			if (column->type   != old_column->type ||
+			    column->size   != old_column->size ||
+			    column->digits != old_column->digits)
+			{
 				// write ALTER COLUMN "column name"
 				sq_buffer_write(buffer, "ALTER COLUMN");
 				sqdb_sql_write_identifier((Sqdb*)db, buffer, column->name, false);
+				// TYPE new_data_type
+				sq_buffer_write(buffer, "TYPE ");
+				sqdb_sql_write_column_type((Sqdb*)db, buffer, column);
+				temp++;
+			}
+
+			if ((column->bit_field & SQB_COLUMN_NULLABLE) != (old_column->bit_field & SQB_COLUMN_NULLABLE)) {
+				if (temp)
+					sq_buffer_write_c(buffer, ',');
+				// write ALTER COLUMN "column name"
+				sq_buffer_write(buffer, "ALTER COLUMN");
+				sqdb_sql_write_identifier((Sqdb*)db, buffer, column->name, false);
+				// DROP NOT NULL or SET NOT NULL
 				if (column->bit_field & SQB_COLUMN_NULLABLE)
 					sq_buffer_write(buffer, "DROP NOT NULL");
 				else
