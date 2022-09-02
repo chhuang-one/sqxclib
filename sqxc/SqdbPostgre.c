@@ -511,15 +511,27 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 			}
 
 			// raw SQL
-			if (column->raw) {
+			if (((column->raw && old_column->raw) && strcasecmp(column->raw, old_column->raw) != 0) ||
+			    ((column->raw != old_column->raw) && (column->raw == NULL || old_column->raw == NULL)) )
+			{
 				if (temp)
-					sq_buffer_write_c(buffer, ',');
+					sq_buffer_write_c(buffer, ';');
+				// write ALTER TABLE "table name"
+				sq_buffer_write(buffer, "ALTER TABLE");
+				sqdb_sql_write_identifier((Sqdb*)db, buffer, table->name, false);
 				// write ALTER COLUMN "column name"
 				sq_buffer_write(buffer, "ALTER COLUMN");
 				sqdb_sql_write_identifier((Sqdb*)db, buffer, column->name, false);
-				sq_buffer_write(buffer, "SET ");
-				sq_buffer_write(buffer, column->raw);
-				temp++;
+				if (column->raw == NULL) {
+					sq_buffer_write(buffer, "DROP ");
+					sq_buffer_write(buffer, old_column->raw);
+				}
+				else {
+					sq_buffer_write(buffer, "SET ");
+					sq_buffer_write(buffer, column->raw);
+				}
+				sq_buffer_write_c(buffer, ';');
+				temp = 0;
 			}
 
 			buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
