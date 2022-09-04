@@ -40,9 +40,10 @@ static int  sqdb_postgre_close(SqdbPostgre *sqdb);
 static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void *reserve);
 static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *schema_next);
 
-static void sqdb_postgre_create_dependent(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table);
-static void sqdb_postgre_create_trigger(SqdbPostgre *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
-static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *sql_buf, SqTable *table, SqTable *old_table);
+static void sqdb_postgre_create_dependent(SqdbPostgre *db, SqBuffer *sql_buf, SqTable *table);
+static void sqdb_postgre_create_trigger(SqdbPostgre *db, SqBuffer *sql_buf, const char *table_name, const char *column_name);
+static void sqdb_postgre_drop_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, const char *table_name, const char *column_name);
+static void sqdb_postgre_alter_table(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table, SqTable *old_table);
 static int  sqdb_postgre_schema_get_version(SqdbPostgre *sqdb);
 static void sqdb_postgre_schema_set_version(SqdbPostgre *sqdb, int version);
 
@@ -383,22 +384,22 @@ static void sqdb_postgre_create_dependent(SqdbPostgre *sqdb, SqBuffer *sql_buf, 
 		}
 		// CREATE TRIGGER
 		else if (column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE)
-			sqdb_postgre_create_trigger(sqdb, sql_buf, table, column);
+			sqdb_postgre_create_trigger(sqdb, sql_buf, table->name, column->name);
 	}
 }
 
-static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
+static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, const char *table_name, const char *column_name)
 {
 	sq_buffer_write(sql_buf, "create or replace function ");
 	sq_buffer_write(sql_buf, "sqxc_upd_");
-	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, table_name);
 	sq_buffer_write(sql_buf, "__");
-	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write(sql_buf, column_name);
 	sq_buffer_write(sql_buf, "() returns trigger as "
 	                         "$$ "
 	                         "begin "
 	                         "new.");
-	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write(sql_buf, column_name);
 	sq_buffer_write(sql_buf, " = current_timestamp; "
 	                         "return new; "
 	                         "end "
@@ -409,27 +410,50 @@ static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, Sq
 #if 0
 	// DROP trigger
 	sq_buffer_write(sql_buf, "DROP TRIGGER IF EXISTS sqxc_trig_");
-	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, table_name);
 	sq_buffer_write(sql_buf, "__");
-	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write(sql_buf, column_name);
 	sq_buffer_write(sql_buf, " ON");
-	sqdb_sql_write_identifier((Sqdb*)sqdb, sql_buf, table->name, false);
+	sqdb_sql_write_identifier((Sqdb*)sqdb, sql_buf, table_name, false);
 	sq_buffer_write(sql_buf, ";");
 #endif
 
 	sq_buffer_write(sql_buf, "create trigger sqxc_trig_");
 //	sq_buffer_write(sql_buf, "create or replace trigger sqxc_trig_");    // PostgresSQL 14
-	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, table_name);
 	sq_buffer_write(sql_buf, "__");
-	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write(sql_buf, column_name);
 	sq_buffer_write(sql_buf, " before update on ");
-	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, table_name);
 	sq_buffer_write(sql_buf, " for each row execute procedure ");
 	sq_buffer_write(sql_buf, "sqxc_upd_");
-	sq_buffer_write(sql_buf, table->name);
+	sq_buffer_write(sql_buf, table_name);
 	sq_buffer_write(sql_buf, "__");
-	sq_buffer_write(sql_buf, column->name);
+	sq_buffer_write(sql_buf, column_name);
 	sq_buffer_write(sql_buf, "();");
+}
+
+static void sqdb_postgre_drop_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, const char *table_name, const char *column_name)
+{
+	// DROP TRIGGER [IF EXISTS] trigger_name ON table_name
+	sq_buffer_write(sql_buf, "DROP TRIGGER ");
+//	sq_buffer_write(sql_buf, "IF EXISTS ");
+	sq_buffer_write(sql_buf, "sqxc_trig_");
+	sq_buffer_write(sql_buf, table_name);
+	sq_buffer_write(sql_buf, "__");
+	sq_buffer_write(sql_buf, column_name);
+	sq_buffer_write(sql_buf, " ON ");
+	sq_buffer_write(sql_buf, table_name);
+	sq_buffer_write_c(sql_buf, ';');
+
+	// DROP FUNCTION [ IF EXISTS ] name
+	sq_buffer_write(sql_buf, "DROP FUNCTION ");
+//	sq_buffer_write(sql_buf, "IF EXISTS ");
+	sq_buffer_write(sql_buf, "sqxc_upd_");
+	sq_buffer_write(sql_buf, table_name);
+	sq_buffer_write(sql_buf, "__");
+	sq_buffer_write(sql_buf, column_name);
+	sq_buffer_write_c(sql_buf, ';');
 }
 
 static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable *table, SqTable *old_table)
@@ -456,7 +480,7 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 			old_column = sq_table_find_column(old_table, column->name);
 			if (old_column == NULL) {
 #ifndef NDEBUG
-				fprintf(stderr, "PostgreSQL: column '%s' not found.\n", column->name);
+				fprintf(stderr, "sqdb_postgre_alter_table(): altering column '%s' not found.\n", column->name);
 #endif
 				continue;
 			}
@@ -538,6 +562,15 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 		}
 		else if (column->name == NULL) {
 			// DROP COLUMN / CONSTRAINT / INDEX / KEY
+			old_column = sq_table_find_column(old_table, column->old_name);
+			if (old_column == NULL) {
+#ifndef NDEBUG
+				fprintf(stderr, "sqdb_postgre_alter_table(): dropping column '%s' not found.\n", column->old_name);
+#endif
+			}
+			else if (old_column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE)
+				sqdb_postgre_drop_trigger(db, buffer, table->name, column->old_name);
+
 			sqdb_sql_drop_column((Sqdb*)db, buffer, table, column);
 		}
 		else if (column->old_name && (column->bit_field & SQB_COLUMN_RENAMED) == 0) {
@@ -549,7 +582,7 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 			sqdb_sql_add_column((Sqdb*)db, buffer, table, column);
 			// ON UPDATE CURRENT_TIMESTAMP
 			if (column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE)
-				sqdb_postgre_create_trigger(db, buffer, table, column);
+				sqdb_postgre_create_trigger(db, buffer, table->name, column->name);
 		}
 
 		buffer->writed = 0;

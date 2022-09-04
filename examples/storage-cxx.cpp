@@ -269,6 +269,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table = schemaVer3->alter("users");
 	table->string("name", &User::name, 256)->nullable()->change();
 	table->uint("test_add", &User::test_add);
+	table->dropColumn("updated_at");
 	table->dropForeign("users_companies_id_foreign");
 
 	// --- schema version 4 ---
