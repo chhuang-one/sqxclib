@@ -390,6 +390,7 @@ static void sqdb_postgre_create_dependent(SqdbPostgre *sqdb, SqBuffer *sql_buf, 
 
 static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, const char *table_name, const char *column_name)
 {
+	// CREATE function
 	sq_buffer_write(sql_buf, "create or replace function ");
 	sq_buffer_write(sql_buf, "sqxc_upd_");
 	sq_buffer_write(sql_buf, table_name);
@@ -406,20 +407,10 @@ static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, co
 	                         "$$ "
 	                         "language plpgsql; ");
 
-	// trigger
-#if 0
-	// DROP trigger
-	sq_buffer_write(sql_buf, "DROP TRIGGER IF EXISTS sqxc_trig_");
-	sq_buffer_write(sql_buf, table_name);
-	sq_buffer_write(sql_buf, "__");
-	sq_buffer_write(sql_buf, column_name);
-	sq_buffer_write(sql_buf, " ON");
-	sqdb_sql_write_identifier((Sqdb*)sqdb, sql_buf, table_name, false);
-	sq_buffer_write(sql_buf, ";");
-#endif
-
-	sq_buffer_write(sql_buf, "create trigger sqxc_trig_");
-//	sq_buffer_write(sql_buf, "create or replace trigger sqxc_trig_");    // PostgresSQL 14
+	// CREATE trigger
+	sq_buffer_write(sql_buf, "create trigger ");
+//	sq_buffer_write(sql_buf, "create or replace trigger ");    // PostgresSQL 14
+	sq_buffer_write(sql_buf, "sqxc_trig_");
 	sq_buffer_write(sql_buf, table_name);
 	sq_buffer_write(sql_buf, "__");
 	sq_buffer_write(sql_buf, column_name);
@@ -581,8 +572,10 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 			// ADD COLUMN / CONSTRAINT / INDEX / KEY
 			sqdb_sql_add_column((Sqdb*)db, buffer, table, column);
 			// ON UPDATE CURRENT_TIMESTAMP
-			if (column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE)
+			if (column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE) {
+				sq_buffer_write_c(buffer, ';');
 				sqdb_postgre_create_trigger(db, buffer, table->name, column->name);
+			}
 		}
 
 		buffer->writed = 0;

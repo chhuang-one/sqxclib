@@ -76,6 +76,8 @@ struct Company
 	char  *address;
 	double salary;
 
+	time_t updated_at;   // alter table add column
+
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array (vector) in SQL column
 	Sq::IntptrArray  ints;    // C array for intptr_t
 	Sq::StringArray  strs;    // C array for char*
@@ -217,6 +219,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	Sq::Schema   *schemaVer2;
 	Sq::Schema   *schemaVer3;
 	Sq::Schema   *schemaVer4;
+	Sq::Schema   *schemaVer5;
 	Sq::Table    *table;
 
 	// --- schema version 1 ---
@@ -265,7 +268,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	// --- schema version 3 ---
 	schemaVer3 = new Sq::Schema("Ver3");
 	schemaVer3->version = 3;
-	// ALTER TABLE ADD COLUMN
+	// ALTER TABLE users
 	table = schemaVer3->alter("users");
 	table->string("name", &User::name, 256)->nullable()->change();
 	table->uint("test_add", &User::test_add);
@@ -275,15 +278,23 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	// --- schema version 4 ---
 	schemaVer4 = new Sq::Schema("Ver4");
 	schemaVer4->version = 4;
-	// ALTER TABLE ADD COLUMN
+	// ALTER TABLE users ADD COLUMN test_add
 	table = schemaVer4->alter("users");
 	table->renameColumn("test_add", "test_add2");
 
-	// migrate schema version from 1 to 4 to storage->schema
+	// --- schema version 5 ---
+	schemaVer5 = new Sq::Schema("Ver5");
+	schemaVer5->version = 5;
+	// ALTER TABLE companies ADD COLUMN updated_at
+	table = schemaVer5->alter("companies");
+	table->timestamp("updated_at", &Company::updated_at)->useCurrent()->useCurrentOnUpdate();
+
+	// migrate schema version from 1 to 5 to storage->schema
 	storage->migrate(schemaVer1);
 	storage->migrate(schemaVer2);
 	storage->migrate(schemaVer3);
 	storage->migrate(schemaVer4);
+	storage->migrate(schemaVer5);
 	// synchronize schema to database. create/alter SQL tables based on storage->schema
 	storage->migrate(NULL);
 
@@ -292,6 +303,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	delete schemaVer2;
 	delete schemaVer3;
 	delete schemaVer4;
+	delete schemaVer5;
 }
 
 void  storage_ptr_array_get_all(Sq::Storage *storage)
