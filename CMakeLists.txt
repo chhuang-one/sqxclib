@@ -91,6 +91,10 @@ endif()
 # find PostgreSQL if libpq.pc not found
 if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
+	# for Windows: If no directory in PostgreSQL_INCLUDE_DIRS
+	if (PostgreSQL_FOUND AND PostgreSQL_INCLUDE_DIRS STREQUAL "")
+		set(PostgreSQL_FOUND false)
+	endif ()
 endif ()
 
 # --- thread ---
