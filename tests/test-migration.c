@@ -46,12 +46,19 @@ struct User {
 struct City {
 	int    id;
 	char  *name;
+	char  *chars;  // SQL Type: CHAR
+
+	time_t         created_at;
+	time_t         updated_at;
 };
 
 struct Company {
 	int    id;
 	char  *name;
 	int    city_id;
+
+	time_t         created_at;
+	time_t         updated_at;
 };
 
 // ----------------------------------------------------------------------------
@@ -215,7 +222,16 @@ void  create_user_table_by_macro(SqSchema *schema)
 		SQT_STRING_AS(User, name, -1);
 		SQT_STRING_AS(User, email, -1);
 		SQT_INTEGER_AS(User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
+		SQT_INTEGER_AS(User, company_id);  SQC_REFERENCE("companies", "id");  SQC_ON_DELETE("cascade");
 		SQT_CUSTOM_AS(User, posts, SQ_TYPE_INTPTR_ARRAY, -1);
+#if   1
+		SQT_TIMESTAMP_AS(User, created_at);  SQC_USE_CURRENT();
+		SQT_TIMESTAMP_AS(User, updated_at);  SQC_USE_CURRENT();  SQC_USE_CURRENT_ON_UPDATE();
+#elif 0
+		SQT_TIMESTAMPS_AS(User, created_at, updated_at);
+#else
+		SQT_TIMESTAMPS_STRUCT(User);
+#endif
 	});
 
 #if 0
@@ -224,7 +240,10 @@ void  create_user_table_by_macro(SqSchema *schema)
 		SQT_STRING("name", User, name, -1);
 		SQT_STRING("email", User, email, -1);
 		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
-		SQT_CUSTOM("posts", User, posts, SQ_TYPE_INTPTR_ARRAY);
+		SQT_INTEGER("company_id", User, company_id);  SQC_REFERENCE("companies", "id");  SQC_ON_DELETE("cascade");
+		SQT_CUSTOM("posts", User, posts, SQ_TYPE_INTPTR_ARRAY, -1);
+		SQT_TIMESTAMP("created_at", User, created_at);  SQC_USE_CURRENT();
+		SQT_TIMESTAMP("updated_at", User, updated_at);  SQC_USE_CURRENT();  SQC_USE_CURRENT_ON_UPDATE();
 	});
 #endif
 }
@@ -246,7 +265,6 @@ void create_company_table_by_c(SqSchema *schema)
 	SqTable  *table;
 	SqColumn *column;
 
-	// change schema
 	table = sq_schema_create(schema, "companies", Company);
 	column = sq_table_add_integer(table, "id", offsetof(Company, id));
 	sq_column_primary(column);
@@ -254,6 +272,23 @@ void create_company_table_by_c(SqSchema *schema)
 	column = sq_table_add_integer(table, "city_id", offsetof(Company, city_id));
 	sq_column_foreign(column, "cities", "id");
 //	sq_column_on_delete(column, "set null");
+
+	column = sq_table_add_timestamp(table, "created_at", offsetof(Company, created_at));
+	sq_column_use_current(column);
+	column = sq_table_add_timestamp(table, "updated_at", offsetof(Company, updated_at));
+	sq_column_use_current(column);
+	sq_column_use_current_on_update(column);
+}
+
+void change_company_table_by_c(SqSchema *schema)
+{
+	SqTable  *table;
+
+	// ALTER TABLE
+	table = sq_schema_alter(schema, "companies", NULL);
+	// DROP COLUMN
+	sq_table_drop_column(table, "created_at");
+	sq_table_drop_column(table, "updated_at");
 }
 
 void create_city_table_by_c(SqSchema *schema)
@@ -261,11 +296,31 @@ void create_city_table_by_c(SqSchema *schema)
 	SqTable  *table;
 	SqColumn *column;
 
-	// change schema
 	table = sq_schema_create(schema, "cities", City);
 	column = sq_table_add_integer(table, "id", offsetof(City, id));
 	sq_column_primary(column);
 	column = sq_table_add_string(table, "name", offsetof(City, name), 0);
+}
+
+void change_city_table_by_c(SqSchema *schema)
+{
+	SqTable  *table;
+	SqColumn *column;
+
+	// ALTER TABLE
+	table = sq_schema_alter(schema, "cities", NULL);
+	// ALTER COLUMN name
+	column = sq_table_add_string(table, "name", offsetof(City, name), 256);
+	sq_column_change(column);
+	// ADD COLUMN chars
+	column = sq_table_add_char(table, "chars", offsetof(City, chars), 20);
+	// ADD COLUMN updated_at
+	column = sq_table_add_timestamp(table, "created_at", offsetof(City, created_at));
+	sq_column_use_current(column);
+	// ADD COLUMN updated_at
+	column = sq_table_add_timestamp(table, "updated_at", offsetof(City, updated_at));
+	sq_column_use_current(column);
+	sq_column_use_current_on_update(column);
 }
 
 // ----------------------------------------------------------------------------
@@ -277,6 +332,8 @@ void test_sqdb_migrate(Sqdb *db)
 	SqSchema   *schema_v2;
 	SqSchema   *schema_v3;
 	SqSchema   *schema_v4;
+	SqSchema   *schema_v5;
+	SqSchema   *schema_v6;
 
 	schema  = sq_schema_new("current");
 	schema->version = 0;
@@ -298,14 +355,24 @@ void test_sqdb_migrate(Sqdb *db)
 	schema_v4 = sq_schema_new("ver4");
 	schema_v4->version = 4;
 	change_user_table_by_c_type(schema_v4);
-	// other testing in 'schema_v4'
-	sq_schema_rename(schema_v4, "cities", "cities2");
-//	sq_schema_drop(schema_v4, "users");
+
+	schema_v5 = sq_schema_new("ver5");
+	schema_v5->version = 5;
+	change_company_table_by_c(schema_v5);
+
+	schema_v6 = sq_schema_new("ver6");
+	schema_v6->version = 6;
+	change_city_table_by_c(schema_v6);
+	// other testing in 'schema_v6'
+	sq_schema_rename(schema_v6, "cities", "cities2");
+//	sq_schema_drop(schema_v6, "users");
 
 	sqdb_migrate(db, schema, schema_v1);
 	sqdb_migrate(db, schema, schema_v2);
 	sqdb_migrate(db, schema, schema_v3);
 	sqdb_migrate(db, schema, schema_v4);
+	sqdb_migrate(db, schema, schema_v5);
+	sqdb_migrate(db, schema, schema_v6);
 	sqdb_migrate(db, schema, NULL);
 
 	sq_schema_free(schema);
@@ -313,6 +380,8 @@ void test_sqdb_migrate(Sqdb *db)
 	sq_schema_free(schema_v2);
 	sq_schema_free(schema_v3);
 	sq_schema_free(schema_v4);
+	sq_schema_free(schema_v5);
+	sq_schema_free(schema_v6);
 }
 
 void test_sqdb_migrate_sqlite_sync(Sqdb *db)

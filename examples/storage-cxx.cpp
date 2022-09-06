@@ -76,7 +76,8 @@ struct Company
 	char  *address;
 	double salary;
 
-	time_t updated_at;   // alter table add column
+	time_t        created_at;   // alter table
+	time_t        updated_at;   // alter table
 
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array (vector) in SQL column
 	Sq::IntptrArray  ints;    // C array for intptr_t
@@ -272,7 +273,6 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table = schemaVer3->alter("users");
 	table->string("name", &User::name, 256)->nullable()->change();
 	table->uint("test_add", &User::test_add);
-	table->dropColumn("updated_at");
 	table->dropForeign("users_companies_id_foreign");
 
 	// --- schema version 4 ---
@@ -285,8 +285,9 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	// --- schema version 5 ---
 	schemaVer5 = new Sq::Schema("Ver5");
 	schemaVer5->version = 5;
-	// ALTER TABLE companies ADD COLUMN updated_at
+	// ALTER TABLE companies ADD COLUMN
 	table = schemaVer5->alter("companies");
+	table->timestamp("created_at", &Company::created_at)->useCurrent();
 	table->timestamp("updated_at", &Company::updated_at)->useCurrent()->useCurrentOnUpdate();
 
 	// migrate schema version from 1 to 5 to storage->schema
