@@ -23,7 +23,9 @@ set(CMAKE_MODULE_PATH
 # set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H")
 
 # use find_package(PkgConfig REQUIRED) before use pkg-config module
-find_package(PkgConfig REQUIRED)
+if (NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+	find_package(PkgConfig REQUIRED)
+endif ()
 
 # pkg-config module
 if (PKG_CONFIG_FOUND)
@@ -41,8 +43,8 @@ if (PKG_CONFIG_FOUND)
 		pkg_check_modules(MYSQL mariadb)
 		if (MYSQL_FOUND)
 			set(MARIADB_PC_FOUND true)
-		endif()
-	endif(MYSQL_FOUND)
+		endif ()
+	endif (MYSQL_FOUND)
 
 	pkg_check_modules(PostgreSQL libpq)
 	if (PostgreSQL_FOUND)
@@ -58,15 +60,11 @@ endif ()
 # find MySQL if mysqlclient.pc (or mariadb.pc) not found
 if (NOT DEFINED MYSQL_FOUND OR NOT MYSQL_FOUND)
 	find_package(MYSQL)
-endif()
+endif ()
 
 # find PostgreSQL if libpq.pc not found
 if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
-	# for Windows: If no directory in PostgreSQL_INCLUDE_DIRS
-	if (PostgreSQL_FOUND AND PostgreSQL_INCLUDE_DIRS STREQUAL "")
-		set(PostgreSQL_FOUND false)
-	endif ()
 endif ()
 
 # --- SQLite ---
@@ -100,7 +98,7 @@ if (MYSQL_FOUND AND (NOT DEFINED MYSQLCLIENT_PC_FOUND AND NOT DEFINED MARIADB_PC
 		    ${SQXC_LIBRARIES}
 		    legacy_stdio_definitions.lib
 		)
-	endif()
+	endif ()
 	# --- debug message ---
 	message(STATUS "MySQL include dirs: ${MYSQL_INCLUDE_DIRS}")
 	message(STATUS "MySQL libraries: ${MYSQL_LIBRARIES}")

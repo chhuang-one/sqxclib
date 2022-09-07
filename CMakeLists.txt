@@ -44,7 +44,9 @@ include(GNUInstallDirs)
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 
 # use find_package(PkgConfig REQUIRED) before use pkg-config module
-find_package(PkgConfig REQUIRED)
+if (NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+	find_package(PkgConfig REQUIRED)
+endif ()
 
 # pkg-config module
 if (PKG_CONFIG_FOUND)
@@ -62,8 +64,8 @@ if (PKG_CONFIG_FOUND)
 		pkg_check_modules(MYSQL mariadb)
 		if (MYSQL_FOUND)
 			set(MARIADB_PC_FOUND true)
-		endif()
-	endif(MYSQL_FOUND)
+		endif ()
+	endif (MYSQL_FOUND)
 
 	pkg_check_modules(PostgreSQL libpq)
 	if (PostgreSQL_FOUND)
@@ -86,15 +88,11 @@ endif ()
 # find MySQL if mysqlclient.pc (or mariadb.pc) not found
 if (NOT DEFINED MYSQL_FOUND OR NOT MYSQL_FOUND)
 	find_package(MYSQL)
-endif()
+endif ()
 
 # find PostgreSQL if libpq.pc not found
 if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
-	# for Windows: If no directory in PostgreSQL_INCLUDE_DIRS
-	if (PostgreSQL_FOUND AND PostgreSQL_INCLUDE_DIRS STREQUAL "")
-		set(PostgreSQL_FOUND false)
-	endif ()
 endif ()
 
 # --- thread ---
@@ -111,7 +109,7 @@ if (Threads_FOUND)
 	set(SQXCLIB_HAVE_THREAD    1)
 elseif (WIN32)
 	set(SQXCLIB_HAVE_THREAD    1)
-else()
+else ()
 	set(SQXCLIB_HAVE_THREAD    0)
 endif (Threads_FOUND)
 
@@ -130,7 +128,7 @@ if (JSONC_FOUND)
 	message(STATUS "json-c libraries: ${JSONC_LIBRARIES}")
 	# --- config.h ---
 	set(SQXCLIB_HAVE_JSONC     1)
-else()
+else ()
 	set(SQXCLIB_HAVE_JSONC     0)
 endif (JSONC_FOUND)
 
@@ -141,7 +139,7 @@ if (SQLite3_FOUND)
 	message(STATUS "SQLite libraries: ${SQLite3_LIBRARIES}")
 	# --- config.h ---
 	set(SQXCLIB_HAVE_SQLITE    1)
-else()
+else ()
 	set(SQXCLIB_HAVE_SQLITE    0)
 endif (SQLite3_FOUND)
 
@@ -152,7 +150,7 @@ if (MYSQL_FOUND)
 	message(STATUS "MySQL libraries: ${MYSQL_LIBRARIES}")
 	# --- config.h ---
 	set(SQXCLIB_HAVE_MYSQL     1)
-else()
+else ()
 	set(SQXCLIB_HAVE_MYSQL     0)
 endif (MYSQL_FOUND)
 
@@ -163,7 +161,7 @@ if (PostgreSQL_FOUND)
 	message(STATUS "PostgreSQL libraries: ${PostgreSQL_LIBRARIES}")
 	# --- config.h ---
 	set(SQXCLIB_HAVE_POSTGRESQL     1)
-else()
+else ()
 	set(SQXCLIB_HAVE_POSTGRESQL     0)
 endif (PostgreSQL_FOUND)
 
@@ -178,7 +176,7 @@ endif ()
 if (DEFINED SQXCLIB_HAVE_SQLITE)
 	if (DEFINED SQLite3_PC_FOUND)
 		set(SQXCLIB_PC_REQUIRE_SQLITE   "sqlite3")
-	endif()
+	endif ()
 	set(SQXCLIB_PC_LIB_SQLITE       "-lsqxc_sqlite")
 endif (DEFINED SQXCLIB_HAVE_SQLITE)
 
@@ -195,7 +193,7 @@ endif (DEFINED SQXCLIB_HAVE_MYSQL)
 if (DEFINED SQXCLIB_HAVE_POSTGRESQL)
 	if (DEFINED PostgreSQL_PC_FOUND)
 		set(SQXCLIB_PC_REQUIRE_POSTGRESQL  "libpq")
-	endif()
+	endif ()
 	set(SQXCLIB_PC_LIB_POSTGRESQL       "-lsqxc_postgre")
 endif (DEFINED SQXCLIB_HAVE_POSTGRESQL)
 
