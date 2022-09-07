@@ -224,14 +224,8 @@ void  create_user_table_by_macro(SqSchema *schema)
 		SQT_INTEGER_AS(User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
 		SQT_INTEGER_AS(User, company_id);  SQC_REFERENCE("companies", "id");  SQC_ON_DELETE("cascade");
 		SQT_CUSTOM_AS(User, posts, SQ_TYPE_INTPTR_ARRAY, -1);
-#if   1
 		SQT_TIMESTAMP_AS(User, created_at);  SQC_USE_CURRENT();
 		SQT_TIMESTAMP_AS(User, updated_at);  SQC_USE_CURRENT();  SQC_USE_CURRENT_ON_UPDATE();
-#elif 0
-		SQT_TIMESTAMPS_AS(User, created_at, updated_at);
-#else
-		SQT_TIMESTAMPS_STRUCT(User);
-#endif
 	});
 
 #if 0
@@ -432,43 +426,55 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 // ----------------------------------------------------------------------------
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-SqdbConfigSqlite db_config = {
+SqdbConfigSqlite db_config_sqlite = {
 //	.folder = "/tmp",
 	.folder = ".",
 	.extension = "db",
 };
 
+const SqdbInfo *db_info   = SQDB_INFO_SQLITE;
+SqdbConfig     *db_config = (SqdbConfig*) &db_config_sqlite;
+
 #elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
-SqdbConfigMysql  db_config = {
+SqdbConfigMysql  db_config_mysql = {
 	.host     = "localhost",
 	.port     = 3306,
 	.user     = "root",
 	.password = "",
 };
 
+const SqdbInfo *db_info   = SQDB_INFO_MYSQL;
+SqdbConfig     *db_config = (SqdbConfig*) &db_config_mysql;
+
 #elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
-SqdbConfigPostgre  db_config = {
+SqdbConfigPostgre  db_config_postgre = {
 	.host     = "localhost",
 	.port     = 5432,
 	.user     = "postgre",
 	.password = "",
 };
 
+const SqdbInfo *db_info   = SQDB_INFO_POSTGRE;
+SqdbConfig     *db_config = (SqdbConfig*) &db_config_postgre;
+
+#else
+
+const SqdbInfo *db_info   = NULL;
+SqdbConfig     *db_config = NULL;
+
 #endif
+
 
 int  main(void)
 {
 	Sqdb   *db;
 
-#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &db_config);
-#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
-	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &db_config);
-#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
-	db = sqdb_new(SQDB_INFO_POSTGRE, (SqdbConfig*) &db_config);
-#else
-	#error No supported database
-#endif
+	if (db_info == NULL) {
+		fprintf(stderr, "No supported database.\n");
+		return EXIT_SUCCESS;
+	}
+
+	db = sqdb_new(db_info, db_config);
 
 	if (sqdb_open(db, "test-migration") != SQCODE_OK) {
 		fprintf(stderr, "Can't open database - %s\n", "test-migration");

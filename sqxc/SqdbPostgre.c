@@ -26,6 +26,7 @@
 #ifdef _MSC_VER
 #define snprintf     _snprintf
 #define strtoll      _strtoi64
+#define strcasecmp   _stricmp
 #endif
 
 #define POSTGRE_DEFAULT_HOST      "localhost"
@@ -129,10 +130,10 @@ static int  sqdb_postgre_close(SqdbPostgre *sqdb)
 
 static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void *reserve)
 {
-	PGresult    *results;
-	unsigned int n_fields;
-	unsigned int n_tuples;
-	int          code = SQCODE_OK;
+	PGresult  *results;
+	int        n_fields;
+	int        n_tuples;
+	int        code = SQCODE_OK;
 	// used by INSERT
 	int   sql_len;
 	char *sql_new = NULL;
@@ -221,7 +222,7 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 		case 'I':    // INSERT
 		case 'i':    // insert
 			// for last inserted row id
-			sql_len = strlen(sql);
+			sql_len = (int) strlen(sql);
 			sql_new = malloc(sql_len + 14);    // + " RETURNING id" "\0"
 			strcpy(sql_new, sql);
 			strcat(sql_new, " RETURNING id");

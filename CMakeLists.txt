@@ -44,9 +44,7 @@ include(GNUInstallDirs)
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 
 # use find_package(PkgConfig REQUIRED) before use pkg-config module
-if (NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-	find_package(PkgConfig REQUIRED)
-endif ()
+find_package(PkgConfig REQUIRED)
 
 # pkg-config module
 if (PKG_CONFIG_FOUND)
@@ -69,7 +67,12 @@ if (PKG_CONFIG_FOUND)
 
 	pkg_check_modules(PostgreSQL libpq)
 	if (PostgreSQL_FOUND)
-		set(PostgreSQL_PC_FOUND true)
+		# for Windows: If no directory in PostgreSQL_INCLUDE_DIRS
+		if (CMAKE_C_COMPILER_ID STREQUAL "MSVC" AND PostgreSQL_INCLUDE_DIRS STREQUAL "")
+			set(PostgreSQL_FOUND false)
+		else ()
+			set(PostgreSQL_PC_FOUND true)
+		endif ()
 	endif (PostgreSQL_FOUND)
 endif (PKG_CONFIG_FOUND)
 
