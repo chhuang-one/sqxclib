@@ -165,7 +165,7 @@ static const SqColumn  userColumns[8] = {
 
 	// 外键 FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    0,
-		NULL, 0, 0, NULL, NULL,        // .old_name, .size, .digits, .default_value, .check
+		NULL, 0, 0, NULL,              // .old_name, .size, .digits, .default_value,
 		(SqForeign*) &userForeign},    // .foreign
 
 	// C++ std::string

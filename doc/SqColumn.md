@@ -34,11 +34,11 @@ struct SqColumn
 	int16_t       digits;
 
 	const char   *default_value;    // DEFAULT
-	const char   *check;            // CHECK (condition)
 
 	SqForeign    *foreign;          // foreign key
 	char        **composite;        // Null-terminated (column-name) string array
 
+	const char   *reserve;          // reserve
 	const char   *raw;              // raw SQL column property
 };
 ```

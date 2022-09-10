@@ -34,11 +34,11 @@ struct SqColumn
 	int16_t       digits;
 
 	const char   *default_value;    // DEFAULT
-	const char   *check;            // CHECK (condition)
 
 	SqForeign    *foreign;          // 外键
 	char        **composite;        // Null-terminated （列名）字符串数组
 
+	const char   *reserve;          // 保留
 	const char   *raw;              // 原始 SQL 列属性
 };
 ```

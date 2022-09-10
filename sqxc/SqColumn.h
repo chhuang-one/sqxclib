@@ -144,9 +144,9 @@ struct SqForeign
 	int16_t      size;          \
 	int16_t      digits;        \
 	const char  *default_value; \
-	const char  *check;         \
 	SqForeign   *foreign;       \
 	char       **composite;     \
+	const char  *reserve;       \
 	const char  *raw
 
 struct SqColumn
@@ -169,17 +169,12 @@ struct SqColumn
 	int16_t       digits;
 
 	const char   *default_value;    // DEFAULT
-	const char   *check;            // CHECK (condition)
 
 	SqForeign    *foreign;          // foreign key
 	char        **composite;        // Null-terminated (column-name) string array
 
+	const char   *reserve;          // reserve, set it to NULL.
 	const char   *raw;              // raw SQL column property
-
-//	struct SqExtra {
-//		char    *comment;           // COMMENT
-//		char    *others;
-//	} *extra;
 
 	// if column->name is NULL, it will drop column->old_name
 	// if column->name is NOT NULL, it will rename from column->old_name to column->name
