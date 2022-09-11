@@ -39,6 +39,9 @@ void   sq_row_free(SqRow *row);
 void   sq_row_init(SqRow *row, int cols_allocated, int allocated);
 void   sq_row_final(SqRow *row);
 
+// free 'name' in row->cols
+void   sq_row_free_cols_name(SqRow *row);
+
 // User can NOT use this function directly.
 void  *sq_row_alloc_part(SqRow *row, int n_element, int part, size_t element_size);
 
@@ -102,6 +105,7 @@ struct TypeRowMethod : Sq::TypeJointMethod {
 	It's derived struct/class must be C++11 standard-layout and has SqRow members.
  */
 struct RowMethod {
+	void           freeColsName(void);
 	Sq::Value     *alloc(int  n_element = 1);
 	Sq::RowColumn *allocColumn(int  n_element = 1);
 };
@@ -189,6 +193,9 @@ namespace Sq {
 /* define TypeRowMethod functions. */
 
 /* define RowMethod functions. */
+void RowMethod::freeColsName(void) {
+	sq_row_free_cols_name((SqRow*)this);
+}
 Sq::Value *RowMethod::alloc(int  n_element) {
 	return sq_row_alloc((SqRow*)this, n_element);
 }

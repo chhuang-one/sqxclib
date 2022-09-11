@@ -91,6 +91,18 @@ void  sq_row_final(SqRow *row)
 	free(row->cols);
 }
 
+void   sq_row_free_cols_name(SqRow *row)
+{
+	SqRowColumn *col;
+	int          index;
+
+	for (index = 0;  index < row->cols_length;  index++) {
+		col = row->cols + index;
+		free((char*)col->name);
+		col->name = NULL;
+	}
+}
+
 void *sq_row_alloc_part(SqRow *row, int n_element, int part, size_t element_size)
 {
 	RowArray *array = ((RowUnion*)row)->array + part;
