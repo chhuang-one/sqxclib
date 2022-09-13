@@ -676,10 +676,10 @@ below C functions support Subquery or Nested:
 	sq_query_full_join(),
 	sq_query_cross_join(),
 	sq_query_on(),     sq_query_or_on(),
-	sq_query_where(),  sq_query_or_where(),  sq_query_where_exists(),
+	sq_query_where(),  sq_query_or_where(),  sq_query_where_exists(), sq_query_where_not_exists(),
 	sq_query_having(), sq_query_or_having()
 
-Note1: except sq_query_where_exists(), second argument of these functions must be NULL.  
+Note1: except sq_query_where_exists() and sq_query_where_not_exists(), second argument of these functions must be NULL.  
 Note2: you must call sq_query_pop_nested() in end of Subquery (or Nested).  
   
 below C++ method use lambda function to support Subquery or Nested, user don't need to call sq_query_pop_nested()  
@@ -690,7 +690,7 @@ below C++ method use lambda function to support Subquery or Nested, user don't n
 	fullJoin(),
 	crossJoin(),
 	on(),     orOn(),
-	where(),  orWhere(),  whereExists(),
+	where(),  orWhere(),  whereExists(), whereNotExists(),
 	having(), orHaving()
 
 #### Nested

@@ -42,6 +42,7 @@ extern "C" {
 // join on, where, having
 #define SQ_QUERYLOGI_OR       0
 #define SQ_QUERYLOGI_AND      1
+#define SQ_QUERYLOGI_NOT      2
 
 // join
 #define SQ_QUERYJOIN_INNER    0
@@ -200,7 +201,6 @@ void    sq_query_on_logical(SqQuery *query, int logi_type, ...);
 
 // SQL: WHERE
 void    sq_query_where_logical(SqQuery *query, int logi_type, ...);
-bool    sq_query_where_exists(SqQuery *query);
 
 // void sq_query_where(SqQuery *query, ...)
 #define sq_query_where(query, ...)        \
@@ -215,6 +215,16 @@ bool    sq_query_where_exists(SqQuery *query);
 // void sq_query_or_where_raw(SqQuery *query, const char *raw)
 #define sq_query_or_where_raw(query, raw)     \
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
+
+void    sq_query_where_exists_logical(SqQuery *query, int logi_type);
+
+// void sq_query_where_exists(SqQuery *query);
+#define sq_query_where_exists(query)      \
+		sq_query_where_exists_logical(query, SQ_QUERYLOGI_AND)
+
+// void sq_query_where_not_exists(SqQuery *query);
+#define sq_query_where_not_exists(query)      \
+		sq_query_where_exists_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT)
 
 // SQL: GROUP BY
 // the last argument of sq_query_group_by() must be NULL.
@@ -396,6 +406,7 @@ struct QueryMethod
 	Sq::Query &orWhereRaw(const char *raw);
 
 	Sq::Query &whereExists(std::function<void()> func);
+	Sq::Query &whereNotExists(std::function<void()> func);
 
 	// groupBy(column...)
 	template <typename... Args>
@@ -748,6 +759,12 @@ inline Sq::Query &QueryMethod::orWhereRaw(const char *raw) {
 
 inline Sq::Query &QueryMethod::whereExists(std::function<void()> func) {
 	sq_query_where_exists((SqQuery*)this);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+inline Sq::Query &QueryMethod::whereNotExists(std::function<void()> func) {
+	sq_query_where_not_exists((SqQuery*)this);
 	func();
 	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
 	return *(Sq::Query*)this;

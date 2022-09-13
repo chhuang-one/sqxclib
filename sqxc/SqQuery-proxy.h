@@ -101,6 +101,7 @@ public:
 	QueryProxy &orWhereRaw(const char *raw);
 
 	QueryProxy &whereExists(std::function<void()> func);
+	QueryProxy &whereNotExists(std::function<void()> func);
 
 	// groupBy(column...)
 	template <typename... Args>
@@ -359,6 +360,12 @@ inline QueryProxy &QueryProxy::orWhereRaw(const char *raw) {
 
 inline QueryProxy &QueryProxy::whereExists(std::function<void()> func) {
 	sq_query_where_exists(query);
+	func();
+	sq_query_pop_nested(query);    // end of Subquery/Nested
+	return *this;
+}
+inline QueryProxy &QueryProxy::whereNotExists(std::function<void()> func) {
+	sq_query_where_not_exists(query);
 	func();
 	sq_query_pop_nested(query);    // end of Subquery/Nested
 	return *this;

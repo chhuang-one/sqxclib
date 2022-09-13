@@ -676,10 +676,10 @@ SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法
 	sq_query_full_join(),
 	sq_query_cross_join(),
 	sq_query_on(),     sq_query_or_on(),
-	sq_query_where(),  sq_query_or_where(),  sq_query_where_exists(),
+	sq_query_where(),  sq_query_or_where(),  sq_query_where_exists(), sq_query_where_not_exists(),
 	sq_query_having(), sq_query_or_having()
 
-注意 1：除了 sq_query_where_exists()，这些函数的第二个参数必须为 NULL。  
+注意 1：除了 sq_query_where_exists() 和 sq_query_where_not_exists()，这些函数的第二个参数必须为 NULL。  
 注意 2：您必须在子查询或嵌套的末尾调用 sq_query_pop_nested()。  
   
 下面的 C++ 方法使用 lambda 函数来支持子查询或嵌套，用户不需要调用 sq_query_pop_nested()  
@@ -690,7 +690,7 @@ SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法
 	fullJoin(),
 	crossJoin(),
 	on(),     orOn(),
-	where(),  orWhere(),  whereExists(),
+	where(),  orWhere(),  whereExists(), whereNotExists(),
 	having(), orHaving()
 
 #### 嵌套 Nested

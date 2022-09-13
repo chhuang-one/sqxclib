@@ -322,9 +322,8 @@ bool sq_query_distinct(SqQuery *query)
 	return true;
 }
 
-void sq_query_where_logical(SqQuery *query, int logi_type, ...)
+static SqQueryNode *sq_query_node_where_logical(SqQuery *query, int logi_type)
 {
-	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
 	SqQueryNode   *where = nested->where;
 	SqQueryNode   *node;
@@ -339,8 +338,23 @@ void sq_query_where_logical(SqQuery *query, int logi_type, ...)
 
 	if (where->children) {
 		node = sq_query_node_append(where, sq_query_node_new(query));
-		node->type = SQN_OR + (logi_type & (SQ_QUERYARG_RAW-1));
+		node->type = SQN_OR + (logi_type & (~SQ_QUERYLOGI_NOT) & (SQ_QUERYARG_RAW-1));
 	}
+
+	if (logi_type & SQ_QUERYLOGI_NOT) {
+		node = sq_query_node_append(where, sq_query_node_new(query));
+		node->type = SQN_NOT;
+	}
+
+	return where;
+}
+
+void sq_query_where_logical(SqQuery *query, int logi_type, ...)
+{
+	va_list        arg_list;
+	SqQueryNode   *where;
+
+	where = sq_query_node_where_logical(query, logi_type);
 
 	va_start(arg_list, logi_type);
 	if (logi_type & SQ_QUERYARG_RAW) {
@@ -352,25 +366,21 @@ void sq_query_where_logical(SqQuery *query, int logi_type, ...)
 	va_end(arg_list);
 }
 
-bool sq_query_where_exists(SqQuery *query)
+void sq_query_where_exists_logical(SqQuery *query, int logi_type)
 {
-	SqQueryNested *nested = query->nested_cur;
-	SqQueryNode   *where = nested->where;
+	SqQueryNode   *where;
 	SqQueryNode   *node;
 
-	if (where)
-		return false;
-	// insert 'WHERE' in specify position
-	sq_query_node_find(nested->parent, SQN_WHERE, &node);
-	where = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-	where->type = SQN_WHERE;
-	nested->where = where;
+	where = sq_query_node_where_logical(query, logi_type);
 
 	node = sq_query_node_new(query);
 	node->type = SQN_EXISTS;
-	where->children = node;
+	if (where->children)
+		sq_query_node_last(where->children)->next = node;
+	else
+		where->children = node;
+
 	sq_query_push_nested(query, node);
-	return true;
 }
 
 void sq_query_join_full(SqQuery *query, int join_type, const char *table, ...)
