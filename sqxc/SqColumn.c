@@ -71,20 +71,12 @@ void  sq_column_free(SqColumn *column)
 
 void  sq_column_default(SqColumn *column, const char *default_value)
 {
-	if ((column->bit_field & SQB_DYNAMIC) == 0)
-		return;
-
-	free((char*)column->default_value);
-	column->default_value = strdup(default_value);
+	sq_entry_set_str_addr((SqEntry*)column, (char**)&column->default_value, default_value);
 }
 
 void  sq_column_raw(SqColumn *column, const char *raw_property)
 {
-	if ((column->bit_field & SQB_DYNAMIC) == 0)
-		return;
-
-	free((char*)column->raw);
-	column->raw = strdup(raw_property);
+	sq_entry_set_str_addr((SqEntry*)column, (char**)&column->raw, raw_property);
 }
 
 SqColumn *sq_column_copy_static(const SqColumn *column_src)
@@ -101,6 +93,7 @@ SqColumn *sq_column_copy_static(const SqColumn *column_src)
 
 	column->name          = column_src->name ? strdup(column_src->name) : NULL;
 	column->default_value = column_src->default_value ? strdup(column_src->default_value) : NULL;
+	column->reserve       = NULL;
 //	column->reserve       = column_src->reserve ? strdup(column_src->reserve) : NULL;
 	column->raw           = column_src->raw ? strdup(column_src->raw) : NULL;
 	column->old_name      = column_src->old_name ? strdup(column_src->old_name) : NULL;
@@ -161,8 +154,11 @@ void  sq_column_on_delete(SqColumn *column, const char *act)
 {
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
-	if (column->foreign)
-		column->foreign->on_delete = strdup(act);
+
+	if (column->foreign) {
+		free((char*)column->foreign->on_delete);
+		column->foreign->on_delete = (act) ? strdup(act) : NULL;
+	}
 }
 
 // foreign key on update
@@ -170,8 +166,11 @@ void  sq_column_on_update(SqColumn *column, const char *act)
 {
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
-	if (column->foreign)
-		column->foreign->on_update = strdup(act);
+
+	if (column->foreign) {
+		free((char*)column->foreign->on_update);
+		column->foreign->on_update = (act) ? strdup(act) : NULL;
+	}
 }
 
 void  sq_column_set_composite(SqColumn *column, ...)

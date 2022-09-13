@@ -31,7 +31,7 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 #define SQ_TYPE_CONSTRAINT    SQ_TYPE_FAKE0
 #define SQ_TYPE_INDEX         SQ_TYPE_FAKE1
 
-#define SQ_N_COLUMNS(ColumnArray)    ( sizeof(ColumnArray) / sizeof(SqColumn) )
+#define SQ_N_COLUMNS(ColumnArray)    ( sizeof(ColumnArray) / sizeof(ColumnArray[0]) )
 
 // SQL common bit_field
 #define SQB_COLUMN_CHANGED              SQB_CHANGED         // SQL: column has been changed.
