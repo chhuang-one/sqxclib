@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>      // vsnprintf
-#include <inttypes.h>   // PRId64, PRIu64
 
 #include <SqQuery.h>
 
@@ -92,7 +91,7 @@ enum SqQueryNodeType {
 	SQN_EXISTS,    // WHERE
 	SQN_ON,        // JOIN
 	SQN_IN,        // WHERE
-	SQN_BETWEEN,   // WHERE, JOIN
+//	SQN_BETWEEN,   // WHERE, JOIN
 	SQN_LIKE,      // WHERE
 
 	SQN_ASC,       // ORDER BY
@@ -112,8 +111,8 @@ enum SqQueryNodeType {
 	SQN_N_CODE,
 
 	// --------------------------------
-	SQN_VALUE     = (1<<16),
-//	SQN_DEFAULT   = (1<<17),
+	SQN_VALUE      = (1<<16),
+//	SQN_DEFAULT    = (1<<17),
 };
 
 struct SqQueryNested
@@ -322,7 +321,7 @@ bool sq_query_distinct(SqQuery *query)
 	return true;
 }
 
-static SqQueryNode *sq_query_node_where_logical(SqQuery *query, int logi_type)
+static SqQueryNode *sq_query_node_where_logical(SqQuery *query, const char *column_name, int logi_type)
 {
 	SqQueryNested *nested = query->nested_cur;
 	SqQueryNode   *where = nested->where;
@@ -341,6 +340,12 @@ static SqQueryNode *sq_query_node_where_logical(SqQuery *query, int logi_type)
 		node->type = SQN_OR + (logi_type & (~SQ_QUERYLOGI_NOT) & (SQ_QUERYARG_RAW-1));
 	}
 
+	if (column_name) {
+		node = sq_query_node_append(where, sq_query_node_new(query));
+		node->type = SQN_VALUE;
+		node->value = strdup(column_name);
+	}
+
 	if (logi_type & SQ_QUERYLOGI_NOT) {
 		node = sq_query_node_append(where, sq_query_node_new(query));
 		node->type = SQN_NOT;
@@ -354,7 +359,7 @@ void sq_query_where_logical(SqQuery *query, int logi_type, ...)
 	va_list        arg_list;
 	SqQueryNode   *where;
 
-	where = sq_query_node_where_logical(query, logi_type);
+	where = sq_query_node_where_logical(query, NULL, logi_type);
 
 	va_start(arg_list, logi_type);
 	if (logi_type & SQ_QUERYARG_RAW) {
@@ -371,7 +376,7 @@ void sq_query_where_exists_logical(SqQuery *query, int logi_type)
 	SqQueryNode   *where;
 	SqQueryNode   *node;
 
-	where = sq_query_node_where_logical(query, logi_type);
+	where = sq_query_node_where_logical(query, NULL, logi_type);
 
 	node = sq_query_node_new(query);
 	node->type = SQN_EXISTS;
@@ -381,6 +386,42 @@ void sq_query_where_exists_logical(SqQuery *query, int logi_type)
 		where->children = node;
 
 	sq_query_push_nested(query, node);
+}
+
+void sq_query_where_between_logical(SqQuery *query, const char *column_name, int logi_type, const char* format, ...)
+{
+	va_list        arg_list;
+	char          *str;
+	int            length;
+	union {
+		SqQueryNode   *where;
+		SqQueryNode   *node;
+	} temp;
+
+	temp.where = sq_query_node_where_logical(query, column_name, logi_type);
+
+	// printf format string
+	length = strlen(format) *2 + 13 + 1;    // strlen("BETWEEN  AND ") + '\0'
+	str = malloc(length);
+	strcpy(str, "BETWEEN ");
+	strcpy(str +8,  format);    // str + strlen("BETWEEN ")
+	strcat(str +8,  " AND ");
+	strcat(str +13, format);    // str + strlen("BETWEEN  AND ")
+	format = str;
+
+	va_start(arg_list, format);
+#ifdef _MSC_VER		// for MS C only
+	length = _vscprintf(format, arg_list) + 1;
+#else				// for C99 standard
+	length = vsnprintf(NULL, 0, format, arg_list) + 1;
+#endif
+	str = malloc(length);
+	vsnprintf(str, length, format, arg_list);
+	va_end(arg_list);
+
+	temp.node = sq_query_node_append(temp.where, sq_query_node_new(query));
+	temp.node->type = SQN_VALUE;
+	temp.node->value = str;
 }
 
 void sq_query_join_full(SqQuery *query, int join_type, const char *table, ...)
@@ -726,7 +767,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, va_list arg_list)
 #endif
 		node->type = SQN_VALUE;
 		node->value = malloc(temp.length);
-		vsprintf(node->value, argv[0], arg_copy);
+		vsnprintf(node->value, temp.length, argv[0], arg_copy);
 		va_end(arg_copy);
 		return node;
 	}
@@ -1153,7 +1194,7 @@ static const char *sqnword[SQN_N_CODE] = {
 	"EXISTS",            // SQN_EXISTS     // WHERE
 	"ON",                // SQN_ON         // JOIN
 	"IN",                // SQN_IN         // WHERE
-	"BETWEEN",           // SQN_BETWEEN    // WHERE, JOIN
+//	"BETWEEN",           // SQN_BETWEEN    // WHERE, JOIN
 	"LIKE",              // SQN_LIKE       // WHERE
 
 	"ASC",               // SQN_ASC        // ORDER BY

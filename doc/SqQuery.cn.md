@@ -205,6 +205,59 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR members < 100
 	     ->orWhere("members < %d", 100);
 ```
 
+#### whereBetween / orWhereBetween
+
+whereBetween 方法驗證列的值是否在兩個值之間。
+* 这些方法指定 printf 格式字符串一次，使用两次。
+  
+使用 C 语言
+
+```c
+	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
+	sq_query_table(query, "users");
+	sq_query_where_between(query, "votes", "%d", 1, 100);
+
+	// OR name BETWEEN 'Ray' AND 'Zyx'
+	sq_query_or_where_between(query, "name", "'%s'", "Ray", "Zyx");
+```
+
+使用 C++ 语言
+
+```c++
+	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
+	query->table("users")
+	     ->whereBetween("votes", 1, 100);
+
+	// OR name BETWEEN 'Ray' AND 'Zyx'
+	query->orWhereBetWeen("name", "'%s'", "Ray", "Zyx");
+```
+
+#### whereNotBetween / orWhereNotBetween
+
+whereNotBetween 方法驗證列的值是否位於兩個值之外。  
+  
+使用 C 语言
+
+```c
+	// SELECT * FROM users WHERE votes NOT BETWEEN 1 AND 100
+	sq_query_table(query, "users");
+	sq_query_where_not_between(query, "votes", "%d", 1, 100);
+
+	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
+	sq_query_or_where_not_between(query, "name", "'%s'", "Ray", "Zyx");
+```
+
+使用 C++ 语言
+
+```c++
+	// SELECT * FROM users WHERE votes NOT BETWEEN 1 AND 100
+	query->table("users")
+	     ->whereNotBetween("votes", 1, 100);
+
+	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
+	query->orWhereNotBetWeen("name", "'%s'", "Ray", "Zyx");
+```
+
 #### having / orHaving
 
 使用 C 语言

@@ -205,6 +205,59 @@ use C++ language
 	     ->orWhere("members < %d", 100);
 ```
 
+#### whereBetween / orWhereBetween
+
+The whereBetween method verifies that a column's value is between two values.
+* These method specify printf format string once, use twice.
+  
+use C language
+
+```c
+	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
+	sq_query_table(query, "users");
+	sq_query_where_between(query, "votes", "%d", 1, 100);
+
+	// OR name BETWEEN 'Ray' AND 'Zyx'
+	sq_query_or_where_between(query, "name", "'%s'", "Ray", "Zyx");
+```
+
+use C++ language
+
+```c++
+	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
+	query->table("users")
+	     ->whereBetween("votes", 1, 100);
+
+	// OR name BETWEEN 'Ray' AND 'Zyx'
+	query->orWhereBetWeen("name", "'%s'", "Ray", "Zyx");
+```
+
+#### whereNotBetween / orWhereNotBetween
+
+The whereNotBetween method verifies that a column's value lies outside of two values.  
+  
+use C language
+
+```c
+	// SELECT * FROM users WHERE votes NOT BETWEEN 1 AND 100
+	sq_query_table(query, "users");
+	sq_query_where_not_between(query, "votes", "%d", 1, 100);
+
+	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
+	sq_query_or_where_not_between(query, "name", "'%s'", "Ray", "Zyx");
+```
+
+use C++ language
+
+```c++
+	// SELECT * FROM users WHERE votes NOT BETWEEN 1 AND 100
+	query->table("users")
+	     ->whereNotBetween("votes", 1, 100);
+
+	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
+	query->orWhereNotBetWeen("name", "'%s'", "Ray", "Zyx");
+```
+
 #### having / orHaving
 
 use C language
