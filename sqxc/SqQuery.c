@@ -90,7 +90,7 @@ enum SqQueryNodeType {
 	SQN_NOT,       // WHERE
 	SQN_EXISTS,    // WHERE
 	SQN_ON,        // JOIN
-	SQN_IN,        // WHERE
+//	SQN_IN,        // WHERE
 //	SQN_BETWEEN,   // WHERE, JOIN
 	SQN_LIKE,      // WHERE
 
@@ -1244,7 +1244,7 @@ static const char *sqnword[SQN_N_CODE] = {
 	"NOT",               // SQN_NOT        // WHERE
 	"EXISTS",            // SQN_EXISTS     // WHERE
 	"ON",                // SQN_ON         // JOIN
-	"IN",                // SQN_IN         // WHERE
+//	"IN",                // SQN_IN         // WHERE
 //	"BETWEEN",           // SQN_BETWEEN    // WHERE, JOIN
 	"LIKE",              // SQN_LIKE       // WHERE
 

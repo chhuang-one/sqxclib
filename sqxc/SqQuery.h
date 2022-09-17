@@ -1369,8 +1369,21 @@ namespace Sq {
 	|
 	+--- Where
 	|
-	`--- WhereRaw
+	+--- WhereRaw
+    |
+	+--- WhereExists
+    |
+	+--- WhereNotExists
+    |
+	+--- WhereBetween
+    |
+	+--- WhereNotBetween
+    |
+	+--- WhereIn
+    |
+	`--- WhereNotIn
  */
+
 class Where : public Sq::QueryProxy
 {
 public:
@@ -1441,8 +1454,381 @@ public:
 	}
 };
 
-typedef Where       where;
-typedef WhereRaw    whereRaw;
+class WhereExists : public Sq::QueryProxy
+{
+public:
+	// constructor
+	WhereExists(std::function<void(SqQuery *query)> func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_exists(query);
+		func(query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+	}
+	WhereExists(std::function<void(SqQuery &query)> func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_exists(query);
+		func(*query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+	}
+	WhereExists() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereExists() {
+		sq_query_free(query);
+	}
+
+	// operator
+	WhereExists &operator()(std::function<void(SqQuery *query)> func) {
+		sq_query_where_exists(query);
+		func(query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+		return *this;
+	}
+	WhereExists &operator()(std::function<void(SqQuery &query)> func) {
+		sq_query_where_exists(query);
+		func(*query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+		return *this;
+	}
+};
+
+class WhereNotExists : public Sq::QueryProxy
+{
+public:
+	// constructor
+	WhereNotExists(std::function<void(SqQuery *query)> func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_exists(query);
+		func(query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+	}
+	WhereNotExists(std::function<void(SqQuery &query)> func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_exists(query);
+		func(*query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+	}
+	WhereNotExists() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereNotExists() {
+		sq_query_free(query);
+	}
+
+	// operator
+	WhereNotExists &operator()(std::function<void(SqQuery *query)> func) {
+		sq_query_where_not_exists(query);
+		func(query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+		return *this;
+	}
+	WhereNotExists &operator()(std::function<void(SqQuery &query)> func) {
+		sq_query_where_not_exists(query);
+		func(*query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+		return *this;
+	}
+};
+
+class WhereBetween : public Sq::QueryProxy
+{
+public:
+	// constructor
+	WhereBetween(const char *columnName, int value1, int value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_between(query, columnName, "%d", value1, value2);
+	}
+	WhereBetween(const char *columnName, int64_t value1, int64_t value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_between(query, columnName, "%" PRId64, value1, value2);
+	}
+	WhereBetween(const char *columnName, double value1, double value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_between(query, columnName, "%f", value1, value2);
+	}
+	WhereBetween(const char *columnName, const char value1, const char value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_between(query, columnName, "'%c'", value1, value2);
+	}
+	WhereBetween(const char *columnName, const char *value1, const char *value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_between(query, columnName, "%s", value1, value2);
+	}
+	template <typename... Args>
+	WhereBetween(const char *columnName, const char *format, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_between(query, columnName, format, args...);
+	}
+	WhereBetween() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereBetween() {
+		sq_query_free(query);
+	}
+
+	// operator
+	WhereBetween &operator()(const char *columnName, int value1, int value2) {
+		sq_query_where_between(query, columnName, "%d", value1, value2);
+		return *this;
+	}
+	WhereBetween &operator()(const char *columnName, int64_t value1, int64_t value2) {
+		sq_query_where_between(query, columnName, "%" PRId64, value1, value2);
+		return *this;
+	}
+	WhereBetween &operator()(const char *columnName, double value1, double value2) {
+		sq_query_where_between(query, columnName, "%f", value1, value2);
+		return *this;
+	}
+	WhereBetween &operator()(const char *columnName, const char value1, const char value2) {
+		sq_query_where_between(query, columnName, "'%c'", value1, value2);
+		return *this;
+	}
+	WhereBetween &operator()(const char *columnName, const char *value1, const char *value2) {
+		sq_query_where_between(query, columnName, "%s", value1, value2);
+		return *this;
+	}
+	template <typename... Args>
+	WhereBetween &operator()(const char *columnName, const char *format, const Args... args) {
+		sq_query_where_between(query, columnName, format, args...);
+		return *this;
+	}
+};
+
+class WhereNotBetween : public Sq::QueryProxy
+{
+public:
+	// constructor
+	WhereNotBetween(const char *columnName, int value1, int value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_between(query, columnName, "%d", value1, value2);
+	}
+	WhereNotBetween(const char *columnName, int64_t value1, int64_t value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_between(query, columnName, "%" PRId64, value1, value2);
+	}
+	WhereNotBetween(const char *columnName, double value1, double value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_between(query, columnName, "%f", value1, value2);
+	}
+	WhereNotBetween(const char *columnName, const char value1, const char value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_between(query, columnName, "'%c'", value1, value2);
+	}
+	WhereNotBetween(const char *columnName, const char *value1, const char *value2) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_between(query, columnName, "%s", value1, value2);
+	}
+	template <typename... Args>
+	WhereNotBetween(const char *columnName, const char *format, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_between(query, columnName, format, args...);
+	}
+	WhereNotBetween() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereNotBetween() {
+		sq_query_free(query);
+	}
+
+	// operator
+	WhereNotBetween &operator()(const char *columnName, int value1, int value2) {
+		sq_query_where_not_between(query, columnName, "%d", value1, value2);
+		return *this;
+	}
+	WhereNotBetween &operator()(const char *columnName, int64_t value1, int64_t value2) {
+		sq_query_where_not_between(query, columnName, "%" PRId64, value1, value2);
+		return *this;
+	}
+	WhereNotBetween &operator()(const char *columnName, double value1, double value2) {
+		sq_query_where_not_between(query, columnName, "%f", value1, value2);
+		return *this;
+	}
+	WhereNotBetween &operator()(const char *columnName, const char value1, const char value2) {
+		sq_query_where_not_between(query, columnName, "'%c'", value1, value2);
+		return *this;
+	}
+	WhereNotBetween &operator()(const char *columnName, const char *value1, const char *value2) {
+		sq_query_where_not_between(query, columnName, "%s", value1, value2);
+		return *this;
+	}
+	template <typename... Args>
+	WhereNotBetween &operator()(const char *columnName, const char *format, const Args... args) {
+		sq_query_where_not_between(query, columnName, format, args...);
+		return *this;
+	}
+};
+
+class WhereIn : public Sq::QueryProxy
+{
+public:
+	// constructor
+	template <typename... Args>
+	WhereIn(const char *columnName, int first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
+	}
+	template <typename... Args>
+	WhereIn(const char *columnName, int64_t first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+	}
+	template <typename... Args>
+	WhereIn(const char *columnName, double first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
+	}
+	template <typename... Args>
+	WhereIn(const char *columnName, const char first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+	}
+	template <typename... Args>
+	WhereIn(const char *columnName, const char *first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
+	}
+	template <typename... Args>
+	WhereIn(const char *columnName, int dont_care, const char *format, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_in(query, columnName, sizeof...(args), format, args...);
+	}
+	WhereIn() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereIn() {
+		sq_query_free(query);
+	}
+
+	// operator
+	template <typename... Args>
+	WhereIn &operator()(const char *columnName, int first_value, const Args... args) {
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereIn &operator()(const char *columnName, int64_t first_value, const Args... args) {
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereIn &operator()(const char *columnName, double first_value, const Args... args) {
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereIn &operator()(const char *columnName, const char first_value, const Args... args) {
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereIn &operator()(const char *columnName, const char *first_value, const Args... args) {
+		sq_query_where_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereIn &operator()(const char *columnName, int dont_care, const char *format, const Args... args) {
+		sq_query_where_in(query, columnName, sizeof...(args), format, args...);
+		return *this;
+	}
+};
+
+class WhereNotIn : public Sq::QueryProxy
+{
+public:
+	// constructor
+	template <typename... Args>
+	WhereNotIn(const char *columnName, int first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
+	}
+	template <typename... Args>
+	WhereNotIn(const char *columnName, int64_t first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+	}
+	template <typename... Args>
+	WhereNotIn(const char *columnName, double first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
+	}
+	template <typename... Args>
+	WhereNotIn(const char *columnName, const char first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+	}
+	template <typename... Args>
+	WhereNotIn(const char *columnName, const char *first_value, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
+	}
+	template <typename... Args>
+	WhereNotIn(const char *columnName, int dont_care, const char *format, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_in(query, columnName, sizeof...(args), format, args...);
+	}
+	WhereNotIn() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereNotIn() {
+		sq_query_free(query);
+	}
+
+	// operator
+	template <typename... Args>
+	WhereNotIn &operator()(const char *columnName, int first_value, const Args... args) {
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereNotIn &operator()(const char *columnName, int64_t first_value, const Args... args) {
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereNotIn &operator()(const char *columnName, double first_value, const Args... args) {
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereNotIn &operator()(const char *columnName, const char first_value, const Args... args) {
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereNotIn &operator()(const char *columnName, const char *first_value, const Args... args) {
+		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
+		return *this;
+	}
+	template <typename... Args>
+	WhereNotIn &operator()(const char *columnName, int dont_care, const char *format, const Args... args) {
+		sq_query_where_not_in(query, columnName, sizeof...(args), format, args...);
+		return *this;
+	}
+};
+
+typedef Where              where;
+typedef WhereRaw           whereRaw;
+
+typedef WhereExists        whereExists;
+typedef WhereNotExists     whereNotExists;
+
+typedef WhereBetween       whereBetween;
+typedef WhereNotBetween    whereNotBetween;
+
+typedef WhereIn            whereIn;
+typedef WhereNotIn         whereNotIn;
 
 };  // namespace Sq
 

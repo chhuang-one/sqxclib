@@ -161,6 +161,32 @@ void test_query_cpp_convenient_class()
 	sql = Sq::whereRaw("id < 13").orWhere("city_id < %d", 22).c();
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE id < 13 OR city_id < 22") == 0);
+
+	// whereExists
+	sql = Sq::whereExists([](SqQuery *query) {
+		query->from("user")
+		     ->whereIn("id", 3, 7, 11);
+	}).c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "WHERE EXISTS ( SELECT * FROM user WHERE id IN (3,7,11) )") == 0);
+
+	// whereNotExists
+	sql = Sq::whereNotExists([](SqQuery &query) {
+		query.from("user")
+		     .whereNotIn("id", 3, 7, 11);
+	}).c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "WHERE NOT EXISTS ( SELECT * FROM user WHERE id NOT IN (3,7,11) )") == 0);
+
+	// whereBetween
+	sql = Sq::whereBetween("id", 1, 13).orWhereBetween("city_id", 22, 50).c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "WHERE id BETWEEN 1 AND 13 OR city_id BETWEEN 22 AND 50") == 0);
+
+	// whereIn
+	sql = Sq::whereIn("id", 1, 9, 13).orWhereIn("city_id", 22, 50, 74).c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "WHERE id IN (1,9,13) OR city_id IN (22,50,74)") == 0);
 }
 
 void test_query()
