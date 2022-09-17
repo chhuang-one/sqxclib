@@ -950,54 +950,54 @@ inline Sq::Query &QueryMethod::whereNotBetween(const char *columnName, const cha
 }
 
 inline Sq::Query &QueryMethod::orWhereBetween(const char *columnName, int value1, int value2) {
-	sq_query_where_between((SqQuery*)this, columnName, "%d", value1, value2);
+	sq_query_or_where_between((SqQuery*)this, columnName, "%d", value1, value2);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::orWhereBetween(const char *columnName, int64_t value1, int64_t value2) {
-	sq_query_where_between((SqQuery*)this, columnName, "%" PRId64, value1, value2);
+	sq_query_or_where_between((SqQuery*)this, columnName, "%" PRId64, value1, value2);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::orWhereBetween(const char *columnName, double value1, double value2) {
-	sq_query_where_between((SqQuery*)this, columnName, "%f", value1, value2);
+	sq_query_or_where_between((SqQuery*)this, columnName, "%f", value1, value2);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::orWhereBetween(const char *columnName, const char value1, const char value2) {
-	sq_query_where_between((SqQuery*)this, columnName, "'%c'", value1, value2);
+	sq_query_or_where_between((SqQuery*)this, columnName, "'%c'", value1, value2);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::orWhereBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_where_between((SqQuery*)this, columnName, "%s", value1, value2);
+	sq_query_or_where_between((SqQuery*)this, columnName, "%s", value1, value2);
 	return *(Sq::Query*)this;
 }
 template <typename... Args>
 inline Sq::Query &QueryMethod::orWhereBetween(const char *columnName, const char *format, const Args... args) {
-	sq_query_where_between((SqQuery*)this, columnName, format, args...);
+	sq_query_or_where_between((SqQuery*)this, columnName, format, args...);
 	return *(Sq::Query*)this;
 }
 
 inline Sq::Query &QueryMethod::orWhereNotBetween(const char *columnName, int value1, int value2) {
-	sq_query_where_not_between((SqQuery*)this, columnName, "%d", value1, value2);
+	sq_query_or_where_not_between((SqQuery*)this, columnName, "%d", value1, value2);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::orWhereNotBetween(const char *columnName, int64_t value1, int64_t value2) {
-	sq_query_where_not_between((SqQuery*)this, columnName, "%" PRId64, value1, value2);
+	sq_query_or_where_not_between((SqQuery*)this, columnName, "%" PRId64, value1, value2);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::orWhereNotBetween(const char *columnName, double value1, double value2) {
-	sq_query_where_not_between((SqQuery*)this, columnName, "%f", value1, value2);
+	sq_query_or_where_not_between((SqQuery*)this, columnName, "%f", value1, value2);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::orWhereNotBetween(const char *columnName, const char value1, const char value2) {
-	sq_query_where_not_between((SqQuery*)this, columnName, "'%c'", value1, value2);
+	sq_query_or_where_not_between((SqQuery*)this, columnName, "'%c'", value1, value2);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::orWhereNotBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_where_not_between((SqQuery*)this, columnName, "%s", value1, value2);
+	sq_query_or_where_not_between((SqQuery*)this, columnName, "%s", value1, value2);
 	return *(Sq::Query*)this;
 }
 template <typename... Args>
 inline Sq::Query &QueryMethod::orWhereNotBetween(const char *columnName, const char *format, const Args... args) {
-	sq_query_where_not_between((SqQuery*)this, columnName, format, args...);
+	sq_query_or_where_not_between((SqQuery*)this, columnName, format, args...);
 	return *(Sq::Query*)this;
 }
 
