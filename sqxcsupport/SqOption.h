@@ -31,20 +31,20 @@ extern "C" {
 #endif
 
 /* --- macro functions --- for maintaining C/C++ inline functions easily */
-#define SQ_OPTION_SET_NAME(option, name)    \
-		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->name, name)
+#define SQ_OPTION_SET_NAME(option, name_str)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->name, name_str)
 
-#define SQ_OPTION_SET_SHORTCUT(option, shortcut)    \
-		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->shortcut, shortcut)
+#define SQ_OPTION_SET_SHORTCUT(option, shortcut_str)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->shortcut, shortcut_str)
 
-#define SQ_OPTION_SET_DEFAULT(option, default_value)    \
-		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->default_value, default_value)
+#define SQ_OPTION_SET_DEFAULT(option, default_value_str)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->default_value, default_value_str)
 
-#define SQ_OPTION_SET_VALUE_DESCRIPTION(option, value_description)    \
-		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->value_description, value_description)
+#define SQ_OPTION_SET_VALUE_DESCRIPTION(option, value_description_str)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->value_description, value_description_str)
 
-#define SQ_OPTION_SET_DESCRIPTION(option, description)    \
-		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->description, description)
+#define SQ_OPTION_SET_DESCRIPTION(option, description_str)    \
+		sq_entry_set_str_addr((SqEntry*)option, (char**) &((SqOption*)option)->description, description_str)
 
 /* --- SqOption C functions --- */
 SqOption *sq_option_new(const SqType *type);
