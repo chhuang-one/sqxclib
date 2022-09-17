@@ -258,6 +258,37 @@ use C++ language
 	query->orWhereNotBetWeen("name", "'%s'", "Ray", "Zyx");
 ```
 
+#### whereIn / whereNotIn / orWhereIn / orWhereNotIn
+
+* These method specify printf format string once, use multiple times.
+  
+use C language  
+  
+The third parameter of sq_query_where_in() must specify number of values after printf format string.
+
+```c
+	// SELECT * FROM users WHERE id IN (1,2,4)
+	sq_query_table(query, "users");
+	sq_query_where_in(query, "id", 3, "%d", 1, 2, 4);
+```
+
+use C++ language
+
+```c++
+	// SELECT * FROM users WHERE id IN (1,2,4)
+	query->table("users")
+	     ->whereIn("id", 1, 2, 4);
+```
+
+use C++ language (printf format string)  
+* The second parameter must specify 0 currently if you use whereIn() with printf format string.
+
+```c++
+	// SELECT * FROM users WHERE id IN ('Ray','Alex','Xyz')
+	query->table("users")
+	     ->whereIn("id", 0, "'%s'", "Ray", "Alex", "Xyz");
+```
+
 #### having / orHaving
 
 use C language

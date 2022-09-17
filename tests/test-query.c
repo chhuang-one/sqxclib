@@ -64,7 +64,7 @@ void test_query_c(SqQuery *query)
 	free(sql);
 }
 
-void test_query_c_where_additional(SqQuery *query)
+void test_query_c_where_between(SqQuery *query)
 {
 	char       *sql;
 	const char *result = "SELECT * "
@@ -78,6 +78,29 @@ void test_query_c_where_additional(SqQuery *query)
 	sq_query_where_not_between(query, "votes", "%d", 1, 100);
 	// OR name NOT BETWEEN 'Ra' AND 'Zyx'
 	sq_query_or_where_not_between(query, "name", "'%s'", "Ra", "Zyx");
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	assert(strcmp(sql, result) == 0);
+	puts(sql);
+	free(sql);
+}
+
+void test_query_c_where_in(SqQuery *query)
+{
+	char       *sql;
+	const char *result = "SELECT * "
+	                     "FROM users "
+	                     "WHERE votes NOT IN (1,3,5) "
+	                     "OR name NOT IN ('Alex','Ray','Zyx')";
+
+	// SELECT * FROM users
+	sq_query_from(query, "users");
+	// WHERE votes IN (1,3,5)
+	sq_query_where_not_in(query, "votes", 3, "%d", 1, 3, 5);
+	// OR name NOT IN ('Alex','Ray','Zyx')
+	sq_query_or_where_not_in(query, "name", 3, "'%s'", "Alex", "Ray", "Zyx");
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -293,7 +316,8 @@ int main(int argc, char **argv)
 	query = sq_query_new(NULL);
 
 	test_query_c(query);
-	test_query_c_where_additional(query);
+	test_query_c_where_between(query);
+	test_query_c_where_in(query);
 	test_query_c_raw(query);
 	test_query_c_raw_statement(query);
 	test_query_c_nested(query);

@@ -258,6 +258,37 @@ whereNotBetween 方法驗證列的值是否位於兩個值之外。
 	query->orWhereNotBetWeen("name", "'%s'", "Ray", "Zyx");
 ```
 
+#### whereIn / whereNotIn / orWhereIn / orWhereNotIn
+
+* 這些方法指定 printf 格式字符串一次，使用多次。
+  
+使用 C 语言  
+  
+sq_query_where_in() 的第三個參數必須指定 printf 格式字符串後的值的數量。
+
+```c
+	// SELECT * FROM users WHERE id IN (1,2,4)
+	sq_query_table(query, "users");
+	sq_query_where_in(query, "id", 3, "%d", 1, 2, 4);
+```
+
+使用 C++ 语言
+
+```c++
+	// SELECT * FROM users WHERE id IN (1,2,4)
+	query->table("users")
+	     ->whereIn("id", 1, 2, 4);
+```
+
+使用 C++ 语言 (printf 格式字符串)  
+* 如果您將 whereIn() 與 printf 格式字符串一起使用，則第二個參數當前必須指定 0。
+
+```c++
+	// SELECT * FROM users WHERE id IN ('Ray','Alex','Xyz')
+	query->table("users")
+	     ->whereIn("id", 0, "'%s'", "Ray", "Alex", "Xyz");
+```
+
 #### having / orHaving
 
 使用 C 语言

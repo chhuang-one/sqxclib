@@ -407,9 +407,9 @@ void sq_query_where_between_logical(SqQuery *query, const char *column_name, int
 	strcpy(str +8,  format);    // str + strlen("BETWEEN ")
 	strcat(str +8,  " AND ");
 	strcat(str +13, format);    // str + strlen("BETWEEN  AND ")
-	format = str;
 
 	va_start(arg_list, format);
+	format = str;
 #ifdef _MSC_VER		// for MS C only
 	length = _vscprintf(format, arg_list) + 1;
 #else				// for C99 standard
@@ -418,6 +418,57 @@ void sq_query_where_between_logical(SqQuery *query, const char *column_name, int
 	str = malloc(length);
 	vsnprintf(str, length, format, arg_list);
 	va_end(arg_list);
+	// release generated format string of this function
+	free((char*)format);
+
+	temp.node = sq_query_node_append(temp.where, sq_query_node_new(query));
+	temp.node->type = SQN_VALUE;
+	temp.node->value = str;
+}
+
+void sq_query_where_in_logical(SqQuery *query, const char *column_name, int logi_type, int n_args, const char* format, ...)
+{
+	va_list        arg_list;
+	char          *str;
+	int            length;
+	int            format_len;
+	union {
+		SqQueryNode   *where;
+		SqQueryNode   *node;
+	} temp;
+
+	temp.where = sq_query_node_where_logical(query, column_name, logi_type);
+
+	// printf format string
+	format_len = strlen(format);
+	length = (format_len+1) *n_args + 5 + 1;    // strlen("IN ()") + '\0'
+	str = malloc(length);
+	strcpy(str, "IN (");
+	//   char *cur = str +strlen("IN (");
+	for (char *cur = str +4;  n_args > 0;  n_args--) {
+		strcpy(cur, format);
+		cur += format_len;
+		if (n_args > 1)
+			*cur++ = ',';
+		else {
+			*cur++ = ')';
+			*cur = 0;
+			break;
+		}
+	}
+
+	va_start(arg_list, format);
+	format = str;
+#ifdef _MSC_VER		// for MS C only
+	length = _vscprintf(format, arg_list) + 1;
+#else				// for C99 standard
+	length = vsnprintf(NULL, 0, format, arg_list) + 1;
+#endif
+	str = malloc(length);
+	vsnprintf(str, length, format, arg_list);
+	va_end(arg_list);
+	// release generated format string of this function
+	free((char*)format);
 
 	temp.node = sq_query_node_append(temp.where, sq_query_node_new(query));
 	temp.node->type = SQN_VALUE;
