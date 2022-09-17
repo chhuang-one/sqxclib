@@ -31,7 +31,7 @@
 
 #define POSTGRE_DEFAULT_HOST      "localhost"
 #define POSTGRE_DEFAULT_PORT      5432
-#define POSTGRE_DEFAULT_USER      "postgre"
+#define POSTGRE_DEFAULT_USER      "postgres"
 #define POSTGRE_DEFAULT_PASSWORD  ""
 
 static void sqdb_postgre_init(SqdbPostgre *sqdb, const SqdbConfigPostgre *config);

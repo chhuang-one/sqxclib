@@ -78,7 +78,7 @@ static const SqColumn  *UserColumns[] = {
 	             .foreign = &(SqForeign) {"companies", "id",  "NO ACTION",  "NO ACTION"} },
 
 	// "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-	&(SqColumn) {SQ_TYPE_TIME,   "created_at", offsetof(User, created_at),  SQB_CURRENT},
+	&(SqColumn) {SQ_TYPE_TIME,     "created_at", offsetof(User, created_at), SQB_CURRENT},
 
 	// "email"  VARCHAR
 	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
@@ -120,7 +120,7 @@ static const SqColumn  *UserColumnsChange[] = {
 	&(SqColumn) {SQ_TYPE_UINT, "test_add", offsetof(User, test_add), SQB_NULLABLE},
 
 	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGED)
-//	&(SqColumn) {SQ_TYPE_INT,  "city_id", offsetof(User, city_id), SQB_CHANGED},
+//	&(SqColumn) {SQ_TYPE_INT,  "city_id",  offsetof(User, city_id),  SQB_CHANGED},
 
 	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_NULLABLE | SQB_CHANGED },
@@ -450,7 +450,7 @@ SqdbConfig     *db_config = (SqdbConfig*) &db_config_mysql;
 SqdbConfigPostgre  db_config_postgre = {
 	.host     = "localhost",
 	.port     = 5432,
-	.user     = "postgre",
+	.user     = "postgres",
 	.password = "",
 };
 

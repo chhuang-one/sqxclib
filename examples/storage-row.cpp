@@ -348,7 +348,7 @@ int  main(int argc, char *argv[])
 
 	config_postgre.host = "localhost";
 	config_postgre.port = 5432;
-	config_postgre.user = "postgre";
+	config_postgre.user = "postgres";
 	config_postgre.password = "";
 
 	db = new Sq::DbPostgre(&config_postgre);

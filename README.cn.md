@@ -20,7 +20,7 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 
 5. 命令行工具可以生成迁移并进行迁移。见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
 
-6. 支持 SQLite, MySQL / MariaDB, PostgreSQL (实验性)。
+6. 支持 SQLite, MySQL / MariaDB, PostgreSQL。
 
 7. 提供项目模板。见目录 [project-template](project-template)。
 
