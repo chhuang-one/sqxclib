@@ -487,6 +487,7 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 4. 其他方便的 C++ 类
 
 ```c++
+	Sq::Where,        Sq::WhereRaw,
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,

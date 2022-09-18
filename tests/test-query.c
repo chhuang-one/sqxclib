@@ -59,8 +59,8 @@ void test_query_c(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, result) == 0);
 	puts(sql);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
@@ -82,8 +82,8 @@ void test_query_c_where_between(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, result) == 0);
 	puts(sql);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
@@ -105,8 +105,8 @@ void test_query_c_where_in(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, result) == 0);
 	puts(sql);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
@@ -121,8 +121,8 @@ void test_query_c_raw(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, "SELECT id, name FROM users WHERE city LIKE 'ber%'") == 0);
 	puts(sql);
+	assert(strcmp(sql, "SELECT id, name FROM users WHERE city LIKE 'ber%'") == 0);
 	free(sql);
 }
 
@@ -139,8 +139,8 @@ void test_query_c_raw_statement(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, "SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 10 OFFSET 5") == 0);
 	puts(sql);
+	assert(strcmp(sql, "SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 10 OFFSET 5") == 0);
 	free(sql);
 }
 
@@ -163,8 +163,8 @@ void test_query_c_nested(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, result) == 0);
 	puts(sql);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
@@ -184,8 +184,8 @@ void test_query_c_union(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, result) == 0);
 	puts(sql);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
@@ -194,6 +194,7 @@ void test_query_c_str(SqQuery *query)
 	sq_query_from(query, "users");
 
 	sq_query_c(query);
+
 	puts(sq_query_c(query));
 	assert(strcmp(query->str, "SELECT * FROM users") == 0);
 
@@ -211,8 +212,8 @@ void test_query_c_no_select_from(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, "WHERE id > 10 AND id < 99 HAVING city_id > 3 OR city_id < 9") == 0);
 	puts(sql);
+	assert(strcmp(sql, "WHERE id > 10 AND id < 99 HAVING city_id > 3 OR city_id < 9") == 0);
 	free(sql);
 }
 
@@ -228,8 +229,8 @@ void test_query_c_delete(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, "DELETE FROM users WHERE id > 10 AND id < 99") == 0);
 	puts(sql);
+	assert(strcmp(sql, "DELETE FROM users WHERE id > 10 AND id < 99") == 0);
 	free(sql);
 }
 
@@ -243,8 +244,8 @@ void test_query_c_truncate(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, "TRUNCATE TABLE users") == 0);
 	puts(sql);
+	assert(strcmp(sql, "TRUNCATE TABLE users") == 0);
 	free(sql);
 }
 
@@ -263,8 +264,8 @@ void test_query_c_limit(SqQuery *query)
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
-	assert(strcmp(sql, "SELECT * FROM users LIMIT 100 OFFSET 55") == 0);
 	puts(sql);
+	assert(strcmp(sql, "SELECT * FROM users LIMIT 100 OFFSET 55") == 0);
 	free(sql);
 }
 

@@ -391,36 +391,38 @@ void sq_query_where_exists_logical(SqQuery *query, int logi_type)
 void sq_query_where_between_logical(SqQuery *query, const char *column_name, int logi_type, const char* format, ...)
 {
 	va_list        arg_list;
+	va_list        arg_copy;
 	char          *str;
 	int            length;
 	union {
+		char          *format;
 		SqQueryNode   *where;
 		SqQueryNode   *node;
 	} temp;
 
-	temp.where = sq_query_node_where_logical(query, column_name, logi_type);
-
-	// printf format string
+	// generate new printf format string
 	length = strlen(format) *2 + 13 + 1;    // strlen("BETWEEN  AND ") + '\0'
-	str = malloc(length);
-	strcpy(str, "BETWEEN ");
-	strcpy(str +8,  format);    // str + strlen("BETWEEN ")
-	strcat(str +8,  " AND ");
-	strcat(str +13, format);    // str + strlen("BETWEEN  AND ")
+	temp.format = malloc(length);
+	strcpy(temp.format, "BETWEEN ");
+	strcpy(temp.format +8,  format);    // str + strlen("BETWEEN ")
+	strcat(temp.format +8,  " AND ");
+	strcat(temp.format +13, format);    // str + strlen("BETWEEN  AND ")
 
 	va_start(arg_list, format);
-	format = str;
+	va_copy(arg_copy, arg_list);
 #ifdef _MSC_VER		// for MS C only
-	length = _vscprintf(format, arg_list) + 1;
+	length = _vscprintf(temp.format, arg_copy) + 1;
 #else				// for C99 standard
-	length = vsnprintf(NULL, 0, format, arg_list) + 1;
+	length = vsnprintf(NULL, 0, temp.format, arg_copy) + 1;
 #endif
+	va_end(arg_copy);
 	str = malloc(length);
-	vsnprintf(str, length, format, arg_list);
+	vsnprintf(str, length, temp.format, arg_list);
 	va_end(arg_list);
 	// release generated format string of this function
-	free((char*)format);
+	free(temp.format);
 
+	temp.where = sq_query_node_where_logical(query, column_name, logi_type);
 	temp.node = sq_query_node_append(temp.where, sq_query_node_new(query));
 	temp.node->type = SQN_VALUE;
 	temp.node->value = str;
@@ -429,23 +431,23 @@ void sq_query_where_between_logical(SqQuery *query, const char *column_name, int
 void sq_query_where_in_logical(SqQuery *query, const char *column_name, int logi_type, int n_args, const char* format, ...)
 {
 	va_list        arg_list;
+	va_list        arg_copy;
 	char          *str;
 	int            length;
 	int            format_len;
 	union {
+		char          *format;
 		SqQueryNode   *where;
 		SqQueryNode   *node;
 	} temp;
 
-	temp.where = sq_query_node_where_logical(query, column_name, logi_type);
-
-	// printf format string
+	// generate new printf format string
 	format_len = strlen(format);
 	length = (format_len+1) *n_args + 5 + 1;    // strlen("IN ()") + '\0'
-	str = malloc(length);
-	strcpy(str, "IN (");
-	//   char *cur = str +strlen("IN (");
-	for (char *cur = str +4;  n_args > 0;  n_args--) {
+	temp.format = malloc(length);
+	strcpy(temp.format, "IN (");
+	//   char *cur = temp.format +strlen("IN (");
+	for (char *cur = temp.format +4;  n_args > 0;  n_args--) {
 		strcpy(cur, format);
 		cur += format_len;
 		if (n_args > 1)
@@ -458,18 +460,20 @@ void sq_query_where_in_logical(SqQuery *query, const char *column_name, int logi
 	}
 
 	va_start(arg_list, format);
-	format = str;
+	va_copy(arg_copy, arg_list);
 #ifdef _MSC_VER		// for MS C only
-	length = _vscprintf(format, arg_list) + 1;
+	length = _vscprintf(temp.format, arg_copy) + 1;
 #else				// for C99 standard
-	length = vsnprintf(NULL, 0, format, arg_list) + 1;
+	length = vsnprintf(NULL, 0, temp.format, arg_copy) + 1;
 #endif
+	va_end(arg_copy);
 	str = malloc(length);
-	vsnprintf(str, length, format, arg_list);
+	vsnprintf(str, length, temp.format, arg_list);
 	va_end(arg_list);
 	// release generated format string of this function
-	free((char*)format);
+	free(temp.format);
 
+	temp.where = sq_query_node_where_logical(query, column_name, logi_type);
 	temp.node = sq_query_node_append(temp.where, sq_query_node_new(query));
 	temp.node->type = SQN_VALUE;
 	temp.node->value = str;

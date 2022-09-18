@@ -463,7 +463,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 	array = storage->getAll("users", query->c());
 ```
 
-**方便的 C++ 类 'where'**  
+**方便的 C++ 类 'where' 系列**  
   
 使用 Sq::Where（或 Sq::where）的 operator()
 
@@ -491,6 +491,15 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 	// 使用默认构造函数和 operator()
 	array = storage->getAll("users",
 			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22));
+```
+
+其他方便的 C++ 类
+
+```c++
+	Sq::Where,        Sq::WhereRaw,
+	Sq::whereExists,  Sq::whereNotExists,
+	Sq::whereBetween, Sq::whereNotBetween,
+	Sq::whereIn,      Sq::whereNotIn,
 ```
 
 ## JOIN 支持

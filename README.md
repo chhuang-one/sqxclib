@@ -465,7 +465,7 @@ use C++ methods
 	array = storage->getAll("users", query->c());
 ```
 
-**convenient C++ class 'where'**  
+**convenient C++ class 'where' series**  
   
 use operator() of Sq::Where (or Sq::where)
 
@@ -493,6 +493,15 @@ use constructor and operator of Sq::where
 	// use default constructor and operator()
 	array = storage->getAll("users",
 			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22));
+```
+
+other convenient C++ class
+
+```c++
+	Sq::Where,        Sq::WhereRaw,
+	Sq::whereExists,  Sq::whereNotExists,
+	Sq::whereBetween, Sq::whereNotBetween,
+	Sq::whereIn,      Sq::whereNotIn,
 ```
 
 ## JOIN support
