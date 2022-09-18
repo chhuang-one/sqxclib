@@ -69,16 +69,6 @@ void  sq_column_free(SqColumn *column)
 	}
 }
 
-void  sq_column_default(SqColumn *column, const char *default_value)
-{
-	sq_entry_set_str_addr((SqEntry*)column, (char**)&column->default_value, default_value);
-}
-
-void  sq_column_raw(SqColumn *column, const char *raw_property)
-{
-	sq_entry_set_str_addr((SqEntry*)column, (char**)&column->raw, raw_property);
-}
-
 SqColumn *sq_column_copy_static(const SqColumn *column_src)
 {
 	SqColumn *column;
@@ -291,6 +281,14 @@ void  sq_column_use_current(SqColumn *column) {
 
 void  sq_column_use_current_on_update(SqColumn *column) {
 	column->bit_field |= SQB_COLUMN_CURRENT_ON_UPDATE;
+}
+
+void  sq_column_default(SqColumn *column, const char *default_value) {
+	SQ_COLUMN_SET_DEFAULT(column, default_value);
+}
+
+void  sq_column_raw(SqColumn *column, const char *raw_property) {
+	SQ_COLUMN_SET_RAW(column, raw_property);
 }
 
 #endif  // __STDC_VERSION__

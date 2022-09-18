@@ -62,13 +62,17 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 extern "C" {
 #endif
 
+/* --- macro functions --- for maintaining C/C++ inline functions easily */
+#define SQ_COLUMN_SET_DEFAULT(column, default_value_str)    \
+		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->default_value, default_value_str)
+
+#define SQ_COLUMN_SET_RAW(column, raw_property_str)    \
+		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->raw, raw_property_str)
+
 /* SqColumn C functions */
 
 SqColumn  *sq_column_new(const char *name, const SqType *type_info);
 void       sq_column_free(SqColumn *column);
-
-void       sq_column_default(SqColumn *column, const char *default_value);
-void       sq_column_raw(SqColumn *column, const char *raw_property);
 
 // create new SqColumn and copy data from static one.
 SqColumn  *sq_column_copy_static(const SqColumn *column_src);
@@ -255,19 +259,19 @@ struct SqColumn
 	}
 
 	Sq::Column &default_(const char *default_val) {
-		sq_column_default((SqColumn*)this, default_val);
+		SQ_COLUMN_SET_DEFAULT(this, default_val);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &defaultValue(const char *default_val) {
-		sq_column_default((SqColumn*)this, default_val);
+		SQ_COLUMN_SET_DEFAULT(this, default_val);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &raw_(const char *raw_property) {
-		sq_column_raw((SqColumn*)this, raw_property);
+		SQ_COLUMN_SET_RAW(this, raw_property);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &rawProperty(const char *raw_property) {
-		sq_column_raw((SqColumn*)this, raw_property);
+		SQ_COLUMN_SET_RAW(this, raw_property);
 		return *(Sq::Column*)this;
 	}
 #endif  // __cplusplus
@@ -378,6 +382,24 @@ void  sq_column_use_current_on_update(SqColumn *column) {
 	column->bit_field |= SQB_COLUMN_CURRENT_ON_UPDATE;
 }
 
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_default(SqColumn *column, const char *default_value) {
+	SQ_COLUMN_SET_DEFAULT(column, default_value);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_raw(SqColumn *column, const char *raw_property) {
+	SQ_COLUMN_SET_RAW(column, raw_property);
+}
+
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
 
@@ -392,6 +414,8 @@ void  sq_column_nullable(SqColumn *column);
 void  sq_column_change(SqColumn *column);
 void  sq_column_use_current(SqColumn *column);
 void  sq_column_use_current_on_update(SqColumn *column);
+void  sq_column_default(SqColumn *column, const char *default_value);
+void  sq_column_raw(SqColumn *column, const char *raw_property);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -481,19 +505,19 @@ struct ColumnMethod
 	}
 
 	Sq::Column &default_(const char *default_val) {
-		sq_column_default((SqColumn*)this, default_val);
+		SQ_COLUMN_SET_DEFAULT(this, default_val);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &defaultValue(const char *default_val) {
-		sq_column_default((SqColumn*)this, default_val);
+		SQ_COLUMN_SET_DEFAULT(this, default_val);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &raw_(const char *raw_property) {
-		sq_column_raw((SqColumn*)this, raw_property);
+		SQ_COLUMN_SET_RAW(this, raw_property);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &rawProperty(const char *raw_property) {
-		sq_column_raw((SqColumn*)this, raw_property);
+		SQ_COLUMN_SET_RAW(this, raw_property);
 		return *(Sq::Column*)this;
 	}
 };
