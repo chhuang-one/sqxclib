@@ -494,7 +494,7 @@ struct QueryMethod
 	template <typename... Args>
 	Sq::Query &whereIn(const char *columnName, const char *first_value, const Args... args);
 	template <typename... Args>
-	Sq::Query &whereIn(const char *columnName, int dont_care, const char *format, const Args... args);
+	Sq::Query &whereIn(const char *columnName, int n_args, const char *format, const Args... args);
 
 	template <typename... Args>
 	Sq::Query &whereNotIn(const char *columnName, int first_value, const Args... args);
@@ -507,7 +507,7 @@ struct QueryMethod
 	template <typename... Args>
 	Sq::Query &whereNotIn(const char *columnName, const char *first_value, const Args... args);
 	template <typename... Args>
-	Sq::Query &whereNotIn(const char *columnName, int dont_care, const char *format, const Args... args);
+	Sq::Query &whereNotIn(const char *columnName, int n_args, const char *format, const Args... args);
 
 	template <typename... Args>
 	Sq::Query &orWhereIn(const char *columnName, int first_value, const Args... args);
@@ -520,7 +520,7 @@ struct QueryMethod
 	template <typename... Args>
 	Sq::Query &orWhereIn(const char *columnName, const char *first_value, const Args... args);
 	template <typename... Args>
-	Sq::Query &orWhereIn(const char *columnName, int dont_care, const char *format, const Args... args);
+	Sq::Query &orWhereIn(const char *columnName, int n_args, const char *format, const Args... args);
 
 	template <typename... Args>
 	Sq::Query &orWhereNotIn(const char *columnName, int first_value, const Args... args);
@@ -533,7 +533,7 @@ struct QueryMethod
 	template <typename... Args>
 	Sq::Query &orWhereNotIn(const char *columnName, const char *first_value, const Args... args);
 	template <typename... Args>
-	Sq::Query &orWhereNotIn(const char *columnName, int dont_care, const char *format, const Args... args);
+	Sq::Query &orWhereNotIn(const char *columnName, int n_args, const char *format, const Args... args);
 
 	// groupBy(column...)
 	template <typename... Args>
@@ -1027,8 +1027,8 @@ inline Sq::Query &QueryMethod::whereIn(const char *columnName, const char *first
 	return *(Sq::Query*)this;
 }
 template <typename... Args>
-inline Sq::Query &QueryMethod::whereIn(const char *columnName, int dont_care, const char *format, const Args... args) {
-	sq_query_where_in((SqQuery*)this, columnName, sizeof...(args), format, args...);
+inline Sq::Query &QueryMethod::whereIn(const char *columnName, int n_args, const char *format, const Args... args) {
+	sq_query_where_in((SqQuery*)this, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
 	return *(Sq::Query*)this;
 }
 
@@ -1058,8 +1058,8 @@ inline Sq::Query &QueryMethod::whereNotIn(const char *columnName, const char *fi
 	return *(Sq::Query*)this;
 }
 template <typename... Args>
-inline Sq::Query &QueryMethod::whereNotIn(const char *columnName, int dont_care, const char *format, const Args... args) {
-	sq_query_where_not_in((SqQuery*)this, columnName, sizeof...(args), format, args...);
+inline Sq::Query &QueryMethod::whereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
+	sq_query_where_not_in((SqQuery*)this, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
 	return *(Sq::Query*)this;
 }
 
@@ -1089,8 +1089,8 @@ inline Sq::Query &QueryMethod::orWhereIn(const char *columnName, const char *fir
 	return *(Sq::Query*)this;
 }
 template <typename... Args>
-inline Sq::Query &QueryMethod::orWhereIn(const char *columnName, int dont_care, const char *format, const Args... args) {
-	sq_query_or_where_in((SqQuery*)this, columnName, sizeof...(args), format, args...);
+inline Sq::Query &QueryMethod::orWhereIn(const char *columnName, int n_args, const char *format, const Args... args) {
+	sq_query_or_where_in((SqQuery*)this, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
 	return *(Sq::Query*)this;
 }
 
@@ -1120,8 +1120,8 @@ inline Sq::Query &QueryMethod::orWhereNotIn(const char *columnName, const char *
 	return *(Sq::Query*)this;
 }
 template <typename... Args>
-inline Sq::Query &QueryMethod::orWhereNotIn(const char *columnName, int dont_care, const char *format, const Args... args) {
-	sq_query_or_where_not_in((SqQuery*)this, columnName, sizeof...(args), format, args...);
+inline Sq::Query &QueryMethod::orWhereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
+	sq_query_or_where_not_in((SqQuery*)this, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
 	return *(Sq::Query*)this;
 }
 
@@ -1696,9 +1696,9 @@ public:
 		sq_query_where_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
 	}
 	template <typename... Args>
-	WhereIn(const char *columnName, int dont_care, const char *format, const Args... args) {
+	WhereIn(const char *columnName, int n_args, const char *format, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in(query, columnName, sizeof...(args), format, args...);
+		sq_query_where_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
 	}
 	WhereIn() {
 		query = (Sq::Query*)sq_query_new(NULL);
@@ -1736,8 +1736,8 @@ public:
 		return *this;
 	}
 	template <typename... Args>
-	WhereIn &operator()(const char *columnName, int dont_care, const char *format, const Args... args) {
-		sq_query_where_in(query, columnName, sizeof...(args), format, args...);
+	WhereIn &operator()(const char *columnName, int n_args, const char *format, const Args... args) {
+		sq_query_where_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
 		return *this;
 	}
 };
@@ -1772,9 +1772,9 @@ public:
 		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
 	}
 	template <typename... Args>
-	WhereNotIn(const char *columnName, int dont_care, const char *format, const Args... args) {
+	WhereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_in(query, columnName, sizeof...(args), format, args...);
+		sq_query_where_not_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
 	}
 	WhereNotIn() {
 		query = (Sq::Query*)sq_query_new(NULL);
@@ -1812,8 +1812,8 @@ public:
 		return *this;
 	}
 	template <typename... Args>
-	WhereNotIn &operator()(const char *columnName, int dont_care, const char *format, const Args... args) {
-		sq_query_where_not_in(query, columnName, sizeof...(args), format, args...);
+	WhereNotIn &operator()(const char *columnName, int n_args, const char *format, const Args... args) {
+		sq_query_where_not_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
 		return *this;
 	}
 };

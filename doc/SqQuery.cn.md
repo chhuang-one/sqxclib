@@ -280,8 +280,9 @@ sq_query_where_in() 的第三個參數必須指定 printf 格式字符串後的�
 	     ->whereIn("id", 1, 2, 4);
 ```
 
-使用 C++ 语言 (printf 格式字符串)  
-* 如果您將 whereIn() 與 printf 格式字符串一起使用，則第二個參數當前必須指定 0。
+whereIn() 可以与 printf 格式字符串一起使用：
+* 第二个参数是 printf 格式字符串之后的值的数量。
+* 如果用户将第二个参数指定为 0，它将由编译器计算。
 
 ```c++
 	// SELECT * FROM users WHERE id IN ('Ray','Alex','Xyz')
@@ -484,10 +485,17 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33));
 ```
 
-4. 其他方便的 C++ 类
+4. 下面是目前提供的方便的 C++ 类：
 
-```c++
+```
 	Sq::Where,        Sq::WhereRaw,
+	Sq::WhereExists,  Sq::WhereNotExists,
+	Sq::WhereBetween, Sq::WhereNotBetween,
+	Sq::WhereIn,      Sq::WhereNotIn,
+
+	'Where' 类系列使用 'typedef' 给它们新名称：小写的 'where' 类系列。
+
+	Sq::where,        Sq::whereRaw,
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,

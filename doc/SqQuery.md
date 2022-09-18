@@ -280,8 +280,9 @@ use C++ language
 	     ->whereIn("id", 1, 2, 4);
 ```
 
-use C++ language (printf format string)  
-* The second parameter must specify 0 currently if you use whereIn() with printf format string.
+whereIn() can use with printf format string:
+* The second parameter is number of values after printf format string.
+* If user specify second parameter to 0, it will count by compiler.
 
 ```c++
 	// SELECT * FROM users WHERE id IN ('Ray','Alex','Xyz')
@@ -484,10 +485,17 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33));
 ```
 
-4. other convenient C++ class
+4. Below is currently provided convenient C++ class:
 
-```c++
+```
 	Sq::Where,        Sq::WhereRaw,
+	Sq::WhereExists,  Sq::WhereNotExists,
+	Sq::WhereBetween, Sq::WhereNotBetween,
+	Sq::WhereIn,      Sq::WhereNotIn,
+
+	'Where' class series use 'typedef' to give them new names: lower case 'where' class series.
+
+	Sq::where,        Sq::whereRaw,
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,
