@@ -47,7 +47,7 @@ Define MyCommandValue that is derived from SqCommandValue.
 	└--- MyCommandValue
 
 ```c++
-// If you use C language, please use 'typedef' to to give a struct type a new name.
+// If you use C language, please use 'typedef' to give a struct type a new name.
 typedef struct MyCommandValue    MyCommandValue;
 
 #ifdef __cplusplus

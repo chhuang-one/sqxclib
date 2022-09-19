@@ -246,7 +246,7 @@ struct SqType
 	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
 	unsigned int   bit_field;
 
-	void          *reserve;
+	void          *reserve;        // reserve, set it to NULL.
  */
 
 #ifdef __cplusplus

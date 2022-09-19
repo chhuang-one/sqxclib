@@ -49,7 +49,7 @@ use C language
 First, we define a C structured data type that mappings to your database table "users".
 
 ```c
-// If you use C language, please use 'typedef' to to give a struct type a new name.
+// If you use C language, please use 'typedef' to give a struct type a new name.
 typedef struct  User    User;
 
 struct User {

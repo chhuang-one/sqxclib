@@ -65,7 +65,7 @@ typedef struct SqReentry        SqReentry;
 	SqEntry *FooEntries[] = {...};
 	int  n_entry = SQ_N_PTRS(FooEntries);
  */
-#define SQ_N_PTRS(PointerArray) ( sizeof(PointerArray)/sizeof(void*) )
+#define SQ_N_PTRS(PointerArray) ( sizeof(PointerArray)/sizeof(PointerArray[0]) )
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.

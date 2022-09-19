@@ -35,7 +35,7 @@ SqStorage use [Sqdb](Sqdb.md) to access database.
 Define a data structure 'User' for SQL table "users".
 
 ```c++
-// If you use C language, please use 'typedef' to to give a struct type a new name.
+// If you use C language, please use 'typedef' to give a struct type a new name.
 typedef struct User    User;
 
 struct User {
@@ -231,8 +231,11 @@ use C language
 use C++ language
 
 ```c++
-	array = storage->getAll("users",
-			Sq::Query().whereRaw("id > 10").where("id < %d", 99).c());
+	Sq::Query *query = new Sq::Query();
+	query->whereRaw("id > 10")
+	     ->where("id < %d", 99);
+
+	array = storage->getAll("users", query->c());
 ```
 
 #### convenient C++ class 'where'

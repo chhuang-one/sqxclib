@@ -282,7 +282,7 @@ All derived structure must conforme C++11 standard-layout
 // This is header file - SqxcText.h
 #include <Sqxc.h>
 
-// If you use C language, please use 'typedef' to to give a struct type a new name.
+// If you use C language, please use 'typedef' to give a struct type a new name.
 typedef struct SqxcText   SqxcText;
 
 #ifdef __cplusplus    // mix C and C++

@@ -31,7 +31,7 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 Define a C structured data type to map database table "users".
 
 ```c++
-// If you use C language, please use 'typedef' to to give a struct type a new name.
+// If you use C language, please use 'typedef' to give a struct type a new name.
 typedef struct  User    User;
 
 struct User {
@@ -472,13 +472,6 @@ use operator() of Sq::Where (or Sq::where)
 ```c++
 	Sq::Where  where;
 
-	// If you clone source code in 2022-08-01 and later, It doesn't need to call c() to get string of query here.
-
-	// before 2022-08-01
-	array = storage->getAll("users",
-			where("id > %d", 10).orWhere("city_id < %d", 22).c());
-
-	// 2022-08-01 and later
 	array = storage->getAll("users",
 			where("id > %d", 10).orWhere("city_id < %d", 22));
 ```
@@ -495,10 +488,17 @@ use constructor and operator of Sq::where
 			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22));
 ```
 
-other convenient C++ class
+Below is currently provided convenient C++ class:  
 
-```c++
+```
 	Sq::Where,        Sq::WhereRaw,
+	Sq::WhereExists,  Sq::WhereNotExists,
+	Sq::WhereBetween, Sq::WhereNotBetween,
+	Sq::WhereIn,      Sq::WhereNotIn,
+
+	'Where' class series use 'typedef' to give them new names: lower case 'where' class series.
+
+	Sq::where,        Sq::whereRaw,
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,

@@ -231,8 +231,11 @@ SqQuery 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句
 使用 C++ 语言
 
 ```c++
-	array = storage->getAll("users",
-			Sq::Query().whereRaw("id > 10").where("id < %d", 99).c());
+	Sq::Query *query = new Sq::Query();
+	query->whereRaw("id > 10")
+	     ->where("id < %d", 99);
+
+	array = storage->getAll("users", query->c());
 ```
 
 #### 方便的 C++ 类 'where'

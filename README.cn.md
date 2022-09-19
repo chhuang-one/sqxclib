@@ -470,13 +470,6 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 ```c++
 	Sq::Where  where;
 
-	// 如果您在 2022-08-01 及以后克隆源代码，这里不需要调用 c() 来获取查询字符串。
-
-	// 2022-08-01 之前
-	array = storage->getAll("users",
-			where("id > %d", 10).orWhere("city_id < %d", 22).c());
-
-	// 2022-08-01 及以后
 	array = storage->getAll("users",
 			where("id > %d", 10).orWhere("city_id < %d", 22));
 ```
@@ -493,10 +486,17 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22));
 ```
 
-其他方便的 C++ 类
+下面是目前提供的方便的 C++ 类：
 
-```c++
+```
 	Sq::Where,        Sq::WhereRaw,
+	Sq::WhereExists,  Sq::WhereNotExists,
+	Sq::WhereBetween, Sq::WhereNotBetween,
+	Sq::WhereIn,      Sq::WhereNotIn,
+
+	'Where' 类系列使用 'typedef' 给它们新名称：小写的 'where' 类系列。
+
+	Sq::where,        Sq::whereRaw,
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,

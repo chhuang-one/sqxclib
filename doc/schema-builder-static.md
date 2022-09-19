@@ -9,7 +9,7 @@ This document introduce how to use C99 designated initializer (or C++ aggregate 
 Define a C structured data type to map database table "users".
 
 ```c++
-// If you use C language, please use 'typedef' to to give a struct type a new name.
+// If you use C language, please use 'typedef' to give a struct type a new name.
 typedef struct  User    User;
 
 struct User {

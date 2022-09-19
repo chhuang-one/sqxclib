@@ -103,7 +103,7 @@ User can define a constant or dynamic SqType. If you define constant SqType for 
 First, we define a custom structured data type:
 
 ```c
-// If you use C language, please use 'typedef' to to give a struct type a new name.
+// If you use C language, please use 'typedef' to give a struct type a new name.
 typedef struct User     User;
 
 struct User {
