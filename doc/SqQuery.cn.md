@@ -100,9 +100,10 @@ use C++ language
 	sq_query_left_join(),
 	sq_query_right_join(),
 	sq_query_full_join(),
-	sq_query_on(),     sq_query_or_on(),
-	sq_query_where(),  sq_query_or_where(),
-	sq_query_having(), sq_query_or_having(),
+	sq_query_on(),        sq_query_or_on(),
+	sq_query_where(),     sq_query_or_where(),
+	sq_query_where_not(), sq_query_or_where_not(),
+	sq_query_having(),    sq_query_or_having(),
 
 C 语言示例：
 
@@ -119,9 +120,10 @@ C 语言示例：
 	leftJoin(),
 	rightJoin(),
 	fullJoin(),
-	on(),     orOn(),
-	where(),  orWhere(),
-	having(), orHaving(),
+	on(),       orOn(),
+	where(),    orWhere(),
+	whereNot(), orWhereNot(),
+	having(),   orHaving(),
 
 C++ 语言示例：
 
@@ -136,9 +138,10 @@ C++ 语言示例：
 如果以下 C++ 方法的第二个参数不存在，则将第一个参数作为原始字符串处理。  
 这些 C++ 方法具有处理原始字符串的重载函数：
 
-	on(),     orOn(),
-	where(),  orWhere(),
-	having(), orHaving(),
+	on(),       orOn(),
+	where(),    orWhere(),
+	whereNot(), orWhereNot(),
+	having(),   orHaving(),
 	select(),
 	groupBy(),
 	orderBy()
@@ -179,12 +182,14 @@ sq_query_select() 可以在参数中指定多个列（最后一个参数必须�
 	query->distinct();
 ```
 
-#### where / orWhere
+#### where / whereNot / orWhere / orWhereNot
 
+这些函数/方法用于过滤结果和应用条件。  
+  
 例如: 生成下面的 SQL 语句。
 
 ```sql
-SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR members < 100
+SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 ```
 
 使用 C 语言
@@ -193,7 +198,7 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR members < 100
 	sq_query_table(query, "companies");
 	sq_query_where(query, "id", ">", "15");
 	sq_query_or_where(query, "city_id", "6");
-	sq_query_or_where(query, "members < %d", 100);
+	sq_query_or_where_not(query, "members < %d", 100);
 ```
 
 使用 C++ 语言
@@ -202,7 +207,31 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR members < 100
 	query->table("companies")
 	     ->where("id", ">", "15")
 	     ->orWhere("city_id", "6")
-	     ->orWhere("members < %d", 100);
+	     ->orWhereNot("members < %d", 100);
+```
+
+这些方法也可以用来指定一组查询条件。  
+  
+使用 C 语言
+
+```c
+	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
+	sq_query_table(query, "products");
+	sq_query_where_not(query);
+		sq_query_where(query, "city_id", "6");
+		sq_query_or_where(query, "price < %d", 100);
+	sq_query_pop_nested(query);
+```
+
+使用 C++ 语言
+
+```c++
+	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
+	query->table("products")
+	     ->whereNot([query] {
+	         query->where("city_id", "6")
+	              ->orWhere("price < %d", 100);
+		 });
 ```
 
 #### whereBetween / orWhereBetween
@@ -488,14 +517,16 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 4. 下面是目前提供的方便的 C++ 类：
 
 ```
-	Sq::Where,        Sq::WhereRaw,
+	Sq::Where,        Sq::WhereNot,
+	Sq::WhereRaw,     Sq::WhereNotRaw,
 	Sq::WhereExists,  Sq::WhereNotExists,
 	Sq::WhereBetween, Sq::WhereNotBetween,
 	Sq::WhereIn,      Sq::WhereNotIn,
 
 	'Where' 类系列使用 'typedef' 给它们新名称：小写的 'where' 类系列。
 
-	Sq::where,        Sq::whereRaw,
+	Sq::where,        Sq::whereNot,
+	Sq::whereRaw,     Sq::whereNotRaw,
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,
@@ -529,7 +560,7 @@ C++ 方法 select() 具有处理原始字符串的重载函数。
 	     ->select("COUNT(column_name)");
 ```
 
-#### whereRaw / orWhereRaw
+#### whereRaw / whereNotRaw / orWhereRaw / orWhereNotRaw
 
 使用 C 语言
 
@@ -776,9 +807,11 @@ SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法
 	sq_query_right_join(),
 	sq_query_full_join(),
 	sq_query_cross_join(),
-	sq_query_on(),     sq_query_or_on(),
-	sq_query_where(),  sq_query_or_where(),  sq_query_where_exists(), sq_query_where_not_exists(),
-	sq_query_having(), sq_query_or_having()
+	sq_query_on(),           sq_query_or_on(),
+	sq_query_where(),        sq_query_or_where(),
+	sq_query_where_not(),    sq_query_or_where_not(),
+	sq_query_where_exists(), sq_query_where_not_exists(),
+	sq_query_having(),       sq_query_or_having(),
 
 注意 1：除了 sq_query_where_exists() 和 sq_query_where_not_exists()，这些函数的第二个参数必须为 NULL。  
 注意 2：您必须在子查询或嵌套的末尾调用 sq_query_pop_nested()。  
@@ -790,9 +823,11 @@ SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法
 	rightJoin(),
 	fullJoin(),
 	crossJoin(),
-	on(),     orOn(),
-	where(),  orWhere(),  whereExists(), whereNotExists(),
-	having(), orHaving()
+	on(),          orOn(),
+	where(),       orWhere(),
+	whereNot(),    orWhereNot(),
+	whereExists(), whereNotExists(),
+	having(),      orHaving(),
 
 #### 嵌套 Nested
 

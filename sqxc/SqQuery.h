@@ -68,9 +68,10 @@ extern "C" {
 		sq_query_left_join(),
 		sq_query_right_join(),
 		sq_query_full_join(),
-		sq_query_on(),     sq_query_or_on(),
-		sq_query_where(),  sq_query_or_where(),
-		sq_query_having(), sq_query_or_having(),
+		sq_query_on(),        sq_query_or_on(),
+		sq_query_where(),     sq_query_or_where(),
+		sq_query_where_not(), sq_query_or_where_not(),
+		sq_query_having(),    sq_query_or_having(),
 
 	If you want to use SQL Wildcard Characters '%' in these functions, you must print “%” using “%%”.
 
@@ -100,9 +101,10 @@ extern "C" {
 		sq_query_right_join(),
 		sq_query_full_join(),
 		sq_query_cross_join(),
-		sq_query_on(),     sq_query_or_on(),
-		sq_query_where(),  sq_query_or_where(),
-		sq_query_having(), sq_query_or_having(),
+		sq_query_on(),        sq_query_or_on(),
+		sq_query_where(),     sq_query_or_where(),
+		sq_query_where_not(), sq_query_or_where_not(),
+		sq_query_having(),    sq_query_or_having(),
 
 	// e.g. "WHERE (salary > 45 AND age < 21)"
 	sq_query_where(query, NULL);                // start of Subquery/Nested
@@ -114,9 +116,10 @@ extern "C" {
 	** below function support SQL raw statements:
 		sq_query_raw(),
 		sq_query_select_raw(),
-		sq_query_on_raw(),     sq_query_or_on_raw(),
-		sq_query_where_raw(),  sq_query_or_where_raw(),
-		sq_query_having_raw(), sq_query_or_having_raw(),
+		sq_query_on_raw(),        sq_query_or_on_raw(),
+		sq_query_where_raw(),     sq_query_or_where_raw(),
+		sq_query_where_not_raw(), sq_query_or_where_not_raw(),
+		sq_query_having_raw(),    sq_query_or_having_raw(),
 		sq_query_order_by_raw(),
 		sq_query_group_by_raw(),
 
@@ -216,6 +219,22 @@ void    sq_query_where_logical(SqQuery *query, int logi_type, ...);
 // void sq_query_or_where_raw(SqQuery *query, const char *raw)
 #define sq_query_or_where_raw(query, raw)     \
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
+
+// SQL: WHERE NOT
+
+// void sq_query_where_not(SqQuery *query, ...)
+#define sq_query_where_not(query, ...)        \
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT, __VA_ARGS__)
+// void sq_query_or_where_not(SqQuery *query, ...)
+#define sq_query_or_where_not(query, ...)     \
+		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYLOGI_NOT, __VA_ARGS__)
+
+// void sq_query_where_not_raw(SqQuery *query, const char *raw)
+#define sq_query_where_not_raw(query, raw)        \
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT | SQ_QUERYARG_RAW, raw)
+// void sq_query_or_where_not_raw(SqQuery *query, const char *raw)
+#define sq_query_or_where_not_raw(query, raw)     \
+		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYLOGI_NOT | SQ_QUERYARG_RAW, raw)
 
 // SQL: WHERE EXISTS
 void    sq_query_where_exists_logical(SqQuery *query, int logi_type);
@@ -444,6 +463,21 @@ struct QueryMethod
 
 	Sq::Query &orWhere(const char *raw);
 	Sq::Query &orWhereRaw(const char *raw);
+
+	// whereNot(condition, ...)
+	template <typename... Args>
+	Sq::Query &whereNot(const char *condition, const Args... args);
+	Sq::Query &whereNot(std::function<void()> func);
+
+	Sq::Query &whereNot(const char *raw);
+	Sq::Query &whereNotRaw(const char *raw);
+
+	template <typename... Args>
+	Sq::Query &orWhereNot(const char *condition, const Args... args);
+	Sq::Query &orWhereNot(std::function<void()> func);
+
+	Sq::Query &orWhereNot(const char *raw);
+	Sq::Query &orWhereNotRaw(const char *raw);
 
 	// whereExists
 	Sq::Query &whereExists(std::function<void()> func);
@@ -881,6 +915,48 @@ inline Sq::Query &QueryMethod::orWhere(const char *raw) {
 }
 inline Sq::Query &QueryMethod::orWhereRaw(const char *raw) {
 	sq_query_or_where_raw((SqQuery*)this, raw);
+	return *(Sq::Query*)this;
+}
+
+template <typename... Args>
+inline Sq::Query &QueryMethod::whereNot(const char *condition, const Args... args) {
+	sq_query_where_not((SqQuery*)this, condition, args...);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query &QueryMethod::whereNot(std::function<void()> func) {
+	sq_query_where_not((SqQuery*)this, NULL);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query &QueryMethod::whereNot(const char *raw) {
+	sq_query_where_not_raw((SqQuery*)this, raw);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query &QueryMethod::whereNotRaw(const char *raw) {
+	sq_query_where_not_raw((SqQuery*)this, raw);
+	return *(Sq::Query*)this;
+}
+
+template <typename... Args>
+inline Sq::Query &QueryMethod::orWhereNot(const char *condition, const Args... args) {
+	sq_query_or_where_not((SqQuery*)this, condition, args...);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query &QueryMethod::orWhereNot(std::function<void()> func) {
+	sq_query_or_where_not((SqQuery*)this, NULL);
+	func();
+	sq_query_pop_nested((SqQuery*)this);    // end of Subquery/Nested
+	return *(Sq::Query*)this;
+}
+
+inline Sq::Query &QueryMethod::orWhereNot(const char *raw) {
+	sq_query_or_where_not_raw((SqQuery*)this, raw);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query &QueryMethod::orWhereNotRaw(const char *raw) {
+	sq_query_or_where_not_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
 
@@ -1369,18 +1445,22 @@ namespace Sq {
 	|
 	+--- Where
 	|
+	+--- WhereNot
+	|
 	+--- WhereRaw
-    |
+	|
+	+--- WhereNotRaw
+	|
 	+--- WhereExists
-    |
+	|
 	+--- WhereNotExists
-    |
+	|
 	+--- WhereBetween
-    |
+	|
 	+--- WhereNotBetween
-    |
+	|
 	+--- WhereIn
-    |
+	|
 	`--- WhereNotIn
  */
 
@@ -1397,6 +1477,19 @@ public:
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_raw(query, raw);
 	}
+	Where(std::function<void(SqQuery *query)> func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
+		func(query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+	}
+	Where(std::function<void(SqQuery &query)> func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
+		func(*query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+	}
+	// deprecated
 	Where(std::function<void()> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
@@ -1422,9 +1515,68 @@ public:
 		sq_query_where_raw(query, raw);
 		return *this;
 	}
+	// deprecated
 	Where &operator()(std::function<void()> func) {
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
 		func();
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+		return *this;
+	}
+};
+
+class WhereNot : public Sq::QueryProxy
+{
+public:
+	// constructor
+	template <typename... Args>
+	WhereNot(const char *condition, const Args... args) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, condition, args...);
+	}
+	WhereNot(const char *raw) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_raw(query, raw);
+	}
+	WhereNot(std::function<void(SqQuery *query)> func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, NULL);
+		func(query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+	}
+	WhereNot(std::function<void(SqQuery &query)> func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, NULL);
+		func(*query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+	}
+	WhereNot() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereNot() {
+		sq_query_free(query);
+	}
+
+	// operator
+	template <typename... Args>
+	WhereNot &operator()(const char *condition, const Args... args) {
+		sq_query_where_not(query, condition, args...);
+		return *this;
+	}
+	WhereNot &operator()(const char *raw) {
+		sq_query_where_not_raw(query, raw);
+		return *this;
+	}
+	WhereNot &operator()(std::function<void(SqQuery *query)> func) {
+		sq_query_where_not(query, NULL);
+		func(query);
+		sq_query_pop_nested(query);    // end of Subquery/Nested
+		return *this;
+	}
+	WhereNot &operator()(std::function<void(SqQuery &query)> func) {
+		sq_query_where_not(query, NULL);
+		func(*query);
 		sq_query_pop_nested(query);    // end of Subquery/Nested
 		return *this;
 	}
@@ -1450,6 +1602,30 @@ public:
 	// operator
 	WhereRaw &operator()(const char *raw) {
 		sq_query_where_raw(query, raw);
+		return *this;
+	}
+};
+
+class WhereNotRaw : public Sq::QueryProxy
+{
+public:
+	// constructor
+	WhereNotRaw(const char *raw) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_raw(query, raw);
+	}
+	WhereNotRaw() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereNotRaw() {
+		sq_query_free(query);
+	}
+
+	// operator
+	WhereNotRaw &operator()(const char *raw) {
+		sq_query_where_not_raw(query, raw);
 		return *this;
 	}
 };
@@ -1819,7 +1995,10 @@ public:
 };
 
 typedef Where              where;
+typedef WhereNot           whereNot;
+
 typedef WhereRaw           whereRaw;
+typedef WhereNotRaw        whereNotRaw;
 
 typedef WhereExists        whereExists;
 typedef WhereNotExists     whereNotExists;

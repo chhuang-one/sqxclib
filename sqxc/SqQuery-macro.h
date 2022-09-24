@@ -159,8 +159,8 @@
 		sq_query_from(query_cur_, table)
 
 #define SQQ_FROM_SUB(lambda)               \
-		sq_query_from(query_cur_, NULL);  \
-		lambda;                           \
+		sq_query_from(query_cur_, NULL);   \
+		lambda;                            \
 		sq_query_pop_nested(query_cur_)
 
 #define SQQ_AS(alias_name)  \
@@ -230,7 +230,7 @@
 
 // --------------------------------------------------------
 
-#define SQQ_WHERE(...)  \
+#define SQQ_WHERE(...)    \
 		sq_query_where(query_cur_, ##__VA_ARGS__, NULL)
 #define SQQ_WHERE_RAW(raw)    \
 		sq_query_where_raw(query_cur_, raw)
@@ -240,7 +240,7 @@
 		lambda;                             \
 		sq_query_pop_nested(query_cur_)
 
-#define SQQ_OR_WHERE(...)  \
+#define SQQ_OR_WHERE(...)    \
 		sq_query_or_where(query_cur_, ##__VA_ARGS__, NULL)
 #define SQQ_OR_WHERE_RAW(raw)    \
 		sq_query_or_where_raw(query_cur_, raw)
@@ -250,9 +250,27 @@
 		lambda;                               \
 		sq_query_pop_nested(query_cur_)
 
-#define SQQ_WHERE_EXISTS(lambda)            \
-		sq_query_where_exists(query_cur_);  \
-		lambda;                             \
+
+#define SQQ_WHERE_NOT(...)    \
+		sq_query_where_not(query_cur_, ##__VA_ARGS__, NULL)
+
+#define SQQ_WHERE_NOT_SUB(lambda)                   \
+		sq_query_where_not(query_cur_, NULL);       \
+		lambda;                                     \
+		sq_query_pop_nested(query_cur_)
+
+#define SQQ_OR_WHERE_NOT(...)    \
+		sq_query_or_where_not(query_cur_, ##__VA_ARGS__, NULL)
+
+#define SQQ_OR_WHERE_NOT_SUB(lambda)                \
+		sq_query_or_where_not(query_cur_, NULL);    \
+		lambda;                                     \
+		sq_query_pop_nested(query_cur_)
+
+
+#define SQQ_WHERE_EXISTS(lambda)                \
+		sq_query_where_exists(query_cur_);      \
+		lambda;                                 \
 		sq_query_pop_nested(query_cur_)
 
 #define SQQ_WHERE_NOT_EXISTS(lambda)            \

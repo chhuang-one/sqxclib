@@ -64,6 +64,34 @@ void test_query_c(SqQuery *query)
 	free(sql);
 }
 
+void test_query_c_where_not(SqQuery *query)
+{
+	char       *sql;
+	const char *result = "SELECT * "
+	                     "FROM users "
+	                     "WHERE NOT ( "
+	                     "votes > 100 OR name IN ('Ray','Zyx') "
+	                     ")";
+
+	// SELECT * FROM users
+	sq_query_from(query, "users");
+	// WHERE NOT (
+	sq_query_where_not(query, NULL);
+		// votes BETWEEN 1 AND 100
+		sq_query_where(query, "votes", ">", "100");
+		// OR name IN ('Ray', 'Zyx')
+		sq_query_or_where_in(query, "name", 2, "'%s'", "Ray", "Zyx");
+	// )
+	sq_query_pop_nested(query);
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	puts(sql);
+	assert(strcmp(sql, result) == 0);
+	free(sql);
+}
+
 void test_query_c_where_between(SqQuery *query)
 {
 	char       *sql;
@@ -317,6 +345,7 @@ int main(int argc, char **argv)
 	query = sq_query_new(NULL);
 
 	test_query_c(query);
+	test_query_c_where_not(query);
 	test_query_c_where_between(query);
 	test_query_c_where_in(query);
 	test_query_c_raw(query);

@@ -100,9 +100,10 @@ below C functions support printf format string in 2nd argument:
 	sq_query_left_join(),
 	sq_query_right_join(),
 	sq_query_full_join(),
-	sq_query_on(),     sq_query_or_on(),
-	sq_query_where(),  sq_query_or_where(),
-	sq_query_having(), sq_query_or_having(),
+	sq_query_on(),        sq_query_or_on(),
+	sq_query_where(),     sq_query_or_where(),
+	sq_query_where_not(), sq_query_or_where_not(),
+	sq_query_having(),    sq_query_or_having(),
 
 C language example:
 
@@ -119,9 +120,10 @@ below C++ methods support printf format string in 1st argument:
 	leftJoin(),
 	rightJoin(),
 	fullJoin(),
-	on(),     orOn(),
-	where(),  orWhere(),
-	having(), orHaving(),
+	on(),       orOn(),
+	where(),    orWhere(),
+	whereNot(), orWhereNot(),
+	having(),   orHaving(),
 
 C++ language example:
 
@@ -136,9 +138,10 @@ C++ language example:
 If the 2nd argument of below C++ methods is NOT exist, the 1st argument is handled as raw string.  
 These C++ methods has overloaded function to handle raw string:
 
-	on(),     orOn(),
-	where(),  orWhere(),
-	having(), orHaving(),
+	on(),       orOn(),
+	where(),    orWhere(),
+	whereNot(), orWhereNot(),
+	having(),   orHaving(),
 	select(),
 	groupBy(),
 	orderBy()
@@ -179,12 +182,14 @@ use C++ language
 	query->distinct();
 ```
 
-#### where / orWhere
+#### where / whereNot / orWhere / orWhereNot
 
+These functions/methods are used to filter the results and apply conditions.  
+  
 e.g. generate below SQL statement.
 
 ```sql
-SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR members < 100
+SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 ```
 
 use C language
@@ -193,7 +198,7 @@ use C language
 	sq_query_table(query, "companies");
 	sq_query_where(query, "id", ">", "15");
 	sq_query_or_where(query, "city_id", "6");
-	sq_query_or_where(query, "members < %d", 100);
+	sq_query_or_where_not(query, "members < %d", 100);
 ```
 
 use C++ language
@@ -202,7 +207,31 @@ use C++ language
 	query->table("companies")
 	     ->where("id", ">", "15")
 	     ->orWhere("city_id", "6")
-	     ->orWhere("members < %d", 100);
+	     ->orWhereNot("members < %d", 100);
+```
+
+These methods can also be used to specify a group of query conditions.  
+  
+use C language
+
+```c
+	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
+	sq_query_table(query, "products");
+	sq_query_where_not(query);
+		sq_query_where(query, "city_id", "6");
+		sq_query_or_where(query, "price < %d", 100);
+	sq_query_pop_nested(query);
+```
+
+use C++ language
+
+```c++
+	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
+	query->table("products")
+	     ->whereNot([query] {
+	         query->where("city_id", "6")
+	              ->orWhere("price < %d", 100);
+		 });
 ```
 
 #### whereBetween / orWhereBetween
@@ -488,14 +517,16 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 4. Below is currently provided convenient C++ class:
 
 ```
-	Sq::Where,        Sq::WhereRaw,
+	Sq::Where,        Sq::WhereNot,
+	Sq::WhereRaw,     Sq::WhereNotRaw,
 	Sq::WhereExists,  Sq::WhereNotExists,
 	Sq::WhereBetween, Sq::WhereNotBetween,
 	Sq::WhereIn,      Sq::WhereNotIn,
 
 	'Where' class series use 'typedef' to give them new names: lower case 'where' class series.
 
-	Sq::where,        Sq::whereRaw,
+	Sq::where,        Sq::whereNot,
+	Sq::whereRaw,     Sq::whereNotRaw,
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,
@@ -529,7 +560,7 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 	     ->select("COUNT(column_name)");
 ```
 
-#### whereRaw / orWhereRaw
+#### whereRaw / whereNotRaw / orWhereRaw / orWhereNotRaw
 
 use C language
 
@@ -776,9 +807,11 @@ below C functions support Subquery or Nested:
 	sq_query_right_join(),
 	sq_query_full_join(),
 	sq_query_cross_join(),
-	sq_query_on(),     sq_query_or_on(),
-	sq_query_where(),  sq_query_or_where(),  sq_query_where_exists(), sq_query_where_not_exists(),
-	sq_query_having(), sq_query_or_having()
+	sq_query_on(),           sq_query_or_on(),
+	sq_query_where(),        sq_query_or_where(),
+	sq_query_where_not(),    sq_query_or_where_not(),
+	sq_query_where_exists(), sq_query_where_not_exists(),
+	sq_query_having(),       sq_query_or_having(),
 
 Note1: except sq_query_where_exists() and sq_query_where_not_exists(), second argument of these functions must be NULL.  
 Note2: you must call sq_query_pop_nested() in end of Subquery (or Nested).  
@@ -790,9 +823,11 @@ below C++ method use lambda function to support Subquery or Nested, user don't n
 	rightJoin(),
 	fullJoin(),
 	crossJoin(),
-	on(),     orOn(),
-	where(),  orWhere(),  whereExists(), whereNotExists(),
-	having(), orHaving()
+	on(),          orOn(),
+	where(),       orWhere(),
+	whereNot(),    orWhereNot(),
+	whereExists(), whereNotExists(),
+	having(),      orHaving(),
 
 #### Nested
 

@@ -491,14 +491,16 @@ use constructor and operator of Sq::where
 Below is currently provided convenient C++ class:  
 
 ```
-	Sq::Where,        Sq::WhereRaw,
+	Sq::Where,        Sq::WhereNot,
+	Sq::WhereRaw,     Sq::WhereNotRaw,
 	Sq::WhereExists,  Sq::WhereNotExists,
 	Sq::WhereBetween, Sq::WhereNotBetween,
 	Sq::WhereIn,      Sq::WhereNotIn,
 
 	'Where' class series use 'typedef' to give them new names: lower case 'where' class series.
 
-	Sq::where,        Sq::whereRaw,
+	Sq::where,        Sq::whereNot,
+	Sq::whereRaw,     Sq::whereNotRaw,
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,

@@ -100,6 +100,21 @@ public:
 	QueryProxy &orWhere(const char *raw);
 	QueryProxy &orWhereRaw(const char *raw);
 
+	// whereNot(condition, ...)
+	template <typename... Args>
+	QueryProxy &whereNot(const char *condition, const Args... args);
+	QueryProxy &whereNot(std::function<void()> func);
+
+	QueryProxy &whereNot(const char *raw);
+	QueryProxy &whereNotRaw(const char *raw);
+
+	template <typename... Args>
+	QueryProxy &orWhereNot(const char *condition, const Args... args);
+	QueryProxy &orWhereNot(std::function<void()> func);
+
+	QueryProxy &orWhereNot(const char *raw);
+	QueryProxy &orWhereNotRaw(const char *raw);
+
 	// whereExists
 	QueryProxy &whereExists(std::function<void()> func);
 	QueryProxy &whereNotExists(std::function<void()> func);
@@ -442,6 +457,48 @@ inline QueryProxy &QueryProxy::orWhere(const char *raw) {
 }
 inline QueryProxy &QueryProxy::orWhereRaw(const char *raw) {
 	sq_query_or_where_raw(query, raw);
+	return *this;
+}
+
+template <typename... Args>
+inline QueryProxy &QueryProxy::whereNot(const char *condition, const Args... args) {
+	sq_query_where_not(query, condition, args...);
+	return *this;
+}
+inline QueryProxy &QueryProxy::whereNot(std::function<void()> func) {
+	sq_query_where_not(query, NULL);
+	func();
+	sq_query_pop_nested(query);    // end of Subquery/Nested
+	return *this;
+}
+
+inline QueryProxy &QueryProxy::whereNot(const char *raw) {
+	sq_query_where_not_raw(query, raw);
+	return *this;
+}
+inline QueryProxy &QueryProxy::whereNotRaw(const char *raw) {
+	sq_query_where_not_raw(query, raw);
+	return *this;
+}
+
+template <typename... Args>
+inline QueryProxy &QueryProxy::orWhereNot(const char *condition, const Args... args) {
+	sq_query_or_where_not(query, condition, args...);
+	return *this;
+}
+inline QueryProxy &QueryProxy::orWhereNot(std::function<void()> func) {
+	sq_query_or_where_not(query, NULL);
+	func();
+	sq_query_pop_nested(query);    // end of Subquery/Nested
+	return *this;
+}
+
+inline QueryProxy &QueryProxy::orWhereNot(const char *raw) {
+	sq_query_or_where_not_raw(query, raw);
+	return *this;
+}
+inline QueryProxy &QueryProxy::orWhereNotRaw(const char *raw) {
+	sq_query_or_where_not_raw(query, raw);
 	return *this;
 }
 
