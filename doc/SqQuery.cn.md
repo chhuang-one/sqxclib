@@ -105,6 +105,10 @@ use C++ language
 	sq_query_where_not(), sq_query_or_where_not(),
 	sq_query_having(),    sq_query_or_having(),
 
+其他支持 printf 格式字符串的 C 函数：
+	sq_query_where_between() 系列
+	sq_query_where_in() 系列
+
 C 语言示例：
 
 ```c
@@ -124,6 +128,10 @@ C 语言示例：
 	where(),    orWhere(),
 	whereNot(), orWhereNot(),
 	having(),   orHaving(),
+
+其他支持 printf 格式字符串的 C++ 方法：
+	whereBetween() 系列
+	whereIn() 系列
 
 C++ 语言示例：
 
@@ -317,6 +325,26 @@ whereIn() 可以与 printf 格式字符串一起使用：
 	// SELECT * FROM users WHERE id IN ('Ray','Alex','Xyz')
 	query->table("users")
 	     ->whereIn("id", 0, "'%s'", "Ray", "Alex", "Xyz");
+```
+
+#### whereNull / whereNotNull / orWhereNull / orWhereNotNull
+
+这些方法用于指定 SQL 条件 "IS NULL" 或 "IS NOT NULL"。  
+  
+使用 C 语言
+
+```c
+	// SELECT * FROM users WHERE updated_at IS NULL
+	sq_query_table(query, "users");
+	sq_query_where_null(query, "updated_at");
+```
+
+使用 C++ 语言
+
+```c++
+	// SELECT * FROM users WHERE updated_at IS NOT NULL
+	query->table("users")
+	     ->whereNotNull("updated_at");
 ```
 
 #### having / orHaving
@@ -522,6 +550,7 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 	Sq::WhereExists,  Sq::WhereNotExists,
 	Sq::WhereBetween, Sq::WhereNotBetween,
 	Sq::WhereIn,      Sq::WhereNotIn,
+	Sq::WhereNull,    Sq::WhereNotNull,
 
 	'Where' 类系列使用 'typedef' 给它们新名称：小写的 'where' 类系列。
 
@@ -530,6 +559,7 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,
+	Sq::whereNull,    Sq::whereNotNull,
 ```
 
 ## 原始方法 Raw Methods

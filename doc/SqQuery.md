@@ -105,6 +105,10 @@ below C functions support printf format string in 2nd argument:
 	sq_query_where_not(), sq_query_or_where_not(),
 	sq_query_having(),    sq_query_or_having(),
 
+other C functions that support printf format string:
+	sq_query_where_between() series
+	sq_query_where_in() series
+
 C language example:
 
 ```c
@@ -124,6 +128,10 @@ below C++ methods support printf format string in 1st argument:
 	where(),    orWhere(),
 	whereNot(), orWhereNot(),
 	having(),   orHaving(),
+
+other C++ methods that support printf format string:
+	whereBetween() series
+	whereIn() series
 
 C++ language example:
 
@@ -317,6 +325,26 @@ whereIn() can use with printf format string:
 	// SELECT * FROM users WHERE id IN ('Ray','Alex','Xyz')
 	query->table("users")
 	     ->whereIn("id", 0, "'%s'", "Ray", "Alex", "Xyz");
+```
+
+#### whereNull / whereNotNull / orWhereNull / orWhereNotNull
+
+These methods are used to specify a SQL condition "IS NULL" or "IS NOT NULL".  
+  
+use C language
+
+```c
+	// SELECT * FROM users WHERE updated_at IS NULL
+	sq_query_table(query, "users");
+	sq_query_where_null(query, "updated_at");
+```
+
+use C++ language
+
+```c++
+	// SELECT * FROM users WHERE updated_at IS NOT NULL
+	query->table("users")
+	     ->whereNotNull("updated_at");
 ```
 
 #### having / orHaving
@@ -522,6 +550,7 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 	Sq::WhereExists,  Sq::WhereNotExists,
 	Sq::WhereBetween, Sq::WhereNotBetween,
 	Sq::WhereIn,      Sq::WhereNotIn,
+	Sq::WhereNull,    Sq::WhereNotNull,
 
 	'Where' class series use 'typedef' to give them new names: lower case 'where' class series.
 
@@ -530,6 +559,7 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,
+	Sq::whereNull,    Sq::whereNotNull,
 ```
 
 ## Raw Methods

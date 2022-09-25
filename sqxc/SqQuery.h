@@ -247,7 +247,7 @@ void    sq_query_where_exists_logical(SqQuery *query, int logi_type);
 #define sq_query_where_not_exists(query)      \
 		sq_query_where_exists_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT)
 
-// SQL: WHERE BETWEEN
+// SQL: WHERE column BETWEEN
 void    sq_query_where_between_logical(SqQuery *query, const char *column_name, int logi_type, const char* format, ...);
 
 // void sq_query_where_between(SqQuery *query, const char *column_name, const char *format, Value1, Value2);
@@ -266,7 +266,7 @@ void    sq_query_where_between_logical(SqQuery *query, const char *column_name, 
 #define sq_query_or_where_not_between(query, column_name, format, ...)    \
 		sq_query_where_between_logical(query, column_name, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT, format, __VA_ARGS__)
 
-// SQL: WHERE IN
+// SQL: WHERE column IN
 void    sq_query_where_in_logical(SqQuery *query, const char *column_name, int logi_type, int n_args, const char* format, ...);
 
 // void sq_query_where_in(SqQuery *query, const char *column_name, int n_args, const char *format, ...);
@@ -284,6 +284,25 @@ void    sq_query_where_in_logical(SqQuery *query, const char *column_name, int l
 // void sq_query_or_where_not_in(SqQuery *query, const char *column_name, int n_args, const char *format, ...);
 #define sq_query_or_where_not_in(query, column_name, n_args, format, ...)    \
 		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT, n_args, format, __VA_ARGS__)
+
+// SQL: WHERE column IS NULL
+void    sq_query_where_null_logical(SqQuery *query, const char *column_name, int logi_type);
+
+// void sq_query_where_null(SqQuery *query, const char *column_name);
+#define sq_query_where_null(query, column_name)    \
+		sq_query_where_null_logical(query, column_name, SQ_QUERYLOGI_AND);
+
+// void sq_query_where_not_null(SqQuery *query, const char *column_name);
+#define sq_query_where_not_null(query, column_name)    \
+		sq_query_where_null_logical(query, column_name, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT);
+
+// void sq_query_or_where_null(SqQuery *query, const char *column_name);
+#define sq_query_or_where_null(query, column_name)    \
+		sq_query_where_null_logical(query, column_name, SQ_QUERYLOGI_OR);
+
+// void sq_query_or_where_not_null(SqQuery *query, const char *column_name);
+#define sq_query_or_where_not_null(query, column_name)    \
+		sq_query_where_null_logical(query, column_name, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT);
 
 // SQL: GROUP BY
 // the last argument of sq_query_group_by() must be NULL.
@@ -569,9 +588,15 @@ struct QueryMethod
 	template <typename... Args>
 	Sq::Query &orWhereNotIn(const char *columnName, int n_args, const char *format, const Args... args);
 
+	// whereNull
+	Sq::Query &whereNull(const char *columnName);
+	Sq::Query &whereNotNull(const char *columnName);
+	Sq::Query &orWhereNull(const char *columnName);
+	Sq::Query &orWhereNotNull(const char *columnName);
+
 	// groupBy(column...)
 	template <typename... Args>
-	Sq::Query &groupBy(const char *column_name, const Args... args);
+	Sq::Query &groupBy(const char *columnName, const Args... args);
 	Sq::Query &groupBy(const char *raw);
 	Sq::Query &groupByRaw(const char *raw);
 
@@ -593,17 +618,17 @@ struct QueryMethod
 
 	// select(column...)
 	template <typename... Args>
-	Sq::Query &select(const char *column_name, const Args... args);
+	Sq::Query &select(const char *columnName, const Args... args);
 	Sq::Query &select(const char *raw);
 	Sq::Query &selectRaw(const char *raw);
 	Sq::Query &distinct();
 
 	// orderBy(column...)
 	template <typename... Args>
-	Sq::Query &orderBy(const char *column_name, const Args... args);
+	Sq::Query &orderBy(const char *columnName, const Args... args);
 	Sq::Query &orderBy(const char *raw);
 	Sq::Query &orderByRaw(const char *raw);
-	Sq::Query &orderByDesc(const char *column_name);
+	Sq::Query &orderByDesc(const char *columnName);
 	Sq::Query &asc();
 	Sq::Query &desc();
 
@@ -1201,9 +1226,26 @@ inline Sq::Query &QueryMethod::orWhereNotIn(const char *columnName, int n_args, 
 	return *(Sq::Query*)this;
 }
 
+inline Sq::Query &QueryMethod::whereNull(const char *columnName) {
+	sq_query_where_null((SqQuery*)this, columnName);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query &QueryMethod::whereNotNull(const char *columnName) {
+	sq_query_where_not_null((SqQuery*)this, columnName);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query &QueryMethod::orWhereNull(const char *columnName) {
+	sq_query_or_where_null((SqQuery*)this, columnName);
+	return *(Sq::Query*)this;
+}
+inline Sq::Query &QueryMethod::orWhereNotNull(const char *columnName) {
+	sq_query_or_where_not_null((SqQuery*)this, columnName);
+	return *(Sq::Query*)this;
+}
+
 template <typename... Args>
-inline Sq::Query &QueryMethod::groupBy(const char *column_name, const Args... args) {
-	sq_query_group_by((SqQuery*)this, column_name, args..., NULL);
+inline Sq::Query &QueryMethod::groupBy(const char *columnName, const Args... args) {
+	sq_query_group_by((SqQuery*)this, columnName, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::groupBy(const char *raw) {
@@ -1258,8 +1300,8 @@ inline Sq::Query &QueryMethod::orHavingRaw(const char *raw) {
 }
 
 template <typename... Args>
-inline Sq::Query &QueryMethod::select(const char *column_name, const Args... args) {
-	sq_query_select((SqQuery*)this, column_name, args..., NULL);
+inline Sq::Query &QueryMethod::select(const char *columnName, const Args... args) {
+	sq_query_select((SqQuery*)this, columnName, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::select(const char *raw) {
@@ -1276,8 +1318,8 @@ inline Sq::Query &QueryMethod::distinct() {
 }
 
 template <typename... Args>
-inline Sq::Query &QueryMethod::orderBy(const char *column_name, const Args... args) {
-	sq_query_order_by((SqQuery*)this, column_name, args..., NULL);
+inline Sq::Query &QueryMethod::orderBy(const char *columnName, const Args... args) {
+	sq_query_order_by((SqQuery*)this, columnName, args..., NULL);
 	return *(Sq::Query*)this;
 }
 inline Sq::Query &QueryMethod::orderBy(const char *raw) {
@@ -1288,8 +1330,8 @@ inline Sq::Query &QueryMethod::orderByRaw(const char *raw) {
 	sq_query_order_by_raw((SqQuery*)this, raw);
 	return *(Sq::Query*)this;
 }
-inline Sq::Query &QueryMethod::orderByDesc(const char *column_name) {
-	sq_query_order_by((SqQuery*)this, column_name, NULL);
+inline Sq::Query &QueryMethod::orderByDesc(const char *columnName) {
+	sq_query_order_by((SqQuery*)this, columnName, NULL);
 	sq_query_desc((SqQuery*)this);
 	return *(Sq::Query*)this;
 }
@@ -1461,7 +1503,11 @@ namespace Sq {
 	|
 	+--- WhereIn
 	|
-	`--- WhereNotIn
+	+--- WhereNotIn
+	|
+	+--- WhereNull
+	|
+	`--- WhereNotNull
  */
 
 class Where : public Sq::QueryProxy
@@ -1994,6 +2040,54 @@ public:
 	}
 };
 
+class WhereNull : public Sq::QueryProxy
+{
+public:
+	// constructor
+	WhereNull(const char *columnName) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_null(query, columnName);
+	}
+	WhereNull() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereNull() {
+		sq_query_free(query);
+	}
+
+	// operator
+	WhereNull &operator()(const char *columnName) {
+		sq_query_where_null(query, columnName);
+		return *this;
+	}
+};
+
+class WhereNotNull : public Sq::QueryProxy
+{
+public:
+	// constructor
+	WhereNotNull(const char *columnName) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_null(query, columnName);
+	}
+	WhereNotNull() {
+		query = (Sq::Query*)sq_query_new(NULL);
+	}
+
+	// destructor
+	~WhereNotNull() {
+		sq_query_free(query);
+	}
+
+	// operator
+	WhereNotNull &operator()(const char *columnName) {
+		sq_query_where_not_null(query, columnName);
+		return *this;
+	}
+};
+
 typedef Where              where;
 typedef WhereNot           whereNot;
 
@@ -2008,6 +2102,9 @@ typedef WhereNotBetween    whereNotBetween;
 
 typedef WhereIn            whereIn;
 typedef WhereNotIn         whereNotIn;
+
+typedef WhereNull          whereNull;
+typedef WhereNotNull       whereNotNull;
 
 };  // namespace Sq
 

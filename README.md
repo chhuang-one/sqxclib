@@ -496,6 +496,7 @@ Below is currently provided convenient C++ class:
 	Sq::WhereExists,  Sq::WhereNotExists,
 	Sq::WhereBetween, Sq::WhereNotBetween,
 	Sq::WhereIn,      Sq::WhereNotIn,
+	Sq::WhereNull,    Sq::WhereNotNull,
 
 	'Where' class series use 'typedef' to give them new names: lower case 'where' class series.
 
@@ -504,6 +505,7 @@ Below is currently provided convenient C++ class:
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,
+	Sq::whereNull,    Sq::whereNotNull,
 ```
 
 ## JOIN support

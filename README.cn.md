@@ -494,6 +494,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 	Sq::WhereExists,  Sq::WhereNotExists,
 	Sq::WhereBetween, Sq::WhereNotBetween,
 	Sq::WhereIn,      Sq::WhereNotIn,
+	Sq::WhereNull,    Sq::WhereNotNull,
 
 	'Where' 类系列使用 'typedef' 给它们新名称：小写的 'where' 类系列。
 
@@ -502,6 +503,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 	Sq::whereExists,  Sq::whereNotExists,
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,
+	Sq::whereNull,    Sq::whereNotNull,
 ```
 
 ## JOIN 支持

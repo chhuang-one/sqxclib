@@ -215,6 +215,11 @@ void test_query_cpp_convenient_class()
 	sql = Sq::whereIn("id", 1, 9, 13).orWhereIn("city_id", 22, 50, 74).c();
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE id IN (1,9,13) OR city_id IN (22,50,74)") == 0);
+
+	// whereNull
+	sql = Sq::whereNull("id").orWhereNotNull("city_id").c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "WHERE id IS NULL OR city_id IS NOT NULL") == 0);
 }
 
 void test_query()

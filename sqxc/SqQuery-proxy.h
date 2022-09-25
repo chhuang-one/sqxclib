@@ -205,9 +205,15 @@ public:
 	template <typename... Args>
 	QueryProxy &orWhereNotIn(const char *columnName, int n_args, const char *format, const Args... args);
 
+	// whereNull
+	QueryProxy &whereNull(const char *columnName);
+	QueryProxy &whereNotNull(const char *columnName);
+	QueryProxy &orWhereNull(const char *columnName);
+	QueryProxy &orWhereNotNull(const char *columnName);
+
 	// groupBy(column...)
 	template <typename... Args>
-	QueryProxy &groupBy(const char *column_name, const Args... args);
+	QueryProxy &groupBy(const char *columnName, const Args... args);
 	QueryProxy &groupBy(const char *raw);
 	QueryProxy &groupByRaw(const char *raw);
 
@@ -229,17 +235,17 @@ public:
 
 	// select(column...)
 	template <typename... Args>
-	QueryProxy &select(const char *column_name, const Args... args);
+	QueryProxy &select(const char *columnName, const Args... args);
 	QueryProxy &select(const char *raw);
 	QueryProxy &selectRaw(const char *raw);
 	QueryProxy &distinct();
 
 	// orderBy(column...)
 	template <typename... Args>
-	QueryProxy &orderBy(const char *column_name, const Args... args);
+	QueryProxy &orderBy(const char *columnName, const Args... args);
 	QueryProxy &orderBy(const char *raw);
 	QueryProxy &orderByRaw(const char *raw);
-	QueryProxy &orderByDesc(const char *column_name);
+	QueryProxy &orderByDesc(const char *columnName);
 	QueryProxy &asc();
 	QueryProxy &desc();
 
@@ -743,9 +749,26 @@ inline QueryProxy &QueryProxy::orWhereNotIn(const char *columnName, int n_args, 
 	return *this;
 }
 
+inline QueryProxy &QueryProxy::whereNull(const char *columnName) {
+	sq_query_where_null(query, columnName);
+	return *this;
+}
+inline QueryProxy &QueryProxy::whereNotNull(const char *columnName) {
+	sq_query_where_not_null(query, columnName);
+	return *this;
+}
+inline QueryProxy &QueryProxy::orWhereNull(const char *columnName) {
+	sq_query_or_where_null(query, columnName);
+	return *this;
+}
+inline QueryProxy &QueryProxy::orWhereNotNull(const char *columnName) {
+	sq_query_or_where_not_null(query, columnName);
+	return *this;
+}
+
 template <typename... Args>
-inline QueryProxy &QueryProxy::groupBy(const char *column_name, const Args... args) {
-	sq_query_group_by(query, column_name, args..., NULL);
+inline QueryProxy &QueryProxy::groupBy(const char *columnName, const Args... args) {
+	sq_query_group_by(query, columnName, args..., NULL);
 	return *this;
 }
 inline QueryProxy &QueryProxy::groupBy(const char *raw) {
@@ -800,8 +823,8 @@ inline QueryProxy &QueryProxy::orHavingRaw(const char *raw) {
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::select(const char *column_name, const Args... args) {
-	sq_query_select(query, column_name, args..., NULL);
+inline QueryProxy &QueryProxy::select(const char *columnName, const Args... args) {
+	sq_query_select(query, columnName, args..., NULL);
 	return *this;
 }
 inline QueryProxy &QueryProxy::select(const char *raw) {
@@ -818,8 +841,8 @@ inline QueryProxy &QueryProxy::distinct() {
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::orderBy(const char *column_name, const Args... args) {
-	sq_query_order_by(query, column_name, args..., NULL);
+inline QueryProxy &QueryProxy::orderBy(const char *columnName, const Args... args) {
+	sq_query_order_by(query, columnName, args..., NULL);
 	return *this;
 }
 inline QueryProxy &QueryProxy::orderBy(const char *raw) {
@@ -830,8 +853,8 @@ inline QueryProxy &QueryProxy::orderByRaw(const char *raw) {
 	sq_query_order_by_raw(query, raw);
 	return *this;
 }
-inline QueryProxy &QueryProxy::orderByDesc(const char *column_name) {
-	sq_query_order_by(query, column_name, NULL);
+inline QueryProxy &QueryProxy::orderByDesc(const char *columnName) {
+	sq_query_order_by(query, columnName, NULL);
 	sq_query_desc(query);
 	return *this;
 }

@@ -278,6 +278,7 @@
 		lambda;                                 \
 		sq_query_pop_nested(query_cur_)
 
+
 #define SQQ_WHERE_BETWEEN(column, format, ...)    \
 		sq_query_where_between(query_cur_, column, format, __VA_ARGS__)
 
@@ -290,6 +291,7 @@
 #define SQQ_OR_WHERE_NOT_BETWEEN(column, format, ...)    \
 		sq_query_or_where_not_between(query_cur_, column, format, __VA_ARGS__)
 
+
 #define SQQ_WHERE_IN(column, n_args, format, ...)    \
 		sq_query_where_in(query_cur_, column, n_args, format, __VA_ARGS__)
 
@@ -301,6 +303,19 @@
 
 #define SQQ_OR_WHERE_NOT_IN(column, n_args, format, ...)    \
 		sq_query_or_where_not_in(query_cur_, column, n_args, format, __VA_ARGS__)
+
+
+#define SQQ_WHERE_NULL(column)    \
+		sq_query_where_null(query_cur_, column)
+
+#define SQQ_WHERE_NOT_NULL(column)    \
+		sq_query_where_not_null(query_cur_, column)
+
+#define SQQ_OR_WHERE_NULL(column)    \
+		sq_query_or_where_null(query_cur_, column)
+
+#define SQQ_OR_WHERE_NOT_NULL(column)    \
+		sq_query_or_where_not_null(query_cur_, column)
 
 // --------------------------------------------------------
 

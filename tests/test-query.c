@@ -138,6 +138,29 @@ void test_query_c_where_in(SqQuery *query)
 	free(sql);
 }
 
+void test_query_c_where_null(SqQuery *query)
+{
+	char       *sql;
+	const char *result = "SELECT * "
+	                     "FROM users "
+	                     "WHERE votes IS NOT NULL "
+	                     "OR name IS NOT NULL";
+
+	// SELECT * FROM users
+	sq_query_from(query, "users");
+	// WHERE votes IN (1,3,5)
+	sq_query_where_not_null(query, "votes");
+	// OR name NOT IN ('Alex','Ray','Zyx')
+	sq_query_or_where_not_null(query, "name");
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	puts(sql);
+	assert(strcmp(sql, result) == 0);
+	free(sql);
+}
+
 void test_query_c_raw(SqQuery *query)
 {
 	char       *sql;
@@ -348,6 +371,7 @@ int main(int argc, char **argv)
 	test_query_c_where_not(query);
 	test_query_c_where_between(query);
 	test_query_c_where_in(query);
+	test_query_c_where_null(query);
 	test_query_c_raw(query);
 	test_query_c_raw_statement(query);
 	test_query_c_nested(query);
