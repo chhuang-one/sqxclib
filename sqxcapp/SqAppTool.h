@@ -98,9 +98,9 @@ struct AppToolMethod : AppMethod {
 
 /*	SqAppTool is used by command-line program - sqxctool and sqxcpptool.
 
-    SqApp
-    |
-    `--- SqAppTool
+	SqApp
+	|
+	`--- SqAppTool
  */
 
 #define SQ_APP_TOOL_MEMBERS                \

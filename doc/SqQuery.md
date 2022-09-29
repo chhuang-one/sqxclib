@@ -192,8 +192,12 @@ use C++ language
 
 #### where / whereNot / orWhere / orWhereNot
 
-These functions/methods are used to filter the results and apply conditions.  
-  
+These functions/methods are used to filter the results and apply conditions.
+
+* The order of arguments are name of column, comparison operator, and the value to compare.
+* If name of column has % character, It handle as printf format string.
+* If the argument of comparison operator is =, it can be omitted.
+
 e.g. generate below SQL statement.
 
 ```sql
@@ -203,18 +207,26 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 use C language
 
 ```c
+	// SELECT * FROM companies
 	sq_query_table(query, "companies");
+	// WHERE id > 15
 	sq_query_where(query, "id", ">", "15");
+	// OR city_id = 6
 	sq_query_or_where(query, "city_id", "6");
+	// OR NOT members < 100
 	sq_query_or_where_not(query, "members < %d", 100);
 ```
 
 use C++ language
 
 ```c++
+	// SELECT * FROM companies
 	query->table("companies")
+	     // WHERE id > 15
 	     ->where("id", ">", "15")
+	     // OR city_id = 6
 	     ->orWhere("city_id", "6")
+	     // OR NOT members < 100
 	     ->orWhereNot("members < %d", 100);
 ```
 
@@ -266,7 +278,7 @@ use C++ language
 	     ->whereBetween("votes", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
-	query->orWhereBetWeen("name", "'%s'", "Ray", "Zyx");
+	query->orWhereBetween("name", "'%s'", "Ray", "Zyx");
 ```
 
 #### whereNotBetween / orWhereNotBetween
@@ -292,7 +304,7 @@ use C++ language
 	     ->whereNotBetween("votes", 1, 100);
 
 	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
-	query->orWhereNotBetWeen("name", "'%s'", "Ray", "Zyx");
+	query->orWhereNotBetween("name", "'%s'", "Ray", "Zyx");
 ```
 
 #### whereIn / whereNotIn / orWhereIn / orWhereNotIn
@@ -349,10 +361,13 @@ use C++ language
 
 #### having / orHaving
 
+The usage of having method is similar to the where method.  
+  
 use C language
 
 ```c
 	sq_query_table(query, "companies");
+	sq_query_group_by(query, "city_id", NULL);    // the last argument must be NULL
 	sq_query_having(query, "age", ">", "10");
 	sq_query_or_having(query, "members < %d", 50);
 ```
@@ -361,7 +376,8 @@ use C++ language
 
 ```c++
 	query->table("companies")
-	     ->having("age", ">", "10");
+	     ->groupBy("city_id")
+	     ->having("age", ">", "10")
 	     ->orHaving("members < %d", 50);
 ```
 
@@ -623,6 +639,7 @@ use C language
 
 ```c
 	sq_query_table(query, "orders");
+	sq_query_group_by(query, "city_id", NULL);    // the last argument must be NULL
 	sq_query_having_raw(query, "SUM(price) > 3000");
 ```
 
@@ -630,6 +647,7 @@ use C++ language
 
 ```c++
 	query->table("orders")
+	     ->groupBy("city_id")
 	     ->havingRaw("SUM(price) > 3000");
 ```
 
@@ -638,6 +656,7 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 ```c++
 	query->table("orders")
+	     ->groupBy("city_id")
 	     ->having("SUM(price) > 3000");
 ```
 
@@ -735,21 +754,21 @@ use C language
 
 ```c
 	sq_query_table(query, "companies");
-	sq_query_join(query, "city", "city.id", "<", "100");
+	sq_query_join(query, "city", "users.id", "=", "posts.user_id");
 ```
 
 use C++ language
 
 ```c++
 	query->table("companies")
-	     ->join("city", "city.id", "<", "100");
+	     ->join("city", "users.id", "=", "posts.user_id");
 ```
 
 #### Left Join / Right Join / Full Join
 
 use C language
 
-```
+```c
 	sq_query_table(query, "users");
 	sq_query_left_join(query, "posts", "users.id", "=", "posts.user_id");
 
@@ -787,6 +806,32 @@ use C++ language
 ```c++
 	query->table("users")
 	     ->crossJoin("posts");
+```
+
+#### join method use with on / orOn methods
+
+The usage of on method is similar to the where method.  
+  
+use C language
+
+```c
+	// SELECT * FROM users
+	sq_query_table(query, "users");
+	// JOIN posts ON users.id = posts.user_id
+	sq_query_join(query, "posts", "users.id", "=", "posts.user_id");
+	// AND users.id > 120
+	sq_query_on(query, "users.id > %d", 120);
+```
+
+use C++ language
+
+```c++
+	// SELECT * FROM users
+	query->table("users")
+	     // JOIN posts ON users.id = posts.user_id
+	     ->join("posts", "users.id", "=", "posts.user_id")
+	     // AND users.id > 120
+	     ->on("users.id > %d", 120);
 ```
 
 ## Unions

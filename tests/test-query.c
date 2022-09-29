@@ -50,7 +50,7 @@ void test_query_c(SqQuery *query)
 	sq_query_on(query, "city.age", ">", "10");
 
 	// "GROUP BY companies.age"
-	sq_query_group_by(query, "companies.age", NULL);
+	sq_query_group_by(query, "companies.age", NULL);    // the last argument must be NULL
 
 	// "ORDER BY companies.id ASC"
 	sq_query_order_by(query, "companies.id", NULL);
@@ -219,6 +219,24 @@ void test_query_c_nested(SqQuery *query)
 	free(sql);
 }
 
+void test_query_c_join(SqQuery *query)
+{
+	char       *sql;
+	const char *result = "SELECT * FROM users JOIN contacts ON users.id = contacts.user_id AND users.id > 120";
+
+	sq_query_from(query, "users");
+	sq_query_join(query, "contacts", "users.id", "=", "contacts.user_id");
+	sq_query_on(query, "users.id", ">", "120");
+//	sq_query_or_on(query, "contacts.user_id", "<", "88");
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	puts(sql);
+	assert(strcmp(sql, result) == 0);
+	free(sql);
+}
+
 void test_query_c_union(SqQuery *query)
 {
 	char       *sql;
@@ -258,13 +276,14 @@ void test_query_c_no_select_from(SqQuery *query)
 
 	sq_query_where(query, "id > 10", NULL);
 	sq_query_where(query, "id < %d", 99);
+	sq_query_group_by(query, "age", NULL);    // the last argument must be NULL
 	sq_query_having(query, "city_id > 3", NULL);
 	sq_query_or_having(query, "city_id < 9", NULL);
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
 	puts(sql);
-	assert(strcmp(sql, "WHERE id > 10 AND id < 99 HAVING city_id > 3 OR city_id < 9") == 0);
+	assert(strcmp(sql, "WHERE id > 10 AND id < 99 GROUP BY age HAVING city_id > 3 OR city_id < 9") == 0);
 	free(sql);
 }
 
@@ -375,6 +394,7 @@ int main(int argc, char **argv)
 	test_query_c_raw(query);
 	test_query_c_raw_statement(query);
 	test_query_c_nested(query);
+	test_query_c_join(query);
 	test_query_c_union(query);
 	test_query_c_str(query);
 	test_query_c_no_select_from(query);

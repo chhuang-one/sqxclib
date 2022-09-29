@@ -852,8 +852,8 @@ static SqQueryNode *sq_query_condition(SqQuery *query, va_list arg_list)
 		node->value = strdup(argv[0]);
 		return node;
 	}
-	// if argv[1] has SQL Comparison Operators
 	temp.length += (int)strlen(argv[1]) +1;
+	// if argv[1] has NO  SQL comparison operators
 	if (strpbrk(argv[1], "!=<>") == NULL) {
 		argv[2] = argv[1];
 		argv[1] = "=";

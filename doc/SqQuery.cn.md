@@ -192,8 +192,12 @@ sq_query_select() 可以在参数中指定多个列（最后一个参数必须�
 
 #### where / whereNot / orWhere / orWhereNot
 
-这些函数/方法用于过滤结果和应用条件。  
-  
+这些函数/方法用于过滤结果和应用条件。
+
+* 参数的顺序是列名、比较运算符、要比较的值。
+* 如果列名有 % 字符，则作为 printf 格式字符串处理。
+* 如果比较运算符的参数是 =，则可以省略。
+
 例如: 生成下面的 SQL 语句。
 
 ```sql
@@ -203,18 +207,26 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 使用 C 语言
 
 ```c
+	// SELECT * FROM companies
 	sq_query_table(query, "companies");
+	// WHERE id > 15
 	sq_query_where(query, "id", ">", "15");
+	// OR city_id = 6
 	sq_query_or_where(query, "city_id", "6");
+	// OR NOT members < 100
 	sq_query_or_where_not(query, "members < %d", 100);
 ```
 
 使用 C++ 语言
 
 ```c++
+	// SELECT * FROM companies
 	query->table("companies")
+	     // WHERE id > 15
 	     ->where("id", ">", "15")
+	     // OR city_id = 6
 	     ->orWhere("city_id", "6")
+	     // OR NOT members < 100
 	     ->orWhereNot("members < %d", 100);
 ```
 
@@ -266,7 +278,7 @@ whereBetween 方法驗證列的值是否在兩個值之間。
 	     ->whereBetween("votes", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
-	query->orWhereBetWeen("name", "'%s'", "Ray", "Zyx");
+	query->orWhereBetween("name", "'%s'", "Ray", "Zyx");
 ```
 
 #### whereNotBetween / orWhereNotBetween
@@ -292,7 +304,7 @@ whereNotBetween 方法驗證列的值是否位於兩個值之外。
 	     ->whereNotBetween("votes", 1, 100);
 
 	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
-	query->orWhereNotBetWeen("name", "'%s'", "Ray", "Zyx");
+	query->orWhereNotBetween("name", "'%s'", "Ray", "Zyx");
 ```
 
 #### whereIn / whereNotIn / orWhereIn / orWhereNotIn
@@ -349,10 +361,13 @@ whereIn() 可以与 printf 格式字符串一起使用：
 
 #### having / orHaving
 
+having 方法的用法与 where 方法类似。  
+
 使用 C 语言
 
 ```c
 	sq_query_table(query, "companies");
+	sq_query_group_by(query, "city_id", NULL);    // 最后一个参数必须为 NULL
 	sq_query_having(query, "age", ">", "10");
 	sq_query_or_having(query, "members < %d", 50);
 ```
@@ -361,7 +376,8 @@ whereIn() 可以与 printf 格式字符串一起使用：
 
 ```c++
 	query->table("companies")
-	     ->having("age", ">", "10");
+	     ->groupBy("city_id")
+	     ->having("age", ">", "10")
 	     ->orHaving("members < %d", 50);
 ```
 
@@ -623,6 +639,7 @@ C++ 方法 where()/orWhere() 具有处理原始字符串的重载函数。
 
 ```c
 	sq_query_table(query, "orders");
+	sq_query_group_by(query, "city_id", NULL);    // 最后一个参数必须为 NULL
 	sq_query_having_raw(query, "SUM(price) > 3000");
 ```
 
@@ -630,6 +647,7 @@ C++ 方法 where()/orWhere() 具有处理原始字符串的重载函数。
 
 ```c++
 	query->table("orders")
+	     ->groupBy("city_id")
 	     ->havingRaw("SUM(price) > 3000");
 ```
 
@@ -638,6 +656,7 @@ C++ 方法 have()/orHaving() 具有处理原始字符串的重载函数。
 
 ```c++
 	query->table("orders")
+	     ->groupBy("city_id")
 	     ->having("SUM(price) > 3000");
 ```
 
@@ -725,9 +744,9 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 	query->raw("LIMIT %d OFFSET %d", 20, 10);
 ```
 
-## Joins
+## 连接 Joins
 
-#### Inner Join
+#### 内连接 Inner Join
 
 要生成 "内连接" 语句，您可以在 SqQuery 实例上使用 sq_query_join()。  
   
@@ -735,21 +754,21 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 
 ```c
 	sq_query_table(query, "companies");
-	sq_query_join(query, "city", "city.id", "<", "100");
+	sq_query_join(query, "city", "users.id", "=", "posts.user_id");
 ```
 
 使用 C++ 语言
 
 ```c++
 	query->table("companies")
-	     ->join("city", "city.id", "<", "100");
+	     ->join("city", "users.id", "=", "posts.user_id");
 ```
 
-#### Left Join / Right Join / Full Join
+#### 左连接 Left Join / 右连接 Right Join / 全外连接 Full Join
 
 使用 C 语言
 
-```
+```c
 	sq_query_table(query, "users");
 	sq_query_left_join(query, "posts", "users.id", "=", "posts.user_id");
 
@@ -773,7 +792,7 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 	     ->fullJoin("posts", "users.id", "=", "posts.user_id");
 ```
 
-#### Cross Join
+#### 交叉连接 Cross Join
 
 使用 C 语言
 
@@ -787,6 +806,32 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 ```c++
 	query->table("users")
 	     ->crossJoin("posts");
+```
+
+#### join 方法与 on / orOn 方法一起使用
+
+on 方法的用法与 where 方法类似。  
+  
+使用 C 语言
+
+```c
+	// SELECT * FROM users
+	sq_query_table(query, "users");
+	// JOIN posts ON users.id = posts.user_id
+	sq_query_join(query, "posts", "users.id", "=", "posts.user_id");
+	// AND users.id > 120
+	sq_query_on(query, "users.id > %d", 120);
+```
+
+使用 C++ 语言
+
+```c++
+	// SELECT * FROM users
+	query->table("users")
+	     // JOIN posts ON users.id = posts.user_id
+	     ->join("posts", "users.id", "=", "posts.user_id")
+	     // AND users.id > 120
+	     ->on("users.id > %d", 120);
 ```
 
 ## 联合 Unions
