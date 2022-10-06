@@ -1019,13 +1019,13 @@ void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_
 		if (SQ_TYPE_IS_FAKE(column->type))
 			continue;
 		buf_len = snprintf(NULL, 0, "%c%s%c.%c%s%c AS %c%s.%s%c",
-				quotes[0], table->name,  quotes[1],
-				quotes[0], column->name, quotes[1],
+				quotes[0], table_as_name, quotes[1],
+				quotes[0], column->name,  quotes[1],
 				quotes[0], table_as_name, column->name, quotes[1]) + 1;
 		buffer = realloc(buffer, buf_len);
 		snprintf(buffer, buf_len, "%c%s%c.%c%s%c AS %c%s.%s%c",
-				quotes[0], table->name,  quotes[1],
-				quotes[0], column->name, quotes[1],
+				quotes[0], table_as_name, quotes[1],
+				quotes[0], column->name,  quotes[1],
 				quotes[0], table_as_name, column->name, quotes[1]);
 		sq_query_select(query, buffer, NULL);
 	}
