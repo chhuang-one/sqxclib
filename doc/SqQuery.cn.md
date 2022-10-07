@@ -500,8 +500,8 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 ```c
 	sq_query_clear(query);
 	// WHERE id > 10 OR city_id < 9
-	sq_query_where(query, "id > 10");
-	sq_query_or_where(query, "city_id < 9");
+	sq_query_where_raw(query, "id > 10");
+	sq_query_or_where_raw(query, "city_id < 9");
 
 	// 使用 sq_query_c() 生成 SQL 语句
 	array = sq_storage_remove_all(storage, "users",

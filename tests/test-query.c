@@ -25,8 +25,8 @@ void test_query_c(SqQuery *query)
 	char       *sql;
 	const char *result = "SELECT DISTINCT id, age "
 	                     "FROM companies AS a "
-	                     "WHERE salary > '1200' OR id < 9 "
 	                     "JOIN city AS c ON city.id < 100 AND city.age > 10 "
+	                     "WHERE salary > '1200' OR id < 9 "
 	                     "GROUP BY companies.age "
 	                     "ORDER BY companies.id ASC";
 
@@ -274,11 +274,11 @@ void test_query_c_no_select_from(SqQuery *query)
 {
 	char    *sql;
 
-	sq_query_where(query, "id > 10", NULL);
+	sq_query_where_raw(query, "id > 10");
 	sq_query_where(query, "id < %d", 99);
 	sq_query_group_by(query, "age", NULL);    // the last argument must be NULL
-	sq_query_having(query, "city_id > 3", NULL);
-	sq_query_or_having(query, "city_id < 9", NULL);
+	sq_query_having_raw(query, "city_id > 3");
+	sq_query_or_having_raw(query, "city_id < 9");
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
@@ -291,7 +291,7 @@ void test_query_c_delete(SqQuery *query)
 {
 	char    *sql;
 
-	sq_query_where(query, "id > 10", NULL);
+	sq_query_where_raw(query, "id > 10");
 	sq_query_where(query, "id < %d", 99);
 	sq_query_table(query, "users");
 	sq_query_delete(query);
@@ -356,8 +356,8 @@ void test_query_macro_get_table_as(SqQuery *query)
 		SQQ_JOIN_SUB({
 			SQQ_FROM("city");
 			SQQ_WHERE("id", "<", "100");
-		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
-		SQQ_WHERE("age > 5");
+		}); SQQ_AS("c"); SQQ_ON_RAW("c.id = companies.city_id");
+		SQQ_WHERE_RAW("age > 5");
 	});
 
 	// get table name and it's as name in query.

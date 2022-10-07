@@ -500,8 +500,8 @@ use C language
 ```c
 	sq_query_clear(query);
 	// WHERE id > 10 OR city_id < 9
-	sq_query_where(query, "id > 10");
-	sq_query_or_where(query, "city_id < 9");
+	sq_query_where_raw(query, "id > 10");
+	sq_query_or_where_raw(query, "city_id < 9");
 
 	// use sq_query_c() to generate SQL statement
 	array = sq_storage_remove_all(storage, "users",

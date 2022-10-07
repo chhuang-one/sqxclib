@@ -56,7 +56,7 @@ extern "C" {
 #define SQ_QUERYSORT_ASC      0
 #define SQ_QUERYSORT_DESC     1
 
-// raw
+// raw (deprecated)
 #define SQ_QUERYARG_RAW       (0x8000)
 
 /*	SqQuery C functions
@@ -670,39 +670,102 @@ struct QueryMethod
 
 /*	SqQueryNode - store elements of SQL Statements
 
-    SELECT DISTINCT name, age
-    FROM  User AS c
+    * If a clause has 1 children node only, It can omit the first NONE node.
+
+    SELECT DISTINCT name, age AS a, email
+    FROM  users  AS  u
     WHERE id > 40 AND age < 60
 
 
-                 next          next
-        SELECT -------> FROM -------> WHERE
-          |              |              |
-          |              |     children |
-          |              |              |
-          |     children |              v      next       next
-          |              |          "id > 40" -----> AND -----> "age < 60"
-          |              |
- children |              v     next     next
-          |            "User" -----> AS -----> "c"
-          v
-      DISTINCT -----> "name" -----> , -----> "age"
-                next          next     next
+                  next             next
+         SELECT -------> FROM --------------> WHERE
+           |              |                     |
+           |              |            children |
+           |              |                     v             next
+           |     children |                    NONE (or NOT) -----> AND
+           |              |                     |                    |
+           |              |                     |           children |
+           |              |                     v                    v
+  children |              v     next          "id > 40"           "age < 60"
+           |             NONE  -----> AS
+           |              |            |
+           |              |            | children
+           |              v            v
+           |           "users"        "u"
+           |
+           v               next     next      next
+       DISTINCT (or NONE) -----> , -----> AS -----> ,
+           |                     |         |        |
+  children |            children |         |        |
+           v                     v         v        v
+         "name"                "age"      "a"    "email"
 
    --------------------------------------------------------
     SqQueryNode digram for nested query (subquery)
 
-    SELECT ... FROM (SELECT ... FROM ... WHERE ...) AS "t1" WHERE ...
+    SELECT ...
+    FROM (SELECT ... FROM ... WHERE ...) AS  t
+    WHERE ...
 
             next        next
     SELECT -----> FROM -----> WHERE
                    |
           children |
-                   v    next      next
-                  NONE -----> AS -----> "t1"
-          children |
+                   v    next
+                  NONE -----> AS
+                   |           |
+                   |  children |
+                   |           v
+          children |          "t"
+                   |
                    v          next          next
                    ( SELECT -------> FROM -------> WHERE )
+
+   --------------------------------------------------------
+    SqQueryNode digram for JOIN
+
+    SELECT ... FROM ...
+    JOIN (SELECT...) AS  t  ON  users.id = accounts.user_id  AND  ...
+
+         next       next
+    FROM ----> JOIN ----> ...
+                |
+       children |
+                v    next        next
+               NONE -----> AS   -----> ON
+                |           |           |
+                |           |  children |
+                |           v           v
+       children |          "t"         NONE -----> AND
+                |                       |           |
+                |                       |           v
+                |                       |          ...
+                |                       v
+                |                      "users.id = accounts.user_id"
+                |
+                v          next          next
+                ( SELECT -------> FROM -------> WHERE )
+
+   --------------------------------------------------------
+    SqQueryNode digram for ORDER BY, LIMIT, OFFSET
+
+    WHERE  id < 10  OR NOT  city_id = 5
+	ORDER BY  col1  ASC,  col2
+	LIMIT  108  OFFSET  216
+
+               next                      next
+    WHERE --------------> ORDER BY  --------------->  LIMIT
+      |                      |                          |
+      |             children |                 children |
+      v                      v   next                   v
+     NONE ----> OR         NONE -----> ,              "108"
+      |          |           |         |                |
+      v          v           v         v                v
+    "id < 10"   NOT        "col1"    "col2"           OFFSET
+                 |           |                          |
+                 v           v                          v
+          "city_id = 5"     ASC (or DESC)             "216"
+
  */
 
 struct SqQueryNode
