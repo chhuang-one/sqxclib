@@ -513,6 +513,8 @@ void sq_query_join_full(SqQuery *query, int join_type, const char *table, ...)
 	nested->joinon = joinon;
 	// table
 	sq_query_insert_table_node(query, joinon, table);
+	if (table == NULL)
+		return;
 
 	// ON
 	if (join_type != SQ_QUERYJOIN_CROSS) {
@@ -780,7 +782,7 @@ static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *node, va_li
 	}
 }
 
-// used by FROM, JOIN
+// used by FROM, JOIN.
 static void sq_query_insert_table_node(SqQuery *query, SqQueryNode *node, const char *table_name)
 {
 	node->children = sq_query_node_new(query);
@@ -975,15 +977,15 @@ static const char *get_table(SqQueryNode *parent)
 {
 	SqQueryNode  *child;
 
-	// child pointer to NONE node
-	child = parent->children;
+	// parent pointer to NONE node
+	parent = parent->children;
 	//
-	child = child->children;
+	child = parent->children;
 	if (child->type == SQN_VALUE)
 		return child->value;
 	else {
 		// nested query
-		child = sq_query_node_find(child, SQN_FROM, NULL);
+		child = sq_query_node_find(parent, SQN_FROM, NULL);
 		if (child)
 			return get_table(child);
 	}
