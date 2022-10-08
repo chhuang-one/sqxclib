@@ -129,7 +129,6 @@ struct SqQueryNested
 	SqQueryNode    *aliasable;  // sq_query_as()
 
 	// current condition
-	SqQueryNode    *where;      // WHERE  AND  OR
 	SqQueryNode    *joinon;     // JOIN table ON  AND  OR
 };
 
@@ -321,19 +320,16 @@ bool sq_query_distinct(SqQuery *query)
 // if 'clause_code' is SQN_WHERE, the 'logi_type' can set SQ_QUERYLOGI_NOT.
 static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent, int clause_type, int logi_type)
 {
-	SqQueryNested *nested = query->nested_cur;
 	SqQueryNode   *clause = NULL;
 	SqQueryNode   *node;
 
 	if (parent == NULL)
-		parent = nested->parent;
+		parent = query->nested_cur->parent;
 	// insert clause in specify position
 	clause = sq_query_node_find(parent, clause_type, &node);
 	if (clause == NULL) {
 		clause = sq_query_node_insert(parent, node, sq_query_node_new(query));
 		clause->type = clause_type;
-		if (clause_type == SQN_WHERE)
-			nested->where = clause;
 	}
 
 	// append NONE, OR, AND in clause->children
@@ -528,20 +524,24 @@ void sq_query_join_full(SqQuery *query, int join_type, const char *table, ...)
 void sq_query_on_logical(SqQuery *query, int logi_type, ...)
 {
 	va_list        arg_list;
-	SqQueryNode   *joinon = query->nested_cur->joinon;
-	SqQueryNode   *node;
+	SqQueryNested *nested = query->nested_cur;
+	union {
+		SqQueryNode   *joinon;
+		SqQueryNode   *node;
+	} temp;
 
-	if (joinon == NULL)
-		return;
-	node = sq_query_clause_logical(query, joinon, SQN_ON, logi_type);
+	temp.joinon = nested->joinon;
+	if (temp.joinon == NULL)
+		temp.joinon = nested->parent;
+	temp.node = sq_query_clause_logical(query, temp.joinon, SQN_ON, logi_type);
 
 	va_start(arg_list, logi_type);
 	if (logi_type & SQ_QUERYARG_RAW) {
 		char *raw = va_arg(arg_list, char*);
-		node->value = strdup(raw);
+		temp.node->value = strdup(raw);
 	}
 	else
-		node->children = sq_query_condition(query, node, arg_list);
+		temp.node->children = sq_query_condition(query, temp.node, arg_list);
 	va_end(arg_list);
 }
 
@@ -1078,7 +1078,6 @@ SqQueryNested *sq_query_push_nested(SqQuery *query, SqQueryNode *parent)
 	nested->command = NULL;
 	nested->name = NULL;
 	nested->aliasable = NULL;
-	nested->where = NULL;
 	nested->joinon = NULL;
 	query->nested_cur = nested;
 	return nested;
@@ -1092,14 +1091,15 @@ void  sq_query_pop_nested(SqQuery *query)
 
 	if (nested) {
 		// is not empty subquery?
-		if (nested->parent->children) {
+		node = nested->parent->children;
+		if (node) {
 			// subquery has command?
 			if (nested->name) {
 				if (nested->command == NULL)
 					sq_query_select(query, NULL);
 			}
-			else if (nested->where)
-				nested->where->type = SQN_NONE;
+			else if (node->type >= SQN_WHERE)
+				node->type = SQN_NONE;
 
 			if (nested->parent->type != SQN_UNION && nested->parent->type != SQN_UNION_ALL) {
 				// insert '(' to beginning of list
