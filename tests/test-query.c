@@ -76,13 +76,13 @@ void test_query_c_where_not(SqQuery *query)
 	// SELECT * FROM users
 	sq_query_from(query, "users");
 	// WHERE NOT (
-	sq_query_where_not(query, NULL);
+	sq_query_where_not_sub(query);
 		// votes BETWEEN 1 AND 100
 		sq_query_where(query, "votes", ">", "100");
 		// OR name IN ('Ray', 'Zyx')
 		sq_query_or_where_in(query, "name", 2, "'%s'", "Ray", "Zyx");
 	// )
-	sq_query_pop_nested(query);
+	sq_query_end_sub(query);
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -206,10 +206,10 @@ void test_query_c_nested(SqQuery *query)
 	sq_query_where(query, "salary > %d", 2150);
 
 	// AND ( id > 22 AND age < 10 )
-	sq_query_where(query, NULL);             // start of Subquery/Nested
+	sq_query_where_sub(query);               // start of Subquery/Nested
 		sq_query_where(query, "id",  ">", "22");
 		sq_query_where(query, "age", "<", "10");
-	sq_query_pop_nested(query);              // end of Subquery/Nested
+	sq_query_end_sub(query);                 // end of Subquery/Nested
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -222,12 +222,33 @@ void test_query_c_nested(SqQuery *query)
 void test_query_c_join(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT * FROM users JOIN contacts ON users.id = contacts.user_id AND users.id > 120";
+	const char *result = "SELECT * FROM users "
+	                     "JOIN contacts ON users.id = contacts.user_id AND users.id > 120";
 
 	sq_query_from(query, "users");
 	sq_query_join(query, "contacts", "users.id", "=", "contacts.user_id");
 	sq_query_on(query, "users.id", ">", "120");
 //	sq_query_or_on(query, "contacts.user_id", "<", "88");
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	puts(sql);
+	assert(strcmp(sql, result) == 0);
+	free(sql);
+
+	result = "SELECT * FROM users "
+	         "JOIN ( SELECT * FROM contacts ) ON users.id = contacts.user_id AND ( users.id > 120 OR contacts.id > 90 )";
+
+	sq_query_from(query, "users");
+	sq_query_join_sub(query);
+		sq_query_from(query, "contacts");
+	sq_query_end_sub(query);
+	sq_query_on(query, "users.id", "=", "contacts.user_id");
+	sq_query_on_sub(query);
+		sq_query_on(query, "users.id", ">", "120");
+		sq_query_or_on(query, "contacts.id", ">", "90");
+	sq_query_end_sub(query);
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -248,7 +269,7 @@ void test_query_c_union(SqQuery *query)
 	sq_query_union(query);                   // start of query
 		sq_query_select(query, "name", NULL);
 		sq_query_from(query, "product2");
-	sq_query_pop_nested(query);              // end of query
+	sq_query_end_sub(query);                 // end of query
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);

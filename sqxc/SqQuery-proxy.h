@@ -40,6 +40,9 @@ public:
 	QueryProxy &raw(const char *format, const Args... args);
 	QueryProxy &raw(const char *raw_sql);
 
+	template <typename... Args>
+	QueryProxy &printf(const char *format, const Args... args);
+
 	QueryProxy &from(const char *table);
 	QueryProxy &from(std::function<void()> func);
 
@@ -298,6 +301,12 @@ inline QueryProxy &QueryProxy::raw(const char *format, const Args... args) {
 }
 inline QueryProxy &QueryProxy::raw(const char *raw_sql) {
 	sq_query_raw(query, raw_sql);
+	return *this;
+}
+
+template <typename... Args>
+inline QueryProxy &QueryProxy::printf(const char *format, const Args... args) {
+	sq_query_printf(query, format, args...);
 	return *this;
 }
 

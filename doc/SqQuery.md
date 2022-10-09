@@ -114,8 +114,10 @@ C language example:
 ```c
 	sq_query_where(query, "id < %d", 100);
 
-	// output "city LIKE 'ber%'"
+	// AND city  LIKE 'ber%'
 	sq_query_where(query, "city LIKE 'ber%%'");
+	// AND email LIKE 'guest%'
+	sq_query_where(query, "%s %s '%s'", "email", "LIKE", "guest%");
 ```
 
 below C++ methods support printf format string in 1st argument:
@@ -139,8 +141,11 @@ C++ language example:
 	query->where("id < %d", 100);
 
 	// If the 2nd argument is exist, the 1st argument is handled as printf format string.
-	// output "city LIKE 'ber%'"
+	// output:
+	// AND city  LIKE 'ber%'
 	query->where("city LIKE 'ber%%'", NULL);
+	// AND email LIKE 'guest%'
+	query->where("%s %s '%s'", "email", "LIKE", "guest%")
 ```
 
 If the 2nd argument of below C++ methods is NOT exist, the 1st argument is handled as raw string.  
@@ -237,10 +242,10 @@ use C language
 ```c
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	sq_query_table(query, "products");
-	sq_query_where_not(query);
+	sq_query_where_not_sub(query);
 		sq_query_where(query, "city_id", "6");
 		sq_query_or_where(query, "price < %d", 100);
-	sq_query_pop_nested(query);
+	sq_query_end_sub(query);
 ```
 
 use C++ language
@@ -842,7 +847,7 @@ use C++ language
 SELECT name1 FROM product1 UNION SELECT name2 FROM product2
 ```
 
-User must add other query after calling sq_query_union() or sq_query_union_all(), and calling sq_query_pop_nested() in end of query.  
+User must add other query after calling sq_query_union() or sq_query_union_all(), and calling sq_query_end_sub() in end of query.  
   
 use C language
 
@@ -853,7 +858,7 @@ use C language
 	sq_query_union(query);                   // start of query
 		sq_query_select(query, "name2", NULL);
 		sq_query_from(query, "product2");
-	sq_query_pop_nested(query);              // end of query
+	sq_query_end_sub(query);                 // end of query
 ```
 
 C++ method union_() and unionAll() use lambda function to add other query.
@@ -877,22 +882,23 @@ SqQuery can produce limited Nested and Subquery. You may also use Raw Methods to
   
 below C functions support Subquery or Nested:
 
-	sq_query_join(),
-	sq_query_left_join(),
-	sq_query_right_join(),
-	sq_query_full_join(),
-	sq_query_cross_join(),
-	sq_query_on(),           sq_query_or_on(),
-	sq_query_where(),        sq_query_or_where(),
-	sq_query_where_not(),    sq_query_or_where_not(),
-	sq_query_where_exists(), sq_query_where_not_exists(),
-	sq_query_having(),       sq_query_or_having(),
+	sq_query_from_sub(),
+	sq_query_join_sub(),
+	sq_query_left_join_sub(),
+	sq_query_right_join_sub(),
+	sq_query_full_join_sub(),
+	sq_query_cross_join_sub(),
+	sq_query_on_sub(),           sq_query_or_on_sub(),
+	sq_query_where_sub(),        sq_query_or_where_sub(),
+	sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
+	sq_query_where_exists(),     sq_query_where_not_exists(),
+	sq_query_having_sub(),       sq_query_or_having_sub(),
 
-Note1: except sq_query_where_exists() and sq_query_where_not_exists(), second argument of these functions must be NULL.  
-Note2: you must call sq_query_pop_nested() in end of Subquery (or Nested).  
+Note: you must call sq_query_end_sub() in end of Subquery (or Nested).  
   
-below C++ method use lambda function to support Subquery or Nested, user don't need to call sq_query_pop_nested()  
+below C++ method use lambda function to support Subquery or Nested, user don't need to call sq_query_end_sub()  
 
+	from(),
 	join(),
 	leftJoin(),
 	rightJoin(),
@@ -916,10 +922,10 @@ use C functions to generate Nested:
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_where(query, NULL);                // start of Nested
+	sq_query_where_sub(query);                  // start of Nested
 		sq_query_where(query, "salary", ">", "45");
 		sq_query_where(query, "age", "<", "21");
-	sq_query_pop_nested(query);                 // end of Nested
+	sq_query_end_sub(query);                    // end of Nested
 	sq_query_or_where(query, "id > %d", 100);
 ```
 

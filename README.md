@@ -413,16 +413,16 @@ use C++ methods to produce query
 
 use C functions to produce query
 
-* sq_query_join(query, NULL) is start of Subquery. It call sq_query_push_nested()
-* sq_query_pop_nested(query) is end of Subquery.
+* sq_query_join_sub() is start of Subquery. It call sq_query_begin_sub()
+* sq_query_end_sub()  is end of Subquery.
 
 ```c
 	sq_query_select(query, "id", "age", NULL);
 	sq_query_from(query, "companies");
-	sq_query_join(query, NULL);
+	sq_query_join_sub(query);
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "100");
-	sq_query_pop_nested(query);
+	sq_query_end_sub(query);
 	sq_query_as(query, "c");
 	sq_query_on(query, "c.id = companies.city_id");
 	sq_query_where(query, "age > %d", 5);

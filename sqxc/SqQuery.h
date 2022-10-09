@@ -79,38 +79,35 @@ extern "C" {
 	sq_query_where(query, "id < %d", 100);
 
 
-	** below function must use with Subquery
-		sq_query_where_exists(),
-
-	// e.g. "WHERE EXISTS ( SELECT * FROM table WHERE id > 20 )"
-	sq_query_where_exists(query);               // start of Subquery
-		sq_query_from("table");
-		sq_query_where("id > 20", NULL);
-	sq_query_pop_nested(query);                 // end of Subquery
-
-
 	** below function must use with other query
 		sq_query_union(),
 		sq_query_union_all()
 
 
-	** below function support Subquery/Nested: (2nd argument must be NULL)
-		sq_query_from(),
-		sq_query_join(),
-		sq_query_left_join(),
-		sq_query_right_join(),
-		sq_query_full_join(),
-		sq_query_cross_join(),
-		sq_query_on(),        sq_query_or_on(),
-		sq_query_where(),     sq_query_or_where(),
-		sq_query_where_not(), sq_query_or_where_not(),
-		sq_query_having(),    sq_query_or_having(),
+	** below function support Subquery/Nested:
+		sq_query_from_sub(),
+		sq_query_join_sub(),
+		sq_query_left_join_sub(),
+		sq_query_right_join_sub(),
+		sq_query_full_join_sub(),
+		sq_query_cross_join_sub(),
+		sq_query_on_sub(),           sq_query_or_on_sub(),
+		sq_query_where_sub(),        sq_query_or_where_sub(),
+		sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
+		sq_query_where_exists(),     sq_query_where_not_exists(),
+		sq_query_having_sub(),       sq_query_or_having_sub(),
 
 	// e.g. "WHERE (salary > 45 AND age < 21)"
-	sq_query_where(query, NULL);                // start of Subquery/Nested
+	sq_query_where_sub(query);                  // start of Subquery/Nested
 		sq_query_where(query, "salary", ">", "45");
 		sq_query_where(query, "age", "<", "21");
-	sq_query_pop_nested(query);                 // end of Subquery/Nested
+	sq_query_end_sub(query);                    // end of Subquery/Nested
+
+	// e.g. "WHERE EXISTS ( SELECT * FROM table WHERE id > 20 )"
+	sq_query_where_exists(query);               // start of Subquery
+		sq_query_from("table");
+		sq_query_where_raw("id > 20");
+	sq_query_end_sub(query);                    // end of Subquery
 
 
 	** below function support SQL raw statements:
@@ -147,6 +144,10 @@ void    sq_query_clear(SqQuery *query);
 SqQueryNested *sq_query_push_nested(SqQuery *query, SqQueryNode *parent);
 void           sq_query_pop_nested(SqQuery *query);
 
+// alias name for sq_query_push_nested() and sq_query_pop_nested()
+#define sq_query_begin_sub    sq_query_push_nested
+#define sq_query_end_sub      sq_query_pop_nested
+
 // append raw SQL statement in current nested/subquery
 void    sq_query_append(SqQuery *query, const char *raw, SqQueryNode *parent);
 void    sq_query_printf(SqQuery *query, ...);
@@ -161,6 +162,10 @@ bool    sq_query_from(SqQuery *query, const char *table);
 // bool sq_query_table(SqQuery *query, const char *table);
 #define sq_query_table    sq_query_from
 
+// bool sq_query_from_sub(SqQuery *query);
+#define sq_query_from_sub(query)    \
+		sq_query_from(query, NULL)
+
 // SQL: AS
 // call it after sq_query_from(), sq_query_join(), sq_query_select()
 void    sq_query_as(SqQuery *query, const char *name);
@@ -173,21 +178,41 @@ void    sq_query_on_logical(SqQuery *query, int logi_type, ...);
 #define sq_query_join(query, ...)          \
 		sq_query_join_full(query, SQ_QUERYJOIN_INNER, __VA_ARGS__)
 
+// void sq_query_join_sub(SqQuery *query);
+#define sq_query_join_sub(query)           \
+		sq_query_join_full(query, SQ_QUERYJOIN_INNER, NULL,  NULL)
+
 // void sq_query_left_join(SqQuery *query, const char *table, ...);
 #define sq_query_left_join(query, ...)     \
 		sq_query_join_full(query, SQ_QUERYJOIN_LEFT,  __VA_ARGS__)
+
+// void sq_query_left_join_sub(SqQuery *query);
+#define sq_query_left_join_sub(query)      \
+		sq_query_join_full(query, SQ_QUERYJOIN_LEFT,  NULL,  NULL)
 
 // void sq_query_right_join(SqQuery *query, const char *table, ...);
 #define sq_query_right_join(query, ...)    \
 		sq_query_join_full(query, SQ_QUERYJOIN_RIGHT, __VA_ARGS__)
 
+// void sq_query_right_join_sub(SqQuery *query);
+#define sq_query_right_join_sub(query)     \
+		sq_query_join_full(query, SQ_QUERYJOIN_RIGHT, NULL,  NULL)
+
 // void sq_query_full_join(SqQuery *query, const char *table, ...);
 #define sq_query_full_join(query, ...)     \
 		sq_query_join_full(query, SQ_QUERYJOIN_FULL,  __VA_ARGS__)
 
+// void sq_query_full_join_sub(SqQuery *query);
+#define sq_query_full_join_sub(query)      \
+		sq_query_join_full(query, SQ_QUERYJOIN_FULL,  NULL,  NULL)
+
 // void sq_query_cross_join(SqQuery *query, const char *table);
 #define sq_query_cross_join(query, table)  \
 		sq_query_join_full(query, SQ_QUERYJOIN_CROSS, table, NULL)
+
+// void sq_query_cross_join_sub(SqQuery *query);
+#define sq_query_cross_join_sub(query)     \
+		sq_query_join_full(query, SQ_QUERYJOIN_CROSS, NULL,  NULL)
 
 // void sq_query_on(SqQuery *query, ...);
 #define sq_query_on(query, ...)        \
@@ -202,6 +227,13 @@ void    sq_query_on_logical(SqQuery *query, int logi_type, ...);
 // void sq_query_or_on_raw(SqQuery *query, const char *raw);
 #define sq_query_or_on_raw(query, raw)     \
 		sq_query_on_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
+
+// void sq_query_on_sub(SqQuery *query);
+#define sq_query_on_sub(query)        \
+		sq_query_on_logical(query, SQ_QUERYLOGI_AND, NULL)
+// void sq_query_or_on_sub(SqQuery *query);
+#define sq_query_or_on_sub(query)     \
+		sq_query_on_logical(query, SQ_QUERYLOGI_OR,  NULL)
 
 // SQL: WHERE
 void    sq_query_where_logical(SqQuery *query, int logi_type, ...);
@@ -220,6 +252,13 @@ void    sq_query_where_logical(SqQuery *query, int logi_type, ...);
 #define sq_query_or_where_raw(query, raw)     \
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
 
+// void sq_query_where_sub(SqQuery *query)
+#define sq_query_where_sub(query)     \
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL)
+// void sq_query_or_where_sub(SqQuery *query)
+#define sq_query_or_where_sub(query)     \
+		sq_query_where_logical(query, SQ_QUERYLOGI_OR,  NULL)
+
 // SQL: WHERE NOT
 
 // void sq_query_where_not(SqQuery *query, ...)
@@ -235,6 +274,13 @@ void    sq_query_where_logical(SqQuery *query, int logi_type, ...);
 // void sq_query_or_where_not_raw(SqQuery *query, const char *raw)
 #define sq_query_or_where_not_raw(query, raw)     \
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYLOGI_NOT | SQ_QUERYARG_RAW, raw)
+
+// void sq_query_where_not_sub(SqQuery *query)
+#define sq_query_where_not_sub(query)     \
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT, NULL)
+// void sq_query_or_where_not_sub(SqQuery *query)
+#define sq_query_or_where_not_sub(query)     \
+		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYLOGI_NOT, NULL)
 
 // SQL: WHERE EXISTS
 void    sq_query_where_exists_logical(SqQuery *query, int logi_type);
@@ -330,6 +376,13 @@ void    sq_query_having_logical(SqQuery *query, int logi_type, ...);
 #define sq_query_or_having_raw(query, raw)     \
 		sq_query_having_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARG_RAW, raw)
 
+// void sq_query_having_sub(SqQuery *query)
+#define sq_query_having_sub(query)        \
+		sq_query_having_logical(query, SQ_QUERYLOGI_AND, NULL)
+// void sq_query_or_having_sub(SqQuery *query)
+#define sq_query_or_having_sub(query)     \
+		sq_query_having_logical(query, SQ_QUERYLOGI_OR,  NULL)
+
 // SQL: SELECT
 // the last argument of sq_query_select() must be NULL.
 // e.g. sq_query_select(query, column_name..., NULL)
@@ -422,6 +475,9 @@ struct QueryMethod
 	template <typename... Args>
 	Sq::Query &raw(const char *format, const Args... args);
 	Sq::Query &raw(const char *raw_sql);
+
+	template <typename... Args>
+	Sq::Query &printf(const char *format, const Args... args);
 
 	Sq::Query &from(const char *table);
 	Sq::Query &from(std::function<void()> func);
@@ -838,6 +894,12 @@ inline Sq::Query &QueryMethod::raw(const char *format, const Args... args) {
 }
 inline Sq::Query &QueryMethod::raw(const char *raw_sql) {
 	sq_query_raw((SqQuery*)this, raw_sql);
+	return *(Sq::Query*)this;
+}
+
+template <typename... Args>
+inline Sq::Query &QueryMethod::printf(const char *format, const Args... args) {
+	sq_query_printf((SqQuery*)this, format, args...);
 	return *(Sq::Query*)this;
 }
 

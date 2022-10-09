@@ -411,16 +411,16 @@ SQL 语句
 
 使用 C 函数生成查询
 
-* sq_query_join(query, NULL) 是子查询的开始。它调用 sq_query_push_nested()
-* sq_query_pop_nested(query) 是子查询的结尾。
+* sq_query_join_sub() 是子查询的开始。它调用 sq_query_begin_sub()
+* sq_query_end_sub()  是子查询的结尾。
 
 ```c
 	sq_query_select(query, "id", "age", NULL);
 	sq_query_from(query, "companies");
-	sq_query_join(query, NULL);
+	sq_query_join_sub(query);
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "100");
-	sq_query_pop_nested(query);
+	sq_query_end_sub(query);
 	sq_query_as(query, "c");
 	sq_query_on(query, "c.id = companies.city_id");
 	sq_query_where(query, "age > %d", 5);

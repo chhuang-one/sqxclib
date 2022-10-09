@@ -114,8 +114,10 @@ C 语言示例：
 ```c
 	sq_query_where(query, "id < %d", 100);
 
-	// output "city LIKE 'ber%'"
+	// AND city  LIKE 'ber%'
 	sq_query_where(query, "city LIKE 'ber%%'");
+	// AND email LIKE 'guest%'
+	sq_query_where(query, "%s %s '%s'", "email", "LIKE", "guest%");
 ```
 
 以下 C++ 方法在第一个参数中支持 printf 格式字符串：
@@ -139,8 +141,11 @@ C++ 语言示例：
 	query->where("id < %d", 100);
 
 	// 如果存在第二个参数，则将第一个参数作为 printf 格式字符串处理。
-	// 输出 "city LIKE 'ber%'"
+	// 输出：
+	// AND city  LIKE 'ber%'
 	query->where("city LIKE 'ber%%'", NULL);
+	// AND email LIKE 'guest%'
+	query->where("%s %s '%s'", "email", "LIKE", "guest%")
 ```
 
 如果以下 C++ 方法的第二个参数不存在，则将第一个参数作为原始字符串处理。  
@@ -237,10 +242,10 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 ```c
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	sq_query_table(query, "products");
-	sq_query_where_not(query);
+	sq_query_where_not_sub(query);
 		sq_query_where(query, "city_id", "6");
 		sq_query_or_where(query, "price < %d", 100);
-	sq_query_pop_nested(query);
+	sq_query_end_sub(query);
 ```
 
 使用 C++ 语言
@@ -842,7 +847,7 @@ on 方法的用法与 where 方法类似。
 SELECT name1 FROM product1 UNION SELECT name2 FROM product2
 ```
 
-用户必须在调用 sq_query_union() 或 sq_query_union_all() 后添加其他查询，并在查询结束时调用 sq_query_pop_nested()。  
+用户必须在调用 sq_query_union() 或 sq_query_union_all() 后添加其他查询，并在查询结束时调用 sq_query_end_sub()。  
   
 使用 C 语言
 
@@ -853,7 +858,7 @@ SELECT name1 FROM product1 UNION SELECT name2 FROM product2
 	sq_query_union(query);                   // start of query
 		sq_query_select(query, "name2", NULL);
 		sq_query_from(query, "product2");
-	sq_query_pop_nested(query);              // end of query
+	sq_query_end_sub(query);                 // end of query
 ```
 
 C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
@@ -877,22 +882,23 @@ SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法
   
 以下 C 函数支持子查询或嵌套：
 
-	sq_query_join(),
-	sq_query_left_join(),
-	sq_query_right_join(),
-	sq_query_full_join(),
-	sq_query_cross_join(),
-	sq_query_on(),           sq_query_or_on(),
-	sq_query_where(),        sq_query_or_where(),
-	sq_query_where_not(),    sq_query_or_where_not(),
-	sq_query_where_exists(), sq_query_where_not_exists(),
-	sq_query_having(),       sq_query_or_having(),
+	sq_query_from_sub(),
+	sq_query_join_sub(),
+	sq_query_left_join_sub(),
+	sq_query_right_join_sub(),
+	sq_query_full_join_sub(),
+	sq_query_cross_join_sub(),
+	sq_query_on_sub(),           sq_query_or_on_sub(),
+	sq_query_where_sub(),        sq_query_or_where_sub(),
+	sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
+	sq_query_where_exists(),     sq_query_where_not_exists(),
+	sq_query_having_sub(),       sq_query_or_having_sub(),
 
-注意 1：除了 sq_query_where_exists() 和 sq_query_where_not_exists()，这些函数的第二个参数必须为 NULL。  
-注意 2：您必须在子查询或嵌套的末尾调用 sq_query_pop_nested()。  
+注意：您必须在子查询或嵌套的末尾调用 sq_query_end_sub()。  
   
-下面的 C++ 方法使用 lambda 函数来支持子查询或嵌套，用户不需要调用 sq_query_pop_nested()  
+下面的 C++ 方法使用 lambda 函数来支持子查询或嵌套，用户不需要调用 sq_query_end_sub()  
 
+	from(),
 	join(),
 	leftJoin(),
 	rightJoin(),
@@ -916,10 +922,10 @@ SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_where(query, NULL);                // 嵌套的开始
+	sq_query_where_sub(query);                  // 嵌套的开始
 		sq_query_where(query, "salary", ">", "45");
 		sq_query_where(query, "age", "<", "21");
-	sq_query_pop_nested(query);                 // 嵌套结束
+	sq_query_end_sub(query);                    // 嵌套结束
 	sq_query_or_where(query, "id > %d", 100);
 ```
 
