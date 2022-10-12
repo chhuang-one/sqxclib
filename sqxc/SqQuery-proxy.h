@@ -547,7 +547,7 @@ inline QueryProxy &QueryProxy::whereBetween(const char *columnName, const char v
 	return *this;
 }
 inline QueryProxy &QueryProxy::whereBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_where_between(query, columnName, "%s", value1, value2);
+	sq_query_where_between(query, columnName, "'%s'", value1, value2);
 	return *this;
 }
 template <typename... Args>
@@ -573,7 +573,7 @@ inline QueryProxy &QueryProxy::whereNotBetween(const char *columnName, const cha
 	return *this;
 }
 inline QueryProxy &QueryProxy::whereNotBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_where_not_between(query, columnName, "%s", value1, value2);
+	sq_query_where_not_between(query, columnName, "'%s'", value1, value2);
 	return *this;
 }
 template <typename... Args>
@@ -599,7 +599,7 @@ inline QueryProxy &QueryProxy::orWhereBetween(const char *columnName, const char
 	return *this;
 }
 inline QueryProxy &QueryProxy::orWhereBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_or_where_between(query, columnName, "%s", value1, value2);
+	sq_query_or_where_between(query, columnName, "'%s'", value1, value2);
 	return *this;
 }
 template <typename... Args>
@@ -625,7 +625,7 @@ inline QueryProxy &QueryProxy::orWhereNotBetween(const char *columnName, const c
 	return *this;
 }
 inline QueryProxy &QueryProxy::orWhereNotBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_or_where_not_between(query, columnName, "%s", value1, value2);
+	sq_query_or_where_not_between(query, columnName, "'%s'", value1, value2);
 	return *this;
 }
 template <typename... Args>
@@ -656,7 +656,7 @@ inline QueryProxy &QueryProxy::whereIn(const char *columnName, const char first_
 }
 template <typename... Args>
 inline QueryProxy &QueryProxy::whereIn(const char *columnName, const char *first_value, const Args... args) {
-	sq_query_where_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
+	sq_query_where_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
 	return *this;
 }
 template <typename... Args>
@@ -687,7 +687,7 @@ inline QueryProxy &QueryProxy::whereNotIn(const char *columnName, const char fir
 }
 template <typename... Args>
 inline QueryProxy &QueryProxy::whereNotIn(const char *columnName, const char *first_value, const Args... args) {
-	sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
+	sq_query_where_not_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
 	return *this;
 }
 template <typename... Args>
@@ -718,7 +718,7 @@ inline QueryProxy &QueryProxy::orWhereIn(const char *columnName, const char firs
 }
 template <typename... Args>
 inline QueryProxy &QueryProxy::orWhereIn(const char *columnName, const char *first_value, const Args... args) {
-	sq_query_or_where_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
+	sq_query_or_where_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
 	return *this;
 }
 template <typename... Args>
@@ -749,7 +749,7 @@ inline QueryProxy &QueryProxy::orWhereNotIn(const char *columnName, const char f
 }
 template <typename... Args>
 inline QueryProxy &QueryProxy::orWhereNotIn(const char *columnName, const char *first_value, const Args... args) {
-	sq_query_or_where_not_in(query, columnName, sizeof...(args)+1, "%s", first_value, args...);
+	sq_query_or_where_not_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
 	return *this;
 }
 template <typename... Args>
