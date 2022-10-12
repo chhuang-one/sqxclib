@@ -315,9 +315,9 @@ inline QueryProxy &QueryProxy::from(const char *table) {
 	return *this;
 }
 inline QueryProxy &QueryProxy::from(std::function<void()> func) {
-	sq_query_from(query, NULL);    // start of Subquery/Nested
+	sq_query_from_sub(query);            // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 inline QueryProxy &QueryProxy::table(const char *table) {
@@ -325,9 +325,9 @@ inline QueryProxy &QueryProxy::table(const char *table) {
 	return *this;
 }
 inline QueryProxy &QueryProxy::table(std::function<void()> func) {
-	sq_query_from(query, NULL);    // start of Subquery/Nested
+	sq_query_from_sub(query);            // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 
@@ -342,9 +342,9 @@ inline QueryProxy &QueryProxy::join(const char *table, const Args... args) {
 	return *this;
 }
 inline QueryProxy &QueryProxy::join(std::function<void()> func) {
-	sq_query_join(query, NULL);          // start of Subquery/Nested
+	sq_query_join_sub(query);            // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);          // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 template <typename... Args>
@@ -353,9 +353,9 @@ inline QueryProxy &QueryProxy::leftJoin(const char *table, const Args... args) {
 	return *this;
 }
 inline QueryProxy &QueryProxy::leftJoin(std::function<void()> func) {
-	sq_query_left_join(query, NULL);     // start of Subquery/Nested
+	sq_query_left_join_sub(query);       // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);          // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 template <typename... Args>
@@ -364,9 +364,9 @@ inline QueryProxy &QueryProxy::rightJoin(const char *table, const Args... args) 
 	return *this;
 }
 inline QueryProxy &QueryProxy::rightJoin(std::function<void()> func) {
-	sq_query_right_join(query, NULL);    // start of Subquery/Nested
+	sq_query_right_join_sub(query);      // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);          // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 template <typename... Args>
@@ -375,9 +375,9 @@ inline QueryProxy &QueryProxy::fullJoin(const char *table, const Args... args) {
 	return *this;
 }
 inline QueryProxy &QueryProxy::fullJoin(std::function<void()> func) {
-	sq_query_full_join(query, NULL);     // start of Subquery/Nested
+	sq_query_full_join_sub(query);       // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);          // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 inline QueryProxy &QueryProxy::crossJoin(const char *table) {
@@ -385,21 +385,21 @@ inline QueryProxy &QueryProxy::crossJoin(const char *table) {
 	return *this;
 }
 inline QueryProxy &QueryProxy::crossJoin(std::function<void()> func) {
-	sq_query_cross_join(query, NULL);    // start of Subquery/Nested
+	sq_query_cross_join_sub(query);      // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);          // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 
 template <typename... Args>
 inline QueryProxy &QueryProxy::on(const char *condition, const Args... args) {
-	sq_query_on_logical(query, SQ_QUERYLOGI_AND, condition, args...);
+	sq_query_on(query, condition, args...);
 	return *this;
 }
 inline QueryProxy &QueryProxy::on(std::function<void()> func) {
-	sq_query_on_logical(query, SQ_QUERYLOGI_AND, NULL);
+	sq_query_on_sub(query);        // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);       // end of Subquery/Nested
 	return *this;
 }
 
@@ -414,13 +414,13 @@ inline QueryProxy &QueryProxy::onRaw(const char *raw) {
 
 template <typename... Args>
 inline QueryProxy &QueryProxy::orOn(const char *condition, const Args... args) {
-	sq_query_on_logical(query, SQ_QUERYLOGI_OR, condition, args...);
+	sq_query_or_on(query, condition, args...);
 	return *this;
 }
 inline QueryProxy &QueryProxy::orOn(std::function<void()> func) {
-	sq_query_on_logical(query, SQ_QUERYLOGI_OR, NULL);
+	sq_query_or_on_sub(query);     // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);       // end of Subquery/Nested
 	return *this;
 }
 
@@ -435,13 +435,13 @@ inline QueryProxy &QueryProxy::orOnRaw(const char *raw) {
 
 template <typename... Args>
 inline QueryProxy &QueryProxy::where(const char *condition, const Args... args) {
-	sq_query_where_logical(query, SQ_QUERYLOGI_AND, condition, args...);
+	sq_query_where(query, condition, args...);
 	return *this;
 }
 inline QueryProxy &QueryProxy::where(std::function<void()> func) {
-	sq_query_where_logical(query, SQ_QUERYLOGI_AND, NULL);
+	sq_query_where_sub(query);     // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);       // end of Subquery/Nested
 	return *this;
 }
 
@@ -456,13 +456,13 @@ inline QueryProxy &QueryProxy::whereRaw(const char *raw) {
 
 template <typename... Args>
 inline QueryProxy &QueryProxy::orWhere(const char *condition, const Args... args) {
-	sq_query_where_logical(query, SQ_QUERYLOGI_OR, condition, args...);
+	sq_query_or_where(query, condition, args...);
 	return *this;
 }
 inline QueryProxy &QueryProxy::orWhere(std::function<void()> func) {
-	sq_query_where_logical(query, SQ_QUERYLOGI_OR, NULL);
+	sq_query_or_where_sub(query);        // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_pop_nested(query);          // end of Subquery/Nested
 	return *this;
 }
 
@@ -481,9 +481,9 @@ inline QueryProxy &QueryProxy::whereNot(const char *condition, const Args... arg
 	return *this;
 }
 inline QueryProxy &QueryProxy::whereNot(std::function<void()> func) {
-	sq_query_where_not(query, NULL);
+	sq_query_where_not_sub(query);       // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 
@@ -502,9 +502,9 @@ inline QueryProxy &QueryProxy::orWhereNot(const char *condition, const Args... a
 	return *this;
 }
 inline QueryProxy &QueryProxy::orWhereNot(std::function<void()> func) {
-	sq_query_or_where_not(query, NULL);
+	sq_query_or_where_not_sub(query);    // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 
@@ -518,15 +518,15 @@ inline QueryProxy &QueryProxy::orWhereNotRaw(const char *raw) {
 }
 
 inline QueryProxy &QueryProxy::whereExists(std::function<void()> func) {
-	sq_query_where_exists(query);
+	sq_query_where_exists(query);        // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 inline QueryProxy &QueryProxy::whereNotExists(std::function<void()> func) {
-	sq_query_where_not_exists(query);
+	sq_query_where_not_exists(query);    // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 
@@ -791,13 +791,13 @@ inline QueryProxy &QueryProxy::groupByRaw(const char *raw) {
 
 template <typename... Args>
 inline QueryProxy &QueryProxy::having(const char *condition, const Args... args) {
-	sq_query_having_logical(query, SQ_QUERYLOGI_AND, condition, args...);
+	sq_query_having(query, condition, args...);
 	return *this;
 }
 inline QueryProxy &QueryProxy::having(std::function<void()> func) {
-	sq_query_having_logical(query, SQ_QUERYLOGI_AND, NULL);
+	sq_query_having_sub(query);    // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);       // end of Subquery/Nested
 	return *this;
 }
 
@@ -812,13 +812,13 @@ inline QueryProxy &QueryProxy::havingRaw(const char *raw) {
 
 template <typename... Args>
 inline QueryProxy &QueryProxy::orHaving(const char *condition, const Args... args) {
-	sq_query_having_logical(query, SQ_QUERYLOGI_OR, condition, args...);
+	sq_query_or_having(query, condition, args...);
 	return *this;
 }
 inline QueryProxy &QueryProxy::orHaving(std::function<void()> func) {
-	sq_query_having_logical(query, SQ_QUERYLOGI_OR, NULL);
+	sq_query_or_having_sub(query);       // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
+	sq_query_end_sub(query);             // end of Subquery/Nested
 	return *this;
 }
 
