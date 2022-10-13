@@ -472,6 +472,8 @@ struct QueryMethod
 
 	Sq::Query &clear();
 
+	template <typename... Args>
+	Sq::Query &raw(const char *format, const Args... args);
 	Sq::Query &raw(const char *raw_sql);
 
 	template <typename... Args>
@@ -703,9 +705,6 @@ struct QueryMethod
 	const char *c();
 
 	// deprecated functions
-	template <typename... Args>
-	Sq::Query &raw(const char *format, const Args... args);
-
 	Sq::Query &from(std::function<void(SqQuery &query)> func);
 	Sq::Query &table(std::function<void(SqQuery &query)> func);
 	Sq::Query &join(std::function<void(SqQuery &query)> func);
@@ -888,6 +887,11 @@ inline Sq::Query &QueryMethod::clear() {
 	return *(Sq::Query*)this;
 }
 
+template <typename... Args>
+inline Sq::Query &QueryMethod::raw(const char *format, const Args... args) {
+	sq_query_printf((SqQuery*)this, format, args...);
+	return *(Sq::Query*)this;
+}
 inline Sq::Query &QueryMethod::raw(const char *raw_sql) {
 	sq_query_raw((SqQuery*)this, raw_sql);
 	return *(Sq::Query*)this;
@@ -1508,12 +1512,6 @@ inline const char *QueryMethod::c() {
 }
 
 // deprecated QueryMethod functions
-
-template <typename... Args>
-inline Sq::Query &QueryMethod::raw(const char *format, const Args... args) {
-	sq_query_printf((SqQuery*)this, format, args...);
-	return *(Sq::Query*)this;
-}
 
 inline Sq::Query &QueryMethod::table(std::function<void(SqQuery &query)> func) {
 	sq_query_from_sub((SqQuery*)this);      // start of Subquery/Nested

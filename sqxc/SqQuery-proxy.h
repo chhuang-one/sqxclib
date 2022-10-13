@@ -36,6 +36,8 @@ public:
 
 	QueryProxy &clear();
 
+	template <typename... Args>
+	QueryProxy &raw(const char *format, const Args... args);
 	QueryProxy &raw(const char *raw_sql);
 
 	template <typename... Args>
@@ -268,10 +270,6 @@ public:
 
 	// return generated SQL statement
 	const char *str();
-
-	// deprecated functions
-	template <typename... Args>
-	QueryProxy &raw(const char *format, const Args... args);
 };
 
 };  // namespace Sq
@@ -296,6 +294,11 @@ inline QueryProxy &QueryProxy::clear() {
 	return *this;
 }
 
+template <typename... Args>
+inline QueryProxy &QueryProxy::raw(const char *format, const Args... args) {
+	sq_query_printf(query, format, args...);
+	return *this;
+}
 inline QueryProxy &QueryProxy::raw(const char *raw_sql) {
 	sq_query_raw(query, raw_sql);
 	return *this;
@@ -917,14 +920,6 @@ inline const char *QueryProxy::c() {
 
 inline const char *QueryProxy::str() {
 	return query->str;
-}
-
-// deprecated QueryProxy functions
-
-template <typename... Args>
-inline QueryProxy &QueryProxy::raw(const char *format, const Args... args) {
-	sq_query_printf(query, format, args...);
-	return *this;
 }
 
 };  // namespace Sq
