@@ -62,26 +62,38 @@ extern "C" {
 /*	SqQuery C functions
 
 
-	** below functions support printf format string in 2nd argument:
-		sq_query_printf(),
-		sq_query_join(),
-		sq_query_left_join(),
-		sq_query_right_join(),
-		sq_query_full_join(),
+	There are many functions can specify SQL condition and them also support printf format string.
+	Please pass printf format string before passing value of condition.
+	If you want to use SQL Wildcard Characters '%' in printf format string, you must print "%" using "%%".
+
+	** below C functions support printf format string in 2nd or 4th argument:
 		sq_query_on(),        sq_query_or_on(),
 		sq_query_where(),     sq_query_or_where(),
 		sq_query_where_not(), sq_query_or_where_not(),
 		sq_query_having(),    sq_query_or_having(),
 
-	If you want to use SQL Wildcard Characters '%' in these functions, you must print “%” using “%%”.
+	** below C functions support printf format string in 3rd or 5th argument:
+		sq_query_join(),
+		sq_query_left_join(),
+		sq_query_right_join(),
+		sq_query_full_join(),
+
+	** other C functions that support printf format string:
+		sq_query_printf(),
+		sq_query_where_between() series
+		sq_query_where_in() series
+
 
 	// e.g. "WHERE id < 100"
+	// --- printf format string in 2nd argument ---
 	sq_query_where(query, "id < %d", 100);
+	// --- printf format string in 4th argument ---
+	sq_query_where(query, "id", "<", "%d", 100);
 
 
 	** below function must use with other query
 		sq_query_union(),
-		sq_query_union_all()
+		sq_query_union_all(),
 
 
 	** below function support Subquery/Nested:
@@ -99,8 +111,8 @@ extern "C" {
 
 	// e.g. "WHERE (salary > 45 AND age < 21)"
 	sq_query_where_sub(query);                  // start of Subquery/Nested
-		sq_query_where(query, "salary", ">", "45");
-		sq_query_where(query, "age", "<", "21");
+		sq_query_where(query, "salary > %d", 45);
+		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of Subquery/Nested
 
 	// e.g. "WHERE EXISTS ( SELECT * FROM table WHERE id > 20 )"
@@ -150,11 +162,13 @@ void           sq_query_pop_nested(SqQuery *query);
 
 // append raw SQL statement in current nested/subquery
 void    sq_query_append(SqQuery *query, const char *raw, SqQueryNode *parent);
-void    sq_query_printf(SqQuery *query, ...);
 
 // void sq_query_raw(SqQuery *query, const char *raw);
 #define sq_query_raw(query, raw)    \
 		sq_query_append(query, raw, NULL)
+
+// append printf format string to SQL statement in current nested/subquery
+void    sq_query_printf(SqQuery *query, ...);
 
 // SQL: FROM
 bool    sq_query_from(SqQuery *query, const char *table);

@@ -404,7 +404,7 @@ SQL 语句
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")
-	              ->where("id", "<", "100");
+	              ->where("id", "<", "%d", 100);
 	     })->as("c")->on("c.id = companies.city_id")
 	     ->where("age > %d", 5);
 ```
@@ -419,7 +419,7 @@ SQL 语句
 	sq_query_from(query, "companies");
 	sq_query_join_sub(query);
 		sq_query_from(query, "city");
-		sq_query_where(query, "id", "<", "100");
+		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);
 	sq_query_as(query, "c");
 	sq_query_on(query, "c.id = companies.city_id");
@@ -445,7 +445,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 ```c
 	// SQL 语句排除 "SELECT * FROM table_name"
 	sq_query_clear(query);
-	sq_query_where(query, "id > %d", 10);
+	sq_query_where(query, "id", ">", "%d", 10);
 	sq_query_or_where(query, "city_id < %d", 22);
 
 	array = sq_storage_get_all(storage, "users", NULL, NULL,
@@ -457,7 +457,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 ```c++
 	// SQL 语句排除 "SELECT * FROM table_name"
 	query->clear()
-	     ->where("id > %d", 10)
+	     ->where("id", ">", "%d", 10)
 	     ->orWhere("city_id < %d", 22);
 
 	array = storage->getAll("users", query->c());
@@ -471,7 +471,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 	Sq::Where  where;
 
 	array = storage->getAll("users",
-			where("id > %d", 10).orWhere("city_id < %d", 22));
+			where("id", ">", "%d", 10).orWhere("city_id < %d", 22));
 ```
 
 使用 Sq::where 的构造函数和运算符
@@ -479,11 +479,11 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 ```c++
 	// 使用参数包构造函数
 	array = storage->getAll("users",
-			Sq::where("id > %d", 10).orWhere("city_id < %d", 22));
+			Sq::where("id", ">", "%d", 10).orWhere("city_id < %d", 22));
 
 	// 使用默认构造函数和 operator()
 	array = storage->getAll("users",
-			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22));
+			Sq::where()("id", ">", "%d", 10).orWhere("city_id < %d", 22));
 ```
 
 下面是目前提供的方便的 C++ 类：

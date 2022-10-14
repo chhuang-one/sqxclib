@@ -406,7 +406,7 @@ use C++ methods to produce query
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")
-	              ->where("id", "<", "100");
+	              ->where("id", "<", "%d", 100);
 	     })->as("c")->on("c.id = companies.city_id")
 	     ->where("age > %d", 5);
 ```
@@ -421,7 +421,7 @@ use C functions to produce query
 	sq_query_from(query, "companies");
 	sq_query_join_sub(query);
 		sq_query_from(query, "city");
-		sq_query_where(query, "id", "<", "100");
+		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);
 	sq_query_as(query, "c");
 	sq_query_on(query, "c.id = companies.city_id");
@@ -447,7 +447,7 @@ use C functions
 ```c
 	// SQL statement exclude "SELECT * FROM table_name"
 	sq_query_clear(query);
-	sq_query_where(query, "id > %d", 10);
+	sq_query_where(query, "id", ">", "%d", 10);
 	sq_query_or_where(query, "city_id < %d", 22);
 
 	array = sq_storage_get_all(storage, "users", NULL, NULL,
@@ -459,7 +459,7 @@ use C++ methods
 ```c++
 	// SQL statement exclude "SELECT * FROM table_name"
 	query->clear()
-	     ->where("id > %d", 10)
+	     ->where("id", ">", "%d", 10)
 	     ->orWhere("city_id < %d", 22);
 
 	array = storage->getAll("users", query->c());
@@ -473,7 +473,7 @@ use operator() of Sq::Where (or Sq::where)
 	Sq::Where  where;
 
 	array = storage->getAll("users",
-			where("id > %d", 10).orWhere("city_id < %d", 22));
+			where("id", ">", "%d", 10).orWhere("city_id < %d", 22));
 ```
 
 use constructor and operator of Sq::where
@@ -481,11 +481,11 @@ use constructor and operator of Sq::where
 ```c++
 	// use parameter pack constructor
 	array = storage->getAll("users",
-			Sq::where("id > %d", 10).orWhere("city_id < %d", 22));
+			Sq::where("id", ">", "%d", 10).orWhere("city_id < %d", 22));
 
 	// use default constructor and operator()
 	array = storage->getAll("users",
-			Sq::where()("id > %d", 10).orWhere("city_id < %d", 22));
+			Sq::where()("id", ">", "%d", 10).orWhere("city_id < %d", 22));
 ```
 
 Below is currently provided convenient C++ class:  

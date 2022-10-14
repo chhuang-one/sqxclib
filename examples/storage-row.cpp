@@ -200,7 +200,7 @@ void  queryUnknown(Sq::Storage *storage)
 
 	query = new Sq::Query;
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
-	query->from("companies")->join("users",  "companies.id", "users.company_id");
+	query->from("companies")->join("users",  "companies.id", "%s", "users.company_id");
 
 	Sq::TypeRow *rowType = new Sq::TypeRow();
 	rowVector = storage->query< std::vector<Sq::Row*> >(query, rowType);
@@ -229,7 +229,7 @@ void  queryKnown(Sq::Storage *storage)
 
 	query = new Sq::Query;
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
-	query->from("companies")->join("users",  "companies.id", "users.company_id");
+	query->from("companies")->join("users",  "companies.id", "%s", "users.company_id");
 
 #if 0
 	// replace default joint type by Sq::TypeRow in Sq::Storage

@@ -91,45 +91,50 @@ use C++ language
 
 ## SQL 语句
 
-支持 printf 格式字符串的函数有很多。如果要在这些函数中使用 SQL 通配符 '%'，则必须使用 "%%" 打印 "%"。  
+有很多函数可以指定 SQL 条件，它们也支持 printf 格式字符串。请在传递条件值之前传递 printf 格式字符串。如果要在 printf 格式字符串中使用 SQL 通配符“%”，则必须使用“%%”打印“%”。  
   
-以下 C 函数在第二个参数中支持 printf 格式字符串：
-
-	sq_query_printf(),
-	sq_query_join(),
-	sq_query_left_join(),
-	sq_query_right_join(),
-	sq_query_full_join(),
+以下 C 函数在第2或第4个参数中支持 printf 格式字符串：
 	sq_query_on(),        sq_query_or_on(),
 	sq_query_where(),     sq_query_or_where(),
 	sq_query_where_not(), sq_query_or_where_not(),
 	sq_query_having(),    sq_query_or_having(),
 
+以下 C 函数在第5个参数中支持 printf 格式字符串：
+	sq_query_join(),
+	sq_query_left_join(),
+	sq_query_right_join(),
+	sq_query_full_join(),
+
 其他支持 printf 格式字符串的 C 函数：
+	sq_query_printf(),
 	sq_query_where_between() 系列
 	sq_query_where_in() 系列
 
 C 语言示例：
 
 ```c
-	sq_query_where(query, "id < %d", 100);
-
-	// AND city  LIKE 'ber%'
-	sq_query_where(query, "city LIKE 'ber%%'");
+	// --- 第 4 个参数中的 printf 格式字符串 ---
+	// WHERE id < 100
+	sq_query_where(query, "id", "<", "%d", 100);
 	// AND email LIKE 'guest%'
-	sq_query_where(query, "%s %s '%s'", "email", "LIKE", "guest%");
+	sq_query_where(query, "email", "LIKE", "'%s'", "guest%");
+
+	// --- 第 2 个参数中的 printf 格式字符串 ---
+	// AND city  LIKE 'ber%'
+	sq_query_where(query, "city  LIKE '%s'", "ber%");
 ```
 
-以下 C++ 方法在第一个参数中支持 printf 格式字符串：
-
-	join(),
-	leftJoin(),
-	rightJoin(),
-	fullJoin(),
+以下 C++ 方法在第1或第3个参数中支持 printf 格式字符串：
 	on(),       orOn(),
 	where(),    orWhere(),
 	whereNot(), orWhereNot(),
 	having(),   orHaving(),
+
+以下 C++ 方法在第2或第4个参数中支持 printf 格式字符串：
+	join(),
+	leftJoin(),
+	rightJoin(),
+	fullJoin(),
 
 其他支持 printf 格式字符串的 C++ 方法：
 	whereBetween() 系列
@@ -138,14 +143,13 @@ C 语言示例：
 C++ 语言示例：
 
 ```c++
-	query->where("id < %d", 100);
-
-	// 如果存在第二个参数，则将第一个参数作为 printf 格式字符串处理。
-	// 输出：
-	// AND city  LIKE 'ber%'
-	query->where("city LIKE 'ber%%'", NULL);
+	// WHERE id < 100
+	query->where("id", "<", "%d", 100);
 	// AND email LIKE 'guest%'
-	query->where("%s %s '%s'", "email", "LIKE", "guest%")
+	query->where("email", "LIKE", "'%s'", "guest%");
+
+	// AND city  LIKE 'ber%'
+	query->where("city  LIKE '%s'", "ber%");
 ```
 
 如果以下 C++ 方法的第二个参数不存在，则将第一个参数作为原始字符串处理。  
@@ -215,9 +219,9 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	// SELECT * FROM companies
 	sq_query_table(query, "companies");
 	// WHERE id > 15
-	sq_query_where(query, "id", ">", "15");
+	sq_query_where(query, "id", ">", "%d", 15);
 	// OR city_id = 6
-	sq_query_or_where(query, "city_id", "6");
+	sq_query_or_where(query, "city_id", "%d", 6);
 	// OR NOT members < 100
 	sq_query_or_where_not(query, "members < %d", 100);
 ```
@@ -228,9 +232,9 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	// SELECT * FROM companies
 	query->table("companies")
 	     // WHERE id > 15
-	     ->where("id", ">", "15")
+	     ->where("id", ">", "%d", 15)
 	     // OR city_id = 6
-	     ->orWhere("city_id", "6")
+	     ->orWhere("city_id", "%d", 6)
 	     // OR NOT members < 100
 	     ->orWhereNot("members < %d", 100);
 ```
@@ -243,7 +247,7 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	sq_query_table(query, "products");
 	sq_query_where_not_sub(query);
-		sq_query_where(query, "city_id", "6");
+		sq_query_where(query, "city_id", "%d", 6);
 		sq_query_or_where(query, "price < %d", 100);
 	sq_query_end_sub(query);
 ```
@@ -254,7 +258,7 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	query->table("products")
 	     ->whereNot([query] {
-	         query->where("city_id", "6")
+	         query->where("city_id", "%d", 6)
 	              ->orWhere("price < %d", 100);
 		 });
 ```
@@ -373,7 +377,7 @@ having 方法的用法与 where 方法类似。
 ```c
 	sq_query_table(query, "companies");
 	sq_query_group_by(query, "city_id", NULL);    // 最后一个参数必须为 NULL
-	sq_query_having(query, "age", ">", "10");
+	sq_query_having(query, "age", ">", "%d", 10);
 	sq_query_or_having(query, "members < %d", 50);
 ```
 
@@ -382,7 +386,7 @@ having 方法的用法与 where 方法类似。
 ```c++
 	query->table("companies")
 	     ->groupBy("city_id")
-	     ->having("age", ">", "10")
+	     ->having("age", ">", "%d", 10)
 	     ->orHaving("members < %d", 50);
 ```
 
@@ -759,14 +763,14 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 
 ```c
 	sq_query_table(query, "companies");
-	sq_query_join(query, "city", "users.id", "=", "posts.user_id");
+	sq_query_join(query, "city", "users.id", "=", "%s", "posts.user_id");
 ```
 
 使用 C++ 语言
 
 ```c++
 	query->table("companies")
-	     ->join("city", "users.id", "=", "posts.user_id");
+	     ->join("city", "users.id", "=", "%s", "posts.user_id");
 ```
 
 #### 左连接 Left Join / 右连接 Right Join / 全外连接 Full Join
@@ -775,26 +779,26 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_left_join(query, "posts", "users.id", "=", "posts.user_id");
+	sq_query_left_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 
 	sq_query_table(query, "users");
-	sq_query_right_join(query, "posts", "users.id", "=", "posts.user_id");
+	sq_query_right_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 
 	sq_query_table(query, "users");
-	sq_query_full_join(query, "posts", "users.id", "=", "posts.user_id");
+	sq_query_full_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 ```
 
 使用 C++ 语言
 
 ```c++
 	query->table("users")
-	     ->leftJoin("posts", "users.id", "=", "posts.user_id");
+	     ->leftJoin("posts", "users.id", "=", "%s", "posts.user_id");
 
 	query->table("users")
-	     ->rightJoin("posts", "users.id", "=", "posts.user_id");
+	     ->rightJoin("posts", "users.id", "=", "%s", "posts.user_id");
 
 	query->table("users")
-	     ->fullJoin("posts", "users.id", "=", "posts.user_id");
+	     ->fullJoin("posts", "users.id", "=", "%s", "posts.user_id");
 ```
 
 #### 交叉连接 Cross Join
@@ -823,7 +827,7 @@ on 方法的用法与 where 方法类似。
 	// SELECT * FROM users
 	sq_query_table(query, "users");
 	// JOIN posts ON users.id = posts.user_id
-	sq_query_join(query, "posts", "users.id", "=", "posts.user_id");
+	sq_query_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 	// AND users.id > 120
 	sq_query_on(query, "users.id > %d", 120);
 ```
@@ -834,7 +838,7 @@ on 方法的用法与 where 方法类似。
 	// SELECT * FROM users
 	query->table("users")
 	     // JOIN posts ON users.id = posts.user_id
-	     ->join("posts", "users.id", "=", "posts.user_id")
+	     ->join("posts", "users.id", "=", "%s", "posts.user_id")
 	     // AND users.id > 120
 	     ->on("users.id > %d", 120);
 ```
@@ -923,8 +927,8 @@ SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 ```c
 	sq_query_table(query, "users");
 	sq_query_where_sub(query);                  // 嵌套的开始
-		sq_query_where(query, "salary", ">", "45");
-		sq_query_where(query, "age", "<", "21");
+		sq_query_where(query, "salary", ">", "%d", 45);
+		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // 嵌套结束
 	sq_query_or_where(query, "id > %d", 100);
 ```
@@ -934,8 +938,8 @@ SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 ```c++
 	query->table("users")
 	     ->where([query] {
-	         query->where("salary", ">", "45")
-	              ->where("age", "<", "21");
+	         query->where("salary", ">", "%d", 45)
+	              ->where("age", "<", "%d", 21);
 	     })
 	     ->orWhere("id > %d", 100);
 ```
@@ -951,6 +955,16 @@ JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
 WHERE age > 5
 ```
 
+使用 C 语言生成子查询：
+
+```c
+	// WHERE price < (SELECT amount FROM incomes)
+	sq_query_where_sub(query, "price", "<");
+		sq_query_select(query, "amount", NULL);
+		sq_query_from(query, "incomes");
+	sq_query_end_sub(query);
+```
+
 使用 C++ lambda 函数生成子查询：
 
 ```c++
@@ -958,7 +972,7 @@ WHERE age > 5
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")
-	              ->where("id", "<", "100");
+	              ->where("id", "<", "%d", 100);
 	     })->as("c")->on("c.id = companies.city_id")
 	     ->where("age > 5");
 ```
@@ -976,8 +990,8 @@ WHERE age > 5
 		SQQ_FROM("companies");
 		SQQ_JOIN_SUB({
 			SQQ_FROM("city");
-			SQQ_WHERE("id", "<", "100");
-		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
-		SQQ_WHERE("age > 5");
+			SQQ_WHERE("id", "<", "%d", 100);
+		}); SQQ_AS("c"); SQQ_ON_RAW("c.id = companies.city_id");
+		SQQ_WHERE_RAW("age > 5");
 	});
 ```

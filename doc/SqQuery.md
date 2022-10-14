@@ -91,61 +91,66 @@ use C++ language
 
 ## SQL Statements
 
-There are many functions support printf format string. If you want to use SQL Wildcard Characters '%' in these functions, you must print "%" using "%%".  
+There are many functions can specify SQL condition and them also support printf format string. Please pass printf format string before passing value of condition. If you want to use SQL Wildcard Characters '%' in printf format string, you must print "%" using "%%".  
   
-below C functions support printf format string in 2nd argument:
-
-	sq_query_printf(),
-	sq_query_join(),
-	sq_query_left_join(),
-	sq_query_right_join(),
-	sq_query_full_join(),
+below C functions support printf format string in 2nd or 4th argument:
 	sq_query_on(),        sq_query_or_on(),
 	sq_query_where(),     sq_query_or_where(),
 	sq_query_where_not(), sq_query_or_where_not(),
 	sq_query_having(),    sq_query_or_having(),
 
+below C functions support printf format string in 3rd or 5th argument:
+	sq_query_join(),
+	sq_query_left_join(),
+	sq_query_right_join(),
+	sq_query_full_join(),
+
 other C functions that support printf format string:
+	sq_query_printf(),
 	sq_query_where_between() series
 	sq_query_where_in() series
 
 C language example:
 
 ```c
-	sq_query_where(query, "id < %d", 100);
-
-	// AND city  LIKE 'ber%'
-	sq_query_where(query, "city LIKE 'ber%%'");
+	// --- printf format string in 4th argument ---
+	// WHERE id < 100
+	sq_query_where(query, "id", "<", "%d", 100);
 	// AND email LIKE 'guest%'
-	sq_query_where(query, "%s %s '%s'", "email", "LIKE", "guest%");
+	sq_query_where(query, "email", "LIKE", "'%s'", "guest%");
+
+	// --- printf format string in 2nd argument ---
+	// AND city  LIKE 'ber%'
+	sq_query_where(query, "city  LIKE '%s'", "ber%");
 ```
 
-below C++ methods support printf format string in 1st argument:
-
-	join(),
-	leftJoin(),
-	rightJoin(),
-	fullJoin(),
+below C++ methods support printf format string in 1st or 3rd argument:
 	on(),       orOn(),
 	where(),    orWhere(),
 	whereNot(), orWhereNot(),
 	having(),   orHaving(),
 
+below C++ methods support printf format string in 2nd of 4th argument:
+	join(),
+	leftJoin(),
+	rightJoin(),
+	fullJoin(),
+
 other C++ methods that support printf format string:
+	printf(),
 	whereBetween() series
 	whereIn() series
 
 C++ language example:
 
 ```c++
-	query->where("id < %d", 100);
-
-	// If the 2nd argument is exist, the 1st argument is handled as printf format string.
-	// output:
-	// AND city  LIKE 'ber%'
-	query->where("city LIKE 'ber%%'", NULL);
+	// WHERE id < 100
+	query->where("id", "<", "%d", 100);
 	// AND email LIKE 'guest%'
-	query->where("%s %s '%s'", "email", "LIKE", "guest%")
+	query->where("email", "LIKE", "'%s'", "guest%");
+
+	// AND city  LIKE 'ber%'
+	query->where("city  LIKE '%s'", "ber%");
 ```
 
 If the 2nd argument of below C++ methods is NOT exist, the 1st argument is handled as raw string.  
@@ -215,9 +220,9 @@ use C language
 	// SELECT * FROM companies
 	sq_query_table(query, "companies");
 	// WHERE id > 15
-	sq_query_where(query, "id", ">", "15");
+	sq_query_where(query, "id", ">", "%d", 15);
 	// OR city_id = 6
-	sq_query_or_where(query, "city_id", "6");
+	sq_query_or_where(query, "city_id", "%d", 6);
 	// OR NOT members < 100
 	sq_query_or_where_not(query, "members < %d", 100);
 ```
@@ -228,9 +233,9 @@ use C++ language
 	// SELECT * FROM companies
 	query->table("companies")
 	     // WHERE id > 15
-	     ->where("id", ">", "15")
+	     ->where("id", ">", "%d", 15)
 	     // OR city_id = 6
-	     ->orWhere("city_id", "6")
+	     ->orWhere("city_id", "%d", 6)
 	     // OR NOT members < 100
 	     ->orWhereNot("members < %d", 100);
 ```
@@ -243,7 +248,7 @@ use C language
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	sq_query_table(query, "products");
 	sq_query_where_not_sub(query);
-		sq_query_where(query, "city_id", "6");
+		sq_query_where(query, "city_id", "%d", 6);
 		sq_query_or_where(query, "price < %d", 100);
 	sq_query_end_sub(query);
 ```
@@ -254,7 +259,7 @@ use C++ language
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	query->table("products")
 	     ->whereNot([query] {
-	         query->where("city_id", "6")
+	         query->where("city_id", "%d", 6)
 	              ->orWhere("price < %d", 100);
 		 });
 ```
@@ -373,7 +378,7 @@ use C language
 ```c
 	sq_query_table(query, "companies");
 	sq_query_group_by(query, "city_id", NULL);    // the last argument must be NULL
-	sq_query_having(query, "age", ">", "10");
+	sq_query_having(query, "age", ">", "%d", 10);
 	sq_query_or_having(query, "members < %d", 50);
 ```
 
@@ -382,7 +387,7 @@ use C++ language
 ```c++
 	query->table("companies")
 	     ->groupBy("city_id")
-	     ->having("age", ">", "10")
+	     ->having("age", ">", "%d", 10)
 	     ->orHaving("members < %d", 50);
 ```
 
@@ -759,14 +764,14 @@ use C language
 
 ```c
 	sq_query_table(query, "companies");
-	sq_query_join(query, "city", "users.id", "=", "posts.user_id");
+	sq_query_join(query, "city", "users.id", "=", "%s", "posts.user_id");
 ```
 
 use C++ language
 
 ```c++
 	query->table("companies")
-	     ->join("city", "users.id", "=", "posts.user_id");
+	     ->join("city", "users.id", "=", "%s", "posts.user_id");
 ```
 
 #### Left Join / Right Join / Full Join
@@ -775,26 +780,26 @@ use C language
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_left_join(query, "posts", "users.id", "=", "posts.user_id");
+	sq_query_left_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 
 	sq_query_table(query, "users");
-	sq_query_right_join(query, "posts", "users.id", "=", "posts.user_id");
+	sq_query_right_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 
 	sq_query_table(query, "users");
-	sq_query_full_join(query, "posts", "users.id", "=", "posts.user_id");
+	sq_query_full_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 ```
 
 use C++ language
 
 ```c++
 	query->table("users")
-	     ->leftJoin("posts", "users.id", "=", "posts.user_id");
+	     ->leftJoin("posts", "users.id", "=", "%s", "posts.user_id");
 
 	query->table("users")
-	     ->rightJoin("posts", "users.id", "=", "posts.user_id");
+	     ->rightJoin("posts", "users.id", "=", "%s", "posts.user_id");
 
 	query->table("users")
-	     ->fullJoin("posts", "users.id", "=", "posts.user_id");
+	     ->fullJoin("posts", "users.id", "=", "%s", "posts.user_id");
 ```
 
 #### Cross Join
@@ -823,7 +828,7 @@ use C language
 	// SELECT * FROM users
 	sq_query_table(query, "users");
 	// JOIN posts ON users.id = posts.user_id
-	sq_query_join(query, "posts", "users.id", "=", "posts.user_id");
+	sq_query_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 	// AND users.id > 120
 	sq_query_on(query, "users.id > %d", 120);
 ```
@@ -834,7 +839,7 @@ use C++ language
 	// SELECT * FROM users
 	query->table("users")
 	     // JOIN posts ON users.id = posts.user_id
-	     ->join("posts", "users.id", "=", "posts.user_id")
+	     ->join("posts", "users.id", "=", "%s", "posts.user_id")
 	     // AND users.id > 120
 	     ->on("users.id > %d", 120);
 ```
@@ -923,8 +928,8 @@ use C functions to generate Nested:
 ```c
 	sq_query_table(query, "users");
 	sq_query_where_sub(query);                  // start of Nested
-		sq_query_where(query, "salary", ">", "45");
-		sq_query_where(query, "age", "<", "21");
+		sq_query_where(query, "salary", ">", "%d", 45);
+		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of Nested
 	sq_query_or_where(query, "id > %d", 100);
 ```
@@ -934,8 +939,8 @@ use C++ lambda functions to generate Nested:
 ```c++
 	query->table("users")
 	     ->where([query] {
-	         query->where("salary", ">", "45")
-	              ->where("age", "<", "21");
+	         query->where("salary", ">", "%d", 45)
+	              ->where("age", "<", "%d", 21);
 	     })
 	     ->orWhere("id > %d", 100);
 ```
@@ -951,6 +956,16 @@ JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
 WHERE age > 5
 ```
 
+use C language to generate subquery:
+
+```c
+	// WHERE price < (SELECT amount FROM incomes)
+	sq_query_where_sub(query, "price", "<");
+		sq_query_select(query, "amount", NULL);
+		sq_query_from(query, "incomes");
+	sq_query_end_sub(query);
+```
+
 use C++ lambda functions to generate subquery:
 
 ```c++
@@ -958,7 +973,7 @@ use C++ lambda functions to generate subquery:
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")
-	              ->where("id", "<", "100");
+	              ->where("id", "<", "%d", 100);
 	     })->as("c")->on("c.id = companies.city_id")
 	     ->where("age > 5");
 ```
@@ -976,8 +991,8 @@ macro SQ_QUERY_DO() is used to build query. The last parameter in macro is like 
 		SQQ_FROM("companies");
 		SQQ_JOIN_SUB({
 			SQQ_FROM("city");
-			SQQ_WHERE("id", "<", "100");
-		}); SQQ_AS("c"); SQQ_ON("c.id = companies.city_id");
-		SQQ_WHERE("age > 5");
+			SQQ_WHERE("id", "<", "%d", 100);
+		}); SQQ_AS("c"); SQQ_ON_RAW("c.id = companies.city_id");
+		SQQ_WHERE_RAW("age > 5");
 	});
 ```
