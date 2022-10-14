@@ -26,6 +26,7 @@
 #ifdef _MSC_VER
 #define strdup       _strdup
 #define snprintf     _snprintf
+#define strcasecmp   _stricmp
 #endif
 
 #define SQ_QUERY_STR_SIZE_DEFAULT  256
@@ -402,7 +403,7 @@ void sq_query_where_between_logical(SqQuery *query, const char *column_name, int
 	} temp;
 
 	// generate new printf format string
-	length = strlen(format) *2 + 13 + 1;    // strlen("BETWEEN  AND ") + '\0'
+	length = (int)strlen(format) *2 + 13 + 1;    // strlen("BETWEEN  AND ") + '\0'
 	temp.format = malloc(length);
 	strcpy(temp.format, "BETWEEN ");
 	strcpy(temp.format +8,  format);    // str + strlen("BETWEEN ")
@@ -440,7 +441,7 @@ void sq_query_where_in_logical(SqQuery *query, const char *column_name, int logi
 	} temp;
 
 	// generate new printf format string
-	format_len = strlen(format);
+	format_len = (int)strlen(format);
 	length = (format_len+1) *n_args + 5 + 1;    // strlen("IN ()") + '\0'
 	temp.format = malloc(length);
 	strcpy(temp.format, "IN (");
@@ -874,7 +875,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 		vsnprintf(node->value, mem.length, args[0], arg_list);
 		return node;
 	}
-	mem.length = temp.cur - args[0] + 1;           // + ' '
+	mem.length = (int)(temp.cur - args[0]) + 1;    // + ' '
 #if SQ_QUERY_USE_OLD_CONDITION
 	// ====== second argument ======
 	args[1] = va_arg(arg_list, char*);
