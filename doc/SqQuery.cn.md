@@ -69,8 +69,8 @@ use C++ language
 	// 生成新的 SQL 语句
 	sql = sq_query_c(query);
 
-	// 调用 sq_query_c() 后，用户可以访问 SqQuery::str 以重用生成的 SQL 语句。
-	sql = query->str;
+	// 调用 sq_query_c() 后，用户可以使用 sq_query_last() 来重用生成的 SQL 语句。
+	sql = sq_query_last(query);
 ```
 
 使用 C++ 语言
@@ -85,8 +85,8 @@ use C++ language
 	// 生成新的 SQL 语句
 	sql = query->c();
 
-	// 调用 sq_query_c() 后，用户可以访问 SqQuery::str 以重用生成的 SQL 语句。
-	sql = query->str;
+	// 调用 sq_query_c() 后，用户可以使用 last() 来重用生成的 SQL 语句。
+	sql = query->last();
 ```
 
 ## SQL 语句
@@ -958,11 +958,15 @@ WHERE age > 5
 使用 C 语言生成子查询：
 
 ```c
-	// WHERE price < (SELECT amount FROM incomes)
-	sq_query_where_sub(query, "price", "<");
-		sq_query_select(query, "amount", NULL);
-		sq_query_from(query, "incomes");
+	sq_query_select(query, "id", "age", NULL);
+	sq_query_from(query, "companies");
+	sq_query_join_sub(query);
+		sq_query_from(query, "city");
+		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);
+	sq_query_as(query, "c");
+	sq_query_on_raw(query, "c.id = companies.city_id");
+	sq_query_where_raw(query, "age > 5");
 ```
 
 使用 C++ lambda 函数生成子查询：
@@ -975,6 +979,26 @@ WHERE age > 5
 	              ->where("id", "<", "%d", 100);
 	     })->as("c")->on("c.id = companies.city_id")
 	     ->where("age > 5");
+```
+
+例如: 下面是在条件中有子查询的 SQL 语句。
+
+```sql
+SELECT *
+FROM products
+WHERE price < (SELECT amount FROM incomes)
+```
+
+使用 C 语言生成在条件中的子查询：
+
+```c
+	// SELECT * FROM products
+	sq_query_from(query, "products");
+	// WHERE price < (SELECT amount FROM incomes)
+	sq_query_where_sub(query, "price", "<");
+		sq_query_select(query, "amount", NULL);
+		sq_query_from(query, "incomes");
+	sq_query_end_sub(query);
 ```
 
 ## 使用宏生成查询

@@ -13,917 +13,939 @@
  */
 
 
-#ifndef SQ_QUERY_PROXY_H
-#define SQ_QUERY_PROXY_H
+/*	This header file is used by SqQuery.h
 
-#ifndef SQ_QUERY_H
-#include <SqQuery.h>
-#endif
+	Before including this file, you must define the settings as follows:
+
+#define SQ_QUERY_TYPE_DECLARE
+#define SQ_QUERY_TYPE_DEFINE
+#define SQ_QUERY_TYPE_USE_STRUCT
+#define SQ_QUERY_TYPE_NAME       QueryProxy
+#define SQ_QUERY_TYPE_DATAPTR    query
+#define SQ_QUERY_TYPE_RETURN     QueryProxy
+ */
+
 
 // ----------------------------------------------------------------------------
 // C++ declarations: declare C++ data, function, method, and others.
 
-#ifdef __cplusplus
+#if defined(__cplusplus) && defined(SQ_QUERY_TYPE_DECLARE)
 
 namespace Sq {
 
-class QueryProxy {
+struct Query;
+
+#ifdef SQ_QUERY_TYPE_USE_STRUCT
+// struct QueryMethod
+struct SQ_QUERY_TYPE_NAME {
+
+#else
+// class  QueryProxy
+class  SQ_QUERY_TYPE_NAME {
+
 protected:
-	Sq::Query *query;
+	Sq::Query *SQ_QUERY_TYPE_DATAPTR;
 
 public:
-	QueryProxy *operator->();
+#endif  // SQ_QUERY_TYPE_USE_STRUCT
 
-	QueryProxy &clear();
+// struct QueryMethod SQ_QUERY_TYPE_RETURN is 'Query'
+// class  QueryProxy  SQ_QUERY_TYPE_RETURN is 'QueryProxy'
+	SQ_QUERY_TYPE_RETURN  *operator->();
+
+	SQ_QUERY_TYPE_RETURN  &clear();
 
 	template <typename... Args>
-	QueryProxy &raw(const char *format, const Args... args);
-	QueryProxy &raw(const char *raw_sql);
+	SQ_QUERY_TYPE_RETURN  &raw(const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &raw(const char *raw_sql);
 
 	template <typename... Args>
-	QueryProxy &printf(const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &printf(const char *format, const Args... args);
 
-	QueryProxy &from(const char *table);
-	QueryProxy &from(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &from(const char *table);
+	SQ_QUERY_TYPE_RETURN  &from(std::function<void()> func);
 
-	QueryProxy &table(const char *table);
-	QueryProxy &table(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &table(const char *table);
+	SQ_QUERY_TYPE_RETURN  &table(std::function<void()> func);
 
-	QueryProxy &as(const char *name);
+	SQ_QUERY_TYPE_RETURN  &as(const char *name);
 
 	// join(table, condition...)
 	template <typename... Args>
-	QueryProxy &join(const char *table, const Args... args);
-	QueryProxy &join(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &join(const char *table, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &join(std::function<void()> func);
 	// leftJoin(table, condition...)
 	template <typename... Args>
-	QueryProxy &leftJoin(const char *table, const Args... args);
-	QueryProxy &leftJoin(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &leftJoin(const char *table, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &leftJoin(std::function<void()> func);
 	// rightJoin(table, condition...)
 	template <typename... Args>
-	QueryProxy &rightJoin(const char *table, const Args... args);
-	QueryProxy &rightJoin(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &rightJoin(const char *table, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &rightJoin(std::function<void()> func);
 	// fullJoin(table, condition...)
 	template <typename... Args>
-	QueryProxy &fullJoin(const char *table, const Args... args);
-	QueryProxy &fullJoin(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &fullJoin(const char *table, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &fullJoin(std::function<void()> func);
 	// crossJoin(table)
-	QueryProxy &crossJoin(const char *table);
-	QueryProxy &crossJoin(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &crossJoin(const char *table);
+	SQ_QUERY_TYPE_RETURN  &crossJoin(std::function<void()> func);
 
 	// on(condition, ...)
 	template <typename... Args>
-	QueryProxy &on(const char *condition, const Args ...args);
-	QueryProxy &on(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &on(const char *condition, const Args ...args);
+	SQ_QUERY_TYPE_RETURN  &on(std::function<void()> func);
 
-	QueryProxy &on(const char *raw);
-	QueryProxy &onRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &on(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &onRaw(const char *raw);
 
 	// orOn(condition, ...)
 	template <typename... Args>
-	QueryProxy &orOn(const char *condition, const Args... args);
-	QueryProxy &orOn(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &orOn(const char *condition, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orOn(std::function<void()> func);
 
-	QueryProxy &orOn(const char *raw);
-	QueryProxy &orOnRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orOn(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orOnRaw(const char *raw);
 
 	// where(condition, ...)
 	template <typename... Args>
-	QueryProxy &where(const char *condition, const Args... args);
-	QueryProxy &where(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &where(const char *condition, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &where(std::function<void()> func);
 
-	QueryProxy &where(const char *raw);
-	QueryProxy &whereRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &where(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &whereRaw(const char *raw);
 
 	// orWhere(condition, ...)
 	template <typename... Args>
-	QueryProxy &orWhere(const char *condition, const Args... args);
-	QueryProxy &orWhere(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &orWhere(const char *condition, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhere(std::function<void()> func);
 
-	QueryProxy &orWhere(const char *raw);
-	QueryProxy &orWhereRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orWhere(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orWhereRaw(const char *raw);
 
 	// whereNot(condition, ...)
 	template <typename... Args>
-	QueryProxy &whereNot(const char *condition, const Args... args);
-	QueryProxy &whereNot(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &whereNot(const char *condition, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereNot(std::function<void()> func);
 
-	QueryProxy &whereNot(const char *raw);
-	QueryProxy &whereNotRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &whereNot(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &whereNotRaw(const char *raw);
 
 	template <typename... Args>
-	QueryProxy &orWhereNot(const char *condition, const Args... args);
-	QueryProxy &orWhereNot(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &orWhereNot(const char *condition, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereNot(std::function<void()> func);
 
-	QueryProxy &orWhereNot(const char *raw);
-	QueryProxy &orWhereNotRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orWhereNot(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotRaw(const char *raw);
 
 	// whereExists
-	QueryProxy &whereExists(std::function<void()> func);
-	QueryProxy &whereNotExists(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &whereExists(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &whereNotExists(std::function<void()> func);
 
 	// whereBetween
-	QueryProxy &whereBetween(const char *columnName, int value1, int value2);
-	QueryProxy &whereBetween(const char *columnName, int64_t value1, int64_t value2);
-	QueryProxy &whereBetween(const char *columnName, double value1, double value2);
-	QueryProxy &whereBetween(const char *columnName, const char value1, const char value2);
-	QueryProxy &whereBetween(const char *columnName, const char *value1, const char *value2);
+	SQ_QUERY_TYPE_RETURN  &whereBetween(const char *columnName, int value1, int value2);
+	SQ_QUERY_TYPE_RETURN  &whereBetween(const char *columnName, int64_t value1, int64_t value2);
+	SQ_QUERY_TYPE_RETURN  &whereBetween(const char *columnName, double value1, double value2);
+	SQ_QUERY_TYPE_RETURN  &whereBetween(const char *columnName, const char value1, const char value2);
+	SQ_QUERY_TYPE_RETURN  &whereBetween(const char *columnName, const char *value1, const char *value2);
 	template <typename... Args>
-	QueryProxy &whereBetween(const char *columnName, const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereBetween(const char *columnName, const char *format, const Args... args);
 
-	QueryProxy &whereNotBetween(const char *columnName, int value1, int value2);
-	QueryProxy &whereNotBetween(const char *columnName, int64_t value1, int64_t value2);
-	QueryProxy &whereNotBetween(const char *columnName, double value1, double value2);
-	QueryProxy &whereNotBetween(const char *columnName, const char value1, const char value2);
-	QueryProxy &whereNotBetween(const char *columnName, const char *value1, const char *value2);
+	SQ_QUERY_TYPE_RETURN  &whereNotBetween(const char *columnName, int value1, int value2);
+	SQ_QUERY_TYPE_RETURN  &whereNotBetween(const char *columnName, int64_t value1, int64_t value2);
+	SQ_QUERY_TYPE_RETURN  &whereNotBetween(const char *columnName, double value1, double value2);
+	SQ_QUERY_TYPE_RETURN  &whereNotBetween(const char *columnName, const char value1, const char value2);
+	SQ_QUERY_TYPE_RETURN  &whereNotBetween(const char *columnName, const char *value1, const char *value2);
 	template <typename... Args>
-	QueryProxy &whereNotBetween(const char *columnName, const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereNotBetween(const char *columnName, const char *format, const Args... args);
 
-	QueryProxy &orWhereBetween(const char *columnName, int value1, int value2);
-	QueryProxy &orWhereBetween(const char *columnName, int64_t value1, int64_t value2);
-	QueryProxy &orWhereBetween(const char *columnName, double value1, double value2);
-	QueryProxy &orWhereBetween(const char *columnName, const char value1, const char value2);
-	QueryProxy &orWhereBetween(const char *columnName, const char *value1, const char *value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereBetween(const char *columnName, int value1, int value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereBetween(const char *columnName, int64_t value1, int64_t value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereBetween(const char *columnName, double value1, double value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereBetween(const char *columnName, const char value1, const char value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereBetween(const char *columnName, const char *value1, const char *value2);
 	template <typename... Args>
-	QueryProxy &orWhereBetween(const char *columnName, const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereBetween(const char *columnName, const char *format, const Args... args);
 
-	QueryProxy &orWhereNotBetween(const char *columnName, int value1, int value2);
-	QueryProxy &orWhereNotBetween(const char *columnName, int64_t value1, int64_t value2);
-	QueryProxy &orWhereNotBetween(const char *columnName, double value1, double value2);
-	QueryProxy &orWhereNotBetween(const char *columnName, const char value1, const char value2);
-	QueryProxy &orWhereNotBetween(const char *columnName, const char *value1, const char *value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotBetween(const char *columnName, int value1, int value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotBetween(const char *columnName, int64_t value1, int64_t value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotBetween(const char *columnName, double value1, double value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotBetween(const char *columnName, const char value1, const char value2);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotBetween(const char *columnName, const char *value1, const char *value2);
 	template <typename... Args>
-	QueryProxy &orWhereNotBetween(const char *columnName, const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotBetween(const char *columnName, const char *format, const Args... args);
 
 	// whereIn
 	template <typename... Args>
-	QueryProxy &whereIn(const char *columnName, int first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereIn(const char *columnName, int first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereIn(const char *columnName, int64_t first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereIn(const char *columnName, int64_t first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereIn(const char *columnName, double first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereIn(const char *columnName, double first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereIn(const char *columnName, const char first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereIn(const char *columnName, const char first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereIn(const char *columnName, const char *first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereIn(const char *columnName, const char *first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereIn(const char *columnName, int n_args, const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereIn(const char *columnName, int n_args, const char *format, const Args... args);
 
 	template <typename... Args>
-	QueryProxy &whereNotIn(const char *columnName, int first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereNotIn(const char *columnName, int first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereNotIn(const char *columnName, int64_t first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereNotIn(const char *columnName, int64_t first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereNotIn(const char *columnName, double first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereNotIn(const char *columnName, double first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereNotIn(const char *columnName, const char first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereNotIn(const char *columnName, const char first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereNotIn(const char *columnName, const char *first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereNotIn(const char *columnName, const char *first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &whereNotIn(const char *columnName, int n_args, const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &whereNotIn(const char *columnName, int n_args, const char *format, const Args... args);
 
 	template <typename... Args>
-	QueryProxy &orWhereIn(const char *columnName, int first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereIn(const char *columnName, int first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereIn(const char *columnName, int64_t first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereIn(const char *columnName, int64_t first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereIn(const char *columnName, double first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereIn(const char *columnName, double first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereIn(const char *columnName, const char first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereIn(const char *columnName, const char first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereIn(const char *columnName, const char *first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereIn(const char *columnName, const char *first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereIn(const char *columnName, int n_args, const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereIn(const char *columnName, int n_args, const char *format, const Args... args);
 
 	template <typename... Args>
-	QueryProxy &orWhereNotIn(const char *columnName, int first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotIn(const char *columnName, int first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereNotIn(const char *columnName, int64_t first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotIn(const char *columnName, int64_t first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereNotIn(const char *columnName, double first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotIn(const char *columnName, double first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereNotIn(const char *columnName, const char first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotIn(const char *columnName, const char first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereNotIn(const char *columnName, const char *first_value, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotIn(const char *columnName, const char *first_value, const Args... args);
 	template <typename... Args>
-	QueryProxy &orWhereNotIn(const char *columnName, int n_args, const char *format, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotIn(const char *columnName, int n_args, const char *format, const Args... args);
 
 	// whereNull
-	QueryProxy &whereNull(const char *columnName);
-	QueryProxy &whereNotNull(const char *columnName);
-	QueryProxy &orWhereNull(const char *columnName);
-	QueryProxy &orWhereNotNull(const char *columnName);
+	SQ_QUERY_TYPE_RETURN  &whereNull(const char *columnName);
+	SQ_QUERY_TYPE_RETURN  &whereNotNull(const char *columnName);
+	SQ_QUERY_TYPE_RETURN  &orWhereNull(const char *columnName);
+	SQ_QUERY_TYPE_RETURN  &orWhereNotNull(const char *columnName);
 
 	// groupBy(column...)
 	template <typename... Args>
-	QueryProxy &groupBy(const char *columnName, const Args... args);
-	QueryProxy &groupBy(const char *raw);
-	QueryProxy &groupByRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &groupBy(const char *columnName, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &groupBy(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &groupByRaw(const char *raw);
 
 	// having(condition, ...)
 	template <typename... Args>
-	QueryProxy &having(const char *condition, const Args... args);
-	QueryProxy &having(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &having(const char *condition, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &having(std::function<void()> func);
 
-	QueryProxy &having(const char *raw);
-	QueryProxy &havingRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &having(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &havingRaw(const char *raw);
 
 	// orHaving(condition, ...)
 	template <typename... Args>
-	QueryProxy &orHaving(const char *condition, const Args... args);
-	QueryProxy &orHaving(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &orHaving(const char *condition, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orHaving(std::function<void()> func);
 
-	QueryProxy &orHaving(const char *raw);
-	QueryProxy &orHavingRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orHaving(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orHavingRaw(const char *raw);
 
 	// select(column...)
 	template <typename... Args>
-	QueryProxy &select(const char *columnName, const Args... args);
-	QueryProxy &select(const char *raw);
-	QueryProxy &selectRaw(const char *raw);
-	QueryProxy &distinct();
+	SQ_QUERY_TYPE_RETURN  &select(const char *columnName, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &select(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &selectRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &distinct();
 
 	// orderBy(column...)
 	template <typename... Args>
-	QueryProxy &orderBy(const char *columnName, const Args... args);
-	QueryProxy &orderBy(const char *raw);
-	QueryProxy &orderByRaw(const char *raw);
-	QueryProxy &orderByDesc(const char *columnName);
-	QueryProxy &asc();
-	QueryProxy &desc();
+	SQ_QUERY_TYPE_RETURN  &orderBy(const char *columnName, const Args... args);
+	SQ_QUERY_TYPE_RETURN  &orderBy(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orderByRaw(const char *raw);
+	SQ_QUERY_TYPE_RETURN  &orderByDesc(const char *columnName);
+	SQ_QUERY_TYPE_RETURN  &asc();
+	SQ_QUERY_TYPE_RETURN  &desc();
 
 	// union(lambda function)
-	QueryProxy &union_(std::function<void()> func);
-	QueryProxy &unionAll(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &union_(std::function<void()> func);
+	SQ_QUERY_TYPE_RETURN  &unionAll(std::function<void()> func);
 
-	QueryProxy &limit(int64_t count);
-	QueryProxy &offset(int64_t index);
+	SQ_QUERY_TYPE_RETURN  &limit(int64_t count);
+	SQ_QUERY_TYPE_RETURN  &offset(int64_t index);
 
 	// call these function at last (before generating SQL statement).
-	QueryProxy &delete_();
-	QueryProxy &deleteFrom();
-	QueryProxy &truncate();
+	SQ_QUERY_TYPE_RETURN  &delete_();
+	SQ_QUERY_TYPE_RETURN  &deleteFrom();
+	SQ_QUERY_TYPE_RETURN  &truncate();
 
 	// generate SQL statement
 	char       *toSql();
 	const char *c();
 
 	// return generated SQL statement
-	const char *str();
+	const char *last();
 };
 
 };  // namespace Sq
 
-#endif  // __cplusplus
+#endif  // __cplusplus && SQ_QUERY_TYPE_DECLARE
 
 // ----------------------------------------------------------------------------
 // C++ definitions
 
-#ifdef __cplusplus
+#if defined(__cplusplus) && defined(SQ_QUERY_TYPE_DEFINE)
 
 namespace Sq {
 
-/* define QueryPtr functions. */
+/*
+	define functions.
+	
+	struct QueryMethod SQ_QUERY_TYPE_DATAPTR is 'this'
+	class  QueryProxy  SQ_QUERY_TYPE_DATAPTR is 'query'
+ */
 
-inline QueryProxy *QueryProxy::operator->() {
-	return this;
+inline SQ_QUERY_TYPE_RETURN  *SQ_QUERY_TYPE_NAME::operator->() {
+	return (SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::clear() {
-	sq_query_clear(query);
-	return *this;
-}
-
-template <typename... Args>
-inline QueryProxy &QueryProxy::raw(const char *format, const Args... args) {
-	sq_query_printf(query, format, args...);
-	return *this;
-}
-inline QueryProxy &QueryProxy::raw(const char *raw_sql) {
-	sq_query_raw(query, raw_sql);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::clear() {
+	sq_query_clear((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::printf(const char *format, const Args... args) {
-	sq_query_printf(query, format, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::raw(const char *format, const Args... args) {
+	sq_query_printf((SqQuery*)SQ_QUERY_TYPE_DATAPTR, format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::raw(const char *raw_sql) {
+	sq_query_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw_sql);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::from(const char *table) {
-	sq_query_from(query, table);
-	return *this;
+template <typename... Args>
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::printf(const char *format, const Args... args) {
+	sq_query_printf((SqQuery*)SQ_QUERY_TYPE_DATAPTR, format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::from(std::function<void()> func) {
-	sq_query_from_sub(query);            // start of Subquery/Nested
+
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::from(const char *table) {
+	sq_query_from((SqQuery*)SQ_QUERY_TYPE_DATAPTR, table);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::from(std::function<void()> func) {
+	sq_query_from_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);            // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::table(const char *table) {
-	sq_query_from(query, table);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::table(const char *table) {
+	sq_query_from((SqQuery*)SQ_QUERY_TYPE_DATAPTR, table);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::table(std::function<void()> func) {
-	sq_query_from_sub(query);            // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::table(std::function<void()> func) {
+	sq_query_from_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);            // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::as(const char *name) {
-	sq_query_as(query, name);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::as(const char *name) {
+	sq_query_as((SqQuery*)SQ_QUERY_TYPE_DATAPTR, name);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::join(const char *table, const Args... args) {
-	sq_query_join(query, table, args..., NULL);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::join(const char *table, const Args... args) {
+	sq_query_join((SqQuery*)SQ_QUERY_TYPE_DATAPTR, table, args..., NULL);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::join(std::function<void()> func) {
-	sq_query_join_sub(query);            // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::join(std::function<void()> func) {
+	sq_query_join_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);            // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::leftJoin(const char *table, const Args... args) {
-	sq_query_left_join(query, table, args..., NULL);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::leftJoin(const char *table, const Args... args) {
+	sq_query_left_join((SqQuery*)SQ_QUERY_TYPE_DATAPTR, table, args..., NULL);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::leftJoin(std::function<void()> func) {
-	sq_query_left_join_sub(query);       // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::leftJoin(std::function<void()> func) {
+	sq_query_left_join_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);       // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::rightJoin(const char *table, const Args... args) {
-	sq_query_right_join(query, table, args..., NULL);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::rightJoin(const char *table, const Args... args) {
+	sq_query_right_join((SqQuery*)SQ_QUERY_TYPE_DATAPTR, table, args..., NULL);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::rightJoin(std::function<void()> func) {
-	sq_query_right_join_sub(query);      // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::rightJoin(std::function<void()> func) {
+	sq_query_right_join_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);      // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::fullJoin(const char *table, const Args... args) {
-	sq_query_full_join(query, table, args..., NULL);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::fullJoin(const char *table, const Args... args) {
+	sq_query_full_join((SqQuery*)SQ_QUERY_TYPE_DATAPTR, table, args..., NULL);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::fullJoin(std::function<void()> func) {
-	sq_query_full_join_sub(query);       // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::fullJoin(std::function<void()> func) {
+	sq_query_full_join_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);       // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::crossJoin(const char *table) {
-	sq_query_cross_join(query, table);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::crossJoin(const char *table) {
+	sq_query_cross_join((SqQuery*)SQ_QUERY_TYPE_DATAPTR, table);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::crossJoin(std::function<void()> func) {
-	sq_query_cross_join_sub(query);      // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::crossJoin(std::function<void()> func) {
+	sq_query_cross_join_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);      // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::on(const char *condition, const Args... args) {
-	sq_query_on(query, condition, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::on(const char *condition, const Args... args) {
+	sq_query_on((SqQuery*)SQ_QUERY_TYPE_DATAPTR, condition, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::on(std::function<void()> func) {
-	sq_query_on_sub(query);        // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::on(std::function<void()> func) {
+	sq_query_on_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);        // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);       // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);       // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::on(const char *raw) {
-	sq_query_on_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::on(const char *raw) {
+	sq_query_on_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::onRaw(const char *raw) {
-	sq_query_on_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::onRaw(const char *raw) {
+	sq_query_on_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::orOn(const char *condition, const Args... args) {
-	sq_query_or_on(query, condition, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orOn(const char *condition, const Args... args) {
+	sq_query_or_on((SqQuery*)SQ_QUERY_TYPE_DATAPTR, condition, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orOn(std::function<void()> func) {
-	sq_query_or_on_sub(query);     // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orOn(std::function<void()> func) {
+	sq_query_or_on_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);     // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);       // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);       // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::orOn(const char *raw) {
-	sq_query_or_on_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orOn(const char *raw) {
+	sq_query_or_on_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orOnRaw(const char *raw) {
-	sq_query_or_on_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orOnRaw(const char *raw) {
+	sq_query_or_on_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::where(const char *condition, const Args... args) {
-	sq_query_where(query, condition, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::where(const char *condition, const Args... args) {
+	sq_query_where((SqQuery*)SQ_QUERY_TYPE_DATAPTR, condition, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::where(std::function<void()> func) {
-	sq_query_where_sub(query);     // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::where(std::function<void()> func) {
+	sq_query_where_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);     // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);       // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);       // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::where(const char *raw) {
-	sq_query_where_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::where(const char *raw) {
+	sq_query_where_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereRaw(const char *raw) {
-	sq_query_where_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereRaw(const char *raw) {
+	sq_query_where_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhere(const char *condition, const Args... args) {
-	sq_query_or_where(query, condition, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhere(const char *condition, const Args... args) {
+	sq_query_or_where((SqQuery*)SQ_QUERY_TYPE_DATAPTR, condition, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhere(std::function<void()> func) {
-	sq_query_or_where_sub(query);        // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhere(std::function<void()> func) {
+	sq_query_or_where_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);        // start of Subquery/Nested
 	func();
-	sq_query_pop_nested(query);          // end of Subquery/Nested
-	return *this;
+	sq_query_pop_nested((SqQuery*)SQ_QUERY_TYPE_DATAPTR);          // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::orWhere(const char *raw) {
-	sq_query_or_where_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhere(const char *raw) {
+	sq_query_or_where_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereRaw(const char *raw) {
-	sq_query_or_where_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereRaw(const char *raw) {
+	sq_query_or_where_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereNot(const char *condition, const Args... args) {
-	sq_query_where_not(query, condition, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNot(const char *condition, const Args... args) {
+	sq_query_where_not((SqQuery*)SQ_QUERY_TYPE_DATAPTR, condition, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereNot(std::function<void()> func) {
-	sq_query_where_not_sub(query);       // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNot(std::function<void()> func) {
+	sq_query_where_not_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);       // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::whereNot(const char *raw) {
-	sq_query_where_not_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNot(const char *raw) {
+	sq_query_where_not_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereNotRaw(const char *raw) {
-	sq_query_where_not_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotRaw(const char *raw) {
+	sq_query_where_not_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereNot(const char *condition, const Args... args) {
-	sq_query_or_where_not(query, condition, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNot(const char *condition, const Args... args) {
+	sq_query_or_where_not((SqQuery*)SQ_QUERY_TYPE_DATAPTR, condition, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereNot(std::function<void()> func) {
-	sq_query_or_where_not_sub(query);    // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNot(std::function<void()> func) {
+	sq_query_or_where_not_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);    // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::orWhereNot(const char *raw) {
-	sq_query_or_where_not_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNot(const char *raw) {
+	sq_query_or_where_not_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereNotRaw(const char *raw) {
-	sq_query_or_where_not_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotRaw(const char *raw) {
+	sq_query_or_where_not_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::whereExists(std::function<void()> func) {
-	sq_query_where_exists(query);        // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereExists(std::function<void()> func) {
+	sq_query_where_exists((SqQuery*)SQ_QUERY_TYPE_DATAPTR);        // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereNotExists(std::function<void()> func) {
-	sq_query_where_not_exists(query);    // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotExists(std::function<void()> func) {
+	sq_query_where_not_exists((SqQuery*)SQ_QUERY_TYPE_DATAPTR);    // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::whereBetween(const char *columnName, int value1, int value2) {
-	sq_query_where_between(query, columnName, "%d", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereBetween(const char *columnName, int value1, int value2) {
+	sq_query_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%d", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereBetween(const char *columnName, int64_t value1, int64_t value2) {
-	sq_query_where_between(query, columnName, "%" PRId64, value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereBetween(const char *columnName, int64_t value1, int64_t value2) {
+	sq_query_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%" PRId64, value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereBetween(const char *columnName, double value1, double value2) {
-	sq_query_where_between(query, columnName, "%f", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereBetween(const char *columnName, double value1, double value2) {
+	sq_query_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%f", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereBetween(const char *columnName, const char value1, const char value2) {
-	sq_query_where_between(query, columnName, "'%c'", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereBetween(const char *columnName, const char value1, const char value2) {
+	sq_query_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "'%c'", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_where_between(query, columnName, "'%s'", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereBetween(const char *columnName, const char *value1, const char *value2) {
+	sq_query_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "'%s'", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereBetween(const char *columnName, const char *format, const Args... args) {
-	sq_query_where_between(query, columnName, format, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereBetween(const char *columnName, const char *format, const Args... args) {
+	sq_query_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::whereNotBetween(const char *columnName, int value1, int value2) {
-	sq_query_where_not_between(query, columnName, "%d", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotBetween(const char *columnName, int value1, int value2) {
+	sq_query_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%d", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereNotBetween(const char *columnName, int64_t value1, int64_t value2) {
-	sq_query_where_not_between(query, columnName, "%" PRId64, value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotBetween(const char *columnName, int64_t value1, int64_t value2) {
+	sq_query_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%" PRId64, value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereNotBetween(const char *columnName, double value1, double value2) {
-	sq_query_where_not_between(query, columnName, "%f", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotBetween(const char *columnName, double value1, double value2) {
+	sq_query_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%f", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereNotBetween(const char *columnName, const char value1, const char value2) {
-	sq_query_where_not_between(query, columnName, "'%c'", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotBetween(const char *columnName, const char value1, const char value2) {
+	sq_query_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "'%c'", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::whereNotBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_where_not_between(query, columnName, "'%s'", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotBetween(const char *columnName, const char *value1, const char *value2) {
+	sq_query_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "'%s'", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereNotBetween(const char *columnName, const char *format, const Args... args) {
-	sq_query_where_not_between(query, columnName, format, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotBetween(const char *columnName, const char *format, const Args... args) {
+	sq_query_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::orWhereBetween(const char *columnName, int value1, int value2) {
-	sq_query_or_where_between(query, columnName, "%d", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereBetween(const char *columnName, int value1, int value2) {
+	sq_query_or_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%d", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereBetween(const char *columnName, int64_t value1, int64_t value2) {
-	sq_query_or_where_between(query, columnName, "%" PRId64, value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereBetween(const char *columnName, int64_t value1, int64_t value2) {
+	sq_query_or_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%" PRId64, value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereBetween(const char *columnName, double value1, double value2) {
-	sq_query_or_where_between(query, columnName, "%f", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereBetween(const char *columnName, double value1, double value2) {
+	sq_query_or_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%f", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereBetween(const char *columnName, const char value1, const char value2) {
-	sq_query_or_where_between(query, columnName, "'%c'", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereBetween(const char *columnName, const char value1, const char value2) {
+	sq_query_or_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "'%c'", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_or_where_between(query, columnName, "'%s'", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereBetween(const char *columnName, const char *value1, const char *value2) {
+	sq_query_or_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "'%s'", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereBetween(const char *columnName, const char *format, const Args... args) {
-	sq_query_or_where_between(query, columnName, format, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereBetween(const char *columnName, const char *format, const Args... args) {
+	sq_query_or_where_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::orWhereNotBetween(const char *columnName, int value1, int value2) {
-	sq_query_or_where_not_between(query, columnName, "%d", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotBetween(const char *columnName, int value1, int value2) {
+	sq_query_or_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%d", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereNotBetween(const char *columnName, int64_t value1, int64_t value2) {
-	sq_query_or_where_not_between(query, columnName, "%" PRId64, value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotBetween(const char *columnName, int64_t value1, int64_t value2) {
+	sq_query_or_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%" PRId64, value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereNotBetween(const char *columnName, double value1, double value2) {
-	sq_query_or_where_not_between(query, columnName, "%f", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotBetween(const char *columnName, double value1, double value2) {
+	sq_query_or_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "%f", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereNotBetween(const char *columnName, const char value1, const char value2) {
-	sq_query_or_where_not_between(query, columnName, "'%c'", value1, value2);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotBetween(const char *columnName, const char value1, const char value2) {
+	sq_query_or_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "'%c'", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orWhereNotBetween(const char *columnName, const char *value1, const char *value2) {
-	sq_query_or_where_not_between(query, columnName, "'%s'", value1, value2);
-	return *this;
-}
-template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereNotBetween(const char *columnName, const char *format, const Args... args) {
-	sq_query_or_where_not_between(query, columnName, format, args...);
-	return *this;
-}
-
-template <typename... Args>
-inline QueryProxy &QueryProxy::whereIn(const char *columnName, int first_value, const Args... args) {
-	sq_query_where_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotBetween(const char *columnName, const char *value1, const char *value2) {
+	sq_query_or_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, "'%s'", value1, value2);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereIn(const char *columnName, int64_t first_value, const Args... args) {
-	sq_query_where_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
-	return *this;
-}
-template <typename... Args>
-inline QueryProxy &QueryProxy::whereIn(const char *columnName, double first_value, const Args... args) {
-	sq_query_where_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
-	return *this;
-}
-template <typename... Args>
-inline QueryProxy &QueryProxy::whereIn(const char *columnName, const char first_value, const Args... args) {
-	sq_query_where_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
-	return *this;
-}
-template <typename... Args>
-inline QueryProxy &QueryProxy::whereIn(const char *columnName, const char *first_value, const Args... args) {
-	sq_query_where_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
-	return *this;
-}
-template <typename... Args>
-inline QueryProxy &QueryProxy::whereIn(const char *columnName, int n_args, const char *format, const Args... args) {
-	sq_query_where_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotBetween(const char *columnName, const char *format, const Args... args) {
+	sq_query_or_where_not_between((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereNotIn(const char *columnName, int first_value, const Args... args) {
-	sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereIn(const char *columnName, int first_value, const Args... args) {
+	sq_query_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%d", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereNotIn(const char *columnName, int64_t first_value, const Args... args) {
-	sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereIn(const char *columnName, int64_t first_value, const Args... args) {
+	sq_query_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereNotIn(const char *columnName, double first_value, const Args... args) {
-	sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereIn(const char *columnName, double first_value, const Args... args) {
+	sq_query_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%f", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereNotIn(const char *columnName, const char first_value, const Args... args) {
-	sq_query_where_not_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereIn(const char *columnName, const char first_value, const Args... args) {
+	sq_query_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereNotIn(const char *columnName, const char *first_value, const Args... args) {
-	sq_query_where_not_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereIn(const char *columnName, const char *first_value, const Args... args) {
+	sq_query_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::whereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
-	sq_query_where_not_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereIn(const char *columnName, int n_args, const char *format, const Args... args) {
+	sq_query_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereIn(const char *columnName, int first_value, const Args... args) {
-	sq_query_or_where_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotIn(const char *columnName, int first_value, const Args... args) {
+	sq_query_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%d", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereIn(const char *columnName, int64_t first_value, const Args... args) {
-	sq_query_or_where_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotIn(const char *columnName, int64_t first_value, const Args... args) {
+	sq_query_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereIn(const char *columnName, double first_value, const Args... args) {
-	sq_query_or_where_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotIn(const char *columnName, double first_value, const Args... args) {
+	sq_query_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%f", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereIn(const char *columnName, const char first_value, const Args... args) {
-	sq_query_or_where_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotIn(const char *columnName, const char first_value, const Args... args) {
+	sq_query_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereIn(const char *columnName, const char *first_value, const Args... args) {
-	sq_query_or_where_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotIn(const char *columnName, const char *first_value, const Args... args) {
+	sq_query_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereIn(const char *columnName, int n_args, const char *format, const Args... args) {
-	sq_query_or_where_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
+	sq_query_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereNotIn(const char *columnName, int first_value, const Args... args) {
-	sq_query_or_where_not_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereIn(const char *columnName, int first_value, const Args... args) {
+	sq_query_or_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%d", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereNotIn(const char *columnName, int64_t first_value, const Args... args) {
-	sq_query_or_where_not_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereIn(const char *columnName, int64_t first_value, const Args... args) {
+	sq_query_or_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereNotIn(const char *columnName, double first_value, const Args... args) {
-	sq_query_or_where_not_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereIn(const char *columnName, double first_value, const Args... args) {
+	sq_query_or_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%f", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereNotIn(const char *columnName, const char first_value, const Args... args) {
-	sq_query_or_where_not_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereIn(const char *columnName, const char first_value, const Args... args) {
+	sq_query_or_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereNotIn(const char *columnName, const char *first_value, const Args... args) {
-	sq_query_or_where_not_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereIn(const char *columnName, const char *first_value, const Args... args) {
+	sq_query_or_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 template <typename... Args>
-inline QueryProxy &QueryProxy::orWhereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
-	sq_query_or_where_not_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
-	return *this;
-}
-
-inline QueryProxy &QueryProxy::whereNull(const char *columnName) {
-	sq_query_where_null(query, columnName);
-	return *this;
-}
-inline QueryProxy &QueryProxy::whereNotNull(const char *columnName) {
-	sq_query_where_not_null(query, columnName);
-	return *this;
-}
-inline QueryProxy &QueryProxy::orWhereNull(const char *columnName) {
-	sq_query_or_where_null(query, columnName);
-	return *this;
-}
-inline QueryProxy &QueryProxy::orWhereNotNull(const char *columnName) {
-	sq_query_or_where_not_null(query, columnName);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereIn(const char *columnName, int n_args, const char *format, const Args... args) {
+	sq_query_or_where_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::groupBy(const char *columnName, const Args... args) {
-	sq_query_group_by(query, columnName, args..., NULL);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotIn(const char *columnName, int first_value, const Args... args) {
+	sq_query_or_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%d", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::groupBy(const char *raw) {
-	sq_query_group_by_raw(query, raw);
-	return *this;
+template <typename... Args>
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotIn(const char *columnName, int64_t first_value, const Args... args) {
+	sq_query_or_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::groupByRaw(const char *raw) {
-	sq_query_group_by_raw(query, raw);
-	return *this;
+template <typename... Args>
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotIn(const char *columnName, double first_value, const Args... args) {
+	sq_query_or_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "%f", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+template <typename... Args>
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotIn(const char *columnName, const char first_value, const Args... args) {
+	sq_query_or_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+template <typename... Args>
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotIn(const char *columnName, const char *first_value, const Args... args) {
+	sq_query_or_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+template <typename... Args>
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
+	sq_query_or_where_not_in((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNull(const char *columnName) {
+	sq_query_where_null((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::whereNotNull(const char *columnName) {
+	sq_query_where_not_null((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNull(const char *columnName) {
+	sq_query_or_where_null((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orWhereNotNull(const char *columnName) {
+	sq_query_or_where_not_null((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::having(const char *condition, const Args... args) {
-	sq_query_having(query, condition, args...);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::groupBy(const char *columnName, const Args... args) {
+	sq_query_group_by((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, args..., NULL);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::having(std::function<void()> func) {
-	sq_query_having_sub(query);    // start of Subquery/Nested
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::groupBy(const char *raw) {
+	sq_query_group_by_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::groupByRaw(const char *raw) {
+	sq_query_group_by_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+
+template <typename... Args>
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::having(const char *condition, const Args... args) {
+	sq_query_having((SqQuery*)SQ_QUERY_TYPE_DATAPTR, condition, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::having(std::function<void()> func) {
+	sq_query_having_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);    // start of Subquery/Nested
 	func();
-	sq_query_end_sub(query);       // end of Subquery/Nested
-	return *this;
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);       // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::having(const char *raw) {
-	sq_query_having_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::having(const char *raw) {
+	sq_query_having_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::havingRaw(const char *raw) {
-	sq_query_having_raw(query, raw);
-	return *this;
-}
-
-template <typename... Args>
-inline QueryProxy &QueryProxy::orHaving(const char *condition, const Args... args) {
-	sq_query_or_having(query, condition, args...);
-	return *this;
-}
-inline QueryProxy &QueryProxy::orHaving(std::function<void()> func) {
-	sq_query_or_having_sub(query);       // start of Subquery/Nested
-	func();
-	sq_query_end_sub(query);             // end of Subquery/Nested
-	return *this;
-}
-
-inline QueryProxy &QueryProxy::orHaving(const char *raw) {
-	sq_query_or_having_raw(query, raw);
-	return *this;
-}
-inline QueryProxy &QueryProxy::orHavingRaw(const char *raw) {
-	sq_query_or_having_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::havingRaw(const char *raw) {
+	sq_query_having_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::select(const char *columnName, const Args... args) {
-	sq_query_select(query, columnName, args..., NULL);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orHaving(const char *condition, const Args... args) {
+	sq_query_or_having((SqQuery*)SQ_QUERY_TYPE_DATAPTR, condition, args...);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::select(const char *raw) {
-	sq_query_select_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orHaving(std::function<void()> func) {
+	sq_query_or_having_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);       // start of Subquery/Nested
+	func();
+	sq_query_end_sub((SqQuery*)SQ_QUERY_TYPE_DATAPTR);             // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::selectRaw(const char *raw) {
-	sq_query_select_raw(query, raw);
-	return *this;
+
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orHaving(const char *raw) {
+	sq_query_or_having_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::distinct() {
-	sq_query_distinct(query);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orHavingRaw(const char *raw) {
+	sq_query_or_having_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
 template <typename... Args>
-inline QueryProxy &QueryProxy::orderBy(const char *columnName, const Args... args) {
-	sq_query_order_by(query, columnName, args..., NULL);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::select(const char *columnName, const Args... args) {
+	sq_query_select((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, args..., NULL);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orderBy(const char *raw) {
-	sq_query_order_by_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::select(const char *raw) {
+	sq_query_select_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orderByRaw(const char *raw) {
-	sq_query_order_by_raw(query, raw);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::selectRaw(const char *raw) {
+	sq_query_select_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::orderByDesc(const char *columnName) {
-	sq_query_order_by(query, columnName, NULL);
-	sq_query_desc(query);
-	return *this;
-}
-inline QueryProxy &QueryProxy::asc() {
-	sq_query_asc(query);
-	return *this;
-}
-inline QueryProxy &QueryProxy::desc() {
-	sq_query_desc(query);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::distinct() {
+	sq_query_distinct((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::union_(std::function<void()> func) {
-	sq_query_union(query);
+template <typename... Args>
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orderBy(const char *columnName, const Args... args) {
+	sq_query_order_by((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, args..., NULL);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orderBy(const char *raw) {
+	sq_query_order_by_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orderByRaw(const char *raw) {
+	sq_query_order_by_raw((SqQuery*)SQ_QUERY_TYPE_DATAPTR, raw);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::orderByDesc(const char *columnName) {
+	sq_query_order_by((SqQuery*)SQ_QUERY_TYPE_DATAPTR, columnName, NULL);
+	sq_query_desc((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::asc() {
+	sq_query_asc((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::desc() {
+	sq_query_desc((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::union_(std::function<void()> func) {
+	sq_query_union((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
-	return *this;
+	sq_query_pop_nested((SqQuery*)SQ_QUERY_TYPE_DATAPTR);    // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::unionAll(std::function<void()> func) {
-	sq_query_union_all(query);
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::unionAll(std::function<void()> func) {
+	sq_query_union_all((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
 	func();
-	sq_query_pop_nested(query);    // end of Subquery/Nested
-	return *this;
+	sq_query_pop_nested((SqQuery*)SQ_QUERY_TYPE_DATAPTR);    // end of Subquery/Nested
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline QueryProxy &QueryProxy::limit(int64_t count) {
-	sq_query_limit(query, count);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::limit(int64_t count) {
+	sq_query_limit((SqQuery*)SQ_QUERY_TYPE_DATAPTR, count);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline QueryProxy &QueryProxy::offset(int64_t index) {
-	sq_query_offset(query, index);
-	return *this;
-}
-
-inline QueryProxy &QueryProxy::delete_() {
-	sq_query_delete(query);
-	return *this;
-}
-inline QueryProxy &QueryProxy::deleteFrom() {
-	sq_query_delete(query);
-	return *this;
-}
-inline QueryProxy &QueryProxy::truncate() {
-	sq_query_truncate(query);
-	return *this;
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::offset(int64_t index) {
+	sq_query_offset((SqQuery*)SQ_QUERY_TYPE_DATAPTR, index);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline char *QueryProxy::toSql() {
-	return sq_query_to_sql(query);
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::delete_() {
+	sq_query_delete((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
-inline const char *QueryProxy::c() {
-	return sq_query_c(query);
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::deleteFrom() {
+	sq_query_delete((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
+}
+inline SQ_QUERY_TYPE_RETURN  &SQ_QUERY_TYPE_NAME::truncate() {
+	sq_query_truncate((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+	return *(SQ_QUERY_TYPE_RETURN*)this;
 }
 
-inline const char *QueryProxy::str() {
-	return query->str;
+inline char *SQ_QUERY_TYPE_NAME::toSql() {
+	return sq_query_to_sql((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+}
+inline const char *SQ_QUERY_TYPE_NAME::c() {
+	return sq_query_c((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
+}
+
+inline const char *SQ_QUERY_TYPE_NAME::last() {
+	return sq_query_last((SqQuery*)SQ_QUERY_TYPE_DATAPTR);
 }
 
 };  // namespace Sq
 
-#endif  // __cplusplus
-
-#endif  // SQ_QUERY_PROXY_H
+#endif  // __cplusplus && SQ_QUERY_TYPE_DEFINE

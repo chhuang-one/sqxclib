@@ -69,8 +69,8 @@ use C language
 	// generate new SQL statement
 	sql = sq_query_c(query);
 
-	// After calling sq_query_c(), user can access SqQuery::str to reuse generated SQL statement.
-	sql = query->str;
+	// After calling sq_query_c(), user can use sq_query_last() to reuse generated SQL statement.
+	sql = sq_query_last(query);
 ```
 
 use C++ language
@@ -85,8 +85,8 @@ use C++ language
 	// generate new SQL statement
 	sql = query->c();
 
-	// After calling Sq::Query::c(), user can access SqQuery::str to reuse generated SQL statement.
-	sql = query->str;
+	// After calling Sq::Query::c(), user can use last() to reuse generated SQL statement.
+	sql = query->last();
 ```
 
 ## SQL Statements
@@ -959,11 +959,15 @@ WHERE age > 5
 use C language to generate subquery:
 
 ```c
-	// WHERE price < (SELECT amount FROM incomes)
-	sq_query_where_sub(query, "price", "<");
-		sq_query_select(query, "amount", NULL);
-		sq_query_from(query, "incomes");
+	sq_query_select(query, "id", "age", NULL);
+	sq_query_from(query, "companies");
+	sq_query_join_sub(query);
+		sq_query_from(query, "city");
+		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);
+	sq_query_as(query, "c");
+	sq_query_on_raw(query, "c.id = companies.city_id");
+	sq_query_where_raw(query, "age > 5");
 ```
 
 use C++ lambda functions to generate subquery:
@@ -976,6 +980,26 @@ use C++ lambda functions to generate subquery:
 	              ->where("id", "<", "%d", 100);
 	     })->as("c")->on("c.id = companies.city_id")
 	     ->where("age > 5");
+```
+
+e.g. below is SQL statement that has subquery in condition.
+
+```sql
+SELECT *
+FROM products
+WHERE price < (SELECT amount FROM incomes)
+```
+
+use C language to generate subquery in condition:
+
+```c
+	// SELECT * FROM products
+	sq_query_from(query, "products");
+	// WHERE price < (SELECT amount FROM incomes)
+	sq_query_where_sub(query, "price", "<");
+		sq_query_select(query, "amount", NULL);
+		sq_query_from(query, "incomes");
+	sq_query_end_sub(query);
 ```
 
 ## use macro to produce query
