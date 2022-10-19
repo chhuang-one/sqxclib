@@ -105,27 +105,24 @@ void test_schema()
 
 void test_query_cpp()
 {
-	Sq::Query *query;
-	char      *sql;
-	const char *result = "SELECT DISTINCT age, name, u.id "
-	                     "FROM city "
-	                     "JOIN ( SELECT * FROM User WHERE name = tom ) AS u ON u.city_id = city.id "
-	                     "WHERE id > 30 AND ( age < 15 AND name = 'abc' ) ORDER BY name DESC, name";
+	Sq::Query  *query;
+	char       *sql;
+	const char *result;
 
-	/*
-		SELECT DISTINCT age, name, u.id
-		FROM city
-		JOIN ( SELECT * FROM User WHERE name = tom ) AS u ON u.city_id = city.id
-		WHERE id > 30 AND ( age < '15' AND name = 'abc' ) ORDER BY name DESC, name
-	 */
+	// --- test 1 ---
+	result = "SELECT DISTINCT age, name, u.id "
+	         "FROM city "
+	         "JOIN ( SELECT * FROM User WHERE name = tom ) AS u ON u.city_id = city.id "
+	         "WHERE id > 30 AND ( age < 15 AND name = 'abc' ) ORDER BY name DESC, name";
+
 	query = new Sq::Query();
 	query->from("city")
 		 ->join([query] {
 			query->from("User")
-			     ->where("name", "%s", "tom");
+			     ->where("name", "=", "%s", "tom");
 		 })
-		 ->as("u")->on("u.city_id", "%s", "city.id")
-		 ->where("id > %d", 30)
+		 ->as("u")->on("u.city_id", "=", "%s", "city.id")
+		 ->whereRaw("id > %d", 30)
 		 ->where([query] {
 			query->where("age", "<", "%d", 15)
 				 ->whereRaw("name = 'abc'");
@@ -138,6 +135,7 @@ void test_query_cpp()
 	assert(strcmp(sql, result) == 0);
 	free(sql);
 
+	// --- test 2 ---
 	result = "SELECT * FROM users "
 	         "WHERE NOT ( id IN (2,8,16) OR votes NOT BETWEEN 100 AND 200 ) "
 			 "AND EXISTS ( SELECT * FROM cities WHERE name NOT IN ('DC') )";
@@ -158,6 +156,7 @@ void test_query_cpp()
 	assert(strcmp(sql, result) == 0);
 	free(sql);
 
+	// release memory
 	delete query;
 }
 
@@ -166,15 +165,15 @@ void test_query_cpp_convenient_class()
 	std::string sql;
 	Sq::Where where;
 
-	sql = where("id", "=", "%d", 3).orWhere("city_id < %d", 20).c();
+	sql = where("id", "=", "%d", 3).orWhereRaw("city_id < %d", 20).c();
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE id = 3 OR city_id < 20") == 0);
 
-	sql = Sq::Query("users").where("id < 20").c();
+	sql = Sq::Query("users").whereRaw("id < 20").c();
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "SELECT * FROM users WHERE id < 20") == 0);
 
-	sql = Sq::where("id > %d", 10).where("id", "<", "%d", 99).c();
+	sql = Sq::whereRaw("id > %d", 10).where("id", "<", "%d", 99).c();
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE id > 10 AND id < 99") == 0);
 
@@ -182,7 +181,7 @@ void test_query_cpp_convenient_class()
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE id < 13 OR city_id < 22") == 0);
 
-	sql = Sq::whereNot("id < 23").orWhereNot("city_id", "<", "%d", 33).c();
+	sql = Sq::whereNot("id", "<", "%d", 23).orWhereNot("city_id", "<", "%d", 33).c();
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE NOT id < 23 OR NOT city_id < 33") == 0);
 
@@ -210,6 +209,10 @@ void test_query_cpp_convenient_class()
 	sql = Sq::whereBetween("id", 1, 13).orWhereBetween("city_id", 22, 50).c();
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE id BETWEEN 1 AND 13 OR city_id BETWEEN 22 AND 50") == 0);
+
+	sql = Sq::WhereBetween("name", "Ben", "Ch").c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "WHERE name BETWEEN 'Ben' AND 'Ch'") == 0);
 
 	// whereIn
 	sql = Sq::whereIn("id", 1, 9, 13).orWhereIn("city_id", 22, 50, 74).c();

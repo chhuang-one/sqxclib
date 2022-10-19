@@ -92,21 +92,31 @@ use C++ language
 ## SQL Statements
 
 There are many functions can specify SQL condition and them also support printf format string. Please pass printf format string before passing value of condition. If you want to use SQL Wildcard Characters '%' in printf format string, you must print "%" using "%%".  
-  
-below C functions support printf format string in 2nd or 4th argument:
-	sq_query_on(),        sq_query_or_on(),
-	sq_query_where(),     sq_query_or_where(),
-	sq_query_where_not(), sq_query_or_where_not(),
-	sq_query_having(),    sq_query_or_having(),
 
-below C functions support printf format string in 3rd or 5th argument:
+below C functions support printf format string in 2nd argument:
+	sq_query_raw(),
+	sq_query_printf(),
+	sq_query_on_raw(),        sq_query_or_on_raw(),
+	sq_query_where_raw(),     sq_query_or_where_raw(),
+	sq_query_where_not_raw(), sq_query_or_where_not_raw(),
+	sq_query_having_raw(),    sq_query_or_having_raw(),
+	---
+	These C function use macro to count number of arguments.
+	If the 3rd argument is NOT exist, the 2st argument is handled as raw string.
+
+below C functions support printf format string in 4th argument:
+	sq_query_on(),            sq_query_or_on(),
+	sq_query_where(),         sq_query_or_where(),
+	sq_query_where_not(),     sq_query_or_where_not(),
+	sq_query_having(),        sq_query_or_having(),
+
+below C functions support printf format string in 5th argument:
 	sq_query_join(),
 	sq_query_left_join(),
 	sq_query_right_join(),
 	sq_query_full_join(),
 
 other C functions that support printf format string:
-	sq_query_printf(),
 	sq_query_where_between() series
 	sq_query_where_in() series
 
@@ -121,45 +131,54 @@ C language example:
 
 	// --- printf format string in 2nd argument ---
 	// AND city  LIKE 'ber%'
-	sq_query_where(query, "city  LIKE '%s'", "ber%");
+	sq_query_where_raw(query, "city  LIKE '%s'", "ber%");
 ```
 
-below C++ methods support printf format string in 1st or 3rd argument:
-	on(),       orOn(),
-	where(),    orWhere(),
-	whereNot(), orWhereNot(),
-	having(),   orHaving(),
+below C++ methods support printf format string in 1st argument:
+	raw(),
+	printf(),
+	onRaw(),       orOnRaw(),
+	whereRaw(),    orWhereRaw(),
+	whereNotRaw(), orWhereNotRaw(),
+	havingRaw(),   orHavingRaw(),
 
-below C++ methods support printf format string in 2nd of 4th argument:
+below C++ methods support printf format string in 3rd argument:
+	on(),          orOn(),
+	where(),       orWhere(),
+	whereNot(),    orWhereNot(),
+	having(),      orHaving(),
+
+below C++ methods support printf format string in 4th argument:
 	join(),
 	leftJoin(),
 	rightJoin(),
 	fullJoin(),
 
 other C++ methods that support printf format string:
-	printf(),
 	whereBetween() series
 	whereIn() series
 
 C++ language example:
 
 ```c++
+	// --- printf format string in 3rd argument ---
 	// WHERE id < 100
 	query->where("id", "<", "%d", 100);
 	// AND email LIKE 'guest%'
 	query->where("email", "LIKE", "'%s'", "guest%");
 
+	// --- printf format string in 1st argument ---
 	// AND city  LIKE 'ber%'
-	query->where("city  LIKE '%s'", "ber%");
+	query->whereRaw("city  LIKE '%s'", "ber%");
 ```
 
 If the 2nd argument of below C++ methods is NOT exist, the 1st argument is handled as raw string.  
 These C++ methods has overloaded function to handle raw string:
 
-	on(),       orOn(),
-	where(),    orWhere(),
-	whereNot(), orWhereNot(),
-	having(),   orHaving(),
+	onRaw(),       orOnRaw(),
+	whereRaw(),    orWhereRaw(),
+	whereNotRaw(), orWhereNotRaw(),
+	havingRaw(),   orHavingRaw(),
 	select(),
 	groupBy(),
 	orderBy()
@@ -168,8 +187,8 @@ C++ language example:
 
 ```c++
 	// If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
-	// output "city LIKE 'ber%'"
-	query->where("city LIKE 'ber%'");
+	// WHERE city LIKE 'ber%'
+	query->whereRaw("city LIKE 'ber%'");
 ```
 
 #### select
@@ -224,7 +243,7 @@ use C language
 	// OR city_id = 6
 	sq_query_or_where(query, "city_id", "%d", 6);
 	// OR NOT members < 100
-	sq_query_or_where_not(query, "members < %d", 100);
+	sq_query_or_where_not_raw(query, "members < %d", 100);
 ```
 
 use C++ language
@@ -237,7 +256,7 @@ use C++ language
 	     // OR city_id = 6
 	     ->orWhere("city_id", "%d", 6)
 	     // OR NOT members < 100
-	     ->orWhereNot("members < %d", 100);
+	     ->orWhereNotRaw("members < %d", 100);
 ```
 
 These methods can also be used to specify a group of query conditions.  
@@ -249,7 +268,7 @@ use C language
 	sq_query_table(query, "products");
 	sq_query_where_not_sub(query);
 		sq_query_where(query, "city_id", "%d", 6);
-		sq_query_or_where(query, "price < %d", 100);
+		sq_query_or_where_raw(query, "price < %d", 100);
 	sq_query_end_sub(query);
 ```
 
@@ -260,7 +279,7 @@ use C++ language
 	query->table("products")
 	     ->whereNot([query] {
 	         query->where("city_id", "%d", 6)
-	              ->orWhere("price < %d", 100);
+	              ->orWhereRaw("price < %d", 100);
 		 });
 ```
 
@@ -379,7 +398,7 @@ use C language
 	sq_query_table(query, "companies");
 	sq_query_group_by(query, "city_id", NULL);    // the last argument must be NULL
 	sq_query_having(query, "age", ">", "%d", 10);
-	sq_query_or_having(query, "members < %d", 50);
+	sq_query_or_having_raw(query, "members < %d", 50);
 ```
 
 use C++ language
@@ -388,7 +407,7 @@ use C++ language
 	query->table("companies")
 	     ->groupBy("city_id")
 	     ->having("age", ">", "%d", 10)
-	     ->orHaving("members < %d", 50);
+	     ->orHavingRaw("members < %d", 50);
 ```
 
 #### groupBy / orderBy
@@ -551,21 +570,21 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 	Sq::Where  where;
 
 	array = storage->removeAll("users",
-			where("id < %d", 11).orWhere("city_id < %d", 33));
+			where("id", "<", "%d", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 2. use parameter pack constructor
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::where("id < %d", 11).orWhere("city_id < %d", 33));
+			Sq::whereRaw("id < %d", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 3. use default constructor and operator()
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33));
+			Sq::whereRaw()("id < %d", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 4. Below is currently provided convenient C++ class:
@@ -619,6 +638,9 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 #### whereRaw / whereNotRaw / orWhereRaw / orWhereNotRaw
 
 use C language
+  
+C function sq_query_where_raw() series use macro to count number of arguments.  
+If the 3rd argument is NOT exist, the 2st argument is handled as raw string.
 
 ```c
 	sq_query_table(query, "users");
@@ -627,6 +649,9 @@ use C language
 ```
 
 use C++ language
+  
+C++ method whereRaw()/orWhereRaw() has overloaded function to handle raw string.  
+If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 ```c++
 	query->table("users")
@@ -634,18 +659,12 @@ use C++ language
 	     ->whereRaw("city LIKE 'ber%'");
 ```
 
-C++ method where()/orWhere() has overloaded function to handle raw string.  
-If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
-
-```c++
-	query->table("users")
-	     ->where("id > 100 AND id < 300")
-	     ->where("city LIKE 'ber%'");
-```
-
 #### havingRaw / orHavingRaw
 
 use C language
+  
+C function sq_query_having_raw() series use macro to count number of arguments.  
+If the 3rd argument is NOT exist, the 2st argument is handled as raw string.
 
 ```c
 	sq_query_table(query, "orders");
@@ -654,20 +673,14 @@ use C language
 ```
 
 use C++ language
-
-```c++
-	query->table("orders")
-	     ->groupBy("city_id")
-	     ->havingRaw("SUM(price) > 3000");
-```
-
-C++ method having()/orHaving() has overloaded function to handle raw string.  
+  
+C++ method havingRaw()/orHavingRaw() has overloaded function to handle raw string.  
 If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 ```c++
 	query->table("orders")
 	     ->groupBy("city_id")
-	     ->having("SUM(price) > 3000");
+	     ->havingRaw("SUM(price) > 3000");
 ```
 
 #### orderByRaw
@@ -881,11 +894,11 @@ use C++ language
 	});
 ```
 
-## Nested and Subquery
+## Subquery and Brackets
 
-SqQuery can produce limited Nested and Subquery. You may also use Raw Methods to do these.  
+SqQuery can produce subquery or brackets. You may also use Raw Methods to do these.  
   
-below C functions support Subquery or Nested:
+below C functions support subquery or brackets:
 
 	sq_query_from_sub(),
 	sq_query_join_sub(),
@@ -899,9 +912,9 @@ below C functions support Subquery or Nested:
 	sq_query_where_exists(),     sq_query_where_not_exists(),
 	sq_query_having_sub(),       sq_query_or_having_sub(),
 
-Note: you must call sq_query_end_sub() in end of Subquery (or Nested).  
+Note: you must call sq_query_end_sub() in end of subquery or brackets.  
   
-below C++ method use lambda function to support Subquery or Nested, user don't need to call sq_query_end_sub()  
+below C++ method use lambda function to support subquery or brackets, user don't need to call sq_query_end_sub()  
 
 	from(),
 	join(),
@@ -915,7 +928,7 @@ below C++ method use lambda function to support Subquery or Nested, user don't n
 	whereExists(), whereNotExists(),
 	having(),      orHaving(),
 
-#### Nested
+#### Brackets
 
 e.g. generate below SQL statement.
 
@@ -923,18 +936,18 @@ e.g. generate below SQL statement.
 SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 ```
 
-use C functions to generate Nested:
+use C functions to generate brackets:
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_where_sub(query);                  // start of Nested
+	sq_query_where_sub(query);                  // start of brackets
 		sq_query_where(query, "salary", ">", "%d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
-	sq_query_end_sub(query);                    // end of Nested
-	sq_query_or_where(query, "id > %d", 100);
+	sq_query_end_sub(query);                    // end of brackets
+	sq_query_or_where_raw(query, "id > %d", 100);
 ```
 
-use C++ lambda functions to generate Nested:
+use C++ lambda functions to generate brackets:
 
 ```c++
 	query->table("users")
@@ -942,7 +955,7 @@ use C++ lambda functions to generate Nested:
 	         query->where("salary", ">", "%d", 45)
 	              ->where("age", "<", "%d", 21);
 	     })
-	     ->orWhere("id > %d", 100);
+	     ->orWhereRaw("id > %d", 100);
 ```
 
 #### Subquery
@@ -961,10 +974,10 @@ use C language to generate subquery:
 ```c
 	sq_query_select(query, "id", "age", NULL);
 	sq_query_from(query, "companies");
-	sq_query_join_sub(query);
+	sq_query_join_sub(query);                   // start of subquery
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);                    // end of subquery
 	sq_query_as(query, "c");
 	sq_query_on_raw(query, "c.id = companies.city_id");
 	sq_query_where_raw(query, "age > 5");
@@ -978,8 +991,9 @@ use C++ lambda functions to generate subquery:
 	     ->join([query] {
 	         query->from("city")
 	              ->where("id", "<", "%d", 100);
-	     })->as("c")->on("c.id = companies.city_id")
-	     ->where("age > 5");
+	     })
+	     ->as("c")->onRaw("c.id = companies.city_id")
+	     ->whereRaw("age > 5");
 ```
 
 e.g. below is SQL statement that has subquery in condition.
@@ -996,10 +1010,10 @@ use C language to generate subquery in condition:
 	// SELECT * FROM products
 	sq_query_from(query, "products");
 	// WHERE price < (SELECT amount FROM incomes)
-	sq_query_where_sub(query, "price", "<");
+	sq_query_where_sub(query, "price", "<");    // start of subquery
 		sq_query_select(query, "amount", NULL);
 		sq_query_from(query, "incomes");
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);                    // end of subquery
 ```
 
 ## use macro to produce query
@@ -1016,7 +1030,8 @@ macro SQ_QUERY_DO() is used to build query. The last parameter in macro is like 
 		SQQ_JOIN_SUB({
 			SQQ_FROM("city");
 			SQQ_WHERE("id", "<", "%d", 100);
-		}); SQQ_AS("c"); SQQ_ON_RAW("c.id = companies.city_id");
+		});
+		SQQ_AS("c"); SQQ_ON_RAW("c.id = companies.city_id");
 		SQQ_WHERE_RAW("age > 5");
 	});
 ```

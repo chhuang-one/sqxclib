@@ -93,20 +93,30 @@ use C++ language
 
 有很多函数可以指定 SQL 条件，它们也支持 printf 格式字符串。请在传递条件值之前传递 printf 格式字符串。如果要在 printf 格式字符串中使用 SQL 通配符“%”，则必须使用“%%”打印“%”。  
   
-以下 C 函数在第2或第4个参数中支持 printf 格式字符串：
-	sq_query_on(),        sq_query_or_on(),
-	sq_query_where(),     sq_query_or_where(),
-	sq_query_where_not(), sq_query_or_where_not(),
-	sq_query_having(),    sq_query_or_having(),
+以下 C 函数在第 2 个参数中支持 printf 格式字符串：
+	sq_query_raw(),
+	sq_query_printf(),
+	sq_query_on_raw(),        sq_query_or_on_raw(),
+	sq_query_where_raw(),     sq_query_or_where_raw(),
+	sq_query_where_not_raw(), sq_query_or_where_not_raw(),
+	sq_query_having_raw(),    sq_query_or_having_raw(),
+	---
+	这些 C 函数使用宏来计算参数的数量。
+	如果第三个参数不存在，则将第二个参数作为原始字符串处理。
 
-以下 C 函数在第5个参数中支持 printf 格式字符串：
+以下 C 函数在第 4 个参数中支持 printf 格式字符串：
+	sq_query_on(),            sq_query_or_on(),
+	sq_query_where(),         sq_query_or_where(),
+	sq_query_where_not(),     sq_query_or_where_not(),
+	sq_query_having(),        sq_query_or_having(),
+
+以下 C 函数在第 5 个参数中支持 printf 格式字符串：
 	sq_query_join(),
 	sq_query_left_join(),
 	sq_query_right_join(),
 	sq_query_full_join(),
 
 其他支持 printf 格式字符串的 C 函数：
-	sq_query_printf(),
 	sq_query_where_between() 系列
 	sq_query_where_in() 系列
 
@@ -121,16 +131,24 @@ C 语言示例：
 
 	// --- 第 2 个参数中的 printf 格式字符串 ---
 	// AND city  LIKE 'ber%'
-	sq_query_where(query, "city  LIKE '%s'", "ber%");
+	sq_query_where_raw(query, "city  LIKE '%s'", "ber%");
 ```
 
-以下 C++ 方法在第1或第3个参数中支持 printf 格式字符串：
-	on(),       orOn(),
-	where(),    orWhere(),
-	whereNot(), orWhereNot(),
-	having(),   orHaving(),
+以下 C++ 方法在第 1 个参数中支持 printf 格式字符串：
+	raw(),
+	printf(),
+	onRaw(),       orOnRaw(),
+	whereRaw(),    orWhereRaw(),
+	whereNotRaw(), orWhereNotRaw(),
+	havingRaw(),   orHavingRaw(),
 
-以下 C++ 方法在第2或第4个参数中支持 printf 格式字符串：
+以下 C++ 方法在第 3 个参数中支持 printf 格式字符串：
+	on(),          orOn(),
+	where(),       orWhere(),
+	whereNot(),    orWhereNot(),
+	having(),      orHaving(),
+
+以下 C++ 方法在第 4 个参数中支持 printf 格式字符串：
 	join(),
 	leftJoin(),
 	rightJoin(),
@@ -143,22 +161,24 @@ C 语言示例：
 C++ 语言示例：
 
 ```c++
+	// --- 第 3 个参数中的 printf 格式字符串 ---
 	// WHERE id < 100
 	query->where("id", "<", "%d", 100);
 	// AND email LIKE 'guest%'
 	query->where("email", "LIKE", "'%s'", "guest%");
 
+	// --- 第 1 个参数中的 printf 格式字符串 ---
 	// AND city  LIKE 'ber%'
-	query->where("city  LIKE '%s'", "ber%");
+	query->whereRaw("city  LIKE '%s'", "ber%");
 ```
 
 如果以下 C++ 方法的第二个参数不存在，则将第一个参数作为原始字符串处理。  
 这些 C++ 方法具有处理原始字符串的重载函数：
 
-	on(),       orOn(),
-	where(),    orWhere(),
-	whereNot(), orWhereNot(),
-	having(),   orHaving(),
+	onRaw(),       orOnRaw(),
+	whereRaw(),    orWhereRaw(),
+	whereNotRaw(), orWhereNotRaw(),
+	havingRaw(),   orHavingRaw(),
 	select(),
 	groupBy(),
 	orderBy()
@@ -167,8 +187,8 @@ C++ 语言示例：
 
 ```c++
 	// 如果第二个参数不存在，则将第一个参数作为原始字符串处理。
-	// 输出 "city LIKE 'ber%'"
-	query->where("city LIKE 'ber%'");
+	// WHERE city LIKE 'ber%'
+	query->whereRaw("city LIKE 'ber%'");
 ```
 
 #### select
@@ -223,7 +243,7 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	// OR city_id = 6
 	sq_query_or_where(query, "city_id", "%d", 6);
 	// OR NOT members < 100
-	sq_query_or_where_not(query, "members < %d", 100);
+	sq_query_or_where_not_raw(query, "members < %d", 100);
 ```
 
 使用 C++ 语言
@@ -236,7 +256,7 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	     // OR city_id = 6
 	     ->orWhere("city_id", "%d", 6)
 	     // OR NOT members < 100
-	     ->orWhereNot("members < %d", 100);
+	     ->orWhereNotRaw("members < %d", 100);
 ```
 
 这些方法也可以用来指定一组查询条件。  
@@ -248,7 +268,7 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	sq_query_table(query, "products");
 	sq_query_where_not_sub(query);
 		sq_query_where(query, "city_id", "%d", 6);
-		sq_query_or_where(query, "price < %d", 100);
+		sq_query_or_where_raw(query, "price < %d", 100);
 	sq_query_end_sub(query);
 ```
 
@@ -259,7 +279,7 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	query->table("products")
 	     ->whereNot([query] {
 	         query->where("city_id", "%d", 6)
-	              ->orWhere("price < %d", 100);
+	              ->orWhereRaw("price < %d", 100);
 		 });
 ```
 
@@ -378,7 +398,7 @@ having 方法的用法与 where 方法类似。
 	sq_query_table(query, "companies");
 	sq_query_group_by(query, "city_id", NULL);    // 最后一个参数必须为 NULL
 	sq_query_having(query, "age", ">", "%d", 10);
-	sq_query_or_having(query, "members < %d", 50);
+	sq_query_or_having_raw(query, "members < %d", 50);
 ```
 
 使用 C++ 语言
@@ -387,7 +407,7 @@ having 方法的用法与 where 方法类似。
 	query->table("companies")
 	     ->groupBy("city_id")
 	     ->having("age", ">", "%d", 10)
-	     ->orHaving("members < %d", 50);
+	     ->orHavingRaw("members < %d", 50);
 ```
 
 #### groupBy / orderBy
@@ -550,21 +570,21 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 	Sq::Where  where;
 
 	array = storage->removeAll("users",
-			where("id < %d", 11).orWhere("city_id < %d", 33));
+			where("id", "<", "%d", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 2. 使用参数包构造函数
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::where("id < %d", 11).orWhere("city_id < %d", 33));
+			Sq::whereRaw("id < %d", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 3. 使用默认构造函数和 operator()
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::where()("id < %d", 11).orWhere("city_id < %d", 33));
+			Sq::whereRaw()("id < %d", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 4. 下面是目前提供的方便的 C++ 类：
@@ -618,6 +638,9 @@ C++ 方法 select() 具有处理原始字符串的重载函数。
 #### whereRaw / whereNotRaw / orWhereRaw / orWhereNotRaw
 
 使用 C 语言
+  
+C 函数 sq_query_where_raw() 系列使用宏来计算参数的数量。  
+如果第三个参数不存在，则将第二个参数作为原始字符串处理。
 
 ```c
 	sq_query_table(query, "users");
@@ -626,6 +649,9 @@ C++ 方法 select() 具有处理原始字符串的重载函数。
 ```
 
 使用 C++ 语言
+  
+C++ 方法 whereRaw()/orWhereRaw() 具有处理原始字符串的重载函数。  
+如果第二个参数不存在，则将第一个参数作为原始字符串处理。
 
 ```c++
 	query->table("users")
@@ -633,18 +659,12 @@ C++ 方法 select() 具有处理原始字符串的重载函数。
 	     ->whereRaw("city LIKE 'ber%'");
 ```
 
-C++ 方法 where()/orWhere() 具有处理原始字符串的重载函数。  
-如果第二个参数不存在，则将第一个参数作为原始字符串处理。
-
-```c++
-	query->table("users")
-	     ->where("id > 100 AND id < 300")
-	     ->where("city LIKE 'ber%'");
-```
-
 #### havingRaw / orHavingRaw
 
 使用 C 语言
+  
+C 函数 sq_query_having_raw() 系列使用宏来计算参数的数量。  
+如果第三个参数不存在，则将第二个参数作为原始字符串处理。
 
 ```c
 	sq_query_table(query, "orders");
@@ -653,20 +673,14 @@ C++ 方法 where()/orWhere() 具有处理原始字符串的重载函数。
 ```
 
 使用 C++ 语言
-
-```c++
-	query->table("orders")
-	     ->groupBy("city_id")
-	     ->havingRaw("SUM(price) > 3000");
-```
-
-C++ 方法 have()/orHaving() 具有处理原始字符串的重载函数。  
+  
+C++ 方法 haveRaw()/orHavingRaw() 具有处理原始字符串的重载函数。  
 如果第二个参数不存在，则将第一个参数作为原始字符串处理。
 
 ```c++
 	query->table("orders")
 	     ->groupBy("city_id")
-	     ->having("SUM(price) > 3000");
+	     ->havingRaw("SUM(price) > 3000");
 ```
 
 #### orderByRaw
@@ -880,11 +894,11 @@ C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
 	});
 ```
 
-## 嵌套和子查询
+## 子查询和括号 Subquery and Brackets
 
-SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法来执行这些操作。  
+SqQuery 可以产生子查询或括号。您也可以使用原始方法来执行这些操作。  
   
-以下 C 函数支持子查询或嵌套：
+以下 C 函数支持子查询或括号：
 
 	sq_query_from_sub(),
 	sq_query_join_sub(),
@@ -898,9 +912,9 @@ SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法
 	sq_query_where_exists(),     sq_query_where_not_exists(),
 	sq_query_having_sub(),       sq_query_or_having_sub(),
 
-注意：您必须在子查询或嵌套的末尾调用 sq_query_end_sub()。  
+注意：您必须在子查询或括号的末尾调用 sq_query_end_sub()。  
   
-下面的 C++ 方法使用 lambda 函数来支持子查询或嵌套，用户不需要调用 sq_query_end_sub()  
+下面的 C++ 方法使用 lambda 函数来支持子查询或括号，用户不需要调用 sq_query_end_sub()  
 
 	from(),
 	join(),
@@ -914,7 +928,7 @@ SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法
 	whereExists(), whereNotExists(),
 	having(),      orHaving(),
 
-#### 嵌套 Nested
+#### 括号 Brackets
 
 例如: 生成下面的 SQL 语句。
 
@@ -922,18 +936,18 @@ SqQuery 可以产生有限的嵌套和子查询。您也可以使用原始方法
 SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 ```
 
-使用 C 函数生成嵌套：
+使用 C 函数生成括号：
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_where_sub(query);                  // 嵌套的开始
+	sq_query_where_sub(query);                  // 括号的开始
 		sq_query_where(query, "salary", ">", "%d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
-	sq_query_end_sub(query);                    // 嵌套结束
-	sq_query_or_where(query, "id > %d", 100);
+	sq_query_end_sub(query);                    // 括号结束
+	sq_query_or_where_raw(query, "id > %d", 100);
 ```
 
-使用 C++ lambda 函数生成嵌套：
+使用 C++ lambda 函数生成括号：
 
 ```c++
 	query->table("users")
@@ -941,10 +955,10 @@ SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 	         query->where("salary", ">", "%d", 45)
 	              ->where("age", "<", "%d", 21);
 	     })
-	     ->orWhere("id > %d", 100);
+	     ->orWhereRaw("id > %d", 100);
 ```
 
-#### 子查询
+#### 子查询 Subquery
 
 例如: 下面是具有子查询的 SQL 语句。
 
@@ -960,10 +974,10 @@ WHERE age > 5
 ```c
 	sq_query_select(query, "id", "age", NULL);
 	sq_query_from(query, "companies");
-	sq_query_join_sub(query);
+	sq_query_join_sub(query);                   // 子查询的开始
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);                    // 子查询的结束
 	sq_query_as(query, "c");
 	sq_query_on_raw(query, "c.id = companies.city_id");
 	sq_query_where_raw(query, "age > 5");
@@ -977,8 +991,9 @@ WHERE age > 5
 	     ->join([query] {
 	         query->from("city")
 	              ->where("id", "<", "%d", 100);
-	     })->as("c")->on("c.id = companies.city_id")
-	     ->where("age > 5");
+	     })
+	     ->as("c")->onRaw("c.id = companies.city_id")
+	     ->whereRaw("age > 5");
 ```
 
 例如: 下面是在条件中有子查询的 SQL 语句。
@@ -995,10 +1010,10 @@ WHERE price < (SELECT amount FROM incomes)
 	// SELECT * FROM products
 	sq_query_from(query, "products");
 	// WHERE price < (SELECT amount FROM incomes)
-	sq_query_where_sub(query, "price", "<");
+	sq_query_where_sub(query, "price", "<");    // 子查询的开始
 		sq_query_select(query, "amount", NULL);
 		sq_query_from(query, "incomes");
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);                    // 子查询的结束
 ```
 
 ## 使用宏生成查询
@@ -1015,7 +1030,8 @@ WHERE price < (SELECT amount FROM incomes)
 		SQQ_JOIN_SUB({
 			SQQ_FROM("city");
 			SQQ_WHERE("id", "<", "%d", 100);
-		}); SQQ_AS("c"); SQQ_ON_RAW("c.id = companies.city_id");
+		});
+		SQQ_AS("c"); SQQ_ON_RAW("c.id = companies.city_id");
 		SQQ_WHERE_RAW("age > 5");
 	});
 ```

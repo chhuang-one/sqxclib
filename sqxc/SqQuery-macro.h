@@ -210,8 +210,8 @@
 
 #define SQQ_ON(...)   \
 		sq_query_on(query_cur_, __VA_ARGS__)
-#define SQQ_ON_RAW(raw)    \
-		sq_query_on_raw(query_cur_, raw)
+#define SQQ_ON_RAW(raw, ...)    \
+		sq_query_on_raw(query_cur_, raw, ##__VA_ARGS__)
 
 #define SQQ_ON_SUB(lambda)                \
 		sq_query_on_sub(query_cur_);      \
@@ -220,8 +220,8 @@
 
 #define SQQ_OR_ON(...)   \
 		sq_query_or_on(query_cur_, __VA_ARGS__)
-#define SQQ_OR_ON_RAW(raw)    \
-		sq_query_or_on_raw(query_cur_, raw)
+#define SQQ_OR_ON_RAW(raw, ...)    \
+		sq_query_or_on_raw(query_cur_, raw, ##__VA_ARGS__)
 
 #define SQQ_OR_ON_SUB(lambda)              \
 		sq_query_or_on_sub(query_cur_);    \
@@ -232,8 +232,8 @@
 
 #define SQQ_WHERE(...)    \
 		sq_query_where(query_cur_, __VA_ARGS__)
-#define SQQ_WHERE_RAW(raw)    \
-		sq_query_where_raw(query_cur_, raw)
+#define SQQ_WHERE_RAW(raw, ...)    \
+		sq_query_where_raw(query_cur_, raw, ##__VA_ARGS__)
 
 #define SQQ_WHERE_SUB(lambda)               \
 		sq_query_where_sub(query_cur_);     \
@@ -242,8 +242,8 @@
 
 #define SQQ_OR_WHERE(...)    \
 		sq_query_or_where(query_cur_, __VA_ARGS__)
-#define SQQ_OR_WHERE_RAW(raw)    \
-		sq_query_or_where_raw(query_cur_, raw)
+#define SQQ_OR_WHERE_RAW(raw, ...)    \
+		sq_query_or_where_raw(query_cur_, raw, ##__VA_ARGS__)
 
 #define SQQ_OR_WHERE_SUB(lambda)              \
 		sq_query_or_where_sub(query_cur_);    \
@@ -253,6 +253,8 @@
 
 #define SQQ_WHERE_NOT(...)    \
 		sq_query_where_not(query_cur_, __VA_ARGS__)
+#define SQQ_WHERE_NOT_RAW(raw, ...)    \
+		sq_query_where_not_raw(query_cur_, raw, ##__VA_ARGS__)
 
 #define SQQ_WHERE_NOT_SUB(lambda)                   \
 		sq_query_where_not_sub(query_cur_);         \
@@ -261,6 +263,8 @@
 
 #define SQQ_OR_WHERE_NOT(...)    \
 		sq_query_or_where_not(query_cur_, __VA_ARGS__)
+#define SQQ_OR_WHERE_NOT_RAW(raw, ...)    \
+		sq_query_or_where_not_raw(query_cur_, raw, ##__VA_ARGS__)
 
 #define SQQ_OR_WHERE_NOT_SUB(lambda)                \
 		sq_query_or_where_not_sub(query_cur_);      \
@@ -328,8 +332,8 @@
 
 #define SQQ_HAVING(...)  \
 		sq_query_having(query_cur_, __VA_ARGS__)
-#define SQQ_HAVING_RAW(raw)    \
-		sq_query_having_raw(query_cur_, raw)
+#define SQQ_HAVING_RAW(raw, ...)    \
+		sq_query_having_raw(query_cur_, raw, ##__VA_ARGS__)
 
 #define SQQ_HAVING_SUB(lambda)              \
 		sq_query_having_sub(query_cur_);    \
@@ -338,8 +342,8 @@
 
 #define SQQ_OR_HAVING(...)  \
 		sq_query_or_having(query_cur_, __VA_ARGS__)
-#define SQQ_OR_HAVING_RAW(raw)    \
-		sq_query_or_having_raw(query_cur_, raw)
+#define SQQ_OR_HAVING_RAW(raw, ...)    \
+		sq_query_or_having_raw(query_cur_, raw, ##__VA_ARGS__)
 
 #define SQQ_OR_HAVING_SUB(lambda)             \
 		sq_query_or_having_sub(query_cur_);   \

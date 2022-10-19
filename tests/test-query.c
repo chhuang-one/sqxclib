@@ -23,12 +23,16 @@
 void test_query_c(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT DISTINCT id, age "
-	                     "FROM companies AS a "
-	                     "JOIN city AS c ON city.id < 100 AND city.age > 10 "
-	                     "WHERE name > 'Ge' OR id < 9 "
-	                     "GROUP BY companies.age "
-	                     "ORDER BY companies.id ASC";
+	const char *result;
+
+	result = "SELECT DISTINCT id, age "
+	         "FROM companies AS a "
+	         "JOIN city "
+	             "AS c "
+	             "ON city.id < 100 AND city.age > 10 "
+	         "WHERE name > 'Ge' OR id < 9 "
+	         "GROUP BY companies.age "
+	         "ORDER BY companies.id ASC";
 
 	// "SELECT DISTINCT id, age"
 	sq_query_select(query, "id", "age", NULL);
@@ -39,7 +43,7 @@ void test_query_c(SqQuery *query)
 	sq_query_as(query, "a");
 
 	// "WHERE name > 'Ge' OR id < 9"
-	sq_query_where(query, "name > '%s'", "Ge");
+	sq_query_where_raw(query, "name > '%s'", "Ge");
 	sq_query_or_where(query, "id", "<", "%d", 9);
 
 	// "JOIN city AS c ON city.id < 100 AND city.age > 10"
@@ -65,11 +69,13 @@ void test_query_c(SqQuery *query)
 void test_query_c_where_not(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT * "
-	                     "FROM users "
-	                     "WHERE NOT ( "
-	                     "votes > 100 OR name IN ('Ray','Zyx') "
-	                     ")";
+	const char *result;
+
+	result = "SELECT * "
+	         "FROM users "
+	         "WHERE NOT ( "
+	         "votes > 100 OR name IN ('Ray','Zyx') "
+	         ")";
 
 	// SELECT * FROM users
 	sq_query_from(query, "users");
@@ -93,9 +99,11 @@ void test_query_c_where_not(SqQuery *query)
 void test_query_c_where_like(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT * "
-	                     "FROM users "
-	                     "WHERE NOT name LIKE 'Bt%'";
+	const char *result;
+
+	result = "SELECT * "
+	         "FROM users "
+	         "WHERE NOT name LIKE 'Bt%'";
 
 	// SELECT * FROM users
 	sq_query_from(query, "users");
@@ -113,10 +121,12 @@ void test_query_c_where_like(SqQuery *query)
 void test_query_c_where_between(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT * "
-	                     "FROM users "
-	                     "WHERE votes NOT BETWEEN 1 AND 100 "
-	                     "OR name NOT BETWEEN 'Ra' AND 'Zyx'";
+	const char *result;
+
+	result = "SELECT * "
+	         "FROM users "
+	         "WHERE votes NOT BETWEEN 1 AND 100 "
+	             "OR name NOT BETWEEN 'Ra' AND 'Zyx'";
 
 	// SELECT * FROM users
 	sq_query_from(query, "users");
@@ -136,10 +146,12 @@ void test_query_c_where_between(SqQuery *query)
 void test_query_c_where_in(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT * "
-	                     "FROM users "
-	                     "WHERE votes NOT IN (1,3,5) "
-	                     "OR name NOT IN ('Alex','Ray','Zyx')";
+	const char *result;
+
+	result = "SELECT * "
+	         "FROM users "
+	         "WHERE votes NOT IN (1,3,5) "
+	             "OR name NOT IN ('Alex','Ray','Zyx')";
 
 	// SELECT * FROM users
 	sq_query_from(query, "users");
@@ -159,10 +171,12 @@ void test_query_c_where_in(SqQuery *query)
 void test_query_c_where_null(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT * "
-	                     "FROM users "
-	                     "WHERE votes IS NOT NULL "
-	                     "OR name IS NOT NULL";
+	const char *result;
+
+	result = "SELECT * "
+	         "FROM users "
+	         "WHERE votes IS NOT NULL "
+	             "OR name IS NOT NULL";
 
 	// SELECT * FROM users
 	sq_query_from(query, "users");
@@ -182,6 +196,11 @@ void test_query_c_where_null(SqQuery *query)
 void test_query_c_raw(SqQuery *query)
 {
 	char       *sql;
+	const char *result;
+
+	result = "SELECT id, name "
+	         "FROM users "
+	         "WHERE city LIKE 'ber%'";
 
 	sq_query_table(query, "users");
 	sq_query_select_raw(query, "id, name");
@@ -191,13 +210,17 @@ void test_query_c_raw(SqQuery *query)
 	sq_query_clear(query);
 
 	puts(sql);
-	assert(strcmp(sql, "SELECT id, name FROM users WHERE city LIKE 'ber%'") == 0);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
 void test_query_c_raw_statement(SqQuery *query)
 {
 	char       *sql;
+	const char *result;
+
+	result = "SELECT * FROM users "
+	         "WHERE city LIKE 'ber%' LIMIT 10 OFFSET 5";
 
 	// "SELECT * FROM users"
 	sq_query_table(query, "users");
@@ -209,14 +232,17 @@ void test_query_c_raw_statement(SqQuery *query)
 	sq_query_clear(query);
 
 	puts(sql);
-	assert(strcmp(sql, "SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 10 OFFSET 5") == 0);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
-void test_query_c_nested(SqQuery *query)
+void test_query_c_brackets(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT * FROM companies WHERE salary > 2150 AND ( id > 22 AND age < 10 )";
+	const char *result;
+
+	result = "SELECT * FROM companies "
+	         "WHERE salary > 2150 AND ( id > 22 AND age < 10 )";
 
 	// SELECT * FROM companies
 	// WHERE salary > 2150
@@ -224,10 +250,10 @@ void test_query_c_nested(SqQuery *query)
 	sq_query_where(query, "salary > %d", 2150);
 
 	// AND ( id > 22 AND age < 10 )
-	sq_query_where_sub(query);               // start of Subquery/Nested
+	sq_query_where_sub(query);                  // start of brackets
 		sq_query_where(query, "id",  ">", "%d", 22);
 		sq_query_where(query, "age", "<", "%d", 10);
-	sq_query_end_sub(query);                 // end of Subquery/Nested
+	sq_query_end_sub(query);                    // end of brackets
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -240,12 +266,14 @@ void test_query_c_nested(SqQuery *query)
 void test_query_c_subquery(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "WHERE price < ( SELECT amount FROM incomes )";
+	const char *result;
 
-	sq_query_where_sub(query, "price", "<");
+	result = "WHERE price < ( SELECT amount FROM incomes )";
+
+	sq_query_where_sub(query, "price", "<");    // start of subquery
 		sq_query_select(query, "amount", NULL);
 		sq_query_from(query, "incomes");
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);                    // end of subquery
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -258,8 +286,11 @@ void test_query_c_subquery(SqQuery *query)
 void test_query_c_join(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT * FROM users "
-	                     "JOIN contacts ON users.id = contacts.user_id AND users.id > 120";
+	const char *result;
+
+	result = "SELECT * FROM users "
+	         "JOIN contacts "
+	             "ON users.id = contacts.user_id AND users.id > 120";
 
 	sq_query_from(query, "users");
 	sq_query_join(query, "contacts", "users.id", "=", "%s", "contacts.user_id");
@@ -274,7 +305,8 @@ void test_query_c_join(SqQuery *query)
 	free(sql);
 
 	result = "SELECT * FROM users "
-	         "JOIN ( SELECT * FROM contacts ) ON users.id = contacts.user_id AND ( users.id > 120 OR contacts.id > 90 )";
+	         "JOIN ( SELECT * FROM contacts ) "
+	             "ON users.id = contacts.user_id AND ( users.id > 120 OR contacts.id > 90 )";
 
 	sq_query_from(query, "users");
 	sq_query_join_sub(query);
@@ -297,7 +329,12 @@ void test_query_c_join(SqQuery *query)
 void test_query_c_union(SqQuery *query)
 {
 	char       *sql;
-	const char *result = "SELECT name FROM product1 UNION SELECT name FROM product2";
+	const char *result;
+
+	result = "SELECT name "
+	         "FROM product1 "
+	         "UNION "
+	         "SELECT name FROM product2";
 
 	sq_query_select(query, "name", NULL);
 	sq_query_from(query, "product1");
@@ -317,36 +354,49 @@ void test_query_c_union(SqQuery *query)
 
 void test_query_c_str(SqQuery *query)
 {
+	const char *result;
+
+	result = "SELECT * FROM users";
+
 	sq_query_from(query, "users");
 
 	sq_query_c(query);
 
 	puts(sq_query_c(query));
-	assert(strcmp(query->str, "SELECT * FROM users") == 0);
+	assert(strcmp(query->str, result) == 0);
 
 	sq_query_clear(query);
 }
 
 void test_query_c_no_select_from(SqQuery *query)
 {
-	char    *sql;
+	char       *sql;
+	const char *result;
+
+	result = "WHERE id > 10 AND id < 99 "
+	         "GROUP BY age "
+	         "HAVING city_id > 3 OR city_id < 9";
 
 	sq_query_where_raw(query, "id > 10");
 	sq_query_where(query, "id", "<", "%d", 99);
 	sq_query_group_by(query, "age", NULL);    // the last argument must be NULL
 	sq_query_having_raw(query, "city_id > 3");
-	sq_query_or_having_raw(query, "city_id < 9");
+	sq_query_or_having(query, "city_id", "<", "%d", 9);
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
 
 	puts(sql);
-	assert(strcmp(sql, "WHERE id > 10 AND id < 99 GROUP BY age HAVING city_id > 3 OR city_id < 9") == 0);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
 void test_query_c_delete(SqQuery *query)
 {
-	char    *sql;
+	char       *sql;
+	const char *result;
+
+	result = "DELETE FROM users "
+	         "WHERE id > 10 AND id < 99";
 
 	sq_query_where_raw(query, "id > 10");
 	sq_query_where(query, "id", "<", "%d", 99);
@@ -357,13 +407,16 @@ void test_query_c_delete(SqQuery *query)
 	sq_query_clear(query);
 
 	puts(sql);
-	assert(strcmp(sql, "DELETE FROM users WHERE id > 10 AND id < 99") == 0);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
 void test_query_c_truncate(SqQuery *query)
 {
-	char    *sql;
+	char       *sql;
+	const char *result;
+
+	result = "TRUNCATE TABLE users";
 
 	sq_query_table(query, "users");
 	sq_query_truncate(query);
@@ -372,13 +425,16 @@ void test_query_c_truncate(SqQuery *query)
 	sq_query_clear(query);
 
 	puts(sql);
-	assert(strcmp(sql, "TRUNCATE TABLE users") == 0);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
 void test_query_c_limit(SqQuery *query)
 {
-	char    *sql;
+	char       *sql;
+	const char *result;
+
+	result = "SELECT * FROM users LIMIT 100 OFFSET 55";
 
 	sq_query_table(query, "users");
 //	sq_query_limit(query, 10);
@@ -392,28 +448,32 @@ void test_query_c_limit(SqQuery *query)
 	sq_query_clear(query);
 
 	puts(sql);
-	assert(strcmp(sql, "SELECT * FROM users LIMIT 100 OFFSET 55") == 0);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
 // SqQuery-macro.h
 void test_query_macro_get_table_as(SqQuery *query)
 {
-	char    *sql;
+	char       *sql;
+	const char *result;
 
-	/*
-		SELECT id, age
-		FROM companies
-		JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
-		WHERE age > 5
-	 */
+	result = "SELECT id, age "
+	         "FROM companies "
+	         "JOIN ( SELECT * FROM city WHERE id < 100 ) "
+	             "AS c "
+	             "ON c.id = companies.city_id "
+	         "WHERE age > 5";
+
 	SQ_QUERY_DO(query, {
 		SQQ_SELECT("id", "age");
 		SQQ_FROM("companies");
 		SQQ_JOIN_SUB({
 			SQQ_FROM("city");
 			SQQ_WHERE("id", "<", "%d", 100);
-		}); SQQ_AS("c"); SQQ_ON_RAW("c.id = companies.city_id");
+		});
+		SQQ_AS("c");
+		SQQ_ON_RAW("c.id = companies.city_id");
 		SQQ_WHERE_RAW("age > 5");
 	});
 
@@ -432,10 +492,13 @@ void test_query_macro_get_table_as(SqQuery *query)
 	sq_query_clear(query);
 
 	puts(sql);
+	assert(strcmp(sql, result) == 0);
 	free(sql);
 }
 
 // ----------------------------------------------------------------------------
+
+
 
 int main(int argc, char **argv)
 {
@@ -451,7 +514,7 @@ int main(int argc, char **argv)
 	test_query_c_where_null(query);
 	test_query_c_raw(query);
 	test_query_c_raw_statement(query);
-	test_query_c_nested(query);
+	test_query_c_brackets(query);
 	test_query_c_subquery(query);
 	test_query_c_join(query);
 	test_query_c_union(query);

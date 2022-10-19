@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdio.h>      // vsnprintf
 
+#include <SqConfig.h>
 #include <SqQuery.h>
 
 #ifdef _MSC_VER
@@ -30,7 +31,6 @@
 #endif
 
 #define SQ_QUERY_STR_SIZE_DEFAULT  256
-#define SQ_QUERY_USE_OLD_CONDITION   1
 
 static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *parent, va_list arg_list);
 static void sq_query_insert_table_node(SqQuery *query, SqQueryNode *parent, const char *table_name);
@@ -198,29 +198,38 @@ void  sq_query_clear(SqQuery *query)
 	sq_query_push_nested(query, &query->root);
 }
 
-void sq_query_append(SqQuery *query, const char *raw, SqQueryNode *parent)
+static void sq_query_node_set_raw(SqQueryNode *node, int raw_type, va_list arg_list)
 {
-	SqQueryNode   *node;
+	va_list        arg_copy;
+	const char    *str;
+	int            length;
 
-	if (parent == NULL)
-		parent = query->nested_cur->parent;
-	node = sq_query_node_new(query);
-	node->type  = SQN_VALUE;
-	node->value = strdup(raw);
-	sq_query_node_append(parent, node);
+	str = va_arg(arg_list, char*);
+	if (raw_type & SQ_QUERYARGS_1)
+		node->value = strdup(str);
+	else {
+		va_copy(arg_copy, arg_list);
+#ifdef _MSC_VER		// for MS C only
+		length = _vscprintf(str, arg_copy) + 1;
+#else				// for C99 standard
+		length = vsnprintf(NULL, 0, str, arg_copy) + 1;
+#endif
+		va_end(arg_copy);
+		node->value = malloc(length);
+		vsnprintf(node->value, length, str, arg_list);
+	}
+	node->type = SQN_VALUE;
 }
 
-void sq_query_printf(SqQuery *query, ...)
+void sq_query_append(SqQuery *query, int raw_type, ...)
 {
 	va_list        arg_list;
-	SqQueryNested *nested = query->nested_cur;
 	SqQueryNode   *node;
 
-	va_start(arg_list, query);
-	node = sq_query_condition(query, nested->parent, arg_list);
+	node = sq_query_node_append(query->nested_cur->parent, sq_query_node_new(query));
+	va_start(arg_list, raw_type);
+	sq_query_node_set_raw(node, raw_type, arg_list);
 	va_end(arg_list);
-	if (node)
-		sq_query_node_append(nested->parent, node);
 }
 
 bool sq_query_from(SqQuery *query, const char *table)
@@ -337,7 +346,7 @@ static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent,
 	// append NONE, OR, AND in clause->children
 	node = sq_query_node_new(query);
 	if (clause->children)
-		node->type = SQN_OR + (logi_type & ~(SQ_QUERYLOGI_NOT | SQ_QUERYARG_RAW));    // SQ_QUERYARG_RAW deprecated
+		node->type = SQN_OR + (logi_type & ~(SQ_QUERYLOGI_NOT | SQ_QUERYARGS_MASK));
 	else
 		node->type = SQN_NONE;
 	sq_query_node_append(clause, node);
@@ -351,11 +360,11 @@ static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent,
 		node->type = SQN_NOT;
 	}
 
-	// SQ_QUERYARG_RAW deprecated
-	if (logi_type & SQ_QUERYARG_RAW) {
+	// create & insert node for RAW
+	if (logi_type & SQ_QUERYARGS_RAW) {
 		node->children = sq_query_node_new(query);
 		node = node->children;
-		node->type = SQN_VALUE;
+//		node->type = SQN_VALUE;
 	}
 
 	return node;
@@ -369,10 +378,8 @@ void sq_query_where_logical(SqQuery *query, int logi_type, ...)
 	node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_type);
 
 	va_start(arg_list, logi_type);
-	if (logi_type & SQ_QUERYARG_RAW) {
-		char *raw = va_arg(arg_list, char*);
-		node->value = strdup(raw);
-	}
+	if (logi_type & SQ_QUERYARGS_RAW)
+		sq_query_node_set_raw(node, logi_type, arg_list);
 	else
 		node->children = sq_query_condition(query, node, arg_list);
 	va_end(arg_list);
@@ -538,10 +545,8 @@ void sq_query_on_logical(SqQuery *query, int logi_type, ...)
 	temp.node = sq_query_clause_logical(query, temp.joinon, SQN_ON, logi_type);
 
 	va_start(arg_list, logi_type);
-	if (logi_type & SQ_QUERYARG_RAW) {
-		char *raw = va_arg(arg_list, char*);
-		temp.node->value = strdup(raw);
-	}
+	if (logi_type & SQ_QUERYARGS_RAW)
+		sq_query_node_set_raw(temp.node, logi_type, arg_list);
 	else
 		temp.node->children = sq_query_condition(query, temp.node, arg_list);
 	va_end(arg_list);
@@ -576,10 +581,8 @@ void sq_query_having_logical(SqQuery *query, int logi_type, ...)
 	node = sq_query_clause_logical(query, nested->parent, SQN_HAVING, logi_type);
 
 	va_start(arg_list, logi_type);
-	if (logi_type & SQ_QUERYARG_RAW) {
-		char *raw = va_arg(arg_list, char*);
-		node->value = strdup(raw);
-	}
+	if (logi_type & SQ_QUERYARGS_RAW)
+		sq_query_node_set_raw(node, logi_type, arg_list);
 	else
 		node->children = sq_query_condition(query, node, arg_list);
 	va_end(arg_list);
@@ -829,6 +832,8 @@ static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, 
 	return column_node;
 }
 
+#if SQ_CONFIG_QUERY_USE_OLD_CONDITION
+
 static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_list arg_list)
 {
 	va_list   arg_copy;
@@ -843,7 +848,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 		char     *cur;
 	} temp;
 
-	// ====== first argument ======
+	// ====== args[0] is 1st argument in arg_list ======
 	args[0] = va_arg(arg_list, char*);
 	// It use subquery if 1st argument is NULL.
 	if (args[0] == NULL) {
@@ -858,8 +863,10 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 		if (*temp.cur == '%') {
 			if (temp.cur[1] == '%')    // escape % sign
 				temp.cur++;
-			else
+			else {
+				fprintf(stderr, "sq_query_condition(): use raw() series functions if you use printf format string in 1st argument of condition.\n");
 				break;
+			}
 		}
 	}
 	// if argv[0] is printf format string
@@ -876,8 +883,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 		return node;
 	}
 	mem.length = (int)(temp.cur - args[0]) + 1;    // + ' '
-#if SQ_QUERY_USE_OLD_CONDITION
-	// ====== second argument ======
+	// ====== args[1] is 2nd argument in arg_list ======
 	args[1] = va_arg(arg_list, char*);
 	if (args[1]) {
 		// search operators if args[1] is not printf format string
@@ -895,37 +901,14 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 		args[1] = "=";        // set  2nd argument to equal operator
 		mem.length += 2;      // + '=' + ' '
 	}
-	// ====== third argument ======
+	// ====== args[2] is 3rd argument in arg_list ======
 	else {
 		args[2] = va_arg(arg_list, char*);
-		// count length of second argument
+		// count length of 2nd argument in arg_list if '%' sign not found
 		mem.length += (int)strlen(args[1]) + 1;    // + ' '
 	}
-#else
-	// count length of argv[0] if is NOT printf format string
-//	mem.length = strlen(args[0]) + 1;              // + ' '
-	// ====== second argument ======
-	args[1] = va_arg(arg_list, char*);
-	if (args[1]) {
-		// search % sign if args[1] is printf format string
-		for (temp.cur = args[1];  *temp.cur;  temp.cur++)
-			if (*temp.cur == '%')
-				break;
-	}
-	// if args[1] is NULL or printf format string
-	if (args[1] == NULL || *temp.cur == '%') {
-		args[2] = args[1];    // move 2nd argument to 3rd argument
-		args[1] = "=";        // set  2nd argument to equal operator
-		mem.length += 2;      // + '=' + ' '
-	}
-	// ====== third argument ======
-	else {
-		args[2] = va_arg(arg_list, char*);
-		// count length of second argument
-		mem.length += temp.cur - args[1] + 1;      // + ' '
-	}
-#endif
 
+	// It is printf format string if 3rd argument in arg_list is not NULL.
 	if (args[2]) {
 #ifndef NDEBUG
 		if (strchr(args[2], '%') == NULL)
@@ -941,7 +924,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 		node->value = malloc(mem.length + temp.length);
 		vsnprintf(node->value + mem.length, temp.length, args[2], arg_list);
 	}
-	// It use subquery if 4th argument is NULL.
+	// It is subquery if 3rd argument in arg_list is NULL.
 	else {
 		node->value = malloc(mem.length);
 		sq_query_push_nested(query, node);
@@ -953,10 +936,89 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 			*mem.dest++ = *args[temp.index]++;
 		*mem.dest++ = ' ';
 	}
-	if (args[2] == NULL)
+	if (args[2] == NULL)    // Null-terminated
 		*(mem.dest-1) = 0;
 	return node;
 }
+
+#else
+
+static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_list arg_list)
+{
+	va_list   arg_copy;
+	char     *args[3];
+	union {
+		int       length;
+		char     *dest;
+	} mem;
+	union {
+		int       length;
+		int       index;
+		char     *cur;
+	} temp;
+
+	// ====== args[0] is 1st argument in arg_list ======
+	args[0] = va_arg(arg_list, char*);
+	// It use subquery if 1st argument is NULL.
+	if (args[0] == NULL) {
+		sq_query_push_nested(query, node);
+		return NULL;
+	}
+	// count length of argv[0]
+	mem.length = strlen(args[0]) + 1;              // + ' '
+	// create node for condition
+	node = sq_query_node_new(query);
+	node->type = SQN_VALUE;
+	// ====== args[1] is 2nd argument in arg_list ======
+	args[1] = va_arg(arg_list, char*);
+	if (args[1]) {
+		// search % sign if args[1] is printf format string
+		for (temp.cur = args[1];  *temp.cur;  temp.cur++)
+			if (*temp.cur == '%')
+				break;
+	}
+	// if args[1] is NULL or printf format string
+	if (args[1] == NULL || *temp.cur == '%') {
+		args[2] = args[1];    // move 2nd argument to 3rd argument
+		args[1] = "=";        // set  2nd argument to equal operator
+		mem.length += 2;      // + '=' + ' '
+	}
+	// ====== args[2] is 3rd argument in arg_list ======
+	else {
+		args[2] = va_arg(arg_list, char*);
+		// count length of 2nd argument in arg_list if '%' sign not found
+		mem.length += temp.cur - args[1] + 1;      // + ' '
+	}
+
+	// It is printf format string if 3rd argument in arg_list is not NULL.
+	if (args[2]) {
+		va_copy(arg_copy, arg_list);
+#ifdef _MSC_VER		// for MS C only
+		temp.length = _vscprintf(args[2], arg_copy) +1;
+#else				// for C99 standard
+		temp.length = vsnprintf(NULL, 0, args[2], arg_copy) +1;
+#endif
+		va_end(arg_copy);
+		node->value = malloc(mem.length + temp.length);
+		vsnprintf(node->value + mem.length, temp.length, args[2], arg_list);
+	}
+	// It is subquery if 3rd argument in arg_list is NULL.
+	else {
+		node->value = malloc(mem.length);
+		sq_query_push_nested(query, node);
+	}
+
+	mem.dest = node->value;
+	for (temp.index = 0;  temp.index < 2;  temp.index++) {
+		while (*args[temp.index])
+			*mem.dest++ = *args[temp.index]++;
+		*mem.dest++ = ' ';
+	}
+	if (args[2] == NULL)    // Null-terminated
+		*(mem.dest-1) = 0;
+	return node;
+}
+#endif
 
 // ------------------------------------
 // sq_query_to_sql()
