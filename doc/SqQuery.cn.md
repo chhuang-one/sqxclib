@@ -342,7 +342,9 @@ whereNotBetween 方法驗證列的值是否位於兩個值之外。
   
 使用 C 语言  
   
-sq_query_where_in() 的第三個參數必須指定 printf 格式字符串後的值的數量。
+sq_query_where_in() 必须与 printf 格式字符串一起使用：
+* 第三个参数是 printf 格式字符串后的值的数量。
+* 如果用户将第三个参数指定为 0，它将按宏计数。
 
 ```c
 	// SELECT * FROM users WHERE id IN (1,2,4)

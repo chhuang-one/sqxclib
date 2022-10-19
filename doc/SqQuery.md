@@ -342,7 +342,9 @@ use C++ language
   
 use C language  
   
-The third parameter of sq_query_where_in() must specify number of values after printf format string.
+sq_query_where_in() must use with printf format string:
+* The 3rd parameter is number of values after printf format string.
+* If user specify 3rd parameter to 0, it will count by macro.
 
 ```c
 	// SELECT * FROM users WHERE id IN (1,2,4)

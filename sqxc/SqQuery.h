@@ -62,14 +62,17 @@ extern "C" {
 
 #define SQ_QUERYARGS_N_MASK   (0x3F00)
 #define SQ_QUERYARGS_1        (0x0100)    // only 1 argument  in __VA_ARGS__
-#define SQ_QUERYARGS_2        (0x0200)    //  >=  2 arguments in __VA_ARGS__
+#define SQ_QUERYARGS_2        (0x0200)    //      2 arguments in __VA_ARGS__
+#define SQ_QUERYARGS_3        (0x0300)    //      3 arguments in __VA_ARGS__
 
 /*
-	SQ_QUERYARGS_DECIDE(...)  return SQ_QUERYARGS_1 or SQ_QUERYARGS_2
+	SQ_QUERYARGS_DECIDE(...)  return SQ_QUERYARGS_1, SQ_QUERYARGS_2...etc
 
 	https://groups.google.com/g/comp.std.c/c/d-6Mj5Lko_s
  */
-#define SQ_QUERYARGS_DECIDE(...)    SQ_QUERYARGS_APART(_0, ## __VA_ARGS__, SQ_QUERYARGS_RSEQ(SQ_QUERYARGS_2, SQ_QUERYARGS_1))
+#define SQ_QUERYARGS_DECIDE(...)   (SQ_QUERYARGS_COUNT(__VA_ARGS__) << 8)
+
+#define SQ_QUERYARGS_COUNT(...)     SQ_QUERYARGS_APART(_0, ## __VA_ARGS__, SQ_QUERYARGS_RSEQ())
 
 #define SQ_QUERYARGS_APART(...)     SQ_QUERYARGS_PICK(__VA_ARGS__)
 
@@ -82,14 +85,14 @@ extern "C" {
 	_51,_52,_53,_54,_55,_56,_57,_58,_59,_60, \
 	_61,_62,_63,  N,...)    N
 
-#define SQ_QUERYARGS_RSEQ(v2, v1)    \
-	 v2,  v2,  v2, \
-	 v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2, \
-	 v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2, \
-	 v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2, \
-	 v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2, \
-	 v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2, \
-	 v2,  v2,  v2,  v2,  v2,  v2,  v2,  v2,  v1,  v1
+#define SQ_QUERYARGS_RSEQ()    \
+	62, 61, 60, \
+	59, 58, 57, 56, 55, 54, 53, 52, 51, 50, \
+	49, 48, 47, 46, 45, 44, 43, 42, 41, 40, \
+	39, 38, 37, 36, 35, 34, 33, 32, 31, 30, \
+	29, 28, 27, 26, 25, 24, 23, 22, 21, 20, \
+	19, 18, 17, 16, 15, 14, 13, 12, 11, 10, \
+	 9,  8,  7,  6,  5,  4,  3,  2,  1,  0
 
 /*	SqQuery C functions
 
@@ -375,19 +378,19 @@ void    sq_query_where_in_logical(SqQuery *query, const char *column_name, int l
 
 // void sq_query_where_in(SqQuery *query, const char *column_name, int n_args, const char *format, ...);
 #define sq_query_where_in(query, column_name, n_args, format, ...)        \
-		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_AND, n_args, format, __VA_ARGS__)
+		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_AND, (n_args) ? (n_args) : SQ_QUERYARGS_COUNT(__VA_ARGS__), format, __VA_ARGS__)
 
 // void sq_query_where_not_in(SqQuery *query, const char *column_name, int n_args, const char *format, ...);
 #define sq_query_where_not_in(query, column_name, n_args, format, ...)    \
-		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT, n_args, format, __VA_ARGS__)
+		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT, (n_args) ? (n_args) : SQ_QUERYARGS_COUNT(__VA_ARGS__), format, __VA_ARGS__)
 
 // void sq_query_or_where_in(SqQuery *query, const char *column_name, int n_args, const char *format, ...);
 #define sq_query_or_where_in(query, column_name, n_args, format, ...)        \
-		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_OR, n_args, format, __VA_ARGS__)
+		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_OR, (n_args) ? (n_args) : SQ_QUERYARGS_COUNT(__VA_ARGS__), format, __VA_ARGS__)
 
 // void sq_query_or_where_not_in(SqQuery *query, const char *column_name, int n_args, const char *format, ...);
 #define sq_query_or_where_not_in(query, column_name, n_args, format, ...)    \
-		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT, n_args, format, __VA_ARGS__)
+		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT, (n_args) ? (n_args) : SQ_QUERYARGS_COUNT(__VA_ARGS__), format, __VA_ARGS__)
 
 // SQL: WHERE column IS NULL
 void    sq_query_where_null_logical(SqQuery *query, const char *column_name, int logi_type);

@@ -205,7 +205,7 @@ static void sq_query_node_set_raw(SqQueryNode *node, int raw_type, va_list arg_l
 	int            length;
 
 	str = va_arg(arg_list, char*);
-	if (raw_type & SQ_QUERYARGS_1)
+	if ((raw_type & SQ_QUERYARGS_N_MASK) == SQ_QUERYARGS_1)
 		node->value = strdup(str);
 	else {
 		va_copy(arg_copy, arg_list);

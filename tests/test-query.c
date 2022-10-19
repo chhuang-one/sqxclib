@@ -156,7 +156,7 @@ void test_query_c_where_in(SqQuery *query)
 	// SELECT * FROM users
 	sq_query_from(query, "users");
 	// WHERE votes IN (1,3,5)
-	sq_query_where_not_in(query, "votes", 3, "%d", 1, 3, 5);
+	sq_query_where_not_in(query, "votes", 0, "%d", 1, 3, 5);
 	// OR name NOT IN ('Alex','Ray','Zyx')
 	sq_query_or_where_not_in(query, "name", 3, "'%s'", "Alex", "Ray", "Zyx");
 
