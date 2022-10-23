@@ -280,7 +280,7 @@ use C++ methods
 	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
 
 	// get multiple rows with C++ class 'where' series (explain below "Query builder")
-	array = storage->getAll("users", Sq::whereRaw("id > 8").whereRaw("id < %d", 20));
+	array = storage->getAll("users", Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// get all rows
 	array = storage->getAll("users");
@@ -317,7 +317,7 @@ use C++ template functions
 	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
 
 	// get multiple rows with C++ class 'where' series (explain below "Query builder")
-	vector = storage->getAll<std::vector<User>>(Sq::whereRaw("id > 8").whereRaw("id < %d", 20));
+	vector = storage->getAll<std::vector<User>>(Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// get all rows
 	vector = storage->getAll<std::vector<User>>();
@@ -406,7 +406,7 @@ use C++ methods to produce query
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")
-	              ->where("id", "<", "%d", 100);
+	              ->where("id", "<", 100);
 	     })
 	     ->as("c")
 	     ->onRaw("c.id = companies.city_id")
@@ -461,7 +461,7 @@ use C++ methods
 ```c++
 	// SQL statement exclude "SELECT * FROM table_name"
 	query->clear()
-	     ->where("id", ">", "%d", 10)
+	     ->where("id", ">", 10)
 	     ->orWhereRaw("city_id < %d", 22);
 
 	array = storage->getAll("users", query->c());
@@ -475,7 +475,7 @@ use operator() of Sq::Where (or Sq::where)
 	Sq::Where  where;
 
 	array = storage->getAll("users",
-			where("id", ">", "%d", 10).orWhereRaw("city_id < %d", 22));
+			where("id", ">", 10).orWhereRaw("city_id < %d", 22));
 ```
 
 use constructor and operator of Sq::where
@@ -535,7 +535,7 @@ use C functions
 use C++ methods
 
 ```c++
-	query->from("cities")->join("users", "cities.id", "=", "%s", "users.city_id");
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
 	for (int i = 0;  i < array->length;  i++) {
@@ -554,7 +554,7 @@ Sq::Joint is pointer array that used by STL container.
 ```c++
 	std::vector< Sq::Joint<2> > *vector;
 
-	query->from("cities")->join("users", "cities.id", "=", "%s", "users.city_id");
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	vector = storage->query<std::vector< Sq::Joint<2> >>(query);
 	for (unsigned int index = 0;  index < vector->size();  index++) {
@@ -611,7 +611,7 @@ You can use SqTypeRow to replace default joint type in SqStorage:
 ```c++
 	std::vector<Sq::Row> *vector;
 
-	query->from("cities")->join("users", "cities.id", "=", "%s", "users.city_id");
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	vector = storage->query<std::vector<Sq::Row>>(query);
 	for (unsigned int index = 0;  index < vector->size();  index++) {

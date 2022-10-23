@@ -172,8 +172,18 @@ C++ language example:
 	query->whereRaw("city  LIKE '%s'", "ber%");
 ```
 
+C++ methods join(), on(), where(), and having() series have overloaded functions to omit printf format string:
+
+```c++
+	// --- omit printf format string in 3rd argument ---
+	// WHERE id < 100
+	query->where("id", "<", 100);
+	// AND email LIKE 'guest%'
+	query->where("email", "LIKE", "guest%");
+```
+
 If the 2nd argument of below C++ methods is NOT exist, the 1st argument is handled as raw string.  
-These C++ methods has overloaded function to handle raw string:
+These C++ methods have overloaded function to handle raw string:
 
 	onRaw(),       orOnRaw(),
 	whereRaw(),    orWhereRaw(),
@@ -252,7 +262,7 @@ use C++ language
 	// SELECT * FROM companies
 	query->table("companies")
 	     // WHERE id > 15
-	     ->where("id", ">", "%d", 15)
+	     ->where("id", ">", 15)
 	     // OR city_id = 6
 	     ->orWhere("city_id", "%d", 6)
 	     // OR NOT members < 100
@@ -278,7 +288,7 @@ use C++ language
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	query->table("products")
 	     ->whereNot([query] {
-	         query->where("city_id", "%d", 6)
+	         query->where("city_id", 6)
 	              ->orWhereRaw("price < %d", 100);
 		 });
 ```
@@ -300,6 +310,8 @@ use C language
 ```
 
 use C++ language
+  
+C++ methods whereBetween() series have overloaded functions to omit printf format string:
 
 ```c++
 	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
@@ -344,7 +356,7 @@ use C language
   
 sq_query_where_in() must use with printf format string:
 * The 3rd parameter is number of values after printf format string.
-* If user specify 3rd parameter to 0, it will count by macro.
+* If user specify 3rd parameter to 0, it will count number of arguments by macro.
 
 ```c
 	// SELECT * FROM users WHERE id IN (1,2,4)
@@ -353,6 +365,8 @@ sq_query_where_in() must use with printf format string:
 ```
 
 use C++ language
+  
+C++ methods whereIn() series have overloaded functions to omit printf format string:
 
 ```c++
 	// SELECT * FROM users WHERE id IN (1,2,4)
@@ -360,7 +374,7 @@ use C++ language
 	     ->whereIn("id", 1, 2, 4);
 ```
 
-whereIn() can use with printf format string:
+When you use whereIn() with printf format string:
 * The second parameter is number of values after printf format string.
 * If user specify second parameter to 0, it will count by compiler.
 
@@ -392,7 +406,7 @@ use C++ language
 
 #### having / orHaving
 
-The usage of having method is similar to the where method.  
+The usage of having() series is similar to the where().  
   
 use C language
 
@@ -408,7 +422,7 @@ use C++ language
 ```c++
 	query->table("companies")
 	     ->groupBy("city_id")
-	     ->having("age", ">", "%d", 10)
+	     ->having("age", ">", 10)
 	     ->orHavingRaw("members < %d", 50);
 ```
 
@@ -572,21 +586,21 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 	Sq::Where  where;
 
 	array = storage->removeAll("users",
-			where("id", "<", "%d", 11).orWhereRaw("city_id < %d", 33));
+			where("id", "<", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 2. use parameter pack constructor
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::whereRaw("id < %d", 11).orWhereRaw("city_id < %d", 33));
+			Sq::where("id", "<", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 3. use default constructor and operator()
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::whereRaw()("id < %d", 11).orWhereRaw("city_id < %d", 33));
+			Sq::where()("id", "<", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 4. Below is currently provided convenient C++ class:
@@ -786,7 +800,7 @@ use C++ language
 
 ```c++
 	query->table("companies")
-	     ->join("city", "users.id", "=", "%s", "posts.user_id");
+	     ->join("city", "users.id", "=", "posts.user_id");
 ```
 
 #### Left Join / Right Join / Full Join
@@ -805,13 +819,15 @@ use C language
 ```
 
 use C++ language
+  
+In the following example, the conditions for the three kind of joins are the same.
 
 ```c++
 	query->table("users")
-	     ->leftJoin("posts", "users.id", "=", "%s", "posts.user_id");
+	     ->leftJoin("posts", "users.id", "posts.user_id");
 
 	query->table("users")
-	     ->rightJoin("posts", "users.id", "=", "%s", "posts.user_id");
+	     ->rightJoin("posts", "users.id", "=", "posts.user_id");
 
 	query->table("users")
 	     ->fullJoin("posts", "users.id", "=", "%s", "posts.user_id");
@@ -845,7 +861,7 @@ use C language
 	// JOIN posts ON users.id = posts.user_id
 	sq_query_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 	// AND users.id > 120
-	sq_query_on(query, "users.id > %d", 120);
+	sq_query_on_raw(query, "users.id > %d", 120);
 ```
 
 use C++ language
@@ -854,9 +870,9 @@ use C++ language
 	// SELECT * FROM users
 	query->table("users")
 	     // JOIN posts ON users.id = posts.user_id
-	     ->join("posts", "users.id", "=", "%s", "posts.user_id")
+	     ->join("posts", "users.id", "=", "posts.user_id")
 	     // AND users.id > 120
-	     ->on("users.id > %d", 120);
+	     ->onRaw("users.id > %d", 120);
 ```
 
 ## Unions
@@ -1011,11 +1027,23 @@ use C language to generate subquery in condition:
 ```c
 	// SELECT * FROM products
 	sq_query_from(query, "products");
-	// WHERE price < (SELECT amount FROM incomes)
+	// WHERE price < ( SELECT amount FROM incomes )
 	sq_query_where_sub(query, "price", "<");    // start of subquery
 		sq_query_select(query, "amount", NULL);
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // end of subquery
+```
+
+use C++ language to generate subquery in condition:
+
+```c
+	// SELECT * FROM products
+	query->from("products")
+	// WHERE price < ( SELECT amount FROM incomes )
+	     ->where("price", "<", [query] {
+	         query->select("amount")
+	              ->from("incomes");
+	     });
 ```
 
 ## use macro to produce query

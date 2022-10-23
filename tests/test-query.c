@@ -247,7 +247,7 @@ void test_query_c_brackets(SqQuery *query)
 	// SELECT * FROM companies
 	// WHERE salary > 2150
 	sq_query_from(query, "companies");
-	sq_query_where(query, "salary > %d", 2150);
+	sq_query_where_raw(query, "salary > %d", 2150);
 
 	// AND ( id > 22 AND age < 10 )
 	sq_query_where_sub(query);                  // start of brackets
@@ -293,7 +293,7 @@ void test_query_c_join(SqQuery *query)
 	             "ON users.id = contacts.user_id AND users.id > 120";
 
 	sq_query_from(query, "users");
-	sq_query_join(query, "contacts", "users.id", "=", "%s", "contacts.user_id");
+	sq_query_join(query, "contacts", "users.id", "contacts.user_id");
 	sq_query_on(query, "users.id", ">", "%d", 120);
 //	sq_query_or_on(query, "contacts.user_id", "<", "%d", 88);
 
@@ -312,7 +312,7 @@ void test_query_c_join(SqQuery *query)
 	sq_query_join_sub(query);
 		sq_query_from(query, "contacts");
 	sq_query_end_sub(query);
-	sq_query_on(query, "users.id", "=", "%s", "contacts.user_id");
+	sq_query_on(query, "users.id", "%s", "contacts.user_id");
 	sq_query_on_sub(query);
 		sq_query_on(query, "users.id", ">", "%d", 120);
 		sq_query_or_on(query, "contacts.id", ">", "%d", 90);

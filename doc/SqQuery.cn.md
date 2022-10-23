@@ -172,6 +172,16 @@ C++ 语言示例：
 	query->whereRaw("city  LIKE '%s'", "ber%");
 ```
 
+C++ 方法 join()、on()、where() 和 have() 系列具有忽略 printf 格式字符串的重载函数：
+
+```c++
+	// --- omit printf format string in 3rd argument ---
+	// WHERE id < 100
+	query->where("id", "<", 100);
+	// AND email LIKE 'guest%'
+	query->where("email", "LIKE", "guest%");
+```
+
 如果以下 C++ 方法的第二个参数不存在，则将第一个参数作为原始字符串处理。  
 这些 C++ 方法具有处理原始字符串的重载函数：
 
@@ -252,7 +262,7 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	// SELECT * FROM companies
 	query->table("companies")
 	     // WHERE id > 15
-	     ->where("id", ">", "%d", 15)
+	     ->where("id", ">", 15)
 	     // OR city_id = 6
 	     ->orWhere("city_id", "%d", 6)
 	     // OR NOT members < 100
@@ -278,7 +288,7 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	query->table("products")
 	     ->whereNot([query] {
-	         query->where("city_id", "%d", 6)
+	         query->where("city_id", 6)
 	              ->orWhereRaw("price < %d", 100);
 		 });
 ```
@@ -300,6 +310,8 @@ whereBetween 方法驗證列的值是否在兩個值之間。
 ```
 
 使用 C++ 语言
+  
+C++ 方法 whereBetween() 系列具有忽略 printf 格式字符串的重载函数：
 
 ```c++
 	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
@@ -344,7 +356,7 @@ whereNotBetween 方法驗證列的值是否位於兩個值之外。
   
 sq_query_where_in() 必须与 printf 格式字符串一起使用：
 * 第三个参数是 printf 格式字符串后的值的数量。
-* 如果用户将第三个参数指定为 0，它将按宏计数。
+* 如果用户将第三个参数指定为 0，它将通过宏计算参数的数量。
 
 ```c
 	// SELECT * FROM users WHERE id IN (1,2,4)
@@ -353,6 +365,8 @@ sq_query_where_in() 必须与 printf 格式字符串一起使用：
 ```
 
 使用 C++ 语言
+  
+C++ 方法 whereIn() 系列具有忽略 printf 格式字符串的重载函数：
 
 ```c++
 	// SELECT * FROM users WHERE id IN (1,2,4)
@@ -360,7 +374,7 @@ sq_query_where_in() 必须与 printf 格式字符串一起使用：
 	     ->whereIn("id", 1, 2, 4);
 ```
 
-whereIn() 可以与 printf 格式字符串一起使用：
+当您将 whereIn() 与 printf 格式字符串一起使用时：
 * 第二个参数是 printf 格式字符串之后的值的数量。
 * 如果用户将第二个参数指定为 0，它将由编译器计算。
 
@@ -392,7 +406,7 @@ whereIn() 可以与 printf 格式字符串一起使用：
 
 #### having / orHaving
 
-having 方法的用法与 where 方法类似。  
+having() 系列的用法与 where() 类似。  
 
 使用 C 语言
 
@@ -408,7 +422,7 @@ having 方法的用法与 where 方法类似。
 ```c++
 	query->table("companies")
 	     ->groupBy("city_id")
-	     ->having("age", ">", "%d", 10)
+	     ->having("age", ">", 10)
 	     ->orHavingRaw("members < %d", 50);
 ```
 
@@ -572,21 +586,21 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 	Sq::Where  where;
 
 	array = storage->removeAll("users",
-			where("id", "<", "%d", 11).orWhereRaw("city_id < %d", 33));
+			where("id", "<", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 2. 使用参数包构造函数
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::whereRaw("id < %d", 11).orWhereRaw("city_id < %d", 33));
+			Sq::where("id", "<", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 3. 使用默认构造函数和 operator()
 
 ```c++
 	array = storage->removeAll("users",
-			Sq::whereRaw()("id < %d", 11).orWhereRaw("city_id < %d", 33));
+			Sq::where()("id", "<", 11).orWhereRaw("city_id < %d", 33));
 ```
 
 4. 下面是目前提供的方便的 C++ 类：
@@ -786,7 +800,7 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 
 ```c++
 	query->table("companies")
-	     ->join("city", "users.id", "=", "%s", "posts.user_id");
+	     ->join("city", "users.id", "=", "posts.user_id");
 ```
 
 #### 左连接 Left Join / 右连接 Right Join / 全外连接 Full Join
@@ -805,13 +819,15 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 ```
 
 使用 C++ 语言
+  
+在下面的示例中，三种连接的条件是相同的。
 
 ```c++
 	query->table("users")
-	     ->leftJoin("posts", "users.id", "=", "%s", "posts.user_id");
+	     ->leftJoin("posts", "users.id", "posts.user_id");
 
 	query->table("users")
-	     ->rightJoin("posts", "users.id", "=", "%s", "posts.user_id");
+	     ->rightJoin("posts", "users.id", "=", "posts.user_id");
 
 	query->table("users")
 	     ->fullJoin("posts", "users.id", "=", "%s", "posts.user_id");
@@ -845,7 +861,7 @@ on 方法的用法与 where 方法类似。
 	// JOIN posts ON users.id = posts.user_id
 	sq_query_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 	// AND users.id > 120
-	sq_query_on(query, "users.id > %d", 120);
+	sq_query_on_raw(query, "users.id > %d", 120);
 ```
 
 使用 C++ 语言
@@ -854,9 +870,9 @@ on 方法的用法与 where 方法类似。
 	// SELECT * FROM users
 	query->table("users")
 	     // JOIN posts ON users.id = posts.user_id
-	     ->join("posts", "users.id", "=", "%s", "posts.user_id")
+	     ->join("posts", "users.id", "=", "posts.user_id")
 	     // AND users.id > 120
-	     ->on("users.id > %d", 120);
+	     ->onRaw("users.id > %d", 120);
 ```
 
 ## 联合 Unions
@@ -1011,11 +1027,23 @@ WHERE price < (SELECT amount FROM incomes)
 ```c
 	// SELECT * FROM products
 	sq_query_from(query, "products");
-	// WHERE price < (SELECT amount FROM incomes)
+	// WHERE price < ( SELECT amount FROM incomes )
 	sq_query_where_sub(query, "price", "<");    // 子查询的开始
 		sq_query_select(query, "amount", NULL);
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // 子查询的结束
+```
+
+使用 C++ 语言生成在条件中的子查询：
+
+```c
+	// SELECT * FROM products
+	query->from("products")
+	// WHERE price < ( SELECT amount FROM incomes )
+	     ->where("price", "<", [query] {
+	         query->select("amount")
+	              ->from("incomes");
+	     });
 ```
 
 ## 使用宏生成查询

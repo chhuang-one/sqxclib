@@ -36,8 +36,8 @@ static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *parent, va_
 static void sq_query_insert_table_node(SqQuery *query, SqQueryNode *parent, const char *table_name);
 static void sq_query_free_all_node(SqQuery *query);
 
-static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, int logi_type, char *value_str);
-static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *parent, va_list arg_list);
+static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, unsigned int logi_args, char *value_str);
+static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *parent, unsigned int logi_args, va_list arg_list);
 
 static SqQueryNode *sq_query_node_new(SqQuery *query);
 static void         sq_query_node_free(SqQueryNode *node, SqQuery *query);
@@ -198,14 +198,14 @@ void  sq_query_clear(SqQuery *query)
 	sq_query_push_nested(query, &query->root);
 }
 
-static void sq_query_node_set_raw(SqQueryNode *node, int raw_type, va_list arg_list)
+static void sq_query_node_set_raw(SqQueryNode *node, unsigned int raw_args, va_list arg_list)
 {
 	va_list        arg_copy;
 	const char    *str;
 	int            length;
 
 	str = va_arg(arg_list, char*);
-	if ((raw_type & SQ_QUERYARGS_N_MASK) == SQ_QUERYARGS_1)
+	if ((raw_args & SQ_QUERYARGS_N_MASK) == SQ_QUERYARGS_1)
 		node->value = strdup(str);
 	else {
 		va_copy(arg_copy, arg_list);
@@ -221,14 +221,14 @@ static void sq_query_node_set_raw(SqQueryNode *node, int raw_type, va_list arg_l
 	node->type = SQN_VALUE;
 }
 
-void sq_query_append(SqQuery *query, int raw_type, ...)
+void sq_query_append(SqQuery *query, unsigned int raw_args, ...)
 {
 	va_list        arg_list;
 	SqQueryNode   *node;
 
 	node = sq_query_node_append(query->nested_cur->parent, sq_query_node_new(query));
-	va_start(arg_list, raw_type);
-	sq_query_node_set_raw(node, raw_type, arg_list);
+	va_start(arg_list, raw_args);
+	sq_query_node_set_raw(node, raw_args, arg_list);
 	va_end(arg_list);
 }
 
@@ -327,9 +327,9 @@ bool sq_query_distinct(SqQuery *query)
 }
 
 // 'clause_code' can be SQN_WHERE, SQN_HAVING, and SQN_ON.
-// 'logi_type'   can be SQ_QUERYLOGI_OR, SQ_QUERYLOGI_AND, SQ_QUERYLOGI_NOT.
-// if 'clause_code' is SQN_WHERE, the 'logi_type' can set SQ_QUERYLOGI_NOT.
-static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent, int clause_type, int logi_type)
+// 'logi_args'   can be SQ_QUERYLOGI_OR, SQ_QUERYLOGI_AND, SQ_QUERYLOGI_NOT.
+// if 'clause_code' is SQN_WHERE, the 'logi_args' can set SQ_QUERYLOGI_NOT.
+static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent, int clause_type, unsigned int logi_args)
 {
 	SqQueryNode   *clause = NULL;
 	SqQueryNode   *node;
@@ -346,13 +346,13 @@ static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent,
 	// append NONE, OR, AND in clause->children
 	node = sq_query_node_new(query);
 	if (clause->children)
-		node->type = SQN_OR + (logi_type & ~(SQ_QUERYLOGI_NOT | SQ_QUERYARGS_MASK));
+		node->type = SQN_OR + (logi_args & ~(SQ_QUERYLOGI_NOT | SQ_QUERYARGS_MASK));
 	else
 		node->type = SQN_NONE;
 	sq_query_node_append(clause, node);
 
 	// add or set NOT node.
-	if (logi_type & SQ_QUERYLOGI_NOT) {
+	if (logi_args & SQ_QUERYLOGI_NOT) {
 		if (node->type != SQN_NONE) {
 			node->children = sq_query_node_new(query);
 			node = node->children;
@@ -361,7 +361,7 @@ static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent,
 	}
 
 	// create & insert node for RAW
-	if (logi_type & SQ_QUERYARGS_RAW) {
+	if (logi_args & SQ_QUERYARGS_RAW) {
 		node->children = sq_query_node_new(query);
 		node = node->children;
 //		node->type = SQN_VALUE;
@@ -370,26 +370,26 @@ static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent,
 	return node;
 }
 
-void sq_query_where_logical(SqQuery *query, int logi_type, ...)
+void sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...)
 {
 	va_list        arg_list;
 	SqQueryNode   *node;
 
-	node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_type);
+	node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_args);
 
-	va_start(arg_list, logi_type);
-	if (logi_type & SQ_QUERYARGS_RAW)
-		sq_query_node_set_raw(node, logi_type, arg_list);
+	va_start(arg_list, logi_args);
+	if (logi_args & SQ_QUERYARGS_RAW)
+		sq_query_node_set_raw(node, logi_args, arg_list);
 	else
-		node->children = sq_query_condition(query, node, arg_list);
+		node->children = sq_query_condition(query, node, logi_args, arg_list);
 	va_end(arg_list);
 }
 
-void sq_query_where_exists_logical(SqQuery *query, int logi_type)
+void sq_query_where_exists_logical(SqQuery *query, unsigned int logi_args)
 {
 	SqQueryNode   *node;
 
-	node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_type);
+	node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_args);
 
 	node->children = sq_query_node_new(query);
 	node = node->children;
@@ -398,7 +398,7 @@ void sq_query_where_exists_logical(SqQuery *query, int logi_type)
 	sq_query_push_nested(query, node);
 }
 
-void sq_query_where_between_logical(SqQuery *query, const char *column_name, int logi_type, const char* format, ...)
+void sq_query_where_between_logical(SqQuery *query, const char *column_name, unsigned int logi_args, const char* format, ...)
 {
 	va_list        arg_list;
 	va_list        arg_copy;
@@ -431,11 +431,11 @@ void sq_query_where_between_logical(SqQuery *query, const char *column_name, int
 	// release generated format string of this function
 	free(temp.format);
 
-	temp.node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_type & (~SQ_QUERYLOGI_NOT));
-	temp.node->children = sq_query_column_in(query, column_name, logi_type, str);
+	temp.node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_args & (~SQ_QUERYLOGI_NOT));
+	temp.node->children = sq_query_column_in(query, column_name, logi_args, str);
 }
 
-void sq_query_where_in_logical(SqQuery *query, const char *column_name, int logi_type, int n_args, const char* format, ...)
+void sq_query_where_in_logical(SqQuery *query, const char *column_name, unsigned int logi_args, int n_args, const char* format, ...)
 {
 	va_list        arg_list;
 	va_list        arg_copy;
@@ -479,28 +479,28 @@ void sq_query_where_in_logical(SqQuery *query, const char *column_name, int logi
 	// release generated format string of this function
 	free(temp.format);
 
-	temp.node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_type & (~SQ_QUERYLOGI_NOT));
-	temp.node->children = sq_query_column_in(query, column_name, logi_type, str);
+	temp.node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_args & (~SQ_QUERYLOGI_NOT));
+	temp.node->children = sq_query_column_in(query, column_name, logi_args, str);
 }
 
-void sq_query_where_null_logical(SqQuery *query, const char *column_name, int logi_type)
+void sq_query_where_null_logical(SqQuery *query, const char *column_name, unsigned int logi_args)
 {
 	SqQueryNode   *node;
 
-	node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_type & (~SQ_QUERYLOGI_NOT));
+	node = sq_query_clause_logical(query, NULL, SQN_WHERE, logi_args & (~SQ_QUERYLOGI_NOT));
 	node->children = sq_query_column_in(query, column_name, 0, NULL);
 	// 'node' pointer node of column_name
 	node = node->children;
 	// 'node' pointer node of value
 	node = node->children;
 
-	if (logi_type & SQ_QUERYLOGI_NOT)
+	if (logi_args & SQ_QUERYLOGI_NOT)
 		node->value = strdup("IS NOT NULL");
 	else
 		node->value = strdup("IS NULL");
 }
 
-void sq_query_join_full(SqQuery *query, int join_type, const char *table, ...)
+void sq_query_join_full(SqQuery *query, unsigned int join_args, const char *table, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -514,7 +514,7 @@ void sq_query_join_full(SqQuery *query, int join_type, const char *table, ...)
 
 	// insert new JOIN node
 	joinon = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-	joinon->type = SQN_JOIN + join_type;
+	joinon->type = SQN_JOIN + (join_args & ~SQ_QUERYARGS_MASK);
 	nested->joinon = joinon;
 	// insert table node.  If table is NULL, it has call sq_query_push_nested()
 	sq_query_insert_table_node(query, joinon, table);
@@ -522,15 +522,15 @@ void sq_query_join_full(SqQuery *query, int join_type, const char *table, ...)
 		return;
 
 	// ON
-	if (join_type != SQ_QUERYJOIN_CROSS) {
+	if ((join_args & ~SQ_QUERYARGS_MASK) != SQ_QUERYJOIN_CROSS) {
 		node = sq_query_clause_logical(query, joinon, SQN_ON, SQ_QUERYLOGI_AND);
 		va_start(arg_list, table);
-		node->children = sq_query_condition(query, node, arg_list);
+		node->children = sq_query_condition(query, node, join_args, arg_list);
 		va_end(arg_list);
 	}
 }
 
-void sq_query_on_logical(SqQuery *query, int logi_type, ...)
+void sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -542,13 +542,13 @@ void sq_query_on_logical(SqQuery *query, int logi_type, ...)
 	temp.joinon = nested->joinon;
 	if (temp.joinon == NULL)
 		temp.joinon = nested->parent;
-	temp.node = sq_query_clause_logical(query, temp.joinon, SQN_ON, logi_type);
+	temp.node = sq_query_clause_logical(query, temp.joinon, SQN_ON, logi_args);
 
-	va_start(arg_list, logi_type);
-	if (logi_type & SQ_QUERYARGS_RAW)
-		sq_query_node_set_raw(temp.node, logi_type, arg_list);
+	va_start(arg_list, logi_args);
+	if (logi_args & SQ_QUERYARGS_RAW)
+		sq_query_node_set_raw(temp.node, logi_args, arg_list);
 	else
-		temp.node->children = sq_query_condition(query, temp.node, arg_list);
+		temp.node->children = sq_query_condition(query, temp.node, logi_args, arg_list);
 	va_end(arg_list);
 }
 
@@ -572,19 +572,19 @@ void sq_query_group_by(SqQuery *query, ...)
 	nested->aliasable = NULL;
 }
 
-void sq_query_having_logical(SqQuery *query, int logi_type, ...)
+void sq_query_having_logical(SqQuery *query, unsigned int logi_args, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
 	SqQueryNode   *node;
 
-	node = sq_query_clause_logical(query, nested->parent, SQN_HAVING, logi_type);
+	node = sq_query_clause_logical(query, nested->parent, SQN_HAVING, logi_args);
 
-	va_start(arg_list, logi_type);
-	if (logi_type & SQ_QUERYARGS_RAW)
-		sq_query_node_set_raw(node, logi_type, arg_list);
+	va_start(arg_list, logi_args);
+	if (logi_args & SQ_QUERYARGS_RAW)
+		sq_query_node_set_raw(node, logi_args, arg_list);
 	else
-		node->children = sq_query_condition(query, node, arg_list);
+		node->children = sq_query_condition(query, node, logi_args, arg_list);
 	va_end(arg_list);
 }
 
@@ -807,7 +807,7 @@ static void sq_query_insert_table_node(SqQuery *query, SqQueryNode *node, const 
 }
 
 // used by BETWEEN and IN
-static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, int logi_type, char *value_str)
+static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, unsigned int logi_args, char *value_str)
 {
 	SqQueryNode   *column_node;
 	SqQueryNode   *node;
@@ -818,7 +818,7 @@ static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, 
 	column_node->value = strdup(column_name);
 	node = column_node;
 	// NOT node
-	if (logi_type & SQ_QUERYLOGI_NOT) {
+	if (logi_args & SQ_QUERYLOGI_NOT) {
 		node->children = sq_query_node_new(query);
 		node = node->children;
 		node->type = SQN_NOT;
@@ -834,7 +834,7 @@ static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, 
 
 #if SQ_CONFIG_QUERY_USE_OLD_CONDITION
 
-static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_list arg_list)
+static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsigned int logi_args, va_list arg_list)
 {
 	va_list   arg_copy;
 	char     *args[3];
@@ -847,6 +847,9 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 		int       index;
 		char     *cur;
 	} temp;
+
+	// handle C++  special case: get number of arguments in arg_list
+	logi_args = SQ_QUERYARGS_N_GET(logi_args);
 
 	// ====== args[0] is 1st argument in arg_list ======
 	args[0] = va_arg(arg_list, char*);
@@ -888,13 +891,14 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 	if (args[1]) {
 		// search operators if args[1] is not printf format string
 		temp.cur = strpbrk(args[1], "!=<>");
+		// search operator 'LIKE'
 		if (temp.cur == NULL && strcasecmp(args[1], "LIKE") == 0)
 			temp.cur = args[1];
 	}
-	// if args[1] is NULL or value string
+	// if args[1] is NULL, value string, or printf format string
 	if (args[1] == NULL || temp.cur == NULL) {
 #ifndef NDEBUG
-		if (args[1] && strchr(args[1], '%') == NULL)
+		if (args[1] && strchr(args[1], '%') == NULL && logi_args > 2)
 			fprintf(stderr, "sq_query_condition(): Please pass printf format string before passing value of condition.\n");
 #endif
 		args[2] = args[1];    // move 2nd argument to 3rd argument
@@ -910,19 +914,29 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 
 	// It is printf format string if 3rd argument in arg_list is not NULL.
 	if (args[2]) {
+		// handle C++  special case: 2nd or 3rd argument in arg_list is raw string
+		// 2 arguments special case: "column", "valueStr"         or   "column", ">"
+		// 3 arguments special case: "column", "%s", "valueStr"   or   "column", ">", "valueStr"
+		if (logi_args == 2 || (logi_args == 3 && temp.cur)) {
+			temp.length = (int)strlen(args[2]) +1;
+			node->value = malloc(mem.length + temp.length);
+			strncpy(node->value + mem.length, args[2], temp.length);
+		}
+		else {
 #ifndef NDEBUG
-		if (strchr(args[2], '%') == NULL)
-			fprintf(stderr, "sq_query_condition(): Please pass printf format string before passing value of condition.\n");
+			if (strchr(args[2], '%') == NULL)
+				fprintf(stderr, "sq_query_condition(): Please pass printf format string before passing value of condition.\n");
 #endif
-		va_copy(arg_copy, arg_list);
+			va_copy(arg_copy, arg_list);
 #ifdef _MSC_VER		// for MS C only
-		temp.length = _vscprintf(args[2], arg_copy) +1;
+			temp.length = _vscprintf(args[2], arg_copy) +1;
 #else				// for C99 standard
-		temp.length = vsnprintf(NULL, 0, args[2], arg_copy) +1;
+			temp.length = vsnprintf(NULL, 0, args[2], arg_copy) +1;
 #endif
-		va_end(arg_copy);
-		node->value = malloc(mem.length + temp.length);
-		vsnprintf(node->value + mem.length, temp.length, args[2], arg_list);
+			va_end(arg_copy);
+			node->value = malloc(mem.length + temp.length);
+			vsnprintf(node->value + mem.length, temp.length, args[2], arg_list);
+		}
 	}
 	// It is subquery if 3rd argument in arg_list is NULL.
 	else {
@@ -943,7 +957,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 
 #else
 
-static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_list arg_list)
+static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsigned int logi_args, va_list arg_list)
 {
 	va_list   arg_copy;
 	char     *args[3];
@@ -956,6 +970,9 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 		int       index;
 		char     *cur;
 	} temp;
+
+	// handle C++  special case: get number of arguments in arg_list
+	logi_args = SQ_QUERYARGS_N_GET(logi_args);
 
 	// ====== args[0] is 1st argument in arg_list ======
 	args[0] = va_arg(arg_list, char*);
@@ -977,8 +994,8 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 			if (*temp.cur == '%')
 				break;
 	}
-	// if args[1] is NULL or printf format string
-	if (args[1] == NULL || *temp.cur == '%') {
+	// if args[1] is NULL, printf format string, or raw string (C++ special case)
+	if (args[1] == NULL || *temp.cur == '%' || logi_args == 2) {
 		args[2] = args[1];    // move 2nd argument to 3rd argument
 		args[1] = "=";        // set  2nd argument to equal operator
 		mem.length += 2;      // + '=' + ' '
@@ -992,15 +1009,25 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, va_lis
 
 	// It is printf format string if 3rd argument in arg_list is not NULL.
 	if (args[2]) {
-		va_copy(arg_copy, arg_list);
+		// handle C++  special case: 2nd or 3rd argument in arg_list is raw string
+		// 2 arguments special case: "column", "valueStr"         or   "column", ">"
+		// 3 arguments special case: "column", "%s", "valueStr"   or   "column", ">", "valueStr"
+		if (logi_args <= 3 && *temp.cur != '%') {
+			temp.length = (int)strlen(args[2]) +1;
+			node->value = malloc(mem.length + temp.length);
+			strncpy(node->value + mem.length, args[2], temp.length);
+		}
+		else {
+			va_copy(arg_copy, arg_list);
 #ifdef _MSC_VER		// for MS C only
-		temp.length = _vscprintf(args[2], arg_copy) +1;
+			temp.length = _vscprintf(args[2], arg_copy) +1;
 #else				// for C99 standard
-		temp.length = vsnprintf(NULL, 0, args[2], arg_copy) +1;
+			temp.length = vsnprintf(NULL, 0, args[2], arg_copy) +1;
 #endif
-		va_end(arg_copy);
-		node->value = malloc(mem.length + temp.length);
-		vsnprintf(node->value + mem.length, temp.length, args[2], arg_list);
+			va_end(arg_copy);
+			node->value = malloc(mem.length + temp.length);
+			vsnprintf(node->value + mem.length, temp.length, args[2], arg_list);
+		}
 	}
 	// It is subquery if 3rd argument in arg_list is NULL.
 	else {

@@ -278,7 +278,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
 
 	// 使用 C++ 类 'where' 系列获取多行（在下面的 "查询生成器" 中說明）
-	array = storage->getAll("users", Sq::whereRaw("id > 8").whereRaw("id < %d", 20));
+	array = storage->getAll("users", Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// 获取所有行
 	array = storage->getAll("users");
@@ -315,7 +315,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
 
 	// 使用 C++ 类 'where' 系列获取多行（在下面的 "查询生成器" 中說明）
-	vector = storage->getAll<std::vector<User>>(Sq::whereRaw("id > 8").whereRaw("id < %d", 20));
+	vector = storage->getAll<std::vector<User>>(Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// 获取所有行
 	vector = storage->getAll<std::vector<User>>();
@@ -404,7 +404,7 @@ SQL 语句
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")
-	              ->where("id", "<", "%d", 100);
+	              ->where("id", "<", 100);
 	     })
 	     ->as("c")
 	      ->onRaw("c.id = companies.city_id")
@@ -459,7 +459,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 ```c++
 	// SQL 语句排除 "SELECT * FROM table_name"
 	query->clear()
-	     ->where("id", ">", "%d", 10)
+	     ->where("id", ">", 10)
 	     ->orWhereRaw("city_id < %d", 22);
 
 	array = storage->getAll("users", query->c());
@@ -473,7 +473,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 	Sq::Where  where;
 
 	array = storage->getAll("users",
-			where("id", ">", "%d", 10).orWhereRaw("city_id < %d", 22));
+			where("id", ">", 10).orWhereRaw("city_id < %d", 22));
 ```
 
 使用 Sq::where 的构造函数和运算符
@@ -533,7 +533,7 @@ SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的�
 使用 C++ 方法
 
 ```c++
-	query->from("cities")->join("users", "cities.id", "=", "%s", "users.city_id");
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
 	for (int i = 0;  i < array->length;  i++) {
@@ -552,7 +552,7 @@ Sq::Joint 是 STL 容器使用的指针数组。
 ```c++
 	std::vector< Sq::Joint<2> > *vector;
 
-	query->from("cities")->join("users", "cities.id", "=", "%s", "users.city_id");
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	vector = storage->query<std::vector< Sq::Joint<2> >>(query);
 	for (unsigned int index = 0;  index < vector->size();  index++) {
@@ -609,7 +609,7 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 ```c++
 	std::vector<Sq::Row> *vector;
 
-	query->from("cities")->join("users", "cities.id", "=", "%s", "users.city_id");
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	vector = storage->query<std::vector<Sq::Row>>(query);
 	for (unsigned int index = 0;  index < vector->size();  index++) {
