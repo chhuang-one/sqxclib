@@ -823,11 +823,48 @@ public:
 		func(*query);
 		sq_query_end_sub(query);       // end of subquery/brackets
 	}
-	//// declare below 2 method for template specialization
-	template <typename T>
-	Where(const char *column, T func_or_value);
-	template <typename T>
-	Where(const char *column, const char *op, T func_or_value);
+	template <typename Lambda>
+	Where(const char *column, Lambda func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_sub(query, column, "=");    // start of subquery/brackets
+		func(*query);                              // std::function< void (SqQuery &query) >
+		sq_query_end_sub(query);                   // end of subquery/brackets
+	}
+	Where(const char *column, int value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where(query, column, "=", "%d", value);
+	}
+	Where(const char *column, int64_t value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where(query, column, "=", "%" PRId64, value);
+	}
+	Where(const char *column, double value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where(query, column, "=", "%f", value);
+	}
+	Where(const char *column, const char *value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where(query, column, "=", "%s", value);
+	}
+	template <typename Lambda>
+	Where(const char *column, const char *op, Lambda func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_sub(query, column, op);     // start of subquery/brackets
+		func(*query);                              // std::function< void (SqQuery &query) >
+		sq_query_end_sub(query);                   // end of subquery/brackets
+	}
+	Where(const char *column, const char *op, int value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where(query, column, op, "%d", value);
+	}
+	Where(const char *column, const char *op, int64_t value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where(query, column, op, "%" PRId64, value);
+	}
+	Where(const char *column, const char *op, double value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where(query, column, op, "%f", value);
+	}
 	//// This method must match overloaded function. It can NOT use template specialization.
 	Where(const char *column, const char *op_or_format, const char *value) {
 		// 3 arguments special case: "column", "%s", "valueStr"   or   "column", ">", "valueStr"
@@ -865,12 +902,48 @@ public:
 		sq_query_end_sub(query);       // end of subquery/brackets
 		return *this;
 	}
-	//// declare below 2 method for template specialization
-	template <typename T>
-	Where &operator()(const char *column, T func_or_value);
-	template <typename T>
-	Where &operator()(const char *column, const char *op, T func_or_value);
-	//// This method must match overloaded function. It can NOT use template specialization.
+	template <typename Lambda>
+	Where &operator()(const char *column, Lambda func) {
+		sq_query_where_sub(query, column, "=");    // start of subquery/brackets
+		func(*query);                              // std::function< void (SqQuery &query) >
+		sq_query_end_sub(query);                   // end of subquery/brackets
+		return *this;
+	}
+	Where &operator()(const char *column, int value) {
+		sq_query_where(query, column, "=", "%d", value);
+		return *this;
+	}
+	Where &operator()(const char *column, int64_t value) {
+		sq_query_where(query, column, "=", "%" PRId64, value);
+		return *this;
+	}
+	Where &operator()(const char *column, double value) {
+		sq_query_where(query, column, "=", "%f", value);
+		return *this;
+	}
+	Where &operator()(const char *column, const char *value) {
+		sq_query_where(query, column, "=", "%s", value);
+		return *this;
+	}
+	template <typename Lambda>
+	Where &operator()(const char *column, const char *op, Lambda func) {
+		sq_query_where_sub(query, column, op);     // start of subquery/brackets
+		func(*query);                              // std::function< void (SqQuery &query) >
+		sq_query_end_sub(query);                   // end of subquery/brackets
+		return *this;
+	}
+	Where &operator()(const char *column, const char *op, int value) {
+		sq_query_where(query, column, op, "%d", value);
+		return *this;
+	}
+	Where &operator()(const char *column, const char *op, int64_t value) {
+		sq_query_where(query, column, op, "%" PRId64, value);
+		return *this;
+	}
+	Where &operator()(const char *column, const char *op, double value) {
+		sq_query_where(query, column, op, "%f", value);
+		return *this;
+	}
 	Where &operator()(const char *column, const char *op_or_format, const char *value) {
 		// 3 arguments special case: "column", "%s", "valueStr"   or   "column", ">", "valueStr"
 		sq_query_where(query, column, op_or_format, value);
@@ -886,109 +959,6 @@ public:
 		return *this;
 	}
 };
-
-// Sq::Where constructor
-template <typename Lambda>
-inline Where::Where(const char *column, Lambda func) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_sub(query, column, "=");    // start of subquery/brackets
-	func(*query);                              // std::function< void(SqQuery &query) >
-	sq_query_end_sub(query);                   // end of subquery/brackets
-}
-template <>
-inline Where::Where<int>(const char *column, int value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where(query, column, "=", "%d", value);
-}
-template <>
-inline Where::Where<int64_t>(const char *column, int64_t value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where(query, column, "=", "%" PRId64, value);
-}
-template <>
-inline Where::Where<double>(const char *column, double value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where(query, column, "=", "%f", value);
-}
-template <>
-inline Where::Where<const char*>(const char *column, const char *value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where(query, column, "=", "%s", value);
-}
-template <typename Lambda>
-inline Where::Where(const char *column, const char *op, Lambda func) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_sub(query, column, op);     // start of subquery/brackets
-	func(*query);                              // std::function< void(SqQuery &query) >
-	sq_query_end_sub(query);                   // end of subquery/brackets
-}
-template <>
-inline Where::Where<int>(const char *column, const char *op, int value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where(query, column, op, "%d", value);
-}
-template <>
-inline Where::Where<int64_t>(const char *column, const char *op, int64_t value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where(query, column, op, "%" PRId64, value);
-}
-template <>
-inline Where::Where<double>(const char *column, const char *op, double value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where(query, column, op, "%f", value);
-}
-
-// Sq::Where operator
-template <typename Lambda>
-inline Where &Where::operator()(const char *column, Lambda func) {
-	sq_query_where_sub(query, column, "=");    // start of subquery/brackets
-	func(*query);                              // std::function< void(SqQuery &query) >
-	sq_query_end_sub(query);                   // end of subquery/brackets
-	return *this;
-}
-template <>
-inline Where &Where::operator()<int>(const char *column, int value) {
-	sq_query_where(query, column, "=", "%d", value);
-	return *this;
-}
-template <>
-inline Where &Where::operator()<int64_t>(const char *column, int64_t value) {
-	sq_query_where(query, column, "=", "%" PRId64, value);
-	return *this;
-}
-template <>
-inline Where &Where::operator()<double>(const char *column, double value) {
-	sq_query_where(query, column, "=", "%f", value);
-	return *this;
-}
-template <>
-inline Where &Where::operator()<const char*>(const char *column, const char *value) {
-	sq_query_where(query, column, "=", "%s", value);
-	return *this;
-}
-template <typename Lambda>
-inline Where &Where::operator()(const char *column, const char *op, Lambda func) {
-	sq_query_where_sub(query, column, op);     // start of subquery/brackets
-	func(*query);                              // std::function< void(SqQuery &query) >
-	sq_query_end_sub(query);                   // end of subquery/brackets
-	return *this;
-}
-template <>
-inline Where &Where::operator()<int>(const char *column, const char *op, int value) {
-	sq_query_where(query, column, op, "%d", value);
-	return *this;
-}
-template <>
-inline Where &Where::operator()<int64_t>(const char *column, const char *op, int64_t value) {
-	sq_query_where(query, column, op, "%" PRId64, value);
-	return *this;
-}
-template <>
-inline Where &Where::operator()<double>(const char *column, const char *op, double value) {
-	sq_query_where(query, column, op, "%f", value);
-	return *this;
-}
-
 
 class WhereNot : public Sq::QueryProxy
 {
@@ -1006,12 +976,48 @@ public:
 		func(*query);
 		sq_query_end_sub(query);            // end of subquery/brackets
 	}
-	//// declare below 2 method for template specialization
-	template <typename T>
-	WhereNot(const char *column, T func_or_value);
-	template <typename T>
-	WhereNot(const char *column, const char *op, T func_or_value);
-	//// This method must match overloaded function. It can NOT use template specialization.
+	template <typename Lambda>
+	WhereNot(const char *column, Lambda func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
+		func(*query);                                  // std::function< void (SqQuery &query) >
+		sq_query_end_sub(query);                       // end of subquery/brackets
+	}
+	WhereNot(const char *column, int value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, column, "=", "%d", value);
+	}
+	WhereNot(const char *column, int64_t value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, column, "=", "%" PRId64, value);
+	}
+	WhereNot(const char *column, double value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, column, "=", "%f", value);
+	}
+	WhereNot(const char *column, const char *value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, column, "=", "%s", value);
+	}
+	template <typename Lambda>
+	WhereNot(const char *column, const char *op, Lambda func) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
+		func(*query);                                  // std::function< void (SqQuery &query) >
+		sq_query_end_sub(query);                       // end of subquery/brackets
+	}
+	WhereNot(const char *column, const char *op, int value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, column, op, "%d", value);
+	}
+	WhereNot(const char *column, const char *op, int64_t value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, column, op, "%" PRId64, value);
+	}
+	WhereNot(const char *column, const char *op, double value) {
+		query = (Sq::Query*)sq_query_new(NULL);
+		sq_query_where_not(query, column, op, "%f", value);
+	}
 	WhereNot(const char *column, const char *op_or_format, const char *value) {
 		// 3 arguments special case: "column", "%s", "valueStr"   or   "column", ">", "valueStr"
 		query = (Sq::Query*)sq_query_new(NULL);
@@ -1048,12 +1054,48 @@ public:
 		sq_query_end_sub(query);            // end of subquery/brackets
 		return *this;
 	}
-	//// declare below 2 method for template specialization
-	template <typename T>
-	WhereNot &operator()(const char *column, T func_or_value);
-	template <typename T>
-	WhereNot &operator()(const char *column, const char *op, T func_or_value);
-	//// This method must match overloaded function. It can NOT use template specialization.
+	template <typename Lambda>
+	WhereNot &operator()(const char *column, Lambda func) {
+		sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
+		func(*query);                                  // std::function< void (SqQuery &query) >
+		sq_query_end_sub(query);                       // end of subquery/brackets
+		return *this;
+	}
+	WhereNot &operator()(const char *column, int value) {
+		sq_query_where_not(query, column, "=", "%d", value);
+		return *this;
+	}
+	WhereNot &operator()(const char *column, int64_t value) {
+		sq_query_where_not(query, column, "=", "%" PRId64, value);
+		return *this;
+	}
+	WhereNot &operator()(const char *column, double value) {
+		sq_query_where_not(query, column, "=", "%f", value);
+		return *this;
+	}
+	WhereNot &operator()(const char *column, const char *value) {
+		sq_query_where_not(query, column, "=", "%s", value);
+		return *this;
+	}
+	template <typename Lambda>
+	WhereNot &operator()(const char *column, const char *op, Lambda func) {
+		sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
+		func(*query);                                  // std::function< void (SqQuery &query) >
+		sq_query_end_sub(query);                       // end of subquery/brackets
+		return *this;
+	}
+	WhereNot &operator()(const char *column, const char *op, int value) {
+		sq_query_where_not(query, column, op, "%d", value);
+		return *this;
+	}
+	WhereNot &operator()(const char *column, const char *op, int64_t value) {
+		sq_query_where_not(query, column, op, "%" PRId64, value);
+		return *this;
+	}
+	WhereNot &operator()(const char *column, const char *op, double value) {
+		sq_query_where_not(query, column, op, "%f", value);
+		return *this;
+	}
 	WhereNot &operator()(const char *column, const char *op_or_format, const char *value) {
 		// 3 arguments special case: "column", "%s", "valueStr"   or   "column", ">", "valueStr"
 		sq_query_where_not(query, column, op_or_format, value);
@@ -1069,109 +1111,6 @@ public:
 		return *this;
 	}
 };
-
-// Sq::WhereNot constructor
-template <typename Lambda>
-inline WhereNot::WhereNot(const char *column, Lambda func) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
-	func(*query);                                  // std::function< void(SqQuery &query) >
-	sq_query_end_sub(query);                       // end of subquery/brackets
-}
-template <>
-inline WhereNot::WhereNot<int>(const char *column, int value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_not(query, column, "=", "%d", value);
-}
-template <>
-inline WhereNot::WhereNot<int64_t>(const char *column, int64_t value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_not(query, column, "=", "%" PRId64, value);
-}
-template <>
-inline WhereNot::WhereNot<double>(const char *column, double value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_not(query, column, "=", "%f", value);
-}
-template <>
-inline WhereNot::WhereNot<const char*>(const char *column, const char *value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_not(query, column, "=", "%s", value);
-}
-template <typename Lambda>
-inline WhereNot::WhereNot(const char *column, const char *op, Lambda func) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
-	func(*query);                                  // std::function< void(SqQuery &query) >
-	sq_query_end_sub(query);                       // end of subquery/brackets
-}
-template <>
-inline WhereNot::WhereNot<int>(const char *column, const char *op, int value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_not(query, column, op, "%d", value);
-}
-template <>
-inline WhereNot::WhereNot<int64_t>(const char *column, const char *op, int64_t value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_not(query, column, op, "%" PRId64, value);
-}
-template <>
-inline WhereNot::WhereNot<double>(const char *column, const char *op, double value) {
-	query = (Sq::Query*)sq_query_new(NULL);
-	sq_query_where_not(query, column, op, "%f", value);
-}
-
-// Sq::WhereNot operator
-template <typename Lambda>
-inline WhereNot &WhereNot::operator()(const char *column, Lambda func) {
-	sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
-	func(*query);                                  // std::function< void(SqQuery &query) >
-	sq_query_end_sub(query);                       // end of subquery/brackets
-	return *this;
-}
-template <>
-inline WhereNot &WhereNot::operator()<int>(const char *column, int value) {
-	sq_query_where_not(query, column, "=", "%d", value);
-	return *this;
-}
-template <>
-inline WhereNot &WhereNot::operator()<int64_t>(const char *column, int64_t value) {
-	sq_query_where_not(query, column, "=", "%" PRId64, value);
-	return *this;
-}
-template <>
-inline WhereNot &WhereNot::operator()<double>(const char *column, double value) {
-	sq_query_where_not(query, column, "=", "%f", value);
-	return *this;
-}
-template <>
-inline WhereNot &WhereNot::operator()<const char*>(const char *column, const char *value) {
-	sq_query_where_not(query, column, "=", "%s", value);
-	return *this;
-}
-template <typename Lambda>
-inline WhereNot &WhereNot::operator()(const char *column, const char *op, Lambda func) {
-	sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
-	func(*query);                                  // std::function< void(SqQuery &query) >
-	sq_query_end_sub(query);                       // end of subquery/brackets
-	return *this;
-}
-template <>
-inline WhereNot &WhereNot::operator()<int>(const char *column, const char *op, int value) {
-	sq_query_where_not(query, column, op, "%d", value);
-	return *this;
-}
-template <>
-inline WhereNot &WhereNot::operator()<int64_t>(const char *column, const char *op, int64_t value) {
-	sq_query_where_not(query, column, op, "%" PRId64, value);
-	return *this;
-}
-template <>
-inline WhereNot &WhereNot::operator()<double>(const char *column, const char *op, double value) {
-	sq_query_where_not(query, column, op, "%f", value);
-	return *this;
-}
-
 
 class WhereRaw : public Sq::QueryProxy
 {

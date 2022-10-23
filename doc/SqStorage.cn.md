@@ -233,7 +233,7 @@ SqQuery 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句
 ```c++
 	Sq::Query *query = new Sq::Query();
 	query->whereRaw("id > 10")
-	     ->where("id", "<", "%d", 99);
+	     ->where("id", "<", 99);
 
 	array = storage->getAll("users", query->c());
 ```
@@ -244,7 +244,7 @@ SqQuery 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句
 
 ```c++
 	array = storage->getAll("users",
-			Sq::whereRaw("id > 10").where("id", "<", "%d", 99));
+			Sq::whereRaw("id > 10").where("id", "<", 99));
 ```
 
 ## insert

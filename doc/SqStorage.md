@@ -233,7 +233,7 @@ use C++ language
 ```c++
 	Sq::Query *query = new Sq::Query();
 	query->whereRaw("id > 10")
-	     ->where("id", "<", "%d", 99);
+	     ->where("id", "<", 99);
 
 	array = storage->getAll("users", query->c());
 ```
@@ -244,7 +244,7 @@ use C++ Sq::where and Sq::whereRaw to generate SQL statement
 
 ```c++
 	array = storage->getAll("users",
-			Sq::whereRaw("id > 10").where("id", "<", "%d", 99));
+			Sq::whereRaw("id > 10").where("id", "<", 99));
 ```
 
 ## insert
