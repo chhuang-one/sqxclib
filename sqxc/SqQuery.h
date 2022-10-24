@@ -1397,34 +1397,40 @@ class WhereIn : public Sq::QueryProxy
 public:
 	// constructor
 	template <typename... Args>
-	WhereIn(const char *columnName, int first_value, const Args... args) {
+	WhereIn(const char *columnName, int firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "%d", firstValue, args...);
 	}
 	template <typename... Args>
-	WhereIn(const char *columnName, int64_t first_value, const Args... args) {
+	WhereIn(const char *columnName, int64_t firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "%" PRId64, firstValue, args...);
 	}
 	template <typename... Args>
-	WhereIn(const char *columnName, double first_value, const Args... args) {
+	WhereIn(const char *columnName, double firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "%f", firstValue, args...);
 	}
 	template <typename... Args>
-	WhereIn(const char *columnName, const char first_value, const Args... args) {
+	WhereIn(const char *columnName, const char firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "'%c'", firstValue, args...);
 	}
 	template <typename... Args>
-	WhereIn(const char *columnName, const char *first_value, const Args... args) {
+	WhereIn(const char *columnName, const char *firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "'%s'", firstValue, args...);
 	}
 	template <typename... Args>
 	WhereIn(const char *columnName, int n_args, const char *format, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          (n_args) ? n_args : sizeof...(args), format, args...);
 	}
 	WhereIn() {
 		query = (Sq::Query*)sq_query_new(NULL);
@@ -1437,33 +1443,39 @@ public:
 
 	// operator
 	template <typename... Args>
-	WhereIn &operator()(const char *columnName, int first_value, const Args... args) {
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
+	WhereIn &operator()(const char *columnName, int firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "%d", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
-	WhereIn &operator()(const char *columnName, int64_t first_value, const Args... args) {
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+	WhereIn &operator()(const char *columnName, int64_t firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "%" PRId64, firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
-	WhereIn &operator()(const char *columnName, double first_value, const Args... args) {
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
+	WhereIn &operator()(const char *columnName, double firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "%f", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
-	WhereIn &operator()(const char *columnName, const char first_value, const Args... args) {
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+	WhereIn &operator()(const char *columnName, const char firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "'%c'", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
-	WhereIn &operator()(const char *columnName, const char *first_value, const Args... args) {
-		sq_query_where_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
+	WhereIn &operator()(const char *columnName, const char *firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          sizeof...(args)+1, "'%s'", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
 	WhereIn &operator()(const char *columnName, int n_args, const char *format, const Args... args) {
-		sq_query_where_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND,
+		                          (n_args) ? n_args : sizeof...(args), format, args...);
 		return *this;
 	}
 };
@@ -1473,34 +1485,40 @@ class WhereNotIn : public Sq::QueryProxy
 public:
 	// constructor
 	template <typename... Args>
-	WhereNotIn(const char *columnName, int first_value, const Args... args) {
+	WhereNotIn(const char *columnName, int firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "%d", firstValue, args...);
 	}
 	template <typename... Args>
-	WhereNotIn(const char *columnName, int64_t first_value, const Args... args) {
+	WhereNotIn(const char *columnName, int64_t firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "%" PRId64, firstValue, args...);
 	}
 	template <typename... Args>
-	WhereNotIn(const char *columnName, double first_value, const Args... args) {
+	WhereNotIn(const char *columnName, double firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "%f", firstValue, args...);
 	}
 	template <typename... Args>
-	WhereNotIn(const char *columnName, const char first_value, const Args... args) {
+	WhereNotIn(const char *columnName, const char firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "'%c'", firstValue, args...);
 	}
 	template <typename... Args>
-	WhereNotIn(const char *columnName, const char *first_value, const Args... args) {
+	WhereNotIn(const char *columnName, const char *firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "'%s'", firstValue, args...);
 	}
 	template <typename... Args>
 	WhereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          (n_args) ? n_args : sizeof...(args), format, args...);
 	}
 	WhereNotIn() {
 		query = (Sq::Query*)sq_query_new(NULL);
@@ -1513,33 +1531,39 @@ public:
 
 	// operator
 	template <typename... Args>
-	WhereNotIn &operator()(const char *columnName, int first_value, const Args... args) {
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%d", first_value, args...);
+	WhereNotIn &operator()(const char *columnName, int firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "%d", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
-	WhereNotIn &operator()(const char *columnName, int64_t first_value, const Args... args) {
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%" PRId64, first_value, args...);
+	WhereNotIn &operator()(const char *columnName, int64_t firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "%" PRId64, firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
-	WhereNotIn &operator()(const char *columnName, double first_value, const Args... args) {
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "%f", first_value, args...);
+	WhereNotIn &operator()(const char *columnName, double firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "%f", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
-	WhereNotIn &operator()(const char *columnName, const char first_value, const Args... args) {
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "'%c'", first_value, args...);
+	WhereNotIn &operator()(const char *columnName, const char firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "'%c'", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
-	WhereNotIn &operator()(const char *columnName, const char *first_value, const Args... args) {
-		sq_query_where_not_in(query, columnName, sizeof...(args)+1, "'%s'", first_value, args...);
+	WhereNotIn &operator()(const char *columnName, const char *firstValue, const Args... args) {
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          sizeof...(args)+1, "'%s'", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
 	WhereNotIn &operator()(const char *columnName, int n_args, const char *format, const Args... args) {
-		sq_query_where_not_in(query, columnName, (n_args) ? n_args : sizeof...(args), format, args...);
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		                          (n_args) ? n_args : sizeof...(args), format, args...);
 		return *this;
 	}
 };
