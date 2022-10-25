@@ -25,6 +25,7 @@ void test_query_c(SqQuery *query)
 	char       *sql;
 	const char *result;
 
+	// --- test 1 ---
 	result = "SELECT DISTINCT id, age "
 	         "FROM companies AS a "
 	         "JOIN city "
@@ -35,7 +36,7 @@ void test_query_c(SqQuery *query)
 	         "ORDER BY companies.id ASC";
 
 	// "SELECT DISTINCT id, age"
-	sq_query_select(query, "id", "age", NULL);
+	sq_query_select(query, "id", "age");
 	sq_query_distinct(query);
 
 	// "FROM companies AS a"
@@ -52,11 +53,28 @@ void test_query_c(SqQuery *query)
 	sq_query_on(query, "city.age", ">", "%d", 10);
 
 	// "GROUP BY companies.age"
-	sq_query_group_by(query, "companies.age", NULL);    // the last argument must be NULL
+	sq_query_group_by(query, "companies.age");
 
 	// "ORDER BY companies.id ASC"
-	sq_query_order_by(query, "companies.id", NULL);
+	sq_query_order_by(query, "companies.id");
 	sq_query_asc(query);
+
+	sql = sq_query_to_sql(query);
+	sq_query_clear(query);
+
+	puts(sql);
+	assert(strcmp(sql, result) == 0);
+	free(sql);
+
+	// --- test 2 ---
+	result = "WHERE column = 'Has%sign' "
+	             "OR name = 'StrHas%sign' "
+	             "OR city_id > 10";
+
+	// special case: 3rd or 4th argument is raw string
+	sq_query_where(query,    "column",          "'Has%sign'");
+	sq_query_or_where(query, "name",    "'%s'", "StrHas%sign");
+	sq_query_or_where(query, "city_id", ">",    "10");
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -271,7 +289,7 @@ void test_query_c_subquery(SqQuery *query)
 	result = "WHERE price < ( SELECT amount FROM incomes )";
 
 	sq_query_where_sub(query, "price", "<");    // start of subquery
-		sq_query_select(query, "amount", NULL);
+		sq_query_select(query, "amount");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // end of subquery
 
@@ -336,11 +354,11 @@ void test_query_c_union(SqQuery *query)
 	         "UNION "
 	         "SELECT name FROM product2";
 
-	sq_query_select(query, "name", NULL);
+	sq_query_select(query, "name");
 	sq_query_from(query, "product1");
 
 	sq_query_union(query);                   // start of query
-		sq_query_select(query, "name", NULL);
+		sq_query_select(query, "name");
 		sq_query_from(query, "product2");
 	sq_query_end_sub(query);                 // end of query
 
@@ -379,7 +397,7 @@ void test_query_c_no_select_from(SqQuery *query)
 
 	sq_query_where_raw(query, "id > 10");
 	sq_query_where(query, "id", "<", "%d", 99);
-	sq_query_group_by(query, "age", NULL);    // the last argument must be NULL
+	sq_query_group_by(query, "age");
 	sq_query_having_raw(query, "city_id > 3");
 	sq_query_or_having(query, "city_id", "<", "%d", 9);
 	sql = sq_query_to_sql(query);

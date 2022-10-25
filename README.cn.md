@@ -417,7 +417,7 @@ SQL 语句
 * sq_query_end_sub()  是子查询的结尾。
 
 ```c
-	sq_query_select(query, "id", "age", NULL);
+	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
 	sq_query_join_sub(query);
 		sq_query_from(query, "city");

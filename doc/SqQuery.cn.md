@@ -94,6 +94,7 @@ use C++ language
 有很多函数可以指定 SQL 条件，它们也支持 printf 格式字符串。请在传递条件值之前传递 printf 格式字符串。如果要在 printf 格式字符串中使用 SQL 通配符“%”，则必须使用“%%”打印“%”。  
   
 以下 C 函数在第 2 个参数中支持 printf 格式字符串：
+
 	sq_query_raw(),
 	sq_query_printf(),
 	sq_query_on_raw(),        sq_query_or_on_raw(),
@@ -105,18 +106,21 @@ use C++ language
 	如果第三个参数不存在，则将第二个参数作为原始字符串处理。
 
 以下 C 函数在第 4 个参数中支持 printf 格式字符串：
+
 	sq_query_on(),            sq_query_or_on(),
 	sq_query_where(),         sq_query_or_where(),
 	sq_query_where_not(),     sq_query_or_where_not(),
 	sq_query_having(),        sq_query_or_having(),
 
 以下 C 函数在第 5 个参数中支持 printf 格式字符串：
+
 	sq_query_join(),
 	sq_query_left_join(),
 	sq_query_right_join(),
 	sq_query_full_join(),
 
 其他支持 printf 格式字符串的 C 函数：
+
 	sq_query_where_between() 系列
 	sq_query_where_in() 系列
 
@@ -135,6 +139,7 @@ C 语言示例：
 ```
 
 以下 C++ 方法在第 1 个参数中支持 printf 格式字符串：
+
 	raw(),
 	printf(),
 	onRaw(),       orOnRaw(),
@@ -143,18 +148,21 @@ C 语言示例：
 	havingRaw(),   orHavingRaw(),
 
 以下 C++ 方法在第 3 个参数中支持 printf 格式字符串：
+
 	on(),          orOn(),
 	where(),       orWhere(),
 	whereNot(),    orWhereNot(),
 	having(),      orHaving(),
 
 以下 C++ 方法在第 4 个参数中支持 printf 格式字符串：
+
 	join(),
 	leftJoin(),
 	rightJoin(),
 	fullJoin(),
 
 其他支持 printf 格式字符串的 C++ 方法：
+
 	whereBetween() 系列
 	whereIn() 系列
 
@@ -204,21 +212,18 @@ C++ 语言示例：
 #### select
 
 您可以使用 select 方法为查询指定列。  
-sq_query_select() 可以在参数中指定多个列（最后一个参数必须为 NULL）。  
+sq_query_select() 可以在参数中指定多个列。  
   
 使用 C 语言
 
 ```c
-	//sq_query_select() 的最后一个参数必须为 NULL
-	sq_query_select(query, "id", "name", NULL);
-	sq_query_select(query, "email", NULL);
+	sq_query_select(query, "id", "name");
+	sq_query_select(query, "email");
 
 	// sq_query_distinct() 允许您强制查询返回不同的结果
 	sq_query_distinct(query);
 ```
 
-因为 C++ 方法 select() 使用参数包，所以最后一个参数可以传递（或不传递）NULL。  
-  
 使用 C++ 语言
 
 ```c++
@@ -412,7 +417,7 @@ having() 系列的用法与 where() 类似。
 
 ```c
 	sq_query_table(query, "companies");
-	sq_query_group_by(query, "city_id", NULL);    // 最后一个参数必须为 NULL
+	sq_query_group_by(query, "city_id");
 	sq_query_having(query, "age", ">", "%d", 10);
 	sq_query_or_having_raw(query, "members < %d", 50);
 ```
@@ -428,22 +433,19 @@ having() 系列的用法与 where() 类似。
 
 #### groupBy / orderBy
 
-sq_query_order_by() 和 sq_query_group_by() 可以在参数中指定多个列（最后一个参数必须为 NULL）。  
+sq_query_order_by() 和 sq_query_group_by() 可以在参数中指定多个列。  
   
 使用 C 语言
 
 ```c
 	// "GROUP BY companies.age, companies.name"
-	// sq_query_group_by() 的最后一个参数必须为 NULL
-	sq_query_group_by(query, "companies.age", "companies.name", NULL);
+	sq_query_group_by(query, "companies.age", "companies.name");
 
 	// "ORDER BY companies.id DESC"
-	// sq_query_order_by() 的最后一个参数必须为 NULL
-	sq_query_order_by(query, "companies.id", NULL);
+	sq_query_order_by(query, "companies.id");
 	sq_query_desc(query);
 ```
 
-因为 C++ 方法 orderBy() 和 groupBy() 使用参数包，所以最后一个参数可以传递（或不传递）NULL。  
 * orderBy() 的用法与 Laravel 不同。  
   
 使用 C++ 语言
@@ -684,7 +686,7 @@ C 函数 sq_query_having_raw() 系列使用宏来计算参数的数量。
 
 ```c
 	sq_query_table(query, "orders");
-	sq_query_group_by(query, "city_id", NULL);    // 最后一个参数必须为 NULL
+	sq_query_group_by(query, "city_id");
 	sq_query_having_raw(query, "SUM(price) > 3000");
 ```
 
@@ -888,11 +890,11 @@ SELECT name1 FROM product1 UNION SELECT name2 FROM product2
 使用 C 语言
 
 ```c
-	sq_query_select(query, "name1", NULL);
+	sq_query_select(query, "name1");
 	sq_query_from(query, "product1");
 
 	sq_query_union(query);                   // start of query
-		sq_query_select(query, "name2", NULL);
+		sq_query_select(query, "name2");
 		sq_query_from(query, "product2");
 	sq_query_end_sub(query);                 // end of query
 ```
@@ -990,7 +992,7 @@ WHERE age > 5
 使用 C 语言生成子查询：
 
 ```c
-	sq_query_select(query, "id", "age", NULL);
+	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
 	sq_query_join_sub(query);                   // 子查询的开始
 		sq_query_from(query, "city");
@@ -1029,7 +1031,7 @@ WHERE price < (SELECT amount FROM incomes)
 	sq_query_from(query, "products");
 	// WHERE price < ( SELECT amount FROM incomes )
 	sq_query_where_sub(query, "price", "<");    // 子查询的开始
-		sq_query_select(query, "amount", NULL);
+		sq_query_select(query, "amount");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // 子查询的结束
 ```

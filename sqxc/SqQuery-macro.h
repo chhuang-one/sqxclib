@@ -324,7 +324,7 @@
 // --------------------------------------------------------
 
 #define SQQ_GROUP_BY(...)  \
-		sq_query_group_by(query_cur_, __VA_ARGS__, NULL)
+		sq_query_group_by_list(query_cur_, __VA_ARGS__, NULL)
 #define SQQ_GROUP_BY_RAW(raw)    \
 		sq_query_group_by_raw(query_cur_, raw)
 
@@ -353,7 +353,7 @@
 // --------------------------------------------------------
 
 #define SQQ_SELECT(...)   \
-		sq_query_select(query_cur_, __VA_ARGS__, NULL)
+		sq_query_select_list(query_cur_, ##__VA_ARGS__, NULL)
 #define SQQ_SELECT_RAW(raw)    \
 		sq_query_select_raw(query_cur_, raw)
 
@@ -363,7 +363,7 @@
 // --------------------------------------------------------
 
 #define SQQ_ORDER_BY(...)   \
-		sq_query_order_by(query_cur_, __VA_ARGS__, NULL)
+		sq_query_order_by_list(query_cur_, __VA_ARGS__, NULL)
 #define SQQ_ORDER_BY_RAW(raw)    \
 		sq_query_order_by_raw(query_cur_, raw)
 

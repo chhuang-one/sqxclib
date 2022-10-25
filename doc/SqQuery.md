@@ -94,6 +94,7 @@ use C++ language
 There are many functions can specify SQL condition and them also support printf format string. Please pass printf format string before passing value of condition. If you want to use SQL Wildcard Characters '%' in printf format string, you must print "%" using "%%".  
 
 below C functions support printf format string in 2nd argument:
+
 	sq_query_raw(),
 	sq_query_printf(),
 	sq_query_on_raw(),        sq_query_or_on_raw(),
@@ -105,18 +106,21 @@ below C functions support printf format string in 2nd argument:
 	If the 3rd argument is NOT exist, the 2st argument is handled as raw string.
 
 below C functions support printf format string in 4th argument:
+
 	sq_query_on(),            sq_query_or_on(),
 	sq_query_where(),         sq_query_or_where(),
 	sq_query_where_not(),     sq_query_or_where_not(),
 	sq_query_having(),        sq_query_or_having(),
 
 below C functions support printf format string in 5th argument:
+
 	sq_query_join(),
 	sq_query_left_join(),
 	sq_query_right_join(),
 	sq_query_full_join(),
 
 other C functions that support printf format string:
+
 	sq_query_where_between() series
 	sq_query_where_in() series
 
@@ -135,6 +139,7 @@ C language example:
 ```
 
 below C++ methods support printf format string in 1st argument:
+
 	raw(),
 	printf(),
 	onRaw(),       orOnRaw(),
@@ -143,18 +148,21 @@ below C++ methods support printf format string in 1st argument:
 	havingRaw(),   orHavingRaw(),
 
 below C++ methods support printf format string in 3rd argument:
+
 	on(),          orOn(),
 	where(),       orWhere(),
 	whereNot(),    orWhereNot(),
 	having(),      orHaving(),
 
 below C++ methods support printf format string in 4th argument:
+
 	join(),
 	leftJoin(),
 	rightJoin(),
 	fullJoin(),
 
 other C++ methods that support printf format string:
+
 	whereBetween() series
 	whereIn() series
 
@@ -204,21 +212,18 @@ C++ language example:
 #### select
 
 You can specify columns for the query by using select method.  
-sq_query_select() can specify multiple columns in argument (the last argument must be NULL).  
+sq_query_select() can specify multiple columns in argument.  
   
 use C language
 
 ```c
-	// the last argument of sq_query_select() must be NULL
-	sq_query_select(query, "id", "name", NULL);
-	sq_query_select(query, "email", NULL);
+	sq_query_select(query, "id", "name");
+	sq_query_select(query, "email");
 
 	// The sq_query_distinct() allows you to force the query to return distinct results
 	sq_query_distinct(query);
 ```
 
-Because C++ method select() use parameter pack, the last argument can pass (or not) NULL.  
-  
 use C++ language
 
 ```c++
@@ -412,7 +417,7 @@ use C language
 
 ```c
 	sq_query_table(query, "companies");
-	sq_query_group_by(query, "city_id", NULL);    // the last argument must be NULL
+	sq_query_group_by(query, "city_id");
 	sq_query_having(query, "age", ">", "%d", 10);
 	sq_query_or_having_raw(query, "members < %d", 50);
 ```
@@ -428,22 +433,19 @@ use C++ language
 
 #### groupBy / orderBy
 
-sq_query_order_by() and sq_query_group_by() can specify multiple columns in argument (the last argument must be NULL).  
+sq_query_order_by() and sq_query_group_by() can specify multiple columns in argument.  
   
 use C language
 
 ```c
 	// "GROUP BY companies.age, companies.name"
-	// the last argument of sq_query_group_by() must be NULL
-	sq_query_group_by(query, "companies.age", "companies.name", NULL);
+	sq_query_group_by(query, "companies.age", "companies.name");
 
 	// "ORDER BY companies.id DESC"
-	// the last argument of sq_query_order_by() must be NULL
-	sq_query_order_by(query, "companies.id", NULL);
+	sq_query_order_by(query, "companies.id");
 	sq_query_desc(query);
 ```
 
-Because C++ method orderBy() and groupBy() use parameter pack, the last argument can pass (or not) NULL.  
 * The usage of orderBy() is different from Laravel.  
   
 use C++ language
@@ -684,7 +686,7 @@ If the 3rd argument is NOT exist, the 2st argument is handled as raw string.
 
 ```c
 	sq_query_table(query, "orders");
-	sq_query_group_by(query, "city_id", NULL);    // the last argument must be NULL
+	sq_query_group_by(query, "city_id");
 	sq_query_having_raw(query, "SUM(price) > 3000");
 ```
 
@@ -888,11 +890,11 @@ User must add other query after calling sq_query_union() or sq_query_union_all()
 use C language
 
 ```c
-	sq_query_select(query, "name1", NULL);
+	sq_query_select(query, "name1");
 	sq_query_from(query, "product1");
 
 	sq_query_union(query);                   // start of query
-		sq_query_select(query, "name2", NULL);
+		sq_query_select(query, "name2");
 		sq_query_from(query, "product2");
 	sq_query_end_sub(query);                 // end of query
 ```
@@ -990,7 +992,7 @@ WHERE age > 5
 use C language to generate subquery:
 
 ```c
-	sq_query_select(query, "id", "age", NULL);
+	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
 	sq_query_join_sub(query);                   // start of subquery
 		sq_query_from(query, "city");
@@ -1029,7 +1031,7 @@ use C language to generate subquery in condition:
 	sq_query_from(query, "products");
 	// WHERE price < ( SELECT amount FROM incomes )
 	sq_query_where_sub(query, "price", "<");    // start of subquery
-		sq_query_select(query, "amount", NULL);
+		sq_query_select(query, "amount");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // end of subquery
 ```

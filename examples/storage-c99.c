@@ -342,7 +342,7 @@ void  storage_query_join(SqStorage *storage)
 	User       *user;
 
 	query = sq_query_new(NULL);
-//	sq_query_select(query, "cities.id AS 'cities.id'", "users.id AS 'users.id'", NULL);
+//	sq_query_select(query, "cities.id AS 'cities.id'", "users.id AS 'users.id'");
 	sq_query_from(query, "cities");
 	if (storage->db->version < 5)
 		sq_query_join(query, "users", "cities.id", "=", "%s", "users.city_id");

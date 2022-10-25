@@ -1566,7 +1566,7 @@ inline SQPT_RETURN  &SQPT_NAME::orWhereNotNull(const char *columnName) {
 // groupBy(column...)
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::groupBy(const char *columnName, const Args... args) {
-	sq_query_group_by((SqQuery*)SQPT_DATAPTR, columnName, args..., NULL);
+	sq_query_group_by_list((SqQuery*)SQPT_DATAPTR, columnName, args..., NULL);
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::groupBy(const char *raw) {
@@ -1744,7 +1744,7 @@ inline SQPT_RETURN  &SQPT_NAME::orHavingRaw(const char *format, const Args... ar
 
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::select(const char *columnName, const Args... args) {
-	sq_query_select((SqQuery*)SQPT_DATAPTR, columnName, args..., NULL);
+	sq_query_select_list((SqQuery*)SQPT_DATAPTR, columnName, args..., NULL);
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::select(const char *raw) {
@@ -1762,7 +1762,7 @@ inline SQPT_RETURN  &SQPT_NAME::distinct() {
 
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::orderBy(const char *columnName, const Args... args) {
-	sq_query_order_by((SqQuery*)SQPT_DATAPTR, columnName, args..., NULL);
+	sq_query_order_by_list((SqQuery*)SQPT_DATAPTR, columnName, args..., NULL);
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orderBy(const char *raw) {
@@ -1774,7 +1774,7 @@ inline SQPT_RETURN  &SQPT_NAME::orderByRaw(const char *raw) {
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orderByDesc(const char *columnName) {
-	sq_query_order_by((SqQuery*)SQPT_DATAPTR, columnName, NULL);
+	sq_query_order_by_list((SqQuery*)SQPT_DATAPTR, columnName, NULL);
 	sq_query_desc((SqQuery*)SQPT_DATAPTR);
 	return *(SQPT_RETURN*)this;
 }

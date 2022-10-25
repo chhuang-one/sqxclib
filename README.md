@@ -419,7 +419,7 @@ use C functions to produce query
 * sq_query_end_sub()  is end of subquery.
 
 ```c
-	sq_query_select(query, "id", "age", NULL);
+	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
 	sq_query_join_sub(query);
 		sq_query_from(query, "city");

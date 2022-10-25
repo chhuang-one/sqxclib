@@ -423,13 +423,17 @@ void    sq_query_where_null_logical(SqQuery *query, const char *column_name, uns
 		sq_query_where_null_logical(query, column_name, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT);
 
 // SQL: GROUP BY
-// the last argument of sq_query_group_by() must be NULL.
-// e.g. sq_query_group_by(query, column_name..., NULL)
-void    sq_query_group_by(SqQuery *query, ...);
+// the last argument of sq_query_group_by_list() must be NULL.
+// e.g. sq_query_group_by_list(query, column_name..., NULL);
+void    sq_query_group_by_list(SqQuery *query, ...);
 
-// void sq_query_group_by_raw(SqQuery *query, const char *raw)
+// void sq_query_group_by(SqQuery *query, ...);
+#define sq_query_group_by(query, ...)        \
+		sq_query_group_by_list(query, __VA_ARGS__, NULL)
+
+// void sq_query_group_by_raw(SqQuery *query, const char *raw);
 #define sq_query_group_by_raw(query, raw)    \
-		sq_query_group_by(query, raw, NULL)
+		sq_query_group_by_list(query, raw, NULL)
 
 // SQL: HAVING
 void    sq_query_having_logical(SqQuery *query, unsigned int logi_args, ...);
@@ -457,23 +461,31 @@ void    sq_query_having_logical(SqQuery *query, unsigned int logi_args, ...);
 
 // SQL: SELECT
 // the last argument of sq_query_select() must be NULL.
-// e.g. sq_query_select(query, column_name..., NULL)
-bool    sq_query_select(SqQuery *query, ...);
+// e.g. sq_query_select_list(query, column_name..., NULL);
+bool    sq_query_select_list(SqQuery *query, ...);
 bool    sq_query_distinct(SqQuery *query);
 
-// void sq_query_select_raw(SqQuery *query, const char *raw)
+// bool sq_query_select(SqQuery *query, ...);
+#define sq_query_select(query, ...)        \
+		sq_query_select_list(query, ##__VA_ARGS__, NULL)
+
+// void sq_query_select_raw(SqQuery *query, const char *raw);
 #define sq_query_select_raw(query, raw)    \
-		sq_query_select(query, raw, NULL)
+		sq_query_select_list(query, raw, NULL)
 
 // SQL: ORDER BY
 // the last argument of sq_query_order_by() must be NULL.
-// e.g. sq_query_order_by(query, column_name..., NULL)
-void    sq_query_order_by(SqQuery *query, ...);
-void    sq_query_order_sorted(SqQuery *query, int sort_type);
+// e.g. sq_query_order_by_list(query, column_name..., NULL);
+void    sq_query_order_by_list(SqQuery *query, ...);
+void    sq_query_order_sorted(SqQuery *query, unsigned int sort_type);
+
+// void sq_query_order_by(SqQuery *query, ...);
+#define sq_query_order_by(query, ...)        \
+		sq_query_order_by_list(query, __VA_ARGS__, NULL)
 
 // void sq_query_order_by_raw(SqQuery *query, const char *raw);
 #define sq_query_order_by_raw(query, raw)    \
-		sq_query_order_by(query, raw, NULL)
+		sq_query_order_by_list(query, raw, NULL)
 
 // void sq_query_asc(SqQuery *query);
 #define sq_query_asc(query)     \

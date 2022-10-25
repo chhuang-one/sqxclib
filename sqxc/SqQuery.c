@@ -274,7 +274,7 @@ void sq_query_as(SqQuery *query, const char *name)
 	query->nested_cur->aliasable = NULL;
 }
 
-bool sq_query_select(SqQuery *query, ...)
+bool sq_query_select_list(SqQuery *query, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -552,7 +552,7 @@ void sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...)
 	va_end(arg_list);
 }
 
-void sq_query_group_by(SqQuery *query, ...)
+void sq_query_group_by_list(SqQuery *query, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -588,7 +588,7 @@ void sq_query_having_logical(SqQuery *query, unsigned int logi_args, ...)
 	va_end(arg_list);
 }
 
-void sq_query_order_by(SqQuery *query, ...)
+void sq_query_order_by_list(SqQuery *query, ...)
 {
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
@@ -608,7 +608,7 @@ void sq_query_order_by(SqQuery *query, ...)
 	nested->aliasable = NULL;
 }
 
-void sq_query_order_sorted(SqQuery *query, int sort_type)
+void sq_query_order_sorted(SqQuery *query, unsigned int sort_type)
 {
 	SqQueryNested *nested = query->nested_cur;
 	SqQueryNode   *orderby;
@@ -1089,7 +1089,7 @@ const char *sq_query_c(SqQuery *query)
 	temp.nested = query->nested_cur;
 	if (temp.nested->name) {
 		if (temp.nested->command == NULL)
-			sq_query_select(query, NULL);
+			sq_query_select_list(query, NULL);
 	}
 
 	if (query->str == NULL) {
@@ -1195,7 +1195,7 @@ void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_
 				quotes[0], table_as_name, quotes[1],
 				quotes[0], column->name,  quotes[1],
 				quotes[0], table_as_name, column->name, quotes[1]);
-		sq_query_select(query, buffer, NULL);
+		sq_query_select(query, buffer);
 	}
 	free(buffer);
 }
@@ -1244,7 +1244,7 @@ void  sq_query_pop_nested(SqQuery *query)
 			// subquery has command?
 			if (nested->name) {
 				if (nested->command == NULL)
-					sq_query_select(query, NULL);
+					sq_query_select_list(query, NULL);
 			}
 			else if (node->type >= SQN_WHERE)
 				node->type = SQN_NONE;
