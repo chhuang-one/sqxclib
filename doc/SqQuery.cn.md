@@ -180,10 +180,10 @@ C++ 语言示例：
 	query->whereRaw("city  LIKE '%s'", "ber%");
 ```
 
-C++ 方法 join()、on()、where() 和 have() 系列具有忽略 printf 格式字符串的重载函数：
+C++ 方法 join()、on()、where() 和 have() 系列具有省略 printf 格式字符串的重载函数：
 
 ```c++
-	// --- omit printf format string in 3rd argument ---
+	// --- 省略第 3 个参数中的 printf 格式字符串 ---
 	// WHERE id < 100
 	query->where("id", "<", 100);
 	// AND email LIKE 'guest%'
@@ -239,8 +239,8 @@ sq_query_select() 可以在参数中指定多个列。
 这些函数/方法用于过滤结果和应用条件。
 
 * 参数的顺序是列名、比较运算符、要比较的值。
-* 如果列名有 % 字符，则作为 printf 格式字符串处理。
 * 如果比较运算符的参数是 =，则可以省略。
+* 已弃用：如果列名有 % 字符，则作为 printf 格式字符串处理。(*** 这将不再支持。)
 
 例如: 生成下面的 SQL 语句。
 
@@ -811,13 +811,13 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_left_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
+	sq_query_left_join(query,  "posts", "users.id", "=", "%s", "posts.user_id");
 
 	sq_query_table(query, "users");
 	sq_query_right_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 
 	sq_query_table(query, "users");
-	sq_query_full_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
+	sq_query_full_join(query,  "posts", "users.id", "=", "%s", "posts.user_id");
 ```
 
 使用 C++ 语言
@@ -826,13 +826,13 @@ SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
 
 ```c++
 	query->table("users")
-	     ->leftJoin("posts", "users.id", "posts.user_id");
+	     ->leftJoin("posts",  "users.id", "posts.user_id");
 
 	query->table("users")
 	     ->rightJoin("posts", "users.id", "=", "posts.user_id");
 
 	query->table("users")
-	     ->fullJoin("posts", "users.id", "=", "%s", "posts.user_id");
+	     ->fullJoin("posts",  "users.id", "=", "%s", "posts.user_id");
 ```
 
 #### 交叉连接 Cross Join
@@ -931,8 +931,8 @@ SqQuery 可以产生子查询或括号。您也可以使用原始方法来执行
 	sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
 	sq_query_where_exists(),     sq_query_where_not_exists(),
 	sq_query_having_sub(),       sq_query_or_having_sub(),
-
-注意：您必须在子查询或括号的末尾调用 sq_query_end_sub()。  
+	---
+	注意：您必须在子查询或括号的末尾调用 sq_query_end_sub()。
   
 下面的 C++ 方法使用 lambda 函数来支持子查询或括号，用户不需要调用 sq_query_end_sub()  
 
@@ -972,8 +972,8 @@ SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 ```c++
 	query->table("users")
 	     ->where([query] {
-	         query->where("salary", ">", "%d", 45)
-	              ->where("age", "<", "%d", 21);
+	         query->where("salary", ">", 45)
+	              ->where("age", "<", 21);
 	     })
 	     ->orWhereRaw("id > %d", 100);
 ```
@@ -1000,7 +1000,7 @@ WHERE age > 5
 	sq_query_end_sub(query);                    // 子查询的结束
 	sq_query_as(query, "c");
 	sq_query_on_raw(query, "c.id = companies.city_id");
-	sq_query_where_raw(query, "age > 5");
+	sq_query_where_raw(query, "age > %d", 5);
 ```
 
 使用 C++ lambda 函数生成子查询：
@@ -1010,10 +1010,10 @@ WHERE age > 5
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")
-	              ->where("id", "<", "%d", 100);
+	              ->where("id", "<", 100);
 	     })
 	     ->as("c")->onRaw("c.id = companies.city_id")
-	     ->whereRaw("age > 5");
+	     ->whereRaw("age > %d", 5);
 ```
 
 例如: 下面是在条件中有子查询的 SQL 语句。

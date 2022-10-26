@@ -1434,37 +1434,37 @@ inline SQPT_RETURN  &SQPT_NAME::whereIn(const char *columnName, int n_args, cons
 // whereNotIn
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::whereNotIn(const char *columnName, int firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND_NOT,
 	                          sizeof...(args)+1, "%d", firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::whereNotIn(const char *columnName, int64_t firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND_NOT,
 	                          sizeof...(args)+1, "%" PRId64, firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::whereNotIn(const char *columnName, double firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND_NOT,
 	                          sizeof...(args)+1, "%f", firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::whereNotIn(const char *columnName, const char firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND_NOT,
 	                          sizeof...(args)+1, "'%c'", firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::whereNotIn(const char *columnName, const char *firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND_NOT,
 	                          sizeof...(args)+1, "'%s'", firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::whereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_AND_NOT,
 	                          (n_args) ? n_args : sizeof...(args), format, args...);
 	return *(SQPT_RETURN*)this;
 }
@@ -1510,37 +1510,37 @@ inline SQPT_RETURN  &SQPT_NAME::orWhereIn(const char *columnName, int n_args, co
 // orWhereNotIn
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::orWhereNotIn(const char *columnName, int firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR_NOT,
 	                          sizeof...(args)+1, "%d", firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::orWhereNotIn(const char *columnName, int64_t firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR_NOT,
 	                          sizeof...(args)+1, "%" PRId64, firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::orWhereNotIn(const char *columnName, double firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR_NOT,
 	                          sizeof...(args)+1, "%f", firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::orWhereNotIn(const char *columnName, const char firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR_NOT,
 	                          sizeof...(args)+1, "'%c'", firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::orWhereNotIn(const char *columnName, const char *firstValue, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR_NOT,
 	                          sizeof...(args)+1, "'%s'", firstValue, args...);
 	return *(SQPT_RETURN*)this;
 }
 template <typename... Args>
 inline SQPT_RETURN  &SQPT_NAME::orWhereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
-	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT,
+	sq_query_where_in_logical((SqQuery*)SQPT_DATAPTR, columnName, SQ_QUERYLOGI_OR_NOT,
 	                          (n_args) ? n_args : sizeof...(args), format, args...);
 	return *(SQPT_RETURN*)this;
 }

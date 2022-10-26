@@ -655,7 +655,7 @@ Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod 
 	SqType *typeContainer = NULL;
 
 	sq_storage_setup_query(storage, query, typeRow);
-	vector = sq_storage_query(storage, query, typeRow, typeContainer);
+	container = sq_storage_query(storage, query, typeRow, typeContainer);
 ```
 
 使用 C++ 方法

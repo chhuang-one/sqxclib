@@ -452,14 +452,14 @@ void test_query_c_limit(SqQuery *query)
 	char       *sql;
 	const char *result;
 
-	result = "SELECT * FROM users LIMIT 100 OFFSET 55";
+	result = "SELECT * FROM users LIMIT 110 OFFSET 55";
 
 	sq_query_table(query, "users");
 //	sq_query_limit(query, 10);
 	sq_query_offset(query, 5);
 
 	// overwrite LIMIT and OFFSET
-	sq_query_limit(query, 100);
+	sq_query_limit(query, 110);
 	sq_query_offset(query, 55);
 
 	sql = sq_query_to_sql(query);

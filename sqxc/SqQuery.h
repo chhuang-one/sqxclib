@@ -44,6 +44,8 @@ extern "C" {
 #define SQ_QUERYLOGI_OR       0
 #define SQ_QUERYLOGI_AND      1
 #define SQ_QUERYLOGI_NOT      2
+#define SQ_QUERYLOGI_OR_NOT   (SQ_QUERYLOGI_OR  | SQ_QUERYLOGI_NOT)
+#define SQ_QUERYLOGI_AND_NOT  (SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT)
 
 // join
 #define SQ_QUERYJOIN_INNER    0
@@ -68,8 +70,7 @@ extern "C" {
 #define SQ_QUERYARGS_N_SET(n)       ((n) << 8)
 #define SQ_QUERYARGS_N_GET(n)       ( ((n) & SQ_QUERYARGS_N_MASK) >> 8)
 
-/*
-	SQ_QUERYARGS_DECIDE(...)  return SQ_QUERYARGS_1, SQ_QUERYARGS_2...etc
+/*	SQ_QUERYARGS_DECIDE(...)  return SQ_QUERYARGS_1, SQ_QUERYARGS_2...etc
 
 	Warning: SQ_QUERYARGS_COUNT() can't return 0.
 
@@ -224,9 +225,9 @@ void    sq_query_append(SqQuery *query, unsigned int raw_args, ...);
 		sq_query_append(query, SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
 
 // append printf format string to SQL statement in current subquery/brackets
-// void sq_query_printf(SqQuery *query, format, ...);
-#define sq_query_printf(query, format, ...)    \
-		sq_query_append(query, SQ_QUERYARGS_2, format, ##__VA_ARGS__)
+// void sq_query_printf(SqQuery *query, const char *format, ...);
+#define sq_query_printf(query, ...)    \
+		sq_query_append(query, SQ_QUERYARGS_2, __VA_ARGS__)
 
 // SQL: FROM
 bool    sq_query_from(SqQuery *query, const char *table);
@@ -335,24 +336,24 @@ void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 
 // void sq_query_where_not(SqQuery *query, const char *column, const char *op_or_format, ...)
 #define sq_query_where_not(query, ...)            \
-		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
 // void sq_query_or_where_not(SqQuery *query, const char *column, const char *op_or_format, ...)
 #define sq_query_or_where_not(query, ...)         \
-		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYLOGI_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
+		sq_query_where_logical(query, SQ_QUERYLOGI_OR_NOT  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
 
 // void sq_query_where_not_raw(SqQuery *query, const char *raw_or_format, ...)
 #define sq_query_where_not_raw(query, ...)        \
-		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
 // void sq_query_or_where_not_raw(SqQuery *query, const char *raw_or_format, ...)
 #define sq_query_or_where_not_raw(query, ...)     \
-		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYLOGI_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
+		sq_query_where_logical(query, SQ_QUERYLOGI_OR_NOT  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
 
 // void sq_query_where_not_sub(SqQuery *query, ...)
 #define sq_query_where_not_sub(query, ...)        \
-		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+		sq_query_where_logical(query, SQ_QUERYLOGI_AND_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
 // void sq_query_or_where_not_sub(SqQuery *query, ...)
 #define sq_query_or_where_not_sub(query, ...)     \
-		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYLOGI_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+		sq_query_where_logical(query, SQ_QUERYLOGI_OR_NOT  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
 
 // SQL: WHERE EXISTS
 void    sq_query_where_exists_logical(SqQuery *query, unsigned int logi_args);
@@ -363,7 +364,7 @@ void    sq_query_where_exists_logical(SqQuery *query, unsigned int logi_args);
 
 // void sq_query_where_not_exists(SqQuery *query);
 #define sq_query_where_not_exists(query)      \
-		sq_query_where_exists_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT)
+		sq_query_where_exists_logical(query, SQ_QUERYLOGI_AND_NOT)
 
 // SQL: WHERE column BETWEEN
 void    sq_query_where_between_logical(SqQuery *query, const char *column_name, unsigned int logi_args, const char* format, ...);
@@ -374,7 +375,7 @@ void    sq_query_where_between_logical(SqQuery *query, const char *column_name, 
 
 // void sq_query_where_not_between(SqQuery *query, const char *column_name, const char *format, Value1, Value2);
 #define sq_query_where_not_between(query, column_name, format, ...)       \
-		sq_query_where_between_logical(query, column_name, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT, format, __VA_ARGS__)
+		sq_query_where_between_logical(query, column_name, SQ_QUERYLOGI_AND_NOT, format, __VA_ARGS__)
 
 // void sq_query_or_where_between(SqQuery *query, const char *column_name, const char *format, Value1, Value2);
 #define sq_query_or_where_between(query, column_name, format, ...)        \
@@ -382,7 +383,7 @@ void    sq_query_where_between_logical(SqQuery *query, const char *column_name, 
 
 // void sq_query_or_where_not_between(SqQuery *query, const char *column_name, const char *format, Value1, Value2);
 #define sq_query_or_where_not_between(query, column_name, format, ...)    \
-		sq_query_where_between_logical(query, column_name, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT, format, __VA_ARGS__)
+		sq_query_where_between_logical(query, column_name, SQ_QUERYLOGI_OR_NOT, format, __VA_ARGS__)
 
 // SQL: WHERE column IN
 void    sq_query_where_in_logical(SqQuery *query, const char *column_name, unsigned int logi_args, int n_args, const char* format, ...);
@@ -393,7 +394,7 @@ void    sq_query_where_in_logical(SqQuery *query, const char *column_name, unsig
 
 // void sq_query_where_not_in(SqQuery *query, const char *column_name, int n_args, const char *format, ...);
 #define sq_query_where_not_in(query, column_name, n_args, format, ...)       \
-		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT, (n_args) ? (n_args) : SQ_QUERYARGS_COUNT(__VA_ARGS__), format, __VA_ARGS__)
+		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_AND_NOT, (n_args) ? (n_args) : SQ_QUERYARGS_COUNT(__VA_ARGS__), format, __VA_ARGS__)
 
 // void sq_query_or_where_in(SqQuery *query, const char *column_name, int n_args, const char *format, ...);
 #define sq_query_or_where_in(query, column_name, n_args, format, ...)        \
@@ -401,7 +402,7 @@ void    sq_query_where_in_logical(SqQuery *query, const char *column_name, unsig
 
 // void sq_query_or_where_not_in(SqQuery *query, const char *column_name, int n_args, const char *format, ...);
 #define sq_query_or_where_not_in(query, column_name, n_args, format, ...)    \
-		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT, (n_args) ? (n_args) : SQ_QUERYARGS_COUNT(__VA_ARGS__), format, __VA_ARGS__)
+		sq_query_where_in_logical(query, column_name, SQ_QUERYLOGI_OR_NOT,  (n_args) ? (n_args) : SQ_QUERYARGS_COUNT(__VA_ARGS__), format, __VA_ARGS__)
 
 // SQL: WHERE column IS NULL
 void    sq_query_where_null_logical(SqQuery *query, const char *column_name, unsigned int logi_args);
@@ -412,7 +413,7 @@ void    sq_query_where_null_logical(SqQuery *query, const char *column_name, uns
 
 // void sq_query_where_not_null(SqQuery *query, const char *column_name);
 #define sq_query_where_not_null(query, column_name)       \
-		sq_query_where_null_logical(query, column_name, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT);
+		sq_query_where_null_logical(query, column_name, SQ_QUERYLOGI_AND_NOT);
 
 // void sq_query_or_where_null(SqQuery *query, const char *column_name);
 #define sq_query_or_where_null(query, column_name)        \
@@ -420,7 +421,7 @@ void    sq_query_where_null_logical(SqQuery *query, const char *column_name, uns
 
 // void sq_query_or_where_not_null(SqQuery *query, const char *column_name);
 #define sq_query_or_where_not_null(query, column_name)    \
-		sq_query_where_null_logical(query, column_name, SQ_QUERYLOGI_OR | SQ_QUERYLOGI_NOT);
+		sq_query_where_null_logical(query, column_name, SQ_QUERYLOGI_OR_NOT);
 
 // SQL: GROUP BY
 // the last argument of sq_query_group_by_list() must be NULL.
@@ -1499,37 +1500,37 @@ public:
 	template <typename... Args>
 	WhereNotIn(const char *columnName, int firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "%d", firstValue, args...);
 	}
 	template <typename... Args>
 	WhereNotIn(const char *columnName, int64_t firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "%" PRId64, firstValue, args...);
 	}
 	template <typename... Args>
 	WhereNotIn(const char *columnName, double firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "%f", firstValue, args...);
 	}
 	template <typename... Args>
 	WhereNotIn(const char *columnName, const char firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "'%c'", firstValue, args...);
 	}
 	template <typename... Args>
 	WhereNotIn(const char *columnName, const char *firstValue, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "'%s'", firstValue, args...);
 	}
 	template <typename... Args>
 	WhereNotIn(const char *columnName, int n_args, const char *format, const Args... args) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          (n_args) ? n_args : sizeof...(args), format, args...);
 	}
 	WhereNotIn() {
@@ -1544,37 +1545,37 @@ public:
 	// operator
 	template <typename... Args>
 	WhereNotIn &operator()(const char *columnName, int firstValue, const Args... args) {
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "%d", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
 	WhereNotIn &operator()(const char *columnName, int64_t firstValue, const Args... args) {
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "%" PRId64, firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
 	WhereNotIn &operator()(const char *columnName, double firstValue, const Args... args) {
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "%f", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
 	WhereNotIn &operator()(const char *columnName, const char firstValue, const Args... args) {
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "'%c'", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
 	WhereNotIn &operator()(const char *columnName, const char *firstValue, const Args... args) {
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          sizeof...(args)+1, "'%s'", firstValue, args...);
 		return *this;
 	}
 	template <typename... Args>
 	WhereNotIn &operator()(const char *columnName, int n_args, const char *format, const Args... args) {
-		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT,
+		sq_query_where_in_logical(query, columnName, SQ_QUERYLOGI_AND_NOT,
 		                          (n_args) ? n_args : sizeof...(args), format, args...);
 		return *this;
 	}

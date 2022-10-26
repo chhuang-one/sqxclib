@@ -239,8 +239,8 @@ use C++ language
 These functions/methods are used to filter the results and apply conditions.
 
 * The order of arguments are name of column, comparison operator, and the value to compare.
-* If name of column has % character, It handle as printf format string.
 * If the argument of comparison operator is =, it can be omitted.
+* Deprecated: If name of column has % character, It handle as printf format string. (***This will NOT support in future.)
 
 e.g. generate below SQL statement.
 
@@ -811,13 +811,13 @@ use C language
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_left_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
+	sq_query_left_join(query,  "posts", "users.id", "=", "%s", "posts.user_id");
 
 	sq_query_table(query, "users");
 	sq_query_right_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
 
 	sq_query_table(query, "users");
-	sq_query_full_join(query, "posts", "users.id", "=", "%s", "posts.user_id");
+	sq_query_full_join(query,  "posts", "users.id", "=", "%s", "posts.user_id");
 ```
 
 use C++ language
@@ -826,13 +826,13 @@ In the following example, the conditions for the three kind of joins are the sam
 
 ```c++
 	query->table("users")
-	     ->leftJoin("posts", "users.id", "posts.user_id");
+	     ->leftJoin("posts",  "users.id", "posts.user_id");
 
 	query->table("users")
 	     ->rightJoin("posts", "users.id", "=", "posts.user_id");
 
 	query->table("users")
-	     ->fullJoin("posts", "users.id", "=", "%s", "posts.user_id");
+	     ->fullJoin("posts",  "users.id", "=", "%s", "posts.user_id");
 ```
 
 #### Cross Join
@@ -931,8 +931,8 @@ below C functions support subquery or brackets:
 	sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
 	sq_query_where_exists(),     sq_query_where_not_exists(),
 	sq_query_having_sub(),       sq_query_or_having_sub(),
-
-Note: you must call sq_query_end_sub() in end of subquery or brackets.  
+	---
+	Note: You must call sq_query_end_sub() in end of subquery or brackets.
   
 below C++ method use lambda function to support subquery or brackets, user don't need to call sq_query_end_sub()  
 
@@ -972,8 +972,8 @@ use C++ lambda functions to generate brackets:
 ```c++
 	query->table("users")
 	     ->where([query] {
-	         query->where("salary", ">", "%d", 45)
-	              ->where("age", "<", "%d", 21);
+	         query->where("salary", ">", 45)
+	              ->where("age", "<", 21);
 	     })
 	     ->orWhereRaw("id > %d", 100);
 ```
@@ -1000,7 +1000,7 @@ use C language to generate subquery:
 	sq_query_end_sub(query);                    // end of subquery
 	sq_query_as(query, "c");
 	sq_query_on_raw(query, "c.id = companies.city_id");
-	sq_query_where_raw(query, "age > 5");
+	sq_query_where_raw(query, "age > %d", 5);
 ```
 
 use C++ lambda functions to generate subquery:
@@ -1010,10 +1010,10 @@ use C++ lambda functions to generate subquery:
 	     ->from("companies")
 	     ->join([query] {
 	         query->from("city")
-	              ->where("id", "<", "%d", 100);
+	              ->where("id", "<", 100);
 	     })
 	     ->as("c")->onRaw("c.id = companies.city_id")
-	     ->whereRaw("age > 5");
+	     ->whereRaw("age > %d", 5);
 ```
 
 e.g. below is SQL statement that has subquery in condition.

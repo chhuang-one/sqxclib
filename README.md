@@ -657,7 +657,7 @@ use C functions
 	SqType *typeContainer = NULL;
 
 	sq_storage_setup_query(storage, query, typeRow);
-	vector = sq_storage_query(storage, query, typeRow, typeContainer);
+	container = sq_storage_query(storage, query, typeRow, typeContainer);
 ```
 
 use C++ methods
