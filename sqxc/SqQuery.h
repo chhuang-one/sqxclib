@@ -122,7 +122,7 @@ extern "C" {
 		sq_query_having_raw(),    sq_query_or_having_raw(),
 
 		These C function use macro to count number of arguments.
-		If the 3rd argument is NOT exist, the 2st argument is handled as raw string.
+		If the 3rd argument is NOT exist, the 2nd argument is handled as raw string.
 
 	** below C functions support printf format string in 4th argument:
 		sq_query_on(),            sq_query_or_on(),
@@ -428,7 +428,7 @@ void    sq_query_where_null_logical(SqQuery *query, const char *column_name, uns
 // e.g. sq_query_group_by_list(query, column_name..., NULL);
 void    sq_query_group_by_list(SqQuery *query, ...);
 
-// void sq_query_group_by(SqQuery *query, ...);
+// void sq_query_group_by(SqQuery *query, const char *column_name1, ...);
 #define sq_query_group_by(query, ...)        \
 		sq_query_group_by_list(query, __VA_ARGS__, NULL)
 
@@ -461,12 +461,12 @@ void    sq_query_having_logical(SqQuery *query, unsigned int logi_args, ...);
 		sq_query_having_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
 
 // SQL: SELECT
-// the last argument of sq_query_select() must be NULL.
+// the last argument of sq_query_select_list() must be NULL.
 // e.g. sq_query_select_list(query, column_name..., NULL);
 bool    sq_query_select_list(SqQuery *query, ...);
 bool    sq_query_distinct(SqQuery *query);
 
-// bool sq_query_select(SqQuery *query, ...);
+// bool sq_query_select(SqQuery *query, const char *column_name1, ...);
 #define sq_query_select(query, ...)        \
 		sq_query_select_list(query, ##__VA_ARGS__, NULL)
 
@@ -475,12 +475,12 @@ bool    sq_query_distinct(SqQuery *query);
 		sq_query_select_list(query, raw, NULL)
 
 // SQL: ORDER BY
-// the last argument of sq_query_order_by() must be NULL.
+// the last argument of sq_query_order_by_list() must be NULL.
 // e.g. sq_query_order_by_list(query, column_name..., NULL);
 void    sq_query_order_by_list(SqQuery *query, ...);
 void    sq_query_order_sorted(SqQuery *query, unsigned int sort_type);
 
-// void sq_query_order_by(SqQuery *query, ...);
+// void sq_query_order_by(SqQuery *query, const char *column_name1, ...);
 #define sq_query_order_by(query, ...)        \
 		sq_query_order_by_list(query, __VA_ARGS__, NULL)
 
@@ -597,7 +597,7 @@ void  sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table
            v                     v         v        v
          "name"                "age"      "a"    "email"
 
-   --------------------------------------------------------
+    -------------------------------------------------------
     SqQueryNode digram for subquery/brackets
 
     SELECT ...
@@ -618,7 +618,7 @@ void  sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table
                    v          next          next
                    ( SELECT -------> FROM -------> WHERE )
 
-   --------------------------------------------------------
+    -------------------------------------------------------
     SqQueryNode digram for JOIN
 
     SELECT ... FROM ...
@@ -643,12 +643,12 @@ void  sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table
                 v          next          next
                 ( SELECT -------> FROM -------> WHERE )
 
-   --------------------------------------------------------
+    -------------------------------------------------------
     SqQueryNode digram for ORDER BY, LIMIT, OFFSET
 
     WHERE  id < 10  OR NOT  city_id = 5
-	ORDER BY  col1  ASC,  col2
-	LIMIT  108  OFFSET  216
+    ORDER BY  col1  ASC,  col2
+    LIMIT  108  OFFSET  216
 
                next                      next
     WHERE --------------> ORDER BY  --------------->  LIMIT
@@ -783,10 +783,10 @@ namespace Sq {
 
 	// 1. use operator() of Sq::where
 	Sq::Where  where;
-	std::cout << where("id", "<", "%d", 15).orWhereRaw("city_id < %d", 20).c();
+	std::cout << where("id", "<", 15).orWhereRaw("city_id < %d", 20).c();
 
 	// 2. use parameter pack constructor
-	std::cout << Sq::whereRaw("id < %d", 15).orWhereRaw("city_id < %d", 20).c();
+	std::cout << Sq::whereRaw("id < %d", 15).orWhere("city_id", "<", 20).c();
 
 	// 3. use default constructor and operator()
 	std::cout << Sq::whereRaw()("id < %d", 15).orWhereRaw("city_id < %d", 20).c();

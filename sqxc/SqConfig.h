@@ -100,8 +100,10 @@
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
-/* sqxclib is case-sensitive when searching and sorting SQL column name and JSON field name by default.
-   You may disable this for some old SQL product.
+/* Enable it to allow use printf format string in first argument of query condition.
+   If name of column has % character, It handle as printf format string.
+  
+   *** This will disable and remove in future version. ***
    Affected source : SqQuery
  */
 #define SQ_CONFIG_QUERY_USE_OLD_CONDITION          1

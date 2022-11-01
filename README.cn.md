@@ -407,7 +407,7 @@ SQL 语句
 	              ->where("id", "<", 100);
 	     })
 	     ->as("c")
-	      ->onRaw("c.id = companies.city_id")
+	     ->onRaw("c.id = companies.city_id")
 	     ->whereRaw("age > %d", 5);
 ```
 

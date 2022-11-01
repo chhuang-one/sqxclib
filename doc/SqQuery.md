@@ -2,7 +2,7 @@
 
 # SqQuery
 
-SqQuery is query builder that supports nested and subquery.  
+SqQuery is query builder that supports subquery and brackets.  
 It can work independently without sqxclib if you remove sq_query_get_table_as_names() and sq_query_select_table_as() in SqQuery.c.  
 You can also use other query builder to replace SqQuery in sqxclib by removing SqQuery.c and SqStorage-query.c from Makefile.
 
@@ -17,7 +17,7 @@ SELECT * FROM companies
 SqQuery provide sq_query_to_sql() and sq_query_c() to generate SQL statement.
 * The result of sq_query_to_sql() must free when you don't need it.
 * You can NOT free the result of sq_query_c(), it managed by SqQuery.
-* After calling sq_query_c(), user can access SqQuery::str to reuse generated SQL statement.
+* After calling sq_query_c(), user can use sq_query_last() to reuse generated SQL statement.
 
 Note: If user doesn't specify column by select(), it select all columns from a database table by default.  
   
@@ -102,8 +102,8 @@ below C functions support printf format string in 2nd argument:
 	sq_query_where_not_raw(), sq_query_or_where_not_raw(),
 	sq_query_having_raw(),    sq_query_or_having_raw(),
 	---
-	These C function use macro to count number of arguments.
-	If the 3rd argument is NOT exist, the 2st argument is handled as raw string.
+	These C functions use macro to count number of arguments.
+	If the 3rd argument is NOT exist, the 2nd argument is handled as raw string.
 
 below C functions support printf format string in 4th argument:
 
@@ -238,9 +238,9 @@ use C++ language
 
 These functions/methods are used to filter the results and apply conditions.
 
-* The order of arguments are name of column, comparison operator, and the value to compare.
-* If the argument of comparison operator is =, it can be omitted.
-* Deprecated: If name of column has % character, It handle as printf format string. (***This will NOT support in future.)
+* The order of arguments are name of column, operator, printf format string for value, and the value to compare.
+* If the argument of operator is =, it can be omitted.
+* Deprecated: If name of column has % character, It handle as printf format string. (*** This will NOT support in future.)
 
 e.g. generate below SQL statement.
 
@@ -261,7 +261,9 @@ use C language
 	sq_query_or_where_not_raw(query, "members < %d", 100);
 ```
 
-use C++ language
+use C++ language  
+  
+C++ methods where() series have overloaded functions to omit printf format string:  
 
 ```c++
 	// SELECT * FROM companies
@@ -269,12 +271,13 @@ use C++ language
 	     // WHERE id > 15
 	     ->where("id", ">", 15)
 	     // OR city_id = 6
-	     ->orWhere("city_id", "%d", 6)
+	     ->orWhere("city_id", 6)
 	     // OR NOT members < 100
 	     ->orWhereNotRaw("members < %d", 100);
 ```
 
 These methods can also be used to specify a group of query conditions.  
+More information is explained below "Subquery and Brackets".  
   
 use C language
 
@@ -324,7 +327,7 @@ C++ methods whereBetween() series have overloaded functions to omit printf forma
 	     ->whereBetween("votes", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
-	query->orWhereBetween("name", "'%s'", "Ray", "Zyx");
+	query->orWhereBetween("name", "Ray", "Zyx");
 ```
 
 #### whereNotBetween / orWhereNotBetween
@@ -350,7 +353,7 @@ use C++ language
 	     ->whereNotBetween("votes", 1, 100);
 
 	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
-	query->orWhereNotBetween("name", "'%s'", "Ray", "Zyx");
+	query->orWhereNotBetween("name", "Ray", "Zyx");
 ```
 
 #### whereIn / whereNotIn / orWhereIn / orWhereNotIn
@@ -412,6 +415,7 @@ use C++ language
 #### having / orHaving
 
 The usage of having() series is similar to the where().  
+More information is explained below "Subquery and Brackets".  
   
 use C language
 
@@ -537,9 +541,9 @@ TRUNCATE TABLE companies
 	sql = query->toSql();
 ```
 
-## SQL statement that exclude "SELECT * FROM table_name"
+## SQL statement that exclude "SELECT * FROM ..."
 
-If you don't specify table name and column name in SqQuery, it will generate SQL statement that exclude "SELECT * FROM table_name".  
+If you don't specify table name and column name in SqQuery, it will generate SQL statement that exclude "SELECT * FROM ...".  
 The 'SQL statement' parameter in sq_storage_get_all(), sq_storage_update_all(), and sq_storage_remove_all() can use this.  
   
 use C language
@@ -566,8 +570,8 @@ use C++ language
 ```c++
 	query->clear();
 	// WHERE id > 10 OR city_id < 9
-	query->where("id > 10");
-	query->orWhere("city_id < 9");
+	query->whereRaw("id > 10");
+	query->orWhereRaw("city_id < 9");
 
 	// use Sq::Query::c() to generate SQL statement
 	array = storage->removeAll("users", query->c());
@@ -605,7 +609,21 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 			Sq::where()("id", "<", 11).orWhereRaw("city_id < %d", 33));
 ```
 
-4. Below is currently provided convenient C++ class:
+4. use lambda function to generate subquery and brackets
+
+```c++
+	// ... WHERE ( id < 11 OR city_id < 33 )
+	Sq::where([](SqQuery &query) {
+		query.where("id", "<", 11).orWhereRaw("city_id < %d", 33);
+	});
+
+	// ... WHERE price < ( SELECT amount FROM incomes )
+	Sq::where("price", "<", [](SqQuery &query) {
+		query.select("amount").from("incomes");
+	});
+```
+
+5. Below is currently provided convenient C++ class:
 
 ```
 	Sq::Where,        Sq::WhereNot,
@@ -658,12 +676,18 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 use C language
   
 C function sq_query_where_raw() series use macro to count number of arguments.  
-If the 3rd argument is NOT exist, the 2st argument is handled as raw string.
+If the 3rd argument is NOT exist, the 2nd argument is handled as raw string.
 
 ```c
-	sq_query_table(query, "users");
+	// The following two sets of query results are the same.
+
+	// 2nd argument is raw string
 	sq_query_where_raw(query, "id > 100 AND id < 300");
-	sq_query_where_raw(query, "city LIKE 'ber%'");
+	sq_query_where_raw(query, "name LIKE 'ber%'");
+
+	// 2nd argument is printf format string
+	sq_query_where_raw(query, "id > %d AND id < %d", 100, 300);
+	sq_query_where_raw(query, "name LIKE '%s'", "ber%");
 ```
 
 use C++ language
@@ -672,9 +696,15 @@ C++ method whereRaw()/orWhereRaw() has overloaded function to handle raw string.
 If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 ```c++
-	query->table("users")
-	     ->whereRaw("id > 100 AND id < 300")
-	     ->whereRaw("city LIKE 'ber%'");
+	// The following two sets of query results are the same.
+
+	// 1st argument is raw string
+	query->whereRaw("id > 100 AND id < 300")
+	     ->whereRaw("name LIKE 'ber%'");
+
+	// 1st argument is printf format string
+	query->whereRaw("id > %d AND id < %d", 100, 300)
+	     ->whereRaw("name LIKE '%s'", "ber%");
 ```
 
 #### havingRaw / orHavingRaw
@@ -682,12 +712,16 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 use C language
   
 C function sq_query_having_raw() series use macro to count number of arguments.  
-If the 3rd argument is NOT exist, the 2st argument is handled as raw string.
+If the 3rd argument is NOT exist, the 2nd argument is handled as raw string.
 
 ```c
 	sq_query_table(query, "orders");
-	sq_query_group_by(query, "city_id");
+	sq_query_group_by(query, "customer_id");
+
+	// bellow 3 lines has the same result
 	sq_query_having_raw(query, "SUM(price) > 3000");
+//	sq_query_having_raw(query, "SUM(price) > %d", 3000);
+//	sq_query_having(query, "SUM(price)", ">", "%d", 3000);
 ```
 
 use C++ language
@@ -697,8 +731,12 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 ```c++
 	query->table("orders")
-	     ->groupBy("city_id")
-	     ->havingRaw("SUM(price) > 3000");
+	     ->groupBy("customer_id");
+
+	// bellow 3 lines has the same result
+	query->havingRaw("SUM(price) > 3000");
+//	query->havingRaw("SUM(price) > %d", 3000);
+//	query->having("SUM(price)", ">", "%d", 3000);
 ```
 
 #### orderByRaw
@@ -877,6 +915,103 @@ use C++ language
 	     ->onRaw("users.id > %d", 120);
 ```
 
+#### Subquery Joins
+
+The join() and on() series can also use subquery and brackets.  
+  
+e.g. below is SQL joins that has subquery.
+
+```sql
+SELECT id, age
+FROM companies
+JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
+WHERE age > 5
+```
+
+use C language to generate subquery:
+
+```c
+	sq_query_select(query, "id", "age");
+	sq_query_from(query, "companies");
+	sq_query_join_sub(query);                   // start of subquery
+		sq_query_from(query, "city");
+		sq_query_where(query, "id", "<", "%d", 100);
+	sq_query_end_sub(query);                    // end of subquery
+	sq_query_as(query, "c");
+	sq_query_on_raw(query, "c.id = companies.city_id");
+	sq_query_where_raw(query, "age > %d", 5);
+```
+
+use C++ lambda functions to generate subquery:
+
+```c++
+	query->select("id", "age")
+	     ->from("companies")
+	     ->join([query] {
+	         query->from("city")
+	              ->where("id", "<", 100);
+	     })
+	     ->as("c")
+	     ->onRaw("c.id = companies.city_id")
+	     ->whereRaw("age > %d", 5);
+```
+
+**More examples of subquery and brackets for join() and on(): series**  
+  
+use C language
+
+```c
+	// ... JOIN city ON ( city.id = companies.city_id )
+	sq_query_join_sub(query, "city");           // start of brackets
+		sq_query_on(query, "city.id", "=", "%s", "companies.city_id");
+	sq_query_end_sub(query);                    // end of brackets
+
+	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
+	sq_query_join_sub(query, "city", "city.id", "=");    // start of subquery
+		sq_query_from(query, "companies");
+		sq_query_select(query, "city_id");
+	sq_query_end_sub(query);                             // end of subquery
+
+	// ... ON ( city.id < 100 )
+	sq_query_on_sub(query);                     // start of brackets
+		sq_query_on(query, "city.id", "<", "%d", 100);
+	sq_query_end_sub(query);                    // end of brackets
+
+	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
+	sq_query_on_sub(query, "city.id", "<");     // start of subquery
+		sq_query_from(query, "companies");
+		sq_query_select(query, "city_id");
+		sq_query_where(query, "id", "=", "%d", 25);
+	sq_query_end_sub(query);                    // end of subquery
+```
+
+use C++ language
+
+```c++
+	// ... JOIN city ON ( city.id = companies.city_id )
+	query->join("city", [query] {
+		query->on("city.id", "=", "companies.city_id");
+	});
+
+	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
+	query->join("city", "city.id", "=", [query] {
+		query->from("companies")
+		     ->select("city_id");
+	});
+
+	// ... ON ( city.id < 100 )
+	query->on([query] {
+		query->on("city.id", "<", 100);
+	});
+
+	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
+	query->on("city.id", "<", [query] {
+		query->from("companies")
+		     ->select("city_id")
+		     ->where("id", "=", 25);
+	});
+```
+
 ## Unions
 
 "union" two or more queries together.  
@@ -916,7 +1051,7 @@ use C++ language
 
 ## Subquery and Brackets
 
-SqQuery can produce subquery or brackets. You may also use Raw Methods to do these.  
+SqQuery can produce subquery or brackets.  
   
 below C functions support subquery or brackets:
 
@@ -950,6 +1085,9 @@ below C++ method use lambda function to support subquery or brackets, user don't
 
 #### Brackets
 
+The usage of brackets is basically the same in where(), on(), and having() series functions.  
+If you specify table and columns in brackets, the brackets become subquery.  
+  
 e.g. generate below SQL statement.
 
 ```sql
@@ -978,44 +1116,35 @@ use C++ lambda functions to generate brackets:
 	     ->orWhereRaw("id > %d", 100);
 ```
 
-#### Subquery
-
-e.g. below is SQL statement that has subquery.
-
-```sql
-SELECT id, age
-FROM companies
-JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
-WHERE age > 5
-```
-
-use C language to generate subquery:
+**Examples of brackets for having() series:**  
+  
+The usage of having() series is similar to the where().  
+  
+use C language
 
 ```c
-	sq_query_select(query, "id", "age");
-	sq_query_from(query, "companies");
-	sq_query_join_sub(query);                   // start of subquery
-		sq_query_from(query, "city");
-		sq_query_where(query, "id", "<", "%d", 100);
-	sq_query_end_sub(query);                    // end of subquery
-	sq_query_as(query, "c");
-	sq_query_on_raw(query, "c.id = companies.city_id");
-	sq_query_where_raw(query, "age > %d", 5);
+	// ... HAVING (salary > 45 OR age < 21)
+	sq_query_having_sub(query);                 // start of brackets
+		sq_query_having(query, "salary", ">", "%d", 45);
+		sq_query_or_having(query, "age", "<", "%d", 21);
+	sq_query_end_sub(query);                    // end of brackets
 ```
 
-use C++ lambda functions to generate subquery:
+use C++ language
 
 ```c++
-	query->select("id", "age")
-	     ->from("companies")
-	     ->join([query] {
-	         query->from("city")
-	              ->where("id", "<", 100);
-	     })
-	     ->as("c")->onRaw("c.id = companies.city_id")
-	     ->whereRaw("age > %d", 5);
+	// ... HAVING (salary > 45 OR age < 21)
+	query->having([query] {
+		query->having("salary", ">", 45);
+		query->orHaving("age", "<", 21);
+	});
 ```
 
+#### Subquery
+
+The usage of subquery is basically the same in where(), on(), and having() series functions.  
+If you don't specify table and columns in the subquery, the subquery becomes brackets.  
+  
 e.g. below is SQL statement that has subquery in condition.
 
 ```sql
@@ -1063,7 +1192,8 @@ macro SQ_QUERY_DO() is used to build query. The last parameter in macro is like 
 			SQQ_FROM("city");
 			SQQ_WHERE("id", "<", "%d", 100);
 		});
-		SQQ_AS("c"); SQQ_ON_RAW("c.id = companies.city_id");
-		SQQ_WHERE_RAW("age > 5");
+		SQQ_AS("c");
+		SQQ_ON_RAW("c.id = companies.city_id");
+		SQQ_WHERE_RAW("age > %d", 5);
 	});
 ```

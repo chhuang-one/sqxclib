@@ -206,6 +206,13 @@ void test_query_cpp_convenient_class()
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE NOT id < 33 OR NOT city_id < 55") == 0);
 
+	// lambda
+	sql = Sq::where("price", "<", [](SqQuery &query) {
+		query.select("amount").from("incomes");
+	}).c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "WHERE price < ( SELECT amount FROM incomes )") == 0);
+
 	// whereExists
 	sql = Sq::whereExists([](SqQuery *query) {
 		query->from("user")
