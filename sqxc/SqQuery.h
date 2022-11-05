@@ -221,7 +221,7 @@ void           sq_query_pop_nested(SqQuery *query);
 void    sq_query_append(SqQuery *query, unsigned int raw_args, ...);
 
 // void sq_query_raw(SqQuery *query, const char *raw_or_format, ...);
-#define sq_query_raw(query, ...)    \
+#define sq_query_raw(query, ...)       \
 		sq_query_append(query, SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
 
 // append printf format string to SQL statement in current subquery/brackets
@@ -232,11 +232,15 @@ void    sq_query_append(SqQuery *query, unsigned int raw_args, ...);
 // SQL: FROM
 bool    sq_query_from(SqQuery *query, const char *table);
 
+// bool sq_query_from_sub(SqQuery *query);
+#define sq_query_from_sub(query)     \
+		sq_query_from(query, NULL)
+
 // bool sq_query_table(SqQuery *query, const char *table);
 #define sq_query_table    sq_query_from
 
-// bool sq_query_from_sub(SqQuery *query);
-#define sq_query_from_sub(query)    \
+// bool sq_query_table_sub(SqQuery *query);
+#define sq_query_table_sub(query)    \
 		sq_query_from(query, NULL)
 
 // SQL: AS
@@ -836,11 +840,10 @@ public:
 		func(*query);
 		sq_query_end_sub(query);       // end of subquery/brackets
 	}
-	template <typename Lambda>
-	Where(const char *column, Lambda func) {
+	Where(const char *column, std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_sub(query, column, "=");    // start of subquery/brackets
-		func(*query);                              // std::function< void (SqQuery &query) >
+		func(*query);
 		sq_query_end_sub(query);                   // end of subquery/brackets
 	}
 	Where(const char *column, int value) {
@@ -859,11 +862,10 @@ public:
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where(query, column, "=", "%s", value);
 	}
-	template <typename Lambda>
-	Where(const char *column, const char *op, Lambda func) {
+	Where(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_sub(query, column, op);     // start of subquery/brackets
-		func(*query);                              // std::function< void (SqQuery &query) >
+		func(*query);
 		sq_query_end_sub(query);                   // end of subquery/brackets
 	}
 	Where(const char *column, const char *op, int value) {
@@ -915,10 +917,9 @@ public:
 		sq_query_end_sub(query);       // end of subquery/brackets
 		return *this;
 	}
-	template <typename Lambda>
-	Where &operator()(const char *column, Lambda func) {
+	Where &operator()(const char *column, std::function<void(SqQuery &query)> func) {
 		sq_query_where_sub(query, column, "=");    // start of subquery/brackets
-		func(*query);                              // std::function< void (SqQuery &query) >
+		func(*query);
 		sq_query_end_sub(query);                   // end of subquery/brackets
 		return *this;
 	}
@@ -938,10 +939,9 @@ public:
 		sq_query_where(query, column, "=", "%s", value);
 		return *this;
 	}
-	template <typename Lambda>
-	Where &operator()(const char *column, const char *op, Lambda func) {
+	Where &operator()(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
 		sq_query_where_sub(query, column, op);     // start of subquery/brackets
-		func(*query);                              // std::function< void (SqQuery &query) >
+		func(*query);
 		sq_query_end_sub(query);                   // end of subquery/brackets
 		return *this;
 	}
@@ -989,11 +989,10 @@ public:
 		func(*query);
 		sq_query_end_sub(query);            // end of subquery/brackets
 	}
-	template <typename Lambda>
-	WhereNot(const char *column, Lambda func) {
+	WhereNot(const char *column, std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
-		func(*query);                                  // std::function< void (SqQuery &query) >
+		func(*query);
 		sq_query_end_sub(query);                       // end of subquery/brackets
 	}
 	WhereNot(const char *column, int value) {
@@ -1012,11 +1011,10 @@ public:
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_not(query, column, "=", "%s", value);
 	}
-	template <typename Lambda>
-	WhereNot(const char *column, const char *op, Lambda func) {
+	WhereNot(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
 		sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
-		func(*query);                                  // std::function< void (SqQuery &query) >
+		func(*query);
 		sq_query_end_sub(query);                       // end of subquery/brackets
 	}
 	WhereNot(const char *column, const char *op, int value) {
@@ -1067,10 +1065,9 @@ public:
 		sq_query_end_sub(query);            // end of subquery/brackets
 		return *this;
 	}
-	template <typename Lambda>
-	WhereNot &operator()(const char *column, Lambda func) {
+	WhereNot &operator()(const char *column, std::function<void(SqQuery &query)> func) {
 		sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
-		func(*query);                                  // std::function< void (SqQuery &query) >
+		func(*query);
 		sq_query_end_sub(query);                       // end of subquery/brackets
 		return *this;
 	}
@@ -1090,10 +1087,9 @@ public:
 		sq_query_where_not(query, column, "=", "%s", value);
 		return *this;
 	}
-	template <typename Lambda>
-	WhereNot &operator()(const char *column, const char *op, Lambda func) {
+	WhereNot &operator()(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
 		sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
-		func(*query);                                  // std::function< void (SqQuery &query) >
+		func(*query);
 		sq_query_end_sub(query);                       // end of subquery/brackets
 		return *this;
 	}

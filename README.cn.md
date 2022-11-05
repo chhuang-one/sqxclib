@@ -190,7 +190,10 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C 函数打开 SQLite 数据库
 
 ```c
-	SqdbConfigSqlite  config = { .folder = "/path", .extension = "db" };
+	SqdbConfigSqlite  config = {
+		.folder    = "/path",
+		.extension = "db"
+	};
 
 	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
 //	db = sqdb_new(SQDB_INFO_SQLITE, NULL);     // 如果 config 为 NULL，则使用默认设置。
@@ -202,8 +205,12 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C 函数打开 MySQL 数据库
 
 ```c
-	SqdbConfigMysql  config = { .host = "localhost", .port = 3306,
-	                            .user = "name", .password = "xxx" };
+	SqdbConfigMysql  config = {
+		.host = "localhost",
+		.port = 3306,
+		.user = "name",
+		.password = "xxx"
+	};
 
 	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config);
 //	db = sqdb_new(SQDB_INFO_MYSQL, NULL);    // 如果 config 为 NULL，则使用默认设置。
@@ -445,7 +452,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 使用 C 函数
 
 ```c
-	// SQL 语句排除 "SELECT * FROM table_name"
+	// SQL 语句排除 "SELECT * FROM ..."
 	sq_query_clear(query);
 	sq_query_where(query, "id", ">", "%d", 10);
 	sq_query_or_where_raw(query, "city_id < %d", 22);
@@ -457,7 +464,7 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 使用 C++ 方法
 
 ```c++
-	// SQL 语句排除 "SELECT * FROM table_name"
+	// SQL 语句排除 "SELECT * FROM ..."
 	query->clear()
 	     ->where("id", ">", 10)
 	     ->orWhereRaw("city_id < %d", 22);
@@ -481,11 +488,11 @@ SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语�
 ```c++
 	// 使用参数包构造函数
 	array = storage->getAll("users",
-			Sq::where("id", ">", "%d", 10).orWhereRaw("city_id < %d", 22));
+			Sq::where("id", ">", 10).orWhereRaw("city_id < %d", 22));
 
 	// 使用默认构造函数和 operator()
 	array = storage->getAll("users",
-			Sq::where()("id", ">", "%d", 10).orWhereRaw("city_id < %d", 22));
+			Sq::where()("id", ">", 10).orWhereRaw("city_id < %d", 22));
 ```
 
 下面是目前提供的方便的 C++ 类：

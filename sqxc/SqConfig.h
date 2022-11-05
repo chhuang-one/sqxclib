@@ -102,7 +102,8 @@
 
 /* Enable it to allow use printf format string in first argument of query condition.
    If name of column has % character, It handle as printf format string.
-  
+   Disable it if you don't use these and want to reduce binary size.
+
    *** This will disable and remove in future version. ***
    Affected source : SqQuery
  */

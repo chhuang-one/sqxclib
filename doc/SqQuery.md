@@ -91,122 +91,44 @@ use C++ language
 
 ## SQL Statements
 
-There are many functions can specify SQL condition and them also support printf format string. Please pass printf format string before passing value of condition. If you want to use SQL Wildcard Characters '%' in printf format string, you must print "%" using "%%".  
+#### from / table
 
-below C functions support printf format string in 2nd argument:
-
-	sq_query_raw(),
-	sq_query_printf(),
-	sq_query_on_raw(),        sq_query_or_on_raw(),
-	sq_query_where_raw(),     sq_query_or_where_raw(),
-	sq_query_where_not_raw(), sq_query_or_where_not_raw(),
-	sq_query_having_raw(),    sq_query_or_having_raw(),
-	---
-	These C functions use macro to count number of arguments.
-	If the 3rd argument is NOT exist, the 2nd argument is handled as raw string.
-
-below C functions support printf format string in 4th argument:
-
-	sq_query_on(),            sq_query_or_on(),
-	sq_query_where(),         sq_query_or_where(),
-	sq_query_where_not(),     sq_query_or_where_not(),
-	sq_query_having(),        sq_query_or_having(),
-
-below C functions support printf format string in 5th argument:
-
-	sq_query_join(),
-	sq_query_left_join(),
-	sq_query_right_join(),
-	sq_query_full_join(),
-
-other C functions that support printf format string:
-
-	sq_query_where_between() series
-	sq_query_where_in() series
-
-C language example:
+from() and table() can specify database table. They do the same thing and support subquery, below "Subquery and Brackets" will explain the details.  
+  
+use C language
 
 ```c
-	// --- printf format string in 4th argument ---
-	// WHERE id < 100
-	sq_query_where(query, "id", "<", "%d", 100);
-	// AND email LIKE 'guest%'
-	sq_query_where(query, "email", "LIKE", "'%s'", "guest%");
+	// select columns from a database table "users"
+	// SELECT * FROM users
+	sq_query_from(query, "users");
 
-	// --- printf format string in 2nd argument ---
-	// AND city  LIKE 'ber%'
-	sq_query_where_raw(query, "city  LIKE '%s'", "ber%");
+	// reset Sq::Query (remove all statements)
+	sq_query_clear(query);
+
+	// subquery
+	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
+	sq_query_from_sub(query);
+		sq_query_from(query, "companies");
+		sq_query_where_raw(query, "id < 65");
+	sq_query_end_sub(query);
 ```
 
-below C++ methods support printf format string in 1st argument:
-
-	raw(),
-	printf(),
-	onRaw(),       orOnRaw(),
-	whereRaw(),    orWhereRaw(),
-	whereNotRaw(), orWhereNotRaw(),
-	havingRaw(),   orHavingRaw(),
-
-below C++ methods support printf format string in 3rd argument:
-
-	on(),          orOn(),
-	where(),       orWhere(),
-	whereNot(),    orWhereNot(),
-	having(),      orHaving(),
-
-below C++ methods support printf format string in 4th argument:
-
-	join(),
-	leftJoin(),
-	rightJoin(),
-	fullJoin(),
-
-other C++ methods that support printf format string:
-
-	whereBetween() series
-	whereIn() series
-
-C++ language example:
+use C++ language
 
 ```c++
-	// --- printf format string in 3rd argument ---
-	// WHERE id < 100
-	query->where("id", "<", "%d", 100);
-	// AND email LIKE 'guest%'
-	query->where("email", "LIKE", "'%s'", "guest%");
+	// select columns from a database table "users"
+	// SELECT * FROM users
+	query->from("users");
 
-	// --- printf format string in 1st argument ---
-	// AND city  LIKE 'ber%'
-	query->whereRaw("city  LIKE '%s'", "ber%");
-```
+	// reset Sq::Query (remove all statements)
+	query->clear();
 
-C++ methods join(), on(), where(), and having() series have overloaded functions to omit printf format string:
-
-```c++
-	// --- omit printf format string in 3rd argument ---
-	// WHERE id < 100
-	query->where("id", "<", 100);
-	// AND email LIKE 'guest%'
-	query->where("email", "LIKE", "guest%");
-```
-
-If the 2nd argument of below C++ methods is NOT exist, the 1st argument is handled as raw string.  
-These C++ methods have overloaded function to handle raw string:
-
-	onRaw(),       orOnRaw(),
-	whereRaw(),    orWhereRaw(),
-	whereNotRaw(), orWhereNotRaw(),
-	havingRaw(),   orHavingRaw(),
-	select(),
-	groupBy(),
-	orderBy()
-
-C++ language example:
-
-```c++
-	// If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
-	// WHERE city LIKE 'ber%'
-	query->whereRaw("city LIKE 'ber%'");
+	// subquery
+	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
+	query->from([query] {
+		query->from("companies")
+		     ->whereRaw("id < 65");
+	});
 ```
 
 #### select
@@ -238,9 +160,11 @@ use C++ language
 
 These functions/methods are used to filter the results and apply conditions.
 
-* The order of arguments are name of column, operator, printf format string for value, and the value to compare.
-* If the argument of operator is =, it can be omitted.
-* Deprecated: If name of column has % character, It handle as printf format string. (*** This will NOT support in future.)
+* The order of arguments are - name of column, operator, printf format string, and values that depending on the format string.
+* If user doesn't specify the values following format string, program handle printf format string as raw string.
+* Not recommended: If the argument of operator is =, it can be omitted (like Laravel, but less readable).
+* Deprecated: If name of column has % character, It handle as printf format string (This will NOT support in future).
+* The usage of condition arguments is basically the same in where(), join(), on(), and having() series functions.
 
 e.g. generate below SQL statement.
 
@@ -256,9 +180,12 @@ use C language
 	// WHERE id > 15
 	sq_query_where(query, "id", ">", "%d", 15);
 	// OR city_id = 6
-	sq_query_or_where(query, "city_id", "%d", 6);
-	// OR NOT members < 100
-	sq_query_or_where_not_raw(query, "members < %d", 100);
+	sq_query_or_where(query, "city_id", "=", "%d", 6);
+
+	// OR name LIKE '%Motor'
+	sq_query_or_where(query, "name", "LIKE", "'%Motor'");
+	// Program handle "'%Motor'" as raw string here.
+	// If user doesn't specify the values following format string, program handle printf format string as raw string.
 ```
 
 use C++ language  
@@ -271,13 +198,13 @@ C++ methods where() series have overloaded functions to omit printf format strin
 	     // WHERE id > 15
 	     ->where("id", ">", 15)
 	     // OR city_id = 6
-	     ->orWhere("city_id", 6)
-	     // OR NOT members < 100
-	     ->orWhereNotRaw("members < %d", 100);
+	     ->orWhere("city_id", 6);
+
+	// OR name LIKE '%Motor'
+	query->orWhere("name", "LIKE", "'%Motor'");
 ```
 
-These methods can also be used to specify a group of query conditions.  
-More information is explained below "Subquery and Brackets".  
+These methods can also be used to specify a group of query conditions, below "Subquery and Brackets" will explain the details.  
   
 use C language
 
@@ -285,7 +212,7 @@ use C language
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	sq_query_table(query, "products");
 	sq_query_where_not_sub(query);
-		sq_query_where(query, "city_id", "%d", 6);
+		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
 	sq_query_end_sub(query);
 ```
@@ -415,7 +342,6 @@ use C++ language
 #### having / orHaving
 
 The usage of having() series is similar to the where().  
-More information is explained below "Subquery and Brackets".  
   
 use C language
 
@@ -433,6 +359,30 @@ use C++ language
 	     ->groupBy("city_id")
 	     ->having("age", ">", 10)
 	     ->orHavingRaw("members < %d", 50);
+```
+
+**Examples of brackets for having() series:**  
+  
+Below "Subquery and Brackets" will explain the details.  
+  
+use C language
+
+```c
+	// ... HAVING (salary > 45 OR age < 21)
+	sq_query_having_sub(query);                 // start of brackets
+		sq_query_having(query, "salary", ">", "%d", 45);
+		sq_query_or_having(query, "age", "<", "%d", 21);
+	sq_query_end_sub(query);                    // end of brackets
+```
+
+use C++ language
+
+```c++
+	// ... HAVING (salary > 45 OR age < 21)
+	query->having([query] {
+		query->having("salary", ">", 45);
+		query->orHaving("age", "<", 21);
+	});
 ```
 
 #### groupBy / orderBy
@@ -1051,7 +1001,7 @@ use C++ language
 
 ## Subquery and Brackets
 
-SqQuery can produce subquery or brackets.  
+SqQuery can produce subquery or brackets. In fact, They are implemented the same way inside programs.  
   
 below C functions support subquery or brackets:
 
@@ -1068,7 +1018,7 @@ below C functions support subquery or brackets:
 	sq_query_having_sub(),       sq_query_or_having_sub(),
 	---
 	Note: You must call sq_query_end_sub() in end of subquery or brackets.
-  
+
 below C++ method use lambda function to support subquery or brackets, user don't need to call sq_query_end_sub()  
 
 	from(),
@@ -1116,30 +1066,6 @@ use C++ lambda functions to generate brackets:
 	     ->orWhereRaw("id > %d", 100);
 ```
 
-**Examples of brackets for having() series:**  
-  
-The usage of having() series is similar to the where().  
-  
-use C language
-
-```c
-	// ... HAVING (salary > 45 OR age < 21)
-	sq_query_having_sub(query);                 // start of brackets
-		sq_query_having(query, "salary", ">", "%d", 45);
-		sq_query_or_having(query, "age", "<", "%d", 21);
-	sq_query_end_sub(query);                    // end of brackets
-```
-
-use C++ language
-
-```c++
-	// ... HAVING (salary > 45 OR age < 21)
-	query->having([query] {
-		query->having("salary", ">", 45);
-		query->orHaving("age", "<", 21);
-	});
-```
-
 #### Subquery
 
 The usage of subquery is basically the same in where(), on(), and having() series functions.  
@@ -1177,7 +1103,127 @@ use C++ language to generate subquery in condition:
 	     });
 ```
 
-## use macro to produce query
+## Appendix : functions that support printf format string
+
+There are many functions can specify SQL condition and them also support printf format string. Please pass printf format string before passing value of condition. If you want to use SQL Wildcard Characters '%' in printf format string, you must print "%" using "%%".  
+
+below C functions support printf format string in 2nd argument:
+
+	sq_query_raw(),
+	sq_query_printf(),
+	sq_query_on_raw(),        sq_query_or_on_raw(),
+	sq_query_where_raw(),     sq_query_or_where_raw(),
+	sq_query_where_not_raw(), sq_query_or_where_not_raw(),
+	sq_query_having_raw(),    sq_query_or_having_raw(),
+	---
+	These C functions use macro to count number of arguments.
+	If the 3rd argument is NOT exist, the 2nd argument is handled as raw string.
+
+below C functions support printf format string in 4th argument:
+
+	sq_query_on(),            sq_query_or_on(),
+	sq_query_where(),         sq_query_or_where(),
+	sq_query_where_not(),     sq_query_or_where_not(),
+	sq_query_having(),        sq_query_or_having(),
+
+below C functions support printf format string in 5th argument:
+
+	sq_query_join(),
+	sq_query_left_join(),
+	sq_query_right_join(),
+	sq_query_full_join(),
+
+other C functions that support printf format string:
+
+	sq_query_where_between() series
+	sq_query_where_in() series
+
+C language example:
+
+```c
+	// --- printf format string in 4th argument ---
+	// WHERE id < 100
+	sq_query_where(query, "id", "<", "%d", 100);
+	// AND email LIKE 'guest%'
+	sq_query_where(query, "email", "LIKE", "'%s'", "guest%");
+
+	// --- printf format string in 2nd argument ---
+	// AND city  LIKE 'ber%'
+	sq_query_where_raw(query, "city  LIKE '%s'", "ber%");
+```
+
+below C++ methods support printf format string in 1st argument:
+
+	raw(),
+	printf(),
+	onRaw(),       orOnRaw(),
+	whereRaw(),    orWhereRaw(),
+	whereNotRaw(), orWhereNotRaw(),
+	havingRaw(),   orHavingRaw(),
+
+below C++ methods support printf format string in 3rd argument:
+
+	on(),          orOn(),
+	where(),       orWhere(),
+	whereNot(),    orWhereNot(),
+	having(),      orHaving(),
+
+below C++ methods support printf format string in 4th argument:
+
+	join(),
+	leftJoin(),
+	rightJoin(),
+	fullJoin(),
+
+other C++ methods that support printf format string:
+
+	whereBetween() series
+	whereIn() series
+
+C++ language example:
+
+```c++
+	// --- printf format string in 3rd argument ---
+	// WHERE id < 100
+	query->where("id", "<", "%d", 100);
+	// AND email LIKE 'guest%'
+	query->where("email", "LIKE", "'%s'", "guest%");
+
+	// --- printf format string in 1st argument ---
+	// AND city  LIKE 'ber%'
+	query->whereRaw("city  LIKE '%s'", "ber%");
+```
+
+C++ methods have overloaded functions to omit printf format string:
+
+```c++
+	// --- omit printf format string in 3rd argument ---
+	// WHERE id < 100
+	query->where("id", "<", 100);
+	// AND email LIKE 'guest%'
+	query->where("email", "LIKE", "guest%");
+```
+
+If the 2nd argument of below C++ methods is NOT exist, the 1st argument is handled as raw string.  
+These C++ methods have overloaded function to handle raw string:
+
+	onRaw(),       orOnRaw(),
+	whereRaw(),    orWhereRaw(),
+	whereNotRaw(), orWhereNotRaw(),
+	havingRaw(),   orHavingRaw(),
+	select(),
+	groupBy(),
+	orderBy()
+
+C++ language example:
+
+```c++
+	// If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
+	// WHERE city LIKE 'ber%'
+	query->whereRaw("city LIKE 'ber%'");
+```
+
+## Appendix: use macro to produce query
 
 macro SQ_QUERY_DO() is used to build query. The last parameter in macro is like lambda function.
 

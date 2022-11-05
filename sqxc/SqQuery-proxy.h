@@ -64,20 +64,30 @@ public:
 
 	SQPT_RETURN  &from(const char *table);
 	SQPT_RETURN  &from(std::function<void()> func);
+	SQPT_RETURN  &from(std::function<void(SqQuery &query)> func);
 
 	SQPT_RETURN  &table(const char *table);
 	SQPT_RETURN  &table(std::function<void()> func);
+	SQPT_RETURN  &table(std::function<void(SqQuery &query)> func);
 
 	SQPT_RETURN  &as(const char *name);
 
 	// join(table, condition...)
 	SQPT_RETURN  &join(std::function<void()> func);
-	template <typename Lambda>
-	SQPT_RETURN  &join(const char *table, Lambda func);
-	template <typename T>
-	SQPT_RETURN  &join(const char *table, const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &join(const char *table, const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &join(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &join(const char *table, std::function<void()> func);
+	SQPT_RETURN  &join(const char *table, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &join(const char *table, const char *column, std::function<void()> func);
+	SQPT_RETURN  &join(const char *table, const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &join(const char *table, const char *column, int value);
+	SQPT_RETURN  &join(const char *table, const char *column, int64_t value);
+	SQPT_RETURN  &join(const char *table, const char *column, double value);
+	SQPT_RETURN  &join(const char *table, const char *column, const char *value);
+	SQPT_RETURN  &join(const char *table, const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &join(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &join(const char *table, const char *column, const char *op, int value);
+	SQPT_RETURN  &join(const char *table, const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &join(const char *table, const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &join(const char *table, const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -85,12 +95,20 @@ public:
 
 	// leftJoin(table, condition...)
 	SQPT_RETURN  &leftJoin(std::function<void()> func);
-	template <typename Lambda>
-	SQPT_RETURN  &leftJoin(const char *table, Lambda func);
-	template <typename T>
-	SQPT_RETURN  &leftJoin(const char *table, const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &leftJoin(const char *table, const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &leftJoin(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &leftJoin(const char *table, std::function<void()> func);
+	SQPT_RETURN  &leftJoin(const char *table, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, std::function<void()> func);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, int value);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, int64_t value);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, double value);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, const char *value);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, const char *op, int value);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &leftJoin(const char *table, const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &leftJoin(const char *table, const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -98,12 +116,20 @@ public:
 
 	// rightJoin(table, condition...)
 	SQPT_RETURN  &rightJoin(std::function<void()> func);
-	template <typename Lambda>
-	SQPT_RETURN  &rightJoin(const char *table, Lambda func);
-	template <typename T>
-	SQPT_RETURN  &rightJoin(const char *table, const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &rightJoin(const char *table, const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &rightJoin(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &rightJoin(const char *table, std::function<void()> func);
+	SQPT_RETURN  &rightJoin(const char *table, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, std::function<void()> func);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, int value);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, int64_t value);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, double value);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, const char *value);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, const char *op, int value);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &rightJoin(const char *table, const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &rightJoin(const char *table, const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -111,12 +137,20 @@ public:
 
 	// fullJoin(table, condition...)
 	SQPT_RETURN  &fullJoin(std::function<void()> func);
-	template <typename Lambda>
-	SQPT_RETURN  &fullJoin(const char *table, Lambda func);
-	template <typename T>
-	SQPT_RETURN  &fullJoin(const char *table, const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &fullJoin(const char *table, const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &fullJoin(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &fullJoin(const char *table, std::function<void()> func);
+	SQPT_RETURN  &fullJoin(const char *table, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, std::function<void()> func);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, int value);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, int64_t value);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, double value);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, const char *value);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, const char *op, int value);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &fullJoin(const char *table, const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &fullJoin(const char *table, const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -125,13 +159,22 @@ public:
 	// crossJoin(table)
 	SQPT_RETURN  &crossJoin(const char *table);
 	SQPT_RETURN  &crossJoin(std::function<void()> func);
+	SQPT_RETURN  &crossJoin(std::function<void(SqQuery &query)> func);
 
 	// on(condition, ...)
 	SQPT_RETURN  &on(std::function<void()> func);
-	template <typename T>
-	SQPT_RETURN  &on(const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &on(const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &on(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &on(const char *column, std::function<void()> func);
+	SQPT_RETURN  &on(const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &on(const char *column, int value);
+	SQPT_RETURN  &on(const char *column, int64_t value);
+	SQPT_RETURN  &on(const char *column, double value);
+	SQPT_RETURN  &on(const char *column, const char *value);
+	SQPT_RETURN  &on(const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &on(const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &on(const char *column, const char *op, int value);
+	SQPT_RETURN  &on(const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &on(const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &on(const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -144,10 +187,18 @@ public:
 
 	// orOn(condition, ...)
 	SQPT_RETURN  &orOn(std::function<void()> func);
-	template <typename T>
-	SQPT_RETURN  &orOn(const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &orOn(const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &orOn(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orOn(const char *column, std::function<void()> func);
+	SQPT_RETURN  &orOn(const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orOn(const char *column, int value);
+	SQPT_RETURN  &orOn(const char *column, int64_t value);
+	SQPT_RETURN  &orOn(const char *column, double value);
+	SQPT_RETURN  &orOn(const char *column, const char *value);
+	SQPT_RETURN  &orOn(const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &orOn(const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orOn(const char *column, const char *op, int value);
+	SQPT_RETURN  &orOn(const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &orOn(const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &orOn(const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -160,10 +211,18 @@ public:
 
 	// where(condition, ...)
 	SQPT_RETURN  &where(std::function<void()> func);
-	template <typename T>
-	SQPT_RETURN  &where(const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &where(const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &where(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &where(const char *column, std::function<void()> func);
+	SQPT_RETURN  &where(const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &where(const char *column, int value);
+	SQPT_RETURN  &where(const char *column, int64_t value);
+	SQPT_RETURN  &where(const char *column, double value);
+	SQPT_RETURN  &where(const char *column, const char *value);
+	SQPT_RETURN  &where(const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &where(const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &where(const char *column, const char *op, int value);
+	SQPT_RETURN  &where(const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &where(const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &where(const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -176,10 +235,18 @@ public:
 
 	// orWhere(condition, ...)
 	SQPT_RETURN  &orWhere(std::function<void()> func);
-	template <typename T>
-	SQPT_RETURN  &orWhere(const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &orWhere(const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &orWhere(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orWhere(const char *column, std::function<void()> func);
+	SQPT_RETURN  &orWhere(const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orWhere(const char *column, int value);
+	SQPT_RETURN  &orWhere(const char *column, int64_t value);
+	SQPT_RETURN  &orWhere(const char *column, double value);
+	SQPT_RETURN  &orWhere(const char *column, const char *value);
+	SQPT_RETURN  &orWhere(const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &orWhere(const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orWhere(const char *column, const char *op, int value);
+	SQPT_RETURN  &orWhere(const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &orWhere(const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &orWhere(const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -192,10 +259,18 @@ public:
 
 	// whereNot(condition, ...)
 	SQPT_RETURN  &whereNot(std::function<void()> func);
-	template <typename T>
-	SQPT_RETURN  &whereNot(const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &whereNot(const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &whereNot(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &whereNot(const char *column, std::function<void()> func);
+	SQPT_RETURN  &whereNot(const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &whereNot(const char *column, int value);
+	SQPT_RETURN  &whereNot(const char *column, int64_t value);
+	SQPT_RETURN  &whereNot(const char *column, double value);
+	SQPT_RETURN  &whereNot(const char *column, const char *value);
+	SQPT_RETURN  &whereNot(const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &whereNot(const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &whereNot(const char *column, const char *op, int value);
+	SQPT_RETURN  &whereNot(const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &whereNot(const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &whereNot(const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -208,10 +283,18 @@ public:
 
 	// orWhereNot(condition, ...)
 	SQPT_RETURN  &orWhereNot(std::function<void()> func);
-	template <typename T>
-	SQPT_RETURN  &orWhereNot(const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &orWhereNot(const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &orWhereNot(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orWhereNot(const char *column, std::function<void()> func);
+	SQPT_RETURN  &orWhereNot(const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orWhereNot(const char *column, int value);
+	SQPT_RETURN  &orWhereNot(const char *column, int64_t value);
+	SQPT_RETURN  &orWhereNot(const char *column, double value);
+	SQPT_RETURN  &orWhereNot(const char *column, const char *value);
+	SQPT_RETURN  &orWhereNot(const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &orWhereNot(const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orWhereNot(const char *column, const char *op, int value);
+	SQPT_RETURN  &orWhereNot(const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &orWhereNot(const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &orWhereNot(const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -224,7 +307,9 @@ public:
 
 	// whereExists
 	SQPT_RETURN  &whereExists(std::function<void()> func);
+	SQPT_RETURN  &whereExists(std::function<void(SqQuery &query)> func);
 	SQPT_RETURN  &whereNotExists(std::function<void()> func);
+	SQPT_RETURN  &whereNotExists(std::function<void(SqQuery &query)> func);
 
 	// whereBetween
 	SQPT_RETURN  &whereBetween(const char *columnName, int value1, int value2);
@@ -332,10 +417,18 @@ public:
 
 	// having(condition, ...)
 	SQPT_RETURN  &having(std::function<void()> func);
-	template <typename T>
-	SQPT_RETURN  &having(const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &having(const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &having(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &having(const char *column, std::function<void()> func);
+	SQPT_RETURN  &having(const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &having(const char *column, int value);
+	SQPT_RETURN  &having(const char *column, int64_t value);
+	SQPT_RETURN  &having(const char *column, double value);
+	SQPT_RETURN  &having(const char *column, const char *value);
+	SQPT_RETURN  &having(const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &having(const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &having(const char *column, const char *op, int value);
+	SQPT_RETURN  &having(const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &having(const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &having(const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -348,10 +441,18 @@ public:
 
 	// orHaving(condition, ...)
 	SQPT_RETURN  &orHaving(std::function<void()> func);
-	template <typename T>
-	SQPT_RETURN  &orHaving(const char *column, T func_or_value);
-	template <typename T>
-	SQPT_RETURN  &orHaving(const char *column, const char *op, T func_or_value);
+	SQPT_RETURN  &orHaving(std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orHaving(const char *column, std::function<void()> func);
+	SQPT_RETURN  &orHaving(const char *column, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orHaving(const char *column, int value);
+	SQPT_RETURN  &orHaving(const char *column, int64_t value);
+	SQPT_RETURN  &orHaving(const char *column, double value);
+	SQPT_RETURN  &orHaving(const char *column, const char *value);
+	SQPT_RETURN  &orHaving(const char *column, const char *op, std::function<void()> func);
+	SQPT_RETURN  &orHaving(const char *column, const char *op, std::function<void(SqQuery &query)> func);
+	SQPT_RETURN  &orHaving(const char *column, const char *op, int value);
+	SQPT_RETURN  &orHaving(const char *column, const char *op, int64_t value);
+	SQPT_RETURN  &orHaving(const char *column, const char *op, double value);
 	//// This method must match overloaded function. It can NOT use template specialization.
 	SQPT_RETURN  &orHaving(const char *column, const char *op_or_format, const char *value);
 	template <typename... Args>
@@ -380,7 +481,9 @@ public:
 
 	// union(lambda function)
 	SQPT_RETURN  &union_(std::function<void()> func);
+	SQPT_RETURN  &union_(std::function<void(SqQuery &query)> func);
 	SQPT_RETURN  &unionAll(std::function<void()> func);
+	SQPT_RETURN  &unionAll(std::function<void(SqQuery &query)> func);
 
 	SQPT_RETURN  &limit(int64_t count);
 	SQPT_RETURN  &offset(int64_t index);
@@ -451,6 +554,12 @@ inline SQPT_RETURN  &SQPT_NAME::from(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
+inline SQPT_RETURN  &SQPT_NAME::from(std::function<void(SqQuery &query)> func) {
+	sq_query_from_sub((SqQuery*)SQPT_DATAPTR);            // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
 inline SQPT_RETURN  &SQPT_NAME::table(const char *table) {
 	sq_query_from((SqQuery*)SQPT_DATAPTR, table);
 	return *(SQPT_RETURN*)this;
@@ -458,6 +567,12 @@ inline SQPT_RETURN  &SQPT_NAME::table(const char *table) {
 inline SQPT_RETURN  &SQPT_NAME::table(std::function<void()> func) {
 	sq_query_from_sub((SqQuery*)SQPT_DATAPTR);            // start of subquery/brackets
 	func();
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::table(std::function<void(SqQuery &query)> func) {
+	sq_query_from_sub((SqQuery*)SQPT_DATAPTR);            // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
@@ -474,59 +589,73 @@ inline SQPT_RETURN  &SQPT_NAME::join(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::join(const char *table, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::join(std::function<void(SqQuery &query)> func) {
+	sq_query_join_sub((SqQuery*)SQPT_DATAPTR);            // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, std::function<void()> func) {
 	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, std::function<void(SqQuery &query)> func) {
+	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, std::function<void()> func) {
 	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::join<int>(const char *table, const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, int value) {
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::join<int64_t>(const char *table, const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, int64_t value) {
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::join<double>(const char *table, const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, double value) {
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::join<const char*>(const char *table, const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, const char *value) {
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, const char *op, std::function<void()> func) {
 	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::join<int>(const char *table, const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, const char *op, int value) {
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::join<int64_t>(const char *table, const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, const char *op, int64_t value) {
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::join<double>(const char *table, const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, const char *op, double value) {
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -549,59 +678,73 @@ inline SQPT_RETURN  &SQPT_NAME::leftJoin(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(std::function<void(SqQuery &query)> func) {
+	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, std::function<void()> func) {
 	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, std::function<void(SqQuery &query)> func) {
+	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, std::function<void()> func) {
 	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin<int>(const char *table, const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, int value) {
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin<int64_t>(const char *table, const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, int64_t value) {
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin<double>(const char *table, const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, double value) {
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin<const char*>(const char *table, const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, const char *value) {
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, const char *op, std::function<void()> func) {
 	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin<int>(const char *table, const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, const char *op, int value) {
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin<int64_t>(const char *table, const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, const char *op, int64_t value) {
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::leftJoin<double>(const char *table, const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, const char *op, double value) {
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -624,59 +767,73 @@ inline SQPT_RETURN  &SQPT_NAME::rightJoin(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, Lambda func) {
-	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(std::function<void(SqQuery &query)> func) {
+	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR);      // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, std::function<void()> func) {
+	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table);    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, std::function<void(SqQuery &query)> func) {
+	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table);    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, std::function<void()> func) {
 	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                                // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin<int>(const char *table, const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                                // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, int value) {
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin<int64_t>(const char *table, const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, int64_t value) {
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin<double>(const char *table, const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, double value) {
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin<const char*>(const char *table, const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, const char *value) {
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, const char *op, std::function<void()> func) {
 	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                                // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin<int>(const char *table, const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                                // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, const char *op, int value) {
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin<int64_t>(const char *table, const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, const char *op, int64_t value) {
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::rightJoin<double>(const char *table, const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, const char *op, double value) {
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -699,59 +856,73 @@ inline SQPT_RETURN  &SQPT_NAME::fullJoin(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(std::function<void(SqQuery &query)> func) {
+	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, std::function<void()> func) {
 	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, std::function<void(SqQuery &query)> func) {
+	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, std::function<void()> func) {
 	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin<int>(const char *table, const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, int value) {
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin<int64_t>(const char *table, const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, int64_t value) {
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin<double>(const char *table, const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, double value) {
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin<const char*>(const char *table, const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, const char *value) {
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, const char *op, std::function<void()> func) {
 	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin<int>(const char *table, const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, const char *op, int value) {
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin<int64_t>(const char *table, const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, const char *op, int64_t value) {
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::fullJoin<double>(const char *table, const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, const char *op, double value) {
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -778,6 +949,12 @@ inline SQPT_RETURN  &SQPT_NAME::crossJoin(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
+inline SQPT_RETURN  &SQPT_NAME::crossJoin(std::function<void(SqQuery &query)> func) {
+	sq_query_cross_join_sub((SqQuery*)SQPT_DATAPTR);      // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
 
 // on(condition, ...)
 inline SQPT_RETURN  &SQPT_NAME::on(std::function<void()> func) {
@@ -786,52 +963,61 @@ inline SQPT_RETURN  &SQPT_NAME::on(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::on(const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::on(std::function<void(SqQuery &query)> func) {
+	sq_query_on_sub((SqQuery*)SQPT_DATAPTR);        // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, std::function<void()> func) {
 	sq_query_on_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::on<int>(const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_on_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, int value) {
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::on<int64_t>(const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, int64_t value) {
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::on<double>(const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, double value) {
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::on<const char*>(const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *value) {
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *op, std::function<void()> func) {
 	sq_query_on_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::on<int>(const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_on_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *op, int value) {
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::on<int64_t>(const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *op, int64_t value) {
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::on<double>(const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *op, double value) {
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -868,52 +1054,61 @@ inline SQPT_RETURN  &SQPT_NAME::orOn(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::orOn(std::function<void(SqQuery &query)> func) {
+	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, std::function<void()> func) {
 	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orOn<int>(const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, int value) {
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orOn<int64_t>(const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, int64_t value) {
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orOn<double>(const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, double value) {
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orOn<const char*>(const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *value) {
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *op, std::function<void()> func) {
 	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orOn<int>(const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *op, int value) {
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orOn<int64_t>(const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *op, int64_t value) {
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orOn<double>(const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *op, double value) {
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -950,52 +1145,61 @@ inline SQPT_RETURN  &SQPT_NAME::where(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::where(const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::where(std::function<void(SqQuery &query)> func) {
+	sq_query_where_sub((SqQuery*)SQPT_DATAPTR);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, std::function<void()> func) {
 	sq_query_where_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::where<int>(const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_where_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, int value) {
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::where<int64_t>(const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, int64_t value) {
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::where<double>(const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, double value) {
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::where<const char*>(const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *value) {
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *op, std::function<void()> func) {
 	sq_query_where_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::where<int>(const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_where_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *op, int value) {
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::where<int64_t>(const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *op, int64_t value) {
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::where<double>(const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *op, double value) {
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -1032,52 +1236,61 @@ inline SQPT_RETURN  &SQPT_NAME::orWhere(std::function<void()> func) {
 	sq_query_pop_nested((SqQuery*)SQPT_DATAPTR);          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::orWhere(std::function<void(SqQuery &query)> func) {
+	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR);        // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_pop_nested((SqQuery*)SQPT_DATAPTR);          // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, std::function<void()> func) {
 	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                      // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhere<int>(const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                      // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, int value) {
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhere<int64_t>(const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, int64_t value) {
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhere<double>(const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, double value) {
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhere<const char*>(const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *value) {
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *op, std::function<void()> func) {
 	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                      // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhere<int>(const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                      // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *op, int value) {
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhere<int64_t>(const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *op, int64_t value) {
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhere<double>(const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *op, double value) {
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -1114,52 +1327,61 @@ inline SQPT_RETURN  &SQPT_NAME::whereNot(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::whereNot(std::function<void(SqQuery &query)> func) {
+	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, std::function<void()> func) {
 	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::whereNot<int>(const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, int value) {
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::whereNot<int64_t>(const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, int64_t value) {
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::whereNot<double>(const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, double value) {
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::whereNot<const char*>(const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *value) {
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *op, std::function<void()> func) {
 	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::whereNot<int>(const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *op, int value) {
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::whereNot<int64_t>(const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *op, int64_t value) {
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::whereNot<double>(const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *op, double value) {
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -1196,52 +1418,61 @@ inline SQPT_RETURN  &SQPT_NAME::orWhereNot(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, Lambda func) {
-	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
-	func();
-	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(std::function<void(SqQuery &query)> func) {
+	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR);    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhereNot<int>(const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, std::function<void()> func) {
+	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
+	func();
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, int value) {
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhereNot<int64_t>(const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, int64_t value) {
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhereNot<double>(const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, double value) {
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhereNot<const char*>(const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *value) {
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *op, std::function<void()> func) {
 	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	func();
-	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhereNot<int>(const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *op, int value) {
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhereNot<int64_t>(const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *op, int64_t value) {
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orWhereNot<double>(const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *op, double value) {
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -1278,9 +1509,21 @@ inline SQPT_RETURN  &SQPT_NAME::whereExists(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
+inline SQPT_RETURN  &SQPT_NAME::whereExists(std::function<void(SqQuery &query)> func) {
+	sq_query_where_exists((SqQuery*)SQPT_DATAPTR);        // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
 inline SQPT_RETURN  &SQPT_NAME::whereNotExists(std::function<void()> func) {
 	sq_query_where_not_exists((SqQuery*)SQPT_DATAPTR);    // start of subquery/brackets
 	func();
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::whereNotExists(std::function<void(SqQuery &query)> func) {
+	sq_query_where_not_exists((SqQuery*)SQPT_DATAPTR);    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
@@ -1585,52 +1828,61 @@ inline SQPT_RETURN  &SQPT_NAME::having(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::having(const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::having(std::function<void(SqQuery &query)> func) {
+	sq_query_having_sub((SqQuery*)SQPT_DATAPTR);    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, std::function<void()> func) {
 	sq_query_having_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                    // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::having<int>(const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_having_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                    // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, int value) {
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::having<int64_t>(const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, int64_t value) {
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::having<double>(const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, double value) {
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::having<const char*>(const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *value) {
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *op, std::function<void()> func) {
 	sq_query_having_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                    // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::having<int>(const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_having_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                    // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *op, int value) {
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::having<int64_t>(const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *op, int64_t value) {
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::having<double>(const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *op, double value) {
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -1667,52 +1919,61 @@ inline SQPT_RETURN  &SQPT_NAME::orHaving(std::function<void()> func) {
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::orHaving(std::function<void(SqQuery &query)> func) {
+	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, std::function<void()> func) {
 	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orHaving<int>(const char *column, int value) {
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, std::function<void(SqQuery &query)> func) {
+	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, int value) {
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, "=", "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orHaving<int64_t>(const char *column, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, int64_t value) {
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, "=", "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orHaving<double>(const char *column, double value) {
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, double value) {
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, "=", "%f", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orHaving<const char*>(const char *column, const char *value) {
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *value) {
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, "=", "%s", value);
 	return *(SQPT_RETURN*)this;
 }
-template <typename Lambda>
-inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *op, Lambda func) {
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *op, std::function<void()> func) {
 	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orHaving<int>(const char *column, const char *op, int value) {
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *op, int value) {
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, op, "%d", value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orHaving<int64_t>(const char *column, const char *op, int64_t value) {
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *op, int64_t value) {
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, op, "%" PRId64, value);
 	return *(SQPT_RETURN*)this;
 }
-template <>
-inline SQPT_RETURN  &SQPT_NAME::orHaving<double>(const char *column, const char *op, double value) {
+inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *op, double value) {
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, op, "%f", value);
 	return *(SQPT_RETURN*)this;
 }
@@ -1793,9 +2054,21 @@ inline SQPT_RETURN  &SQPT_NAME::union_(std::function<void()> func) {
 	sq_query_pop_nested((SqQuery*)SQPT_DATAPTR);    // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
+inline SQPT_RETURN  &SQPT_NAME::union_(std::function<void(SqQuery &query)> func) {
+	sq_query_union((SqQuery*)SQPT_DATAPTR);         // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
+	sq_query_pop_nested((SqQuery*)SQPT_DATAPTR);    // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
 inline SQPT_RETURN  &SQPT_NAME::unionAll(std::function<void()> func) {
 	sq_query_union_all((SqQuery*)SQPT_DATAPTR);     // start of subquery/brackets
 	func();
+	sq_query_pop_nested((SqQuery*)SQPT_DATAPTR);    // end of subquery/brackets
+	return *(SQPT_RETURN*)this;
+}
+inline SQPT_RETURN  &SQPT_NAME::unionAll(std::function<void(SqQuery &query)> func) {
+	sq_query_union_all((SqQuery*)SQPT_DATAPTR);     // start of subquery/brackets
+	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_pop_nested((SqQuery*)SQPT_DATAPTR);    // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }

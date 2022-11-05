@@ -192,7 +192,10 @@ use C functions to change table and column in schema_v2 (dynamic)
 use C functions to open SQLite database
 
 ```c
-	SqdbConfigSqlite  config = { .folder = "/path", .extension = "db" };
+	SqdbConfigSqlite  config = {
+		.folder    = "/path",
+		.extension = "db"
+	};
 
 	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
 //	db = sqdb_new(SQDB_INFO_SQLITE, NULL);     // use default setting if config is NULL.
@@ -204,8 +207,12 @@ use C functions to open SQLite database
 use C functions to open MySQL database
 
 ```c
-	SqdbConfigMysql  config = { .host = "localhost", .port = 3306,
-	                            .user = "name", .password = "xxx" };
+	SqdbConfigMysql  config = {
+		.host = "localhost",
+		.port = 3306,
+		.user = "name",
+		.password = "xxx"
+	};
 
 	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config);
 //	db = sqdb_new(SQDB_INFO_MYSQL, NULL);    // use default setting if config is NULL.
@@ -447,7 +454,7 @@ SqQuery provides sq_query_c() or C++ method c() to generate SQL statement for Sq
 use C functions
 
 ```c
-	// SQL statement exclude "SELECT * FROM table_name"
+	// SQL statement exclude "SELECT * FROM ..."
 	sq_query_clear(query);
 	sq_query_where(query, "id", ">", "%d", 10);
 	sq_query_or_where_raw(query, "city_id < %d", 22);
@@ -459,7 +466,7 @@ use C functions
 use C++ methods
 
 ```c++
-	// SQL statement exclude "SELECT * FROM table_name"
+	// SQL statement exclude "SELECT * FROM ..."
 	query->clear()
 	     ->where("id", ">", 10)
 	     ->orWhereRaw("city_id < %d", 22);
@@ -483,11 +490,11 @@ use constructor and operator of Sq::where
 ```c++
 	// use parameter pack constructor
 	array = storage->getAll("users",
-			Sq::where("id", ">", "%d", 10).orWhereRaw("city_id < %d", 22));
+			Sq::where("id", ">", 10).orWhereRaw("city_id < %d", 22));
 
 	// use default constructor and operator()
 	array = storage->getAll("users",
-			Sq::where()("id", ">", "%d", 10).orWhereRaw("city_id < %d", 22));
+			Sq::where()("id", ">", 10).orWhereRaw("city_id < %d", 22));
 ```
 
 Below is currently provided convenient C++ class:  

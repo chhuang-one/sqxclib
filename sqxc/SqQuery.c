@@ -915,8 +915,8 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 	// It is printf format string if 3rd argument in arg_list is not NULL.
 	if (args[2]) {
 		// handle C++  special case: 2nd or 3rd argument in arg_list is raw string
-		// 2 arguments special case: "column", "valueStr"         or   "column", "StrHas%sign"
-		// 3 arguments special case: "column", "%s", "valueStr"   or   "column", ">", "valueStr"
+		// 2 arguments special case: "column", "valueStr"         or   "column", "strHas%sign"
+		// 3 arguments special case: "column", ">", "valueStr"    or   "column", ">", "strHas%sign"
 		if (logi_args == 2 || (logi_args == 3 && temp.cur)) {
 			temp.length = (int)strlen(args[2]) +1;
 			node->value = malloc(mem.length + temp.length);
@@ -1010,8 +1010,8 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 	// It is printf format string if 3rd argument in arg_list is not NULL.
 	if (args[2]) {
 		// handle C++  special case: 2nd or 3rd argument in arg_list is raw string
-		// 2 arguments special case: "column", "valueStr"         or   "column", "StrHas%sign"
-		// 3 arguments special case: "column", "%s", "valueStr"   or   "column", ">", "valueStr"
+		// 2 arguments special case: "column", "valueStr"         or   "column", "strHas%sign"
+		// 3 arguments special case: "column", ">", "valueStr"    or   "column", ">", "strHas%sign"
 		if (logi_args == 2 || (logi_args == 3 && *temp.cur != '%')) {
 			temp.length = (int)strlen(args[2]) +1;
 			node->value = malloc(mem.length + temp.length);

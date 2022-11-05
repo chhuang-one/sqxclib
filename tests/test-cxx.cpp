@@ -109,13 +109,14 @@ void test_query_cpp()
 	char       *sql;
 	const char *result;
 
+	query = new Sq::Query();
+
 	// --- test 1 ---
 	result = "SELECT DISTINCT age, name, u.id "
 	         "FROM city "
 	         "JOIN ( SELECT * FROM User WHERE name = tom ) AS u ON u.city_id = city.id "
 	         "WHERE id > 30 AND ( age < 15 AND name = 'abc' ) ORDER BY name DESC, id";
 
-	query = new Sq::Query();
 	query->from("city")
 		 ->join([query] {
 			query->from("User")
@@ -249,10 +250,67 @@ void test_query_cpp_convenient_class()
 	assert(strcmp(sql.c_str(), "WHERE id IS NULL OR city_id IS NOT NULL") == 0);
 }
 
+void test_query_cpp_sub()
+{
+	Sq::Query  *query;
+	char       *sql;
+	const char *result;
+
+	query = new Sq::Query();
+
+	// --- test 1 ---
+	result = "SELECT * FROM ( SELECT * FROM users WHERE id > 50 )";
+
+	query->table([](SqQuery &query) {
+		query->from("users")
+		     ->where("id", ">", 50);
+	});
+	puts(query->c());
+	assert(strcmp(query->last(), result) == 0);
+	query->clear();
+
+	// --- test 2 ---
+	result = "WHERE name = ( SELECT name FROM users WHERE id = 210 )";
+
+	sql = Sq::Where("name", [](SqQuery &query) {
+		query->select("name")
+		     ->from("users")
+		     ->where("id", "=", 210);
+	}).toSql();
+	puts(sql);
+	assert(strcmp(sql, result) == 0);
+	free(sql);
+
+	// --- test 3 ---
+	result = "JOIN city ON ( city.id = companies.city_id )";
+
+	query->join("city", [](SqQuery &query) {
+		query->on("city.id", "=", "companies.city_id");
+	});
+	puts(query->c());
+	assert(strcmp(query->last(), result) == 0);
+	query->clear();
+
+	// --- test 4 ---
+	result = "JOIN city ON city.id = ( SELECT city_id FROM companies )";
+
+	query->join("city", "city.id", "=", [](SqQuery &query) {
+		query->select("city_id")
+		     ->from("companies");
+	});
+	puts(query->c());
+	assert(strcmp(query->last(), result) == 0);
+	query->clear();
+
+	// release memory
+	delete query;
+}
+
 void test_query()
 {
 	test_query_cpp();
 	test_query_cpp_convenient_class();
+	test_query_cpp_sub();
 }
 
 // ----------------------------------------------------------------------------

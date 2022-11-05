@@ -91,122 +91,44 @@ use C++ language
 
 ## SQL 语句
 
-有很多函数可以指定 SQL 条件，它们也支持 printf 格式字符串。请在传递条件值之前传递 printf 格式字符串。如果要在 printf 格式字符串中使用 SQL 通配符“%”，则必须使用“%%”打印“%”。  
+#### from / table
+
+from() 和 table() 可以指定數據庫表。他們做同樣的事情並支持子查詢，下面的 "子查詢和括號" 會解釋細節。  
   
-以下 C 函数在第 2 个参数中支持 printf 格式字符串：
-
-	sq_query_raw(),
-	sq_query_printf(),
-	sq_query_on_raw(),        sq_query_or_on_raw(),
-	sq_query_where_raw(),     sq_query_or_where_raw(),
-	sq_query_where_not_raw(), sq_query_or_where_not_raw(),
-	sq_query_having_raw(),    sq_query_or_having_raw(),
-	---
-	这些 C 函数使用宏来计算参数的数量。
-	如果第三个参数不存在，则将第二个参数作为原始字符串处理。
-
-以下 C 函数在第 4 个参数中支持 printf 格式字符串：
-
-	sq_query_on(),            sq_query_or_on(),
-	sq_query_where(),         sq_query_or_where(),
-	sq_query_where_not(),     sq_query_or_where_not(),
-	sq_query_having(),        sq_query_or_having(),
-
-以下 C 函数在第 5 个参数中支持 printf 格式字符串：
-
-	sq_query_join(),
-	sq_query_left_join(),
-	sq_query_right_join(),
-	sq_query_full_join(),
-
-其他支持 printf 格式字符串的 C 函数：
-
-	sq_query_where_between() 系列
-	sq_query_where_in() 系列
-
-C 语言示例：
+使用 C 语言
 
 ```c
-	// --- 第 4 个参数中的 printf 格式字符串 ---
-	// WHERE id < 100
-	sq_query_where(query, "id", "<", "%d", 100);
-	// AND email LIKE 'guest%'
-	sq_query_where(query, "email", "LIKE", "'%s'", "guest%");
+	// 从数据库表 "users" 中选择列
+	// SELECT * FROM users
+	sq_query_from(query, "users");
 
-	// --- 第 2 个参数中的 printf 格式字符串 ---
-	// AND city  LIKE 'ber%'
-	sq_query_where_raw(query, "city  LIKE '%s'", "ber%");
+	// 重置 SqQuery (删除所有语句)
+	sq_query_clear(query);
+
+	// 子查詢
+	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
+	sq_query_from_sub(query);
+		sq_query_from(query, "companies");
+		sq_query_where_raw(query, "id < 65");
+	sq_query_end_sub(query);
 ```
 
-以下 C++ 方法在第 1 个参数中支持 printf 格式字符串：
-
-	raw(),
-	printf(),
-	onRaw(),       orOnRaw(),
-	whereRaw(),    orWhereRaw(),
-	whereNotRaw(), orWhereNotRaw(),
-	havingRaw(),   orHavingRaw(),
-
-以下 C++ 方法在第 3 个参数中支持 printf 格式字符串：
-
-	on(),          orOn(),
-	where(),       orWhere(),
-	whereNot(),    orWhereNot(),
-	having(),      orHaving(),
-
-以下 C++ 方法在第 4 个参数中支持 printf 格式字符串：
-
-	join(),
-	leftJoin(),
-	rightJoin(),
-	fullJoin(),
-
-其他支持 printf 格式字符串的 C++ 方法：
-
-	whereBetween() 系列
-	whereIn() 系列
-
-C++ 语言示例：
+使用 C++ 语言
 
 ```c++
-	// --- 第 3 个参数中的 printf 格式字符串 ---
-	// WHERE id < 100
-	query->where("id", "<", "%d", 100);
-	// AND email LIKE 'guest%'
-	query->where("email", "LIKE", "'%s'", "guest%");
+	// 从数据库表 "users" 中选择列
+	// SELECT * FROM users
+	query->from("users");
 
-	// --- 第 1 个参数中的 printf 格式字符串 ---
-	// AND city  LIKE 'ber%'
-	query->whereRaw("city  LIKE '%s'", "ber%");
-```
+	// 重置 SqQuery (删除所有语句)
+	query->clear();
 
-C++ 方法 join()、on()、where() 和 having() 系列具有省略 printf 格式字符串的重载函数：
-
-```c++
-	// --- 省略第 3 个参数中的 printf 格式字符串 ---
-	// WHERE id < 100
-	query->where("id", "<", 100);
-	// AND email LIKE 'guest%'
-	query->where("email", "LIKE", "guest%");
-```
-
-如果以下 C++ 方法的第二个参数不存在，则将第一个参数作为原始字符串处理。  
-这些 C++ 方法具有处理原始字符串的重载函数：
-
-	onRaw(),       orOnRaw(),
-	whereRaw(),    orWhereRaw(),
-	whereNotRaw(), orWhereNotRaw(),
-	havingRaw(),   orHavingRaw(),
-	select(),
-	groupBy(),
-	orderBy()
-
-C++ 语言示例：
-
-```c++
-	// 如果第二个参数不存在，则将第一个参数作为原始字符串处理。
-	// WHERE city LIKE 'ber%'
-	query->whereRaw("city LIKE 'ber%'");
+	// 子查詢
+	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
+	query->from([query] {
+		query->from("companies")
+		     ->whereRaw("id < 65");
+	});
 ```
 
 #### select
@@ -238,9 +160,11 @@ sq_query_select() 可以在参数中指定多个列。
 
 这些函数/方法用于过滤结果和应用条件。
 
-* 参数的顺序是 列名、运算符、比较值的 printf 格式字符串、要比较的值。
-* 如果运算符的参数是 =，则可以省略。
-* 已弃用：如果列名有 % 字符，则作为 printf 格式字符串处理。(*** 这将不再支持。)
+* 参数的顺序是 列名、运算符、printf 格式字符串、取决于格式字符串的值。
+* 如果用户没有指定格式字符串后面的值，程序将 printf 格式字符串作为原始字符串处理。
+* 不建議：如果运算符的参数是 =，则可以省略 (像 Laravel，但可读性较差)。
+* 已弃用：如果列名有 % 字符，则作为 printf 格式字符串处理 (这将不再支持)。
+* 条件参数的用法在 where()、join()、on() 和 having() 系列函数中基本相同。
 
 例如: 生成下面的 SQL 语句。
 
@@ -256,9 +180,12 @@ SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
 	// WHERE id > 15
 	sq_query_where(query, "id", ">", "%d", 15);
 	// OR city_id = 6
-	sq_query_or_where(query, "city_id", "%d", 6);
-	// OR NOT members < 100
-	sq_query_or_where_not_raw(query, "members < %d", 100);
+	sq_query_or_where(query, "city_id", "=", "%d", 6);
+
+	// OR name LIKE '%Motor'
+	sq_query_or_where(query, "name", "LIKE", "'%Motor'");
+	// 程序在此处将 "'%Motor'" 作为原始字符串处理。
+	// 如果用户没有指定格式字符串后面的值，程序将 printf 格式字符串作为原始字符串处理。
 ```
 
 使用 C++ 语言  
@@ -271,13 +198,13 @@ C++ 方法 where() 系列具有省略 printf 格式字符串的重载函数：
 	     // WHERE id > 15
 	     ->where("id", ">", 15)
 	     // OR city_id = 6
-	     ->orWhere("city_id", 6)
-	     // OR NOT members < 100
-	     ->orWhereNotRaw("members < %d", 100);
+	     ->orWhere("city_id", 6);
+
+	// OR name LIKE '%Motor'
+	query->orWhere("name", "LIKE", "'%Motor'");
 ```
 
-这些方法也可以用来指定一组查询条件。  
-更多信息在下面 "子查询和括号" 解释。  
+这些方法也可以用来指定一组查询条件，下面的 "子查詢和括號" 會解釋細節。  
 
 使用 C 语言
 
@@ -285,7 +212,7 @@ C++ 方法 where() 系列具有省略 printf 格式字符串的重载函数：
 	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
 	sq_query_table(query, "products");
 	sq_query_where_not_sub(query);
-		sq_query_where(query, "city_id", "%d", 6);
+		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
 	sq_query_end_sub(query);
 ```
@@ -415,7 +342,6 @@ C++ 方法 whereIn() 系列具有省略 printf 格式字符串的重载函数：
 #### having / orHaving
 
 having() 系列的用法与 where() 类似。  
-更多信息在“子查询和括号”下面解释。  
   
 使用 C 语言
 
@@ -433,6 +359,30 @@ having() 系列的用法与 where() 类似。
 	     ->groupBy("city_id")
 	     ->having("age", ">", 10)
 	     ->orHavingRaw("members < %d", 50);
+```
+
+**having() 系列的括號示例**  
+  
+下面的 "子查詢和括號" 會解釋細節。  
+  
+使用 C 语言
+
+```c
+	// ... HAVING (salary > 45 OR age < 21)
+	sq_query_having_sub(query);                 // start of brackets
+		sq_query_having(query, "salary", ">", "%d", 45);
+		sq_query_or_having(query, "age", "<", "%d", 21);
+	sq_query_end_sub(query);                    // end of brackets
+```
+
+使用 C++ 语言
+
+```c++
+	// ... HAVING (salary > 45 OR age < 21)
+	query->having([query] {
+		query->having("salary", ">", 45);
+		query->orHaving("age", "<", 21);
+	});
 ```
 
 #### groupBy / orderBy
@@ -1051,7 +1001,7 @@ C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
 
 ## 子查询和括号 Subquery and Brackets
 
-SqQuery 可以产生子查询或括号。  
+SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序内部的实现方式相同。  
   
 以下 C 函数支持子查询或括号：
 
@@ -1068,7 +1018,7 @@ SqQuery 可以产生子查询或括号。
 	sq_query_having_sub(),       sq_query_or_having_sub(),
 	---
 	注意：您必须在子查询或括号的末尾调用 sq_query_end_sub()。
-  
+
 下面的 C++ 方法使用 lambda 函数来支持子查询或括号，用户不需要调用 sq_query_end_sub()  
 
 	from(),
@@ -1116,30 +1066,6 @@ SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 	     ->orWhereRaw("id > %d", 100);
 ```
 
-**having() 系列的括號示例**  
-  
-having() 系列的用法與 where() 類似。  
-  
-使用 C 语言
-
-```c
-	// ... HAVING (salary > 45 OR age < 21)
-	sq_query_having_sub(query);                 // start of brackets
-		sq_query_having(query, "salary", ">", "%d", 45);
-		sq_query_or_having(query, "age", "<", "%d", 21);
-	sq_query_end_sub(query);                    // end of brackets
-```
-
-使用 C++ 语言
-
-```c++
-	// ... HAVING (salary > 45 OR age < 21)
-	query->having([query] {
-		query->having("salary", ">", 45);
-		query->orHaving("age", "<", 21);
-	});
-```
-
 #### 子查询 Subquery
 
 子查询的用法在 where()、on()、having() 系列函数中基本相同。  
@@ -1177,7 +1103,127 @@ WHERE price < (SELECT amount FROM incomes)
 	     });
 ```
 
-## 使用宏生成查询
+## 附錄 : 支持 printf 格式字符串的函數
+
+有很多函数可以指定 SQL 条件，它们也支持 printf 格式字符串。请在传递条件值之前传递 printf 格式字符串。如果要在 printf 格式字符串中使用 SQL 通配符 '%'，则必须使用 "%%" 打印 "%"。  
+  
+以下 C 函数在第 2 个参数中支持 printf 格式字符串：
+
+	sq_query_raw(),
+	sq_query_printf(),
+	sq_query_on_raw(),        sq_query_or_on_raw(),
+	sq_query_where_raw(),     sq_query_or_where_raw(),
+	sq_query_where_not_raw(), sq_query_or_where_not_raw(),
+	sq_query_having_raw(),    sq_query_or_having_raw(),
+	---
+	这些 C 函数使用宏来计算参数的数量。
+	如果第三个参数不存在，则将第二个参数作为原始字符串处理。
+
+以下 C 函数在第 4 个参数中支持 printf 格式字符串：
+
+	sq_query_on(),            sq_query_or_on(),
+	sq_query_where(),         sq_query_or_where(),
+	sq_query_where_not(),     sq_query_or_where_not(),
+	sq_query_having(),        sq_query_or_having(),
+
+以下 C 函数在第 5 个参数中支持 printf 格式字符串：
+
+	sq_query_join(),
+	sq_query_left_join(),
+	sq_query_right_join(),
+	sq_query_full_join(),
+
+其他支持 printf 格式字符串的 C 函数：
+
+	sq_query_where_between() 系列
+	sq_query_where_in() 系列
+
+C 语言示例：
+
+```c
+	// --- 第 4 个参数中的 printf 格式字符串 ---
+	// WHERE id < 100
+	sq_query_where(query, "id", "<", "%d", 100);
+	// AND email LIKE 'guest%'
+	sq_query_where(query, "email", "LIKE", "'%s'", "guest%");
+
+	// --- 第 2 个参数中的 printf 格式字符串 ---
+	// AND city  LIKE 'ber%'
+	sq_query_where_raw(query, "city  LIKE '%s'", "ber%");
+```
+
+以下 C++ 方法在第 1 个参数中支持 printf 格式字符串：
+
+	raw(),
+	printf(),
+	onRaw(),       orOnRaw(),
+	whereRaw(),    orWhereRaw(),
+	whereNotRaw(), orWhereNotRaw(),
+	havingRaw(),   orHavingRaw(),
+
+以下 C++ 方法在第 3 个参数中支持 printf 格式字符串：
+
+	on(),          orOn(),
+	where(),       orWhere(),
+	whereNot(),    orWhereNot(),
+	having(),      orHaving(),
+
+以下 C++ 方法在第 4 个参数中支持 printf 格式字符串：
+
+	join(),
+	leftJoin(),
+	rightJoin(),
+	fullJoin(),
+
+其他支持 printf 格式字符串的 C++ 方法：
+
+	whereBetween() 系列
+	whereIn() 系列
+
+C++ 语言示例：
+
+```c++
+	// --- 第 3 个参数中的 printf 格式字符串 ---
+	// WHERE id < 100
+	query->where("id", "<", "%d", 100);
+	// AND email LIKE 'guest%'
+	query->where("email", "LIKE", "'%s'", "guest%");
+
+	// --- 第 1 个参数中的 printf 格式字符串 ---
+	// AND city  LIKE 'ber%'
+	query->whereRaw("city  LIKE '%s'", "ber%");
+```
+
+C++ 方法具有省略 printf 格式字符串的重载函数：
+
+```c++
+	// --- 省略第 3 个参数中的 printf 格式字符串 ---
+	// WHERE id < 100
+	query->where("id", "<", 100);
+	// AND email LIKE 'guest%'
+	query->where("email", "LIKE", "guest%");
+```
+
+如果以下 C++ 方法的第二个参数不存在，则将第一个参数作为原始字符串处理。  
+这些 C++ 方法具有处理原始字符串的重载函数：
+
+	onRaw(),       orOnRaw(),
+	whereRaw(),    orWhereRaw(),
+	whereNotRaw(), orWhereNotRaw(),
+	havingRaw(),   orHavingRaw(),
+	select(),
+	groupBy(),
+	orderBy()
+
+C++ 语言示例：
+
+```c++
+	// 如果第二个参数不存在，则将第一个参数作为原始字符串处理。
+	// WHERE city LIKE 'ber%'
+	query->whereRaw("city LIKE 'ber%'");
+```
+
+## 附錄 : 使用宏生成查询
 
 宏 SQ_QUERY_DO() 用于构建查询。宏中的最后一个参数类似于 lambda 函数。
 

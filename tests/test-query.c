@@ -67,14 +67,16 @@ void test_query_c(SqQuery *query)
 	free(sql);
 
 	// --- test 2 ---
-	result = "WHERE column = 'Has%sign' "
-	             "OR name = 'StrHas%sign' "
-	             "OR city_id > 10";
+	result = "WHERE city_id > 10 "
+	            "OR column = 'strHas%sign' "
+	            "OR name = 'strHas%sign' "
+	            "OR addr = 'strHas%sign'";
 
+	sq_query_where(query,    "city_id", ">", "10");
 	// special case: 3rd or 4th argument is raw string
-	sq_query_where(query,    "column",          "'Has%sign'");
-	sq_query_or_where(query, "name",    "'%s'", "StrHas%sign");
-	sq_query_or_where(query, "city_id", ">",    "10");
+	sq_query_or_where(query, "column",         "'strHas%sign'");
+	sq_query_or_where(query, "name",   "'%s'",  "strHas%sign");
+	sq_query_or_where(query, "addr",   "=",    "'strHas%sign'");
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -330,7 +332,7 @@ void test_query_c_join(SqQuery *query)
 	sq_query_join_sub(query);
 		sq_query_from(query, "contacts");
 	sq_query_end_sub(query);
-	sq_query_on(query, "users.id", "%s", "contacts.user_id");
+	sq_query_on(query, "users.id", "=", "contacts.user_id");
 	sq_query_on_sub(query);
 		sq_query_on(query, "users.id", ">", "%d", 120);
 		sq_query_or_on(query, "contacts.id", ">", "%d", 90);
