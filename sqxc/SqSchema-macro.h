@@ -169,20 +169,23 @@ typedef struct Company
 
 // ----------------------------------------------------------------------------
 
-#define SQT_ADD_INDEX(index_name, column1_name, ...)    \
-		(column_cur_ = sq_table_add_index(table_cur_, index_name, column1_name, ##__VA_ARGS__, NULL))
+//      SQT_ADD_INDEX(index_name, column1_name, ...)
+#define SQT_ADD_INDEX(index_name, ...)    \
+		(column_cur_ = sq_table_add_index(table_cur_, index_name, __VA_ARGS__, NULL))
 
 #define SQT_DROP_INDEX(index_name)    \
 		sq_table_drop_index(table_cur_, index_name)
 
-#define SQT_ADD_UNIQUE(unique_name, column1_name, ...)    \
-		(column_cur_ = sq_table_add_unique(table_cur_, unique_name, column1_name, ##__VA_ARGS__, NULL))
+//      SQT_ADD_UNIQUE(unique_name, column1_name, ...)
+#define SQT_ADD_UNIQUE(unique_name, ...)    \
+		(column_cur_ = sq_table_add_unique(table_cur_, unique_name, __VA_ARGS__, NULL))
 
 #define SQT_DROP_UNIQUE(unique_name)    \
 		sq_table_drop_unique(table_cur_, unique_name)
 
-#define SQT_ADD_PRIMARY(primary_name, column1_name, ...)    \
-		(column_cur_ = sq_table_add_primary(table_cur_, primary_name, column1_name, ##__VA_ARGS__, NULL))
+//      SQT_ADD_PRIMARY(primary_name, column1_name, ...)
+#define SQT_ADD_PRIMARY(primary_name, ...)    \
+		(column_cur_ = sq_table_add_primary(table_cur_, primary_name, __VA_ARGS__, NULL))
 
 #define SQT_DROP_PRIMARY(primary_name)    \
 		sq_table_drop_primary(table_cur_, primary_name)

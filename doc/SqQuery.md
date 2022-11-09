@@ -93,7 +93,7 @@ use C++ language
 
 #### from / table
 
-from() and table() can specify database table. They do the same thing and support subquery, below "Subquery and Brackets" will explain the details.  
+from() and table() can specify database table. They do the same thing and support subquery, other details are explained in the titled "Subquery and Brackets".  
   
 use C language
 
@@ -169,7 +169,8 @@ These functions/methods are used to filter the results and apply conditions.
 e.g. generate below SQL statement.
 
 ```sql
-SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
+SELECT * FROM companies
+WHERE id > 15 OR city_id = 6 OR name LIKE '%Motor'
 ```
 
 use C language
@@ -204,13 +205,14 @@ C++ methods where() series have overloaded functions to omit printf format strin
 	query->orWhere("name", "LIKE", "'%Motor'");
 ```
 
-These methods can also be used to specify a group of query conditions, below "Subquery and Brackets" will explain the details.  
+These methods can also be used to specify a group of query conditions and subquery, other details are explained in the titled "Subquery and Brackets".  
   
 use C language
 
 ```c
-	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
+	// SELECT * FROM products
 	sq_query_table(query, "products");
+	// WHERE NOT ( city_id = 6 OR price < 100 )
 	sq_query_where_not_sub(query);
 		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
@@ -220,12 +222,13 @@ use C language
 use C++ language
 
 ```c++
-	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
+	// SELECT * FROM products
 	query->table("products")
+	// WHERE NOT ( city_id = 6 OR price < 100 )
 	     ->whereNot([query] {
 	         query->where("city_id", 6)
 	              ->orWhereRaw("price < %d", 100);
-		 });
+	     });
 ```
 
 #### whereBetween / orWhereBetween
@@ -236,8 +239,9 @@ The whereBetween method verifies that a column's value is between two values.
 use C language
 
 ```c
-	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
+	// SELECT * FROM users
 	sq_query_table(query, "users");
+	// WHERE votes BETWEEN 1 AND 100
 	sq_query_where_between(query, "votes", "%d", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
@@ -249,8 +253,9 @@ use C++ language
 C++ methods whereBetween() series have overloaded functions to omit printf format string:
 
 ```c++
-	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
+	// SELECT * FROM users
 	query->table("users")
+	// WHERE votes BETWEEN 1 AND 100
 	     ->whereBetween("votes", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
@@ -264,8 +269,9 @@ The whereNotBetween method verifies that a column's value lies outside of two va
 use C language
 
 ```c
-	// SELECT * FROM users WHERE votes NOT BETWEEN 1 AND 100
+	// SELECT * FROM users
 	sq_query_table(query, "users");
+	// WHERE votes NOT BETWEEN 1 AND 100
 	sq_query_where_not_between(query, "votes", "%d", 1, 100);
 
 	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
@@ -275,8 +281,9 @@ use C language
 use C++ language
 
 ```c++
-	// SELECT * FROM users WHERE votes NOT BETWEEN 1 AND 100
+	// SELECT * FROM users
 	query->table("users")
+	// WHERE votes NOT BETWEEN 1 AND 100
 	     ->whereNotBetween("votes", 1, 100);
 
 	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
@@ -363,12 +370,12 @@ use C++ language
 
 **Examples of brackets for having() series:**  
   
-Below "Subquery and Brackets" will explain the details.  
+Other details are explained in the titled "Subquery and Brackets".  
   
 use C language
 
 ```c
-	// ... HAVING (salary > 45 OR age < 21)
+	// ... HAVING ( salary > 45 OR age < 21 )
 	sq_query_having_sub(query);                 // start of brackets
 		sq_query_having(query, "salary", ">", "%d", 45);
 		sq_query_or_having(query, "age", "<", "%d", 21);
@@ -378,7 +385,7 @@ use C language
 use C++ language
 
 ```c++
-	// ... HAVING (salary > 45 OR age < 21)
+	// ... HAVING ( salary > 45 OR age < 21 )
 	query->having([query] {
 		query->having("salary", ">", 45);
 		query->orHaving("age", "<", 21);
@@ -744,29 +751,35 @@ sq_query_raw() and sq_query_printf() can append raw SQL statement in current nes
 e.g. generate below SQL statement.
 
 ```sql
-SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
+SELECT * FROM users
+WHERE city LIKE 'ber%'
+LIMIT 20 OFFSET 10
 ```
 
-use C language
+use C language  
+  
+sq_query_raw() use macro to count number of arguments. If the 3rd argument is NOT exist, the 2nd argument is handled as raw string.
 
 ```c
 	// "SELECT * FROM users"
 	sq_query_table(query, "users");
 
-	// "WHERE city LIKE 'ber%'" is raw string
+	// Because the 3rd argument does NOT exist, the 2nd argument is raw string.
 	sq_query_raw(query, "WHERE city LIKE 'ber%'");
 
-	// the 2nd argument is printf format string.
-	sq_query_printf(query, "LIMIT %d OFFSET %d", 20, 10);
+	// Because the 3rd argument does exist, the 2nd argument is printf format string.
+	sq_query_raw(query, "LIMIT %d OFFSET %d", 20, 10);
 ```
 
-use C++ language
+use C++ language  
+  
+C++ method raw() has overloaded function to handle raw string.
 
 ```c++
 	// "SELECT * FROM users"
 	query->table("users");
 
-	// Because the 2rd argument does not exist, the 1st argument is raw string.
+	// Because the 2nd argument does NOT exist, the 1st argument is raw string.
 	query->raw("WHERE city LIKE 'ber%'");
 
 	// Because the 2nd argument does exist, the 1st argument is printf format string.
@@ -967,7 +980,9 @@ use C++ language
 "union" two or more queries together.  
 
 ```sql
-SELECT name1 FROM product1 UNION SELECT name2 FROM product2
+SELECT name1 FROM product1
+UNION
+SELECT name2 FROM product2
 ```
 
 User must add other query after calling sq_query_union() or sq_query_union_all(), and calling sq_query_end_sub() in end of query.  
@@ -985,7 +1000,7 @@ use C language
 ```
 
 C++ method union_() and unionAll() use lambda function to add other query.
-* Because 'union' is C/C++ keyword, I must append '_' in tail of this method.
+* Because 'union' is C/C++ keyword, it must append '_' in tail of this method.
 
 use C++ language
 
@@ -1041,7 +1056,8 @@ If you specify table and columns in brackets, the brackets become subquery.
 e.g. generate below SQL statement.
 
 ```sql
-SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
+SELECT * FROM users
+WHERE (salary > 45 AND age < 21) OR id > 100
 ```
 
 use C functions to generate brackets:
@@ -1074,8 +1090,7 @@ If you don't specify table and columns in the subquery, the subquery becomes bra
 e.g. below is SQL statement that has subquery in condition.
 
 ```sql
-SELECT *
-FROM products
+SELECT * FROM products
 WHERE price < (SELECT amount FROM incomes)
 ```
 
@@ -1101,6 +1116,51 @@ use C++ language to generate subquery in condition:
 	         query->select("amount")
 	              ->from("incomes");
 	     });
+```
+
+## Portability
+
+There are some macros use extension ##__VA_ARGS__ to pass NULL at last argument.
+If your compiler doesn't support macro extension ##__VA_ARGS__, there are solutions can solve problem.  
+  
+sq_query_where_sub() series can use sq_query_where() series to replace:
+
+```c
+	// original
+	sq_query_where_sub(query);
+	sq_query_where_sub(query, "column", "<");
+
+	// replace to
+	sq_query_where(query, NULL);
+	sq_query_where(query, "column", "<", NULL);
+```
+
+sq_query_having_sub(), sq_query_on_sub() series can use sq_query_having(), sq_query_on() series to replace:
+
+```c
+	// original
+	sq_query_having_sub(query);
+	// replace to
+	sq_query_having(query, NULL);
+
+	// original
+	sq_query_on_sub(query, "column", "<");
+	// replace to
+	sq_query_on(query, "column", "<", NULL);
+```
+
+sq_query_join_sub() series can use sq_query_join() series to replace:
+
+```c
+	// original
+	sq_query_join_sub(query);
+	sq_query_join_sub(query, "table");
+	sq_query_join_sub(query, "table", "column", "<");
+
+	// replace to
+	sq_query_join(query, NULL);
+	sq_query_join(query, "table", NULL);
+	sq_query_join(query, "table", "column", "<", NULL);
 ```
 
 ## Appendix : functions that support printf format string

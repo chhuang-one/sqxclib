@@ -93,7 +93,7 @@ use C++ language
 
 #### from / table
 
-from() 和 table() 可以指定數據庫表。他們做同樣的事情並支持子查詢，下面的 "子查詢和括號" 會解釋細節。  
+from() 和 table() 可以指定數據庫表。他們做同樣的事情並支持子查詢，其他详细信息在标题为 "子查询和括号 "中解释。  
   
 使用 C 语言
 
@@ -169,7 +169,8 @@ sq_query_select() 可以在参数中指定多个列。
 例如: 生成下面的 SQL 语句。
 
 ```sql
-SELECT * FROM companies WHERE id > 15 OR city_id = 6 OR NOT members < 100
+SELECT * FROM companies
+WHERE id > 15 OR city_id = 6 OR name LIKE '%Motor'
 ```
 
 使用 C 语言
@@ -204,13 +205,14 @@ C++ 方法 where() 系列具有省略 printf 格式字符串的重载函数：
 	query->orWhere("name", "LIKE", "'%Motor'");
 ```
 
-这些方法也可以用来指定一组查询条件，下面的 "子查詢和括號" 會解釋細節。  
+这些方法也可以用来指定一组查询条件和子查询，其他详细信息在标题为 "子查询和括号" 中进行了解释。  
 
 使用 C 语言
 
 ```c
-	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
+	// SELECT * FROM products
 	sq_query_table(query, "products");
+	// WHERE NOT ( city_id = 6 OR price < 100 )
 	sq_query_where_not_sub(query);
 		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
@@ -220,12 +222,13 @@ C++ 方法 where() 系列具有省略 printf 格式字符串的重载函数：
 使用 C++ 语言
 
 ```c++
-	// SELECT * FROM products WHERE NOT ( city_id = 6 OR price < 100 )
+	// SELECT * FROM products
 	query->table("products")
+	//  WHERE NOT ( city_id = 6 OR price < 100 )
 	     ->whereNot([query] {
 	         query->where("city_id", 6)
 	              ->orWhereRaw("price < %d", 100);
-		 });
+	     });
 ```
 
 #### whereBetween / orWhereBetween
@@ -236,8 +239,9 @@ whereBetween 方法驗證列的值是否在兩個值之間。
 使用 C 语言
 
 ```c
-	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
+	// SELECT * FROM users
 	sq_query_table(query, "users");
+	//  WHERE votes BETWEEN 1 AND 100
 	sq_query_where_between(query, "votes", "%d", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
@@ -249,8 +253,9 @@ whereBetween 方法驗證列的值是否在兩個值之間。
 C++ 方法 whereBetween() 系列具有省略 printf 格式字符串的重载函数：
 
 ```c++
-	// SELECT * FROM users WHERE votes BETWEEN 1 AND 100
+	// SELECT * FROM users
 	query->table("users")
+	// WHERE votes BETWEEN 1 AND 100
 	     ->whereBetween("votes", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
@@ -264,8 +269,9 @@ whereNotBetween 方法驗證列的值是否位於兩個值之外。
 使用 C 语言
 
 ```c
-	// SELECT * FROM users WHERE votes NOT BETWEEN 1 AND 100
+	// SELECT * FROM users
 	sq_query_table(query, "users");
+	// WHERE votes NOT BETWEEN 1 AND 100
 	sq_query_where_not_between(query, "votes", "%d", 1, 100);
 
 	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
@@ -275,8 +281,9 @@ whereNotBetween 方法驗證列的值是否位於兩個值之外。
 使用 C++ 语言
 
 ```c++
-	// SELECT * FROM users WHERE votes NOT BETWEEN 1 AND 100
+	// SELECT * FROM users
 	query->table("users")
+	// WHERE votes NOT BETWEEN 1 AND 100
 	     ->whereNotBetween("votes", 1, 100);
 
 	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
@@ -363,12 +370,12 @@ having() 系列的用法与 where() 类似。
 
 **having() 系列的括號示例**  
   
-下面的 "子查詢和括號" 會解釋細節。  
+其他详细信息在标题为 "子查询和括号" 中进行了解释。  
   
 使用 C 语言
 
 ```c
-	// ... HAVING (salary > 45 OR age < 21)
+	// ... HAVING ( salary > 45 OR age < 21 )
 	sq_query_having_sub(query);                 // start of brackets
 		sq_query_having(query, "salary", ">", "%d", 45);
 		sq_query_or_having(query, "age", "<", "%d", 21);
@@ -378,7 +385,7 @@ having() 系列的用法与 where() 类似。
 使用 C++ 语言
 
 ```c++
-	// ... HAVING (salary > 45 OR age < 21)
+	// ... HAVING ( salary > 45 OR age < 21 )
 	query->having([query] {
 		query->having("salary", ">", 45);
 		query->orHaving("age", "<", 21);
@@ -744,23 +751,29 @@ sq_query_raw() 和 sq_query_printf() 可以在当前嵌套或子查询中附加�
 例如: 生成下面的 SQL 语句。
 
 ```sql
-SELECT * FROM users WHERE city LIKE 'ber%' LIMIT 20 OFFSET 10
+SELECT * FROM users
+WHERE city LIKE 'ber%'
+LIMIT 20 OFFSET 10
 ```
 
-使用 C 语言
+使用 C 语言  
+  
+sq_query_raw() 使用宏来计算参数的数量。如果第三个参数不存在，则将第二个参数作为原始字符串处理。
 
 ```c
 	// "SELECT * FROM users"
 	sq_query_table(query, "users");
 
-	// "WHERE city LIKE 'ber%'" 是原始字符串
+	// 因为第三个参数不存在，所以第二个参数是原始字符串。
 	sq_query_raw(query, "WHERE city LIKE 'ber%'");
 
-	// 第二个参数是 printf 格式字符串。
-	sq_query_printf(query, "LIMIT %d OFFSET %d", 20, 10);
+	// 因为第三个参数确实存在，所以第二个参数是 printf 格式字符串。
+	sq_query_raw(query, "LIMIT %d OFFSET %d", 20, 10);
 ```
 
-使用 C++ 语言
+使用 C++ 语言  
+  
+C++ 方法 raw() 具有处理原始字符串的重载函数。
 
 ```c++
 	// "SELECT * FROM users"
@@ -967,7 +980,9 @@ WHERE age > 5
 将两个或多个查询 “联合” 在一起。  
 
 ```sql
-SELECT name1 FROM product1 UNION SELECT name2 FROM product2
+SELECT name1 FROM product1
+UNION
+SELECT name2 FROM product2
 ```
 
 用户必须在调用 sq_query_union() 或 sq_query_union_all() 后添加其他查询，并在查询结束时调用 sq_query_end_sub()。  
@@ -985,7 +1000,7 @@ SELECT name1 FROM product1 UNION SELECT name2 FROM product2
 ```
 
 C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
-* 因为 'union' 是 C/C++ 关键字，所以我必须在此方法的尾部附加 '_'。
+* 因为 'union' 是 C/C++ 关键字，所以必须在这个方法的尾部附加 '_'。
 
 使用 C++ 语言
 
@@ -1041,7 +1056,8 @@ SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序
 例如: 生成下面的 SQL 语句。
 
 ```sql
-SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
+SELECT * FROM users
+WHERE (salary > 45 AND age < 21) OR id > 100
 ```
 
 使用 C 函数生成括号：
@@ -1074,8 +1090,7 @@ SELECT * FROM users WHERE (salary > 45 AND age < 21) OR id > 100
 例如: 下面是在条件中有子查询的 SQL 语句。
 
 ```sql
-SELECT *
-FROM products
+SELECT * FROM products
 WHERE price < (SELECT amount FROM incomes)
 ```
 
@@ -1101,6 +1116,51 @@ WHERE price < (SELECT amount FROM incomes)
 	         query->select("amount")
 	              ->from("incomes");
 	     });
+```
+
+## 可移植性 Portability
+
+有一些宏使用扩展 ##__VA_ARGS__ 在最后一个参数传递 NULL。
+如果您的编译器不支持宏扩展 ##__VA_ARGS__，有解决方案可以解决问题。  
+  
+sq_query_where_sub() 系列可以使用 sq_query_where() 系列来代替：
+
+```c
+	// 原来的
+	sq_query_where_sub(query);
+	sq_query_where_sub(query, "column", "<");
+
+	// 替换为
+	sq_query_where(query, NULL);
+	sq_query_where(query, "column", "<", NULL);
+```
+
+sq_query_having_sub(), sq_query_on_sub() 系列可以使用 sq_query_having(), sq_query_on() 系列来代替：
+
+```c
+	// 原来的
+	sq_query_having_sub(query);
+	// 替换为
+	sq_query_having(query, NULL);
+
+	// 原来的
+	sq_query_on_sub(query, "column", "<");
+	// 替换为
+	sq_query_on(query, "column", "<", NULL);
+```
+
+sq_query_join_sub() 系列可以使用 sq_query_join() 系列来替换：
+
+```c
+	// 原来的
+	sq_query_join_sub(query);
+	sq_query_join_sub(query, "table");
+	sq_query_join_sub(query, "table", "column", "<");
+
+	// 替换为
+	sq_query_join(query, NULL);
+	sq_query_join(query, "table", NULL);
+	sq_query_join(query, "table", "column", "<", NULL);
 ```
 
 ## 附錄 : 支持 printf 格式字符串的函數
