@@ -213,10 +213,12 @@ C++ 方法 where() 系列具有省略 printf 格式字符串的重载函数：
 	// SELECT * FROM products
 	sq_query_table(query, "products");
 	// WHERE NOT ( city_id = 6 OR price < 100 )
-	sq_query_where_not_sub(query);
+
+//	sq_query_where_not_sub(query);      // 括号的开始
+	sq_query_where_not(query, NULL);    // 括号的开始
 		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);            // 括号的结束
 ```
 
 使用 C++ 语言
@@ -224,7 +226,7 @@ C++ 方法 where() 系列具有省略 printf 格式字符串的重载函数：
 ```c++
 	// SELECT * FROM products
 	query->table("products")
-	//  WHERE NOT ( city_id = 6 OR price < 100 )
+	     // WHERE NOT ( city_id = 6 OR price < 100 )
 	     ->whereNot([query] {
 	         query->where("city_id", 6)
 	              ->orWhereRaw("price < %d", 100);
@@ -241,7 +243,7 @@ whereBetween 方法驗證列的值是否在兩個值之間。
 ```c
 	// SELECT * FROM users
 	sq_query_table(query, "users");
-	//  WHERE votes BETWEEN 1 AND 100
+	// WHERE votes BETWEEN 1 AND 100
 	sq_query_where_between(query, "votes", "%d", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
@@ -255,7 +257,7 @@ C++ 方法 whereBetween() 系列具有省略 printf 格式字符串的重载函�
 ```c++
 	// SELECT * FROM users
 	query->table("users")
-	// WHERE votes BETWEEN 1 AND 100
+	     // WHERE votes BETWEEN 1 AND 100
 	     ->whereBetween("votes", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
@@ -283,7 +285,7 @@ whereNotBetween 方法驗證列的值是否位於兩個值之外。
 ```c++
 	// SELECT * FROM users
 	query->table("users")
-	// WHERE votes NOT BETWEEN 1 AND 100
+	     // WHERE votes NOT BETWEEN 1 AND 100
 	     ->whereNotBetween("votes", 1, 100);
 
 	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
@@ -376,10 +378,11 @@ having() 系列的用法与 where() 类似。
 
 ```c
 	// ... HAVING ( salary > 45 OR age < 21 )
-	sq_query_having_sub(query);                 // start of brackets
+//	sq_query_having_sub(query);                 // 括号的开始
+	sq_query_having(query, NULL);               // 括号的开始
 		sq_query_having(query, "salary", ">", "%d", 45);
 		sq_query_or_having(query, "age", "<", "%d", 21);
-	sq_query_end_sub(query);                    // end of brackets
+	sq_query_end_sub(query);                    // 括号的结束
 ```
 
 使用 C++ 语言
@@ -896,10 +899,13 @@ WHERE age > 5
 ```c
 	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
-	sq_query_join_sub(query);                   // 子查询的开始
+
+//	sq_query_join_sub(query);                   // 子查询的开始
+	sq_query_join(query, NULL);                 // 子查询的开始
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // 子查询的结束
+
 	sq_query_as(query, "c");
 	sq_query_on_raw(query, "c.id = companies.city_id");
 	sq_query_where_raw(query, "age > %d", 5);
@@ -921,27 +927,33 @@ WHERE age > 5
 
 **join() 和 on() 系列的子查詢和括號的更多示例：**  
   
-使用 C 语言
+使用 C 语言  
+  
+* sq_query_join_sub() and sq_query_on_sub() 系列使用宏扩展 ##__VA_ARGS__。
 
 ```c
 	// ... JOIN city ON ( city.id = companies.city_id )
-	sq_query_join_sub(query, "city");           // 括号的开始
+//	sq_query_join_sub(query, "city");           // 括号的开始
+	sq_query_join(query, "city", NULL);         // 括号的开始
 		sq_query_on(query, "city.id", "=", "%s", "companies.city_id");
 	sq_query_end_sub(query);                    // 括号的结束
 
 	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
-	sq_query_join_sub(query, "city", "city.id", "=");    // 子查询的开始
+//	sq_query_join_sub(query, "city", "city.id", "=");    // 子查询的开始
+	sq_query_join(query, "city", "city.id", "=", NULL);  // 子查询的开始
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 	sq_query_end_sub(query);                             // 子查询的结束
 
 	// ... ON ( city.id < 100 )
-	sq_query_on_sub(query);                     // 括号的开始
+//	sq_query_on_sub(query);                     // 括号的开始
+	sq_query_on(query, NULL);                   // 括号的开始
 		sq_query_on(query, "city.id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // 括号的结束
 
 	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
-	sq_query_on_sub(query, "city.id", "<");     // 子查询的开始
+//	sq_query_on_sub(query, "city.id", "<");     // 子查询的开始
+	sq_query_on(query, "city.id", "<", NULL);   // 子查询的开始
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 		sq_query_where(query, "id", "=", "%d", 25);
@@ -1018,7 +1030,9 @@ C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
 
 SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序内部的实现方式相同。  
   
-以下 C 函数支持子查询或括号：
+以下 C 函数支持子查询或括号：  
+  
+* sq_query_xxxx_sub() 系列使用宏扩展 ##__VA_ARGS__。如果您的 C 预处理器不支持它，请参阅下面的 "可移植性"。
 
 	sq_query_from_sub(),
 	sq_query_join_sub(),
@@ -1064,10 +1078,13 @@ WHERE (salary > 45 AND age < 21) OR id > 100
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_where_sub(query);                  // 括号的开始
+
+//	sq_query_where_sub(query);                  // 括号的开始
+	sq_query_where(query, NULL);                // 括号的开始
 		sq_query_where(query, "salary", ">", "%d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // 括号结束
+
 	sq_query_or_where_raw(query, "id > %d", 100);
 ```
 
@@ -1099,8 +1116,10 @@ WHERE price < (SELECT amount FROM incomes)
 ```c
 	// SELECT * FROM products
 	sq_query_from(query, "products");
+
 	// WHERE price < ( SELECT amount FROM incomes )
-	sq_query_where_sub(query, "price", "<");    // 子查询的开始
+//	sq_query_where_sub(query, "price", "<");    // 子查询的开始
+	sq_query_where(query, "price", "<", NULL);  // 子查询的开始
 		sq_query_select(query, "amount");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // 子查询的结束
@@ -1120,7 +1139,7 @@ WHERE price < (SELECT amount FROM incomes)
 
 ## 可移植性 Portability
 
-有一些宏使用扩展 ##__VA_ARGS__ 在最后一个参数传递 NULL。
+sq_query_xxxx_sub() 系列使用宏扩展 ##__VA_ARGS__ 在最后一个参数传递 NULL。
 如果您的编译器不支持宏扩展 ##__VA_ARGS__，有解决方案可以解决问题。  
   
 sq_query_where_sub() 系列可以使用 sq_query_where() 系列来代替：

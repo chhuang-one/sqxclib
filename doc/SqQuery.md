@@ -212,11 +212,13 @@ use C language
 ```c
 	// SELECT * FROM products
 	sq_query_table(query, "products");
+
 	// WHERE NOT ( city_id = 6 OR price < 100 )
-	sq_query_where_not_sub(query);
+//	sq_query_where_not_sub(query);      // start of brackets
+	sq_query_where_not(query, NULL);    // start of brackets
 		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);            // end of brackets
 ```
 
 use C++ language
@@ -224,7 +226,7 @@ use C++ language
 ```c++
 	// SELECT * FROM products
 	query->table("products")
-	// WHERE NOT ( city_id = 6 OR price < 100 )
+	     // WHERE NOT ( city_id = 6 OR price < 100 )
 	     ->whereNot([query] {
 	         query->where("city_id", 6)
 	              ->orWhereRaw("price < %d", 100);
@@ -255,7 +257,7 @@ C++ methods whereBetween() series have overloaded functions to omit printf forma
 ```c++
 	// SELECT * FROM users
 	query->table("users")
-	// WHERE votes BETWEEN 1 AND 100
+	     // WHERE votes BETWEEN 1 AND 100
 	     ->whereBetween("votes", 1, 100);
 
 	// OR name BETWEEN 'Ray' AND 'Zyx'
@@ -283,7 +285,7 @@ use C++ language
 ```c++
 	// SELECT * FROM users
 	query->table("users")
-	// WHERE votes NOT BETWEEN 1 AND 100
+	     // WHERE votes NOT BETWEEN 1 AND 100
 	     ->whereNotBetween("votes", 1, 100);
 
 	// OR name NOT BETWEEN 'Ray' AND 'Zyx'
@@ -376,7 +378,8 @@ use C language
 
 ```c
 	// ... HAVING ( salary > 45 OR age < 21 )
-	sq_query_having_sub(query);                 // start of brackets
+//	sq_query_having_sub(query);                 // start of brackets
+	sq_query_having(query, NULL);               // start of brackets
 		sq_query_having(query, "salary", ">", "%d", 45);
 		sq_query_or_having(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of brackets
@@ -896,10 +899,13 @@ use C language to generate subquery:
 ```c
 	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
-	sq_query_join_sub(query);                   // start of subquery
+
+//	sq_query_join_sub(query);                   // start of subquery
+	sq_query_join(query, NULL);                 // start of subquery
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // end of subquery
+
 	sq_query_as(query, "c");
 	sq_query_on_raw(query, "c.id = companies.city_id");
 	sq_query_where_raw(query, "age > %d", 5);
@@ -921,27 +927,33 @@ use C++ lambda functions to generate subquery:
 
 **More examples of subquery and brackets for join() and on(): series**  
   
-use C language
+use C language  
+  
+* sq_query_join_sub() and sq_query_on_sub() series use macro extension ##__VA_ARGS__.
 
 ```c
 	// ... JOIN city ON ( city.id = companies.city_id )
-	sq_query_join_sub(query, "city");           // start of brackets
+//	sq_query_join_sub(query, "city");           // start of brackets
+	sq_query_join(query, "city", NULL);         // start of brackets
 		sq_query_on(query, "city.id", "=", "%s", "companies.city_id");
 	sq_query_end_sub(query);                    // end of brackets
 
 	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
-	sq_query_join_sub(query, "city", "city.id", "=");    // start of subquery
+//	sq_query_join_sub(query, "city", "city.id", "=");    // start of subquery
+	sq_query_join(query, "city", "city.id", "=", NULL);  // start of subquery
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 	sq_query_end_sub(query);                             // end of subquery
 
 	// ... ON ( city.id < 100 )
-	sq_query_on_sub(query);                     // start of brackets
+//	sq_query_on_sub(query);                     // start of brackets
+	sq_query_on(query, NULL);                   // start of brackets
 		sq_query_on(query, "city.id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // end of brackets
 
 	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
-	sq_query_on_sub(query, "city.id", "<");     // start of subquery
+//	sq_query_on_sub(query, "city.id", "<");     // start of subquery
+	sq_query_on(query, "city.id", "<", NULL);   // start of subquery
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 		sq_query_where(query, "id", "=", "%d", 25);
@@ -1018,7 +1030,9 @@ use C++ language
 
 SqQuery can produce subquery or brackets. In fact, They are implemented the same way inside programs.  
   
-below C functions support subquery or brackets:
+below C functions support subquery or brackets:  
+  
+* sq_query_xxxx_sub() series use macro extension ##__VA_ARGS__. If your C preprocessor does NOT support it, see below "Portability".
 
 	sq_query_from_sub(),
 	sq_query_join_sub(),
@@ -1064,10 +1078,13 @@ use C functions to generate brackets:
 
 ```c
 	sq_query_table(query, "users");
-	sq_query_where_sub(query);                  // start of brackets
+
+//	sq_query_where_sub(query);                  // start of brackets
+	sq_query_where(query, NULL);                // start of brackets
 		sq_query_where(query, "salary", ">", "%d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of brackets
+
 	sq_query_or_where_raw(query, "id > %d", 100);
 ```
 
@@ -1099,8 +1116,10 @@ use C language to generate subquery in condition:
 ```c
 	// SELECT * FROM products
 	sq_query_from(query, "products");
+
 	// WHERE price < ( SELECT amount FROM incomes )
-	sq_query_where_sub(query, "price", "<");    // start of subquery
+//	sq_query_where_sub(query, "price", "<");    // start of subquery
+	sq_query_where(query, "price", "<", NULL);  // start of subquery
 		sq_query_select(query, "amount");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // end of subquery
@@ -1120,7 +1139,7 @@ use C++ language to generate subquery in condition:
 
 ## Portability
 
-There are some macros use extension ##__VA_ARGS__ to pass NULL at last argument.
+sq_query_xxxx_sub() series use macro extension ##__VA_ARGS__ to pass NULL in the last argument.
 If your compiler doesn't support macro extension ##__VA_ARGS__, there are solutions can solve problem.  
   
 sq_query_where_sub() series can use sq_query_where() series to replace:

@@ -99,14 +99,16 @@ void test_query_c_where_not(SqQuery *query)
 
 	// SELECT * FROM users
 	sq_query_from(query, "users");
+
 	// WHERE NOT (
-	sq_query_where_not_sub(query);
+//	sq_query_where_not_sub(query);        // start of brackets
+	sq_query_where_not(query, NULL);      // start of brackets
 		// votes > 100
 		sq_query_where(query, "votes", ">", "%d", 100);
 		// OR name IN ('Ray', 'Zyx')
 		sq_query_or_where_in(query, "name", 2, "'%s'", "Ray", "Zyx");
 	// )
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);              // end of brackets
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);
@@ -270,7 +272,8 @@ void test_query_c_brackets(SqQuery *query)
 	sq_query_where_raw(query, "salary > %d", 2150);
 
 	// AND ( id > 22 AND age < 10 )
-	sq_query_where_sub(query);                  // start of brackets
+//	sq_query_where_sub(query);                  // start of brackets
+	sq_query_where(query, NULL);                // start of brackets
 		sq_query_where(query, "id",  ">", "%d", 22);
 		sq_query_where(query, "age", "<", "%d", 10);
 	sq_query_end_sub(query);                    // end of brackets
@@ -290,7 +293,8 @@ void test_query_c_subquery(SqQuery *query)
 
 	result = "WHERE price < ( SELECT amount FROM incomes )";
 
-	sq_query_where_sub(query, "price", "<");    // start of subquery
+//	sq_query_where_sub(query, "price", "<");    // start of subquery
+	sq_query_where(query, "price", "<", NULL);  // start of subquery
 		sq_query_select(query, "amount");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // end of subquery
@@ -329,14 +333,19 @@ void test_query_c_join(SqQuery *query)
 	             "ON users.id = contacts.user_id AND ( users.id > 120 OR contacts.id > 90 )";
 
 	sq_query_from(query, "users");
-	sq_query_join_sub(query);
+
+//	sq_query_join_sub(query);        // start of subquery
+	sq_query_join(query, NULL);      // start of subquery
 		sq_query_from(query, "contacts");
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);         // end of subquery
+
 	sq_query_on(query, "users.id", "=", "contacts.user_id");
-	sq_query_on_sub(query);
+
+//	sq_query_on_sub(query);          // start of brackets
+	sq_query_on(query, NULL);        // start of brackets
 		sq_query_on(query, "users.id", ">", "%d", 120);
 		sq_query_or_on(query, "contacts.id", ">", "%d", 90);
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);         // end of brackets
 
 	sql = sq_query_to_sql(query);
 	sq_query_clear(query);

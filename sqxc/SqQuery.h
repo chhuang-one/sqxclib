@@ -252,6 +252,12 @@ void    sq_query_as(SqQuery *query, const char *name);
 void    sq_query_join_full(SqQuery *query, unsigned int join_args, const char *table, ...);
 void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 
+// ---- sq_query_join_sub() ---- replacement
+// void sq_query_join(SqQuery *query, NULL);
+// void sq_query_join(SqQuery *query, const char *table, NULL);
+// void sq_query_join(SqQuery *query, const char *table, const char *column, NULL);
+// void sq_query_join(SqQuery *query, const char *table, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_join(SqQuery *query, const char *table, const char *column, const char *format, ...);
 // void sq_query_join(SqQuery *query, const char *table, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_join(query, ...)                 \
@@ -264,6 +270,12 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 #define sq_query_join_sub(query, ...)             \
 		sq_query_join_full(query, SQ_QUERYJOIN_INNER | SQ_QUERYARGS_DECIDE(-1, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
 
+// ---- sq_query_left_join_sub() ---- replacement
+// void sq_query_left_join(SqQuery *query, NULL);
+// void sq_query_left_join(SqQuery *query, const char *table, NULL);
+// void sq_query_left_join(SqQuery *query, const char *table, const char *column, NULL);
+// void sq_query_left_join(SqQuery *query, const char *table, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_left_join(SqQuery *query, const char *table, const char *column, const char *format, ...);
 // void sq_query_left_join(SqQuery *query, const char *table, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_left_join(query, ...)            \
@@ -276,6 +288,12 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 #define sq_query_left_join_sub(query, ...)        \
 		sq_query_join_full(query, SQ_QUERYJOIN_LEFT  | SQ_QUERYARGS_DECIDE(-1, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
 
+// ---- sq_query_right_join_sub() ---- replacement
+// void sq_query_right_join(SqQuery *query, NULL);
+// void sq_query_right_join(SqQuery *query, const char *table, NULL);
+// void sq_query_right_join(SqQuery *query, const char *table, const char *column, NULL);
+// void sq_query_right_join(SqQuery *query, const char *table, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_right_join(SqQuery *query, const char *table, const char *column, const char *format, ...);
 // void sq_query_right_join(SqQuery *query, const char *table, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_right_join(query, ...)           \
@@ -288,6 +306,12 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 #define sq_query_right_join_sub(query, ...)       \
 		sq_query_join_full(query, SQ_QUERYJOIN_RIGHT | SQ_QUERYARGS_DECIDE(-1, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
 
+// ---- sq_query_full_join_sub() ---- replacement
+// void sq_query_full_join(SqQuery *query, NULL);
+// void sq_query_full_join(SqQuery *query, const char *table, NULL);
+// void sq_query_full_join(SqQuery *query, const char *table, const char *column, NULL);
+// void sq_query_full_join(SqQuery *query, const char *table, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_full_join(SqQuery *query, const char *table, const char *column, const char *format, ...);
 // void sq_query_full_join(SqQuery *query, const char *table, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_full_join(query, ...)            \
@@ -308,10 +332,21 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 #define sq_query_cross_join_sub(query)            \
 		sq_query_join_full(query, SQ_QUERYJOIN_CROSS, NULL,  NULL)
 
+// ---- sq_query_on_sub() ---- replacement
+// void sq_query_on(SqQuery *query, NULL);
+// void sq_query_on(SqQuery *query, const char *column, NULL);
+// void sq_query_on(SqQuery *query, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_on(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_on(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_on(query, ...)            \
 		sq_query_on_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
+
+// ---- sq_query_or_on_sub() ---- replacement
+// void sq_query_or_on(SqQuery *query, NULL);
+// void sq_query_or_on(SqQuery *query, const char *column, NULL);
+// void sq_query_or_on(SqQuery *query, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_or_on(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_or_on(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_or_on(query, ...)         \
@@ -321,6 +356,7 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_on_raw(SqQuery *query, const char *format, ...);
 #define sq_query_on_raw(query, ...)        \
 		sq_query_on_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
+
 // void sq_query_or_on_raw(SqQuery *query, const char *raw);
 // void sq_query_or_on_raw(SqQuery *query, const char *format, ...);
 #define sq_query_or_on_raw(query, ...)     \
@@ -331,6 +367,7 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_on_sub(SqQuery *query, const char *column, const char *Operator);
 #define sq_query_on_sub(query, ...)        \
 		sq_query_on_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+
 // void sq_query_or_on_sub(SqQuery *query);
 // void sq_query_or_on_sub(SqQuery *query, const char *column);
 // void sq_query_or_on_sub(SqQuery *query, const char *column, const char *Operator);
@@ -340,10 +377,21 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 // SQL: WHERE
 void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 
+// ---- sq_query_where_sub() ---- replacement
+// void sq_query_where(SqQuery *query, NULL);
+// void sq_query_where(SqQuery *query, const char *column, NULL);
+// void sq_query_where(SqQuery *query, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_where(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_where(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_where(query, ...)            \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
+
+// ---- sq_query_or_where_sub() ---- replacement
+// void sq_query_or_where(SqQuery *query, NULL);
+// void sq_query_or_where(SqQuery *query, const char *column, NULL);
+// void sq_query_or_where(SqQuery *query, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_or_where(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_or_where(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_or_where(query, ...)         \
@@ -353,6 +401,7 @@ void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_where_raw(SqQuery *query, const char *format, ...);
 #define sq_query_where_raw(query, ...)        \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
+
 // void sq_query_or_where_raw(SqQuery *query, const char *raw);
 // void sq_query_or_where_raw(SqQuery *query, const char *format, ...);
 #define sq_query_or_where_raw(query, ...)     \
@@ -363,6 +412,7 @@ void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_where_sub(SqQuery *query, const char *column, const char *Operator);
 #define sq_query_where_sub(query, ...)        \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+
 // void sq_query_or_where_sub(SqQuery *query);
 // void sq_query_or_where_sub(SqQuery *query, const char *column);
 // void sq_query_or_where_sub(SqQuery *query, const char *column, const char *Operator);
@@ -371,10 +421,21 @@ void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 
 // SQL: WHERE NOT
 
+// ---- sq_query_where_not_sub() ---- replacement
+// void sq_query_where_not(SqQuery *query, NULL);
+// void sq_query_where_not(SqQuery *query, const char *column, NULL);
+// void sq_query_where_not(SqQuery *query, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_where_not(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_where_not(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_where_not(query, ...)            \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
+
+// ---- sq_query_or_where_not_sub() ---- replacement
+// void sq_query_or_where_not(SqQuery *query, NULL);
+// void sq_query_or_where_not(SqQuery *query, const char *column, NULL);
+// void sq_query_or_where_not(SqQuery *query, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_or_where_not(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_or_where_not(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_or_where_not(query, ...)         \
@@ -384,6 +445,7 @@ void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_where_not_raw(SqQuery *query, const char *format, ...);
 #define sq_query_where_not_raw(query, ...)        \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
+
 // void sq_query_or_where_not_raw(SqQuery *query, const char *raw);
 // void sq_query_or_where_not_raw(SqQuery *query, const char *format, ...);
 #define sq_query_or_where_not_raw(query, ...)     \
@@ -394,6 +456,7 @@ void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_where_not_sub(SqQuery *query, const char *column, const char *Operator);
 #define sq_query_where_not_sub(query, ...)        \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+
 // void sq_query_or_where_not_sub(SqQuery *query);
 // void sq_query_or_where_not_sub(SqQuery *query, const char *column);
 // void sq_query_or_where_not_sub(SqQuery *query, const char *column, const char *Operator);
@@ -484,10 +547,21 @@ void    sq_query_group_by_list(SqQuery *query, ...);
 // SQL: HAVING
 void    sq_query_having_logical(SqQuery *query, unsigned int logi_args, ...);
 
+// ---- sq_query_having_sub() ---- replacement
+// void sq_query_having(SqQuery *query, NULL);
+// void sq_query_having(SqQuery *query, const char *column, NULL);
+// void sq_query_having(SqQuery *query, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_having(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_having(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_having(query, ...)            \
 		sq_query_having_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
+
+// ---- sq_query_or_having_sub() ---- replacement
+// void sq_query_or_having(SqQuery *query, NULL);
+// void sq_query_or_having(SqQuery *query, const char *column, NULL);
+// void sq_query_or_having(SqQuery *query, const char *column, const char *Operator, NULL);
+// ----
 // void sq_query_or_having(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_or_having(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
 #define sq_query_or_having(query, ...)         \
@@ -497,6 +571,7 @@ void    sq_query_having_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_having_raw(SqQuery *query, const char *format, ...);
 #define sq_query_having_raw(query, ...)        \
 		sq_query_having_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
+
 // void sq_query_or_having_raw(SqQuery *query, const char *raw);
 // void sq_query_or_having_raw(SqQuery *query, const char *format, ...);
 #define sq_query_or_having_raw(query, ...)     \
@@ -507,6 +582,7 @@ void    sq_query_having_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_having_sub(SqQuery *query, const char *column, const char *Operator);
 #define sq_query_having_sub(query, ...)        \
 		sq_query_having_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+
 // void sq_query_or_having_sub(SqQuery *query);
 // void sq_query_or_having_sub(SqQuery *query, const char *column);
 // void sq_query_or_having_sub(SqQuery *query, const char *column, const char *Operator);
@@ -879,19 +955,22 @@ public:
 	// constructor
 	Where(std::function<void(SqQuery *query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_sub(query);     // start of subquery/brackets
+//		sq_query_where_sub(query);     // start of subquery/brackets
+		sq_query_where(query, NULL);   // start of subquery/brackets
 		func(query);
 		sq_query_end_sub(query);       // end of subquery/brackets
 	}
 	Where(std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_sub(query);     // start of subquery/brackets
+//		sq_query_where_sub(query);     // start of subquery/brackets
+		sq_query_where(query, NULL);   // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);       // end of subquery/brackets
 	}
 	Where(const char *column, std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_sub(query, column, "=");    // start of subquery/brackets
+//		sq_query_where_sub(query, column, "=");    // start of subquery/brackets
+		sq_query_where(query, column, "=", NULL);  // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);                   // end of subquery/brackets
 	}
@@ -913,7 +992,8 @@ public:
 	}
 	Where(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_sub(query, column, op);     // start of subquery/brackets
+//		sq_query_where_sub(query, column, op);     // start of subquery/brackets
+		sq_query_where(query, column, op, NULL);   // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);                   // end of subquery/brackets
 	}
@@ -955,19 +1035,22 @@ public:
 
 	// operator
 	Where &operator()(std::function<void(SqQuery *query)> func) {
-		sq_query_where_sub(query);     // start of subquery/brackets
+//		sq_query_where_sub(query);     // start of subquery/brackets
+		sq_query_where(query, NULL);   // start of subquery/brackets
 		func(query);
 		sq_query_end_sub(query);       // end of subquery/brackets
 		return *this;
 	}
 	Where &operator()(std::function<void(SqQuery &query)> func) {
-		sq_query_where_sub(query);     // start of subquery/brackets
+//		sq_query_where_sub(query);     // start of subquery/brackets
+		sq_query_where(query, NULL);   // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);       // end of subquery/brackets
 		return *this;
 	}
 	Where &operator()(const char *column, std::function<void(SqQuery &query)> func) {
-		sq_query_where_sub(query, column, "=");    // start of subquery/brackets
+//		sq_query_where_sub(query, column, "=");    // start of subquery/brackets
+		sq_query_where(query, column, "=", NULL);  // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);                   // end of subquery/brackets
 		return *this;
@@ -989,7 +1072,8 @@ public:
 		return *this;
 	}
 	Where &operator()(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
-		sq_query_where_sub(query, column, op);     // start of subquery/brackets
+//		sq_query_where_sub(query, column, op);     // start of subquery/brackets
+		sq_query_where(query, column, op, NULL);   // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);                   // end of subquery/brackets
 		return *this;
@@ -1028,19 +1112,22 @@ public:
 	// constructor
 	WhereNot(std::function<void(SqQuery *query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_sub(query);      // start of subquery/brackets
+//		sq_query_where_not_sub(query);      // start of subquery/brackets
+		sq_query_where_not(query, NULL);    // start of subquery/brackets
 		func(query);
 		sq_query_end_sub(query);            // end of subquery/brackets
 	}
 	WhereNot(std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_sub(query);      // start of subquery/brackets
+//		sq_query_where_not_sub(query);      // start of subquery/brackets
+		sq_query_where_not(query, NULL);    // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);            // end of subquery/brackets
 	}
 	WhereNot(const char *column, std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
+//		sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
+		sq_query_where_not(query, column, "=", NULL);  // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);                       // end of subquery/brackets
 	}
@@ -1062,7 +1149,8 @@ public:
 	}
 	WhereNot(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
 		query = (Sq::Query*)sq_query_new(NULL);
-		sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
+//		sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
+		sq_query_where_not(query, column, op, NULL);   // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);                       // end of subquery/brackets
 	}
@@ -1103,19 +1191,22 @@ public:
 
 	// operator
 	WhereNot &operator()(std::function<void(SqQuery *query)> func) {
-		sq_query_where_not_sub(query);      // start of subquery/brackets
+//		sq_query_where_not_sub(query);      // start of subquery/brackets
+		sq_query_where_not(query, NULL);    // start of subquery/brackets
 		func(query);
 		sq_query_end_sub(query);            // end of subquery/brackets
 		return *this;
 	}
 	WhereNot &operator()(std::function<void(SqQuery &query)> func) {
-		sq_query_where_not_sub(query);      // start of subquery/brackets
+//		sq_query_where_not_sub(query);      // start of subquery/brackets
+		sq_query_where_not(query, NULL);    // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);            // end of subquery/brackets
 		return *this;
 	}
 	WhereNot &operator()(const char *column, std::function<void(SqQuery &query)> func) {
-		sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
+//		sq_query_where_not_sub(query, column, "=");    // start of subquery/brackets
+		sq_query_where_not(query, column, "=", NULL);  // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);                       // end of subquery/brackets
 		return *this;
@@ -1137,7 +1228,8 @@ public:
 		return *this;
 	}
 	WhereNot &operator()(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
-		sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
+//		sq_query_where_not_sub(query, column, op);     // start of subquery/brackets
+		sq_query_where_not(query, column, op, NULL);   // start of subquery/brackets
 		func(*query);
 		sq_query_end_sub(query);                       // end of subquery/brackets
 		return *this;

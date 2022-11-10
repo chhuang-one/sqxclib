@@ -584,36 +584,42 @@ inline SQPT_RETURN  &SQPT_NAME::as(const char *name) {
 
 // join(table, condition...)
 inline SQPT_RETURN  &SQPT_NAME::join(std::function<void()> func) {
+//	sq_query_join_sub((SqQuery*)SQPT_DATAPTR);            // start of subquery/brackets
 	sq_query_join((SqQuery*)SQPT_DATAPTR, NULL);          // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::join(std::function<void(SqQuery &query)> func) {
+//	sq_query_join_sub((SqQuery*)SQPT_DATAPTR);            // start of subquery/brackets
 	sq_query_join((SqQuery*)SQPT_DATAPTR, NULL);          // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::join(const char *table, std::function<void()> func) {
+//	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::join(const char *table, std::function<void(SqQuery &query)> func) {
+//	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, std::function<void()> func) {
+//	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, "=", NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, "=", NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
@@ -636,12 +642,14 @@ inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, cons
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, const char *op, std::function<void()> func) {
+//	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, op, NULL);    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	sq_query_join((SqQuery*)SQPT_DATAPTR, table, column, op, NULL);    // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
@@ -673,36 +681,42 @@ inline SQPT_RETURN  &SQPT_NAME::join(const char *table, const char *column, cons
 
 // leftJoin(table, condition...)
 inline SQPT_RETURN  &SQPT_NAME::leftJoin(std::function<void()> func) {
+//	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, NULL);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::leftJoin(std::function<void(SqQuery &query)> func) {
+//	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, NULL);     // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, std::function<void()> func) {
+//	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, std::function<void(SqQuery &query)> func) {
+//	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, std::function<void()> func) {
+//	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, "=", NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, "=", NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
@@ -725,12 +739,14 @@ inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, 
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, const char *op, std::function<void()> func) {
+//	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, op, NULL);    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_left_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	sq_query_left_join((SqQuery*)SQPT_DATAPTR, table, column, op, NULL);    // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
@@ -762,36 +778,42 @@ inline SQPT_RETURN  &SQPT_NAME::leftJoin(const char *table, const char *column, 
 
 // rightJoin(table, condition...)
 inline SQPT_RETURN  &SQPT_NAME::rightJoin(std::function<void()> func) {
+//	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR);      // start of subquery/brackets
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, NULL);    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::rightJoin(std::function<void(SqQuery &query)> func) {
+//	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR);      // start of subquery/brackets
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, NULL);    // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, std::function<void()> func) {
+//	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table);    // start of subquery/brackets
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, std::function<void(SqQuery &query)> func) {
+//	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table);    // start of subquery/brackets
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, std::function<void()> func) {
+//	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, "=", NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                                // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, "=", NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                                // end of subquery/brackets
@@ -814,12 +836,14 @@ inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column,
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, const char *op, std::function<void()> func) {
+//	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, op, NULL);    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                                // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_right_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	sq_query_right_join((SqQuery*)SQPT_DATAPTR, table, column, op, NULL);    // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                                // end of subquery/brackets
@@ -851,36 +875,42 @@ inline SQPT_RETURN  &SQPT_NAME::rightJoin(const char *table, const char *column,
 
 // fullJoin(table, condition...)
 inline SQPT_RETURN  &SQPT_NAME::fullJoin(std::function<void()> func) {
+//	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, NULL);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::fullJoin(std::function<void(SqQuery &query)> func) {
+//	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, NULL);     // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, std::function<void()> func) {
+//	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, std::function<void(SqQuery &query)> func) {
+//	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table);     // start of subquery/brackets
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                  // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, std::function<void()> func) {
+//	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, "=", NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table, column, "=");     // start of subquery/brackets
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, "=", NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
@@ -903,12 +933,14 @@ inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, 
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, const char *op, std::function<void()> func) {
+//	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, op, NULL);    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::fullJoin(const char *table, const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_full_join_sub((SqQuery*)SQPT_DATAPTR, table, column, op);      // start of subquery/brackets
 	sq_query_full_join((SqQuery*)SQPT_DATAPTR, table, column, op, NULL);    // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                               // end of subquery/brackets
@@ -944,12 +976,14 @@ inline SQPT_RETURN  &SQPT_NAME::crossJoin(const char *table) {
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::crossJoin(std::function<void()> func) {
+//	sq_query_cross_join_sub((SqQuery*)SQPT_DATAPTR);      // start of subquery/brackets
 	sq_query_cross_join((SqQuery*)SQPT_DATAPTR, NULL);    // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::crossJoin(std::function<void(SqQuery &query)> func) {
+//	sq_query_cross_join_sub((SqQuery*)SQPT_DATAPTR);      // start of subquery/brackets
 	sq_query_cross_join((SqQuery*)SQPT_DATAPTR, NULL);    // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
@@ -958,24 +992,28 @@ inline SQPT_RETURN  &SQPT_NAME::crossJoin(std::function<void(SqQuery &query)> fu
 
 // on(condition, ...)
 inline SQPT_RETURN  &SQPT_NAME::on(std::function<void()> func) {
+//	sq_query_on_sub((SqQuery*)SQPT_DATAPTR);        // start of subquery/brackets
 	sq_query_on((SqQuery*)SQPT_DATAPTR, NULL);      // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::on(std::function<void(SqQuery &query)> func) {
+//	sq_query_on_sub((SqQuery*)SQPT_DATAPTR);        // start of subquery/brackets
 	sq_query_on((SqQuery*)SQPT_DATAPTR, NULL);      // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::on(const char *column, std::function<void()> func) {
+//	sq_query_on_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::on(const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_on_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                // end of subquery/brackets
@@ -998,12 +1036,14 @@ inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *value) {
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *op, std::function<void()> func) {
+//	sq_query_on_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::on(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_on_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_on((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                // end of subquery/brackets
@@ -1049,24 +1089,28 @@ inline SQPT_RETURN  &SQPT_NAME::onRaw(const char *format, const Args... args) {
 
 // orOn(condition, ...)
 inline SQPT_RETURN  &SQPT_NAME::orOn(std::function<void()> func) {
+//	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR);     // start of subquery/brackets
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orOn(std::function<void(SqQuery &query)> func) {
+//	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR);     // start of subquery/brackets
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, std::function<void()> func) {
+//	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
@@ -1089,12 +1133,14 @@ inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *value) {
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *op, std::function<void()> func) {
+//	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orOn(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_or_on_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_or_on((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
@@ -1140,24 +1186,28 @@ inline SQPT_RETURN  &SQPT_NAME::orOnRaw(const char *format, const Args... args) 
 
 // where(condition, ...)
 inline SQPT_RETURN  &SQPT_NAME::where(std::function<void()> func) {
+//	sq_query_where_sub((SqQuery*)SQPT_DATAPTR);     // start of subquery/brackets
 	sq_query_where((SqQuery*)SQPT_DATAPTR, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::where(std::function<void(SqQuery &query)> func) {
+//	sq_query_where_sub((SqQuery*)SQPT_DATAPTR);     // start of subquery/brackets
 	sq_query_where((SqQuery*)SQPT_DATAPTR, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::where(const char *column, std::function<void()> func) {
+//	sq_query_where_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::where(const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_where_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
@@ -1180,12 +1230,14 @@ inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *value) {
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *op, std::function<void()> func) {
+//	sq_query_where_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::where(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_where_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_where((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                   // end of subquery/brackets
@@ -1231,24 +1283,28 @@ inline SQPT_RETURN  &SQPT_NAME::whereRaw(const char *format, const Args... args)
 
 // orWhere(condition, ...)
 inline SQPT_RETURN  &SQPT_NAME::orWhere(std::function<void()> func) {
+//	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR);        // start of subquery/brackets
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, NULL);      // start of subquery/brackets
 	func();
 	sq_query_pop_nested((SqQuery*)SQPT_DATAPTR);          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhere(std::function<void(SqQuery &query)> func) {
+//	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR);        // start of subquery/brackets
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, NULL);      // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_pop_nested((SqQuery*)SQPT_DATAPTR);          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, std::function<void()> func) {
+//	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                      // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                      // end of subquery/brackets
@@ -1271,12 +1327,14 @@ inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *value) {
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *op, std::function<void()> func) {
+//	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                      // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhere(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_or_where_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_or_where((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                      // end of subquery/brackets
@@ -1322,24 +1380,28 @@ inline SQPT_RETURN  &SQPT_NAME::orWhereRaw(const char *format, const Args... arg
 
 // whereNot(condition, ...)
 inline SQPT_RETURN  &SQPT_NAME::whereNot(std::function<void()> func) {
+//	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, NULL);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::whereNot(std::function<void(SqQuery &query)> func) {
+//	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, NULL);     // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, std::function<void()> func) {
+//	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
@@ -1362,12 +1424,14 @@ inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *value) 
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *op, std::function<void()> func) {
+//	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::whereNot(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_where_not_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_where_not((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
@@ -1413,24 +1477,28 @@ inline SQPT_RETURN  &SQPT_NAME::whereNotRaw(const char *format, const Args... ar
 
 // orWhereNot(condition, ...)
 inline SQPT_RETURN  &SQPT_NAME::orWhereNot(std::function<void()> func) {
+//	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR);    // start of subquery/brackets
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhereNot(std::function<void(SqQuery &query)> func) {
+//	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR);    // start of subquery/brackets
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, std::function<void()> func) {
+//	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
@@ -1453,12 +1521,14 @@ inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *value
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *op, std::function<void()> func) {
+//	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orWhereNot(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_or_where_not_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_or_where_not((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                          // end of subquery/brackets
@@ -1823,24 +1893,28 @@ inline SQPT_RETURN  &SQPT_NAME::groupByRaw(const char *raw) {
 
 // having(condition, ...)
 inline SQPT_RETURN  &SQPT_NAME::having(std::function<void()> func) {
+//	sq_query_having_sub((SqQuery*)SQPT_DATAPTR);    // start of subquery/brackets
 	sq_query_having((SqQuery*)SQPT_DATAPTR, NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::having(std::function<void(SqQuery &query)> func) {
+//	sq_query_having_sub((SqQuery*)SQPT_DATAPTR);    // start of subquery/brackets
 	sq_query_having((SqQuery*)SQPT_DATAPTR, NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::having(const char *column, std::function<void()> func) {
+//	sq_query_having_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                    // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::having(const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_having_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                    // end of subquery/brackets
@@ -1863,12 +1937,14 @@ inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *value) {
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *op, std::function<void()> func) {
+//	sq_query_having_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                    // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::having(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_having_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_having((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                    // end of subquery/brackets
@@ -1914,24 +1990,28 @@ inline SQPT_RETURN  &SQPT_NAME::havingRaw(const char *format, const Args... args
 
 // orHaving(condition, ...)
 inline SQPT_RETURN  &SQPT_NAME::orHaving(std::function<void()> func) {
+//	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, NULL);     // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orHaving(std::function<void(SqQuery &query)> func) {
+//	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR);       // start of subquery/brackets
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, NULL);     // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);             // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, std::function<void()> func) {
+//	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, std::function<void(SqQuery &query)> func) {
+//	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR, column, "=");    // start of subquery/brackets
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, "=", NULL);  // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
@@ -1954,12 +2034,14 @@ inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *value) 
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *op, std::function<void()> func) {
+//	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func();
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
 	return *(SQPT_RETURN*)this;
 }
 inline SQPT_RETURN  &SQPT_NAME::orHaving(const char *column, const char *op, std::function<void(SqQuery &query)> func) {
+//	sq_query_or_having_sub((SqQuery*)SQPT_DATAPTR, column, op);     // start of subquery/brackets
 	sq_query_or_having((SqQuery*)SQPT_DATAPTR, column, op, NULL);   // start of subquery/brackets
 	func(*(SqQuery*)SQPT_DATAPTR);
 	sq_query_end_sub((SqQuery*)SQPT_DATAPTR);                       // end of subquery/brackets
