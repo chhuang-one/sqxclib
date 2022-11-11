@@ -2,7 +2,7 @@
 
 [![Donate using PayPal](https://img.shields.io/badge/donate-PayPal-brightgreen.svg)](https://paypal.me/CHHUANGONE)
 
-# sqxclib
+# 思库可思 sqxclib
 
 sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。它提供 ORM 的功能和 C++ 包装器 (C++ wrapper)  
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
@@ -421,15 +421,20 @@ SQL 语句
 使用 C 函数生成查询
 
 * sq_query_join_sub() 是子查询的开始。它调用 sq_query_begin_sub()
+* sq_query_join()     在最后一个参数中传递 NULL 也是子查询的开始。
 * sq_query_end_sub()  是子查询的结尾。
+* sq_query_join_sub() 使用可变参数宏 GCC 扩展。如果您的 C 预处理器不支持它，请参阅 doc/[SqQuery.cn.md](doc/SqQuery.cn.md) 中的 "可移植性"。
 
 ```c
 	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
-	sq_query_join_sub(query);
+
+//	sq_query_join_sub(query);      // 子查询的开始
+	sq_query_join(query, NULL);    // 子查询的开始
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
-	sq_query_end_sub(query);
+	sq_query_end_sub(query);       // 子查询的结尾
+
 	sq_query_as(query, "c");
 	sq_query_on_raw(query, "c.id = companies.city_id");
 	sq_query_where_raw(query, "age > %d", 5);

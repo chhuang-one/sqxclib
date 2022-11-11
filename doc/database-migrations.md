@@ -226,7 +226,7 @@ Below C++ methods (and C functions) are correspond to the different types of col
 | char_       | sq_table_add_char       | char*         |
 | custom      | sq_table_add_custom     | *User define* |
 
-* Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, I must append '_' in tail of these methods.
+* Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, it must append '_' in tail of these methods.
 
 Below method is for C++ data type only.
 
@@ -260,7 +260,7 @@ Below C++ methods (and C functions) are correspond to Column Modifiers:
 | useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
 | default_(string)     | sq_column_default()                |                       |
 
-* Because 'default' is C/C++ keywords, I must append '_' in tail of this method.
+* Because 'default' is C/C++ keywords, it must append '_' in tail of this method.
 
 Special methods for structured data type.
 

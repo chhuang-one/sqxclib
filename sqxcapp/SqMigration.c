@@ -44,7 +44,7 @@ static void sq_migration_table_free(SqMigrationTable *mtable)
 	free(mtable);
 }
 
-/* column_ptrs are sorted by name, pass SQB_TYPE_SORTED to last argument. */
+/* column_ptrs are sorted by name, specify SQB_TYPE_SORTED. */
 const SqType SqType_migration_table_ = SQ_TYPE_INITIALIZER_FULL(SqMigrationTable,
                                                                 column_ptrs, SQB_TYPE_SORTED,
                                                                 NULL, sq_migration_table_free);

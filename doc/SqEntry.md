@@ -58,8 +58,8 @@ static const SqEntry *entryPointerArray[2] = {
 	& entryArray[1],
 };
 
-/* If 'entryPointerArray' is NOT sorted by name, pass 0 to last argument.
-   Otherwise use SQB_TYPE_SORTED to replace 0 in last argument.
+/* If 'entryPointerArray' is NOT sorted by name, pass 0 to the last argument.
+   Otherwise use SQB_TYPE_SORTED to replace 0 in the last argument.
  */
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, entryPointerArray, 0);
 ```

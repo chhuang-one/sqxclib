@@ -107,7 +107,8 @@ from() 和 table() 可以指定數據庫表。他們做同樣的事情並支持�
 
 	// 子查詢
 	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
-	sq_query_from_sub(query);
+//	sq_query_from_sub(query);
+	sq_query_from(query, NULL);
 		sq_query_from(query, "companies");
 		sq_query_where_raw(query, "id < 65");
 	sq_query_end_sub(query);
@@ -894,7 +895,9 @@ JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
 WHERE age > 5
 ```
 
-使用 C 语言生成子查询：
+使用 C 语言生成子查询：  
+  
+* C 宏 sq_query_join_sub() 和 sq_query_on_sub() 系列使用可变参数宏 GCC 扩展。如果您的 C 预处理器不支持它，请使用 sq_query_join() 和 sq_query_on() 来代替。
 
 ```c
 	sq_query_select(query, "id", "age");
@@ -927,9 +930,7 @@ WHERE age > 5
 
 **join() 和 on() 系列的子查詢和括號的更多示例：**  
   
-使用 C 语言  
-  
-* sq_query_join_sub() and sq_query_on_sub() 系列使用宏扩展 ##__VA_ARGS__。
+使用 C 语言
 
 ```c
 	// ... JOIN city ON ( city.id = companies.city_id )
@@ -1031,8 +1032,24 @@ C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
 SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序内部的实现方式相同。  
   
 以下 C 函数支持子查询或括号：  
-  
-* sq_query_xxxx_sub() 系列使用宏扩展 ##__VA_ARGS__。如果您的 C 预处理器不支持它，请参阅下面的 "可移植性"。
+除了 sq_query_where_exists() 系列，这些函数/宏中的最后一个参数必须为 NULL。
+
+	sq_query_from(),
+	sq_query_join(),
+	sq_query_left_join(),
+	sq_query_right_join(),
+	sq_query_full_join(),
+	sq_query_cross_join(),
+	sq_query_on(),               sq_query_or_on(),
+	sq_query_where(),            sq_query_or_where(),
+	sq_query_where_not(),        sq_query_or_where_not(),
+	sq_query_where_exists(),     sq_query_where_not_exists(),
+	sq_query_having(),           sq_query_or_having(),
+	---
+	注意：您必须在子查询或括号的末尾调用 sq_query_end_sub()。
+
+下面是上述函数/宏的 C 方便宏：  
+这些 C 宏使用可变参数宏 GCC 扩展在最后一个参数中传递 NULL。 如果您的 C 预处理器不支持，请不要使用它们。请参阅下面的 "可移植性"。
 
 	sq_query_from_sub(),
 	sq_query_join_sub(),
@@ -1043,7 +1060,6 @@ SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序
 	sq_query_on_sub(),           sq_query_or_on_sub(),
 	sq_query_where_sub(),        sq_query_or_where_sub(),
 	sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
-	sq_query_where_exists(),     sq_query_where_not_exists(),
 	sq_query_having_sub(),       sq_query_or_having_sub(),
 	---
 	注意：您必须在子查询或括号的末尾调用 sq_query_end_sub()。
@@ -1139,8 +1155,8 @@ WHERE price < (SELECT amount FROM incomes)
 
 ## 可移植性 Portability
 
-sq_query_xxxx_sub() 系列使用宏扩展 ##__VA_ARGS__ 在最后一个参数传递 NULL。
-如果您的编译器不支持宏扩展 ##__VA_ARGS__，有解决方案可以解决问题。  
+C 宏 sq_query_xxxx_sub() 系列使用可变参数宏 GCC 扩展在最后一个参数传递 NULL。
+如果您的 C 预处理器不支持它，有解决方案可以解决问题。  
   
 sq_query_where_sub() 系列可以使用 sq_query_where() 系列来代替：
 

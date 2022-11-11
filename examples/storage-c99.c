@@ -345,7 +345,7 @@ void  storage_query_join(SqStorage *storage)
 //	sq_query_select(query, "cities.id AS 'cities.id'", "users.id AS 'users.id'");
 	sq_query_from(query, "cities");
 	if (storage->db->version < 5)
-		sq_query_join(query, "users", "cities.id", "=", "%s", "users.city_id");
+		sq_query_join(query, "users",  "cities.id", "=", "%s", "users.city_id");
 	else {
 		// TABLE "users" was renamed to "users2" in schema version 5
 		// DROP TABLE "user2" in schema version 6

@@ -107,7 +107,8 @@ use C language
 
 	// subquery
 	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
-	sq_query_from_sub(query);
+//	sq_query_from_sub(query);
+	sq_query_from(query, NULL);
 		sq_query_from(query, "companies");
 		sq_query_where_raw(query, "id < 65");
 	sq_query_end_sub(query);
@@ -894,7 +895,9 @@ JOIN ( SELECT * FROM city WHERE id < 100 ) AS c ON c.id = companies.city_id
 WHERE age > 5
 ```
 
-use C language to generate subquery:
+use C language to generate subquery:  
+  
+* C macro sq_query_join_sub() and sq_query_on_sub() series use variadic macro GCC extension. If your C preprocessor does NOT support it, use sq_query_join() and sq_query_on() to instead.
 
 ```c
 	sq_query_select(query, "id", "age");
@@ -927,9 +930,7 @@ use C++ lambda functions to generate subquery:
 
 **More examples of subquery and brackets for join() and on(): series**  
   
-use C language  
-  
-* sq_query_join_sub() and sq_query_on_sub() series use macro extension ##__VA_ARGS__.
+use C language
 
 ```c
 	// ... JOIN city ON ( city.id = companies.city_id )
@@ -1030,9 +1031,25 @@ use C++ language
 
 SqQuery can produce subquery or brackets. In fact, They are implemented the same way inside programs.  
   
-below C functions support subquery or brackets:  
-  
-* sq_query_xxxx_sub() series use macro extension ##__VA_ARGS__. If your C preprocessor does NOT support it, see below "Portability".
+Below C functions/macros support subquery or brackets:  
+Except sq_query_where_exists() series, the last argument in these functions/macros must be NULL.
+
+	sq_query_from(),
+	sq_query_join(),
+	sq_query_left_join(),
+	sq_query_right_join(),
+	sq_query_full_join(),
+	sq_query_cross_join(),
+	sq_query_on(),               sq_query_or_on(),
+	sq_query_where(),            sq_query_or_where(),
+	sq_query_where_not(),        sq_query_or_where_not(),
+	sq_query_where_exists(),     sq_query_where_not_exists(),
+	sq_query_having(),           sq_query_or_having(),
+	---
+	Note: You must call sq_query_end_sub() in end of subquery or brackets.
+
+Below C convenient macros for above functions/macros:  
+These C macro use variadic macro GCC extension to pass NULL in the last argument. Don't use these if your C preprocessor does NOT support it. see below "Portability".
 
 	sq_query_from_sub(),
 	sq_query_join_sub(),
@@ -1043,12 +1060,11 @@ below C functions support subquery or brackets:
 	sq_query_on_sub(),           sq_query_or_on_sub(),
 	sq_query_where_sub(),        sq_query_or_where_sub(),
 	sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
-	sq_query_where_exists(),     sq_query_where_not_exists(),
 	sq_query_having_sub(),       sq_query_or_having_sub(),
 	---
 	Note: You must call sq_query_end_sub() in end of subquery or brackets.
 
-below C++ method use lambda function to support subquery or brackets, user don't need to call sq_query_end_sub()  
+Below C++ method use lambda function to support subquery or brackets, user does NOT need to call sq_query_end_sub()  
 
 	from(),
 	join(),
@@ -1139,8 +1155,8 @@ use C++ language to generate subquery in condition:
 
 ## Portability
 
-sq_query_xxxx_sub() series use macro extension ##__VA_ARGS__ to pass NULL in the last argument.
-If your compiler doesn't support macro extension ##__VA_ARGS__, there are solutions can solve problem.  
+C macro sq_query_xxxx_sub() series use variadic macro GCC extension to pass NULL in the last argument.
+If your C preprocessor does NOT support it, there are solutions can solve problem.  
   
 sq_query_where_sub() series can use sq_query_where() series to replace:
 
@@ -1186,7 +1202,7 @@ sq_query_join_sub() series can use sq_query_join() series to replace:
 
 There are many functions can specify SQL condition and them also support printf format string. Please pass printf format string before passing value of condition. If you want to use SQL Wildcard Characters '%' in printf format string, you must print "%" using "%%".  
 
-below C functions support printf format string in 2nd argument:
+Below C functions support printf format string in 2nd argument:
 
 	sq_query_raw(),
 	sq_query_printf(),
@@ -1198,14 +1214,14 @@ below C functions support printf format string in 2nd argument:
 	These C functions use macro to count number of arguments.
 	If the 3rd argument is NOT exist, the 2nd argument is handled as raw string.
 
-below C functions support printf format string in 4th argument:
+Below C functions support printf format string in 4th argument:
 
 	sq_query_on(),            sq_query_or_on(),
 	sq_query_where(),         sq_query_or_where(),
 	sq_query_where_not(),     sq_query_or_where_not(),
 	sq_query_having(),        sq_query_or_having(),
 
-below C functions support printf format string in 5th argument:
+Below C functions support printf format string in 5th argument:
 
 	sq_query_join(),
 	sq_query_left_join(),
@@ -1231,7 +1247,7 @@ C language example:
 	sq_query_where_raw(query, "city  LIKE '%s'", "ber%");
 ```
 
-below C++ methods support printf format string in 1st argument:
+Below C++ methods support printf format string in 1st argument:
 
 	raw(),
 	printf(),
@@ -1240,14 +1256,14 @@ below C++ methods support printf format string in 1st argument:
 	whereNotRaw(), orWhereNotRaw(),
 	havingRaw(),   orHavingRaw(),
 
-below C++ methods support printf format string in 3rd argument:
+Below C++ methods support printf format string in 3rd argument:
 
 	on(),          orOn(),
 	where(),       orWhere(),
 	whereNot(),    orWhereNot(),
 	having(),      orHaving(),
 
-below C++ methods support printf format string in 4th argument:
+Below C++ methods support printf format string in 4th argument:
 
 	join(),
 	leftJoin(),

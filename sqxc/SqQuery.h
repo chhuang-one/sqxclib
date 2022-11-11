@@ -154,6 +154,24 @@ extern "C" {
 
 
 	** below function support subquery/brackets:
+	   Except sq_query_where_exists() series, the last argument in these functions/macros must be NULL.
+
+		sq_query_from(),
+		sq_query_join(),
+		sq_query_left_join(),
+		sq_query_right_join(),
+		sq_query_full_join(),
+		sq_query_cross_join(),
+		sq_query_on(),               sq_query_or_on(),
+		sq_query_where(),            sq_query_or_where(),
+		sq_query_where_not(),        sq_query_or_where_not(),
+		sq_query_where_exists(),     sq_query_where_not_exists(),
+		sq_query_having(),           sq_query_or_having(),
+
+	** below C convenient macros for above functions/macros:  
+	   These C macro use variadic macro GCC extension to pass NULL in the last argument.
+	   Don't use these if your C preprocessor does NOT support it.
+
 		sq_query_from_sub(),
 		sq_query_join_sub(),
 		sq_query_left_join_sub(),
@@ -163,11 +181,11 @@ extern "C" {
 		sq_query_on_sub(),           sq_query_or_on_sub(),
 		sq_query_where_sub(),        sq_query_or_where_sub(),
 		sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
-		sq_query_where_exists(),     sq_query_where_not_exists(),
 		sq_query_having_sub(),       sq_query_or_having_sub(),
 
 	// e.g. "WHERE (salary > 45 AND age < 21)"
-	sq_query_where_sub(query);                  // start of brackets
+//	sq_query_where_sub(query);                  // start of brackets
+	sq_query_where(query, NULL);                // start of brackets
 		sq_query_where_raw(query, "salary > %d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of brackets
@@ -213,8 +231,12 @@ void    sq_query_clear(SqQuery *query);
 SqQueryNested *sq_query_push_nested(SqQuery *query, SqQueryNode *parent);
 void           sq_query_pop_nested(SqQuery *query);
 
-// alias name for sq_query_push_nested() and sq_query_pop_nested()
+// alias name for sq_query_push_nested()
+// SqQueryNested *sq_query_begin_sub(SqQuery *query, SqQueryNode *parent);
 #define sq_query_begin_sub    sq_query_push_nested
+
+// alias name for sq_query_pop_nested()
+// void           sq_query_end_sub(SqQuery *query);
 #define sq_query_end_sub      sq_query_pop_nested
 
 // append raw SQL statement in current subquery/brackets
