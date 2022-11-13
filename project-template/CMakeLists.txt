@@ -8,7 +8,11 @@ if (DEFINED CMAKE_CXX_COMPILER)
 		set(CMAKE_CXX_STANDARD_REQUIRED ON)
 		set(CMAKE_CXX_STANDARD 11)
 	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-		# MSVC++ must support parameter pack in constructor
+		# MSVC++ must support parameter pack in constructor and standards preprocessor.
+#		set(MSVC_COMPILER_FLAGS  "/experimental:preprocessor")
+		set(MSVC_COMPILER_FLAGS  "/Zc:preprocessor")
+		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${MSVC_COMPILER_FLAGS}")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILER_FLAGS}")
 	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		# GCC has link flags to avoid linking unused shared libraries
 		set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
