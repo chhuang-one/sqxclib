@@ -4,6 +4,9 @@
 
 本文档介绍如何使用 C99 指定初始化器（或 C++ 聚合初始化）来定义表。
 * 这可以减少制作架构时的运行时间。
+* 架构可以处理动态和静态列/表定义。
+* 如果用户修改静态定义的列/表，程序将在修改之前复制列/表。
+* 程序不会从内存中释放静态定义的列/表。它只是不使用它们。
 * 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 SqType 来定义表来减少更多的运行时间。见文件 [SqColumn.cn.md](SqColumn.cn.md)
 
 定义 C 结构化数据类型以映射数据库表 "users"。
@@ -183,4 +186,40 @@ static const SqColumn  userColumns[8] = {
 	table = schema_v1->create<User>("users");
 	// 将具有 8 个元素的静态 'userColumns' 添加到表中
 	table->addColumn(userColumns, 8);
+```
+
+## 迁移
+
+无论是动态定义还是静态定义，运行迁移的代码都是一样的。  
+  
+使用 C++ 方法迁移架构并同步到数据库
+
+```c++
+	// 迁移 'schema_v1' 和 'schema_v2'
+	storage->migrate(schema_v1);
+	storage->migrate(schema_v2);
+
+	// 将架构同步到数据库并更新 'storage' 中的架构
+	// 这主要由 SQLite 使用
+	storage->migrate(NULL);
+
+	// 释放未使用的 'schema_v1' 和 'schema_v2'
+	delete schema_v1;
+	delete schema_v2;
+```
+
+使用 C 函数迁移架构并同步到数据库
+
+```c
+	// 迁移 'schema_v1' 和 'schema_v2'
+	sq_storage_migrate(storage, schema_v1);
+	sq_storage_migrate(storage, schema_v2);
+
+	// 将架构同步到数据库并更新 'storage' 中的架构
+	// 这主要由 SQLite 使用
+	sq_storage_migrate(storage, NULL);
+
+	// 释放未使用的 'schema_v1' 和 'schema_v2'
+	sq_schema_free(schema_v1);
+	sq_schema_free(schema_v2);
 ```

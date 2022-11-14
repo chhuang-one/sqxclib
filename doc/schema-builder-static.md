@@ -4,6 +4,9 @@
 
 This document introduce how to use C99 designated initializer (or C++ aggregate initialization) to define table.
 * This can reduce running time when making schema.
+* Schema can handle both dynamic and static column/table definitions.
+* If user modify static defined column/table, program will copy column/table before modifying it.
+* Program will not free static defined columns/tables from memory. It just doesn't use them.
 * If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see [SqColumn.md](SqColumn.md)
 
 Define a C structured data type to map database table "users".
@@ -182,4 +185,40 @@ static const SqColumn  userColumns[8] = {
 	table = schema_v1->create<User>("users");
 	// add static 'userColumns' that has 8 elements to table
 	table->addColumn(userColumns, 8);
+```
+
+## Migrations
+
+Whether dynamic and static definitions, the code that running migrations is the same.  
+  
+use C++ methods to migrate schema and synchronize to database
+
+```c++
+	// migrate 'schema_v1' and 'schema_v2'
+	storage->migrate(schema_v1);
+	storage->migrate(schema_v2);
+
+	// synchronize schema to database and update schema in 'storage'
+	// This is mainly used by SQLite
+	storage->migrate(NULL);
+
+	// free unused 'schema_v1' and 'schema_v2'
+	delete schema_v1;
+	delete schema_v2;
+```
+
+use C functions to migrate schema and synchronize to database
+
+```c
+	// migrate 'schema_v1' and 'schema_v2'
+	sq_storage_migrate(storage, schema_v1);
+	sq_storage_migrate(storage, schema_v2);
+
+	// synchronize schema to database and update schema in 'storage'
+	// This is mainly used by SQLite
+	sq_storage_migrate(storage, NULL);
+
+	// free unused 'schema_v1' and 'schema_v2'
+	sq_schema_free(schema_v1);
+	sq_schema_free(schema_v2);
 ```

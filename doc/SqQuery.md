@@ -215,8 +215,8 @@ use C language
 	sq_query_table(query, "products");
 
 	// WHERE NOT ( city_id = 6 OR price < 100 )
-//	sq_query_where_not_sub(query);      // start of brackets
-	sq_query_where_not(query, NULL);    // start of brackets
+	sq_query_where_not_sub(query);      // start of brackets
+//	sq_query_where_not(query, NULL);    // start of brackets
 		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
 	sq_query_end_sub(query);            // end of brackets
@@ -379,8 +379,8 @@ use C language
 
 ```c
 	// ... HAVING ( salary > 45 OR age < 21 )
-//	sq_query_having_sub(query);                 // start of brackets
-	sq_query_having(query, NULL);               // start of brackets
+	sq_query_having_sub(query);                 // start of brackets
+//	sq_query_having(query, NULL);               // start of brackets
 		sq_query_having(query, "salary", ">", "%d", 45);
 		sq_query_or_having(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of brackets
@@ -897,14 +897,16 @@ WHERE age > 5
 
 use C language to generate subquery:  
   
-* C macro sq_query_join_sub() and sq_query_on_sub() series use variadic macro GCC extension. If your C preprocessor does NOT support it, use sq_query_join() and sq_query_on() to instead.
+* sq_query_join_sub() and sq_query_on_sub() is start of subquery.
+* sq_query_end_sub()  is end of subquery.
+* sq_query_join()     and sq_query_on() passing NULL in the last parameter is also the start of subquery.
 
 ```c
 	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
 
-//	sq_query_join_sub(query);                   // start of subquery
-	sq_query_join(query, NULL);                 // start of subquery
+	sq_query_join_sub(query);                   // start of subquery
+//	sq_query_join(query, NULL);                 // start of subquery
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // end of subquery
@@ -934,27 +936,27 @@ use C language
 
 ```c
 	// ... JOIN city ON ( city.id = companies.city_id )
-//	sq_query_join_sub(query, "city");           // start of brackets
-	sq_query_join(query, "city", NULL);         // start of brackets
+	sq_query_join_sub(query, "city");           // start of brackets
+//	sq_query_join(query, "city", NULL);         // start of brackets
 		sq_query_on(query, "city.id", "=", "%s", "companies.city_id");
 	sq_query_end_sub(query);                    // end of brackets
 
 	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
-//	sq_query_join_sub(query, "city", "city.id", "=");    // start of subquery
-	sq_query_join(query, "city", "city.id", "=", NULL);  // start of subquery
+	sq_query_join_sub(query, "city", "city.id", "=");    // start of subquery
+//	sq_query_join(query, "city", "city.id", "=", NULL);  // start of subquery
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 	sq_query_end_sub(query);                             // end of subquery
 
 	// ... ON ( city.id < 100 )
-//	sq_query_on_sub(query);                     // start of brackets
-	sq_query_on(query, NULL);                   // start of brackets
+	sq_query_on_sub(query);                     // start of brackets
+//	sq_query_on(query, NULL);                   // start of brackets
 		sq_query_on(query, "city.id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // end of brackets
 
 	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
-//	sq_query_on_sub(query, "city.id", "<");     // start of subquery
-	sq_query_on(query, "city.id", "<", NULL);   // start of subquery
+	sq_query_on_sub(query, "city.id", "<");     // start of subquery
+//	sq_query_on(query, "city.id", "<", NULL);   // start of subquery
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 		sq_query_where(query, "id", "=", "%d", 25);
@@ -1049,7 +1051,7 @@ Except sq_query_where_exists() series, the last argument in these functions/macr
 	Note: You must call sq_query_end_sub() in end of subquery or brackets.
 
 Below C convenient macros for above functions/macros:  
-These C macro use variadic macro GCC extension to pass NULL in the last argument. Don't use these if your C preprocessor does NOT support it. see below "Portability".
+These C macro use variadic macro to pass NULL in the last argument.
 
 	sq_query_from_sub(),
 	sq_query_join_sub(),
@@ -1087,7 +1089,7 @@ e.g. generate below SQL statement.
 
 ```sql
 SELECT * FROM users
-WHERE (salary > 45 AND age < 21) OR id > 100
+WHERE ( salary > 45 AND age < 21 ) OR id > 100
 ```
 
 use C functions to generate brackets:
@@ -1095,8 +1097,8 @@ use C functions to generate brackets:
 ```c
 	sq_query_table(query, "users");
 
-//	sq_query_where_sub(query);                  // start of brackets
-	sq_query_where(query, NULL);                // start of brackets
+	sq_query_where_sub(query);                  // start of brackets
+//	sq_query_where(query, NULL);                // start of brackets
 		sq_query_where(query, "salary", ">", "%d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of brackets
@@ -1124,7 +1126,7 @@ e.g. below is SQL statement that has subquery in condition.
 
 ```sql
 SELECT * FROM products
-WHERE price < (SELECT amount FROM incomes)
+WHERE price < ( SELECT amount FROM incomes )
 ```
 
 use C language to generate subquery in condition:
@@ -1134,8 +1136,8 @@ use C language to generate subquery in condition:
 	sq_query_from(query, "products");
 
 	// WHERE price < ( SELECT amount FROM incomes )
-//	sq_query_where_sub(query, "price", "<");    // start of subquery
-	sq_query_where(query, "price", "<", NULL);  // start of subquery
+	sq_query_where_sub(query, "price", "<");    // start of subquery
+//	sq_query_where(query, "price", "<", NULL);  // start of subquery
 		sq_query_select(query, "amount");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // end of subquery
@@ -1151,51 +1153,6 @@ use C++ language to generate subquery in condition:
 	         query->select("amount")
 	              ->from("incomes");
 	     });
-```
-
-## Portability
-
-C macro sq_query_xxxx_sub() series use variadic macro GCC extension to pass NULL in the last argument.
-If your C preprocessor does NOT support it, there are solutions can solve problem.  
-  
-sq_query_where_sub() series can use sq_query_where() series to replace:
-
-```c
-	// original
-	sq_query_where_sub(query);
-	sq_query_where_sub(query, "column", "<");
-
-	// replace to
-	sq_query_where(query, NULL);
-	sq_query_where(query, "column", "<", NULL);
-```
-
-sq_query_having_sub(), sq_query_on_sub() series can use sq_query_having(), sq_query_on() series to replace:
-
-```c
-	// original
-	sq_query_having_sub(query);
-	// replace to
-	sq_query_having(query, NULL);
-
-	// original
-	sq_query_on_sub(query, "column", "<");
-	// replace to
-	sq_query_on(query, "column", "<", NULL);
-```
-
-sq_query_join_sub() series can use sq_query_join() series to replace:
-
-```c
-	// original
-	sq_query_join_sub(query);
-	sq_query_join_sub(query, "table");
-	sq_query_join_sub(query, "table", "column", "<");
-
-	// replace to
-	sq_query_join(query, NULL);
-	sq_query_join(query, "table", NULL);
-	sq_query_join(query, "table", "column", "<", NULL);
 ```
 
 ## Appendix : functions that support printf format string

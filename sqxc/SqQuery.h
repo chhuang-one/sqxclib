@@ -169,8 +169,7 @@ extern "C" {
 		sq_query_having(),           sq_query_or_having(),
 
 	** below C convenient macros for above functions/macros:  
-	   These C macro use variadic macro GCC extension to pass NULL in the last argument.
-	   Don't use these if your C preprocessor does NOT support it.
+	   These C macro use variadic macro to pass NULL in the last argument.
 
 		sq_query_from_sub(),
 		sq_query_join_sub(),
@@ -184,8 +183,8 @@ extern "C" {
 		sq_query_having_sub(),       sq_query_or_having_sub(),
 
 	// e.g. "WHERE (salary > 45 AND age < 21)"
-//	sq_query_where_sub(query);                  // start of brackets
-	sq_query_where(query, NULL);                // start of brackets
+	sq_query_where_sub(query);                  // start of brackets
+//	sq_query_where(query, NULL);                // start of brackets
 		sq_query_where_raw(query, "salary > %d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of brackets
@@ -289,8 +288,7 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_join_sub(SqQuery *query, const char *table);
 // void sq_query_join_sub(SqQuery *query, const char *table, const char *column);
 // void sq_query_join_sub(SqQuery *query, const char *table, const char *column, const char *Operator);
-#define sq_query_join_sub(query, ...)             \
-		sq_query_join_full(query, SQ_QUERYJOIN_INNER | SQ_QUERYARGS_DECIDE(-1, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_join_sub(...)                    sq_query_join(__VA_ARGS__, NULL)
 
 // ---- sq_query_left_join_sub() ---- replacement
 // void sq_query_left_join(SqQuery *query, NULL);
@@ -307,8 +305,7 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_left_join_sub(SqQuery *query, const char *table);
 // void sq_query_left_join_sub(SqQuery *query, const char *table, const char *column);
 // void sq_query_left_join_sub(SqQuery *query, const char *table, const char *column, const char *Operator);
-#define sq_query_left_join_sub(query, ...)        \
-		sq_query_join_full(query, SQ_QUERYJOIN_LEFT  | SQ_QUERYARGS_DECIDE(-1, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_left_join_sub(...)               sq_query_left_join(__VA_ARGS__, NULL)
 
 // ---- sq_query_right_join_sub() ---- replacement
 // void sq_query_right_join(SqQuery *query, NULL);
@@ -325,8 +322,7 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_right_join_sub(SqQuery *query, const char *table);
 // void sq_query_right_join_sub(SqQuery *query, const char *table, const char *column);
 // void sq_query_right_join_sub(SqQuery *query, const char *table, const char *column, const char *Operator);
-#define sq_query_right_join_sub(query, ...)       \
-		sq_query_join_full(query, SQ_QUERYJOIN_RIGHT | SQ_QUERYARGS_DECIDE(-1, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_right_join_sub(...)              sq_query_right_join(__VA_ARGS__, NULL)
 
 // ---- sq_query_full_join_sub() ---- replacement
 // void sq_query_full_join(SqQuery *query, NULL);
@@ -343,16 +339,14 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_full_join_sub(SqQuery *query, const char *table);
 // void sq_query_full_join_sub(SqQuery *query, const char *table, const char *column);
 // void sq_query_full_join_sub(SqQuery *query, const char *table, const char *column, const char *Operator);
-#define sq_query_full_join_sub(query, ...)        \
-		sq_query_join_full(query, SQ_QUERYJOIN_FULL  | SQ_QUERYARGS_DECIDE(-1, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_full_join_sub(...)               sq_query_full_join(__VA_ARGS__, NULL)
 
 // void sq_query_cross_join(SqQuery *query, const char *table);
 #define sq_query_cross_join(query, table)         \
 		sq_query_join_full(query, SQ_QUERYJOIN_CROSS, table, NULL)
 
 // void sq_query_cross_join_sub(SqQuery *query);
-#define sq_query_cross_join_sub(query)            \
-		sq_query_join_full(query, SQ_QUERYJOIN_CROSS, NULL,  NULL)
+#define sq_query_cross_join_sub(query)            sq_query_cross_join(query, NULL)
 
 // ---- sq_query_on_sub() ---- replacement
 // void sq_query_on(SqQuery *query, NULL);
@@ -387,14 +381,12 @@ void    sq_query_on_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_on_sub(SqQuery *query);
 // void sq_query_on_sub(SqQuery *query, const char *column);
 // void sq_query_on_sub(SqQuery *query, const char *column, const char *Operator);
-#define sq_query_on_sub(query, ...)        \
-		sq_query_on_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_on_sub(...)               sq_query_on(__VA_ARGS__, NULL)
 
 // void sq_query_or_on_sub(SqQuery *query);
 // void sq_query_or_on_sub(SqQuery *query, const char *column);
 // void sq_query_or_on_sub(SqQuery *query, const char *column, const char *Operator);
-#define sq_query_or_on_sub(query, ...)     \
-		sq_query_on_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_or_on_sub(...)            sq_query_or_on(__VA_ARGS__, NULL)
 
 // SQL: WHERE
 void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
@@ -406,7 +398,7 @@ void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 // ----
 // void sq_query_where(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_where(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
-#define sq_query_where(query, ...)            \
+#define sq_query_where(query, ...)             \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
 
 // ---- sq_query_or_where_sub() ---- replacement
@@ -416,30 +408,28 @@ void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 // ----
 // void sq_query_or_where(SqQuery *query, const char *column, const char *format, ...);
 // void sq_query_or_where(SqQuery *query, const char *column, const char *Operator, const char *format, ...);
-#define sq_query_or_where(query, ...)         \
+#define sq_query_or_where(query, ...)          \
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
 
 // void sq_query_where_raw(SqQuery *query, const char *raw);
 // void sq_query_where_raw(SqQuery *query, const char *format, ...);
-#define sq_query_where_raw(query, ...)        \
+#define sq_query_where_raw(query, ...)         \
 		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
 
 // void sq_query_or_where_raw(SqQuery *query, const char *raw);
 // void sq_query_or_where_raw(SqQuery *query, const char *format, ...);
-#define sq_query_or_where_raw(query, ...)     \
+#define sq_query_or_where_raw(query, ...)      \
 		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__) | SQ_QUERYARGS_RAW, __VA_ARGS__)
 
 // void sq_query_where_sub(SqQuery *query);
 // void sq_query_where_sub(SqQuery *query, const char *column);
 // void sq_query_where_sub(SqQuery *query, const char *column, const char *Operator);
-#define sq_query_where_sub(query, ...)        \
-		sq_query_where_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_where_sub(...)                sq_query_where(__VA_ARGS__, NULL)
 
 // void sq_query_or_where_sub(SqQuery *query);
 // void sq_query_or_where_sub(SqQuery *query, const char *column);
 // void sq_query_or_where_sub(SqQuery *query, const char *column, const char *Operator);
-#define sq_query_or_where_sub(query, ...)     \
-		sq_query_where_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_or_where_sub(...)             sq_query_or_where(__VA_ARGS__, NULL)
 
 // SQL: WHERE NOT
 
@@ -476,24 +466,22 @@ void    sq_query_where_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_where_not_sub(SqQuery *query);
 // void sq_query_where_not_sub(SqQuery *query, const char *column);
 // void sq_query_where_not_sub(SqQuery *query, const char *column, const char *Operator);
-#define sq_query_where_not_sub(query, ...)        \
-		sq_query_where_logical(query, SQ_QUERYLOGI_AND_NOT | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_where_not_sub(...)               sq_query_where_not(__VA_ARGS__, NULL)
 
 // void sq_query_or_where_not_sub(SqQuery *query);
 // void sq_query_or_where_not_sub(SqQuery *query, const char *column);
 // void sq_query_or_where_not_sub(SqQuery *query, const char *column, const char *Operator);
-#define sq_query_or_where_not_sub(query, ...)     \
-		sq_query_where_logical(query, SQ_QUERYLOGI_OR_NOT  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_or_where_not_sub(...)            sq_query_or_where_not(__VA_ARGS__, NULL)
 
 // SQL: WHERE EXISTS
 void    sq_query_where_exists_logical(SqQuery *query, unsigned int logi_args);
 
 // void sq_query_where_exists(SqQuery *query);
-#define sq_query_where_exists(query)          \
+#define sq_query_where_exists(query)           \
 		sq_query_where_exists_logical(query, SQ_QUERYLOGI_AND)
 
 // void sq_query_where_not_exists(SqQuery *query);
-#define sq_query_where_not_exists(query)      \
+#define sq_query_where_not_exists(query)       \
 		sq_query_where_exists_logical(query, SQ_QUERYLOGI_AND_NOT)
 
 // SQL: WHERE column BETWEEN
@@ -559,11 +547,11 @@ void    sq_query_where_null_logical(SqQuery *query, const char *column_name, uns
 void    sq_query_group_by_list(SqQuery *query, ...);
 
 // void sq_query_group_by(SqQuery *query, const char *column_name1, ...);
-#define sq_query_group_by(query, ...)        \
+#define sq_query_group_by(query, ...)          \
 		sq_query_group_by_list(query, __VA_ARGS__, NULL)
 
 // void sq_query_group_by_raw(SqQuery *query, const char *raw);
-#define sq_query_group_by_raw(query, raw)    \
+#define sq_query_group_by_raw(query, raw)      \
 		sq_query_group_by_list(query, raw, NULL)
 
 // SQL: HAVING
@@ -602,14 +590,12 @@ void    sq_query_having_logical(SqQuery *query, unsigned int logi_args, ...);
 // void sq_query_having_sub(SqQuery *query);
 // void sq_query_having_sub(SqQuery *query, const char *column);
 // void sq_query_having_sub(SqQuery *query, const char *column, const char *Operator);
-#define sq_query_having_sub(query, ...)        \
-		sq_query_having_logical(query, SQ_QUERYLOGI_AND | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_having_sub(...)               sq_query_having(__VA_ARGS__, NULL)
 
 // void sq_query_or_having_sub(SqQuery *query);
 // void sq_query_or_having_sub(SqQuery *query, const char *column);
 // void sq_query_or_having_sub(SqQuery *query, const char *column, const char *Operator);
-#define sq_query_or_having_sub(query, ...)     \
-		sq_query_having_logical(query, SQ_QUERYLOGI_OR  | SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__, NULL), ##__VA_ARGS__, NULL)
+#define sq_query_or_having_sub(...)            sq_query_or_having(__VA_ARGS__, NULL)
 
 // SQL: SELECT
 // the last argument of sq_query_select_list() must be NULL.
@@ -632,11 +618,11 @@ void    sq_query_order_by_list(SqQuery *query, ...);
 void    sq_query_order_sorted(SqQuery *query, unsigned int sort_type);
 
 // void sq_query_order_by(SqQuery *query, const char *column_name1, ...);
-#define sq_query_order_by(query, ...)        \
+#define sq_query_order_by(query, ...)          \
 		sq_query_order_by_list(query, __VA_ARGS__, NULL)
 
 // void sq_query_order_by_raw(SqQuery *query, const char *raw);
-#define sq_query_order_by_raw(query, raw)    \
+#define sq_query_order_by_raw(query, raw)      \
 		sq_query_order_by_list(query, raw, NULL)
 
 // void sq_query_asc(SqQuery *query);

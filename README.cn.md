@@ -420,17 +420,16 @@ SQL 语句
 
 使用 C 函数生成查询
 
-* sq_query_join_sub() 是子查询的开始。它调用 sq_query_begin_sub()
-* sq_query_join()     在最后一个参数中传递 NULL 也是子查询的开始。
+* sq_query_join_sub() 是子查询的开始。
 * sq_query_end_sub()  是子查询的结尾。
-* sq_query_join_sub() 使用可变参数宏 GCC 扩展。如果您的 C 预处理器不支持它，请参阅 doc/[SqQuery.cn.md](doc/SqQuery.cn.md) 中的 "可移植性"。
+* sq_query_join()     在最后一个参数中传递 NULL 也是子查询的开始。
 
 ```c
 	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
 
-//	sq_query_join_sub(query);      // 子查询的开始
-	sq_query_join(query, NULL);    // 子查询的开始
+	sq_query_join_sub(query);      // 子查询的开始
+//	sq_query_join(query, NULL);    // 子查询的开始
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);       // 子查询的结尾

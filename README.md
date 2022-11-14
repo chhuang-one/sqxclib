@@ -422,17 +422,16 @@ use C++ methods to produce query
 
 use C functions to produce query
 
-* sq_query_join_sub() is start of subquery. It call sq_query_begin_sub()
-* sq_query_join()     passing NULL in the last parameter is also the start of subquery.
+* sq_query_join_sub() is start of subquery.
 * sq_query_end_sub()  is end of subquery.
-* sq_query_join_sub() use variadic macro GCC extension. If your C preprocessor does NOT support it, see "Portability" in doc/[SqQuery.md](doc/SqQuery.md)
+* sq_query_join()     passing NULL in the last parameter is also the start of subquery.
 
 ```c
 	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
 
-//	sq_query_join_sub(query);      // start of subquery
-	sq_query_join(query, NULL);    // start of subquery
+	sq_query_join_sub(query);      // start of subquery
+//	sq_query_join(query, NULL);    // start of subquery
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);       // end of subquery

@@ -215,8 +215,8 @@ C++ 方法 where() 系列具有省略 printf 格式字符串的重载函数：
 	sq_query_table(query, "products");
 	// WHERE NOT ( city_id = 6 OR price < 100 )
 
-//	sq_query_where_not_sub(query);      // 括号的开始
-	sq_query_where_not(query, NULL);    // 括号的开始
+	sq_query_where_not_sub(query);      // 括号的开始
+//	sq_query_where_not(query, NULL);    // 括号的开始
 		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
 	sq_query_end_sub(query);            // 括号的结束
@@ -379,8 +379,8 @@ having() 系列的用法与 where() 类似。
 
 ```c
 	// ... HAVING ( salary > 45 OR age < 21 )
-//	sq_query_having_sub(query);                 // 括号的开始
-	sq_query_having(query, NULL);               // 括号的开始
+	sq_query_having_sub(query);                 // 括号的开始
+//	sq_query_having(query, NULL);               // 括号的开始
 		sq_query_having(query, "salary", ">", "%d", 45);
 		sq_query_or_having(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // 括号的结束
@@ -897,14 +897,16 @@ WHERE age > 5
 
 使用 C 语言生成子查询：  
   
-* C 宏 sq_query_join_sub() 和 sq_query_on_sub() 系列使用可变参数宏 GCC 扩展。如果您的 C 预处理器不支持它，请使用 sq_query_join() 和 sq_query_on() 来代替。
+* sq_query_join_sub() 和 sq_query_on_sub() 是子查询的开始。
+* sq_query_end_sub()  是子查询的结尾。
+* sq_query_join()     和 sq_query_on() 在最后一个参数中传递 NULL 也是子查询的开始。
 
 ```c
 	sq_query_select(query, "id", "age");
 	sq_query_from(query, "companies");
 
-//	sq_query_join_sub(query);                   // 子查询的开始
-	sq_query_join(query, NULL);                 // 子查询的开始
+	sq_query_join_sub(query);                   // 子查询的开始
+//	sq_query_join(query, NULL);                 // 子查询的开始
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // 子查询的结束
@@ -934,27 +936,27 @@ WHERE age > 5
 
 ```c
 	// ... JOIN city ON ( city.id = companies.city_id )
-//	sq_query_join_sub(query, "city");           // 括号的开始
-	sq_query_join(query, "city", NULL);         // 括号的开始
+	sq_query_join_sub(query, "city");           // 括号的开始
+//	sq_query_join(query, "city", NULL);         // 括号的开始
 		sq_query_on(query, "city.id", "=", "%s", "companies.city_id");
 	sq_query_end_sub(query);                    // 括号的结束
 
 	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
-//	sq_query_join_sub(query, "city", "city.id", "=");    // 子查询的开始
-	sq_query_join(query, "city", "city.id", "=", NULL);  // 子查询的开始
+	sq_query_join_sub(query, "city", "city.id", "=");    // 子查询的开始
+//	sq_query_join(query, "city", "city.id", "=", NULL);  // 子查询的开始
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 	sq_query_end_sub(query);                             // 子查询的结束
 
 	// ... ON ( city.id < 100 )
-//	sq_query_on_sub(query);                     // 括号的开始
-	sq_query_on(query, NULL);                   // 括号的开始
+	sq_query_on_sub(query);                     // 括号的开始
+//	sq_query_on(query, NULL);                   // 括号的开始
 		sq_query_on(query, "city.id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // 括号的结束
 
 	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
-//	sq_query_on_sub(query, "city.id", "<");     // 子查询的开始
-	sq_query_on(query, "city.id", "<", NULL);   // 子查询的开始
+	sq_query_on_sub(query, "city.id", "<");     // 子查询的开始
+//	sq_query_on(query, "city.id", "<", NULL);   // 子查询的开始
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 		sq_query_where(query, "id", "=", "%d", 25);
@@ -1049,7 +1051,7 @@ SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序
 	注意：您必须在子查询或括号的末尾调用 sq_query_end_sub()。
 
 下面是上述函数/宏的 C 方便宏：  
-这些 C 宏使用可变参数宏 GCC 扩展在最后一个参数中传递 NULL。 如果您的 C 预处理器不支持，请不要使用它们。请参阅下面的 "可移植性"。
+这些 C 宏使用可变参数宏在最后一个参数中传递 NULL。
 
 	sq_query_from_sub(),
 	sq_query_join_sub(),
@@ -1087,7 +1089,7 @@ SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序
 
 ```sql
 SELECT * FROM users
-WHERE (salary > 45 AND age < 21) OR id > 100
+WHERE ( salary > 45 AND age < 21 ) OR id > 100
 ```
 
 使用 C 函数生成括号：
@@ -1095,8 +1097,8 @@ WHERE (salary > 45 AND age < 21) OR id > 100
 ```c
 	sq_query_table(query, "users");
 
-//	sq_query_where_sub(query);                  // 括号的开始
-	sq_query_where(query, NULL);                // 括号的开始
+	sq_query_where_sub(query);                  // 括号的开始
+//	sq_query_where(query, NULL);                // 括号的开始
 		sq_query_where(query, "salary", ">", "%d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // 括号结束
@@ -1124,7 +1126,7 @@ WHERE (salary > 45 AND age < 21) OR id > 100
 
 ```sql
 SELECT * FROM products
-WHERE price < (SELECT amount FROM incomes)
+WHERE price < ( SELECT amount FROM incomes )
 ```
 
 使用 C 语言生成在条件中的子查询：
@@ -1134,8 +1136,8 @@ WHERE price < (SELECT amount FROM incomes)
 	sq_query_from(query, "products");
 
 	// WHERE price < ( SELECT amount FROM incomes )
-//	sq_query_where_sub(query, "price", "<");    // 子查询的开始
-	sq_query_where(query, "price", "<", NULL);  // 子查询的开始
+	sq_query_where_sub(query, "price", "<");    // 子查询的开始
+//	sq_query_where(query, "price", "<", NULL);  // 子查询的开始
 		sq_query_select(query, "amount");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // 子查询的结束
@@ -1151,51 +1153,6 @@ WHERE price < (SELECT amount FROM incomes)
 	         query->select("amount")
 	              ->from("incomes");
 	     });
-```
-
-## 可移植性 Portability
-
-C 宏 sq_query_xxxx_sub() 系列使用可变参数宏 GCC 扩展在最后一个参数传递 NULL。
-如果您的 C 预处理器不支持它，有解决方案可以解决问题。  
-  
-sq_query_where_sub() 系列可以使用 sq_query_where() 系列来代替：
-
-```c
-	// 原来的
-	sq_query_where_sub(query);
-	sq_query_where_sub(query, "column", "<");
-
-	// 替换为
-	sq_query_where(query, NULL);
-	sq_query_where(query, "column", "<", NULL);
-```
-
-sq_query_having_sub(), sq_query_on_sub() 系列可以使用 sq_query_having(), sq_query_on() 系列来代替：
-
-```c
-	// 原来的
-	sq_query_having_sub(query);
-	// 替换为
-	sq_query_having(query, NULL);
-
-	// 原来的
-	sq_query_on_sub(query, "column", "<");
-	// 替换为
-	sq_query_on(query, "column", "<", NULL);
-```
-
-sq_query_join_sub() 系列可以使用 sq_query_join() 系列来替换：
-
-```c
-	// 原来的
-	sq_query_join_sub(query);
-	sq_query_join_sub(query, "table");
-	sq_query_join_sub(query, "table", "column", "<");
-
-	// 替换为
-	sq_query_join(query, NULL);
-	sq_query_join(query, "table", NULL);
-	sq_query_join(query, "table", "column", "<", NULL);
 ```
 
 ## 附錄 : 支持 printf 格式字符串的函數
