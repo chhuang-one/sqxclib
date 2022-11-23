@@ -33,6 +33,17 @@ int  main(void)
 
 	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config_mysql);
 
+#elif SQ_CONFIG_HAVE_POSTGRE
+
+	SqdbConfigPostgre  config_postgre = {
+		.host     = "localhost",
+		.port     = 5432,
+		.user     = "postgres",
+		.password = "",
+	};
+
+	db = sqdb_new(SQDB_INFO_POSTGRE, (SqdbConfig*) &config_postgre);
+
 #else
 	db = NULL;
 #endif

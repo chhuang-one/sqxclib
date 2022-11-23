@@ -33,6 +33,17 @@ int  main(void)
 
 	db = new Sq::DbMysql(&config_mysql);
 
+#elif SQ_CONFIG_HAVE_POSTGRE
+
+	SqdbConfigPostgre  config_postgre;
+
+	config_postgre.host = "localhost";
+	config_postgre.port = 5432;
+	config_postgre.user = "postgres";
+	config_postgre.password = "";
+
+	db = new Sq::DbPostgre(&config_postgre);
+
 #else
 	db = NULL;
 #endif
