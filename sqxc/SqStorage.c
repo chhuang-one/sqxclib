@@ -582,14 +582,14 @@ static int  print_where_column(const SqColumn *column, void *instance, SqBuffer 
 				quote[0], name, quote[1], *(uint64_t*)instance);
 #elif defined(__GNUC__)
 		temp.len = snprintf(NULL, 0, "%c%s%c=%llu",
-				quote[0], name, quote[1], *(int64_t*)instance);
+				quote[0], name, quote[1], *(uint64_t*)instance);
 		snprintf(sq_buffer_alloc(buf, temp.len), temp.len+1, "%c%s%c=%llu",
-				quote[0], name, quote[1], *(int64_t*)instance);
+				quote[0], name, quote[1], *(uint64_t*)instance);
 #else // C99
 		temp.len = snprintf(NULL, 0, "%c%s%c=%" PRIu64,
-				quote[0], name, quote[1], *(int64_t*)instance);
+				quote[0], name, quote[1], *(uint64_t*)instance);
 		snprintf(sq_buffer_alloc(buf, temp.len), temp.len+1, "%c%s%c=%" PRIu64,
-				quote[0], name, quote[1], *(int64_t*)instance);
+				quote[0], name, quote[1], *(uint64_t*)instance);
 #endif
 		break;
 
