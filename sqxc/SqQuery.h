@@ -20,7 +20,8 @@
 #include <functional>
 #endif
 
-#include <stdbool.h>
+#include <stddef.h>        // NULL, offsetof()
+#include <stdbool.h>       // bool, true, false
 #include <inttypes.h>      // PRId64, PRIu64
 
 #include <SqPtrArray.h>    // used by sq_query_get_table_as_names()

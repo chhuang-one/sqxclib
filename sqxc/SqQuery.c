@@ -30,7 +30,8 @@
 #define strcasecmp   _stricmp
 #endif
 
-#define SQ_QUERY_STR_SIZE_DEFAULT  256
+#define SQ_QUERY_USE_OLD_CONDITION    SQ_CONFIG_QUERY_USE_OLD_CONDITION
+#define SQ_QUERY_STR_SIZE_DEFAULT     256
 
 static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *parent, va_list arg_list);
 static void sq_query_insert_table_node(SqQuery *query, SqQueryNode *parent, const char *table_name);
@@ -832,7 +833,7 @@ static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, 
 	return column_node;
 }
 
-#if SQ_CONFIG_QUERY_USE_OLD_CONDITION
+#if SQ_QUERY_USE_OLD_CONDITION
 
 static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsigned int logi_args, va_list arg_list)
 {
@@ -1045,7 +1046,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 		*(mem.dest-1) = 0;
 	return node;
 }
-#endif
+#endif  // SQ_QUERY_USE_OLD_CONDITION
 
 // ------------------------------------
 // sq_query_to_sql()

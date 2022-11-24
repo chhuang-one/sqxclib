@@ -2,7 +2,7 @@
 
 # SqStorage
 
-SqStorage access database. It using Sqxc to convert data between C language and Sqdb interface.
+SqStorage use [Sqdb](Sqdb.md) to access database. It using Sqxc to convert data between C language and Sqdb interface.
 
 ## create storage
 
@@ -28,10 +28,24 @@ use C++ language
 	storage = new Sq::Storage(db);
 ```
 
-## access database
+## open database
 
-SqStorage use [Sqdb](Sqdb.md) to access database.  
-  
+use C functions
+
+```c
+	// open database "sqxc_local"
+	sq_storage_open(storage, "sqxc_local");
+```
+
+use C++ methods
+
+```c
+	// open database "sqxc_local"
+	storage->open("sqxc_local");
+```
+
+## do migration
+
 Define a data structure 'User' for SQL table "users".
 
 ```c++
@@ -45,14 +59,13 @@ struct User {
 };
 ```
 
-## open database and do migration
-
+Here we use functions or methods for running migration dynamically.
+* You can get more information about schema and migrations in doc/[database-migrations.md](doc/database-migrations.md)
+* To use initializer to define (or change) table statically, see doc/[schema-builder-static.md](doc/schema-builder-static.md)
+  
 use C functions
 
 ```c
-	// open database "sqxc_local"
-	sq_storage_open(storage, "sqxc_local");
-
 	// create table "users" in schema
 	table = sq_schema_create(schema, "users", User);
 	column = sq_table_int(table, "id", offsetof(User, id));
@@ -71,9 +84,6 @@ use C functions
 use C++ methods
 
 ```c
-	// open database "sqxc_local"
-	storage->open("sqxc_local");
-
 	// create table "users" in schema
 	table = schema->create<User>("users");
 	table->integer("id", &User::id)->primary()->autoIncrement();  // PRIMARY KEY
@@ -88,33 +98,8 @@ use C++ methods
 	storage->migrate(NULL);
 ```
 
-Note1: Don't reuse 'schema_next' after migration because data is moved from 'schema_next' to 'schema_current'.  
+Note1: Don't reuse 'schema' after migration because data is moved from 'schema' to 'storage->schema'.  
 Note2: If you use SQLite, you must synchronize schema to database after migration.  
-
-## access database with user defined data type
-
-below C functions and C++ methods can return instance of user defined data type ( [SqType](SqType.md) ):
-
-| C functions               | C++ methods   |
-| ------------------------- | ------------- |
-| sq_storage_get()          | get()         |
-| sq_storage_get_all()      | getAll()      |
-| sq_storage_query()        | query()       |
-
-below functions can run a bit faster if user specify 'table_name' and 'table_type' at the same time.
-
-| C functions               | C++ methods   |
-| ------------------------- | ------------- |
-| sq_storage_get()          | get()         |
-| sq_storage_get_all()      | getAll()      |
-| sq_storage_query()        | query()       |
-| sq_storage_insert()       | insert()      |
-| sq_storage_update()       | update()      |
-| sq_storage_update_all()   | updateAll()   |
-| sq_storage_update_field() | updateField() |
-
-Note: SqStorage will try to find matched type if user does NOT specify object type.  
-Note: SqStorage will use default container type if user does NOT specify container type.  
 
 ## get
 
@@ -221,7 +206,7 @@ use C language
 
 ```c
 	SqQuery *query = sq_query_new(NULL);
-	sq_query_where_raw(query, "id > 10");
+	sq_query_where_raw(query, "id > %d", 10);
 	sq_query_where(query, "id", "<", "%d", 99);
 
 	array = sq_storage_get_all(storage, "users", NULL, NULL,
@@ -232,7 +217,7 @@ use C++ language
 
 ```c++
 	Sq::Query *query = new Sq::Query();
-	query->whereRaw("id > 10")
+	query->whereRaw("id > %d", 10);
 	     ->where("id", "<", 99);
 
 	array = storage->getAll("users", query->c());
@@ -487,4 +472,67 @@ use C++ method
 
 	// return user defined data type
 	container = storage->query(query, userType, containerType);
+```
+
+## access database with user defined data type
+
+Below C functions and C++ methods can return instance of user defined data type or container type:  
+See the documentation [SqType](SqType.md) to learn how to customize types.
+
+| C functions               | C++ methods   |
+| ------------------------- | ------------- |
+| sq_storage_get()          | get()         |
+| sq_storage_get_all()      | getAll()      |
+| sq_storage_query()        | query()       |
+
+below functions can run a bit faster if user specify 'table_name' and 'table_type' at the same time.
+
+| C functions               | C++ methods   |
+| ------------------------- | ------------- |
+| sq_storage_get()          | get()         |
+| sq_storage_get_all()      | getAll()      |
+| sq_storage_query()        | query()       |
+| sq_storage_insert()       | insert()      |
+| sq_storage_update()       | update()      |
+| sq_storage_update_all()   | updateAll()   |
+| sq_storage_update_field() | updateField() |
+
+Note: SqStorage will try to find matched type if user does NOT specify object type.  
+Note: SqStorage will use default container type if user does NOT specify container type.  
+  
+use C function  
+  
+SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
+SQ_TYPE_PTR_ARRAY is built-in container type.
+
+```c
+	SqTypeRow  *rowType = sq_type_row_new();
+	SqRow      *row;
+	SqType     *arrayType = SQ_TYPE_PTR_ARRAY;
+	SqPtrArray *array;
+
+	row = sq_stoarge_get(storage, "users", rowType, 10);
+
+	array = sq_storage_get_all(storage, "users", rowType, arrayType, NULL);
+	for (int i = 0;  i < array.length;  i++) {
+		row = array->data[i];
+		// do something here
+	}
+```
+
+use C++ method
+
+```c++
+	Sq::TypeRow  *rowType = new Sq::TypeRow;
+	Sq::Row      *row;
+	Sq::Type     *arrayType = SQ_TYPE_PTR_ARRAY;
+	Sq::PtrArray *array;
+
+	row = (Sq::Row*)storage->get("users", rowType, 10);
+
+	array = (Sq::PtrArray*)storage->getAll("users", rowType, arrayType, NULL);
+	for (int i = 0;  i < array.length;  i++) {
+		row = array->data[i];
+		// do something here
+	}
 ```

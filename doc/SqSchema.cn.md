@@ -101,3 +101,14 @@ C++ 示例代码：
 	// C++ 方法
 	table = schema->create("your_table_name", type);
 ```
+
+## 3 查找表
+创建或迁移表后，用户可以通过表的名称在架构中找到表。
+
+```c++
+	// C 函数
+	table = sq_schema_find(schema, "users");
+
+	// C++ 方法
+	table = schema->find("users");
+```

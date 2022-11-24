@@ -19,6 +19,7 @@
 #include <stdint.h>     // __WORDSIZE (Apple)
 #include <stdarg.h>     // va_list, va_start, va_end, va_arg...etc
 #include <stdio.h>      // snprintf
+#include <inttypes.h>   // PRId64, PRIu64
 
 #include <SqError.h>
 #include <SqStorage.h>
@@ -555,11 +556,16 @@ static int  print_where_column(const SqColumn *column, void *instance, SqBuffer 
 				quote[0], name, quote[1], *(int64_t*)instance);
 		snprintf(sq_buffer_alloc(buf, temp.len), temp.len+1, "%c%s%c=%ld",
 				quote[0], name, quote[1], *(int64_t*)instance);
-#else
+#elif defined(__GNUC__)
 		temp.len = snprintf(NULL, 0, "%c%s%c=%lld",
-				quote[0], name, quote[1], (long long int) *(int64_t*)instance);
+				quote[0], name, quote[1], *(int64_t*)instance);
 		snprintf(sq_buffer_alloc(buf, temp.len), temp.len+1, "%c%s%c=%lld",
-				quote[0], name, quote[1], (long long int) *(int64_t*)instance);
+				quote[0], name, quote[1], *(int64_t*)instance);
+#else // C99
+		temp.len = snprintf(NULL, 0, "%c%s%c=%" PRId64,
+				quote[0], name, quote[1], *(int64_t*)instance);
+		snprintf(sq_buffer_alloc(buf, temp.len), temp.len+1, "%c%s%c=%" PRId64,
+				quote[0], name, quote[1], *(int64_t*)instance);
 #endif
 		break;
 
@@ -574,11 +580,16 @@ static int  print_where_column(const SqColumn *column, void *instance, SqBuffer 
 				quote[0], name, quote[1], *(uint64_t*)instance);
 		snprintf(sq_buffer_alloc(buf, temp.len), temp.len+1, "%c%s%c=%lu",
 				quote[0], name, quote[1], *(uint64_t*)instance);
-#else
+#elif defined(__GNUC__)
 		temp.len = snprintf(NULL, 0, "%c%s%c=%llu",
-				quote[0], name, quote[1], (long long unsigned int) *(int64_t*)instance);
+				quote[0], name, quote[1], *(int64_t*)instance);
 		snprintf(sq_buffer_alloc(buf, temp.len), temp.len+1, "%c%s%c=%llu",
-				quote[0], name, quote[1], (long long unsigned int) *(int64_t*)instance);
+				quote[0], name, quote[1], *(int64_t*)instance);
+#else // C99
+		temp.len = snprintf(NULL, 0, "%c%s%c=%" PRIu64,
+				quote[0], name, quote[1], *(int64_t*)instance);
+		snprintf(sq_buffer_alloc(buf, temp.len), temp.len+1, "%c%s%c=%" PRIu64,
+				quote[0], name, quote[1], *(int64_t*)instance);
 #endif
 		break;
 

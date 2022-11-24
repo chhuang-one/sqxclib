@@ -2,7 +2,7 @@
 
 # SqStorage
 
-SqStorage 访问数据库。它使用 Sqxc 在 C 语言和 Sqdb 接口之间转换数据。
+SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。它使用 Sqxc 在 C 语言和 Sqdb 接口之间转换数据。
 
 ## 创建 storage
 
@@ -28,10 +28,24 @@ SqStorage 访问数据库。它使用 Sqxc 在 C 语言和 Sqdb 接口之间转�
 	storage = new Sq::Storage(db);
 ```
 
-## 访问数据库
+## 打开数据库
 
-SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。  
-  
+使用 C 函数
+
+```c
+	// 打开数据库 "sqxc_local"
+	sq_storage_open(storage, "sqxc_local");
+```
+
+使用 C++ 方法
+
+```c
+	// 打开数据库 "sqxc_local"
+	storage->open("sqxc_local");
+```
+
+## 进行迁移
+
 为 SQL 表 "users" 定义数据结构 'User'。
 
 ```c++
@@ -45,14 +59,13 @@ struct User {
 };
 ```
 
-## 打开数据库并进行迁移
-
+在这里，我们使用函数或方法来动态运行迁移。
+* 您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关架构和迁移的更多信息
+* 要使用初始化器静态定义（或更改）表，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)
+  
 使用 C 函数
 
 ```c
-	// 打开数据库 "sqxc_local"
-	sq_storage_open(storage, "sqxc_local");
-
 	// 在架构中创建表 "users"
 	table = sq_schema_create(schema, "users", User);
 	column = sq_table_int(table, "id", offsetof(User, id));
@@ -71,9 +84,6 @@ struct User {
 使用 C++ 方法
 
 ```c
-	// 打开数据库 "sqxc_local"
-	storage->open("sqxc_local");
-
 	// 在架构中创建表 "users"
 	table = schema->create<User>("users");
 	table->integer("id", &User::id)->primary()->autoIncrement();  // 主键
@@ -88,33 +98,8 @@ struct User {
 	storage->migrate(NULL);
 ```
 
-注意1: 迁移后不要重复使用 'schema_next'，因为数据会从 'schema_next' 移动到 'schema_current'。  
+注意1: 迁移后不要重复使用 'schema'，因为数据会从 'schema' 移动到 'storage->schema'。  
 注意2: 如果使用 SQLite，迁移后必须将架构同步到数据库。  
-
-## 使用用户定义的数据类型访问数据库
-
-以下 C 函数和 C++ 方法可以返回用户定义数据类型 ( [SqType](SqType.cn.md) ) 的实例：
-
-| C 函数                    | C++ 方法      |
-| ------------------------- | ------------- |
-| sq_storage_get()          | get()         |
-| sq_storage_get_all()      | getAll()      |
-| sq_storage_query()        | query()       |
-
-如果用户同时指定 'table_name' 和 'table_type'，下面的函数可以运行得更快一些。
-
-| C 函数                    | C++ 方法      |
-| ------------------------- | ------------- |
-| sq_storage_get()          | get()         |
-| sq_storage_get_all()      | getAll()      |
-| sq_storage_query()        | query()       |
-| sq_storage_insert()       | insert()      |
-| sq_storage_update()       | update()      |
-| sq_storage_update_all()   | updateAll()   |
-| sq_storage_update_field() | updateField() |
-
-注意: 如果用户未指定对象类型，SqStorage 将尝试查找匹配的类型。  
-注意: 如果用户未指定容器类型，SqStorage 将使用默认容器类型。  
 
 ## get
 
@@ -221,7 +206,7 @@ SqQuery 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句
 
 ```c
 	SqQuery *query = sq_query_new(NULL);
-	sq_query_where_raw(query, "id > 10");
+	sq_query_where_raw(query, "id > %d", 10);
 	sq_query_where(query, "id", "<", "%d", 99);
 
 	array = sq_storage_get_all(storage, "users", NULL, NULL,
@@ -232,7 +217,7 @@ SqQuery 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句
 
 ```c++
 	Sq::Query *query = new Sq::Query();
-	query->whereRaw("id > 10")
+	query->whereRaw("id > %d", 10)
 	     ->where("id", "<", 99);
 
 	array = storage->getAll("users", query->c());
@@ -487,4 +472,67 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查
 
 	// 返回用户定义的数据类型
 	container = storage->query(query, userType, containerType);
+```
+
+## 使用用户定义的数据类型访问数据库
+
+以下 C 函数和 C++ 方法可以返回用户定义数据类型或容器类型的实例：  
+请参阅文档 [SqType](SqType.cn.md) 以了解如何自定义类型。
+
+| C 函数                    | C++ 方法      |
+| ------------------------- | ------------- |
+| sq_storage_get()          | get()         |
+| sq_storage_get_all()      | getAll()      |
+| sq_storage_query()        | query()       |
+
+如果用户同时指定 'table_name' 和 'table_type'，下面的函数可以运行得更快一些。
+
+| C 函数                    | C++ 方法      |
+| ------------------------- | ------------- |
+| sq_storage_get()          | get()         |
+| sq_storage_get_all()      | getAll()      |
+| sq_storage_query()        | query()       |
+| sq_storage_insert()       | insert()      |
+| sq_storage_update()       | update()      |
+| sq_storage_update_all()   | updateAll()   |
+| sq_storage_update_field() | updateField() |
+
+注意: 如果用户未指定对象类型，SqStorage 将尝试查找匹配的类型。  
+注意: 如果用户未指定容器类型，SqStorage 将使用默认容器类型。  
+
+使用 C 函数  
+  
+SqTypeRow 位于 sqxcsupport 库 (sqxcsupport.h) 中。  
+SQ_TYPE_PTR_ARRAY 是内置的容器类型。
+
+```c
+	SqTypeRow  *rowType = sq_type_row_new();
+	SqRow      *row;
+	SqType     *arrayType = SQ_TYPE_PTR_ARRAY;
+	SqPtrArray *array;
+
+	row = sq_stoarge_get(storage, "users", (SqType*)rowType, 10);
+
+	array = sq_storage_get_all(storage, "users", (SqType*)rowType, arrayType, NULL);
+	for (int i = 0;  i < array.length;  i++) {
+		row = array->data[i];
+		// 在这里做点什么
+	}
+```
+
+使用 C++ 方法
+
+```c++
+	Sq::TypeRow  *rowType = new Sq::TypeRow;
+	Sq::Row      *row;
+	Sq::Type     *arrayType = SQ_TYPE_PTR_ARRAY;
+	Sq::PtrArray *array;
+
+	row = (Sq::Row*)storage->get("users", rowType, 10);
+
+	array = (Sq::PtrArray*)storage->getAll("users", rowType, arrayType, NULL);
+	for (int i = 0;  i < array.length;  i++) {
+		row = array->data[i];
+		// 在这里做点什么
+	}
 ```

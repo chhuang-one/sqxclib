@@ -15,7 +15,7 @@
 #ifndef SQ_ENTRY_H
 #define SQ_ENTRY_H
 
-#include <stddef.h>    // NULL
+#include <stddef.h>    // NULL, offsetof()
 #include <stdbool.h>   // bool, true, false
 
 #include <SqDefine.h>

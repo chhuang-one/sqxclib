@@ -3,7 +3,9 @@
 # SqQuery
 
 SqQuery 是支持子查询和括号的查询构建器。  
-如果在 SqQuery.c 中删除 sq_query_get_table_as_names() 和 sq_query_select_table_as()，它可以在没有 sqxclib 的情况下独立工作。  
+  
+**SqQuery 設計上可以獨立運作。**  
+如果在 SqQuery.c 中删除 sq_query_get_table_as_names() 和 sq_query_select_table_as()，它可以在没有 sqxclib 的情况下工作。  
 您还可以通过从 Makefile 中删除 SqQuery.c 和 SqStorage-query.c 来使用其他查询构建器来替换 sqxclib 中的 SqQuery。
 
 ## 创建查询并生成 SQL 语句

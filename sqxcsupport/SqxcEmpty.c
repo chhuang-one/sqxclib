@@ -14,7 +14,8 @@
 
 #include <limits.h>     // __WORDSIZE
 #include <stdint.h>     // __WORDSIZE (Apple)
-#include <stdio.h>
+#include <stdio.h>      // printf
+#include <inttypes.h>   // PRId64, PRIu64
 
 #include <SqError.h>
 #include <SqxcEmpty.h>
@@ -77,12 +78,18 @@ static int  sqxc_empty_send(SqxcEmpty *xcempty, Sqxc *args_src)
 		       xcempty->nested_count,
 		       args_src->name,
 		       args_src->value.int64);
-#else
+#elif defined(__GNUC__)
 		printf("%s  %2d  INT64  %s = %lld\n",
 		       xcempty->tag ? xcempty->tag : "",
 		       xcempty->nested_count,
 		       args_src->name,
-		       (long long int)args_src->value.int64);
+		       args_src->value.int64);
+#else // C99
+		printf("%s  %2d  INT64  %s = %" PRId64 "\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.int64);
 #endif
 		break;
 

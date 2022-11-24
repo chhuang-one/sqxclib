@@ -18,6 +18,7 @@
 #include <limits.h>     // __WORDSIZE
 #include <stdint.h>     // __WORDSIZE (Apple)
 #include <stdio.h>      // snprintf
+#include <inttypes.h>   // PRId64, PRIu64
 
 #include <SqError.h>
 #include <SqConfig.h>
@@ -451,9 +452,12 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 #elif defined(__WORDSIZE) && (__WORDSIZE == 64) && !defined(__APPLE__)
 		len = snprintf(NULL, 0, "%ld", src->value.int64);
 		sprintf(sq_buffer_alloc(buffer, len), "%ld", src->value.int64);
-#else
-		len = snprintf(NULL, 0, "%lld", (long long int)src->value.int64);
-		sprintf(sq_buffer_alloc(buffer, len), "%lld", (long long int)src->value.int64);
+#elif defined(__GNUC__)
+		len = snprintf(NULL, 0, "%lld", src->value.int64);
+		sprintf(sq_buffer_alloc(buffer, len), "%lld", src->value.int64);
+#else // C99
+		len = snprintf(NULL, 0, "%" PRId64, src->value.int64);
+		sprintf(sq_buffer_alloc(buffer, len), "%" PRId64, src->value.int64);
 #endif
 		break;
 
@@ -464,9 +468,12 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 #elif defined(__WORDSIZE) && (__WORDSIZE == 64) && !defined(__APPLE__)
 		len = snprintf(NULL, 0, "%lu", src->value.uint64);
 		sprintf(sq_buffer_alloc(buffer, len), "%lu", src->value.uint64);
-#else
-		len = snprintf(NULL, 0, "%llu", (long long unsigned int)src->value.uint64);
-		sprintf(sq_buffer_alloc(buffer, len), "%llu", (long long unsigned int)src->value.uint64);
+#elif defined(__GNUC__)
+		len = snprintf(NULL, 0, "%llu", src->value.uint64);
+		sprintf(sq_buffer_alloc(buffer, len), "%llu", src->value.uint64);
+#else // C99
+		len = snprintf(NULL, 0, "%" PRIu64, src->value.uint64);
+		sprintf(sq_buffer_alloc(buffer, len), "%" PRIu64, src->value.uint64);
 #endif
 		break;
 

@@ -3,7 +3,9 @@
 # SqQuery
 
 SqQuery is query builder that supports subquery and brackets.  
-It can work independently without sqxclib if you remove sq_query_get_table_as_names() and sq_query_select_table_as() in SqQuery.c.  
+  
+**SqQuery is designed to work independently.**  
+It can work without sqxclib if you remove sq_query_get_table_as_names() and sq_query_select_table_as() in SqQuery.c.  
 You can also use other query builder to replace SqQuery in sqxclib by removing SqQuery.c and SqStorage-query.c from Makefile.
 
 ## create query and generate SQL statement

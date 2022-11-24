@@ -101,3 +101,14 @@ Note: If 'type' is dynamic SqType, it will be freed when the program frees 'tabl
 	// C++ method
 	table = schema->create("your_table_name", type);
 ```
+
+## 3 Find table
+After creating or migrating table, user can find table by it's name in schema.
+
+```c++
+	// C function
+	table = sq_schema_find(schema, "users");
+
+	// C++ method
+	table = schema->find("users");
+```
