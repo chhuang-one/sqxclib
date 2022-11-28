@@ -6,7 +6,9 @@
 #include <iostream>
 #include <sqxclib.h>
 
-#define USE_SQLITE_IF_POSSIBLE    1
+#define USE_SQLITE_IF_POSSIBLE        1
+#define USE_MYSQL_IF_POSSIBLE         0
+#define USE_POSTGRESQL_IF_POSSIBLE    0
 
 int  main(void)
 {
@@ -22,7 +24,7 @@ int  main(void)
 
 	db = new Sq::DbSqlite(&config_sqlite);
 
-#elif SQ_CONFIG_HAVE_MYSQL
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
 
 	SqdbConfigMysql  config_mysql;
 
@@ -33,7 +35,7 @@ int  main(void)
 
 	db = new Sq::DbMysql(&config_mysql);
 
-#elif SQ_CONFIG_HAVE_POSTGRE
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
 
 	SqdbConfigPostgre  config_postgre;
 
