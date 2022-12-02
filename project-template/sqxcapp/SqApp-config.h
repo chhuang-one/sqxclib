@@ -28,21 +28,33 @@
 // ----------------------------------------------------------------------------
 // --- Database Configuration ---
 
+// common configuration values
+#define DB_DATABASE    "sqxcapp-example"
+
+// --- MySQL / MariaDB ---
 // connection configuration values
+#if DB_MYSQL
 #define DB_HOST        "localhost"
 #define DB_PORT        3306
 #define DB_USERNAME    "root"
 #define DB_PASSWORD    ""
+#endif  // DB_MYSQL
 
-// #define DB_PORT        5432    // PostgreSQL
-// #define DB_PORT        3306    // MySQL / MariaDB
+// --- PostgreSQL ---
+// connection configuration values
+#if DB_POSTGRE
+#define DB_HOST        "localhost"
+#define DB_PORT        5432
+#define DB_USERNAME    "postgres"
+#define DB_PASSWORD    ""
+#endif  // DB_POSTGRE
 
-// common configuration values
-#define DB_DATABASE    "sqxcapp-example"
-
-// SQLite configuration values
+// --- SQLite ---
+// file configuration values
+#if DB_SQLITE
 #define DB_FOLDER      "."
 #define DB_EXTENSION   "db"
+#endif  // DB_SQLITE
 
 
 #else   // SQ_APP_CONFIG_FILE has been defined, it will include user's configuration file.
