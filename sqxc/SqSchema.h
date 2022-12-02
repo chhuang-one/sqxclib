@@ -54,8 +54,8 @@ void    sq_schema_final(SqSchema *schema);
 
   You can use sq_str_table_name() and sq_str_type_name() in sqxcsupport if you want to
   convert table name (snake case) and type name (upper camel case) at run time.
-  C++ language
-  Program can use typeid(Type).name() to get "type_name".
+
+  C++ program can use typeid(Type).name() to get "type_name".
  */
 SqTable *sq_schema_create_full(SqSchema     *schema,
                                const char   *table_name,
@@ -63,9 +63,11 @@ SqTable *sq_schema_create_full(SqSchema     *schema,
                                const SqType *table_type,
                                size_t        instance_size);
 
+// SqTable *sq_schema_create_by_type(SqSchema *schema, const char *table_name, const SqType *table_type);
 #define sq_schema_create_by_type(schema, table_name, table_type)  \
 		sq_schema_create_full(schema, table_name, NULL, table_type, 0)
 
+// SqTable *sq_schema_create(SqSchema *schema, const char *table_name, StructType);
 #define sq_schema_create(schema, table_name, StructType)  \
 		sq_schema_create_full(schema, table_name, SQ_GET_TYPE_NAME(StructType), NULL, sizeof(StructType))
 

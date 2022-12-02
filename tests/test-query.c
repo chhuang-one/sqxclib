@@ -291,11 +291,11 @@ void test_query_c_subquery(SqQuery *query)
 	char       *sql;
 	const char *result;
 
-	result = "WHERE price < ( SELECT amount FROM incomes )";
+	result = "WHERE price < ( SELECT AVG(amount) FROM incomes )";
 
 	sq_query_where_sub(query, "price", "<");    // start of subquery
 //	sq_query_where(query, "price", "<", NULL);  // start of subquery
-		sq_query_select(query, "amount");
+		sq_query_select_raw(query, "AVG(amount)");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // end of subquery
 

@@ -1,51 +1,53 @@
 ﻿[English](SqSchema.md)
 
 # SqSchema
-SqSchema 定义数据库架构
+
+SqSchema 定义数据库架构。它存储表和表的更改记录。
 
 	SqEntry
 	│
-	├--- SqSchema
-	│
-	└--- SqReentry
-	     │
-	     ├--- SqTable
-	     │
-	     └--- SqColumn
+	└--- SqSchema
 
-SqSchema、SqTable 和 SqColumn 的关系。
+## 1 创建架构
 
-	SqSchema ---┬--- SqTable 1 ---┬--- SqColumn 1
-	            │                 │
-	            │                 └--- SqColumn n
-	            │
-	            └--- SqTable n ---  ...
+当程序创建新架构时，它会自动生成版本号。目前生成版本号的方式很原始，就是给计数器加1。  
+因为版本号是用来判断是否做迁移的。用户可以手动指定架构的版本号，这样可以避免一些问题。  
+  
+当用户创建新架构时，架构名称可以为 NULL。  
+  
+使用 C 语言
 
-# SqTable
-SqTable 定义 SQL 表
+```c
+	SqSchema *schema;
 
-	SqEntry
-	│
-	└─── SqReentry
-	     │
-	     └─── SqTable
+	// 创建新架构并分配它的名称和版本号
+	schema = sq_schema_new("SchemaName");
+	schema->version = 1;
 
-# SqColumn
-[SqColumn](SqColumn.cn.md) 定义 SQL 表中的列.
+	// 创建架构并仅分配它的版本号
+//	schema = sq_schema_new(NULL);
+//	schema->version = 1;
+```
 
-	SqEntry
-	│
-	└─── SqReentry
-	     │
-	     └─── SqColumn
+使用 C++ 语言
 
-## 1 通过函数创建表和列（动态）
+```c++
+	Sq::Schema *schema;
 
-建议使用 C++ 方法或 C 函数创建动态表。  
-要获取更多信息和示例，您可以查看以下文档：  
+	// 创建新架构并分配它的名称和版本号
+	schema = new Sq::Schema("SchemaName");
+	schema->version = 1;
+
+	// 创建架构并仅分配它的版本号
+//	schema = new Sq::Schema(1);
+```
+
+## 2 创建表
+
+SqSchema 必须与 SqTable 和 [SqColumn](SqColumn.cn.md) 一起使用来创建表。您可以查看以下文档获取更多信息和示例：  
 1. [database-migrations.cn.md](database-migrations.cn.md)
-2. ../[README.cn.md](../README.cn.md#数据库架构) 中的“**数据库架构**”部分
-
+2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
+  
 当你使用 gcc 编译时，你会从 C 和 C++ 源代码中得到不同的类型名称，因为 gcc 的 typeid(Type).name() 会返回奇怪的名称。  
 **如果您的应用程序是用 C++ 语言编写的，请用 C++ 语言创建或定义 SqTable 的类型。**  
   
@@ -59,50 +61,103 @@ SqTable 定义 SQL 表
 	storage->get<StructType>(...)
 	storage->getAll<StructType>(...)
 
-C++ 示例代码：
+#### 2.1 为 C 结构创建表
 
-```c++
-	// 定义一个 C 结构来映射数据库表 "areas".
-	struct Area {
-		int     id;          // 主键
-		char   *name;
+定义一个 C 结构 'UserStruct' 来映射数据库表 "users"。  
+  
+使用 C 语言
+
+```c
+	// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
+	typedef struct  UserStruct    UserStruct;
+
+	struct  UserStruct {
+		// ...
 	};
 
-	// 创建架构版本 1
-	schema_v1 = new Sq::Schema("Ver 1");
-	schema_v1->version = 1;        // 指定版本号或自动生成
-
-	// 创建表 "areas"
-	table = schema_v1->create<Area>("areas");
-
-	// 向表中添加列
-	table->integer("id", &Area::id)->primary();  // 主键
-	table->string("name", &Area::name);
-
-	// 做迁移
-	storage->migrate(schema_v1);   // 迁移 'schema_v1'
-
-	// 将 schema_v1 同步到数据库并更新 'storage' 中的架构
-	// 这主要由 SQLite 使用
-	storage->migrate(NULL);
-
-	// 释放未使用的 'schema_v1'
-	delete schema_v1;
+	table = sq_schema_create(schema, "users", UserStruct);
+	// 向表中添加列...
 ```
 
-## 2 按现有 SqType 创建表（静态或动态）
-您可以查看文档 [SqColumn.cn.md](SqColumn.cn.md) 以获取有关使用 SqColumn 创建 SqType 的更多信息。  
-注意: 如果 'type' 是动态 SqType，它会在程序释放 'table' 时被一起释放。
+使用 C++ 语言
 
 ```c++
-	// C 函数
-	table = sq_schema_create_by_type(schema, "your_table_name", type);
+	struct  UserStruct {
+		// ...
+	};
 
-	// C++ 方法
+	table = schema->create<UserStruct>("users");
+	// 向表中添加列...
+```
+
+#### 2.2 按现有 SqType 创建表
+
+您可以查看文档 [SqColumn.cn.md](SqColumn.cn.md) 以获取有关使用 SqColumn 创建 SqType 的更多信息。  
+注意: 如果 'type' 是动态 SqType，它会在程序释放 'table' 时被一起释放。  
+  
+使用 C 语言
+
+```c
+	// 按现有类型创建表
+	table = sq_schema_create_by_type(schema, "your_table_name", type);
+```
+
+使用 C++ 语言
+
+```c++
+	// 按现有类型创建表
 	table = schema->create("your_table_name", type);
 ```
 
-## 3 查找表
+## 3 修改表
+
+alter() 的用法与 create() 类似。  
+  
+使用 C 语言
+
+```c
+	// 修改表
+	table = sq_schema_alter(schema, "users", NULL);
+
+	// 更改列 "nickname"
+	column = sq_table_add_string(table, "nickname", offsetof(User, nickname), 40);
+	sq_column_change();
+	// 添加或更改列...
+```
+
+使用 C++ 语言
+
+```c++
+	// 修改表
+	table = schema->alter("users");
+
+	// 更改列 "nickname"
+	table->string("nickname", offsetof(User, nickname), 40)->change();
+	// 添加或更改列...
+```
+
+## 4 删除表
+
+```c++
+	// C 函数
+	sq_schema_drop(schema, "users");
+
+	// C++ 方法
+	schema->drop("users");
+```
+
+## 5 重命名表
+
+```c++
+	// C 函数
+	sq_schema_rename(schema, "old_name", "new_name");
+
+	// C++ 方法
+	schema->rename("old_name", "new_name");
+```
+
+## 6 查找表
+
 创建或迁移表后，用户可以通过表的名称在架构中找到表。
 
 ```c++

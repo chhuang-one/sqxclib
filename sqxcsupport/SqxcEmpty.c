@@ -65,6 +65,14 @@ static int  sqxc_empty_send(SqxcEmpty *xcempty, Sqxc *args_src)
 		       args_src->value.integer);
 		break;
 
+	case SQXC_TYPE_UINT:
+		printf("%s  %2d  INT  %s = %u\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.uint);
+		break;
+
 	case SQXC_TYPE_INT64:
 #if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
 		printf("%s  %2d  INT64  %s = %I64d\n",
@@ -90,6 +98,34 @@ static int  sqxc_empty_send(SqxcEmpty *xcempty, Sqxc *args_src)
 		       xcempty->nested_count,
 		       args_src->name,
 		       args_src->value.int64);
+#endif
+		break;
+
+	case SQXC_TYPE_UINT64:
+#if defined (_MSC_VER)  // || defined (__MINGW32__) || defined (__MINGW64__)
+		printf("%s  %2d  UINT64  %s = %I64u\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.uint64);
+#elif defined(__WORDSIZE) && (__WORDSIZE == 64) && !defined(__APPLE__)
+		printf("%s  %2d  UINT64  %s = %lu\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.uint64);
+#elif defined(__GNUC__)
+		printf("%s  %2d  UINT64  %s = %llu\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.uint64);
+#else // C99
+		printf("%s  %2d  UINT64  %s = %" PRIu64 "\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.uint64);
 #endif
 		break;
 

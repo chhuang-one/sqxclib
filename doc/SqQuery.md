@@ -580,9 +580,9 @@ use C++ Sq::Where and Sq::WhereRaw (or Sq::where and Sq::whereRaw) to generate S
 		query.where("id", "<", 11).orWhereRaw("city_id < %d", 33);
 	});
 
-	// ... WHERE price < ( SELECT amount FROM incomes )
+	// ... WHERE price < ( SELECT AVG(amount) FROM incomes )
 	Sq::where("price", "<", [](SqQuery &query) {
-		query.select("amount").from("incomes");
+		query.selectRaw("AVG(amount)").from("incomes");
 	});
 ```
 
@@ -1128,7 +1128,7 @@ e.g. below is SQL statement that has subquery in condition.
 
 ```sql
 SELECT * FROM products
-WHERE price < ( SELECT amount FROM incomes )
+WHERE price < ( SELECT AVG(amount) FROM incomes )
 ```
 
 use C language to generate subquery in condition:
@@ -1137,10 +1137,10 @@ use C language to generate subquery in condition:
 	// SELECT * FROM products
 	sq_query_from(query, "products");
 
-	// WHERE price < ( SELECT amount FROM incomes )
+	// WHERE price < ( SELECT AVG(amount) FROM incomes )
 	sq_query_where_sub(query, "price", "<");    // start of subquery
 //	sq_query_where(query, "price", "<", NULL);  // start of subquery
-		sq_query_select(query, "amount");
+		sq_query_select_raw(query, "AVG(amount)");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // end of subquery
 ```
@@ -1150,9 +1150,9 @@ use C++ language to generate subquery in condition:
 ```c
 	// SELECT * FROM products
 	query->from("products")
-	// WHERE price < ( SELECT amount FROM incomes )
+	// WHERE price < ( SELECT AVG(amount) FROM incomes )
 	     ->where("price", "<", [query] {
-	         query->select("amount")
+	         query->selectRaw("AVG(amount)")
 	              ->from("incomes");
 	     });
 ```

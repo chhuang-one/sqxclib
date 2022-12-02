@@ -580,9 +580,9 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 		query.where("id", "<", 11).orWhereRaw("city_id < %d", 33);
 	});
 
-	// ... WHERE price < ( SELECT amount FROM incomes )
+	// ... WHERE price < ( SELECT AVG(amount) FROM incomes )
 	Sq::where("price", "<", [](SqQuery &query) {
-		query.select("amount").from("incomes");
+		query.selectRaw("AVG(amount)").from("incomes");
 	});
 ```
 
@@ -1128,7 +1128,7 @@ WHERE ( salary > 45 AND age < 21 ) OR id > 100
 
 ```sql
 SELECT * FROM products
-WHERE price < ( SELECT amount FROM incomes )
+WHERE price < ( SELECT AVG(amount) FROM incomes )
 ```
 
 使用 C 语言生成在条件中的子查询：
@@ -1137,10 +1137,10 @@ WHERE price < ( SELECT amount FROM incomes )
 	// SELECT * FROM products
 	sq_query_from(query, "products");
 
-	// WHERE price < ( SELECT amount FROM incomes )
+	// WHERE price < ( SELECT AVG(amount) FROM incomes )
 	sq_query_where_sub(query, "price", "<");    // 子查询的开始
 //	sq_query_where(query, "price", "<", NULL);  // 子查询的开始
-		sq_query_select(query, "amount");
+		sq_query_select_raw(query, "AVG(amount)");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // 子查询的结束
 ```
@@ -1150,9 +1150,9 @@ WHERE price < ( SELECT amount FROM incomes )
 ```c
 	// SELECT * FROM products
 	query->from("products")
-	// WHERE price < ( SELECT amount FROM incomes )
+	// WHERE price < ( SELECT AVG(amount) FROM incomes )
 	     ->where("price", "<", [query] {
-	         query->select("amount")
+	         query->selectRaw("AVG(amount)")
 	              ->from("incomes");
 	     });
 ```

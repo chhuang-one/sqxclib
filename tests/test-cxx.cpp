@@ -160,12 +160,12 @@ void test_query_cpp()
 
 	// --- test 3 ---
 	result = "SELECT * FROM products "
-	         "WHERE price < ( SELECT amount FROM incomes )";
+	         "WHERE price < ( SELECT AVG(amount) FROM incomes )";
 
 	query->clear();
 	query->from("products")
 	     ->where("price", "<", [query] {
-	         query->select("amount")
+	         query->selectRaw("AVG(amount)")
 	              ->from("incomes");
 	     });
 
@@ -209,10 +209,10 @@ void test_query_cpp_convenient_class()
 
 	// lambda
 	sql = Sq::where("price", "<", [](SqQuery &query) {
-		query.select("amount").from("incomes");
+		query.selectRaw("AVG(amount)").from("incomes");
 	}).c();
 	std::cout << sql << std::endl;
-	assert(strcmp(sql.c_str(), "WHERE price < ( SELECT amount FROM incomes )") == 0);
+	assert(strcmp(sql.c_str(), "WHERE price < ( SELECT AVG(amount) FROM incomes )") == 0);
 
 	// whereExists
 	sql = Sq::whereExists([](SqQuery *query) {
