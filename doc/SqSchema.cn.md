@@ -44,7 +44,7 @@ SqSchema 定义数据库架构。它存储表和表的更改记录。
 
 ## 2 创建表
 
-SqSchema 必须与 SqTable 和 [SqColumn](SqColumn.cn.md) 一起使用来创建表。您可以查看以下文档获取更多信息和示例：  
+SqSchema 必须与 [SqTable](SqTable.cn.md) 和 [SqColumn](SqColumn.cn.md) 一起使用来创建表。您可以查看以下文档获取更多信息和示例：  
 1. [database-migrations.cn.md](database-migrations.cn.md)
 2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
   
@@ -138,6 +138,8 @@ alter() 的用法与 create() 类似。
 
 ## 4 删除表
 
+sq_schema_drop() 必须指定要删除的表名。这不会在迁移前立即删除该表，因为它只是向 'schema' 中添加了一条 "删除表" 的记录。
+
 ```c++
 	// C 函数
 	sq_schema_drop(schema, "users");
@@ -147,6 +149,8 @@ alter() 的用法与 create() 类似。
 ```
 
 ## 5 重命名表
+
+与 sq_schema_drop() 一样， sq_schema_rename() 不会立即重命名表。
 
 ```c++
 	// C 函数

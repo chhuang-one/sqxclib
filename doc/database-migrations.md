@@ -209,7 +209,7 @@ You will get instance of SqTable after calling alter or create function in schem
 
 ### Available Column Types (dynamic)
 
-Below C++ methods (and C functions) are correspond to the different types of columns that you can add to your database tables.
+Below C++ methods (and C functions) are correspond to the different types of columns that you can add to database tables.
 
 | C++ methods | C functions             | C data type   |
 | ----------- | ----------------------- | ------------- |

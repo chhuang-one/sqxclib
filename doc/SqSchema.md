@@ -44,7 +44,7 @@ use C++ language
 
 ## 2 Create table
 
-SqSchema must be used with SqTable and [SqColumn](SqColumn.md) to create a table. You can see below documents to get more information and sample:  
+SqSchema must be used with [SqTable](SqTable.md) and [SqColumn](SqColumn.md) to create a table. You can see below documents to get more information and sample:  
 1. [database-migrations.md](database-migrations.md)
 2. "**Database schema**" section in ../[README.md](../README.md#database-schema)
   
@@ -138,6 +138,8 @@ use C++ language
 
 ## 4 Drop table
 
+sq_schema_drop() must specify the table name to drop. This does not drop the table immediately before migration because it just add a record of "Remove Table" to the 'schema'.
+
 ```c++
 	// C functions
 	sq_schema_drop(schema, "users");
@@ -147,6 +149,8 @@ use C++ language
 ```
 
 ## 5 Rename table
+
+Like sq_schema_drop(), sq_schema_rename() does not rename the table immediately.
 
 ```c++
 	// C functions
