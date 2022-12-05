@@ -10,7 +10,95 @@ SqColumn 派生自 [SqEntry](SqEntry.cn.md)。它定义 SQL 表中的列并与 S
 	     │
 	     └─── SqColumn
 
-结构定义:
+## 创建列（动态）
+
+SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一起使用来创建表。它使用 C++ 方法或 C 函数来创建动态表和列。  
+要获取更多信息和示例，您可以查看以下文档：  
+1. [database-migrations.cn.md](database-migrations.cn.md)
+2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
+  
+使用 C 语言
+
+```c
+	SqColumn *column;
+
+	column = sq_table_add_string(table, "column", offsetof(MyStruct, column), 191);
+```
+
+使用 C++ 语言
+
+```c++
+	SqColumn *column;
+
+	column = table->string("column", &MyStruct::column, 191);
+```
+
+## 列修饰符
+
+在将列添加到表或将条目添加到结构时，您可以使用几个 "修饰符"。  
+以下 C++ 方法 (和 C 函数) 对应于列修饰符：
+
+| C++ 方法             | C 函数                             | C 位字段名            |
+| -------------------- | ---------------------------------- | --------------------- |
+| primary()            | sq_column_primary()                | SQB_PRIMARY           |
+| unique()             | sq_column_unique()                 | SQB_UNIQUE            |
+| autoIncrement()      | sq_column_auto_increment()         | SQB_AUTOINCREMENT     |
+| nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
+| useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
+| useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
+| default_(string)     | sq_column_default()                |                       |
+
+* 因为 "default" 是 C/C++ 关键字，所以在此方法的尾部附加 "_"。
+
+结构类型的特殊方法。
+
+| C++ 方法         | C 位字段名        | 描述                                               |
+| ---------------- | ----------------- | -------------------------------------------------- |
+| pointer()        | SQB_POINTER       | 这个数据成员是一个指针。                           |
+| hidden()         | SQB_HIDDEN        | 不要将此数据成员输出到 JSON。                      |
+| hiddenNull()     | SQB_HIDDEN_NULL   | 如果它的值为 NULL，则不要将此数据成员输出到 JSON。 |
+
+例如，使列 "nullable":
+
+```c++
+	/* C++ 示例代码 */
+	table->string("name", &User::name)->nullable();
+
+	/* C 示例代码 */
+	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
+	sq_column_nullable(column);
+```
+
+## 更改列
+
+C 语言：sq_column_change() 允许您修改现有列的类型和属性。
+
+```c
+	/* C 示例代码 */
+
+	// 更改表 "users"
+	table = sq_schema_alter(schema, "users", NULL);
+
+	// 更改表中的 "email" 列
+	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
+	sq_column_change(column);
+```
+
+C++ 语言：change 方法允许您修改现有列的类型和属性。
+
+```c++
+	/* C++ 示例代码 */
+
+	// 更改表 "users"
+	table = schema->alter("users");
+
+	// 更改表中的 "email" 列
+	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
+```
+
+## 将 SqColumn 与 SqType 一起使用
+
+要定义常量 SqColumn，用户必须了解 SqColumn 结构定义：
 
 ```c
 struct SqColumn
@@ -60,14 +148,7 @@ struct SqColumn
 
 * SqColumn 也继承了 [SqEntry](SqEntry.cn.md) 中 bit_field 的定义。
 
-## 1 通过方法和函数创建表和列（动态）
-
-它使用 C++ 方法或 C 函数来创建动态表和列。  
-要获取更多信息和示例，您可以查看以下文档：  
-1. [database-migrations.cn.md](database-migrations.cn.md)
-2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
-
-## 2 定义由常量 SqType 使用的常量 SqColumn（静态）
+#### 定义由常量 SqType 使用的常量 SqColumn（静态）
 
 如果您的 SQL 表是固定的并且将来不会更改，这可以减少创架构时的运行时间。  
 * 注意: 如果为结构定义常量 SqType，它必须与 SqColumn 的**指针数组**一起使用。
@@ -89,7 +170,7 @@ static const SqColumn *columnPointerArray[2] = {
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 ```
 
-## 3 定义由动态 SqType 使用的常量 SqColumn
+#### 定义由动态 SqType 使用的常量 SqColumn
 
 使用 C 语言
 
@@ -115,7 +196,7 @@ const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 //	type->addEntry((const SqEntry*)columnArray, 2, sizeof(SqColumn));
 ```
 
-## 4 创建由动态 SqType 使用的动态 SqColumn
+#### 创建由动态 SqType 使用的动态 SqColumn
 
 添加一个动态列来输入
 

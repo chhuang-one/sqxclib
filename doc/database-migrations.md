@@ -63,7 +63,7 @@ struct User {
 };
 ```
 
-### Creating Tables (dynamic)
+#### Creating Tables (dynamic)
 
 You will get different type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.  
 **Please create or define type of SqTable in C++ language if your application written in C++ language.**  
@@ -128,7 +128,7 @@ You may check for the existence of a table using the find function:
 	}
 ```
 
-### Updating Tables (dynamic)
+#### Updating Tables (dynamic)
 
 use the alter function to update existing tables.
 
@@ -157,7 +157,7 @@ use the alter function to update existing tables.
 	sq_column_change(column);
 ```
 
-### Renaming / Dropping Tables (dynamic)
+#### Renaming / Dropping Tables (dynamic)
 
 use the rename function to rename an existing database table.
 
@@ -179,10 +179,9 @@ You can use the drop function to drop an existing table.
 	sq_schema_drop(schema, "users");
 ```
 
-
 ## Columns
 
-### Creating Columns (dynamic)
+#### Creating Columns (dynamic)
 
 To add columns to the table, you can use functions of SqTable.
 You will get instance of SqTable after calling alter or create function in schema.
@@ -207,7 +206,7 @@ You will get instance of SqTable after calling alter or create function in schem
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 ```
 
-### Available Column Types (dynamic)
+#### Available Column Types (dynamic)
 
 Below C++ methods (and C functions) are correspond to the different types of columns that you can add to database tables.
 
@@ -234,7 +233,7 @@ Below method is for C++ data type only.
 | ----------- | ------------- |
 | stdstring   | std::string   |
 
-### Column Modifiers (dynamic)
+#### Column Modifiers (dynamic)
 
 There are several "modifiers" you may use when adding a column to table or a entry to structure.
 For example, to make the column "nullable":
@@ -270,7 +269,7 @@ Special methods for structured data type.
 | hidden()         | SQB_HIDDEN        | Don't output this data member to JSON.                       |
 | hiddenNull()     | SQB_HIDDEN_NULL   | Don't output this data member to JSON if it's value is NULL. |
 
-### Updating Column Attributes
+#### Updating Column Attributes
 
 C++ language: The change method allows you to modify the type and attributes of existing columns.
 
@@ -284,7 +283,7 @@ C++ language: The change method allows you to modify the type and attributes of 
 	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
 ```
 
-C language: set SQB_CHANGE in bit_field allows you to modify the type and attributes of existing columns.
+C language: sq_column_change() allows you to modify the type and attributes of existing columns.
 
 ```c
 	/* C sample code */
@@ -297,7 +296,7 @@ C language: set SQB_CHANGE in bit_field allows you to modify the type and attrib
 	sq_column_change(column);
 ```
 
-### Renaming and Dropping Columns
+#### Renaming and Dropping Columns
 
 use C++ method renameColumn and C function sq_table_rename_column to rename a column.  
 use C++ method dropColumn and C function sq_table_drop_column to drop a column.
@@ -324,7 +323,7 @@ use C++ method dropColumn and C function sq_table_drop_column to drop a column.
 
 ## Indexes
 
-### Creating Indexes
+#### Creating Indexes
 
 use the unique method onto the column definition:
 
@@ -360,7 +359,7 @@ Because C++ methods use parameter pack, the last argument can pass (or not) NULL
 	table->primary("primary_email_account_id", "email", "account_id");
 ```
 
-### Dropping Indexes
+#### Dropping Indexes
 
 User must specify name of index, unique, and primary key to drop them.
 
@@ -382,7 +381,7 @@ User must specify name of index, unique, and primary key to drop them.
 	sq_table_drop_primary(table, "primary_email_account_id");
 ```
 
-### Foreign Key Constraints
+## Foreign Key Constraints
 
 use foreign function to create foreign key.  
 The first argument specify the foreign key name, second is column name.

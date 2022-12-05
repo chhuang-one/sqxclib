@@ -2,7 +2,7 @@
 
 # SqTable
 
-SqTable defines SQL table
+SqTable derives from [SqEntry](SqEntry.md). It defines SQL table.
 
 	SqEntry
 	│
@@ -47,7 +47,7 @@ Below method is for C++ data type only.
   
 Add column that contain JSON object or array.  
   
-e.g. Define a C structure that contain struct and array.
+For example, define a C structure that contain struct and array.
 
 ```c
 struct User {
@@ -96,7 +96,7 @@ You can see [schema-builder-static.md](schema-builder-static.md) to get more inf
 
 ## Drop column
 
-sq_table_drop_column() must specify the column name to drop. This does not drop the column immediately before migration because it just add a record of "Remove Column" to the 'table'.
+sq_table_drop_column() must specify the column name to drop. This does not drop the column before migration because it just add a record of "Remove Column" to the 'table'.
 
 ```c++
 	// C function

@@ -63,7 +63,7 @@ struct User {
 };
 ```
 
-### 创建表（动态）
+#### 创建表（动态）
 
 因为 gcc 的 typeid(Type).name() 会返回奇怪的名称，你会从 C 和 C++ 源代码中得到不同的类型名称。  
 **如果您的应用程序是用 C++ 语言编写的，请用 C++ 语言创建或定义 SqTable 的类型。**  
@@ -128,7 +128,7 @@ struct User {
 	}
 ```
 
-### 更新表（动态）
+#### 更新表（动态）
 
 使用 alter 函数更新现有表.
 
@@ -157,7 +157,7 @@ struct User {
 	sq_column_change(column);
 ```
 
-### 重命名/删除表（动态）
+#### 重命名/删除表（动态）
 
 使用 rename 函数来重命名现有的数据库表。
 
@@ -179,10 +179,9 @@ struct User {
 	sq_schema_drop(schema, "users");
 ```
 
-
 ## 列
 
-### 创建列（动态）
+#### 创建列（动态）
 
 要将列添加到表中，您可以使用 SqTable 中的函数。
 在 'schema' 中调用 alter 或 create 函数后，您将获得 SqTable 的实例。
@@ -207,7 +206,7 @@ struct User {
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 ```
 
-### 可用的列类型（动态）
+#### 可用的列类型（动态）
 
 下面的 C++ 方法 (和 C 函数)对应于您可以添加到数据库表中的不同类型的列。
 
@@ -234,9 +233,9 @@ struct User {
 | ----------- | ------------- |
 | stdstring   | std::string   |
 
-### 列修饰符（动态）
+#### 列修饰符（动态）
 
-在将列添加到表或将条目添加到结构时，您可以使用几个“修饰符”。
+在将列添加到表或将条目添加到结构时，您可以使用几个 "修饰符"。
 例如，使列 "nullable":
 
 ```c++
@@ -270,7 +269,7 @@ struct User {
 | hidden()         | SQB_HIDDEN        | 不要将此数据成员输出到 JSON。                      |
 | hiddenNull()     | SQB_HIDDEN_NULL   | 如果它的值为 NULL，则不要将此数据成员输出到 JSON。 |
 
-### 更新列属性
+#### 更新列属性
 
 C++ 语言：change 方法允许您修改现有列的类型和属性。
 
@@ -284,7 +283,7 @@ C++ 语言：change 方法允许您修改现有列的类型和属性。
 	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
 ```
 
-C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型和属性。
+C 语言：sq_column_change() 允许您修改现有列的类型和属性。
 
 ```c
 	/* C 示例代码 */
@@ -297,7 +296,7 @@ C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型�
 	sq_column_change(column);
 ```
 
-### 重命名和删除列
+#### 重命名和删除列
 
 使用 C++ 方法 renameColumn 和 C 函数 sq_table_rename_column 重命名列。  
 使用 C++ 方法 dropColumn 和 C 函数 sq_table_drop_column 删除列。
@@ -324,7 +323,7 @@ C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型�
 
 ## 索引
 
-### 创建索引
+#### 创建索引
 
 在列定义上使用 unique 方法：
 
@@ -360,7 +359,7 @@ C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型�
 	table->primary("primary_email_account_id", "email", "account_id");
 ```
 
-### 删除索引
+#### 删除索引
 
 用户必须指定要删除的 索引、唯一、主键的名称。
 
@@ -382,7 +381,7 @@ C 语言：在 bit_field 中设置 SQB_CHANGE 允许您修改现有列的类型�
 	sq_table_drop_primary(table, "primary_email_account_id");
 ```
 
-### 外键约束
+## 外键约束
 
 使用 foreign 函数创建外键。  
 第一个参数指定外键名称，第二个是列名。

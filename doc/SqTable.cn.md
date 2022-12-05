@@ -2,7 +2,7 @@
 
 # SqTable
 
-SqTable 定义 SQL 表
+SqTable 派生自 [SqEntry](SqEntry.cn.md)。它定义 SQL 表。
 
 	SqEntry
 	│
@@ -96,7 +96,7 @@ sq_table_add_column_ptrs(), addColumn() 可以添加 SqColumn 指针数组。
 
 ## 删除列
 
-sq_table_drop_column() 必须指定要删除的列名。这不会在迁移前立即删除该列，因为它只是向 'table' 中添加了一条 "删除列" 的记录。
+sq_table_drop_column() 必须指定要删除的列名。这不会在迁移前删除该列，因为它只是向 'table' 中添加了一条 "删除列" 的记录。
 
 ```c++
 	// C 函数

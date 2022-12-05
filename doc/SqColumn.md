@@ -10,7 +10,95 @@ SqColumn derives from [SqEntry](SqEntry.md). It defines columns in SQL table and
 	     │
 	     └─── SqColumn
 
-Structure Definition:
+## Create column (dynamic)
+
+SqColumn must be used with [SqTable](SqTable.md) and [SqSchema](SqSchema.md) to create a table. It use C++ methods or C functions to create dynamic table and column.  
+To get more information and sample, you can see below documents:  
+1. [database-migrations.md](database-migrations.md)
+2. "**Database schema**" section in ../[README.md](../README.md#database-schema)
+  
+Use C language
+
+```c
+	SqColumn *column;
+
+	column = sq_table_add_string(table, "column", offsetof(MyStruct, column), 191);
+```
+
+Use C++ language
+
+```c++
+	SqColumn *column;
+
+	column = table->string("column", &MyStruct::column, 191);
+```
+
+## Column Modifiers
+
+There are several "modifiers" you may use when adding a column to table or a entry to structure.  
+Below C++ methods (and C functions) are correspond to Column Modifiers:
+
+| C++ methods          | C functions                        | C bit field name      |
+| -------------------- | ---------------------------------- | --------------------- |
+| primary()            | sq_column_primary()                | SQB_PRIMARY           |
+| unique()             | sq_column_unique()                 | SQB_UNIQUE            |
+| autoIncrement()      | sq_column_auto_increment()         | SQB_AUTOINCREMENT     |
+| nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
+| useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
+| useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
+| default_(string)     | sq_column_default()                |                       |
+
+* Because 'default' is C/C++ keywords, it must append '_' in tail of this method.
+
+Special methods for structured data type.
+
+| C++ methods      | C bit field name  | Description                                                  |
+| ---------------- | ----------------- | ------------------------------------------------------------ |
+| pointer()        | SQB_POINTER       | This data member is a pointer.                               |
+| hidden()         | SQB_HIDDEN        | Don't output this data member to JSON.                       |
+| hiddenNull()     | SQB_HIDDEN_NULL   | Don't output this data member to JSON if it's value is NULL. |
+
+For example, to make the column "nullable":
+
+```c++
+	/* C++ sample code */
+	table->string("name", &User::name)->nullable();
+
+	/* C sample code */
+	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
+	sq_column_nullable(column);
+```
+
+## Change column
+
+C language: sq_column_change() allows you to modify the type and attributes of existing columns.
+
+```c
+	/* C sample code */
+
+	// alter table "users"
+	table = sq_schema_alter(schema, "users", NULL);
+
+	// alter column "email" in table
+	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
+	sq_column_change(column);
+```
+
+C++ language: The change method allows you to modify the type and attributes of existing columns.
+
+```c++
+	/* C++ sample code */
+
+	// alter table "users"
+	table = schema->alter("users");
+
+	// alter column "email" in table
+	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
+```
+
+## use SqColumn with SqType
+
+To define constant SqColumn, user must know SqColumn Structure Definition:
 
 ```c
 struct SqColumn
@@ -60,14 +148,7 @@ Declaring bit_field that used by SqColumn:
 
 * SqColumn also inherits the definition of bit_field in [SqEntry](SqEntry.md).
 
-## 1 Create table and column by methods and functions (dynamic)
-
-It use C++ methods or C functions to create dynamic table and column.  
-To get more information and sample, you can see below documents:  
-1. [database-migrations.md](database-migrations.md)
-2. "**Database schema**" section in ../[README.md](../README.md#database-schema)
-
-## 2 Define constant SqColumn that used by constant SqType (static)
+#### Define constant SqColumn that used by constant SqType (static)
 
 This can reduce running time when making schema if your SQL table is fixed and not changed in future.  
 * Note: If you define constant SqType for structure, it must use with **pointer array** of SqColumn.
@@ -89,7 +170,7 @@ static const SqColumn *columnPointerArray[2] = {
 const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 ```
 
-## 3 Define constant SqColumn that used by dynamic SqType
+#### Define constant SqColumn that used by dynamic SqType
 
 Use C language
 
@@ -115,7 +196,7 @@ Use C++ language
 //	type->addEntry((const SqEntry*)columnArray, 2, sizeof(SqColumn));
 ```
 
-## 4 Create dynamic SqColumn that used by dynamic SqType 
+#### Create dynamic SqColumn that used by dynamic SqType 
 
 add one dynamic column to type
 
