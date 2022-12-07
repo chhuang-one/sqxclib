@@ -404,3 +404,13 @@ static Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest)
 	dest->entry = NULL;
 	return sqxc_send(dest);
 }
+
+// extern
+const SqType SqType_Row_ =
+{
+	sizeof(SqRow),
+	(SqTypeFunc)sq_type_row_init_instance,
+	(SqTypeFunc)sq_row_final,
+	sq_type_row_parse,
+	sq_type_row_write,
+};

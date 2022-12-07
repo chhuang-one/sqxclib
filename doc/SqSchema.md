@@ -138,7 +138,7 @@ use C++ language
 
 ## 4 Drop table
 
-sq_schema_drop() must specify the table name to drop. This does not drop the table before migration because it just add a record of "Remove Table" to the 'schema'.
+sq_schema_drop() must specify the table name to drop. This does not drop the table before doing migration because it just add a record of "Remove Table" to the 'schema'.
 
 ```c++
 	// C functions

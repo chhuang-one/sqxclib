@@ -502,11 +502,11 @@ Note: SqStorage will use default container type if user does NOT specify contain
   
 use C function  
   
-SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
-SQ_TYPE_PTR_ARRAY is built-in container type.
+SQ_TYPE_ROW       is built-in type in sqxcsupport library (sqxcsupport.h).  
+SQ_TYPE_PTR_ARRAY is built-in container type.  
 
 ```c
-	SqTypeRow  *rowType = sq_type_row_new();
+	SqType     *rowType   = SQ_TYPE_ROW;
 	SqRow      *row;
 	SqType     *arrayType = SQ_TYPE_PTR_ARRAY;
 	SqPtrArray *array;
@@ -523,7 +523,7 @@ SQ_TYPE_PTR_ARRAY is built-in container type.
 use C++ method
 
 ```c++
-	Sq::TypeRow  *rowType = new Sq::TypeRow;
+	Sq::Type     *rowType   = SQ_TYPE_ROW;
 	Sq::Row      *row;
 	Sq::Type     *arrayType = SQ_TYPE_PTR_ARRAY;
 	Sq::PtrArray *array;

@@ -71,11 +71,11 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 
 ## 更改列
 
-C 语言：sq_column_change() 允许您修改现有列的类型和属性。
+C 函数 sq_column_change()、C++ 方法 change() 允许您修改现有列的类型和属性。他们在迁移之前不会更改列。  
+  
+使用 C 语言
 
 ```c
-	/* C 示例代码 */
-
 	// 更改表 "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
@@ -84,11 +84,9 @@ C 语言：sq_column_change() 允许您修改现有列的类型和属性。
 	sq_column_change(column);
 ```
 
-C++ 语言：change 方法允许您修改现有列的类型和属性。
+使用 C++ 语言
 
 ```c++
-	/* C++ 示例代码 */
-
 	// 更改表 "users"
 	table = schema->alter("users");
 

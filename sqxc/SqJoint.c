@@ -55,8 +55,8 @@ void    sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *t
 {
 	SqEntry *jentry;
 
-//	if ((type_joint->bit_field & SQB_TYPE_DYNAMIC) == 0)
-//		return;
+	if ((type_joint->bit_field & SQB_TYPE_DYNAMIC) == 0)
+		return;
 	if (table == NULL && table_as_name == NULL)
 		return;  // error
 
@@ -74,8 +74,8 @@ void    sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char 
 		SqTable    **table_addr;	
 	} temp;
 
-//	if ((type_joint->bit_field & SQB_TYPE_DYNAMIC) == 0)
-//		return;
+	if ((type_joint->bit_field & SQB_TYPE_DYNAMIC) == 0)
+		return;
 	if (table_as_name)
 		temp.name = table_as_name;
 	else if (table)

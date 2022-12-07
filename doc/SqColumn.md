@@ -71,11 +71,11 @@ For example, to make the column "nullable":
 
 ## Change column
 
-C language: sq_column_change() allows you to modify the type and attributes of existing columns.
+C function sq_column_change(), C++ method change() allow you to modify the type and attributes of existing columns. They do not change the column before doing migration.  
+  
+use C language
 
 ```c
-	/* C sample code */
-
 	// alter table "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
@@ -84,11 +84,9 @@ C language: sq_column_change() allows you to modify the type and attributes of e
 	sq_column_change(column);
 ```
 
-C++ language: The change method allows you to modify the type and attributes of existing columns.
+use C++ language
 
 ```c++
-	/* C++ sample code */
-
 	// alter table "users"
 	table = schema->alter("users");
 

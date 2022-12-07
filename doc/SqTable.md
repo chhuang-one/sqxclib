@@ -96,7 +96,7 @@ You can see [schema-builder-static.md](schema-builder-static.md) to get more inf
 
 ## Drop column
 
-sq_table_drop_column() must specify the column name to drop. This does not drop the column before migration because it just add a record of "Remove Column" to the 'table'.
+sq_table_drop_column() must specify the column name to drop. This does not drop the column before doing migration because it just add a record of "Remove Column" to the 'table'.
 
 ```c++
 	// C function

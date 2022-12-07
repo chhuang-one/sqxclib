@@ -202,9 +202,7 @@ void  queryUnknown(Sq::Storage *storage)
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
 	query->from("companies")->join("users",  "companies.id", "%s", "users.company_id");
 
-	Sq::TypeRow *rowType = new Sq::TypeRow();
-	rowVector = storage->query< std::vector<Sq::Row*> >(query, rowType);
-	delete rowType;
+	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
 
 	if (rowVector) {
 		for (cur = rowVector->begin(), end = rowVector->end();  cur != end;  cur++) {
@@ -297,15 +295,13 @@ void queryOneTable(Sq::Storage *storage)
 
 void getRow(Sq::Storage *storage)
 {
-	Sq::TypeRow *rowType;
 	Sq::Row     *row;
 
-	rowType = new Sq::TypeRow();
-	row = (Sq::Row*)storage->get("users", rowType, 1);
+	row = (Sq::Row*)storage->get("users", SQ_TYPE_ROW, 1);
 	printRow(row);
 	delete row;
 
-	Sq::PtrArray *array = (Sq::PtrArray*)storage->getAll("users", rowType, NULL, NULL);
+	Sq::PtrArray *array = (Sq::PtrArray*)storage->getAll("users", SQ_TYPE_ROW, NULL, NULL);
 	if (array) {
 		for (int  index = 0;  index < array->length;  index++) {
 			row = (Sq::Row*)array->data[index];
@@ -315,7 +311,6 @@ void getRow(Sq::Storage *storage)
 		}
 		delete array;
 	}
-	delete rowType;
 }
 
 // ----------------------------------------------------------------------------

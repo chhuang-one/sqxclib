@@ -271,29 +271,27 @@ Special methods for structured data type.
 
 #### Updating Column Attributes
 
-C++ language: The change method allows you to modify the type and attributes of existing columns.
-
-```c++
-	/* C++ sample code */
-
-	// alter table "users"
-	table = schema->alter("users");
-
-	// alter column "email" in table
-	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
-```
-
-C language: sq_column_change() allows you to modify the type and attributes of existing columns.
+C function sq_column_change(), C++ method change() allow you to modify the type and attributes of existing columns.  
+  
+use C language
 
 ```c
-	/* C sample code */
-
 	// alter table "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
 	// alter column "email" in table
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
 	sq_column_change(column);
+```
+
+use C++ language
+
+```c++
+	// alter table "users"
+	table = schema->alter("users");
+
+	// alter column "email" in table
+	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
 ```
 
 #### Renaming and Dropping Columns

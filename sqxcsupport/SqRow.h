@@ -32,6 +32,9 @@ typedef        SqTypeJoint        SqTypeRow;
 extern "C" {
 #endif
 
+extern  const  SqType      SqType_Row_;
+#define SQ_TYPE_ROW      (&SqType_Row_)
+
 // --- SqRow functions ---
 SqRow *sq_row_new(int cols_allocated, int allocated);
 void   sq_row_free(SqRow *row);

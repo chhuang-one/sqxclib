@@ -271,29 +271,27 @@ struct User {
 
 #### 更新列属性
 
-C++ 语言：change 方法允许您修改现有列的类型和属性。
-
-```c++
-	/* C++ 示例代码 */
-
-	// 更改表 "users"
-	table = schema->alter("users");
-
-	// 更改表中的 "email" 列
-	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
-```
-
-C 语言：sq_column_change() 允许您修改现有列的类型和属性。
+C 函数 sq_column_change()、C++ 方法 change() 允许您修改现有列的类型和属性。  
+  
+使用 C 语言
 
 ```c
-	/* C 示例代码 */
-
 	// 更改表 "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
 	// 更改表中的 "email" 列
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
 	sq_column_change(column);
+```
+
+使用 C++ 语言
+
+```c++
+	// 更改表 "users"
+	table = schema->alter("users");
+
+	// 更改表中的 "email" 列
+	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
 ```
 
 #### 重命名和删除列

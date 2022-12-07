@@ -502,18 +502,18 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查
 
 使用 C 函数  
   
-SqTypeRow 位于 sqxcsupport 库 (sqxcsupport.h) 中。  
-SQ_TYPE_PTR_ARRAY 是内置的容器类型。
+SQ_TYPE_ROW       是内置的类型，位于 sqxcsupport 库 (sqxcsupport.h) 中。  
+SQ_TYPE_PTR_ARRAY 是内置的容器类型。  
 
 ```c
-	SqTypeRow  *rowType = sq_type_row_new();
+	SqType     *rowType   = SQ_TYPE_ROW;
 	SqRow      *row;
 	SqType     *arrayType = SQ_TYPE_PTR_ARRAY;
 	SqPtrArray *array;
 
-	row = sq_stoarge_get(storage, "users", (SqType*)rowType, 10);
+	row = sq_stoarge_get(storage, "users", rowType, 10);
 
-	array = sq_storage_get_all(storage, "users", (SqType*)rowType, arrayType, NULL);
+	array = sq_storage_get_all(storage, "users", rowType, arrayType, NULL);
 	for (int i = 0;  i < array.length;  i++) {
 		row = array->data[i];
 		// 在这里做点什么
@@ -523,7 +523,7 @@ SQ_TYPE_PTR_ARRAY 是内置的容器类型。
 使用 C++ 方法
 
 ```c++
-	Sq::TypeRow  *rowType = new Sq::TypeRow;
+	Sq::Type     *rowType   = SQ_TYPE_ROW;
 	Sq::Row      *row;
 	Sq::Type     *arrayType = SQ_TYPE_PTR_ARRAY;
 	Sq::PtrArray *array;
