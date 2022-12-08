@@ -580,7 +580,7 @@ Sq::Joint is pointer array that used by STL container.
 
 #### Handle unknown result
 
-[SqTypeRow](doc/SqTypeRow.md) is derived from SqTypeJoint. It create (SqRow)[doc/SqRow.md] and handle unknown (or known) result.
+[SqTypeRow](doc/SqTypeRow.md) is derived from SqTypeJoint. It create [SqRow](doc/SqRow.md) and handle unknown (or known) result.
 sqxclib provides SQ_TYPE_ROW, which is a built-in static constant type of SqTypeRow.  
 Note: SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
   

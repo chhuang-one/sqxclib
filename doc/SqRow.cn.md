@@ -2,7 +2,7 @@
 
 # SqRow
 
-SqRow 由 (SqTypeRow)[SqTypeRow.cn.md] 创建。如果 (SqTypeRow)[SqTypeRow.md] 不知道列的类型，则 SqRow 中的所有数据类型都是 C 字符串。
+SqRow 由 [SqTypeRow](SqTypeRow.cn.md) 创建。如果 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型，则 SqRow 中的所有数据类型都是 C 字符串。
 
 ## 数组
 
@@ -28,7 +28,7 @@ struct SqRow {
 #### 列数组
 
 SqRow 使用 SqRowColumn 数组来存储列名、列类型和列条目。
-当 (SqTypeRow)[SqTypeRow.md] 不知道列的类型时，SqRowColumn.type 总是等于 SQ_TYPE_STRING。  
+当 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型时，SqRowColumn.type 总是等于 SQ_TYPE_STRING。  
   
 SqRowColumn 结构定义:
 

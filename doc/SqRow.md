@@ -2,7 +2,7 @@
 
 # SqRow
 
-SqRow is created by (SqTypeRow)[SqTypeRow.md]. If (SqTypeRow)[SqTypeRow.md] don't know type of columns, all data type in SqRow is C string.
+SqRow is created by [SqTypeRow](SqTypeRow.md). If [SqTypeRow](SqTypeRow.md) don't know type of columns, all data type in SqRow is C string.
 
 ## Arrays
 
@@ -28,7 +28,7 @@ struct SqRow {
 #### Column array
 
 SqRow use SqRowColumn array to store column name, column type, and column entry.
-SqRowColumn.type is always equal to SQ_TYPE_STRING when (SqTypeRow)[SqTypeRow.md] does not know the type of the column.  
+SqRowColumn.type is always equal to SQ_TYPE_STRING when [SqTypeRow](SqTypeRow.md) does not know the type of the column.  
   
 SqRowColumn Structure Definition:
 

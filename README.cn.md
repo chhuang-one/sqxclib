@@ -578,7 +578,7 @@ Sq::Joint 是 STL 容器使用的指针数组。
 
 #### 处理未知结果
 
-[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 (SqRow)[doc/SqRow.cn.md] 并处理未知（或已知）的结果。
+[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 [SqRow](doc/SqRow.cn.md) 并处理未知（或已知）的结果。
 sqxclib 提供了 SQ_TYPE_ROW，它是 SqTypeRow 的内置静态常量类型。  
 注意: SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
   
