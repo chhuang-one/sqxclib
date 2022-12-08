@@ -534,6 +534,7 @@ use C functions
 	sq_query_join(query, "users", "cities.id", "=", "%s", "users.city_id");
 
 	SqPtrArray *array = sq_storage_query(storage, query, NULL, NULL);
+
 	for (int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
@@ -549,6 +550,7 @@ use C++ methods
 	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
+
 	for (int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
@@ -568,6 +570,7 @@ Sq::Joint is pointer array that used by STL container.
 	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	vector = storage->query<std::vector< Sq::Joint<2> >>(query);
+
 	for (unsigned int index = 0;  index < vector->size();  index++) {
 		Sq::Joint<2> &joint = vector->at(index);
 		city = (City*)joint[0];      // from("cities")
@@ -575,9 +578,10 @@ Sq::Joint is pointer array that used by STL container.
 	}
 ```
 
-#### Get result from unknown table
+#### Handle unknown result
 
-[SqTypeRow](doc/SqTypeRow.md) is derived from SqTypeJoint. It create SqRow and handle unknown (or known) result.  
+[SqTypeRow](doc/SqTypeRow.md) is derived from SqTypeJoint. It create (SqRow)[doc/SqRow.md] and handle unknown (or known) result.
+sqxclib provides SQ_TYPE_ROW, which is a built-in static constant type of SqTypeRow.  
 Note: SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
   
 use C functions
@@ -585,11 +589,15 @@ use C functions
 ```c
 	SqRow    *row;
 
-	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 12);
+	row = sq_storage_query(storage, query, SQ_TYPE_ROW, NULL);
 
-	for (int  index = 0;  index < row->length;  index++)
+	for (int  index = 0;  index < row->length;  index++) {
+		// column name
+		puts(row->cols[index].name);
+		// column value
 		if (row->cols[index].type == SQ_TYPE_STRING)
 			puts(row->data[index].string);
+	}
 ```
 
 use C++ methods
@@ -597,11 +605,15 @@ use C++ methods
 ```c++
 	Sq::Row  *row;
 
-	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 12);
+	row = (Sq::Row*) storage->query(query, SQ_TYPE_ROW, NULL);
 
-	for (int  index = 0;  index < row->length;  index++)
+	for (int  index = 0;  index < row->length;  index++) {
+		// column name
+		std::cout << row->cols[index].name << std::endl;
+		// column value
 		if (row->cols[index].type == SQ_TYPE_STRING)
-			puts(row->data[index].string);
+			std::cout << row->data[index].string << std::endl;
+	}
 ```
 
 ## Transaction

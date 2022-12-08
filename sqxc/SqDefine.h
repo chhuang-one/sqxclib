@@ -56,7 +56,7 @@ union SqValue
 	double        fraction;
 	double        double_;
 	const char   *string;
-	const char   *stream;     // Text stream must be null-terminated string
+	const char   *stream;      // Text stream must be null-terminated string
 	void         *pointer;
 };
 

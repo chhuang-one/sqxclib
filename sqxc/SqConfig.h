@@ -107,7 +107,7 @@
    *** This will disable and remove in future version. ***
    Affected source : SqQuery
  */
-#define SQ_CONFIG_QUERY_USE_OLD_CONDITION          1
+#define SQ_CONFIG_QUERY_USE_OLD_CONDITION          0
 
 // ----------------------------------------------------------------------------
 // Default length (size)

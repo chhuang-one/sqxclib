@@ -1,8 +1,8 @@
-[中文](SqRow.cn.md)
+[中文](SqTypeRow.cn.md)
 
 # SqTypeRow
 
-SqTypeRow is derived from SqTypeJoint. It can create SqRow and handle unknown (or known) result, table, and column.  
+SqTypeRow is derived from SqTypeJoint. It can create (SqRow)[SqRow.md] and handle unknown (or known) result, table, and column.  
 SqTypeRow sample code is in [storage-row.cpp](examples/storage-row.cpp)  
 Note1: SqTypeRow can also use with get() and getAll().  
 Note2: SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
@@ -16,14 +16,14 @@ Note2: SqTypeRow is in sqxcsupport library (sqxcsupport.h).
 ## Directly use without setup
 
 SQ_TYPE_ROW is build-in static constant type for SqTypeRow, user can use it to handle unknown result directly.
-In this case, all data type in SqRow is C string because SqTypeRow don't known type of column.  
+In this case, all data type in (SqRow)[SqRow.md] is C string because SqTypeRow don't know type of columns.  
   
 use C language
 
 ```c
 	SqRow  *row;
 
-	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 12);
+	row = sq_storage_query(storage, query, SQ_TYPE_ROW, NULL);
 
 	for (int  index = 0;  index < row->length;  index++)
 		if (row->cols[index].type == SQ_TYPE_STRING)
@@ -35,17 +35,17 @@ use C++ language
 ```c++
 	Sq::Row  *row;
 
-	row = (Sq::Row*)storage->get("users", SQ_TYPE_ROW, 12);
+	row = (Sq::Row*) storage->query(query, SQ_TYPE_ROW, NULL);
 
 	for (int  index = 0;  index < row->length;  index++)
 		if (row->cols[index].type == SQ_TYPE_STRING)
-			puts(row->data[index].string);
+			std::cout << row->data[index].string << std::endl;
 ```
 
 ## Create and setup SqTypeRow
 
-If you want get correct data type from SqRow, you must create dynamic SqTypeRow and setup it.
-Because the parser of SqTypeRow must known type of columns in table, user must add, remove, clear tables in SqTypeRow.  
+If you want get correct data type from (SqRow)[SqRow.md], you must create dynamic SqTypeRow and setup it.
+Because the parser of SqTypeRow must know type of columns in table, user must add, remove, clear tables in SqTypeRow.  
   
 use C language
 
@@ -110,7 +110,7 @@ You can use SqTypeRow to replace default joint type in SqStorage:
 **If you don't want to change default joint type:**
 1. call sq_storage_setup_query() to setup 'query' and 'typeRow'.
 2. call sq_storage_query() with 'typeRow'.
-3. If you skip step 1, all data type in SqRow is C string because SqTypeRow don't known type of column.
+3. If you skip step 1, all data type in (SqRow)[SqRow.md] is C string because SqTypeRow don't know type of column.
 
 function sq_storage_setup_query() declarations:
 

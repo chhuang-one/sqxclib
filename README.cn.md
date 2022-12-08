@@ -532,6 +532,7 @@ SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的�
 	sq_query_join(query, "users", "cities.id", "=", "%s", "users.city_id");
 
 	SqPtrArray *array = sq_storage_query(storage, query, NULL, NULL);
+
 	for (int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
@@ -547,6 +548,7 @@ SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的�
 	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
+
 	for (int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
@@ -566,6 +568,7 @@ Sq::Joint 是 STL 容器使用的指针数组。
 	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	vector = storage->query<std::vector< Sq::Joint<2> >>(query);
+
 	for (unsigned int index = 0;  index < vector->size();  index++) {
 		Sq::Joint<2> &joint = vector->at(index);
 		city = (City*)joint[0];      // from("cities")
@@ -573,9 +576,10 @@ Sq::Joint 是 STL 容器使用的指针数组。
 	}
 ```
 
-#### 从未知表中获取结果
+#### 处理未知结果
 
-[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 SqRow 并处理未知（或已知）的结果。  
+[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 (SqRow)[doc/SqRow.cn.md] 并处理未知（或已知）的结果。
+sqxclib 提供了 SQ_TYPE_ROW，它是 SqTypeRow 的内置静态常量类型。  
 注意: SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
   
 使用 C 函数
@@ -583,11 +587,15 @@ Sq::Joint 是 STL 容器使用的指针数组。
 ```c
 	SqRow    *row;
 
-	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 12);
+	row = sq_storage_query(storage, query, SQ_TYPE_ROW, NULL);
 
-	for (int  index = 0;  index < row->length;  index++)
+	for (int  index = 0;  index < row->length;  index++) {
+		// 列名
+		puts(row->cols[index].name);
+		// 列值
 		if (row->cols[index].type == SQ_TYPE_STRING)
 			puts(row->data[index].string);
+	}
 ```
 
 使用 C++ 方法
@@ -595,11 +603,15 @@ Sq::Joint 是 STL 容器使用的指针数组。
 ```c++
 	Sq::Row  *row;
 
-	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 12);
+	row = (Sq::Row*) storage->query(query, SQ_TYPE_ROW, NULL);
 
-	for (int  index = 0;  index < row->length;  index++)
+	for (int  index = 0;  index < row->length;  index++) {
+		// 列名
+		std::cout << row->cols[index].name << std::endl;
+		// 列值
 		if (row->cols[index].type == SQ_TYPE_STRING)
-			puts(row->data[index].string);
+			std::cout << row->data[index].string << std::endl;
+	}
 ```
 
 ## 交易 Transaction
