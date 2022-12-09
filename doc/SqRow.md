@@ -4,7 +4,7 @@
 
 SqRow is created by [SqTypeRow](SqTypeRow.md). If [SqTypeRow](SqTypeRow.md) don't know type of columns, all data type in SqRow is C string.
 
-## Arrays
+## Arrays in SqRow
 
 SqRow contain 2 arrays. One is column array, another is data array.
 In most cases, these two arrays will be the same length.  
@@ -64,6 +64,46 @@ union SqValue {
 };
 ```
 
+## Result from SQL
+
+For example, there is a row in customers table.
+
+|  id | name | state |
+| --- | ---- | ----- |
+|  1  | Bob  |  NY   |
+
+If [SqTypeRow](SqTypeRow.md) does not know the type of the columns, arrays in SqRow should look like this:
+
+```c
+	SqRow.cols[0].name   = "id";
+	SqRow.cols[0].type   = SQ_TYPE_STRING;
+	SqRow.cols[0].entry  = NULL;
+	SqRow.data[0].string = "1";
+
+	SqRow.cols[1].name   = "name";
+	SqRow.cols[1].type   = SQ_TYPE_STRING;
+	SqRow.cols[1].entry  = NULL;
+	SqRow.data[1].string = "Bob";
+
+	SqRow.cols[2].name   = "state";
+	SqRow.cols[2].type   = SQ_TYPE_STRING;
+	SqRow.cols[2].entry  = NULL;
+	SqRow.data[2].string = "NY";
+
+	// This row has 3 columns
+	SqRow.length = 3;
+	SqRow.cols_length = 3;
+```
+
+Otherwise the first column is this:
+
+```c
+	SqRow.cols[0].name    = "id";
+	SqRow.cols[0].type    = SQ_TYPE_INT;
+	SqRow.cols[0].entry   = (const SqColumn*) pointerToSqColumn;
+	SqRow.data[0].integer = 1;
+```
+
 ## Create and free SqRow
 
 User must specify the pre-allocated length of the array when creating a SqRow.  
@@ -107,7 +147,12 @@ use C language
 
 	SqRowColumn *col = sq_row_alloc_column(row, n_columns);
 	SqValue     *val = sq_row_alloc(row, n_values);
+
 	// set 'col' and 'val' here
+	col->name  = strdup("id");    // It can be NULL if you don't need column name.
+	col->type  = SQ_TYPE_INT;     // SqRowColumn.type = SQ_TYPE_INT
+	col->entry = NULL;            // It can be NULL.
+	val->integer = 1;             // SqRowColumn.type = SQ_TYPE_INT
 ```
 
 use C++ language
@@ -118,7 +163,12 @@ use C++ language
 
 	Sq::RowColumn *col = row->allocColumn(nColumns);
 	Sq::Value     *val = row->alloc(nValues);
+
 	// set 'col' and 'val' here
+	col->name  = strdup("id");    // It can be NULL if you don't need column name.
+	col->type  = SQ_TYPE_INT;     // SqRowColumn.type = SQ_TYPE_INT
+	col->entry = NULL;            // It can be NULL.
+	val->integer = 1;             // SqRowColumn.type = SQ_TYPE_INT
 ```
 
 ## Other

@@ -4,7 +4,7 @@
 
 SqRow 由 [SqTypeRow](SqTypeRow.cn.md) 创建。如果 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型，则 SqRow 中的所有数据类型都是 C 字符串。
 
-## 数组
+## SqRow 中的数组
 
 SqRow 包含 2 个数组。一个是列数组，另一个是数据数组。
 在大多数情况下，这两个数组的长度相同。  
@@ -59,9 +59,49 @@ union SqValue {
 	double        fraction;    // SQ_TYPE_DOUBLE
 	double        double_;     // SQ_TYPE_DOUBLE
 	const char   *string;      // SQ_TYPE_STRING
-	const char   *stream;      // Text stream must be null-terminated string
-	void         *pointer;     // for user defined type
+	const char   *stream;      // 文本流必须是以 null 结尾的字符串
+	void         *pointer;     // 用户定义的类型
 };
+```
+
+## 来自 SQL 的结果
+
+例如，customers 表中有一行。
+
+|  id | name | state |
+| --- | ---- | ----- |
+|  1  | Bob  |  NY   |
+
+如果 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型，SqRow 中的数组应该如下所示：
+
+```c
+	SqRow.cols[0].name   = "id";
+	SqRow.cols[0].type   = SQ_TYPE_STRING;
+	SqRow.cols[0].entry  = NULL;
+	SqRow.data[0].string = "1";
+
+	SqRow.cols[1].name   = "name";
+	SqRow.cols[1].type   = SQ_TYPE_STRING;
+	SqRow.cols[1].entry  = NULL;
+	SqRow.data[1].string = "Bob";
+
+	SqRow.cols[2].name   = "state";
+	SqRow.cols[2].type   = SQ_TYPE_STRING;
+	SqRow.cols[2].entry  = NULL;
+	SqRow.data[2].string = "NY";
+
+	// 这一行有 3 列
+	SqRow.length = 3;
+	SqRow.cols_length = 3;
+```
+
+否则第一列是这样的：
+
+```c
+	SqRow.cols[0].name    = "id";
+	SqRow.cols[0].type    = SQ_TYPE_INT;
+	SqRow.cols[0].entry   = (const SqColumn*) pointerToSqColumn;
+	SqRow.data[0].integer = 1;
 ```
 
 ## 创建和释放 SqRow
@@ -107,7 +147,12 @@ C 函数 sq_row_alloc_column() 和 sq_row_alloc()，C++ 方法 allocColumn() 和
 
 	SqRowColumn *col = sq_row_alloc_column(row, n_columns);
 	SqValue     *val = sq_row_alloc(row, n_values);
+
 	// 在这里设置 'col' 和 'val'
+	col->name  = strdup("id");    // 如果不需要列名，它可以为 NULL。
+	col->type  = SQ_TYPE_INT;     // SqRowColumn.type = SQ_TYPE_INT
+	col->entry = NULL;            // 它可以为 NULL。
+	val->integer = 1;             // SqRowColumn.type = SQ_TYPE_INT
 ```
 
 使用 C++ 语言
@@ -118,7 +163,12 @@ C 函数 sq_row_alloc_column() 和 sq_row_alloc()，C++ 方法 allocColumn() 和
 
 	Sq::RowColumn *col = row->allocColumn(nColumns);
 	Sq::Value     *val = row->alloc(nValues);
+
 	// 在这里设置 'col' 和 'val'
+	col->name  = strdup("id");    // 如果不需要列名，它可以为 NULL。
+	col->type  = SQ_TYPE_INT;     // SqRowColumn.type = SQ_TYPE_INT
+	col->entry = NULL;            // 它可以为 NULL。
+	val->integer = 1;             // SqRowColumn.type = SQ_TYPE_INT
 ```
 
 ## 其他
