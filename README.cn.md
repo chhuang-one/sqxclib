@@ -578,39 +578,56 @@ Sq::Joint 是 STL 容器使用的指针数组。
 
 #### 处理未知结果
 
-[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 [SqRow](doc/SqRow.cn.md) 并处理未知（或已知）的结果。
-sqxclib 提供了 SQ_TYPE_ROW，它是 SqTypeRow 的内置静态常量类型。  
-注意: SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
+[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 [SqRow](doc/SqRow.cn.md) 并处理未知（或已知）的结果。  
+SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRow.cn.md) 和 SQ_TYPE_ROW 都在 sqxcsupport 库中 (sqxcsupport.h)。  
   
 使用 C 函数
 
 ```c
-	SqRow    *row;
+	SqRow      *row;
+	SqPtrArray *array;
 
-	row = sq_storage_query(storage, query, SQ_TYPE_ROW, NULL);
+	// 指定返回数据的表类型和容器类型
+	// SQ_TYPE_ROW 是表类型。
+	// SQ_TYPE_PTR_ARRAY 是返回的容器类型。
+	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 
-	for (int  index = 0;  index < row->length;  index++) {
-		// 列名
-		puts(row->cols[index].name);
-		// 列值
-		if (row->cols[index].type == SQ_TYPE_STRING)
-			puts(row->data[index].string);
+	for (int  nth_row = 0;  nth_row < array->length;  nth_row++) {
+		// 从数组中获取 SqRow
+		row = array->data[nth_row];
+		// 处理 SqRow 中的列
+		for (int  index = 0;  index < row->length;  index++) {
+			// 列名
+			puts(row->cols[index].name);
+			// 列值类型由 'row->cols[index].type' 决定
+			if (row->cols[index].type == SQ_TYPE_STRING)
+				puts(row->data[index].string);
+		}
 	}
 ```
 
 使用 C++ 方法
 
 ```c++
-	Sq::Row  *row;
+	Sq::Row      *row;
+	Sq::PtrArray *array;
 
-	row = (Sq::Row*) storage->query(query, SQ_TYPE_ROW, NULL);
+	// 指定返回数据的表类型和容器类型
+	// SQ_TYPE_ROW 是表类型。
+	// SQ_TYPE_PTR_ARRAY 是返回的容器类型。
+	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 
-	for (int  index = 0;  index < row->length;  index++) {
-		// 列名
-		std::cout << row->cols[index].name << std::endl;
-		// 列值
-		if (row->cols[index].type == SQ_TYPE_STRING)
-			std::cout << row->data[index].string << std::endl;
+	for (int  nthRow = 0;  nthRow < array->length;  nthRow++) {
+		// 从数组中获取 Sq::Row
+		row = (Sq::Row*) array->data[nthRow];
+		// 处理 Sq::Row 中的列
+		for (int  index = 0;  index < row->length;  index++) {
+			// 列名
+			std::cout << row->cols[index].name << std::endl;
+			// 列值类型由 'row->cols[index].type' 决定
+			if (row->cols[index].type == SQ_TYPE_STRING)
+				std::cout << row->data[index].string << std::endl;
+		}
 	}
 ```
 

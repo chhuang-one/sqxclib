@@ -21,25 +21,51 @@ In this case, all data type in [SqRow](SqRow.md) is C string because SqTypeRow d
 use C language
 
 ```c
-	SqRow  *row;
+	SqRow      *row;
+	SqPtrArray *array;
 
-	row = sq_storage_query(storage, query, SQ_TYPE_ROW, NULL);
+	// specify the table type and container type of returned data
+	// SQ_TYPE_ROW is the table type.
+	// SQ_TYPE_PTR_ARRAY is the returned container type.
+	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 
-	for (int  index = 0;  index < row->length;  index++)
-		if (row->cols[index].type == SQ_TYPE_STRING)
-			puts(row->data[index].string);
+	for (int  nth_row = 0;  nth_row < array->length;  nth_row++) {
+		// get SqRow from array
+		row = array->data[nth_row];
+		// handle columns in SqRow
+		for (int  index = 0;  index < row->length;  index++) {
+			// column name
+			puts(row->cols[index].name);
+			// column value type is decided by 'row->cols[index].type'
+			if (row->cols[index].type == SQ_TYPE_STRING)
+				puts(row->data[index].string);
+		}
+	}
 ```
 
 use C++ language
 
 ```c++
-	Sq::Row  *row;
+	Sq::Row      *row;
+	Sq::PtrArray *array;
 
-	row = (Sq::Row*) storage->query(query, SQ_TYPE_ROW, NULL);
+	// specify the table type and container type of returned data
+	// SQ_TYPE_ROW is the table type.
+	// SQ_TYPE_PTR_ARRAY is the returned container type.
+	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 
-	for (int  index = 0;  index < row->length;  index++)
-		if (row->cols[index].type == SQ_TYPE_STRING)
-			std::cout << row->data[index].string << std::endl;
+	for (int  nthRow = 0;  nthRow < array->length;  nthRow++) {
+		// get Sq::Row from array
+		row = (Sq::Row*) array->data[nthRow];
+		// handle columns in Sq::Row
+		for (int  index = 0;  index < row->length;  index++) {
+			// column name
+			std::cout << row->cols[index].name << std::endl;
+			// column value type is decided by 'row->cols[index].type'
+			if (row->cols[index].type == SQ_TYPE_STRING)
+				std::cout << row->data[index].string << std::endl;
+		}
+	}
 ```
 
 ## Create and setup SqTypeRow

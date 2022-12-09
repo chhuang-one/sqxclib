@@ -41,7 +41,7 @@ struct SqAppSetting {
 	const SqMigration  **migrations;
 	const int           *n_migrations;
 
-    const char          *error;
+	const char          *error;
 };
 
 /* 'SQ_APP_DEFAULT' has database settings and migration data for user application.
@@ -195,6 +195,8 @@ struct App : SqApp {
 		sq_app_final(this);
 	}
 };
+
+typedef struct SqAppSetting    AppSetting;
 
 };  // namespace Sq
 
