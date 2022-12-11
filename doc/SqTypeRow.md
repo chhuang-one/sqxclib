@@ -24,23 +24,12 @@ use C language
 	SqRow      *row;
 	SqPtrArray *array;
 
-	// specify the table type and container type of returned data
-	// SQ_TYPE_ROW is the table type.
-	// SQ_TYPE_PTR_ARRAY is the returned container type.
-	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+	// specify the table type as SQ_TYPE_ROW
+	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 11);
 
-	for (int  nth_row = 0;  nth_row < array->length;  nth_row++) {
-		// get SqRow from array
-		row = array->data[nth_row];
-		// handle columns in SqRow
-		for (int  index = 0;  index < row->length;  index++) {
-			// column name
-			puts(row->cols[index].name);
-			// column value type is decided by 'row->cols[index].type'
-			if (row->cols[index].type == SQ_TYPE_STRING)
-				puts(row->data[index].string);
-		}
-	}
+	// specify the table type as SQ_TYPE_ROW
+	// specify the container type of returned data as SQ_TYPE_PTR_ARRAY
+	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 ```
 
 use C++ language
@@ -49,23 +38,12 @@ use C++ language
 	Sq::Row      *row;
 	Sq::PtrArray *array;
 
-	// specify the table type and container type of returned data
-	// SQ_TYPE_ROW is the table type.
-	// SQ_TYPE_PTR_ARRAY is the returned container type.
-	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+	// specify the table type as SQ_TYPE_ROW
+	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 11);
 
-	for (int  nthRow = 0;  nthRow < array->length;  nthRow++) {
-		// get Sq::Row from array
-		row = (Sq::Row*) array->data[nthRow];
-		// handle columns in Sq::Row
-		for (int  index = 0;  index < row->length;  index++) {
-			// column name
-			std::cout << row->cols[index].name << std::endl;
-			// column value type is decided by 'row->cols[index].type'
-			if (row->cols[index].type == SQ_TYPE_STRING)
-				std::cout << row->data[index].string << std::endl;
-		}
-	}
+	// specify the table type as SQ_TYPE_ROW
+	// specify the container type of returned data as SQ_TYPE_PTR_ARRAY
+	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 ```
 
 ## Create and setup SqTypeRow
@@ -120,10 +98,14 @@ You can use SqTypeRow to replace default joint type in SqStorage:
 	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	vector = storage->query<std::vector<Sq::Row>>(query);
+
 	for (unsigned int index = 0;  index < vector->size();  index++) {
+		// get Sq::Row from std::vector
 		Sq::Row &row = vector->at(index);
+		// handle columns in Sq::Row
 		for (unsigned int nth = 0;  nth < row.length;  nth++) {
 			std::cout << row.cols[nth].name << " = ";
+			// column value type is decided by 'row.cols[nth].type'
 			if (row.cols[nth].type == SQ_TYPE_INT)
 				std::cout << row.data[nth].integer << std::endl;
 			if (row.cols[nth].type == SQ_TYPE_STRING)

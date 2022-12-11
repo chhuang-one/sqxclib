@@ -24,23 +24,12 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 	SqRow      *row;
 	SqPtrArray *array;
 
-	// 指定返回数据的表类型和容器类型
-	// SQ_TYPE_ROW 是表类型。
-	// SQ_TYPE_PTR_ARRAY 是返回的容器类型。
-	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+	// 指定表类型为 SQ_TYPE_ROW
+	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 11);
 
-	for (int  nth_row = 0;  nth_row < array->length;  nth_row++) {
-		// 从数组中获取 SqRow
-		row = array->data[nth_row];
-		// 处理 SqRow 中的列
-		for (int  index = 0;  index < row->length;  index++) {
-			// 列名
-			puts(row->cols[index].name);
-			// 列值类型由 'row->cols[index].type' 决定
-			if (row->cols[index].type == SQ_TYPE_STRING)
-				puts(row->data[index].string);
-		}
-	}
+	// 指定表类型为 SQ_TYPE_ROW
+	// 指定返回数据的容器类型为 SQ_TYPE_PTR_ARRAY
+	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 ```
 
 使用 C++ 语言
@@ -49,23 +38,12 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 	Sq::Row      *row;
 	Sq::PtrArray *array;
 
-	// 指定返回数据的表类型和容器类型
-	// SQ_TYPE_ROW 是表类型。
-	// SQ_TYPE_PTR_ARRAY 是返回的容器类型。
-	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+	// 指定表类型为 SQ_TYPE_ROW
+	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 11);
 
-	for (int  nthRow = 0;  nthRow < array->length;  nthRow++) {
-		// 从数组中获取 Sq::Row
-		row = (Sq::Row*) array->data[nthRow];
-		// 处理 Sq::Row 中的列
-		for (int  index = 0;  index < row->length;  index++) {
-			// 列名
-			std::cout << row->cols[index].name << std::endl;
-			// 列值类型由 'row->cols[index].type' 决定
-			if (row->cols[index].type == SQ_TYPE_STRING)
-				std::cout << row->data[index].string << std::endl;
-		}
-	}
+	// 指定表类型为 SQ_TYPE_ROW
+	// 指定返回数据的容器类型为 SQ_TYPE_PTR_ARRAY
+	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 ```
 
 ## 创建和设置 SqTypeRow
@@ -120,10 +98,14 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
 	vector = storage->query<std::vector<Sq::Row>>(query);
+
 	for (unsigned int index = 0;  index < vector->size();  index++) {
+		// 从 std::vector 中获取 Sq::Row
 		Sq::Row &row = vector->at(index);
+		// 处理 Sq::Row 中的列
 		for (unsigned int nth = 0;  nth < row.length;  nth++) {
 			std::cout << row.cols[nth].name << " = ";
+			// 列值类型由 'row.cols[nth].type' 决定
 			if (row.cols[nth].type == SQ_TYPE_INT)
 				std::cout << row.data[nth].integer << std::endl;
 			if (row.cols[nth].type == SQ_TYPE_STRING)

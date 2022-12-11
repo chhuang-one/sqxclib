@@ -99,7 +99,10 @@ void printRow(Sq::Row *row)
 		col = row->cols + i;
 		val = row->data + i;
 
+		// column name
 		std::cout << col->name << " = ";
+
+		// column value type is decided by 'col->type'
 		if (SQ_TYPE_NOT_BUILTIN(col->type)) {
 			if (col->type == NULL)
 				std::cout << "(NULL)";
@@ -202,11 +205,14 @@ void  queryUnknown(Sq::Storage *storage)
 //	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
 	query->from("companies")->join("users",  "companies.id", "%s", "users.company_id");
 
+	// specify the table type as SQ_TYPE_ROW.
 	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
 
 	if (rowVector) {
 		for (cur = rowVector->begin(), end = rowVector->end();  cur != end;  cur++) {
+			// get Sq::Row from vector
 			Sq::Row *row = (*cur);
+			// handle columns in Sq::Row
 			std::cout << "--- Sq::Row ---" << std::endl;
 			printRow(row);
 			delete row;
@@ -245,7 +251,9 @@ void  queryKnown(Sq::Storage *storage)
 
 	if (rowVector) {
 		for (cur = rowVector->begin(), end = rowVector->end();  cur != end;  cur++) {
+			// get Sq::Row from vector
 			Sq::Row *row = (*cur);
+			// handle columns in Sq::Row
 			std::cout << "--- Sq::Row ---" << std::endl;
 			printRow(row);
 			delete row;
@@ -283,7 +291,9 @@ void queryOneTable(Sq::Storage *storage)
 
 	if (rowVector) {
 		for (cur = rowVector->begin(), end = rowVector->end();  cur != end;  cur++) {
+			// get Sq::Row from array
 			Sq::Row *row = (*cur);
+			// handle columns in Sq::Row
 			std::cout << "--- Sq::Row ---" << std::endl;
 			printRow(row);
 			delete row;
@@ -297,14 +307,19 @@ void getRow(Sq::Storage *storage)
 {
 	Sq::Row     *row;
 
+	// specify the table type as SQ_TYPE_ROW.
 	row = (Sq::Row*)storage->get("users", SQ_TYPE_ROW, 1);
 	printRow(row);
 	delete row;
 
+	// specify the table type as SQ_TYPE_ROW.
 	Sq::PtrArray *array = (Sq::PtrArray*)storage->getAll("users", SQ_TYPE_ROW, NULL, NULL);
+
 	if (array) {
 		for (int  index = 0;  index < array->length;  index++) {
+			// get Sq::Row from array
 			row = (Sq::Row*)array->data[index];
+			// handle columns in Sq::Row
 			std::cout << "--- Sq::Row ---" << std::endl;
 			printRow(row);
 			delete row;

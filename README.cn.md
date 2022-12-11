@@ -587,23 +587,12 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 	SqRow      *row;
 	SqPtrArray *array;
 
-	// 指定返回数据的表类型和容器类型
-	// SQ_TYPE_ROW 是表类型。
-	// SQ_TYPE_PTR_ARRAY 是返回的容器类型。
-	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+	// 指定表类型为 SQ_TYPE_ROW
+	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 11);
 
-	for (int  nth_row = 0;  nth_row < array->length;  nth_row++) {
-		// 从数组中获取 SqRow
-		row = array->data[nth_row];
-		// 处理 SqRow 中的列
-		for (int  index = 0;  index < row->length;  index++) {
-			// 列名
-			puts(row->cols[index].name);
-			// 列值类型由 'row->cols[index].type' 决定
-			if (row->cols[index].type == SQ_TYPE_STRING)
-				puts(row->data[index].string);
-		}
-	}
+	// 指定表类型为 SQ_TYPE_ROW
+	// 指定返回数据的容器类型为 SQ_TYPE_PTR_ARRAY
+	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 ```
 
 使用 C++ 方法
@@ -612,23 +601,12 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 	Sq::Row      *row;
 	Sq::PtrArray *array;
 
-	// 指定返回数据的表类型和容器类型
-	// SQ_TYPE_ROW 是表类型。
-	// SQ_TYPE_PTR_ARRAY 是返回的容器类型。
-	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+	// 指定表类型为 SQ_TYPE_ROW
+	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 11);
 
-	for (int  nthRow = 0;  nthRow < array->length;  nthRow++) {
-		// 从数组中获取 Sq::Row
-		row = (Sq::Row*) array->data[nthRow];
-		// 处理 Sq::Row 中的列
-		for (int  index = 0;  index < row->length;  index++) {
-			// 列名
-			std::cout << row->cols[index].name << std::endl;
-			// 列值类型由 'row->cols[index].type' 决定
-			if (row->cols[index].type == SQ_TYPE_STRING)
-				std::cout << row->data[index].string << std::endl;
-		}
-	}
+	// 指定表类型为 SQ_TYPE_ROW
+	// 指定返回数据的容器类型为 SQ_TYPE_PTR_ARRAY
+	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 ```
 
 ## 交易 Transaction

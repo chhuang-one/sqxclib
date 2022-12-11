@@ -589,23 +589,12 @@ use C functions
 	SqRow      *row;
 	SqPtrArray *array;
 
-	// specify the table type and container type of returned data
-	// SQ_TYPE_ROW is the table type.
-	// SQ_TYPE_PTR_ARRAY is the returned container type.
-	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+	// specify the table type as SQ_TYPE_ROW
+	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 11);
 
-	for (int  nth_row = 0;  nth_row < array->length;  nth_row++) {
-		// get SqRow from array
-		row = array->data[nth_row];
-		// handle columns in SqRow
-		for (int  index = 0;  index < row->length;  index++) {
-			// column name
-			puts(row->cols[index].name);
-			// column value type is decided by 'row->cols[index].type'
-			if (row->cols[index].type == SQ_TYPE_STRING)
-				puts(row->data[index].string);
-		}
-	}
+	// specify the table type as SQ_TYPE_ROW
+	// specify the container type of returned data as SQ_TYPE_PTR_ARRAY
+	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 ```
 
 use C++ methods
@@ -614,23 +603,12 @@ use C++ methods
 	Sq::Row      *row;
 	Sq::PtrArray *array;
 
-	// specify the table type and container type of returned data
-	// SQ_TYPE_ROW is the table type.
-	// SQ_TYPE_PTR_ARRAY is the returned container type.
-	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+	// specify the table type as SQ_TYPE_ROW
+	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 11);
 
-	for (int  nthRow = 0;  nthRow < array->length;  nthRow++) {
-		// get Sq::Row from array
-		row = (Sq::Row*) array->data[nthRow];
-		// handle columns in Sq::Row
-		for (int  index = 0;  index < row->length;  index++) {
-			// column name
-			std::cout << row->cols[index].name << std::endl;
-			// column value type is decided by 'row->cols[index].type'
-			if (row->cols[index].type == SQ_TYPE_STRING)
-				std::cout << row->data[index].string << std::endl;
-		}
-	}
+	// specify the table type as SQ_TYPE_ROW
+	// specify the container type of returned data as SQ_TYPE_PTR_ARRAY
+	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 ```
 
 ## Transaction

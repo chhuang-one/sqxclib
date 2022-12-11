@@ -49,7 +49,7 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count)
 		        buf->mem + position,
 		        buf->writed - position);
 	}
-	buf->writed = new_length -1;    // -1 because reserve space is not counted in length
+	buf->writed = new_length -1;    // -1 because reserve space (for NULL-terminated) is not counted in length
 	return buf->mem + position;
 }
 
