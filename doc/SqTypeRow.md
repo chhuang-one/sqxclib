@@ -2,10 +2,9 @@
 
 # SqTypeRow
 
-SqTypeRow is derived from SqTypeJoint. It can create [SqRow](SqRow.md) and handle unknown (or known) result, table, and column.  
+SqTypeRow is derived from SqTypeJoint. It can create [SqRow](SqRow.md) and parse unknown (or known) result, table, and column.  
 SqTypeRow sample code is in [storage-row.cpp](examples/storage-row.cpp)  
-Note1: SqTypeRow can also use with get() and getAll().  
-Note2: SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
+Note: SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
 
 	SqType
 	│
@@ -15,7 +14,7 @@ Note2: SqTypeRow is in sqxcsupport library (sqxcsupport.h).
 
 ## Directly use without setup
 
-SQ_TYPE_ROW is build-in static constant type for SqTypeRow, user can use it to handle unknown result directly.
+SQ_TYPE_ROW is build-in static constant type for SqTypeRow, user can use it to parse unknown result directly.
 In this case, all data type in [SqRow](SqRow.md) is C string because SqTypeRow don't know type of columns.  
   
 use C language
@@ -135,7 +134,7 @@ It will add "SELECT table.column AS 'table.column'" in 'query' if 'query' has jo
 
 | Return value  | Description                                                                |
 | ------------- | ---------------------------------------------------------------------------|
-| NULL          | if table not found and 'type_joint' can NOT handle unknown table type.     |
+| NULL          | if table not found and 'type_joint' can NOT parse unknown table type.     |
 | 'type_joint'  | if 'query' has joined multi-table. It will setup 'type_joint' and 'query'. |
 | type of table | if 'query' has only 1 table. It will setup 'type_joint' but keep 'query' no change. In this case, user can call sq_storage_query() with returned type or 'type_joint'. |
 

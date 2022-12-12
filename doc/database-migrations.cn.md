@@ -68,7 +68,7 @@ struct User {
 因为 gcc 的 typeid(Type).name() 会返回奇怪的名称，你会从 C 和 C++ 源代码中得到不同的类型名称。  
 **如果您的应用程序是用 C++ 语言编写的，请用 C++ 语言创建或定义 SqTable 的类型。**  
   
-如果 SqTable::type 用 C 语言定义，你不能使用下面的 C++ 模板函数来访问 SQL 表.
+如果 SqTable::type 用 C 语言定义，你不能使用下面的 C++ 模板函数来访问 SQL 表。
 
 	storage->insert<StructType>(...)
 	storage->update<StructType>(...)
@@ -114,7 +114,7 @@ struct User {
 #### 检查表是否存在
 
 您可以使用 find 函数检查表是否存在:
-* 此函数不在数据库找表，它在 SqSchema 的实例中找表.
+* 此函数不在数据库找表，它在 SqSchema 的实例中找表。
 
 ```c++
 	/* C++ 示例代码 */
@@ -130,7 +130,7 @@ struct User {
 
 #### 更新表（动态）
 
-使用 alter 函数更新现有表.
+使用 alter 函数更新现有表。
 
 ```c++
 	/* C++ 示例代码 */

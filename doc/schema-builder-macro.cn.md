@@ -61,7 +61,7 @@ struct User {
 
 使用 C 宏更改 schema_v2 中的表和列（动态）  
   
-宏 SQ_SCHEMA_ALTER() 可以改变表。 宏中的最后一个参数类似于 lambda 函数。
+宏 SQ_SCHEMA_ALTER() 可以改变表。宏中的最后一个参数类似于 lambda 函数。
 
 ```c
 	schema_v2 = sq_schema_new("Ver 2");

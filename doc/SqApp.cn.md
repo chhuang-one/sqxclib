@@ -244,7 +244,7 @@ sq_app_make_schema() 通过迁移创建当前架构。如果 'migration_id' 为 
 
 #### 2.2.2 回滚上次数据库迁移
 
-如果 'step' 为 0， sq_app_rollback() 将回滚最新的迁移操作。  
+如果 'step' 为 0，sq_app_rollback() 将回滚最新的迁移操作。  
   
 使用 C 函数
 

@@ -150,7 +150,7 @@ sq_schema_drop() 必须指定要删除的表名。这不会在迁移之前删除
 
 ## 5 重命名表
 
-与 sq_schema_drop() 一样， sq_schema_rename() 不会立即重命名表。
+与 sq_schema_drop() 一样，sq_schema_rename() 不会立即重命名表。
 
 ```c++
 	// C 函数

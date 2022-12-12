@@ -108,7 +108,7 @@ sq_table_drop_column() 必须指定要删除的列名。这不会在迁移之前
 
 ## 重命名列
 
-与 sq_table_drop_column() 一样， sq_table_rename_column() 不会立即重命名列。
+与 sq_table_drop_column() 一样，sq_table_rename_column() 不会立即重命名列。
 
 ```c++
 	// C 函数
@@ -120,7 +120,7 @@ sq_table_drop_column() 必须指定要删除的列名。这不会在迁移之前
 
 ## 获取列
 
-C 函数 sq_table_find_column()， C++ 方法 findColumn() 可以按名称查找列。
+C 函数 sq_table_find_column()，C++ 方法 findColumn() 可以按名称查找列。
 
 ```c++
 	// C 函数
@@ -130,7 +130,7 @@ C 函数 sq_table_find_column()， C++ 方法 findColumn() 可以按名称查找
 	column = table->findColumn("columnName");
 ```
 
-C 函数 sq_table_get_primary()， C++ 方法 getPrimary() 可以获取主键。
+C 函数 sq_table_get_primary()，C++ 方法 getPrimary() 可以获取主键。
 
 ```c++
 	// C 函数

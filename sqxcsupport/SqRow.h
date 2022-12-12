@@ -133,7 +133,7 @@ struct SqRowColumn
 };
 
 /*
-	SqRow - This can handle unknown(or known) table and column
+	SqRow - This can parse unknown(or known) table and column
 
 	Note: data type and order of below SqRow's members can NOT change:
 	      data, length, allocated, cols, cols_length, and cols_allocated.

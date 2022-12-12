@@ -210,7 +210,7 @@ void  queryUnknown(Sq::Storage *storage)
 
 	if (rowVector) {
 		for (cur = rowVector->begin(), end = rowVector->end();  cur != end;  cur++) {
-			// get Sq::Row from vector
+			// get Sq::Row from std::vector
 			Sq::Row *row = (*cur);
 			// handle columns in Sq::Row
 			std::cout << "--- Sq::Row ---" << std::endl;
@@ -251,7 +251,7 @@ void  queryKnown(Sq::Storage *storage)
 
 	if (rowVector) {
 		for (cur = rowVector->begin(), end = rowVector->end();  cur != end;  cur++) {
-			// get Sq::Row from vector
+			// get Sq::Row from std::vector
 			Sq::Row *row = (*cur);
 			// handle columns in Sq::Row
 			std::cout << "--- Sq::Row ---" << std::endl;
@@ -291,7 +291,7 @@ void queryOneTable(Sq::Storage *storage)
 
 	if (rowVector) {
 		for (cur = rowVector->begin(), end = rowVector->end();  cur != end;  cur++) {
-			// get Sq::Row from array
+			// get Sq::Row from std::vector
 			Sq::Row *row = (*cur);
 			// handle columns in Sq::Row
 			std::cout << "--- Sq::Row ---" << std::endl;
@@ -301,6 +301,27 @@ void queryOneTable(Sq::Storage *storage)
 		delete rowVector;
 	}
 	delete query;
+}
+
+void getRowStl(Sq::Storage *storage)
+{
+	std::vector<Sq::Row*> *rowVector;
+	std::vector<Sq::Row*>::iterator cur, end;
+
+	// specify the table type as SQ_TYPE_ROW.
+	rowVector = storage->getAll< std::vector<Sq::Row*> >("users", SQ_TYPE_ROW, NULL);
+
+	if (rowVector) {
+		for (cur = rowVector->begin(), end = rowVector->end();  cur != end;  cur++) {
+			// get Sq::Row from std::vector
+			Sq::Row *row = (*cur);
+			// handle columns in Sq::Row
+			std::cout << "--- Sq::Row ---" << std::endl;
+			printRow(row);
+			delete row;
+		}
+		delete rowVector;
+	}
 }
 
 void getRow(Sq::Storage *storage)
@@ -380,5 +401,6 @@ int  main(int argc, char *argv[])
 	queryUnknown(storage);
 	queryKnown(storage);
 	queryOneTable(storage);
+	getRowStl(storage);
 	getRow(storage);
 }

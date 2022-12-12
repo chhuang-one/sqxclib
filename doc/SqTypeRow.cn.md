@@ -2,10 +2,9 @@
 
 # SqTypeRow
 
-SqTypeRow 派生自 SqTypeJoint。它可以创建 [SqRow](SqRow.cn.md) 并处理未知（或已知）的结果、表和列。  
+SqTypeRow 派生自 SqTypeJoint。它可以创建 [SqRow](SqRow.cn.md) 并解析未知（或已知）的结果、表和列。  
 SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)  
-注意1: SqTypeRow 也可以与 get() 和 getAll() 一起使用。  
-注意2: SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
+注意: SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
 
 	SqType
 	│
@@ -15,7 +14,7 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 
 ## 无需设置直接使用
 
-SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它来处理未知的结果。
+SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它来解析未知的结果。
 在这种情况下，[SqRow](SqRow.cn.md) 中的所有数据类型都是 C 字符串，因为 SqTypeRow 不知道列的类型。  
   
 使用 C 语言
@@ -110,7 +109,7 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 				std::cout << row.data[nth].integer << std::endl;
 			if (row.cols[nth].type == SQ_TYPE_STRING)
 				std::cout << row.data[nth].string  << std::endl;
-			// other type...
+			// 其他类型...
 		}
 	}
 ```
@@ -135,7 +134,7 @@ Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod 
 
 | 返回值       | 描述                                                                       |
 | ------------ | ---------------------------------------------------------------------------|
-| NULL         | 如果找不到表 并且 'type_joint' 不能处理未知的表类型。                      |
+| NULL         | 如果找不到表 并且 'type_joint' 不能解析未知的表类型。                      |
 | 'type_joint' | 如果 'query' 已加入多表。它将设置 'type_joint' 和 'query'。                |
 | 其他表类型   | 如果 'query' 只有 1个表。它将设置 'type_joint' 但保持 'query' 不变。在这种情况下，用户可以使用返回的类型或'type_joint' 调用 sq_storage_query()。 |
 

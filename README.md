@@ -578,9 +578,9 @@ Sq::Joint is pointer array that used by STL container.
 	}
 ```
 
-#### Handle unknown result
+## Parse unknown result
 
-[SqTypeRow](doc/SqTypeRow.md) is derived from SqTypeJoint. It create [SqRow](doc/SqRow.md) and handle unknown (or known) result.  
+[SqTypeRow](doc/SqTypeRow.md) is derived from SqTypeJoint. It create [SqRow](doc/SqRow.md) and parse unknown (or known) result.  
 SQ_TYPE_ROW is a built-in static constant type of SqTypeRow. Both [SqTypeRow](doc/SqTypeRow.md) and SQ_TYPE_ROW are in sqxcsupport library (sqxcsupport.h).  
   
 use C functions
@@ -590,11 +590,13 @@ use C functions
 	SqPtrArray *array;
 
 	// specify the table type as SQ_TYPE_ROW
-	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 11);
-
-	// specify the table type as SQ_TYPE_ROW
 	// specify the container type of returned data as SQ_TYPE_PTR_ARRAY
 	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+
+	array = sq_storage_get_all(storage, "users", SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY, NULL);
+
+	// specify the table type as SQ_TYPE_ROW
+	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 11);
 ```
 
 use C++ methods
@@ -604,11 +606,24 @@ use C++ methods
 	Sq::PtrArray *array;
 
 	// specify the table type as SQ_TYPE_ROW
-	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 11);
-
-	// specify the table type as SQ_TYPE_ROW
 	// specify the container type of returned data as SQ_TYPE_PTR_ARRAY
 	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+
+	array = (Sq::PtrArray*) storage->getAll("users", SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY, NULL);
+
+	// specify the table type as SQ_TYPE_ROW
+	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 11);
+```
+
+use C++ STL
+
+```c++
+	std::vector<Sq::Row*> *rowVector;
+
+	// specify the table type as SQ_TYPE_ROW
+	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
+
+	rowVector = storage->getAll< std::vector<Sq::Row*> >("users", SQ_TYPE_ROW, NULL);
 ```
 
 ## Transaction

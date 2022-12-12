@@ -425,7 +425,7 @@ DELETE FROM users
 sq_storage_remove_all() 用于删除表中的多条现有记录。  
 最后一个参数是排除 "DELETE FROM table_name" 的 SQL 语句。  
   
-注意: SqQuery 可以生成排除 "DELETE FROM table_name" 的 SQL 语句。 请参阅上面的 "getAll (配合 SqQuery)"。  
+注意: SqQuery 可以生成排除 "DELETE FROM table_name" 的 SQL 语句。请参阅上面的 "getAll (配合 SqQuery)"。  
   
 例如: 使用 where 条件从数据库表 "users" 中删除多行。
 

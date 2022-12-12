@@ -576,9 +576,9 @@ Sq::Joint 是 STL 容器使用的指针数组。
 	}
 ```
 
-#### 处理未知结果
+#### 解析未知结果
 
-[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 [SqRow](doc/SqRow.cn.md) 并处理未知（或已知）的结果。  
+[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 [SqRow](doc/SqRow.cn.md) 并解析未知（或已知）的结果。  
 SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRow.cn.md) 和 SQ_TYPE_ROW 都在 sqxcsupport 库中 (sqxcsupport.h)。  
   
 使用 C 函数
@@ -588,11 +588,13 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 	SqPtrArray *array;
 
 	// 指定表类型为 SQ_TYPE_ROW
-	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 11);
-
-	// 指定表类型为 SQ_TYPE_ROW
 	// 指定返回数据的容器类型为 SQ_TYPE_PTR_ARRAY
 	array = sq_storage_query(storage, query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+
+	array = sq_storage_get_all(storage, "users", SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY, NULL);
+
+	// 指定表类型为 SQ_TYPE_ROW
+	row = sq_storage_get(storage, "users", SQ_TYPE_ROW, 11);
 ```
 
 使用 C++ 方法
@@ -602,11 +604,24 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 	Sq::PtrArray *array;
 
 	// 指定表类型为 SQ_TYPE_ROW
-	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 11);
-
-	// 指定表类型为 SQ_TYPE_ROW
 	// 指定返回数据的容器类型为 SQ_TYPE_PTR_ARRAY
 	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
+
+	array = (Sq::PtrArray*) storage->getAll("users", SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY, NULL);
+
+	// 指定表类型为 SQ_TYPE_ROW
+	row = (Sq::Row*) storage->get("users", SQ_TYPE_ROW, 11);
+```
+
+使用 C++ STL
+
+```c++
+	std::vector<Sq::Row*> *rowVector;
+
+	// 指定表类型为 SQ_TYPE_ROW
+	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
+
+	rowVector = storage->getAll< std::vector<Sq::Row*> >("users", SQ_TYPE_ROW, NULL);
 ```
 
 ## 交易 Transaction

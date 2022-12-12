@@ -29,7 +29,7 @@ SqBuffer 小而简单。可以直接放在栈内存中使用，将所有成员�
 使用 C++ 语言
 
 ```c++
-    // Sq::Buffer 有构造函数和析构函数
+	// Sq::Buffer 有构造函数和析构函数
 	Sq::Buffer  buf;
 
 	Sq::Buffer *bufInHeap = new Sq::Buffer;
@@ -49,7 +49,7 @@ C 函数 sq_buffer_alloc()，C++ 方法 alloc() 可以从 SqBuffer 中写入的�
 
 	memory = sq_buffer_alloc(buffer, length);
 
-    // 从指定位置分配内存
+	// 从指定位置分配内存
 	memory = sq_buffer_alloc_at(buffer, position, length);
 ```
 
@@ -62,7 +62,7 @@ C 函数 sq_buffer_alloc()，C++ 方法 alloc() 可以从 SqBuffer 中写入的�
 
 	memory = buffer->alloc(length);
 
-    // 从指定位置分配内存
+	// 从指定位置分配内存
 	memory = buffer->alloc(position, length);
 ```
 
