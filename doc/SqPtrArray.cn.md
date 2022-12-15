@@ -26,6 +26,7 @@ struct SqPtrArray
 	void    **data;
 	int       length;
 };
+```
 
 SqPtrArray.data 前面有 3 个隐藏成员：  
 索引 -1 是数组前面的元素数。（目前这个值为3）  

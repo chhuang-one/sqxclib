@@ -26,6 +26,7 @@ struct SqPtrArray
 	void    **data;
 	int       length;
 };
+```
 
 There are 3 hidden members in front of SqPtrArray.data:  
 index -1 is number of elements in front of array. (This value is 3 currently)  
