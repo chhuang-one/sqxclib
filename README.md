@@ -275,6 +275,7 @@ use C functions to migrate schema and synchronize to database
 
 ## CRUD
 
+The default container type of SqStorage is [SqPtrArray](doc/SqPtrArray.md). If the program does not specify a container type, getAll() and query() will use the default container type.  
 To get more information and sample, you can see doc/[SqStorage.md](doc/SqStorage.md)  
   
 use C++ methods
@@ -621,6 +622,7 @@ use C++ STL
 	std::vector<Sq::Row*> *rowVector;
 
 	// specify the table type as SQ_TYPE_ROW
+	// specify the container type of returned data as std::vector<Sq::Row*>
 	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
 
 	rowVector = storage->getAll< std::vector<Sq::Row*> >("users", SQ_TYPE_ROW, NULL);

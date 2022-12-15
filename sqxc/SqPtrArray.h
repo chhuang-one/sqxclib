@@ -293,10 +293,10 @@ void  *sq_ptr_array_final(void *array);
 
 void **sq_ptr_array_alloc_at(void *array, int index, int count);
 
+void   sq_ptr_array_erase(void *array, int index, int count);
+
 // find element in unsorted array
 void **sq_ptr_array_find(void *array, const void *key, SqCompareFunc cmpfunc);
-
-void   sq_ptr_array_erase(void *array, int index, int count);
 
 void **sq_ptr_array_find_sorted(void *array, const void *key,
                                 SqCompareFunc compare, int *inserted_index);
@@ -320,8 +320,10 @@ template<class Type>
 struct PtrArrayMethod
 {
 	// access variable of PtrArray
+	int    headerLength();
 	int    allocated();
-	Type  *addr(int index);
+	SqDestroyFunc destroyFunc();
+	void          destroyFunc(SqDestroyFunc func);
 
 	// member functions
 	void   init(int allocated_length = 0, SqDestroyFunc func = NULL);
@@ -354,6 +356,8 @@ struct PtrArrayMethod
 	// foreach
 	void   foreach(std::function<void(Type  element)> func);
 	void   foreach(std::function<void(Type *address)> func);
+
+	Type  *addr(int index);
 
 	/* PtrArrayMethod iterator (uncompleted) */
 
@@ -501,8 +505,20 @@ namespace Sq {
 /* define PtrArrayMethod template functions */
 
 template<class Type>
-inline Type *PtrArrayMethod<Type>::addr(int index) {
-	return (Type*)sq_ptr_array_addr(this, index);
+inline int   PtrArrayMethod<Type>::headerLength() {
+	return sq_ptr_array_header_length(this);
+}
+template<class Type>
+inline int   PtrArrayMethod<Type>::allocated() {
+	return sq_ptr_array_allocated(this);
+}
+template<class Type>
+inline SqDestroyFunc  PtrArrayMethod<Type>::destroyFunc() {
+	return sq_ptr_array_destroy_func(this);
+}
+template<class Type>
+inline void  PtrArrayMethod<Type>::destroyFunc(SqDestroyFunc func) {
+	sq_ptr_array_destroy_func(this) = func;
 }
 
 template<class Type>
@@ -594,6 +610,10 @@ inline Type *PtrArrayMethod<Type>::find(Type key, SqCompareFunc func) {
 template<class Type>
 inline Type *PtrArrayMethod<Type>::findSorted(Type key, SqCompareFunc func, int *insertedIndex) {
 	return (Type*)sq_ptr_array_find_sorted(this, &key, func, insertedIndex);
+}
+template<class Type>
+inline Type *PtrArrayMethod<Type>::addr(int index) {
+	return (Type*)sq_ptr_array_addr(this, index);
 }
 
 /* PtrArrayMethod iterator (uncompleted) */

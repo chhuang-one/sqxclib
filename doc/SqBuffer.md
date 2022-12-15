@@ -68,7 +68,7 @@ use C++ language
 
 ## Write
 
-The writing action will first call sq_buffer_alloc() then copy the data to the SqBuffer.  
+The writing action will first call sq_buffer_alloc() then copy data to the SqBuffer.  
   
 use C language
 
@@ -98,7 +98,7 @@ use C++ language
 
 ## Insert
 
-The inserting action will first call sq_buffer_alloc_at() then copy the data to the SqBuffer.  
+The inserting action will first call sq_buffer_alloc_at() to alloc memory in specified position then copy data to the specified position in SqBuffer.  
   
 use C language
 

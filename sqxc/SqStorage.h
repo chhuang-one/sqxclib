@@ -64,7 +64,7 @@ int   sq_storage_migrate(SqStorage *storage, SqSchema *schema);
 
 /* ------------------------------------
 	CRUD functions:
-	1. Parameter 'table_type' can be NULL.
+	1. If 'table_type' is NULL, SqStorage will try to find 'table_type' in its schema.
 	2. These can run a bit faster if user specify 'table_name' and 'table_type' at the same time.
  */
 void *sq_storage_get(SqStorage    *storage,

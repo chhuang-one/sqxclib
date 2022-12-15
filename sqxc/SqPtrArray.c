@@ -96,15 +96,6 @@ void **sq_ptr_array_alloc_at(void *array, int index, int count)
 	return ((SqPtrArray*)array)->data + index;
 }
 
-void **sq_ptr_array_find(void *array, const void *key, SqCompareFunc cmpfunc)
-{
-	sq_ptr_array_foreach_addr(array, element_addr) {
-		if (cmpfunc(key, element_addr) == 0)
-			return element_addr;
-	}
-	return NULL;
-}
-
 void sq_ptr_array_erase(void *array, int index, int count)
 {
 	SqDestroyFunc  destroy_func;
@@ -124,6 +115,15 @@ void sq_ptr_array_erase(void *array, int index, int count)
 	        sq_ptr_array_addr(array, index + count),
 	        sizeof(void*) * (sq_ptr_array_length(array) -count -index) );
 	((SqPtrArray*)(array))->length -= (count);
+}
+
+void **sq_ptr_array_find(void *array, const void *key, SqCompareFunc cmpfunc)
+{
+	sq_ptr_array_foreach_addr(array, element_addr) {
+		if (cmpfunc(key, element_addr) == 0)
+			return element_addr;
+	}
+	return NULL;
 }
 
 void **sq_ptr_array_find_sorted(void *array, const void *key,

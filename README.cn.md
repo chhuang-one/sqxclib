@@ -273,6 +273,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 ## 增删查改
 
+SqStorage 默认的容器类型是 [SqPtrArray](doc/SqPtrArray.cn.md)。如果程序未指定容器类型，则 getAll() 和 query() 将使用默认容器类型。  
 要获取更多信息和示例，您可以查看 doc/[SqStorage.cn.md](doc/SqStorage.cn.md)  
   
 使用 C++ 方法
@@ -576,7 +577,7 @@ Sq::Joint 是 STL 容器使用的指针数组。
 	}
 ```
 
-#### 解析未知结果
+## 解析未知结果
 
 [SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 [SqRow](doc/SqRow.cn.md) 并解析未知（或已知）的结果。  
 SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRow.cn.md) 和 SQ_TYPE_ROW 都在 sqxcsupport 库中 (sqxcsupport.h)。  
@@ -619,6 +620,7 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 	std::vector<Sq::Row*> *rowVector;
 
 	// 指定表类型为 SQ_TYPE_ROW
+	// 指定返回数据的容器类型为 std::vector<Sq::Row*>
 	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
 
 	rowVector = storage->getAll< std::vector<Sq::Row*> >("users", SQ_TYPE_ROW, NULL);

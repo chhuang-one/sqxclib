@@ -309,6 +309,7 @@ void getRowStl(Sq::Storage *storage)
 	std::vector<Sq::Row*>::iterator cur, end;
 
 	// specify the table type as SQ_TYPE_ROW.
+	// specify the container type of returned data as std::vector<Sq::Row*>
 	rowVector = storage->getAll< std::vector<Sq::Row*> >("users", SQ_TYPE_ROW, NULL);
 
 	if (rowVector) {

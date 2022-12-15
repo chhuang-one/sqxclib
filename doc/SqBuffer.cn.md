@@ -98,7 +98,7 @@ C 函数 sq_buffer_alloc()，C++ 方法 alloc() 可以从 SqBuffer 中写入的�
 
 ## 插入
 
-插入动作会先调用 sq_buffer_alloc_at()，然后将数据复制到 SqBuffer。  
+插入动作会先调用 sq_buffer_alloc_at() 在指定位置分配内存，然后将数据复制到 SqBuffer 中的指定位置。  
   
 使用 C 语言
 

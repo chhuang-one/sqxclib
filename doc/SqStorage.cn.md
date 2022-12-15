@@ -103,6 +103,10 @@ struct User {
 
 ## get
 
+get() 的参数是 表名、表类型 和 id。  
+如果表类型为 NULL，SqStorage 将尝试在其架构中查找表类型。  
+如果用户同时指定参数 表名 和 表类型，它可以运行得更快一些。  
+  
 例如: 从数据库表 "users" 中获取一行。
 
 ```sql
@@ -129,6 +133,8 @@ SELECT * FROM users WHERE id = 3
 
 ## getAll
 
+getAll() 的参数是 表名、表类型、容器类型 和 SQL where 条件。它可以指定返回数据的 表类型 和 容器类型。  
+如果程序没有指定容器类型，getAll() 将使用默认的容器类型 [SqPtrArray](doc/SqPtrArray.cn.md)。  
 例如: 从数据库表 "users" 中获取所有行。
 
 ```sql
@@ -449,7 +455,7 @@ DELETE FROM users WHERE id > 50
 
 ## 运行自定义查询 (使用 SqQuery)
 
-SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查询。  
+SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查询。和 getAll() 一样，如果程序没有指定容器类型，它们将使用默认容器类型 [SqPtrArray](doc/SqPtrArray.cn.md)。  
   
 使用 C 函数
 

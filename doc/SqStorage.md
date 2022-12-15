@@ -103,6 +103,10 @@ Note2: If you use SQLite, you must synchronize schema to database after migratio
 
 ## get
 
+The arguments of get() are table name, table type, and id.  
+If table type is NULL, SqStorage will try to find table type in its schema.  
+It can run a bit faster if user specify parameter table name and table type at the same time.  
+  
 e.g. get one row from database table "users".
 
 ```sql
@@ -129,6 +133,8 @@ use C++ language
 
 ## getAll
 
+The arguments of getAll() are table name, table type, container type, and SQL where conditions. It can specify table type and container type of returned data.  
+If the program does not specify a container type, getAll() will use the default container type [SqPtrArray](doc/SqPtrArray.md).  
 e.g. get all rows from database table "users".
 
 ```sql
@@ -449,7 +455,7 @@ use C++ methods
 
 ## run custom query (with SqQuery)
 
-SqStorage provides sq_storage_query() and C++ method query() to running database queries.  
+SqStorage provides sq_storage_query() and C++ method query() to running database queries. Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](doc/SqPtrArray.md).  
   
 use C function
 

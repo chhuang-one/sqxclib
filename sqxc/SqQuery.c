@@ -983,7 +983,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 		return NULL;
 	}
 	// count length of argv[0]
-	mem.length = strlen(args[0]) + 1;              // + ' '
+	mem.length = (int)(strlen(args[0]) + 1);              // + ' '
 	// create node for condition
 	node = sq_query_node_new(query);
 	node->type = SQN_VALUE;
@@ -1005,7 +1005,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 	else {
 		args[2] = va_arg(arg_list, char*);
 		// count length of 2nd argument in arg_list if '%' sign not found
-		mem.length += temp.cur - args[1] + 1;      // + ' '
+		mem.length += (int)(temp.cur - args[1]) + 1;      // + ' '
 	}
 
 	// It is printf format string if 3rd argument in arg_list is not NULL.
