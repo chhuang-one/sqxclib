@@ -271,11 +271,33 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	sq_schema_free(schema_v2);
 ```
 
-## 增删查改
+## 增删查改 CRUD
 
-SqStorage 默认的容器类型是 [SqPtrArray](doc/SqPtrArray.cn.md)。如果程序未指定容器类型，则 getAll() 和 query() 将使用默认容器类型。  
+这个库使用 [SqStorage](doc/SqStorage.cn.md) 在数据库中创建、读取、更新和删除行。  
 要获取更多信息和示例，您可以查看 doc/[SqStorage.cn.md](doc/SqStorage.cn.md)  
+
+#### 获取 Get
+
+获取多行时用户可以指定返回数据的容器类型。如果您没有指定容器类型，getAll() 和 query() 将使用默认容器类型 - [SqPtrArray](doc/SqPtrArray.cn.md)。  
   
+使用 C 函数  
+  
+容器类型指定为 NULL（使用默认容器类型）。
+
+```c
+	User       *user;
+	SqPtrArray *array;
+
+	// 获取多行
+	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
+
+	// 获取所有行
+	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
+
+	// 获取一行 (其中 id 等于 2)
+	user  = sq_storage_get(storage, "users", NULL, 2);
+```
+
 使用 C++ 方法
 
 ```c++
@@ -290,30 +312,14 @@ SqStorage 默认的容器类型是 [SqPtrArray](doc/SqPtrArray.cn.md)。如果�
 
 	// 获取所有行
 	array = storage->getAll("users");
-	// 获取一行
+
+	// 获取一行 (其中 id 等于 2)
 	user  = storage->get("users", 2);
-
-	// 插入一行
-	storage->insert("users", user);
-
-	// 更新一行
-	storage->update("users", user);
-	// 更新特定列 - 多行中的 "name" 和 "email"。
-	storage->updateAll("users", user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
-	// 更新特定字段 - 多行中的 User::name 和 User::email。
-	storage->updateField("users", user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
-
-	// 删除一行
-	storage->remove("users", 5);
-	// 删除多行
-	storage->removeAll("users", "WHERE id < 5");
 ```
 
-使用 C++ 模板函数
+使用 C++ 模板函数  
+  
+容器类型指定为 std::vector<User>。
 
 ```c++
 	User              *user;
@@ -327,74 +333,124 @@ SqStorage 默认的容器类型是 [SqPtrArray](doc/SqPtrArray.cn.md)。如果�
 
 	// 获取所有行
 	vector = storage->getAll<std::vector<User>>();
-	// 获取一行
+
+	// 获取一行 (其中 id 等于 2)
 	user = storage->get<User>(2);
-
-	// 插入一行
-	storage->insert<User>(user);
-		// 或
-	storage->insert(user);
-
-	// 更新一行
-	storage->update<User>(user);
-		// 或
-	storage->update(user);
-
-	// 更新特定列 - 多行中的 "name" 和 "email"。
-	// 调用 updateAll<User>(...)
-	storage->updateAll(user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
-	// 更新特定字段 - 多行中的 User::name 和 User::email。
-	// 调用 updateField<User>(...)
-	storage->updateField(user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
-
-	// 删除一行
-	storage->remove<User>(5);
-	// 删除多行
-	storage->removeAll<User>("WHERE id < 5");
 ```
+
+#### 插入 Insert / 更新 Update
 
 使用 C 函数
 
 ```c
-	User  *user;
+	User  user = {10, "Bob", "bob@server"};
 
-	// 获取多行
-	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
-	// 获取所有行
-	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
-	// 获取一行
-	user  = sq_storage_get(storage, "users", NULL, 2);
-
-	sq_storage_insert(storage, "users", NULL, user);
+	// 插入一行
+	sq_storage_insert(storage, "users", NULL, &user);
 
 	// 更新一行
-	sq_storage_update(storage, "users", NULL, user);
+	sq_storage_update(storage, "users", NULL, &user);
+
 	// 更新特定列 - 多行中的 "name" 和 "email"。
-	sq_storage_update_all(storage, "users", NULL, user, 
+	sq_storage_update_all(storage, "users", NULL, &user, 
 	                      "WHERE id > 11 AND id < 28",
 	                      "name", "email",
 	                      NULL);
+
 	// 更新特定字段 - 多行中的 User::name 和 User::email。
-	sq_storage_update_field(storage, "users", NULL, user, 
+	sq_storage_update_field(storage, "users", NULL, &user, 
 	                        "WHERE id > 11 AND id < 28",
 	                        offsetof(User, name),
 	                        offsetof(User, email),
 	                        -1);
+```
 
-	// 删除一行
+使用 C++ 方法
+
+```c++
+	User  user = {10, "Bob", "bob@server"};
+
+	// 插入一行
+	storage->insert("users", &user);
+
+	// 更新一行
+	storage->update("users", &user);
+
+	// 更新特定列 - 多行中的 "name" 和 "email"。
+	storage->updateAll("users", &user,
+	                   "WHERE id > 11 AND id < 28",
+	                   "name", "email");
+
+	// 更新特定字段 - 多行中的 User::name 和 User::email。
+	storage->updateField("users", &user,
+	                     "WHERE id > 11 AND id < 28",
+	                     &User::name, &User::email);
+```
+
+使用 C++ 模板函数
+
+```c++
+	User  user = {10, "Bob", "bob@server"};
+
+	// 插入一行
+	storage->insert<User>(&user);
+		// 或
+	storage->insert(&user);
+
+	// 更新一行
+	storage->update<User>(&user);
+		// 或
+	storage->update(&user);
+
+	// 更新特定列 - 多行中的 "name" 和 "email"。
+	// 调用 updateAll<User>(...)
+	storage->updateAll(&user,
+	                   "WHERE id > 11 AND id < 28",
+	                   "name", "email");
+
+	// 更新特定字段 - 多行中的 User::name 和 User::email。
+	// 调用 updateField<User>(...)
+	storage->updateField(&user,
+	                     "WHERE id > 11 AND id < 28",
+	                     &User::name, &User::email);
+```
+
+#### 删除 Remove
+
+使用 C 函数
+
+```c
+	// 删除一行 (其中 id 等于 5)
 	sq_storage_remove(storage, "users", NULL, 5);
+
 	// 删除多行
 	sq_storage_remove_all(storage, "users", "WHERE id < 5");
 ```
 
+使用 C++ 方法
+
+```c++
+	// 删除一行 (其中 id 等于 5)
+	storage->remove("users", 5);
+
+	// 删除多行
+	storage->removeAll("users", "WHERE id < 5");
+```
+
+使用 C++ 模板函数
+
+```c++
+	// 删除一行 (其中 id 等于 5)
+	storage->remove<User>(5);
+
+	// 删除多行
+	storage->removeAll<User>("WHERE id < 5");
+```
+
 ## 查询生成器
 
-SqQuery 可以使用 C 函数或 C++ 方法生成 SQL 语句。
-要获取更多信息和示例，您可以查看 doc/[SqQuery.cn.md](doc/SqQuery.cn.md)
+[SqQuery](doc/SqQuery.cn.md) 可以使用 C 函数或 C++ 方法生成 SQL 语句。
+要获取更多信息和示例，您可以查看 doc/[SqQuery.cn.md](doc/SqQuery.cn.md)  
   
 SQL 语句
 
@@ -442,7 +498,7 @@ SQL 语句
 
 #### 将 SqQuery 与 SqStorage 一起使用
 
-SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来处理查询。
+[SqStorage](doc/SqStorage.cn.md) 提供 sq_storage_query() 和 C++ 方法 query() 来处理查询。
 
 ```c++
 	// C 函数
@@ -452,7 +508,7 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来处理查询。
 	array = storage->query(query);
 ```
 
-SqQuery 提供 sq_query_c() 或 C++ 方法 c() 来为 SqStorage 生成 SQL 语句。  
+[SqQuery](doc/SqQuery.cn.md) 提供 sq_query_c() 或 C++ 方法 c() 来为 [SqStorage](doc/SqStorage.cn.md) 生成 SQL 语句。  
   
 使用 C 函数
 
@@ -680,10 +736,6 @@ sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写�
 - 所有定义的表和列都可以用来解析 JSON 对象和字段。
 - 程序还可以解析存储在列中的 JSON 对象和数组。
 
-## Sqdb
-Sqdb 是数据库产品（SQLite、MySQL 等）的基础结构。  
-您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
-
 ## Sqxc
 Sqxc 是数据解析和写入的接口。  
 用户可以链接多个 Sqxc 元素来转换不同类型的数据。  
@@ -699,9 +751,11 @@ SqConsole 提供命令行界面（主要用于 SqAppTool）。
 请参阅文档 doc/[SqConsole.cn.md](doc/SqConsole.cn.md)。  
 
 ## 其他
-SqType 文档: doc/[SqType.cn.md](doc/SqType.cn.md)  
-SqEntry （SqColumn 的基类/结构） 文档: doc/[SqEntry.cn.md](doc/SqEntry.cn.md)  
+SqType   文档: doc/[SqType.cn.md](doc/SqType.cn.md)  
+SqEntry  文档: doc/[SqEntry.cn.md](doc/SqEntry.cn.md)  （这是 SqColumn 的基类）  
+SqTable  文档: doc/[SqTable.cn.md](doc/SqTable.cn.md)
 SqColumn 文档: doc/[SqColumn.cn.md](doc/SqColumn.cn.md)  
+SqSchema 文档: doc/[SqSchema.cn.md](doc/SqSchema.cn.md)
 
 ## sqxc 怎么念
 

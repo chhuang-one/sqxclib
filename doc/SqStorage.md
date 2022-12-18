@@ -60,8 +60,8 @@ struct User {
 ```
 
 Here we use functions or methods for running migration dynamically.
-* You can get more information about schema and migrations in doc/[database-migrations.md](doc/database-migrations.md)
-* To use initializer to define (or change) table statically, see doc/[schema-builder-static.md](doc/schema-builder-static.md)
+* You can get more information about schema and migrations in [database-migrations.md](database-migrations.md)
+* To use initializer to define (or change) table statically, see [schema-builder-static.md](schema-builder-static.md)
   
 use C functions
 
@@ -113,7 +113,9 @@ e.g. get one row from database table "users".
 SELECT * FROM users WHERE id = 3
 ```
 
-use C language
+use C language  
+  
+The table type is specified as NULL (find table type in its schema).
 
 ```c
 	User *user;
@@ -127,42 +129,54 @@ use C++ language
 	User *user;
 
 	user = storage->get("users", 3);
-	// or
+		// or
 	user = storage->get<User>(3);
 ```
 
 ## getAll
 
 The arguments of getAll() are table name, table type, container type, and SQL where conditions. It can specify table type and container type of returned data.  
-If the program does not specify a container type, getAll() will use the default container type [SqPtrArray](doc/SqPtrArray.md).  
+If the program does not specify a container type, getAll() will use the default container type [SqPtrArray](SqPtrArray.md).  
 e.g. get all rows from database table "users".
 
 ```sql
 SELECT * FROM users
 ```
 
-use C language
+use C language  
+  
+The table type is specified as NULL (find table type in its schema).  
+The container type is specified as NULL (use default container type).  
 
 ```c
 	SqPtrArray *array;
+	const char *where = NULL;         // SQL WHERE Clause
 
-	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
+	array = sq_storage_get_all(storage, "users", NULL, NULL, where);
 ```
 
 use C++ language
 
 ```c++
 	Sq::PtrArray *array;
+	const char   *where = NULL;       // SQL WHERE Clause
 
 	array = storage->getAll("users");
+		// or
+//	array = storage->getAll("users", NULL, NULL, where);
 ```
 
-use C++ Standard Template Library (STL)
+use C++ Standard Template Library (STL)  
+  
+The container type is specified as std::list<User>.
 
 ```c++
 	std::list<User> *list;
+	const char      *where = NULL;    // SQL WHERE Clause
 
 	list = storage->getAll<std::list<User>>();
+		// or
+//	list = storage->getAll<std::list<User>>("users", NULL, where);
 ```
 
 ## getAll (Where conditions)
@@ -455,7 +469,7 @@ use C++ methods
 
 ## run custom query (with SqQuery)
 
-SqStorage provides sq_storage_query() and C++ method query() to running database queries. Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](doc/SqPtrArray.md).  
+SqStorage provides sq_storage_query() and C++ method query() to running database queries. Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](SqPtrArray.md).  
   
 use C function
 

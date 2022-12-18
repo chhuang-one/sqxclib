@@ -275,9 +275,31 @@ use C functions to migrate schema and synchronize to database
 
 ## CRUD
 
-The default container type of SqStorage is [SqPtrArray](doc/SqPtrArray.md). If the program does not specify a container type, getAll() and query() will use the default container type.  
+This library use [SqStorage](doc/SqStorage.md) to do Create, Read, Update, and Delete rows in database.  
 To get more information and sample, you can see doc/[SqStorage.md](doc/SqStorage.md)  
+
+#### Get
+
+User can specify the container type of returned data when getting multiple rows. If you does not specify a container type, getAll() and query() will use the default container type - [SqPtrArray](doc/SqPtrArray.md).  
   
+use C functions  
+  
+The container type is specified as NULL (use default container type).
+
+```c
+	User       *user;
+	SqPtrArray *array;
+
+	// get multiple rows
+	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
+
+	// get all rows
+	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
+
+	// get one row (where id = 2)
+	user  = sq_storage_get(storage, "users", NULL, 2);
+```
+
 use C++ methods
 
 ```c++
@@ -292,30 +314,14 @@ use C++ methods
 
 	// get all rows
 	array = storage->getAll("users");
-	// get one row
+
+	// get one row (where id = 2)
 	user  = storage->get("users", 2);
-
-	// insert one row
-	storage->insert("users", user);
-
-	// update one row
-	storage->update("users", user);
-	// update specific columns - "name" and "email" in multiple rows.
-	storage->updateAll("users", user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
-	// update specific fields - User::name and User::email in multiple rows.
-	storage->updateField("users", user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
-
-	// remove one row
-	storage->remove("users", 5);
-	// remove multiple rows
-	storage->removeAll("users", "WHERE id < 5");
 ```
 
-use C++ template functions
+use C++ template functions  
+  
+The container type is specified as std::vector<User>.
 
 ```c++
 	User              *user;
@@ -329,73 +335,123 @@ use C++ template functions
 
 	// get all rows
 	vector = storage->getAll<std::vector<User>>();
-	// get one row
+
+	// get one row (where id = 2)
 	user = storage->get<User>(2);
-
-	// insert one row
-	storage->insert<User>(user);
-		// or
-	storage->insert(user);
-
-	// update one row
-	storage->update<User>(user);
-		// or
-	storage->update(user);
-
-	// update specific columns - "name" and "email" in multiple rows.
-	// call updateAll<User>(...)
-	storage->updateAll(user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
-	// update specific fields - User::name and User::email in multiple rows.
-	// call updateField<User>(...)
-	storage->updateField(user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
-
-	// remove one row
-	storage->remove<User>(5);
-	// remove multiple rows
-	storage->removeAll<User>("WHERE id < 5");
 ```
+
+#### Insert / Update
 
 use C functions
 
 ```c
-	User  *user;
+	User  user = {10, "Bob", "bob@server"};
 
-	// get multiple rows
-	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
-	// get all rows
-	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
-	// get one row
-	user  = sq_storage_get(storage, "users", NULL, 2);
-
-	sq_storage_insert(storage, "users", NULL, user);
+	// insert one row
+	sq_storage_insert(storage, "users", NULL, &user);
 
 	// update one row
-	sq_storage_update(storage, "users", NULL, user);
+	sq_storage_update(storage, "users", NULL, &user);
+
 	// update specific columns - "name" and "email" in multiple rows.
-	sq_storage_update_all(storage, "users", NULL, user, 
+	sq_storage_update_all(storage, "users", NULL, &user, 
 	                      "WHERE id > 11 AND id < 28",
 	                      "name", "email",
 	                      NULL);
+
 	// update specific fields - User::name and User::email in multiple rows.
-	sq_storage_update_field(storage, "users", NULL, user, 
+	sq_storage_update_field(storage, "users", NULL, &user, 
 	                        "WHERE id > 11 AND id < 28",
 	                        offsetof(User, name),
 	                        offsetof(User, email),
 	                        -1);
+```
 
-	// remove one row
+use C++ methods
+
+```c++
+	User  user = {10, "Bob", "bob@server"};
+
+	// insert one row
+	storage->insert("users", &user);
+
+	// update one row
+	storage->update("users", &user);
+
+	// update specific columns - "name" and "email" in multiple rows.
+	storage->updateAll("users", &user,
+	                   "WHERE id > 11 AND id < 28",
+	                   "name", "email");
+
+	// update specific fields - User::name and User::email in multiple rows.
+	storage->updateField("users", &user,
+	                     "WHERE id > 11 AND id < 28",
+	                     &User::name, &User::email);
+```
+
+use C++ template functions
+
+```c++
+	User  user = {10, "Bob", "bob@server"};
+
+	// insert one row
+	storage->insert<User>(&user);
+		// or
+	storage->insert(&user);
+
+	// update one row
+	storage->update<User>(&user);
+		// or
+	storage->update(&user);
+
+	// update specific columns - "name" and "email" in multiple rows.
+	// call updateAll<User>(...)
+	storage->updateAll(&user,
+	                   "WHERE id > 11 AND id < 28",
+	                   "name", "email");
+
+	// update specific fields - User::name and User::email in multiple rows.
+	// call updateField<User>(...)
+	storage->updateField(&user,
+	                     "WHERE id > 11 AND id < 28",
+	                     &User::name, &User::email);
+```
+
+#### Remove
+
+use C functions
+
+```c
+	// remove one row (where id = 5)
 	sq_storage_remove(storage, "users", NULL, 5);
+
 	// remove multiple rows
 	sq_storage_remove_all(storage, "users", "WHERE id < 5");
 ```
 
+use C++ methods
+
+```c++
+	// remove one row (where id = 5)
+	storage->remove("users", 5);
+
+	// remove multiple rows
+	storage->removeAll("users", "WHERE id < 5");
+```
+
+use C++ template functions
+
+```c++
+	// remove one row (where id = 5)
+	storage->remove<User>(5);
+
+	// remove multiple rows
+	storage->removeAll<User>("WHERE id < 5");
+```
+
 ## Query builder
 
-SqQuery can generate SQL statement by using C functions or C++ methods.
+[SqQuery](doc/SqQuery.md) can generate SQL statement by using C functions or C++ methods.
 To get more information and sample, you can see doc/[SqQuery.md](doc/SqQuery.md)  
   
 SQL statement
@@ -444,7 +500,7 @@ use C functions to produce query
 
 #### Using SqQuery with SqStorage
 
-SqStorage provides sq_storage_query() and C++ method query() to handle query.
+[SqStorage](doc/SqStorage.md) provides sq_storage_query() and C++ method query() to handle query.
 
 ```c++
 	// C function
@@ -454,7 +510,7 @@ SqStorage provides sq_storage_query() and C++ method query() to handle query.
 	array = storage->query(query);
 ```
 
-SqQuery provides sq_query_c() or C++ method c() to generate SQL statement for SqStorage.  
+[SqQuery](doc/SqQuery.md) provides sq_query_c() or C++ method c() to generate SQL statement for [SqStorage](doc/SqStorage.md).  
   
 use C functions
 
@@ -682,10 +738,6 @@ sqxclib is case-sensitive when searching and sorting SQL column name and JSON fi
 - all defined table and column can use to parse JSON object and field.
 - program can also parse JSON object and array that store in column.
 
-## Sqdb
-Sqdb is base structure for database product (SQLite, MySQL...etc).  
-You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
-
 ## Sqxc
 Sqxc is interface for data parse and write.  
 User can link multiple Sqxc element to convert different types of data.  
@@ -701,9 +753,11 @@ SqConsole provide command-line interface (mainly for SqAppTool).
 See document in doc/[SqConsole.md](doc/SqConsole.md)  
 
 ## Others
-SqType document: doc/[SqType.md](doc/SqType.md)  
-SqEntry document (SqColumn's base class/structure): doc/[SqEntry.md](doc/SqEntry.md)  
+SqType   document: doc/[SqType.md](doc/SqType.md)  
+SqEntry  document: doc/[SqEntry.md](doc/SqEntry.md)  (This is base class of SqColumn)  
+SqTable  document: doc/[SqTable.md](doc/SqTable.md)
 SqColumn document: doc/[SqColumn.md](doc/SqColumn.md)  
+SqSchema document: doc/[SqSchema.md](doc/SqSchema.md)
 
 ## Licensing
 

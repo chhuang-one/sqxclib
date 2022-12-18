@@ -204,18 +204,30 @@ extern "C" {
 		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, NULL)
 
 //void *sq_intptr_array_final(void *array);
-#define sq_intptr_array_final    sq_ptr_array_final
+#define sq_intptr_array_final       sq_ptr_array_final
+
+// intptr_t *sq_intptr_array_alloc(void *array, int count)
+#define sq_intptr_array_alloc       sq_ptr_array_alloc
+
+// intptr_t *sq_intptr_array_alloc_at(void *array, int index, int count)
+#define sq_intptr_array_alloc_at    sq_ptr_array_alloc_at
 
 // void sq_intptr_array_insert(void *array, int index, void *value);
 #define sq_intptr_array_insert(array, index, value)  \
 		*sq_ptr_array_alloc_at(array, index, 1) = (void*)(value)
 
+// void sq_intptr_array_insert_n(void *array, int index, const intptr_t *values, int count);
+#define sq_intptr_array_insert_n    sq_ptr_array_insert_n
+
 // void sq_intptr_array_append(void *array, void *value);
 #define sq_intptr_array_append(array, value)  \
 		*sq_ptr_array_alloc_at(array, sq_intptr_array_length(array), 1) = (void*)(value)
 
+// void sq_intptr_array_append_n(void *array, const intptr_t *values, int count);
+#define sq_intptr_array_append_n    sq_ptr_array_append_n
+
 // void sq_intptr_array_erase(void *array, int index, int count);
-#define sq_intptr_array_erase    sq_ptr_array_erase
+#define sq_intptr_array_erase       sq_ptr_array_erase
 
 // void sq_intptr_array_foreach(void *array, intptr_t element)
 #define sq_intptr_array_foreach(array, element)                \

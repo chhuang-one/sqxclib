@@ -11,8 +11,8 @@ SQ_TYPE_PTR_ARRAY 是内置的静态常量类型，可以创建 SqPtrArray 实�
 	│
 	└─── SqStringArray
 
-SqIntptrArray 和 SqStringArray 是 SqPtrArray 的派生类。它们共享数据结构和代码以减少二进制大小。  
-SqIntptrArray 是整数数组，SqStringArray 是字符串数组。
+[SqIntptrArray](SqIntptrArray.cn.md) 和 SqStringArray 是 SqPtrArray 的派生类。它们共享数据结构和代码以减少二进制大小。  
+[SqIntptrArray](SqIntptrArray.cn.md) 是整数数组，SqStringArray 是字符串数组。
 
 ## 数据成员
 

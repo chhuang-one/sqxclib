@@ -60,8 +60,8 @@ struct User {
 ```
 
 在这里，我们使用函数或方法来动态运行迁移。
-* 您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关架构和迁移的更多信息
-* 要使用初始化器静态定义（或更改）表，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)
+* 您可以在 [database-migrations.cn.md](database-migrations.cn.md) 中获得有关架构和迁移的更多信息
+* 要使用初始化器静态定义（或更改）表，请参阅 [schema-builder-static.cn.md](schema-builder-static.cn.md)
   
 使用 C 函数
 
@@ -113,7 +113,9 @@ get() 的参数是 表名、表类型 和 id。
 SELECT * FROM users WHERE id = 3
 ```
 
-使用 C 语言
+使用 C 语言  
+  
+表类型指定为 NULL（在其架构中查找表类型）。
 
 ```c
 	User *user;
@@ -127,42 +129,54 @@ SELECT * FROM users WHERE id = 3
 	User *user;
 
 	user = storage->get("users", 3);
-	// or
+		// 或
 	user = storage->get<User>(3);
 ```
 
 ## getAll
 
 getAll() 的参数是 表名、表类型、容器类型 和 SQL where 条件。它可以指定返回数据的 表类型 和 容器类型。  
-如果程序没有指定容器类型，getAll() 将使用默认的容器类型 [SqPtrArray](doc/SqPtrArray.cn.md)。  
+如果程序没有指定容器类型，getAll() 将使用默认的容器类型 [SqPtrArray](SqPtrArray.cn.md)。  
 例如: 从数据库表 "users" 中获取所有行。
 
 ```sql
 SELECT * FROM users
 ```
 
-使用 C 语言
+使用 C 语言  
+  
+表类型指定为 NULL（在其架构中查找表类型）。  
+容器类型指定为 NULL（使用默认容器类型）。  
 
 ```c
 	SqPtrArray *array;
+	const char *where = NULL;         // SQL WHERE 子句
 
-	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
+	array = sq_storage_get_all(storage, "users", NULL, NULL, where);
 ```
 
 使用 C++ 语言
 
 ```c++
 	Sq::PtrArray *array;
+	const char   *where = NULL;       // SQL WHERE 子句
 
 	array = storage->getAll("users");
+		// 或
+//	array = storage->getAll("users", NULL, NULL, where);
 ```
 
-使用 C++ 标准模板库 (STL)
+使用 C++ 标准模板库 (STL)  
+  
+容器类型指定为 std::list<User>。
 
 ```c++
 	std::list<User> *list;
+	const char      *where = NULL;    // SQL WHERE 子句
 
 	list = storage->getAll<std::list<User>>();
+		// 或
+//	list = storage->getAll<std::list<User>>("users", NULL, where);
 ```
 
 ## getAll (Where 条件)
@@ -455,7 +469,7 @@ DELETE FROM users WHERE id > 50
 
 ## 运行自定义查询 (使用 SqQuery)
 
-SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查询。和 getAll() 一样，如果程序没有指定容器类型，它们将使用默认容器类型 [SqPtrArray](doc/SqPtrArray.cn.md)。  
+SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查询。和 getAll() 一样，如果程序没有指定容器类型，它们将使用默认容器类型 [SqPtrArray](SqPtrArray.cn.md)。  
   
 使用 C 函数
 
