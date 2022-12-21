@@ -44,21 +44,23 @@ gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
 
 // #define DB_SQLITE      1
 #define DB_MYSQL       1
+// #define DB_POSTGRE     1
 ```
 
 ### 1.3 数据库配置值
 
 ```c++
+// 通用配置值
+#define DB_DATABASE    "sqxcapp-example"
+
 // 连接配置值
 #define DB_HOST        "localhost"
 #define DB_PORT        3306
 #define DB_USERNAME    "root"
 #define DB_PASSWORD    ""
 
-// 通用配置值
-#define DB_DATABASE    "sqxcapp-example"
-
-// SQLite 配置值
+// --- SQLite ---
+// 文件配置值
 #define DB_FOLDER      NULL
 #define DB_EXTENSION   NULL
 ```

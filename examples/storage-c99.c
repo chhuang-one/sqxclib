@@ -71,8 +71,8 @@ struct User {
 
 // If you define constant SqType for structure, it must use with pointer array of SqEntry.
 static const SqEntry *postEntryPointers[] = {
-	&(SqEntry) {SQ_TYPE_STRING, "title",      offsetof(Post, title),     0},
-	&(SqEntry) {SQ_TYPE_STRING, "desc",       offsetof(Post, desc),      0},
+	&(SqEntry) {SQ_TYPE_STR,    "title",      offsetof(Post, title),     0},
+	&(SqEntry) {SQ_TYPE_STR,    "desc",       offsetof(Post, desc),      0},
 };
 
 static const SqType   typePost = SQ_TYPE_INITIALIZER(Post, postEntryPointers, 0);
@@ -86,15 +86,15 @@ static const SqType   typePost = SQ_TYPE_INITIALIZER(Post, postEntryPointers, 0)
 // CREATE TABLE "cities"
 static const SqColumn cityColumnsVer1[] = {
 	{SQ_TYPE_INT,    "id",        offsetof(City, id),        SQB_PRIMARY | SQB_AUTOINCREMENT | SQB_HIDDEN},
-	{SQ_TYPE_STRING, "name",      offsetof(City, name),      SQB_NULLABLE},
+	{SQ_TYPE_STR,    "name",      offsetof(City, name),      SQB_NULLABLE},
 //	{SQ_TYPE_BOOL,   "visited",   offsetof(City, visited)},
 };
 
 // CREATE TABLE "users"
 static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_AUTOINCREMENT | SQB_HIDDEN},
-	{SQ_TYPE_STRING, "name",      offsetof(User, name),      0},
-	{SQ_TYPE_STRING, "email",     offsetof(User, email),     0,    .size = 60},
+	{SQ_TYPE_STR,    "name",      offsetof(User, name),      0},
+	{SQ_TYPE_STR,    "email",     offsetof(User, email),     0,    .size = 60},
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   0,
 		.foreign = &(SqForeign) {"cities",  "id",  "CASCADE",  "CASCADE"} },

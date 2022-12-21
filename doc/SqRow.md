@@ -2,7 +2,7 @@
 
 # SqRow
 
-SqRow is created by [SqTypeRow](SqTypeRow.md). If [SqTypeRow](SqTypeRow.md) don't know type of columns, all data type in SqRow is C string.
+Instance of SqRow is created by [SqTypeRow](SqTypeRow.md). If [SqTypeRow](SqTypeRow.md) don't know type of columns, all data type in SqRow is C string.
 
 ## Arrays in SqRow
 
@@ -28,7 +28,7 @@ struct SqRow {
 #### Column array
 
 SqRow use SqRowColumn array to store column name, column type, and column entry.
-SqRowColumn.type is always equal to SQ_TYPE_STRING when [SqTypeRow](SqTypeRow.md) does not know the type of the column.  
+SqRowColumn.type is always equal to SQ_TYPE_STR when [SqTypeRow](SqTypeRow.md) does not know the type of the column.  
   
 SqRowColumn Structure Definition:
 
@@ -48,6 +48,7 @@ SqValue Definition:
 
 ```c
 union SqValue {
+	bool          bool_;       // SQ_TYPE_BOOL
 	bool          boolean;     // SQ_TYPE_BOOL
 	int           integer;     // SQ_TYPE_INT
 	int           int_;        // SQ_TYPE_INT
@@ -58,7 +59,8 @@ union SqValue {
 	time_t        rawtime;     // SQ_TYPE_TIME
 	double        fraction;    // SQ_TYPE_DOUBLE
 	double        double_;     // SQ_TYPE_DOUBLE
-	const char   *string;      // SQ_TYPE_STRING
+	const char   *str;         // SQ_TYPE_STR
+	const char   *string;      // SQ_TYPE_STR
 	const char   *stream;      // Text stream must be null-terminated string
 	void         *pointer;     // for user defined type
 };
@@ -76,17 +78,17 @@ If [SqTypeRow](SqTypeRow.md) does not know the type of the columns, arrays in Sq
 
 ```c
 	SqRow.cols[0].name   = "id";
-	SqRow.cols[0].type   = SQ_TYPE_STRING;
+	SqRow.cols[0].type   = SQ_TYPE_STR;
 	SqRow.cols[0].entry  = NULL;
 	SqRow.data[0].string = "1";
 
 	SqRow.cols[1].name   = "name";
-	SqRow.cols[1].type   = SQ_TYPE_STRING;
+	SqRow.cols[1].type   = SQ_TYPE_STR;
 	SqRow.cols[1].entry  = NULL;
 	SqRow.data[1].string = "Bob";
 
 	SqRow.cols[2].name   = "state";
-	SqRow.cols[2].type   = SQ_TYPE_STRING;
+	SqRow.cols[2].type   = SQ_TYPE_STR;
 	SqRow.cols[2].entry  = NULL;
 	SqRow.data[2].string = "NY";
 

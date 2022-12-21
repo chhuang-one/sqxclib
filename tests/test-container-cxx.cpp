@@ -22,6 +22,7 @@
 #include <iostream>     // cout
 
 #include <SqPtrArray.h>
+#include <SqStrArray.h>
 #include <SqBuffer.h>
 
 using namespace std;
@@ -36,6 +37,8 @@ void test_intptr_array()
 
 	array = new Sq::IntptrArray();
 	array->insert(0, intarray, 4);
+
+	sq_ptr_array_append_n(array, intarray, 1);
 
 	sq_ptr_array_alloc_at(array, 2, 2);
 	array->data[2] = 301;
@@ -58,33 +61,34 @@ void test_intptr_array()
 	delete array;
 }
 
-void test_string_array()
+void test_str_array()
 {
-	Sq::StringArray *array;
-	const char  *strarray[] = {"One", "Two"};
+	Sq::StrArray *array;
+	const char   *strs[] = {"One", "Two", "Three"};
+	const int     n_strs = sizeof(strs) / sizeof(char*);
 
-	array = new Sq::StringArray();
-	array->append(strarray, 2);
+	array = new Sq::StrArray();
+	array->append(strs, n_strs);
 	// C++ foreach (lambda)
 	array->foreach([](char *element) {
 		printf(" - %s", element);
 	});
 	puts("");
 	// C foreach
-	sq_string_array_foreach(array, element) {
+	sq_str_array_foreach(array, element) {
 		printf(" - %s", element);
 	}
 	puts("");
 
-	// Sq::StringArray must copy strings from 'strarray' to array->data
-	assert(memcmp(array->data, strarray, sizeof(strarray)) != 0);
+	// Sq::StrArray must copy strings from 'strarray' to array->data
+	assert(memcmp(array->data, strs, sizeof(strs)) != 0);
 	delete array;
 }
 
 void test_ptr_array()
 {
+	test_str_array();
 	test_intptr_array();
-	test_string_array();
 }
 
 // ----------------------------------------------------------------------------

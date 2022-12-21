@@ -285,7 +285,7 @@ SqColumn *sq_table_add_string(SqTable *table, const char *name, size_t offset, i
 {
 	SqColumn *column;
 
-	column = sq_column_new(name, SQ_TYPE_STRING);
+	column = sq_column_new(name, SQ_TYPE_STR);
 	column->offset = offset;
 	column->size = length;
 

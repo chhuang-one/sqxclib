@@ -369,14 +369,14 @@ Sqxc *sq_type_time_write(void *instance, const SqType *entrytype, Sqxc *dest)
 }
 
 // ------------------------------------
-// SqType *SQ_TYPE_STRING functions
+// SqType *SQ_TYPE_STR functions
 
-void sq_type_string_final(void *instance, const SqType *entrytype)
+void sq_type_str_final(void *instance, const SqType *entrytype)
 {
 	free(*(char**)instance);
 }
 
-int  sq_type_string_parse(void *instance, const SqType *entrytype, Sqxc *src)
+int  sq_type_str_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	/* TODO: convert to string
@@ -409,7 +409,7 @@ int  sq_type_string_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc *sq_type_string_write(void *instance, const SqType *entrytype, Sqxc *dest)
+Sqxc *sq_type_str_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
 	dest->type = SQXC_TYPE_STRING;
 //	dest->name = dest->name;    // "name" was set by caller of this function
@@ -624,20 +624,20 @@ const SqType SqType_BuiltIn_[] = {
 		sq_type_double_parse,
 		sq_type_double_write,
 	},
-	// SQ_TYPE_STRING
+	// SQ_TYPE_STR
 	{
 		sizeof(char*),
 		NULL,
-		sq_type_string_final,
-		sq_type_string_parse,
-		sq_type_string_write,
+		sq_type_str_final,
+		sq_type_str_parse,
+		sq_type_str_write,
 	},
 	// SQ_TYPE_CHAR
 	{
 		sizeof(char*),
 		NULL,
-		sq_type_string_final,
-		sq_type_string_parse,
-		sq_type_string_write,
+		sq_type_str_final,
+		sq_type_str_parse,
+		sq_type_str_write,
 	},
 };

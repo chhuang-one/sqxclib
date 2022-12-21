@@ -81,7 +81,7 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_TIME,     "created_at", offsetof(User, created_at), SQB_CURRENT},
 
 	// "email"  VARCHAR
-	&(SqColumn) {SQ_TYPE_STRING, "email",   offsetof(User, email), SQB_HIDDEN_NULL},
+	&(SqColumn) {SQ_TYPE_STR,    "email",   offsetof(User, email), SQB_HIDDEN_NULL},
 
 	// CONSTRAINT FOREIGN KEY
 	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "fk_cities_id",
@@ -91,7 +91,7 @@ static const SqColumn  *UserColumns[] = {
 	// PRIMARY KEY
 	&(SqColumn) {SQ_TYPE_INT,    "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
 
-	&(SqColumn) {SQ_TYPE_STRING, "name",    offsetof(User, name),  0},
+	&(SqColumn) {SQ_TYPE_STR,    "name",    offsetof(User, name),  0},
 	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "posts", offsetof(User, posts), 0},
 
 	// "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

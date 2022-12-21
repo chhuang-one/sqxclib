@@ -2,7 +2,7 @@
 
 # SqRow
 
-SqRow 由 [SqTypeRow](SqTypeRow.cn.md) 创建。如果 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型，则 SqRow 中的所有数据类型都是 C 字符串。
+SqRow 的实例由 [SqTypeRow](SqTypeRow.cn.md) 创建。如果 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型，则 SqRow 中的所有数据类型都是 C 字符串。
 
 ## SqRow 中的数组
 
@@ -28,7 +28,7 @@ struct SqRow {
 #### 列数组
 
 SqRow 使用 SqRowColumn 数组来存储列名、列类型和列条目。
-当 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型时，SqRowColumn.type 总是等于 SQ_TYPE_STRING。  
+当 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型时，SqRowColumn.type 总是等于 SQ_TYPE_STR。  
   
 SqRowColumn 结构定义:
 
@@ -48,6 +48,7 @@ SqValue 定义:
 
 ```c
 union SqValue {
+	bool          bool_;       // SQ_TYPE_BOOL
 	bool          boolean;     // SQ_TYPE_BOOL
 	int           integer;     // SQ_TYPE_INT
 	int           int_;        // SQ_TYPE_INT
@@ -58,7 +59,8 @@ union SqValue {
 	time_t        rawtime;     // SQ_TYPE_TIME
 	double        fraction;    // SQ_TYPE_DOUBLE
 	double        double_;     // SQ_TYPE_DOUBLE
-	const char   *string;      // SQ_TYPE_STRING
+	const char   *str;         // SQ_TYPE_STR
+	const char   *string;      // SQ_TYPE_STR
 	const char   *stream;      // 文本流必须是以 null 结尾的字符串
 	void         *pointer;     // 用户定义的类型
 };
@@ -76,17 +78,17 @@ union SqValue {
 
 ```c
 	SqRow.cols[0].name   = "id";
-	SqRow.cols[0].type   = SQ_TYPE_STRING;
+	SqRow.cols[0].type   = SQ_TYPE_STR;
 	SqRow.cols[0].entry  = NULL;
 	SqRow.data[0].string = "1";
 
 	SqRow.cols[1].name   = "name";
-	SqRow.cols[1].type   = SQ_TYPE_STRING;
+	SqRow.cols[1].type   = SQ_TYPE_STR;
 	SqRow.cols[1].entry  = NULL;
 	SqRow.data[1].string = "Bob";
 
 	SqRow.cols[2].name   = "state";
-	SqRow.cols[2].type   = SQ_TYPE_STRING;
+	SqRow.cols[2].type   = SQ_TYPE_STR;
 	SqRow.cols[2].entry  = NULL;
 	SqRow.data[2].string = "NY";
 

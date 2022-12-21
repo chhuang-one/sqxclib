@@ -2,7 +2,7 @@
 
 # SqStorage
 
-SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。它使用 Sqxc 在 C 语言和 Sqdb 接口之间转换数据。
+SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。它使用 [Sqxc](Sqxc.cn.md) 在 C 语言和 [Sqdb](Sqdb.cn.md) 接口之间转换数据。
 
 ## 创建 storage
 
@@ -352,6 +352,10 @@ UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
 	n_changes  = storage->updateAll(user,
 	                                "WHERE id > 10",
 	                                "name", "email");
+	// 或用方便的 C++ 类 'where'
+	n_changes  = storage->updateAll(user,
+	                                Sq::where("id", ">", 10),
+	                                "name", "email");
 ```
 
 ## updateField (Where 条件)
@@ -392,6 +396,11 @@ sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参
 	                                  "WHERE id > 10",
 	                                  &User::name,
 	                                  &User::email);
+	// 或用方便的 C++ 类 'where'
+	n_changes  = storage->updateField("users", &user,
+	                                  Sq::where("id", ">", 10),
+	                                  &User::name,
+	                                  &User::email);
 ```
 
 ## remove
@@ -414,7 +423,7 @@ DELETE FROM users WHERE id = 3
 
 ```c++
 	storage->remove("users", 3);
-	// or
+		// 或
 	storage->remove<User>(3);
 ```
 
@@ -436,7 +445,7 @@ DELETE FROM users
 
 ```c++
 	storage->removeAll("users");
-	// 或
+		// 或
 	storage->removeAll<User>();
 ```
 
@@ -463,13 +472,47 @@ DELETE FROM users WHERE id > 50
 
 ```c++
 	storage->removeAll("users", "WHERE id > 50");
-	// or
+		// 或
 	storage->removeAll<User>("WHERE id > 50");
+		// 或用方便的 C++ 类 'where'
+	storage->removeAll("users", Sq::where("id", ">", 50));
 ```
 
-## 运行自定义查询 (使用 SqQuery)
+## 交易 Transaction
+
+使用 C 函数
+
+```c
+	User  *user;
+
+	sq_storage_begin_trans(storage);
+	sq_storage_insert(storage, "users", NULL, user);
+	if (abort)
+		sq_storage_rollback_trans(storage);
+	else
+		sq_storage_commit_trans(storage);
+```
+
+使用 C++ 方法
+
+```c++
+	User  *user;
+
+	storage->beginTrans();
+	storage->insert(user);
+	if (abort)
+		storage->rollbackTrans();
+	else
+		storage->commitTrans();
+```
+
+## 自定义查询 (使用 SqQuery)
 
 SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查询。和 getAll() 一样，如果程序没有指定容器类型，它们将使用默认容器类型 [SqPtrArray](SqPtrArray.cn.md)。  
+
+#### 没有 JOIN 子句的查询
+
+在这种情况下，表类型和容器类型的用法与 getAll() 基本相同。  
   
 使用 C 函数
 
@@ -494,9 +537,64 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查
 	container = storage->query(query, userType, containerType);
 ```
 
-## 使用用户定义的数据类型访问数据库
+#### 使用 JOIN 子句的查询
 
-以下 C 函数和 C++ 方法可以返回用户定义数据类型或容器类型的实例：  
+如果用户在没有指定表类型的情况下执行连接多个表的查询，程序将默认使用 SqTypeJoint 作为表类型。SqTypeJoint 可以为结果创建指针数组。  
+  
+使用 C 函数
+
+```c
+	sq_query_from(query, "cities");
+	sq_query_join(query, "users", "cities.id", "=", "%s", "users.city_id");
+
+	SqPtrArray *array = sq_storage_query(storage, query, NULL, NULL);
+
+	for (int i = 0;  i < array->length;  i++) {
+		void **element = (void**)array->data[i];
+		city = (City*)element[0];    // sq_query_from(query, "cities");
+		user = (User*)element[1];    // sq_query_join(query, "users", ...);
+		// 在释放 'array' 之前释放 'element'
+		// free(element);
+	}
+```
+
+使用 C++ 方法
+
+```c++
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
+
+	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
+
+	for (int i = 0;  i < array->length;  i++) {
+		void **element = (void**)array->data[i];
+		city = (City*)element[0];    // from("cities")
+		user = (User*)element[1];    // join("users")
+		// 在释放 'array' 之前释放 'element'
+		// free(element);
+	}
+```
+
+使用 C++ STL  
+  
+Sq::Joint 只是将指针数组包装到结构中。在这个例子中使用它是因为 C++ STL 不能使用数组作为元素。
+
+```c++
+	std::vector< Sq::Joint<2> > *vector;
+
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
+
+	vector = storage->query< std::vector< Sq::Joint<2> > >(query);
+
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		Sq::Joint<2> &joint = vector->at(index);
+		city = (City*)joint[0];      // from("cities")
+		user = (User*)joint[1];      // join("users")
+	}
+```
+
+## 使用自定义数据类型
+
+下面的 C 函数和 C++ 方法可以返回自定义数据类型和容器类型的实例：  
 请参阅文档 [SqType](SqType.cn.md) 以了解如何自定义类型。
 
 | C 函数                    | C++ 方法      |

@@ -81,7 +81,7 @@ struct Company
 
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array (vector) in SQL column
 	Sq::IntptrArray  ints;    // C array for intptr_t
-	Sq::StringArray  strs;    // C array for char*
+	Sq::StrArray     strs;    // C array for char*
 	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
 	std::string      strCpp;  // C++ type
 
@@ -143,7 +143,7 @@ static const char     *userIndexComposite[]   = {"id", NULL};
 // CREATE TABLE "users"
 static const SqColumn userColumns[] = {
 	{SQ_TYPE_INT,    "id",           offsetof(User, id),           SQB_PRIMARY | SQB_HIDDEN},
-	{SQ_TYPE_STRING, "name",         offsetof(User, name),         0,
+	{SQ_TYPE_STR,    "name",         offsetof(User, name),         0,
 		NULL,                              // .old_name
 		50},                               // .size    // VARCHAR(50)
 	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),   SQB_CURRENT},    // DEFAULT CURRENT_TIMESTAMP
@@ -186,7 +186,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->double_("salary", &Company::salary);
 	table->stdstring("strCpp", &Company::strCpp);
 #if SQ_CONFIG_HAVE_JSONC
-	table->custom("strs", &Company::strs, SQ_TYPE_STRING_ARRAY);
+	table->custom("strs", &Company::strs, SQ_TYPE_STR_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
 #endif
@@ -234,7 +234,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->double_("salary", &Company::salary);
 	table->stdstring("strCpp", &Company::strCpp);
 #if SQ_CONFIG_HAVE_JSONC
-	table->custom("strs", &Company::strs, SQ_TYPE_STRING_ARRAY);
+	table->custom("strs", &Company::strs, SQ_TYPE_STR_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
 #endif
@@ -412,8 +412,8 @@ void check_standard_layout()
 {
 	std::cout << "Sq::IntptrArray is standard layout = "
 	          << std::is_standard_layout<Sq::IntptrArray>::value << std::endl;
-	std::cout << "Sq::StringArray is standard layout = "
-	          << std::is_standard_layout<Sq::StringArray>::value << std::endl;
+	std::cout << "Sq::StrArray is standard layout = "
+	          << std::is_standard_layout<Sq::StrArray>::value << std::endl;
 	std::cout << "Sq::TypeStl<std::vector<int>> is standard layout = "
 	          << std::is_standard_layout< Sq::TypeStl< std::vector<int> > >::value << std::endl;
 	std::cout << "Company is standard layout = "

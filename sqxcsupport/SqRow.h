@@ -122,8 +122,8 @@ struct RowMethod {
 
 /*
 	SqRow.cols.type is type of SqRow.data.xxx
-	If SqRow.cols.type is SQ_TYPE_BOOL,   value is SqRow.data.boolean
-	If SqRow.cols.type is SQ_TYPE_STRING, value is SqRow.data.string
+	If SqRow.cols.type is SQ_TYPE_BOOL, value is SqRow.data.boolean
+	If SqRow.cols.type is SQ_TYPE_STR,  value is SqRow.data.str
  */
 struct SqRowColumn
 {

@@ -2,7 +2,7 @@
 
 # SqTypeRow
 
-SqTypeRow is derived from SqTypeJoint. It can create [SqRow](SqRow.md) and parse unknown (or known) result, table, and column.  
+SqTypeRow is derived from SqTypeJoint. It can create instance of [SqRow](SqRow.md) and parse unknown (or known) result, table, and column.  
 SqTypeRow sample code is in [storage-row.cpp](examples/storage-row.cpp)  
 Note: SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
 
@@ -78,7 +78,7 @@ use C++ language
 
 ## Works with SqStorage
 
-You can use SqTypeRow to replace default joint type in SqStorage:
+You can use SqTypeRow to replace default joint type in [SqStorage](SqStorage.md):
 
 ```c++
 	Sq::TypeRow   *typeRow     = new Sq::TypeRow();
@@ -107,7 +107,7 @@ You can use SqTypeRow to replace default joint type in SqStorage:
 			// column value type is decided by 'row.cols[nth].type'
 			if (row.cols[nth].type == SQ_TYPE_INT)
 				std::cout << row.data[nth].integer << std::endl;
-			if (row.cols[nth].type == SQ_TYPE_STRING)
+			if (row.cols[nth].type == SQ_TYPE_STR)
 				std::cout << row.data[nth].string  << std::endl;
 			// other type...
 		}

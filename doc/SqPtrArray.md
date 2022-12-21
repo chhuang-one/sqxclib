@@ -9,10 +9,10 @@ SQ_TYPE_PTR_ARRAY is a built-in static constant type that can create SqPtrArray 
 	│
 	├─── SqIntptrArray
 	│
-	└─── SqStringArray
+	└─── SqStrArray
 
-[SqIntptrArray](SqIntptrArray.md) and SqStringArray are derived classes of SqPtrArray. They share data structures and code to reduce binary size.  
-[SqIntptrArray](SqIntptrArray.md) is integer array, SqStringArray is string array.
+[SqIntptrArray](SqIntptrArray.md) and [SqStrArray](SqStrArray.md) are derived classes of SqPtrArray. They share data structures and code to reduce binary size.  
+[SqIntptrArray](SqIntptrArray.md) is integer array, [SqStrArray](SqStrArray.md) is string array.
 
 ## Data members
 

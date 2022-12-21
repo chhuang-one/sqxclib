@@ -17,7 +17,7 @@ SqEntry 使用它来定义数据类型。Sqxc 用它来转换数据。
 | SQ_TYPE_UINT64  | uint64_t     |
 | SQ_TYPE_TIME    | time_t       |
 | SQ_TYPE_DOUBLE  | double       |
-| SQ_TYPE_STRING  | char*        |
+| SQ_TYPE_STR     | char*        |
 
 内置 SqType 及其 SQL 数据类型
 
@@ -30,8 +30,8 @@ SqType 及其 C 容器类型
 | SqType                | C 数据类型     |
 | --------------------- | -------------- |
 | SQ_TYPE_PTR_ARRAY     | SqPtrArray     |
+| SQ_TYPE_STR_ARRAY     | SqStrArray     |
 | SQ_TYPE_INTPTR_ARRAY  | SqIntptrArray  |
-| SQ_TYPE_STRING_ARRAY  | SqStringArray  |
 
 SqType 及其 C++ 数据类型
 
@@ -121,8 +121,8 @@ struct User {
 /* entryPointers 是 SqEntry 的 '未排序' 指针数组 */
 static const SqEntry  *entryPointers[] = {
 	&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
-	&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
-	&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), 0},
+	&(SqEntry) {SQ_TYPE_STR,    "name",  offsetof(User, name),  0},
+	&(SqEntry) {SQ_TYPE_STR,    "email", offsetof(User, email), 0},
 };
 
 /* typeUser 使用 '未排序' 的 entryPointers */
@@ -152,9 +152,9 @@ const SqType typeUser = {
 ```c
 /* sortedEntryPointers 是'已排序'的 entryPointers（按名称排序） */
 static const SqEntry  *sortedEntryPointers[] = {
-	&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), 0},
+	&(SqEntry) {SQ_TYPE_STR,    "email", offsetof(User, email), 0},
 	&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
-	&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
+	&(SqEntry) {SQ_TYPE_STR,    "name",  offsetof(User, name),  0},
 };
 
 /* sortedTypeUser 使用 sortedEntryPointers（在 SqType::bit_field 中设置 SQB_TYPE_SORTED） */
@@ -225,12 +225,12 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 	entry->bit_field |= SQB_HIDDEN;        // 设置 SqEntry.bit_field
 	sq_type_add_entry(type, entry, 1, 0);
 
-	entry = sq_entry_new(SQ_TYPE_STRING);
+	entry = sq_entry_new(SQ_TYPE_STR);
 	entry->name = strdup("name");
 	entry->offset = offsetof(User, name);
 	sq_type_add_entry(type, entry, 1, 0);
 
-	entry = sq_entry_new(SQ_TYPE_STRING);
+	entry = sq_entry_new(SQ_TYPE_STR);
 	entry->name = strdup("email");
 	entry->offset = offsetof(User, email);
 	sq_type_add_entry(type, entry, 1, 0);
@@ -250,12 +250,12 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 	entry->bit_field |= SQB_HIDDEN;    // 设置 SqEntry.bit_field
 	type->addEntry(entry);
 
-	entry = new Sq::Entry(SQ_TYPE_STRING);
+	entry = new Sq::Entry(SQ_TYPE_STR);
 	entry->name = strdup("name");
 	entry->offset = offsetof(User, name);
 	type->addEntry(entry);
 
-	entry = new Sq::Entry(SQ_TYPE_STRING);
+	entry = new Sq::Entry(SQ_TYPE_STR);
 	entry->name = strdup("email");
 	entry->offset = offsetof(User, email);
 	type->addEntry(entry);

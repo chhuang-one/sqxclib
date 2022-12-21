@@ -44,21 +44,23 @@ User can use only one SQL products here (e.g. use MySQL)
 
 // #define DB_SQLITE      1
 #define DB_MYSQL       1
+// #define DB_POSTGRE     1
 ```
 
 ### 1.3 Database configuration values
 
 ```c++
+// common configuration values
+#define DB_DATABASE    "sqxcapp-example"
+
 // connection configuration values
 #define DB_HOST        "localhost"
 #define DB_PORT        3306
 #define DB_USERNAME    "root"
 #define DB_PASSWORD    ""
 
-// common configuration values
-#define DB_DATABASE    "sqxcapp-example"
-
-// SQLite configuration values
+// --- SQLite ---
+// file configuration values
 #define DB_FOLDER      NULL
 #define DB_EXTENSION   NULL
 ```

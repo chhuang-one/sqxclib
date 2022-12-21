@@ -116,8 +116,8 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它将 'schema_next'
 
 ## 从 SQL 查询中获取结果
 
-用户可以使用 sqdb_exec() 执行查询并通过 Sqxc 元素获取结果。  
-如果要解析对象或数组并重用 Sqxc 元素：
+用户可以使用 sqdb_exec() 执行查询并通过 [Sqxc](Sqxc.cn.md) 元素获取结果。  
+如果要解析对象或数组并重用 [Sqxc](Sqxc.cn.md) 元素：
 1. 在 sqdb_exec() 之前调用 sqxc_ready()。
 2. 在 sqdb_exec() 之后调用 sqxc_finish()。
 

@@ -127,7 +127,7 @@ void printRow(Sq::Row *row)
 				std::cout << val->double_;
 				break;
 
-			case SQ_TYPE_STRING_INDEX:
+			case SQ_TYPE_STR_INDEX:
 			case SQ_TYPE_CHAR_INDEX:
 				std::cout << val->string;
 				break;

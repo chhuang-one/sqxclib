@@ -154,7 +154,7 @@ struct SqColumn
 ```c++
 static const SqColumn  columnArray[2] = {
 	{SQ_TYPE_UINT,   "id",         offsetof(YourStruct, id),         0},
-	{SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
+	{SQ_TYPE_STR,    "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
 };
 
 static const SqColumn *columnPointerArray[2] = {
@@ -201,7 +201,7 @@ const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 * 注意: **不推荐**使用这种方式。
 
 ```c++
-	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STRING);
+	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STR);
 	column->offset = offsetof(YourStruct, name);
 	sq_column_primary(column);           // 设置主键 PRIMARY KEY
 

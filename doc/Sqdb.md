@@ -116,8 +116,8 @@ use C++ methods
 
 ## Get result from SQL query
 
-User can use sqdb_exec() to execute a query and get result by Sqxc elements.  
-If you want to parse object or array and reuse Sqxc elements:
+User can use sqdb_exec() to execute a query and get result by [Sqxc](Sqxc.md) elements.  
+If you want to parse object or array and reuse [Sqxc](Sqxc.md) elements:
 1. call sqxc_ready() before sqdb_exec().
 2. call sqxc_finish() after sqdb_exec().
 

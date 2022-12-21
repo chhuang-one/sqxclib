@@ -58,10 +58,10 @@ static const SqOption *make_migration_options[] = {
 //	SQ_OPTION_COMMAND_COMMON_QUIET,
 
 	// --- SqCommandMake options ---
-	&(SqOption) {SQ_TYPE_STRING, "create",  offsetof(SqCommandMake, table_to_create),
+	&(SqOption) {SQ_TYPE_STR,    "create",  offsetof(SqCommandMake, table_to_create),
 		.value_description = "[=CREATE]",
 		.description = "The table to be created"},
-	&(SqOption) {SQ_TYPE_STRING, "table",   offsetof(SqCommandMake, table_to_migrate),
+	&(SqOption) {SQ_TYPE_STR,    "table",   offsetof(SqCommandMake, table_to_migrate),
 		.value_description = "[=TABLE]",
 		.description = "The table to migrate"},
 };

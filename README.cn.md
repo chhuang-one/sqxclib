@@ -578,7 +578,7 @@ SQL 语句
 
 ## JOIN 支持
 
-SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的结果创建指针数组。  
+SqTypeJoint 是处理多表连接查询的默认类型。它可以为结果创建指针数组。  
   
 例如: 从连接多表的查询中获取结果。  
   
@@ -617,14 +617,14 @@ SqTypeJoint 是处理多表连接查询的默认类型。它为查询返回的�
 
 使用 C++ STL  
   
-Sq::Joint 是 STL 容器使用的指针数组。
+Sq::Joint 只是将指针数组包装到结构中。在这个例子中使用它是因为 C++ STL 不能使用数组作为元素。
 
 ```c++
 	std::vector< Sq::Joint<2> > *vector;
 
 	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
-	vector = storage->query<std::vector< Sq::Joint<2> >>(query);
+	vector = storage->query< std::vector< Sq::Joint<2> > >(query);
 
 	for (unsigned int index = 0;  index < vector->size();  index++) {
 		Sq::Joint<2> &joint = vector->at(index);
@@ -635,7 +635,7 @@ Sq::Joint 是 STL 容器使用的指针数组。
 
 ## 解析未知结果
 
-[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 [SqRow](doc/SqRow.cn.md) 并解析未知（或已知）的结果。  
+[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 [SqRow](doc/SqRow.cn.md) 的实例并解析未知（或已知）的结果。  
 SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRow.cn.md) 和 SQ_TYPE_ROW 都在 sqxcsupport 库中 (sqxcsupport.h)。  
   
 使用 C 函数
@@ -752,10 +752,10 @@ SqConsole 提供命令行界面（主要用于 SqAppTool）。
 
 ## 其他
 SqType   文档: doc/[SqType.cn.md](doc/SqType.cn.md)  
-SqEntry  文档: doc/[SqEntry.cn.md](doc/SqEntry.cn.md)  （这是 SqColumn 的基类）  
-SqTable  文档: doc/[SqTable.cn.md](doc/SqTable.cn.md)
+SqEntry  文档: doc/[SqEntry.cn.md](doc/SqEntry.cn.md)  
+SqTable  文档: doc/[SqTable.cn.md](doc/SqTable.cn.md)  
 SqColumn 文档: doc/[SqColumn.cn.md](doc/SqColumn.cn.md)  
-SqSchema 文档: doc/[SqSchema.cn.md](doc/SqSchema.cn.md)
+SqSchema 文档: doc/[SqSchema.cn.md](doc/SqSchema.cn.md)  
 
 ## sqxc 怎么念
 

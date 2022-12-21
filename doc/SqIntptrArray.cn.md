@@ -7,9 +7,7 @@ SQ_TYPE_INTPTR_ARRAY 是一个内置的静态常量类型，可以创建 SqIntpt
 
 	SqPtrArray
 	│
-	├─── SqIntptrArray
-	│
-	└─── SqStringArray
+	└─── SqIntptrArray
 
 ## 数据成员
 

@@ -81,7 +81,7 @@ void  sq_row_final(SqRow *row)
 	for (index = 0;  index < row->length;  index++) {
 		val = row->data + index;
 		col = row->cols + ((row->cols_length == 1) ? 0 : index);
-		if (col->type == SQ_TYPE_STRING || col->type == SQ_TYPE_CHAR)
+		if (col->type == SQ_TYPE_STR || col->type == SQ_TYPE_CHAR)
 			free((char*)val->string);
 		else if (SQ_TYPE_NOT_BUILTIN(col->type))
 			sq_type_final_instance(col->type, val, true);
@@ -214,7 +214,7 @@ static void  sq_type_row_parse_unknown(void *instance, Sqxc *src)
 		break;
 
 	case SQXC_TYPE_STRING:
-		temp.col->type = SQ_TYPE_STRING;
+		temp.col->type = SQ_TYPE_STR;
 		sq_row_alloc(row, 1)->string = strdup(src->value.string);
 		return;
 

@@ -34,7 +34,7 @@ static const SqColumn *column_ptrs[3] = {
 	             0,                                              .size = 16},
 	&(SqColumn) {SQ_TYPE_INT,    "id",        offsetof(SqMigrationTable, id),
 	             SQB_COLUMN_PRIMARY | SQB_COLUMN_AUTOINCREMENT,  .size = 16},
-	&(SqColumn) {SQ_TYPE_STRING, "migration", offsetof(SqMigrationTable, migration),
+	&(SqColumn) {SQ_TYPE_STR,    "migration", offsetof(SqMigrationTable, migration),
 	             0,                                              .size = 255},
 };
 

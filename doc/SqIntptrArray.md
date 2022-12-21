@@ -7,9 +7,7 @@ SQ_TYPE_INTPTR_ARRAY is a built-in static constant type that can create SqIntptr
 
 	SqPtrArray
 	│
-	├─── SqIntptrArray
-	│
-	└─── SqStringArray
+	└─── SqIntptrArray
 
 ## Data members
 

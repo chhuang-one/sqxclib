@@ -17,7 +17,7 @@ Built-in SqType with it's C data type
 | SQ_TYPE_UINT64  | uint64_t     |
 | SQ_TYPE_TIME    | time_t       |
 | SQ_TYPE_DOUBLE  | double       |
-| SQ_TYPE_STRING  | char*        |
+| SQ_TYPE_STR     | char*        |
 
 Built-in SqType with it's SQL data type
 
@@ -30,8 +30,8 @@ SqType with it's C container type
 | SqType                | C data type    |
 | --------------------- | -------------- |
 | SQ_TYPE_PTR_ARRAY     | SqPtrArray     |
+| SQ_TYPE_STR_ARRAY     | SqStrArray     |
 | SQ_TYPE_INTPTR_ARRAY  | SqIntptrArray  |
-| SQ_TYPE_STRING_ARRAY  | SqStringArray  |
 
 SqType with it's C++ data type
 
@@ -121,8 +121,8 @@ struct User {
 /* entryPointers is 'unsorted' pointer array of SqEntry */
 static const SqEntry  *entryPointers[] = {
 	&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
-	&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
-	&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), 0},
+	&(SqEntry) {SQ_TYPE_STR,    "name",  offsetof(User, name),  0},
+	&(SqEntry) {SQ_TYPE_STR,    "email", offsetof(User, email), 0},
 };
 
 /* typeUser use 'unsorted' entryPointers */
@@ -152,9 +152,9 @@ about above macro SQ_GET_TYPE_NAME(Type):
 ```c
 /* sortedEntryPointers is 'sorted' entryPointers (sorted by name) */
 static const SqEntry  *sortedEntryPointers[] = {
-	&(SqEntry) {SQ_TYPE_STRING, "email", offsetof(User, email), 0},
+	&(SqEntry) {SQ_TYPE_STR,    "email", offsetof(User, email), 0},
 	&(SqEntry) {SQ_TYPE_INT,    "id",    offsetof(User, id),    SQB_HIDDEN},
-	&(SqEntry) {SQ_TYPE_STRING, "name",  offsetof(User, name),  0},
+	&(SqEntry) {SQ_TYPE_STR,    "name",  offsetof(User, name),  0},
 };
 
 /* sortedTypeUser use sortedEntryPointers (set SQB_TYPE_SORTED in SqType::bit_field) */
@@ -225,12 +225,12 @@ use C language to add dynamic SqEntry.
 	entry->bit_field |= SQB_HIDDEN;        // set bit in SqEntry.bit_field
 	sq_type_add_entry(type, entry, 1, 0);
 
-	entry = sq_entry_new(SQ_TYPE_STRING);
+	entry = sq_entry_new(SQ_TYPE_STR);
 	entry->name = strdup("name");
 	entry->offset = offsetof(User, name);
 	sq_type_add_entry(type, entry, 1, 0);
 
-	entry = sq_entry_new(SQ_TYPE_STRING);
+	entry = sq_entry_new(SQ_TYPE_STR);
 	entry->name = strdup("email");
 	entry->offset = offsetof(User, email);
 	sq_type_add_entry(type, entry, 1, 0);
@@ -250,12 +250,12 @@ use C++ language to add dynamic SqEntry.
 	entry->bit_field |= SQB_HIDDEN;    // set bit in SqEntry.bit_field
 	type->addEntry(entry);
 
-	entry = new Sq::Entry(SQ_TYPE_STRING);
+	entry = new Sq::Entry(SQ_TYPE_STR);
 	entry->name = strdup("name");
 	entry->offset = offsetof(User, name);
 	type->addEntry(entry);
 
-	entry = new Sq::Entry(SQ_TYPE_STRING);
+	entry = new Sq::Entry(SQ_TYPE_STR);
 	entry->name = strdup("email");
 	entry->offset = offsetof(User, email);
 	type->addEntry(entry);

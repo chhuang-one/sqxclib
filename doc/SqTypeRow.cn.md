@@ -2,7 +2,7 @@
 
 # SqTypeRow
 
-SqTypeRow 派生自 SqTypeJoint。它可以创建 [SqRow](SqRow.cn.md) 并解析未知（或已知）的结果、表和列。  
+SqTypeRow 派生自 SqTypeJoint。它可以创建 [SqRow](SqRow.cn.md) 的实例并解析未知（或已知）的结果、表和列。  
 SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)  
 注意: SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
 
@@ -78,7 +78,7 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 
 ## 与 SqStorage 一起使用
 
-您可以使用 SqTypeRow 替换 SqStorage 中的默认联合类型:
+您可以使用 SqTypeRow 替换 [SqStorage](SqStorage.cn.md) 中的默认联合类型:
 
 ```c++
 	Sq::TypeRow   *typeRow     = new Sq::TypeRow();
@@ -107,7 +107,7 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 			// 列值类型由 'row.cols[nth].type' 决定
 			if (row.cols[nth].type == SQ_TYPE_INT)
 				std::cout << row.data[nth].integer << std::endl;
-			if (row.cols[nth].type == SQ_TYPE_STRING)
+			if (row.cols[nth].type == SQ_TYPE_STR)
 				std::cout << row.data[nth].string  << std::endl;
 			// 其他类型...
 		}

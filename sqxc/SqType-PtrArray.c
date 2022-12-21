@@ -17,6 +17,7 @@
 #include <SqConfig.h>
 #include <SqError.h>
 #include <SqPtrArray.h>
+#include <SqStrArray.h>
 #include <SqType.h>
 #include <SqEntry.h>
 #include <SqxcValue.h>
@@ -166,12 +167,12 @@ const SqType SqType_PtrArray_ =
 };
 
 /* ----------------------------------------------------------------------------
-	SQ_TYPE_STRING_ARRAY and SQ_TYPE_INTPTR_ARRAY
+	SQ_TYPE_STR_ARRAY and SQ_TYPE_INTPTR_ARRAY
  */
 
-static void sq_type_string_array_init(void *array, const SqType *type)
+static void sq_type_str_array_init(void *array, const SqType *type)
 {
-	sq_string_array_init(array, SQ_TYPE_PTR_ARRAY_SIZE_DEFAULT, free);
+	sq_str_array_init(array, SQ_TYPE_PTR_ARRAY_SIZE_DEFAULT);
 }
 
 static int  sq_type_notptr_array_parse(void *array, const SqType *type, Sqxc *src)
@@ -269,15 +270,15 @@ static Sqxc *sq_type_notptr_array_write(void *array, const SqType *type, Sqxc *d
 }
 
 // extern
-const SqType SqType_StringArray_ =
+const SqType SqType_StrArray_ =
 {
 	sizeof(SqPtrArray),
-	sq_type_string_array_init,
+	sq_type_str_array_init,
 	(SqTypeFunc)sq_ptr_array_final,
 	sq_type_notptr_array_parse,
 	sq_type_notptr_array_write,
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE_STRING,    // entry   : assign element type in SqType.entry
+	(SqEntry**) SQ_TYPE_STR,       // entry   : assign element type in SqType.entry
 	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
 };
 

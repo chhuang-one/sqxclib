@@ -33,7 +33,6 @@
 // C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqPtrArray       SqPtrArray;
-typedef struct SqStringArray    SqStringArray;
 typedef struct SqIntptrArray    SqIntptrArray;
 typedef struct SqUintptrArray   SqUintptrArray;
 
@@ -52,13 +51,13 @@ extern "C" {
 	ptr_array->data[-3]: (SqDestroyFunc*) destroy function
  */
 
-#define sq_ptr_array_data(array)    \
+#define sq_ptr_array_data(array)       \
 		((SqPtrArray*)(array))->data
 
-#define sq_ptr_array_length(array)    \
+#define sq_ptr_array_length(array)     \
 		((SqPtrArray*)(array))->length
 
-#define sq_ptr_array_header(array)    \
+#define sq_ptr_array_header(array)     \
 		(((SqPtrArray*)(array))->data - (intptr_t)((SqPtrArray*)(array))->data[-1])
 
 #define sq_ptr_array_header_length(array)  \
@@ -67,10 +66,10 @@ extern "C" {
 #define sq_ptr_array_allocated(array)  \
 		*(intptr_t*)(((SqPtrArray*)(array))->data -2)
 
-#define sq_ptr_array_capacity(array)  \
+#define sq_ptr_array_capacity(array)   \
 		*(intptr_t*)(((SqPtrArray*)(array))->data -2) 
 
-#define sq_ptr_array_destroy_func(array)  \
+#define sq_ptr_array_destroy_func(array)   \
 		*(SqDestroyFunc*)(((SqPtrArray*)(array))->data -3)
 
 /* macro functions - parameter used only once in macro (except parameter 'array') */
@@ -237,6 +236,8 @@ extern "C" {
 		     element##_addr < element##_end;                   \
 		     element##_addr++, element = *element##_addr)
 
+/* macro for SqUintptrArray */
+
 // void sq_uintptr_array_foreach(void *array, uintptr_t element)
 #define sq_uintptr_array_foreach(array, element)                \
 		for (uintptr_t *element##_end  = (uintptr_t*)sq_ptr_array_end(array),   \
@@ -244,56 +245,6 @@ extern "C" {
 		                element        = *element##_addr;       \
 		     element##_addr < element##_end;                    \
 		     element##_addr++, element = *element##_addr)
-
-/* macro for SqStringArray */
-
-#define sq_string_array_length(array)    \
-		((SqStringArray*)(array))->length
-
-#define sq_string_array_allocated(array)  \
-		*(intptr_t*)(((SqStringArray*)(array))->data -2)
-
-#define sq_string_array_capacity(array)  \
-		*(intptr_t*)(((SqStringArray*)(array))->data -2)
-
-#define sq_string_array_destroy_func(array)  \
-		*(SqDestroyFunc*)(((SqStringArray*)(array))->data -3)
-
-//void  sq_string_array_init(void *array, int allocated_length, SqDestroyFunc destroy_func);
-#define sq_string_array_init(array, allocated_length, destroy_func)    \
-		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, destroy_func)
-
-//void *sq_string_array_final(void *array);
-#define sq_string_array_final    sq_ptr_array_final
-
-// void sq_string_array_insert(void *array, int index, void *value);
-#define sq_string_array_insert(array, index, value)  \
-		*sq_ptr_array_alloc_at(array, index, 1) = (void*)(value)
-
-// void sq_string_array_append(void *array, void *value);
-#define sq_string_array_append(array, value)  \
-		*sq_ptr_array_alloc_at(array, sq_string_array_length(array), 1) = (void*)(value)
-
-// void sq_string_array_erase(void *array, int index, int count);
-#define sq_string_array_erase    sq_ptr_array_erase
-
-// void sq_string_array_steal(void *array, int index, int count);
-#define sq_string_array_steal    sq_ptr_array_steal
-
-// void sq_string_array_foreach(void *array, char *element)
-#define sq_string_array_foreach(array, element)                 \
-		for (char **element##_end  = (char**)sq_ptr_array_end(array),   \
-		          **element##_addr = (char**)sq_ptr_array_begin(array), \
-		           *element = *element##_addr;                  \
-		     element##_addr < element##_end;                    \
-		     element##_addr++, element = *element##_addr)
-
-// void sq_string_array_foreach_addr(void *array, char **element_addr)
-#define sq_string_array_foreach_addr(array, element_addr)              \
-		for (void **element_addr##_end = sq_ptr_array_end(array),   \
-		          **element_addr       = sq_ptr_array_begin(array); \
-		     element_addr < element_addr##_end;                     \
-		     element_addr++)
 
 /* C functions */
 
@@ -407,19 +358,6 @@ struct SqPtrArray
 	SQ_PTR_ARRAY_MEMBERS(void*, data, length);       // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
 	void    **data;
-	int       length;
- */
-};
-
-#ifdef __cplusplus
-struct SqStringArray : Sq::PtrArrayMethod<char*>     // <-- 1. inherit C++ member function(method)
-#else
-struct SqStringArray
-#endif
-{
-	SQ_PTR_ARRAY_MEMBERS(char*, data, length);       // <-- 2. inherit member variable
-/*	// ------ SqPtrArray members ------
-	char    **data;
 	int       length;
  */
 };
@@ -735,66 +673,13 @@ struct UintptrArray : SqUintptrArray
 	}
 };
 
-struct StringArray : SqStringArray
-{
-	// for internal use only
-	void duplicateElement(int index, int length) {
-		for (int end = index+length;  index < end;  index++) {
-#ifdef _MSC_VER
-			data[index] = _strdup(data[index]);
-#else
-			data[index] = strdup(data[index]);
-#endif
-		}
-	}
-
-	// constructor
-	StringArray(int allocated_length = 0, SqDestroyFunc func = free) {
-		sq_ptr_array_init(this, allocated_length, func);
-	}
-	// destructor
-	~StringArray() {
-		sq_ptr_array_final(this);
-	}
-	// copy constructor
-	StringArray(StringArray &src) {
-		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
-		duplicateElement(0, length);
-		sq_string_array_destroy_func(this) = sq_string_array_destroy_func(&src);
-		if (sq_string_array_destroy_func(this) == NULL)
-			sq_string_array_destroy_func(this) = free;
-	}
-	// move constructor
-	StringArray(StringArray &&src) {
-		this->data = src.data;
-		this->length = src.length;
-		src.data = NULL;
-		src.length = 0;
-	}
-
-	// ------ StringArray method ------
-	void  insert(int index, const char **values, int length) {
-		SQ_PTR_ARRAY_INSERT_N(this, index, (void*)values, length);
-		duplicateElement(index, length);
-	}
-	void  insert(int index, const char *value) {
-		sq_ptr_array_insert(this, index, (void*)value);
-		duplicateElement(index, 1);
-	}
-
-	void  append(const char **values, int length) {
-		SQ_PTR_ARRAY_APPEND_N(this, (void*)values, length);
-		duplicateElement(this->length -length, length);
-	}
-	void  append(const char *value) {
-		sq_ptr_array_append(this, (void*)value);
-		duplicateElement(this->length -1, 1);
-	}
-};
-
 };  // namespace Sq
 
 #endif  // __cplusplus
+
+// ============================================================================
+// SqStringArray is defined for compatibility with older versions
+#include <SqStrArray.h>
 
 
 #endif  // SQ_PTR_ARRAY_H

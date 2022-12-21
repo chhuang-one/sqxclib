@@ -17,6 +17,7 @@
 #include <SqError.h>
 
 #include <SqPtrArray.h>
+#include <SqStrArray.h>
 #include <SqBuffer.h>
 
 #include <SqType.h>

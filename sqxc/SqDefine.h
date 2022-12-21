@@ -45,6 +45,7 @@ typedef int   (*SqCompareFunc)(const void *a, const void *b);
 
 union SqValue
 {
+	bool          bool_;
 	bool          boolean;
 	int           integer;
 	int           int_;
@@ -55,6 +56,7 @@ union SqValue
 	time_t        rawtime;
 	double        fraction;
 	double        double_;
+	const char   *str;
 	const char   *string;
 	const char   *stream;      // Text stream must be null-terminated string
 	void         *pointer;

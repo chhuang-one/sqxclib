@@ -461,7 +461,7 @@ use C++ language
 	}
 ```
 
-The Sqxc input data flow in your SqStorage object will look like this:
+The Sqxc input data flow in your [SqStorage](SqStorage.md) object will look like this:
 
 	input ->         ┌-> SqxcTextParser --┐
 	Sqdb.exec()    --┴--------------------┴-> SqxcValue ---> SqType.parse()

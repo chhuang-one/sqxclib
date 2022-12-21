@@ -23,7 +23,7 @@
 
 // ----------------------------------------------------------------------------
 static const SqOption option_database = {
-	SQ_TYPE_STRING,  "database",      offsetof(SqCommandMigrate, database),
+	SQ_TYPE_STR,     "database",      offsetof(SqCommandMigrate, database),
 		.shortcut = NULL,
 		.default_value = NULL,
 		.value_description = "[=DATABASE]",

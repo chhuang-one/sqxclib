@@ -50,7 +50,7 @@ struct SqEntry
 ```c
 static const SqEntry  entryArray[2] = {
 	{SQ_TYPE_UINT,   "bit_field",  offsetof(YourStruct, bit_field),  0},
-	{SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
+	{SQ_TYPE_STR,    "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
 };
 
 static const SqEntry *entryPointerArray[2] = {
@@ -97,7 +97,7 @@ e.g. 创建使用常量 SqEntry 的动态 SqType
 使用 C 语言
 
 ```c
-	SqEntry *entry = sq_entry_new(SQ_TYPE_STRING);
+	SqEntry *entry = sq_entry_new(SQ_TYPE_STR);
 
 	entry->name = strdup("name");
 	entry->offset = offsetof(YourStruct, name);
@@ -110,7 +110,7 @@ e.g. 创建使用常量 SqEntry 的动态 SqType
 使用 C++ 语言
 
 ```c++
-	Sq::Entry *entry = new Sq::Entry(SQ_TYPE_STRING);
+	Sq::Entry *entry = new Sq::Entry(SQ_TYPE_STR);
 
 	entry->name = strdup("name");
 	entry->offset = offsetof(YourStruct, name);

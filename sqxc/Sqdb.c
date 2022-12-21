@@ -540,7 +540,7 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 
 	type = column->type;
 	if (SQ_TYPE_NOT_BUILTIN(type))
-		type = SQ_TYPE_STRING;
+		type = SQ_TYPE_STR;
 	size = column->size;
 	digits = column->digits;
 
@@ -616,7 +616,7 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 		}
 		break;
 
-	case SQ_TYPE_STRING_INDEX:
+	case SQ_TYPE_STR_INDEX:
 		size = (size <= 0) ? SQL_STRING_LENGTH_DEFAULT : size;
 		len = snprintf(NULL, 0, "VARCHAR(%d)", size);
 		sprintf(sq_buffer_alloc(buffer, len), "VARCHAR(%d)", size);

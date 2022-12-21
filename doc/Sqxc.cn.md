@@ -461,7 +461,7 @@ static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src)
 	}
 ```
 
-SqStorage 对象中的 Sqxc 输入数据流如下所示：
+[SqStorage](SqStorage.cn.md) 对象中的 Sqxc 输入数据流如下所示：
 
 	input ->         ┌-> SqxcTextParser --┐
 	Sqdb.exec()    --┴--------------------┴-> SqxcValue ---> SqType.parse()

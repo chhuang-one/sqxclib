@@ -154,7 +154,7 @@ This can reduce running time when making schema if your SQL table is fixed and n
 ```c++
 static const SqColumn  columnArray[2] = {
 	{SQ_TYPE_UINT,   "id",         offsetof(YourStruct, id),         0},
-	{SQ_TYPE_STRING, "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
+	{SQ_TYPE_STR,    "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
 };
 
 static const SqColumn *columnPointerArray[2] = {
@@ -201,7 +201,7 @@ add one dynamic column to type
 * Note: It is **not recommended** to use this way.
 
 ```c++
-	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STRING);
+	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STR);
 	column->offset = offsetof(YourStruct, name);
 	sq_column_primary(column);           // set PRIMARY KEY
 

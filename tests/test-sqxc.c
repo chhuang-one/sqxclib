@@ -17,6 +17,7 @@
 
 #include <SqConfig.h>
 #include <SqPtrArray.h>
+#include <SqStrArray.h>
 #include <SqSchema-macro.h>
 #include <SqJoint.h>
 #include <SqRow.h>
@@ -41,7 +42,7 @@ struct User {
 	char  *name;
 	char  *email;
 
-	SqStringArray  strs;
+	SqStrArray     strs;
 	SqIntptrArray  ints;
 };
 
@@ -50,11 +51,11 @@ struct User {
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
-	&(SqColumn) {SQ_TYPE_STRING,       "email",   offsetof(User, email), 0},
+	&(SqColumn) {SQ_TYPE_STR,          "email",   offsetof(User, email), 0},
 	&(SqColumn) {SQ_TYPE_INT,          "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
 	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "ints",    offsetof(User, ints),  0},
-	&(SqColumn) {SQ_TYPE_STRING,       "name",    offsetof(User, name),  0},
-	&(SqColumn) {SQ_TYPE_STRING_ARRAY, "strs",    offsetof(User, strs),  0},
+	&(SqColumn) {SQ_TYPE_STR,          "name",    offsetof(User, name),  0},
+	&(SqColumn) {SQ_TYPE_STR_ARRAY,    "strs",    offsetof(User, strs),  0},
 };
 
 // --- UserType use sorted UserColumns
@@ -211,13 +212,13 @@ void test_sqxc_row_input_output()
 
 	// program can't parse JSON array string if no JSON parser in sqxc chain
 	xc->name = "tb2.strs";
-	xc->type = SQXC_TYPE_STRING;
+	xc->type = SQXC_TYPE_STR;
 	xc->value.string = "[ \"str0\", \"str1\", \"str2\" ]";
 	sqxc_send(xc);
 
 	// unknown table.column
 	xc->name = "unknown_table.unknown_column";
-	xc->type = SQXC_TYPE_STRING;
+	xc->type = SQXC_TYPE_STR;
 	xc->value.string = "unknown string";
 	sqxc_send(xc);
 
@@ -230,8 +231,8 @@ void test_sqxc_row_input_output()
 	row = sqxc_value_instance(xc);
 	assert(row->cols[0].type == SQ_TYPE_INT);
 	assert(row->cols[1].type == SQ_TYPE_INT);
-	assert(row->cols[2].type == SQ_TYPE_STRING_ARRAY);
-	assert(row->cols[3].type == SQ_TYPE_STRING);
+	assert(row->cols[2].type == SQ_TYPE_STR_ARRAY);
+	assert(row->cols[3].type == SQ_TYPE_STR);
 	printf("%s = %d\n", row->cols[0].name, row->data[0].integer);
 	printf("%s = %d\n", row->cols[1].name, row->data[1].integer);
 	printf("%s = %s\n", row->cols[3].name, row->data[3].string);
@@ -508,8 +509,8 @@ int  main(void)
 	user->id = 10;
 	user->name = "Bob";
 	user->email = "guest@";
-	sq_string_array_init(&user->strs, 8, NULL);
-	sq_string_array_append(&user->strs, strdup("first"));
+	sq_str_array_init(&user->strs, 8);
+	sq_str_array_append(&user->strs, "first");
 	sq_intptr_array_init(&user->ints, 8);
 	sq_intptr_array_append(&user->ints, 1);
 

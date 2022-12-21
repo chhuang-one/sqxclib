@@ -580,7 +580,7 @@ Below is currently provided convenient C++ class:
 
 ## JOIN support
 
-SqTypeJoint is the default type for handling query that join multi-table. It creates an array of pointers for the results returned by the query.  
+SqTypeJoint is the default type for handling query that join multi-table. It can create array of pointers for the results.  
   
 e.g. get result from query that join multi-table.  
   
@@ -619,14 +619,14 @@ use C++ methods
 
 use C++ STL  
   
-Sq::Joint is pointer array that used by STL container.
+Sq::Joint just wraps array of pointers into struct. Using it in this example because C++ STL can't use array as element.
 
 ```c++
 	std::vector< Sq::Joint<2> > *vector;
 
 	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
 
-	vector = storage->query<std::vector< Sq::Joint<2> >>(query);
+	vector = storage->query< std::vector< Sq::Joint<2> > >(query);
 
 	for (unsigned int index = 0;  index < vector->size();  index++) {
 		Sq::Joint<2> &joint = vector->at(index);
@@ -637,7 +637,7 @@ Sq::Joint is pointer array that used by STL container.
 
 ## Parse unknown result
 
-[SqTypeRow](doc/SqTypeRow.md) is derived from SqTypeJoint. It create [SqRow](doc/SqRow.md) and parse unknown (or known) result.  
+[SqTypeRow](doc/SqTypeRow.md) is derived from SqTypeJoint. It create instance of [SqRow](doc/SqRow.md) and parse unknown (or known) result.  
 SQ_TYPE_ROW is a built-in static constant type of SqTypeRow. Both [SqTypeRow](doc/SqTypeRow.md) and SQ_TYPE_ROW are in sqxcsupport library (sqxcsupport.h).  
   
 use C functions
@@ -754,10 +754,10 @@ See document in doc/[SqConsole.md](doc/SqConsole.md)
 
 ## Others
 SqType   document: doc/[SqType.md](doc/SqType.md)  
-SqEntry  document: doc/[SqEntry.md](doc/SqEntry.md)  (This is base class of SqColumn)  
-SqTable  document: doc/[SqTable.md](doc/SqTable.md)
+SqEntry  document: doc/[SqEntry.md](doc/SqEntry.md)  
+SqTable  document: doc/[SqTable.md](doc/SqTable.md)  
 SqColumn document: doc/[SqColumn.md](doc/SqColumn.md)  
-SqSchema document: doc/[SqSchema.md](doc/SqSchema.md)
+SqSchema document: doc/[SqSchema.md](doc/SqSchema.md)  
 
 ## Licensing
 

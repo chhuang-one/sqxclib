@@ -358,7 +358,7 @@ extern "C" {
 /* SqType-built-in.c - built-in types */
 extern  const  SqType      SqType_BuiltIn_[];
 extern  const  SqType      SqType_PtrArray_;
-extern  const  SqType      SqType_StringArray_;
+extern  const  SqType      SqType_StrArray_;
 extern  const  SqType      SqType_IntptrArray_;
 
 enum {
@@ -370,7 +370,7 @@ enum {
 	SQ_TYPE_UINT64_INDEX,
 	SQ_TYPE_TIME_INDEX,
 	SQ_TYPE_DOUBLE_INDEX,
-	SQ_TYPE_STRING_INDEX,
+	SQ_TYPE_STR_INDEX,
 	SQ_TYPE_CHAR_INDEX,
 };
 
@@ -382,7 +382,7 @@ enum {
 #define SQ_TYPE_UINT64     (&SqType_BuiltIn_[SQ_TYPE_UINT64_INDEX])
 #define SQ_TYPE_TIME       (&SqType_BuiltIn_[SQ_TYPE_TIME_INDEX])
 #define SQ_TYPE_DOUBLE     (&SqType_BuiltIn_[SQ_TYPE_DOUBLE_INDEX])
-#define SQ_TYPE_STRING     (&SqType_BuiltIn_[SQ_TYPE_STRING_INDEX])
+#define SQ_TYPE_STR        (&SqType_BuiltIn_[SQ_TYPE_STR_INDEX])
 // ---- SQ_TYPE for SQL ----
 #define SQ_TYPE_CHAR       (&SqType_BuiltIn_[SQ_TYPE_CHAR_INDEX])
 /* update below definition if you insert type in SqType_BuiltIn_[] */
@@ -426,8 +426,8 @@ enum {
 #define SQ_TYPE_PTR_ARRAY     (&SqType_PtrArray_)
 
 /* implement string (char*) array by SqPtrArray (SqType-PtrArray.c)
-   User can use SQ_TYPE_STRING_ARRAY directly. */
-#define SQ_TYPE_STRING_ARRAY  (&SqType_StringArray_)
+   User can use SQ_TYPE_STR_ARRAY directly. */
+#define SQ_TYPE_STR_ARRAY     (&SqType_StrArray_)
 
 /* implement intptr_t array by SqPtrArray (SqType-PtrArray.c)
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
@@ -460,6 +460,12 @@ struct SqTypeFake {
 };
 
 extern  const  struct SqTypeFake   SqType_Fake_;
+
+// ============================================================================
+// SqStringArray is defined for compatibility with older versions
+#define SQ_TYPE_STRING_INDEX   SQ_TYPE_STR_INDEX
+#define SQ_TYPE_STRING        (&SqType_BuiltIn_[SQ_TYPE_STR_INDEX])
+#define SQ_TYPE_STRING_ARRAY  (&SqType_StrArray_)
 
 #ifdef __cplusplus
 }  // extern "C"

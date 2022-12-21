@@ -2,7 +2,7 @@
 
 # SqStorage
 
-SqStorage use [Sqdb](Sqdb.md) to access database. It using Sqxc to convert data between C language and Sqdb interface.
+SqStorage use [Sqdb](Sqdb.md) to access database. It using [Sqxc](Sqxc.md) to convert data between C language and [Sqdb](Sqdb.md) interface.
 
 ## create storage
 
@@ -352,6 +352,10 @@ use C++ methods
 	n_changes  = storage->updateAll(user,
 	                                "WHERE id > 10",
 	                                "name", "email");
+	// or use convenient C++ class 'where'
+	n_changes  = storage->updateAll(user,
+	                                Sq::where("id", ">", 10),
+	                                "name", "email");
 ```
 
 ## updateField (Where conditions)
@@ -392,6 +396,11 @@ use C++ methods
 	                                  "WHERE id > 10",
 	                                  &User::name,
 	                                  &User::email);
+	// or use convenient C++ class 'where'
+	n_changes  = storage->updateField("users", &user,
+	                                  Sq::where("id", ">", 10),
+	                                  &User::name,
+	                                  &User::email);
 ```
 
 ## remove
@@ -414,7 +423,7 @@ use C++ methods
 
 ```c++
 	storage->remove("users", 3);
-	// or
+		// or
 	storage->remove<User>(3);
 ```
 
@@ -436,7 +445,7 @@ use C++ methods
 
 ```c++
 	storage->removeAll("users");
-	// or
+		// or
 	storage->removeAll<User>();
 ```
 
@@ -463,13 +472,47 @@ use C++ methods
 
 ```c++
 	storage->removeAll("users", "WHERE id > 50");
-	// or
+		// or
 	storage->removeAll<User>("WHERE id > 50");
+		// or use convenient C++ class 'where'
+	storage->removeAll("users", Sq::where("id", ">", 50));
 ```
 
-## run custom query (with SqQuery)
+## Transaction
+
+use C functions
+
+```c
+	User  *user;
+
+	sq_storage_begin_trans(storage);
+	sq_storage_insert(storage, "users", NULL, user);
+	if (abort)
+		sq_storage_rollback_trans(storage);
+	else
+		sq_storage_commit_trans(storage);
+```
+
+use C++ methods
+
+```c++
+	User  *user;
+
+	storage->beginTrans();
+	storage->insert(user);
+	if (abort)
+		storage->rollbackTrans();
+	else
+		storage->commitTrans();
+```
+
+## Custom query (with SqQuery)
 
 SqStorage provides sq_storage_query() and C++ method query() to running database queries. Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](SqPtrArray.md).  
+
+#### query without JOIN clause
+
+In this case, the usage of table type and container type is basically the same as getAll().  
   
 use C function
 
@@ -494,9 +537,64 @@ use C++ method
 	container = storage->query(query, userType, containerType);
 ```
 
-## access database with user defined data type
+#### query with JOIN clause
 
-Below C functions and C++ methods can return instance of user defined data type or container type:  
+If user executes a query that joins multiple tables without specifying table type, program will use SqTypeJoint as table type by default. SqTypeJoint can create array of pointers for the results.  
+  
+use C functions
+
+```c
+	sq_query_from(query, "cities");
+	sq_query_join(query, "users", "cities.id", "=", "%s", "users.city_id");
+
+	SqPtrArray *array = sq_storage_query(storage, query, NULL, NULL);
+
+	for (int i = 0;  i < array->length;  i++) {
+		void **element = (void**)array->data[i];
+		city = (City*)element[0];    // sq_query_from(query, "cities");
+		user = (User*)element[1];    // sq_query_join(query, "users", ...);
+		// free 'element' before you free 'array'
+		// free(element);
+	}
+```
+
+use C++ methods
+
+```c++
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
+
+	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
+
+	for (int i = 0;  i < array->length;  i++) {
+		void **element = (void**)array->data[i];
+		city = (City*)element[0];    // from("cities")
+		user = (User*)element[1];    // join("users")
+		// free 'element' before you free 'array'
+		// free(element);
+	}
+```
+
+use C++ STL  
+  
+Sq::Joint just wraps array of pointers into struct. Using it in this example because C++ STL can't use array as element.
+
+```c++
+	std::vector< Sq::Joint<2> > *vector;
+
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
+
+	vector = storage->query< std::vector< Sq::Joint<2> > >(query);
+
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		Sq::Joint<2> &joint = vector->at(index);
+		city = (City*)joint[0];      // from("cities")
+		user = (User*)joint[1];      // join("users")
+	}
+```
+
+## use custom data type
+
+Below C functions and C++ methods can return instance of custom data type and container type:  
 See the documentation [SqType](SqType.md) to learn how to customize types.
 
 | C functions               | C++ methods   |
