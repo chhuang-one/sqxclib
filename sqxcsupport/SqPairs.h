@@ -37,6 +37,9 @@ void    sq_pairs_erase(SqPairs *pairs, void *key);
 void    sq_pairs_steal(SqPairs *pairs, void *key);
 void   *sq_pairs_find(SqPairs *pairs, void *key);
 
+// void sq_pairs_remove(SqPairs *pairs, void *key);
+#define sq_pairs_remove        sq_pairs_erase
+
 void    sq_pairs_sort(SqPairs *pairs);
 
 // SqPair SqCompareFunc
@@ -59,6 +62,7 @@ namespace Sq {
  */
 struct PairsMethod {
 	void    add(void *key, void *value);
+	void    remove(void *key);
 	void    erase(void *key);
 	void    steal(void *key);
 	void   *find(void *key);
@@ -123,6 +127,9 @@ namespace Sq {
 
 inline void   PairsMethod::add(void *key, void *value) {
 	sq_pairs_add((SqPairs*)this, key, value);
+}
+inline void   PairsMethod::remove(void *key) {
+	sq_pairs_erase((SqPairs*)this, key);
 }
 inline void   PairsMethod::erase(void *key) {
 	sq_pairs_erase((SqPairs*)this, key);

@@ -53,6 +53,7 @@ union SqValue
 	unsigned int  uint;
 	int64_t       int64;
 	uint64_t      uint64;
+	time_t        time;
 	time_t        rawtime;
 	double        fraction;
 	double        double_;

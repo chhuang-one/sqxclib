@@ -131,6 +131,9 @@ void     sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size
 // add entry from pointer array of SqEntry to dynamic SqType.
 void     sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_entry_ptrs);
 
+// void  sq_type_remove_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count);
+#define  sq_type_remove_entry_addr        sq_type_erase_entry_addr
+
 void     sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count);
 void     sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count);
 
@@ -317,6 +320,20 @@ struct SqType
 	}
 	unsigned int  decideSize(const Sq::EntryMethod *inner_entry, bool entry_removed = false) {
 		return sq_type_decide_size((SqType*)this, (const SqEntry*)inner_entry, entry_removed);
+	}
+
+	// removeEntry = eraseEntry
+	void     removeEntry(void **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
+	}
+	void     removeEntry(SqEntry **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, inner_entry_addr, count);
+	}
+	void     removeEntry(Sq::Entry **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
+	}
+	void     removeEntry(Sq::EntryMethod **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
 
 	// erase entry in SqType if SqType is dynamic.
@@ -569,6 +586,20 @@ struct TypeMethod {
 	}
 	unsigned int  decideSize(const Sq::EntryMethod *inner_entry, bool entry_removed = false) {
 		return sq_type_decide_size((SqType*)this, (const SqEntry*)inner_entry, entry_removed);
+	}
+
+	// removeEntry = eraseEntry
+	void     removeEntry(void **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
+	}
+	void     removeEntry(SqEntry **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, inner_entry_addr, count);
+	}
+	void     removeEntry(Sq::Entry **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
+	}
+	void     removeEntry(Sq::EntryMethod **inner_entry_addr, int count = 1) {
+		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
 
 	// erase entry in SqType if SqType is dynamic.

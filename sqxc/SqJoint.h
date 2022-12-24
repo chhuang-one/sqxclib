@@ -32,7 +32,8 @@ typedef struct SqType         SqTypeJoint;
 extern "C" {
 #endif
 
-/*	SqTypeJoint - combine multiple table's type (SQL joined table)
+/*	SqTypeJoint is the default type for handling query that join multi-table.
+	            It can create array of pointers for query result.
 
 	SqType
 	|
@@ -86,6 +87,9 @@ void  sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *tab
 void  sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
 void  sq_type_joint_clear(SqTypeJoint *type_joint);
 
+// void sq_type_joint_remove(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
+#define sq_type_joint_remove        sq_type_joint_erase
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -104,6 +108,7 @@ namespace Sq {
 struct TypeJointMethod {
 	void  add(SqTable *table, const char *table_as_name = NULL);
 	void  erase(SqTable *table, const char *table_as_name = NULL);
+	void  remove(SqTable *table, const char *table_as_name = NULL);
 	void  clear();
 };
 
@@ -133,6 +138,9 @@ inline void  TypeJointMethod::add(SqTable *table, const char *table_as_name) {
 	sq_type_joint_add((SqTypeJoint*)this, table, table_as_name);
 }
 inline void  TypeJointMethod::erase(SqTable *table, const char *table_as_name) {
+	sq_type_joint_erase((SqTypeJoint*)this, table, table_as_name);
+}
+inline void  TypeJointMethod::remove(SqTable *table, const char *table_as_name) {
 	sq_type_joint_erase((SqTypeJoint*)this, table, table_as_name);
 }
 inline void  TypeJointMethod::clear() {

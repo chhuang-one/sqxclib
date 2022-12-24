@@ -175,6 +175,15 @@ typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 			sqxc = sqxc_send((Sqxc*)(sqxc));             \
 		}
 
+// void sqxc_send_uint(Sqxc **sqxc, const char *entry_name, unsigned int value);
+#define SQXC_SEND_UINT(sqxc, entry_name, value_)         \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_UINT;      \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.uinteger = value_;    \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
 // void sqxc_send_int64(Sqxc **sqxc, const char *entry_name, int64_t value);
 #define SQXC_SEND_INT64(sqxc, entry_name, value_)        \
 		{                                                \
@@ -184,10 +193,19 @@ typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 			sqxc = sqxc_send((Sqxc*)(sqxc));             \
 		}
 
-// void sqxc_send_time(Sqxc **sqxc, const char *entry_name, time_t value);
-#define SQXC_SEND_TIME(sqxc, entry_name, value_)        \
+// void sqxc_send_uint64(Sqxc **sqxc, const char *entry_name, uint64_t value);
+#define SQXC_SEND_UINT64(sqxc, entry_name, value_)       \
 		{                                                \
-			((Sqxc*)(sqxc))->type = SQXC_TYPE_INT64;     \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_UINT64;    \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.uint64 = value_;      \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_time(Sqxc **sqxc, const char *entry_name, time_t value);
+#define SQXC_SEND_TIME(sqxc, entry_name, value_)         \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_TIME;      \
 			((Sqxc*)(sqxc))->name = entry_name;          \
 			((Sqxc*)(sqxc))->value.rawtime = value_;     \
 			sqxc = sqxc_send((Sqxc*)(sqxc));             \
@@ -202,14 +220,17 @@ typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 			sqxc = sqxc_send((Sqxc*)(sqxc));             \
 		}
 
-// void sqxc_send_string(Sqxc **sqxc, const char *entry_name, const char *value);
-#define SQXC_SEND_STRING(sqxc, entry_name, val)          \
+// void sqxc_send_str(Sqxc **sqxc, const char *entry_name, const char *value);
+#define SQXC_SEND_STR(sqxc, entry_name, val)             \
 		{                                                \
-			((Sqxc*)(sqxc))->type = SQXC_TYPE_STRING;    \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_STR;       \
 			((Sqxc*)(sqxc))->name = entry_name;          \
-			((Sqxc*)(sqxc))->value.string = (char*)val;  \
+			((Sqxc*)(sqxc))->value.str = (char*)val;     \
 			sqxc = sqxc_send((Sqxc*)(sqxc));             \
 		}
+
+// void sqxc_send_string(Sqxc **sqxc, const char *entry_name, const char *value);
+#define SQXC_SEND_STRING        SQXC_SEND_STR
 
 // void sqxc_send_object_beg(Sqxc **sqxc, const char *entry_name);
 #define SQXC_SEND_OBJECT_BEG(sqxc, entry_name)           \
@@ -321,6 +342,9 @@ void        sqxc_erase_nested(Sqxc *xc, SqxcNested *nested);
 SqxcNested *sqxc_push_nested(Sqxc *xc);
 void        sqxc_pop_nested(Sqxc *xc);
 
+// void     sqxc_remove_nested(Sqxc *xc, SqxcNested *nested);
+#define sqxc_remove_nested        sqxc_erase_nested
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -367,10 +391,13 @@ struct XcMethod
 	Sq::Xc  *sendNull(const char *entry_name);
 	Sq::Xc  *sendBool(const char *entry_name, bool value);
 	Sq::Xc  *sendInt(const char *entry_name, int value);
+	Sq::Xc  *sendUint(const char *entry_name, unsigned int value);
 	Sq::Xc  *sendInt64(const char *entry_name, int64_t value);
+	Sq::Xc  *sendUint64(const char *entry_name, uint64_t value);
 	Sq::Xc  *sendTime(const char *entry_name, time_t value);
 	Sq::Xc  *sendDouble(const char *entry_name, double value);
 	Sq::Xc  *sendString(const char *entry_name, const char *value);
+	Sq::Xc  *sendStr(const char *entry_name, const char *value);
 
 	Sq::Xc  *sendObjectBeg(const char *entry_name);
 	Sq::Xc  *sendObjectEnd(const char *entry_name);
@@ -581,9 +608,19 @@ inline Sq::Xc  *XcMethod::sendInt(const char *entry_name, int value) {
 	SQXC_SEND_INT(xc, entry_name, value);
 	return (Sq::Xc*)xc;
 }
+inline Sq::Xc  *XcMethod::sendUint(const char *entry_name, unsigned int value) {
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_UINT(xc, entry_name, value);
+	return (Sq::Xc*)xc;
+}
 inline Sq::Xc  *XcMethod::sendInt64(const char *entry_name, int64_t value) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_INT64(xc, entry_name, value);
+	return (Sq::Xc*)xc;
+}
+inline Sq::Xc  *XcMethod::sendUint64(const char *entry_name, uint64_t value) {
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_UINT64(xc, entry_name, value);
 	return (Sq::Xc*)xc;
 }
 inline Sq::Xc  *XcMethod::sendTime(const char *entry_name, time_t value) {
@@ -598,7 +635,12 @@ inline Sq::Xc  *XcMethod::sendDouble(const char *entry_name, double value) {
 }
 inline Sq::Xc  *XcMethod::sendString(const char *entry_name, const char *value) {
 	Sqxc *xc = (Sqxc*)this;
-	SQXC_SEND_STRING(xc, entry_name, (char*)value);
+	SQXC_SEND_STR(xc, entry_name, (char*)value);
+	return (Sq::Xc*)xc;
+}
+inline Sq::Xc  *XcMethod::sendStr(const char *entry_name, const char *value) {
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_STR(xc, entry_name, (char*)value);
 	return (Sq::Xc*)xc;
 }
 

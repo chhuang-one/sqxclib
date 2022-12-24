@@ -25,9 +25,7 @@ void *sq_ptr_array_init_full(void *array,
 	if (allocated_length == 0)
 		allocated_length  = 8;
 	size = (header_length + allocated_length) * sizeof(void*);
-	// allocate memory
-	if (array == NULL)
-		array = malloc(sizeof(SqPtrArray));
+
 	((SqPtrArray*)array)->data = (void**)malloc(size) + header_length;
 	((SqPtrArray*)array)->length = 0;
 	sq_ptr_array_header_length(array) = header_length;

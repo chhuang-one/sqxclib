@@ -58,6 +58,9 @@ void  sq_relation_add(SqRelation *relation, const void *from_object, const void 
 // if 'no_reverse' == -1, erase all references in reverse related objects. 'to_object_free_func' must use with this mode.
 void  sq_relation_erase(SqRelation *relation, const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func);
 
+// void sq_relation_remove(SqRelation *relation, const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func);
+#define sq_relation_remove        sq_relation_erase
+
 // it replace 'old_object' to 'new_object'.
 // if 'no_reverse' ==  1, don't replace 'old_object' in reverse reference
 // if 'no_reverse' ==  0, replace 'old_object' in reverse reference
@@ -102,6 +105,7 @@ struct RelationNode;
 struct RelationMethod {
 	void  add(const void *from_object, const void *to_object, int no_reverse = 0);
 	void  erase(const void *from_object, const void *to_object, int no_reverse = 0, SqDestroyFunc to_object_free_func = NULL);
+	void  remove(const void *from_object, const void *to_object, int no_reverse = 0, SqDestroyFunc to_object_free_func = NULL);
 	void  replace(const void *old_object, const void *new_object, int no_reverse = 0);
 	void  removeEmpty();
 	Sq::RelationNode *find(const void *from_object, const void *to_object);
@@ -125,8 +129,7 @@ struct RelationNodeMethod {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/*	SqRelation: record relation of object
-	            SqRelationNode is the element type in in pool and array
+/*	SqRelation is used to record relation of object.
  */
 
 #define SQ_RELATION_MEMBERS      \
@@ -149,8 +152,8 @@ struct SqRelation
  */
 };
 
-/*	SqRelationNode: relation node. This is element type in chunk and array
-	                size of this structure == size of 2 pointers because SqRelationNode has 2 pointers
+/*	SqRelationNode is the element type in SqRelation.pool (chunk) and SqRelation.data (array).
+	               size of this structure == size of 2 pointers because SqRelationNode has 2 pointers
  */
 #ifdef __cplusplus
 struct SqRelationNode : Sq::RelationNodeMethod
@@ -185,6 +188,9 @@ inline void  RelationMethod::add(const void *from_object, const void *to_object,
 	sq_relation_add((SqRelation*)this, from_object, to_object, no_reverse);
 }
 inline void  RelationMethod::erase(const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func) {
+	sq_relation_erase((SqRelation*)this, from_object, to_object, no_reverse, to_object_free_func);
+}
+inline void  RelationMethod::remove(const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func) {
 	sq_relation_erase((SqRelation*)this, from_object, to_object, no_reverse, to_object_free_func);
 }
 inline void  RelationMethod::replace(const void *old_object, const void *new_object, int no_reverse) {

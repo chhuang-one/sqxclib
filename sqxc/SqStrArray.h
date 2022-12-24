@@ -54,11 +54,14 @@ extern "C" {
 //void *sq_str_array_final(SqStrArray *array);
 #define sq_str_array_final       sq_ptr_array_final
 
-//char **sq_str_array_alloc(SqStrArray *array, int count)
+//char **sq_str_array_alloc(SqStrArray *array, int count);
 #define sq_str_array_alloc       sq_ptr_array_alloc
 
-//char **sq_str_array_alloc_at(SqStrArray *array, int index, int count)
+//char **sq_str_array_alloc_at(SqStrArray *array, int index, int count);
 #define sq_str_array_alloc_at    sq_ptr_array_alloc_at
+
+// void sq_str_array_remove(SqStrArray *array, int index, int count);
+#define sq_str_array_remove      sq_ptr_array_erase
 
 // void sq_str_array_erase(SqStrArray *array, int index, int count);
 #define sq_str_array_erase       sq_ptr_array_erase
