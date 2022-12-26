@@ -578,7 +578,7 @@ SQL 语句
 
 ## JOIN 支持
 
-SqTypeJoint 是处理多表连接查询的默认类型。它可以为结果创建指针数组。  
+[SqTypeJoint](doc/SqTypeJoint.cn.md) 是处理多表连接查询的默认类型。它可以为查询结果创建指针数组。  
   
 例如: 从连接多表的查询中获取结果。  
   
@@ -617,7 +617,24 @@ SqTypeJoint 是处理多表连接查询的默认类型。它可以为结果创�
 
 使用 C++ STL  
   
-Sq::Joint 只是将指针数组包装到结构中。在这个例子中使用它是因为 C++ STL 不能使用数组作为元素。
+用户可以将指向指针的指针（double pointer）指定为 STL 容器的元素。
+
+```c++
+	std::vector<void**> *vector;
+
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
+
+	vector = storage->query< std::vector<void**> >(query);
+
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		void **element = vector->at(index);
+		city = (City*)element[0];      // from("cities")
+		user = (User*)element[1];      // join("users")
+	}
+```
+
+如果你不想使用指针作为 C++ STL 容器的元素，你可以使用 Sq::Joint 来代替它。  
+Sq::Joint 只是将指针数组包装到结构中。因为 C++ STL 不能直接将数组用作容器的元素，所以用户必须将它与 C++ STL 一起使用。
 
 ```c++
 	std::vector< Sq::Joint<2> > *vector;
@@ -635,7 +652,7 @@ Sq::Joint 只是将指针数组包装到结构中。在这个例子中使用它�
 
 ## 解析未知结果
 
-[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 SqTypeJoint。它创建 [SqRow](doc/SqRow.cn.md) 的实例并解析未知（或已知）的结果。  
+[SqTypeRow](doc/SqTypeRow.cn.md) 派生自 [SqTypeJoint](doc/SqTypeJoint.cn.md)。它创建 [SqRow](doc/SqRow.cn.md) 的实例并解析未知（或已知）的结果。  
 SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRow.cn.md) 和 SQ_TYPE_ROW 都在 sqxcsupport 库中 (sqxcsupport.h)。  
   
 使用 C 函数

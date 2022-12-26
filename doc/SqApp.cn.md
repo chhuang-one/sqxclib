@@ -199,7 +199,7 @@ sqxctool  migrate:rollback --step=5
 
 ### 2.2 在运行时迁移
 
-当用户在运行时迁移时，数据库中的 'migrations.name' 列将为空字符串，因为 SqApp 默认不包含 SqMigration.name 字符串。  
+因为 SqApp 默认不包含 SqMigration.name 字符串，所以用户在运行时迁移时，数据库中的 'migrations.name' 列将为空字符串。  
 在 "migrations.h" 中启用 SQ_APP_HAS_MIGRATION_NAME 以更改默认设置。  
 
 #### 2.2.1 运行所有未完成的迁移

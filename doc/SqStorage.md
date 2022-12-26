@@ -174,9 +174,9 @@ The container type is specified as std::list<User>.
 	std::list<User> *list;
 	const char      *where = NULL;    // SQL WHERE Clause
 
-	list = storage->getAll<std::list<User>>();
+	list = storage->getAll< std::list<User> >();
 		// or
-//	list = storage->getAll<std::list<User>>("users", NULL, where);
+//	list = storage->getAll< std::list<User> >("users", NULL, where);
 ```
 
 ## getAll (Where conditions)
@@ -215,7 +215,7 @@ use C++ Standard Template Library (STL)
 ```c++
 	std::list<User> *list;
 
-	list = storage->getAll<std::list<User>>("WHERE id > 10 AND id < 99");
+	list = storage->getAll< std::list<User> >("WHERE id > 10 AND id < 99");
 ```
 
 ## getAll (with SqQuery)
@@ -335,9 +335,9 @@ use C functions
 	                                   NULL);
 ```
 
-Because C++ method updateAll() use parameter pack, the last argument can pass (or not) NULL.  
+use C++ methods  
   
-use C++ methods
+Because C++ method updateAll() use parameter pack, the last argument can pass (or not) NULL.  
 
 ```c++
 	User  user;
@@ -360,7 +360,7 @@ use C++ methods
 
 ## updateField (Where conditions)
 
-sq_storage_update_field() is similar to sq_storage_update_all(). User must append list of field_offset after parameter 'SQL statement' and the last argument must be -1.  
+sq_storage_update_field() is similar to sq_storage_update_all(). User must append list of field's offset after parameter 'SQL statement' and the last argument must be -1.  
   
 use C functions
 
@@ -377,9 +377,9 @@ use C functions
 	                                     -1);
 ```
 
-Because C++ method updateField() use parameter pack, the last argument can pass (or not) -1.  
+use C++ methods  
   
-use C++ methods
+Because C++ method updateField() use parameter pack, the last argument can pass (or not) -1.  
 
 ```c++
 	User  user;
@@ -539,7 +539,7 @@ use C++ method
 
 #### query with JOIN clause
 
-If user executes a query that joins multiple tables without specifying table type, program will use SqTypeJoint as table type by default. SqTypeJoint can create array of pointers for the results.  
+If user executes a query that joins multiple tables without specifying table type, program will use [SqTypeJoint](SqTypeJoint.md) as table type by default. [SqTypeJoint](SqTypeJoint.md) can create array of pointers for query result.  
   
 use C functions
 
@@ -576,7 +576,24 @@ use C++ methods
 
 use C++ STL  
   
-Sq::Joint just wraps array of pointers into struct. Using it in this example because C++ STL can't use array as element.
+User can specify pointer to pointer (double pointer) as element of STL container.
+
+```c++
+	std::vector<void**> *vector;
+
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
+
+	vector = storage->query< std::vector<void**> >(query);
+
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		void **element = = vector->at(index);
+		city = (City*)element[0];      // from("cities")
+		user = (User*)element[1];      // join("users")
+	}
+```
+
+If you don't want to use pointer as element of C++ STL container, you can use Sq::Joint to replace it.  
+Sq::Joint just wraps array of pointers into struct. User must use it with C++ STL because C++ STL can NOT directly use array as element of container.
 
 ```c++
 	std::vector< Sq::Joint<2> > *vector;

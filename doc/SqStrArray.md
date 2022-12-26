@@ -38,6 +38,6 @@ SqStrArray will copy source data when appending and inserting, which is differen
 
 	sq_str_array_append_n(&array, strs, n_strs);
 
-	// insert 'strs' to index 1 of 'array'
+	// insert 'strs' to index 1 of array
 	sq_str_array_insert_n(&array, 1, strs, n_strs);
 ```

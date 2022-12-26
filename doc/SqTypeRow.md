@@ -2,7 +2,7 @@
 
 # SqTypeRow
 
-SqTypeRow is derived from SqTypeJoint. It can create instance of [SqRow](SqRow.md) and parse unknown (or known) result, table, and column.  
+SqTypeRow is derived from [SqTypeJoint](SqTypeJoint.md). It can create instance of [SqRow](SqRow.md) and parse unknown (or known) result, table, and column.  
 SqTypeRow sample code is in [storage-row.cpp](examples/storage-row.cpp)  
 Note: SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
 
@@ -45,7 +45,7 @@ use C++ language
 	array = (Sq::PtrArray*) storage->query(query, SQ_TYPE_ROW, SQ_TYPE_PTR_ARRAY);
 ```
 
-## Create and setup SqTypeRow
+## Create and setup
 
 If you want get correct data type from [SqRow](SqRow.md), you must create dynamic SqTypeRow and setup it.
 Because the parser of SqTypeRow must know type of columns in table, user must add, remove, clear tables in SqTypeRow.  
@@ -115,28 +115,28 @@ You can use SqTypeRow to replace default joint type in [SqStorage](SqStorage.md)
 ```
 
 **If you don't want to change default joint type:**
-1. call sq_storage_setup_query() to setup 'query' and 'typeRow'.
-2. call sq_storage_query() with 'typeRow'.
+1. call sq_storage_setup_query() to setup SqQuery and SqTypeRow。.
+2. call sq_storage_query() with SqTypeRow.
 3. If you skip step 1, all data type in [SqRow](SqRow.md) is C string because SqTypeRow don't know type of column.
 
 function sq_storage_setup_query() declarations:
 
 ```c
 // C function
-SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint);
+SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *typeJoint);
 
 // C++ method
-Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod *jointType);
+Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod *typeJoint);
 ```
 
-It setup 'query' and 'type_joint' then return SqType for calling sq_storage_query().  
+It setup 'query' and 'typeJoint' then return SqType for calling sq_storage_query().  
 It will add "SELECT table.column AS 'table.column'" in 'query' if 'query' has joined multi-table.  
 
 | Return value  | Description                                                                |
 | ------------- | ---------------------------------------------------------------------------|
-| NULL          | if table not found and 'type_joint' can NOT parse unknown table type.     |
-| 'type_joint'  | if 'query' has joined multi-table. It will setup 'type_joint' and 'query'. |
-| type of table | if 'query' has only 1 table. It will setup 'type_joint' but keep 'query' no change. In this case, user can call sq_storage_query() with returned type or 'type_joint'. |
+| NULL          | if table not found and 'typeJoint' can NOT parse unknown table type.       |
+| 'typeJoint'   | if 'query' has joined multi-table. It will setup 'typeJoint' and 'query'.  |
+| type of table | if 'query' has only 1 table. It will setup 'typeJoint' but keep 'query' no change. In this case, user can call sq_storage_query() with returned type or 'typeJoint'. |
 
 use C functions
 

@@ -48,7 +48,7 @@ SqSchema 必须与 [SqTable](SqTable.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 1. [database-migrations.cn.md](database-migrations.cn.md)
 2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
   
-当你使用 gcc 编译时，你会从 C 和 C++ 源代码中得到不同的类型名称，因为 gcc 的 typeid(Type).name() 会返回奇怪的名称。  
+因为 gcc 的 typeid(Type).name() 会返回奇怪的名称，所以你使用 gcc 编译时，你会从 C 和 C++ 源代码中得到不同的类型名称。  
 **如果您的应用程序是用 C++ 语言编写的，请用 C++ 语言创建或定义 SqTable 的类型。**  
   
 如果 SqTable::type 是用 C 语言定义的，你不能使用下面的 C++ 模板函数来访问 SQL 表。
@@ -138,7 +138,7 @@ alter() 的用法与 create() 类似。
 
 ## 4 删除表
 
-sq_schema_drop() 必须指定要删除的表名。这不会在迁移之前删除该表，因为它只是向 'schema' 中添加了一条 "删除表" 的记录。
+sq_schema_drop() 必须指定要删除的表名。因为它只是向 'schema' 中添加了一条 "删除表" 的记录，所以不会在迁移之前删除该表。
 
 ```c++
 	// C 函数

@@ -175,7 +175,7 @@ C 函数 sq_row_alloc_column() 和 sq_row_alloc()，C++ 方法 allocColumn() 和
 
 ## 其他
 
-C 函数 sq_row_free_cols_name()、C++ 方法 freeColsName() 可以释放 SqRow 中的所有 SqRowColumn.name。这可以节省内存，因为当您从同一个表中获取多行时，所有 SqRow 都具有相同的列名。
+C 函数 sq_row_free_cols_name()、C++ 方法 freeColsName() 可以释放 SqRow 中的所有 SqRowColumn.name。因为当您从同一个表中获取多行时，所有 SqRow 都具有相同的列名，所以这可以节省内存。
 
 ```c++
 	// C 函数

@@ -174,9 +174,9 @@ SELECT * FROM users
 	std::list<User> *list;
 	const char      *where = NULL;    // SQL WHERE 子句
 
-	list = storage->getAll<std::list<User>>();
+	list = storage->getAll< std::list<User> >();
 		// 或
-//	list = storage->getAll<std::list<User>>("users", NULL, where);
+//	list = storage->getAll< std::list<User> >("users", NULL, where);
 ```
 
 ## getAll (Where 条件)
@@ -215,7 +215,7 @@ SELECT * FROM users WHERE id > 10 AND id < 99
 ```c++
 	std::list<User> *list;
 
-	list = storage->getAll<std::list<User>>("WHERE id > 10 AND id < 99");
+	list = storage->getAll< std::list<User> >("WHERE id > 10 AND id < 99");
 ```
 
 ## getAll (配合 SqQuery)
@@ -335,9 +335,9 @@ UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
 	                                   NULL);
 ```
 
-因为 C++ 方法 updateAll() 使用参数包，所以最后一个参数可以传递（或不传递）NULL。  
+使用 C++ 方法  
   
-使用 C++ 方法
+因为 C++ 方法 updateAll() 使用参数包，所以最后一个参数可以传递（或不传递）NULL。  
 
 ```c++
 	User  user;
@@ -360,7 +360,7 @@ UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
 
 ## updateField (Where 条件)
 
-sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参数 'SQL 语句' 之后附加 field_offset 列表，最后一个参数必须为 -1。  
+sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参数 'SQL 语句' 之后附加字段的偏移量列表，最后一个参数必须为 -1。  
   
 使用 C 函数
 
@@ -377,9 +377,9 @@ sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参
 	                                     -1);
 ```
 
-因为 C++ 方法 updateField() 使用参数包，所以最后一个参数可以传递（或不传递）-1。  
+使用 C++ 方法  
   
-使用 C++ 方法
+因为 C++ 方法 updateField() 使用参数包，所以最后一个参数可以传递（或不传递）-1。  
 
 ```c++
 	User  user;
@@ -539,7 +539,7 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查
 
 #### 使用 JOIN 子句的查询
 
-如果用户在没有指定表类型的情况下执行连接多个表的查询，程序将默认使用 SqTypeJoint 作为表类型。SqTypeJoint 可以为结果创建指针数组。  
+如果用户在没有指定表类型的情况下执行连接多个表的查询，程序将默认使用 [SqTypeJoint](SqTypeJoint.cn.md) 作为表类型。[SqTypeJoint](SqTypeJoint.cn.md) 可以为查询结果创建指针数组。  
   
 使用 C 函数
 
@@ -576,7 +576,24 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查
 
 使用 C++ STL  
   
-Sq::Joint 只是将指针数组包装到结构中。在这个例子中使用它是因为 C++ STL 不能使用数组作为元素。
+用户可以将指向指针的指针（double pointer）指定为 STL 容器的元素。
+
+```c++
+	std::vector<void**> *vector;
+
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
+
+	vector = storage->query< std::vector<void**> >(query);
+
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		void **element = = vector->at(index);
+		city = (City*)element[0];      // from("cities")
+		user = (User*)element[1];      // join("users")
+	}
+```
+
+如果你不想使用指针作为 C++ STL 容器的元素，你可以使用 Sq::Joint 来代替它。  
+Sq::Joint 只是将指针数组包装到结构中。因为 C++ STL 不能直接将数组用作容器的元素，所以用户必须将它与 C++ STL 一起使用。
 
 ```c++
 	std::vector< Sq::Joint<2> > *vector;

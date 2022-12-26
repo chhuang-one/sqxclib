@@ -38,6 +38,6 @@ SqStrArray 在追加和插入时会复制源数据，这一点与 [SqPtrArray](S
 
 	sq_str_array_append_n(&array, strs, n_strs);
 
-	// 將 'strs' 插入到 'array' 的索引 1
+	// 将 'strs' 插入数组的索引 1
 	sq_str_array_insert_n(&array, 1, strs, n_strs);
 ```

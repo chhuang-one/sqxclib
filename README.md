@@ -580,7 +580,7 @@ Below is currently provided convenient C++ class:
 
 ## JOIN support
 
-SqTypeJoint is the default type for handling query that join multi-table. It can create array of pointers for the results.  
+[SqTypeJoint](doc/SqTypeJoint.md) is the default type for handling query that join multi-table. It can create array of pointers for query result.  
   
 e.g. get result from query that join multi-table.  
   
@@ -619,7 +619,24 @@ use C++ methods
 
 use C++ STL  
   
-Sq::Joint just wraps array of pointers into struct. Using it in this example because C++ STL can't use array as element.
+User can specify pointer to pointer (double pointer) as element of STL container.
+
+```c++
+	std::vector<void**> *vector;
+
+	query->from("cities")->join("users", "cities.id", "=", "users.city_id");
+
+	vector = storage->query< std::vector<void**> >(query);
+
+	for (unsigned int index = 0;  index < vector->size();  index++) {
+		void **element = vector->at(index);
+		city = (City*)element[0];      // from("cities")
+		user = (User*)element[1];      // join("users")
+	}
+```
+
+If you don't want to use pointer as element of C++ STL container, you can use Sq::Joint to replace it.  
+Sq::Joint just wraps array of pointers into struct. User must use it with C++ STL because C++ STL can NOT directly use array as element of container.
 
 ```c++
 	std::vector< Sq::Joint<2> > *vector;
@@ -637,7 +654,7 @@ Sq::Joint just wraps array of pointers into struct. Using it in this example bec
 
 ## Parse unknown result
 
-[SqTypeRow](doc/SqTypeRow.md) is derived from SqTypeJoint. It create instance of [SqRow](doc/SqRow.md) and parse unknown (or known) result.  
+[SqTypeRow](doc/SqTypeRow.md) is derived from [SqTypeJoint](doc/SqTypeJoint.md). It create instance of [SqRow](doc/SqRow.md) and parse unknown (or known) result.  
 SQ_TYPE_ROW is a built-in static constant type of SqTypeRow. Both [SqTypeRow](doc/SqTypeRow.md) and SQ_TYPE_ROW are in sqxcsupport library (sqxcsupport.h).  
   
 use C functions
