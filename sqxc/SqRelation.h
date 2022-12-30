@@ -103,6 +103,9 @@ struct RelationNode;
 	It's derived struct/class must be C++11 standard-layout and has RelationMethod members.
  */
 struct RelationMethod {
+	void  init(SqRelationPool *pool, int capacity);
+	void  final();
+
 	void  add(const void *from_object, const void *to_object, int no_reverse = 0);
 	void  erase(const void *from_object, const void *to_object, int no_reverse = 0, SqDestroyFunc to_object_free_func = NULL);
 	void  remove(const void *from_object, const void *to_object, int no_reverse = 0, SqDestroyFunc to_object_free_func = NULL);
@@ -184,6 +187,12 @@ struct SqRelationNode
 namespace Sq {
 
 /* define RelationMethod functions. */
+inline void  RelationMethod::init(SqRelationPool *pool, int capacity) {
+	sq_relation_init((SqRelation*)this, pool, capacity);
+}
+inline void  RelationMethod::final() {
+	sq_relation_final((SqRelation*)this);
+}
 inline void  RelationMethod::add(const void *from_object, const void *to_object, int no_reverse) {
 	sq_relation_add((SqRelation*)this, from_object, to_object, no_reverse);
 }

@@ -15,27 +15,30 @@ SqAppTool is used by command-line program - **sqxctool** and **sqxcpptool**. It 
   
 Both **sqxctool** and **sqxcpptool** can generate migration and do migrate. They can help with the user's application that using SqApp library. The difference is that sqxctool generate C migration file and sqxcpptool generate C++ migration file.
 
-## 1 Configuration (SqApp-config.h)
+## 1 Create
 
-### 1.1 replace SqApp-config.h by other config file
-
-User can define macro SQ_APP_CONFIG_FILE to replace SqApp-config.h when compiling.  
+Each instance of SqApp must specify setting when creating. SqAppSetting contains all settings required by SqApp.  
+SQ_APP_DEFAULT is build-in default setting for SqAppSetting, user can change it by editing file (SqApp-config.h).  
   
-e.g. use workspace/myapp-config.h to replace default workspace/sqxcapp/SqApp-config.h  
-  
-If myapp-config.h place in C include directories...
+use C language
 
-```
-gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
-```
-
-OR use relative path of workspace/sqxcapp
-
-```
-gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
+```c
+	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
 ```
 
-### 1.2 choose SQL product
+use C++ language
+
+```c++
+	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+	Sq::App *sqapp = new Sq::App(SQ_APP_DEFAULT);
+```
+
+## 2 Default Configurations
+
+User can edit SqApp-config.h to change the default configuration used by SQ_APP_DEFAULT.
+
+### 2.1 choose SQL product
 
 User can use only one SQL products here (e.g. use MySQL)
 
@@ -47,7 +50,9 @@ User can use only one SQL products here (e.g. use MySQL)
 // #define DB_POSTGRE     1
 ```
 
-### 1.3 Database configuration values
+### 2.2 Database configuration values
+
+DB_DATABASE is the default name of the database that SqApp will open.
 
 ```c++
 // common configuration values
@@ -67,9 +72,73 @@ User can use only one SQL products here (e.g. use MySQL)
 
 * Please make sure that your app and it's sqxctool use the same database file if you enable SQLite.
 
-## 2 Migrations
+### 2.3 replace SqApp-config.h by other config file
 
-### 2.1 create migration files
+User can define macro SQ_APP_CONFIG_FILE to replace SqApp-config.h when compiling.  
+  
+e.g. use workspace/myapp-config.h to replace default workspace/sqxcapp/SqApp-config.h  
+  
+If myapp-config.h place in C include directories...
+
+```
+gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
+```
+
+OR use relative path of workspace/sqxcapp
+
+```
+gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
+```
+
+## 3 Open database
+
+C function sq_app_open_database(), C++ method openDatabase() can open database with specified name. If user does not specify name, it will open database with default name.  
+  
+use C language
+
+```c
+	// open database that defined in SqApp-config.h
+	if (sq_app_open_database(sqapp, NULL) != SQCODE_OK)
+		return EXIT_FAILURE;
+```
+
+use C++ language
+
+```c++
+	// open database that defined in SqApp-config.h
+	if (sqapp->openDatabase(NULL) != SQCODE_OK)
+		return EXIT_FAILURE;
+```
+
+## 4 Migrations
+
+C function sq_app_make_schema(), C++ method makeSchema() can produce schema by using migration files.  
+User can specify which version of the schema to generate. If version is 0, program will use version of schema in database.  
+Function return values:  
+SQCODE_DB_SCHEMA_VERSION_0 : if the version of schema in database is 0 (no migrations have been done).  
+SQCODE_DB_WRONG_MIGRATIONS : if these migrations are not for this database.  
+  
+use C language
+
+```c
+	int  version = 0;
+
+	// if the version of schema in database is 0 (no migrations have been done)
+	if (sq_app_make_schema(sqapp, version) == SQCODE_DB_SCHEMA_VERSION_0)
+		return EXIT_FAILURE;
+```
+
+use C++ language
+
+```c++
+	int  version = 0;
+
+	// if the version of schema in database is 0 (no migrations have been done)
+	if (sqapp->makeSchema(version) == SQCODE_DB_SCHEMA_VERSION_0)
+		return EXIT_FAILURE;
+```
+
+### 4.1 create migration files
 
 generate C migration file by command-line program
 
@@ -88,7 +157,7 @@ If you use C++ to do migration, you can replace sqxctool by sqxcpptool. The diff
   
 Finally, you must recompile migration code after defining table.
 
-#### 2.1.1 create table by sqxctool (C language)
+#### 4.1.1 create table by sqxctool (C language)
 
 e.g. generate C migration file to create "companies" table
 
@@ -132,7 +201,7 @@ const SqMigration create_companies_table_2021_12_12_180000 = {
 };
 ```
 
-#### 2.1.2 alter table by sqxcpptool (C++ language)
+#### 4.1.2 alter table by sqxcpptool (C++ language)
 
 e.g. generate C++ migration file to alter "companies" table
 
@@ -177,7 +246,7 @@ const SqMigration alter_companies_table_2021_12_26_191532 = {
 
 ```
 
-#### 2.1.3 migrate by sqxctool (or sqxcpptool)
+#### 4.1.3 migrate by sqxctool (or sqxcpptool)
 
 Run all of your outstanding migrations
 
@@ -197,59 +266,48 @@ You may roll back a limited number of migrations by providing the step option to
 sqxctool  migrate:rollback --step=5
 ```
 
-### 2.2 migrate at runtime
+### 4.2 migrate at runtime
 
 When user migrate at runtime, column 'migrations.name' in database will be empty string because SqApp does NOT contain SqMigration.name string by default.  
 Enable SQ_APP_HAS_MIGRATION_NAME in "migrations.h" to change default setting.  
 
-#### 2.2.1 Run all of your outstanding migrations
+#### 4.2.1 Run all of your outstanding migrations
 
 sq_app_migrate() will run all of your outstanding migrations if 'step' is 0.  
-sq_app_make_schema() make current schema by migrations. If 'migration_id' is 0, 'migration_id' will use version of schema in database.  
   
-use C functions
+use C language
 
 ```c
 	int  step = 0;
 	int  migration_id = 0;
 
-	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
-	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
-
-	// open database that defined in SqApp-config.h
-	if (sq_app_open_database(sqapp, NULL) != SQCODE_OK)
-		return EXIT_FAILURE;
-
 	// if the version of schema in database is 0 (no migrations have been done)
-	if (sq_app_make_schema(sqapp, 0) == SQCODE_DB_SCHEMA_VERSION_0) {
+	if (sq_app_make_schema(sqapp, migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
 		// run migrations that defined in ../database/migrations
 		if (sq_app_migrate(sqapp, step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
 
-use C++ methods
+use C++ language
 
 ```c++
-	Sq::App *sqapp = new Sq::App;
-
-	// open database that defined in SqApp-config.h
-	if (sqapp->openDatabase(NULL) != SQCODE_OK)
-		return EXIT_FAILURE;
+	int  step = 0;
+	int  migration_id = 0;
 
 	// if the version of schema in database is 0 (no migrations have been done)
-	if (sqapp->makeSchema() == SQCODE_DB_SCHEMA_VERSION_0) {
+	if (sqapp->makeSchema(migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
 		// run migrations that defined in ../database/migrations
-		if (sqapp->migrate() != SQCODE_OK)
+		if (sqapp->migrate(step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
 
-#### 2.2.2 Rollback the last database migration
+#### 4.2.2 Rollback the last database migration
 
 sq_app_rollback() will roll back the latest migration operation if 'step' is 0.  
   
-use C functions
+use C language
 
 ```c
 	int  step = 0;
@@ -257,10 +315,139 @@ use C functions
 	sq_app_rollback(app, step);
 ```
 
-use C++ methods
+use C++ language
 
 ```c++
 	int  step = 0;
 
 	sqapp->rollback(step);
+```
+
+#### 4.3 Delete migration
+
+1. delete migration file - workspace/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c
+2. remove relative path of migration file in workspace/sqxcapp/migrations-files.c
+3. remove declaration of migration in workspace/sqxcapp/migrations-declarations
+4. set element of migrations as NULL in workspace/sqxcapp/migrations-elements
+  
+Special note for point 2: C++ user must remove relative path of C++ migration file in workspace/sqxcapp/migrations-files.cpp  
+  
+Example for point 4: edit workspace/sqxcapp/migrations-elements to delete migration.
+
+```c
+// Before editing
+& CreateUsersTable_2021_10_12_000000,
+
+// After editing
+NULL,
+```
+
+## 5 Multiple SqApp instance
+
+For example, create two SqApps to synchronize the schema of SQLite and PostgreSQL.  
+  
+**Step 1:** Prepare two SqAppSetting for SQLite and PostgreSQL  
+  
+SQ_APP_DEFAULT_xxx series are default setting in 'SQ_APP_DEFAULT'.  
+  
+use C language
+
+```c
+SqdbConfigSqlite  configSQLite = {0};  // omitted
+
+SqAppSetting  forSQLite = {
+	SQDB_INFO_SQLITE,              // .db_info
+	(SqdbConfig*) &configSQLite,   // .db_config
+	SQ_APP_DEFAULT_DATABASE,       // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,     // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,   // .n_migrations
+};
+
+
+SqdbConfigPostgre configPostgreSQL = {0};  // omitted
+
+SqAppSetting  forPostgreSQL = {
+	SQDB_INFO_SQLITE,                  // .db_info
+	(SqdbConfig*) &configPostgreSQL,   // .db_config
+	SQ_APP_DEFAULT_DATABASE,           // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,       // .n_migrations
+};
+```
+
+use C++ language
+
+```c++
+Sq::DbConfigSqlite  configSQLite = {0};  // omitted
+
+Sq::AppSetting  forSQLite = {
+	SQDB_INFO_SQLITE,              // .db_info
+	(SqdbConfig*) &configSQLite,   // .db_config
+	SQ_APP_DEFAULT_DATABASE,       // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,     // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,   // .n_migrations
+};
+
+
+Sq::DbConfigPostgre configPostgreSQL = {0};  // omitted
+
+Sq::AppSetting  forPostgreSQL = {
+	SQDB_INFO_SQLITE,                  // .db_info
+	(SqdbConfig*) &configPostgreSQL,   // .db_config
+	SQ_APP_DEFAULT_DATABASE,           // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,       // .n_migrations
+};
+```
+
+**Step 2:** Create two SqApp with their settings  
+  
+use C language
+
+```c
+	SqApp *appSQLite = sq_app_new(&forSQLite);
+
+	SqApp *appPostgreSQL = sq_app_new(&forPostgreSQL);
+```
+
+use C++ language
+
+```c++
+	Sq::App *appSQLite = new Sq::App(&forSQLite);
+
+	Sq::App *appPostgreSQL = new Sq::App(&forPostgreSQL);
+```
+
+**Step 3:** run migrations  
+  
+use C language
+
+```c
+	if (sq_app_make_schema(appSQLite, 0) == SQCODE_DB_SCHEMA_VERSION_0) {
+		// run migrations that defined in ../database/migrations
+		if (sq_app_migrate(appSQLite, 0) != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
+
+	if (sq_app_make_schema(appPostgreSQL, 0) == SQCODE_DB_SCHEMA_VERSION_0) {
+		// run migrations that defined in ../database/migrations
+		if (sq_app_migrate(appPostgreSQL, 0) != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
+```
+
+use C++ language
+
+```c++
+	if (appSQLite->makeSchema(0) == SQCODE_DB_SCHEMA_VERSION_0) {
+		// run migrations that defined in ../database/migrations
+		if (appSQLite->migrate(0) != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
+
+	if (appPostgreSQL->makeSchema(0) == SQCODE_DB_SCHEMA_VERSION_0) {
+		// run migrations that defined in ../database/migrations
+		if (appPostgreSQL->migrate(0) != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
 ```

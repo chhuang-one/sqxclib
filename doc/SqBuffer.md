@@ -38,7 +38,9 @@ use C++ language
 
 ## Allocate
 
-C function sq_buffer_alloc(), C++ method alloc() can allocate memory from writed position in SqBuffer. SqBuffer will expand buffer if it does not have enough space.  
+C function sq_buffer_alloc(), C++ method alloc() can allocate memory from writed position in SqBuffer.  
+C function sq_buffer_alloc_at(), C++ overloaded method alloc() can allocate memory from specified position in SqBuffer.  
+SqBuffer will expand buffer if it does not have enough space.  
   
 use C language
 

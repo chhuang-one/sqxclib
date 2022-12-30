@@ -65,7 +65,7 @@ int  main(void)
 #endif
 
 	/*	If you use command-line program "sqxctool" to do migrate,
-		you can remove below sq_app_migrate() code.
+		you can remove below 'sq_app_migrate()' code.
 	 */
 	// if the version of schema in database is 0 (no migrations have been done)
 	if (sq_app_make_schema(&myapp->base, 0) == SQCODE_DB_SCHEMA_VERSION_0) {

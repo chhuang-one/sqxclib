@@ -50,6 +50,10 @@ struct SqAppSetting {
 extern const struct SqAppSetting   SqAppSetting_default_;
 #define SQ_APP_DEFAULT           (&SqAppSetting_default_)
 
+#define SQ_APP_DEFAULT_DATABASE        (SqAppSetting_default_.db_database)
+#define SQ_APP_DEFAULT_MIGRATIONS      (SqAppSetting_default_.migrations)
+#define SQ_APP_DEFAULT_N_MIGRATIONS    (SqAppSetting_default_.n_migrations)
+
 /* SqApp C functions */
 SqApp *sq_app_new(const struct SqAppSetting *setting);
 void   sq_app_free(SqApp *app);

@@ -180,8 +180,8 @@ struct SqEntry
 #endif  // __cplusplus
 };
 
-/*	SqReentry: reentry previously-defined entries.
-	           add old_name in SqEntry to record changes (rename or drop).
+/*	SqReentry is used to change previously-defined entries.
+	It derives from SqEntry and adds a field 'old_name' for recording name changes (rename or remove).
 
 	Because 'const' is used to define string 'char*' and type 'SqType*',
 	C++ user can initialize static structure easily.

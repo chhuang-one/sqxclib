@@ -38,7 +38,9 @@ SqBuffer 小而简单。可以直接放在栈内存中使用，将所有成员�
 
 ## 分配
 
-C 函数 sq_buffer_alloc()，C++ 方法 alloc() 可以从 SqBuffer 中写入的位置开始分配内存。如果没有足够的空间，SqBuffer 将扩展缓冲区。  
+C 函数 sq_buffer_alloc()，C++ 方法 alloc() 可以从 SqBuffer 中写入的位置开始分配内存。  
+C 函数 sq_buffer_alloc_at()，C++ 重载方法 alloc() 可以从 SqBuffer 中的指定位置分配内存。  
+如果没有足够的空间，SqBuffer 将扩展缓冲区。  
   
 使用 C 语言
 

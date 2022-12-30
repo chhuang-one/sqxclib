@@ -15,27 +15,30 @@ SqAppTool 由命令行程序使用 - **sqxctool** 和 **sqxcpptool**。它使用
   
 **sqxctool** 和 **sqxcpptool** 都可以生成迁移并执行迁移。他们可以帮助使用 SqApp 库的用户应用程序。区别在于 sqxctool 生成 C 迁移文件，而 sqxcpptool 生成 C++ 迁移文件。
 
-## 1 配置 (SqApp-config.h)
+## 1 创建
 
-### 1.1 用其他配置文件替换 SqApp-config.h
-
-用户可以在编译时定义宏 SQ_APP_CONFIG_FILE 来替换 SqApp-config.h。  
+SqApp 的每个实例都必须在创建时指定设置。SqAppSetting 包含 SqApp 所需的所有设置。  
+SQ_APP_DEFAULT 是 SqAppSetting 的内置默认设置。用户可以通过编辑文件 (SqApp-config.h) 来更改它。  
   
-例如: 使用 工作区目录/myapp-config.h 替换默认的 工作区目录/sqxcapp/SqApp-config.h  
-  
-如果 myapp-config.h 放在 C 包含目录中...
+使用 C 语言
 
-```
-gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
-```
-
-或使用工作空间/sqxcapp 的相对路径
-
-```
-gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
+```c
+	// 'SQ_APP_DEFAULT' 具有用户应用程序的数据库设置和迁移数据。
+	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
 ```
 
-### 1.2 选择 SQL 产品
+使用 C++ 语言
+
+```c++
+	// 'SQ_APP_DEFAULT' 具有用户应用程序的数据库设置和迁移数据。
+	Sq::App *sqapp = new Sq::App(SQ_APP_DEFAULT);
+```
+
+## 2 默认配置
+
+用户可以编辑 SqApp-config.h 来更改 SQ_APP_DEFAULT 使用的默认配置。
+
+### 2.1 选择 SQL 产品
 
 用户在这里只能使用一种 SQL 产品（例如使用 MySQL）
 
@@ -47,7 +50,9 @@ gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
 // #define DB_POSTGRE     1
 ```
 
-### 1.3 数据库配置值
+### 2.2 数据库配置值
+
+DB_DATABASE 是 SqApp 将打开的数据库的默认名称。
 
 ```c++
 // 通用配置值
@@ -67,9 +72,73 @@ gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
 
 * 如果您启用 SQLite，请确保您的应用程序和它的 sqxctool 使用相同的数据库文件。
 
-## 2 迁移
+### 2.3 用其他配置文件替换 SqApp-config.h
 
-### 2.1 创建迁移文件
+用户可以在编译时定义宏 SQ_APP_CONFIG_FILE 来替换 SqApp-config.h。  
+  
+例如: 使用 工作区目录/myapp-config.h 替换默认的 工作区目录/sqxcapp/SqApp-config.h  
+  
+如果 myapp-config.h 放在 C 包含目录中...
+
+```
+gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
+```
+
+或使用工作空间/sqxcapp 的相对路径
+
+```
+gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
+```
+
+## 3 打开数据库
+
+C 函数 sq_app_open_database()，C++ 方法 openDatabase() 可以打开指定名称的数据库。如果用户没有指定名称，它将使用默认名称打开数据库。  
+  
+使用 C 语言
+
+```c
+	// 打开在 SqApp-config.h 中定义的数据库
+	if (sq_app_open_database(sqapp, NULL) != SQCODE_OK)
+		return EXIT_FAILURE;
+```
+
+使用 C++ 语言
+
+```c++
+	// 打开在 SqApp-config.h 中定义的数据库
+	if (sqapp->openDatabase(NULL) != SQCODE_OK)
+		return EXIT_FAILURE;
+```
+
+## 4 迁移
+
+C 函数 sq_app_make_schema()，C++ 方法 makeSchema() 可以使用迁移文件生成架构。  
+用户可以指定要生成的架构版本。如果版本为 0，程序将使用数据库中架构的版本。  
+函数返回值：  
+SQCODE_DB_SCHEMA_VERSION_0 : 如果数据库中的架构版本为 0（未完成任何迁移）。  
+SQCODE_DB_WRONG_MIGRATIONS : 如果这些迁移不是此数据库的。  
+  
+使用 C 语言
+
+```c
+	int  version = 0;
+
+	// 如果数据库中的架构版本为 0 (未进行任何迁移)
+	if (sq_app_make_schema(sqapp, version) == SQCODE_DB_SCHEMA_VERSION_0)
+		return EXIT_FAILURE;
+```
+
+使用 C++ 语言
+
+```c++
+	int  version = 0;
+
+	// 如果数据库中的架构版本为 0 (未进行任何迁移)
+	if (sqapp->makeSchema(version) == SQCODE_DB_SCHEMA_VERSION_0)
+		return EXIT_FAILURE;
+```
+
+### 4.1 创建迁移文件
 
 通过命令行程序生成 C 迁移文件
 
@@ -88,7 +157,7 @@ sqxctool  make:migration  migration_name
   
 最后，您必须在定义表后重新编译迁移代码。
 
-#### 2.1.1 sqxctool 建表 (C 语言)
+#### 4.1.1 sqxctool 建表 (C 语言)
 
 例如: 生成 C 迁移文件以创建 "companies" 表
 
@@ -132,7 +201,7 @@ const SqMigration create_companies_table_2021_12_12_180000 = {
 };
 ```
 
-#### 2.1.2 通过 sqxcpptool 更改表（C++ 语言）
+#### 4.1.2 通过 sqxcpptool 更改表（C++ 语言）
 
 例如: 生成 C++ 迁移文件以更改 "companies" 表
 
@@ -177,7 +246,7 @@ const SqMigration alter_companies_table_2021_12_26_191532 = {
 
 ```
 
-#### 2.1.3 通过 sqxctool（或 sqxcpptool）迁移
+#### 4.1.3 通过 sqxctool（或 sqxcpptool）迁移
 
 运行所有未完成的迁移
 
@@ -197,58 +266,48 @@ sqxctool  migrate:rollback
 sqxctool  migrate:rollback --step=5
 ```
 
-### 2.2 在运行时迁移
+### 4.2 在运行时迁移
 
 因为 SqApp 默认不包含 SqMigration.name 字符串，所以用户在运行时迁移时，数据库中的 'migrations.name' 列将为空字符串。  
 在 "migrations.h" 中启用 SQ_APP_HAS_MIGRATION_NAME 以更改默认设置。  
 
-#### 2.2.1 运行所有未完成的迁移
+#### 4.2.1 运行所有未完成的迁移
 
 sq_app_migrate() 的 'step' 参数如果为 0，将运行所有未完成的迁移。  
-sq_app_make_schema() 通过迁移创建当前架构。如果 'migration_id' 为 0，'migration_id' 将使用数据库中的架构版本。  
   
-使用 C 函数
+使用 C 语言
 
 ```c
 	int  step = 0;
-
-	// 'SQ_APP_DEFAULT' 具有用户应用程序的数据库设置和迁移数据。
-	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
-
-	// 打开在 SqApp-config.h 中定义的数据库
-	if (sq_app_open_database(sqapp, NULL) != SQCODE_OK)
-		return EXIT_FAILURE;
+	int  migration_id = 0;
 
 	// 如果数据库中的架构版本为 0 (未进行任何迁移)
-	if (sq_app_make_schema(sqapp, 0) == SQCODE_DB_SCHEMA_VERSION_0) {
+	if (sq_app_make_schema(sqapp, migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
 		// 运行在 ../database/migrations 中定义的迁移
 		if (sq_app_migrate(sqapp, step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
 
-使用 C++ 方法
+使用 C++ 语言
 
 ```c++
-	Sq::App *sqapp = new Sq::App;
-
-	// 打开在 SqApp-config.h 中定义的数据库
-	if (sqapp->openDatabase(NULL) != SQCODE_OK)
-		return EXIT_FAILURE;
+	int  step = 0;
+	int  migration_id = 0;
 
 	// 如果数据库中的架构版本为 0 (未进行任何迁移)
-	if (sqapp->makeSchema() == SQCODE_DB_SCHEMA_VERSION_0) {
+	if (sqapp->makeSchema(migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
 		// 运行在 ../database/migrations 中定义的迁移
-		if (sqapp->migrate() != SQCODE_OK)
+		if (sqapp->migrate(step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
 
-#### 2.2.2 回滚上次数据库迁移
+#### 4.2.2 回滚上次数据库迁移
 
 如果 'step' 为 0，sq_app_rollback() 将回滚最新的迁移操作。  
   
-使用 C 函数
+使用 C 语言
 
 ```c
 	int  step = 0;
@@ -256,10 +315,139 @@ sq_app_make_schema() 通过迁移创建当前架构。如果 'migration_id' 为 
 	sq_app_rollback(app, step);
 ```
 
-使用 C++ 方法
+使用 C++ 语言
 
 ```c++
 	int  step = 0;
 
 	sqapp->rollback(step);
+```
+
+#### 4.3 删除迁移
+
+1. 删除迁移文件 - 工作区目录/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c
+2. 移除 工作区目录/sqxcapp/migrations-files.c 中迁移文件的相对路径
+3. 移除 工作区目录/sqxcapp/migrations-declarations 中的迁移声明
+4. 在 工作区目录/sqxcapp/migrations-elements 中将迁移元素设置为 NULL
+  
+第 2 点特别说明： C++ 用户必须删除 工作区目录/sqxcapp/migrations-files.cpp 中 C++ 迁移文件的相对路  
+  
+第 4 点的示例： 编辑 工作区目录/sqxcapp/migrations-elements 以删除迁移
+
+```c
+// 编辑前
+& CreateUsersTable_2021_10_12_000000,
+
+// 编辑后
+NULL,
+```
+
+## 5 多个 SqApp 实例
+
+例如，创建两个 SqApp 来同步 SQLite 和 PostgreSQL 的架构。  
+  
+**第一步：** 为 SQLite 和 PostgreSQL 准备两个 SqAppSetting  
+  
+SQ_APP_DEFAULT_xxx 系列是 'SQ_APP_DEFAULT' 中的默认设置。  
+  
+使用 C 语言
+
+```c
+SqdbConfigSqlite  configSQLite = {0};  // 省略内容
+
+SqAppSetting  forSQLite = {
+	SQDB_INFO_SQLITE,              // .db_info
+	(SqdbConfig*) &configSQLite,   // .db_config
+	SQ_APP_DEFAULT_DATABASE,       // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,     // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,   // .n_migrations
+};
+
+
+SqdbConfigPostgre configPostgreSQL = {0};  // 省略内容
+
+SqAppSetting  forPostgreSQL = {
+	SQDB_INFO_SQLITE,                  // .db_info
+	(SqdbConfig*) &configPostgreSQL,   // .db_config
+	SQ_APP_DEFAULT_DATABASE,           // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,       // .n_migrations
+};
+```
+
+使用 C++ 语言
+
+```c++
+Sq::DbConfigSqlite  configSQLite = {0};  // 省略内容
+
+Sq::AppSetting  forSQLite = {
+	SQDB_INFO_SQLITE,              // .db_info
+	(SqdbConfig*) &configSQLite,   // .db_config
+	SQ_APP_DEFAULT_DATABASE,       // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,     // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,   // .n_migrations
+};
+
+
+Sq::DbConfigPostgre configPostgreSQL = {0};  // 省略内容
+
+Sq::AppSetting  forPostgreSQL = {
+	SQDB_INFO_SQLITE,                  // .db_info
+	(SqdbConfig*) &configPostgreSQL,   // .db_config
+	SQ_APP_DEFAULT_DATABASE,           // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,       // .n_migrations
+};
+```
+
+**第 2 步：** 使用其设置创建两个 SqApp  
+  
+使用 C 语言
+
+```c
+	SqApp *appSQLite = sq_app_new(&forSQLite);
+
+	SqApp *appPostgreSQL = sq_app_new(&forPostgreSQL);
+```
+
+使用 C++ 语言
+
+```c++
+	Sq::App *appSQLite = new Sq::App(&forSQLite);
+
+	Sq::App *appPostgreSQL = new Sq::App(&forPostgreSQL);
+```
+
+**Step 3:** 运行迁移  
+  
+使用 C 语言
+
+```c
+	if (sq_app_make_schema(appSQLite, 0) == SQCODE_DB_SCHEMA_VERSION_0) {
+		// 运行在 ../database/migrations 中定义的迁移
+		if (sq_app_migrate(appSQLite, 0) != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
+
+	if (sq_app_make_schema(appPostgreSQL, 0) == SQCODE_DB_SCHEMA_VERSION_0) {
+		// 运行在 ../database/migrations 中定义的迁移
+		if (sq_app_migrate(appPostgreSQL, 0) != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
+```
+
+使用 C++ 语言
+
+```c++
+	if (appSQLite->makeSchema(0) == SQCODE_DB_SCHEMA_VERSION_0) {
+		// 运行在 ../database/migrations 中定义的迁移
+		if (appSQLite->migrate(0) != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
+
+	if (appPostgreSQL->makeSchema(0) == SQCODE_DB_SCHEMA_VERSION_0) {
+		// 运行在 ../database/migrations 中定义的迁移
+		if (appPostgreSQL->migrate(0) != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
 ```

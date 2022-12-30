@@ -105,7 +105,9 @@ sq_ptr_array_init_full() can specify number of elements in front of array. If yo
 
 ## Allocate
 
-C function sq_ptr_array_alloc(), C++ method alloc() can allocate elements from rear of array. SqPtrArray will expand array if it does not have enough space.  
+C function sq_ptr_array_alloc(), C++ method alloc() can allocate elements from rear of array.  
+C function sq_ptr_array_alloc_at() and C++ overloaded method alloc() can allocate elements from the specified index of the array.  
+SqPtrArray will expand array if it does not have enough space.  
   
 use C language
 
@@ -127,10 +129,10 @@ use C++ language
 	int   length = 16;
 	int   index  = 8;
 
-	elements = sq_ptr_array_alloc(array, length);
+	elements = array->alloc(length);
 
 	// allocate elements from specified index
-	elements = sq_ptr_array_alloc_at(array, index, length);
+	elements = array->alloc(index, length);
 ```
 
 ## Append

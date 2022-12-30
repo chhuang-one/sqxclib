@@ -105,7 +105,9 @@ sq_ptr_array_init_full() 可以指定数组前面的元素个数。如果你定�
 
 ## 分配 Allocate
 
-C 函数 sq_ptr_array_alloc()，C++ 方法 alloc() 可以从数组尾部开始分配元素。 如果没有足够的空间，SqPtrArray 将扩展数组。  
+C 函数 sq_ptr_array_alloc()，C++ 方法 alloc() 可以从数组尾部开始分配元素。  
+C 函数 sq_ptr_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定索引开始分配元素。  
+如果没有足够的空间，SqPtrArray 将扩展数组。  
   
 使用 C 语言
 
@@ -127,10 +129,10 @@ C 函数 sq_ptr_array_alloc()，C++ 方法 alloc() 可以从数组尾部开始�
 	int   length = 16;
 	int   index  = 8;
 
-	elements = sq_ptr_array_alloc(array, length);
+	elements = array->alloc(length);
 
 	// 从指定索引分配元素
-	elements = sq_ptr_array_alloc_at(array, index, length);
+	elements = array->alloc(index, length);
 ```
 
 ## 添加 Append
