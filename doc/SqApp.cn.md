@@ -70,7 +70,7 @@ DB_DATABASE 是 SqApp 将打开的数据库的默认名称。
 #define DB_EXTENSION   NULL
 ```
 
-* 如果您启用 SQLite，请确保您的应用程序和它的 sqxctool 使用相同的数据库文件。
+* 如果您启用 SQLite，请确保您的应用程序及其 sqxctool 使用相同的数据库文件路径。
 
 ### 2.3 用其他配置文件替换 SqApp-config.h
 
@@ -113,8 +113,9 @@ C 函数 sq_app_open_database()，C++ 方法 openDatabase() 可以打开指定�
 ## 4 迁移
 
 C 函数 sq_app_make_schema()，C++ 方法 makeSchema() 可以使用迁移文件生成架构。  
-用户可以指定要生成的架构版本。如果版本为 0，程序将使用数据库中架构的版本。  
-函数返回值：  
+用户可以指定要生成的架构版本。如果用户将版本指定为 0，程序将使用默认版本（数据库中架构的版本）。  
+  
+函数 sq_app_make_schema() 的返回值：  
 SQCODE_DB_SCHEMA_VERSION_0 : 如果数据库中的架构版本为 0（未完成任何迁移）。  
 SQCODE_DB_WRONG_MIGRATIONS : 如果这些迁移不是此数据库的。  
   
@@ -349,6 +350,12 @@ NULL,
 **第一步：** 为 SQLite 和 PostgreSQL 准备两个 SqAppSetting  
   
 SQ_APP_DEFAULT_xxx 系列是 'SQ_APP_DEFAULT' 中的默认设置。  
+
+| 名称                        | 描述            |
+| ----------------------------| --------------- |
+| SQ_APP_DEFAULT_DATABASE     | 默认数据库名称  |
+| SQ_APP_DEFAULT_MIGRATIONS   | 默认迁移数组    |
+| SQ_APP_DEFAULT_N_MIGRATIONS | 默认迁移总数    |
   
 使用 C 语言
 
@@ -367,7 +374,7 @@ SqAppSetting  forSQLite = {
 SqdbConfigPostgre configPostgreSQL = {0};  // 省略内容
 
 SqAppSetting  forPostgreSQL = {
-	SQDB_INFO_SQLITE,                  // .db_info
+	SQDB_INFO_POSTGRE,                 // .db_info
 	(SqdbConfig*) &configPostgreSQL,   // .db_config
 	SQ_APP_DEFAULT_DATABASE,           // .db_database
 	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
@@ -392,7 +399,7 @@ Sq::AppSetting  forSQLite = {
 Sq::DbConfigPostgre configPostgreSQL = {0};  // 省略内容
 
 Sq::AppSetting  forPostgreSQL = {
-	SQDB_INFO_SQLITE,                  // .db_info
+	SQDB_INFO_POSTGRE,                 // .db_info
 	(SqdbConfig*) &configPostgreSQL,   // .db_config
 	SQ_APP_DEFAULT_DATABASE,           // .db_database
 	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations

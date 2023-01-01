@@ -690,6 +690,7 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 使用 C++ STL
 
 ```c++
+	Sq::Row               *row;
 	std::vector<Sq::Row*> *rowVector;
 
 	// 指定表类型为 SQ_TYPE_ROW
@@ -697,6 +698,19 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
 
 	rowVector = storage->getAll< std::vector<Sq::Row*> >("users", SQ_TYPE_ROW, NULL);
+
+	// 获取第一行
+	row = rowVector->at(0);
+```
+
+[SqRow](doc/SqRow.cn.md) 包含 2 个数组。一个是列数组，另一个是数据数组。
+
+```c
+	// 第一列的名称
+	row->cols[0].name;
+
+	// 第一列值 (如果 row->cols[0].type 等于 SQ_TYPE_STR)
+	row->data[0].string;
 ```
 
 ## 交易 Transaction

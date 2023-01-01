@@ -70,7 +70,7 @@ DB_DATABASE is the default name of the database that SqApp will open.
 #define DB_EXTENSION   NULL
 ```
 
-* Please make sure that your app and it's sqxctool use the same database file if you enable SQLite.
+* Please make sure that your app and it's sqxctool use the same path of database file if you enable SQLite.
 
 ### 2.3 replace SqApp-config.h by other config file
 
@@ -113,8 +113,9 @@ use C++ language
 ## 4 Migrations
 
 C function sq_app_make_schema(), C++ method makeSchema() can produce schema by using migration files.  
-User can specify which version of the schema to generate. If version is 0, program will use version of schema in database.  
-Function return values:  
+User can specify which version of the schema to generate. If user specify version as 0, program will use default version (version of schema in database).  
+  
+Return values of function sq_app_make_schema():  
 SQCODE_DB_SCHEMA_VERSION_0 : if the version of schema in database is 0 (no migrations have been done).  
 SQCODE_DB_WRONG_MIGRATIONS : if these migrations are not for this database.  
   
@@ -349,6 +350,12 @@ For example, create two SqApps to synchronize the schema of SQLite and PostgreSQ
 **Step 1:** Prepare two SqAppSetting for SQLite and PostgreSQL  
   
 SQ_APP_DEFAULT_xxx series are default setting in 'SQ_APP_DEFAULT'.  
+
+| name                        | description          |
+| ----------------------------| ---------------------|
+| SQ_APP_DEFAULT_DATABASE     | default database name        |
+| SQ_APP_DEFAULT_MIGRATIONS   | default migration array      |
+| SQ_APP_DEFAULT_N_MIGRATIONS | total of default migrations  |
   
 use C language
 
@@ -367,7 +374,7 @@ SqAppSetting  forSQLite = {
 SqdbConfigPostgre configPostgreSQL = {0};  // omitted
 
 SqAppSetting  forPostgreSQL = {
-	SQDB_INFO_SQLITE,                  // .db_info
+	SQDB_INFO_POSTGRE,                 // .db_info
 	(SqdbConfig*) &configPostgreSQL,   // .db_config
 	SQ_APP_DEFAULT_DATABASE,           // .db_database
 	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
@@ -392,7 +399,7 @@ Sq::AppSetting  forSQLite = {
 Sq::DbConfigPostgre configPostgreSQL = {0};  // omitted
 
 Sq::AppSetting  forPostgreSQL = {
-	SQDB_INFO_SQLITE,                  // .db_info
+	SQDB_INFO_POSTGRE,                 // .db_info
 	(SqdbConfig*) &configPostgreSQL,   // .db_config
 	SQ_APP_DEFAULT_DATABASE,           // .db_database
 	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations

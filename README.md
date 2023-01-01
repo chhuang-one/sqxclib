@@ -4,8 +4,7 @@
 
 # sqxclib
 
-sqxclib is a library to convert data between C language and SQL (or JSON...etc).
-It provides ORM features and C++ wrapper.  
+sqxclib is a library to convert data between C language and SQL (or JSON...etc). It provides ORM features and C++ wrapper.  
 Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## Current features:
@@ -13,8 +12,7 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
    this can reduce running time when making schema, see doc/[schema-builder-static.md](doc/schema-builder-static.md).
    You can also use C functions or C++ methods to do these dynamically.
 
-2. All defined table and column can use to parse JSON object and field.
-   Program can also parse JSON object and array from SQL column.
+2. All defined table and column can use to parse JSON object and field. Program can also parse JSON object and array from SQL column.
 
 3. It can work in low-end hardware.
 
@@ -692,6 +690,7 @@ use C++ methods
 use C++ STL
 
 ```c++
+	Sq::Row               *row;
 	std::vector<Sq::Row*> *rowVector;
 
 	// specify the table type as SQ_TYPE_ROW
@@ -699,6 +698,19 @@ use C++ STL
 	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
 
 	rowVector = storage->getAll< std::vector<Sq::Row*> >("users", SQ_TYPE_ROW, NULL);
+
+	// get first row
+	row = rowVector->at(0);
+```
+
+[SqRow](doc/SqRow.md) contain 2 arrays. One is column array, another is data array.
+
+```c
+	// first column name
+	row->cols[0].name;
+
+	// first column value (if row->cols[0].type equal SQ_TYPE_STR)
+	row->data[0].string;
 ```
 
 ## Transaction
