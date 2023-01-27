@@ -77,6 +77,14 @@ void  sq_relation_add(SqRelation *relation, const void *from_object, const void 
 void  sq_relation_remove(SqRelation *relation, const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func);
 ```
 
+## 删除空关系
+
+删除不引用任何对象的对象。
+
+```c
+void  sq_relation_remove_empty(SqRelation *relation);
+```
+
 ## 替换关系
 
 ```c
@@ -87,6 +95,8 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 ```
 
 ## 查找关系
+
+sq_relation_find() 可以得到對象的相關列表。返回類型 SqRelationNode 是單向鍊錶。
 
 ```c
 // 如果没有找到关系则返回 NULL。 用户不能释放返回值。

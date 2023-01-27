@@ -706,11 +706,14 @@ use C++ STL
 [SqRow](doc/SqRow.md) contain 2 arrays. One is column array, another is data array.
 
 ```c
-	// first column name
-	row->cols[0].name;
+	// name of first column
+	char   *columnName = row->cols[0].name;
 
-	// first column value (if row->cols[0].type equal SQ_TYPE_STR)
-	row->data[0].string;
+	// data type of first column (columnType equal SQ_TYPE_STR in this example)
+	SqType *columnType = row->cols[0].type;
+
+	// value of first column (if columnType equal SQ_TYPE_STR)
+	char   *columnValue = row->data[0].str;
 ```
 
 ## Transaction

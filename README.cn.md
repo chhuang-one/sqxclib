@@ -707,10 +707,13 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 
 ```c
 	// 第一列的名称
-	row->cols[0].name;
+	char   *columnName = row->cols[0].name;
 
-	// 第一列值 (如果 row->cols[0].type 等于 SQ_TYPE_STR)
-	row->data[0].string;
+	// 第一列的数据类型 (在此示例中，columnType 等于 SQ_TYPE_STR)
+	SqType *columnType = row->cols[0].type;
+
+	// 第一列的值 (如果 columnType 等于 SQ_TYPE_STR)
+	char   *columnValue = row->data[0].str;
 ```
 
 ## 交易 Transaction

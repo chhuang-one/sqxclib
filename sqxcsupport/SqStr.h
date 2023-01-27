@@ -84,11 +84,11 @@ namespace Sq {
 namespace Str {
 
 	// naming convention
-	char* camel(const char *snake_name, bool upper_camel_case = true) {
-		return sq_str_camel(snake_name, upper_camel_case);
+	char* camel(const char *snakeName, bool upperCamelCase = true) {
+		return sq_str_camel(snakeName, upperCamelCase);
 	}
-	char* snake(const char *camel_name) {
-		return sq_str_snake(camel_name);
+	char* snake(const char *camelName) {
+		return sq_str_snake(camelName);
 	}
 	char* singular(const char *plural) {
 		return sq_str_singular(plural);
@@ -96,11 +96,12 @@ namespace Str {
 	char* plural(const char *singular) {
 		return sq_str_plural(singular);
 	}
-	char *tableName(const char *type_name) {
-		return sq_str_table_name(type_name);
+
+	char *tableName(const char *typeName) {
+		return sq_str_table_name(typeName);
 	}
-	char *typeName(const char *table_name) {
-		return sq_str_type_name(table_name);
+	char *typeName(const char *tableName) {
+		return sq_str_type_name(tableName);
 	}
 
 };  // namespace Str

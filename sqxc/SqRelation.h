@@ -155,7 +155,7 @@ struct SqRelation
  */
 };
 
-/*	SqRelationNode is the element type in SqRelation.pool (chunk) and SqRelation.data (array).
+/*	SqRelationNode is singly linked list. They store in SqRelation.pool (chunk) and SqRelation.data (array).
 	               size of this structure == size of 2 pointers because SqRelationNode has 2 pointers
  */
 #ifdef __cplusplus

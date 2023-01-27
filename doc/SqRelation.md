@@ -77,6 +77,14 @@ void  sq_relation_add(SqRelation *relation, const void *from_object, const void 
 void  sq_relation_remove(SqRelation *relation, const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func);
 ```
 
+## Remove empty relation
+
+remove object that doesn't reference to any object.
+
+```c
+void  sq_relation_remove_empty(SqRelation *relation);
+```
+
 ## Replace relation
 
 ```c
@@ -87,6 +95,8 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 ```
 
 ## Find relation
+
+sq_relation_find() can get related list of object. Return type SqRelationNode is singly linked list.
 
 ```c
 // return NULL if relation not found. User can NOT free returned value.

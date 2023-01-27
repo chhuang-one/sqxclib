@@ -360,18 +360,18 @@ SQ_APP_DEFAULT_xxx 系列是 'SQ_APP_DEFAULT' 中的默认设置。
 使用 C 语言
 
 ```c
-SqdbConfigSqlite  configSQLite = {0};  // 省略内容
+SqdbConfigSqlite  configSQLite = {0};        // 省略内容
 
 SqAppSetting  forSQLite = {
-	SQDB_INFO_SQLITE,              // .db_info
-	(SqdbConfig*) &configSQLite,   // .db_config
-	SQ_APP_DEFAULT_DATABASE,       // .db_database
-	SQ_APP_DEFAULT_MIGRATIONS,     // .migrations
-	SQ_APP_DEFAULT_N_MIGRATIONS,   // .n_migrations
+	SQDB_INFO_SQLITE,                  // .db_info
+	(SqdbConfig*) &configSQLite,       // .db_config
+	SQ_APP_DEFAULT_DATABASE,           // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,       // .n_migrations
 };
 
 
-SqdbConfigPostgre configPostgreSQL = {0};  // 省略内容
+SqdbConfigPostgre configPostgreSQL = {0};    // 省略内容
 
 SqAppSetting  forPostgreSQL = {
 	SQDB_INFO_POSTGRE,                 // .db_info
@@ -385,14 +385,14 @@ SqAppSetting  forPostgreSQL = {
 使用 C++ 语言
 
 ```c++
-Sq::DbConfigSqlite  configSQLite = {0};  // 省略内容
+Sq::DbConfigSqlite  configSQLite = {0};      // 省略内容
 
 Sq::AppSetting  forSQLite = {
-	SQDB_INFO_SQLITE,              // .db_info
-	(SqdbConfig*) &configSQLite,   // .db_config
-	SQ_APP_DEFAULT_DATABASE,       // .db_database
-	SQ_APP_DEFAULT_MIGRATIONS,     // .migrations
-	SQ_APP_DEFAULT_N_MIGRATIONS,   // .n_migrations
+	SQDB_INFO_SQLITE,                  // .db_info
+	(SqdbConfig*) &configSQLite,       // .db_config
+	SQ_APP_DEFAULT_DATABASE,           // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,       // .n_migrations
 };
 
 

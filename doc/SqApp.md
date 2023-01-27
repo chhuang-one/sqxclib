@@ -351,8 +351,8 @@ For example, create two SqApps to synchronize the schema of SQLite and PostgreSQ
   
 SQ_APP_DEFAULT_xxx series are default setting in 'SQ_APP_DEFAULT'.  
 
-| name                        | description          |
-| ----------------------------| ---------------------|
+| name                        | description                  |
+| ----------------------------| ---------------------------- |
 | SQ_APP_DEFAULT_DATABASE     | default database name        |
 | SQ_APP_DEFAULT_MIGRATIONS   | default migration array      |
 | SQ_APP_DEFAULT_N_MIGRATIONS | total of default migrations  |
@@ -360,18 +360,18 @@ SQ_APP_DEFAULT_xxx series are default setting in 'SQ_APP_DEFAULT'.
 use C language
 
 ```c
-SqdbConfigSqlite  configSQLite = {0};  // omitted
+SqdbConfigSqlite  configSQLite = {0};        // omitted
 
 SqAppSetting  forSQLite = {
-	SQDB_INFO_SQLITE,              // .db_info
-	(SqdbConfig*) &configSQLite,   // .db_config
-	SQ_APP_DEFAULT_DATABASE,       // .db_database
-	SQ_APP_DEFAULT_MIGRATIONS,     // .migrations
-	SQ_APP_DEFAULT_N_MIGRATIONS,   // .n_migrations
+	SQDB_INFO_SQLITE,                  // .db_info
+	(SqdbConfig*) &configSQLite,       // .db_config
+	SQ_APP_DEFAULT_DATABASE,           // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,       // .n_migrations
 };
 
 
-SqdbConfigPostgre configPostgreSQL = {0};  // omitted
+SqdbConfigPostgre configPostgreSQL = {0};    // omitted
 
 SqAppSetting  forPostgreSQL = {
 	SQDB_INFO_POSTGRE,                 // .db_info
@@ -385,14 +385,14 @@ SqAppSetting  forPostgreSQL = {
 use C++ language
 
 ```c++
-Sq::DbConfigSqlite  configSQLite = {0};  // omitted
+Sq::DbConfigSqlite  configSQLite = {0};      // omitted
 
 Sq::AppSetting  forSQLite = {
-	SQDB_INFO_SQLITE,              // .db_info
-	(SqdbConfig*) &configSQLite,   // .db_config
-	SQ_APP_DEFAULT_DATABASE,       // .db_database
-	SQ_APP_DEFAULT_MIGRATIONS,     // .migrations
-	SQ_APP_DEFAULT_N_MIGRATIONS,   // .n_migrations
+	SQDB_INFO_SQLITE,                  // .db_info
+	(SqdbConfig*) &configSQLite,       // .db_config
+	SQ_APP_DEFAULT_DATABASE,           // .db_database
+	SQ_APP_DEFAULT_MIGRATIONS,         // .migrations
+	SQ_APP_DEFAULT_N_MIGRATIONS,       // .n_migrations
 };
 
 
