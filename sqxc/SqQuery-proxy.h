@@ -499,6 +499,9 @@ public:
 
 	// return generated SQL statement
 	const char *last();
+
+	// return data pointer
+	SqQuery    *query();
 };
 
 };  // namespace Sq
@@ -2186,6 +2189,10 @@ inline const char *SQPT_NAME::c() {
 
 inline const char *SQPT_NAME::last() {
 	return sq_query_last((SqQuery*)SQPT_DATAPTR);
+}
+
+inline SqQuery  *SQPT_NAME::query() {
+	return (SqQuery*)SQPT_DATAPTR;
 }
 
 };  // namespace Sq

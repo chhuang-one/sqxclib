@@ -159,6 +159,14 @@ use C++ language
 	query->distinct();
 ```
 
+**convenient C++ class 'select'**  
+  
+use C++ Sq::Select (or lower case Sq::select) to generate SQL statement.
+
+```c++
+	char *sql = Sq::select("id", "name").from("users").where("id", "<", 10).toSql();
+```
+
 #### where / whereNot / orWhere / orWhereNot
 
 These functions/methods are used to filter the results and apply conditions.

@@ -159,6 +159,14 @@ sq_query_select() 可以在参数中指定多个列。
 	query->distinct();
 ```
 
+**方便的 C++ 類 'select'**  
+  
+使用 C++ Sq::Select（或小寫 Sq::select）生成 SQL 語句。
+
+```c++
+	char *sql = Sq::select("id", "name").from("users").where("id", "<", 10).toSql();
+```
+
 #### where / whereNot / orWhere / orWhereNot
 
 这些函数/方法用于过滤结果和应用条件。

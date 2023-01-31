@@ -183,6 +183,10 @@ void test_query_cpp_convenient_class()
 	std::string sql;
 	Sq::Where where;
 
+	sql = Sq::select("id", "name").from("users").where("id", "<", 10).c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "SELECT id, name FROM users WHERE id < 10") == 0);
+
 	sql = where("id", 3).orWhereRaw("city_id < %d", 20).c();
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "WHERE id = 3 OR city_id < 20") == 0);
