@@ -161,10 +161,13 @@ sq_query_select() 可以在参数中指定多个列。
 
 **方便的 C++ 類 'select'**  
   
-使用 C++ Sq::Select（或小寫 Sq::select）生成 SQL 語句。
+使用 C++ Sq::Select（或小寫 Sq::select）生成 SQL 語句。它可以與 [SqStorage](SqStorage.cn.md) 的 query 方法一起使用。
 
 ```c++
 	char *sql = Sq::select("id", "name").from("users").where("id", "<", 10).toSql();
+
+	// 與 SqStorage 的 query 方法一起使用
+	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
 ```
 
 #### where / whereNot / orWhere / orWhereNot

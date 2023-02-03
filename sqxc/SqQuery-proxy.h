@@ -47,6 +47,8 @@ protected:
 	Sq::Query *SQPT_DATAPTR;
 
 public:
+	// return data pointer of QueryProxy
+	Sq::Query    *query();
 #endif  // SQPT_USE_STRUCT
 
 // struct QueryMethod SQPT_RETURN is 'Query'
@@ -499,9 +501,6 @@ public:
 
 	// return generated SQL statement
 	const char *last();
-
-	// return data pointer
-	SqQuery    *query();
 };
 
 };  // namespace Sq
@@ -517,10 +516,17 @@ namespace Sq {
 
 /*
 	define functions.
-	
+
 	struct QueryMethod SQPT_DATAPTR is 'this'
-	class  QueryProxy  SQPT_DATAPTR is 'query'
+	class  QueryProxy  SQPT_DATAPTR is 'data'
  */
+
+#ifndef SQPT_USE_STRUCT
+// return data pointer of QueryProxy
+inline Sq::Query  *SQPT_NAME::query() {
+	return (Sq::Query*)SQPT_DATAPTR;
+}
+#endif  // SQPT_USE_STRUCT
 
 inline SQPT_RETURN  *SQPT_NAME::operator->() {
 	return (SQPT_RETURN*)this;
@@ -2189,10 +2195,6 @@ inline const char *SQPT_NAME::c() {
 
 inline const char *SQPT_NAME::last() {
 	return sq_query_last((SqQuery*)SQPT_DATAPTR);
-}
-
-inline SqQuery  *SQPT_NAME::query() {
-	return (SqQuery*)SQPT_DATAPTR;
 }
 
 };  // namespace Sq

@@ -236,19 +236,25 @@ struct StorageMethod
 	// query(struct_reference)
 	template <class StlContainer>
 	StlContainer *query(Sq::QueryMethod &query);
+	template <class StlContainer>
+	StlContainer *query(Sq::QueryProxy &qproxy);
 	// query(struct_pointer)
 	template <class StlContainer>
 	StlContainer *query(Sq::QueryMethod *query);
 	// query(struct_reference) + tableType
 	template <class StlContainer>
 	StlContainer *query(Sq::QueryMethod &query, const SqType *tableType);
+	template <class StlContainer>
+	StlContainer *query(Sq::QueryProxy &qproxy, const SqType *tableType);
 	// query(struct_pointer)   + tableType
 	template <class StlContainer>
 	StlContainer *query(Sq::QueryMethod *query, const SqType *tableType);
 	// query() without template
 	void *query(Sq::QueryMethod &query, const SqType *containerType = NULL);
+	void *query(Sq::QueryProxy &qproxy, const SqType *containerType = NULL);
 	void *query(Sq::QueryMethod *query, const SqType *containerType = NULL);
 	void *query(Sq::QueryMethod &query, const SqType *tableType, const SqType *containerType);
+	void *query(Sq::QueryProxy &qproxy, const SqType *tableType, const SqType *containerType);
 	void *query(Sq::QueryMethod *query, const SqType *tableType, const SqType *containerType);
 
 	// insert(struct_reference);
@@ -573,6 +579,10 @@ inline StlContainer *StorageMethod::query(Sq::QueryMethod &query) {
 	return (StlContainer*)instance;
 }
 template <class StlContainer>
+inline StlContainer *StorageMethod::query(Sq::QueryProxy &qproxy) {
+	return query<StlContainer>(qproxy.query());
+}
+template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryMethod *query) {
 	void    *instance  = NULL;
 	SqType  *tableType = sq_storage_setup_query((SqStorage*)this, (SqQuery*)query, ((SqStorage*)this)->joint_default);
@@ -592,6 +602,10 @@ inline StlContainer *StorageMethod::query(Sq::QueryMethod &query, const SqType *
 	return (StlContainer*)instance;
 }
 template <class StlContainer>
+inline StlContainer *StorageMethod::query(Sq::QueryProxy &qproxy, const SqType *tableType) {
+	return query<StlContainer>(qproxy.query(), tableType);
+}
+template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryMethod *query, const SqType *tableType) {
 	void    *instance  = NULL;
 	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
@@ -602,11 +616,17 @@ inline StlContainer *StorageMethod::query(Sq::QueryMethod *query, const SqType *
 inline void *StorageMethod::query(Sq::QueryMethod &query, const SqType *containerType) {
 	return sq_storage_query((SqStorage*)this, (SqQuery*)&query, NULL, containerType);
 }
+inline void *StorageMethod::query(Sq::QueryProxy &qproxy, const SqType *containerType) {
+	return sq_storage_query((SqStorage*)this, qproxy.query(), NULL, containerType);
+}
 inline void *StorageMethod::query(Sq::QueryMethod *query, const SqType *containerType) {
 	return sq_storage_query((SqStorage*)this, (SqQuery*)query, NULL, containerType);
 }
 inline void *StorageMethod::query(Sq::QueryMethod &query, const SqType *tableType, const SqType *containerType) {
 	return sq_storage_query((SqStorage*)this, (SqQuery*)&query, tableType, containerType);
+}
+inline void *StorageMethod::query(Sq::QueryProxy &qproxy, const SqType *tableType, const SqType *containerType) {
+	return sq_storage_query((SqStorage*)this, qproxy.query(), tableType, containerType);
 }
 inline void *StorageMethod::query(Sq::QueryMethod *query, const SqType *tableType, const SqType *containerType) {
 	return sq_storage_query((SqStorage*)this, (SqQuery*)query, tableType, containerType);

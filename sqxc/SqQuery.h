@@ -915,7 +915,7 @@ struct Query : SqQuery {
 
 namespace Sq {
 
-// define this for QueryProxy
+// define this for QueryProxy and it's derived class
 #define SQPT_DATAPTR    data
 
 /*	convenient C++ class for Sq::Storage
@@ -1831,7 +1831,7 @@ typedef WhereNotIn         whereNotIn;
 typedef WhereNull          whereNull;
 typedef WhereNotNull       whereNotNull;
 
-// undefine this for QueryProxy
+// undefine this for QueryProxy and it's derived class
 #undef  SQPT_DATAPTR
 
 };  // namespace Sq

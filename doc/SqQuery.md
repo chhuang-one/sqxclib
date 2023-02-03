@@ -161,10 +161,13 @@ use C++ language
 
 **convenient C++ class 'select'**  
   
-use C++ Sq::Select (or lower case Sq::select) to generate SQL statement.
+use C++ Sq::Select (or lower case Sq::select) to generate SQL statement. It can use with query method of [SqStorage](SqStorage.md).
 
 ```c++
 	char *sql = Sq::select("id", "name").from("users").where("id", "<", 10).toSql();
+
+	// use with query method of SqStorage
+	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
 ```
 
 #### where / whereNot / orWhere / orWhereNot

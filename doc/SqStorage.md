@@ -508,7 +508,7 @@ use C++ methods
 
 ## Custom query (with SqQuery)
 
-SqStorage provides sq_storage_query() and C++ method query() to running database queries. Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](SqPtrArray.md).  
+SqStorage provides sq_storage_query() and C++ method query() to run database queries. Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](SqPtrArray.md).  
 
 #### query without JOIN clause
 
@@ -607,6 +607,14 @@ Sq::Joint just wraps array of pointers into struct. User must use it with C++ ST
 		city = (City*)joint[0];      // from("cities")
 		user = (User*)joint[1];      // join("users")
 	}
+```
+
+#### convenient C++ class 'select'
+
+use C++ Sq::select to run database queries.
+
+```c++
+	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
 ```
 
 ## use custom data type
