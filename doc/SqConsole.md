@@ -115,6 +115,7 @@ static const SqCommand mycommand = {
 	.entry   = (SqEntry**) mycommand_options,
 	.n_entry = sizeof(mycommand_options) / sizeof(SqOption*),
 	.bit_field = 0,
+	.on_destroy = NULL,
 
 	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) mycommand_handle,

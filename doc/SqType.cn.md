@@ -5,6 +5,41 @@
 它定义了如何初始化、终结和转换 C 数据类型。
 SqEntry 使用它来定义数据类型。Sqxc 用它来转换数据。
   
+结构定义：
+
+```c
+struct SqType
+{
+	unsigned int   size;           // 实例大小
+
+	SqTypeFunc     init;           // 初始化实例
+	SqTypeFunc     final;          // 终结实例
+
+	SqTypeParseFunc   parse;       // 将 Sqxc(SQL/JSON) 数据解析为实例
+	SqTypeWriteFunc   write;       // 将实例数据写入 Sqxc(SQL/JSON)
+
+	// 在 C++ 中，必须使用 typeid(TypeName).name() 来分配 "名称"
+	// 或者使用宏 SQ_GET_TYPE_NAME()
+	char          *name;
+
+	// 如果当前 SqType 用于 C 结构类型，则 SqType.entry 是 SqEntry 指针数组。
+	// 如果 SqType.n_entry == -1，则 SqType.entry 不会被释放
+	SqEntry      **entry;          // SqPtrArray.data
+	int            n_entry;        // SqPtrArray.length
+	// *** 关于以上 2 个字段：
+	// 1. 它们由宏 SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) 展开
+	// 2. 他们不能更改数据类型和顺序。
+
+	// 如果 SqType 是动态且可释放的，则 SqType.bit_field 具有 SQB_TYPE_DYNAMIC。
+	// 如果 SqType.entry 已排序，   则 SqType.bit_field 具有 SQB_TYPE_SORTED。
+	unsigned int   bit_field;
+
+	// 这用于派生或自定义 SqType。
+	// SqType 的实例将传递给 SqType.on_destroy
+	SqDestroyFunc  on_destroy;     // 销毁 SqType 的通知程序。它可以是 NULL。
+};
+```
+
 内置 SqType 及其 C 数据类型
 
 | SqType          | C 数据类型   |
@@ -352,7 +387,7 @@ extern const SqType                 SqType_MyList_
 #endif
 ```
 
-#### 3.2 实现容器的SqType接口
+#### 3.2 实现容器的 SqType 接口
 
 sqxc_push_nested() 用于将当前 SqType 及其实例推送到堆栈。  
 sqxc_pop_nested()  用于从堆栈中恢复上个 SqType 及其实例。  
@@ -449,12 +484,72 @@ const SqType SqType_MyList_ =
 	NULL,                          // name
 	(SqEntry**) SQ_TYPE__yours_,   // entry   : 您可以在 SqType.entry 中指定元素类型
 	-1,                            // n_entry : 如果 SqType.n_entry == -1，则不会释放 SqType.entry
+	0,                             // bit_field
+	NULL,                          // on_destroy
 };
 ```
 
-## 4 释放动态 SqType
+#### 4 派生 SqType (动态)
 
-sq_type_free() 可以释放动态 SqType（SqType.bit_field 有 SQB_TYPE_DYNAMIC）。
+这定义从 SqType 派生的新结构。  
+如果要在派生的 SqType 中添加成员，你可以使用 SqType.on_destroy 回调函数释放它们。
+
+```c++
+// 源自 SqType 的结构
+#ifdef __cplusplus
+struct MyType : Sq::TypeMethod        // <-- 1. 继承 C++ 成员函数（方法）
+#else
+struct MyType
+#endif
+{
+	SQ_TYPE_MEMBERS;                  // <-- 2. 继承成员变量
+
+	int   mydata;                     // <-- 3. 在派生结构中添加变量和非虚函数。
+	void *mypointer;
+
+#ifdef __cplusplus
+	// 如果您使用 C++ 语言，请在此处定义 C++ 构造函数和析构函数。
+	~MyType() {
+		sq_type_final_self((SqType*)this);
+	}
+#endif
+};
+
+// 这是销毁通知器的回调函数。
+void    my_type_on_destroy(MyType *mytype) {
+	// 释放派生结构的变量
+	free(mytype->mypointer);
+}
+
+SqType *my_type_new()
+{
+	MyType *mytype = malloc(sizeof(MyType));
+
+	sq_type_init_self((SqType*)mytype, 0, NULL);
+	// 在这里初始化 SqType 的成员。
+	// ...
+
+	// 设置销毁通知程序。sq_type_final_self() 将发出它。
+	mytype->on_destroy = my_type_on_destroy;
+
+	// 初始化派生结构的变量
+	mytype->mydata = 10;
+	mytype->mypointer = malloc(512);
+
+	// 返回类型是 SqType
+	return (SqType*)mytype;
+}
+
+void    my_type_free(MyType *type)
+{
+	// sq_type_final_self() 将发出销毁通知
+	sq_type_final_self((SqType*)type);
+}
+```
+
+## 5 释放动态 SqType
+
+sq_type_free() 可以释放动态 SqType（SqType.bit_field 有 SQB_TYPE_DYNAMIC）。它可以發出銷毀通知程序。
 
 ```c++
 	/* C 函数 */

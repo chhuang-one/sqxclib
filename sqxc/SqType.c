@@ -39,6 +39,8 @@ SqType *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
 void  sq_type_free(SqType *type)
 {
 	if (type->bit_field & SQB_TYPE_DYNAMIC) {
+		if (type->on_destroy)
+			type->on_destroy(type);
 		sq_type_final_self(type);
 		free(type);
 	}
@@ -71,7 +73,8 @@ void  sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_des
 	type->parse = sq_type_object_parse;
 	type->write = sq_type_object_write;
 	type->name  = NULL;
-	type->bit_field = SQB_TYPE_DYNAMIC;
+	type->bit_field  = SQB_TYPE_DYNAMIC;
+	type->on_destroy = NULL;
 
 	if (prealloc_size == -1) {
 		// SqType.entry isn't freed if SqType.n_entry == -1

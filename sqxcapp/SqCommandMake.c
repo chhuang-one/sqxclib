@@ -85,6 +85,7 @@ static const SqCommand make_migration_command = {
 	.entry   = (SqEntry**) make_migration_options,
 	.n_entry = sizeof(make_migration_options) / sizeof(SqOption*),
 	.bit_field = 0,
+	.on_destroy = NULL,
 	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) make_migration,
 	.parameter   = "<name>",

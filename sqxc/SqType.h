@@ -176,9 +176,9 @@ Sqxc *sq_type_time_write(void *instance, const SqType *type, Sqxc *xc_dest);
 int   sq_type_double_parse(void *instance, const SqType *type, Sqxc *xc_src);
 Sqxc *sq_type_double_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
-void  sq_type_string_final(void *instance, const SqType *type);
-int   sq_type_string_parse(void *instance, const SqType *type, Sqxc *xc_src);
-Sqxc *sq_type_string_write(void *instance, const SqType *type, Sqxc *xc_dest);
+void  sq_type_str_final(void *instance, const SqType *type);
+int   sq_type_str_parse(void *instance, const SqType *type, Sqxc *xc_src);
+Sqxc *sq_type_str_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
 int   sq_type_object_parse(void *instance, const SqType *type, Sqxc *xc_src);
 Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *xc_dest);
@@ -219,7 +219,7 @@ struct Type;
 	SqEntry         **entry;      \
 	int               n_entry;    \
 	unsigned int      bit_field;  \
-	void             *reserve
+	SqDestroyFunc     on_destroy
 
 struct SqType
 {
@@ -245,11 +245,13 @@ struct SqType
 	// 1. They are expanded by macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
 	// 2. They can NOT change data type and order.
 
-	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
-	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
+	// SqType.bit_field has SQB_TYPE_DYNAMIC if SqType is dynamic and freeable.
+	// SqType.bit_field has SQB_TYPE_SORTED  if SqType.entry is sorted.
 	unsigned int   bit_field;
 
-	void          *reserve;        // reserve, set it to NULL.
+	// This for derived or custom SqType.
+	// Instance of SqType will be passed to SqType.on_destroy
+	SqDestroyFunc  on_destroy;     // destroy notifier for SqType. It can be NULL.
  */
 
 #ifdef __cplusplus

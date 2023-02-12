@@ -191,11 +191,13 @@ struct SqCommand
 	int            n_entry;        // SqPtrArray.length
 	// macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) expands to above 2 fields.
 
-	// SqType::bit_field has SQB_TYPE_DYNAMIC if this is dynamic SqType and freeable.
-	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
+	// SqType.bit_field has SQB_TYPE_DYNAMIC if SqType is dynamic and freeable.
+	// SqType.bit_field has SQB_TYPE_SORTED  if SqType.entry is sorted.
 	unsigned int   bit_field;
 
-	void          *reserve;
+	// This for derived or custom SqType.
+	// Instance of SqType will be passed to SqType.on_destroy
+	SqDestroyFunc  on_destroy;     // destroy notifier for SqType. It can be NULL.
 
 	// ------ SqCommand members ------
 	SqCommandFunc  handle;

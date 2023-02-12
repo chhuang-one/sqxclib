@@ -5,6 +5,41 @@
 It define how to initialize, finalize, and convert C data type.
 SqEntry use it to define data type. Sqxc use it to convert data.
   
+Structure Definition:
+
+```c
+struct SqType
+{
+	unsigned int   size;           // instance size
+
+	SqTypeFunc     init;           // initialize instance
+	SqTypeFunc     final;          // finalize instance
+
+	SqTypeParseFunc   parse;       // parse Sqxc(SQL/JSON) data to instance
+	SqTypeWriteFunc   write;       // write instance data to Sqxc(SQL/JSON)
+
+	// In C++, you must use typeid(TypeName).name() to assign "name"
+	// or use macro SQ_GET_TYPE_NAME()
+	char          *name;
+
+	// SqType.entry is array of SqEntry pointer if current SqType is for C struct type.
+	// SqType.entry isn't freed if SqType.n_entry == -1
+	SqEntry      **entry;          // SqPtrArray.data
+	int            n_entry;        // SqPtrArray.length
+	// *** About above 2 fields:
+	// 1. They are expanded by macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
+	// 2. They can NOT change data type and order.
+
+	// SqType.bit_field has SQB_TYPE_DYNAMIC if SqType is dynamic and freeable.
+	// SqType.bit_field has SQB_TYPE_SORTED  if SqType.entry is sorted.
+	unsigned int   bit_field;
+
+	// This for derived or custom SqType.
+	// Instance of SqType will be passed to SqType.on_destroy
+	SqDestroyFunc  on_destroy;     // destroy notifier for SqType. It can be NULL.
+};
+```
+
 Built-in SqType with it's C data type
 
 | SqType          | C data type  |
@@ -449,12 +484,72 @@ const SqType SqType_MyList_ =
 	NULL,                          // name
 	(SqEntry**) SQ_TYPE__yours_,   // entry   : You can assign element type in SqType.entry
 	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
+	0,                             // bit_field
+	NULL,                          // on_destroy
 };
 ```
 
-## 4 free dynamic SqType
+## 4 derived SqType (dynamic)
 
-sq_type_free() can destroy dynamic SqType (SqType.bit_field has SQB_TYPE_DYNAMIC).
+This defines new structure that derived from SqType.  
+If you want add members in derived SqType, you can use SqType.on_destroy callback function to release them.
+
+```c++
+// structure that derived from SqType
+#ifdef __cplusplus
+struct MyType : Sq::TypeMethod        // <-- 1. inherit C++ member function(method)
+#else
+struct MyType
+#endif
+{
+	SQ_TYPE_MEMBERS;                  // <-- 2. inherit member variable
+
+	int   mydata;                     // <-- 3. Add variable and non-virtual function in derived struct.
+	void *mypointer;
+
+#ifdef __cplusplus
+	// define C++ constructor and destructor here if you use C++ language.
+	~MyType() {
+		sq_type_final_self((SqType*)this);
+	}
+#endif
+};
+
+// This is callback function of destroy notifier.
+void    my_type_on_destroy(MyType *mytype) {
+	// release variable of derived struct
+	free(mytype->mypointer);
+}
+
+SqType *my_type_new()
+{
+	MyType *mytype = malloc(sizeof(MyType));
+
+	sq_type_init_self((SqType*)mytype, 0, NULL);
+	// initialize members of SqType here.
+	// ...
+
+	// set destroy notifier. sq_type_final_self() will emit it.
+	mytype->on_destroy = my_type_on_destroy;
+
+	// initialize variable of derived struct
+	mytype->mydata = 10;
+	mytype->mypointer = malloc(512);
+
+	// return type is SqType
+	return (SqType*)mytype;
+}
+
+void    my_type_free(MyType *type)
+{
+	// sq_type_final_self() will emit destroy notifier
+	sq_type_final_self((SqType*)type);
+}
+```
+
+## 5 free dynamic SqType
+
+sq_type_free() can destroy dynamic SqType (SqType.bit_field has SQB_TYPE_DYNAMIC). It can emit destroy notifier.
 
 ```c++
 	/* C function */

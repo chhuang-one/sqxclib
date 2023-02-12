@@ -110,6 +110,7 @@ static const SqCommand list_command = {
 	.entry   = (SqEntry**) list_options,
 	.n_entry = sizeof(list_options) / sizeof(SqOption*),
 	.bit_field = 0,
+	.on_destroy = NULL,
 	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) list,
 	.parameter   = NULL,

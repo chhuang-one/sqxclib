@@ -94,6 +94,7 @@ static const SqCommand migrate_command = {
 	.entry   = (SqEntry**) migrate_options,
 	.n_entry = sizeof(migrate_options) / sizeof(SqOption*),
 	.bit_field = 0,
+	.on_destroy = NULL,
 	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) migrate,
 	.parameter   = NULL,
@@ -157,6 +158,7 @@ static const SqCommand migrate_install_command = {
 	.entry   = (SqEntry**)migrate_install_options,
 	.n_entry = sizeof(migrate_install_options) / sizeof(SqOption*),
 	.bit_field = 0,
+	.on_destroy = NULL,
 	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) migrate_install,
 	.parameter   = NULL,
@@ -227,6 +229,7 @@ static const SqCommand migrate_rollback_command = {
 	.entry   = (SqEntry**)migrate_rollback_options,
 	.n_entry = sizeof(migrate_rollback_options) / sizeof(SqOption*),
 	.bit_field = 0,
+	.on_destroy = NULL,
 	// --- SqCommand members ---
 	.handle      = (SqCommandFunc) migrate_rollback,
 	.parameter   = NULL,
