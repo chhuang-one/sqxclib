@@ -495,6 +495,9 @@ This defines new structure that derived from SqType.
 If you want add members in derived SqType, you can use SqType.on_destroy callback function to release them.
 
 ```c++
+// If you use C language, please use 'typedef' to give a struct type a new name.
+typedef struct MyType   MyType;
+
 // structure that derived from SqType
 #ifdef __cplusplus
 struct MyType : Sq::TypeMethod        // <-- 1. inherit C++ member function(method)
@@ -509,41 +512,49 @@ struct MyType
 
 #ifdef __cplusplus
 	// define C++ constructor and destructor here if you use C++ language.
+	MyType() {
+		my_type_init(this);
+	}
 	~MyType() {
-		sq_type_final_self((SqType*)this);
+		my_type_final(this);
 	}
 #endif
 };
 
 // This is callback function of destroy notifier.
 void    my_type_on_destroy(MyType *mytype) {
-	// release variable of derived struct
+	// release resource of derived struct
 	free(mytype->mypointer);
+}
+
+void    my_type_init(MyType *type)
+{
+	sq_type_init_self((SqType*)mytype, 0, NULL);
+	// initialize members of SqType here.
+	// ...
+
+	// set callback function of destroy notifier.
+	// This notification will be emitted when sq_type_final_self() is called.
+	mytype->on_destroy = my_type_on_destroy;
+
+	// initialize variable of derived struct
+	mytype->mydata = 10;
+	mytype->mypointer = malloc(512);
+}
+
+void    my_type_final(MyType *type)
+{
+	// sq_type_final_self() will emit destroy notifier
+	sq_type_final_self((SqType*)type);
 }
 
 SqType *my_type_new()
 {
 	MyType *mytype = malloc(sizeof(MyType));
 
-	sq_type_init_self((SqType*)mytype, 0, NULL);
-	// initialize members of SqType here.
-	// ...
-
-	// set destroy notifier. sq_type_final_self() will emit it.
-	mytype->on_destroy = my_type_on_destroy;
-
-	// initialize variable of derived struct
-	mytype->mydata = 10;
-	mytype->mypointer = malloc(512);
-
-	// return type is SqType
+	my_type_init(mytype);
+	// return type is SqType, because MyType can be free by sq_type_free().
 	return (SqType*)mytype;
-}
-
-void    my_type_free(MyType *type)
-{
-	// sq_type_final_self() will emit destroy notifier
-	sq_type_final_self((SqType*)type);
 }
 ```
 

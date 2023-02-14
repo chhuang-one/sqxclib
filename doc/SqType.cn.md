@@ -495,6 +495,9 @@ const SqType SqType_MyList_ =
 如果要在派生的 SqType 中添加成员，你可以使用 SqType.on_destroy 回调函数释放它们。
 
 ```c++
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
+typedef struct MyType   MyType;
+
 // 源自 SqType 的结构
 #ifdef __cplusplus
 struct MyType : Sq::TypeMethod        // <-- 1. 继承 C++ 成员函数（方法）
@@ -509,41 +512,49 @@ struct MyType
 
 #ifdef __cplusplus
 	// 如果您使用 C++ 语言，请在此处定义 C++ 构造函数和析构函数。
+	MyType() {
+		my_type_init(this);
+	}
 	~MyType() {
-		sq_type_final_self((SqType*)this);
+		my_type_final(this);
 	}
 #endif
 };
 
 // 这是销毁通知器的回调函数。
 void    my_type_on_destroy(MyType *mytype) {
-	// 释放派生结构的变量
+	// 释放派生结构的资源
 	free(mytype->mypointer);
+}
+
+void    my_type_init(MyType *type)
+{
+	sq_type_init_self((SqType*)mytype, 0, NULL);
+	// 在这里初始化 SqType 的成员。
+	// ...
+
+	// 设置销毁通知器的回调函数。
+	// 調用 sq_type_final_self() 時將發出此通知。
+	mytype->on_destroy = my_type_on_destroy;
+
+	// 初始化派生结构的变量
+	mytype->mydata = 10;
+	mytype->mypointer = malloc(512);
+}
+
+void    my_type_final(MyType *type)
+{
+	// sq_type_final_self() 将发出销毁通知
+	sq_type_final_self((SqType*)type);
 }
 
 SqType *my_type_new()
 {
 	MyType *mytype = malloc(sizeof(MyType));
 
-	sq_type_init_self((SqType*)mytype, 0, NULL);
-	// 在这里初始化 SqType 的成员。
-	// ...
-
-	// 设置销毁通知程序。sq_type_final_self() 将发出它。
-	mytype->on_destroy = my_type_on_destroy;
-
-	// 初始化派生结构的变量
-	mytype->mydata = 10;
-	mytype->mypointer = malloc(512);
-
-	// 返回类型是 SqType
+	my_type_init(mytype);
+	// 返回类型是 SqType，因为 MyType 可以通过 sq_type_free() 释放。
 	return (SqType*)mytype;
-}
-
-void    my_type_free(MyType *type)
-{
-	// sq_type_final_self() 将发出销毁通知
-	sq_type_final_self((SqType*)type);
 }
 ```
 
