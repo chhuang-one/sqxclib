@@ -74,6 +74,12 @@ typedef struct SqReentry        SqReentry;
 extern "C" {
 #endif
 
+/* --- macro functions --- for maintaining C/C++ inline functions easily */
+#define SQ_ENTRY_SET_NAME(entry, name_str)    \
+		sq_entry_set_str_addr((SqEntry*)entry, (char**) &((SqEntry*)entry)->name, name_str)
+
+/* SqEntry C functions */
+
 // create/destroy entry for JSON or XML
 SqEntry *sq_entry_new(const SqType *type_info);
 void     sq_entry_free(SqEntry *entry);
@@ -177,6 +183,10 @@ struct SqEntry
 	Sq::Entry *find(const void *key, SqCompareFunc cmp_func = NULL) {
 		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, cmp_func);
 	}
+
+	void  setName(const char *name) {
+		SQ_ENTRY_SET_NAME(this, name);
+	}
 #endif  // __cplusplus
 };
 
@@ -209,6 +219,28 @@ struct SqReentry
 };
 
 // ----------------------------------------------------------------------------
+// C/C++ common definitions: define global inline function
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// define inline functions here if compiler supports inline function.
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_entry_set_name(SqEntry *entry, const char *name) {
+	SQ_ENTRY_SET_NAME(entry, name);
+}
+
+#else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
+
+void  sq_entry_set_name(SqEntry *entry, const char *name);
+
+#endif  // __STDC_VERSION__ || __cplusplus
+
+// ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
@@ -235,6 +267,10 @@ struct EntryMethod
 
 	Sq::Entry *find(const void *key, SqCompareFunc cmp_func = NULL) {
 		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, cmp_func);
+	}
+
+	void  setName(const char *name) {
+		SQ_ENTRY_SET_NAME((SqEntry*)this, name);
 	}
 };
 

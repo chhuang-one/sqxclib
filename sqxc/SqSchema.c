@@ -165,7 +165,7 @@ void sq_schema_rename(SqSchema *schema, const char *from, const char *to)
 // If C compiler doesn't support C99 inline functions
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-// C99 or C++ inline functions has defined in SqStorage.h
+// C99 or C++ inline functions has defined in SqSchema.h
 
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.

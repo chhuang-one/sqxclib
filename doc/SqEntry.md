@@ -99,7 +99,7 @@ use C language
 ```c
 	SqEntry *entry = sq_entry_new(SQ_TYPE_STR);
 
-	entry->name = strdup("name");
+	sq_entry_set_name(entry, "name");
 	entry->offset = offsetof(YourStruct, name);
 	entry->bit_field |= SQB_HIDDEN_NULL;    // set bit in SqEntry.bit_field
 //	entry->bit_field &= ~SQB_HIDDEN_NULL;   // clear bit in SqEntry.bit_field
@@ -112,7 +112,7 @@ use C++ language
 ```c++
 	Sq::Entry *entry = new Sq::Entry(SQ_TYPE_STR);
 
-	entry->name = strdup("name");
+	entry->setName("name");
 	entry->offset = offsetof(YourStruct, name);
 	entry->bit_field |= SQB_HIDDEN_NULL;    // set bit in SqEntry.bit_field
 //	entry->bit_field &= ~SQB_HIDDEN_NULL;   // clear bit in SqEntry.bit_field

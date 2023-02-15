@@ -99,7 +99,7 @@ e.g. 创建使用常量 SqEntry 的动态 SqType
 ```c
 	SqEntry *entry = sq_entry_new(SQ_TYPE_STR);
 
-	entry->name = strdup("name");
+	sq_entry_set_name(entry, "name");
 	entry->offset = offsetof(YourStruct, name);
 	entry->bit_field |= SQB_HIDDEN_NULL;    // 设置 SqEntry.bit_field
 //	entry->bit_field &= ~SQB_HIDDEN_NULL;   // 清除 SqEntry.bit_field
@@ -112,7 +112,7 @@ e.g. 创建使用常量 SqEntry 的动态 SqType
 ```c++
 	Sq::Entry *entry = new Sq::Entry(SQ_TYPE_STR);
 
-	entry->name = strdup("name");
+	entry->setName("name");
 	entry->offset = offsetof(YourStruct, name);
 	entry->bit_field |= SQB_HIDDEN_NULL;    // 设置 SqEntry.bit_field
 //	entry->bit_field &= ~SQB_HIDDEN_NULL;   // 清除 SqEntry.bit_field

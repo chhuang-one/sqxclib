@@ -234,7 +234,7 @@ static SqForeign *sq_foreign_copy(SqForeign *src)
 // If C compiler doesn't support C99 inline function.
 
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-// C99 or C++ inline functions has defined in SqBuffer.h
+// C99 or C++ inline functions has defined in SqColumn.h
 
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.

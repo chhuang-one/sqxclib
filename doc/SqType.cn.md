@@ -255,18 +255,18 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 	type = sq_type_new(8, (SqDestroyFunc)sq_entry_free);
 
 	entry = sq_entry_new(SQ_TYPE_INT);
-	entry->name = strdup("id");
+	sq_entry_set_name(entry, "id");
 	entry->offset = offsetof(User, id);
 	entry->bit_field |= SQB_HIDDEN;        // 设置 SqEntry.bit_field
 	sq_type_add_entry(type, entry, 1, 0);
 
 	entry = sq_entry_new(SQ_TYPE_STR);
-	entry->name = strdup("name");
+	sq_entry_set_name(entry, "name");
 	entry->offset = offsetof(User, name);
 	sq_type_add_entry(type, entry, 1, 0);
 
 	entry = sq_entry_new(SQ_TYPE_STR);
-	entry->name = strdup("email");
+	sq_entry_set_name(entry, "email");
 	entry->offset = offsetof(User, email);
 	sq_type_add_entry(type, entry, 1, 0);
 ```
@@ -280,18 +280,18 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 	type = new Sq::Type(8, sq_entry_free);
 
 	entry = new Sq::Entry(SQ_TYPE_INT);
-	entry->name = strdup("id");
+	entry->setName("id");
 	entry->offset = offsetof(User, id);
 	entry->bit_field |= SQB_HIDDEN;    // 设置 SqEntry.bit_field
 	type->addEntry(entry);
 
 	entry = new Sq::Entry(SQ_TYPE_STR);
-	entry->name = strdup("name");
+	entry->setName("name");
 	entry->offset = offsetof(User, name);
 	type->addEntry(entry);
 
 	entry = new Sq::Entry(SQ_TYPE_STR);
-	entry->name = strdup("email");
+	entry->setName("email");
 	entry->offset = offsetof(User, email);
 	type->addEntry(entry);
 ```

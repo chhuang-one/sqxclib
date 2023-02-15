@@ -158,3 +158,17 @@ int  sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements)
 	return n_old_elements +1;
 }
 
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline function.
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqEntry.h
+
+#else   // __STDC_VERSION__
+// define functions here if compiler does NOT support inline function.
+
+void  sq_entry_set_name(SqEntry *entry, const char *name) {
+	SQ_ENTRY_SET_NAME(entry, name);
+}
+
+#endif  // __STDC_VERSION__
