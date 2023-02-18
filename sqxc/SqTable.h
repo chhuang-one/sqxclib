@@ -114,6 +114,9 @@ SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
                               size_t offset, const SqType *sqtype,
                               int  length);
 
+// alias name for sq_table_add_string()
+#define   sq_table_add_str    sq_table_add_string
+
 #define sq_table_add_bool_as(table, Structure, Member)    \
 		sq_table_add_bool(table, #Member, offsetof(Structure, Member))
 
@@ -150,6 +153,9 @@ SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
 
 #define sq_table_add_string_as(table, Structure, Member, length)    \
 		sq_table_add_string(table, #Member, offsetof(Structure, Member), length)
+
+// alias name for sq_table_add_string_as()
+#define sq_table_add_str_as    sq_table_add_string_as
 
 #define sq_table_add_char_as(table, Structure, Member, length)    \
 		sq_table_add_char(table, #Member, offsetof(Structure, Member), length)
@@ -256,6 +262,7 @@ struct TableMethod
 	void        timestamps(size_t created_at_offset, size_t updated_at_offset);
 	Sq::Column &double_(const char *column_name, size_t offset, int precision = 0, int scale = 0);
 	Sq::Column &string(const char *column_name, size_t offset, int length = -1);
+	Sq::Column &str(const char *column_name, size_t offset, int length = -1);
 	Sq::Column &char_(const char *column_name, size_t offset, int length = -1);
 	Sq::Column &custom(const char *column_name, size_t offset, const SqType *type, int length = -1);
 
@@ -288,6 +295,10 @@ struct TableMethod
 	Sq::Column &double_(const char *column_name, Type Store::*member, int precision = 0, int scale = 0);
 	template<class Store, class Type>
 	Sq::Column &string(const char *column_name, Type Store::*member, int length = -1);
+	template<class Store, class Type>
+	Sq::Column &str(const char *column_name, Type Store::*member, int length = -1);
+	template<class Store, class Type>
+	Sq::Column &char_(const char *column_name, Type Store::*member, int length = -1);
 	template<class Store, class Type>
 	Sq::Column &custom(const char *column_name, Type Store::*member, const SqType *type, int length = -1);
 
@@ -512,6 +523,9 @@ inline Sq::Column &TableMethod::double_(const char *column_name, size_t offset, 
 inline Sq::Column &TableMethod::string(const char *column_name, size_t offset, int length) {
 	return *(Sq::Column*)sq_table_add_string((SqTable*)this, column_name, offset, length);
 }
+inline Sq::Column &TableMethod::str(const char *column_name, size_t offset, int length) {
+	return *(Sq::Column*)sq_table_add_string((SqTable*)this, column_name, offset, length);
+}
 inline Sq::Column &TableMethod::char_(const char *column_name, size_t offset, int length) {
 	return *(Sq::Column*)sq_table_add_char((SqTable*)this, column_name, offset, length);
 }
@@ -578,6 +592,14 @@ inline Sq::Column &TableMethod::double_(const char *column_name, Type Store::*me
 template<class Store, class Type>
 inline Sq::Column &TableMethod::string(const char *column_name, Type Store::*member, int length) {
 	return *(Sq::Column*)sq_table_add_string((SqTable*)this, column_name, Sq::offsetOf(member), length);
+};
+template<class Store, class Type>
+inline Sq::Column &TableMethod::str(const char *column_name, Type Store::*member, int length) {
+	return *(Sq::Column*)sq_table_add_string((SqTable*)this, column_name, Sq::offsetOf(member), length);
+};
+template<class Store, class Type>
+inline Sq::Column &TableMethod::char_(const char *column_name, Type Store::*member, int length) {
+	return *(Sq::Column*)sq_table_add_char((SqTable*)this, column_name, Sq::offsetOf(member), length);
 };
 template<class Store, class Type>
 inline Sq::Column &TableMethod::custom(const char *column_name, Type Store::*member, const SqType *type, int length) {
