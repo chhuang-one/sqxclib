@@ -609,12 +609,16 @@ Sq::Joint 只是将指针数组包装到结构中。因为 C++ STL 不能直接�
 	}
 ```
 
-#### 方便的 C++ 类 'select'
+#### 方便的 C++ 类 'select' 和 'from'
 
-使用 C++ Sq::select 來運行數據庫查詢。
+使用 C++ Sq::select 或 Sq::from 來運行數據庫查詢。
 
 ```c++
+	// 將 Sq::select 與 query 方法一起使用
 	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
+
+	// 將 Sq::from 與 query 方法一起使用
+	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
 ```
 
 ## 使用自定义数据类型

@@ -938,6 +938,8 @@ namespace Sq {
 	|
 	+--- Select
 	|
+	+--- From
+	|
 	+--- Where
 	|
 	+--- WhereNot
@@ -990,6 +992,26 @@ public:
 	}
 	Select  &operator()(const char *raw) {
 		sq_query_select_raw(SQPT_DATAPTR, raw);
+		return *this;
+	}
+};
+
+class From : public Sq::QueryProxy
+{
+public:
+	// constructor
+	From(const char *table) {
+		SQPT_DATAPTR = (Sq::Query*)sq_query_new(table);
+	}
+
+	// destructor
+	~From() {
+		sq_query_free(SQPT_DATAPTR);
+	}
+
+	// operator
+	From  &operator()(const char *table) {
+		sq_query_from(SQPT_DATAPTR, table);
 		return *this;
 	}
 };
@@ -1812,6 +1834,7 @@ public:
 };
 
 typedef Select             select;
+typedef From               from;
 
 typedef Where              where;
 typedef WhereNot           whereNot;

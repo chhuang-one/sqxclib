@@ -609,12 +609,16 @@ Sq::Joint just wraps array of pointers into struct. User must use it with C++ ST
 	}
 ```
 
-#### convenient C++ class 'select'
+#### convenient C++ class 'select' and 'from'
 
-use C++ Sq::select to run database queries.
+use C++ Sq::select or Sq::from to run database queries.
 
 ```c++
+	// use Sq::select with query method
 	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
+
+	// use Sq::from with query method
+	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
 ```
 
 ## use custom data type

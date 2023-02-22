@@ -30,10 +30,6 @@
 #include <SqxcEmpty.h>
 #include <SqStorage.h>
 
-#ifdef _MSC_VER
-#define strdup       _strdup
-#endif
-
 using namespace std;
 
 
@@ -186,6 +182,10 @@ void test_query_cpp_convenient_class()
 	sql = Sq::select("id", "name").from("users").where("id", "<", 10).c();
 	std::cout << sql << std::endl;
 	assert(strcmp(sql.c_str(), "SELECT id, name FROM users WHERE id < 10") == 0);
+
+	sql = Sq::from("users").where("id", "<", 10).c();
+	std::cout << sql << std::endl;
+	assert(strcmp(sql.c_str(), "SELECT * FROM users WHERE id < 10") == 0);
 
 	sql = where("id", 3).orWhereRaw("city_id < %d", 20).c();
 	std::cout << sql << std::endl;
@@ -383,20 +383,20 @@ void test_type()
 
 	entry = new Sq::Entry;
 	entry->init(SQ_TYPE_INT);
-	entry->name = strdup("id");
+	entry->setName("id");
 	entry->offset = offsetof(User, id);
 	entry->bit_field |= SQB_HIDDEN;
 	type->addEntry(entry);
 
 	entry = new Sq::Entry;
 	entry->init(SQ_TYPE_STR);
-	entry->name = strdup("name");
+	entry->setName("name");
 	entry->offset = offsetof(User, name);
 	type->addEntry(entry);
 
 	entry = new Sq::Entry;
 	entry->init(SQ_TYPE_STR);
-	entry->name = strdup("email");
+	entry->setName("email");
 	entry->offset = offsetof(User, email);
 	type->addEntry(entry);
 

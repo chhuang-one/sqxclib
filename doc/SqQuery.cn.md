@@ -134,6 +134,17 @@ from() 和 table() 可以指定數據庫表。他們做同樣的事情並支持�
 	});
 ```
 
+**方便的 C++ 類 'from'**  
+  
+使用 C++ Sq::From（或小寫 Sq::from）生成 SQL 語句。它可以與 [SqStorage](SqStorage.cn.md) 的 query 方法一起使用。
+
+```c++
+	char *sql = Sq::from("users").where("id", "<", 10).toSql();
+
+	// 與 SqStorage 的 query 方法一起使用
+	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
+```
+
 #### select
 
 您可以使用 select 方法为查询指定列。  

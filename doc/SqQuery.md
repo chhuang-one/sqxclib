@@ -134,6 +134,17 @@ use C++ language
 	});
 ```
 
+**convenient C++ class 'from'**  
+  
+use C++ Sq::From (or lower case Sq::from) to generate SQL statement. It can use with query method of [SqStorage](SqStorage.md).
+
+```c++
+	char *sql = Sq::from("users").where("id", "<", 10).toSql();
+
+	// use with query method of SqStorage
+	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
+```
+
 #### select
 
 You can specify columns for the query by using select method.  

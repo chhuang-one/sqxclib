@@ -271,6 +271,9 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	sq_schema_free(schema_v2);
 ```
 
+如果要使用單獨的遷移文件來執行此操作，則可以將所有遷移文件放在 workspace/database/migrations 中。  
+sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 來使用這些文件。請參閱 doc/[SqApp.cn.md](doc/SqApp.cn.md) 以獲取更多信息。
+
 ## 增删查改 CRUD
 
 这个库使用 [SqStorage](doc/SqStorage.cn.md) 在数据库中创建、读取、更新和删除行。  
@@ -576,6 +579,18 @@ SQL 语句
 	Sq::whereNull,    Sq::whereNotNull,
 ```
 
+**方便的 C++ 类 'select' 和 'from'**
+
+使用 C++ Sq::select 或 Sq::from 來運行數據庫查詢。
+
+```c++
+	// 將 Sq::select 與 query 方法一起使用
+	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
+
+	// 將 Sq::from 與 query 方法一起使用
+	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
+```
+
 ## JOIN 支持
 
 [SqTypeJoint](doc/SqTypeJoint.cn.md) 是处理多表连接查询的默认类型。它可以为查询结果创建指针数组。  
@@ -633,8 +648,8 @@ SQL 语句
 	}
 ```
 
-如果你不想使用指针作为 C++ STL 容器的元素，你可以使用 Sq::Joint 来代替它。  
-Sq::Joint 只是将指针数组包装到结构中。因为 C++ STL 不能直接将数组用作容器的元素，所以用户必须将它与 C++ STL 一起使用。
+如果你不想使用指针作为 C++ STL 容器的元素，你可以使用 Sq::Joint 来代替。  
+Sq::Joint 只是将指针数组包装到结构中。因为 C++ STL 不能直接将数组用作容器的元素，所以必须将它与 C++ STL 一起使用。
 
 ```c++
 	std::vector< Sq::Joint<2> > *vector;

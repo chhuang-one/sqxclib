@@ -271,6 +271,9 @@ use C functions to migrate schema and synchronize to database
 	sq_schema_free(schema_v2);
 ```
 
+If you want to use individual migration files to do this, you can placed all migration files in workspace/database/migrations.  
+sqxclib provided [SqApp](doc/SqApp.md) to use these files. See doc/[SqApp.md](doc/SqApp.md) to get more information.
+
 ## CRUD
 
 This library use [SqStorage](doc/SqStorage.md) to do Create, Read, Update, and Delete rows in database.  
@@ -574,6 +577,18 @@ Below is currently provided convenient C++ class:
 	Sq::whereBetween, Sq::whereNotBetween,
 	Sq::whereIn,      Sq::whereNotIn,
 	Sq::whereNull,    Sq::whereNotNull,
+```
+
+**convenient C++ class 'select' and 'from'**
+
+use C++ Sq::select or Sq::from to run database queries.
+
+```c++
+	// use Sq::select with query method
+	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
+
+	// use Sq::from with query method
+	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
 ```
 
 ## JOIN support
