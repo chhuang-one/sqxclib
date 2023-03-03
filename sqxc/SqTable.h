@@ -85,8 +85,10 @@ void      sq_table_add_column(SqTable *table, const SqColumn *column, int n_colu
 // add SqColumn from pointer array
 void      sq_table_add_column_ptrs(SqTable *table, const SqColumn **column_ptrs, int n_column_ptrs);
 
+// alias name
 #define sq_table_add_boolean    sq_table_add_bool
 #define sq_table_add_integer    sq_table_add_int
+#define sq_table_add_str        sq_table_add_string
 
 SqColumn *sq_table_add_bool(SqTable *table, const char *column_name,
                             size_t offset);
@@ -113,9 +115,6 @@ SqColumn *sq_table_add_char(SqTable *table, const char *column_name,
 SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
                               size_t offset, const SqType *sqtype,
                               int  length);
-
-// alias name for sq_table_add_string()
-#define   sq_table_add_str    sq_table_add_string
 
 #define sq_table_add_bool_as(table, Structure, Member)    \
 		sq_table_add_bool(table, #Member, offsetof(Structure, Member))

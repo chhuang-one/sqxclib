@@ -40,17 +40,17 @@
 	sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc.dest) at runtime.
 
 	Data flow 1: sqxc_send() send from SQL result (column has JSON data) to C value
-	If SqxcValue can't match current data type, it will forward data to SqxcJsonParser.
+	If SqxcValue can't match current data type, it will forward data to SqxcJsoncParser.
 
-	                 ┌-> SqxcJsonParser --┐
+	                 ┌-> SqxcJsoncParser -┐
 	( input )        |                    |
 	Sqdb.exec()    --┴--------------------┴--> SqxcValue ---> SqType.parse()
 
 
 	Data flow 2: sqxc_send() send from C value to SQL (column has JSON data)
-	If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter.
+	If SqxcSql doesn't support current data type, it will forward data to SqxcJsoncWriter.
 
-	                 ┌-> SqxcJsonWriter --┐
+	                 ┌-> SqxcJsoncWriter -┐
 	( output )       |                    |
 	SqType.write() --┴--------------------┴--> SqxcSql   ---> Sqdb.exec()
  */

@@ -155,6 +155,8 @@ use C++ language
 
 #### 2.1 dynamic SqCommand use constant array of SqOption
 
+e.g. add array that has 2 options.
+
 ```c++
 	// C function
 	sq_command_add_option(mycommand, mycommand_option_array, 2);

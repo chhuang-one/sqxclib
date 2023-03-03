@@ -81,16 +81,16 @@ Sqxc 转换器的数据类型
 sqxc_send() 可以在 Sqxc 元素之间发送数据（参数）并在运行时更改数据流（Sqxc.dest）。  
   
 **数据流 1：** sqxc_send() 从 SQL 结果（列有 JSON 数据）发送到 C 值  
-如果 SqxcValue 不能匹配当前数据类型，它会将数据转发给 SqxcJsonParser。
+如果 SqxcValue 不能匹配当前数据类型，它会将数据转发给 SqxcJsoncParser。
 
-	input ─>         ┌─> SqxcJsonParser ──┐
+	input ─>         ┌─> SqxcJsoncParser ─┐
 	Sqdb.exec()    ──┴────────────────────┴──> SqxcValue ───> SqType.parse()
 
 
-**数据流 2:** sqxc_send() 从 C 值发送到 SQL（列有 JSON 数据）  
-如果 SqxcSql 不支持当前数据类型，它会将数据转发给 SqxcJsonWriter。
+**数据流 2：** sqxc_send() 从 C 值发送到 SQL（列有 JSON 数据）  
+如果 SqxcSql 不支持当前数据类型，它会将数据转发给 SqxcJsoncWriter。
 
-	output ─>        ┌─> SqxcJsonWriter ──┐
+	output ─>        ┌─> SqxcJsoncWriter ─┐
 	SqType.write() ──┴────────────────────┴──> SqxcSql   ───> Sqdb.exec()
 
 sqxc_send() 由数据源端调用。它将数据（参数）发送到 Sqxc 元素并尝试匹配 Sqxc 链中的类型。  
@@ -244,7 +244,7 @@ JSON 看起来像这样：
 
 使用 sqxc_send_to() 将数据（参数）传递给指定的 Sqxc 元素。
 
-	user output ────> SqxcJsonWriter ────> SqxcFile ────> fwrite()
+	user output ────> SqxcJsoncWriter ────> SqxcFile ────> fwrite()
 
 注意: SqxcFile 在 sqxcsupport 库中。示例代码在 [xc_json_file.cpp](../examples/xc_json_file.cpp)  
   
@@ -255,7 +255,7 @@ JSON 看起来像这样：
 	xc->name = "id";
 	xc->value.integer = 100;
 
-	// 将数据（参数）'xc' 传递给 'xcjson'（类型为 SqxcJsonWriter）
+	// 将数据（参数）'xc' 传递给 'xcjson'（类型为 SqxcJsoncWriter）
 	sqxc_send_to(xcjson, xc);
 ```
 
@@ -266,7 +266,7 @@ JSON 看起来像这样：
 	xc->name = "id";
 	xc->value.integer = 100;
 
-	// 将数据（参数）'xc' 传递给 'xcjson'（类型为 SqxcJsonWriter）
+	// 将数据（参数）'xc' 传递给 'xcjson'（类型为 SqxcJsoncWriter）
 	xcjson->send(xc);
 ```
 

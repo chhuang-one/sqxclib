@@ -81,16 +81,16 @@ user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especi
 sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc.dest) at runtime.  
   
 **Data flow 1:** sqxc_send() send from SQL result (column has JSON data) to C value  
-If SqxcValue can't match current data type, it will forward data to SqxcJsonParser.
+If SqxcValue can't match current data type, it will forward data to SqxcJsoncParser.
 
-	input ─>         ┌─> SqxcJsonParser ──┐
+	input ─>         ┌─> SqxcJsoncParser ─┐
 	Sqdb.exec()    ──┴────────────────────┴──> SqxcValue ───> SqType.parse()
 
 
 **Data flow 2:** sqxc_send() send from C value to SQL (column has JSON data)  
-If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter.
+If SqxcSql doesn't support current data type, it will forward data to SqxcJsoncWriter.
 
-	output ─>        ┌─> SqxcJsonWriter ──┐
+	output ─>        ┌─> SqxcJsoncWriter ─┐
 	SqType.write() ──┴────────────────────┴──> SqxcSql   ───> Sqdb.exec()
 
 sqxc_send() is called by data source side. It send data(arguments) to Sqxc element and try to match type in Sqxc chain.  
@@ -244,7 +244,7 @@ JSON look like this:
 
 Use sqxc_send_to() to pass data(arguments) to specified Sqxc elements.
 
-	user output ────> SqxcJsonWriter ────> SqxcFile ────> fwrite()
+	user output ────> SqxcJsoncWriter ────> SqxcFile ────> fwrite()
 
 Note: SqxcFile is in sqxcsupport library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)  
   
@@ -255,7 +255,7 @@ use C language
 	xc->name = "id";
 	xc->value.integer = 100;
 
-	// pass data(arguments) 'xc' to 'xcjson' (type is SqxcJsonWriter)
+	// pass data(arguments) 'xc' to 'xcjson' (type is SqxcJsoncWriter)
 	sqxc_send_to(xcjson, xc);
 ```
 

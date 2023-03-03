@@ -57,7 +57,7 @@ extern const SqxcInfo        SqxcInfo_Value_;
 	|
 	`--- SqxcValue
 
-	                 +-> SqxcJsonParser --+
+	                 +-> SqxcJsoncParser -+
 	( input )        |                    |
 	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
 	                 |                    |

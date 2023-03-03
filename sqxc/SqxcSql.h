@@ -62,7 +62,7 @@ extern const SqxcInfo      SqxcInfo_SQL_;
 	|
 	`--- SqxcSql
 
-	                 +-> SqxcJsonWriter --+
+	                 +-> SqxcJsoncWriter -+
 	( output )       |                    |       (SQL statement)
 	SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
 	                 |                    |

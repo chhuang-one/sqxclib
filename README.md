@@ -183,9 +183,9 @@ use C functions to change table and column in schema_v2 (dynamic)
 * To use initializer to define (or change) table statically, see doc/[schema-builder-static.md](doc/schema-builder-static.md)
 * To use macro to define (or change) table dynamically, see doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
 
-## Database product
+## Database products
 
-**Sqdb** is base structure for database product (SQLite, MySQL...etc). You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
+**Sqdb** is base structure for database products (SQLite, MySQL...etc). You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
   
 use C functions to open SQLite database
 
