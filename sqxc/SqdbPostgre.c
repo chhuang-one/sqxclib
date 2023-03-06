@@ -187,9 +187,9 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 				}
 
 				for (int j = 0;  j < n_fields;  j++) {
-					xc->type = SQXC_TYPE_STRING;
+					xc->type = SQXC_TYPE_STR;
 					xc->name = PQfname(results, j);
-					xc->value.string = PQgetvalue(results, i, j);
+					xc->value.str = PQgetvalue(results, i, j);
 					xc = sqxc_send(xc);
 #ifndef NDEBUG
 					switch (xc->code) {

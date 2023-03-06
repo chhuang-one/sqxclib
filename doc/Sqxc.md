@@ -25,7 +25,7 @@ data type for Sqxc converter
 | SQXC_TYPE_UINT64     | corresponds to C data type:  uint64_t      |
 | SQXC_TYPE_TIME       | corresponds to C data type:  time_t        |
 | SQXC_TYPE_DOUBLE     | corresponds to C data type:  double        |
-| SQXC_TYPE_STRING     | corresponds to C data type:  char*         |
+| SQXC_TYPE_STR        | corresponds to C data type:  char*         |
 | SQXC_TYPE_OBJECT     | The beginning of the object                |
 | SQXC_TYPE_ARRAY      | The beginning of the array (or container)  |
 | SQXC_TYPE_OBJECT_END | The end of object                          |
@@ -378,7 +378,7 @@ static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src)
 	// set parsed data to arguments of 'xctext'
 	xctext->type = src->type;
 	xctext->name = src->name;
-	xctext->value.string = src->value.string;
+	xctext->value.str = src->value.str;
 
 	// send arguments of 'xctext' to 'xc_dest'
 	sqxc_send_to(xc_dest, (Sqxc*)xctext);

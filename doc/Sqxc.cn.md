@@ -25,7 +25,7 @@ Sqxc 转换器的数据类型
 | SQXC_TYPE_UINT64     | 对应C数据类型：  uint64_t      |
 | SQXC_TYPE_TIME       | 对应C数据类型：  time_t        |
 | SQXC_TYPE_DOUBLE     | 对应C数据类型：  double        |
-| SQXC_TYPE_STRING     | 对应C数据类型：  char*         |
+| SQXC_TYPE_STR        | 对应C数据类型：  char*         |
 | SQXC_TYPE_OBJECT     | 对象的开头                     |
 | SQXC_TYPE_ARRAY      | 数组的开头 (或其他容器)        |
 | SQXC_TYPE_OBJECT_END | 对象结束                       |
@@ -378,7 +378,7 @@ static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src)
 	// 将解析的数据设置为 'xctext' 的参数
 	xctext->type = src->type;
 	xctext->name = src->name;
-	xctext->value.string = src->value.string;
+	xctext->value.str = src->value.str;
 
 	// 将 'xctext' 的参数发送到 'xc_dest'
 	sqxc_send_to(xc_dest, (Sqxc*)xctext);

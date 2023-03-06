@@ -137,12 +137,12 @@ static int  sqxc_empty_send(SqxcEmpty *xcempty, Sqxc *args_src)
 		       args_src->value.double_);
 		break;
 
-	case SQXC_TYPE_STRING:
+	case SQXC_TYPE_STR:
 		printf("%s  %2d  STRING  %s = %s\n",
 		       xcempty->tag ? xcempty->tag : "",
 		       xcempty->nested_count,
 		       args_src->name,
-		       args_src->value.string);
+		       args_src->value.str);
 		break;
 
 	case SQXC_TYPE_OBJECT:

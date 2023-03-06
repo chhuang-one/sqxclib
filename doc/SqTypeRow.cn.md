@@ -106,9 +106,9 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 			std::cout << row.cols[nth].name << " = ";
 			// 列值类型由 'row.cols[nth].type' 决定
 			if (row.cols[nth].type == SQ_TYPE_INT)
-				std::cout << row.data[nth].integer << std::endl;
+				std::cout << row.data[nth].int_ << std::endl;
 			if (row.cols[nth].type == SQ_TYPE_STR)
-				std::cout << row.data[nth].string  << std::endl;
+				std::cout << row.data[nth].str  << std::endl;
 			// 其他类型...
 		}
 	}

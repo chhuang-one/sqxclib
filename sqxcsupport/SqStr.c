@@ -105,7 +105,7 @@ struct
 {
 	int16_t offset;
 	int16_t length;
-	char   *string;
+	char   *str;
 } plural_[4] =
 {
 	{-1, 3, "ies"},
@@ -147,7 +147,7 @@ int sq_singular2plural(char *dest, const char *src)
 		if (dest != src)
 			strcpy(dest, src);
 		dest += length + plural_[index].offset;
-		strcpy(dest, plural_[index].string);
+		strcpy(dest, plural_[index].str);
 		// to upper case
 		if (isupper(src[length-1]))
 			for (;  *dest;  dest++)
@@ -170,7 +170,7 @@ int sq_plural2singular(char *dest, const char *src)
 		diff_pos = length - plural_[index].length;
 		if (length < plural_[index].length)
 			continue;
-		if (strcasecmp(src + diff_pos, plural_[index].string) == 0)
+		if (strcasecmp(src + diff_pos, plural_[index].str) == 0)
 			break;
 	}
 	//     = length - plural_[index].length - plural_[index].offset;

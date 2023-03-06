@@ -316,9 +316,9 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 	}
 
 	for (index = 0;  index < argc;  index++) {
-		xc->type = SQXC_TYPE_STRING;
+		xc->type = SQXC_TYPE_STR;
 		xc->name = columnName[index];
-		xc->value.string = argv[index];
+		xc->value.str = argv[index];
 		xc = sqxc_send(xc);
 
 #ifndef NDEBUG

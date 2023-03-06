@@ -202,14 +202,14 @@ int  sq_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 			return (src->code = SQCODE_OK);
 		instance = (char*)instance + option->offset;
 		// default_value
-		if (src->value.string == NULL || *src->value.string == 0)
-			src->value.string = (char*)option->default_value;
+		if (src->value.str == NULL || *src->value.str == 0)
+			src->value.str = (char*)option->default_value;
 		// special case : pointer to instance
 		if (option->bit_field & SQB_POINTER) {
 			// try to use existed instance
 			if (*(void**)instance)
 				instance = *(void**)instance;
-//			else if (src->type != SQXC_TYPE_STRING || src->value.string != NULL)
+//			else if (src->type != SQXC_TYPE_STR || src->value.str != NULL)
 //				instance = sq_type_init_instance(type, instance, true);
 			else
 				return (src->code = SQCODE_OK);

@@ -19,8 +19,8 @@
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - Middleware of input chain
 
-	  (JSON string)
-	SQXC_TYPE_STRING ---> SqxcJsonc Parser ---> SQXC_TYPE_xxxx
+	(JSON string)
+	SQXC_TYPE_STR ---> SqxcJsonc Parser ---> SQXC_TYPE_xxxx
  */
 
 // send data(arguments) from SqxcJsonc(source) to SqxcValue(destination)
@@ -60,9 +60,9 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 		break;
 
 	case json_type_string:
-		xcjson->type = SQXC_TYPE_STRING;
+		xcjson->type = SQXC_TYPE_STR;
 		xcjson->name = name;
-		xcjson->value.string = (char*)json_object_get_string(value);
+		xcjson->value.str = (char*)json_object_get_string(value);
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		break;
 
@@ -110,15 +110,15 @@ static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 	enum json_tokener_error  jerror;
 
 #if 0
-	if (src->type != SQXC_TYPE_STRING) {
+	if (src->type != SQXC_TYPE_STR) {
 		/* set required type if return SQCODE_TYPE_NOT_MATCH
-		src->required_type = SQXC_TYPE_STRING;
+		src->required_type = SQXC_TYPE_STR;
 		*/
 		return (src->code = SQCODE_TYPE_NOT_SUPPORT);
 	}
 #endif
 
-	jobject = json_tokener_parse_verbose(src->value.string, &jerror);
+	jobject = json_tokener_parse_verbose(src->value.str, &jerror);
 	if (jobject == NULL) {
 		// incomplete JSON string
 		if (jerror == json_tokener_continue)
@@ -153,7 +153,7 @@ static int  sqxc_jsonc_ctrl_in(SqxcJsonc *xcjson, int id, void *data)
 static void  sqxc_jsonc_init_in(SqxcJsonc *xcjson)
 {
 //	memset(xcjson, 0, sizeof(SqxcJsonc));
-	xcjson->supported_type = SQXC_TYPE_STRING;
+	xcjson->supported_type = SQXC_TYPE_STR;
 }
 
 static void  sqxc_jsonc_final_in(SqxcJsonc *xcjson)
@@ -164,8 +164,8 @@ static void  sqxc_jsonc_final_in(SqxcJsonc *xcjson)
 /* ----------------------------------------------------------------------------
    Middleware of output chain
 
-	SQXC_TYPE_xxxx ---> SqxcJsonc Writer ---> SQXC_TYPE_STRING
-	                                            (JSON string)
+	SQXC_TYPE_xxxx ---> SqxcJsonc Writer ---> SQXC_TYPE_STR
+	                                          (JSON string)
  */
 
 static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
@@ -208,15 +208,15 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 		jobject = json_object_new_double(src->value.double_);
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string) {
+	case SQXC_TYPE_STR:
+		if (src->value.str) {
 			if (src->entry && src->entry->bit_field & SQB_HIDDEN_NULL)
 				return (src->code = SQCODE_OK);
 		}
-		if (src->value.string == NULL)
+		if (src->value.str == NULL)
 			jobject = json_object_new_null();
 		else
-			jobject = json_object_new_string(src->value.string);
+			jobject = json_object_new_string(src->value.str);
 		break;
 
 	case SQXC_TYPE_OBJECT:
@@ -260,9 +260,9 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 check_nested_0:
 	if (xcjson->nested_count == 0) {
 		Sqxc *xcdest = xcjson->dest;
-		xcjson->type = SQXC_TYPE_STRING;
+		xcjson->type = SQXC_TYPE_STR;
 		xcjson->name = xcjson->jroot_name;
-		xcjson->value.string = (char*)json_object_to_json_string(xcjson->jroot);
+		xcjson->value.str = (char*)json_object_to_json_string(xcjson->jroot);
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		// End of JSON string
 		json_object_put(xcjson->jroot);

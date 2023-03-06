@@ -138,9 +138,9 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool
 			if ((equ = strchr(console->buf.mem, '=')) != NULL)
 				*equ = 0;
 
-			xc->type = SQXC_TYPE_STRING;
+			xc->type = SQXC_TYPE_STR;
 			xc->name = console->buf.mem;
-			xc->value.string = (equ) ? equ + 1 : NULL;
+			xc->value.str = (equ) ? equ + 1 : NULL;
 			xc = sqxc_send(xc);
 		}
 		else {

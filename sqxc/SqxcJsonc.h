@@ -52,12 +52,12 @@ extern const SqxcInfo               SqxcInfo_JsoncWriter_;
 	`--- SqxcJsonc
 
 	*** In input chain:
-	SQXC_TYPE_STRING ---> SqxcJsonc Parser ---> SQXC_TYPE_xxxx
-	 (JSON string)
+	SQXC_TYPE_STR ---> SqxcJsonc Parser ---> SQXC_TYPE_xxxx
+	(JSON string)
 
 	*** In output chain:
-	SQXC_TYPE_xxxx -----> SqxcJsonc Writer ---> SQXC_TYPE_STRING
-	                                              (JSON string)
+	SQXC_TYPE_xxxx -----> SqxcJsonc Writer ---> SQXC_TYPE_STR
+	                                            (JSON string)
 
 
    The correct way to derive Sqxc:  (conforming C++11 standard-layout)

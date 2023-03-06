@@ -106,9 +106,9 @@ You can use SqTypeRow to replace default joint type in [SqStorage](SqStorage.md)
 			std::cout << row.cols[nth].name << " = ";
 			// column value type is decided by 'row.cols[nth].type'
 			if (row.cols[nth].type == SQ_TYPE_INT)
-				std::cout << row.data[nth].integer << std::endl;
+				std::cout << row.data[nth].int_ << std::endl;
 			if (row.cols[nth].type == SQ_TYPE_STR)
-				std::cout << row.data[nth].string  << std::endl;
+				std::cout << row.data[nth].str  << std::endl;
 			// other type...
 		}
 	}

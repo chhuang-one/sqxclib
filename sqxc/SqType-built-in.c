@@ -50,9 +50,9 @@ int  sq_type_bool_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(bool*)instance = (src->value.integer) ? true : false;
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string) {
-			ch = src->value.string[0]; 
+	case SQXC_TYPE_STR:
+		if (src->value.str) {
+			ch = src->value.str[0]; 
 			if (ch == '0' || ch == 'f' || ch == 'F')    // '0', 'false', or 'FALSE'
 				*(bool*)instance = false;
 			else
@@ -95,9 +95,9 @@ int  sq_type_int_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(int*)instance = src->value.boolean;
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string)
-			*(int*)instance = strtol(src->value.string, NULL, 10);
+	case SQXC_TYPE_STR:
+		if (src->value.str)
+			*(int*)instance = strtol(src->value.str, NULL, 10);
 		else
 			*(int*)instance = 0;
 		break;
@@ -135,9 +135,9 @@ int  sq_type_uint_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(unsigned int*)instance = src->value.boolean;
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string)
-			*(unsigned int*)instance = strtoul(src->value.string, NULL, 10);
+	case SQXC_TYPE_STR:
+		if (src->value.str)
+			*(unsigned int*)instance = strtoul(src->value.str, NULL, 10);
 		else
 			*(unsigned int*)instance = 0;
 		break;
@@ -175,9 +175,9 @@ int  sq_type_intptr_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(intptr_t*)instance = src->value.boolean;
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string)
-			*(intptr_t*)instance = strtol(src->value.string, NULL, 10);
+	case SQXC_TYPE_STR:
+		if (src->value.str)
+			*(intptr_t*)instance = strtol(src->value.str, NULL, 10);
 		else
 			*(intptr_t*)instance = 0;
 		break;
@@ -215,9 +215,9 @@ int  sq_type_int64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(int64_t*)instance = src->value.int64;
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string)
-			*(int64_t*)instance = strtoll(src->value.string, NULL, 10);
+	case SQXC_TYPE_STR:
+		if (src->value.str)
+			*(int64_t*)instance = strtoll(src->value.str, NULL, 10);
 		else
 			*(int64_t*)instance = 0;
 		break;
@@ -255,9 +255,9 @@ int  sq_type_uint64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(uint64_t*)instance = src->value.int64;
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string)
-			*(uint64_t*)instance = strtoull(src->value.string, NULL, 10);
+	case SQXC_TYPE_STR:
+		if (src->value.str)
+			*(uint64_t*)instance = strtoull(src->value.str, NULL, 10);
 		else
 			*(uint64_t*)instance = 0;
 		break;
@@ -295,9 +295,9 @@ int  sq_type_double_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(double*)instance = src->value.double_;
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string)
-			*(double*)instance = strtod(src->value.string, NULL);
+	case SQXC_TYPE_STR:
+		if (src->value.str)
+			*(double*)instance = strtod(src->value.str, NULL);
 		else
 			*(double*)instance = 0;
 		break;
@@ -339,9 +339,9 @@ int  sq_type_time_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(time_t*)instance = src->value.rawtime;
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string) {
-			*(time_t*)instance = sq_time_from_string(src->value.string);
+	case SQXC_TYPE_STR:
+		if (src->value.str) {
+			*(time_t*)instance = sq_time_from_string(src->value.str);
 			if (*(time_t*)instance == -1)
 				*(time_t*)instance = 0;  // time(NULL);
 		}
@@ -386,22 +386,22 @@ int  sq_type_str_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	 */
 
 	case SQXC_TYPE_NULL:
-	case SQXC_TYPE_STRING:
+	case SQXC_TYPE_STR:
 		/* Don't free existed string in container. It may cause memory corruption.
 		// free existed string
 		if (*(char**)instance)
 			free(*(char**)instance);
 		*/
 
-		if (src->value.string)
-			*(char**)instance = strdup(src->value.string);
+		if (src->value.str)
+			*(char**)instance = strdup(src->value.str);
 		else
 			*(char**)instance = NULL;
 		break;
 
 	default:
 		/* set required type if return SQCODE_TYPE_NOT_MATCH
-		src->required_type = SQXC_TYPE_STRING;
+		src->required_type = SQXC_TYPE_STR;
 		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
@@ -411,9 +411,9 @@ int  sq_type_str_parse(void *instance, const SqType *entrytype, Sqxc *src)
 
 Sqxc *sq_type_str_write(void *instance, const SqType *entrytype, Sqxc *dest)
 {
-	dest->type = SQXC_TYPE_STRING;
+	dest->type = SQXC_TYPE_STR;
 //	dest->name = dest->name;    // "name" was set by caller of this function
-	dest->value.string = *(char**)instance;
+	dest->value.str = *(char**)instance;
 	return sqxc_send(dest);
 }
 

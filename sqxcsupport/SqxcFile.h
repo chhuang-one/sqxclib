@@ -49,7 +49,7 @@ extern const SqxcInfo              SqxcInfo_FileWriter_;
 	`--- SqxcFile
 
 	*** In output chain:
-	SQXC_TYPE_STRING ---> SqxcFile Writer
+	SQXC_TYPE_STR ---> SqxcFile Writer
 
    The correct way to derive Sqxc:  (conforming C++11 standard-layout)
    1. Use Sq::XcMethod to inherit member function(method).

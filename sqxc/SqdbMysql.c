@@ -268,10 +268,10 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 //						break;
 				}
 
-				xc->type = SQXC_TYPE_STRING;
+				xc->type = SQXC_TYPE_STR;
 				for (unsigned int i = 0;  i < n_fields;  i++) {
 					xc->name = names[i];
-					xc->value.string = row[i];
+					xc->value.str = row[i];
 					xc = sqxc_send(xc);
 #ifndef NDEBUG
 					switch (xc->code) {

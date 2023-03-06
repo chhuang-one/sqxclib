@@ -51,16 +51,16 @@ static void sq_type_std_string_final(void *instance, const SqType *type)
 
 static int  sq_type_std_string_parse(void *instance, const SqType *type, Sqxc *src)
 {
-	if (src->type == SQXC_TYPE_STRING) {
-		if (src->value.string)
-			((std::string*)instance)->assign(src->value.string);
+	if (src->type == SQXC_TYPE_STR) {
+		if (src->value.str)
+			((std::string*)instance)->assign(src->value.str);
 		else
 			((std::string*)instance)->resize(0);
 	}
 	else {
 		// TODO: convert to string
 		/* set required type if return SQCODE_TYPE_NOT_MATCH
-		src->required_type = SQXC_TYPE_STRING;
+		src->required_type = SQXC_TYPE_STR;
 		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
@@ -70,9 +70,9 @@ static int  sq_type_std_string_parse(void *instance, const SqType *type, Sqxc *s
 
 static Sqxc *sq_type_std_string_write(void *instance, const SqType *type, Sqxc *dest)
 {
-	dest->type = SQXC_TYPE_STRING;
+	dest->type = SQXC_TYPE_STR;
 //	dest->name = dest->name;    // "name" was set by caller of this function
-	dest->value.string = (char*)((std::string*)instance)->c_str();
+	dest->value.str = (char*)((std::string*)instance)->c_str();
 	return sqxc_send(dest);
 }
 

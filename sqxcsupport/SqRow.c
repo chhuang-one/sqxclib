@@ -82,7 +82,7 @@ void  sq_row_final(SqRow *row)
 		val = row->data + index;
 		col = row->cols + ((row->cols_length == 1) ? 0 : index);
 		if (col->type == SQ_TYPE_STR || col->type == SQ_TYPE_CHAR)
-			free((char*)val->string);
+			free((char*)val->str);
 		else if (SQ_TYPE_NOT_BUILTIN(col->type))
 			sq_type_final_instance(col->type, val, true);
 		free((char*)col->name);
@@ -213,9 +213,9 @@ static void  sq_type_row_parse_unknown(void *instance, Sqxc *src)
 		temp.col->type = SQ_TYPE_DOUBLE;
 		break;
 
-	case SQXC_TYPE_STRING:
+	case SQXC_TYPE_STR:
 		temp.col->type = SQ_TYPE_STR;
-		sq_row_alloc(row, 1)->string = strdup(src->value.string);
+		sq_row_alloc(row, 1)->str = strdup(src->value.str);
 		return;
 
 	default:

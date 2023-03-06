@@ -131,8 +131,8 @@ void test_sqxc_joint_input()
 
 	// program can't parse JSON array string if no JSON parser in sqxc chain
 	xc->name = "tb2.strs";
-	xc->type = SQXC_TYPE_STRING;
-	xc->value.string = "[ \"str0\", \"str1\", \"str2\" ]";
+	xc->type = SQXC_TYPE_STR;
+	xc->value.str = "[ \"str0\", \"str1\", \"str2\" ]";
 	sqxc_send(xc);
 
 	xc->name = "tb2.id";
@@ -213,13 +213,13 @@ void test_sqxc_row_input_output()
 	// program can't parse JSON array string if no JSON parser in sqxc chain
 	xc->name = "tb2.strs";
 	xc->type = SQXC_TYPE_STR;
-	xc->value.string = "[ \"str0\", \"str1\", \"str2\" ]";
+	xc->value.str = "[ \"str0\", \"str1\", \"str2\" ]";
 	sqxc_send(xc);
 
 	// unknown table.column
 	xc->name = "unknown_table.unknown_column";
 	xc->type = SQXC_TYPE_STR;
-	xc->value.string = "unknown string";
+	xc->value.str = "unknown string";
 	sqxc_send(xc);
 
 	xc->name = NULL;
@@ -235,7 +235,7 @@ void test_sqxc_row_input_output()
 	assert(row->cols[3].type == SQ_TYPE_STR);
 	printf("%s = %d\n", row->cols[0].name, row->data[0].integer);
 	printf("%s = %d\n", row->cols[1].name, row->data[1].integer);
-	printf("%s = %s\n", row->cols[3].name, row->data[3].string);
+	printf("%s = %s\n", row->cols[3].name, row->data[3].str);
 
 	sqxc_free_chain(xc);
 	sq_table_free(table);
@@ -285,9 +285,9 @@ void test_sqxc_jsonc_input()
 	xcjsonc = sqxc_find(xcchain, SQXC_INFO_JSONC_PARSER);
 
 	sqxc_ready(xcchain, NULL);
-	xcjsonc->type = SQXC_TYPE_STRING;
+	xcjsonc->type = SQXC_TYPE_STR;
 	xcjsonc->name = NULL;
-	xcjsonc->value.string = (char*)json_array_string;
+	xcjsonc->value.str = (char*)json_array_string;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
 	sqxc_finish(xcchain, NULL);
 
@@ -307,9 +307,9 @@ void test_sqxc_jsonc_input_user()
 
 	Sqxc *xcjsonc;
 	xcjsonc = sqxc_find(xcvalue, SQXC_INFO_JSONC_PARSER);
-	xcjsonc->type = SQXC_TYPE_STRING;
+	xcjsonc->type = SQXC_TYPE_STR;
 	xcjsonc->name = NULL;
-	xcjsonc->value.string = (char*)json_object_string;
+	xcjsonc->value.str = (char*)json_object_string;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
 
 	sqxc_finish(xcvalue, NULL);
@@ -403,14 +403,14 @@ void test_sqxc_jsonc_output(User *instance)
 	xcjsonc->value.integer = instance->id;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
 
-	xcjsonc->type = SQXC_TYPE_STRING;
+	xcjsonc->type = SQXC_TYPE_STR;
 	xcjsonc->name = "name";
-	xcjsonc->value.string = instance->name;
+	xcjsonc->value.str = instance->name;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
 
-	xcjsonc->type = SQXC_TYPE_STRING;
+	xcjsonc->type = SQXC_TYPE_STR;
 	xcjsonc->name = "email";
-	xcjsonc->value.string = instance->email;
+	xcjsonc->value.str = instance->email;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
 
 	xcjsonc->type = SQXC_TYPE_OBJECT_END;
@@ -449,9 +449,9 @@ void test_sqxc_sql_output(bool use_update)
 	xccur->value.pointer = NULL;
 	xccur = sqxc_send(xccur);
 
-	xccur->type = SQXC_TYPE_STRING;
+	xccur->type = SQXC_TYPE_STR;
 	xccur->name = "email";
-	xccur->value.string = (char*)"guest@";
+	xccur->value.str = (char*)"guest@";
 	xccur = sqxc_send(xccur);
 
 	xccur->type = SQXC_TYPE_INT;
@@ -468,9 +468,9 @@ void test_sqxc_sql_output(bool use_update)
 	xccur->value.pointer = NULL;
 	xccur = sqxc_send(xccur);
 
-	xccur->type = SQXC_TYPE_STRING;
+	xccur->type = SQXC_TYPE_STR;
 	xccur->name = "name";
-	xccur->value.string = (char*)"Bob";
+	xccur->value.str = (char*)"Bob";
 	xccur = sqxc_send(xccur);
 
 	xccur->type = SQXC_TYPE_ARRAY;

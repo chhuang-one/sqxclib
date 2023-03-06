@@ -18,7 +18,7 @@
 /*	Sqxc chain data flow for SqxcJsonc Writer
 
 	output ---------> SqxcJsonc Writer ---------> SqxcFile Writer
-	     SQXC_TYPE_XXXX             SQXC_TYPE_STRING
+	     SQXC_TYPE_XXXX              SQXC_TYPE_STR
  */
 
 // create and write JSON file by using C++ language
@@ -53,8 +53,8 @@ void json_file_writer_cpp()
 	xcjson->send(xc);
 
 	xc->name = "name";
-	xc->type = SQXC_TYPE_STRING;
-	xc->value.string = "bob";
+	xc->type = SQXC_TYPE_STR;
+	xc->value.str = "bob";
 	xcjson->send(xc);
 
 	xc->name = NULL;
@@ -101,8 +101,8 @@ void json_file_writer_c(void)
 	sqxc_send_to((Sqxc*)xcjson, xc);
 
 	xc->name = "name";
-	xc->type = SQXC_TYPE_STRING;
-	xc->value.string = "johny";
+	xc->type = SQXC_TYPE_STR;
+	xc->value.str = "johny";
 	sqxc_send_to((Sqxc*)xcjson, xc);
 
 	xc->name = NULL;
@@ -120,7 +120,7 @@ void json_file_writer_c(void)
 /*	Sqxc chain data flow for SqxcJsonc Parser
 
 	input ---------> SqxcJsonc Parser ---------> SqxcValue
-	   SQXC_TYPE_STRING             SQXC_TYPE_XXXX
+	    SQXC_TYPE_STR               SQXC_TYPE_XXXX
  */
 
 // Defines structure to parse file written by json_file_writer_c()

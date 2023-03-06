@@ -20,19 +20,19 @@
 
 /* ----------------------------------------------------------------------------
 	*** In output chain:
-	SQXC_TYPE_STRING ---> SqxcFile Writer
+	SQXC_TYPE_STR ---> SqxcFile Writer
  */
 
 static int  sqxc_file_writer_send(SqxcFile *xcfile, Sqxc *src)
 {
-	if (src->type != SQXC_TYPE_STRING) {
+	if (src->type != SQXC_TYPE_STR) {
 		/* set required type if return SQCODE_TYPE_NOT_MATCH
-		src->required_type = SQXC_TYPE_STRING;
+		src->required_type = SQXC_TYPE_STR;
 		*/
 		return (src->code = SQCODE_TYPE_NOT_MATCH);
 	}
 
-	fputs(src->value.string, xcfile->file);
+	fputs(src->value.str, xcfile->file);
 	return (src->code = SQCODE_OK);
 }
 

@@ -490,26 +490,26 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 		sprintf(sq_buffer_alloc(buffer, len), "%lf", src->value.double_);
 		break;
 
-	case SQXC_TYPE_STRING:
-		if (src->value.string == NULL) {
+	case SQXC_TYPE_STR:
+		if (src->value.str == NULL) {
 			sq_buffer_write(buffer, "NULL");
 			break;
 		}
 		// handle SQL string apostrophe (single quotes)
-		for (len = 0, idx = 0;  src->value.string[idx];  idx++, len++) {
+		for (len = 0, idx = 0;  src->value.str[idx];  idx++, len++) {
 			// double up on the single quotes
-			if (src->value.string[idx] == '\'')
+			if (src->value.str[idx] == '\'')
 				len++;
 		}
 		idx = buffer->writed;
 		sq_buffer_alloc(buffer, len +2);    // + '\'' x 2
 		buffer->mem[idx++] = '\'';
 		buffer->mem[idx +len] = '\'';
-		for (len = idx, idx = 0;  src->value.string[idx];  idx++, len++) {
+		for (len = idx, idx = 0;  src->value.str[idx];  idx++, len++) {
 			// double up on the single quotes
-			if (src->value.string[idx] == '\'')
+			if (src->value.str[idx] == '\'')
 				buffer->mem[len++] = '\'';
-			buffer->mem[len] = src->value.string[idx];
+			buffer->mem[len] = src->value.str[idx];
 		}
 		break;
 

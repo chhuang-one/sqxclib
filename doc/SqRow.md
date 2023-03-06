@@ -80,17 +80,17 @@ If [SqTypeRow](SqTypeRow.md) does not know the type of the columns, arrays in Sq
 	SqRow.cols[0].name   = "id";
 	SqRow.cols[0].type   = SQ_TYPE_STR;
 	SqRow.cols[0].entry  = NULL;
-	SqRow.data[0].string = "1";
+	SqRow.data[0].str    = "1";
 
 	SqRow.cols[1].name   = "name";
 	SqRow.cols[1].type   = SQ_TYPE_STR;
 	SqRow.cols[1].entry  = NULL;
-	SqRow.data[1].string = "Bob";
+	SqRow.data[1].str    = "Bob";
 
 	SqRow.cols[2].name   = "state";
 	SqRow.cols[2].type   = SQ_TYPE_STR;
 	SqRow.cols[2].entry  = NULL;
-	SqRow.data[2].string = "NY";
+	SqRow.data[2].str    = "NY";
 
 	// This row has 3 columns
 	SqRow.length = 3;
