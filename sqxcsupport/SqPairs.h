@@ -144,6 +144,17 @@ inline void   PairsMethod::sort() {
 	sq_pairs_sort((SqPairs*)this);
 }
 
+/* All derived struct/class must be C++11 standard-layout. */
+
+struct Pairs : SqPairs {
+	Pairs(SqCompareFunc keyCompareFunc = (SqCompareFunc)sq_pairs_cmp_string) {
+		sq_pairs_init(this, keyCompareFunc);
+	}
+	~Pairs() {
+		sq_pairs_final(this);
+	}
+};
+
 };  // namespace Sq
 
 #endif  // __cplusplus
