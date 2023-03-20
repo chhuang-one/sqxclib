@@ -26,6 +26,21 @@ SqTable *sq_table_new(const char *name, const SqType *table_type)
 	SqTable *table;
 
 	table = malloc(sizeof(SqTable));
+	sq_table_init(table, name, table_type);
+	return (SqTable*)table;
+}
+
+void  sq_table_free(SqTable *table)
+{
+	if (table->bit_field & SQB_DYNAMIC) {
+		sq_table_final(table);
+		// free SqTable
+		free(table);
+	}
+}
+
+void  sq_table_init(SqTable *table, const char *name, const SqType *table_type)
+{
 	// create dynamic SqType
 	if (table_type == NULL)
 		table_type = sq_type_new(8, (SqDestroyFunc)sq_column_free);
@@ -37,11 +52,9 @@ SqTable *sq_table_new(const char *name, const SqType *table_type)
 	table->on_destory = NULL;
 	// for (SQLite) migration.
 	table->relation = NULL;
-
-	return (SqTable*)table;
 }
 
-void  sq_table_free(SqTable *table)
+void  sq_table_final(SqTable *table)
 {
 	if (table->bit_field & SQB_DYNAMIC) {
 		// table->type == NULL if 'table' is migration record
@@ -54,9 +67,6 @@ void  sq_table_free(SqTable *table)
 		// call on_destory() callback to free 'relation' for SQLite
 		if (table->on_destory)
 			table->on_destory(table);
-
-		// free SqTable
-		free(table);
 	}
 }
 
@@ -471,6 +481,11 @@ void   sq_table_drop_foreign(SqTable *table, const char *name)
 
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.
+
+void  sq_table_set_name(SqTable *table, const char *name)
+{
+	SQ_ENTRY_SET_NAME(table, name);
+}
 
 bool  sq_table_has_column(SqTable *table, const char *column_name)
 {

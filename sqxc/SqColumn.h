@@ -74,6 +74,9 @@ extern "C" {
 SqColumn  *sq_column_new(const char *name, const SqType *type_info);
 void       sq_column_free(SqColumn *column);
 
+void       sq_column_init(SqColumn *column, const char *name, const SqType *type_info);
+void       sq_column_final(SqColumn *column);
+
 // create new SqColumn and copy data from static one.
 SqColumn  *sq_column_copy_static(const SqColumn *column_src);
 
@@ -191,6 +194,9 @@ struct SqColumn
 		return (Sq::Column*)this;
 	}
 
+	void        setName(const char *columnName) {
+		SQ_ENTRY_SET_NAME(this, columnName);
+	}
 	Sq::Column &reference(const char *table_name, const char *column_name) {
 		sq_column_reference((SqColumn*)this, table_name, column_name);
 		return *(Sq::Column*)this;
@@ -282,6 +288,15 @@ struct SqColumn
 
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
 // define inline functions here if compiler supports inline function.
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_set_name(SqColumn *column, const char *name) {
+	SQ_ENTRY_SET_NAME(column, name);
+}
 
 #ifdef __cplusplus  // C++
 inline
@@ -403,6 +418,7 @@ void  sq_column_raw(SqColumn *column, const char *raw_property) {
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
 
+void  sq_column_set_name(SqColumn *column, const char *name);
 void  sq_column_pointer(SqColumn *column);
 void  sq_column_hidden(SqColumn *column);
 void  sq_column_hidden_null(SqColumn *column);
@@ -437,6 +453,9 @@ struct ColumnMethod
 		return (Sq::Column*)this;
 	}
 
+	void        setName(const char *columnName) {
+		SQ_ENTRY_SET_NAME(this, columnName);
+	}
 	Sq::Column &reference(const char *table_name, const char *column_name) {
 		sq_column_reference((SqColumn*)this, table_name, column_name);
 		return *(Sq::Column*)this;
@@ -525,6 +544,12 @@ struct ColumnMethod
 /* All derived struct/class must be C++11 standard-layout. */
 
 struct Column : SqColumn {
+	Column(const char *name = NULL, const SqType *tableInfo = NULL) {
+		sq_column_init(this, name, tableInfo);
+	}
+	~Column() {
+		sq_column_final(this);
+	}
 };
 
 typedef struct SqForeign   Foreign;

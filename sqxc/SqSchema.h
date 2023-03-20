@@ -110,6 +110,7 @@ struct SchemaMethod
 
 	Sq::Table *alter(const char *name, const SqType *table_type = NULL);
 	Sq::Table *alter(const char *name, const Sq::TypeMethod *table_type);
+	void       add(Sq::TableMethod *table);
 	void       drop(const char *name);
 	void       rename(const char *from, const char *to);
 
@@ -225,6 +226,11 @@ inline Sq::Table *SchemaMethod::alter(const char *name, const SqType *table_type
 }
 inline Sq::Table *SchemaMethod::alter(const char *name, const Sq::TypeMethod *table_type) {
 	return (Sq::Table*)sq_schema_alter((SqSchema*)this, name, (const SqType*)table_type);
+}
+inline void  SchemaMethod::add(Sq::TableMethod *table) {
+	// add table in schema->type
+	sq_type_add_entry((SqType*) ((SqSchema*)this)->type, (SqEntry*)table, 1, 0);
+	((SqSchema*)this)->bit_field |= SQB_CHANGED;
 }
 inline void  SchemaMethod::drop(const char *name) {
 	sq_schema_drop((SqSchema*)this, name);

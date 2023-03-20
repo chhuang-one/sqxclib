@@ -39,16 +39,28 @@ SqColumn  *sq_column_new(const char *name, const SqType *typeinfo)
 {
 	SqColumn  *column;
 
-	column = calloc(1, sizeof(SqColumn));
-	// init SqEntry members
-	sq_entry_init((SqEntry*)column, typeinfo);
-	column->name = strdup(name);
-
-	// init SqColumn members
+	column = malloc(sizeof(SqColumn));
+	sq_column_init(column, name, typeinfo);
 	return column;
 }
 
 void  sq_column_free(SqColumn *column)
+{
+	if (column->bit_field & SQB_DYNAMIC) {
+		sq_column_final(column);
+		free(column);
+	}
+}
+
+void  sq_column_init(SqColumn *column, const char *name, const SqType *type_info)
+{
+	memset(column, 0, sizeof(SqColumn));
+	// init SqEntry members
+	sq_entry_init((SqEntry*)column, type_info);
+	column->name = strdup(name);
+}
+
+void  sq_column_final(SqColumn *column)
 {
 	if (column->bit_field & SQB_DYNAMIC) {
 		// finalize parent struct - SqEntry
@@ -65,7 +77,6 @@ void  sq_column_free(SqColumn *column)
 				free(*cur);
 			sq_composite_free(column->composite);
 		}
-		free(column);
 	}
 }
 
@@ -238,6 +249,10 @@ static SqForeign *sq_foreign_copy(SqForeign *src)
 
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.
+
+void  sq_column_set_name(SqColumn *column, const char *name) {
+	SQ_ENTRY_SET_NAME(column, name);
+}
 
 void  sq_column_pointer(SqColumn *column) {
 	column->bit_field |= SQB_POINTER;

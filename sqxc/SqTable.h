@@ -71,6 +71,9 @@ extern "C" {
 SqTable  *sq_table_new(const char *name, const SqType *table_type);
 void      sq_table_free(SqTable *table);
 
+void      sq_table_init(SqTable *table, const char *name, const SqType *table_type);
+void      sq_table_final(SqTable *table);
+
 void      sq_table_drop_column(SqTable *table, const char *column_name);
 void      sq_table_rename_column(SqTable *table, const char *from, const char *to);
 
@@ -238,6 +241,7 @@ namespace Sq {
  */
 struct TableMethod
 {
+	void        setName(const char *tableName);
 	bool        hasColumn(const char *column_name);
 	Sq::Column *findColumn(const char *column_name);
 	void        dropColumn(const char *column_name);
@@ -410,6 +414,15 @@ inline
 #else               // C99
 static inline
 #endif
+void  sq_table_set_name(SqTable *table, const char *name) {
+	SQ_ENTRY_SET_NAME(table, name);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
 bool      sq_table_has_column(SqTable *table, const char *column_name)
 {
 	return (sq_type_find_entry(table->type, column_name, NULL) != NULL);
@@ -429,6 +442,7 @@ SqColumn *sq_table_find_column(SqTable *table, const char *column_name)
 // declare functions here if compiler does NOT support inline function.
 
 // C functions
+void      sq_table_set_name(SqTable *table, const char *name);
 bool      sq_table_has_column(SqTable *table, const char *column_name);
 SqColumn *sq_table_find_column(SqTable *table, const char *column_name);
 
@@ -457,6 +471,9 @@ template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
 
 	define TableMethod functions.
  */
+inline void  TableMethod::setName(const char *tableName) {
+	SQ_ENTRY_SET_NAME(this, tableName);
+}
 inline bool  TableMethod::hasColumn(const char *column_name) {
 	return sq_table_has_column((SqTable*)this, column_name);
 }
@@ -677,6 +694,12 @@ inline Sq::Column *TableMethod::primary(const char *(&column_array)[N], const ch
 /* All derived struct/class must be C++11 standard-layout. */
 
 struct Table : SqTable {
+	Table(const char *name = NULL, const SqType *tableType = NULL) {
+		sq_table_init(this, name, tableType);
+	}
+	~Table() {
+		sq_table_final(this);
+	}
 };
 
 };  // namespace Sq
