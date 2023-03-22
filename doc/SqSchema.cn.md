@@ -109,6 +109,16 @@ SqSchema 必须与 [SqTable](SqTable.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 	table = schema->create("your_table_name", type);
 ```
 
+#### 2.3 添加現有表
+
+```c++
+	// C 函数
+	sq_schema_add(schema, table);
+
+	// C++ 方法
+	schema->add(table);
+```
+
 ## 3 修改表
 
 alter() 的用法与 create() 类似。  

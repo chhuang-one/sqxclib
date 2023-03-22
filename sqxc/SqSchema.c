@@ -170,6 +170,12 @@ void sq_schema_rename(SqSchema *schema, const char *from, const char *to)
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.
 
+void  sq_schema_add(SqSchema *schema, SqTable *table)
+{
+	sq_type_add_entry((SqType*)schema->type, (SqEntry*)table, 1, 0);
+	schema->bit_field |= SQB_CHANGED;
+}
+
 SqTable *sq_schema_find(SqSchema *schema, const char *table_name)
 {
 	return (SqTable*)sq_entry_find((SqEntry*)schema, table_name, NULL);

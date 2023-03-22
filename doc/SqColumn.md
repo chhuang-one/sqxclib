@@ -200,16 +200,26 @@ add one dynamic column to type
 
 * Note: It is **not recommended** to use this way.
 
-```c++
+Use C language
+
+```c
 	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STR);
-	column->offset = offsetof(YourStruct, name);
+	column->offset = offsetof(YourStruct, FieldName);
 	sq_column_primary(column);           // set PRIMARY KEY
 
-	/* use C functions to add column */
+	/* add column to SqType */
 	SqType *type = sq_type_new(0, (SqDestroyFunc)sq_column_free);
 	sq_type_add_entry(type, (const SqEntry*)column, 1, sizeof(SqColumn));
+```
 
-	/* use C++ methods to add column */
+Use C++ language
+
+```c++
+	Sq::Column *column = new Sq::Column("your_column_name", SQ_TYPE_STR);
+	column->offset = offsetof(YourStruct, FieldName);
+	column->primary();                   // set PRIMARY KEY
+
+	/* add column to Sq::Type */
 	Sq::Type *type = new Sq::Type(0, (SqDestroyFunc)sq_column_free);
 	type->addEntry((const SqEntry*)column, 1, sizeof(SqColumn));
 ```

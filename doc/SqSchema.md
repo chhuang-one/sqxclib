@@ -109,6 +109,16 @@ use C++ language
 	table = schema->create("your_table_name", type);
 ```
 
+#### 2.3 add existing table
+
+```c++
+	// C function
+	sq_schema_add(schema, table);
+
+	// C++ method
+	schema->add(table);
+```
+
 ## 3 Alter table
 
 The usage of alter() is similar to the create().  
@@ -141,10 +151,10 @@ use C++ language
 sq_schema_drop() must specify the table name to drop. This does not drop the table before doing migration because it just add a record of "Remove Table" to the 'schema'.
 
 ```c++
-	// C functions
+	// C function
 	sq_schema_drop(schema, "users");
 
-	// C++ methods
+	// C++ method
 	schema->drop("users");
 ```
 
@@ -153,10 +163,10 @@ sq_schema_drop() must specify the table name to drop. This does not drop the tab
 Like sq_schema_drop(), sq_schema_rename() does not rename the table immediately.
 
 ```c++
-	// C functions
+	// C function
 	sq_schema_rename(schema, "old_name", "new_name");
 
-	// C++ methods
+	// C++ method
 	schema->rename("old_name", "new_name");
 ```
 

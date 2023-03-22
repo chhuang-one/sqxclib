@@ -172,6 +172,17 @@ inline
 #else               // C99
 static inline
 #endif
+void  sq_schema_add(SqSchema *schema, SqTable *table)
+{
+	sq_type_add_entry((SqType*)schema->type, (SqEntry*)table, 1, 0);
+	schema->bit_field |= SQB_CHANGED;
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
 SqTable *sq_schema_find(SqSchema *schema, const char *table_name)
 {
 	return (SqTable*)sq_entry_find((SqEntry*)schema, table_name, NULL);
@@ -181,6 +192,7 @@ SqTable *sq_schema_find(SqSchema *schema, const char *table_name)
 // declare functions here if compiler does NOT support inline function.
 
 // C functions
+void     sq_schema_add(SqSchema *schema, SqTable *table);
 SqTable *sq_schema_find(SqSchema *schema, const char *table_name);
 
 #endif  // __STDC_VERSION__ || __cplusplus
@@ -228,9 +240,7 @@ inline Sq::Table *SchemaMethod::alter(const char *name, const Sq::TypeMethod *ta
 	return (Sq::Table*)sq_schema_alter((SqSchema*)this, name, (const SqType*)table_type);
 }
 inline void  SchemaMethod::add(Sq::TableMethod *table) {
-	// add table in schema->type
-	sq_type_add_entry((SqType*) ((SqSchema*)this)->type, (SqEntry*)table, 1, 0);
-	((SqSchema*)this)->bit_field |= SQB_CHANGED;
+	sq_schema_add((SqSchema*)this, (SqTable*)table);
 }
 inline void  SchemaMethod::drop(const char *name) {
 	sq_schema_drop((SqSchema*)this, name);

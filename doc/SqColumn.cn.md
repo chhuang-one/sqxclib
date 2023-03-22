@@ -200,16 +200,26 @@ const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 
 * 注意: **不推荐**使用这种方式。
 
-```c++
+使用 C 语言
+
+```c
 	SqColumn *column = sq_column_new("your_column_name", SQ_TYPE_STR);
-	column->offset = offsetof(YourStruct, name);
+	column->offset = offsetof(YourStruct, FieldName);
 	sq_column_primary(column);           // 设置主键 PRIMARY KEY
 
-	/* 使用 C 函数添加列 */
+	/* 將列添加到 SqType */
 	SqType *type = sq_type_new(0, (SqDestroyFunc)sq_column_free);
 	sq_type_add_entry(type, (const SqEntry*)column, 1, sizeof(SqColumn));
+```
 
-	/* 使用 C++ 方法添加列 */
+使用 C++ 语言
+
+```c++
+	Sq::Column *column = new Sq::Column("your_column_name", SQ_TYPE_STR);
+	column->offset = offsetof(YourStruct, FieldName);
+	column->primary();                   // 设置主键 PRIMARY KEY
+
+	/* 將列添加到 Sq::Type */
 	Sq::Type *type = new Sq::Type(0, (SqDestroyFunc)sq_column_free);
 	type->addEntry((const SqEntry*)column, 1, sizeof(SqColumn));
 ```
