@@ -544,8 +544,8 @@ struct ColumnMethod
 /* All derived struct/class must be C++11 standard-layout. */
 
 struct Column : SqColumn {
-	Column(const char *name = NULL, const SqType *tableInfo = NULL) {
-		sq_column_init(this, name, tableInfo);
+	Column(const char *name = NULL, const SqType *dataType = NULL) {
+		sq_column_init(this, name, dataType);
 	}
 	~Column() {
 		sq_column_final(this);

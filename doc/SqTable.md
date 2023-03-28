@@ -15,6 +15,38 @@ SqTable derives from [SqEntry](SqEntry.md). It defines SQL table.
 SqTable must be used with [SqSchema](SqSchema.md) and [SqColumn](SqColumn.md) to create a table. You can see below documents to get more information and sample:  
 1. [database-migrations.md](database-migrations.md)
 2. "**Database schema**" section in ../[README.md](../README.md#database-schema)
+  
+Use C language
+
+```c
+	typedef struct  User    User;
+
+	SqTable *table;
+	SqType  *tableType = NULL;
+
+	// Using functions of SqSchema to create tables (Recommend)
+	table = sq_schema_create(schema, "users", User);
+
+	// Using sq_table_new() to create tables
+	table = sq_table_new("users", tableType);
+	sq_schema_add(schema, table);
+```
+
+Use C++ language
+
+```c++
+	typedef struct  User    User;
+
+	Sq::Table *table;
+	Sq::Type  *tableType = NULL;
+
+	// Using methods of Sq::Schema to create tables (Recommend)
+	table = schema->create<User>("users");
+
+	// Using constructor of Sq::Table to create tables
+	table = new Sq::Table("users", tableType);
+	schema->add(table);
+```
 
 ## Create column
 

@@ -22,15 +22,27 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 ```c
 	SqColumn *column;
 
+	// 使用 SqTable 的函数创建列（推荐）
 	column = sq_table_add_string(table, "column", offsetof(MyStruct, column), 191);
+
+	// 使用 sq_column_new() 创建列
+	column = sq_column_new("id", SQ_TYPE_INT);
+	column->offset = offsetof(MyStruct, id);
+	sq_table_add_column(table, column, 1);
 ```
 
 使用 C++ 语言
 
 ```c++
-	SqColumn *column;
+	Sq::Column *column;
 
+	// 使用 Sq::Table 的方法创建列（推荐）
 	column = table->string("column", &MyStruct::column, 191);
+
+	// 使用 Sq::Column 的构造函数创建列
+	column = new Sq::Column("id", SQ_TYPE_INT);
+	column->offset = offsetof(MyStruct, id);
+	table->addColumn(column);
 ```
 
 ## 列修饰符

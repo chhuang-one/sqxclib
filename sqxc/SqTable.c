@@ -100,7 +100,7 @@ void  sq_table_drop_column(SqTable *table, const char *column_name)
 	column->old_name = strdup(column_name);
 
 	sq_table_add_column(table, column, 1);
-	table->bit_field |= SQB_CHANGED;
+	table->bit_field |= SQB_TABLE_CHANGED;
 
 #if 0
 	column = (SqColumn*)sq_type_find_entry(table->type, column_name, NULL);
@@ -120,7 +120,7 @@ void  sq_table_rename_column(SqTable *table, const char *from, const char *to)
 	column->bit_field = SQB_DYNAMIC;
 
 	sq_table_add_column(table, column, 1);
-	table->bit_field |= SQB_CHANGED;
+	table->bit_field |= SQB_TABLE_CHANGED;
 
 #if 0
 	column = (SqColumn*)sq_type_find_entry(table->type, from, NULL);

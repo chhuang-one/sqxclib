@@ -63,30 +63,30 @@ If SqTable::type defined in C language, you may NOT use below C++ template funct
 
 #### 2.1 Create table for C struct
 
-Define a C struct 'UserStruct' to map database table "users".  
+Define a C struct 'User' to map database table "users".  
   
 use C language
 
 ```c
 	// If you use C language, please use 'typedef' to give a struct type a new name.
-	typedef struct  UserStruct    UserStruct;
+	typedef struct  User    User;
 
-	struct  UserStruct {
+	struct  User {
 		// ...
 	};
 
-	table = sq_schema_create(schema, "users", UserStruct);
+	table = sq_schema_create(schema, "users", User);
 	// add columns to table...
 ```
 
 use C++ language
 
 ```c++
-	struct  UserStruct {
+	struct  User {
 		// ...
 	};
 
-	table = schema->create<UserStruct>("users");
+	table = schema->create<User>("users");
 	// add columns to table...
 ```
 

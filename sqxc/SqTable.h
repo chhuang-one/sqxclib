@@ -363,7 +363,7 @@ struct TableMethod
 	     |
 	     `--- SqTable
 
-	Migration - Alter Table : table->bit_field & SQB_CHANGED
+	Migration - Alter Table : table->bit_field & SQB_TABLE_CHANGED
 	Migration - Drop   : table->name = NULL, table->old_name = column_name
 	Migration - Rename : table->name = new_name, table->old_name = old_name
 

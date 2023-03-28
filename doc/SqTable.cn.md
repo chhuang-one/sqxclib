@@ -15,6 +15,38 @@ SqTable 派生自 [SqEntry](SqEntry.cn.md)。它定义 SQL 表。
 SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一起使用来创建表。您可以查看以下文档获取更多信息和示例：  
 1. [database-migrations.cn.md](database-migrations.cn.md)
 2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
+  
+使用 C 语言
+
+```c
+	typedef struct  User    User;
+
+	SqTable *table;
+	SqType  *tableType = NULL;
+
+	// 使用 SqSchema 的函数创建表（推荐）
+	table = sq_schema_create(schema, "users", User);
+
+	// 使用 sq_table_new() 创建表
+	table = sq_table_new("users", tableType);
+	sq_schema_add(schema, table);
+```
+
+使用 C++ 语言
+
+```c++
+	typedef struct  User    User;
+
+	Sq::Table *table;
+	Sq::Type  *tableType = NULL;
+
+	// 使用 Sq::Schema 的方法创建表（推荐）
+	table = schema->create<User>("users");
+
+	// 使用 Sq::Table 的构造函数创建表
+	table = new Sq::Table("users", tableType);
+	schema->add(table);
+```
 
 ## 创建列
 

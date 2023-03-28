@@ -32,7 +32,7 @@
 typedef struct SqSchema       SqSchema;
 
 // SQL common bit_field
-#define SQB_SCHEMA_CHANGED                 SQB_CHANGED         // SQL: column or table has been changed.
+#define SQB_SCHEMA_CHANGED                 SQB_CHANGED         // SQL: schema has been changed.
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -175,7 +175,7 @@ static inline
 void  sq_schema_add(SqSchema *schema, SqTable *table)
 {
 	sq_type_add_entry((SqType*)schema->type, (SqEntry*)table, 1, 0);
-	schema->bit_field |= SQB_CHANGED;
+	schema->bit_field |= SQB_SCHEMA_CHANGED;
 }
 
 #ifdef __cplusplus  // C++

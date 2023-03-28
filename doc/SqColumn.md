@@ -22,15 +22,27 @@ Use C language
 ```c
 	SqColumn *column;
 
+	// Using functions of SqTable to create columns (Recommend)
 	column = sq_table_add_string(table, "column", offsetof(MyStruct, column), 191);
+
+	// Using sq_column_new() to create columns
+	column = sq_column_new("id", SQ_TYPE_INT);
+	column->offset = offsetof(MyStruct, id);
+	sq_table_add_column(table, column, 1);
 ```
 
 Use C++ language
 
 ```c++
-	SqColumn *column;
+	Sq::Column *column;
 
+	// Using methods of Sq::Table to create columns (Recommend)
 	column = table->string("column", &MyStruct::column, 191);
+
+	// Using constructor of Sq::Column to create columns
+	column = new Sq::Column("id", SQ_TYPE_INT);
+	column->offset = offsetof(MyStruct, id);
+	table->addColumn(column);
 ```
 
 ## Column Modifiers

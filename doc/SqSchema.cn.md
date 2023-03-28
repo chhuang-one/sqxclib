@@ -63,30 +63,30 @@ SqSchema 必须与 [SqTable](SqTable.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 
 #### 2.1 为 C 结构创建表
 
-定义一个 C 结构 'UserStruct' 来映射数据库表 "users"。  
+定义一个 C 结构 'User' 来映射数据库表 "users"。  
   
 使用 C 语言
 
 ```c
 	// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
-	typedef struct  UserStruct    UserStruct;
+	typedef struct  User    User;
 
-	struct  UserStruct {
+	struct  User {
 		// ...
 	};
 
-	table = sq_schema_create(schema, "users", UserStruct);
+	table = sq_schema_create(schema, "users", User);
 	// 向表中添加列...
 ```
 
 使用 C++ 语言
 
 ```c++
-	struct  UserStruct {
+	struct  User {
 		// ...
 	};
 
-	table = schema->create<UserStruct>("users");
+	table = schema->create<User>("users");
 	// 向表中添加列...
 ```
 
