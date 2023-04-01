@@ -270,6 +270,7 @@ struct TableMethod
 	Sq::Column &custom(const char *column_name, size_t offset, const SqType *type, int length = -1);
 
 	Sq::Column &stdstring(const char *column_name, size_t offset, int length = -1);
+	Sq::Column &stdstr(const char *column_name, size_t offset, int length = -1);
 
 	template<class Store, class Type>
 	Sq::Column &boolean(const char *column_name, Type Store::*member);
@@ -307,6 +308,8 @@ struct TableMethod
 
 	template<class Store, class Type>
 	Sq::Column &stdstring(const char *column_name, Type Store::*member, int length = -1);
+	template<class Store, class Type>
+	Sq::Column &stdstr(const char *column_name, Type Store::*member, int length = -1);
 
 	// ----------------------------------------------------
 	// composite (constraint)
@@ -552,6 +555,9 @@ inline Sq::Column &TableMethod::custom(const char *column_name, size_t offset, c
 inline Sq::Column &TableMethod::stdstring(const char *column_name, size_t offset, int length) {
 	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, offset, SQ_TYPE_STD_STRING, length);
 }
+inline Sq::Column &TableMethod::stdstr(const char *column_name, size_t offset, int length) {
+	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, offset, SQ_TYPE_STD_STR, length);
+}
 
 template<class Store, class Type>
 inline Sq::Column &TableMethod::boolean(const char *column_name, Type Store::*member) {
@@ -625,6 +631,10 @@ inline Sq::Column &TableMethod::custom(const char *column_name, Type Store::*mem
 template<class Store, class Type>
 inline Sq::Column &TableMethod::stdstring(const char *column_name, Type Store::*member, int length) {
 	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, Sq::offsetOf(member), SQ_TYPE_STD_STRING, length);
+};
+template<class Store, class Type>
+inline Sq::Column &TableMethod::stdstr(const char *column_name, Type Store::*member, int length) {
+	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, Sq::offsetOf(member), SQ_TYPE_STD_STR, length);
 };
 
 // define composite (constraint) methods of TableMethod

@@ -210,20 +210,21 @@ struct User {
 
 下面的 C++ 方法 (和 C 函数)对应于您可以添加到数据库表中的不同类型的列。
 
-| C++ 方法    | C 函数                  | C 数据类型    |
-| ----------- | ----------------------- | ------------- |
-| boolean     | sq_table_add_bool       | bool          |
-| bool_       | sq_table_add_bool       | bool          |
-| integer     | sq_table_add_int        | int           |
-| int_        | sq_table_add_int        | int           |
-| uint        | sq_table_add_uint       | unsigned int  |
-| int64       | sq_table_add_int64      | int64_t       |
-| uint64      | sq_table_add_uint64     | uint64_t      |
-| timestamp   | sq_table_add_timestamp  | time_t        |
-| double_     | sq_table_add_double     | double        |
-| string      | sq_table_add_string     | char*         |
-| char_       | sq_table_add_char       | char*         |
-| custom      | sq_table_add_custom     | *User define* |
+| C++ 方法    | C 函数                 | C 数据类型    | SQL 数据类型      |
+| ----------- | ---------------------- | ------------- | ----------------- |
+| boolean     | sq_table_add_bool      | bool          | BOOLEAN           |
+| bool_       | sq_table_add_bool      | bool          | BOOLEAN           |
+| integer     | sq_table_add_integer   | int           | INT               |
+| int_        | sq_table_add_int       | int           | INT               |
+| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    |
+| int64       | sq_table_add_int64     | int64_t       | BIGINT            |
+| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) |
+| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         |
+| double_     | sq_table_add_double    | double        | DOUBLE            |
+| str         | sq_table_add_str       | char*         | VARCHAR           |
+| string      | sq_table_add_string    | char*         | VARCHAR           |
+| char_       | sq_table_add_char      | char*         | CHAR              |
+| custom      | sq_table_add_custom    | *用戶定義*    | VARCHAR           |
 
 * 因为 'bool'、'int'、'double' 和 'char' 是 C/C++ 关键字，所以在这些方法的尾部附加 '_'。
 
@@ -231,6 +232,7 @@ struct User {
 
 | C++ 方法    | C 数据类型    |
 | ----------- | ------------- |
+| stdstr      | std::string   |
 | stdstring   | std::string   |
 
 #### 列修饰符（动态）

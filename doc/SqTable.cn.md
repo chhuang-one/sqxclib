@@ -52,20 +52,21 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 
 下面的 C++ 方法 (和 C 函数)对应于您可以添加到表中的不同类型的列。
 
-| C++ 方法    | C 函数                  | C 数据类型    |
-| ----------- | ----------------------- | ------------- |
-| boolean     | sq_table_add_bool       | bool          |
-| bool_       | sq_table_add_bool       | bool          |
-| integer     | sq_table_add_int        | int           |
-| int_        | sq_table_add_int        | int           |
-| uint        | sq_table_add_uint       | unsigned int  |
-| int64       | sq_table_add_int64      | int64_t       |
-| uint64      | sq_table_add_uint64     | uint64_t      |
-| timestamp   | sq_table_add_timestamp  | time_t        |
-| double_     | sq_table_add_double     | double        |
-| string      | sq_table_add_string     | char*         |
-| char_       | sq_table_add_char       | char*         |
-| custom      | sq_table_add_custom     | *User define* |
+| C++ 方法    | C 函数                 | C 数据类型    | SQL 数据类型      |
+| ----------- | ---------------------- | ------------- | ----------------- |
+| boolean     | sq_table_add_bool      | bool          | BOOLEAN           |
+| bool_       | sq_table_add_bool      | bool          | BOOLEAN           |
+| integer     | sq_table_add_integer   | int           | INT               |
+| int_        | sq_table_add_int       | int           | INT               |
+| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    |
+| int64       | sq_table_add_int64     | int64_t       | BIGINT            |
+| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) |
+| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         |
+| double_     | sq_table_add_double    | double        | DOUBLE            |
+| str         | sq_table_add_str       | char*         | VARCHAR           |
+| string      | sq_table_add_string    | char*         | VARCHAR           |
+| char_       | sq_table_add_char      | char*         | CHAR              |
+| custom      | sq_table_add_custom    | *用戶定義*    | VARCHAR           |
 
 * 因为 'bool'、'int'、'double' 和 'char' 是 C/C++ 关键字，所以在这些方法的尾部附加 '_'。
 
@@ -73,6 +74,7 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 
 | C++ 方法    | C 数据类型    |
 | ----------- | ------------- |
+| stdstr      | std::string   |
 | stdstring   | std::string   |
 
 **加入自訂或 JSON 型態**  
@@ -93,6 +95,8 @@ struct User {
 };
 ```
 
+添加自定义类型时必须指定 [SqType](SqType.cn.md)。  
+  
 使用 C 语言
 
 ```c
@@ -119,7 +123,7 @@ struct User {
 
 ## 添加列
 
-C 函数 sq_table_add_column() 和 sq_table_add_column_ptrs(), C++ 方法 addColumn() 可以添加现有列。它们通常用于添加静态 SqColumn 数组。  
+C 函数 sq_table_add_column() 和 sq_table_add_column_ptrs(), C++ 方法 addColumn() 可以添加现有列。  
   
 sq_table_add_column(), addColumn()      可以添加 SqColumn 数组。  
 sq_table_add_column_ptrs(), addColumn() 可以添加 SqColumn 指针数组。  

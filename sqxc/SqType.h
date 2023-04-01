@@ -509,6 +509,7 @@ extern  const  struct SqTypeFake   SqType_Fake_;
 extern  const  SqType      SqType_StdString_;    // C++ std::string
 
 #define SQ_TYPE_STD_STRING    ((SqType*)&SqType_StdString_)
+#define SQ_TYPE_STD_STR       SQ_TYPE_STD_STRING
 
 /*
 #include <SqType-stl-cpp.h>

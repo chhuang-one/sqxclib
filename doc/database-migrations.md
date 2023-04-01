@@ -210,20 +210,21 @@ You will get instance of SqTable after calling alter or create function in schem
 
 Below C++ methods (and C functions) are correspond to the different types of columns that you can add to database tables.
 
-| C++ methods | C functions             | C data type   |
-| ----------- | ----------------------- | ------------- |
-| boolean     | sq_table_add_bool       | bool          |
-| bool_       | sq_table_add_bool       | bool          |
-| integer     | sq_table_add_int        | int           |
-| int_        | sq_table_add_int        | int           |
-| uint        | sq_table_add_uint       | unsigned int  |
-| int64       | sq_table_add_int64      | int64_t       |
-| uint64      | sq_table_add_uint64     | uint64_t      |
-| timestamp   | sq_table_add_timestamp  | time_t        |
-| double_     | sq_table_add_double     | double        |
-| string      | sq_table_add_string     | char*         |
-| char_       | sq_table_add_char       | char*         |
-| custom      | sq_table_add_custom     | *User define* |
+| C++ methods | C functions            | C data type   | SQL data type     |
+| ----------- | ---------------------- | ------------- | ----------------- |
+| boolean     | sq_table_add_bool      | bool          | BOOLEAN           |
+| bool_       | sq_table_add_bool      | bool          | BOOLEAN           |
+| integer     | sq_table_add_integer   | int           | INT               |
+| int_        | sq_table_add_int       | int           | INT               |
+| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    |
+| int64       | sq_table_add_int64     | int64_t       | BIGINT            |
+| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) |
+| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         |
+| double_     | sq_table_add_double    | double        | DOUBLE            |
+| str         | sq_table_add_str       | char*         | VARCHAR           |
+| string      | sq_table_add_string    | char*         | VARCHAR           |
+| char_       | sq_table_add_char      | char*         | CHAR              |
+| custom      | sq_table_add_custom    | *User define* | VARCHAR           |
 
 * Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, it must append '_' in tail of these methods.
 
@@ -231,6 +232,7 @@ Below method is for C++ data type only.
 
 | C++ methods | C++ data type |
 | ----------- | ------------- |
+| stdstr      | std::string   |
 | stdstring   | std::string   |
 
 #### Column Modifiers (dynamic)

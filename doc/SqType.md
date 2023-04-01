@@ -40,26 +40,24 @@ struct SqType
 };
 ```
 
-Built-in SqType with it's C data type
+Built-in SqType with it's data type
 
-| SqType          | C data type  |
-| --------------- | ------------ |
-| SQ_TYPE_BOOL    | bool         |
-| SQ_TYPE_INT     | int          |
-| SQ_TYPE_UINT    | unsigned int |
-| SQ_TYPE_INTPTR  | intptr_t     |
-| SQ_TYPE_INT64   | int64_t      |
-| SQ_TYPE_UINT64  | uint64_t     |
-| SQ_TYPE_TIME    | time_t       |
-| SQ_TYPE_DOUBLE  | double       |
-| SQ_TYPE_STR     | char*        |
+| SqType          | C data type  | SQL data type     |
+| --------------- | ------------ | ----------------- |
+| SQ_TYPE_BOOL    | bool         | BOOLEAN           |
+| SQ_TYPE_INT     | int          | INT               |
+| SQ_TYPE_UINT    | unsigned int | INT (UNSIGNED)    |
+| SQ_TYPE_INTPTR  | intptr_t     | INT               |
+| SQ_TYPE_INT64   | int64_t      | BIGINT            |
+| SQ_TYPE_UINT64  | uint64_t     | BIGINT (UNSIGNED) |
+| SQ_TYPE_TIME    | time_t       | TIMESTAMP         |
+| SQ_TYPE_DOUBLE  | double       | DOUBLE            |
+| SQ_TYPE_STR     | char*        | VARCHAR           |
+| SQ_TYPE_STRING  | char*        | VARCHAR           |
+| SQ_TYPE_CHAR    | char*        | CHAR              |
 
-Built-in SqType with it's SQL data type
-
-| SqType          | C data type  | SQL data type |
-| --------------- | ------------ | ------------- |
-| SQ_TYPE_CHAR    | char*        | CHAR          |
-
+* Different SQL products may map these C data types to different SQL data types.
+  
 SqType with it's C container type
 
 | SqType                | C data type    |
@@ -72,6 +70,7 @@ SqType with it's C++ data type
 
 | SqType                 | C++ data type  |
 | ---------------------- | -------------- |
+| SQ_TYPE_STD_STR        | std::string    |
 | SQ_TYPE_STD_STRING     | std::string    |
 | Sq::TypeStl<Container> | STL containers |
 

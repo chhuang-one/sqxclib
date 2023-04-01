@@ -31,7 +31,7 @@ struct SqType
 	// 2. 他们不能更改数据类型和顺序。
 
 	// 如果 SqType 是动态且可释放的，则 SqType.bit_field 具有 SQB_TYPE_DYNAMIC。
-	// 如果 SqType.entry 已排序，   则 SqType.bit_field 具有 SQB_TYPE_SORTED。
+	// 如果 SqType.entry 已排序，    则 SqType.bit_field 具有 SQB_TYPE_SORTED。
 	unsigned int   bit_field;
 
 	// 这用于派生或自定义 SqType。
@@ -40,26 +40,24 @@ struct SqType
 };
 ```
 
-内置 SqType 及其 C 数据类型
+内置 SqType 及其数据类型
 
-| SqType          | C 数据类型   |
-| --------------- | ------------ |
-| SQ_TYPE_BOOL    | bool         |
-| SQ_TYPE_INT     | int          |
-| SQ_TYPE_UINT    | unsigned int |
-| SQ_TYPE_INTPTR  | intptr_t     |
-| SQ_TYPE_INT64   | int64_t      |
-| SQ_TYPE_UINT64  | uint64_t     |
-| SQ_TYPE_TIME    | time_t       |
-| SQ_TYPE_DOUBLE  | double       |
-| SQ_TYPE_STR     | char*        |
+| SqType          | C 数据类型   | SQL 数据类型      |
+| --------------- | ------------ | ----------------- |
+| SQ_TYPE_BOOL    | bool         | BOOLEAN           |
+| SQ_TYPE_INT     | int          | INT               |
+| SQ_TYPE_UINT    | unsigned int | INT (UNSIGNED)    |
+| SQ_TYPE_INTPTR  | intptr_t     | INT               |
+| SQ_TYPE_INT64   | int64_t      | BIGINT            |
+| SQ_TYPE_UINT64  | uint64_t     | BIGINT (UNSIGNED) |
+| SQ_TYPE_TIME    | time_t       | TIMESTAMP         |
+| SQ_TYPE_DOUBLE  | double       | DOUBLE            |
+| SQ_TYPE_STR     | char*        | VARCHAR           |
+| SQ_TYPE_STRING  | char*        | VARCHAR           |
+| SQ_TYPE_CHAR    | char*        | CHAR              |
 
-内置 SqType 及其 SQL 数据类型
-
-| SqType          | C 数据类型   | SQL 数据类型  |
-| --------------- | ------------ | ------------- |
-| SQ_TYPE_CHAR    | char*        | CHAR          |
-
+* 不同的 SQL 产品可能将这些 C 数据类型对应到不同的 SQL 数据类型。
+  
 SqType 及其 C 容器类型
 
 | SqType                | C 数据类型     |
@@ -72,6 +70,7 @@ SqType 及其 C++ 数据类型
 
 | SqType                 | C++ 数据类型   |
 | ---------------------- | -------------- |
+| SQ_TYPE_STD_STR        | std::string    |
 | SQ_TYPE_STD_STRING     | std::string    |
 | Sq::TypeStl<Container> | STL containers |
 

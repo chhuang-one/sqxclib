@@ -7,7 +7,7 @@ This document introduce how to use C99 designated initializer (or C++ aggregate 
 * Schema can handle both dynamic and static column/table definitions.
 * If user modify static defined column/table, program will copy column/table before modifying it.
 * Program will not free static defined columns/tables from memory. It just doesn't use them.
-* If your SQL table is fixed and not changed in future, you can reduce more running time by using constant SqType to define table. see [SqColumn.md](SqColumn.md)
+* If your SQL table is fixed and not changed in future, you can reduce more running time by using constant [SqType](SqType.md) to define table. see [SqColumn.md](SqColumn.md)
 
 Define a C structured data type to map database table "users".
 

@@ -26,6 +26,7 @@ data type for Sqxc converter
 | SQXC_TYPE_TIME       | corresponds to C data type:  time_t        |
 | SQXC_TYPE_DOUBLE     | corresponds to C data type:  double        |
 | SQXC_TYPE_STR        | corresponds to C data type:  char*         |
+| SQXC_TYPE_STRING     | corresponds to C data type:  char*         |
 | SQXC_TYPE_OBJECT     | The beginning of the object                |
 | SQXC_TYPE_ARRAY      | The beginning of the array (or container)  |
 | SQXC_TYPE_OBJECT_END | The end of object                          |

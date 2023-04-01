@@ -12,10 +12,12 @@ SqColumn derives from [SqEntry](SqEntry.md). It defines columns in SQL table and
 
 ## Create column (dynamic)
 
-SqColumn must be used with [SqTable](SqTable.md) and [SqSchema](SqSchema.md) to create a table. It use C++ methods or C functions to create dynamic table and column.  
+SqColumn must be used with [SqTable](SqTable.md) and [SqSchema](SqSchema.md) to create a table.
+It use [SqType](SqType.md) to specify the data type.  
 To get more information and sample, you can see below documents:  
 1. [database-migrations.md](database-migrations.md)
 2. "**Database schema**" section in ../[README.md](../README.md#database-schema)
+3. All built-in types are listed in [SqType.md](SqType.md)
   
 Use C language
 
@@ -25,7 +27,7 @@ Use C language
 	// Using functions of SqTable to create columns (Recommend)
 	column = sq_table_add_string(table, "column", offsetof(MyStruct, column), 191);
 
-	// Using sq_column_new() to create columns
+	// Using sq_column_new() to create columns (This must specify SqType)
 	column = sq_column_new("id", SQ_TYPE_INT);
 	column->offset = offsetof(MyStruct, id);
 	sq_table_add_column(table, column, 1);
@@ -39,7 +41,7 @@ Use C++ language
 	// Using methods of Sq::Table to create columns (Recommend)
 	column = table->string("column", &MyStruct::column, 191);
 
-	// Using constructor of Sq::Column to create columns
+	// Using constructor of Sq::Column to create columns (This must specify SqType)
 	column = new Sq::Column("id", SQ_TYPE_INT);
 	column->offset = offsetof(MyStruct, id);
 	table->addColumn(column);

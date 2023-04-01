@@ -12,10 +12,12 @@ SqColumn 派生自 [SqEntry](SqEntry.cn.md)。它定义 SQL 表中的列并与 S
 
 ## 创建列（动态）
 
-SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一起使用来创建表。它使用 C++ 方法或 C 函数来创建动态表和列。  
+SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一起使用来创建表。
+它使用 [SqType](SqType.cn.md) 指定数据类型。  
 要获取更多信息和示例，您可以查看以下文档：  
 1. [database-migrations.cn.md](database-migrations.cn.md)
 2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
+3. 所有内置类型都在 [SqType.cn.md](SqType.cn.md) 中列出
   
 使用 C 语言
 
@@ -25,7 +27,7 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 	// 使用 SqTable 的函数创建列（推荐）
 	column = sq_table_add_string(table, "column", offsetof(MyStruct, column), 191);
 
-	// 使用 sq_column_new() 创建列
+	// 使用 sq_column_new() 创建列 （这里必须指定 SqType）
 	column = sq_column_new("id", SQ_TYPE_INT);
 	column->offset = offsetof(MyStruct, id);
 	sq_table_add_column(table, column, 1);
@@ -39,7 +41,7 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 	// 使用 Sq::Table 的方法创建列（推荐）
 	column = table->string("column", &MyStruct::column, 191);
 
-	// 使用 Sq::Column 的构造函数创建列
+	// 使用 Sq::Column 的构造函数创建列 （这里必须指定 SqType）
 	column = new Sq::Column("id", SQ_TYPE_INT);
 	column->offset = offsetof(MyStruct, id);
 	table->addColumn(column);

@@ -26,6 +26,7 @@ Sqxc 转换器的数据类型
 | SQXC_TYPE_TIME       | 对应C数据类型：  time_t        |
 | SQXC_TYPE_DOUBLE     | 对应C数据类型：  double        |
 | SQXC_TYPE_STR        | 对应C数据类型：  char*         |
+| SQXC_TYPE_STRING     | 对应C数据类型：  char*         |
 | SQXC_TYPE_OBJECT     | 对象的开头                     |
 | SQXC_TYPE_ARRAY      | 数组的开头 (或其他容器)        |
 | SQXC_TYPE_OBJECT_END | 对象结束                       |
