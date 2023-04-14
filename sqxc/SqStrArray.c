@@ -18,13 +18,6 @@
 #define strdup       _strdup
 #endif
 
-void  *sq_str_array_init(SqStrArray *array, int allocated_length)
-{
-	return sq_ptr_array_init_full(array, allocated_length,
-	                              SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT,
-	                              free);
-}
-
 void   sq_str_array_insert(SqStrArray *array, int index, const char *str)
 {
 	sq_ptr_array_insert(array, index, strdup(str));

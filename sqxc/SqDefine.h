@@ -33,6 +33,7 @@ extern "C" {
 
 typedef void  (*SqInitFunc)(void *value);
 typedef void  (*SqFinalFunc)(void *value);
+typedef void  (*SqClearFunc)(void *value);
 typedef void  (*SqDestroyFunc)(void *value);
 typedef int   (*SqCompareFunc)(const void *a, const void *b);
 

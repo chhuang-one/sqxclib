@@ -21,6 +21,7 @@
 #include <type_traits>  // is_standard_layout<>
 #include <iostream>     // cout
 
+#include <SqArray.h>
 #include <SqPtrArray.h>
 #include <SqStrArray.h>
 #include <SqBuffer.h>
@@ -85,10 +86,124 @@ void test_str_array()
 	delete array;
 }
 
+static int intcmp(int *int1, int *int2)
+{
+	return *int1 - *int2;
+}
+
+void test_int_array_cpp()
+{
+	Sq::Array<int> iarray(0);
+	Sq::Array<int>::iterator cur;
+	int  data[]  = {13, 10, 19, 17};
+	int  data2[] = {28, 25, 27, 26};
+	int  index;
+	int *intptr;
+
+	// append & insert
+	iarray.append(data, sizeof(data)  / sizeof(int));
+	iarray.insert(2, data2, sizeof(data2) / sizeof(int));
+	*iarray.allocAt(0) = 4;
+
+	for (cur = iarray.begin(); cur < iarray.end();  cur++) {
+		if (cur != iarray.begin())
+			std::cout << ", ";
+		std::cout << *cur;
+	}
+	std::cout << endl;
+
+	assert(iarray.data[0] ==  4);
+	assert(iarray.data[6] == 26);
+	assert(iarray.at(2)   == 10);
+	assert(iarray[7]      == 19);
+
+	// sort & search
+	iarray.sort((SqCompareFunc)intcmp);
+
+	for (cur = iarray.begin(); cur < iarray.end();  cur++) {
+		if (cur != iarray.begin())
+			std::cout << ", ";
+		std::cout << *cur;
+	}
+	std::cout << endl;
+
+	intptr = iarray.search(data2+1, (SqCompareFunc)intcmp);
+	assert(*intptr == data2[1]);
+
+	intptr = iarray.findSorted(data+3, (SqCompareFunc)intcmp, &index);
+	assert(*intptr == data[3]);
+	assert(index == 3);
+}
+
+void test_intx3_array()
+{
+	typedef int IntX3[3];
+	typedef SQ_ARRAY_STRUCT(IntX3) IntX3Array;
+
+	// test
+	Sq::Array<IntX3> testix3;
+
+	IntX3        ix3, *pix3;
+	IntX3Array  *ix3array;
+	SqArray      array;
+
+	sq_array_init(&array, sizeof(IntX3), 1);
+
+	// print array header
+	printf("element_size = %d, capacity = %d\n",
+		sq_array_element_size(&array), 
+		sq_array_capacity(&array));
+
+	ix3[0] = 21;
+	ix3[1] = 32;
+	ix3[2] = 13;
+	SQ_ARRAY_APPEND(&array, IntX3, &ix3, 1);
+	ix3[0] = 64;
+	ix3[1] = 75;
+	ix3[2] = 56;
+	SQ_ARRAY_INSERT(&array, IntX3, 0, &ix3, 1);
+
+	// test
+	testix3.append(ix3);
+
+	pix3 = sq_array_addr(&array, IntX3, 1);
+	assert(pix3[0][0] == 21);
+
+	SQ_ARRAY_STEAL(&array, IntX3, 0, 1);
+
+	for (int i = 0;  i < array.length;  i++) {
+		pix3 = sq_array_addr(&array, IntX3, i);
+		printf("%d, %d, %d" "\n", pix3[0][0], pix3[0][1], pix3[0][2]);
+	}
+
+	ix3array = (IntX3Array*)&array;
+	ix3array->data[0][0] = 105;
+	pix3 = sq_array_addr(&array, IntX3, 0);
+	assert(pix3[0][0] == 105);
+
+	sq_array_final(&array);
+}
+
 void test_ptr_array()
 {
+	Sq::PtrArray array;
+	void *ptrs[] = {(void*)test_ptr_array, (void*)test_str_array,
+	                (void*)test_int_array_cpp, (void*)test_intptr_array};
+
+	array.append((void*)test_intx3_array);
+	array.insert(0 ,ptrs, sizeof(ptrs) / sizeof(void*));
+
+	assert(memcmp(array.data, ptrs, sizeof(ptrs)) == 0);
+	assert(array.data[4] == (void*)test_intx3_array);
+}
+
+void test_array()
+{
+	test_ptr_array();
 	test_str_array();
+	test_int_array_cpp();
 	test_intptr_array();
+	test_intx3_array();
 }
 
 // ----------------------------------------------------------------------------
@@ -122,7 +237,7 @@ void test_buffer(void)
 
 int main(void)
 {
-	test_ptr_array();
+	test_array();
 	test_buffer();
 
 	cout << "is_arithmetic : " << std::is_arithmetic<time_t>::value << endl;

@@ -1,5 +1,6 @@
 # --- 'sqxc' sources and headers ---
 set(SOURCES
+    SqArray.c
     SqPtrArray.c
     SqStrArray.c
     SqBuffer.c
@@ -29,6 +30,7 @@ set(HEADERS
     SqConfig.h
     SqDefine.h
     SqError.h
+    SqArray.h
     SqPtrArray.h
     SqStrArray.h
     SqBuffer.h

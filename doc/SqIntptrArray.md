@@ -1,6 +1,6 @@
 [中文](SqIntptrArray.cn.md)
 
-# SqIntptrArray
+# SqIntptrArray (deprecated)
 
 SqIntptrArray is derived class of [SqPtrArray](SqPtrArray.md).  
 SQ_TYPE_INTPTR_ARRAY is a built-in static constant type that can create SqIntptrArray instances.

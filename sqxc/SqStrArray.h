@@ -29,27 +29,20 @@ typedef struct SqStrArray    SqStrArray;
 extern "C" {
 #endif
 
-/*	macro for accessing variable of array
+/* macro for accessing variable of SqStrArray */
 
-	Header field of SqStrArray
-	strArray->data[-1]: (intptr_t) header length
-	strArray->data[-2]: (intptr_t) allocated length
-	strArray->data[-3]: (SqDestroyFunc*) destroy function
- */
+#define sq_str_array_length      sq_array_length
 
-/* macro for SqStrArray */
+#define sq_str_array_capacity    sq_array_capacity
 
-#define sq_str_array_length(array)     \
-		((SqStrArray*)(array))->length
+#define sq_str_array_clear_func  sq_array_clear_func
 
-#define sq_str_array_allocated(array)  \
-		*(intptr_t*)(((SqStrArray*)(array))->data -2)
+// deprecated
+#define sq_str_array_destroy_func    sq_array_clear_func
 
-#define sq_str_array_capacity(array)   \
-		*(intptr_t*)(((SqStrArray*)(array))->data -2)
-
-#define sq_str_array_destroy_func(array)  \
-		*(SqDestroyFunc*)(((SqStrArray*)(array))->data -3)
+//void *sq_str_array_init(SqStrArray *array, int capacity);
+#define sq_str_array_init(array, capacity)    \
+		sq_ptr_array_init(array, capacity, free)
 
 //void *sq_str_array_final(SqStrArray *array);
 #define sq_str_array_final       sq_ptr_array_final
@@ -85,8 +78,6 @@ extern "C" {
 		     element_addr++)
 
 /* C functions */
-void  *sq_str_array_init(SqStrArray *array, int allocated_length);
-
 void   sq_str_array_insert(SqStrArray *array, int index, const char *str);
 void   sq_str_array_insert_n(SqStrArray *array, int index, const char **strs, int count);
 
@@ -155,8 +146,8 @@ namespace Sq {
 struct StrArray : SqStrArray
 {
 	// constructor
-	StrArray(int allocated_length = 0) {
-		sq_str_array_init(this, allocated_length);
+	StrArray(int capacity = 8) {
+		sq_ptr_array_init(this, capacity, free);
 	}
 	// destructor
 	~StrArray() {
@@ -165,9 +156,9 @@ struct StrArray : SqStrArray
 	// copy constructor
 	StrArray(StrArray &src) {
 		sq_str_array_append_n(this, (const char**)src.data, src.length);
-		sq_str_array_destroy_func(this) = sq_str_array_destroy_func(&src);
-		if (sq_str_array_destroy_func(this) == NULL)
-			sq_str_array_destroy_func(this) = free;
+		sq_str_array_clear_func(this) = sq_str_array_clear_func(&src);
+		if (sq_str_array_clear_func(this) == NULL)
+			sq_str_array_clear_func(this) = free;
 	}
 	// move constructor
 	StrArray(StrArray &&src) {

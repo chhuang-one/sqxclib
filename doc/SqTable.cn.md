@@ -271,7 +271,7 @@ C 函数 sq_table_get_primary()，C++ 方法 getPrimary() 可以获取主键。
 	column = table->foreign("foreignName", "columnName");
 ```
 
-***删除外键 Drop foreign key**  
+**删除外键 Drop foreign key**  
   
 要删除外键，您必须指定外键的名称。
 

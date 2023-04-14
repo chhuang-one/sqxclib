@@ -5,11 +5,13 @@
 SqPtrArray is pointer array. Because some structures (e.g. SqType) need to be converted from static to dynamic, its data members must be compatible with these structures.  
 SQ_TYPE_PTR_ARRAY is a built-in static constant type that can create SqPtrArray instances.
 
-	SqPtrArray
-	│
-	├─── SqIntptrArray
-	│
-	└─── SqStrArray
+	SqArray
+	|
+	└─── SqPtrArray
+	     │
+	     ├─── SqIntptrArray
+	     │
+	     └─── SqStrArray
 
 [SqIntptrArray](SqIntptrArray.md) and [SqStrArray](SqStrArray.md) are derived classes of SqPtrArray. They share data structures and code to reduce binary size.  
 [SqIntptrArray](SqIntptrArray.md) is integer array, [SqStrArray](SqStrArray.md) is string array.
@@ -28,37 +30,19 @@ struct SqPtrArray
 };
 ```
 
-There are 3 hidden members in front of SqPtrArray.data:  
-index -1 is number of elements in front of array. (This value is 3 currently)  
-Index -2 is the number of elements actually allocated in the array. (excluding the elements in front of the array)  
-index -3 is destroy function for elements in array.  
+There are hidden members in front of SqPtrArray.data:  
+capacity is the number of elements actually allocated in the array. (excluding the header in front of the array)  
+destroyFunc is destroy function for elements in array.  
   
 Below is the code to access these hidden members:
 
 ```c++
-	SqPtrArray    *array;
-
-	intptr_t       headerLength;
-	intptr_t       capacity;
-	SqDestroyFunc  destroyFunc;
-
-
-	headerLength = (intptr_t) array->data[-1];
-	capacity     = (intptr_t) array->data[-2];
-	destroyFunc  = (SqDestroyFunc) array->data[-3];
-```
-
-There are C functions and C++ methods to access these hidden members.
-
-```c++
 	// C functions
-	headerLength = sq_ptr_array_header_length(array);
-	capacity     = sq_ptr_array_allocated(array);
+	capacity     = sq_ptr_array_capacity(array);
 	destroyFunc  = sq_ptr_array_destroy_func(array);
 
 	// C++ methods
-	headerLength = array->headerLength();
-	capacity     = array->allocated();
+	capacity     = array->capacity();
 	destroyFunc  = array->destroyFunc();
 ```
 
@@ -93,14 +77,6 @@ use C++ language
 	Sq::PtrArray  *array;
 	array = new Sq::PtrArray(capacity, func);
 	delete array;
-```
-
-#### Initialize derived class
-
-sq_ptr_array_init_full() can specify number of elements in front of array. If you define a derived class of SqPtrArray and add more hidden members to it, you can call this function and increase the value of 'headerLength'.
-
-```c
-	sq_ptr_array_init_full(array, capacity, headerLength, func);
 ```
 
 ## Allocate

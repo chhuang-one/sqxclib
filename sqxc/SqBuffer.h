@@ -70,31 +70,37 @@ extern "C" {
 
 /* --- macro functions --- for maintaining C/C++ inline functions easily */
 
-// char* sq_buffer_write(SqBuffer *buffer, const char *string);
+//char* SQ_BUFFER_WRITE(SqBuffer *buffer, const char *string);
 #define SQ_BUFFER_WRITE(buffer, string)  \
 		strcpy(sq_buffer_alloc(buffer, (int)strlen(string)), string)
 
-// char* sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);
+//char* SQ_BUFFER_WRITE_N(SqBuffer *buffer, const char *string, int length);
 #define SQ_BUFFER_WRITE_N(buffer, string, length)   \
 		(char*)memcpy(sq_buffer_alloc(buffer, length), string, length)
 
-// void sq_buffer_insert(SqBuffer *buffer, int position, const char *string);
+// void SQ_BUFFER_INSERT(SqBuffer *buffer, int position, const char *string);
 #define SQ_BUFFER_INSERT(buffer, position, string)  \
 		{	int  length = (int)strlen(string);           \
 			memcpy(sq_buffer_alloc_at(buffer, position, length),  \
 			       string, length);                 \
 		}
 
-// void sq_buffer_insert_n(SqBuffer *buffer, int position, const char *string, int length);
+// void SQ_BUFFER_INSERT_N(SqBuffer *buffer, int position, const char *string, int length);
 #define SQ_BUFFER_INSERT_N(buffer, position, string, length)  \
 		memcpy(sq_buffer_alloc_at(buffer, position, length),  \
 		       string, length)
 
-// void sq_buffer_require(SqBuffer *buffer, int length);
+// void SQ_BUFFER_REQUIRE(SqBuffer *buffer, int length);
 #define SQ_BUFFER_REQUIRE(buffer, length)               \
 		if (((SqBuffer*)(buffer))->size < (length)) {   \
 			((SqBuffer*)(buffer))->size = (length);     \
 			((SqBuffer*)(buffer))->mem  = (char*)realloc(((SqBuffer*)(buffer))->mem, (length)); }
+
+/* --- alias --- */
+#define SQ_BUFFER_INSERT_LEN        SQ_BUFFER_INSERT_N
+#define SQ_BUFFER_WRITE_LEN         SQ_BUFFER_WRITE_N
+#define sq_buffer_insert_len        sq_buffer_insert_n
+#define sq_buffer_write_len         sq_buffer_write_n
 
 /* --- C functions --- */
 

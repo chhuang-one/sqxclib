@@ -5,11 +5,13 @@
 SqPtrArray 是指针数组。因为有些结构（例如 SqType）需要从静态转换为动态，所以它的数据成员必须与这些结构兼容。  
 SQ_TYPE_PTR_ARRAY 是内置的静态常量类型，可以创建 SqPtrArray 实例。
 
-	SqPtrArray
-	│
-	├─── SqIntptrArray
-	│
-	└─── SqStrArray
+	SqArray
+	|
+	└─── SqPtrArray
+	     │
+	     ├─── SqIntptrArray
+	     │
+	     └─── SqStrArray
 
 [SqIntptrArray](SqIntptrArray.cn.md) 和 [SqStrArray](SqStrArray.cn.md) 是 SqPtrArray 的派生类。它们共享数据结构和代码以减少二进制大小。  
 [SqIntptrArray](SqIntptrArray.cn.md) 是整数数组，[SqStrArray](SqStrArray.cn.md) 是字符串数组。
@@ -28,37 +30,19 @@ struct SqPtrArray
 };
 ```
 
-SqPtrArray.data 前面有 3 个隐藏成员：  
-索引 -1 是数组前面的元素数。（目前这个值为3）  
-索引 -2 是数组中实际分配的元素个数。（不包括数组前面的元素）  
-索引 -3 是数组元素的销毁函数。  
+SqPtrArray.data 前面有隐藏成员：  
+capacity    是数组中实际分配的元素个数。（不包括数组前面的表头）  
+destroyFunc 是数组元素的销毁函数。  
   
 下面是访问这些隐藏成员的代码：
 
 ```c++
-	SqPtrArray    *array;
-
-	intptr_t       headerLength;
-	intptr_t       capacity;
-	SqDestroyFunc  destroyFunc;
-
-
-	headerLength = (intptr_t) array->data[-1];
-	capacity     = (intptr_t) array->data[-2];
-	destroyFunc  = (SqDestroyFunc) array->data[-3];
-```
-
-有 C 函数和 C++ 方法可以访问这些隐藏成员。
-
-```c++
 	// C 函数
-	headerLength = sq_ptr_array_header_length(array);
-	capacity     = sq_ptr_array_allocated(array);
+	capacity     = sq_ptr_array_capacity(array);
 	destroyFunc  = sq_ptr_array_destroy_func(array);
 
 	// C++ 方法
-	headerLength = array->headerLength();
-	capacity     = array->allocated();
+	capacity     = array->capacity();
 	destroyFunc  = array->destroyFunc();
 ```
 
@@ -93,14 +77,6 @@ C 函数 sq_ptr_array_init()，C++ 方法 init() 可以初始化 SqPtrArray 的�
 	Sq::PtrArray  *array;
 	array = new Sq::PtrArray(capacity, func);
 	delete array;
-```
-
-#### 初始化派生类
-
-sq_ptr_array_init_full() 可以指定数组前面的元素个数。如果你定义一个 SqPtrArray 的派生类，并向它添加更多的隐藏成员，你可以调用这个函数并增加 'headerLength' 的值。
-
-```c
-	sq_ptr_array_init_full(array, capacity, headerLength, func);
 ```
 
 ## 分配 Allocate

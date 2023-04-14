@@ -1,6 +1,6 @@
 [English](SqIntptrArray.md)
 
-# SqIntptrArray
+# SqIntptrArray (已棄用)
 
 SqIntptrArray 是 [SqPtrArray](SqPtrArray.cn.md) 的派生类。  
 SQ_TYPE_INTPTR_ARRAY 是一个内置的静态常量类型，可以创建 SqIntptrArray 实例。
