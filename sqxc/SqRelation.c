@@ -18,19 +18,6 @@
 
 typedef struct SqRHeader         SqRHeader;
 
-static SqRelationNode *ptr_x2_array_find_sorted(SqPtrArray *array, const void *key, int *inserted_index);
-
-#define NODE_N_PTR        2    // SqRelationNode has 2 pointers
-
-#define ptr_x2_array_at(array, index)    \
-		(SqRelationNode*)sq_ptr_array_addr(array, index)
-#define ptr_x2_array_end(array)    \
-		(SqRelationNode*)sq_ptr_array_end(array)
-#define ptr_x2_array_erase(array, index)    \
-		sq_ptr_array_erase(array, index, NODE_N_PTR)
-#define ptr_x2_array_alloc_at(array, index)    \
-		(SqRelationNode*)sq_ptr_array_alloc_at(array, index, NODE_N_PTR)
-
 // ----------------------------------------------------------------------------
 // SqRHeader: header of chunk in pool
 
@@ -52,6 +39,10 @@ struct SqRelationPool {
 	unsigned int     n_used;    // number of all used node
 	unsigned int     chunk_size;
 };
+
+//     int cmp_object__node_object(void *object, SqRelationNode *node);
+static int cmp_object__node_object(const void *object, const void *node);
+
 
 SqRelationPool *sq_relation_pool_create(unsigned int chunk_size) {
 	SqRelationPool *rpool;
@@ -143,21 +134,20 @@ SqRelationNode *sq_relation_node_reverse(SqRelationNode *node) {
 // SqRelation
 
 SqRelation *sq_relation_init(SqRelation *relation, SqRelationPool *rpool, int capacity) {
-	// size of SqRelationNode in pool and array == size of 2 pointers
-	sq_ptr_array_init(relation, capacity * NODE_N_PTR, NULL);
+	sq_array_init(relation, sizeof(SqRelationNode), capacity);
 	relation->pool = rpool;
 	return relation;
 }
 
 SqRelation *sq_relation_final(SqRelation *relation) {
-	sq_ptr_array_final(relation);
+	sq_array_final(relation);
 	return relation;
 }
 
 void  sq_relation_clear(SqRelation *relation) {
 	SqRelationNode *node, *node_end, *node_pool, *node_next;
 
-	node_end = ptr_x2_array_end(relation);
+	node_end = sq_array_end(relation, SqRelationNode);
 	for (node = relation->data;  node < node_end;  node++) {
 		for (node_pool = node->next;  node_pool;  node_pool = node_next) {
 			node_next = node_pool->next;
@@ -171,9 +161,9 @@ void  sq_relation_add(SqRelation *relation, const void *from, const void *to, in
 	int      index;
 	SqRelationNode *rnode_from, *rnode_to, *rnode_pool;
 
-	rnode_from = ptr_x2_array_find_sorted((SqPtrArray*)relation, from, &index);
+	rnode_from = sq_array_find_sorted(relation, from, cmp_object__node_object, &index);
 	if (rnode_from == NULL) {
-		rnode_from = ptr_x2_array_alloc_at(relation, index);
+		rnode_from = sq_array_alloc_at(relation, index, 1);
 		rnode_from->object = (void*)from;
 		rnode_from->next = NULL;
 	}
@@ -186,9 +176,9 @@ void  sq_relation_add(SqRelation *relation, const void *from, const void *to, in
 		rnode_from->next = rnode_pool;
 		// add reverse reference
 		if (no_reverse == 0) {
-			rnode_to = ptr_x2_array_find_sorted((SqPtrArray*)relation, to, &index);
+			rnode_to = sq_array_find_sorted(relation, to, cmp_object__node_object, &index);
 			if (rnode_to == NULL) {
-				rnode_to = ptr_x2_array_alloc_at((SqPtrArray*)relation, index);
+				rnode_to = sq_array_alloc_at(relation, index, 1);
 				rnode_to->object = (void*)to;
 				rnode_to->next = NULL;
 			}
@@ -204,7 +194,7 @@ void  sq_relation_add(SqRelation *relation, const void *from, const void *to, in
 void  sq_relation_erase(SqRelation *relation, const void *from, const void *to, int no_reverse, SqDestroyFunc object_free_func) {
 	SqRelationNode *rnode, *rnode_pool;
 
-	rnode = ptr_x2_array_find_sorted((SqPtrArray*)relation, from, NULL);
+	rnode = sq_array_find_sorted(relation, from, cmp_object__node_object, NULL);
 	if (rnode == NULL)
 		return;
 
@@ -229,12 +219,12 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 	SqRelationNode *rnode, *rnode_new, *rnode_pool;
 	int  new_index;
 
-	rnode = ptr_x2_array_find_sorted((SqPtrArray*)relation, old_object, NULL);
+	rnode = sq_array_find_sorted(relation, old_object, cmp_object__node_object, NULL);
 	if (rnode == NULL)
 		return;
-	rnode_new = ptr_x2_array_find_sorted((SqPtrArray*)relation, new_object, &new_index);
+	rnode_new = sq_array_find_sorted(relation, new_object, cmp_object__node_object, &new_index);
 	if (rnode_new == NULL)
-		rnode_new = ptr_x2_array_alloc_at((SqPtrArray*)relation, new_index);
+		rnode_new = sq_array_alloc_at(relation, new_index, 1);
 	else if (rnode_new->next) {
 		for (rnode_pool = rnode; rnode_pool->next; rnode_pool = rnode_pool->next)
 			;
@@ -247,7 +237,7 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 
 	if (no_reverse == 0) {
 		for (rnode = rnode->next;  rnode;  rnode = rnode->next) {
-			rnode_pool = ptr_x2_array_find_sorted((SqPtrArray*)relation, rnode->object, NULL);
+			rnode_pool = sq_array_find_sorted(relation, rnode->object, cmp_object__node_object, NULL);
 			if (rnode_pool == NULL)
 				continue;
 			for (rnode_pool = rnode_pool->next;  rnode_pool;  rnode_pool = rnode_pool->next) {
@@ -261,7 +251,7 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 void  sq_relation_remove_empty(SqRelation *relation) {
 	SqRelationNode *rnode_src, *rnode_dest, *rnode_end;
 
-	rnode_end = (SqRelationNode*) ((void**)relation->data + relation->x2length);
+	rnode_end = relation->data + relation->length;
 	// find first SqRelationNode that has no reference
 	for (rnode_dest = relation->data;  rnode_dest < rnode_end;  rnode_dest++) {
 		if (rnode_dest->next == NULL)
@@ -276,13 +266,13 @@ void  sq_relation_remove_empty(SqRelation *relation) {
 		}
 	}
 
-	relation->x2length = ((void**)rnode_dest - (void**)relation->data);
+	relation->length = rnode_dest - relation->data;
 }
 
 SqRelationNode *sq_relation_find(SqRelation *relation, const void *from, const void *to) {
 	SqRelationNode *rnode;
 
-	rnode = ptr_x2_array_find_sorted((SqPtrArray*)relation, from, NULL);
+	rnode = sq_array_find_sorted(relation, from, cmp_object__node_object, NULL);
 	if (rnode && to)
 		return sq_relation_node_find(rnode->next, to, NULL);
 
@@ -292,44 +282,9 @@ SqRelationNode *sq_relation_find(SqRelation *relation, const void *from, const v
 // ----------------------------------------------------------------------------
 // static functions
 
-static SqRelationNode *ptr_x2_array_find_sorted(SqPtrArray *array, const void *key, int *inserted_index)
+static int cmp_object__node_object(const void *object, const void *node)
 {
-	int      low;
-	int      cur;
-	int      high;
-	void    *addr;
-
-	low  = 0;
-	cur  = 0;
-//	high = array->length / NODE_N_PTR;
-	high = array->length >> 1;    // size of SqRelationNode == size of 2 pointers
-	while (low < high) {
-//		cur = low + ((high - low) / 2);
-		cur = low + ((high - low) >> 1);
-//		addr = array->data + (cur * NODE_N_PTR);
-		addr = array->data + (cur << 1);    // size of SqRelationNode == size of 2 pointers
-
-		if (key == ((SqRelationNode*)addr)->object) {
-			if (inserted_index) {
-//				inserted_index[0] = (cur * NODE_N_PTR);
-				inserted_index[0] = (cur << 1);    // size of SqRelationNode == size of 2 pointers
-			}
-//			return (SqRelationNode*) (array->data + (cur * NODE_N_PTR));
-			return (SqRelationNode*) (array->data + (cur << 1));    // size of SqRelationNode == size of 2 pointers
-		}
-		else if (key < ((SqRelationNode*)addr)->object)
-			high = cur;
-		else    // if (key > ((SqRelationNode*)addr)->object)
-			low = cur + 1;
-	}
-
-	if (inserted_index) {
-		if (cur < low)
-			cur++;
-//		inserted_index[0] = (cur * NODE_N_PTR);
-		inserted_index[0] = (cur << 1);    // size of SqRelationNode == size of 2 pointers
-	}
-	return NULL;
+	return object - ((SqRelationNode*)node)->object;
 }
 
 // ----------------------------------------------------------------------------

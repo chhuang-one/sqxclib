@@ -86,11 +86,6 @@ void test_str_array()
 	delete array;
 }
 
-static int intcmp(int *int1, int *int2)
-{
-	return *int1 - *int2;
-}
-
 void test_int_array_cpp()
 {
 	Sq::Array<int> iarray(0);
@@ -118,7 +113,7 @@ void test_int_array_cpp()
 	assert(iarray[7]      == 19);
 
 	// sort & search
-	iarray.sort((SqCompareFunc)intcmp);
+	iarray.sort();
 
 	for (cur = iarray.begin(); cur < iarray.end();  cur++) {
 		if (cur != iarray.begin())
@@ -127,12 +122,16 @@ void test_int_array_cpp()
 	}
 	std::cout << endl;
 
-	intptr = iarray.search(data2+1, (SqCompareFunc)intcmp);
+	intptr = iarray.search(data2[1]);
 	assert(*intptr == data2[1]);
 
-	intptr = iarray.findSorted(data+3, (SqCompareFunc)intcmp, &index);
+	intptr = iarray.findSorted(data[3], &index);
 	assert(*intptr == data[3]);
 	assert(index == 3);
+
+	// steal
+	iarray.steal(intptr);
+	assert(*intptr == 19);
 }
 
 void test_intx3_array()

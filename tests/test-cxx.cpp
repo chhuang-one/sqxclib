@@ -30,6 +30,8 @@
 #include <SqxcEmpty.h>
 #include <SqStorage.h>
 
+#include <SqPairs.h>
+
 using namespace std;
 
 
@@ -415,6 +417,25 @@ void test_type()
 	assert(type->size == type_size);
 	delete type;
 }
+
+void test_pairs()
+{
+	Sq::Pairs<const char> pairs;
+	const char *val;
+
+	pairs.add("userkey", "uservalue");
+	pairs.add("xkey", "xvalue");
+	pairs.add("ykey", "yvalue");
+	pairs.add("zkey", "zvalue");
+
+	val = pairs.find("ykey");
+	assert(strcmp(val, "yvalue") == 0);
+
+	pairs.remove("userkey");
+	val = pairs.find("userkey");
+	assert(val == NULL);
+}
+
 // ----------------------------------------------------------------------------
 
 int main(void)
@@ -424,5 +445,9 @@ int main(void)
 	test_sqxc();
 	test_storage();
 	test_type();
+
+	// sqxcsupport
+	test_pairs();
+
 	return EXIT_SUCCESS;
 }

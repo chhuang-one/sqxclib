@@ -15,7 +15,7 @@
 #ifndef SQ_RELATION_H
 #define SQ_RELATION_H
 
-#include <SqPtrArray.h>
+#include <SqArray.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.
@@ -136,7 +136,7 @@ struct RelationNodeMethod {
  */
 
 #define SQ_RELATION_MEMBERS      \
-	SQ_PTR_ARRAY_MEMBERS(SqRelationNode, data, x2length);  \
+	SQ_ARRAY_MEMBERS(SqRelationNode, data, length);  \
 	SqRelationPool  *pool
 
 #ifdef __cplusplus
@@ -148,7 +148,7 @@ struct SqRelation
 	SQ_RELATION_MEMBERS;                     // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
 	SqRelationNode  *data;        // sorted by object address.
-	int              x2length;
+	int              length;
 
 	// ------ SqRelation members ------
 	SqRelationPool  *pool;

@@ -54,14 +54,17 @@ extern "C" {
 #define sq_array_header(array)         \
 		( (SqArrayHeader*) (((SqArray*)(array))->data - sizeof(SqArrayHeader)) )
 
+#define sq_array_header_offsetof(HeaderField)    \
+		( sizeof(SqArrayHeader) - offsetof(SqArrayHeader, HeaderField) )
+
 #define sq_array_element_size(array)   \
-		*(int*)( ((SqArray*)(array))->data - sizeof(SqArrayHeader) + offsetof(SqArrayHeader, element_size) )
+		*(int*)( ((SqArray*)(array))->data - sq_array_header_offsetof(element_size) )
 
 #define sq_array_capacity(array)       \
-		*(int*)( ((SqArray*)(array))->data - sizeof(SqArrayHeader) + offsetof(SqArrayHeader, capacity) )
+		*(int*)( ((SqArray*)(array))->data - sq_array_header_offsetof(capacity) )
 
 #define sq_array_clear_func(array)     \
-		*(SqClearFunc*)( ((SqArray*)(array))->data - sizeof(SqArrayHeader) + offsetof(SqArrayHeader, clear_func) )
+		*(SqClearFunc*)( ((SqArray*)(array))->data - sq_array_header_offsetof(clear_func) )
 
 /* macro functions - parameter used only once in macro (except parameter 'array') */
 
@@ -215,15 +218,38 @@ struct ArrayMethod
 
 	// quick sort
 	void   sort(SqCompareFunc func);
+	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
+	void   sort();
+
 	// binary search
 	Type  *search(void *key, SqCompareFunc func);
+	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
+	Type  *search(Type  key);
+
 	// find element in unsorted array
 	Type  *find(void *key, SqCompareFunc cmpfunc);
+	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
+	Type  *find(Type  key);
+
 	// find element in sorted array and get index of element
 	Type  *findSorted(void *key, SqCompareFunc cmpfunc, int *inserted_index = NULL);
+	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
+	Type  *findSorted(Type  key, int *inserted_index = NULL);
 
 	// get element address
 	Type  *addr(int index);
+
+	// SqCompareFunc - static function for sort(), search(), find(), findSorted()
+	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_floating_point<ValueType>::value>::type * = nullptr>
+	static int   compare(ValueType* a, ValueType* b);
+	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_integral<ValueType>::value>::type * = nullptr>
+	static int   compare(ValueType* a, ValueType* b);
 
 	/* ArrayMethod iterator (uncompleted) */
 	typedef Type        *iterator;
@@ -363,22 +389,62 @@ template<class Type>
 inline void  ArrayMethod<Type>::sort(SqCompareFunc func) {
 	SQ_ARRAY_SORT(this, Type, func);
 }
+template <typename Type>
+template <typename ValueType,
+          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
+inline void  ArrayMethod<Type>::sort() {
+	SQ_ARRAY_SORT(this, Type, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
+}
+
 template<class Type>
 inline Type *ArrayMethod<Type>::search(void *key, SqCompareFunc func) {
 	return (Type*) SQ_ARRAY_SEARCH(this, Type, key, func);
 }
+template <typename Type>
+template <typename ValueType,
+          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
+inline Type *ArrayMethod<Type>::search(Type  key) {
+	return (Type*) SQ_ARRAY_SEARCH(this, Type, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
+}
+
 template<class Type>
 inline Type  *ArrayMethod<Type>::find(void *key, SqCompareFunc cmpfunc) {
 	return (Type*) sq_array_find(this, key, cmpfunc);
 }
+template <typename Type>
+template <typename ValueType,
+          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
+inline Type  *ArrayMethod<Type>::find(Type  key) {
+	return (Type*) sq_array_find(this, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
+}
+
 template<class Type>
 inline Type  *ArrayMethod<Type>::findSorted(void *key, SqCompareFunc cmpfunc, int *inserted_index) {
 	return (Type*) sq_array_find_sorted(this, key, cmpfunc, inserted_index);
+}
+template <typename Type>
+template <typename ValueType,
+          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
+inline Type  *ArrayMethod<Type>::findSorted(Type  key, int *inserted_index) {
+	return (Type*) sq_array_find_sorted(this, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>, inserted_index);
 }
 
 template<class Type>
 inline Type *ArrayMethod<Type>::addr(int index) {
 	return (Type*)sq_array_addr(this, Type, index);
+}
+
+template <typename Type>
+template <typename ValueType,
+          typename std::enable_if<std::is_floating_point<ValueType>::value>::type *>
+int  ArrayMethod<Type>::compare(ValueType* a, ValueType* b) {
+	return (*a > *b) - (*a < *b);
+}
+template <typename Type>
+template <typename ValueType,
+          typename std::enable_if<std::is_integral<ValueType>::value>::type *>
+int  ArrayMethod<Type>::compare(ValueType* a, ValueType* b) {
+	return *a - *b;
 }
 
 /* ArrayMethod iterator (uncompleted) */
@@ -453,6 +519,47 @@ struct Array : ArrayMethod<Type>                 // <-- 1. inherit C++ method
 };  // namespace Sq
 
 #endif  // __cplusplus
+
+// ----------------------------------------------------------------------------
+// SqIntArray ( equal Sq::Array<int> )
+
+#define sq_int_array_capacity            sq_array_capacity
+
+// int  sq_int_array_at(void *array, int index);
+#define sq_int_array_at(array, index)    sq_array_at(array, int, index)
+
+// int *sq_int_array_begin(void *array);
+#define sq_int_array_begin(array)        sq_array_begin(array, int)
+
+// int *sq_int_array_end(void *array);
+#define sq_int_array_end(array)          sq_array_end(array, int)
+
+// int *sq_int_array_append(void *array, const int *values, int count);
+#define sq_int_array_append(array, values, count)    \
+		(int*)SQ_ARRAY_APPEND(array, int, values, count)
+
+// int *sq_int_array_insert(void *array, int index, const int *values, int count);
+#define sq_int_array_insert(array, index, values, count)    \
+		(int*)SQ_ARRAY_INSERT(array, int, index, values, count)
+
+/*
+	SqArray
+	|
+	+--- SqIntArray  ( equal Sq::Array<int> )
+ */
+
+#ifdef __cplusplus
+struct SqIntArray : Sq::ArrayMethod<int>         // <-- 1. inherit C++ method
+#else
+struct SqIntArray
+#endif
+{
+	SQ_ARRAY_MEMBERS(int, data, length);         // <-- 2. inherit member variable
+/*	// ------ SqArray members ------
+	int      *data;
+	int       length;
+ */
+};
 
 
 #endif  // SQ_ARRAY_H

@@ -60,12 +60,14 @@ namespace Sq {
 
 	It's derived struct/class must be C++11 standard-layout and has SqPairs members.
  */
-struct PairsMethod {
-	void    add(void *key, void *value);
-	void    remove(void *key);
-	void    erase(void *key);
-	void    steal(void *key);
-	void   *find(void *key);
+template<typename Key, typename Value = Key>
+struct PairsMethod
+{
+	void    add(Key *key, Value *value);
+	void    remove(Key *key);
+	void    erase(Key *key);
+	void    steal(Key *key);
+	Value  *find(Key *key);
 	void    sort();
 };
 
@@ -80,22 +82,22 @@ struct PairsMethod {
  */
 
 #define SQ_PAIRS_MEMBERS                            \
-	SQ_PTR_ARRAY_MEMBERS(void*, data, x2length);    \
+	SQ_ARRAY_MEMBERS(void*, data, length);          \
 	int            sorted;                          \
 	SqCompareFunc  key_compare_func;                \
 	SqDestroyFunc  key_destroy_func;                \
 	SqDestroyFunc  value_destroy_func
 
 #ifdef __cplusplus
-struct SqPairs : Sq::PairsMethod             // <-- 1. inherit C++ member function(method)
+struct SqPairs : Sq::PairsMethod<void, void>     // <-- 1. inherit C++ member function(method)
 #else
 struct SqPairs
 #endif
 {
-	SQ_PAIRS_MEMBERS;                        // <-- 2. inherit member variable
-/*	// ------ SqPtrArray members ------
+	SQ_PAIRS_MEMBERS;                            // <-- 2. inherit member variable
+/*	// ------ SqArray members ------
 	void         **data;
-	int            x2length;
+	int            length;
 
 	// ------ SqPairs members ------
 	int            sorted;
@@ -125,33 +127,53 @@ namespace Sq {
 
 /* define PairsMethod functions. */
 
-inline void   PairsMethod::add(void *key, void *value) {
-	sq_pairs_add((SqPairs*)this, key, value);
+template<typename Key, typename Value>
+inline void   PairsMethod<Key, Value>::add(Key *key, Value *value) {
+	sq_pairs_add((SqPairs*)this, (void*)key, (void*)value);
 }
-inline void   PairsMethod::remove(void *key) {
-	sq_pairs_erase((SqPairs*)this, key);
+template<typename Key, typename Value>
+inline void   PairsMethod<Key, Value>::remove(Key *key) {
+	sq_pairs_erase((SqPairs*)this, (void*)key);
 }
-inline void   PairsMethod::erase(void *key) {
-	sq_pairs_erase((SqPairs*)this, key);
+template<typename Key, typename Value>
+inline void   PairsMethod<Key, Value>::erase(Key *key) {
+	sq_pairs_erase((SqPairs*)this, (void*)key);
 }
-inline void   PairsMethod::steal(void *key) {
-	sq_pairs_steal((SqPairs*)this, key);
+template<typename Key, typename Value>
+inline void   PairsMethod<Key, Value>::steal(Key *key) {
+	sq_pairs_steal((SqPairs*)this, (void*)key);
 }
-inline void  *PairsMethod::find(void *key) {
-	return sq_pairs_find((SqPairs*)this, key);
+template<typename Key, typename Value>
+inline Value *PairsMethod<Key, Value>::find(Key *key) {
+	return (Value*)sq_pairs_find((SqPairs*)this, (void*)key);
 }
-inline void   PairsMethod::sort() {
+template<typename Key, typename Value>
+inline void   PairsMethod<Key, Value>::sort() {
 	sq_pairs_sort((SqPairs*)this);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Pairs : SqPairs {
+template<typename Key = char, typename Value = Key>
+struct Pairs : Sq::PairsMethod<Key, Value>
+{
+	SQ_PAIRS_MEMBERS;                            // <-- 2. inherit member variable
+/*	// ------ SqArray members ------
+	void         **data;
+	int            length;
+
+	// ------ SqPairs members ------
+	int            sorted;
+	SqCompareFunc  key_compare_func;
+	SqDestroyFunc  key_destroy_func;
+	SqDestroyFunc  value_destroy_func;
+ */
+
 	Pairs(SqCompareFunc keyCompareFunc = (SqCompareFunc)sq_pairs_cmp_string) {
-		sq_pairs_init(this, keyCompareFunc);
+		sq_pairs_init((SqPairs*)this, keyCompareFunc);
 	}
 	~Pairs() {
-		sq_pairs_final(this);
+		sq_pairs_final((SqPairs*)this);
 	}
 };
 

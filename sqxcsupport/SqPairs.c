@@ -27,22 +27,12 @@ struct SqPair
 	void  *value;
 };
 
-#define PAIR_N_PTR           2        // SqPair has 2 pointers
-#define N_PAIRS_ALLOCATED    16       // number of pairs allocated at startup
-
-//                                (pairs->x2length / PAIR_N_PTR)
-#define SQ_PAIRS_LENGTH(pairs)    (pairs->x2length >> 1)
-#define SQ_PAIRS_ELEMENT_SIZE     (sizeof(void*) * PAIR_N_PTR)
-
-#define sq_pairs_search(pairs, key, compare_func)       \
-		bsearch( (void*)(key),                          \
-		         pairs->data, SQ_PAIRS_LENGTH(pairs),   \
-		         SQ_PAIRS_ELEMENT_SIZE, (SqCompareFunc)compare_func)
+#define SQ_PAIRS_CAPACITY    16       // number of pairs allocated at startup
 
 
 void  sq_pairs_init(SqPairs *pairs, SqCompareFunc key_compare_func)
 {
-	sq_ptr_array_init(pairs, N_PAIRS_ALLOCATED * PAIR_N_PTR, NULL);
+	sq_array_init(pairs, sizeof(SqPair), SQ_PAIRS_CAPACITY);
 	pairs->sorted = 0;
 	pairs->key_compare_func   = key_compare_func;
 	pairs->key_destroy_func   = NULL;
@@ -51,17 +41,16 @@ void  sq_pairs_init(SqPairs *pairs, SqCompareFunc key_compare_func)
 
 void  sq_pairs_final(SqPairs *pairs)
 {
-	SqPair *element;
-	int     n_element = SQ_PAIRS_LENGTH(pairs);
+	SqPair *cur = (SqPair*)pairs->data,
+	       *end = cur + pairs->length;
 
-	for (int i = 0;  i < n_element;  i += PAIR_N_PTR) {
-		element = (SqPair*)(pairs->data + i);
+	for (;  cur < end;  cur++) {
 		if (pairs->key_destroy_func)
-			pairs->key_destroy_func(element->key);
+			pairs->key_destroy_func(cur->key);
 		if (pairs->value_destroy_func)
-			pairs->value_destroy_func(element->value);
+			pairs->value_destroy_func(cur->value);
 	}
-	sq_ptr_array_final(pairs);
+	sq_array_final(pairs);
 }
 
 void  sq_pairs_add(SqPairs *pairs, void *key, void *value)
@@ -69,7 +58,7 @@ void  sq_pairs_add(SqPairs *pairs, void *key, void *value)
 	SqPair *element;
 
 	pairs->sorted  = 0;
-	element = (SqPair*)sq_ptr_array_alloc(pairs, PAIR_N_PTR);
+	element = (SqPair*)sq_array_alloc(pairs, 1);
 	element->key   = key;
 	element->value = value;
 }
@@ -81,13 +70,13 @@ void  sq_pairs_erase(SqPairs *pairs, void *key)
 	if (pairs->sorted == 0)
 		sq_pairs_sort(pairs);
 
-	element = sq_pairs_search(pairs, &key, pairs->key_compare_func);
+	element = sq_array_find_sorted(pairs, &key, pairs->key_compare_func, NULL);
 	if (element) {
 		if (pairs->key_destroy_func)
 			pairs->key_destroy_func(element->key);
 		if (pairs->value_destroy_func)
 			pairs->value_destroy_func(element->value);
-		sq_ptr_array_erase_addr(pairs, element, PAIR_N_PTR);
+		SQ_ARRAY_STEAL_ADDR(pairs, SqPair, element, 1);
 	}
 }
 
@@ -98,9 +87,9 @@ void    sq_pairs_steal(SqPairs *pairs, void *key)
 	if (pairs->sorted == 0)
 		sq_pairs_sort(pairs);
 
-	element = sq_pairs_search(pairs, &key, pairs->key_compare_func);
+	element = sq_array_find_sorted(pairs, &key, pairs->key_compare_func, NULL);
 	if (element)
-		sq_ptr_array_erase_addr(pairs, element, PAIR_N_PTR);
+		SQ_ARRAY_STEAL_ADDR(pairs, SqPair, element, 1);
 }
 
 void *sq_pairs_find(SqPairs *pairs, void *key)
@@ -110,7 +99,7 @@ void *sq_pairs_find(SqPairs *pairs, void *key)
 	if (pairs->sorted == 0)
 		sq_pairs_sort(pairs);
 
-	element = sq_pairs_search(pairs, &key, pairs->key_compare_func);
+	element = sq_array_find_sorted(pairs, &key, pairs->key_compare_func, NULL);
 	if (element)
 		return element->value;
 	return NULL;
@@ -118,7 +107,7 @@ void *sq_pairs_find(SqPairs *pairs, void *key)
 
 void  sq_pairs_sort(SqPairs *pairs)
 {
-	qsort(pairs->data, SQ_PAIRS_LENGTH(pairs), SQ_PAIRS_ELEMENT_SIZE,
+	qsort(pairs->data, pairs->length, sizeof(SqPair),
 	      (SqCompareFunc)pairs->key_compare_func);
 	pairs->sorted = 1;
 }
