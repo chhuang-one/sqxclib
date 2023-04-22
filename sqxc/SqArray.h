@@ -245,10 +245,7 @@ struct ArrayMethod
 
 	// SqCompareFunc - static function for sort(), search(), find(), findSorted()
 	template <typename ValueType = Type,
-	          typename std::enable_if<std::is_floating_point<ValueType>::value>::type * = nullptr>
-	static int   compare(ValueType* a, ValueType* b);
-	template <typename ValueType = Type,
-	          typename std::enable_if<std::is_integral<ValueType>::value>::type * = nullptr>
+	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
 	static int   compare(ValueType* a, ValueType* b);
 
 	/* ArrayMethod iterator (uncompleted) */
@@ -434,15 +431,22 @@ inline Type *ArrayMethod<Type>::addr(int index) {
 	return (Type*)sq_array_addr(this, Type, index);
 }
 
-template <typename Type>
+// template specialization for ArrayMethod::compare
+template <>
 template <typename ValueType,
-          typename std::enable_if<std::is_floating_point<ValueType>::value>::type *>
-int  ArrayMethod<Type>::compare(ValueType* a, ValueType* b) {
+          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
+int  ArrayMethod<double>::compare(ValueType* a, ValueType* b) {
+	return (*a > *b) - (*a < *b);
+}
+template <>
+template <typename ValueType,
+          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
+int  ArrayMethod<float>::compare(ValueType* a, ValueType* b) {
 	return (*a > *b) - (*a < *b);
 }
 template <typename Type>
 template <typename ValueType,
-          typename std::enable_if<std::is_integral<ValueType>::value>::type *>
+          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
 int  ArrayMethod<Type>::compare(ValueType* a, ValueType* b) {
 	return *a - *b;
 }
