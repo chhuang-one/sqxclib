@@ -547,15 +547,15 @@ struct PtrArray : SqPtrArray
 		sq_ptr_array_final(this);
 	}
 	// copy constructor
-	PtrArray(SqPtrArray &src) {
+	PtrArray(const PtrArray &src) {
+		sq_ptr_array_init(this, sq_ptr_array_capacity(&src), sq_ptr_array_clear_func(&src));
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
-//		sq_ptr_array_destroy_func(this) = sq_ptr_array_destroy_func(&src);
 	}
 	// move constructor
-	PtrArray(SqPtrArray &&src) {
-		this->data = src.data;
+	PtrArray(PtrArray &&src) {
+		this->data   = src.data;
 		this->length = src.length;
-		src.data = NULL;
+		src.data   = NULL;
 		src.length = 0;
 	}
 };
@@ -572,7 +572,8 @@ struct IntptrArray : SqIntptrArray
 		sq_ptr_array_final(this);
 	}
 	// copy constructor
-	IntptrArray(IntptrArray &src) {
+	IntptrArray(const IntptrArray &src) {
+		sq_ptr_array_init(this, sq_ptr_array_capacity(&src), sq_ptr_array_clear_func(&src));
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
 	}
 	// move constructor
@@ -596,7 +597,8 @@ struct UintptrArray : SqUintptrArray
 		sq_ptr_array_final(this);
 	}
 	// copy constructor
-	UintptrArray(UintptrArray &src) {
+	UintptrArray(const UintptrArray &src) {
+		sq_ptr_array_init(this, sq_ptr_array_capacity(&src), sq_ptr_array_clear_func(&src));
 		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
 	}
 	// move constructor

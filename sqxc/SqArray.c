@@ -29,11 +29,9 @@ void *sq_array_init(void *array,
 
 void *sq_array_final(void *array)
 {
-/*
 	// it doesn't initialize.
 	if (sq_array_not_inited(array))
 		return array;
-*/
 
 	free(sq_array_header(array));
 

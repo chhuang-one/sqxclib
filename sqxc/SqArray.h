@@ -506,19 +506,21 @@ struct Array : ArrayMethod<Type>                 // <-- 1. inherit C++ method
 		sq_array_final(this);
 	}
 	// copy constructor
-	Array(Array &src) {
+	Array(const Array &src) {
+		sq_array_init(this, sizeof(Type), sq_array_capacity(&src));
 		SQ_ARRAY_APPEND(this, Type, src.data, src.length);
 	}
 	// move constructor
 	Array(Array &&src) {
-		this->data = src.data;
+		this->data   = src.data;
 		this->length = src.length;
-		sq_array_element_size(this) = sq_array_element_size(&src);
-		sq_array_capacity(this)     = sq_array_capacity(&src);
-		src.data = NULL;
+		src.data   = NULL;
 		src.length = 0;
 	}
 };
+
+/* Sq::IntArray */
+typedef Array<int>    IntArray;
 
 };  // namespace Sq
 
@@ -529,6 +531,13 @@ struct Array : ArrayMethod<Type>                 // <-- 1. inherit C++ method
 
 #define sq_int_array_capacity            sq_array_capacity
 
+//void *sq_int_array_init(void *array, int capacity);
+#define sq_int_array_init(array, capacity)    \
+		sq_array_init(array, sizeof(int), capacity)
+
+//void *sq_int_array_final(void *array);
+#define sq_int_array_final               sq_array_final
+
 // int  sq_int_array_at(void *array, int index);
 #define sq_int_array_at(array, index)    sq_array_at(array, int, index)
 
@@ -537,6 +546,12 @@ struct Array : ArrayMethod<Type>                 // <-- 1. inherit C++ method
 
 // int *sq_int_array_end(void *array);
 #define sq_int_array_end(array)          sq_array_end(array, int)
+
+// int *sq_int_array_alloc(void *array, int count);
+#define sq_int_array_alloc               (int*)sq_array_alloc
+
+// int *sq_int_array_alloc_at(void *array, int index, int count);
+#define sq_int_array_alloc_at            (int*)sq_array_alloc_at
 
 // int *sq_int_array_append(void *array, const int *values, int count);
 #define sq_int_array_append(array, values, count)    \

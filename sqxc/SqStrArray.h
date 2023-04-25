@@ -154,17 +154,15 @@ struct StrArray : SqStrArray
 		sq_ptr_array_final(this);
 	}
 	// copy constructor
-	StrArray(StrArray &src) {
+	StrArray(const StrArray &src) {
+		sq_ptr_array_init(this, sq_str_array_capacity(&src), sq_str_array_clear_func(&src));
 		sq_str_array_append_n(this, (const char**)src.data, src.length);
-		sq_str_array_clear_func(this) = sq_str_array_clear_func(&src);
-		if (sq_str_array_clear_func(this) == NULL)
-			sq_str_array_clear_func(this) = free;
 	}
 	// move constructor
 	StrArray(StrArray &&src) {
-		this->data = src.data;
+		this->data   = src.data;
 		this->length = src.length;
-		src.data = NULL;
+		src.data   = NULL;
 		src.length = 0;
 	}
 
