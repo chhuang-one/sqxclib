@@ -8,7 +8,7 @@ set(SOURCES
     SqUtil.c
     SqType.c
     SqType-built-in.c
-    SqType-PtrArray.c
+    SqType-array.c
     SqType-fake.c
     SqEntry.c
     SqColumn.c

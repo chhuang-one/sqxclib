@@ -376,9 +376,11 @@ extern "C" {
 
 /* SqType-built-in.c - built-in types */
 extern  const  SqType      SqType_BuiltIn_[];
+extern  const  SqType      SqType_Array_;
+extern  const  SqType      SqType_IntArray_;
 extern  const  SqType      SqType_PtrArray_;
 extern  const  SqType      SqType_StrArray_;
-extern  const  SqType      SqType_IntptrArray_;
+extern  const  SqType      SqType_IntptrArray_;    // deprecated
 
 enum {
 	SQ_TYPE_BOOL_INDEX,
@@ -435,7 +437,20 @@ enum {
 #define SQ_TYPE_NOT_BUILTIN(type)    \
 		( (type)> SQ_TYPE_BUILTIN_END || (type)< SQ_TYPE_BUILTIN_BEG )
 
-/* define SqType for SqPtrArray (SqType-PtrArray.c)
+/* define SqType for SqArray (SqType-array.c)
+   User must assign element type in SqType.entry and set SqType.n_entry to -1.
+
+	SqType *typeArray = sq_type_copy_static(NULL, SQ_TYPE_ARRAY, NULL);
+	typeArray->entry = (SqEntry**) element_SqType;
+	typeArray->n_entry = -1;
+ */
+#define SQ_TYPE_ARRAY         (&SqType_Array_)
+
+/* implement int array by SqArray (SqType-array.c)
+   User can use SQ_TYPE_INT_ARRAY directly. */
+#define SQ_TYPE_INT_ARRAY     (&SqType_IntArray_)
+
+/* define SqType for SqPtrArray (SqType-array.c)
    User must assign element type in SqType.entry and set SqType.n_entry to -1.
 
 	SqType *typePtrArray = sq_type_copy_static(NULL, SQ_TYPE_PTR_ARRAY, NULL);
@@ -444,11 +459,12 @@ enum {
  */
 #define SQ_TYPE_PTR_ARRAY     (&SqType_PtrArray_)
 
-/* implement string (char*) array by SqPtrArray (SqType-PtrArray.c)
+/* implement string (char*) array by SqPtrArray (SqType-array.c)
    User can use SQ_TYPE_STR_ARRAY directly. */
 #define SQ_TYPE_STR_ARRAY     (&SqType_StrArray_)
 
-/* implement intptr_t array by SqPtrArray (SqType-PtrArray.c)
+/* deprecated
+   implement intptr_t array by SqPtrArray (SqType-array.c)
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
 #define SQ_TYPE_INTPTR_ARRAY  (&SqType_IntptrArray_)
 
