@@ -53,7 +53,7 @@ struct User {
 	int    city_id;    // foreign key
 
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in SQL column
-	SqIntptrArray  ints;    // intptr_t array (JSON array  in SQL column)
+	SqIntArray     ints;    // int array      (JSON array  in SQL column)
 	Post          *post;    // object pointer (JSON object in SQL column)
 
 	time_t         created_at;
@@ -100,7 +100,7 @@ static const SqColumn userColumnsVer1[] = {
 		.foreign = &(SqForeign) {"cities",  "id",  "CASCADE",  "CASCADE"} },
 
 #if SQ_CONFIG_HAVE_JSONC
-	{SQ_TYPE_INTPTR_ARRAY, "ints",  offsetof(User, ints),    0},
+	{SQ_TYPE_INT_ARRAY,    "ints",  offsetof(User, ints),    0},
 	{SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER | SQB_NULLABLE},    // User.post is pointer
 #endif
 
@@ -180,12 +180,12 @@ User *user_new(void) {
 
 	user = calloc(1, sizeof(User));
 //	user->post = calloc(1, sizeof(Post));
-	sq_intptr_array_init(&user->ints, 8);
+	sq_int_array_init(&user->ints, 8);
 	return user;
 }
 
 void user_free(User *user) {
-	sq_intptr_array_final(&user->ints);
+	sq_int_array_final(&user->ints);
 	free(user->name);
 	free(user->email);
 	if (user->post) {
@@ -448,8 +448,8 @@ int  main(void)
 		user->city_id = 1;
 		user->name = strdup("Paul");
 		user->email = strdup("guest@");
-		sq_intptr_array_append(&user->ints, 3);
-		sq_intptr_array_append(&user->ints, 6);
+		*sq_int_array_alloc(&user->ints, 1) = 3;
+		*sq_int_array_alloc(&user->ints, 1) = 6;
 #if 1
 		user->post = calloc(1, sizeof(Post));
 		user->post->title = strdup("PostTitle");

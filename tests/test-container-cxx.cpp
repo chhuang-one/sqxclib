@@ -30,38 +30,6 @@ using namespace std;
 
 // ----------------------------------------------------------------------------
 
-void test_intptr_array()
-{
-	Sq::IntptrArray *array;
-	intptr_t   intarray[] = {0, 3, 2, 5};
-	intptr_t   result[] = {0, 301, 351, 2, 5};
-
-	array = new Sq::IntptrArray();
-	array->insert(0, intarray, 4);
-
-	sq_ptr_array_append_n(array, intarray, 1);
-
-	sq_ptr_array_alloc_at(array, 2, 2);
-	array->data[2] = 301;
-	array->data[3] = 351;
-
-	sq_ptr_array_erase(array, 1, 1);
-
-	// C++ foreach (lambda)
-	array->foreach([](intptr_t element) {
-		printf(" - %d", (int)element);
-	});
-	puts("");
-	// C foreach
-	sq_intptr_array_foreach(array, element) {
-		printf(" - %d", (int)element);
-	}
-	puts("");
-
-	assert(memcmp(array->data, result, sizeof(result)) == 0);
-	delete array;
-}
-
 void test_str_array()
 {
 	Sq::StrArray *array;
@@ -93,7 +61,7 @@ void test_int_array_cpp()
 	int  data[]  = {13, 10, 19, 17};
 	int  data2[] = {28, 25, 27, 26};
 	int  index;
-	int *intptr;
+	int *intaddr;
 
 	// append & insert
 	iarray.append(data, sizeof(data)  / sizeof(int));
@@ -122,16 +90,16 @@ void test_int_array_cpp()
 	}
 	std::cout << endl;
 
-	intptr = iarray.search(data2[1]);
-	assert(*intptr == data2[1]);
+	intaddr = iarray.search(data2[1]);
+	assert(*intaddr == data2[1]);
 
-	intptr = iarray.findSorted(data[3], &index);
-	assert(*intptr == data[3]);
+	intaddr = iarray.findSorted(data[3], &index);
+	assert(*intaddr == data[3]);
 	assert(index == 3);
 
 	// steal
-	iarray.steal(intptr);
-	assert(*intptr == 19);
+	iarray.steal(intaddr);
+	assert(*intaddr == 19);
 }
 
 void test_intx3_array()
@@ -187,7 +155,7 @@ void test_ptr_array()
 {
 	Sq::PtrArray array;
 	void *ptrs[] = {(void*)test_ptr_array, (void*)test_str_array,
-	                (void*)test_int_array_cpp, (void*)test_intptr_array};
+	                (void*)test_int_array_cpp, (void*)&array};
 
 	array.append((void*)test_intx3_array);
 	array.insert(0 ,ptrs, sizeof(ptrs) / sizeof(void*));
@@ -201,7 +169,6 @@ void test_array()
 	test_ptr_array();
 	test_str_array();
 	test_int_array_cpp();
-	test_intptr_array();
 	test_intx3_array();
 }
 

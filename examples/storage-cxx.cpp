@@ -80,7 +80,7 @@ struct Company
 	time_t        updated_at;   // alter table
 
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array (vector) in SQL column
-	Sq::IntptrArray  ints;    // C array for intptr_t
+	Sq::IntArray     ints;    // C array for int
 	Sq::StrArray     strs;    // C array for char*
 	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
 	std::string      strCpp;  // C++ type
@@ -114,7 +114,7 @@ struct Company
 		for (int index = 0;  index < this->ints.length;  index++) {
 			if (index > 0)
 				std::cout << ",";
-			std::cout << (int)this->ints[index];
+			std::cout << this->ints[index];
 		}
 		std::cout << std::endl;
 	}
@@ -188,7 +188,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 #if SQ_CONFIG_HAVE_JSONC
 	table->custom("strs", &Company::strs, SQ_TYPE_STR_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
-	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
+	table->custom("ints", &Company::ints, SQ_TYPE_INT_ARRAY);
 #endif
 
 	table = schema->create<User>("users");
@@ -236,7 +236,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 #if SQ_CONFIG_HAVE_JSONC
 	table->custom("strs", &Company::strs, SQ_TYPE_STR_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
-	table->custom("ints", &Company::ints, SQ_TYPE_INTPTR_ARRAY);
+	table->custom("ints", &Company::ints, SQ_TYPE_INT_ARRAY);
 #endif
 
 	// --- schema version 2 ---
@@ -307,7 +307,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	delete schemaVer5;
 }
 
-void  storage_ptr_array_get_all(Sq::Storage *storage)
+void  storage_get_all_ptr_array(Sq::Storage *storage)
 {
 	Sq::PtrArray *array;
 	Company      *company;
@@ -323,7 +323,7 @@ void  storage_ptr_array_get_all(Sq::Storage *storage)
 	}
 }
 
-void  storage_stl_container_get_all(Sq::Storage *storage)
+void  storage_get_all_stl_container(Sq::Storage *storage)
 {
 	std::list<Company> *container;
 	std::list<Company>::iterator cur, end;
@@ -340,7 +340,7 @@ void  storage_stl_container_get_all(Sq::Storage *storage)
 	}
 }
 
-void  storage_ptr_array_query_join(Sq::Storage *storage)
+void  storage_query_join_ptr_array(Sq::Storage *storage)
 {
 	Sq::PtrArray  *array;
 	Sq::Query     *query;
@@ -372,7 +372,7 @@ void  storage_ptr_array_query_join(Sq::Storage *storage)
 	delete query;
 }
 
-void  storage_stl_container_query_join(Sq::Storage *storage)
+void  storage_query_join_stl_container(Sq::Storage *storage)
 {
 	std::vector< Sq::Joint<2> > *j2vector;
 	std::vector< Sq::Joint<2> >::iterator cur, end;
@@ -403,10 +403,10 @@ void  storage_stl_container_query_join(Sq::Storage *storage)
 
 // ----------------------------------------------------------------------------
 
-intptr_t  intptrArray1[] = { 1,  3,  5,  7};
-intptr_t  intptrArray2[] = { 9, 11, 13, 15};
-int       intArray1[]    = { 2,  4,  6,  8};
-int       intArray2[]    = {10, 12, 14, 16};
+int  intArray1[] = { 1,  3,  5,  7};
+int  intArray2[] = { 9, 11, 13, 15};
+int  intArray3[] = { 2,  4,  6,  8};
+int  intArray4[] = {10, 12, 14, 16};
 
 void check_standard_layout()
 {
@@ -485,8 +485,8 @@ int  main(int argc, char *argv[])
 	company->strCpp = "test std::string 1";
 	company->strs.append("str1");
 	company->strs.append("str2");
-	company->ints.append(intptrArray1, 4);
-	company->intsCpp.assign(intArray1, intArray1+4);
+	company->ints.append(intArray1, 4);
+	company->intsCpp.assign(intArray3, intArray3+4);
 //	storage->insert<Company>(company);
 	storage->insert(company);
 	delete company;
@@ -500,8 +500,8 @@ int  main(int argc, char *argv[])
 	company->strCpp = "test std::string 2";
 	company->strs.append("str3");
 	company->strs.append("str4");
-	company->ints.append(intptrArray2, 4);
-	company->intsCpp.assign(intArray2, intArray2+4);
+	company->ints.append(intArray2, 4);
+	company->intsCpp.assign(intArray4, intArray4+4);
 //	storage->insert<Company>(company);
 	storage->insert(company);
 	delete company;
@@ -530,12 +530,12 @@ int  main(int argc, char *argv[])
 	}
 
 	// call Sq::Storage.getAll()
-	storage_ptr_array_get_all(storage);
-	storage_stl_container_get_all(storage);
+	storage_get_all_ptr_array(storage);
+	storage_get_all_stl_container(storage);
 
 	// call Sq::Storage.query()
-	storage_ptr_array_query_join(storage);
-	storage_stl_container_query_join(storage);
+	storage_query_join_ptr_array(storage);
+	storage_query_join_stl_container(storage);
 
 	storage->close();
 	delete storage;

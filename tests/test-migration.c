@@ -35,7 +35,7 @@ struct User {
 	int    city_id;
 	int    company_id;
 
-	SqIntptrArray  posts;
+	SqIntArray     posts;
 
 	time_t         created_at;
 	time_t         updated_at;
@@ -78,7 +78,7 @@ static const SqColumn  *UserColumns[] = {
 	             .foreign = &(SqForeign) {"companies", "id",  "NO ACTION",  "NO ACTION"} },
 
 	// "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-	&(SqColumn) {SQ_TYPE_TIME,     "created_at", offsetof(User, created_at), SQB_CURRENT},
+	&(SqColumn) {SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
 
 	// "email"  VARCHAR
 	&(SqColumn) {SQ_TYPE_STR,    "email",   offsetof(User, email), SQB_HIDDEN_NULL},
@@ -92,7 +92,7 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_INT,    "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
 
 	&(SqColumn) {SQ_TYPE_STR,    "name",    offsetof(User, name),  0},
-	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "posts", offsetof(User, posts), 0},
+	&(SqColumn) {SQ_TYPE_INT_ARRAY, "posts", offsetof(User, posts), 0},
 
 	// "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	&(SqColumn) {SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at),  SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
@@ -187,7 +187,7 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 	sq_column_primary(column);
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
-	column = sq_table_add_custom(table, "posts", offsetof(User, posts), SQ_TYPE_INTPTR_ARRAY, -1);
+	column = sq_table_add_custom(table, "posts", offsetof(User, posts), SQ_TYPE_INT_ARRAY, -1);
 
 	column = sq_table_add_timestamp(table, "created_at", offsetof(User, created_at));
 	sq_column_use_current(column);
@@ -223,7 +223,7 @@ void  create_user_table_by_macro(SqSchema *schema)
 		SQT_STRING_AS(User, email, -1);
 		SQT_INTEGER_AS(User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
 		SQT_INTEGER_AS(User, company_id);  SQC_REFERENCE("companies", "id");  SQC_ON_DELETE("cascade");
-		SQT_CUSTOM_AS(User, posts, SQ_TYPE_INTPTR_ARRAY, -1);
+		SQT_CUSTOM_AS(User, posts, SQ_TYPE_INT_ARRAY, -1);
 		SQT_TIMESTAMP_AS(User, created_at);  SQC_USE_CURRENT();
 		SQT_TIMESTAMP_AS(User, updated_at);  SQC_USE_CURRENT();  SQC_USE_CURRENT_ON_UPDATE();
 	});
@@ -235,7 +235,7 @@ void  create_user_table_by_macro(SqSchema *schema)
 		SQT_STRING("email", User, email, -1);
 		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
 		SQT_INTEGER("company_id", User, company_id);  SQC_REFERENCE("companies", "id");  SQC_ON_DELETE("cascade");
-		SQT_CUSTOM("posts", User, posts, SQ_TYPE_INTPTR_ARRAY, -1);
+		SQT_CUSTOM("posts", User, posts, SQ_TYPE_INT_ARRAY, -1);
 		SQT_TIMESTAMP("created_at", User, created_at);  SQC_USE_CURRENT();
 		SQT_TIMESTAMP("updated_at", User, updated_at);  SQC_USE_CURRENT();  SQC_USE_CURRENT_ON_UPDATE();
 	});

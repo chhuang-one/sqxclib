@@ -43,7 +43,7 @@ struct User {
 	char  *email;
 
 	SqStrArray     strs;
-	SqIntptrArray  ints;
+	SqIntArray     ints;
 };
 
 // ----------------------------------------------------------------------------
@@ -53,7 +53,7 @@ struct User {
 static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_STR,          "email",   offsetof(User, email), 0},
 	&(SqColumn) {SQ_TYPE_INT,          "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
-	&(SqColumn) {SQ_TYPE_INTPTR_ARRAY, "ints",    offsetof(User, ints),  0},
+	&(SqColumn) {SQ_TYPE_INT_ARRAY,    "ints",    offsetof(User, ints),  0},
 	&(SqColumn) {SQ_TYPE_STR,          "name",    offsetof(User, name),  0},
 	&(SqColumn) {SQ_TYPE_STR_ARRAY,    "strs",    offsetof(User, strs),  0},
 };
@@ -511,8 +511,8 @@ int  main(void)
 	user->email = "guest@";
 	sq_str_array_init(&user->strs, 8);
 	sq_str_array_append(&user->strs, "first");
-	sq_intptr_array_init(&user->ints, 8);
-	sq_intptr_array_append(&user->ints, 1);
+	sq_int_array_init(&user->ints, 8);
+	*sq_int_array_alloc(&user->ints, 1) = 1;
 
 	test_sqxc_joint_input();
 	test_sqxc_row_input_output();
