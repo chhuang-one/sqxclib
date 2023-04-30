@@ -2,12 +2,14 @@
 
 # SqStrArray
 
-SqStrArray 是 [SqPtrArray](SqPtrArray.cn.md) 的派生类。  
+SqStrArray 是 C 字符串数组。它是 [SqPtrArray](SqPtrArray.cn.md) 的派生类。  
 SQ_TYPE_STR_ARRAY 是一个内置的静态常量类型，可以创建 SqStrArray 实例。
 
-	SqPtrArray
+	SqArray
 	│
-	└─── SqStrArray
+	└─── SqPtrArray
+	     │
+	     └─── SqStrArray
 
 ## 数据成员
 

@@ -58,13 +58,14 @@ Built-in SqType with it's data type
 
 * Different SQL products may map these C data types to different SQL data types.
   
-SqType with it's C container type
+SqType with it's C/C++ container type
 
-| SqType                | C data type    |
-| --------------------- | -------------- |
-| SQ_TYPE_PTR_ARRAY     | SqPtrArray     |
-| SQ_TYPE_STR_ARRAY     | SqStrArray     |
-| SQ_TYPE_INTPTR_ARRAY  | SqIntptrArray  |
+| SqType                 | C data type    | C++ data type  |
+| ---------------------- | -------------- | -------------- |
+| SQ_TYPE_ARRAY          | SqArray        | Sq::Array      |
+| SQ_TYPE_INT_ARRAY      | SqIntArray     | Sq::IntArray   |
+| SQ_TYPE_PTR_ARRAY      | SqPtrArray     | Sq::PtrArray   |
+| SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   |
 
 SqType with it's C++ data type
 

@@ -58,13 +58,14 @@ struct SqType
 
 * 不同的 SQL 产品可能将这些 C 数据类型对应到不同的 SQL 数据类型。
   
-SqType 及其 C 容器类型
+SqType 及其 C/C++ 容器类型
 
-| SqType                | C 数据类型     |
-| --------------------- | -------------- |
-| SQ_TYPE_PTR_ARRAY     | SqPtrArray     |
-| SQ_TYPE_STR_ARRAY     | SqStrArray     |
-| SQ_TYPE_INTPTR_ARRAY  | SqIntptrArray  |
+| SqType                 | C 数据类型     | C++ 数据类型   |
+| ---------------------- | -------------- | -------------- |
+| SQ_TYPE_ARRAY          | SqArray        | Sq::Array      |
+| SQ_TYPE_INT_ARRAY      | SqIntArray     | Sq::IntArray   |
+| SQ_TYPE_PTR_ARRAY      | SqPtrArray     | Sq::PtrArray   |
+| SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   |
 
 SqType 及其 C++ 数据类型
 

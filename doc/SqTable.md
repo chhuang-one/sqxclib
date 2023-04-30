@@ -90,8 +90,8 @@ struct User {
 	// MyStructure is C struct
 	MyStructure    myStruct;
 
-	// SqIntptrArray is integer array that defined in SqPtrArray.h
-	SqIntptrArray  posts;
+	// SqIntArray is integer array that defined in SqArray.h
+	SqIntArray     posts;
 };
 ```
 
@@ -106,7 +106,7 @@ use C language
 
 	// JSON integer array
 	column = sq_table_add_custom(table, "posts", offsetof(User, posts),
-	                             SQ_TYPE_INTPTR_ARRAY, 256);
+	                             SQ_TYPE_INT_ARRAY, 256);
 ```
 
 use C++ language
@@ -118,7 +118,7 @@ use C++ language
 
 	// JSON integer array
 	column = table->custom("posts", offsetof(User, posts),
-	                       SQ_TYPE_INTPTR_ARRAY, 256);
+	                       SQ_TYPE_INT_ARRAY, 256);
 ```
 
 ## Add column

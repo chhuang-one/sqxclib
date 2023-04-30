@@ -90,8 +90,8 @@ struct User {
 	// MyStructure 是 C 结构
 	MyStructure    myStruct;
 
-	// SqIntptrArray 是在 SqPtrArray.h 中定义的整数数组
-	SqIntptrArray  posts;
+	// SqIntArray 是在 SqArray.h 中定义的整数数组
+	SqIntArray     posts;
 };
 ```
 
@@ -106,7 +106,7 @@ struct User {
 
 	// JSON 整数数组
 	column = sq_table_add_custom(table, "posts", offsetof(User, posts),
-	                             SQ_TYPE_INTPTR_ARRAY, 256);
+	                             SQ_TYPE_INT_ARRAY, 256);
 ```
 
 使用 C++ 语言
@@ -118,7 +118,7 @@ struct User {
 
 	// JSON 整数数组
 	column = table->custom("posts", offsetof(User, posts),
-	                       SQ_TYPE_INTPTR_ARRAY, 256);
+	                       SQ_TYPE_INT_ARRAY, 256);
 ```
 
 ## 添加列

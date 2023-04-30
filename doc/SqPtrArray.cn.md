@@ -2,23 +2,22 @@
 
 # SqPtrArray
 
-SqPtrArray 是指针数组。因为有些结构（例如 SqType）需要从静态转换为动态，所以它的数据成员必须与这些结构兼容。  
+SqPtrArray 是指针数组。它是 [SqArray](SqArray.cn.md) 的派生類。  
 SQ_TYPE_PTR_ARRAY 是内置的静态常量类型，可以创建 SqPtrArray 实例。
 
 	SqArray
 	|
 	└─── SqPtrArray
 	     │
-	     ├─── SqIntptrArray
+	     ├─── SqStrArray
 	     │
-	     └─── SqStrArray
+	     └─── SqIntptrArray (deprecated)
 
-[SqIntptrArray](SqIntptrArray.cn.md) 和 [SqStrArray](SqStrArray.cn.md) 是 SqPtrArray 的派生类。它们共享数据结构和代码以减少二进制大小。  
-[SqIntptrArray](SqIntptrArray.cn.md) 是整数数组，[SqStrArray](SqStrArray.cn.md) 是字符串数组。
+[SqArray](SqArray.cn.md) 及其派生類共享數據結構和代碼以減少二進制大小。
 
 ## 数据成员
 
-SqPtrArray 小而简单。可以直接在栈内存中使用。它看起来只有 2 个成员，但实际上其他成员都隐藏在数组的前面。
+与 [SqArray](SqArray.cn.md) 一样，SqPtrArray 在数组前面也有相同的隐藏成员。  
   
 SqPtrArray 结构定义：
 
@@ -31,24 +30,24 @@ struct SqPtrArray
 ```
 
 SqPtrArray.data 前面有隐藏成员：  
-capacity    是数组中实际分配的元素个数。（不包括数组前面的表头）  
-destroyFunc 是数组元素的销毁函数。  
+capacity  是数组中实际分配的元素个数。（不包括数组前面的表头）  
+clearFunc 是数组中清除元素的函数。  
   
 下面是访问这些隐藏成员的代码：
 
 ```c++
 	// C 函数
-	capacity     = sq_ptr_array_capacity(array);
-	destroyFunc  = sq_ptr_array_destroy_func(array);
+	capacity   = sq_ptr_array_capacity(array);
+	clearFunc  = sq_ptr_array_clear_func(array);
 
 	// C++ 方法
-	capacity     = array->capacity();
-	destroyFunc  = array->destroyFunc();
+	capacity   = array->capacity();
+	clearFunc  = array->clearFunc();
 ```
 
 ## 初始化
 
-C 函数 sq_ptr_array_init()，C++ 方法 init() 可以初始化 SqPtrArray 的实例。  
+C 函数 sq_ptr_array_init()，C++ 构造函数可以初始化 SqPtrArray 的实例。  
   
 使用 C 语言
 
@@ -161,8 +160,8 @@ C 函数 sq_ptr_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的�
 
 ## 删除 Erase / 窃取 Steal
 
-erase() 通过调用 destroy 函数从数组中删除元素。  
-steal() 在不调用 destroy 函数的情况下从数组中删除元素。  
+erase() 通过调用清除函数从数组中删除元素。  
+steal() 在不调用清除函数的情况下从数组中删除元素。  
   
 使用 C 语言
 

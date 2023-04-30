@@ -333,7 +333,44 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	sq_storage_migrate(storage, NULL);
 }
 
-void  storage_query_join(SqStorage *storage)
+void  storage_query_join_array(SqStorage *storage)
+{
+	typedef void *Joint2[2];
+	SqArray    *array;
+	SqQuery    *query;
+	void      **element;
+	City       *city;
+	User       *user;
+
+	query = sq_query_new(NULL);
+//	sq_query_select(query, "cities.id AS 'cities.id'", "users.id AS 'users.id'");
+	sq_query_from(query, "cities");
+	if (storage->db->version < 5)
+		sq_query_join(query, "users",  "cities.id", "=", "%s", "users.city_id");
+	else {
+		// TABLE "users" was renamed to "users2" in schema version 5
+		// DROP TABLE "user2" in schema version 6
+		sq_query_join(query, "users2", "cities.id", "=", "%s", "users2.city_id");
+	}
+
+	array = sq_storage_query(storage, query, NULL, SQ_TYPE_ARRAY);
+	if (array) {
+		for (int i = 0;  i < array->length;  i++) {
+			element = sq_array_at(array, Joint2, i);
+			city = (City*)element[0];
+			city_print(city);
+			city_free(city);
+			user = (User*)element[1];
+			user_print(user);
+			user_free(user);
+		}
+		sq_array_free(array);
+	}
+
+	sq_query_free(query);
+}
+
+void  storage_query_join_ptr_array(SqStorage *storage)
 {
 	SqPtrArray *array;
 	SqQuery    *query;
@@ -490,7 +527,8 @@ int  main(void)
 		user_free(user);
 	}
 
-	storage_query_join(storage);
+	storage_query_join_array(storage);
+	storage_query_join_ptr_array(storage);
 
 	sq_storage_close(storage);
 	return EXIT_SUCCESS;

@@ -57,8 +57,40 @@ Because SqTypeJoint create pointer array, user can specify pointer to pointer (d
 	// element[1] = instance of 2nd table struct
 ```
 
-If you don't want to use pointer as element of C++ STL container, you can use Sq::Joint to replace it.  
-Sq::Joint just wraps array of pointers into struct. User must use it with C++ STL because C++ STL can NOT directly use array as element of container.  
+If you don't want to use pointer as element of container, you can define array as new data type to replace it.  
+When you define array as data type, it must specify the size of the array. For example, if query joins 2 tables, the size of array must specify a number of 2 or greater.  
+  
+use C language
+
+```c
+	typedef void *Joint2[2];    // define array as new data type
+	SqArray *array;
+
+	// specify the table type as NULL (default value)
+	// specify the container type of returned data as SQ_TYPE_ARRAY
+	array = sq_storage_query(storage, query, NULL, SQ_TYPE_ARRAY);
+	void **element = sq_array_at(array, Joint2, index);
+
+	// element[0] = instance of 1st table struct
+	// element[1] = instance of 2nd table struct
+```
+
+use C++ language
+
+```c++
+	typedef void *Joint2[2];    // define array as new data type
+	Sq::Array<Joint2> *array;
+
+	// specify the container type of returned data as SQ_TYPE_ARRAY
+	array = (Sq::Array<Joint2>*) storage->query(query, SQ_TYPE_ARRAY);
+	Joint2 &element = array->at(index);
+//	void  **element = vector->at(index);    // this also workable
+
+	// element[0] = instance of 1st table struct
+	// element[1] = instance of 2nd table struct
+```
+
+If you use C++ STL container or do not want to define new data type, you can use Sq::Joint instead. It just wraps array of pointers into struct.  
 When Sq::Joint is used, it must specify the size of the array. For example, if query joins 2 tables, the size of Sq::Joint array must specify a number of 2 or greater.
 
 ```c++

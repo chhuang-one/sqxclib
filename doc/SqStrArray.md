@@ -2,12 +2,14 @@
 
 # SqStrArray
 
-SqStrArray is derived class of [SqPtrArray](SqPtrArray.md).  
+SqStrArray is C string array. It is derived class of [SqPtrArray](SqPtrArray.md).  
 SQ_TYPE_STR_ARRAY is a built-in static constant type that can create SqStrArray instances.
 
-	SqPtrArray
+	SqArray
 	│
-	└─── SqStrArray
+	└─── SqPtrArray
+	     │
+	     └─── SqStrArray
 
 ## Data members
 

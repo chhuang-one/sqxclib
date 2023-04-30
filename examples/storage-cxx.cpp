@@ -334,10 +334,41 @@ void  storage_get_all_stl_container(Sq::Storage *storage)
 //	container = storage->getAll< std::vector<Company> >();
 	if (container) {
 		for (cur = container->begin(), end = container->end();  cur != end;  cur++)
-			(*cur).print();
+			cur->print();
 		// free
 		delete container;
 	}
+}
+
+void  storage_query_join_array(Sq::Storage *storage)
+{
+	typedef void *Joint2[2];
+	Sq::Array<Joint2> *array;
+	Sq::Array<Joint2>::iterator cur, end;
+	Sq::Query   *query;
+	void       **element;
+	Company     *company;
+	User        *user;
+
+	query = new Sq::Query;
+//	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
+	query->from("companies")->join("users", "companies.id", "=", "%s", "users.company_id");
+
+	array = (Sq::Array<Joint2>*)storage->query(query, SQ_TYPE_ARRAY);
+	if (array) {
+		for (cur = array->begin(), end = array->end();  cur != end;  cur++) {
+			element = *cur;
+			company = (Company*)element[0];
+			company->print();
+			delete company;
+			user = (User*)element[1];
+			user->print();
+			delete user;
+		}
+		delete array;
+	}
+
+	delete query;
 }
 
 void  storage_query_join_ptr_array(Sq::Storage *storage)
@@ -387,7 +418,7 @@ void  storage_query_join_stl_container(Sq::Storage *storage)
 	j2vector = storage->query< std::vector< Sq::Joint<2> > >(query);
 	if (j2vector) {
 		for (cur = j2vector->begin(), end = j2vector->end();  cur != end;  cur++) {
-			Sq::Joint<2> &element = (*cur);
+			Sq::Joint<2> &element = *cur;
 			company = (Company*)element[0];
 			company->print();
 			delete company;
@@ -534,6 +565,7 @@ int  main(int argc, char *argv[])
 	storage_get_all_stl_container(storage);
 
 	// call Sq::Storage.query()
+	storage_query_join_array(storage);
 	storage_query_join_ptr_array(storage);
 	storage_query_join_stl_container(storage);
 

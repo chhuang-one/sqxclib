@@ -57,8 +57,40 @@ SqTypeJoint 是处理多表连接查询的默认类型。它可以为查询结�
 	// element[1] = 第二个表结构的实例
 ```
 
-如果你不想使用指针作为 C++ STL 容器的元素，你可以使用 Sq::Joint 来代替它。  
-Sq::Joint 只是将指针数组包装到结构中。因为 C++ STL 不能直接将数组用作容器的元素，所以用户必须将它与 C++ STL 一起使用。  
+如果你不想使用指针作为容器的元素，您可以将数组定义为新的数据类型来替换它。  
+将数组定义为数据类型时，必须指定数组的大小。例如，如果查询连接 2 个表，则数组的大小必须指定为 2 或更大的数字。  
+  
+使用 C 语言
+
+```c
+	typedef void *Joint2[2];    // 将数组定义为新的数据类型
+	SqArray *array;
+
+	// 指定表类型为 NULL（默认值）
+	// 指定返回数据的容器类型为 SQ_TYPE_ARRAY
+	array = sq_storage_query(storage, query, NULL, SQ_TYPE_ARRAY);
+	void **element = sq_array_at(array, Joint2, index);
+
+	// element[0] = 第一个表结构的实例
+	// element[1] = 第二个表结构的实例
+```
+
+使用 C++ 语言
+
+```c++
+	typedef void *Joint2[2];    // 将数组定义为新的数据类型
+	Sq::Array<Joint2> *array;
+
+	// 指定返回数据的容器类型为 SQ_TYPE_ARRAY
+	array = (Sq::Array<Joint2>*) storage->query(query, SQ_TYPE_ARRAY);
+	Joint2 &element = array->at(index);
+//	void  **element = array->at(index);    // 這也可行
+
+	// element[0] = 第一个表结构的实例
+	// element[1] = 第二个表结构的实例
+```
+
+如果您使用 C++ STL 容器或不想定義新的數據類型，你可以使用 Sq::Joint 来代替它。它只是将指针数组包装到结构中。  
 使用 Sq::Joint 时，必须指定数组的大小。例如，如果查询连接 2 个表，则 Sq::Joint 数组的大小必须指定为 2 或更大的数字。
 
 ```c++

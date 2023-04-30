@@ -2,23 +2,22 @@
 
 # SqPtrArray
 
-SqPtrArray is pointer array. Because some structures (e.g. SqType) need to be converted from static to dynamic, its data members must be compatible with these structures.  
+SqPtrArray is pointer array. It is derived classes of [SqArray](SqArray.md).  
 SQ_TYPE_PTR_ARRAY is a built-in static constant type that can create SqPtrArray instances.
 
 	SqArray
 	|
 	└─── SqPtrArray
 	     │
-	     ├─── SqIntptrArray
+	     ├─── SqStrArray
 	     │
-	     └─── SqStrArray
+	     └─── SqIntptrArray (deprecated)
 
-[SqIntptrArray](SqIntptrArray.md) and [SqStrArray](SqStrArray.md) are derived classes of SqPtrArray. They share data structures and code to reduce binary size.  
-[SqIntptrArray](SqIntptrArray.md) is integer array, [SqStrArray](SqStrArray.md) is string array.
+[SqArray](SqArray.md) and it's derived classes share data structures and code to reduce binary size.
 
 ## Data members
 
-SqPtrArray is small and simple. It can be used directly in the stack memory. It appears to have only 2 members, but in fact the other members are hidden in front of the array.  
+Like [SqArray](SqArray.md), SqPtrArray has the same hidden members in front of the array.  
   
 SqPtrArray Structure Definition:
 
@@ -31,24 +30,24 @@ struct SqPtrArray
 ```
 
 There are hidden members in front of SqPtrArray.data:  
-capacity is the number of elements actually allocated in the array. (excluding the header in front of the array)  
-destroyFunc is destroy function for elements in array.  
+capacity  is the number of elements actually allocated in the array. (excluding the header in front of the array)  
+clearFunc is a function that clears elements in an array.  
   
 Below is the code to access these hidden members:
 
 ```c++
 	// C functions
-	capacity     = sq_ptr_array_capacity(array);
-	destroyFunc  = sq_ptr_array_destroy_func(array);
+	capacity   = sq_ptr_array_capacity(array);
+	clearFunc  = sq_ptr_array_clear_func(array);
 
 	// C++ methods
-	capacity     = array->capacity();
-	destroyFunc  = array->destroyFunc();
+	capacity   = array->capacity();
+	clearFunc  = array->clearFunc();
 ```
 
 ## Initialize
 
-C function sq_ptr_array_init(), C++ method init() can initialize instance of SqPtrArray.  
+C function sq_ptr_array_init(), C++ constructor can initialize instance of SqPtrArray.  
   
 use C language
 
@@ -161,8 +160,8 @@ use C++ language
 
 ## Erase / Steal
 
-erase() removes elements from array with calling the destroy function.  
-steal() removes elements from array without calling the destroy function.  
+erase() removes elements from array with calling the clear function.  
+steal() removes elements from array without calling the clear function.  
   
 use C language
 
