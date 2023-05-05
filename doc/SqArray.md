@@ -78,11 +78,24 @@ use C++ language
 
 ## Access element
 
-Returns a element at specified position in the SqArray.
+Returns a element at specified position in the SqArray.  
+  
+use C language
 
 ```c++
+	SqArray *array;
+
 	// C macro (You must specify ElementType here)
 	element = sq_array_at(array, ElementType, index);
+
+	// C data member (You must specify ElementType here)
+	element = ((ElementType*)array->data)[index];
+```
+
+use C++ language
+
+```c++
+	Sq::Array<ElementType> *array;
 
 	// C++ method
 	element = array->at(index);

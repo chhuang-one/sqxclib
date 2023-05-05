@@ -42,7 +42,7 @@ struct SqEntry
 * 动态 SqEntry 可以与动态、常量或静态 SqType 一起使用。
 
 ## 定义结构化数据类型
-您可以查看 [SqType](SqType.cn.md) 以获取更多样本。
+您可以查看 [SqType](SqType.cn.md) 以获取更多示例。
 
 #### 1 定义由常量 SqType 使用的 SqEntry 常量指针数组
 * 注意: 如果为结构定义了常量 SqType，它必须与 SqEntry 的**指针数组**一起使用。

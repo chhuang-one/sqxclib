@@ -648,8 +648,8 @@ User can specify pointer to pointer (double pointer) as element of STL container
 	}
 ```
 
-If you don't want to use pointer as element of C++ STL container, you can use Sq::Joint to replace it.  
-Sq::Joint just wraps array of pointers into struct. User must use it with C++ STL because C++ STL can NOT directly use array as element of container.
+If you don't want to use pointer as element of container, you can see [SqTypeJoint](SqTypeJoint.md) to get more information.  
+Here is one of the C++ STL examples:
 
 ```c++
 	std::vector< Sq::Joint<2> > *vector;

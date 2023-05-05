@@ -166,6 +166,23 @@ use C++ language
 //	array = storage->getAll("users", NULL, NULL, where);
 ```
 
+**Specify container type**  
+  
+If you don't want to use pointer array, you can specify other container type.  
+  
+e.g. The container type is specified as SQ_TYPE_ARRAY (see [SqArray](SqArray.md)).
+
+```c++
+	SqArray    *array;
+	const char *where = NULL;         // SQL WHERE Clause
+
+	// C function
+	array = sq_storage_get_all(storage, "users", NULL, SQ_TYPE_ARRAY, where);
+
+	// C++ method
+	array = storage->getAll("users", NULL, SQ_TYPE_ARRAY, where);
+```
+
 use C++ Standard Template Library (STL)  
   
 The container type is specified as std::list<User>.

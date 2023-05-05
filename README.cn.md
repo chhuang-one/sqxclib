@@ -648,8 +648,8 @@ SQL 语句
 	}
 ```
 
-如果你不想使用指针作为 C++ STL 容器的元素，你可以使用 Sq::Joint 来代替。  
-Sq::Joint 只是将指针数组包装到结构中。因为 C++ STL 不能直接将数组用作容器的元素，所以必须将它与 C++ STL 一起使用。
+如果您不想使用指针作为容器的元素，您可以查看 [SqTypeJoint](SqTypeJoint.cn.md) 以获取更多信息。  
+以下是 C++ STL 示例之一：
 
 ```c++
 	std::vector< Sq::Joint<2> > *vector;

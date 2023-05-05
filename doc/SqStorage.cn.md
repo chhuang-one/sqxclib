@@ -166,6 +166,23 @@ SELECT * FROM users
 //	array = storage->getAll("users", NULL, NULL, where);
 ```
 
+**指定容器类型**  
+  
+如果不想使用指针数组，可以指定其他容器类型。  
+  
+例如：容器类型指定为 SQ_TYPE_ARRAY（参见 [SqArray](SqArray.cn.md)）。
+
+```c++
+	SqArray    *array;
+	const char *where = NULL;         // SQL WHERE 子句
+
+	// C 函数
+	array = sq_storage_get_all(storage, "users", NULL, SQ_TYPE_ARRAY, where);
+
+	// C++ 方法
+	array = storage->getAll("users", NULL, SQ_TYPE_ARRAY, where);
+```
+
 使用 C++ 标准模板库 (STL)  
   
 容器类型指定为 std::list<User>。

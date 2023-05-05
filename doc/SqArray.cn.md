@@ -78,11 +78,24 @@ C 函数 sq_array_init()，C++ 构造函数可以初始化 SqArray 的实例。
 
 ## 访问元素 Access element
 
-返回 SqArray 中指定位置的元素。
+返回 SqArray 中指定位置的元素。  
+  
+使用 C 语言
 
 ```c++
+	SqArray *array;
+
 	// C 宏 (您必须在此处指定 ElementType)
 	element = sq_array_at(array, ElementType, index);
+
+	// C 数据成员 (您必须在此处指定 ElementType)
+	element = ((ElementType*)array->data)[index];
+```
+
+使用 C++ 语言
+
+```c++
+	Sq::Array<ElementType> *array;
 
 	// C++ 方法
 	element = array->at(index);

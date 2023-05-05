@@ -42,7 +42,7 @@ Declaring bit_field of SqEntry
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
 ## Define structured data type
-You can see [SqType](SqType.md) to get more sample.
+You can see [SqType](SqType.md) to get more example.
 
 #### 1 define constant pointer array of SqEntry that used by constant SqType
 * Note: If you define constant SqType for structure, it must use with **pointer array** of SqEntry.

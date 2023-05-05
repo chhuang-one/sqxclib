@@ -89,7 +89,7 @@ Define bit_field of SqType
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
 ## 1 use SqType to define basic (not structured) data type
-refer source code SqType-built-in.c to get more sample.
+refer source code SqType-built-in.c to get more example.
 
 #### 1.1 Define constant basic (not structured) data type
 
