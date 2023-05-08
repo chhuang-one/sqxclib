@@ -62,6 +62,7 @@ union SqValue
 	const char   *string;
 	const char   *stream;      // Text stream must be null-terminated string
 	void         *pointer;
+	void         *ptr;
 };
 
 // ----------------------------------------------------------------------------

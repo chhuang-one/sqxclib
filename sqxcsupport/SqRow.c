@@ -44,12 +44,12 @@ union RowUnion {
 	RowArray array[2];
 };
 
-SqRow *sq_row_new(int cols_allocated, int allocated)
+SqRow *sq_row_new(int cols_capacity, int capacity)
 {
 	SqRow *row;
 
 	row = malloc(sizeof(SqRow));
-	sq_row_init(row, cols_allocated, allocated);
+	sq_row_init(row, cols_capacity, capacity);
 	return row;
 }
 
@@ -59,15 +59,15 @@ void   sq_row_free(SqRow *row)
 	free(row);
 }
 
-void  sq_row_init(SqRow *row, int cols_allocated, int allocated)
+void  sq_row_init(SqRow *row, int cols_capacity, int capacity)
 {
 	memset(row, 0, sizeof(SqRow));
-	if (cols_allocated) {
-		sq_row_alloc_column(row, cols_allocated);
+	if (cols_capacity) {
+		sq_row_alloc_column(row, cols_capacity);
 		row->cols_length = 0;
 	}
-	if (allocated) {
-		sq_row_alloc(row, allocated);
+	if (capacity) {
+		sq_row_alloc(row, capacity);
 		row->length = 0;
 	}
 }
@@ -348,8 +348,8 @@ static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 	// allocate SqValue
 	temp.val = sq_row_alloc(instance, 1);
 	if (SQ_TYPE_NOT_BUILTIN(type))
-		temp.col = sq_type_init_instance(type, temp.col, true);
-	return type->parse(temp.col, type, src);
+		temp.val = sq_type_init_instance(type, temp.val, true);
+	return type->parse(temp.val, type, src);
 }
 
 static Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest)

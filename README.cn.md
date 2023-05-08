@@ -648,7 +648,11 @@ SQL 语句
 	}
 ```
 
-如果您不想使用指针作为容器的元素，您可以查看 [SqTypeJoint](SqTypeJoint.cn.md) 以获取更多信息。  
+如果你不想使用指针作为容器的元素：
+1. 使用 Sq::Joint 作为 C++ STL 容器的元素。
+2. 使用 typedef 为 C 语言定义 [SqArray](doc/SqArray.md) 的元素类型。
+
+参考 [SqTypeJoint](doc/SqTypeJoint.cn.md) 以获取更多信息。  
 以下是 C++ STL 示例之一：
 
 ```c++

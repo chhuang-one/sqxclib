@@ -648,7 +648,11 @@ User can specify pointer to pointer (double pointer) as element of STL container
 	}
 ```
 
-If you don't want to use pointer as element of container, you can see [SqTypeJoint](SqTypeJoint.md) to get more information.  
+If you don't want to use pointer as element of container:
+1. use Sq::Joint as element of C++ STL container.
+2. use typedef to define element type of [SqArray](doc/SqArray.md) for C language.
+
+Refering [SqTypeJoint](doc/SqTypeJoint.md) to get more information.  
 Here is one of the C++ STL examples:
 
 ```c++

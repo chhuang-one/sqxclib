@@ -46,7 +46,7 @@ void  sq_table_init(SqTable *table, const char *name, const SqType *table_type)
 		table_type = sq_type_new(8, (SqDestroyFunc)sq_column_free);
 	sq_entry_init((SqEntry*)table, table_type);
 	table->name = (name) ? strdup(name) : NULL;
-	table->bit_field |= SQB_POINTER;
+//	table->bit_field |= SQB_POINTER;
 	table->old_name = NULL;
 	// callback for derived Sqdb
 	table->on_destory = NULL;

@@ -30,7 +30,7 @@ static SqForeign *sq_foreign_copy(SqForeign *src);
 
 #define SQ_COMPOSITE_LENGTH_DEFAULT    4
 
-#define sq_composite_allocated(constraint)    *( (intptr_t*) ((constraint)-1) )
+#define sq_composite_capacity(constraint)    *( (intptr_t*) ((constraint)-1) )
 #define sq_composite_alloc(n)                 ( (char**)malloc(sizeof(char*) *(n+1)) +1)
 #define sq_composite_realloc(constraint, n)   ( (char**)realloc((constraint)-1, sizeof(char*) *(n+1)) +1)
 #define sq_composite_free(constraint)         free((constraint)-1)
@@ -185,27 +185,27 @@ void  sq_column_set_composite(SqColumn *column, ...)
 
 void  sq_column_set_composite_va(SqColumn *column, va_list arg_list)
 {
-	int   index, allocated;
+	int   index, capacity;
 
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
 
 	if (column->composite == NULL) {
 		column->composite = sq_composite_alloc(SQ_COMPOSITE_LENGTH_DEFAULT);
-		allocated = SQ_COMPOSITE_LENGTH_DEFAULT;
+		capacity = SQ_COMPOSITE_LENGTH_DEFAULT;
 	}
 	else {
-		allocated = (int)sq_composite_allocated(column->composite);
+		capacity = (int)sq_composite_capacity(column->composite);
 		for (index = 0;  column->composite[index];  index++)
 			free(column->composite[index]);
 	}
 
 	for (index = 0;  ;  index++) {
 		// add string to null terminated string array 
-		if (index == allocated) {
-			allocated *= 2;
-			column->composite = sq_composite_realloc(column->composite, allocated);
-			sq_composite_allocated(column->composite) = allocated;
+		if (index == capacity) {
+			capacity *= 2;
+			column->composite = sq_composite_realloc(column->composite, capacity);
+			sq_composite_capacity(column->composite) = capacity;
 		}
 		const char *name = va_arg(arg_list, const char*);
 		if (name)

@@ -36,10 +36,10 @@ extern  const  SqType      SqType_Row_;
 #define SQ_TYPE_ROW      (&SqType_Row_)
 
 // --- SqRow functions ---
-SqRow *sq_row_new(int cols_allocated, int allocated);
+SqRow *sq_row_new(int cols_capacity, int capacity);
 void   sq_row_free(SqRow *row);
 
-void   sq_row_init(SqRow *row, int cols_allocated, int allocated);
+void   sq_row_init(SqRow *row, int cols_capacity, int capacity);
 void   sq_row_final(SqRow *row);
 
 // free 'name' in row->cols
@@ -221,11 +221,28 @@ struct TypeRow : SqTypeRow, TypeRowMethod {
 };
 
 struct Row : SqRow {
-	Row(int colAllocated = 0, int allocated = 0) {
-		sq_row_init((SqRow*)this, colAllocated, allocated);
+	// constructor
+	Row(int colCapacity = 0, int capacity = 0) {
+		sq_row_init((SqRow*)this, colCapacity, capacity);
 	}
+	// destructor
 	~Row() {
 		sq_row_final((SqRow*)this);
+	}
+	// move constructor
+	Row(Row &&src) {
+		this->data      = src.data;
+		this->length    = src.length;
+		this->allocated = src.allocated;
+		this->cols           = src.cols;
+		this->cols_length    = src.cols_length;
+		this->cols_allocated = src.cols_allocated;
+		src.data      = NULL;
+		src.length    = 0;
+		src.allocated = 0;
+		src.cols           = NULL;
+		src.cols_length    = 0;
+		src.cols_allocated = 0;
 	}
 };
 
