@@ -609,8 +609,9 @@ SQL 语句
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
 		user = (User*)element[1];    // sq_query_join(query, "users", ...);
-		// 在释放 'array' 之前释放 'element'
-		// free(element);
+
+		// 因为 SqPtrArray 默认不释放元素，所以在释放数组之前先释放元素。
+//		free(element);
 	}
 ```
 
@@ -625,8 +626,9 @@ SQL 语句
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
 		user = (User*)element[1];    // join("users")
-		// 在释放 'array' 之前释放 'element'
-		// free(element);
+
+		// 因为 Sq::PtrArray 默认不释放元素，所以在释放数组之前先释放元素。
+//		free(element);
 	}
 ```
 

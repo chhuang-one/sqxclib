@@ -609,8 +609,9 @@ use C functions
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
 		user = (User*)element[1];    // sq_query_join(query, "users", ...);
-		// free 'element' before you free 'array'
-		// free(element);
+
+		// Because SqPtrArray doesn't free elements by default, free elements before freeing array.
+//		free(element);
 	}
 ```
 
@@ -625,8 +626,9 @@ use C++ methods
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
 		user = (User*)element[1];    // join("users")
-		// free 'element' before you free 'array'
-		// free(element);
+
+		// Because Sq::PtrArray doesn't free elements by default, free elements before freeing array.
+//		free(element);
 	}
 ```
 
