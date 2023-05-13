@@ -4,6 +4,10 @@
 
 Instance of SqRow is created by [SqTypeRow](SqTypeRow.md). If [SqTypeRow](SqTypeRow.md) don't know type of columns, all data type in SqRow is C string.
 
+	SqArray
+	|
+	+--- SqRow
+
 ## Arrays in SqRow
 
 SqRow contain 2 arrays. One is column array, another is data array.
@@ -16,12 +20,10 @@ struct SqRow {
 	// data array
 	SqValue      *data;
 	int           length;
-	int           allocated;
 
 	// column array
 	SqRowColumn  *cols;
 	int           cols_length;
-	int           cols_allocated;
 };
 ```
 
@@ -63,6 +65,7 @@ union SqValue {
 	const char   *string;      // SQ_TYPE_STR
 	const char   *stream;      // Text stream must be null-terminated string
 	void         *pointer;     // for user defined type
+	void         *ptr;         // for user defined type
 };
 ```
 
@@ -173,9 +176,35 @@ use C++ language
 	val->integer = 1;             // SqRowColumn.type = SQ_TYPE_INT
 ```
 
-## Other
+## Save memory usage
 
-The C functions sq_row_free_cols_name(), C++ methods freeColsName() can free all SqRowColumn.name in SqRow. This can save memory because all SqRow has the same column name when you get multiple row from the same table.
+Because all rows in the query result have the same column array, sharing the column array among these rows reduces memory usage.
+The C functions sq_row_share_cols(), C++ methods shareCols() can do this.  
+  
+**Note 1**: If column array have been shared, user can not add/remove elements in it.  
+**Note 2**: When SqRow gets the shared column array, it frees its own column array.  
+  
+use C language
+
+```c
+	SqRow *row = array->data[0];     // This 'array' has query result
+
+	// share SqRow.cols to other SqRow
+	for (int index = 1;  index < array.length;  index++)
+		sq_row_share_cols(row, array->data[index]);
+```
+
+use C++ STL
+
+```c++
+	Sq::Row *row = vector->at(0);    // The 'vector' has query result
+
+	// share SqRow.cols to other SqRow
+	for (cur = vector->begin()+1, end = vector->end();  cur != end;  cur++)
+		row->shareCols(*cur);
+```
+
+The C functions sq_row_free_cols_name(), C++ methods freeColsName() can free all SqRowColumn.name in SqRow. This can save memory when you don't need them.
 
 ```c++
 	// C function

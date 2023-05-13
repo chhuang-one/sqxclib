@@ -63,6 +63,9 @@ extern "C" {
 #define sq_array_capacity(array)       \
 		*(int*)( ((SqArray*)(array))->data - sq_array_header_offsetof(capacity) )
 
+#define sq_array_ref_count(array)      \
+		*(int*)( ((SqArray*)(array))->data - sq_array_header_offsetof(ref_count) )
+
 #define sq_array_clear_func(array)     \
 		*(SqClearFunc*)( ((SqArray*)(array))->data - sq_array_header_offsetof(clear_func) )
 
@@ -276,7 +279,7 @@ struct SqArrayHeader
 	int   capacity;
 
 	// reserve: ref_count, bit_field
-	int   int1;
+	int   ref_count;
 	int   int2;
 
 	// reserve: callback functions

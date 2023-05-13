@@ -15,6 +15,8 @@
 #ifndef SQ_ROW_H
 #define SQ_ROW_H
 
+#include <stdbool.h>
+
 #include <SqType.h>
 #include <SqJoint.h>
 
@@ -35,6 +37,13 @@ extern "C" {
 extern  const  SqType      SqType_Row_;
 #define SQ_TYPE_ROW      (&SqType_Row_)
 
+/* macro for accessing variable of SqArray */
+
+#define sq_row_capacity         sq_array_capacity
+
+#define sq_row_cols_capacity(row)    \
+		sq_array_capacity(&(row)->cols)
+
 // --- SqRow functions ---
 SqRow *sq_row_new(int cols_capacity, int capacity);
 void   sq_row_free(SqRow *row);
@@ -42,19 +51,24 @@ void   sq_row_free(SqRow *row);
 void   sq_row_init(SqRow *row, int cols_capacity, int capacity);
 void   sq_row_final(SqRow *row);
 
-// free 'name' in row->cols
+// free 'name' in SqRow.cols
 void   sq_row_free_cols_name(SqRow *row);
 
-// User can NOT use this function directly.
-void  *sq_row_alloc_part(SqRow *row, int n_element, int part, size_t element_size);
+/* share SqRow.cols to other SqRow.
+
+   Because all rows in the query result have the same column array,
+   sharing the column array among these rows reduces memory usage.
+
+   Note1: If column array have been shared, user can not add/remove elements in it.
+   Note2: When SqRow gets the shared column array, it frees its own column array.
+ */
+bool   sq_row_share_cols(SqRow *row, SqRow *share_to);
 
 // SqValue  *sq_row_alloc(SqRow *row, int n_element);
-#define sq_row_alloc(row, n_element)  \
-		( (SqValue*)    sq_row_alloc_part(row, n_element, 0, sizeof(SqValue)) )
+#define sq_row_alloc(row, n_element)    \
+		((SqValue*)sq_array_alloc(row, n_element))
 
-// SqRowColumn *sq_row_alloc_column(SqRow *row, int n_element);
-#define sq_row_alloc_column(row, n_element)  \
-		( (SqRowColumn*)sq_row_alloc_part(row, n_element, 1, sizeof(SqRowColumn)) )
+SqRowColumn *sq_row_alloc_column(SqRow *row, int n_element);
 
 // --- SqTypeRow functions ---
 
@@ -110,9 +124,13 @@ struct TypeRowMethod : Sq::TypeJointMethod {
 
 	It's derived struct/class must be C++11 standard-layout and has SqRow members.
  */
-struct RowMethod {
-	void           freeColsName(void);
-	Sq::Value     *alloc(int  n_element = 1);
+struct RowMethod : ArrayMethod<Sq::Value> {
+	int   colsCapacity(void);
+
+	void  freeColsName(void);
+	bool  shareCols(SqRow *share_to);
+	bool  shareCols(SqRow &share_to);
+
 	Sq::RowColumn *allocColumn(int  n_element = 1);
 };
 
@@ -135,19 +153,15 @@ struct SqRowColumn
 	const SqEntry *entry;
 };
 
-/*
-	SqRow - This can parse unknown(or known) table and column
+/*	SqRow - This can parse unknown(or known) table and column
 
-	Note: data type and order of below SqRow's members can NOT change:
-	      data, length, allocated, cols, cols_length, and cols_allocated.
+	SqArray
+	|
+	+--- SqRow
  */
-#define SQ_ROW_MEMBERS               \
-	SqValue      *data;              \
-	int           length;            \
-	int           allocated;         \
-	SqRowColumn  *cols;              \
-	int           cols_length;       \
-	int           cols_allocated
+#define SQ_ROW_MEMBERS                              \
+	SQ_ARRAY_MEMBERS(SqValue,     data, length);    \
+	SQ_ARRAY_MEMBERS(SqRowColumn, cols, cols_length)
 
 #ifdef __cplusplus
 struct SqRow : Sq::RowMethod                 // <-- 1. inherit C++ member function(method)
@@ -159,11 +173,9 @@ struct SqRow
 /*	// ------ SqRow members ------
 	SqValue      *data;
 	int           length;
-	int           allocated;
 
 	SqRowColumn  *cols;
 	int           cols_length;
-	int           cols_allocated;
  */
 };
 
@@ -199,11 +211,17 @@ namespace Sq {
 /* define TypeRowMethod functions. */
 
 /* define RowMethod functions. */
+int  RowMethod::colsCapacity(void) {
+	return sq_row_cols_capacity((SqRow*)this);
+}
 void RowMethod::freeColsName(void) {
 	sq_row_free_cols_name((SqRow*)this);
 }
-Sq::Value *RowMethod::alloc(int  n_element) {
-	return sq_row_alloc((SqRow*)this, n_element);
+bool RowMethod::shareCols(SqRow *share_to) {
+	return sq_row_share_cols((SqRow*)this, share_to);
+}
+bool RowMethod::shareCols(SqRow &share_to) {
+	return sq_row_share_cols((SqRow*)this, &share_to);
 }
 Sq::RowColumn *RowMethod::allocColumn(int  n_element) {
 	return sq_row_alloc_column((SqRow*)this, n_element);
@@ -231,18 +249,14 @@ struct Row : SqRow {
 	}
 	// move constructor
 	Row(Row &&src) {
-		this->data      = src.data;
-		this->length    = src.length;
-		this->allocated = src.allocated;
-		this->cols           = src.cols;
-		this->cols_length    = src.cols_length;
-		this->cols_allocated = src.cols_allocated;
-		src.data      = NULL;
-		src.length    = 0;
-		src.allocated = 0;
-		src.cols           = NULL;
-		src.cols_length    = 0;
-		src.cols_allocated = 0;
+		this->data        = src.data;
+		this->length      = src.length;
+		this->cols        = src.cols;
+		this->cols_length = src.cols_length;
+		src.data        = NULL;
+		src.length      = 0;
+		src.cols        = NULL;
+		src.cols_length = 0;
 	}
 };
 

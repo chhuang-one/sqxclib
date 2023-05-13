@@ -26,23 +26,9 @@
 
 #define SQ_ROW_LENGTH_DEFAULT    16
 
-typedef union  RowUnion        RowUnion;
-typedef struct RowArray        RowArray;
+#define sq_row_cols(row)              (&(row)->cols)
+#define sq_row_cols_ref_count(row)    sq_array_ref_count(&(row)->cols)
 
-struct RowArray {
-	char  *data;
-	int    length;
-	int    allocated;
-};
-
-/*
-	RowUnion.array[0] = SqRow.data array
-	RowUnion.array[1] = SqRow.cols array
-*/
-union RowUnion {
-	SqRow    row;
-	RowArray array[2];
-};
 
 SqRow *sq_row_new(int cols_capacity, int capacity)
 {
@@ -61,15 +47,13 @@ void   sq_row_free(SqRow *row)
 
 void  sq_row_init(SqRow *row, int cols_capacity, int capacity)
 {
-	memset(row, 0, sizeof(SqRow));
-	if (cols_capacity) {
-		sq_row_alloc_column(row, cols_capacity);
-		row->cols_length = 0;
-	}
-	if (capacity) {
-		sq_row_alloc(row, capacity);
-		row->length = 0;
-	}
+	if (cols_capacity == 0)
+		cols_capacity = SQ_ROW_LENGTH_DEFAULT;
+	if (capacity == 0)
+		capacity = SQ_ROW_LENGTH_DEFAULT;
+	sq_array_init(row, sizeof(SqValue), capacity);
+	sq_array_init(sq_row_cols(row), sizeof(SqRowColumn), cols_capacity);
+	sq_row_cols_ref_count(row) = 1;
 }
 
 void  sq_row_final(SqRow *row)
@@ -77,6 +61,7 @@ void  sq_row_final(SqRow *row)
 	SqRowColumn *col;
 	SqValue     *val;
 	int          index;
+	int          cols_ref_count = --sq_row_cols_ref_count(row);
 
 	for (index = 0;  index < row->length;  index++) {
 		val = row->data + index;
@@ -85,43 +70,50 @@ void  sq_row_final(SqRow *row)
 			free((char*)val->str);
 		else if (SQ_TYPE_NOT_BUILTIN(col->type))
 			sq_type_final_instance(col->type, val, true);
-		free((char*)col->name);
+		// Don't free col->name if row->cols is shared.
+		if (cols_ref_count == 0)
+			free((char*)col->name);
 	}
-	free(row->data);
-	free(row->cols);
+
+	sq_array_final(row);
+	// Don't free row->cols if it is shared.
+	if (cols_ref_count == 0)
+		sq_array_final(sq_row_cols(row));
 }
 
 void   sq_row_free_cols_name(SqRow *row)
 {
-	SqRowColumn *col;
-	int          index;
+	SqRowColumn *col = row->cols;
+	SqRowColumn *end = col + row->cols_length;
 
-	for (index = 0;  index < row->cols_length;  index++) {
-		col = row->cols + index;
+	for (;  col < end;  col++) {
 		free((char*)col->name);
 		col->name = NULL;
 	}
 }
 
-void *sq_row_alloc_part(SqRow *row, int n_element, int part, size_t element_size)
+bool   sq_row_share_cols(SqRow *row, SqRow *share_to)
 {
-	RowArray *array = ((RowUnion*)row)->array + part;
-	union {
-		int  length;
-		int  index;
-	} temp;
+	if (row->cols == share_to->cols)
+		return false;
 
-	temp.length = array->length + n_element;
-	if (array->allocated < temp.length) {
-		if ( (array->allocated*=2) == 0)
-			array->allocated = SQ_ROW_LENGTH_DEFAULT;
-		if (array->allocated < temp.length)
-			array->allocated = temp.length * 2;
-		array->data = realloc(array->data, element_size * array->allocated);
+	if (--sq_row_cols_ref_count(share_to) == 0) {
+		sq_row_free_cols_name(share_to);
+		sq_array_final(sq_row_cols(share_to));
 	}
-	temp.index = array->length;
-	array->length += n_element;
-	return array->data + element_size * temp.index;
+	sq_row_cols_ref_count(row) += 1;
+	share_to->cols = row->cols;
+	share_to->cols_length = row->cols_length;
+	return true;
+}
+
+SqRowColumn *sq_row_alloc_column(SqRow *row, int n_element)
+{
+	// Don't allocate space if row->cols is shared
+	if (sq_row_cols_ref_count(row) > 1)
+		return NULL;
+
+	return sq_array_alloc(sq_row_cols(row), 1);
 }
 
 // ----------------------------------------------------------------------------

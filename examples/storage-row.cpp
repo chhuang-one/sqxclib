@@ -209,6 +209,11 @@ void  queryUnknown(Sq::Storage *storage)
 	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
 
 	if (rowVector) {
+		// share SqRow.cols to other SqRow.
+		Sq::Row *row = rowVector->at(0);
+		for (cur = rowVector->begin()+1, end = rowVector->end();  cur != end;  cur++)
+			row->shareCols(*cur);
+
 		for (cur = rowVector->begin(), end = rowVector->end();  cur != end;  cur++) {
 			// get Sq::Row from std::vector
 			Sq::Row *row = (*cur);

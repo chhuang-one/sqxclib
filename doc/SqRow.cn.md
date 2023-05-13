@@ -4,6 +4,10 @@
 
 SqRow 的实例由 [SqTypeRow](SqTypeRow.cn.md) 创建。如果 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型，则 SqRow 中的所有数据类型都是 C 字符串。
 
+	SqArray
+	|
+	+--- SqRow
+
 ## SqRow 中的数组
 
 SqRow 包含 2 个数组。一个是列数组，另一个是数据数组。
@@ -16,12 +20,10 @@ struct SqRow {
 	// 数据数组
 	SqValue      *data;
 	int           length;
-	int           allocated;
 
 	// 列数组
 	SqRowColumn  *cols;
 	int           cols_length;
-	int           cols_allocated;
 };
 ```
 
@@ -63,6 +65,7 @@ union SqValue {
 	const char   *string;      // SQ_TYPE_STR
 	const char   *stream;      // 文本流必须是以 null 结尾的字符串
 	void         *pointer;     // 用户定义的类型
+	void         *ptr;         // 用户定义的类型
 };
 ```
 
@@ -173,9 +176,35 @@ C 函数 sq_row_alloc_column() 和 sq_row_alloc()，C++ 方法 allocColumn() 和
 	val->integer = 1;             // SqRowColumn.type = SQ_TYPE_INT
 ```
 
-## 其他
+## 节省内存使用
 
-C 函数 sq_row_free_cols_name()、C++ 方法 freeColsName() 可以释放 SqRow 中的所有 SqRowColumn.name。因为当您从同一个表中获取多行时，所有 SqRow 都具有相同的列名，所以这可以节省内存。
+因为查询结果中的所有行都具有相同的列數組，所以在这些行之间共享列數組可以减少内存使用量。
+C 函数 sq_row_share_cols()、C++ 方法 shareCols() 可以做到这一点。  
+  
+**注意1**：如果列數組已共享，则用户无法添加/删除其中的元素。  
+**注意2**：当 SqRow 获取共享列数组时，它会释放自己的列数组。  
+  
+使用 C 语言
+
+```c
+	SqRow *row = array->data[0];     // 這個 'array' 有查詢結果
+
+	// 将 SqRow.cols 分享给其他 SqRow
+	for (int index = 1;  index < array.length;  index++)
+		sq_row_share_cols(row, array->data[index]);
+```
+
+使用 C++ STL
+
+```c++
+	Sq::Row *row = vector->at(0);    // 這個 'vector' 有查詢結果
+
+	// 将 SqRow.cols 分享给其他 SqRow
+	for (cur = vector->begin()+1, end = vector->end();  cur != end;  cur++)
+		row->shareCols(*cur);
+```
+
+C 函数 sq_row_free_cols_name()、C++ 方法 freeColsName() 可以释放 SqRow 中的所有 SqRowColumn.name。当您不需要它们时，这可以节省内存。
 
 ```c++
 	// C 函数
