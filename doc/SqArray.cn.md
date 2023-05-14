@@ -219,7 +219,9 @@ findSorted() 使用二进制搜索在已排序数组中查找元素，如果没�
 	// 您必须在此处指定 ElementType
 	SQ_ARRAY_SORT(array, ElementType, straddr_compare);
 
-	sq_array_find_sorted(array, &key, straddr_compare, &inserted_index);
+	char **elementPtr;
+	elementPtr = sq_array_find(array, &key, straddr_compare);
+	elementPtr = sq_array_find_sorted(array, &key, straddr_compare, &inserted_index);
 ```
 
 使用 C++ 语言
@@ -227,7 +229,9 @@ findSorted() 使用二进制搜索在已排序数组中查找元素，如果没�
 ```c++
 	array->sort(straddr_compare);
 
-	array->findSorted(&key, straddr_compare, &inserted_index);
+	char **elementPtr;
+	elementPtr = array->find(&key, straddr_compare);
+	elementPtr = array->findSorted(&key, straddr_compare, &inserted_index);
 ```
 
 如果在 C++ 中为 Sq::Array 模板指定算术类型，它会生成静态比较函数。  
@@ -235,8 +239,11 @@ findSorted() 使用二进制搜索在已排序数组中查找元素，如果没�
 
 ```c++
 	Sq::Array<int>  intArray;
+	int   key = 31;
 
 	array->sort();
 
-	array->findSorted(&key, &inserted_index);
+	int  *elementPtr;
+	elementPtr = array->find(key);
+	elementPtr = array->findSorted(key, &inserted_index);
 ```

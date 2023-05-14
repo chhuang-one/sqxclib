@@ -27,6 +27,21 @@ struct SqRow {
 };
 ```
 
+There are hidden members in front of SqRow.data:  
+capacity is the number of elements actually allocated in the array. (excluding the header in front of the array)  
+  
+Below is the code to access these hidden members:
+
+```c++
+	// C functions
+	data_capacity = sq_row_capacity(row);
+	cols_capacity = sq_row_cols_capacity(row);
+
+	// C++ methods
+	data_capacity = row->capacity();
+	cols_capacity = row->colsCapacity();
+```
+
 #### Column array
 
 SqRow use SqRowColumn array to store column name, column type, and column entry.
@@ -117,11 +132,11 @@ use C language
 
 ```c
 	SqRow  *row;
-	int     cols_length = 0;    // pre-allocated length of column array
-	int     data_length = 0;    // pre-allocated length of data array
+	int     cols_capacity = 0;    // pre-allocated length of column array
+	int     data_capacity = 0;    // pre-allocated length of data array
 
 	// create new SqRow
-	row = sq_row_new(cols_length, data_length);
+	row = sq_row_new(cols_capacity, data_capacity);
 	// free SqRow
 	sq_row_free(row);
 ```
@@ -130,11 +145,11 @@ use C++ language
 
 ```c++
 	Sq::Row *row;
-	int      colsLength = 0;    // pre-allocated length of column array
-	int      dataLength = 0;    // pre-allocated length of data array
+	int      colsCapacity = 0;    // pre-allocated length of column array
+	int      dataCapacity = 0;    // pre-allocated length of data array
 
 	// create new Sq::Row
-	row = new Sq::Row(colsLength, dataLength);
+	row = new Sq::Row(colsCapacity, dataCapacity);
 	// free Sq::Row
 	delete row;
 ```

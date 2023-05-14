@@ -27,6 +27,21 @@ struct SqRow {
 };
 ```
 
+SqRow.data 前面有隐藏成员：  
+capacity   是数组中实际分配的元素个数。（不包括数组前面的表头）  
+  
+下面是访问这些隐藏成员的代码：
+
+```c++
+	// C 函数
+	data_capacity = sq_row_capacity(row);
+	cols_capacity = sq_row_cols_capacity(row);
+
+	// C++ 方法
+	data_capacity = row->capacity();
+	cols_capacity = row->colsCapacity();
+```
+
 #### 列数组
 
 SqRow 使用 SqRowColumn 数组来存储列名、列类型和列条目。
@@ -117,11 +132,11 @@ union SqValue {
 
 ```c
 	SqRow  *row;
-	int     cols_length = 0;    // 列数组的预分配长度
-	int     data_length = 0;    // 数据数组的预分配长度
+	int     cols_capacity = 0;    // 列数组的预分配长度
+	int     data_capacity = 0;    // 数据数组的预分配长度
 
 	// 创建新的 SqRow
-	row = sq_row_new(cols_length, data_length);
+	row = sq_row_new(cols_capacity, data_capacity);
 	// 释放 SqRow
 	sq_row_free(row);
 ```
@@ -130,11 +145,11 @@ union SqValue {
 
 ```c++
 	Sq::Row *row;
-	int      colsLength = 0;    // 列数组的预分配长度
-	int      dataLength = 0;    // 数据数组的预分配长度
+	int      colsCapacity = 0;    // 列数组的预分配长度
+	int      dataCapacity = 0;    // 数据数组的预分配长度
 
 	// 创建新的 Sq::Row
-	row = new Sq::Row(colsLength, dataLength);
+	row = new Sq::Row(colsCapacity, dataCapacity);
 	// 释放 Sq::Row
 	delete row;
 ```

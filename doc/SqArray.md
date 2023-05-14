@@ -219,7 +219,9 @@ use C language
 	//  You must specify ElementType here
 	SQ_ARRAY_SORT(array, ElementType, straddr_compare);
 
-	sq_array_find_sorted(array, &key, straddr_compare, &inserted_index);
+	char **elementPtr;
+	elementPtr = sq_array_find(array, &key, straddr_compare);
+	elementPtr = sq_array_find_sorted(array, &key, straddr_compare, &inserted_index);
 ```
 
 use C++ language
@@ -227,7 +229,9 @@ use C++ language
 ```c++
 	array->sort(straddr_compare);
 
-	array->findSorted(&key, straddr_compare, &inserted_index);
+	char **elementPtr;
+	elementPtr = array->find(&key, straddr_compare);
+	elementPtr = array->findSorted(&key, straddr_compare, &inserted_index);
 ```
 
 If you specify arithmetic type to Sq::Array template in C++, it will gererate static compare function.  
@@ -235,8 +239,11 @@ In this case, you can call sort(), findSorted()...etc without comparison functio
 
 ```c++
 	Sq::Array<int>  intArray;
+	int   key = 31;
 
 	array->sort();
 
-	array->findSorted(&key, &inserted_index);
+	int  *elementPtr;
+	elementPtr = array->find(key);
+	elementPtr = array->findSorted(key, &inserted_index);
 ```
