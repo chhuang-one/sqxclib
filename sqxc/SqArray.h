@@ -222,11 +222,17 @@ struct ArrayMethod
 	// quick sort
 	void   sort(SqCompareFunc func);
 	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_same<char*, ValueType>::value>::type * = nullptr>
+	void   sort();
+	template <typename ValueType = Type,
 	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
 	void   sort();
 
 	// binary search
 	Type  *search(void *key, SqCompareFunc func);
+	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_same<char*, ValueType>::value>::type * = nullptr>
+	Type  *search(Type  key);
 	template <typename ValueType = Type,
 	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
 	Type  *search(Type  key);
@@ -234,11 +240,17 @@ struct ArrayMethod
 	// find element in unsorted array
 	Type  *find(void *key, SqCompareFunc cmpfunc);
 	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_same<char*, ValueType>::value>::type * = nullptr>
+	Type  *find(Type  key);
+	template <typename ValueType = Type,
 	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
 	Type  *find(Type  key);
 
 	// find element in sorted array and get index of element
 	Type  *findSorted(void *key, SqCompareFunc cmpfunc, int *inserted_index = NULL);
+	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_same<char*, ValueType>::value>::type * = nullptr>
+	Type  *findSorted(Type  key, int *inserted_index = NULL);
 	template <typename ValueType = Type,
 	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
 	Type  *findSorted(Type  key, int *inserted_index = NULL);
@@ -247,6 +259,9 @@ struct ArrayMethod
 	Type  *addr(int index);
 
 	// SqCompareFunc - static function for sort(), search(), find(), findSorted()
+	template <typename ValueType = Type,
+	          typename std::enable_if<std::is_same<char*, ValueType>::value>::type * = nullptr>
+	static int   compare(ValueType* a, ValueType* b);
 	template <typename ValueType = Type,
 	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
 	static int   compare(ValueType* a, ValueType* b);
@@ -391,6 +406,12 @@ inline void  ArrayMethod<Type>::sort(SqCompareFunc func) {
 }
 template <typename Type>
 template <typename ValueType,
+          typename std::enable_if<std::is_same<char*, ValueType>::value>::type *>
+inline void  ArrayMethod<Type>::sort() {
+	SQ_ARRAY_SORT(this, Type, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
+}
+template <typename Type>
+template <typename ValueType,
           typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
 inline void  ArrayMethod<Type>::sort() {
 	SQ_ARRAY_SORT(this, Type, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
@@ -399,6 +420,12 @@ inline void  ArrayMethod<Type>::sort() {
 template<class Type>
 inline Type *ArrayMethod<Type>::search(void *key, SqCompareFunc func) {
 	return (Type*) SQ_ARRAY_SEARCH(this, Type, key, func);
+}
+template <typename Type>
+template <typename ValueType,
+          typename std::enable_if<std::is_same<char*, ValueType>::value>::type *>
+inline Type *ArrayMethod<Type>::search(Type  key) {
+	return (Type*) SQ_ARRAY_SEARCH(this, Type, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
 }
 template <typename Type>
 template <typename ValueType,
@@ -413,6 +440,12 @@ inline Type  *ArrayMethod<Type>::find(void *key, SqCompareFunc cmpfunc) {
 }
 template <typename Type>
 template <typename ValueType,
+          typename std::enable_if<std::is_same<char*, ValueType>::value>::type *>
+inline Type  *ArrayMethod<Type>::find(Type  key) {
+	return (Type*) sq_array_find(this, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
+}
+template <typename Type>
+template <typename ValueType,
           typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
 inline Type  *ArrayMethod<Type>::find(Type  key) {
 	return (Type*) sq_array_find(this, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
@@ -421,6 +454,12 @@ inline Type  *ArrayMethod<Type>::find(Type  key) {
 template<class Type>
 inline Type  *ArrayMethod<Type>::findSorted(void *key, SqCompareFunc cmpfunc, int *inserted_index) {
 	return (Type*) sq_array_find_sorted(this, key, cmpfunc, inserted_index);
+}
+template <typename Type>
+template <typename ValueType,
+          typename std::enable_if<std::is_same<char*, ValueType>::value>::type *>
+inline Type  *ArrayMethod<Type>::findSorted(Type  key, int *inserted_index) {
+	return (Type*) sq_array_find_sorted(this, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>, inserted_index);
 }
 template <typename Type>
 template <typename ValueType,
@@ -446,6 +485,12 @@ template <typename ValueType,
           typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
 int  ArrayMethod<float>::compare(ValueType* a, ValueType* b) {
 	return (*a > *b) - (*a < *b);
+}
+template <typename Type>
+template <typename ValueType,
+          typename std::enable_if<std::is_same<char*, ValueType>::value>::type *>
+int  ArrayMethod<Type>::compare(ValueType* a, ValueType* b) {
+	return strcmp(*a, *b);
 }
 template <typename Type>
 template <typename ValueType,

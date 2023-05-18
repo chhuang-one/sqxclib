@@ -234,7 +234,7 @@ findSorted() 使用二进制搜索在已排序数组中查找元素，如果没�
 	elementPtr = array->findSorted(&key, straddr_compare, &inserted_index);
 ```
 
-如果在 C++ 中为 Sq::Array 模板指定算术类型，它会生成静态比较函数。  
+如果在 C++ 中为 Sq::Array 模板指定算术类型（或 C 字符串類型），它会生成静态比较函数。  
 在这种情况下，您可以在没有比较函数的情况下调用 sort()、findSorted()...等。
 
 ```c++

@@ -234,7 +234,7 @@ use C++ language
 	elementPtr = array->findSorted(&key, straddr_compare, &inserted_index);
 ```
 
-If you specify arithmetic type to Sq::Array template in C++, it will gererate static compare function.  
+If you specify arithmetic type (or C string type) to Sq::Array template in C++, it will generate static compare function.  
 In this case, you can call sort(), findSorted()...etc without comparison function.
 
 ```c++
