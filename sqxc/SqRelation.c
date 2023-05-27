@@ -161,7 +161,7 @@ void  sq_relation_add(SqRelation *relation, const void *from, const void *to, in
 	int      index;
 	SqRelationNode *rnode_from, *rnode_to, *rnode_pool;
 
-	rnode_from = sq_array_find_sorted(relation, from, cmp_object__node_object, &index);
+	rnode_from = SQ_ARRAY_FIND_SORTED(relation, SqRelationNode, from, cmp_object__node_object, &index);
 	if (rnode_from == NULL) {
 		rnode_from = sq_array_alloc_at(relation, index, 1);
 		rnode_from->object = (void*)from;
@@ -176,7 +176,7 @@ void  sq_relation_add(SqRelation *relation, const void *from, const void *to, in
 		rnode_from->next = rnode_pool;
 		// add reverse reference
 		if (no_reverse == 0) {
-			rnode_to = sq_array_find_sorted(relation, to, cmp_object__node_object, &index);
+			rnode_to = SQ_ARRAY_FIND_SORTED(relation, SqRelationNode, to, cmp_object__node_object, &index);
 			if (rnode_to == NULL) {
 				rnode_to = sq_array_alloc_at(relation, index, 1);
 				rnode_to->object = (void*)to;
@@ -194,7 +194,7 @@ void  sq_relation_add(SqRelation *relation, const void *from, const void *to, in
 void  sq_relation_erase(SqRelation *relation, const void *from, const void *to, int no_reverse, SqDestroyFunc object_free_func) {
 	SqRelationNode *rnode, *rnode_pool;
 
-	rnode = sq_array_find_sorted(relation, from, cmp_object__node_object, NULL);
+	rnode = SQ_ARRAY_FIND_SORTED(relation, SqRelationNode, from, cmp_object__node_object, NULL);
 	if (rnode == NULL)
 		return;
 
@@ -219,10 +219,10 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 	SqRelationNode *rnode, *rnode_new, *rnode_pool;
 	int  new_index;
 
-	rnode = sq_array_find_sorted(relation, old_object, cmp_object__node_object, NULL);
+	rnode = SQ_ARRAY_FIND_SORTED(relation, SqRelationNode, old_object, cmp_object__node_object, NULL);
 	if (rnode == NULL)
 		return;
-	rnode_new = sq_array_find_sorted(relation, new_object, cmp_object__node_object, &new_index);
+	rnode_new = SQ_ARRAY_FIND_SORTED(relation, SqRelationNode, new_object, cmp_object__node_object, &new_index);
 	if (rnode_new == NULL)
 		rnode_new = sq_array_alloc_at(relation, new_index, 1);
 	else if (rnode_new->next) {
@@ -237,7 +237,7 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 
 	if (no_reverse == 0) {
 		for (rnode = rnode->next;  rnode;  rnode = rnode->next) {
-			rnode_pool = sq_array_find_sorted(relation, rnode->object, cmp_object__node_object, NULL);
+			rnode_pool = SQ_ARRAY_FIND_SORTED(relation, SqRelationNode, rnode->object, cmp_object__node_object, NULL);
 			if (rnode_pool == NULL)
 				continue;
 			for (rnode_pool = rnode_pool->next;  rnode_pool;  rnode_pool = rnode_pool->next) {
@@ -272,7 +272,7 @@ void  sq_relation_remove_empty(SqRelation *relation) {
 SqRelationNode *sq_relation_find(SqRelation *relation, const void *from, const void *to) {
 	SqRelationNode *rnode;
 
-	rnode = sq_array_find_sorted(relation, from, cmp_object__node_object, NULL);
+	rnode = SQ_ARRAY_FIND_SORTED(relation, SqRelationNode, from, cmp_object__node_object, NULL);
 	if (rnode && to)
 		return sq_relation_node_find(rnode->next, to, NULL);
 

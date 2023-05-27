@@ -78,10 +78,10 @@ void *sq_array_alloc_at(void *array, int index, int count)
 }
 
 void *sq_array_find(void *array,
+                    int   element_size,
                     const void *key,
                     SqCompareFunc cmpfunc)
 {
-	int      element_size = sq_array_element_size(array);
 	uint8_t *cur = sq_array_data(array);
 	uint8_t *end = cur + sq_array_length(array) * element_size;
 
@@ -93,11 +93,11 @@ void *sq_array_find(void *array,
 }
 
 void  *sq_array_find_sorted(void *array,
+                            int   element_size,
                             const void *key,
                             SqCompareFunc compare,
                             int  *inserted_index)
 {
-	int      element_size = sq_array_element_size(array);
 	int      low;
 	int      cur;
 	int      high;

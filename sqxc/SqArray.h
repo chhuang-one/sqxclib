@@ -119,21 +119,15 @@ extern "C" {
 // Removes a value from array without calling the destroy function.
 // void SQ_ARRAY_STEAL(void *array, ElementType, int index, int count);
 #define SQ_ARRAY_STEAL(array, ElementType, index, count)             \
-		{                                                            \
 		memmove(sq_array_data(array) + sizeof(ElementType) * (index),              \
 		        sq_array_data(array) + sizeof(ElementType) * ((index)+(count)),    \
-		        sizeof(ElementType) * (sq_array_length(array)-(index)-(count)) );  \
-		((SqArray*)(array))->length -= (count);                      \
-		}
+		        sizeof(ElementType) * ((sq_array_length(array) -= (count)) - (index)) )
 
 // void SQ_ARRAY_STEAL_ADDR(void *array, ElementType, void **element_addr, int count);
 #define SQ_ARRAY_STEAL_ADDR(array, ElementType, element_addr, count) \
-		{                                                            \
 		memmove(element_addr,                                        \
 		        (ElementType*)(element_addr) + (count),              \
-		        sizeof(ElementType) * (sq_array_length(array) -(count) -((ElementType*)(element_addr) - (ElementType*)sq_array_data(array))) );  \
-		((SqArray*)(array))->length -= (count);                      \
-		}
+		        sizeof(ElementType) * (sq_array_length(array) -= (count)) - ((uint8_t*)(element_addr) - sq_array_data(array)) )
 
 // Quick sort
 // void SQ_ARRAY_SORT(void *array, ElementType, SqCompareFunc compare_func);
@@ -147,6 +141,16 @@ extern "C" {
 		bsearch( (void*)(key),                                       \
 		         sq_array_data(array), ((SqArray*)(array))->length,  \
 		         sizeof(ElementType), (SqCompareFunc)compare_func)
+
+// find element in unsorted array
+//void *SQ_ARRAY_FIND(void *array, ElementType, const void *key, SqCompareFunc cmpfunc);
+#define SQ_ARRAY_FIND(array, ElementType, key, cmpfunc)    \
+		sq_array_find(array, sizeof(ElementType), key, cmpfunc)
+
+// find element in sorted array and get index of element
+//void *SQ_ARRAY_FIND_SORTED(void *array, ElementType, const void *key, SqCompareFunc compare, int *inserted_index);
+#define SQ_ARRAY_FIND_SORTED(array, ElementType, key, cmpfunc, inserted_index)    \
+		sq_array_find_sorted(array, sizeof(ElementType), key, cmpfunc, inserted_index)
 
 /* C functions */
 
@@ -166,11 +170,13 @@ void *sq_array_alloc_at(void *array, int index, int count);
 
 // find element in unsorted array
 void *sq_array_find(void *array,
+                    int   element_size,
                     const void *key,
                     SqCompareFunc cmpfunc);
 
 // find element in sorted array and get index of element
 void *sq_array_find_sorted(void *array,
+                           int   element_size,
                            const void *key,
                            SqCompareFunc compare,
                            int  *inserted_index);
@@ -438,7 +444,7 @@ inline Type *ArrayMethod<Type>::search(Type  key) {
 // find element in unsorted array
 template<class Type>
 inline Type  *ArrayMethod<Type>::find(const void *key, SqCompareFunc cmpfunc) {
-	return (Type*) sq_array_find(this, key, cmpfunc);
+	return (Type*) SQ_ARRAY_FIND(this, Type, key, cmpfunc);
 }
 
 template <typename Type>
@@ -446,13 +452,13 @@ template <typename ValueType,
           typename std::enable_if<std::is_arithmetic< ValueType>::value ||
                                   std::is_same<char*, ValueType>::value>::type *>
 inline Type  *ArrayMethod<Type>::find(Type  key) {
-	return (Type*) sq_array_find(this, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
+	return (Type*) SQ_ARRAY_FIND(this, Type, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
 }
 
 // find element in sorted array and get index of element
 template<class Type>
 inline Type  *ArrayMethod<Type>::findSorted(const void *key, SqCompareFunc cmpfunc, int *inserted_index) {
-	return (Type*) sq_array_find_sorted(this, key, cmpfunc, inserted_index);
+	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, key, cmpfunc, inserted_index);
 }
 
 template <typename Type>
@@ -460,7 +466,7 @@ template <typename ValueType,
           typename std::enable_if<std::is_arithmetic< ValueType>::value ||
                                   std::is_same<char*, ValueType>::value>::type *>
 inline Type  *ArrayMethod<Type>::findSorted(Type  key, int *inserted_index) {
-	return (Type*) sq_array_find_sorted(this, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>, inserted_index);
+	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>, inserted_index);
 }
 
 // SqCompareFunc - static function for sort(), search(), find(), findSorted()

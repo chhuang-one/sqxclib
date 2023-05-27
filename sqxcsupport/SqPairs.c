@@ -70,7 +70,7 @@ void  sq_pairs_erase(SqPairs *pairs, void *key)
 	if (pairs->sorted == 0)
 		sq_pairs_sort(pairs);
 
-	element = sq_array_find_sorted(pairs, &key, pairs->key_compare_func, NULL);
+	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
 	if (element) {
 		if (pairs->key_destroy_func)
 			pairs->key_destroy_func(element->key);
@@ -87,7 +87,7 @@ void    sq_pairs_steal(SqPairs *pairs, void *key)
 	if (pairs->sorted == 0)
 		sq_pairs_sort(pairs);
 
-	element = sq_array_find_sorted(pairs, &key, pairs->key_compare_func, NULL);
+	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
 	if (element)
 		SQ_ARRAY_STEAL_ADDR(pairs, SqPair, element, 1);
 }
@@ -99,7 +99,7 @@ void *sq_pairs_find(SqPairs *pairs, void *key)
 	if (pairs->sorted == 0)
 		sq_pairs_sort(pairs);
 
-	element = sq_array_find_sorted(pairs, &key, pairs->key_compare_func, NULL);
+	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
 	if (element)
 		return element->value;
 	return NULL;

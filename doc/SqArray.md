@@ -27,7 +27,7 @@ SqArray Structure Definition:
 ```c
 struct SqArray
 {
-	uint8_t **data;
+	uint8_t  *data;
 	int       length;
 };
 ```
@@ -220,8 +220,8 @@ use C language
 	SQ_ARRAY_SORT(array, ElementType, straddr_compare);
 
 	char **elementPtr;
-	elementPtr = sq_array_find(array, &key, straddr_compare);
-	elementPtr = sq_array_find_sorted(array, &key, straddr_compare, &inserted_index);
+	elementPtr = SQ_ARRAY_FIND(array, ElementType, &key, straddr_compare);
+	elementPtr = SQ_ARRAY_FIND_SORTED(array, ElementType, &key, straddr_compare, &inserted_index);
 ```
 
 use C++ language

@@ -157,20 +157,11 @@ extern "C" {
 // Removes a value from array without calling the destroy function.
 // void SQ_PTR_ARRAY_STEAL(void *array, int index, int count);
 #define SQ_PTR_ARRAY_STEAL(array, index, count)                  \
-		{                                                        \
-		memmove(sq_ptr_array_addr(array, (index)),               \
-		        sq_ptr_array_addr(array, (index) + (count)),     \
-		        sizeof(void*) * (sq_ptr_array_length(array) -(count) -(index)) );  \
-		((SqPtrArray*)(array))->length -= (count);               \
-		}
+		SQ_ARRAY_STEAL(array, void*, index, count)
 
 // void SQ_PTR_ARRAY_STEAL_ADDR(void *array, void **element_addr, int count);
 #define SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count)      \
-		{                                                        \
-		memmove(element_addr, (void**)(element_addr) + (count),  \
-		        sizeof(void*) * (sq_ptr_array_length(array) -(count) -((void**)(element_addr) - sq_ptr_array_data(array))) );  \
-		((SqPtrArray*)(array))->length -= (count);               \
-		}
+		SQ_ARRAY_STEAL_ADDR(array, void*, element_addr, count)
 
 /* macro for SqIntptrArray */
 
@@ -276,8 +267,13 @@ void  *sq_ptr_array_final(void *array);
 
 void   sq_ptr_array_erase(void *array, int index, int count);
 
-#define sq_ptr_array_find           (void**)sq_array_find
-#define sq_ptr_array_find_sorted    (void**)sq_array_find_sorted
+//void *sq_ptr_array_find(void *array, const void *key, SqCompareFunc cmpfunc);
+#define sq_ptr_array_find(array, key, cmpfunc)    \
+		(void**)sq_array_find(array, sizeof(void*), key, cmpfunc)
+
+//void *sq_array_find_sorted(void *array, const void *key, SqCompareFunc cmpfunc, int *inserted_index);
+#define sq_ptr_array_find_sorted(array, key, cmpfunc, inserted_index)    \
+		(void**)sq_array_find_sorted(array, sizeof(void*), key, cmpfunc, inserted_index)
 
 #ifdef __cplusplus
 }  // extern "C"
