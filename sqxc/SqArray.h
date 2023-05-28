@@ -71,9 +71,9 @@ extern "C" {
 
 /* macro functions - parameter used only once in macro (except parameter 'array') */
 
-//void *sq_array_new(int element_size, int capacity);
-#define sq_array_new(element_size, capacity)         \
-		(SqArray*)sq_array_init(malloc(sizeof(SqArray)), element_size, capacity)
+//void *sq_array_new(int elementSize, int capacity);
+#define sq_array_new(elementSize, capacity)       \
+		(SqArray*)sq_array_init(malloc(sizeof(SqArray)), elementSize, capacity)
 
 //void  sq_array_free(void *array);
 #define sq_array_free(array)         free(sq_array_final(array))
@@ -104,6 +104,14 @@ extern "C" {
 #define sq_array_end(array, ElementType)          \
 		( sq_array_begin(array, ElementType) + ((SqArray*)(array))->length )
 
+// void sq_array_push(void *array, ElementType, ElementType value);
+#define sq_array_push(array, ElementType, value)              \
+		*(ElementType*)sq_array_alloc(array, 1) = value;
+
+// void sq_array_push_to(void *array, ElementType, int index, ElementType value);
+#define sq_array_push_to(array, ElementType, index, value)    \
+		*(ElementType*)sq_array_alloc_at(array, index, 1) = value;
+
 /* macro for maintaining C/C++ inline functions easily */
 
 //void *SQ_ARRAY_APPEND(void *array, ElementType, const void *values, int count);
@@ -130,32 +138,32 @@ extern "C" {
 		        sizeof(ElementType) * (sq_array_length(array) -= (count)) - ((uint8_t*)(element_addr) - sq_array_data(array)) )
 
 // Quick sort
-// void SQ_ARRAY_SORT(void *array, ElementType, SqCompareFunc compare_func);
-#define SQ_ARRAY_SORT(array, ElementType, compare_func)              \
+// void SQ_ARRAY_SORT(void *array, ElementType, SqCompareFunc compareFunc);
+#define SQ_ARRAY_SORT(array, ElementType, compareFunc)               \
 		qsort( sq_array_data(array), ((SqArray*)(array))->length,    \
-		       sizeof(ElementType), (SqCompareFunc)compare_func)
+		       sizeof(ElementType), (SqCompareFunc)compareFunc)
 
 // Binary search for sorted array
-//void *SQ_ARRAY_SEARCH(void *array, ElementType, const void *key, SqCompareFunc compare_func);
-#define SQ_ARRAY_SEARCH(array, ElementType, key, compare_func)       \
+//void *SQ_ARRAY_SEARCH(void *array, ElementType, const void *key, SqCompareFunc compareFunc);
+#define SQ_ARRAY_SEARCH(array, ElementType, key, compareFunc)        \
 		bsearch( (void*)(key),                                       \
 		         sq_array_data(array), ((SqArray*)(array))->length,  \
-		         sizeof(ElementType), (SqCompareFunc)compare_func)
+		         sizeof(ElementType), (SqCompareFunc)compareFunc)
 
 // find element in unsorted array
-//void *SQ_ARRAY_FIND(void *array, ElementType, const void *key, SqCompareFunc cmpfunc);
-#define SQ_ARRAY_FIND(array, ElementType, key, cmpfunc)    \
-		sq_array_find(array, sizeof(ElementType), key, cmpfunc)
+//void *SQ_ARRAY_FIND(void *array, ElementType, const void *key, SqCompareFunc compareFunc);
+#define SQ_ARRAY_FIND(array, ElementType, key, compareFunc)          \
+		sq_array_find(array, sizeof(ElementType), key, compareFunc)
 
 // find element in sorted array and get index of element
-//void *SQ_ARRAY_FIND_SORTED(void *array, ElementType, const void *key, SqCompareFunc compare, int *inserted_index);
-#define SQ_ARRAY_FIND_SORTED(array, ElementType, key, cmpfunc, inserted_index)    \
-		sq_array_find_sorted(array, sizeof(ElementType), key, cmpfunc, inserted_index)
+//void *SQ_ARRAY_FIND_SORTED(void *array, ElementType, const void *key, SqCompareFunc compareFunc, int *insertingIndex);
+#define SQ_ARRAY_FIND_SORTED(array, ElementType, key, compareFunc, insertingIndex)    \
+		sq_array_find_sorted(array, sizeof(ElementType), key, compareFunc, insertingIndex)
 
 /* C functions */
 
 void *sq_array_init(void *array,
-                    int   element_size,
+                    int   elementSize,
                     int   capacity);
 
 void *sq_array_final(void *array);
@@ -170,16 +178,16 @@ void *sq_array_alloc_at(void *array, int index, int count);
 
 // find element in unsorted array
 void *sq_array_find(void *array,
-                    int   element_size,
+                    int   elementSize,
                     const void *key,
-                    SqCompareFunc cmpfunc);
+                    SqCompareFunc compareFunc);
 
 // find element in sorted array and get index of element
 void *sq_array_find_sorted(void *array,
-                           int   element_size,
+                           int   elementSize,
                            const void *key,
-                           SqCompareFunc compare,
-                           int  *inserted_index);
+                           SqCompareFunc compareFunc,
+                           int  *insertingIndex);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -246,7 +254,7 @@ struct ArrayMethod
 	Type  *search(Type  key);
 
 	// find element in unsorted array
-	Type  *find(const void *key, SqCompareFunc cmpfunc);
+	Type  *find(const void *key, SqCompareFunc compareFunc);
 
 	template <typename ValueType = Type,
 	          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
@@ -254,12 +262,12 @@ struct ArrayMethod
 	Type  *find(Type  key);
 
 	// find element in sorted array and get index of element
-	Type  *findSorted(const void *key, SqCompareFunc cmpfunc, int *inserted_index = NULL);
+	Type  *findSorted(const void *key, SqCompareFunc compareFunc, int *insertingIndex = NULL);
 
 	template <typename ValueType = Type,
 	          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
 	                                  std::is_same<char*, ValueType>::value>::type * = nullptr>
-	Type  *findSorted(Type  key, int *inserted_index = NULL);
+	Type  *findSorted(Type  key, int *insertingIndex = NULL);
 
 	// SqCompareFunc - static function for sort(), search(), find(), findSorted()
 	template <typename ValueType = Type,
@@ -443,8 +451,8 @@ inline Type *ArrayMethod<Type>::search(Type  key) {
 
 // find element in unsorted array
 template<class Type>
-inline Type  *ArrayMethod<Type>::find(const void *key, SqCompareFunc cmpfunc) {
-	return (Type*) SQ_ARRAY_FIND(this, Type, key, cmpfunc);
+inline Type  *ArrayMethod<Type>::find(const void *key, SqCompareFunc compareFunc) {
+	return (Type*) SQ_ARRAY_FIND(this, Type, key, compareFunc);
 }
 
 template <typename Type>
@@ -457,16 +465,16 @@ inline Type  *ArrayMethod<Type>::find(Type  key) {
 
 // find element in sorted array and get index of element
 template<class Type>
-inline Type  *ArrayMethod<Type>::findSorted(const void *key, SqCompareFunc cmpfunc, int *inserted_index) {
-	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, key, cmpfunc, inserted_index);
+inline Type  *ArrayMethod<Type>::findSorted(const void *key, SqCompareFunc compareFunc, int *insertingIndex) {
+	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, key, compareFunc, insertingIndex);
 }
 
 template <typename Type>
 template <typename ValueType,
           typename std::enable_if<std::is_arithmetic< ValueType>::value ||
                                   std::is_same<char*, ValueType>::value>::type *>
-inline Type  *ArrayMethod<Type>::findSorted(Type  key, int *inserted_index) {
-	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>, inserted_index);
+inline Type  *ArrayMethod<Type>::findSorted(Type  key, int *insertingIndex) {
+	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>, insertingIndex);
 }
 
 // SqCompareFunc - static function for sort(), search(), find(), findSorted()
@@ -616,6 +624,14 @@ typedef Array<int>    IntArray;
 
 // int *sq_int_array_alloc_at(void *array, int index, int count);
 #define sq_int_array_alloc_at            (int*)sq_array_alloc_at
+
+// void sq_int_array_push(void *array, int value);
+#define sq_int_array_push(array, value)              \
+		*sq_int_array_alloc(array, 1) = value;
+
+// void sq_int_array_push_to(void *array, int index, int value);
+#define sq_int_array_push_to(array, index, value)    \
+		*sq_int_array_alloc_at(array, index, 1) = value;
 
 // int *sq_int_array_append(void *array, const int *values, int count);
 #define sq_int_array_append(array, values, count)    \

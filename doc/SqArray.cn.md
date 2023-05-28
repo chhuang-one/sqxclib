@@ -106,31 +106,33 @@ C 函数 sq_array_init()，C++ 构造函数可以初始化 SqArray 的实例。
 
 ## 分配 Allocate
 
-C 函数 sq_array_alloc()，C++ 方法 alloc() 可以从数组尾部开始分配元素。  
+C 函数 sq_array_alloc()，C++ 方法 alloc() 可以从数组后面开始分配元素。  
 C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定索引开始分配元素。  
 如果没有足够的空间，SqArray 将扩展数组。  
   
 使用 C 语言
 
 ```c
-	void *elements;
+	ElementType *elements;
 	int   length = 16;
 	int   index  = 8;
 
-	elements = sq_array_alloc(array, length);
+	// 从后面分配元素
+	elements = (ElementType*)sq_array_alloc(array, length);
 
 	// 从指定索引分配元素
-	elements = sq_array_alloc_at(array, index, length);
+	elements = (ElementType*)sq_array_alloc_at(array, index, length);
 ```
 
 使用 C++ 语言
 
 ```c++
-	void *elements;
+	ElementType *elements;
 	int   length = 16;
 	int   index  = 8;
 
-	elements = array->alloc(length);
+	// 从后面分配元素
+	elements = array->alloc(length, length);
 
 	// 从指定索引分配元素
 	elements = array->allocAt(index, length);
@@ -138,13 +140,17 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 
 ## 添加 Append
 
-添加操作将首先调用 sq_array_alloc() 然后将元素复制到 SqArray。  
+添加操作将首先调用 sq_array_alloc() 在后面分配元素，然后将元素复制到 SqArray。  
   
 使用 C 语言
 
 ```c
-	// 添加一个元素
-	*sq_array_alloc(array, 1) = element;
+	ElementType  elementValue;
+	ElementType *elements;
+
+	// 如果 ElementType 是算术类型（或指针类型），您可以使用它来
+	// 添加一个元素 (您必须在此处指定 ElementType)
+	sq_array_push(array, ElementType, elementValue);
 
 	// 添加多个元素 (您必须在此处指定 ElementType)
 	SQ_ARRAY_APPEND(array, ElementType, elements, n_elements);
@@ -153,8 +159,9 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 使用 C++ 语言
 
 ```c++
+	// 如果 ElementType 是算术类型（或指针类型），您可以使用它来
 	// 添加一个元素
-	*array->alloc() = element;
+	array->append(elementValue);
 
 	// 添加多个元素
 	array->append(elements, n_elements);
@@ -167,8 +174,12 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 使用 C 语言
 
 ```c
-	// 插入一个元素
-	*sq_array_alloc_at(array, index, 1) = elements;
+	ElementType  elementValue;
+	ElementType *elements;
+
+	// 如果 ElementType 是算术类型（或指针类型），您可以使用它来
+	// 插入一个元素 (您必须在此处指定 ElementType)
+	sq_array_push_to(array, ElementType, index, elementValue);
 
 	// 插入多个元素 (您必须在此处指定 ElementType)
 	SQ_ARRAY_INSERT(array, ElementType, index, elements, n_elements);
@@ -177,8 +188,9 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 使用 C++ 语言
 
 ```c++
+	// 如果 ElementType 是算术类型（或指针类型），您可以使用它来
 	// 插入一个元素
-	*array->allocAt(index) = elements;
+	array->insert(index, elementValue);
 
 	// 插入多个元素
 	array->insert(index, elements, n_elements);
@@ -204,34 +216,39 @@ steal() 从数组中删除元素。
 
 ## 排序 Sort / 查找 Find
 
-sort()、find() 和 findSorted() 需要 "比较函数" 才能工作。  
+sort()       对数组元素进行排序。  
+find()       在未排序的数组中查找元素。  
 findSorted() 使用二进制搜索在已排序数组中查找元素，如果没有找到则输出插入索引。  
+  
+以上 3 个函数需要 "比较函数" 才能工作。  
   
 使用 C 语言
 
 ```c
-	// comparison function 
-	int   straddr_compare(const char **straddr1, const char **straddr2);
-
-	int   inserted_index;
-	char *key = "str";
+	// 比較函數
+	int   elementCompare(ElementType *element1, ElementType *element2);
 
 	// 您必须在此处指定 ElementType
-	SQ_ARRAY_SORT(array, ElementType, straddr_compare);
+	SQ_ARRAY_SORT(array, ElementType, elementCompare);
 
-	char **elementPtr;
-	elementPtr = SQ_ARRAY_FIND(array, ElementType, &key, straddr_compare);
-	elementPtr = SQ_ARRAY_FIND_SORTED(array, ElementType, &key, straddr_compare, &inserted_index);
+	ElementType *key = pointerToKey;
+	ElementType *element;
+	int          insertingIndex;
+	// 您必须在此处指定 ElementType
+	element = SQ_ARRAY_FIND(array, ElementType, key, elementCompare);
+	element = SQ_ARRAY_FIND_SORTED(array, ElementType, key, elementCompare, &insertingIndex);
 ```
 
 使用 C++ 语言
 
 ```c++
-	array->sort(straddr_compare);
+	array->sort(elementCompare);
 
-	char **elementPtr;
-	elementPtr = array->find(&key, straddr_compare);
-	elementPtr = array->findSorted(&key, straddr_compare, &inserted_index);
+	ElementType *key = pointerToKey;
+	ElementType *element;
+	int          insertingIndex;
+	element = array->find(key, elementCompare);
+	element = array->findSorted(key, elementCompare, &insertingIndex);
 ```
 
 如果在 C++ 中为 Sq::Array 模板指定算术类型（或 C 字符串類型），它会生成静态比较函数。  
@@ -239,11 +256,11 @@ findSorted() 使用二进制搜索在已排序数组中查找元素，如果没�
 
 ```c++
 	Sq::Array<int>  intArray;
+
+	intArray->sort();
+
 	int   key = 31;
-
-	array->sort();
-
-	int  *elementPtr;
-	elementPtr = array->find(key);
-	elementPtr = array->findSorted(key, &inserted_index);
+	int  *element;
+	element = intArray->find(key);
+	element = intArray->findSorted(key, &insertingIndex);
 ```

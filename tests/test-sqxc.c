@@ -512,7 +512,7 @@ int  main(void)
 	sq_str_array_init(&user->strs, 8);
 	sq_str_array_append(&user->strs, "first");
 	sq_int_array_init(&user->ints, 8);
-	*sq_int_array_alloc(&user->ints, 1) = 1;
+	sq_int_array_push(&user->ints, 1);
 
 	test_sqxc_joint_input();
 	test_sqxc_row_input_output();

@@ -113,24 +113,26 @@ SqArray will expand array if it does not have enough space.
 use C language
 
 ```c
-	void *elements;
+	ElementType *elements;
 	int   length = 16;
 	int   index  = 8;
 
-	elements = sq_array_alloc(array, length);
+	// allocate elements from rear
+	elements = (ElementType*)sq_array_alloc(array, length);
 
 	// allocate elements from specified index
-	elements = sq_array_alloc_at(array, index, length);
+	elements = (ElementType*)sq_array_alloc_at(array, index, length);
 ```
 
 use C++ language
 
 ```c++
-	void *elements;
+	ElementType *elements;
 	int   length = 16;
 	int   index  = 8;
 
-	elements = array->alloc(length);
+	// allocate elements from rear
+	elements = array->alloc(length, length);
 
 	// allocate elements from specified index
 	elements = array->allocAt(index, length);
@@ -138,13 +140,17 @@ use C++ language
 
 ## Append
 
-The appending action will first call sq_array_alloc() then copy data to the SqArray.  
+The appending action will first call sq_array_alloc() to allocate elements in rear then copy data to the SqArray.  
   
 use C language
 
 ```c
-	// append a element
-	*sq_array_alloc(array, 1) = element;
+	ElementType  elementValue;
+	ElementType *elements;
+
+	// If ElementType is arithmetic type (or pointer type), you can use this to
+	// append a element (You must specify ElementType here)
+	sq_array_push(array, ElementType, elementValue);
 
 	// append multiple elements (You must specify ElementType here)
 	SQ_ARRAY_APPEND(array, ElementType, elements, n_elements);
@@ -153,8 +159,9 @@ use C language
 use C++ language
 
 ```c++
+	// If ElementType is arithmetic type (or pointer type), you can use this to
 	// append a element
-	*array->alloc() = element;
+	array->append(elementValue);
 
 	// append multiple elements
 	array->append(elements, n_elements);
@@ -162,13 +169,17 @@ use C++ language
 
 ## Insert
 
-The inserting action will first call sq_array_alloc_at() to alloc elements in specified index then copy data to the specified index in SqArray.  
+The inserting action will first call sq_array_alloc_at() to allocate elements in specified index then copy data to the specified index in SqArray.  
   
 use C language
 
 ```c
-	// insert a element
-	*sq_array_alloc_at(array, index, 1) = elements;
+	ElementType  elementValue;
+	ElementType *elements;
+
+	// If ElementType is arithmetic type (or pointer type), you can use this to
+	// insert a element (You must specify ElementType here)
+	sq_array_push_to(array, ElementType, index, elementValue);
 
 	// insert multiple elements (You must specify ElementType here)
 	SQ_ARRAY_INSERT(array, ElementType, index, elements, n_elements);
@@ -177,8 +188,9 @@ use C language
 use C++ language
 
 ```c++
+	// If ElementType is arithmetic type (or pointer type), you can use this to
 	// insert a element
-	*array->allocAt(index) = elements;
+	array->insert(index, elementValue);
 
 	// insert multiple elements
 	array->insert(index, elements, n_elements);
@@ -204,34 +216,39 @@ use C++ language
 
 ## Sort / Find
 
-sort(), find(), and findSorted() require a "comparison function" to work.  
+sort()       sort elements of array.  
+find()       finds an element in a unsorted array.  
 findSorted() finds an element in a sorted array using binary search and output index of inserting if no found.  
+  
+The above 3 functions need the "comparison function" to work.  
   
 use C language
 
 ```c
-	// comparison function 
-	int   straddr_compare(const char **straddr1, const char **straddr2);
-
-	int   inserted_index;
-	char *key = "str";
+	// comparison function
+	int   elementCompare(ElementType *element1, ElementType *element2);
 
 	//  You must specify ElementType here
-	SQ_ARRAY_SORT(array, ElementType, straddr_compare);
+	SQ_ARRAY_SORT(array, ElementType, elementCompare);
 
-	char **elementPtr;
-	elementPtr = SQ_ARRAY_FIND(array, ElementType, &key, straddr_compare);
-	elementPtr = SQ_ARRAY_FIND_SORTED(array, ElementType, &key, straddr_compare, &inserted_index);
+	ElementType *key = pointerToKey;
+	ElementType *element;
+	int          insertingIndex;
+	//  You must specify ElementType here
+	element = SQ_ARRAY_FIND(array, ElementType, key, elementCompare);
+	element = SQ_ARRAY_FIND_SORTED(array, ElementType, key, elementCompare, &insertingIndex);
 ```
 
 use C++ language
 
 ```c++
-	array->sort(straddr_compare);
+	array->sort(elementCompare);
 
-	char **elementPtr;
-	elementPtr = array->find(&key, straddr_compare);
-	elementPtr = array->findSorted(&key, straddr_compare, &inserted_index);
+	ElementType *key = pointerToKey;
+	ElementType *element;
+	int          insertingIndex;
+	element = array->find(key, elementCompare);
+	element = array->findSorted(key, elementCompare, &insertingIndex);
 ```
 
 If you specify arithmetic type (or C string type) to Sq::Array template in C++, it will generate static compare function.  
@@ -239,11 +256,11 @@ In this case, you can call sort(), findSorted()...etc without comparison functio
 
 ```c++
 	Sq::Array<int>  intArray;
+
+	intArray->sort();
+
 	int   key = 31;
-
-	array->sort();
-
-	int  *elementPtr;
-	elementPtr = array->find(key);
-	elementPtr = array->findSorted(key, &inserted_index);
+	int  *element;
+	element = intArray->find(key);
+	element = intArray->findSorted(key, &insertingIndex);
 ```

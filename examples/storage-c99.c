@@ -485,8 +485,8 @@ int  main(void)
 		user->city_id = 1;
 		user->name = strdup("Paul");
 		user->email = strdup("guest@");
-		*sq_int_array_alloc(&user->ints, 1) = 3;
-		*sq_int_array_alloc(&user->ints, 1) = 6;
+		sq_int_array_push(&user->ints, 3);
+		sq_int_array_push(&user->ints, 6);
 #if 1
 		user->post = calloc(1, sizeof(Post));
 		user->post->title = strdup("PostTitle");
