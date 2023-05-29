@@ -68,14 +68,14 @@ void sq_ptr_array_erase(void *array, int index, int count)
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.
 
-void  sq_ptr_array_append_n(void *array, const void *values, int count)
+void  sq_ptr_array_append(void *array, const void *values, int count)
 {
-	SQ_PTR_ARRAY_APPEND_N(array, values, count);
+	SQ_PTR_ARRAY_APPEND(array, values, count);
 }
 
-void  sq_ptr_array_insert_n(void *array, int index, const void *values, int count)
+void  sq_ptr_array_insert(void *array, int index, const void *values, int count)
 {
-	SQ_PTR_ARRAY_INSERT_N(array, index, values, count);
+	SQ_PTR_ARRAY_INSERT(array, index, values, count);
 }
 
 void  sq_ptr_array_steal(void *array, int index, int count)

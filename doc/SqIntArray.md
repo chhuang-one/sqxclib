@@ -26,18 +26,29 @@ struct SqIntArray
 ## Functions and methods
 
 User can use the same functions and methods as [SqArray](SqArray.md).  
+SqIntArray still defines some sq_int_array_xxx() macros and functions for C language, which are correspond to sq_array_xxx() series.  
   
-SqIntArray still defines some sq_int_array_xxx() macros, which are aliases for the sq_array_xxx() series.  
-  
-use C language
+**Initialize**
+	sq_int_array_init
+	sq_int_array_final
 
-```c
-	SqIntArray  array;
-	int         iarray[] = {0, 3, 2, 5};
-	int         len = sizeof(iarray) / sizeof(int);
+**Allocate**
+	sq_int_array_alloc
+	sq_int_array_alloc_at
 
-	sq_array_init(&array, sizeof(int), capacity);
-	SQ_ARRAY_APPEND(&array, int, iarray, len);
-```
+**Append**
+	sq_int_array_push
+	sq_int_array_append
+
+**Insert**
+	sq_int_array_push_to
+	sq_int_array_insert
+
+**Sort**
+	sq_int_array_sort
+
+**Find**
+	sq_int_array_find
+	sq_int_array_find_sorted
 
 If you use C++ language, you can use Sq::Array<int> directly. Sq::IntArray is still defined, which is aliases for the Sq::Array<int>.

@@ -452,7 +452,7 @@ static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
 		if (temp.column_addr == NULL)
 			continue;
 		temp.column = *temp.column_addr;
-		sq_ptr_array_append(&xcsql->columns, temp.column);
+		sq_ptr_array_push(&xcsql->columns, temp.column);
 	}
 
 	return xcsql->columns.length;
@@ -499,7 +499,7 @@ static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
 		if (temp.column_addr == NULL)
 			continue;
 		temp.column = *temp.column_addr;
-		sq_ptr_array_append(&xcsql->columns, temp.column);
+		sq_ptr_array_push(&xcsql->columns, temp.column);
 	}
 
 	sq_ptr_array_final(&array);

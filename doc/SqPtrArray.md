@@ -78,85 +78,29 @@ use C++ language
 	delete array;
 ```
 
-## Allocate
+## Functions and methods
 
-C function sq_ptr_array_alloc(), C++ method alloc() can allocate elements from rear of array.  
-C function sq_ptr_array_alloc_at() and C++ overloaded method alloc() can allocate elements from the specified index of the array.  
-SqPtrArray will expand array if it does not have enough space.  
+User can use the same functions and methods as [SqArray](SqArray.md).  
+SqPtrArray still defines some sq_ptr_array_xxx() macros and functions for C language, which are correspond to sq_array_xxx() series.  
   
-use C language
+**Allocate**
+	sq_ptr_array_alloc
+	sq_ptr_array_alloc_at
 
-```c
-	void *elements;
-	int   length = 16;
-	int   index  = 8;
+**Append**
+	sq_ptr_array_push
+	sq_ptr_array_append
 
-	elements = sq_ptr_array_alloc(array, length);
+**Insert**
+	sq_ptr_array_push_to
+	sq_ptr_array_insert
 
-	// allocate elements from specified index
-	elements = sq_ptr_array_alloc_at(array, index, length);
-```
+**Sort**
+	sq_ptr_array_sort
 
-use C++ language
-
-```c++
-	void *elements;
-	int   length = 16;
-	int   index  = 8;
-
-	elements = array->alloc(length);
-
-	// allocate elements from specified index
-	elements = array->alloc(index, length);
-```
-
-## Append
-
-The appending action will first call sq_ptr_array_alloc() then copy data to the SqPtrArray.  
-  
-use C language
-
-```c
-	// append a element
-	sq_ptr_array_append(array, element);
-
-	// append multiple elements
-	sq_ptr_array_append_n(array, elements, n_elements);
-```
-
-use C++ language
-
-```c++
-	// append a element
-	array->append(element);
-
-	// append multiple elements
-	array->append(elements, n_elements);
-```
-
-## Insert
-
-The inserting action will first call sq_ptr_array_alloc_at() to alloc elements in specified index then copy data to the specified index in SqPtrArray.  
-  
-use C language
-
-```c
-	// insert a element
-	sq_ptr_array_insert(array, index, elements);
-
-	// insert multiple elements
-	sq_ptr_array_insert_n(array, index, elements, n_elements);
-```
-
-use C++ language
-
-```c++
-	// insert a element
-	array->insert(index, elements);
-
-	// insert multiple elements
-	array->insert(index, elements, n_elements);
-```
+**Find**
+	sq_ptr_array_find
+	sq_ptr_array_find_sorted
 
 ## Erase / Steal
 
@@ -181,31 +125,4 @@ use C++ language
 
 	// steal elements
 	array->steal(index, n_elements);
-```
-
-## Sort / Find
-
-sort(), find(), and findSorted() require a "comparison function" to work.  
-findSorted() finds an element in a sorted array using binary search and output index of inserting if no found.  
-  
-use C language
-
-```c
-	// comparison function 
-	int   straddr_compare(const char **straddr1, const char **straddr2);
-
-	int   inserted_index;
-	char *key = "str";
-
-	sq_ptr_array_sort(array, straddr_compare);
-
-	sq_ptr_array_find_sorted(array, &key, straddr_compare, &inserted_index);
-```
-
-use C++ language
-
-```c++
-	array->sort(straddr_compare);
-
-	array->findSorted(&key, straddr_compare, &inserted_index);
 ```

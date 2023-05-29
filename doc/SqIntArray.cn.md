@@ -26,18 +26,29 @@ struct SqIntArray
 ## 函数和方法
 
 用户可以使用与 [SqArray](SqArray.cn.md) 相同的函数和方法。  
+SqIntArray 仍然为 C 语言定义了一些 sq_int_array_xxx() 宏和函数，对应 sq_array_xxx() 系列。  
   
-SqIntArray 仍然定义了一些 sq_int_array_xxx() 宏，它们是 sq_array_xxx() 系列的别名。  
-  
-使用 C 语言
+**初始化 Initialize**
+	sq_int_array_init
+	sq_int_array_final
 
-```c
-	SqIntArray  array;
-	int         iarray[] = {0, 3, 2, 5};
-	int         len = sizeof(iarray) / sizeof(int);
+**分配 Allocate**
+	sq_int_array_alloc
+	sq_int_array_alloc_at
 
-	sq_array_init(&array, sizeof(int), capacity);
-	SQ_ARRAY_APPEND(&array, int, iarray, len);
-```
+**添加 Append**
+	sq_int_array_push
+	sq_int_array_append
+
+**插入 Insert**
+	sq_int_array_push_to
+	sq_int_array_insert
+
+**排序 Sort**
+	sq_int_array_sort
+
+**查找 Find**
+	sq_int_array_find
+	sq_int_array_find_sorted
 
 如果使用 C++ 语言，可以直接使用 Sq::Array<int>。Sq::IntArray 仍然被定义，它是 Sq::Array<int> 的别名。

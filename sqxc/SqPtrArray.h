@@ -70,30 +70,6 @@ extern "C" {
 //bool  sq_ptr_array_empty(void *array);
 #define sq_ptr_array_empty               sq_array_empty
 
-//void **sq_ptr_array_alloc(void *array, int count);
-#define sq_ptr_array_alloc               (void**)sq_array_alloc
-
-//void **sq_ptr_array_alloc_at(void *array, int index, int count);
-#define sq_ptr_array_alloc_at            (void**)sq_array_alloc_at
-
-// void sq_ptr_array_insert(void *array, int index, void *value);
-#define sq_ptr_array_insert(array, index, value)  \
-		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
-
-// void sq_ptr_array_append(void *array, void *value);
-#define sq_ptr_array_append(array, value)  \
-		*(void**)sq_array_alloc_at(array, sq_array_length(array), 1) = (void*)(value)
-
-// void sq_ptr_array_remove(void *array, int index, int count);
-#define sq_ptr_array_remove              sq_ptr_array_erase
-
-// void sq_ptr_array_erase_addr(void *array, void **element_addr, int count);
-#define sq_ptr_array_erase_addr(array, element_addr, count)    \
-		sq_ptr_array_erase(array, (int)((void**)(element_addr) - sq_ptr_array_data(array)), count)
-
-// void sq_ptr_array_remove_addr(void *array, void **element_addr, int count);
-#define sq_ptr_array_remove_addr         sq_ptr_array_erase_addr
-
 // Get address of element
 //void **sq_ptr_array_addr(void *array, int index);
 #define sq_ptr_array_addr(array, index)  \
@@ -111,6 +87,30 @@ extern "C" {
 //void *sq_ptr_array_end(void *array);
 #define sq_ptr_array_end(array)    \
 		( (((SqPtrArray*)(array))->data) + ((SqPtrArray*)(array))->length )
+
+//void **sq_ptr_array_alloc(void *array, int count);
+#define sq_ptr_array_alloc               (void**)sq_array_alloc
+
+//void **sq_ptr_array_alloc_at(void *array, int index, int count);
+#define sq_ptr_array_alloc_at            (void**)sq_array_alloc_at
+
+// void sq_ptr_array_push_to(void *array, int index, void *value);
+#define sq_ptr_array_push_to(array, index, value)  \
+		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
+
+// void sq_ptr_array_push(void *array, void *value);
+#define sq_ptr_array_push(array, value)            \
+		*(void**)sq_array_alloc_at(array, sq_array_length(array), 1) = (void*)(value)
+
+// void sq_ptr_array_remove(void *array, int index, int count);
+#define sq_ptr_array_remove              sq_ptr_array_erase
+
+// void sq_ptr_array_erase_addr(void *array, void **element_addr, int count);
+#define sq_ptr_array_erase_addr(array, element_addr, count)    \
+		sq_ptr_array_erase(array, (int)((void**)(element_addr) - sq_ptr_array_data(array)), count)
+
+// void sq_ptr_array_remove_addr(void *array, void **element_addr, int count);
+#define sq_ptr_array_remove_addr         sq_ptr_array_erase_addr
 
 // Quick sort
 // void sq_ptr_array_sort(void *array, SqCompareFunc compare_func);
@@ -144,13 +144,13 @@ extern "C" {
 
 /* macro for maintaining C/C++ inline functions easily */
 
-//void *SQ_PTR_ARRAY_APPEND_N(void *array, const void *values, int count);
-#define SQ_PTR_ARRAY_APPEND_N(array, values, count)              \
+//void *SQ_PTR_ARRAY_APPEND(void *array, const void *values, int count);
+#define SQ_PTR_ARRAY_APPEND(array, values, count)                \
 		memcpy(sq_ptr_array_alloc(array, count),                 \
 		       values, sizeof(void*) * (count))
 
-//void *SQ_PTR_ARRAY_INSERT_N(void *array, int index, const void *values, int count);
-#define SQ_PTR_ARRAY_INSERT_N(array, index, values, count)       \
+//void *SQ_PTR_ARRAY_INSERT(void *array, int index, const void *values, int count);
+#define SQ_PTR_ARRAY_INSERT(array, index, values, count)         \
 		memcpy(sq_ptr_array_alloc_at(array, index, count),       \
 		       values, sizeof(void*) * (count))
 
@@ -187,14 +187,14 @@ extern "C" {
 		*sq_ptr_array_alloc_at(array, sq_intptr_array_length(array), 1) = (void*)(value)
 
 // void sq_intptr_array_append_n(void *array, const intptr_t *values, int count);
-#define sq_intptr_array_append_n         sq_ptr_array_append_n
+#define sq_intptr_array_append_n         sq_ptr_array_append
 
 // void sq_intptr_array_insert(void *array, int index, void *value);
 #define sq_intptr_array_insert(array, index, value)  \
 		*sq_intptr_array_alloc_at(array, index, 1) = (intptr_t*)(value)
 
 // void sq_intptr_array_insert_n(void *array, int index, const intptr_t *values, int count);
-#define sq_intptr_array_insert_n         sq_ptr_array_insert_n
+#define sq_intptr_array_insert_n         sq_ptr_array_insert
 
 // void sq_intptr_array_remove(void *array, int index, int count);
 #define sq_intptr_array_remove           sq_ptr_array_erase
@@ -235,14 +235,14 @@ extern "C" {
 		*sq_ptr_array_alloc_at(array, sq_uintptr_array_length(array), 1) = (void*)(value)
 
 // void sq_uintptr_array_append_n(void *array, const intptr_t *values, int count);
-#define sq_uintptr_array_append_n        sq_ptr_array_append_n
+#define sq_uintptr_array_append_n        sq_ptr_array_append
 
 // void sq_uintptr_array_insert(void *array, int index, uintptr_t *value);
 #define sq_uintptr_array_insert(array, index, value)  \
 		*sq_uintptr_array_alloc_at(array, index, 1) = (uintptr_t)(value)
 
 // void sq_uintptr_array_insert_n(void *array, int index, const intptr_t *values, int count);
-#define sq_uintptr_array_insert_n        sq_ptr_array_insert_n
+#define sq_uintptr_array_insert_n        sq_ptr_array_insert
 
 // void sq_uintptr_array_erase(void *array, int index, int count);
 #define sq_uintptr_array_erase           sq_ptr_array_erase
@@ -271,9 +271,9 @@ void   sq_ptr_array_erase(void *array, int index, int count);
 #define sq_ptr_array_find(array, key, cmpfunc)    \
 		(void**)sq_array_find(array, sizeof(void*), key, cmpfunc)
 
-//void *sq_array_find_sorted(void *array, const void *key, SqCompareFunc cmpfunc, int *inserted_index);
-#define sq_ptr_array_find_sorted(array, key, cmpfunc, inserted_index)    \
-		(void**)sq_array_find_sorted(array, sizeof(void*), key, cmpfunc, inserted_index)
+//void *sq_array_find_sorted(void *array, const void *key, SqCompareFunc cmpfunc, int *insertingIndex);
+#define sq_ptr_array_find_sorted(array, key, cmpfunc, insertingIndex)    \
+		(void**)sq_array_find_sorted(array, sizeof(void*), key, cmpfunc, insertingIndex)
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -391,9 +391,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_ptr_array_append_n(void *array, const void *values, int count)
+void  sq_ptr_array_append(void *array, const void *values, int count)
 {
-	SQ_PTR_ARRAY_APPEND_N(array, values, count);
+	SQ_PTR_ARRAY_APPEND(array, values, count);
 }
 
 #ifdef __cplusplus  // C++
@@ -401,9 +401,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_ptr_array_insert_n(void *array, int index, const void *values, int count)
+void  sq_ptr_array_insert(void *array, int index, const void *values, int count)
 {
-	SQ_PTR_ARRAY_INSERT_N(array, index, values, count);
+	SQ_PTR_ARRAY_INSERT(array, index, values, count);
 }
 
 #ifdef __cplusplus  // C++
@@ -429,8 +429,8 @@ void  sq_ptr_array_steal_addr(void *array, void **element_addr, int count)
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
 
-void  sq_ptr_array_append_n(void *array, const void *values, int count);
-void  sq_ptr_array_insert_n(void *array, int index, const void *values, int count);
+void  sq_ptr_array_append(void *array, const void *values, int count);
+void  sq_ptr_array_insert(void *array, int index, const void *values, int count);
 void  sq_ptr_array_steal(void *array, int index, int count);
 void  sq_ptr_array_steal_addr(void *array, void **element_addr, int count);
 
@@ -545,7 +545,7 @@ struct PtrArray : SqPtrArray
 	// copy constructor
 	PtrArray(const PtrArray &src) {
 		sq_ptr_array_init(this, sq_ptr_array_capacity(&src), sq_ptr_array_clear_func(&src));
-		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
+		SQ_PTR_ARRAY_APPEND(this, src.data, src.length);
 	}
 	// move constructor
 	PtrArray(PtrArray &&src) {
@@ -570,7 +570,7 @@ struct IntptrArray : SqIntptrArray
 	// copy constructor
 	IntptrArray(const IntptrArray &src) {
 		sq_ptr_array_init(this, sq_ptr_array_capacity(&src), sq_ptr_array_clear_func(&src));
-		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
+		SQ_PTR_ARRAY_APPEND(this, src.data, src.length);
 	}
 	// move constructor
 	IntptrArray(IntptrArray &&src) {
@@ -595,7 +595,7 @@ struct UintptrArray : SqUintptrArray
 	// copy constructor
 	UintptrArray(const UintptrArray &src) {
 		sq_ptr_array_init(this, sq_ptr_array_capacity(&src), sq_ptr_array_clear_func(&src));
-		SQ_PTR_ARRAY_APPEND_N(this, src.data, src.length);
+		SQ_PTR_ARRAY_APPEND(this, src.data, src.length);
 	}
 	// move constructor
 	UintptrArray(UintptrArray &&src) {

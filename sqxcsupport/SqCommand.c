@@ -129,7 +129,7 @@ void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array)
 	for (int i = 0;  i < cmd_type->n_entry;  i++) {
 		option = (SqOption*)cmd_type->entry[i];
         if (option->shortcut)
-            sq_ptr_array_append(array, option);
+            sq_ptr_array_push(array, option);
 	}
 	sq_ptr_array_sort(array, (SqCompareFunc)sq_option_cmp_shortcut);
 }

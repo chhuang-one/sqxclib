@@ -166,7 +166,7 @@ int  sq_table_get_columns(SqTable *table, SqPtrArray *ptrarray,
 		// if matched 2 conditions
 		if (matched_count == 2) {
 			if (ptrarray)
-				sq_ptr_array_append(ptrarray, column);
+				sq_ptr_array_push(ptrarray, column);
 			count++;
 		}
 	}

@@ -20,23 +20,23 @@
 
 void   sq_str_array_insert(SqStrArray *array, int index, const char *str)
 {
-	sq_ptr_array_insert(array, index, strdup(str));
+	sq_ptr_array_push_to(array, index, strdup(str));
 }
 
 void   sq_str_array_insert_n(SqStrArray *array, int index, const char **strs, int count)
 {
-	SQ_PTR_ARRAY_INSERT_N(array, index, strs, count);
+	SQ_PTR_ARRAY_INSERT(array, index, strs, count);
 	sq_str_array_dup_n(array, index, count);
 }
 
 void   sq_str_array_append(SqStrArray *array, const char *str)
 {
-	sq_ptr_array_append(array, strdup(str));
+	sq_ptr_array_push(array, strdup(str));
 }
 
 void   sq_str_array_append_n(SqStrArray *array, const char **strs, int count)
 {
-	SQ_PTR_ARRAY_APPEND_N(array, strs, count);
+	SQ_PTR_ARRAY_APPEND(array, strs, count);
 	sq_str_array_dup_n(array, array->length -count, count);
 }
 

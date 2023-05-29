@@ -1151,7 +1151,7 @@ int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
 
 	// FROM table1_name AS table1_as_name
 	// JOIN table2_name AS table2_as_name
-	for (qnode = query->root.children; qnode;  qnode = qnode->next) {
+	for (qnode = query->root.children;  qnode;  qnode = qnode->next) {
 		if (qnode->type != SQN_FROM) {
 			if (qnode->type < SQN_JOIN || qnode->type > SQN_CROSS_JOIN)
 				continue;
@@ -1160,14 +1160,14 @@ int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
 		table_name = get_table(qnode);
 		if (table_name == NULL)
 			return 0;
-		sq_ptr_array_append(table_and_as_names, table_name);
+		sq_ptr_array_push(table_and_as_names, table_name);
 
 		// AS name
 		child = sq_query_node_find(qnode, SQN_AS, NULL);
 		if (child && child->children)
-			sq_ptr_array_append(table_and_as_names, child->children->value);
+			sq_ptr_array_push(table_and_as_names, child->children->value);
 		else
-			sq_ptr_array_append(table_and_as_names, NULL);
+			sq_ptr_array_push(table_and_as_names, NULL);
 	}
 	return table_and_as_names->length / 2;
 }

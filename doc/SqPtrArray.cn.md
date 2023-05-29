@@ -78,85 +78,29 @@ C 函数 sq_ptr_array_init()，C++ 构造函数可以初始化 SqPtrArray 的实
 	delete array;
 ```
 
-## 分配 Allocate
+## 函数和方法
 
-C 函数 sq_ptr_array_alloc()，C++ 方法 alloc() 可以从数组尾部开始分配元素。  
-C 函数 sq_ptr_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定索引开始分配元素。  
-如果没有足够的空间，SqPtrArray 将扩展数组。  
+用户可以使用与 [SqArray](SqArray.cn.md) 相同的函数和方法。  
+SqPtrArray 仍然为 C 语言定义了一些 sq_ptr_array_xxx() 宏和函数，对应 sq_array_xxx() 系列。  
   
-使用 C 语言
+**分配 Allocate**
+	sq_ptr_array_alloc
+	sq_ptr_array_alloc_at
 
-```c
-	void *elements;
-	int   length = 16;
-	int   index  = 8;
+**添加 Append**
+	sq_ptr_array_push
+	sq_ptr_array_append
 
-	elements = sq_ptr_array_alloc(array, length);
+**插入 Insert**
+	sq_ptr_array_push_to
+	sq_ptr_array_insert
 
-	// 从指定索引分配元素
-	elements = sq_ptr_array_alloc_at(array, index, length);
-```
+**排序 Sort**
+	sq_ptr_array_sort
 
-使用 C++ 语言
-
-```c++
-	void *elements;
-	int   length = 16;
-	int   index  = 8;
-
-	elements = array->alloc(length);
-
-	// 从指定索引分配元素
-	elements = array->alloc(index, length);
-```
-
-## 添加 Append
-
-添加操作将首先调用 sq_ptr_array_alloc() 然后将元素复制到 SqPtrArray。  
-  
-使用 C 语言
-
-```c
-	// 添加一个元素
-	sq_ptr_array_append(array, element);
-
-	// 添加多个元素
-	sq_ptr_array_append_n(array, elements, n_elements);
-```
-
-使用 C++ 语言
-
-```c++
-	// 添加一个元素
-	array->append(element);
-
-	// 添加多个元素
-	array->append(elements, n_elements);
-```
-
-## 插入 Insert
-
-插入动作会先调用 sq_ptr_array_alloc_at() 在指定索引分配元素，然后将数据复制到 SqPtrArray 中的指定索引。  
-  
-使用 C 语言
-
-```c
-	// 插入一个元素
-	sq_ptr_array_insert(array, index, elements);
-
-	// 插入多个元素
-	sq_ptr_array_insert_n(array, index, elements, n_elements);
-```
-
-使用 C++ 语言
-
-```c++
-	// 插入一个元素
-	array->insert(index, elements);
-
-	// 插入多个元素
-	array->insert(index, elements, n_elements);
-```
+**查找 Find**
+	sq_ptr_array_find
+	sq_ptr_array_find_sorted
 
 ## 删除 Erase / 窃取 Steal
 
@@ -181,31 +125,4 @@ steal() 在不调用清除函数的情况下从数组中删除元素。
 
 	// 窃取元素
 	array->steal(index, n_elements);
-```
-
-## 排序 Sort / 查找 Find
-
-sort()、find() 和 findSorted() 需要 "比较函数" 才能工作。  
-findSorted() 使用二进制搜索在已排序数组中查找元素，如果没有找到则输出插入索引。  
-  
-使用 C 语言
-
-```c
-	// comparison function 
-	int   straddr_compare(const char **straddr1, const char **straddr2);
-
-	int   inserted_index;
-	char *key = "str";
-
-	sq_ptr_array_sort(array, straddr_compare);
-
-	sq_ptr_array_find_sorted(array, &key, straddr_compare, &inserted_index);
-```
-
-使用 C++ 语言
-
-```c++
-	array->sort(straddr_compare);
-
-	array->findSorted(&key, straddr_compare, &inserted_index);
 ```

@@ -151,7 +151,7 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
 			if (addr == NULL) {
 				// add 'reentry_src' to entry->type.
-				sq_ptr_array_insert(reentries, temp.index, reentry_src);
+				sq_ptr_array_push_to(reentries, temp.index, reentry_src);
 				// steal 'reentry_src' from 'entry_src->type'.
 				if (entry_src->type->bit_field & SQB_DYNAMIC)
 					reentries_src->data[index] = NULL;

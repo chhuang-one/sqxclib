@@ -72,7 +72,7 @@ void  sq_console_final(SqConsole *console)
 
 void  sq_console_add(SqConsole *console, const SqCommand *command_type)
 {
-	sq_ptr_array_append(&console->commands, (void*)command_type);
+	sq_ptr_array_push(&console->commands, (void*)command_type);
 }
 
 SqCommand  *sq_console_find(SqConsole *console, const char* command_name)
@@ -145,7 +145,7 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool
 		}
 		else {
 			// argument
-			sq_ptr_array_append(&cmd_value->arguments, argv[i]);
+			sq_ptr_array_push(&cmd_value->arguments, argv[i]);
 			continue;
 		}
 	}

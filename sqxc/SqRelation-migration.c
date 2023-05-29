@@ -337,7 +337,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				if (table->bit_field & SQB_TABLE_SQL_CREATED || column_src->type == SQ_TYPE_INDEX)
 					sq_relation_add(table->relation, SQ_TYPE_UNSYNCED, column_src, 0);
 				// add 'reentry_src' to entry->type.
-				sq_ptr_array_insert(reentries, temp.index, column_src);
+				sq_ptr_array_push_to(reentries, temp.index, column_src);
 				// steal 'reentry_src' from 'entry_src->type'.
 //				if (table_src->type->bit_field & SQB_DYNAMIC)
 //					reentries_src->data[index] = NULL;
@@ -604,7 +604,7 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 					sq_relation_add(schema->relation, SQ_TYPE_TRACING, table_src, 0);
 				sq_relation_add(schema->relation, SQ_TYPE_UNSYNCED, table_src, 0);
 				// add 'reentry_src' to entry->type.
-				sq_ptr_array_insert(reentries, temp.index, table_src);
+				sq_ptr_array_push_to(reentries, temp.index, table_src);
 				// steal 'reentry_src' from 'entry_src->type'.
 //				if (table_src->type->bit_field & SQB_DYNAMIC)
 //					reentries_src->data[index] = NULL;

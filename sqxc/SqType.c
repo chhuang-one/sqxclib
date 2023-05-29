@@ -197,7 +197,7 @@ void  sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_ent
 	if (type->bit_field & SQB_TYPE_DYNAMIC) {
 		type->bit_field &= ~SQB_TYPE_SORTED;
 		array = sq_type_get_ptr_array(type);
-		SQ_PTR_ARRAY_APPEND_N(array, entry_ptrs, n_entry_ptrs);
+		SQ_PTR_ARRAY_APPEND(array, entry_ptrs, n_entry_ptrs);
 		for (int index = 0;  index < n_entry_ptrs;  index++, entry_ptrs++)
 			sq_type_decide_size(type, *entry_ptrs, false);
 	}
