@@ -94,13 +94,13 @@ extern "C" {
 //void **sq_ptr_array_alloc_at(void *array, int index, int count);
 #define sq_ptr_array_alloc_at            (void**)sq_array_alloc_at
 
-// void sq_ptr_array_push_to(void *array, int index, void *value);
-#define sq_ptr_array_push_to(array, index, value)  \
-		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
-
 // void sq_ptr_array_push(void *array, void *value);
 #define sq_ptr_array_push(array, value)            \
 		*(void**)sq_array_alloc_at(array, sq_array_length(array), 1) = (void*)(value)
+
+// void sq_ptr_array_push_to(void *array, int index, void *value);
+#define sq_ptr_array_push_to(array, index, value)  \
+		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
 
 // void sq_ptr_array_remove(void *array, int index, int count);
 #define sq_ptr_array_remove              sq_ptr_array_erase
@@ -113,17 +113,22 @@ extern "C" {
 #define sq_ptr_array_remove_addr         sq_ptr_array_erase_addr
 
 // Quick sort
-// void sq_ptr_array_sort(void *array, SqCompareFunc compare_func);
-#define sq_ptr_array_sort(array, compare_func)   \
-		qsort( ((SqPtrArray*)(array))->data, ((SqPtrArray*)(array))->length,  \
-		       sizeof(void*), (SqCompareFunc)compare_func)
+// void sq_ptr_array_sort(void *array, SqCompareFunc compareFunc);
+#define sq_ptr_array_sort(array, compareFunc)           \
+		SQ_ARRAY_SORT(array, void*, compareFunc)
 
 // Binary search for sorted array
-//void *sq_ptr_array_search(void *array, const void *key, SqCompareFunc compare_func);
-#define sq_ptr_array_search(array, key, compare_func)   \
-		bsearch( (void*)(key),                          \
-		         ((SqPtrArray*)(array))->data, ((SqPtrArray*)(array))->length,  \
-		         sizeof(void*), (SqCompareFunc)compare_func)
+//void **sq_ptr_array_search(void *array, const void *key, SqCompareFunc compareFunc);
+#define sq_ptr_array_search(array, key, compareFunc)    \
+		(void**)SQ_ARRAY_SEARCH(array, void*, key, compareFunc)
+
+//void **sq_ptr_array_find(void *array, const void *key, SqCompareFunc compareFunc);
+#define sq_ptr_array_find(array, key, compareFunc)      \
+		(void**)SQ_ARRAY_FIND(array, void*, key, compareFunc)
+
+//void **sq_array_find_sorted(void *array, const void *key, SqCompareFunc compareFunc, int *insertingIndex);
+#define sq_ptr_array_find_sorted(array, key, compareFunc, insertingIndex)    \
+		(void**)SQ_ARRAY_FIND_SORTED(array, void*, key, compareFunc, insertingIndex)
 
 // deprecated
 // void sq_ptr_array_foreach(void *array, void *element)
@@ -144,15 +149,13 @@ extern "C" {
 
 /* macro for maintaining C/C++ inline functions easily */
 
-//void *SQ_PTR_ARRAY_APPEND(void *array, const void *values, int count);
+//void **SQ_PTR_ARRAY_APPEND(void *array, const void *values, int count);
 #define SQ_PTR_ARRAY_APPEND(array, values, count)                \
-		memcpy(sq_ptr_array_alloc(array, count),                 \
-		       values, sizeof(void*) * (count))
+		(void**)SQ_ARRAY_APPEND(array, void*, values, count)
 
-//void *SQ_PTR_ARRAY_INSERT(void *array, int index, const void *values, int count);
+//void **SQ_PTR_ARRAY_INSERT(void *array, int index, const void *values, int count);
 #define SQ_PTR_ARRAY_INSERT(array, index, values, count)         \
-		memcpy(sq_ptr_array_alloc_at(array, index, count),       \
-		       values, sizeof(void*) * (count))
+		(void**)SQ_ARRAY_INSERT(array, void*, index, values, count)
 
 // Removes a value from array without calling the destroy function.
 // void SQ_PTR_ARRAY_STEAL(void *array, int index, int count);
@@ -266,14 +269,6 @@ void  *sq_ptr_array_init(void *array, int capacity, SqClearFunc clear_func);
 void  *sq_ptr_array_final(void *array);
 
 void   sq_ptr_array_erase(void *array, int index, int count);
-
-//void *sq_ptr_array_find(void *array, const void *key, SqCompareFunc cmpfunc);
-#define sq_ptr_array_find(array, key, cmpfunc)    \
-		(void**)sq_array_find(array, sizeof(void*), key, cmpfunc)
-
-//void *sq_array_find_sorted(void *array, const void *key, SqCompareFunc cmpfunc, int *insertingIndex);
-#define sq_ptr_array_find_sorted(array, key, cmpfunc, insertingIndex)    \
-		(void**)sq_array_find_sorted(array, sizeof(void*), key, cmpfunc, insertingIndex)
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -391,9 +386,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_ptr_array_append(void *array, const void *values, int count)
+void **sq_ptr_array_append(void *array, const void *values, int count)
 {
-	SQ_PTR_ARRAY_APPEND(array, values, count);
+	return SQ_PTR_ARRAY_APPEND(array, values, count);
 }
 
 #ifdef __cplusplus  // C++
@@ -401,9 +396,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_ptr_array_insert(void *array, int index, const void *values, int count)
+void **sq_ptr_array_insert(void *array, int index, const void *values, int count)
 {
-	SQ_PTR_ARRAY_INSERT(array, index, values, count);
+	return SQ_PTR_ARRAY_INSERT(array, index, values, count);
 }
 
 #ifdef __cplusplus  // C++

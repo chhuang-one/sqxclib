@@ -610,6 +610,9 @@ typedef Array<int>    IntArray;
 //void *sq_int_array_final(void *array);
 #define sq_int_array_final               sq_array_final
 
+// int *sq_int_array_addr(void *array, int index);
+#define sq_int_array_addr(array, index)  sq_array_addr(array, int, index)
+
 // int  sq_int_array_at(void *array, int index);
 #define sq_int_array_at(array, index)    sq_array_at(array, int, index)
 
@@ -640,6 +643,33 @@ typedef Array<int>    IntArray;
 // int *sq_int_array_insert(void *array, int index, const int *values, int count);
 #define sq_int_array_insert(array, index, values, count)    \
 		(int*)SQ_ARRAY_INSERT(array, int, index, values, count)
+
+// void sq_int_array_steal(void *array, int index, int count);
+#define sq_int_array_steal(array, index, count)             \
+		SQ_ARRAY_STEAL(array, int, index, count)
+
+#define sq_int_array_erase        sq_int_array_steal
+#define sq_int_array_remove       sq_int_array_steal
+
+// Quick sort
+// void sq_int_array_sort(void *array, SqCompareFunc compareFunc);
+#define sq_int_array_sort(array, compareFunc)               \
+		SQ_ARRAY_SORT(array, int, compareFunc)
+
+// Binary search for sorted array
+// int *sq_int_array_search(void *array, const int *key, SqCompareFunc compareFunc);
+#define sq_int_array_search(array, key, compareFunc)        \
+		(int*)SQ_ARRAY_SEARCH(array, int, key, compareFunc)
+
+// find element in unsorted array
+// int *sq_int_array_find(void *array, const int *key, SqCompareFunc compareFunc);
+#define sq_int_array_find(array, key, compareFunc)          \
+		(int*)SQ_ARRAY_FIND(array, int, key, compareFunc)
+
+// find element in sorted array and get index of element
+// int *sq_int_array_find_sorted(void *array, const int *key, SqCompareFunc compareFunc, int *insertingIndex);
+#define sq_int_array_find_sorted(array, key, compareFunc, insertingIndex)    \
+		(int*)SQ_ARRAY_FIND_SORTED(array, int, key, compareFunc, insertingIndex)
 
 /*
 	SqArray

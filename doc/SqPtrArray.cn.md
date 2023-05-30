@@ -84,23 +84,33 @@ C 函数 sq_ptr_array_init()，C++ 构造函数可以初始化 SqPtrArray 的实
 SqPtrArray 仍然为 C 语言定义了一些 sq_ptr_array_xxx() 宏和函数，对应 sq_array_xxx() 系列。  
   
 **分配 Allocate**
+```
 	sq_ptr_array_alloc
 	sq_ptr_array_alloc_at
+```
 
 **添加 Append**
+```
 	sq_ptr_array_push
 	sq_ptr_array_append
+```
 
 **插入 Insert**
+```
 	sq_ptr_array_push_to
 	sq_ptr_array_insert
+```
 
 **排序 Sort**
+```
 	sq_ptr_array_sort
+```
 
 **查找 Find**
+```
 	sq_ptr_array_find
 	sq_ptr_array_find_sorted
+```
 
 ## 删除 Erase / 窃取 Steal
 

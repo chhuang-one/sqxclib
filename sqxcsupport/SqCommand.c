@@ -139,7 +139,10 @@ int  sq_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 {
 	SqxcValue  *xc_value = (SqxcValue*)src->dest;
 	SqxcNested *nested;
-	SqOption   *option;
+	union {
+		SqOption   *option;
+		void      **addr;
+	} temp;
 
 	// Start of Object
 	nested = xc_value->nested;
@@ -186,26 +189,26 @@ int  sq_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 	}
 	 */
 
-	// option
-	option = (SqOption*)sq_type_find_entry(type, src->name, NULL);
-	if (option == NULL) {
+	// find option by name or shortcut name
+	temp.addr = sq_type_find_entry(type, src->name, NULL);
+	if (temp.addr == NULL) {
 		// option shortcut
-		option = sq_ptr_array_search(&((SqCommandValue*)instance)->shortcuts,
+		temp.addr = sq_ptr_array_search(&((SqCommandValue*)instance)->shortcuts,
 				src->name, (SqCompareFunc)sq_option_cmp_str__shortcut);
 	}
 
 	// parse entries in type
-	if (option) {
-		option = *(SqOption**)option;
-		type = option->type;
+	if (temp.addr) {
+		temp.option = *(SqOption**)temp.addr;
+		type = temp.option->type;
 		if (type->parse == NULL)  // don't parse anything if function pointer is NULL
 			return (src->code = SQCODE_OK);
-		instance = (char*)instance + option->offset;
+		instance = (char*)instance + temp.option->offset;
 		// default_value
 		if (src->value.str == NULL || *src->value.str == 0)
-			src->value.str = (char*)option->default_value;
+			src->value.str = (char*)temp.option->default_value;
 		// special case : pointer to instance
-		if (option->bit_field & SQB_POINTER) {
+		if (temp.option->bit_field & SQB_POINTER) {
 			// try to use existed instance
 			if (*(void**)instance)
 				instance = *(void**)instance;

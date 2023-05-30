@@ -84,23 +84,33 @@ User can use the same functions and methods as [SqArray](SqArray.md).
 SqPtrArray still defines some sq_ptr_array_xxx() macros and functions for C language, which are correspond to sq_array_xxx() series.  
   
 **Allocate**
+```
 	sq_ptr_array_alloc
 	sq_ptr_array_alloc_at
+```
 
 **Append**
+```
 	sq_ptr_array_push
 	sq_ptr_array_append
+```
 
 **Insert**
+```
 	sq_ptr_array_push_to
 	sq_ptr_array_insert
+```
 
 **Sort**
+```
 	sq_ptr_array_sort
+```
 
 **Find**
+```
 	sq_ptr_array_find
 	sq_ptr_array_find_sorted
+```
 
 ## Erase / Steal
 

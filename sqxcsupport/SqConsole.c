@@ -77,17 +77,17 @@ void  sq_console_add(SqConsole *console, const SqCommand *command_type)
 
 SqCommand  *sq_console_find(SqConsole *console, const char* command_name)
 {
-	SqCommand *type;
+	void  **addr;
 
 	if (console->commands_sorted == false) {
 		console->commands_sorted =  true;
 		sq_ptr_array_sort(&console->commands, (SqCompareFunc)sq_command_cmp_name);
 	}
-	type = sq_ptr_array_search(&console->commands, command_name,
+	addr = sq_ptr_array_search(&console->commands, command_name,
 	                           (SqCompareFunc)sq_command_cmp_str__name);
-	if (type)
-		type = *(SqCommand**)type;
-	return type;
+	if (addr)
+		return *(SqCommand**)addr;
+	return NULL;
 }
 
 SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command)
