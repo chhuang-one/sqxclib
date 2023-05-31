@@ -424,10 +424,10 @@ void  sq_ptr_array_steal_addr(void *array, void **element_addr, int count)
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
 
-void  sq_ptr_array_append(void *array, const void *values, int count);
-void  sq_ptr_array_insert(void *array, int index, const void *values, int count);
-void  sq_ptr_array_steal(void *array, int index, int count);
-void  sq_ptr_array_steal_addr(void *array, void **element_addr, int count);
+void **sq_ptr_array_append(void *array, const void *values, int count);
+void **sq_ptr_array_insert(void *array, int index, const void *values, int count);
+void   sq_ptr_array_steal(void *array, int index, int count);
+void   sq_ptr_array_steal_addr(void *array, void **element_addr, int count);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
