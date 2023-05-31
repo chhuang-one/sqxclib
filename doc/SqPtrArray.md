@@ -6,7 +6,7 @@ SqPtrArray is pointer array. It is derived classes of [SqArray](SqArray.md).
 SQ_TYPE_PTR_ARRAY is a built-in static constant type that can create SqPtrArray instances.
 
 	SqArray
-	|
+	│
 	└─── SqPtrArray
 	     │
 	     ├─── SqStrArray
@@ -78,42 +78,9 @@ use C++ language
 	delete array;
 ```
 
-## Functions and methods
-
-User can use the same functions and methods as [SqArray](SqArray.md).  
-SqPtrArray still defines some sq_ptr_array_xxx() macros and functions for C language, which are correspond to sq_array_xxx() series.  
-  
-**Allocate**
-```
-	sq_ptr_array_alloc
-	sq_ptr_array_alloc_at
-```
-
-**Append**
-```
-	sq_ptr_array_push
-	sq_ptr_array_append
-```
-
-**Insert**
-```
-	sq_ptr_array_push_to
-	sq_ptr_array_insert
-```
-
-**Sort**
-```
-	sq_ptr_array_sort
-```
-
-**Find**
-```
-	sq_ptr_array_find
-	sq_ptr_array_find_sorted
-```
-
 ## Erase / Steal
 
+SqPtrArray adds erase function, which is different from [SqArray](SqArray.md).  
 erase() removes elements from array with calling the clear function.  
 steal() removes elements from array without calling the clear function.  
   
@@ -135,4 +102,55 @@ use C++ language
 
 	// steal elements
 	array->steal(index, n_elements);
+```
+
+## Other functions and methods
+
+User can use the same functions and methods as [SqArray](SqArray.md).  
+SqPtrArray still defines some sq_ptr_array_xxx() macros and functions for C language, which are correspond to sq_array_xxx() series.  
+  
+**Allocate**
+
+```c
+	void **memory;
+
+	memory = sq_ptr_array_alloc(array, count);
+	memory = sq_ptr_array_alloc_at(array, index, count);
+```
+
+**Append**
+
+```c
+	void  *ptrs[3] = {NULL};
+
+	sq_ptr_array_push(array, NULL);
+	sq_ptr_array_append(array, ptrs, sizeof(ptrs) / sizeof(void*));
+```
+
+**Insert**
+
+```c
+	int   index = 5;
+
+	sq_ptr_array_push_to(array, index, NULL);
+	sq_ptr_array_insert(array, index, ptrs, sizeof(ptrs) / sizeof(void*));
+```
+
+**Sort**
+
+```c
+	int  compareFunc(const void **ptr1, const void **ptr2);
+
+	sq_ptr_array_sort(array, (SqCompareFunc)compareFunc);
+```
+
+**Find**
+
+```c
+	void **key;
+	void **element;
+	int    insertingIndex;
+
+	element = sq_ptr_array_find(array, key, compareFunc);
+	element = sq_ptr_array_find_sorted(array, key, compareFunc, &insertingIndex);
 ```

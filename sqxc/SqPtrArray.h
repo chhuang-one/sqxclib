@@ -309,15 +309,15 @@ struct PtrArrayMethod : ArrayMethod<Type>
 	bool   isInited(void);
 	bool   notInited(void);
 
-	void   append(Type *values, int length = 1);
+	void   append(Type *values, int count = 1);
 	void   append(Type  value);
-	void   insert(int index, Type *values, int length = 1);
+	void   insert(int index, Type *values, int count = 1);
 	void   insert(int index, Type  value);
 
-	void   remove(int index, int length = 1);
-	void   remove(Type *addr, int length = 1);
-	void   erase(int index, int length = 1);
-	void   erase(Type *addr, int length = 1);
+	void   remove(int index, int count = 1);
+	void   remove(Type *addr, int count = 1);
+	void   erase(int index, int count = 1);
+	void   erase(Type *addr, int count = 1);
 
 	// foreach
 	void   foreach(std::function<void(Type  element)> func);
@@ -479,16 +479,16 @@ inline bool  PtrArrayMethod<Type>::notInited(void) {
 }
 
 template<class Type>
-inline void  PtrArrayMethod<Type>::append(Type *values, int length) {
-	SQ_ARRAY_APPEND(this, Type, values, length);
+inline void  PtrArrayMethod<Type>::append(Type *values, int count) {
+	SQ_ARRAY_APPEND(this, Type, values, count);
 }
 template<class Type>
 inline void  PtrArrayMethod<Type>::append(Type  value) {
 	*(Type*)sq_array_alloc_at(this, sq_array_length(this), 1) = value;
 }
 template<class Type>
-inline void  PtrArrayMethod<Type>::insert(int index, Type *values, int length) {
-	SQ_ARRAY_INSERT(this, Type, index, values, length);
+inline void  PtrArrayMethod<Type>::insert(int index, Type *values, int count) {
+	SQ_ARRAY_INSERT(this, Type, index, values, count);
 }
 template<class Type>
 inline void  PtrArrayMethod<Type>::insert(int index, Type  value) {
@@ -496,20 +496,20 @@ inline void  PtrArrayMethod<Type>::insert(int index, Type  value) {
 }
 
 template<class Type>
-inline void  PtrArrayMethod<Type>::remove(int index, int length) {
-	sq_ptr_array_erase(this, index, length);
+inline void  PtrArrayMethod<Type>::remove(int index, int count) {
+	sq_ptr_array_erase(this, index, count);
 }
 template<class Type>
-inline void  PtrArrayMethod<Type>::remove(Type *addr, int length) {
-	sq_ptr_array_erase_addr(this, (void**)addr, length);
+inline void  PtrArrayMethod<Type>::remove(Type *addr, int count) {
+	sq_ptr_array_erase_addr(this, (void**)addr, count);
 }
 template<class Type>
-inline void  PtrArrayMethod<Type>::erase(int index, int length) {
-	sq_ptr_array_erase(this, index, length);
+inline void  PtrArrayMethod<Type>::erase(int index, int count) {
+	sq_ptr_array_erase(this, index, count);
 }
 template<class Type>
-inline void  PtrArrayMethod<Type>::erase(Type *addr, int length) {
-	sq_ptr_array_erase_addr(this, (void**)addr, length);
+inline void  PtrArrayMethod<Type>::erase(Type *addr, int count) {
+	sq_ptr_array_erase_addr(this, (void**)addr, count);
 }
 
 template<class Type>

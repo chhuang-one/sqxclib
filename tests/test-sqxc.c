@@ -510,7 +510,7 @@ int  main(void)
 	user->name = "Bob";
 	user->email = "guest@";
 	sq_str_array_init(&user->strs, 8);
-	sq_str_array_append(&user->strs, "first");
+	sq_str_array_push(&user->strs, "first");
 	sq_int_array_init(&user->ints, 8);
 	sq_int_array_push(&user->ints, 1);
 

@@ -29,38 +29,56 @@ struct SqIntArray
 SqIntArray 仍然为 C 语言定义了一些 sq_int_array_xxx() 宏和函数，对应 sq_array_xxx() 系列。  
   
 **初始化 Initialize**
-```
-	sq_int_array_init
-	sq_int_array_final
+
+```c
+	sq_int_array_init(array, capacity);
+	sq_int_array_final(array);
 ```
 
 **分配 Allocate**
-```
-	sq_int_array_alloc
-	sq_int_array_alloc_at
+
+```c
+	int  *memory;
+
+	memory = sq_int_array_alloc(array, count);
+	memory = sq_int_array_alloc_at(array, index, count);
 ```
 
 **添加 Append**
-```
-	sq_int_array_push
-	sq_int_array_append
+
+```c
+	int   ints[3] = {0};
+
+	sq_int_array_push(array, 16384);
+	sq_int_array_append(array, ints, sizeof(ints) / sizeof(int));
 ```
 
 **插入 Insert**
-```
-	sq_int_array_push_to
-	sq_int_array_insert
+
+```c
+	int   index = 5;
+
+	sq_int_array_push_to(array, index, 16384);
+	sq_int_array_insert(array, index, ints, sizeof(ints) / sizeof(int));
 ```
 
 **排序 Sort**
-```
-	sq_int_array_sort
+
+```c
+	int  compareFunc(const int *int1, const int *int2);
+
+	sq_int_array_sort(array, (SqCompareFunc)compareFunc);
 ```
 
 **查找 Find**
-```
-	sq_int_array_find
-	sq_int_array_find_sorted
+
+```c
+	int  *key;
+	int  *element;
+	int   insertingIndex;
+
+	element = sq_int_array_find(array, key, compareFunc);
+	element = sq_int_array_find_sorted(array, key, compareFunc, &insertingIndex);
 ```
 
 如果使用 C++ 语言，可以直接使用 Sq::Array<int>。Sq::IntArray 仍然被定义，它是 Sq::Array<int> 的别名。

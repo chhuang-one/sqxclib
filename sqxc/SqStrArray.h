@@ -31,11 +31,11 @@ extern "C" {
 
 /* macro for accessing variable of SqStrArray */
 
-#define sq_str_array_length      sq_array_length
+#define sq_str_array_length          sq_array_length
 
-#define sq_str_array_capacity    sq_array_capacity
+#define sq_str_array_capacity        sq_array_capacity
 
-#define sq_str_array_clear_func  sq_array_clear_func
+#define sq_str_array_clear_func      sq_array_clear_func
 
 // deprecated
 #define sq_str_array_destroy_func    sq_array_clear_func
@@ -45,22 +45,37 @@ extern "C" {
 		sq_ptr_array_init(array, capacity, free)
 
 //void *sq_str_array_final(SqStrArray *array);
-#define sq_str_array_final       sq_ptr_array_final
+#define sq_str_array_final           sq_ptr_array_final
 
 //char **sq_str_array_alloc(SqStrArray *array, int count);
-#define sq_str_array_alloc       sq_ptr_array_alloc
+#define sq_str_array_alloc           (char**)sq_array_alloc
 
 //char **sq_str_array_alloc_at(SqStrArray *array, int index, int count);
-#define sq_str_array_alloc_at    sq_ptr_array_alloc_at
+#define sq_str_array_alloc_at        (char**)sq_array_alloc_at
 
 // void sq_str_array_remove(SqStrArray *array, int index, int count);
-#define sq_str_array_remove      sq_ptr_array_erase
+#define sq_str_array_remove          sq_ptr_array_erase
 
 // void sq_str_array_erase(SqStrArray *array, int index, int count);
-#define sq_str_array_erase       sq_ptr_array_erase
+#define sq_str_array_erase           sq_ptr_array_erase
 
 // void sq_str_array_steal(SqStrArray *array, int index, int count);
-#define sq_str_array_steal       sq_ptr_array_steal
+#define sq_str_array_steal           sq_ptr_array_steal
+
+// void sq_str_array_sort(void *array, SqCompareFunc compareFunc);
+#define sq_str_array_sort            sq_ptr_array_sort
+
+//char **sq_str_array_search(void *array, const char *key, SqCompareFunc compareFunc);
+#define sq_str_array_search(array, key, compareFunc)    \
+		(char**)SQ_ARRAY_SEARCH(array, char*, key, compareFunc)
+
+//char **sq_str_array_find(void *array, const char *key, SqCompareFunc compareFunc);
+#define sq_str_array_find(array, key, compareFunc)      \
+		(char**)SQ_ARRAY_FIND(array, char*, key, compareFunc)
+
+//char **sq_array_find_sorted(void *array, const char *key, SqCompareFunc compareFunc, int *insertingIndex);
+#define sq_str_array_find_sorted(array, key, compareFunc, insertingIndex)   \
+		(char**)SQ_ARRAY_FIND_SORTED(array, char*, key, compareFunc, insertingIndex)
 
 // void sq_str_array_foreach(SqStrArray *array, char *element)
 #define sq_str_array_foreach(array, element)                    \
@@ -78,14 +93,14 @@ extern "C" {
 		     element_addr++)
 
 /* C functions */
-void   sq_str_array_insert(SqStrArray *array, int index, const char *str);
-void   sq_str_array_insert_n(SqStrArray *array, int index, const char **strs, int count);
+void   sq_str_array_push_to(SqStrArray *array, int index, const char *str);
+char **sq_str_array_insert(SqStrArray *array, int index, const char **strs, int count);
 
-void   sq_str_array_append(SqStrArray *array, const char *str);
-void   sq_str_array_append_n(SqStrArray *array, const char **strs, int count);
+void   sq_str_array_push(SqStrArray *array, const char *str);
+char **sq_str_array_append(SqStrArray *array, const char **strs, int count);
 
 // for internal use only
-void   sq_str_array_dup_n(SqStrArray *array, int index, int length);
+void   sq_str_array_strdup(SqStrArray *array, int index, int count);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -156,7 +171,7 @@ struct StrArray : SqStrArray
 	// copy constructor
 	StrArray(const StrArray &src) {
 		sq_ptr_array_init(this, sq_str_array_capacity(&src), sq_str_array_clear_func(&src));
-		sq_str_array_append_n(this, (const char**)src.data, src.length);
+		sq_str_array_append(this, (const char**)src.data, src.length);
 	}
 	// move constructor
 	StrArray(StrArray &&src) {
@@ -167,18 +182,18 @@ struct StrArray : SqStrArray
 	}
 
 	// ------ StrArray method ------
-	void  insert(int index, const char **strs, int length) {
-		sq_str_array_insert_n(this, index, strs, length);
+	void  insert(int index, const char **strs, int count) {
+		sq_str_array_insert(this, index, strs, count);
 	}
 	void  insert(int index, const char *str) {
-		sq_str_array_insert(this, index, str);
+		sq_str_array_push_to(this, index, str);
 	}
 
-	void  append(const char **strs, int length) {
-		sq_str_array_append_n(this, strs, length);
+	void  append(const char **strs, int count) {
+		sq_str_array_append(this, strs, count);
 	}
 	void  append(const char *str) {
-		sq_str_array_append(this, str);
+		sq_str_array_push(this, str);
 	}
 };
 

@@ -6,9 +6,9 @@ SqArray is array of arbitrary elements. Because some structures (e.g. SqType) ne
 SQ_TYPE_ARRAY is a built-in static constant type that can create SqArray instances.
 
 	SqArray
-	|
+	│
 	├─── SqIntArray
-	|
+	│
 	└─── SqPtrArray
 	     │
 	     ├─── SqStrArray

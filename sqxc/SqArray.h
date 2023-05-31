@@ -207,12 +207,12 @@ namespace Sq {
 template<class Type>
 struct ArrayMethod
 {
-	Type  *alloc(int length = 1);
-	Type  *alloc(int index, int length);
-	Type  *allocAt(int index, int length = 1);
+	Type  *alloc(int count = 1);
+	Type  *alloc(int index, int count);
+	Type  *allocAt(int index, int count = 1);
 
 	// append
-	void   append(Type *values, int length = 1);
+	void   append(Type *values, int count = 1);
 
 	template <typename ValueType = Type,
 	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
@@ -223,7 +223,7 @@ struct ArrayMethod
 	void   append(ValueType &value);
 
 	// insert
-	void   insert(int index, Type *values, int length = 1);
+	void   insert(int index, Type *values, int count = 1);
 
 	template <typename ValueType = Type,
 	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
@@ -234,8 +234,8 @@ struct ArrayMethod
 	void   insert(int index, ValueType &value);
 
 	// steal
-	void   steal(int index, int length = 1);
-	void   steal(Type *addr, int length = 1);
+	void   steal(int index, int count = 1);
+	void   steal(Type *addr, int count = 1);
 
 	// quick sort
 	void   sort(SqCompareFunc func);
@@ -359,22 +359,22 @@ namespace Sq {
 /* define ArrayMethod template functions */
 
 template<class Type>
-inline Type *ArrayMethod<Type>::alloc(int length) {
-	return (Type*) sq_array_alloc(this, length);
+inline Type *ArrayMethod<Type>::alloc(int count) {
+	return (Type*) sq_array_alloc(this, count);
 }
 template<class Type>
-inline Type *ArrayMethod<Type>::alloc(int index, int length) {
-	return (Type*) sq_array_alloc_at(this, index, length);
+inline Type *ArrayMethod<Type>::alloc(int index, int count) {
+	return (Type*) sq_array_alloc_at(this, index, count);
 }
 template<class Type>
-inline Type *ArrayMethod<Type>::allocAt(int index, int length) {
-	return (Type*) sq_array_alloc_at(this, index, length);
+inline Type *ArrayMethod<Type>::allocAt(int index, int count) {
+	return (Type*) sq_array_alloc_at(this, index, count);
 }
 
 // append
 template<class Type>
-inline void  ArrayMethod<Type>::append(Type *values, int length) {
-	SQ_ARRAY_APPEND(this, Type, values, length);
+inline void  ArrayMethod<Type>::append(Type *values, int count) {
+	SQ_ARRAY_APPEND(this, Type, values, count);
 }
 
 template <typename Type>
@@ -393,8 +393,8 @@ inline void  ArrayMethod<Type>::append(ValueType &value) {
 
 // insert
 template<class Type>
-inline void  ArrayMethod<Type>::insert(int index, Type *values, int length) {
-	SQ_ARRAY_INSERT(this, Type, index, values, length);
+inline void  ArrayMethod<Type>::insert(int index, Type *values, int count) {
+	SQ_ARRAY_INSERT(this, Type, index, values, count);
 }
 
 template <typename Type>
@@ -413,12 +413,12 @@ inline void  ArrayMethod<Type>::insert(int index, ValueType &value) {
 
 // steal
 template<class Type>
-inline void  ArrayMethod<Type>::steal(int index, int length) {
-	SQ_ARRAY_STEAL(this, Type, index, length);
+inline void  ArrayMethod<Type>::steal(int index, int count) {
+	SQ_ARRAY_STEAL(this, Type, index, count);
 }
 template<class Type>
-inline void  ArrayMethod<Type>::steal(Type *addr, int length) {
-	SQ_ARRAY_STEAL_ADDR(this, Type, (void**)addr, length);
+inline void  ArrayMethod<Type>::steal(Type *addr, int count) {
+	SQ_ARRAY_STEAL_ADDR(this, Type, (void**)addr, count);
 }
 
 // quick sort

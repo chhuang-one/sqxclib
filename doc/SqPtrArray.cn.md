@@ -6,7 +6,7 @@ SqPtrArray 是指针数组。它是 [SqArray](SqArray.cn.md) 的派生類。
 SQ_TYPE_PTR_ARRAY 是内置的静态常量类型，可以创建 SqPtrArray 实例。
 
 	SqArray
-	|
+	│
 	└─── SqPtrArray
 	     │
 	     ├─── SqStrArray
@@ -78,42 +78,9 @@ C 函数 sq_ptr_array_init()，C++ 构造函数可以初始化 SqPtrArray 的实
 	delete array;
 ```
 
-## 函数和方法
-
-用户可以使用与 [SqArray](SqArray.cn.md) 相同的函数和方法。  
-SqPtrArray 仍然为 C 语言定义了一些 sq_ptr_array_xxx() 宏和函数，对应 sq_array_xxx() 系列。  
-  
-**分配 Allocate**
-```
-	sq_ptr_array_alloc
-	sq_ptr_array_alloc_at
-```
-
-**添加 Append**
-```
-	sq_ptr_array_push
-	sq_ptr_array_append
-```
-
-**插入 Insert**
-```
-	sq_ptr_array_push_to
-	sq_ptr_array_insert
-```
-
-**排序 Sort**
-```
-	sq_ptr_array_sort
-```
-
-**查找 Find**
-```
-	sq_ptr_array_find
-	sq_ptr_array_find_sorted
-```
-
 ## 删除 Erase / 窃取 Steal
 
+SqPtrArray 增加了擦除功能，这一点不同于 [SqArray](SqArray.cn.md)。  
 erase() 通过调用清除函数从数组中删除元素。  
 steal() 在不调用清除函数的情况下从数组中删除元素。  
   
@@ -135,4 +102,55 @@ steal() 在不调用清除函数的情况下从数组中删除元素。
 
 	// 窃取元素
 	array->steal(index, n_elements);
+```
+
+## 其他函数和方法
+
+用户可以使用与 [SqArray](SqArray.cn.md) 相同的函数和方法。  
+SqPtrArray 仍然为 C 语言定义了一些 sq_ptr_array_xxx() 宏和函数，对应 sq_array_xxx() 系列。  
+  
+**分配 Allocate**
+
+```c
+	void **memory;
+
+	memory = sq_ptr_array_alloc(array, count);
+	memory = sq_ptr_array_alloc_at(array, index, count);
+```
+
+**添加 Append**
+
+```c
+	void  *ptrs[3] = {NULL};
+
+	sq_ptr_array_push(array, NULL);
+	sq_ptr_array_append(array, ptrs, sizeof(ptrs) / sizeof(void*));
+```
+
+**插入 Insert**
+
+```c
+	int   index = 5;
+
+	sq_ptr_array_push_to(array, index, NULL);
+	sq_ptr_array_insert(array, index, ptrs, sizeof(ptrs) / sizeof(void*));
+```
+
+**排序 Sort**
+
+```c
+	int  compareFunc(const void **ptr1, const void **ptr2);
+
+	sq_ptr_array_sort(array, (SqCompareFunc)compareFunc);
+```
+
+**查找 Find**
+
+```c
+	void **key;
+	void **element;
+	int    insertingIndex;
+
+	element = sq_ptr_array_find(array, key, compareFunc);
+	element = sq_ptr_array_find_sorted(array, key, compareFunc, &insertingIndex);
 ```

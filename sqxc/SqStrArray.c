@@ -18,32 +18,38 @@
 #define strdup       _strdup
 #endif
 
-void   sq_str_array_insert(SqStrArray *array, int index, const char *str)
+void   sq_str_array_push_to(SqStrArray *array, int index, const char *str)
 {
 	sq_ptr_array_push_to(array, index, strdup(str));
 }
 
-void   sq_str_array_insert_n(SqStrArray *array, int index, const char **strs, int count)
+char **sq_str_array_insert(SqStrArray *array, int index, const char **strs, int count)
 {
-	SQ_PTR_ARRAY_INSERT(array, index, strs, count);
-	sq_str_array_dup_n(array, index, count);
+	char **addr;
+
+	addr = (char**)SQ_ARRAY_INSERT(array, char*, index, strs, count);
+	sq_str_array_strdup(array, index, count);
+	return addr;
 }
 
-void   sq_str_array_append(SqStrArray *array, const char *str)
+void   sq_str_array_push(SqStrArray *array, const char *str)
 {
 	sq_ptr_array_push(array, strdup(str));
 }
 
-void   sq_str_array_append_n(SqStrArray *array, const char **strs, int count)
+char **sq_str_array_append(SqStrArray *array, const char **strs, int count)
 {
-	SQ_PTR_ARRAY_APPEND(array, strs, count);
-	sq_str_array_dup_n(array, array->length -count, count);
+	char **addr;
+
+	addr = (char**)SQ_ARRAY_APPEND(array, char*, strs, count);
+	sq_str_array_strdup(array, array->length -count, count);
+	return addr;
 }
 
-void   sq_str_array_dup_n(SqStrArray *array, int index, int length)
+void   sq_str_array_strdup(SqStrArray *array, int index, int count)
 {
 	char **cur = array->data + index;
-	char **end = cur + length;
+	char **end = cur + count;
 
 	for (;  cur < end;  cur++)
 		*cur =  strdup(*cur);

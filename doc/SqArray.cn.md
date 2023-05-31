@@ -6,9 +6,9 @@ SqArray 是任意元素的数组。因为有些结构（例如 SqType）需要�
 SQ_TYPE_ARRAY 是内置的静态常量类型，可以创建 SqArray 实例。
 
 	SqArray
-	|
+	│
 	├─── SqIntArray
-	|
+	│
 	└─── SqPtrArray
 	     │
 	     ├─── SqStrArray
