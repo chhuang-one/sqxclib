@@ -28,7 +28,7 @@ struct SqStrArray
 ## Append / Insert
 
 SqStrArray (C++ Sq::StrArray) will copy string when appending and inserting, which is different from [SqPtrArray](SqPtrArray.md).  
-If you don't want to copy string, please use [SqArray](SqArray.md).  
+If you don't want to copy string, please use [SqArray](SqArray.md) or [SqPtrArray](SqPtrArray.md).  
   
 use C language
 

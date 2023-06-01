@@ -52,7 +52,7 @@ void   sq_str_array_strdup(SqStrArray *array, int index, int count)
 	char **end = cur + count;
 
 	for (;  cur < end;  cur++)
-		*cur =  strdup(*cur);
+		*cur = strdup(*cur);
 }
 
 // ----------------------------------------------------------------------------

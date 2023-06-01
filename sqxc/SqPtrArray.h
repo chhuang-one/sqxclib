@@ -102,13 +102,15 @@ extern "C" {
 #define sq_ptr_array_push_to(array, index, value)  \
 		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
 
-// void sq_ptr_array_remove(void *array, int index, int count);
-#define sq_ptr_array_remove              sq_ptr_array_erase
-
 // void sq_ptr_array_erase_addr(void *array, void **element_addr, int count);
 #define sq_ptr_array_erase_addr(array, element_addr, count)    \
 		sq_ptr_array_erase(array, (int)((void**)(element_addr) - sq_ptr_array_data(array)), count)
 
+// alias of sq_ptr_array_erase()
+// void sq_ptr_array_remove(void *array, int index, int count);
+#define sq_ptr_array_remove              sq_ptr_array_erase
+
+// alias of sq_ptr_array_erase_addr()
 // void sq_ptr_array_remove_addr(void *array, void **element_addr, int count);
 #define sq_ptr_array_remove_addr         sq_ptr_array_erase_addr
 
@@ -314,10 +316,13 @@ struct PtrArrayMethod : ArrayMethod<Type>
 	void   insert(int index, Type *values, int count = 1);
 	void   insert(int index, Type  value);
 
-	void   remove(int index, int count = 1);
-	void   remove(Type *addr, int count = 1);
+	// removes elements from array with calling the clear function.
 	void   erase(int index, int count = 1);
 	void   erase(Type *addr, int count = 1);
+
+	// These are aliases of erase().
+	void   remove(int index, int count = 1);
+	void   remove(Type *addr, int count = 1);
 
 	// foreach
 	void   foreach(std::function<void(Type  element)> func);
@@ -495,20 +500,23 @@ inline void  PtrArrayMethod<Type>::insert(int index, Type  value) {
 	*(Type*)sq_array_alloc_at(this, index, 1) = value;
 }
 
-template<class Type>
-inline void  PtrArrayMethod<Type>::remove(int index, int count) {
-	sq_ptr_array_erase(this, index, count);
-}
-template<class Type>
-inline void  PtrArrayMethod<Type>::remove(Type *addr, int count) {
-	sq_ptr_array_erase_addr(this, (void**)addr, count);
-}
+// removes elements from array with calling the clear function.
 template<class Type>
 inline void  PtrArrayMethod<Type>::erase(int index, int count) {
 	sq_ptr_array_erase(this, index, count);
 }
 template<class Type>
 inline void  PtrArrayMethod<Type>::erase(Type *addr, int count) {
+	sq_ptr_array_erase_addr(this, (void**)addr, count);
+}
+
+// These are aliases of erase().
+template<class Type>
+inline void  PtrArrayMethod<Type>::remove(int index, int count) {
+	sq_ptr_array_erase(this, index, count);
+}
+template<class Type>
+inline void  PtrArrayMethod<Type>::remove(Type *addr, int count) {
 	sq_ptr_array_erase_addr(this, (void**)addr, count);
 }
 

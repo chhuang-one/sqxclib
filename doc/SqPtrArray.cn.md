@@ -80,7 +80,7 @@ C 函数 sq_ptr_array_init()，C++ 构造函数可以初始化 SqPtrArray 的实
 
 ## 删除 Erase / 窃取 Steal
 
-SqPtrArray 增加了擦除功能，这一点不同于 [SqArray](SqArray.cn.md)。  
+SqPtrArray 增加了 erase() 函数，这一点不同于 [SqArray](SqArray.cn.md)。  
 erase() 通过调用清除函数从数组中删除元素。  
 steal() 在不调用清除函数的情况下从数组中删除元素。  
   

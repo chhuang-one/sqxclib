@@ -28,7 +28,7 @@ struct SqStrArray
 ## 添加 Append / 插入 Insert
 
 SqStrArray (C++ Sq::StrArray) 在添加和插入时会复制字符串，这一点与 [SqPtrArray](SqPtrArray.cn.md) 不同。  
-如果您不想复制字符串，请使用 [SqArray](SqArray.cn.md)。  
+如果您不想复制字符串，请使用 [SqArray](SqArray.cn.md) 或 [SqPtrArray](SqPtrArray.cn.md)。  
   
 使用 C 语言
 

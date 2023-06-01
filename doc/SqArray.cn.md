@@ -114,28 +114,28 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 
 ```c
 	ElementType *elements;
-	int   length = 16;
-	int   index  = 8;
+	int   count = 16;
+	int   index = 8;
 
 	// 从后面分配元素
-	elements = (ElementType*)sq_array_alloc(array, length);
+	elements = (ElementType*)sq_array_alloc(array, count);
 
 	// 从指定索引分配元素
-	elements = (ElementType*)sq_array_alloc_at(array, index, length);
+	elements = (ElementType*)sq_array_alloc_at(array, index, count);
 ```
 
 使用 C++ 语言
 
 ```c++
 	ElementType *elements;
-	int   length = 16;
-	int   index  = 8;
+	int   count = 16;
+	int   index = 8;
 
 	// 从后面分配元素
-	elements = array->alloc(length, length);
+	elements = array->alloc(count);
 
 	// 从指定索引分配元素
-	elements = array->allocAt(index, length);
+	elements = array->allocAt(index, count);
 ```
 
 ## 添加 Append
@@ -203,15 +203,25 @@ steal() 从数组中删除元素。
 使用 C 语言
 
 ```c
-	// 删除元素 (您必须在此处指定 ElementType)
+	// 按索引删除元素 (您必须在此处指定 ElementType)
 	SQ_ARRAY_STEAL(array, ElementType, index, n_elements);
+
+	// 按地址删除元素 (您必须在此处指定 ElementType)
+	// 警告：请确认元素的地址在当前数组中。
+	ElementType *element;
+	SQ_ARRAY_STEAL_ADDR(array, ElementType, element, n_elements);
 ```
 
 使用 C++ 语言
 
 ```c++
-	// 删除元素
+	// 按索引删除元素
 	array->steal(index, n_elements);
+
+	// 按地址删除元素 (您必须在此处指定 ElementType)
+	// 警告：请确认元素的地址在当前数组中。
+	ElementType *element;
+	array->steal(element, n_elements);
 ```
 
 ## 排序 Sort / 查找 Find

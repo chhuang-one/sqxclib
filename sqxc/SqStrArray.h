@@ -59,8 +59,22 @@ extern "C" {
 // void sq_str_array_erase(SqStrArray *array, int index, int count);
 #define sq_str_array_erase           sq_ptr_array_erase
 
+// void sq_str_array_erase_addr(SqStrArray *array, char **element_addr, int count);
+#define sq_str_array_erase_addr      sq_ptr_array_erase_addr
+
+// alias of sq_str_array_erase()
+// void sq_str_array_remove(SqStrArray *array, int index, int count);
+#define sq_str_array_remove          sq_ptr_array_erase
+
+// alias of sq_str_array_erase_addr()
+// void sq_str_array_remove_addr(SqStrArray *array, char **element_addr, int count);
+#define sq_str_array_remove_addr     sq_ptr_array_erase_addr
+
 // void sq_str_array_steal(SqStrArray *array, int index, int count);
 #define sq_str_array_steal           sq_ptr_array_steal
+
+// void sq_str_array_steal_addr(SqStrArray *array, char **element_addr, int count);
+#define sq_str_array_steal_addr      sq_ptr_array_steal_addr
 
 // void sq_str_array_sort(void *array, SqCompareFunc compareFunc);
 #define sq_str_array_sort            sq_ptr_array_sort
@@ -113,6 +127,30 @@ void   sq_str_array_strdup(SqStrArray *array, int index, int count);
 
 namespace Sq {
 
+/*	StrArrayMethod is used by SqStrArray and it's children.
+
+	It's derived struct/class must be C++11 standard-layout and has SqStrArray members.
+
+	ArrayMethod
+	|
+	+--- PtrArrayMethod
+	     |
+	     +--- StrArrayMethod
+ */
+
+struct StrArrayMethod : PtrArrayMethod<char*>
+{
+	void   append(const char **strs, int count);
+	void   append(const char  *str);
+
+	void   insert(int index, const char **strs, int count);
+	void   insert(int index, const char  *str);
+
+	// searching functions for const string
+	char **search(const char *key);
+	char **find(const char *key);
+	char **findSorted(const char *key, int *insertingIndex = NULL);
+};
 
 };  // namespace Sq
 
@@ -122,7 +160,7 @@ namespace Sq {
 // C/C++ common definitions: define structure
 
 #ifdef __cplusplus
-struct SqStrArray : Sq::PtrArrayMethod<char*>        // <-- 1. inherit C++ member function(method)
+struct SqStrArray : Sq::StrArrayMethod               // <-- 1. inherit C++ member function(method)
 #else
 struct SqStrArray
 #endif
@@ -133,7 +171,6 @@ struct SqStrArray
 	int       length;
  */
 };
-
 
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define global inline function
@@ -153,8 +190,32 @@ struct SqStrArray
 
 namespace Sq {
 
-/* define PtrArrayMethod template functions */
+/* define StrArrayMethod template functions */
 
+inline void  StrArrayMethod::append(const char **strs, int count) {
+	sq_str_array_append((SqStrArray*)this, strs, count);
+}
+inline void  StrArrayMethod::append(const char  *str) {
+	sq_str_array_push((SqStrArray*)this, str);
+}
+
+inline void  StrArrayMethod::insert(int index, const char **strs, int count) {
+	sq_str_array_insert((SqStrArray*)this, index, strs, count);
+}
+inline void  StrArrayMethod::insert(int index, const char  *str) {
+	sq_str_array_push_to((SqStrArray*)this, index, str);
+}
+
+// searching functions for const string
+inline char **StrArrayMethod::search(const char *key) {
+	return (char**)SQ_ARRAY_SEARCH(this, char*, &key, ArrayMethod<char*>::compare<char*>);
+}
+inline char **StrArrayMethod::find(const char *key) {
+	return (char**)SQ_ARRAY_FIND(this, char*, &key, ArrayMethod<char*>::compare<char*>);
+}
+inline char **StrArrayMethod::findSorted(const char *key, int *insertingIndex) {
+	return (char**)SQ_ARRAY_FIND_SORTED(this, char*, &key, ArrayMethod<char*>::compare<char*>, insertingIndex);
+}
 
 /* All derived struct/class must be C++11 standard-layout. */
 
@@ -179,21 +240,6 @@ struct StrArray : SqStrArray
 		this->length = src.length;
 		src.data   = NULL;
 		src.length = 0;
-	}
-
-	// ------ StrArray method ------
-	void  insert(int index, const char **strs, int count) {
-		sq_str_array_insert(this, index, strs, count);
-	}
-	void  insert(int index, const char *str) {
-		sq_str_array_push_to(this, index, str);
-	}
-
-	void  append(const char **strs, int count) {
-		sq_str_array_append(this, strs, count);
-	}
-	void  append(const char *str) {
-		sq_str_array_push(this, str);
 	}
 };
 

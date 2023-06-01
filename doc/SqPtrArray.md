@@ -80,7 +80,7 @@ use C++ language
 
 ## Erase / Steal
 
-SqPtrArray adds erase function, which is different from [SqArray](SqArray.md).  
+SqPtrArray adds erase() function, which is different from [SqArray](SqArray.md).  
 erase() removes elements from array with calling the clear function.  
 steal() removes elements from array without calling the clear function.  
   

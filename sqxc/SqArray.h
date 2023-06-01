@@ -131,7 +131,7 @@ extern "C" {
 		        sq_array_data(array) + sizeof(ElementType) * ((index)+(count)),    \
 		        sizeof(ElementType) * ((sq_array_length(array) -= (count)) - (index)) )
 
-// void SQ_ARRAY_STEAL_ADDR(void *array, ElementType, void **element_addr, int count);
+// void SQ_ARRAY_STEAL_ADDR(void *array, ElementType, ElementType *element_addr, int count);
 #define SQ_ARRAY_STEAL_ADDR(array, ElementType, element_addr, count) \
 		memmove(element_addr,                                        \
 		        (ElementType*)(element_addr) + (count),              \
@@ -153,12 +153,12 @@ extern "C" {
 // find element in unsorted array
 //void *SQ_ARRAY_FIND(void *array, ElementType, const void *key, SqCompareFunc compareFunc);
 #define SQ_ARRAY_FIND(array, ElementType, key, compareFunc)          \
-		sq_array_find(array, sizeof(ElementType), key, compareFunc)
+		sq_array_find(array, sizeof(ElementType), key, (SqCompareFunc)compareFunc)
 
 // find element in sorted array and get index of element
 //void *SQ_ARRAY_FIND_SORTED(void *array, ElementType, const void *key, SqCompareFunc compareFunc, int *insertingIndex);
 #define SQ_ARRAY_FIND_SORTED(array, ElementType, key, compareFunc, insertingIndex)    \
-		sq_array_find_sorted(array, sizeof(ElementType), key, compareFunc, insertingIndex)
+		sq_array_find_sorted(array, sizeof(ElementType), key, (SqCompareFunc)compareFunc, insertingIndex)
 
 /* C functions */
 
@@ -418,7 +418,7 @@ inline void  ArrayMethod<Type>::steal(int index, int count) {
 }
 template<class Type>
 inline void  ArrayMethod<Type>::steal(Type *addr, int count) {
-	SQ_ARRAY_STEAL_ADDR(this, Type, (void**)addr, count);
+	SQ_ARRAY_STEAL_ADDR(this, Type, addr, count);
 }
 
 // quick sort
@@ -432,7 +432,7 @@ template <typename ValueType,
           typename std::enable_if<std::is_arithmetic< ValueType>::value ||
                                   std::is_same<char*, ValueType>::value>::type *>
 inline void  ArrayMethod<Type>::sort() {
-	SQ_ARRAY_SORT(this, Type, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
+	SQ_ARRAY_SORT(this, Type, ArrayMethod<Type>::compare<Type>);
 }
 
 // binary search
@@ -446,7 +446,7 @@ template <typename ValueType,
           typename std::enable_if<std::is_arithmetic< ValueType>::value ||
                                   std::is_same<char*, ValueType>::value>::type *>
 inline Type *ArrayMethod<Type>::search(Type  key) {
-	return (Type*) SQ_ARRAY_SEARCH(this, Type, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
+	return (Type*) SQ_ARRAY_SEARCH(this, Type, &key, ArrayMethod<Type>::compare<Type>);
 }
 
 // find element in unsorted array
@@ -460,7 +460,7 @@ template <typename ValueType,
           typename std::enable_if<std::is_arithmetic< ValueType>::value ||
                                   std::is_same<char*, ValueType>::value>::type *>
 inline Type  *ArrayMethod<Type>::find(Type  key) {
-	return (Type*) SQ_ARRAY_FIND(this, Type, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>);
+	return (Type*) SQ_ARRAY_FIND(this, Type, &key, ArrayMethod<Type>::compare<Type>);
 }
 
 // find element in sorted array and get index of element
@@ -474,7 +474,7 @@ template <typename ValueType,
           typename std::enable_if<std::is_arithmetic< ValueType>::value ||
                                   std::is_same<char*, ValueType>::value>::type *>
 inline Type  *ArrayMethod<Type>::findSorted(Type  key, int *insertingIndex) {
-	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, (SqCompareFunc)ArrayMethod<Type>::compare<Type>, insertingIndex);
+	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, ArrayMethod<Type>::compare<Type>, insertingIndex);
 }
 
 // SqCompareFunc - static function for sort(), search(), find(), findSorted()
@@ -604,7 +604,7 @@ typedef Array<int>    IntArray;
 #define sq_int_array_capacity            sq_array_capacity
 
 //void *sq_int_array_init(void *array, int capacity);
-#define sq_int_array_init(array, capacity)    \
+#define sq_int_array_init(array, capacity)           \
 		sq_array_init(array, sizeof(int), capacity)
 
 //void *sq_int_array_final(void *array);
@@ -648,8 +648,9 @@ typedef Array<int>    IntArray;
 #define sq_int_array_steal(array, index, count)             \
 		SQ_ARRAY_STEAL(array, int, index, count)
 
-#define sq_int_array_erase        sq_int_array_steal
-#define sq_int_array_remove       sq_int_array_steal
+// void sq_int_array_steal_addr(void *array, int *element_addr, int count);
+#define sq_int_array_steal_addr(array, element_addr, count) \
+		SQ_ARRAY_STEAL_ADDR(array, int, element_addr, count)
 
 // Quick sort
 // void sq_int_array_sort(void *array, SqCompareFunc compareFunc);

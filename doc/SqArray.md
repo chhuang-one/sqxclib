@@ -114,28 +114,28 @@ use C language
 
 ```c
 	ElementType *elements;
-	int   length = 16;
-	int   index  = 8;
+	int   count = 16;
+	int   index = 8;
 
 	// allocate elements from rear
-	elements = (ElementType*)sq_array_alloc(array, length);
+	elements = (ElementType*)sq_array_alloc(array, count);
 
 	// allocate elements from specified index
-	elements = (ElementType*)sq_array_alloc_at(array, index, length);
+	elements = (ElementType*)sq_array_alloc_at(array, index, count);
 ```
 
 use C++ language
 
 ```c++
 	ElementType *elements;
-	int   length = 16;
-	int   index  = 8;
+	int   count = 16;
+	int   index = 8;
 
 	// allocate elements from rear
-	elements = array->alloc(length, length);
+	elements = array->alloc(count);
 
 	// allocate elements from specified index
-	elements = array->allocAt(index, length);
+	elements = array->allocAt(index, count);
 ```
 
 ## Append
@@ -203,15 +203,25 @@ steal() removes elements from array.
 use C language
 
 ```c
-	// remove elements (You must specify ElementType here)
+	// remove elements by index (You must specify ElementType here)
 	SQ_ARRAY_STEAL(array, ElementType, index, n_elements);
+
+	// remove elements by address (You must specify ElementType here)
+	// Warning: Please make sure that address of element is in current array.
+	ElementType *element;
+	SQ_ARRAY_STEAL_ADDR(array, ElementType, element, n_elements);
 ```
 
 use C++ language
 
 ```c++
-	// remove elements
+	// remove elements by index
 	array->steal(index, n_elements);
+
+	// remove elements by address
+	// Warning: Please make sure that address of element is in current array.
+	ElementType *element;
+	array->steal(element, n_elements);
 ```
 
 ## Sort / Find
