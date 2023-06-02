@@ -145,11 +145,6 @@ struct StrArrayMethod : PtrArrayMethod<char*>
 
 	void   insert(int index, const char **strs, int count);
 	void   insert(int index, const char  *str);
-
-	// searching functions for const string
-	char **search(const char *key);
-	char **find(const char *key);
-	char **findSorted(const char *key, int *insertingIndex = NULL);
 };
 
 };  // namespace Sq
@@ -204,17 +199,6 @@ inline void  StrArrayMethod::insert(int index, const char **strs, int count) {
 }
 inline void  StrArrayMethod::insert(int index, const char  *str) {
 	sq_str_array_push_to((SqStrArray*)this, index, str);
-}
-
-// searching functions for const string
-inline char **StrArrayMethod::search(const char *key) {
-	return (char**)SQ_ARRAY_SEARCH(this, char*, &key, ArrayMethod<char*>::compare<char*>);
-}
-inline char **StrArrayMethod::find(const char *key) {
-	return (char**)SQ_ARRAY_FIND(this, char*, &key, ArrayMethod<char*>::compare<char*>);
-}
-inline char **StrArrayMethod::findSorted(const char *key, int *insertingIndex) {
-	return (char**)SQ_ARRAY_FIND_SORTED(this, char*, &key, ArrayMethod<char*>::compare<char*>, insertingIndex);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */

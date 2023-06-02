@@ -17,6 +17,7 @@
 
 #include <stdint.h>     // int64_t, intptr_t...etc
 #include <stdbool.h>    // bool
+#include <string.h>     // strcmp() for Sq::compare<char*>
 #include <time.h>       // time_t
 
 // ----------------------------------------------------------------------------
@@ -71,6 +72,32 @@ union SqValue
 #ifdef __cplusplus
 
 namespace Sq {
+
+/* Sq::compare template function for SqCompareFunc */
+template<typename Type>
+static int  compare(Type* a, Type* b);
+
+// template specialization for Sq::compare
+template<>
+inline int  compare<double>(double *a, double *b) {
+	return (*a > *b) - (*a < *b);
+}
+
+template<>
+inline int  compare<float>(float *a, float *b) {
+	return (*a > *b) - (*a < *b);
+}
+
+template<>
+inline int  compare<char*>(char **a, char **b) {
+	return strcmp(*a, *b);
+}
+
+// default Sq::compare template function
+template<typename Type>
+inline int  compare(Type* a, Type* b) {
+	return *a - *b;
+}
 
 /* All derived struct/class must be C++11 standard-layout. */
 

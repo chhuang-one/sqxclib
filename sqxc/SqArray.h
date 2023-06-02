@@ -106,11 +106,11 @@ extern "C" {
 
 // void sq_array_push(void *array, ElementType, ElementType value);
 #define sq_array_push(array, ElementType, value)              \
-		*(ElementType*)sq_array_alloc(array, 1) = value;
+		*(ElementType*)sq_array_alloc(array, 1) = (ElementType)(value)
 
 // void sq_array_push_to(void *array, ElementType, int index, ElementType value);
 #define sq_array_push_to(array, ElementType, index, value)    \
-		*(ElementType*)sq_array_alloc_at(array, index, 1) = value;
+		*(ElementType*)sq_array_alloc_at(array, index, 1) = (ElementType)(value)
 
 /* macro for maintaining C/C++ inline functions easily */
 
@@ -214,23 +214,45 @@ struct ArrayMethod
 	// append
 	void   append(Type *values, int count = 1);
 
-	template <typename ValueType = Type,
-	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
+	template<typename ValueType = Type,
+	         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+	                                  std::is_same<char*, Type>::value ||
+	                                  std::is_same<const char*, Type>::value)
+	                                  &&
+	                                 (std::is_arithmetic< ValueType>::value ||
+	                                  std::is_same<char*, ValueType>::value ||
+	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
 	void   append(ValueType  value);
 
-	template <typename ValueType = Type,
-	          typename std::enable_if<!std::is_arithmetic<ValueType>::value>::type * = nullptr>
+	template<typename ValueType = Type,
+	         typename std::enable_if<!std::is_arithmetic< Type>::value &&
+	                                 !std::is_same<char*, Type>::value &&
+	                                 !std::is_same<const char*, Type>::value &&
+	                                 !std::is_arithmetic<  ValueType>::value &&
+	                                 !std::is_same<      char*, Type>::value &&
+	                                 !std::is_same<const char*, Type>::value>::type * = nullptr>
 	void   append(ValueType &value);
 
 	// insert
-	void   insert(int index, Type *values, int count = 1);
+	void   insert(int index, const Type *values, int count = 1);
 
-	template <typename ValueType = Type,
-	          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type * = nullptr>
+	template<typename ValueType = Type,
+	         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+	                                  std::is_same<char*, Type>::value ||
+	                                  std::is_same<const char*, Type>::value)
+	                                  &&
+	                                 (std::is_arithmetic< ValueType>::value ||
+	                                  std::is_same<char*, ValueType>::value ||
+	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
 	void   insert(int index, ValueType  value);
 
-	template <typename ValueType = Type,
-	          typename std::enable_if<!std::is_arithmetic<ValueType>::value>::type * = nullptr>
+	template<typename ValueType = Type,
+	         typename std::enable_if<!std::is_arithmetic< Type>::value &&
+	                                 !std::is_same<char*, Type>::value &&
+	                                 !std::is_same<const char*, Type>::value &&
+	                                 !std::is_arithmetic<  ValueType>::value &&
+	                                 !std::is_same<      char*, Type>::value &&
+	                                 !std::is_same<const char*, Type>::value>::type * = nullptr>
 	void   insert(int index, ValueType &value);
 
 	// steal
@@ -240,40 +262,64 @@ struct ArrayMethod
 	// quick sort
 	void   sort(SqCompareFunc func);
 
-	template <typename ValueType = Type,
-	          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-	                                  std::is_same<char*, ValueType>::value>::type * = nullptr>
+	template<typename ValueType = Type,
+	         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+	                                  std::is_same<char*, Type>::value ||
+	                                  std::is_same<const char*, Type>::value)
+	                                  &&
+	                                 (std::is_arithmetic< ValueType>::value ||
+	                                  std::is_same<char*, ValueType>::value ||
+	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
 	void   sort();
 
 	// binary search
-	Type  *search(const void *key, SqCompareFunc func);
+	Type  *search(const void *key, SqCompareFunc compareFunc);
 
-	template <typename ValueType = Type,
-	          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-	                                  std::is_same<char*, ValueType>::value>::type * = nullptr>
-	Type  *search(Type  key);
+	template<typename ValueType = Type,
+	         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+	                                  std::is_same<char*, Type>::value ||
+	                                  std::is_same<const char*, Type>::value)
+	                                  &&
+	                                 (std::is_arithmetic< ValueType>::value ||
+	                                  std::is_same<char*, ValueType>::value ||
+	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
+	Type  *search(ValueType  key, SqCompareFunc compareFunc = (SqCompareFunc)Sq::compare<Type>);
 
 	// find element in unsorted array
 	Type  *find(const void *key, SqCompareFunc compareFunc);
 
-	template <typename ValueType = Type,
-	          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-	                                  std::is_same<char*, ValueType>::value>::type * = nullptr>
-	Type  *find(Type  key);
+	template<typename ValueType = Type,
+	         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+	                                  std::is_same<char*, Type>::value ||
+	                                  std::is_same<const char*, Type>::value)
+	                                  &&
+	                                 (std::is_arithmetic< ValueType>::value ||
+	                                  std::is_same<char*, ValueType>::value ||
+	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
+	Type  *find(ValueType  key, SqCompareFunc compareFunc = (SqCompareFunc)Sq::compare<Type>);
 
 	// find element in sorted array and get index of element
 	Type  *findSorted(const void *key, SqCompareFunc compareFunc, int *insertingIndex = NULL);
 
-	template <typename ValueType = Type,
-	          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-	                                  std::is_same<char*, ValueType>::value>::type * = nullptr>
-	Type  *findSorted(Type  key, int *insertingIndex = NULL);
+	template<typename ValueType = Type,
+	         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+	                                  std::is_same<char*, Type>::value ||
+	                                  std::is_same<const char*, Type>::value)
+	                                  &&
+	                                 (std::is_arithmetic< ValueType>::value ||
+	                                  std::is_same<char*, ValueType>::value ||
+	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
+	Type  *findSorted(ValueType  key, SqCompareFunc compareFunc, int *insertingIndex = NULL);
 
-	// SqCompareFunc - static function for sort(), search(), find(), findSorted()
-	template <typename ValueType = Type,
-	          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-	                                  std::is_same<char*, ValueType>::value>::type * = nullptr>
-	static int   compare(ValueType* a, ValueType* b);
+	template<typename ValueType = Type,
+	         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+	                                  std::is_same<char*, Type>::value ||
+	                                  std::is_same<const char*, Type>::value)
+	                                  &&
+	                                 (std::is_arithmetic< ValueType>::value ||
+	                                  std::is_same<char*, ValueType>::value ||
+	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
+	Type  *findSorted(ValueType  key, int *insertingIndex = NULL);
 
 	// access member variable
 	int    elementSize();
@@ -377,38 +423,60 @@ inline void  ArrayMethod<Type>::append(Type *values, int count) {
 	SQ_ARRAY_APPEND(this, Type, values, count);
 }
 
-template <typename Type>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
-inline void  ArrayMethod<Type>::append(const ValueType  value) {
-	*(Type*)sq_array_alloc_at(this, sq_array_length(this), 1) = value;
+template<typename Type>
+template<typename ValueType,
+         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+                                  std::is_same<char*, Type>::value ||
+                                  std::is_same<const char*, Type>::value)
+                                  &&
+                                 (std::is_arithmetic< ValueType>::value ||
+                                  std::is_same<char*, ValueType>::value ||
+                                  std::is_same<const char*, ValueType>::value)>::type *>
+inline void  ArrayMethod<Type>::append(ValueType  value) {
+	*(Type*)sq_array_alloc_at(this, sq_array_length(this), 1) = (Type)value;
 }
 
-template <typename Type>
-template <typename ValueType,
-          typename std::enable_if<!std::is_arithmetic<ValueType>::value>::type *>
+template<typename Type>
+template<typename ValueType,
+         typename std::enable_if<!std::is_arithmetic< Type>::value &&
+                                 !std::is_same<char*, Type>::value &&
+                                 !std::is_same<const char*, Type>::value &&
+                                 !std::is_arithmetic<  ValueType>::value &&
+	                             !std::is_same<      char*, Type>::value &&
+	                             !std::is_same<const char*, Type>::value>::type *>
 inline void  ArrayMethod<Type>::append(ValueType &value) {
-	append((Type*)&value, 1);
+	append((Type*)(&value), 1);
 }
 
 // insert
-template<class Type>
-inline void  ArrayMethod<Type>::insert(int index, Type *values, int count) {
+template<typename Type>
+inline void  ArrayMethod<Type>::insert(int index, const Type *values, int count) {
 	SQ_ARRAY_INSERT(this, Type, index, values, count);
 }
 
-template <typename Type>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic<ValueType>::value>::type *>
+template<typename Type>
+template<typename ValueType,
+         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+                                  std::is_same<char*, Type>::value ||
+                                  std::is_same<const char*, Type>::value)
+                                  &&
+                                 (std::is_arithmetic< ValueType>::value ||
+                                  std::is_same<char*, ValueType>::value ||
+                                  std::is_same<const char*, ValueType>::value)>::type *>
 inline void  ArrayMethod<Type>::insert(int index, ValueType  value) {
-	*(Type*)sq_array_alloc_at(this, index, 1) = value;
+	*(Type*)sq_array_alloc_at(this, index, 1) = (Type)value;
 }
 
-template <typename Type>
-template <typename ValueType,
-          typename std::enable_if<!std::is_arithmetic<ValueType>::value>::type *>
+template<typename Type>
+template<typename ValueType,
+         typename std::enable_if<!std::is_arithmetic< Type>::value &&
+                                 !std::is_same<char*, Type>::value &&
+                                 !std::is_same<const char*, Type>::value &&
+                                 !std::is_arithmetic<  ValueType>::value &&
+	                             !std::is_same<      char*, Type>::value &&
+	                             !std::is_same<const char*, Type>::value>::type *>
 inline void  ArrayMethod<Type>::insert(int index, ValueType &value) {
-	insert(index, (Type*)&value, 1);
+	insert(index, (Type*)(&value), 1);
 }
 
 // steal
@@ -427,26 +495,36 @@ inline void  ArrayMethod<Type>::sort(SqCompareFunc func) {
 	SQ_ARRAY_SORT(this, Type, func);
 }
 
-template <typename Type>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-                                  std::is_same<char*, ValueType>::value>::type *>
+template<typename Type>
+template<typename ValueType,
+         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+                                  std::is_same<char*, Type>::value ||
+                                  std::is_same<const char*, Type>::value)
+                                  &&
+                                 (std::is_arithmetic< ValueType>::value ||
+                                  std::is_same<char*, ValueType>::value ||
+                                  std::is_same<const char*, ValueType>::value)>::type *>
 inline void  ArrayMethod<Type>::sort() {
-	SQ_ARRAY_SORT(this, Type, ArrayMethod<Type>::compare<Type>);
+	SQ_ARRAY_SORT(this, Type, Sq::compare<Type>);
 }
 
 // binary search
 template<class Type>
-inline Type *ArrayMethod<Type>::search(const void *key, SqCompareFunc func) {
-	return (Type*) SQ_ARRAY_SEARCH(this, Type, key, func);
+inline Type *ArrayMethod<Type>::search(const void *key, SqCompareFunc compareFunc) {
+	return (Type*) SQ_ARRAY_SEARCH(this, Type, key, compareFunc);
 }
 
-template <typename Type>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-                                  std::is_same<char*, ValueType>::value>::type *>
-inline Type *ArrayMethod<Type>::search(Type  key) {
-	return (Type*) SQ_ARRAY_SEARCH(this, Type, &key, ArrayMethod<Type>::compare<Type>);
+template<typename Type>
+template<typename ValueType,
+         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+                                  std::is_same<char*, Type>::value ||
+                                  std::is_same<const char*, Type>::value)
+                                  &&
+                                 (std::is_arithmetic< ValueType>::value ||
+                                  std::is_same<char*, ValueType>::value ||
+                                  std::is_same<const char*, ValueType>::value)>::type *>
+inline Type *ArrayMethod<Type>::search(ValueType  key, SqCompareFunc compareFunc) {
+	return (Type*) SQ_ARRAY_SEARCH(this, Type, &key, compareFunc);
 }
 
 // find element in unsorted array
@@ -455,12 +533,17 @@ inline Type  *ArrayMethod<Type>::find(const void *key, SqCompareFunc compareFunc
 	return (Type*) SQ_ARRAY_FIND(this, Type, key, compareFunc);
 }
 
-template <typename Type>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-                                  std::is_same<char*, ValueType>::value>::type *>
-inline Type  *ArrayMethod<Type>::find(Type  key) {
-	return (Type*) SQ_ARRAY_FIND(this, Type, &key, ArrayMethod<Type>::compare<Type>);
+template<typename Type>
+template<typename ValueType,
+         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+                                  std::is_same<char*, Type>::value ||
+                                  std::is_same<const char*, Type>::value)
+                                  &&
+                                 (std::is_arithmetic< ValueType>::value ||
+                                  std::is_same<char*, ValueType>::value ||
+                                  std::is_same<const char*, ValueType>::value)>::type *>
+inline Type  *ArrayMethod<Type>::find(ValueType  key, SqCompareFunc compareFunc) {
+	return (Type*) SQ_ARRAY_FIND(this, Type, &key, compareFunc);
 }
 
 // find element in sorted array and get index of element
@@ -469,46 +552,30 @@ inline Type  *ArrayMethod<Type>::findSorted(const void *key, SqCompareFunc compa
 	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, key, compareFunc, insertingIndex);
 }
 
-template <typename Type>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-                                  std::is_same<char*, ValueType>::value>::type *>
-inline Type  *ArrayMethod<Type>::findSorted(Type  key, int *insertingIndex) {
-	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, ArrayMethod<Type>::compare<Type>, insertingIndex);
+template<typename Type>
+template<typename ValueType,
+         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+                                  std::is_same<char*, Type>::value ||
+                                  std::is_same<const char*, Type>::value)
+                                  &&
+                                 (std::is_arithmetic< ValueType>::value ||
+                                  std::is_same<char*, ValueType>::value ||
+                                  std::is_same<const char*, ValueType>::value)>::type *>
+inline Type  *ArrayMethod<Type>::findSorted(ValueType  key, SqCompareFunc compareFunc, int *insertingIndex) {
+	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, compareFunc, insertingIndex);
 }
 
-// SqCompareFunc - static function for sort(), search(), find(), findSorted()
-// template specialization for ArrayMethod::compare
-template <>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-                                  std::is_same<char*, ValueType>::value>::type *>
-int  ArrayMethod<double>::compare(ValueType* a, ValueType* b) {
-	return (*a > *b) - (*a < *b);
-}
-
-template <>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-                                  std::is_same<char*, ValueType>::value>::type *>
-int  ArrayMethod<float>::compare(ValueType* a, ValueType* b) {
-	return (*a > *b) - (*a < *b);
-}
-
-template <>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-                                  std::is_same<char*, ValueType>::value>::type *>
-int  ArrayMethod<char*>::compare(ValueType* a, ValueType* b) {
-	return strcmp(*a, *b);
-}
-
-template <typename Type>
-template <typename ValueType,
-          typename std::enable_if<std::is_arithmetic< ValueType>::value ||
-                                  std::is_same<char*, ValueType>::value>::type *>
-int  ArrayMethod<Type>::compare(ValueType* a, ValueType* b) {
-	return *a - *b;
+template<typename Type>
+template<typename ValueType,
+         typename std::enable_if<(std::is_arithmetic< Type>::value ||
+                                  std::is_same<char*, Type>::value ||
+                                  std::is_same<const char*, Type>::value)
+                                  &&
+                                 (std::is_arithmetic< ValueType>::value ||
+                                  std::is_same<char*, ValueType>::value ||
+                                  std::is_same<const char*, ValueType>::value)>::type *>
+inline Type  *ArrayMethod<Type>::findSorted(ValueType  key, int *insertingIndex) {
+	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, Sq::compare<Type>, insertingIndex);
 }
 
 // access member variable
@@ -630,11 +697,11 @@ typedef Array<int>    IntArray;
 
 // void sq_int_array_push(void *array, int value);
 #define sq_int_array_push(array, value)              \
-		*sq_int_array_alloc(array, 1) = value;
+		*sq_int_array_alloc(array, 1) = (int)(value);
 
 // void sq_int_array_push_to(void *array, int index, int value);
 #define sq_int_array_push_to(array, index, value)    \
-		*sq_int_array_alloc_at(array, index, 1) = value;
+		*sq_int_array_alloc_at(array, index, 1) = (int)(value);
 
 // int *sq_int_array_append(void *array, const int *values, int count);
 #define sq_int_array_append(array, values, count)    \
