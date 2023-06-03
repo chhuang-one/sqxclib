@@ -311,11 +311,6 @@ struct PtrArrayMethod : ArrayMethod<Type>
 	bool   isInited(void);
 	bool   notInited(void);
 
-	void   append(Type *values, int count = 1);
-	void   append(Type  value);
-	void   insert(int index, Type *values, int count = 1);
-	void   insert(int index, Type  value);
-
 	// removes elements from array with calling the clear function.
 	void   erase(int index, int count = 1);
 	void   erase(Type *addr, int count = 1);
@@ -481,23 +476,6 @@ inline bool  PtrArrayMethod<Type>::isInited(void) {
 template<class Type>
 inline bool  PtrArrayMethod<Type>::notInited(void) {
 	return sq_ptr_array_not_inited(this);
-}
-
-template<class Type>
-inline void  PtrArrayMethod<Type>::append(Type *values, int count) {
-	SQ_ARRAY_APPEND(this, Type, values, count);
-}
-template<class Type>
-inline void  PtrArrayMethod<Type>::append(Type  value) {
-	*(Type*)sq_array_alloc_at(this, sq_array_length(this), 1) = value;
-}
-template<class Type>
-inline void  PtrArrayMethod<Type>::insert(int index, Type *values, int count) {
-	SQ_ARRAY_INSERT(this, Type, index, values, count);
-}
-template<class Type>
-inline void  PtrArrayMethod<Type>::insert(int index, Type  value) {
-	*(Type*)sq_array_alloc_at(this, index, 1) = value;
 }
 
 // removes elements from array with calling the clear function.

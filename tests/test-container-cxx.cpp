@@ -35,6 +35,8 @@ void test_str_array()
 	Sq::StrArray *array;
 	const char   *strs[] = {"One", "Two", "Three"};
 	const int     n_strs = sizeof(strs) / sizeof(char*);
+	char        **element;
+	int           index;
 
 	array = new Sq::StrArray();
 	array->append(strs, n_strs);
@@ -43,15 +45,53 @@ void test_str_array()
 		printf(" - %s", element);
 	});
 	puts("");
-	// C foreach
-	sq_str_array_foreach(array, element) {
-		printf(" - %s", element);
-	}
-	puts("");
 
 	// Sq::StrArray must copy strings from 'strarray' to array->data
 	assert(memcmp(array->data, strs, sizeof(strs)) != 0);
+
+	puts("--- test Sq::StrArray.sort() ---");
+	array->append("Abc");
+	array->sort();
+	// C++ foreach (lambda)
+	array->foreach([](char *element) {
+		printf(" - %s", element);
+	});
+	puts("\n");
+
+	element = array->findSorted("Abc");
+	assert(array->data == element);
+
 	delete array;
+
+	// --------------------------------
+	// Sq::Array<char*> will NOT copy string.
+
+	Sq::Array<char*> array2;
+	Sq::Array<char*>::iterator cur;
+
+	array2.append(strs, n_strs);
+	array2.insert(1, "Xyz");
+	array2.append("z..z..Z");
+
+	for (cur = array2.begin();  cur < array2.end();  cur++)
+		std::cout << " - " << *cur;
+	std::cout << std::endl;
+
+	assert(strcmp(array2.data[1], "Xyz") == 0);
+
+	puts("--- test Sq::Array<char*>.sort() ---");
+	array2.sort();
+
+	for (cur = array2.begin();  cur < array2.end();  cur++)
+		std::cout << " - " << *cur;
+	std::cout << std::endl;
+
+	element = array2.find("One");
+	assert(strcmp(*element, "One") == 0);
+
+	element = array2.findSorted("Two", &index);
+	assert(strcmp(*element, "Two") == 0);
+	assert(index == 2);
 }
 
 void test_int_array_cpp()
@@ -99,16 +139,13 @@ void test_int_array_cpp()
 
 	// steal
 	iarray.steal(intaddr);
-	assert(*intaddr == 19);
+	assert(*intaddr == 19);	
 }
 
 void test_intx3_array()
 {
 	typedef int IntX3[3];
 	typedef SQ_ARRAY_STRUCT(IntX3) IntX3Array;
-
-	// test
-	Sq::Array<IntX3> testix3;
 
 	IntX3        ix3, *pix3;
 	IntX3Array  *ix3array;
@@ -130,13 +167,19 @@ void test_intx3_array()
 	ix3[2] = 56;
 	SQ_ARRAY_INSERT(&array, IntX3, 0, &ix3, 1);
 
-	// test
-	testix3.append(ix3);
-
 	pix3 = sq_array_addr(&array, IntX3, 1);
 	assert(pix3[0][0] == 21);
 
-	SQ_ARRAY_STEAL(&array, IntX3, 0, 1);
+	ix3[0] = 122;
+	ix3[1] = 155;
+	ix3[2] = 130;
+	SQ_ARRAY_APPEND(&array, IntX3, &ix3, 1);
+	ix3[0] = 256;
+	ix3[1] = 203;
+	ix3[2] = 286;
+	SQ_ARRAY_INSERT(&array, IntX3, 2, &ix3, 1);
+
+	SQ_ARRAY_STEAL(&array, IntX3, 1, 2);
 
 	for (int i = 0;  i < array.length;  i++) {
 		pix3 = sq_array_addr(&array, IntX3, i);
@@ -149,6 +192,22 @@ void test_intx3_array()
 	assert(pix3[0][0] == 105);
 
 	sq_array_final(&array);
+
+	// C++ test
+	// Sq::Array<IntX3>
+	Sq::Array<IntX3> testix3;
+
+	ix3[0] = 1064;
+	ix3[1] = 1275;
+	ix3[2] = 1156;
+	testix3.append(ix3);
+	assert(testix3.data[0][2] == 1156);
+
+	ix3[0] = 2122;
+	ix3[1] = 2155;
+	ix3[2] = 2130;
+	testix3.insert(0, ix3);
+	assert(testix3.data[0][2] == 2130);
 }
 
 void test_ptr_array()
