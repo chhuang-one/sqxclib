@@ -23,7 +23,60 @@ struct SqIntArray
 };
 ```
 
-## Functions and methods
+## Sort
+
+use C language
+
+```c
+	int  compareFunc(const int *int1, const int *int2);
+
+	sq_int_array_sort(array, (SqCompareFunc)compareFunc);
+```
+
+use C++ language  
+  
+In C++, it will generate static compare function for integer.
+
+```c++
+	array->sort((SqCompareFunc)compareFunc);
+
+	// use generated static compare function.
+	array->sort();
+```
+
+## Find
+
+use C language
+
+```c
+	int  *key;
+	int  *element;
+	int   insertingIndex;
+
+	// use integer pointer as key value
+	element = sq_int_array_find(array, key, compareFunc);
+	element = sq_int_array_find_sorted(array, key, compareFunc, &insertingIndex);
+```
+
+use C++ language  
+  
+When user sort/find integer in C++, it can directly use integer as key value and generate static comparison function.
+
+```c++
+	// use integer pointer as key value
+	element = array->find(key, compareFunc);
+	element = array->findSorted(key, compareFunc, &insertingIndex);
+
+	// use integer as key value directly
+	element = array->find(155, compareFunc);
+	element = array->findSorted(155, compareFunc, &insertingIndex);
+
+	// use generated static compare function and use integer as key value directly
+	element = array->find(155);
+	element = array->findSorted(155, &insertingIndex);
+```
+
+## Other Functions and methods
 
 User can use the same functions and methods as [SqArray](SqArray.md).  
 SqIntArray still defines some sq_int_array_xxx() macros and functions for C language, which are correspond to sq_array_xxx() series.  
@@ -60,25 +113,6 @@ SqIntArray still defines some sq_int_array_xxx() macros and functions for C lang
 
 	sq_int_array_push_to(array, index, 16384);
 	sq_int_array_insert(array, index, ints, sizeof(ints) / sizeof(int));
-```
-
-**Sort**
-
-```c
-	int  compareFunc(const int *int1, const int *int2);
-
-	sq_int_array_sort(array, (SqCompareFunc)compareFunc);
-```
-
-**Find**
-
-```c
-	int  *key;
-	int  *element;
-	int   insertingIndex;
-
-	element = sq_int_array_find(array, key, compareFunc);
-	element = sq_int_array_find_sorted(array, key, compareFunc, &insertingIndex);
 ```
 
 If you use C++ language, you can use Sq::Array<int> directly. Sq::IntArray is still defined, which is aliases for the Sq::Array<int>.

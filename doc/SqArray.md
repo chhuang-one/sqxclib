@@ -159,7 +159,6 @@ use C language
 use C++ language
 
 ```c++
-	// If ElementType is arithmetic type (or pointer type), you can use this to
 	// append a element
 	array->append(elementValue);
 
@@ -188,7 +187,6 @@ use C language
 use C++ language
 
 ```c++
-	// If ElementType is arithmetic type (or pointer type), you can use this to
 	// insert a element
 	array->insert(index, elementValue);
 
@@ -261,7 +259,7 @@ use C++ language
 	element = array->findSorted(key, elementCompare, &insertingIndex);
 ```
 
-If you specify arithmetic type (or C string type) to Sq::Array template in C++, it will generate static compare function.  
+If you specify arithmetic type (or C string type) to Sq::Array template in C++, it can use constant value as key value directly and generate static compare function.  
 In this case, you can call sort(), findSorted()...etc without comparison function.
 
 ```c++

@@ -139,7 +139,7 @@ void test_int_array_cpp()
 
 	// steal
 	iarray.steal(intaddr);
-	assert(*intaddr == 19);	
+	assert(*intaddr == 19);
 }
 
 void test_intx3_array()

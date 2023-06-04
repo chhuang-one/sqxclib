@@ -66,6 +66,59 @@ use C++ language
 	array.insert(1, strs, n_strs);
 ```
 
+## Sort
+
+use C language
+
+```c
+	int  compareFunc(const char **str1, const char **str2);
+
+	sq_str_array_sort(array, (SqCompareFunc)compareFunc);
+```
+
+use C++ language  
+  
+In C++, it will generate static compare function for C string.
+
+```c++
+	array->sort((SqCompareFunc)compareFunc);
+
+	// use generated static compare function.
+	array->sort();
+```
+
+## Find
+
+use C language
+
+```c
+	char **key;
+	char **element;
+	int    insertingIndex;
+
+	// use string pointer as key value
+	element = sq_str_array_find(array, key, compareFunc);
+	element = sq_str_array_find_sorted(array, key, compareFunc, &insertingIndex);
+```
+
+use C++ language  
+  
+When user sort/find string in C++, it can directly use string as key value and generate static comparison function.
+
+```c++
+	// use string pointer as key value
+	element = array->find(key, compareFunc);
+	element = array->findSorted(key, compareFunc, &insertingIndex);
+
+	// use string as key value directly
+	element = array->find("key-string", compareFunc);
+	element = array->findSorted("key-string", compareFunc, &insertingIndex);
+
+	// use generated static compare function and use string as key value directly
+	element = array->find("key-string");
+	element = array->findSorted("key-string", &insertingIndex);
+```
+
 ## Other functions and methods
 
 User can use the same functions and methods as [SqPtrArray](SqPtrArray.md).  
@@ -85,25 +138,6 @@ SqStrArray still defines some sq_str_array_xxx() macros and functions for C lang
 
 	memory = sq_str_array_alloc(array, count);
 	memory = sq_str_array_alloc_at(array, index, count);
-```
-
-**Sort**
-
-```c
-	int  compareFunc(const char **str1, const char **str2);
-
-	sq_str_array_sort(array, (SqCompareFunc)compareFunc);
-```
-
-**Find**
-
-```c
-	char **key;
-	char **element;
-	int    insertingIndex;
-
-	element = sq_str_array_find(array, key, compareFunc);
-	element = sq_str_array_find_sorted(array, key, compareFunc, &insertingIndex);
 ```
 
 **Erase**

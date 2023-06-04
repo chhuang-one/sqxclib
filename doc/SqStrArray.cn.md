@@ -60,10 +60,63 @@ SqStrArray (C++ Sq::StrArray) 在添加和插入时会复制字符串，这一�
 	// 附加一个字符串
 	array.append("Five");
 
-	// 將一个字符串插入數組的索引 3
+	// 将一个字符串插入数组的索引 3
 	array.insert(3, "Four");
 	// 将多个字符串插入数组的索引 1
 	array.insert(1, strs, n_strs);
+```
+
+## 排序 Sort
+
+使用 C 语言
+
+```c
+	int  compareFunc(const char **str1, const char **str2);
+
+	sq_str_array_sort(array, (SqCompareFunc)compareFunc);
+```
+
+使用 C++ 语言  
+  
+在 C++ 中，它会为 C 字符串生成静态比较函数。
+
+```c++
+	array->sort((SqCompareFunc)compareFunc);
+
+	// 使用生成的静态比较函数。
+	array->sort();
+```
+
+## 查找 Find
+
+使用 C 语言
+
+```c
+	char **key;
+	char **element;
+	int    insertingIndex;
+
+	// 使用字符串指针作为键值
+	element = sq_str_array_find(array, key, compareFunc);
+	element = sq_str_array_find_sorted(array, key, compareFunc, &insertingIndex);
+```
+
+使用 C++ 语言  
+  
+当用户在 C++ 中排序/查找字符串时，可以直接使用字符串作为键值并生成静态比较函数。
+
+```c++
+	// 使用字符串指针作为键值
+	element = array->find(key, compareFunc);
+	element = array->findSorted(key, compareFunc, &insertingIndex);
+
+	// 直接使用字符串作为键值
+	element = array->find("key-string", compareFunc);
+	element = array->findSorted("key-string", compareFunc, &insertingIndex);
+
+	// 使用生成的静态比较函数并直接使用字符串作为键值
+	element = array->find("key-string");
+	element = array->findSorted("key-string", &insertingIndex);
 ```
 
 ## 其他函数和方法
@@ -85,25 +138,6 @@ SqStrArray 仍然为 C 语言定义了一些 sq_str_array_xxx() 宏和函数，�
 
 	memory = sq_str_array_alloc(array, count);
 	memory = sq_str_array_alloc_at(array, index, count);
-```
-
-**排序 Sort**
-
-```c
-	int  compareFunc(const char **str1, const char **str2);
-
-	sq_str_array_sort(array, (SqCompareFunc)compareFunc);
-```
-
-**查找 Find**
-
-```c
-	char **key;
-	char **element;
-	int    insertingIndex;
-
-	element = sq_str_array_find(array, key, compareFunc);
-	element = sq_str_array_find_sorted(array, key, compareFunc, &insertingIndex);
 ```
 
 **删除 Erase**

@@ -93,6 +93,11 @@ inline int  compare<char*>(char **a, char **b) {
 	return strcmp(*a, *b);
 }
 
+template<>
+inline int  compare<const char*>(const char **a, const char **b) {
+	return strcmp(*a, *b);
+}
+
 // default Sq::compare template function
 template<typename Type>
 inline int  compare(Type* a, Type* b) {

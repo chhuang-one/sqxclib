@@ -159,7 +159,6 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 使用 C++ 语言
 
 ```c++
-	// 如果 ElementType 是算术类型（或指针类型），您可以使用它来
 	// 添加一个元素
 	array->append(elementValue);
 
@@ -188,7 +187,6 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 使用 C++ 语言
 
 ```c++
-	// 如果 ElementType 是算术类型（或指针类型），您可以使用它来
 	// 插入一个元素
 	array->insert(index, elementValue);
 
@@ -261,7 +259,7 @@ findSorted() 使用二进制搜索在已排序数组中查找元素，如果没�
 	element = array->findSorted(key, elementCompare, &insertingIndex);
 ```
 
-如果在 C++ 中为 Sq::Array 模板指定算术类型（或 C 字符串類型），它会生成静态比较函数。  
+如果在 C++ 中为 Sq::Array 模板指定算术类型（或 C 字符串類型），它可以直接使用常量值作为键值并生成静态比较函数。  
 在这种情况下，您可以在没有比较函数的情况下调用 sort()、findSorted()...等。
 
 ```c++
