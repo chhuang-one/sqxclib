@@ -35,12 +35,12 @@ struct SqIntArray
 
 使用 C++ 语言  
   
-在 C++ 中，它会为整数生成静态比较函数。
+在 C++ 中，它会为整数生成默认比较函数。
 
 ```c++
 	array->sort((SqCompareFunc)compareFunc);
 
-	// 使用生成的静态比较函数。
+	// 使用默认比较函数。
 	array->sort();
 ```
 
@@ -60,7 +60,7 @@ struct SqIntArray
 
 使用 C++ 语言  
   
-当用户在 C++ 中排序/查找整数时，可以直接使用整数作为键值并生成静态比较函数。
+当用户在 C++ 中排序/查找整数时，可以直接使用整数作为键值并生成默认比较函数。
 
 ```c++
 	// 使用整数指针作为键值
@@ -71,7 +71,7 @@ struct SqIntArray
 	element = array->find(155, compareFunc);
 	element = array->findSorted(155, compareFunc, &insertingIndex);
 
-	// 使用生成的静态比较函数并直接使用整数作为键值
+	// 使用默认比较函数并直接使用整数作为键值
 	element = array->find(155);
 	element = array->findSorted(155, &insertingIndex);
 ```

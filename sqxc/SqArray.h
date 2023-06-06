@@ -140,15 +140,15 @@ extern "C" {
 // Quick sort
 // void SQ_ARRAY_SORT(void *array, ElementType, SqCompareFunc compareFunc);
 #define SQ_ARRAY_SORT(array, ElementType, compareFunc)               \
-		qsort( sq_array_data(array), ((SqArray*)(array))->length,    \
-		       sizeof(ElementType), (SqCompareFunc)compareFunc)
+		qsort(sq_array_data(array), ((SqArray*)(array))->length,     \
+		      sizeof(ElementType), (SqCompareFunc)compareFunc)
 
 // Binary search for sorted array
 //void *SQ_ARRAY_SEARCH(void *array, ElementType, const void *key, SqCompareFunc compareFunc);
 #define SQ_ARRAY_SEARCH(array, ElementType, key, compareFunc)        \
-		bsearch( (void*)(key),                                       \
-		         sq_array_data(array), ((SqArray*)(array))->length,  \
-		         sizeof(ElementType), (SqCompareFunc)compareFunc)
+		bsearch((void*)(key),                                        \
+		        sq_array_data(array), ((SqArray*)(array))->length,   \
+		        sizeof(ElementType), (SqCompareFunc)compareFunc)
 
 // find element in unsorted array
 //void *SQ_ARRAY_FIND(void *array, ElementType, const void *key, SqCompareFunc compareFunc);
@@ -258,15 +258,12 @@ struct ArrayMethod
 	void   steal(Type *addr, int count = 1);
 
 	// quick sort
-	void   sort(SqCompareFunc func);
+	void   sort(SqCompareFunc compareFunc);
 
 	template<typename ValueType = Type,
-	         typename std::enable_if<(std::is_same<Type, ValueType>::value &&
-	                                     (std::is_arithmetic< ValueType>::value ||
-	                                      std::is_same<char*, ValueType>::value ||
-	                                      std::is_same<const char*, ValueType>::value) ) ||
-	                                 (std::is_same<char*, Type>::value &&
-	                                  std::is_same<const char*,ValueType>::value)>::type * = nullptr>
+	         typename std::enable_if<std::is_arithmetic< ValueType>::value ||
+	                                 std::is_same<char*, ValueType>::value ||
+	                                 std::is_same<const char*, ValueType>::value>::type * = nullptr>
 	void   sort();
 
 	// binary search
@@ -338,7 +335,12 @@ struct ArrayMethod
 	// get address of element
 	Type  *addr(int index);
 
-	/* ArrayMethod iterator (uncompleted) */
+	/* ArrayMethod C++ definition (uncompleted) */
+	typedef Type         value_type;
+
+	typedef Type        &reference;
+	typedef const Type  &const_reference;
+
 	typedef Type        *iterator;
 	typedef const Type  *const_iterator;
 
@@ -500,18 +502,15 @@ inline void  ArrayMethod<Type>::steal(Type *addr, int count) {
 
 // quick sort
 template<class Type>
-inline void  ArrayMethod<Type>::sort(SqCompareFunc func) {
-	SQ_ARRAY_SORT(this, Type, func);
+inline void  ArrayMethod<Type>::sort(SqCompareFunc compareFunc) {
+	SQ_ARRAY_SORT(this, Type, compareFunc);
 }
 
 template<typename Type>
 template<typename ValueType,
-         typename std::enable_if<(std::is_same<Type, ValueType>::value &&
-                                     (std::is_arithmetic< ValueType>::value ||
-                                      std::is_same<char*, ValueType>::value ||
-                                      std::is_same<const char*, ValueType>::value) ) ||
-                                 (std::is_same<char*, Type>::value &&
-                                  std::is_same<const char*,ValueType>::value)>::type *>
+         typename std::enable_if<std::is_arithmetic< ValueType>::value ||
+                                 std::is_same<char*, ValueType>::value ||
+                                 std::is_same<const char*, ValueType>::value>::type *>
 inline void  ArrayMethod<Type>::sort() {
 	SQ_ARRAY_SORT(this, Type, Sq::compare<Type>);
 }

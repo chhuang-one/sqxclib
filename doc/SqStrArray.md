@@ -78,12 +78,12 @@ use C language
 
 use C++ language  
   
-In C++, it will generate static compare function for C string.
+In C++, it will generate default comparison function for C string.
 
 ```c++
 	array->sort((SqCompareFunc)compareFunc);
 
-	// use generated static compare function.
+	// use default comparison function.
 	array->sort();
 ```
 
@@ -103,7 +103,7 @@ use C language
 
 use C++ language  
   
-When user sort/find string in C++, it can directly use string as key value and generate static comparison function.
+When user sort/find string in C++, it can directly use string as key value and generate default comparison function.
 
 ```c++
 	// use string pointer as key value
@@ -114,7 +114,7 @@ When user sort/find string in C++, it can directly use string as key value and g
 	element = array->find("key-string", compareFunc);
 	element = array->findSorted("key-string", compareFunc, &insertingIndex);
 
-	// use generated static compare function and use string as key value directly
+	// use default comparison function and use string as key value directly
 	element = array->find("key-string");
 	element = array->findSorted("key-string", &insertingIndex);
 ```

@@ -35,12 +35,12 @@ use C language
 
 use C++ language  
   
-In C++, it will generate static compare function for integer.
+In C++, it will generate default comparison function for integer.
 
 ```c++
 	array->sort((SqCompareFunc)compareFunc);
 
-	// use generated static compare function.
+	// use default comparison function.
 	array->sort();
 ```
 
@@ -60,7 +60,7 @@ use C language
 
 use C++ language  
   
-When user sort/find integer in C++, it can directly use integer as key value and generate static comparison function.
+When user sort/find integer in C++, it can directly use integer as key value and generate default comparison function.
 
 ```c++
 	// use integer pointer as key value
@@ -71,7 +71,7 @@ When user sort/find integer in C++, it can directly use integer as key value and
 	element = array->find(155, compareFunc);
 	element = array->findSorted(155, compareFunc, &insertingIndex);
 
-	// use generated static compare function and use integer as key value directly
+	// use default comparison function and use integer as key value directly
 	element = array->find(155);
 	element = array->findSorted(155, &insertingIndex);
 ```

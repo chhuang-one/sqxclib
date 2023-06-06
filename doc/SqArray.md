@@ -259,16 +259,26 @@ use C++ language
 	element = array->findSorted(key, elementCompare, &insertingIndex);
 ```
 
-If you specify arithmetic type (or C string type) to Sq::Array template in C++, it can use constant value as key value directly and generate static compare function.  
-In this case, you can call sort(), findSorted()...etc without comparison function.
+If you specify arithmetic type (or C string type) to Sq::Array template in C++, it can use constant value as key value directly and generate default comparison function.  
+In this case, you can use custom comparison function or use default comparison function to call sort(), findSorted()...etc. Of course, the original more complicated method can also continue to be used.
 
 ```c++
+	// --- arithmetic type ---
 	Sq::Array<int>  intArray;
 
+	int   *intElement;
 	intArray->sort();
+	// use integer as key value directly and use default comparison function
+	intElement = intArray->find(233);
+	intElement = intArray->findSorted(233, &insertingIndex);
 
-	int   key = 31;
-	int  *element;
-	element = intArray->find(key);
-	element = intArray->findSorted(key, &insertingIndex);
+
+	// --- C string type ---
+	Sq::Array<char*>  strArray;
+
+	char **strElement;
+	strArray->sort();
+	// use string as key value directly and use default comparison function
+	strElement = strArray->find("KeyString");
+	strElement = strArray->findSorted("KeyString", &insertingIndex);
 ```

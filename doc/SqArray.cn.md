@@ -259,16 +259,26 @@ findSorted() 使用二进制搜索在已排序数组中查找元素，如果没�
 	element = array->findSorted(key, elementCompare, &insertingIndex);
 ```
 
-如果在 C++ 中为 Sq::Array 模板指定算术类型（或 C 字符串類型），它可以直接使用常量值作为键值并生成静态比较函数。  
-在这种情况下，您可以在没有比较函数的情况下调用 sort()、findSorted()...等。
+如果在 C++ 中为 Sq::Array 模板指定算术类型（或 C 字符串類型），它可以直接使用常量值作为键值并生成默认比较函数。  
+在这种情况下，您可以使用自定义比较函数或使用默认比较函数來调用 sort()、findSorted()...等。当然原本比較复杂方法也可以继续使用。
 
 ```c++
+	// --- 算术类型 ---
 	Sq::Array<int>  intArray;
 
+	int   *intElement;
 	intArray->sort();
+	// 直接使用整数作为键值并使用默认比较函数
+	intElement = intArray->find(233);
+	intElement = intArray->findSorted(233, &insertingIndex);
 
-	int   key = 31;
-	int  *element;
-	element = intArray->find(key);
-	element = intArray->findSorted(key, &insertingIndex);
+
+	// --- C 字符串類型 ---
+	Sq::Array<char*>  strArray;
+
+	char **strElement;
+	strArray->sort();
+	// 直接使用字符串作为键值并使用默认比较函数
+	strElement = strArray->find("KeyString");
+	strElement = strArray->findSorted("KeyString", &insertingIndex);
 ```
