@@ -420,20 +420,60 @@ void test_type()
 
 void test_pairs()
 {
-	Sq::Pairs<const char> pairs;
-	const char *val;
+	const char *valueStr;
+	intptr_t    valueInt;
 
-	pairs.add("userkey", "uservalue");
-	pairs.add("xkey", "xvalue");
-	pairs.add("ykey", "yvalue");
-	pairs.add("zkey", "zvalue");
+	// --------------------------------
+	// const char*, char*
+	Sq::Pairs<const char*, char*> pairStrX2;
 
-	val = pairs.find("ykey");
-	assert(strcmp(val, "yvalue") == 0);
+	pairStrX2.add("userkey", "uservalue");
+	pairStrX2.add("xkey", "xvalue");
+	pairStrX2.add("ykey", "yvalue");
+	pairStrX2.add("zkey", "zvalue");
 
-	pairs.remove("userkey");
-	val = pairs.find("userkey");
-	assert(val == NULL);
+	valueStr = pairStrX2.find("ykey");
+	assert(strcmp(valueStr, "yvalue") == 0);
+
+	pairStrX2.remove("userkey");
+	valueStr = pairStrX2.find("userkey");
+	assert(valueStr == NULL);
+
+	// --------------------------------
+	// char*, intptr_t
+	Sq::Pairs<char*, intptr_t> pairsStrInt;
+
+	pairsStrInt.add("key16", 16);
+	pairsStrInt.add("key10", 10);
+	pairsStrInt.add("key12", 12);
+	pairsStrInt.add("key18", 18);
+	pairsStrInt.add("key14", 14);
+
+	valueInt = pairsStrInt.find("key18");
+	assert(valueInt == 18);
+
+	pairsStrInt.remove("key14");
+	valueInt = pairsStrInt.find("key14");
+	assert(pairsStrInt.isFound() == false);
+	assert(valueInt == 0);
+
+	// --------------------------------
+	// intptr_t, char*
+	Sq::Pairs<intptr_t, char*> pairsIntStr;
+
+	pairsIntStr.add(16, "value16");
+	pairsIntStr.add(10, "value10");
+	pairsIntStr.add(12, "value12");
+	pairsIntStr.add(18, "value18");
+	pairsIntStr.add(14, "value14");
+
+	valueStr = pairsIntStr.find(18);
+	assert(strcmp(valueStr, "value18") == 0);
+
+	pairsIntStr.remove(14);
+	valueStr = pairsIntStr.find(14);
+	assert(pairsIntStr.isFound() == false);
+	assert(valueStr == NULL);
 }
 
 // ----------------------------------------------------------------------------

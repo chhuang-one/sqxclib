@@ -16,8 +16,7 @@
 
 #include <SqPairs.h>
 
-/*	SqPair: This is element type in array
-	        size of this structure == size of 2 pointers because SqPair has 2 pointers
+/*	SqPair: This is element type of array in SqPairs.
  */
 typedef struct SqPair        SqPair;
 
@@ -33,7 +32,7 @@ struct SqPair
 void  sq_pairs_init(SqPairs *pairs, SqCompareFunc key_compare_func)
 {
 	sq_array_init(pairs, sizeof(SqPair), SQ_PAIRS_CAPACITY);
-	pairs->sorted = 0;
+	pairs->bit_field = 0;
 	pairs->key_compare_func   = key_compare_func;
 	pairs->key_destroy_func   = NULL;
 	pairs->value_destroy_func = NULL;
@@ -57,7 +56,7 @@ void  sq_pairs_add(SqPairs *pairs, void *key, void *value)
 {
 	SqPair *element;
 
-	pairs->sorted  = 0;
+	pairs->bit_field &= ~SQB_PAIRS_SORTED;
 	element = (SqPair*)sq_array_alloc(pairs, 1);
 	element->key   = key;
 	element->value = value;
@@ -67,7 +66,7 @@ void  sq_pairs_erase(SqPairs *pairs, void *key)
 {
 	SqPair *element;
 
-	if (pairs->sorted == 0)
+	if ((pairs->bit_field & SQB_PAIRS_SORTED) == 0)
 		sq_pairs_sort(pairs);
 
 	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
@@ -84,7 +83,7 @@ void    sq_pairs_steal(SqPairs *pairs, void *key)
 {
 	SqPair *element;
 
-	if (pairs->sorted == 0)
+	if ((pairs->bit_field & SQB_PAIRS_SORTED) == 0)
 		sq_pairs_sort(pairs);
 
 	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
@@ -96,12 +95,15 @@ void *sq_pairs_find(SqPairs *pairs, void *key)
 {
 	SqPair *element;
 
-	if (pairs->sorted == 0)
+	if ((pairs->bit_field & SQB_PAIRS_SORTED) == 0)
 		sq_pairs_sort(pairs);
 
 	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
-	if (element)
+	if (element) {
+		pairs->bit_field |= SQB_PAIRS_FOUND;
 		return element->value;
+	}
+	pairs->bit_field &= ~SQB_PAIRS_FOUND;
 	return NULL;
 }
 
@@ -109,7 +111,7 @@ void  sq_pairs_sort(SqPairs *pairs)
 {
 	qsort(pairs->data, pairs->length, sizeof(SqPair),
 	      (SqCompareFunc)pairs->key_compare_func);
-	pairs->sorted = 1;
+	pairs->bit_field |= SQB_PAIRS_SORTED;
 }
 
 // ----------------------------------------------------------------------------
