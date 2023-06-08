@@ -15,12 +15,14 @@
 #ifndef SQ_PAIRS_H
 #define SQ_PAIRS_H
 
-#include <SqPtrArray.h>
+#include <stdint.h>     // intptr_t
+
+#include <SqArray.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.
 
-typedef struct SqPairs       SqPairs;    // array of SqPair
+typedef struct SqPairs       SqPairs;    // array of key-value pairs
 
 #define SQB_PAIRS_SORTED    (1 << 0)
 #define SQB_PAIRS_FOUND     (1 << 1)
@@ -34,7 +36,8 @@ extern "C" {
 
 /* macro for accessing variable of SqPairs */
 
-#define sq_pairs_is_found(pairs)     (((pairs)->bit_field & SQB_PAIRS_FOUND)  > 0)
+// status of sq_pairs_get()
+#define sq_pairs_is_found(pairs)     (((pairs)->bit_field & SQB_PAIRS_FOUND) != 0)
 #define sq_pairs_not_found(pairs)    (((pairs)->bit_field & SQB_PAIRS_FOUND) == 0)
 
 /* C functions */
@@ -43,17 +46,56 @@ void    sq_pairs_init(SqPairs *pairs, SqCompareFunc key_compare_func);
 void    sq_pairs_final(SqPairs *pairs);
 
 void    sq_pairs_add(SqPairs *pairs, void *key, void *value);
-void    sq_pairs_erase(SqPairs *pairs, void *key);
+
+// void sq_pairs_add_int(SqPairs *pairs, intptr_t  key, intptr_t  value);
+#define sq_pairs_add_int(pairs, key, value)       \
+		sq_pairs_add(pairs, (void*)(intptr_t)key, (void*)(intptr_t)value)
+
+// void sq_pairs_add_intx(SqPairs *pairs, intptr_t  key, void *value);
+#define sq_pairs_add_intx(pairs, key, value)      \
+		sq_pairs_add(pairs, (void*)(intptr_t)key, value)
+
+// void sq_pairs_add_xint(SqPairs *pairs, void *key, intptr_t  value);
+#define sq_pairs_add_xint(pairs, key, value)      \
+		sq_pairs_add(pairs, key, (void*)(intptr_t)value)
+
+void   *sq_pairs_get(SqPairs *pairs, void *key);
+
+// intptr_t  sq_pairs_get_int(SqPairs *pairs, intptr_t  key);
+#define sq_pairs_get_int(pairs, key)       \
+		(intptr_t)sq_pairs_get(pairs, (void*)(intptr_t)key)
+
+//void *sq_pairs_get_intx(SqPairs *pairs, intptr_t  key);
+#define sq_pairs_get_intx(pairs, key)      \
+		sq_pairs_get(pairs, (void*)(intptr_t)key)
+
+// intptr_t  sq_pairs_get_xint(SqPairs *pairs, void *key);
+#define sq_pairs_get_xint        (intptr_t)sq_pairs_get
+
 void    sq_pairs_steal(SqPairs *pairs, void *key);
-void   *sq_pairs_find(SqPairs *pairs, void *key);
+
+// void sq_pairs_steal_int(SqPairs *pairs, intptr_t  key);
+#define sq_pairs_steal_int(pairs, key)     \
+		sq_pairs_steal(pairs, (void*)(intptr_t)key)
+
+void    sq_pairs_erase(SqPairs *pairs, void *key);
+
+// void sq_pairs_erase_int(SqPairs *pairs, intptr_t  key);
+#define sq_pairs_erase_int(pairs, key)     \
+		sq_pairs_erase(pairs, (void*)(intptr_t)key)
 
 // alias of sq_pairs_erase()
 // void sq_pairs_remove(SqPairs *pairs, void *key);
-#define sq_pairs_remove        sq_pairs_erase
+#define sq_pairs_remove          sq_pairs_erase
+
+// alias of sq_pairs_erase_int()
+// void sq_pairs_remove_int(SqPairs *pairs, intptr_t  key);
+#define sq_pairs_remove_int(pairs, key)    \
+		sq_pairs_erase(pairs, (void*)(intptr_t)key)
 
 void    sq_pairs_sort(SqPairs *pairs);
 
-// SqPair SqCompareFunc
+// pair comparison function for SqCompareFunc
 int     sq_pairs_cmp_string(const char **key1, const char **key2);
 
 #ifdef __cplusplus
@@ -74,7 +116,7 @@ namespace Sq {
 template<typename Key, typename Value = Key>
 struct PairsMethod
 {
-	// status of find()
+	// status of get()
 	bool    isFound(void);
 	bool    notFound(void);
 
@@ -115,6 +157,18 @@ struct PairsMethod
 	                                  std::is_integral<ValueType>::value)>::type * = nullptr>
 	void    add(KeyType  key, ValueType  value);
 
+	// get
+	template<typename KeyType   = Key,
+	         typename std::enable_if< std::is_pointer<Key>::value &&
+	                                 (std::is_pointer<KeyType>::value ||
+	                                  std::is_same<const char*, KeyType>::value)>::type * = nullptr>
+	Value   get(KeyType  key);
+
+	template<typename KeyType   = Key,
+	         typename std::enable_if<std::is_integral<Key>::value &&
+	                                 std::is_integral<KeyType>::value>::type * = nullptr>
+	Value   get(KeyType  key);
+
 	// alias of erase()
 	// remove
 	template<typename KeyType   = Key,
@@ -152,18 +206,6 @@ struct PairsMethod
 	                                 std::is_integral<KeyType>::value>::type * = nullptr>
 	void    steal(KeyType  key);
 
-	// find
-	template<typename KeyType   = Key,
-	         typename std::enable_if< std::is_pointer<Key>::value &&
-	                                 (std::is_pointer<KeyType>::value ||
-	                                  std::is_same<const char*, KeyType>::value)>::type * = nullptr>
-	Value   find(KeyType  key);
-
-	template<typename KeyType   = Key,
-	         typename std::enable_if<std::is_integral<Key>::value &&
-	                                 std::is_integral<KeyType>::value>::type * = nullptr>
-	Value   find(KeyType  key);
-
 	// sort
 	void    sort();
 };
@@ -175,9 +217,9 @@ struct PairsMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/*	SqPairs is array of key-value pairs.
+/*	SqPairs is array of key-value pairs, it doesn't check for duplicates.
 
-	It only supports pointer type, intptr_t, and uintptr_t.
+	Data types in pair only support pointer types, intptr_t and uintptr_t.
  */
 
 #define SQ_PAIRS_MEMBERS                            \
@@ -226,7 +268,7 @@ namespace Sq {
 
 /* define PairsMethod functions. */
 
-// status of find()
+// status of get()
 template<typename Key, typename Value>
 inline bool   PairsMethod<Key, Value>::isFound(void) {
 	return sq_pairs_is_found((SqPairs*)this);
@@ -279,6 +321,24 @@ template<typename KeyType, typename ValueType,
                                   std::is_integral<ValueType>::value)>::type *>
 inline void   PairsMethod<Key, Value>::add(KeyType  key, ValueType  value) {
 	sq_pairs_add((SqPairs*)this, (void*)(intptr_t)key, (void*)(intptr_t)value);
+}
+
+// get
+template<typename Key, typename Value>
+template<typename KeyType,
+         typename std::enable_if< std::is_pointer<Key>::value &&
+                                 (std::is_pointer<KeyType>::value ||
+                                  std::is_same<const char*, KeyType>::value)>::type *>
+inline Value  PairsMethod<Key, Value>::get(KeyType  key) {
+	return (Value)sq_pairs_get((SqPairs*)this, (void*)key);
+}
+
+template<typename Key, typename Value>
+template<typename KeyType,
+         typename std::enable_if<std::is_integral<Key>::value &&
+                                 std::is_integral<KeyType>::value>::type *>
+inline Value  PairsMethod<Key, Value>::get(KeyType  key) {
+	return (Value)sq_pairs_get((SqPairs*)this, (void*)(intptr_t)key);
 }
 
 // alias of erase()
@@ -334,24 +394,6 @@ template<typename KeyType,
                                  std::is_integral<KeyType>::value>::type *>
 inline void   PairsMethod<Key, Value>::steal(KeyType  key) {
 	sq_pairs_steal((SqPairs*)this, (void*)(intptr_t)key);
-}
-
-// find
-template<typename Key, typename Value>
-template<typename KeyType,
-         typename std::enable_if< std::is_pointer<Key>::value &&
-                                 (std::is_pointer<KeyType>::value ||
-                                  std::is_same<const char*, KeyType>::value)>::type *>
-inline Value  PairsMethod<Key, Value>::find(KeyType  key) {
-	return (Value)sq_pairs_find((SqPairs*)this, (void*)key);
-}
-
-template<typename Key, typename Value>
-template<typename KeyType,
-         typename std::enable_if<std::is_integral<Key>::value &&
-                                 std::is_integral<KeyType>::value>::type *>
-inline Value  PairsMethod<Key, Value>::find(KeyType  key) {
-	return (Value)sq_pairs_find((SqPairs*)this, (void*)(intptr_t)key);
 }
 
 // sort

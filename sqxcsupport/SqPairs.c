@@ -62,6 +62,22 @@ void  sq_pairs_add(SqPairs *pairs, void *key, void *value)
 	element->value = value;
 }
 
+void *sq_pairs_get(SqPairs *pairs, void *key)
+{
+	SqPair *element;
+
+	if ((pairs->bit_field & SQB_PAIRS_SORTED) == 0)
+		sq_pairs_sort(pairs);
+
+	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
+	if (element) {
+		pairs->bit_field |= SQB_PAIRS_FOUND;
+		return element->value;
+	}
+	pairs->bit_field &= ~SQB_PAIRS_FOUND;
+	return NULL;
+}
+
 void  sq_pairs_erase(SqPairs *pairs, void *key)
 {
 	SqPair *element;
@@ -89,22 +105,6 @@ void    sq_pairs_steal(SqPairs *pairs, void *key)
 	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
 	if (element)
 		SQ_ARRAY_STEAL_ADDR(pairs, SqPair, element, 1);
-}
-
-void *sq_pairs_find(SqPairs *pairs, void *key)
-{
-	SqPair *element;
-
-	if ((pairs->bit_field & SQB_PAIRS_SORTED) == 0)
-		sq_pairs_sort(pairs);
-
-	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
-	if (element) {
-		pairs->bit_field |= SQB_PAIRS_FOUND;
-		return element->value;
-	}
-	pairs->bit_field &= ~SQB_PAIRS_FOUND;
-	return NULL;
 }
 
 void  sq_pairs_sort(SqPairs *pairs)

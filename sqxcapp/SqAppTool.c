@@ -241,12 +241,12 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	} temp;
 
 
-	if (sq_pairs_find(pairs, "migration_name") == NULL) {
+	if (sq_pairs_get(pairs, "migration_name") == NULL) {
 		sq_pairs_add(pairs, "migration_name", (void*)migration_name);
 		added.migration_name = 1;
 	}
 
-	table_name = sq_pairs_find(pairs, "table_name");
+	table_name = sq_pairs_get(pairs, "table_name");
 	if (table_name == NULL) {
 		table_name = strchr(migration_name, '_');
 		// if 'table_name' found and 'table_name' is NOT empty string
@@ -271,7 +271,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		added.table_name = 1;
 	}
 
-	struct_name = sq_pairs_find(pairs, "struct_name");
+	struct_name = sq_pairs_get(pairs, "struct_name");
 	if (struct_name == NULL) {
 		if (table_name)
 			struct_name = sq_str_type_name(table_name);
@@ -281,7 +281,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		added.struct_name = 1;
 	}
 
-	temp.timestr = sq_pairs_find(pairs, "timestamp");
+	temp.timestr = sq_pairs_get(pairs, "timestamp");
 	if (temp.timestr == NULL) {
 		temp.timestr = sq_time_to_string(time(NULL), 'c');
 		sq_pairs_add(pairs, "timestamp", temp.timestr);
@@ -449,7 +449,7 @@ char *sq_template_write_buffer(const char *template_string, SqPairs *pairs, SqBu
 		str[len] = 0;
 		buffer->writed -= len;
 		// get value
-		str = sq_pairs_find(pairs, str);
+		str = sq_pairs_get(pairs, str);
 		if (str)
 			sq_buffer_write(buffer, str);
 		// + "}}"

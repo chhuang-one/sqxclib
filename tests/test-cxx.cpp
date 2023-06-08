@@ -432,11 +432,13 @@ void test_pairs()
 	pairStrX2.add("ykey", "yvalue");
 	pairStrX2.add("zkey", "zvalue");
 
-	valueStr = pairStrX2.find("ykey");
+	valueStr = pairStrX2.get("ykey");
+	assert(pairStrX2.isFound() == true);
 	assert(strcmp(valueStr, "yvalue") == 0);
 
 	pairStrX2.remove("userkey");
-	valueStr = pairStrX2.find("userkey");
+	valueStr = pairStrX2.get("userkey");
+	assert(pairStrX2.isFound() == false);
 	assert(valueStr == NULL);
 
 	// --------------------------------
@@ -449,11 +451,12 @@ void test_pairs()
 	pairsStrInt.add("key18", 18);
 	pairsStrInt.add("key14", 14);
 
-	valueInt = pairsStrInt.find("key18");
+	valueInt = pairsStrInt.get("key18");
+	assert(pairsStrInt.isFound() == true);
 	assert(valueInt == 18);
 
 	pairsStrInt.remove("key14");
-	valueInt = pairsStrInt.find("key14");
+	valueInt = pairsStrInt.get("key14");
 	assert(pairsStrInt.isFound() == false);
 	assert(valueInt == 0);
 
@@ -467,13 +470,34 @@ void test_pairs()
 	pairsIntStr.add(18, "value18");
 	pairsIntStr.add(14, "value14");
 
-	valueStr = pairsIntStr.find(18);
+	valueStr = pairsIntStr.get(18);
+	assert(pairsIntStr.isFound() == true);
 	assert(strcmp(valueStr, "value18") == 0);
 
 	pairsIntStr.remove(14);
-	valueStr = pairsIntStr.find(14);
+	valueStr = pairsIntStr.get(14);
 	assert(pairsIntStr.isFound() == false);
 	assert(valueStr == NULL);
+
+	// --------------------------------
+	// intptr_t, intptr_t
+	SqPairs  pairsIntX2;
+
+	sq_pairs_init(&pairsIntX2, (SqCompareFunc)Sq::compare<intptr_t>);
+	sq_pairs_add_int(&pairsIntX2, 28, 128);
+	sq_pairs_add_int(&pairsIntX2, 55, 155);
+	sq_pairs_add_int(&pairsIntX2, 30, 130);
+	sq_pairs_add_int(&pairsIntX2, 27, 127);
+	sq_pairs_add_int(&pairsIntX2, 52, 152);
+
+	valueInt = sq_pairs_get_int(&pairsIntX2, 27);
+	assert(sq_pairs_is_found(&pairsIntX2) == true);
+	assert(valueInt == 127);
+
+	sq_pairs_remove_int(&pairsIntX2, 55);
+	valueInt = sq_pairs_get_int(&pairsIntX2, 55);
+	assert(sq_pairs_is_found(&pairsIntX2) == false);
+	assert(valueInt == 0);
 }
 
 // ----------------------------------------------------------------------------
