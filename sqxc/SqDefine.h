@@ -79,6 +79,11 @@ static int  compare(Type* a, Type* b);
 
 // template specialization for Sq::compare
 template<>
+inline int  compare<int>(int *a, int *b) {
+	return *a - *b;
+}
+
+template<>
 inline int  compare<double>(double *a, double *b) {
 	return (*a > *b) - (*a < *b);
 }
@@ -101,7 +106,9 @@ inline int  compare<const char*>(const char **a, const char **b) {
 // default Sq::compare template function
 template<typename Type>
 inline int  compare(Type* a, Type* b) {
-	return *a - *b;
+	if (*a < *b) return -1;
+	if (*a > *b) return 1;
+	return 0;
 }
 
 /* All derived struct/class must be C++11 standard-layout. */
