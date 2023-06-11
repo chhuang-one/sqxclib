@@ -113,12 +113,12 @@ SqTypeJoint 是处理多表连接查询的默认类型。它可以为查询结�
 	array = (Sq::Array<Joint2>*) storage->query(query, SQ_TYPE_ARRAY);
 
 	Joint2 &element = array->at(index);
-//	void  **element = array->at(index);    // 這也可行
+//	void  **element = array->at(index);    // 这也可行
 	// element[0] = 第一个表的实例
 	// element[1] = 第二个表的实例
 ```
 
-如果您使用 C++ STL 容器或不想定義新的數據類型，你可以使用 Sq::Joint 来代替它。它只是将指针数组包装到结构中。  
+如果您使用 C++ STL 容器或不想定义新的数据类型，你可以使用 Sq::Joint 来代替它。它只是将指针数组包装到结构中。  
 使用 Sq::Joint 时，必须指定数组的大小。
 例如，如果查询连接 2 个表，则 Sq::Joint 数组的大小必须指定为 2 或更大的数字。
 

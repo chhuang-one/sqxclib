@@ -449,7 +449,7 @@ static Sqxc *sq_type_my_list_write(void *mylist, const SqType *type, Sqxc *dest)
 
 	// 容器的开始
 	dest->type = SQXC_TYPE_ARRAY;
-//	dest->name = container_name;    // "name" 是由这个函数的调用者设置的
+//	dest->name = container_name;    // "name" 是由此函数的调用者设置的
 //	dest->value.pointer = NULL;
 	dest = sqxc_send(dest);
 	if (dest->code != SQCODE_OK)
@@ -534,7 +534,7 @@ void    my_type_init(MyType *type)
 	// ...
 
 	// 设置销毁通知器的回调函数。
-	// 調用 sq_type_final_self() 時將發出此通知。
+	// 调用 sq_type_final_self() 时将发出此通知。
 	mytype->on_destroy = my_type_on_destroy;
 
 	// 初始化派生结构的变量
@@ -560,7 +560,7 @@ SqType *my_type_new()
 
 ## 5 释放动态 SqType
 
-sq_type_free() 可以释放动态 SqType（SqType.bit_field 有 SQB_TYPE_DYNAMIC）。它可以發出銷毀通知程序。
+sq_type_free() 可以释放动态 SqType（SqType.bit_field 有 SQB_TYPE_DYNAMIC）。它可以发出销毁通知程序。
 
 ```c++
 	/* C 函数 */

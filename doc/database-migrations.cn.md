@@ -267,7 +267,7 @@ struct User {
 
 | C++ 方法         | C 位字段名        | 描述                                               |
 | ---------------- | ----------------- | -------------------------------------------------- |
-| pointer()        | SQB_POINTER       | 这个数据成员是一个指针。                           |
+| pointer()        | SQB_POINTER       | 此数据成员是一个指针。                             |
 | hidden()         | SQB_HIDDEN        | 不要将此数据成员输出到 JSON。                      |
 | hiddenNull()     | SQB_HIDDEN_NULL   | 如果它的值为 NULL，则不要将此数据成员输出到 JSON。 |
 

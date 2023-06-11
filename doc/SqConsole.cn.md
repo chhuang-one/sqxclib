@@ -155,7 +155,7 @@ static const SqCommand mycommand = {
 
 #### 2.1 动态 SqCommand 使用 SqOption 的常量数组
 
-例如: 添加具有 2 個選項的數組。
+例如: 添加具有 2 个选项的数组。
 
 ```c++
 	// C 函数

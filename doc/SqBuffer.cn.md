@@ -2,7 +2,7 @@
 
 # SqBuffer
 
-SqBuffer 提供一個可擴充的緩衝區。
+SqBuffer 提供一个可扩充的缓冲区。
 
 ## 初始化
 
@@ -14,7 +14,7 @@ SqBuffer 小而简单。可以直接放在栈内存中使用，将所有成员�
 	SqBuffer *buf_in_heap = calloc(1, sizeof(SqBuffer));
 ```
 
-它也提供正式的 C 函數和 C++ 方法。  
+它也提供正式的 C 函数和 C++ 方法。  
   
 使用 C 语言
 

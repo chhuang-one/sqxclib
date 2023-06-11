@@ -96,7 +96,7 @@ void  sq_relation_replace(SqRelation *relation, const void *old_object, const vo
 
 ## 查找关系
 
-sq_relation_find() 可以得到對象的相關列表。返回類型 SqRelationNode 是單向鍊錶。
+sq_relation_find() 可以得到对象的相关列表。返回类型 SqRelationNode 是单向炼表。
 
 ```c
 // 如果没有找到关系则返回 NULL。 用户不能释放返回值。

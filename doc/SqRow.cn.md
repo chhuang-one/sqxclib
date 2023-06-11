@@ -120,7 +120,7 @@ union SqValue {
 ```c
 	SqRow.cols[0].name    = "id";
 	SqRow.cols[0].type    = SQ_TYPE_INT;
-	SqRow.cols[0].entry   = (const SqColumn*) pointerToSqColumn;
+	SqRow.cols[0].entry   = (const SqEntry*) pointerToSqColumn;
 	SqRow.data[0].integer = 1;
 ```
 
@@ -193,16 +193,16 @@ C 函数 sq_row_alloc_column() 和 sq_row_alloc()，C++ 方法 allocColumn() 和
 
 ## 节省内存使用
 
-因为查询结果中的所有行都具有相同的列數組，所以在这些行之间共享列數組可以减少内存使用量。
+因为查询结果中的所有行都具有相同的列数组，所以在这些行之间共享列数组可以减少内存使用量。
 C 函数 sq_row_share_cols()、C++ 方法 shareCols() 可以做到这一点。  
   
-**注意1**：如果列數組已共享，则用户无法添加/删除其中的元素。  
+**注意1**：如果列数组已共享，则用户无法添加/删除其中的元素。  
 **注意2**：当 SqRow 获取共享列数组时，它会释放自己的列数组。  
   
 使用 C 语言
 
 ```c
-	SqRow *row = array->data[0];     // 這個 'array' 有查詢結果
+	SqRow *row = array->data[0];     // 此 'array' 有查询结果
 
 	// 将 SqRow.cols 分享给其他 SqRow
 	for (int index = 1;  index < array.length;  index++)
@@ -212,7 +212,7 @@ C 函数 sq_row_share_cols()、C++ 方法 shareCols() 可以做到这一点。
 使用 C++ STL
 
 ```c++
-	Sq::Row *row = vector->at(0);    // 這個 'vector' 有查詢結果
+	Sq::Row *row = vector->at(0);    // 此 'vector' 有查询结果
 
 	// 将 SqRow.cols 分享给其他 SqRow
 	for (cur = vector->begin()+1, end = vector->end();  cur != end;  cur++)

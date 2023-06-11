@@ -11,9 +11,7 @@ SQ_TYPE_ARRAY is a built-in static constant type that can create SqArray instanc
 	│
 	└─── SqPtrArray
 	     │
-	     ├─── SqStrArray
-	     │
-	     └─── SqIntptrArray (deprecated)
+	     └─── SqStrArray
 
 [SqIntArray](SqIntArray.md) and [SqPtrArray](SqPtrArray.md) are derived classes of SqArray. They share data structures and code to reduce binary size.  
 [SqIntArray](SqIntArray.md) is integer array, [SqPtrArray](SqPtrArray.md) is pointer array.
@@ -33,8 +31,8 @@ struct SqArray
 ```
 
 There are hidden members in front of SqArray.data:  
-capacity    is the number of elements actually allocated in the array. (excluding the header in front of the array)  
-elementSize is element size in the array.  
+capacity    : the number of elements actually allocated in the array. (excluding the header in front of the array)  
+elementSize : element size in the array.  
   
 Below is the code to access these hidden members:
 
@@ -224,9 +222,9 @@ use C++ language
 
 ## Sort / Find
 
-sort()       sort elements of array.  
-find()       finds an element in a unsorted array.  
-findSorted() finds an element in a sorted array using binary search and output index of inserting if no found.  
+sort()       : sort elements of array.  
+find()       : finds an element in a unsorted array.  
+findSorted() : finds an element in a sorted array using binary search and output index of inserting if no found.  
   
 The above 3 functions need the "comparison function" to work.  
   

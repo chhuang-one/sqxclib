@@ -66,7 +66,7 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 | str         | sq_table_add_str       | char*         | VARCHAR           |
 | string      | sq_table_add_string    | char*         | VARCHAR           |
 | char_       | sq_table_add_char      | char*         | CHAR              |
-| custom      | sq_table_add_custom    | *用戶定義*    | VARCHAR           |
+| custom      | sq_table_add_custom    | *用户定义*    | VARCHAR           |
 
 * 因为 'bool'、'int'、'double' 和 'char' 是 C/C++ 关键字，所以在这些方法的尾部附加 '_'。
 
@@ -77,7 +77,7 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 | stdstr      | std::string   |
 | stdstring   | std::string   |
 
-**加入自訂或 JSON 型態**  
+**加入自订或 JSON 型态**  
   
 添加包含 JSON 对象或数组的列。  
   

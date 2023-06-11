@@ -177,7 +177,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	sq_table_rename_column(table, "email", "email2");
 ```
 
-**還有更多...**  
+**还有更多...**  
   
 * 您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关架构和迁移的更多信息
 * 要使用初始化器静态定义（或更改）表，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)
@@ -271,12 +271,12 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	sq_schema_free(schema_v2);
 ```
 
-如果要使用單獨的遷移文件來執行此操作，則可以將所有遷移文件放在 workspace/database/migrations 中。  
-sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 來使用這些文件。請參閱 doc/[SqApp.cn.md](doc/SqApp.cn.md) 以獲取更多信息。
+如果要使用单独的迁移文件来执行此操作，则可以将所有迁移文件放在 workspace/database/migrations 中。  
+sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 来使用这些文件。请参阅 doc/[SqApp.cn.md](doc/SqApp.cn.md) 以获取更多信息。
 
 ## 增删查改 CRUD
 
-这个库使用 [SqStorage](doc/SqStorage.cn.md) 在数据库中创建、读取、更新和删除行。  
+此库使用 [SqStorage](doc/SqStorage.cn.md) 在数据库中创建、读取、更新和删除行。  
 要获取更多信息和示例，您可以查看 doc/[SqStorage.cn.md](doc/SqStorage.cn.md)  
 
 #### 获取 Get
@@ -310,7 +310,7 @@ sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 來使用這些文件。請參閱 doc
 	// 获取多行
 	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
 
-	// 使用 C++ 类 'where' 系列获取多行（在下面的 "查询生成器" 中說明）
+	// 使用 C++ 类 'where' 系列获取多行（在下面的 "查询生成器" 中说明）
 	array = storage->getAll("users", Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// 获取所有行
@@ -331,7 +331,7 @@ sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 來使用這些文件。請參閱 doc
 	// 获取多行
 	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
 
-	// 使用 C++ 类 'where' 系列获取多行（在下面的 "查询生成器" 中說明）
+	// 使用 C++ 类 'where' 系列获取多行（在下面的 "查询生成器" 中说明）
 	vector = storage->getAll<std::vector<User>>(Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// 获取所有行
@@ -581,13 +581,13 @@ SQL 语句
 
 **方便的 C++ 类 'select' 和 'from'**
 
-使用 C++ Sq::select 或 Sq::from 來運行數據庫查詢。
+使用 C++ Sq::select 或 Sq::from 来运行数据库查询。
 
 ```c++
-	// 將 Sq::select 與 query 方法一起使用
+	// 将 Sq::select 与 query 方法一起使用
 	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
 
-	// 將 Sq::from 與 query 方法一起使用
+	// 将 Sq::from 与 query 方法一起使用
 	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
 ```
 
@@ -787,7 +787,7 @@ sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写�
 ```
 
 ## JSON 支持
-- 这个库使用 [json-c](https://github.com/json-c/json-c) 来解析/写入 JSON。
+- 此库使用 [json-c](https://github.com/json-c/json-c) 来解析/写入 JSON。
 - 所有定义的表和列都可以用来解析 JSON 对象和字段。
 - 程序还可以解析存储在列中的 JSON 对象和数组。
 
@@ -815,7 +815,7 @@ SqSchema 文档: doc/[SqSchema.cn.md](doc/SqSchema.cn.md)
 ## sqxc 怎么念
 
 sqxc 中文发音「思库可思」，还可以翻译成白话文。  
-備註：中文发音是在 2022年5月14日 凌晨4点左右决定的。
+备注：中文发音是在 2022年5月14日 凌晨4点左右决定的。
 
 ## 许可
 

@@ -116,7 +116,7 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 
 **如果您不想更改默认联合类型：**
 1. 调用 sq_storage_setup_query() 来设置 SqQuery 和 SqTypeRow。
-2. 调用 sq_storage_query() 時指定使用 SqTypeRow。
+2. 调用 sq_storage_query() 时指定使用 SqTypeRow。
 3. 如果您跳过第 1 步，则 [SqRow](SqRow.cn.md) 中的所有数据类型都是 C 字符串，因为 SqTypeRow 不知道列的类型。
 
 函数 sq_storage_setup_query() 声明：

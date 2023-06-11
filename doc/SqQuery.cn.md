@@ -4,7 +4,7 @@
 
 SqQuery 是支持子查询和括号的查询构建器。  
   
-**SqQuery 設計上可以獨立運作。**  
+**SqQuery 设计上可以独立运作。**  
 如果在 SqQuery.c 中删除 sq_query_get_table_as_names() 和 sq_query_select_table_as()，它可以在没有 sqxclib 的情况下工作。  
 您还可以通过从 Makefile 中删除 SqQuery.c 和 SqStorage-query.c 来使用其他查询构建器来替换 sqxclib 中的 SqQuery。
 
@@ -95,7 +95,7 @@ use C++ language
 
 #### from / table
 
-from() 和 table() 可以指定數據庫表。他們做同樣的事情並支持子查詢，其他详细信息在标题为 "子查询和括号 "中解释。  
+from() 和 table() 可以指定数据库表。他们做同样的事情并支持子查询，其他详细信息在标题为 "子查询和括号 "中解释。  
   
 使用 C 语言
 
@@ -107,7 +107,7 @@ from() 和 table() 可以指定數據庫表。他們做同樣的事情並支持�
 	// 重置 SqQuery (删除所有语句)
 	sq_query_clear(query);
 
-	// 子查詢
+	// 子查询
 	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
 //	sq_query_from_sub(query);
 	sq_query_from(query, NULL);
@@ -126,7 +126,7 @@ from() 和 table() 可以指定數據庫表。他們做同樣的事情並支持�
 	// 重置 SqQuery (删除所有语句)
 	query->clear();
 
-	// 子查詢
+	// 子查询
 	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
 	query->from([query] {
 		query->from("companies")
@@ -134,14 +134,14 @@ from() 和 table() 可以指定數據庫表。他們做同樣的事情並支持�
 	});
 ```
 
-**方便的 C++ 類 'from'**  
+**方便的 C++ 类 'from'**  
   
-使用 C++ Sq::From（或小寫 Sq::from）生成 SQL 語句。它可以與 [SqStorage](SqStorage.cn.md) 的 query 方法一起使用。
+使用 C++ Sq::From（或小写 Sq::from）生成 SQL 语句。它可以与 [SqStorage](SqStorage.cn.md) 的 query 方法一起使用。
 
 ```c++
 	char *sql = Sq::from("users").where("id", "<", 10).toSql();
 
-	// 與 SqStorage 的 query 方法一起使用
+	// 与 SqStorage 的 query 方法一起使用
 	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
 ```
 
@@ -170,14 +170,14 @@ sq_query_select() 可以在参数中指定多个列。
 	query->distinct();
 ```
 
-**方便的 C++ 類 'select'**  
+**方便的 C++ 类 'select'**  
   
-使用 C++ Sq::Select（或小寫 Sq::select）生成 SQL 語句。它可以與 [SqStorage](SqStorage.cn.md) 的 query 方法一起使用。
+使用 C++ Sq::Select（或小写 Sq::select）生成 SQL 语句。它可以与 [SqStorage](SqStorage.cn.md) 的 query 方法一起使用。
 
 ```c++
 	char *sql = Sq::select("id", "name").from("users").where("id", "<", 10).toSql();
 
-	// 與 SqStorage 的 query 方法一起使用
+	// 与 SqStorage 的 query 方法一起使用
 	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
 ```
 
@@ -187,7 +187,7 @@ sq_query_select() 可以在参数中指定多个列。
 
 * 参数的顺序是 列名、运算符、printf 格式字符串、取决于格式字符串的值。
 * 如果用户没有指定格式字符串后面的值，程序将 printf 格式字符串作为原始字符串处理。
-* 不建議：如果运算符的参数是 =，则可以省略 (像 Laravel，但可读性较差)。
+* 不建议：如果运算符的参数是 =，则可以省略 (像 Laravel，但可读性较差)。
 * 已弃用：如果列名有 % 字符，则作为 printf 格式字符串处理 (这将不再支持)。
 * 条件参数的用法在 where()、join()、on() 和 having() 系列函数中基本相同。
 
@@ -260,7 +260,7 @@ C++ 方法 where() 系列具有省略 printf 格式字符串的重载函数：
 
 #### whereBetween / orWhereBetween
 
-whereBetween 方法驗證列的值是否在兩個值之間。
+whereBetween 方法验证列的值是否在两个值之间。
 * 这些方法指定 printf 格式字符串一次，使用两次。
   
 使用 C 语言
@@ -291,7 +291,7 @@ C++ 方法 whereBetween() 系列具有省略 printf 格式字符串的重载函�
 
 #### whereNotBetween / orWhereNotBetween
 
-whereNotBetween 方法驗證列的值是否位於兩個值之外。  
+whereNotBetween 方法验证列的值是否位于两个值之外。  
   
 使用 C 语言
 
@@ -319,7 +319,7 @@ whereNotBetween 方法驗證列的值是否位於兩個值之外。
 
 #### whereIn / whereNotIn / orWhereIn / orWhereNotIn
 
-* 這些方法指定 printf 格式字符串一次，使用多次。
+* 这些方法指定 printf 格式字符串一次，使用多次。
   
 使用 C 语言  
   
@@ -395,7 +395,7 @@ having() 系列的用法与 where() 类似。
 	     ->orHavingRaw("members < %d", 50);
 ```
 
-**having() 系列的括號示例**  
+**having() 系列的括号示例**  
   
 其他详细信息在标题为 "子查询和括号" 中进行了解释。  
   
@@ -452,7 +452,7 @@ sq_query_order_by() 和 sq_query_group_by() 可以在参数中指定多个列。
 #### limit / offset
 
 limit() 方法可以限制查询返回的结果数量，使用 offset() 方法跳过查询中指定数量的结果。  
-用户可以多次调用 limit() 和 offset()。最后一次呼叫指定的引數將會覆寫上一次呼叫時指定的引數。  
+用户可以多次调用 limit() 和 offset()。最后一次呼叫指定的引数将会覆写上一次呼叫时指定的引数。  
   
 使用 C 语言
 
@@ -594,7 +594,7 @@ sq_storage_get_all()、sq_storage_update_all() 和 sq_storage_remove_all() 中�
 			Sq::where()("id", "<", 11).orWhereRaw("city_id < %d", 33));
 ```
 
-4. 使用 lambda 函數生成子查詢和括號
+4. 使用 lambda 函数生成子查询和括号
 
 ```c++
 	// ... WHERE ( id < 11 OR city_id < 33 )
@@ -908,7 +908,7 @@ on 方法的用法与 where 方法类似。
 
 #### 子查询连接 Subquery Joins
 
-join() 和 on() 系列也能使用子查詢和括號。  
+join() 和 on() 系列也能使用子查询和括号。  
   
 例如: 下面是具有子查询的 SQL 连接。
 
@@ -954,7 +954,7 @@ WHERE age > 5
 	     ->whereRaw("age > %d", 5);
 ```
 
-**join() 和 on() 系列的子查詢和括號的更多示例：**  
+**join() 和 on() 系列的子查询和括号的更多示例：**  
   
 使用 C 语言
 
@@ -1039,7 +1039,7 @@ SELECT name2 FROM product2
 ```
 
 C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
-* 因为 'union' 是 C/C++ 关键字，所以必须在这个方法的尾部附加 '_'。
+* 因为 'union' 是 C/C++ 关键字，所以必须在此方法的尾部附加 '_'。
 
 使用 C++ 语言
 
@@ -1107,7 +1107,7 @@ SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序
 #### 括号 Brackets
 
 括号的用法在 where()、on()、having() 系列函数中基本相同。  
-如果您在括號中指定表和列，則括號將成為子查詢。  
+如果您在括号中指定表和列，则括号将成为子查询。  
   
 例如: 生成下面的 SQL 语句。
 
@@ -1144,7 +1144,7 @@ WHERE ( salary > 45 AND age < 21 ) OR id > 100
 #### 子查询 Subquery
 
 子查询的用法在 where()、on()、having() 系列函数中基本相同。  
-如果子查詢中沒有指定表和列，子查詢變成括號。  
+如果子查询中没有指定表和列，子查询变成括号。  
   
 例如: 下面是在条件中有子查询的 SQL 语句。
 
@@ -1179,7 +1179,7 @@ WHERE price < ( SELECT AVG(amount) FROM incomes )
 	     });
 ```
 
-## 附錄 : 支持 printf 格式字符串的函數
+## 附录 : 支持 printf 格式字符串的函数
 
 有很多函数可以指定 SQL 条件，它们也支持 printf 格式字符串。请在传递条件值之前传递 printf 格式字符串。如果要在 printf 格式字符串中使用 SQL 通配符 '%'，则必须使用 "%%" 打印 "%"。  
   
@@ -1299,7 +1299,7 @@ C++ 语言示例：
 	query->whereRaw("city LIKE 'ber%'");
 ```
 
-## 附錄 : 使用宏生成查询
+## 附录 : 使用宏生成查询
 
 宏 SQ_QUERY_DO() 用于构建查询。宏中的最后一个参数类似于 lambda 函数。
 

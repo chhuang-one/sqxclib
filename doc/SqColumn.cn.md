@@ -68,7 +68,7 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 
 | C++ 方法         | C 位字段名        | 描述                                               |
 | ---------------- | ----------------- | -------------------------------------------------- |
-| pointer()        | SQB_POINTER       | 这个数据成员是一个指针。                           |
+| pointer()        | SQB_POINTER       | 此数据成员是一个指针。                           |
 | hidden()         | SQB_HIDDEN        | 不要将此数据成员输出到 JSON。                      |
 | hiddenNull()     | SQB_HIDDEN_NULL   | 如果它的值为 NULL，则不要将此数据成员输出到 JSON。 |
 
@@ -221,7 +221,7 @@ const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 	column->offset = offsetof(YourStruct, FieldName);
 	sq_column_primary(column);           // 设置主键 PRIMARY KEY
 
-	/* 將列添加到 SqType */
+	/* 将列添加到 SqType */
 	SqType *type = sq_type_new(0, (SqDestroyFunc)sq_column_free);
 	sq_type_add_entry(type, (const SqEntry*)column, 1, sizeof(SqColumn));
 ```
@@ -233,7 +233,7 @@ const SqType type = SQ_TYPE_INITIALIZER(YourStruct, columnPointerArray, 0);
 	column->offset = offsetof(YourStruct, FieldName);
 	column->primary();                   // 设置主键 PRIMARY KEY
 
-	/* 將列添加到 Sq::Type */
+	/* 将列添加到 Sq::Type */
 	Sq::Type *type = new Sq::Type(0, (SqDestroyFunc)sq_column_free);
 	type->addEntry((const SqEntry*)column, 1, sizeof(SqColumn));
 ```

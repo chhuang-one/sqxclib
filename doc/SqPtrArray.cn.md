@@ -2,18 +2,16 @@
 
 # SqPtrArray
 
-SqPtrArray 是指针数组。它是 [SqArray](SqArray.cn.md) 的派生類。  
+SqPtrArray 是指针数组。它是 [SqArray](SqArray.cn.md) 的派生类。  
 SQ_TYPE_PTR_ARRAY 是内置的静态常量类型，可以创建 SqPtrArray 实例。
 
 	SqArray
 	│
 	└─── SqPtrArray
 	     │
-	     ├─── SqStrArray
-	     │
-	     └─── SqIntptrArray (deprecated)
+	     └─── SqStrArray
 
-[SqArray](SqArray.cn.md) 及其派生類共享數據結構和代碼以減少二進制大小。
+[SqArray](SqArray.cn.md) 及其派生类共享数据结构和代码以减少二进制大小。
 
 ## 数据成员
 

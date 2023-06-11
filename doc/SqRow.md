@@ -120,7 +120,7 @@ Otherwise the first column is this:
 ```c
 	SqRow.cols[0].name    = "id";
 	SqRow.cols[0].type    = SQ_TYPE_INT;
-	SqRow.cols[0].entry   = (const SqColumn*) pointerToSqColumn;
+	SqRow.cols[0].entry   = (const SqEntry*) pointerToSqColumn;
 	SqRow.data[0].integer = 1;
 ```
 
