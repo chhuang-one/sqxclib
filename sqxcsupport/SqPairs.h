@@ -217,9 +217,9 @@ struct PairsMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/*	SqPairs is array of key-value pairs, it doesn't check for duplicates.
+/*	SqPairs is array of key-value pairs, it doesn't check for duplicate keys in the array.
 
-	Data types in pair only support pointer types, intptr_t and uintptr_t.
+	Data types in key-value pair only support pointer or integer (only intptr_t or uintptr_t).
  */
 
 #define SQ_PAIRS_MEMBERS                            \
