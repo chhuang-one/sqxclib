@@ -26,10 +26,6 @@
 
 typedef struct SqPtrArray       SqPtrArray;
 
-// deprecated
-typedef struct SqIntptrArray    SqIntptrArray;
-typedef struct SqUintptrArray   SqUintptrArray;
-
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
@@ -168,102 +164,6 @@ extern "C" {
 #define SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count)      \
 		SQ_ARRAY_STEAL_ADDR(array, void*, element_addr, count)
 
-/* macro for SqIntptrArray */
-
-#define sq_intptr_array_length           sq_array_length
-
-#define sq_intptr_array_capacity         sq_array_capacity
-
-//void  sq_intptr_array_init(void *array, int capacity);
-#define sq_intptr_array_init(array, capacity)    \
-		sq_array_init(array, sizeof(intptr_t), capacity)
-
-//void *sq_intptr_array_final(void *array);
-#define sq_intptr_array_final            sq_array_final
-
-// intptr_t *sq_intptr_array_alloc(void *array, int count);
-#define sq_intptr_array_alloc            (intptr_t*)sq_array_alloc
-
-// intptr_t *sq_intptr_array_alloc_at(void *array, int index, int count);
-#define sq_intptr_array_alloc_at         (intptr_t*)sq_array_alloc_at
-
-// void sq_intptr_array_append(void *array, void *value);
-#define sq_intptr_array_append(array, value)  \
-		*sq_ptr_array_alloc_at(array, sq_intptr_array_length(array), 1) = (void*)(value)
-
-// void sq_intptr_array_append_n(void *array, const intptr_t *values, int count);
-#define sq_intptr_array_append_n         sq_ptr_array_append
-
-// void sq_intptr_array_insert(void *array, int index, void *value);
-#define sq_intptr_array_insert(array, index, value)  \
-		*sq_intptr_array_alloc_at(array, index, 1) = (intptr_t*)(value)
-
-// void sq_intptr_array_insert_n(void *array, int index, const intptr_t *values, int count);
-#define sq_intptr_array_insert_n         sq_ptr_array_insert
-
-// void sq_intptr_array_remove(void *array, int index, int count);
-#define sq_intptr_array_remove           sq_ptr_array_erase
-
-// void sq_intptr_array_erase(void *array, int index, int count);
-#define sq_intptr_array_erase            sq_ptr_array_erase
-
-// deprecated
-// void sq_intptr_array_foreach(void *array, intptr_t element)
-#define sq_intptr_array_foreach(array, element)                \
-		for (intptr_t *element##_end  = (intptr_t*)sq_ptr_array_end(array),   \
-		              *element##_addr = (intptr_t*)sq_ptr_array_begin(array), \
-		               element        = *element##_addr;       \
-		     element##_addr < element##_end;                   \
-		     element##_addr++, element = *element##_addr)
-
-/* macro for SqUintptrArray */
-
-#define sq_uintptr_array_length          sq_array_length
-
-#define sq_uintptr_array_capacity        sq_array_capacity
-
-//void  sq_uintptr_array_init(void *array, int capacity);
-#define sq_uintptr_array_init(array, capacity)    \
-		sq_array_init(array, sizeof(uintptr_t), capacity)
-
-//void *sq_uintptr_array_final(void *array);
-#define sq_uintptr_array_final           sq_array_final
-
-// uintptr_t *sq_uintptr_array_alloc(void *array, int count);
-#define sq_uintptr_array_alloc           (uintptr_t*)sq_array_alloc
-
-// uintptr_t *sq_uintptr_array_alloc_at(void *array, int index, int count);
-#define sq_uintptr_array_alloc_at        (uintptr_t*)sq_array_alloc_at
-
-// void sq_uintptr_array_append(void *array, void *value);
-#define sq_uintptr_array_append(array, value)  \
-		*sq_ptr_array_alloc_at(array, sq_uintptr_array_length(array), 1) = (void*)(value)
-
-// void sq_uintptr_array_append_n(void *array, const intptr_t *values, int count);
-#define sq_uintptr_array_append_n        sq_ptr_array_append
-
-// void sq_uintptr_array_insert(void *array, int index, uintptr_t *value);
-#define sq_uintptr_array_insert(array, index, value)  \
-		*sq_uintptr_array_alloc_at(array, index, 1) = (uintptr_t)(value)
-
-// void sq_uintptr_array_insert_n(void *array, int index, const intptr_t *values, int count);
-#define sq_uintptr_array_insert_n        sq_ptr_array_insert
-
-// void sq_uintptr_array_erase(void *array, int index, int count);
-#define sq_uintptr_array_erase           sq_ptr_array_erase
-
-// void sq_uintptr_array_remove(void *array, int index, int count);
-#define sq_uintptr_array_remove          sq_ptr_array_erase
-
-// deprecated
-// void sq_uintptr_array_foreach(void *array, uintptr_t element)
-#define sq_uintptr_array_foreach(array, element)                \
-		for (uintptr_t *element##_end  = (uintptr_t*)sq_ptr_array_end(array),   \
-		               *element##_addr = (uintptr_t*)sq_ptr_array_begin(array), \
-		                element        = *element##_addr;       \
-		     element##_addr < element##_end;                    \
-		     element##_addr++, element = *element##_addr)
-
 /* C functions */
 
 void  *sq_ptr_array_init(void *array, int capacity, SqClearFunc clear_func);
@@ -315,7 +215,7 @@ struct PtrArrayMethod : ArrayMethod<Type>
 	void   erase(int index, int count = 1);
 	void   erase(Type *addr, int count = 1);
 
-	// These are aliases of erase().
+	// alias of erase().
 	void   remove(int index, int count = 1);
 	void   remove(Type *addr, int count = 1);
 
@@ -345,32 +245,6 @@ struct SqPtrArray
 /*	// ------ SqArray members ------
 	void    **data;
 	int       length;
- */
-};
-
-#ifdef __cplusplus
-struct SqIntptrArray : Sq::PtrArrayMethod<intptr_t>  // <-- 1. inherit C++ member function(method)
-#else
-struct SqIntptrArray
-#endif
-{
-	SQ_ARRAY_MEMBERS(intptr_t, data, length);        // <-- 2. inherit member variable
-/*	// ------ SqArray members ------
-	intptr_t  *data;
-	int        length;
- */
-};
-
-#ifdef __cplusplus
-struct SqUintptrArray : Sq::PtrArrayMethod<uintptr_t>    // <-- 1. inherit C++ member function(method)
-#else
-struct SqUintptrArray
-#endif
-{
-	SQ_ARRAY_MEMBERS(uintptr_t, data, length);           // <-- 2. inherit member variable
-/*	// ------ SqArray members ------
-	uintptr_t *data;
-	int        length;
  */
 };
 
@@ -537,6 +411,161 @@ struct PtrArray : SqPtrArray
 	}
 };
 
+};  // namespace Sq
+
+#endif  // __cplusplus
+
+// ============================================================================
+// SqStringArray is defined for compatibility with older versions
+#include <SqStrArray.h>
+
+// ============================================================================
+// SqIntptrArray & SqUintptrArray (deprecated)
+
+typedef struct SqIntptrArray    SqIntptrArray;
+typedef struct SqUintptrArray   SqUintptrArray;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
+/* macro for SqIntptrArray */
+
+#define sq_intptr_array_length           sq_array_length
+
+#define sq_intptr_array_capacity         sq_array_capacity
+
+//void  sq_intptr_array_init(void *array, int capacity);
+#define sq_intptr_array_init(array, capacity)    \
+		sq_array_init(array, sizeof(intptr_t), capacity)
+
+//void *sq_intptr_array_final(void *array);
+#define sq_intptr_array_final            sq_array_final
+
+// intptr_t *sq_intptr_array_alloc(void *array, int count);
+#define sq_intptr_array_alloc            (intptr_t*)sq_array_alloc
+
+// intptr_t *sq_intptr_array_alloc_at(void *array, int index, int count);
+#define sq_intptr_array_alloc_at         (intptr_t*)sq_array_alloc_at
+
+// void sq_intptr_array_append(void *array, void *value);
+#define sq_intptr_array_append(array, value)  \
+		*sq_ptr_array_alloc_at(array, sq_intptr_array_length(array), 1) = (void*)(value)
+
+// void sq_intptr_array_append_n(void *array, const intptr_t *values, int count);
+#define sq_intptr_array_append_n         sq_ptr_array_append
+
+// void sq_intptr_array_insert(void *array, int index, void *value);
+#define sq_intptr_array_insert(array, index, value)  \
+		*sq_intptr_array_alloc_at(array, index, 1) = (intptr_t*)(value)
+
+// void sq_intptr_array_insert_n(void *array, int index, const intptr_t *values, int count);
+#define sq_intptr_array_insert_n         sq_ptr_array_insert
+
+// void sq_intptr_array_remove(void *array, int index, int count);
+#define sq_intptr_array_remove           sq_ptr_array_erase
+
+// void sq_intptr_array_erase(void *array, int index, int count);
+#define sq_intptr_array_erase            sq_ptr_array_erase
+
+// deprecated
+// void sq_intptr_array_foreach(void *array, intptr_t element)
+#define sq_intptr_array_foreach(array, element)                \
+		for (intptr_t *element##_end  = (intptr_t*)sq_ptr_array_end(array),   \
+		              *element##_addr = (intptr_t*)sq_ptr_array_begin(array), \
+		               element        = *element##_addr;       \
+		     element##_addr < element##_end;                   \
+		     element##_addr++, element = *element##_addr)
+
+/* macro for SqUintptrArray */
+
+#define sq_uintptr_array_length          sq_array_length
+
+#define sq_uintptr_array_capacity        sq_array_capacity
+
+//void  sq_uintptr_array_init(void *array, int capacity);
+#define sq_uintptr_array_init(array, capacity)    \
+		sq_array_init(array, sizeof(uintptr_t), capacity)
+
+//void *sq_uintptr_array_final(void *array);
+#define sq_uintptr_array_final           sq_array_final
+
+// uintptr_t *sq_uintptr_array_alloc(void *array, int count);
+#define sq_uintptr_array_alloc           (uintptr_t*)sq_array_alloc
+
+// uintptr_t *sq_uintptr_array_alloc_at(void *array, int index, int count);
+#define sq_uintptr_array_alloc_at        (uintptr_t*)sq_array_alloc_at
+
+// void sq_uintptr_array_append(void *array, void *value);
+#define sq_uintptr_array_append(array, value)  \
+		*sq_ptr_array_alloc_at(array, sq_uintptr_array_length(array), 1) = (void*)(value)
+
+// void sq_uintptr_array_append_n(void *array, const intptr_t *values, int count);
+#define sq_uintptr_array_append_n        sq_ptr_array_append
+
+// void sq_uintptr_array_insert(void *array, int index, uintptr_t *value);
+#define sq_uintptr_array_insert(array, index, value)  \
+		*sq_uintptr_array_alloc_at(array, index, 1) = (uintptr_t)(value)
+
+// void sq_uintptr_array_insert_n(void *array, int index, const intptr_t *values, int count);
+#define sq_uintptr_array_insert_n        sq_ptr_array_insert
+
+// void sq_uintptr_array_erase(void *array, int index, int count);
+#define sq_uintptr_array_erase           sq_ptr_array_erase
+
+// void sq_uintptr_array_remove(void *array, int index, int count);
+#define sq_uintptr_array_remove          sq_ptr_array_erase
+
+// deprecated
+// void sq_uintptr_array_foreach(void *array, uintptr_t element)
+#define sq_uintptr_array_foreach(array, element)                \
+		for (uintptr_t *element##_end  = (uintptr_t*)sq_ptr_array_end(array),   \
+		               *element##_addr = (uintptr_t*)sq_ptr_array_begin(array), \
+		                element        = *element##_addr;       \
+		     element##_addr < element##_end;                    \
+		     element##_addr++, element = *element##_addr)
+
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
+
+/* SqIntptrArray is array of intptr_t */
+
+#ifdef __cplusplus
+struct SqIntptrArray : Sq::PtrArrayMethod<intptr_t>  // <-- 1. inherit C++ member function(method)
+#else
+struct SqIntptrArray
+#endif
+{
+	SQ_ARRAY_MEMBERS(intptr_t, data, length);        // <-- 2. inherit member variable
+/*	// ------ SqArray members ------
+	intptr_t  *data;
+	int        length;
+ */
+};
+
+/* SqIntptrArray is array of uintptr_t */
+
+#ifdef __cplusplus
+struct SqUintptrArray : Sq::PtrArrayMethod<uintptr_t>    // <-- 1. inherit C++ member function(method)
+#else
+struct SqUintptrArray
+#endif
+{
+	SQ_ARRAY_MEMBERS(uintptr_t, data, length);           // <-- 2. inherit member variable
+/*	// ------ SqArray members ------
+	uintptr_t *data;
+	int        length;
+ */
+};
+
+
+#ifdef __cplusplus
+
+namespace Sq {
+
 // deprecated
 struct IntptrArray : SqIntptrArray
 {
@@ -590,10 +619,6 @@ struct UintptrArray : SqUintptrArray
 };  // namespace Sq
 
 #endif  // __cplusplus
-
-// ============================================================================
-// SqStringArray is defined for compatibility with older versions
-#include <SqStrArray.h>
 
 
 #endif  // SQ_PTR_ARRAY_H
