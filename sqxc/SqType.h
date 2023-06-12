@@ -131,6 +131,7 @@ void     sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size
 // add entry from pointer array of SqEntry to dynamic SqType.
 void     sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_entry_ptrs);
 
+// alias of sq_type_erase_entry_addr()
 // void  sq_type_remove_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count);
 #define  sq_type_remove_entry_addr        sq_type_erase_entry_addr
 
@@ -324,7 +325,7 @@ struct SqType
 		return sq_type_decide_size((SqType*)this, (const SqEntry*)inner_entry, entry_removed);
 	}
 
-	// removeEntry = eraseEntry
+	// alias of eraseEntry()
 	void     removeEntry(void **inner_entry_addr, int count = 1) {
 		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}
@@ -386,24 +387,26 @@ enum {
 	SQ_TYPE_BOOL_INDEX,
 	SQ_TYPE_INT_INDEX,
 	SQ_TYPE_UINT_INDEX,
-	SQ_TYPE_INTPTR_INDEX,
+	SQ_TYPE_INTPTR_INDEX,    // deprecated
 	SQ_TYPE_INT64_INDEX,
 	SQ_TYPE_UINT64_INDEX,
 	SQ_TYPE_TIME_INDEX,
 	SQ_TYPE_DOUBLE_INDEX,
 	SQ_TYPE_STR_INDEX,
+	SQ_TYPE_STRING_INDEX = SQ_TYPE_STR_INDEX,    // alias of SQ_TYPE_STR_INDEX
 	SQ_TYPE_CHAR_INDEX,
 };
 
 #define SQ_TYPE_BOOL       (&SqType_BuiltIn_[SQ_TYPE_BOOL_INDEX])
 #define SQ_TYPE_INT        (&SqType_BuiltIn_[SQ_TYPE_INT_INDEX])
 #define SQ_TYPE_UINT       (&SqType_BuiltIn_[SQ_TYPE_UINT_INDEX])
-#define SQ_TYPE_INTPTR     (&SqType_BuiltIn_[SQ_TYPE_INTPTR_INDEX])
+#define SQ_TYPE_INTPTR     (&SqType_BuiltIn_[SQ_TYPE_INTPTR_INDEX])    // deprecated
 #define SQ_TYPE_INT64      (&SqType_BuiltIn_[SQ_TYPE_INT64_INDEX])
 #define SQ_TYPE_UINT64     (&SqType_BuiltIn_[SQ_TYPE_UINT64_INDEX])
 #define SQ_TYPE_TIME       (&SqType_BuiltIn_[SQ_TYPE_TIME_INDEX])
 #define SQ_TYPE_DOUBLE     (&SqType_BuiltIn_[SQ_TYPE_DOUBLE_INDEX])
 #define SQ_TYPE_STR        (&SqType_BuiltIn_[SQ_TYPE_STR_INDEX])
+#define SQ_TYPE_STRING     SQ_TYPE_STR           // alias of SQ_TYPE_STR
 // ---- SQ_TYPE for SQL ----
 #define SQ_TYPE_CHAR       (&SqType_BuiltIn_[SQ_TYPE_CHAR_INDEX])
 /* update below definition if you insert type in SqType_BuiltIn_[] */
@@ -463,6 +466,9 @@ enum {
    User can use SQ_TYPE_STR_ARRAY directly. */
 #define SQ_TYPE_STR_ARRAY     (&SqType_StrArray_)
 
+// alias of SQ_TYPE_STR_ARRAY
+#define SQ_TYPE_STRING_ARRAY  SQ_TYPE_STR_ARRAY
+
 /* deprecated
    implement intptr_t array by SqPtrArray (SqType-array.c)
    User can use SQ_TYPE_INTPTR_ARRAY directly. */
@@ -495,12 +501,6 @@ struct SqTypeFake {
 };
 
 extern  const  struct SqTypeFake   SqType_Fake_;
-
-// ============================================================================
-// SqStringArray is defined for compatibility with older versions
-#define SQ_TYPE_STRING_INDEX   SQ_TYPE_STR_INDEX
-#define SQ_TYPE_STRING        (&SqType_BuiltIn_[SQ_TYPE_STR_INDEX])
-#define SQ_TYPE_STRING_ARRAY  (&SqType_StrArray_)
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -607,7 +607,7 @@ struct TypeMethod {
 		return sq_type_decide_size((SqType*)this, (const SqEntry*)inner_entry, entry_removed);
 	}
 
-	// removeEntry = eraseEntry
+	// alias of eraseEntry()
 	void     removeEntry(void **inner_entry_addr, int count = 1) {
 		sq_type_erase_entry_addr((SqType*)this, (SqEntry**)inner_entry_addr, count);
 	}

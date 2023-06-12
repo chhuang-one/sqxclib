@@ -88,6 +88,7 @@ void  sq_type_row_final(SqTypeRow *type_row);
 #define sq_type_row_erase(type_row, table, table_as_name)    \
 		sq_type_joint_erase((SqTypeJoint*)(type_row), table, table_as_name)
 
+// alias of sq_type_row_erase()
 // void sq_type_row_remove(SqTypeRow *type_row, SqTable *table, const char *table_as_name);
 #define sq_type_row_remove        sq_type_row_erase
 

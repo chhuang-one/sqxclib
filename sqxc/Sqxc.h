@@ -342,7 +342,8 @@ void        sqxc_erase_nested(Sqxc *xc, SqxcNested *nested);
 SqxcNested *sqxc_push_nested(Sqxc *xc);
 void        sqxc_pop_nested(Sqxc *xc);
 
-// void     sqxc_remove_nested(Sqxc *xc, SqxcNested *nested);
+// alias of sqxc_erase_nested()
+// void sqxc_remove_nested(Sqxc *xc, SqxcNested *nested);
 #define sqxc_remove_nested        sqxc_erase_nested
 
 #ifdef __cplusplus

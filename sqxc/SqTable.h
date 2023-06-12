@@ -88,11 +88,6 @@ void      sq_table_add_column(SqTable *table, const SqColumn *column, int n_colu
 // add SqColumn from pointer array
 void      sq_table_add_column_ptrs(SqTable *table, const SqColumn **column_ptrs, int n_column_ptrs);
 
-// alias name
-#define sq_table_add_boolean    sq_table_add_bool
-#define sq_table_add_integer    sq_table_add_int
-#define sq_table_add_str        sq_table_add_string
-
 SqColumn *sq_table_add_bool(SqTable *table, const char *column_name,
                             size_t offset);
 SqColumn *sq_table_add_int(SqTable *table, const char *column_name,
@@ -119,49 +114,80 @@ SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
                               size_t offset, const SqType *sqtype,
                               int  length);
 
+// alias of sq_table_add_bool()
+// SqColumn *sq_table_add_boolean(SqTable *table, const char *column_name, size_t offset);
+#define sq_table_add_boolean    sq_table_add_bool
+
+// alias of sq_table_add_int()
+// SqColumn *sq_table_add_integer(SqTable *table, const char *column_name, size_t offset);
+#define sq_table_add_integer    sq_table_add_int
+
+// alias of sq_table_add_string()
+// SqColumn *sq_table_add_str(SqTable *table, const char *column_name, size_t offset, int length);
+#define sq_table_add_str        sq_table_add_string
+
+/* sq_table_add_xxx_as() series */
+
+// SqColumn *sq_table_add_bool_as(SqTable *table, Structure, Member)
 #define sq_table_add_bool_as(table, Structure, Member)    \
 		sq_table_add_bool(table, #Member, offsetof(Structure, Member))
 
+// alias of sq_table_add_bool_as()
+// SqColumn *sq_table_add_boolean_as(SqTable *table, Structure, Member)
 #define sq_table_add_boolean_as    sq_table_add_bool_as
 
+// SqColumn *sq_table_add_int_as(SqTable *table, Structure, Member)
 #define sq_table_add_int_as(table, Structure, Member)    \
 		sq_table_add_int(table, #Member, offsetof(Structure, Member))
 
+// alias of sq_table_add_int_as()
+// SqColumn *sq_table_add_integer_as(SqTable *table, Structure, Member)
 #define sq_table_add_integer_as    sq_table_add_int_as
 
+// SqColumn *sq_table_add_uint_as(SqTable *table, Structure, Member)
 #define sq_table_add_uint_as(table, Structure, Member)    \
 		sq_table_add_uint(table, #Member, offsetof(Structure, Member))
 
+// SqColumn *sq_table_add_int64_as(SqTable *table, Structure, Member)
 #define sq_table_add_int64_as(table, Structure, Member)    \
 		sq_table_add_int64(table, #Member, offsetof(Structure, Member))
 
+// SqColumn *sq_table_add_uint64_as(SqTable *table, Structure, Member)
 #define sq_table_add_uint64_as(table, Structure, Member)    \
 		sq_table_add_uint64(table, #Member, offsetof(Structure, Member))
 
+// SqColumn *sq_table_add_double_as(SqTable *table, Structure, Member, int precision, int scale)
 #define sq_table_add_double_as(table, Structure, Member, precision, scale)    \
 		sq_table_add_double(table, #Member, offsetof(Structure, Member), precision, scale)
 
+// SqColumn *sq_table_add_timestamp_as(SqTable *table, Structure, Member)
 #define sq_table_add_timestamp_as(table, Structure, Member)    \
 		sq_table_add_timestamp(table, #Member, offsetof(Structure, Member))
 
+// SqColumn *sq_table_add_timestamps_as(SqTable *table, Structure, Member_created_at, Member_updated_at)
 #define sq_table_add_timestamps_as(table, Structure, Member_created_at, Member_updated_at)   \
 		sq_table_add_timestamps(table,                                                       \
 		                        #Member_created_at, offsetof(Structure, Member_created_at),  \
 		                        #Member_updated_at, offsetof(Structure, Member_updated_at))
 
+// SqColumn *sq_table_add_timestamps_struct(SqTable *table, Structure)
 #define sq_table_add_timestamps_struct(table, Structure)                        \
 		sq_table_add_timestamps(table, NULL, offsetof(Structure, created_at),   \
 		                               NULL, offsetof(Structure, updated_at))
 
+// SqColumn *sq_table_add_string_as(SqTable *table, Structure, Member, int length)
 #define sq_table_add_string_as(table, Structure, Member, length)    \
 		sq_table_add_string(table, #Member, offsetof(Structure, Member), length)
 
-// alias name for sq_table_add_string_as()
+// alias of sq_table_add_string_as()
+// SqColumn *sq_table_add_str_as(SqTable *table, Structure, Member, int length)
 #define sq_table_add_str_as    sq_table_add_string_as
 
+// SqColumn *sq_table_add_char_as(SqTable *table, Structure, Member, int length)
 #define sq_table_add_char_as(table, Structure, Member, length)    \
 		sq_table_add_char(table, #Member, offsetof(Structure, Member), length)
 
+// SqColumn *sq_table_add_custom_as(SqTable *table, Structure, Member, const SqType *type, int length)
 #define sq_table_add_custom_as(table, Structure, Member, type, length)    \
 		sq_table_add_custom(table, #Member, offsetof(Structure, Member), type, length)
 

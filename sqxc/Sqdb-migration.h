@@ -39,7 +39,8 @@ int  sq_schema_update(SqSchema *schema, SqSchema *schema_src);
  */
 void sq_schema_erase_fake_type(SqSchema *schema);
 
-//void sq_schema_remove_fake_type(SqSchema *schema);
+// alias of sq_schema_erase_fake_type()
+// void sq_schema_remove_fake_type(SqSchema *schema);
 #define sq_schema_remove_fake_type        sq_schema_erase_fake_type
 
 #endif  // SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB

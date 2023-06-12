@@ -87,6 +87,7 @@ void  sq_type_joint_add(SqTypeJoint *type_joint, SqTable *table, const char *tab
 void  sq_type_joint_erase(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
 void  sq_type_joint_clear(SqTypeJoint *type_joint);
 
+// alias of sq_type_joint_erase()
 // void sq_type_joint_remove(SqTypeJoint *type_joint, SqTable *table, const char *table_as_name);
 #define sq_type_joint_remove        sq_type_joint_erase
 

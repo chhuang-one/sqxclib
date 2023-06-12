@@ -58,6 +58,7 @@ void  sq_relation_add(SqRelation *relation, const void *from_object, const void 
 // if 'no_reverse' == -1, erase all references in reverse related objects. 'to_object_free_func' must use with this mode.
 void  sq_relation_erase(SqRelation *relation, const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func);
 
+// alias of sq_relation_erase()
 // void sq_relation_remove(SqRelation *relation, const void *from_object, const void *to_object, int no_reverse, SqDestroyFunc to_object_free_func);
 #define sq_relation_remove        sq_relation_erase
 

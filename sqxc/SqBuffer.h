@@ -68,6 +68,14 @@ extern "C" {
 #define sq_buffer_insert_c(buffer, position, character)  \
 		*sq_buffer_alloc_at(buffer, position, 1) = (character)
 
+// alias of sq_buffer_insert_n()
+// void sq_buffer_insert_len(SqBuffer *buffer, int position, const char *string, int length);
+#define sq_buffer_insert_len         sq_buffer_insert_n
+
+// alias of sq_buffer_write_n()
+//char *sq_buffer_write_len(SqBuffer *buffer, const char *string, int length);
+#define sq_buffer_write_len          sq_buffer_write_n
+
 /* --- macro functions --- for maintaining C/C++ inline functions easily */
 
 //char* SQ_BUFFER_WRITE(SqBuffer *buffer, const char *string);
@@ -77,6 +85,10 @@ extern "C" {
 //char* SQ_BUFFER_WRITE_N(SqBuffer *buffer, const char *string, int length);
 #define SQ_BUFFER_WRITE_N(buffer, string, length)   \
 		(char*)memcpy(sq_buffer_alloc(buffer, length), string, length)
+
+// alias of SQ_BUFFER_WRITE_N()
+//char* SQ_BUFFER_WRITE_LEN(SqBuffer *buffer, const char *string, int length);
+#define SQ_BUFFER_WRITE_LEN          SQ_BUFFER_WRITE_N
 
 // void SQ_BUFFER_INSERT(SqBuffer *buffer, int position, const char *string);
 #define SQ_BUFFER_INSERT(buffer, position, string)  \
@@ -90,17 +102,15 @@ extern "C" {
 		memcpy(sq_buffer_alloc_at(buffer, position, length),  \
 		       string, length)
 
+// alias of SQ_BUFFER_INSERT_N()
+// void SQ_BUFFER_INSERT_LEN(SqBuffer *buffer, int position, const char *string, int length);
+#define SQ_BUFFER_INSERT_LEN         SQ_BUFFER_INSERT_N
+
 // void SQ_BUFFER_REQUIRE(SqBuffer *buffer, int length);
 #define SQ_BUFFER_REQUIRE(buffer, length)               \
 		if (((SqBuffer*)(buffer))->size < (length)) {   \
 			((SqBuffer*)(buffer))->size = (length);     \
 			((SqBuffer*)(buffer))->mem  = (char*)realloc(((SqBuffer*)(buffer))->mem, (length)); }
-
-/* --- alias --- */
-#define SQ_BUFFER_INSERT_LEN        SQ_BUFFER_INSERT_N
-#define SQ_BUFFER_WRITE_LEN         SQ_BUFFER_WRITE_N
-#define sq_buffer_insert_len        sq_buffer_insert_n
-#define sq_buffer_write_len         sq_buffer_write_n
 
 /* --- C functions --- */
 

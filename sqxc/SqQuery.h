@@ -231,11 +231,11 @@ void    sq_query_clear(SqQuery *query);
 SqQueryNested *sq_query_push_nested(SqQuery *query, SqQueryNode *parent);
 void           sq_query_pop_nested(SqQuery *query);
 
-// alias name for sq_query_push_nested()
+// alias of sq_query_push_nested()
 // SqQueryNested *sq_query_begin_sub(SqQuery *query, SqQueryNode *parent);
 #define sq_query_begin_sub    sq_query_push_nested
 
-// alias name for sq_query_pop_nested()
+// alias of sq_query_pop_nested()
 // void           sq_query_end_sub(SqQuery *query);
 #define sq_query_end_sub      sq_query_pop_nested
 

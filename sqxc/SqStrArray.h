@@ -53,9 +53,6 @@ extern "C" {
 //char **sq_str_array_alloc_at(SqStrArray *array, int index, int count);
 #define sq_str_array_alloc_at        (char**)sq_array_alloc_at
 
-// void sq_str_array_remove(SqStrArray *array, int index, int count);
-#define sq_str_array_remove          sq_ptr_array_erase
-
 // void sq_str_array_erase(SqStrArray *array, int index, int count);
 #define sq_str_array_erase           sq_ptr_array_erase
 

@@ -16,6 +16,7 @@
 #include <SqDefine.h>
 #include <SqError.h>
 
+#include <SqArray.h>
 #include <SqPtrArray.h>
 #include <SqStrArray.h>
 #include <SqBuffer.h>
@@ -24,6 +25,7 @@
 #include <SqEntry.h>
 
 #include <SqUtil.h>
+#include <SqColumn.h>
 #include <SqTable.h>
 #include <SqSchema.h>
 #include <SqStorage.h>
