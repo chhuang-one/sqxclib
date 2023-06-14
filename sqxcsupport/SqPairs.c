@@ -52,22 +52,50 @@ void  sq_pairs_final(SqPairs *pairs)
 	sq_array_final(pairs);
 }
 
-void  sq_pairs_add(SqPairs *pairs, void *key, void *value)
+bool  sq_pairs_add(SqPairs *pairs, void *key, void *value)
 {
 	SqPair *element;
+#if SQ_PAIRS_CHECK_IF_KEY_EXIST
+	int     index;
+
+	element = (SqPair*)SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key,
+	                                        pairs->key_compare_func,
+	                                        &index);
+	if (element) {
+		if (pairs->key_destroy_func)
+			pairs->key_destroy_func(element->key);
+		if (pairs->value_destroy_func)
+			pairs->value_destroy_func(element->value);
+		pairs->bit_field |= SQB_PAIRS_EXIST;
+	}
+	else {
+		element = (SqPair*)sq_array_alloc_at(pairs, index, 1);
+		pairs->bit_field &= ~SQB_PAIRS_EXIST;
+	}
+
+	element->key   = key;
+	element->value = value;
+	return (pairs->bit_field & SQB_PAIRS_EXIST) != 0;
+
+#else
 
 	pairs->bit_field &= ~SQB_PAIRS_SORTED;
 	element = (SqPair*)sq_array_alloc(pairs, 1);
 	element->key   = key;
 	element->value = value;
+	return false;
+
+#endif
 }
 
 void *sq_pairs_get(SqPairs *pairs, void *key)
 {
 	SqPair *element;
 
+#if SQ_PAIRS_CHECK_IF_KEY_EXIST == 0
 	if ((pairs->bit_field & SQB_PAIRS_SORTED) == 0)
 		sq_pairs_sort(pairs);
+#endif
 
 	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
 	if (element) {
@@ -78,12 +106,14 @@ void *sq_pairs_get(SqPairs *pairs, void *key)
 	return NULL;
 }
 
-void  sq_pairs_erase(SqPairs *pairs, void *key)
+bool  sq_pairs_erase(SqPairs *pairs, void *key)
 {
 	SqPair *element;
 
+#if SQ_PAIRS_CHECK_IF_KEY_EXIST == 0
 	if ((pairs->bit_field & SQB_PAIRS_SORTED) == 0)
 		sq_pairs_sort(pairs);
+#endif
 
 	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
 	if (element) {
@@ -92,32 +122,41 @@ void  sq_pairs_erase(SqPairs *pairs, void *key)
 		if (pairs->value_destroy_func)
 			pairs->value_destroy_func(element->value);
 		SQ_ARRAY_STEAL_ADDR(pairs, SqPair, element, 1);
+		return true;
 	}
+	return false;
 }
 
-void    sq_pairs_steal(SqPairs *pairs, void *key)
+bool  sq_pairs_steal(SqPairs *pairs, void *key)
 {
 	SqPair *element;
 
+#if SQ_PAIRS_CHECK_IF_KEY_EXIST == 0
 	if ((pairs->bit_field & SQB_PAIRS_SORTED) == 0)
 		sq_pairs_sort(pairs);
+#endif
 
 	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
-	if (element)
+	if (element) {
 		SQ_ARRAY_STEAL_ADDR(pairs, SqPair, element, 1);
+		return true;
+	}
+	return false;
 }
 
+#if SQ_PAIRS_CHECK_IF_KEY_EXIST == 0
 void  sq_pairs_sort(SqPairs *pairs)
 {
 	qsort(pairs->data, pairs->length, sizeof(SqPair),
 	      (SqCompareFunc)pairs->key_compare_func);
 	pairs->bit_field |= SQB_PAIRS_SORTED;
 }
+#endif  // SQ_PAIRS_CHECK_IF_KEY_EXIST
 
 // ----------------------------------------------------------------------------
 // SqPair SqCompareFunc
 
-int  sq_pairs_cmp_string(const char **key1, const char **key2)
+int   sq_pairs_cmp_string(const char **key1, const char **key2)
 {
 	return strcmp(*key1, *key2);
 }

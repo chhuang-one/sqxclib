@@ -16,8 +16,17 @@
 #define SQ_PAIRS_H
 
 #include <stdint.h>     // intptr_t
+#include <stdbool.h>    // bool
 
 #include <SqArray.h>
+
+/* Enable it will check exist key.
+
+   If key exist, sq_pairs_add() will:
+   1. Free the old copy of key-value pair in the array.
+   2. Replace exist key-value pair by newly added one.
+ */
+#define SQ_PAIRS_CHECK_IF_KEY_EXIST        0
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.
@@ -26,6 +35,7 @@ typedef struct SqPairs       SqPairs;    // array of key-value pairs
 
 #define SQB_PAIRS_SORTED    (1 << 0)
 #define SQB_PAIRS_FOUND     (1 << 1)
+#define SQB_PAIRS_EXIST     (1 << 2)
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -45,17 +55,17 @@ extern "C" {
 void    sq_pairs_init(SqPairs *pairs, SqCompareFunc key_compare_func);
 void    sq_pairs_final(SqPairs *pairs);
 
-void    sq_pairs_add(SqPairs *pairs, void *key, void *value);
+bool    sq_pairs_add(SqPairs *pairs, void *key, void *value);
 
-// void sq_pairs_add_int(SqPairs *pairs, intptr_t  key, intptr_t  value);
+// bool sq_pairs_add_int(SqPairs *pairs, intptr_t  key, intptr_t  value);
 #define sq_pairs_add_int(pairs, key, value)       \
 		sq_pairs_add(pairs, (void*)(intptr_t)key, (void*)(intptr_t)value)
 
-// void sq_pairs_add_intx(SqPairs *pairs, intptr_t  key, void *value);
+// bool sq_pairs_add_intx(SqPairs *pairs, intptr_t  key, void *value);
 #define sq_pairs_add_intx(pairs, key, value)      \
 		sq_pairs_add(pairs, (void*)(intptr_t)key, value)
 
-// void sq_pairs_add_xint(SqPairs *pairs, void *key, intptr_t  value);
+// bool sq_pairs_add_xint(SqPairs *pairs, void *key, intptr_t  value);
 #define sq_pairs_add_xint(pairs, key, value)      \
 		sq_pairs_add(pairs, key, (void*)(intptr_t)value)
 
@@ -72,28 +82,35 @@ void   *sq_pairs_get(SqPairs *pairs, void *key);
 // intptr_t  sq_pairs_get_xint(SqPairs *pairs, void *key);
 #define sq_pairs_get_xint        (intptr_t)sq_pairs_get
 
-void    sq_pairs_steal(SqPairs *pairs, void *key);
+// return true if the key was found.
+bool    sq_pairs_steal(SqPairs *pairs, void *key);
 
-// void sq_pairs_steal_int(SqPairs *pairs, intptr_t  key);
+// bool sq_pairs_steal_int(SqPairs *pairs, intptr_t  key);
 #define sq_pairs_steal_int(pairs, key)     \
 		sq_pairs_steal(pairs, (void*)(intptr_t)key)
 
-void    sq_pairs_erase(SqPairs *pairs, void *key);
+// return true if the key was found.
+bool    sq_pairs_erase(SqPairs *pairs, void *key);
 
-// void sq_pairs_erase_int(SqPairs *pairs, intptr_t  key);
+// bool sq_pairs_erase_int(SqPairs *pairs, intptr_t  key);
 #define sq_pairs_erase_int(pairs, key)     \
 		sq_pairs_erase(pairs, (void*)(intptr_t)key)
 
 // alias of sq_pairs_erase()
-// void sq_pairs_remove(SqPairs *pairs, void *key);
+// bool sq_pairs_remove(SqPairs *pairs, void *key);
 #define sq_pairs_remove          sq_pairs_erase
 
 // alias of sq_pairs_erase_int()
-// void sq_pairs_remove_int(SqPairs *pairs, intptr_t  key);
+// bool sq_pairs_remove_int(SqPairs *pairs, intptr_t  key);
 #define sq_pairs_remove_int(pairs, key)    \
 		sq_pairs_erase(pairs, (void*)(intptr_t)key)
 
+#if SQ_PAIRS_CHECK_IF_KEY_EXIST == 0
 void    sq_pairs_sort(SqPairs *pairs);
+#else
+// sq_pairs_sort() will do nothing if SQ_PAIRS_CHECK_IF_KEY_EXIST is enabled.
+#define sq_pairs_sort(pairs)
+#endif  // SQ_PAIRS_CHECK_IF_KEY_EXIST
 
 // pair comparison function for SqCompareFunc
 int     sq_pairs_cmp_string(const char **key1, const char **key2);
@@ -129,7 +146,7 @@ struct PairsMethod
 	                                 (std::is_pointer<Value>::value &&
 	                                     (std::is_pointer<ValueType>::value ||
 	                                      std::is_same<const char*, ValueType>::value) )>::type * = nullptr>
-	void    add(KeyType  key, ValueType  value);
+	bool    add(KeyType  key, ValueType  value);
 
 	template<typename KeyType   = Key,
 	         typename ValueType = Value,
@@ -138,7 +155,7 @@ struct PairsMethod
 	                                      std::is_same<const char*, KeyType>::value) ) &&
 	                                 (std::is_integral<Value>::value &&
 	                                  std::is_integral<ValueType>::value)>::type * = nullptr>
-	void    add(KeyType  key, ValueType  value);
+	bool    add(KeyType  key, ValueType  value);
 
 	template<typename KeyType   = Key,
 	         typename ValueType = Value,
@@ -147,7 +164,7 @@ struct PairsMethod
 	                                 (std::is_pointer<Value>::value &&
 	                                     (std::is_pointer<ValueType>::value ||
 	                                      std::is_same<const char*, ValueType>::value) )>::type * = nullptr>
-	void    add(KeyType  key, ValueType  value);
+	bool    add(KeyType  key, ValueType  value);
 
 	template<typename KeyType   = Key,
 	         typename ValueType = Value,
@@ -155,7 +172,7 @@ struct PairsMethod
 	                                  std::is_integral<KeyType>::value) &&
 	                                 (std::is_integral<Value>::value &&
 	                                  std::is_integral<ValueType>::value)>::type * = nullptr>
-	void    add(KeyType  key, ValueType  value);
+	bool    add(KeyType  key, ValueType  value);
 
 	// get
 	template<typename KeyType   = Key,
@@ -175,36 +192,36 @@ struct PairsMethod
 	         typename std::enable_if< std::is_pointer<Key>::value &&
 	                                 (std::is_pointer<KeyType>::value ||
 	                                  std::is_same<const char*, KeyType>::value)>::type * = nullptr>
-	void    remove(KeyType  key);
+	bool    remove(KeyType  key);
 
 	template<typename KeyType   = Key,
 	         typename std::enable_if<std::is_integral<Key>::value &&
 	                                 std::is_integral<KeyType>::value>::type * = nullptr>
-	void    remove(KeyType  key);
+	bool    remove(KeyType  key);
 
 	// erase
 	template<typename KeyType   = Key,
 	         typename std::enable_if< std::is_pointer<Key>::value &&
 	                                 (std::is_pointer<KeyType>::value ||
 	                                  std::is_same<const char*, KeyType>::value)>::type * = nullptr>
-	void    erase(KeyType  key);
+	bool    erase(KeyType  key);
 
 	template<typename KeyType   = Key,
 	         typename std::enable_if<std::is_integral<Key>::value &&
 	                                 std::is_integral<KeyType>::value>::type * = nullptr>
-	void    erase(KeyType  key);
+	bool    erase(KeyType  key);
 
 	// steal
 	template<typename KeyType   = Key,
 	         typename std::enable_if< std::is_pointer<Key>::value &&
 	                                 (std::is_pointer<KeyType>::value ||
 	                                  std::is_same<const char*, KeyType>::value)>::type * = nullptr>
-	void    steal(KeyType  key);
+	bool    steal(KeyType  key);
 
 	template<typename KeyType   = Key,
 	         typename std::enable_if<std::is_integral<Key>::value &&
 	                                 std::is_integral<KeyType>::value>::type * = nullptr>
-	void    steal(KeyType  key);
+	bool    steal(KeyType  key);
 
 	// sort
 	void    sort();
@@ -287,8 +304,8 @@ template<typename KeyType, typename ValueType,
                                  (std::is_pointer<Value>::value &&
                                      (std::is_pointer<ValueType>::value ||
                                       std::is_same<const char*, ValueType>::value) )>::type *>
-inline void   PairsMethod<Key, Value>::add(KeyType  key, ValueType  value) {
-	sq_pairs_add((SqPairs*)this, (void*)key, (void*)value);
+inline bool   PairsMethod<Key, Value>::add(KeyType  key, ValueType  value) {
+	return sq_pairs_add((SqPairs*)this, (void*)key, (void*)value);
 }
 
 template<typename Key, typename Value>
@@ -298,8 +315,8 @@ template<typename KeyType, typename ValueType,
                                       std::is_same<const char*, KeyType>::value) ) &&
                                  (std::is_integral<Value>::value &&
                                   std::is_integral<ValueType>::value)>::type *>
-inline void   PairsMethod<Key, Value>::add(KeyType  key, ValueType  value) {
-	sq_pairs_add((SqPairs*)this, (void*)key, (void*)(intptr_t)value);
+inline bool   PairsMethod<Key, Value>::add(KeyType  key, ValueType  value) {
+	return sq_pairs_add((SqPairs*)this, (void*)key, (void*)(intptr_t)value);
 }
 
 template<typename Key, typename Value>
@@ -309,8 +326,8 @@ template<typename KeyType, typename ValueType,
                                  (std::is_pointer<Value>::value &&
                                      (std::is_pointer<ValueType>::value ||
                                       std::is_same<const char*, ValueType>::value) )>::type *>
-inline void   PairsMethod<Key, Value>::add(KeyType  key, ValueType  value) {
-	sq_pairs_add((SqPairs*)this, (void*)(intptr_t)key, (void*)value);
+inline bool   PairsMethod<Key, Value>::add(KeyType  key, ValueType  value) {
+	return sq_pairs_add((SqPairs*)this, (void*)(intptr_t)key, (void*)value);
 }
 
 template<typename Key, typename Value>
@@ -319,8 +336,8 @@ template<typename KeyType, typename ValueType,
                                   std::is_integral<KeyType>::value) &&
                                  (std::is_integral<Value>::value &&
                                   std::is_integral<ValueType>::value)>::type *>
-inline void   PairsMethod<Key, Value>::add(KeyType  key, ValueType  value) {
-	sq_pairs_add((SqPairs*)this, (void*)(intptr_t)key, (void*)(intptr_t)value);
+inline bool   PairsMethod<Key, Value>::add(KeyType  key, ValueType  value) {
+	return sq_pairs_add((SqPairs*)this, (void*)(intptr_t)key, (void*)(intptr_t)value);
 }
 
 // get
@@ -348,16 +365,16 @@ template<typename KeyType,
          typename std::enable_if< std::is_pointer<Key>::value &&
                                  (std::is_pointer<KeyType>::value ||
                                   std::is_same<const char*, KeyType>::value)>::type *>
-inline void   PairsMethod<Key, Value>::remove(KeyType  key) {
-	sq_pairs_erase((SqPairs*)this, (void*)key);
+inline bool   PairsMethod<Key, Value>::remove(KeyType  key) {
+	return sq_pairs_erase((SqPairs*)this, (void*)key);
 }
 
 template<typename Key, typename Value>
 template<typename KeyType,
          typename std::enable_if<std::is_integral<Key>::value &&
                                  std::is_integral<KeyType>::value>::type *>
-inline void   PairsMethod<Key, Value>::remove(KeyType  key) {
-	sq_pairs_erase((SqPairs*)this, (void*)(intptr_t)key);
+inline bool   PairsMethod<Key, Value>::remove(KeyType  key) {
+	return sq_pairs_erase((SqPairs*)this, (void*)(intptr_t)key);
 }
 
 // erase
@@ -366,16 +383,16 @@ template<typename KeyType,
          typename std::enable_if< std::is_pointer<Key>::value &&
                                  (std::is_pointer<KeyType>::value ||
                                   std::is_same<const char*, KeyType>::value)>::type *>
-inline void   PairsMethod<Key, Value>::erase(KeyType  key) {
-	sq_pairs_erase((SqPairs*)this, (void*)key);
+inline bool   PairsMethod<Key, Value>::erase(KeyType  key) {
+	return sq_pairs_erase((SqPairs*)this, (void*)key);
 }
 
 template<typename Key, typename Value>
 template<typename KeyType,
          typename std::enable_if<std::is_integral<Key>::value &&
                                  std::is_integral<KeyType>::value>::type *>
-inline void   PairsMethod<Key, Value>::erase(KeyType  key) {
-	sq_pairs_erase((SqPairs*)this, (void*)(intptr_t)key);
+inline bool   PairsMethod<Key, Value>::erase(KeyType  key) {
+	return sq_pairs_erase((SqPairs*)this, (void*)(intptr_t)key);
 }
 
 // steal
@@ -384,16 +401,16 @@ template<typename KeyType,
          typename std::enable_if< std::is_pointer<Key>::value &&
                                  (std::is_pointer<KeyType>::value ||
                                   std::is_same<const char*, KeyType>::value)>::type *>
-inline void   PairsMethod<Key, Value>::steal(KeyType  key) {
-	sq_pairs_steal((SqPairs*)this, (void*)key);
+inline bool   PairsMethod<Key, Value>::steal(KeyType  key) {
+	return sq_pairs_steal((SqPairs*)this, (void*)key);
 }
 
 template<typename Key, typename Value>
 template<typename KeyType,
          typename std::enable_if<std::is_integral<Key>::value &&
                                  std::is_integral<KeyType>::value>::type *>
-inline void   PairsMethod<Key, Value>::steal(KeyType  key) {
-	sq_pairs_steal((SqPairs*)this, (void*)(intptr_t)key);
+inline bool   PairsMethod<Key, Value>::steal(KeyType  key) {
+	return sq_pairs_steal((SqPairs*)this, (void*)(intptr_t)key);
 }
 
 // sort
