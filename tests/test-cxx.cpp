@@ -483,7 +483,7 @@ void test_pairs()
 	// intptr_t, intptr_t
 	SqPairs  pairsIntX2;
 
-	sq_pairs_init(&pairsIntX2, (SqCompareFunc)Sq::compare<intptr_t>);
+	sq_pairs_init(&pairsIntX2, Sq::compare<intptr_t>);
 	sq_pairs_add_int(&pairsIntX2, 28, 128);
 	sq_pairs_add_int(&pairsIntX2, 55, 155);
 	sq_pairs_add_int(&pairsIntX2, 30, 130);

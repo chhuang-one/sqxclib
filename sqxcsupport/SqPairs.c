@@ -156,7 +156,7 @@ void  sq_pairs_sort(SqPairs *pairs)
 // ----------------------------------------------------------------------------
 // SqPair SqCompareFunc
 
-int   sq_pairs_cmp_string(const char **key1, const char **key2)
+int   sq_compare_str(const void *a, const void *b)
 {
-	return strcmp(*key1, *key2);
+	return strcmp(*(char**)a, *(char**)b);
 }

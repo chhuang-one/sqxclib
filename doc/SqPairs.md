@@ -124,6 +124,7 @@ Sq::Pairs use template functions to get the value in the key-value pair.
 
 erase() removes elements from array with calling the destroy function.  
 steal() removes elements from array without calling the destroy function.  
+They will return true if the key was found and removed from array.  
   
 use C language  
   

@@ -286,7 +286,7 @@ struct ArrayMethod
 	                                  std::is_same<char*, ValueType>::value)            ||
 	                                 (std::is_same<char*, Type>::value &&
 	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
-	Type  *search(ValueType  key, SqCompareFunc compareFunc = (SqCompareFunc)Sq::compare<Type>);
+	Type  *search(ValueType  key, SqCompareFunc compareFunc = Sq::compare<Type>);
 
 	template<typename ValueType = Type,
 	         typename std::enable_if< std::is_same<Type, ValueType>::value &&
@@ -306,7 +306,7 @@ struct ArrayMethod
 	                                  std::is_same<char*, ValueType>::value)            ||
 	                                 (std::is_same<char*, Type>::value &&
 	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
-	Type  *find(ValueType  key, SqCompareFunc compareFunc = (SqCompareFunc)Sq::compare<Type>);
+	Type  *find(ValueType  key, SqCompareFunc compareFunc = Sq::compare<Type>);
 
 	template<typename ValueType = Type,
 	         typename std::enable_if< std::is_same<Type, ValueType>::value &&

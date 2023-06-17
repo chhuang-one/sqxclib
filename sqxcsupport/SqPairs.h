@@ -112,8 +112,15 @@ void    sq_pairs_sort(SqPairs *pairs);
 #define sq_pairs_sort(pairs)
 #endif  // SQ_PAIRS_CHECK_IF_KEY_EXIST
 
-// pair comparison function for SqCompareFunc
-int     sq_pairs_cmp_string(const char **key1, const char **key2);
+/* pair comparison function for SqCompareFunc */
+
+// actual parameter type:
+// int  sq_compare_str(const char **a, const char **b);
+int     sq_compare_str(const void  *a, const void  *b);
+
+// alias of sq_compare_str()
+// int  sq_pairs_cmp_string(const char **key1, const char **key2);
+#define sq_pairs_cmp_string        sq_compare_str
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -436,7 +443,7 @@ struct Pairs : Sq::PairsMethod<Key, Value>       // <-- 1. inherit C++ member fu
 	SqDestroyFunc  value_destroy_func;
  */
 
-	Pairs(SqCompareFunc keyCompareFunc   = (SqCompareFunc)Sq::compare<Key>,
+	Pairs(SqCompareFunc keyCompareFunc   = Sq::compare<Key>,
 	      SqDestroyFunc keyDestroyFunc   = NULL,
 	      SqDestroyFunc valueDestroyFunc = NULL)
 	{
