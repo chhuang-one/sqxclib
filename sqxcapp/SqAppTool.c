@@ -132,7 +132,7 @@ void   sq_app_tool_init(SqAppTool *app, const char *program_name, const struct S
 	sq_console_add_command_migrate(app->console);
 	sq_console_add_command_make(app->console);
 	// Key-Value pairs for temporary use
-	sq_pairs_init(&app->pairs, (SqCompareFunc)sq_pairs_cmp_string);
+	sq_pairs_init(&app->pairs, sq_pairs_cmp_string);
 	app->pairs.key_destroy_func   = free;
 	app->pairs.value_destroy_func = free;
 	// buffer for temporary use

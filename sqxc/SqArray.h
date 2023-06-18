@@ -131,11 +131,11 @@ extern "C" {
 		        sq_array_data(array) + sizeof(ElementType) * ((index)+(count)),    \
 		        sizeof(ElementType) * ((sq_array_length(array) -= (count)) - (index)) )
 
-// void SQ_ARRAY_STEAL_ADDR(void *array, ElementType, ElementType *element_addr, int count);
-#define SQ_ARRAY_STEAL_ADDR(array, ElementType, element_addr, count) \
-		memmove(element_addr,                                        \
-		        (ElementType*)(element_addr) + (count),              \
-		        sizeof(ElementType) * (sq_array_length(array) -= (count)) - ((uint8_t*)(element_addr) - sq_array_data(array)) )
+// void SQ_ARRAY_STEAL_ADDR(void *array, ElementType, ElementType *elementAddr, int count);
+#define SQ_ARRAY_STEAL_ADDR(array, ElementType, elementAddr, count)  \
+		memmove(elementAddr,                                         \
+		        (ElementType*)(elementAddr) + (count),               \
+		        sizeof(ElementType) * (sq_array_length(array) -= (count)) - ((uint8_t*)(elementAddr) - sq_array_data(array)) )
 
 // Quick sort
 // void SQ_ARRAY_SORT(void *array, ElementType, SqCompareFunc compareFunc);
@@ -777,9 +777,9 @@ typedef Array<int>    IntArray;
 #define sq_int_array_steal(array, index, count)             \
 		SQ_ARRAY_STEAL(array, int, index, count)
 
-// void sq_int_array_steal_addr(void *array, int *element_addr, int count);
-#define sq_int_array_steal_addr(array, element_addr, count) \
-		SQ_ARRAY_STEAL_ADDR(array, int, element_addr, count)
+// void sq_int_array_steal_addr(void *array, int *elementAddr, int count);
+#define sq_int_array_steal_addr(array, elementAddr, count)  \
+		SQ_ARRAY_STEAL_ADDR(array, int, elementAddr, count)
 
 // Quick sort
 // void sq_int_array_sort(void *array, SqCompareFunc compareFunc);

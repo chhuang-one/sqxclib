@@ -29,8 +29,8 @@
 #define COMMAND_BORDER_WIDTH    2
 
 // SqType SqCompareFunc
-static int  sq_command_cmp_name(SqCommand **cmd_type1, SqCommand **cmd_type2);
-static int  sq_command_cmp_str__name(const char *str,  SqCommand **cmd_type);
+static int  sq_command_cmp_name(const void *cmd_type1, const void *cmd_type2);
+static int  sq_command_cmp_str__name(const void *str,  const void *cmd_type);
 
 SqConsole *sq_console_new()
 {
@@ -81,10 +81,10 @@ SqCommand  *sq_console_find(SqConsole *console, const char* command_name)
 
 	if (console->commands_sorted == false) {
 		console->commands_sorted =  true;
-		sq_ptr_array_sort(&console->commands, (SqCompareFunc)sq_command_cmp_name);
+		sq_ptr_array_sort(&console->commands, sq_command_cmp_name);
 	}
 	addr = sq_ptr_array_search(&console->commands, command_name,
-	                           (SqCompareFunc)sq_command_cmp_str__name);
+	                           sq_command_cmp_str__name);
 	if (addr)
 		return *(SqCommand**)addr;
 	return NULL;
@@ -251,13 +251,15 @@ void  sq_console_print_list(SqConsole  *console, const char *program_description
 // ------------------------------------
 // SqType SqCompareFunc
 
-static int  sq_command_cmp_name(SqCommand **cmd_type1, SqCommand **cmd_type2)
+// This function is used by sort(). Its actual parameter type:
+//     int  sq_command_cmp_name(SqCommand **cmd_type1, SqCommand **cmd_type2);
+static int  sq_command_cmp_name(const void *cmd_type1, const void *cmd_type2)
 {
 	const char *name1;
 	const char *name2;
 
-	name1 = (*cmd_type1) ? (*cmd_type1)->name : "";
-	name2 = (*cmd_type2) ? (*cmd_type2)->name : "";
+	name1 = (*(SqCommand**)cmd_type1) ? (*(SqCommand**)cmd_type1)->name : "";
+	name2 = (*(SqCommand**)cmd_type2) ? (*(SqCommand**)cmd_type2)->name : "";
 #if SQ_CONFIG_COMMAND_CASE_SENSITIVE
 	return strcmp(name1, name2);
 #else
@@ -265,11 +267,13 @@ static int  sq_command_cmp_name(SqCommand **cmd_type1, SqCommand **cmd_type2)
 #endif
 }
 
-static int  sq_command_cmp_str__name(const char *str,  SqCommand **cmd_type)
+// This function is used by find(). Its actual parameter type:
+//     int  sq_command_cmp_str__name(const char *str, SqCommand **cmd_type);
+static int  sq_command_cmp_str__name(const void *str, const void *cmd_type)
 {
 	const char *name;
 
-	name = (*cmd_type) ? (*cmd_type)->name : "";
+	name = (*(SqCommand**)cmd_type) ? (*(SqCommand**)cmd_type)->name : "";
 #if SQ_CONFIG_COMMAND_CASE_SENSITIVE
 	return strcmp(str, name);
 #else

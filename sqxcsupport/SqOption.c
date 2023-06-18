@@ -26,7 +26,7 @@ SqOption *sq_option_new(const SqType *type)
 	return option;
 }
 
-void sq_option_free(SqOption *option)
+void  sq_option_free(SqOption *option)
 {
 	sq_option_final(option);
 	free(option);
@@ -54,7 +54,7 @@ void  sq_option_final(SqOption *option)
 	}
 }
 
-int  sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
+int   sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
 {
 	int   length;
 
@@ -100,21 +100,25 @@ int  sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
 // ------------------------------------
 // SqOption SqCompareFunc
 
-int  sq_option_cmp_str__shortcut(const char *str,  SqOption **option)
+// This function is used by find(). Its actual parameter type:
+//int sq_option_cmp_str__shortcut(const char *str, SqOption  **option);
+int   sq_option_cmp_str__shortcut(const void *str, const void *option)
 {
 	const char *shortcut;
 
-	shortcut = (*option) ? (*option)->shortcut : "";
+	shortcut = (*(SqOption**)option) ? (*(SqOption**)option)->shortcut : "";
 	return strcmp(str, shortcut);
 }
 
-int  sq_option_cmp_shortcut(SqOption **option1, SqOption **option2)
+// This function is used by sort(). Its actual parameter type:
+//int sq_option_cmp_shortcut(SqOption  **option1, SqOption  **option2);
+int   sq_option_cmp_shortcut(const void *option1, const void *option2)
 {
 	const char *shortcut1;
 	const char *shortcut2;
 
-	shortcut1 = (*option1) ? (*option1)->shortcut : "";
-	shortcut2 = (*option2) ? (*option2)->shortcut : "";
+	shortcut1 = (*(SqOption**)option1) ? (*(SqOption**)option1)->shortcut : "";
+	shortcut2 = (*(SqOption**)option2) ? (*(SqOption**)option2)->shortcut : "";
 	return strcmp(shortcut1, shortcut2);
 }
 

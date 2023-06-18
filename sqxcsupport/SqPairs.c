@@ -147,8 +147,7 @@ bool  sq_pairs_steal(SqPairs *pairs, void *key)
 #if SQ_PAIRS_CHECK_IF_KEY_EXIST == 0
 void  sq_pairs_sort(SqPairs *pairs)
 {
-	qsort(pairs->data, pairs->length, sizeof(SqPair),
-	      (SqCompareFunc)pairs->key_compare_func);
+	qsort(pairs->data, pairs->length, sizeof(SqPair), pairs->key_compare_func);
 	pairs->bit_field |= SQB_PAIRS_SORTED;
 }
 #endif  // SQ_PAIRS_CHECK_IF_KEY_EXIST

@@ -415,7 +415,7 @@ SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 	}
 	// search storage->tables by SqTable.type.name
 	table_addr = (SqTable**)sq_ptr_array_search(type_tables, type_name,
-	                                            (SqCompareFunc)sq_entry_cmp_str__type_name);
+	                                            sq_entry_cmp_str__type_name);
 	if (table_addr)
 		return *table_addr;
 	return NULL;

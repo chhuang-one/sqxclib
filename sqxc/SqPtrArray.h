@@ -98,16 +98,16 @@ extern "C" {
 #define sq_ptr_array_push_to(array, index, value)  \
 		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
 
-// void sq_ptr_array_erase_addr(void *array, void **element_addr, int count);
-#define sq_ptr_array_erase_addr(array, element_addr, count)    \
-		sq_ptr_array_erase(array, (int)((void**)(element_addr) - sq_ptr_array_data(array)), count)
+// void sq_ptr_array_erase_addr(void *array, void **elementAddr, int count);
+#define sq_ptr_array_erase_addr(array, elementAddr, count)       \
+		sq_ptr_array_erase(array, (int)((void**)(elementAddr) - sq_ptr_array_data(array)), count)
 
 // alias of sq_ptr_array_erase()
 // void sq_ptr_array_remove(void *array, int index, int count);
 #define sq_ptr_array_remove              sq_ptr_array_erase
 
 // alias of sq_ptr_array_erase_addr()
-// void sq_ptr_array_remove_addr(void *array, void **element_addr, int count);
+// void sq_ptr_array_remove_addr(void *array, void **elementAddr, int count);
 #define sq_ptr_array_remove_addr         sq_ptr_array_erase_addr
 
 // Quick sort
@@ -130,20 +130,20 @@ extern "C" {
 
 // deprecated
 // void sq_ptr_array_foreach(void *array, void *element)
-#define sq_ptr_array_foreach(array, element)                    \
-		for (void **element##_end  = sq_ptr_array_end(array),   \
-		          **element##_addr = sq_ptr_array_begin(array), \
-		           *element = *element##_addr;                  \
-		     element##_addr < element##_end;                    \
+#define sq_ptr_array_foreach(array, element)                         \
+		for (void **element##_end  = sq_ptr_array_end(array),        \
+		          **element##_addr = sq_ptr_array_begin(array),      \
+		           *element = *element##_addr;                       \
+		     element##_addr < element##_end;                         \
 		     element##_addr++, element = *element##_addr)
 
 // deprecated
-// void sq_ptr_array_foreach_addr(void *array, void **element_addr)
-#define sq_ptr_array_foreach_addr(array, element_addr)              \
-		for (void **element_addr##_end = sq_ptr_array_end(array),   \
-		          **element_addr       = sq_ptr_array_begin(array); \
-		     element_addr < element_addr##_end;                     \
-		     element_addr++)
+// void sq_ptr_array_foreach_addr(void *array, void **elementAddr)
+#define sq_ptr_array_foreach_addr(array, elementAddr)                \
+		for (void **elementAddr##_end = sq_ptr_array_end(array),     \
+		          **elementAddr       = sq_ptr_array_begin(array);   \
+		     elementAddr < elementAddr##_end;                        \
+		     elementAddr++)
 
 /* macro for maintaining C/C++ inline functions easily */
 
@@ -160,9 +160,9 @@ extern "C" {
 #define SQ_PTR_ARRAY_STEAL(array, index, count)                  \
 		SQ_ARRAY_STEAL(array, void*, index, count)
 
-// void SQ_PTR_ARRAY_STEAL_ADDR(void *array, void **element_addr, int count);
-#define SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count)      \
-		SQ_ARRAY_STEAL_ADDR(array, void*, element_addr, count)
+// void SQ_PTR_ARRAY_STEAL_ADDR(void *array, void **elementAddr, int count);
+#define SQ_PTR_ARRAY_STEAL_ADDR(array, elementAddr, count)       \
+		SQ_ARRAY_STEAL_ADDR(array, void*, elementAddr, count)
 
 /* C functions */
 
@@ -290,9 +290,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_ptr_array_steal_addr(void *array, void **element_addr, int count)
+void  sq_ptr_array_steal_addr(void *array, void **elementAddr, int count)
 {
-	SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
+	SQ_PTR_ARRAY_STEAL_ADDR(array, elementAddr, count);
 }
 
 #else   // __STDC_VERSION__ || __cplusplus
@@ -301,7 +301,7 @@ void  sq_ptr_array_steal_addr(void *array, void **element_addr, int count)
 void **sq_ptr_array_append(void *array, const void *values, int count);
 void **sq_ptr_array_insert(void *array, int index, const void *values, int count);
 void   sq_ptr_array_steal(void *array, int index, int count);
-void   sq_ptr_array_steal_addr(void *array, void **element_addr, int count);
+void   sq_ptr_array_steal_addr(void *array, void **elementAddr, int count);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 

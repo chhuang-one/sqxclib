@@ -131,7 +131,7 @@ void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array)
         if (option->shortcut)
             sq_ptr_array_push(array, option);
 	}
-	sq_ptr_array_sort(array, (SqCompareFunc)sq_option_cmp_shortcut);
+	sq_ptr_array_sort(array, sq_option_cmp_shortcut);
 }
 
 /* SqCommand parse function */
@@ -194,7 +194,7 @@ int  sq_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 	if (temp.addr == NULL) {
 		// option shortcut
 		temp.addr = sq_ptr_array_search(&((SqCommandValue*)instance)->shortcuts,
-				src->name, (SqCompareFunc)sq_option_cmp_str__shortcut);
+				src->name, sq_option_cmp_str__shortcut);
 	}
 
 	// parse entries in type

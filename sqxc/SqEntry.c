@@ -59,11 +59,11 @@ void  sq_entry_final(SqEntry *entry)
 		free((char*)entry->name);
 }
 
-SqEntry *sq_entry_find(SqEntry *entry, const void *key, SqCompareFunc cmp_func)
+SqEntry *sq_entry_find(SqEntry *entry, const void *key, SqCompareFunc compareFunc)
 {
 	SqEntry **addr;
 
-	addr = (SqEntry**)sq_type_find_entry(entry->type, key, cmp_func);
+	addr = (SqEntry**)sq_type_find_entry(entry->type, key, compareFunc);
 	if (addr)
 		return *addr;
 	else
@@ -73,12 +73,13 @@ SqEntry *sq_entry_find(SqEntry *entry, const void *key, SqCompareFunc cmp_func)
 // ------------------------------------
 // SqEntry SqCompareFunc
 
-// used by find()
-int  sq_entry_cmp_str__name(const char *str, SqEntry **entry)
+// This function is used by find(). Its actual parameter type:
+//int sq_entry_cmp_str__name(const char *str, SqEntry   **entryAddr);
+int   sq_entry_cmp_str__name(const void *str, const void *entryAddr)
 {
 	const char *name;
 
-	name = (*entry) ? (*entry)->name : "";
+	name = (*(SqEntry**)entryAddr) ? (*(SqEntry**)entryAddr)->name : "";
 #if SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE
 	return strcmp(str, name);
 #else
@@ -86,14 +87,15 @@ int  sq_entry_cmp_str__name(const char *str, SqEntry **entry)
 #endif
 }
 
-// used by sort()
-int  sq_entry_cmp_name(SqEntry **entry1, SqEntry **entry2)
+// This function is used by sort(). Its actual parameter type:
+//int sq_entry_cmp_name(SqEntry   **entryAddr1, SqEntry   **entryAddr2);
+int   sq_entry_cmp_name(const void *entryAddr1, const void *entryAddr2)
 {
 	const char *name1;
 	const char *name2;
 
-	name1 = (*entry1) ? (*entry1)->name : "";
-	name2 = (*entry2) ? (*entry2)->name : "";
+	name1 = (*(SqEntry**)entryAddr1) ? (*(SqEntry**)entryAddr1)->name : "";
+	name2 = (*(SqEntry**)entryAddr2) ? (*(SqEntry**)entryAddr2)->name : "";
 #if SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE
 	return strcmp(name1, name2);
 #else
@@ -101,21 +103,25 @@ int  sq_entry_cmp_name(SqEntry **entry1, SqEntry **entry2)
 #endif
 }
 
-int  sq_entry_cmp_str__type_name(const char *str,  SqEntry **entry)
+// This function is used by find(). Its actual parameter type:
+//int sq_entry_cmp_str__type_name(const char *str, SqEntry   **entryAddr);
+int   sq_entry_cmp_str__type_name(const void *str, const void *entryAddr)
 {
 	const char *name;
 
-	name = (*entry) ? (*entry)->type->name : "";
+	name = (*(SqEntry**)entryAddr) ? (*(SqEntry**)entryAddr)->type->name : "";
 	return strcmp(str, name);
 }
 
-int  sq_entry_cmp_type_name(SqEntry **entry1, SqEntry **entry2)
+// This function is used by sort(). Its actual parameter type:
+//int sq_entry_cmp_type_name(SqEntry   **entryAddr1, SqEntry   **entryAddr2);
+int   sq_entry_cmp_type_name(const void *entryAddr1, const void *entryAddr2)
 {
 	const char *name1;
 	const char *name2;
 
-	name1 = (*entry1) ? (*entry1)->type->name : "";
-	name2 = (*entry2) ? (*entry2)->type->name : "";
+	name1 = (*(SqEntry**)entryAddr1) ? (*(SqEntry**)entryAddr1)->type->name : "";
+	name2 = (*(SqEntry**)entryAddr2) ? (*(SqEntry**)entryAddr2)->type->name : "";
 	return strcmp(name1, name2);
 }
 
@@ -135,7 +141,7 @@ void  sq_entry_set_str_addr(SqEntry *entry, char **str_addr, const char *str_src
 // ----------------------------------------------------------------------------
 // SqReentry functions for SqPtrArray
 
-int  sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements)
+int   sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements)
 {
 	SqPtrArray *array = (SqPtrArray*)reentry_ptr_array;
 	int  index_src, index_dest;

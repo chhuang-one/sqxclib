@@ -59,8 +59,8 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 		if (reentry_src->bit_field & SQB_CHANGED) {
 			// === ALTER ===
 			// find reentry if reentry->name == reentry_src->name
-			addr = sq_ptr_array_find_sorted(reentries, reentry_src->name,
-					(SqCompareFunc) sq_entry_cmp_str__name, NULL);
+			addr = sq_ptr_array_find_sorted(reentries,
+					reentry_src->name, sq_entry_cmp_str__name, NULL);
 			if (addr) {
 				reentry = *(SqReentry**)addr;
 				if (destroy_func == (SqDestroyFunc)sq_column_free) {
@@ -89,8 +89,8 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 		else if (reentry_src->name == NULL) {
 			// === DROP ===
 			// erase original reentry if reentry->name == reentry_src->old_name
-			addr = sq_ptr_array_find_sorted(reentries, reentry_src->old_name,
-					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+			addr = sq_ptr_array_find_sorted(reentries,
+					reentry_src->old_name, sq_entry_cmp_str__name, &temp.index);
 			if (addr) {
 				reentry = *(SqReentry**)addr;
 				// remove dropped entry from array
@@ -114,8 +114,8 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 		else if (reentry_src->old_name) {
 			// === RENAME ===
 			// find existing if reentry->name == reentry_src->old_name
-			addr = sq_ptr_array_find_sorted(reentries, reentry_src->old_name,
-					(SqCompareFunc) sq_entry_cmp_str__name, NULL);
+			addr = sq_ptr_array_find_sorted(reentries,
+					reentry_src->old_name, sq_entry_cmp_str__name, NULL);
 			if (addr) {
 				reentry = *(SqReentry**)addr;
 				if (destroy_func == (SqDestroyFunc)sq_column_free) {
@@ -123,8 +123,8 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 						reentry = (SqReentry*)sq_column_copy_static((SqColumn*)reentry);
 				}
 				// get new index after renaming
-				sq_ptr_array_find_sorted(reentries, reentry_src->name,
-						(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+				sq_ptr_array_find_sorted(reentries,
+						reentry_src->name, sq_entry_cmp_str__name, &temp.index);
 				// change current reentry's name
 				free((char*)reentry->name);
 				reentry->name = strdup(reentry_src->name);
@@ -147,8 +147,8 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 		}
 		else {
 			// === ADD ===
-			addr = sq_ptr_array_find_sorted(reentries, reentry_src->name,
-					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+			addr = sq_ptr_array_find_sorted(reentries,
+					reentry_src->name, sq_entry_cmp_str__name, &temp.index);
 			if (addr == NULL) {
 				// add 'reentry_src' to entry->type.
 				sq_ptr_array_push_to(reentries, temp.index, reentry_src);

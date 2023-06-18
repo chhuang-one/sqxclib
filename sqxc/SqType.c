@@ -220,19 +220,19 @@ void  sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, int cou
 	}
 }
 
-void **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc cmp_func)
+void **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc compareFunc)
 {
 	SqPtrArray *array = (SqPtrArray*) &type->entry;
 
 	if (type->n_entry == 0)
 		return NULL;
-	if (cmp_func == NULL)
-		cmp_func = (SqCompareFunc)sq_entry_cmp_str__name;
+	if (compareFunc == NULL)
+		compareFunc = sq_entry_cmp_str__name;
 
-	if (type->bit_field & SQB_TYPE_SORTED && cmp_func == (SqCompareFunc)sq_entry_cmp_str__name)
-		return sq_ptr_array_search(array, key, cmp_func);
+	if (type->bit_field & SQB_TYPE_SORTED && compareFunc == sq_entry_cmp_str__name)
+		return sq_ptr_array_search(array, key, compareFunc);
 	else
-		return sq_ptr_array_find(array, key, cmp_func);
+		return sq_ptr_array_find(array, key, compareFunc);
 }
 
 void  sq_type_sort_entry(SqType *type)

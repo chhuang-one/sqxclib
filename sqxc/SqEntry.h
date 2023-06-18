@@ -88,19 +88,31 @@ void     sq_entry_free(SqEntry *entry);
 void  sq_entry_init(SqEntry *entry, const SqType *type_info);
 void  sq_entry_final(SqEntry *entry);
 
-// If 'cmp_func' is NULL, it will use function - sq_entry_cmp_str__name()
-SqEntry *sq_entry_find(SqEntry *entry, const void *key, SqCompareFunc cmp_func);
+// If 'compareFunc' is NULL, it will use sq_entry_cmp_str__name() by default.
+SqEntry *sq_entry_find(SqEntry *entry, const void *key, SqCompareFunc compareFunc);
 
-// SqCompareFunc for sorting and finding SqEntry
-int  sq_entry_cmp_str__name(const char *str,  SqEntry **entry);
-int  sq_entry_cmp_name(SqEntry **entry1, SqEntry **entry2);
+/* SqCompareFunc for sorting and finding SqEntry */
 
-// SqCompareFunc for sorting and finding SqEntry by SqType::name
-int  sq_entry_cmp_str__type_name(const char *str,  SqEntry **entry);
-int  sq_entry_cmp_type_name(SqEntry **entry1, SqEntry **entry2);
+// This function is used by find(). Its actual parameter type:
+//int sq_entry_cmp_str__name(const char *str, SqEntry   **entryAddr);
+int   sq_entry_cmp_str__name(const void *str, const void *entryAddr);
+
+// This function is used by sort(). Its actual parameter type:
+//int sq_entry_cmp_name(SqEntry   **entryAddr1, SqEntry   **entryAddr2);
+int   sq_entry_cmp_name(const void *entryAddr1, const void *entryAddr2);
+
+/* SqCompareFunc for sorting and finding SqEntry by SqType::name */
+
+// This function is used by find(). Its actual parameter type:
+//int sq_entry_cmp_str__type_name(const char *str, SqEntry   **entryAddr);
+int   sq_entry_cmp_str__type_name(const void *str, const void *entryAddr);
+
+// This function is used by sort(). Its actual parameter type:
+//int sq_entry_cmp_type_name(SqEntry   **entryAddr1, SqEntry   **entryAddr2);
+int   sq_entry_cmp_type_name(const void *entryAddr1, const void *entryAddr2);
 
 // for internal use only
-void sq_entry_set_str_addr(SqEntry *entry, char **str_addr, const char *str_src);
+void  sq_entry_set_str_addr(SqEntry *entry, char **str_addr, const char *str_src);
 
 
 /*	SqReentries: unsorted pointer array of SqReentry.
@@ -111,7 +123,7 @@ void sq_entry_set_str_addr(SqEntry *entry, char **str_addr, const char *str_src)
 // It remove all NULL pointer in array
 // n_old_elements: number of old elements before removing NULL
 // return:         number of old elements after  removing NULL
-int     sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
+int   sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
 
 #ifdef __cplusplus
 }
@@ -180,8 +192,8 @@ struct SqEntry
 		sq_entry_final((SqEntry*)this);
 	}
 
-	Sq::Entry *find(const void *key, SqCompareFunc cmp_func = NULL) {
-		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, cmp_func);
+	Sq::Entry *find(const void *key, SqCompareFunc compareFunc = NULL) {
+		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, compareFunc);
 	}
 
 	void  setName(const char *name) {
@@ -265,8 +277,8 @@ struct EntryMethod
 		sq_entry_final((SqEntry*)this);
 	}
 
-	Sq::Entry *find(const void *key, SqCompareFunc cmp_func = NULL) {
-		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, cmp_func);
+	Sq::Entry *find(const void *key, SqCompareFunc compareFunc = NULL) {
+		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, compareFunc);
 	}
 
 	void  setName(const char *name) {

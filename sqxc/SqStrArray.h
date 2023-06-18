@@ -56,7 +56,7 @@ extern "C" {
 // void sq_str_array_erase(SqStrArray *array, int index, int count);
 #define sq_str_array_erase           sq_ptr_array_erase
 
-// void sq_str_array_erase_addr(SqStrArray *array, char **element_addr, int count);
+// void sq_str_array_erase_addr(SqStrArray *array, char **elementAddr, int count);
 #define sq_str_array_erase_addr      sq_ptr_array_erase_addr
 
 // alias of sq_str_array_erase()
@@ -64,13 +64,13 @@ extern "C" {
 #define sq_str_array_remove          sq_ptr_array_erase
 
 // alias of sq_str_array_erase_addr()
-// void sq_str_array_remove_addr(SqStrArray *array, char **element_addr, int count);
+// void sq_str_array_remove_addr(SqStrArray *array, char **elementAddr, int count);
 #define sq_str_array_remove_addr     sq_ptr_array_erase_addr
 
 // void sq_str_array_steal(SqStrArray *array, int index, int count);
 #define sq_str_array_steal           sq_ptr_array_steal
 
-// void sq_str_array_steal_addr(SqStrArray *array, char **element_addr, int count);
+// void sq_str_array_steal_addr(SqStrArray *array, char **elementAddr, int count);
 #define sq_str_array_steal_addr      sq_ptr_array_steal_addr
 
 // void sq_str_array_sort(void *array, SqCompareFunc compareFunc);
@@ -96,12 +96,12 @@ extern "C" {
 		     element##_addr < element##_end;                    \
 		     element##_addr++, element = *element##_addr)
 
-// void sq_str_array_foreach_addr(SqStrArray *array, char **element_addr)
-#define sq_str_array_foreach_addr(array, element_addr)              \
-		for (void **element_addr##_end = sq_ptr_array_end(array),   \
-		          **element_addr       = sq_ptr_array_begin(array); \
-		     element_addr < element_addr##_end;                     \
-		     element_addr++)
+// void sq_str_array_foreach_addr(SqStrArray *array, char **elementAddr)
+#define sq_str_array_foreach_addr(array, elementAddr)                \
+		for (void **elementAddr##_end = sq_ptr_array_end(array),     \
+		          **elementAddr       = sq_ptr_array_begin(array);   \
+		     elementAddr < elementAddr##_end;                        \
+		     elementAddr++)
 
 /* C functions */
 void   sq_str_array_push_to(SqStrArray *array, int index, const char *str);
@@ -271,12 +271,12 @@ typedef struct SqStrArray    SqStringArray;
 		     element##_addr < element##_end;                    \
 		     element##_addr++, element = *element##_addr)
 
-// void sq_string_array_foreach_addr(void *array, char **element_addr)
-#define sq_string_array_foreach_addr(array, element_addr)           \
-		for (void **element_addr##_end = sq_ptr_array_end(array),   \
-		          **element_addr       = sq_ptr_array_begin(array); \
-		     element_addr < element_addr##_end;                     \
-		     element_addr++)
+// void sq_string_array_foreach_addr(void *array, char **elementAddr)
+#define sq_string_array_foreach_addr(array, elementAddr)            \
+		for (void **elementAddr##_end = sq_ptr_array_end(array),    \
+		          **elementAddr       = sq_ptr_array_begin(array);  \
+		     elementAddr < elementAddr##_end;                       \
+		     elementAddr++)
 
 
 #ifdef __cplusplus

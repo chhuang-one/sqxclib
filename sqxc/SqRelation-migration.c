@@ -201,8 +201,8 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 		if (column_src->bit_field & SQB_CHANGED) {
 			// === ALTER COLUMN ===
 			// free column if column->name == column_src->name
-			addr = sq_ptr_array_find_sorted(reentries, column_src->name,
-					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+			addr = sq_ptr_array_find_sorted(reentries,
+					column_src->name, sq_entry_cmp_str__name, &temp.index);
 			if (addr) {
 				column = *(SqColumn**)addr;
 				// If column has foreign/composite key, add it to SQ_TYPE_TRACING
@@ -229,8 +229,8 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 		else if (column_src->name == NULL) {
 			// === DROP COLUMN / CONSTRAINT / KEY ===
 			// free column if column->name == column_src->old_name
-			addr = sq_ptr_array_find_sorted(reentries, column_src->old_name,
-					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+			addr = sq_ptr_array_find_sorted(reentries,
+					column_src->old_name, sq_entry_cmp_str__name, &temp.index);
 			if (addr) {
 				column = *(SqColumn**)addr;
 				// erase relation in SQ_TYPE_TRACING and SQ_TYPE_UNSYNCED if exist
@@ -265,8 +265,8 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 		else if (column_src->old_name) {
 			// === RENAME COLUMN ===
 			// find column if column->name == column_src->old_name
-			addr = sq_ptr_array_find_sorted(reentries, column_src->old_name,
-					(SqCompareFunc) sq_entry_cmp_str__name, NULL);
+			addr = sq_ptr_array_find_sorted(reentries,
+					column_src->old_name, sq_entry_cmp_str__name, NULL);
 			// rename existing column->name to column_src->name
 			if (addr) {
 				// if there is a column that has the same name was erased/renamed
@@ -285,8 +285,8 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				sq_relation_add(table->relation, column_src, column, 0);
 				sq_relation_add(table->relation, SQ_TYPE_REENTRY, column_src, 0);
 				// get new index after renaming
-				sq_ptr_array_find_sorted(reentries, column_src->name,
-						(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+				sq_ptr_array_find_sorted(reentries,
+						column_src->name, sq_entry_cmp_str__name, &temp.index);
 				// change column name
 				if (table->bit_field & SQB_TABLE_SQL_CREATED) {
 					// unsynced record (it doesn't yet synchronize to database)
@@ -323,8 +323,8 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 		else {
 			// === ADD COLUMN / CONSTRAINT / KEY ===
 			// get inserting position
-			addr = sq_ptr_array_find_sorted(reentries, column_src->name,
-					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+			addr = sq_ptr_array_find_sorted(reentries,
+					column_src->name, sq_entry_cmp_str__name, &temp.index);
 			if (addr == NULL) {
 				// if there is a column that has the same name was erased/renamed
 				if (sq_relation_trace_reentry(table->relation, column_src->name)) {
@@ -485,8 +485,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 		if (table_src->bit_field & SQB_CHANGED) {
 			// === ALTER TABLE ===
 			// find table if table->name == table_src->name
-			addr = sq_ptr_array_find_sorted(reentries, table_src->name,
-					(SqCompareFunc) sq_entry_cmp_str__name, NULL);
+			addr = sq_ptr_array_find_sorted(reentries,
+					table_src->name, sq_entry_cmp_str__name, NULL);
 			if (addr) {
 				table = *(SqTable**)addr;
 				sq_table_include(table, table_src, schema);
@@ -507,8 +507,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 		else if (table_src->name == NULL) {
 			// === DROP TABLE ===
 			// erase original table if table->name == table_src->old_name
-			addr = sq_ptr_array_find_sorted(reentries, table_src->old_name,
-					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+			addr = sq_ptr_array_find_sorted(reentries,
+					table_src->old_name, sq_entry_cmp_str__name, &temp.index);
 			if (addr) {
 				table = *(SqTable**)addr;
 				// trace foreign or composite
@@ -542,8 +542,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 		else if (table_src->old_name) {
 			// === RENAME TABLE ===
 			// find existing if table->name == table_src->old_name
-			addr = sq_ptr_array_find_sorted(reentries, table_src->old_name,
-					(SqCompareFunc) sq_entry_cmp_str__name, NULL);
+			addr = sq_ptr_array_find_sorted(reentries,
+					table_src->old_name, sq_entry_cmp_str__name, NULL);
 			if (addr) {
 				// if there is a table that has the same name was erased/renamed
 				if (sq_relation_trace_reentry(schema->relation, table_src->name)) {
@@ -555,8 +555,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 				sq_relation_add(schema->relation, table_src, table, 0);
 				sq_relation_add(schema->relation, SQ_TYPE_REENTRY, table_src, 0);
 				// get new index after renaming
-				sq_ptr_array_find_sorted(reentries, table_src->name,
-						(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+				sq_ptr_array_find_sorted(reentries,
+						table_src->name, sq_entry_cmp_str__name, &temp.index);
 				// change table name
 				if (table->bit_field & SQB_TABLE_SQL_CREATED) {
 					// unsynced record (it doesn't yet synchronize to database)
@@ -589,8 +589,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 		else {
 			// === ADD TABLE ===
 			// get inserting position
-			addr = sq_ptr_array_find_sorted(reentries, table_src->name,
-					(SqCompareFunc) sq_entry_cmp_str__name, &temp.index);
+			addr = sq_ptr_array_find_sorted(reentries,
+					table_src->name, sq_entry_cmp_str__name, &temp.index);
 			if (addr == NULL) {
 				// if there is a table that has the same name was erased/renamed
 				if (sq_relation_trace_reentry(schema->relation, table_src->name)) {
@@ -698,7 +698,7 @@ int     sq_schema_trace_name(SqSchema *schema)
 			// --------------------------------------------
 			// find referenced table
 			table_fore = (SqTable*)sq_ptr_array_find_sorted(sq_type_get_ptr_array(schema->type),
-					column->foreign->table, (SqCompareFunc) sq_entry_cmp_str__name, NULL);
+					column->foreign->table, sq_entry_cmp_str__name, NULL);
 			if (table_fore)
 				table_fore = *(SqTable**)table_fore;
 			else {
