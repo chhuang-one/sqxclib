@@ -1,5 +1,6 @@
 # --- 'sqxc' sources and headers ---
 set(SOURCES
+    SqDefine.c
     SqArray.c
     SqPtrArray.c
     SqStrArray.c

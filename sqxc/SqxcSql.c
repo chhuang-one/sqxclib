@@ -51,19 +51,6 @@
 static void sqxc_sql_use_insert_command(SqxcSql *xcsql, const char *table_name);
 static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name);
 static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer);
-static int  sq_cmp_pointer(void *ptr1, void *ptr2) {
-#ifdef _MSC_VER
-	char *addr1 = *(char**)ptr1, *addr2 = *(char**)ptr2;
-
-	if (addr1 < addr2)
-		return -1;
-	if (addr1 > addr2)
-		return  1;
-	return 0;
-#else
-	return (*(char**)ptr1 - *(char**)ptr2);
-#endif
-}
 
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - destination of output chain
@@ -230,10 +217,10 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 		if (xcsql->columns.length > 0) {
 			if (xcsql->columns_sorted == false) {
 				xcsql->columns_sorted =  true;
-				sq_ptr_array_sort(&xcsql->columns, sq_cmp_pointer);
+				sq_ptr_array_sort(&xcsql->columns, sq_compare_ptr);
 			}
 			// skip unspecified columns
-			if (sq_ptr_array_search(&xcsql->columns, &entry, sq_cmp_pointer) == NULL)
+			if (sq_ptr_array_search(&xcsql->columns, &entry, sq_compare_ptr) == NULL)
 				return (src->code = SQCODE_OK);
 		}
 		// Don't output primary key

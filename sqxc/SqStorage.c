@@ -414,8 +414,8 @@ SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 		sq_ptr_array_sort(type_tables, sq_entry_cmp_type_name);
 	}
 	// search storage->tables by SqTable.type.name
-	table_addr = (SqTable**)sq_ptr_array_search(type_tables, type_name,
-	                                            sq_entry_cmp_str__type_name);
+	table_addr = (SqTable**)sq_ptr_array_search(type_tables,
+	                                type_name, sq_entry_cmp_str__type_name);
 	if (table_addr)
 		return *table_addr;
 	return NULL;
@@ -460,16 +460,18 @@ static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
 
 #if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
 
-// used by sqxc_sql_set_fields()
-static int  sq_entry_cmp_offset(SqEntry **entry1, SqEntry **entry2)
+// used by sqxc_sql_set_fields(). Its actual parameter type:
+//     int  sq_entry_cmp_offset(SqEntry   **entryAddr1, SqEntry   **entryAddr2);
+static int  sq_entry_cmp_offset(const void *entryAddr1, const void *entryAddr2)
 {
-	return (int)(*entry1)->offset - (int)(*entry2)->offset;
+	return (int)(*(SqEntry**)entryAddr1)->offset - (int)(*(SqEntry**)entryAddr2)->offset;
 }
 
-// used by sqxc_sql_set_fields()
-static int  sq_entry_cmp_size_t__offset(size_t offset, SqEntry **entry2)
+// used by sqxc_sql_set_fields(). Its actual parameter type:
+//     int  sq_entry_cmp_size_t__offset(size_t     *offset, SqEntry   **entryAddr)
+static int  sq_entry_cmp_size_t__offset(const void *offset, const void *entryAddr)
 {
-	return (int)offset - (int)(*entry2)->offset;
+	return (int)*(size_t*)offset - (int)(*(SqEntry**)entryAddr)->offset;
 }
 
 static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
@@ -495,7 +497,8 @@ static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
 		temp.offset = va_arg(arg_list, size_t);
 		if (temp.offset == -1)
 			break;
-		temp.column_addr = (SqColumn**)sq_ptr_array_search(&array, temp.offset, sq_entry_cmp_size_t__offset);
+		temp.column_addr = (SqColumn**)sq_ptr_array_search(&array,
+		                                       &temp.offset, sq_entry_cmp_size_t__offset);
 		if (temp.column_addr == NULL)
 			continue;
 		temp.column = *temp.column_addr;

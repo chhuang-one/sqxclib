@@ -83,8 +83,8 @@ SqCommand  *sq_console_find(SqConsole *console, const char* command_name)
 		console->commands_sorted =  true;
 		sq_ptr_array_sort(&console->commands, sq_command_cmp_name);
 	}
-	addr = sq_ptr_array_search(&console->commands, command_name,
-	                           sq_command_cmp_str__name);
+	addr = sq_ptr_array_search(&console->commands,
+	               command_name, sq_command_cmp_str__name);
 	if (addr)
 		return *(SqCommand**)addr;
 	return NULL;

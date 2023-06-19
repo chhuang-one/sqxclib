@@ -4,6 +4,7 @@ sqxc_shared_link_libs = []
 
 # --- 'sqxc' sources and headers ---
 sources = [
+    'SqDefine.c',
     'SqArray.c',
     'SqPtrArray.c',
     'SqStrArray.c',

@@ -38,6 +38,16 @@ typedef void  (*SqClearFunc)(void *value);
 typedef void  (*SqDestroyFunc)(void *value);
 typedef int   (*SqCompareFunc)(const void *a, const void *b);
 
+/* sq_compare_xxx() series C functions for SqCompareFunc */
+
+// This function is used by SqPairs. actual parameter type:
+//int sq_compare_str(const char **strAddr1, const char **strAddr2);
+int   sq_compare_str(const void  *strAddr1, const void  *strAddr2);
+
+// This function is used by SqxcSql. actual parameter type:
+//int sq_compare_ptr(const void **ptrAddr1, const void **ptrAddr2);
+int   sq_compare_ptr(const void  *ptrAddr1, const void  *ptrAddr2);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -76,42 +86,42 @@ namespace Sq {
 /* Sq::compare template function for SqCompareFunc */
 
 // actual parameter type:
-// int  compare(Type *a, Type *b);
+//     int  compare(Type *a, Type *b);
 template<typename Type>
 static int  compare(const void *a, const void *b);
 
 /* template specialization for Sq::compare */
 
 // actual parameter type:
-// int  compare<int>(int *a, int *b)
+//     int  compare<int>(int *a, int *b);
 template<>
 inline int  compare<int>(const void *a, const void *b) {
 	return *(int*)a - *(int*)b;
 }
 
 // actual parameter type:
-// int  compare<double>(double *a, double *b)
+//     int  compare<double>(double *a, double *b);
 template<>
 inline int  compare<double>(const void *a, const void *b) {
 	return (*(double*)a > *(double*)b) - (*(double*)a < *(double*)b);
 }
 
 // actual parameter type:
-// int  compare<float>(float *a, float *b)
+//     int  compare<float>(float *a, float *b);
 template<>
 inline int  compare<float>(const void *a, const void *b) {
 	return (*(float*)a > *(float*)b) - (*(float*)a < *(float*)b);
 }
 
 // actual parameter type:
-// int  compare<char*>(char **a, char **b)
+//     int  compare<char*>(char **a, char **b);
 template<>
 inline int  compare<char*>(const void *a, const void *b) {
 	return strcmp(*(char**)a, *(char**)b);
 }
 
 // actual parameter type:
-// int  compare<const char*>(const char **a, const char **b)
+//     int  compare<const char*>(const char **a, const char **b);
 template<>
 inline int  compare<const char*>(const void *a, const void *b) {
 	return strcmp(*(char**)a, *(char**)b);
@@ -119,7 +129,7 @@ inline int  compare<const char*>(const void *a, const void *b) {
 
 // default Sq::compare template function
 // actual parameter type:
-// int  compare(Type *a, Type *b) {
+//     int  compare(Type *a, Type *b);
 template<typename Type>
 inline int  compare(const void *a, const void *b) {
 	if (*(Type*)a < *(Type*)b) return -1;

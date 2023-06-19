@@ -151,11 +151,3 @@ void  sq_pairs_sort(SqPairs *pairs)
 	pairs->bit_field |= SQB_PAIRS_SORTED;
 }
 #endif  // SQ_PAIRS_CHECK_IF_KEY_EXIST
-
-// ----------------------------------------------------------------------------
-// SqPair SqCompareFunc
-
-int   sq_compare_str(const void *a, const void *b)
-{
-	return strcmp(*(char**)a, *(char**)b);
-}
