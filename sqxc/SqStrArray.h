@@ -40,10 +40,6 @@ extern "C" {
 // deprecated
 #define sq_str_array_destroy_func    sq_array_clear_func
 
-//void *sq_str_array_init(SqStrArray *array, int capacity);
-#define sq_str_array_init(array, capacity)    \
-		sq_ptr_array_init(array, capacity, free)
-
 //void *sq_str_array_final(SqStrArray *array);
 #define sq_str_array_final           sq_ptr_array_final
 
@@ -104,6 +100,8 @@ extern "C" {
 		     elementAddr++)
 
 /* C functions */
+void  *sq_str_array_init(SqStrArray *array, int capacity);
+
 void   sq_str_array_push_to(SqStrArray *array, int index, const char *str);
 char **sq_str_array_insert(SqStrArray *array, int index, const char **strs, int count);
 
@@ -243,8 +241,7 @@ typedef struct SqStrArray    SqStringArray;
 #define sq_string_array_destroy_func    sq_str_array_destroy_func
 
 //void  sq_string_array_init(void *array, int allocated_length, SqDestroyFunc destroy_func);
-#define sq_string_array_init(array, allocated_length, destroy_func)    \
-		sq_ptr_array_init_full(array, allocated_length, SQ_PTR_ARRAY_HEADER_LENGTH_DEFAULT, destroy_func)
+#define sq_string_array_init            sq_ptr_array_init
 
 //void *sq_string_array_final(void *array);
 #define sq_string_array_final           sq_ptr_array_final

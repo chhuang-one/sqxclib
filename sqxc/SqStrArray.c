@@ -18,6 +18,12 @@
 #define strdup       _strdup
 #endif
 
+void  *sq_str_array_init(SqStrArray *array, int capacity)
+{
+	// SqStrArray should use alloc() and free() series functions from the same library.
+	return sq_ptr_array_init(array, capacity, free);
+}
+
 void   sq_str_array_push_to(SqStrArray *array, int index, const char *str)
 {
 	sq_ptr_array_push_to(array, index, strdup(str));
