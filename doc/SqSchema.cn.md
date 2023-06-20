@@ -19,27 +19,26 @@ SqSchema 定义数据库架构。它存储表和表的更改记录。
 
 ```c
 	SqSchema *schema;
+	int       version = 2;
 
-	// 创建新架构并分配它的名称和版本号
+	// 创建新架构并自动分配其版本号。
 	schema = sq_schema_new("SchemaName");
-	schema->version = 1;
 
-	// 创建架构并仅分配它的版本号
-//	schema = sq_schema_new(NULL);
-//	schema->version = 1;
+	// 创建架构并指定其版本号。
+	schema = sq_schema_new_ver(version, "SchemaName");
 ```
 
 使用 C++ 语言
 
 ```c++
 	Sq::Schema *schema;
+	int         version = 2;
 
-	// 创建新架构并分配它的名称和版本号
+	// 创建新架构并自动分配其版本号。
 	schema = new Sq::Schema("SchemaName");
-	schema->version = 1;
 
-	// 创建架构并仅分配它的版本号
-//	schema = new Sq::Schema(1);
+	// 创建架构并指定其版本号。
+	schema = new Sq::Schema(version, "SchemaName");
 ```
 
 ## 2 创建表

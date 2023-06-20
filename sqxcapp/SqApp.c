@@ -94,8 +94,8 @@ int   sq_app_make_schema(SqApp *app, int cur)
 		migration = app->migrations[i];
 		if (migration == NULL)
 			continue;
-		sq_schema_init(schema, NULL);
-		schema->version = i;    // specify version number
+		// specify schema version number as 'i'
+		sq_schema_init_ver(schema, i, NULL);
 		migration->up(schema, app->storage);
 		code = sq_storage_migrate(app->storage, schema);
 		sq_schema_final(schema);
@@ -140,8 +140,8 @@ int   sq_app_migrate(SqApp *app, int step)
 		schema_changed = true;
 		if (migration == NULL)
 			continue;
-		sq_schema_init(schema, NULL);
-		schema->version = cur;    // specify version number
+		// specify schema version number as 'cur'
+		sq_schema_init_ver(schema, cur, NULL);
 		migration->up(schema, app->storage);
 		code = sq_storage_migrate(app->storage, schema);
 		sq_schema_final(schema);
@@ -187,8 +187,8 @@ int   sq_app_rollback(SqApp *app, int step)
 		schema_changed = true;
 		if (migration == NULL)
 			continue;
-		sq_schema_init(schema, NULL);
-		schema->version  = cur - 1;    // specify version number
+		// specify schema version number as 'cur' - 1
+		sq_schema_init_ver(schema, cur - 1, NULL);
 		migration->down(schema, app->storage);
 		app->db->version = cur - 2;
 		code = sq_storage_migrate(app->storage, schema);

@@ -27,13 +27,20 @@
 #define strdup       _strdup
 #endif
 
-#define SCHEMA_INITIAL_VERSION       0
+#define SCHEMA_INITIAL_VERSION       1
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
 #define SQ_TYPE_N_ENTRY_DEFAULT      SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 
 void  sq_schema_init(SqSchema *schema, const char *name)
 {
 	static int cur_version = SCHEMA_INITIAL_VERSION;
+
+	// generate version number by incrementing 'cur_version'
+	sq_schema_init_ver(schema, cur_version++, name);
+}
+
+void  sq_schema_init_ver(SqSchema *schema, int version, const char *name)
+{
 	SqType    *table_type;
 
 	table_type = sq_type_new(SQ_TYPE_N_ENTRY_DEFAULT, (SqDestroyFunc)sq_table_free);
@@ -42,8 +49,7 @@ void  sq_schema_init(SqSchema *schema, const char *name)
 
 	sq_entry_init((SqEntry*)schema, table_type);
 	schema->name = name ? strdup(name) : NULL;
-	// version count
-	schema->version = cur_version++;
+	schema->version = version;
 	// callback for derived Sqdb
 	schema->on_destory = NULL;
 	// for (SQLite) migration.
@@ -68,6 +74,15 @@ SqSchema *sq_schema_new(const char *name)
 
 	schema = malloc(sizeof(SqSchema));
 	sq_schema_init(schema, name);
+	return schema;
+}
+
+SqSchema *sq_schema_new_ver(int version, const char *name)
+{
+	SqSchema *schema;
+
+	schema = malloc(sizeof(SqSchema));
+	sq_schema_init_ver(schema, version, name);
 	return schema;
 }
 

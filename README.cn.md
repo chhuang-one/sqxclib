@@ -55,8 +55,7 @@ struct User {
 Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
 	/* 创建架构版本 1 */
-	schema_v1 = new Sq::Schema("Ver 1");
-	schema_v1->version = 1;    // 指定版本号或自动生成
+	schema_v1 = new Sq::Schema(1, "Ver 1");
 
 	// 创建表 "users"，然后将列添加到表中。
 	table = schema_v1->create<User>("users");
@@ -91,8 +90,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 ```c++
 	/* 创建架构版本 2 */
-	schema_v2 = new Sq::Schema("Ver 2");
-	schema_v2->version = 2;    // 指定版本号或自动生成
+	schema_v2 = new Sq::Schema(2, "Ver 2");
 
 	// 更改表 "users"
 	table = schema_v2->alter("users");
@@ -112,8 +110,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 ```c
 	/* 创建架构版本 1 */
-	schema_v1 = sq_schmea_new("Ver 1");
-	schema_v1->version = 1;    // 指定版本号或自动生成
+	schema_v1 = sq_schmea_new_ver(1, "Ver 1");
 
 	// 创建表 "users"
 	table = sq_schema_create(schema_v1, "users", User);
@@ -159,8 +156,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 ```c
 	/* 创建架构版本 2 */
-	schema_v2 = sq_schema_new("Ver 2");
-	schema_v2->version = 2;    // 指定版本号或自动生成
+	schema_v2 = sq_schema_new_ver(2, "Ver 2");
 
 	// 更改表 "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);

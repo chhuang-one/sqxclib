@@ -42,9 +42,11 @@ extern "C" {
 #endif
 
 SqSchema *sq_schema_new(const char *name);
+SqSchema *sq_schema_new_ver(int version, const char *name);
 void      sq_schema_free(SqSchema *schema);
 
 void    sq_schema_init(SqSchema *schema, const char *name);
+void    sq_schema_init_ver(SqSchema *schema, int version, const char *name);
 void    sq_schema_final(SqSchema *schema);
 
 /*	sq_schema_create_full()
@@ -259,9 +261,8 @@ struct Schema : SqSchema {
 	Schema(const char *name = NULL) {
 		sq_schema_init(this, name);
 	}
-	Schema(int version) {
-		sq_schema_init(this, NULL);
-		this->version = version;
+	Schema(int version, const char *name = NULL) {
+		sq_schema_init_ver(this, version, name);
 	}
 	~Schema() {
 		sq_schema_final(this);

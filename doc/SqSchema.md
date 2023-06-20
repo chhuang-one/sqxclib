@@ -19,27 +19,26 @@ use C language
 
 ```c
 	SqSchema *schema;
+	int       version = 2;
 
-	// Create new schema and assign it's name and version number.
+	// Create new schema and automatically assign it's version number.
 	schema = sq_schema_new("SchemaName");
-	schema->version = 1;
 
-	// Create schema and assign it's version number only.
-//	schema = sq_schema_new(NULL);
-//	schema->version = 1;
+	// Create schema and specify it's version number.
+	schema = sq_schema_new_ver(version, "SchemaName");
 ```
 
 use C++ language
 
 ```c++
 	Sq::Schema *schema;
+	int         version = 2;
 
-	// Create new schema and assign it's name and version number.
+	// Create new schema and automatically assign it's version number.
 	schema = new Sq::Schema("SchemaName");
-	schema->version = 1;
 
-	// Create schema and assign it's version number only.
-//	schema = new Sq::Schema(1);
+	// Create schema and specify it's version number.
+	schema = new Sq::Schema(version, "SchemaName");
 ```
 
 ## 2 Create table

@@ -55,8 +55,7 @@ use C++ methods to define table and column in schema_v1 (dynamic)
 Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
 	/* create schema version 1 */
-	schema_v1 = new Sq::Schema("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
+	schema_v1 = new Sq::Schema(1, "Ver 1");
 
 	// create table "users", then add columns to table.
 	table = schema_v1->create<User>("users");
@@ -91,8 +90,7 @@ use C++ methods to change table and column in schema_v2 (dynamic)
 
 ```c++
 	/* create schema version 2 */
-	schema_v2 = new Sq::Schema("Ver 2");
-	schema_v2->version = 2;    // specify version number or auto generate it
+	schema_v2 = new Sq::Schema(2, "Ver 2");
 
 	// alter table "users"
 	table = schema_v2->alter("users");
@@ -112,8 +110,7 @@ use C functions to define table and column in schema_v1 (dynamic)
 
 ```c
 	/* create schema version 1 */
-	schema_v1 = sq_schmea_new("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
+	schema_v1 = sq_schmea_new_ver(1, "Ver 1");
 
 	// create table "users"
 	table = sq_schema_create(schema_v1, "users", User);
@@ -159,8 +156,7 @@ use C functions to change table and column in schema_v2 (dynamic)
 
 ```c
 	/* create schema version 2 */
-	schema_v2 = sq_schema_new("Ver 2");
-	schema_v2->version = 2;    // specify version number or auto generate it
+	schema_v2 = sq_schema_new_ver(2, "Ver 2");
 
 	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
