@@ -381,13 +381,13 @@ extern  const  SqType      SqType_Array_;
 extern  const  SqType      SqType_IntArray_;
 extern  const  SqType      SqType_PtrArray_;
 extern  const  SqType      SqType_StrArray_;
-extern  const  SqType      SqType_IntptrArray_;    // deprecated
+// deprecated
+extern  const  SqType      SqType_IntptrArray_;
 
 enum {
 	SQ_TYPE_BOOL_INDEX,
 	SQ_TYPE_INT_INDEX,
 	SQ_TYPE_UINT_INDEX,
-	SQ_TYPE_INTPTR_INDEX,    // deprecated
 	SQ_TYPE_INT64_INDEX,
 	SQ_TYPE_UINT64_INDEX,
 	SQ_TYPE_TIME_INDEX,
@@ -395,12 +395,13 @@ enum {
 	SQ_TYPE_STR_INDEX,
 	SQ_TYPE_STRING_INDEX = SQ_TYPE_STR_INDEX,    // alias of SQ_TYPE_STR_INDEX
 	SQ_TYPE_CHAR_INDEX,
+	// deprecated
+	SQ_TYPE_INTPTR_INDEX,
 };
 
 #define SQ_TYPE_BOOL       (&SqType_BuiltIn_[SQ_TYPE_BOOL_INDEX])
 #define SQ_TYPE_INT        (&SqType_BuiltIn_[SQ_TYPE_INT_INDEX])
 #define SQ_TYPE_UINT       (&SqType_BuiltIn_[SQ_TYPE_UINT_INDEX])
-#define SQ_TYPE_INTPTR     (&SqType_BuiltIn_[SQ_TYPE_INTPTR_INDEX])    // deprecated
 #define SQ_TYPE_INT64      (&SqType_BuiltIn_[SQ_TYPE_INT64_INDEX])
 #define SQ_TYPE_UINT64     (&SqType_BuiltIn_[SQ_TYPE_UINT64_INDEX])
 #define SQ_TYPE_TIME       (&SqType_BuiltIn_[SQ_TYPE_TIME_INDEX])
@@ -409,6 +410,8 @@ enum {
 #define SQ_TYPE_STRING     SQ_TYPE_STR           // alias of SQ_TYPE_STR
 // ---- SQ_TYPE for SQL ----
 #define SQ_TYPE_CHAR       (&SqType_BuiltIn_[SQ_TYPE_CHAR_INDEX])
+// --- deprecated ---
+#define SQ_TYPE_INTPTR     (&SqType_BuiltIn_[SQ_TYPE_INTPTR_INDEX])
 /* update below definition if you insert type in SqType_BuiltIn_[] */
 
 // std::is_integral<Type>::value == true

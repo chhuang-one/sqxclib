@@ -47,7 +47,6 @@ Built-in SqType with it's data type
 | SQ_TYPE_BOOL    | bool         | BOOLEAN           |
 | SQ_TYPE_INT     | int          | INT               |
 | SQ_TYPE_UINT    | unsigned int | INT (UNSIGNED)    |
-| SQ_TYPE_INTPTR  | intptr_t     | INT               |
 | SQ_TYPE_INT64   | int64_t      | BIGINT            |
 | SQ_TYPE_UINT64  | uint64_t     | BIGINT (UNSIGNED) |
 | SQ_TYPE_TIME    | time_t       | TIMESTAMP         |

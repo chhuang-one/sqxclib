@@ -584,14 +584,6 @@ const SqType SqType_BuiltIn_[] = {
 		sq_type_uint_parse,
 		sq_type_uint_write,
 	},
-	// SQ_TYPE_INTPTR
-	{
-		sizeof(intptr_t),
-		NULL,
-		NULL,
-		sq_type_intptr_parse,
-		sq_type_intptr_write,
-	},
 	// SQ_TYPE_INT64
 	{
 		sizeof(int64_t),
@@ -639,5 +631,14 @@ const SqType SqType_BuiltIn_[] = {
 		sq_type_str_final,
 		sq_type_str_parse,
 		sq_type_str_write,
+	},
+	// deprecated
+	// SQ_TYPE_INTPTR
+	{
+		sizeof(intptr_t),
+		NULL,
+		NULL,
+		sq_type_intptr_parse,
+		sq_type_intptr_write,
 	},
 };
