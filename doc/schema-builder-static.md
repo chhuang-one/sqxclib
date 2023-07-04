@@ -69,9 +69,8 @@ static const SqColumn  userColumns[8] = {
 		.composite = (char *[]) {"id", NULL} },
 };
 
-	/* create schema version 1 */
-	schema_v1 = sq_schema_new("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
+	/* create schema and specify version number as 1 */
+	schema_v1 = sq_schema_new_ver(1, "Ver 1");
 
 	// create table "users"
 	table = sq_schema_create(schema_v1, "users", User);
@@ -101,9 +100,8 @@ static const SqColumn  userColumnsChanged[5] = {
 	{.old_name = "email",     .name = "email2"},
 };
 
-	/* create schema version 2 */
-	schema_v2 = sq_schema_new("Ver 2");
-	schema_v2->version = 2;    // specify version number or auto generate it
+	/* create schema and specify version number as 2 */
+	schema_v2 = sq_schema_new_ver(2, "Ver 2");
 
 	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
@@ -177,9 +175,8 @@ static const SqColumn  userColumns[8] = {
 	{&SqTypeIntVector,  "intsCpp", offsetof(User, intsCpp)    },
 };
 
-	/* create schema version 1 */
-	schema_v1 = new Sq::Schema("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
+	/* create schema and specify version number as 1 */
+	schema_v1 = new Sq::Schema(1, "Ver 1");
 
 	// create table "users"
 	table = schema_v1->create<User>("users");

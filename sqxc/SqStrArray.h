@@ -227,6 +227,7 @@ struct StrArray : SqStrArray
 #endif  // __cplusplus
 
 
+// deprecated
 // ============================================================================
 // SqStringArray is defined for compatibility with older versions
 
@@ -278,6 +279,7 @@ typedef struct SqStrArray    SqStringArray;
 
 #ifdef __cplusplus
 namespace Sq {
+// deprecated
 typedef struct StrArray    StringArray;
 };
 #endif  // __cplusplus

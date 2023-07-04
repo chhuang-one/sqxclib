@@ -30,8 +30,8 @@ struct User {
 #include <sqxclib.h>
 #include <SqSchema-macro.h>    // sqxclib.h 不包含特殊宏
 
-	schema_v1 = sq_schmea_new("Ver 1");
-	schema_v1->version = 1;    // 指定版本号或自动生成
+	// 创建架构并指定版本号为 1
+	schema_v1 = sq_schema_new_ver(1, "Ver 1");
 
 	// 创建表 "users"
 	SQ_SCHEMA_CREATE(schema_v1, "users", User, {
@@ -64,8 +64,8 @@ struct User {
 宏 SQ_SCHEMA_ALTER() 可以改变表。宏中的最后一个参数类似于 lambda 函数。
 
 ```c
-	schema_v2 = sq_schema_new("Ver 2");
-	schema_v2->version = 2;    // 指定版本号或自动生成
+	// 创建架构并指定版本号为 2
+	schema_v2 = sq_schema_new_ver(2, "Ver 2");
 
 	// 更改表 "users"
 	SQ_SCHEMA_ALTER(schema_v2, "users", User, {

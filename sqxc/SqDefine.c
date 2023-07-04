@@ -14,14 +14,14 @@
 
 #include <SqDefine.h>
 
-// This function is used by SqPairs. actual parameter type:
+// This function is used by SqPairs. Its actual parameter type:
 //int sq_compare_str(const char **strAddr1, const char **strAddr2);
 int   sq_compare_str(const void  *strAddr1, const void  *strAddr2)
 {
 	return strcmp(*(char**)strAddr1, *(char**)strAddr2);
 }
 
-// This function is used by SqxcSql. actual parameter type:
+// This function is used by SqxcSql. Its actual parameter type:
 //int sq_compare_ptr(const void **ptrAddr1, const void **ptrAddr2);
 int   sq_compare_ptr(const void  *ptrAddr1, const void  *ptrAddr2)
 {

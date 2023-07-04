@@ -69,9 +69,8 @@ static const SqColumn  userColumns[8] = {
 		.composite = (char *[]) {"id", NULL} },
 };
 
-	/* 创建架构版本 1 */
-	schema_v1 = sq_schema_new("Ver 1");
-	schema_v1->version = 1;    // 指定版本号或自动生成
+	/* 创建架构并指定版本号为 1 */
+	schema_v1 = sq_schema_new_ver(1, "Ver 1");
 
 	// 创建表 "users"
 	table = sq_schema_create(schema_v1, "users", User);
@@ -101,9 +100,8 @@ static const SqColumn  userColumnsChanged[5] = {
 	{.old_name = "email",     .name = "email2"},
 };
 
-	/* 创建架构版本 2 */
-	schema_v2 = sq_schema_new("Ver 2");
-	schema_v2->version = 2;    // 指定版本号或自动生成
+	/* 创建架构并指定版本号为 2 */
+	schema_v2 = sq_schema_new_ver(2, "Ver 2");
 
 	// 更改表 "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
@@ -178,9 +176,8 @@ static const SqColumn  userColumns[8] = {
 	{&SqTypeIntVector,  "intsCpp", offsetof(User, intsCpp)    },
 };
 
-	/* 创建架构版本 1 */
-	schema_v1 = new Sq::Schema("Ver 1");
-	schema_v1->version = 1;    // 指定版本号或自动生成
+	/* 创建架构并指定版本号为 1 */
+	schema_v1 = new Sq::Schema(1, "Ver 1");
 
 	// 创建表 "users"
 	table = schema_v1->create<User>("users");

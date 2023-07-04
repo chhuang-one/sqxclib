@@ -54,7 +54,7 @@ struct User {
 /* 为 C++ STL 定义全局类型 */
 Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
 
-	/* 创建架构版本 1 */
+	/* 创建架构并指定版本号为 1 */
 	schema_v1 = new Sq::Schema(1, "Ver 1");
 
 	// 创建表 "users"，然后将列添加到表中。
@@ -89,7 +89,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C++ 方法更改 schema_v2 中的表和列 （动态）
 
 ```c++
-	/* 创建架构版本 2 */
+	/* 创建架构并指定版本号为 2 */
 	schema_v2 = new Sq::Schema(2, "Ver 2");
 
 	// 更改表 "users"
@@ -109,8 +109,8 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C 函数在 schema_v1 中定义表和列 （动态）
 
 ```c
-	/* 创建架构版本 1 */
-	schema_v1 = sq_schmea_new_ver(1, "Ver 1");
+	/* 创建架构并指定版本号为 1 */
+	schema_v1 = sq_schema_new_ver(1, "Ver 1");
 
 	// 创建表 "users"
 	table = sq_schema_create(schema_v1, "users", User);
@@ -155,7 +155,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C 函数更改 schema_v2 中的表和列 （动态）
 
 ```c
-	/* 创建架构版本 2 */
+	/* 创建架构并指定版本号为 2 */
 	schema_v2 = sq_schema_new_ver(2, "Ver 2");
 
 	// 更改表 "users"

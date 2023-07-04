@@ -30,8 +30,8 @@ macro SQC_XXXX() is used to set column properties.
 #include <sqxclib.h>
 #include <SqSchema-macro.h>    // sqxclib.h doesn't contain special macros
 
-	schema_v1 = sq_schmea_new("Ver 1");
-	schema_v1->version = 1;    // specify version number or auto generate it
+	// create schema and specify version number as 1
+	schema_v1 = sq_schema_new_ver(1, "Ver 1");
 
 	// create table "users"
 	SQ_SCHEMA_CREATE(schema_v1, "users", User, {
@@ -64,8 +64,8 @@ use C macro to change table and column in schema_v2 (dynamic)
 macro SQ_SCHEMA_ALTER() can alter table. The last parameter in macro is like lambda function.
 
 ```c
-	schema_v2 = sq_schema_new("Ver 2");
-	schema_v2->version = 2;    // specify version number or auto generate it
+	// create schema and specify version number as 2
+	schema_v2 = sq_schema_new_ver(2, "Ver 2");
 
 	// alter table "users"
 	SQ_SCHEMA_ALTER(schema_v2, "users", User, {
