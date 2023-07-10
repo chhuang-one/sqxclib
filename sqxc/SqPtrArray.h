@@ -374,15 +374,17 @@ inline void  PtrArrayMethod<Type>::remove(Type *addr, int count) {
 
 template<class Type>
 inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type  element)> func) {
-	sq_ptr_array_foreach(this, element) {
-		func((Type)element);
-	}
+	void **beg = ((SqPtrArray*)this)->data;
+	void **end = beg + ((SqPtrArray*)this)->length;
+	for (void **cur = beg;  cur < end;  cur++)
+		func((Type)*cur);
 }
 template<class Type>
 inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type *address)> func) {
-	sq_ptr_array_foreach_addr(this, address) {
-		func((Type*)address);
-	}
+	void **beg = ((SqPtrArray*)this)->data;
+	void **end = beg + ((SqPtrArray*)this)->length;
+	for (void **cur = beg;  cur < end;  cur++)
+		func((Type*)cur);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */

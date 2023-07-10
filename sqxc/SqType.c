@@ -49,7 +49,7 @@ void  sq_type_free(SqType *type)
 SqType  *sq_type_copy_static(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func)
 {
 //	if (static_type_src->bit_field & SQB_TYPE_DYNAMIC)
-//		entry_free_func = sq_ptr_array_destroy_func(sq_type_get_ptr_array(static_type_src));
+//		entry_free_func = sq_ptr_array_clear_func(sq_type_get_ptr_array(static_type_src));
 	if (type_dest == NULL)
 		type_dest = malloc(sizeof(SqType));
 	memcpy(type_dest, static_type_src, sizeof(SqType));
@@ -100,7 +100,10 @@ void  sq_type_final_self(SqType *type)
 void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
 {
 	SqTypeFunc  init = type->init;
-	SqPtrArray *array;
+	union {
+		SqPtrArray *array;
+		void      **cur;
+	} temp;
 
 	// This instance pointer to pointer
 	if (is_pointer) {
@@ -114,9 +117,11 @@ void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
 		init(instance, type);
 	// initialize SqEntry in SqType.entry if no init() function
 	else if (type->entry) {
-		array = sq_type_get_ptr_array(type);
-		sq_ptr_array_foreach_addr(array, element_addr) {
-			SqEntry *entry = *element_addr;
+		temp.array = sq_type_get_ptr_array(type);
+		void **beg = sq_ptr_array_begin(temp.array);
+		void **end = sq_ptr_array_end(temp.array);
+		for (temp.cur = beg;  temp.cur < end;  temp.cur++) {
+			SqEntry *entry = *temp.cur;
 			type = entry->type;
 			if (SQ_TYPE_NOT_BUILTIN(type)) {
 				sq_type_init_instance(type,
@@ -131,7 +136,10 @@ void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
 void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 {
 	SqTypeFunc  final = type->final;
-	SqPtrArray *array;
+	union {
+		SqPtrArray *array;
+		void      **cur;
+	} temp;
 
 	// This instance pointer to pointer
 	if (is_pointer) {
@@ -145,9 +153,11 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 		final(instance, type);
 	// finalize SqEntry in SqType.entry if no final() function
 	else if (type->entry) {
-		array = sq_type_get_ptr_array(type);
-		sq_ptr_array_foreach_addr(array, element_addr) {
-			SqEntry *entry = *element_addr;
+		temp.array = sq_type_get_ptr_array(type);
+		void **beg = sq_ptr_array_begin(temp.array);
+		void **end = sq_ptr_array_end(temp.array);
+		for (temp.cur = beg;  temp.cur < end;  temp.cur++) {
+			SqEntry *entry = *temp.cur;
 			type = entry->type;
 			if (SQ_TYPE_NOT_ARITHMETIC(type)) {
 				sq_type_final_instance(type,
@@ -249,8 +259,11 @@ void  sq_type_sort_entry(SqType *type)
 
 unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool entry_removed)
 {
-	SqPtrArray   *array;
 	unsigned int  size;
+	union {
+		SqPtrArray *array;
+		void      **cur;
+	} temp;
 
 	if (type->bit_field & SQB_TYPE_DYNAMIC) {
 		if (inner_entry) {
@@ -280,9 +293,11 @@ unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool
 		type->size = 0;
 		if (type->entry == NULL)
 			return 0;
-		array = sq_type_get_ptr_array(type);
-		sq_ptr_array_foreach_addr(array, element_addr) {
-			SqEntry *inner = *element_addr;
+		temp.array = sq_type_get_ptr_array(type);
+		void **beg = sq_ptr_array_begin(temp.array);
+		void **end = sq_ptr_array_end(temp.array);
+		for (temp.cur = beg;  temp.cur < end;  temp.cur++) {
+			SqEntry *inner = *temp.cur;
 			if (inner->type == NULL)
 				continue;
 			else if (inner->bit_field & SQB_POINTER)
