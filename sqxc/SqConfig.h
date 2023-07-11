@@ -100,15 +100,6 @@
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
-/* Enable it to allow use printf format string in first argument of query condition.
-   If name of column has % character, It handle as printf format string.
-   Disable it if you don't use these and want to reduce binary size.
-
-   *** This will disable and remove in future version. ***
-   Affected source : SqQuery
- */
-#define SQ_CONFIG_QUERY_USE_OLD_CONDITION          0
-
 // ----------------------------------------------------------------------------
 // Default length (size)
 
@@ -136,8 +127,5 @@
 /* SqSchema-relation.c */
 #define SQ_CONFIG_SCHEMA_RELATION_POOL_SIZE      128    // 64
 #define SQ_CONFIG_SCHEMA_RELATION_SIZE            16    //  8
-
-// deprecated
-#define SQ_CONFIG_TYPE_PTR_ARRAY_SIZE_DEFAULT     SQ_CONFIG_TYPE_ARRAY_SIZE_DEFAULT
 
 #endif  // SQ_CONFIG_H

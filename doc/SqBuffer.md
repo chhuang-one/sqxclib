@@ -6,7 +6,7 @@ SqBuffer provides an expandable buffer.
 
 ## Initialize
 
-SqBuffer is small and simple. It can be used directly in the stack memory and reset all members as 0 to initialize.
+SqBuffer is small, simple, and can be used directly in the stack memory. It reset all members as 0 to initialize.
 
 ```c
 	SqBuffer  buf = {0};

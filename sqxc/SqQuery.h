@@ -236,7 +236,7 @@ void           sq_query_pop_nested(SqQuery *query);
 #define sq_query_begin_sub    sq_query_push_nested
 
 // alias of sq_query_pop_nested()
-// void           sq_query_end_sub(SqQuery *query);
+// void sq_query_end_sub(SqQuery *query);
 #define sq_query_end_sub      sq_query_pop_nested
 
 // append raw SQL statement in current subquery/brackets

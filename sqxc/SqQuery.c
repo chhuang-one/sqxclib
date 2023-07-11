@@ -30,7 +30,6 @@
 #define strcasecmp   _stricmp
 #endif
 
-#define SQ_QUERY_USE_OLD_CONDITION    SQ_CONFIG_QUERY_USE_OLD_CONDITION
 #define SQ_QUERY_STR_SIZE_DEFAULT     256
 
 static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *parent, va_list arg_list);
@@ -833,131 +832,6 @@ static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, 
 	return column_node;
 }
 
-#if SQ_QUERY_USE_OLD_CONDITION
-
-static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsigned int logi_args, va_list arg_list)
-{
-	va_list   arg_copy;
-	char     *args[3];
-	union {
-		int       length;
-		char     *dest;
-	} mem;
-	union {
-		int       length;
-		int       index;
-		char     *cur;
-	} temp;
-
-	// handle C++  special case: get number of arguments in arg_list
-	logi_args = SQ_QUERYARGS_N_GET(logi_args);
-
-	// ====== args[0] is 1st argument in arg_list ======
-	args[0] = va_arg(arg_list, char*);
-	// It use subquery if 1st argument is NULL.
-	if (args[0] == NULL) {
-		sq_query_push_nested(query, node);
-		return NULL;
-	}
-	// create node for condition
-	node = sq_query_node_new(query);
-	node->type = SQN_VALUE;
-	// search % sign if args[0] is printf format string
-	for (temp.cur = args[0];  *temp.cur;  temp.cur++) {
-		if (*temp.cur == '%') {
-			if (temp.cur[1] == '%')    // escape % sign
-				temp.cur++;
-			else {
-				fprintf(stderr, "sq_query_condition(): use raw() series functions if you use printf format string in 1st argument of condition.\n");
-				break;
-			}
-		}
-	}
-	// if argv[0] is printf format string
-	if (*temp.cur == '%') {
-		va_copy(arg_copy, arg_list);
-#ifdef _MSC_VER		// for MS C only
-		mem.length = _vscprintf(args[0], arg_copy) + 1;
-#else				// for C99 standard
-		mem.length = vsnprintf(NULL, 0, args[0], arg_copy) + 1;
-#endif
-		va_end(arg_copy);
-		node->value = malloc(mem.length);
-		vsnprintf(node->value, mem.length, args[0], arg_list);
-		return node;
-	}
-	mem.length = (int)(temp.cur - args[0]) + 1;    // + ' '
-	// ====== args[1] is 2nd argument in arg_list ======
-	args[1] = va_arg(arg_list, char*);
-	if (args[1]) {
-		// search operators if args[1] is not printf format string
-		temp.cur = strpbrk(args[1], "!=<>");
-		// search operator 'LIKE'
-		if (temp.cur == NULL && strcasecmp(args[1], "LIKE") == 0)
-			temp.cur = args[1];
-	}
-	// if args[1] is NULL, value string, or printf format string
-	if (args[1] == NULL || temp.cur == NULL) {
-#ifndef NDEBUG
-		if (args[1] && strchr(args[1], '%') == NULL && logi_args > 2)
-			fprintf(stderr, "sq_query_condition(): Please pass printf format string before passing value of condition.\n");
-#endif
-		args[2] = args[1];    // move 2nd argument to 3rd argument
-		args[1] = "=";        // set  2nd argument to equal operator
-		mem.length += 2;      // + '=' + ' '
-	}
-	// ====== args[2] is 3rd argument in arg_list ======
-	else {
-		args[2] = va_arg(arg_list, char*);
-		// count length of 2nd argument in arg_list if '%' sign not found
-		mem.length += (int)strlen(args[1]) + 1;    // + ' '
-	}
-
-	// It is printf format string if 3rd argument in arg_list is not NULL.
-	if (args[2]) {
-		// handle C++  special case: 2nd or 3rd argument in arg_list is raw string
-		// 2 arguments special case: "column", "valueStr"         or   "column", "strHas%sign"
-		// 3 arguments special case: "column", ">", "valueStr"    or   "column", ">", "strHas%sign"
-		if (logi_args == 2 || (logi_args == 3 && temp.cur)) {
-			temp.length = (int)strlen(args[2]) +1;
-			node->value = malloc(mem.length + temp.length);
-			strncpy(node->value + mem.length, args[2], temp.length);
-		}
-		else {
-#ifndef NDEBUG
-			if (strchr(args[2], '%') == NULL)
-				fprintf(stderr, "sq_query_condition(): Please pass printf format string before passing value of condition.\n");
-#endif
-			va_copy(arg_copy, arg_list);
-#ifdef _MSC_VER		// for MS C only
-			temp.length = _vscprintf(args[2], arg_copy) +1;
-#else				// for C99 standard
-			temp.length = vsnprintf(NULL, 0, args[2], arg_copy) +1;
-#endif
-			va_end(arg_copy);
-			node->value = malloc(mem.length + temp.length);
-			vsnprintf(node->value + mem.length, temp.length, args[2], arg_list);
-		}
-	}
-	// It is subquery if 3rd argument in arg_list is NULL.
-	else {
-		node->value = malloc(mem.length);
-		sq_query_push_nested(query, node);
-	}
-
-	mem.dest = node->value;
-	for (temp.index = 0;  temp.index < 2;  temp.index++) {
-		while (*args[temp.index])
-			*mem.dest++ = *args[temp.index]++;
-		*mem.dest++ = ' ';
-	}
-	if (args[2] == NULL)    // Null-terminated
-		*(mem.dest-1) = 0;
-	return node;
-}
-
-#else
-
 static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsigned int logi_args, va_list arg_list)
 {
 	va_list   arg_copy;
@@ -1046,7 +920,6 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 		*(mem.dest-1) = 0;
 	return node;
 }
-#endif  // SQ_QUERY_USE_OLD_CONDITION
 
 // ------------------------------------
 // sq_query_to_sql()

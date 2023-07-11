@@ -22,9 +22,6 @@
 
 typedef struct SqType         SqTypeJoint;
 
-// if derived struct support unknown type @deprecated
-#define SQB_TYPE_JOINT_SUPPORT_UNKNOWN_TYPE    SQB_TYPE_PARSE_UNKNOWN
-
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
@@ -161,9 +158,8 @@ struct TypeJoint : SqTypeJoint, TypeJointMethod {
 
 // This is for directly use only. You can NOT derived it.
 template <unsigned int n_tables>
-union Joint {
+struct Joint {
 	void *data[n_tables];
-	void *t[n_tables];       // 't' deprecated
 
 	// operator
 	void *&operator[](int index) {
@@ -186,7 +182,7 @@ union Joint {
 #ifdef __cplusplus
 #define SQ_JOINT(n_tables)    Sq::Joint<n_tables>
 #else
-#define SQ_JOINT(n_tables)    union { void *data[n_tables];  void *t[n_tables]; /* 't' deprecated */ }
+#define SQ_JOINT(n_tables)    struct { void *data[n_tables]; }
 #endif
 
 

@@ -18,7 +18,7 @@ SQ_TYPE_ARRAY is a built-in static constant type that can create SqArray instanc
 
 ## Data members
 
-SqArray is small and simple. It can be used directly in the stack memory. It appears to have only 2 members, but in fact the other members are hidden in front of the array.  
+SqArray is small, simple, and can be used directly in the stack memory. It appears to have only 2 members, but in fact the other members are hidden in front of the array.  
   
 SqArray Structure Definition:
 

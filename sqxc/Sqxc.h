@@ -87,7 +87,7 @@ typedef enum {
 	SQXC_TYPE_ARITHMETIC = 0xFF,
 
 	SQXC_TYPE_STR      = (1 << 8),    // 0x0100
-	SQXC_TYPE_STRING   = (1 << 8),    // 0x0100
+	SQXC_TYPE_STRING   = (1 << 8),    // 0x0100    // alias of SQXC_TYPE_STR
 
 	SQXC_TYPE_OBJECT   = (1 << 9),    // 0x0200
 	SQXC_TYPE_ARRAY    = (1 << 10),   // 0x0400    // array or other storage structure

@@ -18,7 +18,7 @@ SQ_TYPE_ARRAY 是内置的静态常量类型，可以创建 SqArray 实例。
 
 ## 数据成员
 
-SqArray 小而简单。可以直接在栈内存中使用。它看起来只有 2 个成员，但实际上其他成员都隐藏在数组的前面。  
+SqArray 小而简单并可以直接在栈内存中使用。它看起来只有 2 个成员，但实际上其他成员都隐藏在数组的前面。  
   
 SqArray 结构定义：
 
@@ -214,7 +214,7 @@ steal() 从数组中删除元素。
 	// 按索引删除元素
 	array->steal(index, n_elements);
 
-	// 按地址删除元素 (您必须在此处指定 ElementType)
+	// 按地址删除元素
 	// 警告：请确认元素的地址在当前数组中。
 	ElementType *element;
 	array->steal(element, n_elements);

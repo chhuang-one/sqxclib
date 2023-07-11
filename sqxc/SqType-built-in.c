@@ -161,46 +161,6 @@ Sqxc *sq_type_uint_write(void *instance, const SqType *entrytype, Sqxc *dest)
 }
 
 // ------------------------------------
-// SqType *SQ_TYPE_INTPTR functions
-
-int  sq_type_intptr_parse(void *instance, const SqType *entrytype, Sqxc *src)
-{
-	switch (src->type) {
-	case SQXC_TYPE_NULL:
-	case SQXC_TYPE_INT:
-		*(intptr_t*)instance = src->value.integer;
-		break;
-
-	case SQXC_TYPE_BOOL:
-		*(intptr_t*)instance = src->value.boolean;
-		break;
-
-	case SQXC_TYPE_STR:
-		if (src->value.str)
-			*(intptr_t*)instance = strtol(src->value.str, NULL, 10);
-		else
-			*(intptr_t*)instance = 0;
-		break;
-
-	default:
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
-		src->required_type = SQXC_TYPE_INT;
-		*/
-		return (src->code = SQCODE_TYPE_NOT_MATCH);
-	}
-
-	return (src->code = SQCODE_OK);
-}
-
-Sqxc *sq_type_intptr_write(void *instance, const SqType *entrytype, Sqxc *dest)
-{
-	dest->type = SQXC_TYPE_INT;
-//	dest->name = dest->name;    // "name" was set by caller of this function
-	dest->value.integer = (int) *(intptr_t*)instance;
-	return sqxc_send(dest);
-}
-
-// ------------------------------------
 // SqType *SQ_TYPE_INT64 functions
 
 int  sq_type_int64_parse(void *instance, const SqType *entrytype, Sqxc *src)
@@ -631,14 +591,5 @@ const SqType SqType_BuiltIn_[] = {
 		sq_type_str_final,
 		sq_type_str_parse,
 		sq_type_str_write,
-	},
-	// deprecated
-	// SQ_TYPE_INTPTR
-	{
-		sizeof(intptr_t),
-		NULL,
-		NULL,
-		sq_type_intptr_parse,
-		sq_type_intptr_write,
 	},
 };

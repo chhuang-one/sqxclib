@@ -554,7 +554,6 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 
 	case SQ_TYPE_INT_INDEX:
 	case SQ_TYPE_UINT_INDEX:
-	case SQ_TYPE_INTPTR_INDEX:
 		if (db->info->product == SQDB_PRODUCT_SQLITE && column->bit_field & SQB_COLUMN_PRIMARY)
 			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
 		else if (db->info->product == SQDB_PRODUCT_POSTGRE && column->bit_field & SQB_COLUMN_AUTOINCREMENT)
@@ -567,7 +566,7 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 				len = snprintf(NULL, 0, "(%d)", size);
 				sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
 			}
-			if (column->type == SQ_TYPE_UINT)  // || column->type == SQ_TYPE_UINTPTR
+			if (column->type == SQ_TYPE_UINT)
 				sq_buffer_write(buffer, " UNSIGNED");
 		}
 		break;

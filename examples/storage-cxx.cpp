@@ -224,8 +224,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	Sq::Table    *table;
 
 	// --- schema version 1 ---
-	schemaVer1 = new Sq::Schema("Ver1");
-	schemaVer1->version = 1;
+	schemaVer1 = new Sq::Schema(1, "Ver1");
 	table = schemaVer1->create<Company>("companies");
 	table->integer("id", &Company::id)->primary()->autoIncrement();
 	table->string("name", &Company::name)->nullable();
@@ -240,8 +239,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 #endif
 
 	// --- schema version 2 ---
-	schemaVer2 = new Sq::Schema("Ver2");
-	schemaVer2->version = 2;
+	schemaVer2 = new Sq::Schema(2, "Ver2");
 	table = schemaVer2->create<User>("users");
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
@@ -267,8 +265,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->addIndex("users_id_index", "id");
 
 	// --- schema version 3 ---
-	schemaVer3 = new Sq::Schema("Ver3");
-	schemaVer3->version = 3;
+	schemaVer3 = new Sq::Schema(3, "Ver3");
 	// ALTER TABLE users
 	table = schemaVer3->alter("users");
 	table->string("name", &User::name, 256)->nullable()->change();
@@ -276,15 +273,13 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->dropForeign("users_companies_id_foreign");
 
 	// --- schema version 4 ---
-	schemaVer4 = new Sq::Schema("Ver4");
-	schemaVer4->version = 4;
+	schemaVer4 = new Sq::Schema(4, "Ver4");
 	// ALTER TABLE users ADD COLUMN test_add
 	table = schemaVer4->alter("users");
 	table->renameColumn("test_add", "test_add2");
 
 	// --- schema version 5 ---
-	schemaVer5 = new Sq::Schema("Ver5");
-	schemaVer5->version = 5;
+	schemaVer5 = new Sq::Schema(5, "Ver5");
 	// ALTER TABLE companies ADD COLUMN
 	table = schemaVer5->alter("companies");
 	table->timestamp("created_at", &Company::created_at)->useCurrent();
@@ -441,8 +436,8 @@ int  intArray4[] = {10, 12, 14, 16};
 
 void check_standard_layout()
 {
-	std::cout << "Sq::IntptrArray is standard layout = "
-	          << std::is_standard_layout<Sq::IntptrArray>::value << std::endl;
+	std::cout << "Sq::IntArray is standard layout = "
+	          << std::is_standard_layout<Sq::IntArray>::value << std::endl;
 	std::cout << "Sq::StrArray is standard layout = "
 	          << std::is_standard_layout<Sq::StrArray>::value << std::endl;
 	std::cout << "Sq::TypeStl<std::vector<int>> is standard layout = "

@@ -249,7 +249,7 @@ const SqType SqType_PtrArray_ =
 };
 
 /* ----------------------------------------------------------------------------
-	SQ_TYPE_STR_ARRAY and SQ_TYPE_INTPTR_ARRAY
+	SQ_TYPE_STR_ARRAY
  */
 
 static void sq_type_str_array_init(void *array, const SqType *type)
@@ -267,20 +267,6 @@ const SqType SqType_StrArray_ =
 	sq_type_array_write,
 	NULL,                          // name
 	(SqEntry**) SQ_TYPE_STR,       // entry   : assign element type in SqType.entry
-	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
-};
-
-// deprecated
-// extern
-const SqType SqType_IntptrArray_ =
-{
-	sizeof(SqPtrArray),
-	sq_type_ptr_array_init,
-	(SqTypeFunc)sq_ptr_array_final,
-	sq_type_array_parse,
-	sq_type_array_write,
-	NULL,                          // name
-	(SqEntry**) SQ_TYPE_INTPTR,    // entry   : assign element type in SqType.entry
 	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
 };
 
