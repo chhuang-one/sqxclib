@@ -16,6 +16,7 @@
 #include <SqStr.h>
 
 // data structure
+#include <SqRow.h>
 #include <SqPairs.h>
 
 // console

@@ -101,7 +101,7 @@ namespace Sq {
 
 /*	TypeJointMethod is used by SqTypeJoint's children.
 
-	It's derived struct/class must be C++11 standard-layout and has TypeJoint members.
+	It's derived struct/class must be C++11 standard-layout and has SqTypeJoint members.
  */
 struct TypeJointMethod {
 	void  add(SqTable *table, const char *table_as_name = NULL);
@@ -147,7 +147,12 @@ inline void  TypeJointMethod::clear() {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct TypeJoint : SqTypeJoint, TypeJointMethod {
+struct TypeJoint : TypeJointMethod,                // <-- 1. inherit C++ method
+                   SqTypeJoint                     // <-- 2. inherit member variable
+{
+	// It doesn't need this line because current struct already inherits from SqTypeJoint.
+//	SQ_TYPE_JOINT_MEMBERS;
+
 	TypeJoint() {
 		sq_type_joint_init((SqTypeJoint*)this);
 	}

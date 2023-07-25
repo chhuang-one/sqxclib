@@ -230,7 +230,12 @@ Sq::RowColumn *RowMethod::allocColumn(int  n_element) {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct TypeRow : SqTypeRow, TypeRowMethod {
+struct TypeRow : TypeRowMethod,                  // <-- 1. inherit C++ method
+                 SqTypeRow                       // <-- 2. inherit member variable
+{
+	// It doesn't need this line because current struct already inherits from SqTypeRow.
+//	SQ_TYPE_ROW_MEMBERS;
+
 	TypeRow() {
 		sq_type_row_init((SqTypeRow*)this);
 	}
@@ -239,7 +244,11 @@ struct TypeRow : SqTypeRow, TypeRowMethod {
 	}
 };
 
-struct Row : SqRow {
+struct Row : SqRow                               // inherit C++ method and member variable
+{
+	// It doesn't need this line because current struct already inherits from SqRow.
+//	SQ_ROW_MEMBERS;
+
 	// constructor
 	Row(int colCapacity = 0, int capacity = 0) {
 		sq_row_init((SqRow*)this, colCapacity, capacity);

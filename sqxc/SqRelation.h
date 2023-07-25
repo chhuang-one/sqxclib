@@ -101,7 +101,7 @@ struct RelationNode;
 
 /*	RelationMethod is used by SqRelation and it's children.
 
-	It's derived struct/class must be C++11 standard-layout and has RelationMethod members.
+	It's derived struct/class must be C++11 standard-layout and has SqRelation members.
  */
 struct RelationMethod {
 	void  init(SqRelationPool *pool, int capacity);
