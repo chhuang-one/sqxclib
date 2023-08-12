@@ -38,6 +38,7 @@ set(HEADERS
 #    SqThread.h
     SqUtil.h
     SqType.h
+    SqTypeMapping.h
     SqEntry.h
     SqColumn.h
     SqTable.h

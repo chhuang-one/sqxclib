@@ -20,6 +20,7 @@
 #include <SqConfig.h>
 #include <SqError.h>
 #include <SqType.h>
+#include <SqTypeMapping.h>
 #include <Sqdb.h>
 
 #ifdef _MSC_VER
@@ -535,25 +536,30 @@ void sqdb_sql_write_identifier(Sqdb *db, SqBuffer *buffer, const char *identifie
 void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 {
 	const SqType *type;
-	int16_t       size, digits;
+	int           sql_type;
+	int           size, digits;
 	int           len;
 
-	type = column->type;
-	if (SQ_TYPE_NOT_BUILTIN(type))
-		type = SQ_TYPE_STR;
-	size = column->size;
-	digits = column->digits;
+	type     = column->type;
+	size     = column->size;
+	digits   = column->digits;
 
-	switch (SQ_TYPE_BUILTIN_INDEX(type)) {
-	case SQ_TYPE_BOOL_INDEX:
+	// map column->type to SqSqlType
+	if (SQ_TYPE_IS_BUILTIN(type))
+		sql_type = SQ_TYPE_BUILTIN_INDEX(type) + 1;
+	else
+		sql_type = SQ_SQL_TYPE_VARCHAR;
+
+	switch (sql_type) {
+	case SQ_SQL_TYPE_BOOLEAN:
 		if (db->info->column.has_boolean)
 			sq_buffer_write(buffer, "BOOLEAN");
 		else
 			sq_buffer_write(buffer, "TINYINT");
 		break;
 
-	case SQ_TYPE_INT_INDEX:
-	case SQ_TYPE_UINT_INDEX:
+	case SQ_SQL_TYPE_INT:
+	case SQ_SQL_TYPE_INT_UNSIGNED:
 		if (db->info->product == SQDB_PRODUCT_SQLITE && column->bit_field & SQB_COLUMN_PRIMARY)
 			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
 		else if (db->info->product == SQDB_PRODUCT_POSTGRE && column->bit_field & SQB_COLUMN_AUTOINCREMENT)
@@ -566,13 +572,13 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 				len = snprintf(NULL, 0, "(%d)", size);
 				sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
 			}
-			if (column->type == SQ_TYPE_UINT)
+			if (sql_type == SQ_SQL_TYPE_INT_UNSIGNED)
 				sq_buffer_write(buffer, " UNSIGNED");
 		}
 		break;
 
-	case SQ_TYPE_INT64_INDEX:
-	case SQ_TYPE_UINT64_INDEX:
+	case SQ_SQL_TYPE_BIGINT:
+	case SQ_SQL_TYPE_BIGINT_UNSIGNED:
 		if (db->info->product == SQDB_PRODUCT_SQLITE && column->bit_field & SQB_COLUMN_PRIMARY)
 			sq_buffer_write(buffer, "INTEGER PRIMARY KEY");
 		else if (db->info->product == SQDB_PRODUCT_POSTGRE && column->bit_field & SQB_COLUMN_AUTOINCREMENT)
@@ -585,16 +591,16 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 				len = snprintf(NULL, 0, "(%d)", size);
 				sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
 			}
-			if (column->type == SQ_TYPE_UINT64)
+			if (sql_type == SQ_SQL_TYPE_BIGINT_UNSIGNED)
 				sq_buffer_write(buffer, " UNSIGNED");
 		}
 		break;
 
-	case SQ_TYPE_TIME_INDEX:
+	case SQ_SQL_TYPE_TIMESTAMP:
 		sq_buffer_write(buffer, "TIMESTAMP");
 		break;
 
-	case SQ_TYPE_DOUBLE_INDEX:
+	case SQ_SQL_TYPE_DOUBLE:
 		if (db->info->product == SQDB_PRODUCT_POSTGRE)
 			sq_buffer_write(buffer, "DOUBLE PRECISION");
 		else
@@ -615,14 +621,13 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 		}
 		break;
 
-	case SQ_TYPE_STR_INDEX:
+	case SQ_SQL_TYPE_VARCHAR:
 		size = (size <= 0) ? SQL_STRING_LENGTH_DEFAULT : size;
 		len = snprintf(NULL, 0, "VARCHAR(%d)", size);
 		sprintf(sq_buffer_alloc(buffer, len), "VARCHAR(%d)", size);
 		break;
 
-	/* SQ_TYPE for SQL */
-	case SQ_TYPE_CHAR_INDEX:
+	case SQ_SQL_TYPE_CHAR:
 		size = (size <= 0) ? SQL_STRING_LENGTH_DEFAULT : size;
 		len = snprintf(NULL, 0, "CHAR(%d)", size);
 		sprintf(sq_buffer_alloc(buffer, len), "CHAR(%d)", size);
