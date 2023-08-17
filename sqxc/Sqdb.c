@@ -632,6 +632,79 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 		len = snprintf(NULL, 0, "CHAR(%d)", size);
 		sprintf(sq_buffer_alloc(buffer, len), "CHAR(%d)", size);
 		break;
+
+	case SQ_SQL_TYPE_TEXT:
+/*		if (db->info->product == SQDB_PRODUCT_MYSQL && size > 0) {
+			len = snprintf(NULL, 0, "TEXT(%d)", size);
+			sprintf(sq_buffer_alloc(buffer, len), "TEXT(%d)", size);
+		}
+		else
+ */
+			sq_buffer_write(buffer, "TEXT");
+		break;
+
+	//   SQ_SQL_TYPE_BLOB:
+	case SQ_SQL_TYPE_BINARY:
+/*		if (db->info->product == SQDB_PRODUCT_MSSQL) {
+			if (size > 0) {
+				len = snprintf(NULL, 0, "VARBINARY(%d)", size);
+				sprintf(sq_buffer_alloc(buffer, len), "VARBINARY(%d)", size);
+			}
+			else
+				sq_buffer_write(buffer, "VARBINARY");
+		}
+		else
+ */
+		if (db->info->product == SQDB_PRODUCT_POSTGRE)
+			sq_buffer_write(buffer, "BYTEA");
+		else if (db->info->product == SQDB_PRODUCT_MYSQL && size > 0) {
+			len = snprintf(NULL, 0, "BLOB(%d)", size);
+			sprintf(sq_buffer_alloc(buffer, len), "BLOB(%d)", size);
+		}
+		else
+			sq_buffer_write(buffer, "BLOB");
+		break;
+
+	case SQ_SQL_TYPE_DECIMAL:
+		if (size > 0) {
+			if (digits > 0) {
+				len = snprintf(NULL, 0, "DECIMAL(%d,%d)", size, digits);
+				sprintf(sq_buffer_alloc(buffer, len), "DECIMAL(%d,%d)", size, digits);
+			}
+			else {
+				len = snprintf(NULL, 0, "DECIMAL(%d)", size);
+				sprintf(sq_buffer_alloc(buffer, len), "DECIMAL(%d)", size);
+			}
+		}
+		else
+			sq_buffer_write(buffer, "DECIMAL");
+		break;
+
+	// other INT series
+	case SQ_SQL_TYPE_TINYINT:
+		sq_buffer_write(buffer, "TINYINT");
+		break;
+
+	case SQ_SQL_TYPE_SMALLINT:
+		sq_buffer_write(buffer, "SMALLINT");
+		break;
+
+	case SQ_SQL_TYPE_MEDIUMINT:
+		sq_buffer_write(buffer, "MEDIUMINT");
+		break;
+
+	// other TEXT series
+	case SQ_SQL_TYPE_TINYTEXT:
+		sq_buffer_write(buffer, "TINYTEXT");
+		break;
+
+	case SQ_SQL_TYPE_MEDIUMTEXT:
+		sq_buffer_write(buffer, "MEDIUMTEXT");
+		break;
+
+	case SQ_SQL_TYPE_LONGTEXT:
+		sq_buffer_write(buffer, "LONGTEXT");
+		break;
 	}
 }
 

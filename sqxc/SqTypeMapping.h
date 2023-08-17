@@ -33,12 +33,30 @@ typedef enum {
 	SQ_SQL_TYPE_BOOLEAN,            // SQ_TYPE_BOOL
 	SQ_SQL_TYPE_INT,                // SQ_TYPE_INT
 	SQ_SQL_TYPE_INT_UNSIGNED,       // SQ_TYPE_UINT
+	SQ_SQL_TYPE_UNSIGNED_INT      = SQ_SQL_TYPE_INT_UNSIGNED,       // alias
 	SQ_SQL_TYPE_BIGINT,             // SQ_TYPE_INT64
 	SQ_SQL_TYPE_BIGINT_UNSIGNED,    // SQ_TYPE_UINT64
+	SQ_SQL_TYPE_UNSIGNED_BIGINT   = SQ_SQL_TYPE_BIGINT_UNSIGNED,    // alias
 	SQ_SQL_TYPE_TIMESTAMP,          // SQ_TYPE_TIME
 	SQ_SQL_TYPE_DOUBLE,             // SQ_TYPE_DOUBLE
 	SQ_SQL_TYPE_VARCHAR,            // SQ_TYPE_STR
 	SQ_SQL_TYPE_CHAR,               // SQ_TYPE_CHAR
+
+	// other SQL types...
+	SQ_SQL_TYPE_TEXT,               // SQ_TYPE_STR or SQ_TYPE_STD_STR
+	SQ_SQL_TYPE_BINARY,             // BLOB...etc
+	SQ_SQL_TYPE_BLOB              = SQ_SQL_TYPE_BINARY,             // alias
+	SQ_SQL_TYPE_DECIMAL,
+
+	// other INT series
+	SQ_SQL_TYPE_TINYINT,
+	SQ_SQL_TYPE_SMALLINT,
+	SQ_SQL_TYPE_MEDIUMINT,
+
+	// other TEXT series
+	SQ_SQL_TYPE_TINYTEXT,
+	SQ_SQL_TYPE_MEDIUMTEXT,
+	SQ_SQL_TYPE_LONGTEXT,
 } SqSqlType;
 
 #ifdef __cplusplus
