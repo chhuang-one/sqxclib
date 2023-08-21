@@ -606,18 +606,16 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 		else
 			sq_buffer_write(buffer, "DOUBLE");    // FLOAT
 		if (size > 0 || digits > 0) {
-			sq_buffer_write_c(buffer, '(');
-			if (size > 0 && digits == 0) {
-				// precision (total digits)
-				len = snprintf(NULL, 0, "%d", size);
-				sprintf(sq_buffer_alloc(buffer, len), "%d", size);
+			if (digits > 0) {
+				// precision (total digits) , scale (decimal digits)
+				len = snprintf(NULL, 0, "(%d,%d)", size, digits);
+				sprintf(sq_buffer_alloc(buffer, len), "(%d,%d)", size, digits);
 			}
 			else {
-				// precision (total digits) , scale (decimal digits)
-				len = snprintf(NULL, 0, "%d,%d", size, digits);
-				sprintf(sq_buffer_alloc(buffer, len), "%d,%d", size, digits);
+				// precision (total digits)
+				len = snprintf(NULL, 0, "(%d)", size);
+				sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
 			}
-			sq_buffer_write_c(buffer, ')');
 		}
 		break;
 
@@ -657,40 +655,56 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
  */
 		if (db->info->product == SQDB_PRODUCT_POSTGRE)
 			sq_buffer_write(buffer, "BYTEA");
-		else if (db->info->product == SQDB_PRODUCT_MYSQL && size > 0) {
-			len = snprintf(NULL, 0, "BLOB(%d)", size);
-			sprintf(sq_buffer_alloc(buffer, len), "BLOB(%d)", size);
-		}
 		else
 			sq_buffer_write(buffer, "BLOB");
+		if (db->info->product == SQDB_PRODUCT_MYSQL && size > 0) {
+			len = snprintf(NULL, 0, "(%d)", size);
+			sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
+		}
 		break;
 
 	case SQ_SQL_TYPE_DECIMAL:
-		if (size > 0) {
-			if (digits > 0) {
-				len = snprintf(NULL, 0, "DECIMAL(%d,%d)", size, digits);
-				sprintf(sq_buffer_alloc(buffer, len), "DECIMAL(%d,%d)", size, digits);
-			}
-			else {
-				len = snprintf(NULL, 0, "DECIMAL(%d)", size);
-				sprintf(sq_buffer_alloc(buffer, len), "DECIMAL(%d)", size);
-			}
+/*		// Oracle has DECIMAL that alias of NUMBER.
+		if (db->info->product == SQDB_PRODUCT_ORACLE) {
+			sq_buffer_write(buffer, "NUMBER");
 		}
 		else
-			sq_buffer_write(buffer, "DECIMAL");
+ */
+		sq_buffer_write(buffer, "DECIMAL");
+		if (size > 0 || digits > 0) {
+			if (digits > 0) {
+				// precision (total digits) , scale (decimal digits)
+				len = snprintf(NULL, 0, "(%d,%d)", size, digits);
+				sprintf(sq_buffer_alloc(buffer, len), "(%d,%d)", size, digits);
+			}
+			else {
+				// precision (total digits)
+				len = snprintf(NULL, 0, "(%d)", size);
+				sprintf(sq_buffer_alloc(buffer, len), "(%d)", size);
+			}
+		}
 		break;
 
 	// other INT series
 	case SQ_SQL_TYPE_TINYINT:
+	case SQ_SQL_TYPE_TINYINT_UNSIGNED:
 		sq_buffer_write(buffer, "TINYINT");
+		if (sql_type == SQ_SQL_TYPE_TINYINT_UNSIGNED)
+			sq_buffer_write(buffer, " UNSIGNED");
 		break;
 
 	case SQ_SQL_TYPE_SMALLINT:
+	case SQ_SQL_TYPE_SMALLINT_UNSIGNED:
 		sq_buffer_write(buffer, "SMALLINT");
+		if (sql_type == SQ_SQL_TYPE_SMALLINT_UNSIGNED)
+			sq_buffer_write(buffer, " UNSIGNED");
 		break;
 
 	case SQ_SQL_TYPE_MEDIUMINT:
+	case SQ_SQL_TYPE_MEDIUMINT_UNSIGNED:
 		sq_buffer_write(buffer, "MEDIUMINT");
+		if (sql_type == SQ_SQL_TYPE_MEDIUMINT_UNSIGNED)
+			sq_buffer_write(buffer, " UNSIGNED");
 		break;
 
 	// other TEXT series
