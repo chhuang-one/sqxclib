@@ -19,6 +19,7 @@ struct User {
 	int     id;          // primary key
 	char   *name;
 	char   *email;
+	char   *text;
 	int     city_id;     // foreign key
 
 	time_t  created_at;
@@ -48,6 +49,10 @@ static const SqColumn  userColumns[8] = {
 	// VARCHAR(60)
 	{SQ_TYPE_STR,    "email",      offsetof(User, email),
 		.size = 60},
+
+	// TEXT    // type mapping: SQ_TYPE_STR map to SQL data type - TEXT
+	{SQ_TYPE_STR,    "text",       offsetof(User, text),
+		.sql_type = SQ_SQL_TYPE_TEXT},   // map to SQL data type - TEXT
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
@@ -151,11 +156,19 @@ static const SqColumn  userColumns[8] = {
 	// PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
+	// VARCHAR
 	{SQ_TYPE_STR,    "name",       offsetof(User, name)  },
 
+	// VARCHAR(60)
 	{SQ_TYPE_STR,    "email",      offsetof(User, email),      0,
 		NULL,                          // .old_name
-		60},                           // .size    // VARCHAR(60)
+		0,                             // .sql_type
+		60},                           // .size        // VARCHAR(60)
+
+	// TEXT    // type mapping: SQ_TYPE_STR map to SQL data type - TEXT
+	{SQ_TYPE_STR,    "text",       offsetof(User, text),       0,
+		NULL,                          // .old_name
+		SQ_SQL_TYPE_TEXT},             // .sql_type    // map to SQL data type - TEXT
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
@@ -165,7 +178,9 @@ static const SqColumn  userColumns[8] = {
 
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    0,
-		NULL, 0, 0, NULL,              // .old_name, .size, .digits, .default_value,
+		NULL,                          // .old_name,
+		0, 0, 0,                       // .sql_type, .size, .digits,
+		NULL,                          // .default_value,
 		(SqForeign*) &userForeign},    // .foreign
 
 	// C++ std::string

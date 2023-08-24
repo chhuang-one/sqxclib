@@ -4,7 +4,7 @@
 
 This document introduce how to use C macro to define table dynamically.  
 
-Define a C structured data type that mappings to your database table "users".
+Define a C structured data type that maps to your database table "users".
 
 ```c++
 // If you use C language, please use 'typedef' to give a struct type a new name.
@@ -14,6 +14,7 @@ struct User {
 	int     id;          // primary key
 	char   *name;
 	char   *email;
+	char   *text;
 	int     city_id;     // foreign key
 
 	time_t  created_at;
@@ -43,6 +44,9 @@ macro SQC_XXXX() is used to set column properties.
 
 		// VARCHAR(60)
 		SQT_STRING("email", User, email, 60);
+
+		// TEXT    // type mapping: SQ_TYPE_STR map to SQL data type - TEXT
+		SQT_MAPPING("text", User, text, SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
 
 		// DEFAULT CURRENT_TIMESTAMP
 		SQT_TIMESTAMP("created_at", User, created_at);  SQC_USE_CURRENT();

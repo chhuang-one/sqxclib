@@ -116,8 +116,8 @@ To define constant SqColumn, user must know SqColumn Structure Definition:
 struct SqColumn
 {
 	// ------ SqEntry members ------
-	const SqType *type;             // field type
-	const char   *name;             // column name
+	const SqType *type;             // data type of column
+	const char   *name;             // name of column
 	size_t        offset;           // offset of field in structure
 	unsigned int  bit_field;        // explain below
 
@@ -128,10 +128,12 @@ struct SqColumn
 
 	// ------ SqColumn members ------
 
-	// size  : total number of digits is specified in size, or length of string
-	int16_t       size;
-	// digits: number of digits after the decimal point.
-	int16_t       digits;
+	// sql_type: map type to SQL data type. Don't map if this field is 0.
+	int32_t       sql_type;
+	// size  : total number of digits is specified in size, or length of string.
+	int32_t       size;
+	// digits: number of digits after the decimal point, or 2nd parameter of SQL type.
+	int32_t       digits;
 
 	const char   *default_value;    // DEFAULT
 

@@ -171,6 +171,12 @@ typedef struct Company
 #define SQT_CUSTOM_AS(structure, member, sqtype, length)   \
 		(column_cur_ = sq_table_add_custom(table_cur_, #member, offsetof(structure, member), sqtype, length))
 
+#define SQT_MAPPING(column_name, structure, member, sqtype, sql_type)  \
+		(column_cur_ = sq_table_add_mapping(table_cur_, column_name, offsetof(structure, member), sqtype, sql_type))
+
+#define SQT_MAPPING_AS(structure, member, sqtype, sql_type)   \
+		(column_cur_ = sq_table_add_mapping(table_cur_, #member, offsetof(structure, member), sqtype, sql_type))
+
 // ----------------------------------------------------------------------------
 
 //      SQT_ADD_INDEX(index_name, column1_name, ...)

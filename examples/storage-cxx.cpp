@@ -145,22 +145,29 @@ static const SqColumn userColumns[] = {
 	{SQ_TYPE_INT,    "id",           offsetof(User, id),           SQB_PRIMARY | SQB_HIDDEN},
 	{SQ_TYPE_STR,    "name",         offsetof(User, name),         0,
 		NULL,                              // .old_name
+		0,                                 // .sql_type
 		50},                               // .size    // VARCHAR(50)
 	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),   SQB_CURRENT},    // DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at",   offsetof(User, updated_at),   SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 	/* FOREIGN KEY
 	{SQ_TYPE_INT,    "company_id",   offsetof(User, company_id),   0,
-		NULL, 0, 0, NULL, NULL,            // .old_name, .size, .digits, .default_value, .check
+		NULL,                              // .old_name,
+		0, 0, 0,                           // .sql_type, .size, .digits,
+		NULL,                              // .default_value,
 		(SqForeign*)&userForeign},         // .foreign
 	 */
 	// CONSTRAINT FOREIGN KEY
 	{SQ_TYPE_CONSTRAINT,   "users_companies_id_foreign", 0, 0,
-		NULL, 0, 0, NULL, NULL,            // .old_name, .size, .digits, .default_value, .check
+		NULL,                              // .old_name,
+		0, 0, 0,                           // .sql_type, .size, .digits,
+		NULL,                              // .default_value,
 		(SqForeign*)&userForeign,          // .foreign
 		(char **) userForeignComposite },  // .composite
 	// INDEX
 	{SQ_TYPE_INDEX,  "users_id_index", 0, 0,
-		NULL, 0, 0, NULL, NULL,            // .old_name, .size, .digits, .default_value, .check
+		NULL,                              // .old_name,
+		0, 0, 0,                           // .sql_type, .size, .digits,
+		NULL,                              // .default_value,
 		NULL,                              // .foreign
 		(char **) userIndexComposite },    // .composite
 };

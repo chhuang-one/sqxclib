@@ -41,6 +41,7 @@ struct User {
 	time_t         updated_at;
 
 	unsigned int   test_add;
+	double         test_add_float;
 };
 
 struct City {
@@ -118,6 +119,10 @@ const SqType UserType = {
 static const SqColumn  *UserColumnsChange[] = {
 	// ADD COLUMN "test_add"
 	&(SqColumn) {SQ_TYPE_UINT, "test_add", offsetof(User, test_add), SQB_NULLABLE},
+
+	// ADD COLUMN "test_add_float"
+	&(SqColumn) {SQ_TYPE_DOUBLE, "test_add_float", offsetof(User, test_add_float), SQB_NULLABLE,
+	             .size = 8,  .digits = 2},
 
 	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGED)
 //	&(SqColumn) {SQ_TYPE_INT,  "city_id",  offsetof(User, city_id),  SQB_CHANGED},

@@ -116,8 +116,8 @@ C 函数 sq_column_change()、C++ 方法 change() 允许您修改现有列的类
 struct SqColumn
 {
 	// ------ SqEntry 成员 ------
-	const SqType *type;             // 字段类型
-	const char   *name;             // 列名称
+	const SqType *type;             // 列的数据类型
+	const char   *name;             // 列的名称
 	size_t        offset;           // 结构中字段的偏移量
 	unsigned int  bit_field;        // 下面解释
 
@@ -128,10 +128,12 @@ struct SqColumn
 
 	// ------ SqColumn 成员 ------
 
-	// size  : 总位数以大小或字符串长度
-	int16_t       size;
-	// digits: 小数点后的位数。
-	int16_t       digits;
+	// sql_type: 将类型映射到 SQL 数据类型。如果该字段为 0，则不映射。
+	int32_t       sql_type;
+	// size  : 总位数以大小或字符串长度。
+	int32_t       size;
+	// digits: 小数点后的位数，或 SQL 类型的第二个参数。
+	int32_t       digits;
 
 	const char   *default_value;    // DEFAULT
 

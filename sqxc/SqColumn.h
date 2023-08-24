@@ -148,8 +148,9 @@ struct SqForeign
 
 #define SQ_COLUMN_MEMBERS       \
 	SQ_REENTRY_MEMBERS;         \
-	int16_t      size;          \
-	int16_t      digits;        \
+	int32_t      sql_type;      \
+	int32_t      size;          \
+	int32_t      digits;        \
 	const char  *default_value; \
 	SqForeign   *foreign;       \
 	char       **composite;     \
@@ -160,8 +161,8 @@ struct SqColumn
 {
 	SQ_COLUMN_MEMBERS;
 /*	// ------ SqEntry members ------
-	const SqType *type;             // field type
-	const char   *name;             // column name
+	const SqType *type;             // data type of column
+	const char   *name;             // name of column
 	size_t        offset;
 	unsigned int  bit_field;
 
@@ -170,10 +171,12 @@ struct SqColumn
 
 	// ------ SqColumn members ------
 
-	// size  : total number of digits is specified in size, or length of string
-	int16_t       size;
-	// digits: number of digits after the decimal point.
-	int16_t       digits;
+	// sql_type: map type to SQL data type. Don't map if this field is 0.
+	int32_t       sql_type;
+	// size  : total number of digits is specified in size, or length of string.
+	int32_t       size;
+	// digits: number of digits after the decimal point, or 2nd parameter of SQL type.
+	int32_t       digits;
 
 	const char   *default_value;    // DEFAULT
 

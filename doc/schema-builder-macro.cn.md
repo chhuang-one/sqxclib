@@ -14,6 +14,7 @@ struct User {
 	int     id;          // 主键
 	char   *name;
 	char   *email;
+	char   *text;
 	int     city_id;     // 外键
 
 	time_t  created_at;
@@ -43,6 +44,9 @@ struct User {
 
 		// VARCHAR(60)
 		SQT_STRING("email", User, email, 60);
+
+		// TEXT    // 类型映射：SQ_TYPE_STR 映射到 SQL 数据类型 - TEXT
+		SQT_MAPPING("text", User, text, SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
 
 		// DEFAULT CURRENT_TIMESTAMP
 		SQT_TIMESTAMP("created_at", User, created_at);  SQC_USE_CURRENT();

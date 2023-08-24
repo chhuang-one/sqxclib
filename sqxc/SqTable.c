@@ -329,6 +329,20 @@ SqColumn *sq_table_add_custom(SqTable *table, const char *name,
 	return column;
 }
 
+SqColumn *sq_table_add_mapping(SqTable *table, const char *column_name,
+                              size_t offset, const SqType *sqtype,
+                              int  sql_type)
+{
+	SqColumn *column;
+
+	column = sq_column_new(column_name, sqtype);
+	column->offset = offset;
+	column->sql_type = sql_type;
+
+	sq_table_add_column(table, column, 1);
+	return column;
+}
+
 // --------------------------------------------------------
 // SqTable C functions for CONSTRAINT
 

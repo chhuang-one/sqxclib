@@ -77,7 +77,7 @@ Below method is for C++ data type only.
 | stdstr      | std::string   |
 | stdstring   | std::string   |
 
-**Add custom or JSON type**  
+**Use custom or JSON type**  
   
 Add column that contain JSON object or array.  
   
@@ -119,6 +119,61 @@ use C++ language
 	// JSON integer array
 	column = table->custom("posts", offsetof(User, posts),
 	                       SQ_TYPE_INT_ARRAY, 256);
+```
+
+You can also use pointer to member if you don't want to use offsetof().
+
+```c++
+	// JSON object
+	column = table->custom("myStruct", &User::myStruct,
+	                       SQ_TYPE_MY_STRUCT, 128);
+```
+
+**Use type mapping**  
+  
+You can also create column that contain custom type and map it to SQL data type.
+Below are Library-defined common SQL data type for type mapping.
+
+| Library-defined SQL data types  |
+| ------------------------------- |
+| SQ_SQL_TYPE_BOOLEAN             |
+| SQ_SQL_TYPE_INT                 |
+| SQ_SQL_TYPE_INT_UNSIGNED        |
+| SQ_SQL_TYPE_BIGINT              |
+| SQ_SQL_TYPE_BIGINT_UNSIGNED     |
+| SQ_SQL_TYPE_TIMESTAMP           |
+| SQ_SQL_TYPE_DOUBLE              |
+| SQ_SQL_TYPE_VARCHAR             |
+| SQ_SQL_TYPE_CHAR                |
+| SQ_SQL_TYPE_TEXT                |
+| SQ_SQL_TYPE_BINARY              |
+| SQ_SQL_TYPE_DECIMAL             |
+| SQ_SQL_TYPE_TINYINT             |
+| SQ_SQL_TYPE_TINYINT_UNSIGNED    |
+| SQ_SQL_TYPE_SMALLINT            |
+| SQ_SQL_TYPE_SMALLINT_UNSIGNED   |
+| SQ_SQL_TYPE_MEDIUMINT           |
+| SQ_SQL_TYPE_MEDIUMINT_UNSIGNED  |
+| SQ_SQL_TYPE_TINYTEXT            |
+| SQ_SQL_TYPE_MEDIUMTEXT          |
+| SQ_SQL_TYPE_LONGTEXT            |
+
+e.g. map user defined SqType to SQL data type:  
+  
+use C language
+
+```c
+	// map SQ_TYPE_STR to SQL data type - TEXT.
+	column = sq_table_add_mapping(table, "textMapping", offsetof(User, textMapping),
+	                              SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+```
+
+use C++ language
+
+```c++
+	// map SQ_TYPE_STR to SQL data type - TEXT.
+	column = table->mapping("textMapping", offsetof(User, textMapping),
+	                        SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
 ```
 
 ## Add column

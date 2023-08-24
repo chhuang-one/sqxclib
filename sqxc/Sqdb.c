@@ -541,14 +541,17 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 	int           len;
 
 	type     = column->type;
+	sql_type = column->sql_type;
 	size     = column->size;
 	digits   = column->digits;
 
-	// map column->type to SqSqlType
-	if (SQ_TYPE_IS_BUILTIN(type))
-		sql_type = SQ_TYPE_BUILTIN_INDEX(type) + 1;
-	else
-		sql_type = SQ_SQL_TYPE_VARCHAR;
+	if (sql_type == SQ_SQL_TYPE_UNKNOWN) {
+		// map column->type to SqSqlType
+		if (SQ_TYPE_IS_BUILTIN(type))
+			sql_type = SQ_TYPE_BUILTIN_INDEX(type) + 1;
+		else
+			sql_type = SQ_SQL_TYPE_VARCHAR;
+	}
 
 	switch (sql_type) {
 	case SQ_SQL_TYPE_BOOLEAN:

@@ -46,7 +46,7 @@ use C language
 
 ## Tables
 
-First, we define a C structured data type that mappings to your database table "users".
+First, we define a C structured data type that maps to your database table "users".
 
 ```c
 // If you use C language, please use 'typedef' to give a struct type a new name.
@@ -234,6 +234,14 @@ Below method is for C++ data type only.
 | ----------- | ------------- |
 | stdstr      | std::string   |
 | stdstring   | std::string   |
+
+**Type mapping**  
+  
+Map user defined SqType to SQL data type.
+
+| C++ methods | C functions            |
+| ----------- | ---------------------- |
+| mapping     | sq_table_add_mapping   |
 
 #### Column Modifiers (dynamic)
 

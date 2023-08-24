@@ -19,6 +19,7 @@
 #include <SqEntry.h>
 #include <SqColumn.h>
 #include <SqRelation.h>
+#include <SqTypeMapping.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.
@@ -113,6 +114,9 @@ SqColumn *sq_table_add_char(SqTable *table, const char *column_name,
 SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
                               size_t offset, const SqType *sqtype,
                               int  length);
+SqColumn *sq_table_add_mapping(SqTable *table, const char *column_name,
+                              size_t offset, const SqType *sqtype,
+                              int  sql_type);
 
 // alias of sq_table_add_bool()
 // SqColumn *sq_table_add_boolean(SqTable *table, const char *column_name, size_t offset);
@@ -190,6 +194,10 @@ SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
 // SqColumn *sq_table_add_custom_as(SqTable *table, Structure, Member, const SqType *type, int length)
 #define sq_table_add_custom_as(table, Structure, Member, type, length)    \
 		sq_table_add_custom(table, #Member, offsetof(Structure, Member), type, length)
+
+// SqColumn *sq_table_add_mapping_as(SqTable *table, Structure, Member, const SqType *type, int sql_type)
+#define sq_table_add_mapping_as(table, Structure, Member, type, sql_type)    \
+		sq_table_add_mapping(table, #Member, offsetof(Structure, Member), type, sql_type)
 
 /* --- SqTable C functions for CONSTRAINT --- */
 
@@ -294,6 +302,7 @@ struct TableMethod
 	Sq::Column &str(const char *column_name, size_t offset, int length = -1);
 	Sq::Column &char_(const char *column_name, size_t offset, int length = -1);
 	Sq::Column &custom(const char *column_name, size_t offset, const SqType *type, int length = -1);
+	Sq::Column &mapping(const char *column_name, size_t offset, const SqType *type, int sql_type);
 
 	Sq::Column &stdstring(const char *column_name, size_t offset, int length = -1);
 	Sq::Column &stdstr(const char *column_name, size_t offset, int length = -1);
@@ -331,6 +340,8 @@ struct TableMethod
 	Sq::Column &char_(const char *column_name, Type Store::*member, int length = -1);
 	template<class Store, class Type>
 	Sq::Column &custom(const char *column_name, Type Store::*member, const SqType *type, int length = -1);
+	template<class Store, class Type>
+	Sq::Column &mapping(const char *column_name, Type Store::*member, const SqType *type, int sql_type);
 
 	template<class Store, class Type>
 	Sq::Column &stdstring(const char *column_name, Type Store::*member, int length = -1);
@@ -577,6 +588,9 @@ inline Sq::Column &TableMethod::char_(const char *column_name, size_t offset, in
 inline Sq::Column &TableMethod::custom(const char *column_name, size_t offset, const SqType *type, int length) {
 	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, offset, type, length);
 }
+inline Sq::Column &TableMethod::mapping(const char *column_name, size_t offset, const SqType *type, int sql_type) {
+	return *(Sq::Column*)sq_table_add_mapping((SqTable*)this, column_name, offset, type, sql_type);
+}
 
 inline Sq::Column &TableMethod::stdstring(const char *column_name, size_t offset, int length) {
 	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, offset, SQ_TYPE_STD_STRING, length);
@@ -652,6 +666,10 @@ inline Sq::Column &TableMethod::char_(const char *column_name, Type Store::*memb
 template<class Store, class Type>
 inline Sq::Column &TableMethod::custom(const char *column_name, Type Store::*member, const SqType *type, int length) {
 	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, Sq::offsetOf(member), type, length);
+};
+template<class Store, class Type>
+inline Sq::Column &TableMethod::mapping(const char *column_name, Type Store::*member, const SqType *type, int sql_type) {
+	return *(Sq::Column*)sq_table_add_mapping((SqTable*)this, column_name, Sq::offsetOf(member), type, sql_type);
 };
 
 template<class Store, class Type>

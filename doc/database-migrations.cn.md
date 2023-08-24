@@ -235,6 +235,14 @@ struct User {
 | stdstr      | std::string   |
 | stdstring   | std::string   |
 
+**类型映射**  
+  
+将用户定义的 SqType 映射到 SQL 数据类型。
+
+| C++ 方法    | C 函数                 |
+| ----------- | ---------------------- |
+| mapping     | sq_table_add_mapping   |
+
 #### 列修饰符（动态）
 
 在将列添加到表或将条目添加到结构时，您可以使用几个 "修饰符"。

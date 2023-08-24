@@ -418,6 +418,7 @@ void test_type()
 	delete type;
 }
 
+// ----------------------------------------------------------------------------
 void test_pairs()
 {
 	const char *valueStr;

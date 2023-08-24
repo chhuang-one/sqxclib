@@ -77,7 +77,7 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 | stdstr      | std::string   |
 | stdstring   | std::string   |
 
-**加入自订或 JSON 型态**  
+**使用自订或 JSON 型态**  
   
 添加包含 JSON 对象或数组的列。  
   
@@ -119,6 +119,61 @@ struct User {
 	// JSON 整数数组
 	column = table->custom("posts", offsetof(User, posts),
 	                       SQ_TYPE_INT_ARRAY, 256);
+```
+
+如果您不想使用 offsetof()，也可以使用指向成员的指针。
+
+```c++
+	// JSON 对象
+	column = table->custom("myStruct", &User::myStruct,
+	                       SQ_TYPE_MY_STRUCT, 128);
+```
+
+**使用类型映射**  
+  
+您还可以创建包含自定义类型的列并将其映射到 SQL 数据类型。
+下面是库定义的用于类型映射的常见 SQL 数据类型。
+
+| 库定义的 SQL 数据类型           |
+| ------------------------------- |
+| SQ_SQL_TYPE_BOOLEAN             |
+| SQ_SQL_TYPE_INT                 |
+| SQ_SQL_TYPE_INT_UNSIGNED        |
+| SQ_SQL_TYPE_BIGINT              |
+| SQ_SQL_TYPE_BIGINT_UNSIGNED     |
+| SQ_SQL_TYPE_TIMESTAMP           |
+| SQ_SQL_TYPE_DOUBLE              |
+| SQ_SQL_TYPE_VARCHAR             |
+| SQ_SQL_TYPE_CHAR                |
+| SQ_SQL_TYPE_TEXT                |
+| SQ_SQL_TYPE_BINARY              |
+| SQ_SQL_TYPE_DECIMAL             |
+| SQ_SQL_TYPE_TINYINT             |
+| SQ_SQL_TYPE_TINYINT_UNSIGNED    |
+| SQ_SQL_TYPE_SMALLINT            |
+| SQ_SQL_TYPE_SMALLINT_UNSIGNED   |
+| SQ_SQL_TYPE_MEDIUMINT           |
+| SQ_SQL_TYPE_MEDIUMINT_UNSIGNED  |
+| SQ_SQL_TYPE_TINYTEXT            |
+| SQ_SQL_TYPE_MEDIUMTEXT          |
+| SQ_SQL_TYPE_LONGTEXT            |
+
+例如 将用户定义的 SqType 映射到 SQL 数据类型：  
+  
+使用 C 语言
+
+```c
+	// 将 SQ_TYPE_STR 映射到 SQL 数据类型 - TEXT。
+	column = sq_table_add_mapping(table, "textMapping", offsetof(User, textMapping),
+	                              SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+```
+
+使用 C++ 语言
+
+```c++
+	// 将 SQ_TYPE_STR 映射到 SQL 数据类型 - TEXT。
+	column = table->mapping("textMapping", offsetof(User, textMapping),
+	                        SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
 ```
 
 ## 添加列
