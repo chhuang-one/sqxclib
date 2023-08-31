@@ -32,6 +32,7 @@ struct User {
 	int    id;
 	char  *name;
 	char  *email;
+	char  *comment;        // SQL type: TEXT
 	int    city_id;
 	int    company_id;
 
@@ -68,10 +69,15 @@ struct Company {
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
 	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
-	&(SqColumn) {SQ_TYPE_INT,    "city_id", offsetof(User, city_id),    SQB_HIDDEN,
+	&(SqColumn) {SQ_TYPE_INT, "city_id",     offsetof(User, city_id),    SQB_HIDDEN,
 	             .foreign = &(SqForeign) {"cities", "id",  "CASCADE",  "CASCADE"} },
+
+	// "comment"  TEXT
+	&(SqColumn) {SQ_TYPE_STR, "comment",     offsetof(User, comment),  0,
+	             .sql_type = SQ_SQL_TYPE_TEXT},
+
 	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
-	&(SqColumn) {SQ_TYPE_INT, "company_id", offsetof(User, company_id), SQB_HIDDEN,
+	&(SqColumn) {SQ_TYPE_INT, "company_id",  offsetof(User, company_id), SQB_HIDDEN,
 	             .foreign = &(SqForeign) {"companies", "id",  "CASCADE",  "CASCADE"} },
 
 	// "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -79,10 +85,10 @@ static const SqColumn  *UserColumns[] = {
 	             .foreign = &(SqForeign) {"companies", "id",  "NO ACTION",  "NO ACTION"} },
 
 	// "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-	&(SqColumn) {SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
+	&(SqColumn) {SQ_TYPE_TIME, "created_at", offsetof(User, created_at), SQB_CURRENT},
 
 	// "email"  VARCHAR
-	&(SqColumn) {SQ_TYPE_STR,    "email",   offsetof(User, email), SQB_HIDDEN_NULL},
+	&(SqColumn) {SQ_TYPE_STR,  "email",      offsetof(User, email), SQB_HIDDEN_NULL},
 
 	// CONSTRAINT FOREIGN KEY
 	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "fk_cities_id",
@@ -90,13 +96,13 @@ static const SqColumn  *UserColumns[] = {
 	             .composite = (char *[]) {"city_id", NULL} },
 
 	// PRIMARY KEY
-	&(SqColumn) {SQ_TYPE_INT,    "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
+	&(SqColumn) {SQ_TYPE_INT, "id",          offsetof(User, id), SQB_PRIMARY | SQB_HIDDEN},
 
-	&(SqColumn) {SQ_TYPE_STR,    "name",    offsetof(User, name),  0},
-	&(SqColumn) {SQ_TYPE_INT_ARRAY, "posts", offsetof(User, posts), 0},
+	&(SqColumn) {SQ_TYPE_STR, "name",        offsetof(User, name),     0},
+	&(SqColumn) {SQ_TYPE_INT_ARRAY, "posts", offsetof(User, posts),    0},
 
 	// "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-	&(SqColumn) {SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at),  SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
+	&(SqColumn) {SQ_TYPE_TIME, "updated_at", offsetof(User, updated_at),  SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 };
 
 // --- UserType use sorted UserColumns
@@ -181,6 +187,10 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 	sq_column_reference(column, "companies", "id");
 	sq_column_on_delete(column, "cascade");
 
+	// type mapping: SQ_TYPE_STR map to SQL data type - TEXT
+	column = sq_table_add_mapping(table, "comment", offsetof(User, comment),
+	                              SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 
 	column = sq_table_add_foreign(table, "fk_cities_id", "city_id");
@@ -210,7 +220,11 @@ SqTable *change_user_table_by_c(SqSchema *schema)
 
 	table = sq_schema_alter(schema, "users", NULL);
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
-	column->bit_field |= SQB_NULLABLE;
+	sq_column_nullable(column);
+//	column->bit_field |= SQB_NULLABLE;
+	column = sq_table_add_double(table, "test_add_float", offsetof(User, test_add_float), 8, 2);
+	sq_column_nullable(column);
+//	column->bit_field |= SQB_NULLABLE;
 	sq_table_drop_foreign(table, "fk_cities_id");
 	sq_table_drop_column(table, "name");
 	sq_table_rename_column(table, "email", "email2");

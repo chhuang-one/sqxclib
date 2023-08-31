@@ -52,6 +52,8 @@ struct User {
 	char  *email;
 	int    city_id;    // foreign key
 
+	char  *comment;    // SQL Type: TEXT
+
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in SQL column
 	SqIntArray     ints;    // int array      (JSON array  in SQL column)
 	Post          *post;    // object pointer (JSON object in SQL column)
@@ -98,6 +100,10 @@ static const SqColumn userColumnsVer1[] = {
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   0,
 		.foreign = &(SqForeign) {"cities",  "id",  "CASCADE",  "CASCADE"} },
+
+	// type mapping: SQ_TYPE_STR map to SQL data type - TEXT
+	{SQ_TYPE_STR,    "comment",   offsetof(User, comment),   0,
+		.sql_type = SQ_SQL_TYPE_TEXT},
 
 #if SQ_CONFIG_HAVE_JSONC
 	{SQ_TYPE_INT_ARRAY,    "ints",  offsetof(User, ints),    0},
@@ -188,6 +194,7 @@ void user_free(User *user) {
 	sq_int_array_final(&user->ints);
 	free(user->name);
 	free(user->email);
+	free(user->comment);
 	if (user->post) {
 		free(user->post->title);
 		free(user->post->desc);
@@ -201,8 +208,11 @@ void user_print(User *user) {
 	       "user.id = %d\n"
 	       "user.name = %s\n"
 	       "user.email = %s\n"
-	       "user.city_id = %d\n",
-	       user->id, user->name, user->email, user->city_id);
+	       "user.city_id = %d\n"
+	       "user.comment = %s\n",
+	       user->id, user->name,
+	       user->email, user->city_id,
+	       user->comment);
 	printf("user.ints[] = ");
 	for (int i = 0;  i < user->ints.length;  i++) {
 		if (i > 0)
@@ -485,6 +495,7 @@ int  main(void)
 		user->city_id = 1;
 		user->name = strdup("Paul");
 		user->email = strdup("guest@");
+		user->comment = strdup("-- comment text 1");
 		sq_int_array_push(&user->ints, 3);
 		sq_int_array_push(&user->ints, 6);
 #if 1
