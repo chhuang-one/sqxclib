@@ -548,7 +548,7 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 	if (sql_type == SQ_SQL_TYPE_UNKNOWN) {
 		// map column->type to SqSqlType
 		if (SQ_TYPE_IS_BUILTIN(type))
-			sql_type = SQ_TYPE_BUILTIN_INDEX(type) + 1;
+			sql_type = (int)SQ_TYPE_BUILTIN_INDEX(type) + 1;
 		else
 			sql_type = SQ_SQL_TYPE_VARCHAR;
 	}
