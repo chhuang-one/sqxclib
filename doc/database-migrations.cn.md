@@ -243,6 +243,8 @@ struct User {
 | ----------- | ---------------------- |
 | mapping     | sq_table_add_mapping   |
 
+参考 [SqTable](SqTable.cn.md) 以获取更多信息。
+
 #### 列修饰符（动态）
 
 在将列添加到表或将条目添加到结构时，您可以使用几个 "修饰符"。

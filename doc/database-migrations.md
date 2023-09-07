@@ -243,6 +243,8 @@ Map user defined SqType to SQL data type.
 | ----------- | ---------------------- |
 | mapping     | sq_table_add_mapping   |
 
+Refering [SqTable](SqTable.md) to get more information.
+
 #### Column Modifiers (dynamic)
 
 There are several "modifiers" you may use when adding a column to table or a entry to structure.

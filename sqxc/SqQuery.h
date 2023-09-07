@@ -12,6 +12,16 @@
  * See the Mulan PSL v2 for more details.
  */
 
+/*	Visual Studio users may add/set compiler flags to support:
+	1. C++ parameter pack in constructor.
+	2. C99 standards preprocessor.
+
+	Solutions are:
+	1. Add compiler flag /std:c++14
+	2. If you use Visual Studio 2019 16.5 or later,
+	   you can add compiler flag /Zc:preprocessor to support standards preprocessor.
+	   Otherwise you must add compiler flag /experimental:preprocessor to support standards preprocessor.
+ */
 
 #ifndef SQ_QUERY_H
 #define SQ_QUERY_H

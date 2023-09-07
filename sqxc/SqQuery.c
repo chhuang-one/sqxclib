@@ -21,7 +21,6 @@
 #include <string.h>
 #include <stdio.h>      // vsnprintf
 
-#include <SqConfig.h>
 #include <SqQuery.h>
 
 #ifdef _MSC_VER
