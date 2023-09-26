@@ -41,6 +41,14 @@ static int  sqxc_empty_send(SqxcEmpty *xcempty, Sqxc *args_src)
 	}
 
 	switch (args_src->type) {
+	case SQXC_TYPE_RAW:
+		printf("%s  %2d  RAW  %s = %s\n",
+		       xcempty->tag ? xcempty->tag : "",
+		       xcempty->nested_count,
+		       args_src->name,
+		       args_src->value.raw);
+		break;
+
 	case SQXC_TYPE_NULL:
 		printf("%s  %2d  NULL  %s = %s\n",
 		       xcempty->tag ? xcempty->tag : "",

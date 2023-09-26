@@ -75,7 +75,10 @@ typedef struct SqEntry          SqEntry;    // define in SqEntry.h
 /* --- define data type for Sqxc converter --- */
 
 typedef enum {
-	SQXC_TYPE_UNKNOWN  =  0,
+	// Raw string is mainly used by SQL data types.
+	SQXC_TYPE_RAW      =  0,          // 0x0000
+	SQXC_TYPE_UNKNOWN  =  0,          // 0x0000    // alias of SQXC_TYPE_RAW
+
 	SQXC_TYPE_NULL     = (1 << 0),    // 0x0001 , Sqxc.value.pointer = NULL;
 	SQXC_TYPE_BOOL     = (1 << 1),    // 0x0002
 	SQXC_TYPE_INT      = (1 << 2),    // 0x0004
@@ -147,6 +150,15 @@ typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 
 	SQXC_SEND_ARRAY_END(sqxc, NULL);        //  ]
  */
+
+// void sqxc_send_raw(Sqxc **sqxc, const char *entry_name, const char *value);
+#define SQXC_SEND_RAW(sqxc, entry_name, val)             \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_RAW;       \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.raw = (char*)val;     \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
 
 // void sqxc_send_null(Sqxc *sqxc, const char *entry_name);
 #define SQXC_SEND_NULL(sqxc, entry_name)                 \
@@ -389,6 +401,7 @@ struct XcMethod
 	/* --- These are called by data source side. --- */
 
 	Sq::Xc  *send(void);
+	Sq::Xc  *sendRaw(const char *entry_name, const char *value);
 	Sq::Xc  *sendNull(const char *entry_name);
 	Sq::Xc  *sendBool(const char *entry_name, bool value);
 	Sq::Xc  *sendInt(const char *entry_name, int value);
@@ -593,6 +606,11 @@ inline int  XcMethod::send(XcMethod *arguments_src) {
 
 inline Sq::Xc  *XcMethod::send(void) {
 	return (Sq::Xc*)sqxc_send((Sqxc*)this);
+}
+inline Sq::Xc  *XcMethod::sendRaw(const char *entry_name, const char *value) {
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_RAW(xc, entry_name, (char*)value);
+	return (Sq::Xc*)xc;
 }
 inline Sq::Xc  *XcMethod::sendNull(const char *entry_name) {
 	Sqxc *xc = (Sqxc*)this;

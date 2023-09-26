@@ -208,6 +208,7 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 		jobject = json_object_new_double(src->value.double_);
 		break;
 
+	case SQXC_TYPE_RAW:
 	case SQXC_TYPE_STR:
 		if (src->value.str) {
 			if (src->entry && src->entry->bit_field & SQB_HIDDEN_NULL)

@@ -27,6 +27,8 @@ extern "C" {
 #endif
 
 typedef enum {
+	// If SqColumn.sql_type is equal to SQ_SQL_TYPE_UNKNOWN,
+	// program will try to determine the SQL data type through SqColumn.type.
 	SQ_SQL_TYPE_UNKNOWN = 0,
 
 	// Order of below SQ_SQL_TYPE must the same as order of built-in SQ_TYPE.

@@ -398,12 +398,26 @@ static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name)
 static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 {
 	int   len, idx;
-	char *tempstr;
+	union {
+		char        ch;
+		char       *str;
+		const char *constr;
+	} temp;
 
 	if (buffer == NULL)
 		buffer = sqxc_get_buffer(xcsql);
 
 	switch (src->type) {
+	case SQXC_TYPE_RAW:
+		if (src->value.raw == NULL) {
+			sq_buffer_write(buffer, "NULL");
+			break;
+		}
+		len = strlen(src->value.raw);
+		temp.str = sq_buffer_alloc(buffer, len);
+		memcpy(temp.str, src->value.raw, len);
+		break;
+
 	case SQXC_TYPE_NULL:
 		sq_buffer_write(buffer, "NULL");
 		break;
@@ -411,14 +425,25 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 	case SQXC_TYPE_BOOL:
 #if 1
 		if (src->value.boolean)
-			sq_buffer_write_c(buffer, '1');
+			temp.ch = '1';
 		else
-			sq_buffer_write_c(buffer, '0');
+			temp.ch = '0';
+		sq_buffer_write_c(buffer, temp.ch);
 #else
-		if (src->value.boolean)
-			sq_buffer_write(buffer, "TRUE");
-		else
-			sq_buffer_write(buffer, "FALSE");
+		if (xcsql->db->info->column.has_boolean) {
+			if (src->value.boolean)
+				temp.constr = "TRUE";
+			else
+				temp.constr = "FALSE";
+			sq_buffer_write(buffer, temp.constr);
+		}
+		else {
+			if (src->value.boolean)
+				temp.ch = '1';
+			else
+				temp.ch = '0';
+			sq_buffer_write_c(buffer, temp.ch);
+		}
 #endif
 		break;
 
@@ -465,11 +490,11 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 		break;
 
 	case SQXC_TYPE_TIME:
-		tempstr = sq_time_to_string(src->value.rawtime, 0);
+		temp.str = sq_time_to_string(src->value.rawtime, 0);
 		sq_buffer_write_c(buffer, '\'');
-		sq_buffer_write(buffer, tempstr);
+		sq_buffer_write(buffer, temp.str);
 		sq_buffer_write_c(buffer, '\'');
-		free(tempstr);
+		free(temp.str);
 		break;
 
 	case SQXC_TYPE_DOUBLE:
@@ -482,21 +507,23 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 			sq_buffer_write(buffer, "NULL");
 			break;
 		}
-		// handle SQL string apostrophe (single quotes)
-		for (len = 0, idx = 0;  src->value.str[idx];  idx++, len++) {
+		// calculate the length of SQL string by counting SQL string apostrophe (single quotes)
+		for (len = 0, temp.str = (char*)src->value.str;  *temp.str;  temp.str++, len++) {
 			// double up on the single quotes
-			if (src->value.str[idx] == '\'')
+			if (*temp.str == '\'')
 				len++;
 		}
 		idx = buffer->writed;
+		// add quotes around string
 		sq_buffer_alloc(buffer, len +2);    // + '\'' x 2
 		buffer->mem[idx++] = '\'';
 		buffer->mem[idx +len] = '\'';
-		for (len = idx, idx = 0;  src->value.str[idx];  idx++, len++) {
+		// copy and convert original string to SQL string
+		for (temp.str = (char*)src->value.str;  *temp.str;  temp.str++) {
 			// double up on the single quotes
-			if (src->value.str[idx] == '\'')
-				buffer->mem[len++] = '\'';
-			buffer->mem[len] = src->value.str[idx];
+			if (*temp.str == '\'')
+				buffer->mem[idx++] = '\'';
+			buffer->mem[idx++] = *temp.str;
 		}
 		break;
 

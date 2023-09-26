@@ -72,6 +72,7 @@ union SqValue
 	const char   *str;
 	const char   *string;
 	const char   *stream;      // Text stream must be null-terminated string
+	const char   *raw;         // Raw string is mainly used by SQL data types.
 	void         *pointer;
 	void         *ptr;
 };

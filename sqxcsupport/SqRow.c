@@ -205,6 +205,7 @@ static void  sq_type_row_parse_unknown(void *instance, Sqxc *src)
 		temp.col->type = SQ_TYPE_DOUBLE;
 		break;
 
+	case SQXC_TYPE_RAW:
 	case SQXC_TYPE_STR:
 		temp.col->type = SQ_TYPE_STR;
 		sq_row_alloc(row, 1)->str = strdup(src->value.str);
