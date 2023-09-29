@@ -16,7 +16,6 @@ data type for Sqxc converter
 
 | Sqxc type name       | description                                |
 | -------------------- | ------------------------------------------ |
-| SQXC_TYPE_UNKNOWN    | unspecified                                |
 | SQXC_TYPE_NULL       | corresponds to C value:      NULL          |
 | SQXC_TYPE_BOOL       | corresponds to C data type:  bool          |
 | SQXC_TYPE_INT        | corresponds to C data type:  int           |
@@ -27,11 +26,14 @@ data type for Sqxc converter
 | SQXC_TYPE_DOUBLE     | corresponds to C data type:  double        |
 | SQXC_TYPE_STR        | corresponds to C data type:  char*         |
 | SQXC_TYPE_STRING     | corresponds to C data type:  char*         |
+| SQXC_TYPE_RAW        | corresponds to C data type:  char*         |
 | SQXC_TYPE_OBJECT     | The beginning of the object                |
 | SQXC_TYPE_ARRAY      | The beginning of the array (or container)  |
 | SQXC_TYPE_OBJECT_END | The end of object                          |
 | SQXC_TYPE_ARRAY_END  | The end of array (or container)            |
 
+Note: SQXC_TYPE_RAW    is raw string, mainly used for SQL data types.  
+Note: SQXC_TYPE_STRING is alias of SQXC_TYPE_STR.  
 Note: SQXC_TYPE_OBJECT corresponds to SQL row.  
 Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.  
 

@@ -75,42 +75,62 @@ typedef struct SqEntry          SqEntry;    // define in SqEntry.h
 /* --- define data type for Sqxc converter --- */
 
 typedef enum {
-	// Raw string is mainly used by SQL data types.
-	SQXC_TYPE_RAW      =  0,          // 0x0000
-	SQXC_TYPE_UNKNOWN  =  0,          // 0x0000    // alias of SQXC_TYPE_RAW
+	SQXC_TYPE_UNKNOWN  =  0,                       // result of bitwise AND
 
-	SQXC_TYPE_NULL     = (1 << 0),    // 0x0001 , Sqxc.value.pointer = NULL;
+	SQXC_TYPE_NULL     = (1 << 0),    // 0x0001    // Sqxc.value.ptr = NULL
 	SQXC_TYPE_BOOL     = (1 << 1),    // 0x0002
 	SQXC_TYPE_INT      = (1 << 2),    // 0x0004
 	SQXC_TYPE_UINT     = (1 << 3),    // 0x0008
 	SQXC_TYPE_INT64    = (1 << 4),    // 0x0010
 	SQXC_TYPE_UINT64   = (1 << 5),    // 0x0020
-	SQXC_TYPE_TIME     = (1 << 6),    // 0x0040
+	SQXC_TYPE_TIME     = (1 << 6),    // 0x0040    // SQL TIMESTAMP, C time_t
 	SQXC_TYPE_DOUBLE   = (1 << 7),    // 0x0080
-	SQXC_TYPE_ARITHMETIC = 0xFF,
 
 	SQXC_TYPE_STR      = (1 << 8),    // 0x0100
 	SQXC_TYPE_STRING   = (1 << 8),    // 0x0100    // alias of SQXC_TYPE_STR
 
-	SQXC_TYPE_OBJECT   = (1 << 9),    // 0x0200
-	SQXC_TYPE_ARRAY    = (1 << 10),   // 0x0400    // array or other storage structure
-	SQXC_TYPE_NESTED   = SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY,    // 0x0600
-	SQXC_TYPE_BASIC    =  0x7FF,
+	SQXC_TYPE_RAW      = (1 << 9),    // 0x0200    // mainly for SQL data types
 
-#if 1
-	SQXC_TYPE_ALL      =  0x7FF,
-#else
-	// Text stream must be null-terminated string
-	SQXC_TYPE_STREAM   = (1 << 11),   // 0x0800    // e.g. file stream
-	SQXC_TYPE_ALL      =  0xFFF,
-	SQXC_TYPE_STREAM_END = SQXC_TYPE_END | SQXC_TYPE_STREAM,    // reserve (unused now)
-#endif
+	SQXC_TYPE_RESERVE1 = (1 << 10),   // 0x0400    // reserve Sqxc type
+	SQXC_TYPE_RESERVE2 = (1 << 11),   // 0x0800    // reserve Sqxc type
+	SQXC_TYPE_RESERVE3 = (1 << 12),   // 0x1000    // reserve Sqxc type
 
-	// End of SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY.
+	SQXC_TYPE_OBJECT   = (1 << 13),   // 0x2000    // SQL row, JSON object, C struct
+	SQXC_TYPE_ARRAY    = (1 << 14),   // 0x4000    // array or other storage structure
+
+	// End of nested types (object and array)
 	SQXC_TYPE_END      = (1 << 15),   // 0x8000
-
 	SQXC_TYPE_OBJECT_END = SQXC_TYPE_END | SQXC_TYPE_OBJECT,
 	SQXC_TYPE_ARRAY_END  = SQXC_TYPE_END | SQXC_TYPE_ARRAY,
+
+	// --- bitmask ---
+
+	// Sqxc arithmetic type bitmask   // 0x00FF
+	SQXC_TYPE_ARITHMETIC = SQXC_TYPE_NULL     |
+	                       SQXC_TYPE_BOOL     |
+	                       SQXC_TYPE_INT      |
+	                       SQXC_TYPE_UINT     |
+	                       SQXC_TYPE_INT64    |
+	                       SQXC_TYPE_UINT64   |
+	                       SQXC_TYPE_TIME     |
+	                       SQXC_TYPE_DOUBLE,
+
+	// Sqxc nested type bitmask       // 0x6000
+	SQXC_TYPE_NESTED   = SQXC_TYPE_OBJECT     |
+	                     SQXC_TYPE_ARRAY,
+
+	// Sqxc basic type bitmask        // 0x61FF    // exclude raw and reserve Sqxc types
+	SQXC_TYPE_BASIC    = SQXC_TYPE_ARITHMETIC |
+	                     SQXC_TYPE_STR        |
+						 SQXC_TYPE_OBJECT     |
+						 SQXC_TYPE_ARRAY,
+
+	// Sqxc all types bitmask         // 0x63FF    // exclude reserve Sqxc types
+	SQXC_TYPE_ALL      = SQXC_TYPE_ARITHMETIC |
+	                     SQXC_TYPE_STR        |
+	                     SQXC_TYPE_RAW        |
+						 SQXC_TYPE_OBJECT     |
+						 SQXC_TYPE_ARRAY,
 } SqxcType;
 
 /* --- control id that used by SqxcInfo.ctrl() --- */

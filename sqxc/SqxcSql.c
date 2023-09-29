@@ -413,7 +413,7 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 			sq_buffer_write(buffer, "NULL");
 			break;
 		}
-		len = strlen(src->value.raw);
+		len = (int)strlen(src->value.raw);
 		temp.str = sq_buffer_alloc(buffer, len);
 		memcpy(temp.str, src->value.raw, len);
 		break;

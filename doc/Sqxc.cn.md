@@ -16,7 +16,6 @@ Sqxc 转换器的数据类型
 
 | Sqxc 类型名称        | 描述                           |
 | -------------------- | ------------------------------ |
-| SQXC_TYPE_UNKNOWN    | 未指定                         |
 | SQXC_TYPE_NULL       | 对应C值：        NULL          |
 | SQXC_TYPE_BOOL       | 对应C数据类型：  bool          |
 | SQXC_TYPE_INT        | 对应C数据类型：  int           |
@@ -27,11 +26,14 @@ Sqxc 转换器的数据类型
 | SQXC_TYPE_DOUBLE     | 对应C数据类型：  double        |
 | SQXC_TYPE_STR        | 对应C数据类型：  char*         |
 | SQXC_TYPE_STRING     | 对应C数据类型：  char*         |
+| SQXC_TYPE_RAW        | 对应C数据类型：  char*         |
 | SQXC_TYPE_OBJECT     | 对象的开头                     |
 | SQXC_TYPE_ARRAY      | 数组的开头 (或其他容器)        |
 | SQXC_TYPE_OBJECT_END | 对象结束                       |
 | SQXC_TYPE_ARRAY_END  | 数组结束 (或其他容器)          |
 
+注意: SQXC_TYPE_RAW    是原始字符串，主要用于 SQL 数据类型。  
+注意: SQXC_TYPE_STRING 是 SQXC_TYPE_STR 的別名。  
 注意: SQXC_TYPE_OBJECT 对应 SQL 行。  
 注意: SQXC_TYPE_ARRAY  对应 SQL 多行。  
 
