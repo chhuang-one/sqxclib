@@ -17,6 +17,7 @@
 #endif
 #include <stdio.h>    // sscanf()
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>   // malloc()
 #include <string.h>
 
@@ -155,6 +156,48 @@ char   *sq_time_to_string(time_t timeraw, int format_type)
 	         timeinfo->tm_min,
 	         timeinfo->tm_sec);
 	return timestr;
+}
+
+// ----------------------------------------------------------------------------
+
+int   sq_bin_to_hex(char *dest_hex, const char *src_bin, int src_length)
+{
+	const char hex[] = {"0123456789ABCDEF"};
+
+	if (dest_hex != NULL) {
+		for (int idx = 0;  idx < src_length;  idx++) {
+			uint8_t ch = *(uint8_t*)src_bin++;
+			*dest_hex++ = hex[ch >> 4];
+			*dest_hex++ = hex[ch  & 0x0F];
+		}
+	}
+
+	return src_length * 2;
+}
+
+int   sq_hex_to_bin(char *dest_bin, const char *src_hex, int src_length)
+{
+//	if (src_length == 0)
+//		src_length  = strlen(src_hex);
+
+	if (dest_bin != NULL) {
+		for (int idx = 0;  idx < src_length;  idx++) {
+			uint8_t ch = *(uint8_t*)src_hex++;
+			if (ch > 96)
+				ch = ch - 'a' + 10;
+			else if (ch > 64)
+				ch = ch - 'A' + 10;
+			else if (ch > 47)
+				ch = ch - '0';
+
+			if (idx & 1)     // src_hex[1], src_hex[3], src_hex[5]
+				*dest_bin++ |= ch;
+			else             // src_hex[0], src_hex[2], src_hex[4]
+				*dest_bin    = ch << 4;
+		}
+	}
+
+	return src_length >> 1;    // src_length / 2;
 }
 
 // ----------------------------------------------------------------------------

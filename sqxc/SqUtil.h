@@ -31,6 +31,23 @@ time_t  sq_time_from_string(const char *timestr);
 // return NULL if error
 char   *sq_time_to_string(time_t time, int format_type);
 
+/* ----------------------------------------------------------------------------
+	binary convert from/to hex
+ */
+
+// pass NULL to 'dest_hex' to calculate length
+// return length of dest_hex
+int   sq_bin_to_hex(char *dest_hex, const char *src_bin, int src_length);
+
+// 'src_hex' can be the same as 'dest_bin'
+// pass NULL to 'dest_bin' to calculate length
+// return length of dest_bin
+int   sq_hex_to_bin(char *dest_bin, const char *src_hex, int src_length);
+
+/* ----------------------------------------------------------------------------
+	binary convert from/to base64
+ */
+
 #if 0
 /* ----------------------------------------------------------------------------
 	convert string between C and SQL
