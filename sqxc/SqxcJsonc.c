@@ -210,12 +210,11 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 
 	case SQXC_TYPE_RAW:
 	case SQXC_TYPE_STR:
-		if (src->value.str) {
+		if (src->value.str == NULL) {
 			if (src->entry && src->entry->bit_field & SQB_HIDDEN_NULL)
 				return (src->code = SQCODE_OK);
-		}
-		if (src->value.str == NULL)
 			jobject = json_object_new_null();
+		}
 		else
 			jobject = json_object_new_string(src->value.str);
 		break;
