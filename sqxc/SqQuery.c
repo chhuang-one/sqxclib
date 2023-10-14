@@ -1013,6 +1013,9 @@ static const char *get_table(SqQueryNode *parent)
 	return NULL;
 }
 
+// If you set SQ_QUERY_USE_ALONE to 1, you can use SqQuery alone.
+#if SQ_QUERY_USE_ALONE == 0
+
 // array[0] = table1_name, array[1] = table1_as_name,
 // array[2] = table2_name, array[3] = table2_as_name, ...etc
 int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
@@ -1072,6 +1075,8 @@ void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_
 	}
 	free(buffer);
 }
+
+#endif  // SQ_QUERY_USE_ALONE
 
 // ----------------------------------------------------------------------------
 // push/pop SqQueryNested

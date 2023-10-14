@@ -34,8 +34,15 @@
 #include <stdbool.h>       // bool, true, false
 #include <inttypes.h>      // PRId64, PRIu64
 
+// If you set SQ_QUERY_USE_ALONE to 1, you can use SqQuery alone.
+#ifndef SQ_QUERY_USE_ALONE
+#define SQ_QUERY_USE_ALONE        0
+#endif
+
+#if SQ_QUERY_USE_ALONE == 0
 #include <SqPtrArray.h>    // used by sq_query_get_table_as_names()
 #include <SqTable.h>       // used by sq_query_select_table_as()
+#endif
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.
@@ -667,6 +674,10 @@ const char *sq_query_c(SqQuery *query);
 // const char *sq_query_last(SqQuery *query);
 #define sq_query_last(query)        ((query)->str)
 
+// ---- SQ_QUERY_USE_ALONE ----
+// If you set SQ_QUERY_USE_ALONE to 1, you can use SqQuery alone.
+#if SQ_QUERY_USE_ALONE == 0
+
 // get all of table_name and it's as_name in current SQL SELECT statement
 // return number of tables in query.
 // result array 'table_and_as_names':
@@ -682,6 +693,8 @@ int   sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names
 	This function used by SqTypeJoint and user custom type.
  */
 void  sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_as_name, const char *quotes);
+
+#endif  // SQ_QUERY_USE_ALONE
 
 #ifdef __cplusplus
 }  // extern "C"
