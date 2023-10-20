@@ -21,7 +21,10 @@
 #include <SqError.h>
 #include <SqUtil.h>
 #include <SqxcSql.h>
+
+#if SQ_CONFIG_HAVE_JSONC
 #include <SqxcJsonc.h>
+#endif
 
 void  sq_type_buffer_init(void *instance, const SqType *type)
 {
@@ -47,6 +50,7 @@ int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 			break;
 		len = strlen(src->value.str);
 
+#if SQ_CONFIG_HAVE_JSONC
 		if (src->info == SQXC_INFO_JSONC_PARSER) {
 			// TODO:
 			// convert BASE64 to binary
@@ -56,6 +60,9 @@ int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 			buf->mem[len] = 0;        // null-terminated
 		}
 		else {    // if (src->info == SQXC_INFO_VALUE)
+#else
+		{         // if (src->info == SQXC_INFO_VALUE)
+#endif
 			// convert Hex string to binary
 			// Hex format is \xFF  - PostgreSQL
 			if (src->value.str[0] == '\\' && src->value.str[1] == 'x')
@@ -107,6 +114,7 @@ Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest)
 	dest->type = SQXC_TYPE_RAW;
 //	dest->name = dest->name;    // "name" was set by caller of this function
 
+#if SQ_CONFIG_HAVE_JSONC
 	if (dest->info == SQXC_INFO_JSONC_WRITER) {
 		// TODO:
 		// convert binary to BASE64
@@ -116,6 +124,9 @@ Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest)
 		mem[len-1] = 0;
 	}
 	else if (dest->info == SQXC_INFO_SQL) {
+#else
+	if (dest->info == SQXC_INFO_SQL) {
+#endif
 		// convert binary to HEX
 		len = buf->writed *2 +3 +1;    // + (0x , x'' , or \x ) + '\0'
 		mem = malloc(len);
