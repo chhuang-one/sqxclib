@@ -122,15 +122,15 @@ typedef enum {
 	// Sqxc basic type bitmask        // 0x61FF    // exclude raw and reserve Sqxc types
 	SQXC_TYPE_BASIC    = SQXC_TYPE_ARITHMETIC |
 	                     SQXC_TYPE_STR        |
-						 SQXC_TYPE_OBJECT     |
-						 SQXC_TYPE_ARRAY,
+	                     SQXC_TYPE_OBJECT     |
+	                     SQXC_TYPE_ARRAY,
 
 	// Sqxc all types bitmask         // 0x63FF    // exclude reserve Sqxc types
 	SQXC_TYPE_ALL      = SQXC_TYPE_ARITHMETIC |
 	                     SQXC_TYPE_STR        |
 	                     SQXC_TYPE_RAW        |
-						 SQXC_TYPE_OBJECT     |
-						 SQXC_TYPE_ARRAY,
+	                     SQXC_TYPE_OBJECT     |
+	                     SQXC_TYPE_ARRAY,
 } SqxcType;
 
 /* --- control id that used by SqxcInfo.ctrl() --- */
@@ -170,15 +170,6 @@ typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 
 	SQXC_SEND_ARRAY_END(sqxc, NULL);        //  ]
  */
-
-// void sqxc_send_raw(Sqxc **sqxc, const char *entry_name, const char *value);
-#define SQXC_SEND_RAW(sqxc, entry_name, val)             \
-		{                                                \
-			((Sqxc*)(sqxc))->type = SQXC_TYPE_RAW;       \
-			((Sqxc*)(sqxc))->name = entry_name;          \
-			((Sqxc*)(sqxc))->value.raw = (char*)val;     \
-			sqxc = sqxc_send((Sqxc*)(sqxc));             \
-		}
 
 // void sqxc_send_null(Sqxc *sqxc, const char *entry_name);
 #define SQXC_SEND_NULL(sqxc, entry_name)                 \
@@ -270,6 +261,15 @@ typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 			((Sqxc*)(sqxc))->type = SQXC_TYPE_OBJECT;    \
 			((Sqxc*)(sqxc))->name = entry_name;          \
 			((Sqxc*)(sqxc))->value.pointer = NULL;       \
+			sqxc = sqxc_send((Sqxc*)(sqxc));             \
+		}
+
+// void sqxc_send_raw(Sqxc **sqxc, const char *entry_name, const char *value);
+#define SQXC_SEND_RAW(sqxc, entry_name, val)             \
+		{                                                \
+			((Sqxc*)(sqxc))->type = SQXC_TYPE_RAW;       \
+			((Sqxc*)(sqxc))->name = entry_name;          \
+			((Sqxc*)(sqxc))->value.raw = (char*)val;     \
 			sqxc = sqxc_send((Sqxc*)(sqxc));             \
 		}
 
@@ -421,7 +421,6 @@ struct XcMethod
 	/* --- These are called by data source side. --- */
 
 	Sq::Xc  *send(void);
-	Sq::Xc  *sendRaw(const char *entry_name, const char *value);
 	Sq::Xc  *sendNull(const char *entry_name);
 	Sq::Xc  *sendBool(const char *entry_name, bool value);
 	Sq::Xc  *sendInt(const char *entry_name, int value);
@@ -432,6 +431,7 @@ struct XcMethod
 	Sq::Xc  *sendDouble(const char *entry_name, double value);
 	Sq::Xc  *sendString(const char *entry_name, const char *value);
 	Sq::Xc  *sendStr(const char *entry_name, const char *value);
+	Sq::Xc  *sendRaw(const char *entry_name, const char *value);
 
 	Sq::Xc  *sendObjectBeg(const char *entry_name);
 	Sq::Xc  *sendObjectEnd(const char *entry_name);
@@ -627,11 +627,6 @@ inline int  XcMethod::send(XcMethod *arguments_src) {
 inline Sq::Xc  *XcMethod::send(void) {
 	return (Sq::Xc*)sqxc_send((Sqxc*)this);
 }
-inline Sq::Xc  *XcMethod::sendRaw(const char *entry_name, const char *value) {
-	Sqxc *xc = (Sqxc*)this;
-	SQXC_SEND_RAW(xc, entry_name, (char*)value);
-	return (Sq::Xc*)xc;
-}
 inline Sq::Xc  *XcMethod::sendNull(const char *entry_name) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_NULL(xc, entry_name);
@@ -680,6 +675,11 @@ inline Sq::Xc  *XcMethod::sendString(const char *entry_name, const char *value) 
 inline Sq::Xc  *XcMethod::sendStr(const char *entry_name, const char *value) {
 	Sqxc *xc = (Sqxc*)this;
 	SQXC_SEND_STR(xc, entry_name, (char*)value);
+	return (Sq::Xc*)xc;
+}
+inline Sq::Xc  *XcMethod::sendRaw(const char *entry_name, const char *value) {
+	Sqxc *xc = (Sqxc*)this;
+	SQXC_SEND_RAW(xc, entry_name, (char*)value);
 	return (Sq::Xc*)xc;
 }
 

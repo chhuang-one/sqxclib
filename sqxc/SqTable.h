@@ -115,8 +115,8 @@ SqColumn *sq_table_add_custom(SqTable *table, const char *column_name,
                               size_t offset, const SqType *sqtype,
                               int  length);
 SqColumn *sq_table_add_mapping(SqTable *table, const char *column_name,
-                              size_t offset, const SqType *sqtype,
-                              int  sql_type);
+                               size_t offset, const SqType *sqtype,
+                               int  sql_type);
 
 // alias of sq_table_add_bool()
 // SqColumn *sq_table_add_boolean(SqTable *table, const char *column_name, size_t offset);

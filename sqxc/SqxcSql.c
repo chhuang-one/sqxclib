@@ -408,16 +408,6 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 		buffer = sqxc_get_buffer(xcsql);
 
 	switch (src->type) {
-	case SQXC_TYPE_RAW:
-		if (src->value.raw == NULL) {
-			sq_buffer_write(buffer, "NULL");
-			break;
-		}
-		len = (int)strlen(src->value.raw);
-		temp.str = sq_buffer_alloc(buffer, len);
-		memcpy(temp.str, src->value.raw, len);
-		break;
-
 	case SQXC_TYPE_NULL:
 		sq_buffer_write(buffer, "NULL");
 		break;
@@ -525,6 +515,16 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 				buffer->mem[idx++] = '\'';
 			buffer->mem[idx++] = *temp.str;
 		}
+		break;
+
+	case SQXC_TYPE_RAW:
+		if (src->value.raw == NULL) {
+			sq_buffer_write(buffer, "NULL");
+			break;
+		}
+		len = (int)strlen(src->value.raw);
+		temp.str = sq_buffer_alloc(buffer, len);
+		memcpy(temp.str, src->value.raw, len);
 		break;
 
 	default:

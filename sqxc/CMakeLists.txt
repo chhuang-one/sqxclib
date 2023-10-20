@@ -8,8 +8,9 @@ set(SOURCES
 #    SqThread.c
     SqUtil.c
     SqType.c
-    SqType-built-in.c
     SqType-array.c
+    SqType-buffer.c
+    SqType-built-in.c
     SqType-fake.c
     SqEntry.c
     SqColumn.c

@@ -377,7 +377,8 @@ extern "C" {
 
 /* SqType-built-in.c - built-in types */
 extern  const  SqType      SqType_BuiltIn_[];
-extern  const  SqType      SqType_Array_;
+extern  const  SqType      SqType_Buffer_;        // SqBuffer
+extern  const  SqType      SqType_Array_;         // SqArray
 extern  const  SqType      SqType_IntArray_;
 extern  const  SqType      SqType_PtrArray_;
 extern  const  SqType      SqType_StrArray_;
@@ -436,6 +437,10 @@ enum {
 		( (type)<=SQ_TYPE_BUILTIN_END && (type)>=SQ_TYPE_BUILTIN_BEG )
 #define SQ_TYPE_NOT_BUILTIN(type)    \
 		( (type)> SQ_TYPE_BUILTIN_END || (type)< SQ_TYPE_BUILTIN_BEG )
+
+/* define SqType for SqBuffer (SqType-buffer.c)
+ */
+#define SQ_TYPE_BUFFER        (&SqType_Buffer_)     // SqBuffer
 
 /* define SqType for SqArray (SqType-array.c)
    User must assign element type in SqType.entry and set SqType.n_entry to -1.
