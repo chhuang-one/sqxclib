@@ -42,9 +42,9 @@ int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 	int   len;
 
 	switch (src->type) {
-//	case SQXC_TYPE_RAW:
 	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_STR:
+//	case SQXC_TYPE_RAW:
 		buf->writed = 0;
 		if (src->value.str == NULL)
 			break;
@@ -59,10 +59,9 @@ int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 			buf->writed = len;
 			buf->mem[len] = 0;        // null-terminated
 		}
-		else {    // if (src->info == SQXC_INFO_VALUE)
-#else
-		{         // if (src->info == SQXC_INFO_VALUE)
+		else
 #endif
+		{         // if (src->info == SQXC_INFO_VALUE)
 			// convert Hex string to binary
 			// Hex format is \xFF  - PostgreSQL
 			if (src->value.str[0] == '\\' && src->value.str[1] == 'x')
@@ -80,15 +79,17 @@ int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 #ifndef NDEBUG
 				fprintf(stderr, "sq_type_buffer_parse(): string is not hex format.\n");
 #endif
-				if (buf->size < len)
-					sq_buffer_resize(buf, len);
-				memcpy(buf->mem, src->value.str, buf->size);
-				buf->writed = buf->size;
+				// User can assign length of BLOB in SqBuffer.size before parsing
+				if (len < buf->size)
+					len = buf->size;
+				sq_buffer_resize(buf, len);
+				memcpy(buf->mem, src->value.str, len);
+				buf->writed = len;
 				break;
 			}
 
 			// hex string
-			sq_buffer_resize(buf, len / 2);
+			sq_buffer_resize(buf, len >> 1);    // sq_buffer_resize(buf, len / 2)
 			buf->writed = sq_hex_to_bin(buf->mem, src->value.str+2, len);
 		}
 		break;
@@ -123,10 +124,9 @@ Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest)
 		memcpy(mem, buf->mem, buf->writed);
 		mem[len-1] = 0;
 	}
-	else if (dest->info == SQXC_INFO_SQL) {
-#else
-	if (dest->info == SQXC_INFO_SQL) {
+	else
 #endif
+	if (dest->info == SQXC_INFO_SQL) {
 		// convert binary to HEX
 		len = buf->writed *2 +3 +1;    // + (0x , x'' , or \x ) + '\0'
 		mem = malloc(len);
