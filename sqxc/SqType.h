@@ -87,8 +87,13 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 /* SqType::bit_field - SQB_TYPE_xxxx */
 #define SQB_TYPE_DYNAMIC                  (1<<0)    // equal SQB_DYNAMIC, for internal use only
 #define SQB_TYPE_SORTED                   (1<<1)
-#define SQB_TYPE_PARSE_UNKNOWN            (1<<2)
-#define SQB_TYPE_RESERVE_BEG              (1<<3)
+#define SQB_TYPE_PARSE_UNKNOWN            (1<<2)    // This type can handle unknown entry
+
+#ifdef SQ_CONFIG_QUERY_ONLY_COLUMN
+#define SQB_TYPE_QUERY_FIRST              (1<<3)    // SQL: It has query-only columns
+#endif
+
+#define SQB_TYPE_RESERVE_BEG              (1<<4)
 #define SQB_TYPE_RESERVE_END              (1<<7)
 
 /* macro for accessing variable of SqType */
@@ -440,7 +445,9 @@ enum {
 
 /* define SqType for SqBuffer (SqType-buffer.c)
  */
-#define SQ_TYPE_BUFFER        (&SqType_Buffer_)     // SqBuffer
+#define SQ_TYPE_BUFFER            (&SqType_Buffer_)     // SqBuffer
+#define SQ_TYPE_BINARY            SQ_TYPE_BUFFER        // alias of SQ_TYPE_BUFFER
+#define SQ_TYPE_BIN               SQ_TYPE_BUFFER        // alias of SQ_TYPE_BUFFER
 
 /* define SqType for SqArray (SqType-array.c)
    User must assign element type in SqType.entry and set SqType.n_entry to -1.

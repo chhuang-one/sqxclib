@@ -194,6 +194,10 @@ void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t 
 		entry_addr = sq_ptr_array_alloc(array, n_entry);
 		for (;  n_entry;  n_entry--, entry_addr++) {
 			*entry_addr = (void*)entry;
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+			if (entry->bit_field & SQB_QUERY)
+				type->bit_field |= SQB_TYPE_QUERY_FIRST;
+#endif
 			sq_type_decide_size(type, entry, false);
 			entry = (SqEntry*) ((char*)entry + sizeof_entry);
 		}
@@ -208,8 +212,13 @@ void  sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_ent
 		type->bit_field &= ~SQB_TYPE_SORTED;
 		array = sq_type_get_ptr_array(type);
 		SQ_PTR_ARRAY_APPEND(array, entry_ptrs, n_entry_ptrs);
-		for (int index = 0;  index < n_entry_ptrs;  index++, entry_ptrs++)
+		for (int index = 0;  index < n_entry_ptrs;  index++, entry_ptrs++) {
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+			if (entry_ptrs[index]->bit_field & SQB_QUERY)
+				type->bit_field |= SQB_TYPE_QUERY_FIRST;
+#endif
 			sq_type_decide_size(type, *entry_ptrs, false);
+		}
 	}
 }
 

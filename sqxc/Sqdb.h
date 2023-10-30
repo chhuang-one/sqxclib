@@ -86,7 +86,13 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *sql_buf, SqPtrArray *arran
 void sqdb_sql_rename_table(Sqdb *db, SqBuffer *sql_buf, const char *old_name, const char *new_name);
 void sqdb_sql_drop_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, bool if_exist);
 
-void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, const char *table_name, bool is_delete);
+// if 'table_type' is NULL, it writes "SELECT * FROM table_name" to sql_buf.
+//
+// if SQ_CONFIG_QUERY_ONLY_COLUMN is 0, return NULL.
+// otherwise return primary column if 'table_type->bit_field' has SQB_TYPE_QUERY_FIRST.
+SqColumn *sqdb_sql_select(Sqdb *db, SqBuffer *sql_buf, const char *table_name, const SqType *table_type);
+
+void sqdb_sql_delete(Sqdb *db, SqBuffer *sql_buf, const char *table_name);
 
 void sqdb_sql_rename_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column, SqColumn *old_column);
 void sqdb_sql_add_column(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column);

@@ -31,6 +31,7 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 #define SQ_TYPE_CONSTRAINT    SQ_TYPE_FAKE0
 #define SQ_TYPE_INDEX         SQ_TYPE_FAKE1
 
+// deprecated. It replaced by SQ_N_ELEMENTS()
 #define SQ_N_COLUMNS(ColumnArray)    ( sizeof(ColumnArray) / sizeof(ColumnArray[0]) )
 
 // SQL common bit_field
@@ -54,6 +55,12 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 #define SQB_COLUMN_CURRENT              SQB_CURRENT              // SQL: DEFAULT CURRENT_TIMESTAMP
 #define SQB_COLUMN_CURRENT_ON_UPDATE    SQB_CURRENT_ON_UPDATE    // SQL: CREATE TRIGGER AFTER UPDATE
 #define SQB_COLUMN_CURRENT_ALL          SQB_CURRENT_ALL
+
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+// SqColumn::name is for query only.
+#define SQB_COLUMN_QUERY                SQB_QUERY                // SQL: for bitwise AND use
+#define SQB_COLUMN_QUERY_ONLY          (SQB_QUERY | SQB_HIDDEN)  // SQL: query-only column, JSON: hidden
+#endif
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -267,6 +274,13 @@ struct SqColumn
 		return *(Sq::Column*)this;
 	}
 
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+	Sq::Column &queryOnly() {
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_QUERY_ONLY;
+		return *(Sq::Column*)this;
+	}
+#endif
+
 	Sq::Column &default_(const char *default_val) {
 		SQ_COLUMN_SET_DEFAULT(this, default_val);
 		return *(Sq::Column*)this;
@@ -400,6 +414,17 @@ void  sq_column_use_current_on_update(SqColumn *column) {
 	column->bit_field |= SQB_COLUMN_CURRENT_ON_UPDATE;
 }
 
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_column_query_only(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_QUERY_ONLY;
+}
+#endif
+
 #ifdef __cplusplus  // C++
 inline
 #else               // C99
@@ -433,6 +458,11 @@ void  sq_column_nullable(SqColumn *column);
 void  sq_column_change(SqColumn *column);
 void  sq_column_use_current(SqColumn *column);
 void  sq_column_use_current_on_update(SqColumn *column);
+
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+void  sq_column_query_only(SqColumn *column);
+#endif
+
 void  sq_column_default(SqColumn *column, const char *default_value);
 void  sq_column_raw(SqColumn *column, const char *raw_property);
 
@@ -525,6 +555,13 @@ struct ColumnMethod
 		((SqColumn*)this)->bit_field |= SQB_COLUMN_CURRENT_ON_UPDATE;
 		return *(Sq::Column*)this;
 	}
+
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+	Sq::Column &queryOnly() {
+		((SqColumn*)this)->bit_field |= SQB_COLUMN_QUERY_ONLY;
+		return *(Sq::Column*)this;
+	}
+#endif
 
 	Sq::Column &default_(const char *default_val) {
 		SQ_COLUMN_SET_DEFAULT(this, default_val);

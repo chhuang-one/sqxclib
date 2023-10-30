@@ -459,6 +459,12 @@ void test_sqxc_sql_output(bool use_update)
 	xccur->value.integer = 2333;
 	xccur = sqxc_send(xccur);
 
+	xccur->type = SQXC_TYPE_RAW;
+	xccur->name = "str_to_hex";
+	//               = "This is a string.";
+	xccur->value.raw = "0x54686973206973206120737472696E672E";
+	xccur = sqxc_send(xccur);
+
 	xccur->type = SQXC_TYPE_ARRAY;
 	xccur->name = "ints";
 	xccur->value.pointer = NULL;

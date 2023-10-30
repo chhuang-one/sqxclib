@@ -25,6 +25,13 @@
 
 typedef union SqValue        SqValue;
 
+
+/* SQ_N_ELEMENTS() count number of elements present in an array. for example:
+	int  intArray[] = {10, 9, 8, 7, 6};
+	int  n_ints = SQ_N_ELEMENTS(intArray);
+ */
+#define SQ_N_ELEMENTS(Array)     ( sizeof(Array)/sizeof(Array[0]) )
+
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 

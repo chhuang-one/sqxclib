@@ -100,6 +100,11 @@
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
+/* Enable it to enable query-only column when SQL run command SELECT 'query-only-column', * FROM table.
+   Disable it if you don't use query-only column and want to reduce binary size.
+ */
+#define SQ_CONFIG_QUERY_ONLY_COLUMN                1
+
 // ----------------------------------------------------------------------------
 // Default length (size)
 

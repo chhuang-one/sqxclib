@@ -124,6 +124,11 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 
 	entry = src->entry;
 	if (entry) {
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+		// Don't output query-only columns
+		if (entry->bit_field & SQB_COLUMN_QUERY)
+			return (src->code = SQCODE_OK);
+#endif
 		// Don't output column that has AUTO INCREMENT and value.integer is 0
 		if (entry->bit_field & SQB_COLUMN_AUTOINCREMENT) {
 			if (src->value.int64 == 0)    //  && (entry->type == SQ_TYPE_INT64 || entry->type == SQ_TYPE_UINT64)
@@ -223,6 +228,11 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 			if (sq_ptr_array_search(&xcsql->columns, &entry, sq_compare_ptr) == NULL)
 				return (src->code = SQCODE_OK);
 		}
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+		// Don't output query-only columns
+		if (entry->bit_field & SQB_COLUMN_QUERY)
+			return (src->code = SQCODE_OK);
+#endif
 		// Don't output primary key
 		if (entry->bit_field & SQB_COLUMN_PRIMARY)
 			return (src->code = SQCODE_OK);

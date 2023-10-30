@@ -1058,8 +1058,31 @@ void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_
 		table_as_name = table->name;
 	if (quotes == NULL)
 		quotes = "\"\"";
+
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+	if (table->type->bit_field & SQB_TYPE_QUERY_FIRST) {
+		for (int index = 0;  index < type->n_entry;  index++) {
+			column = (SqColumn*)type->entry[index];
+			if (column->bit_field & SQB_COLUMN_QUERY) {
+				buf_len = snprintf(NULL, 0, "%s AS %c%s.%s%c",
+						column->name,
+						quotes[0], table_as_name, column->name, quotes[1]) + 1;
+				buffer = realloc(buffer, buf_len);
+				snprintf(buffer, buf_len, "%s AS %c%s.%s%c",
+						column->name,
+						quotes[0], table_as_name, column->name, quotes[1]);
+				sq_query_select(query, buffer);
+			}
+		}
+	}
+#endif
+
 	for (int index = 0;  index < type->n_entry;  index++) {
 		column = (SqColumn*)type->entry[index];
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+		if (column->bit_field & SQB_COLUMN_QUERY)
+			continue;
+#endif
 		if (SQ_TYPE_IS_FAKE(column->type))
 			continue;
 		buf_len = snprintf(NULL, 0, "%c%s%c.%c%s%c AS %c%s.%s%c",

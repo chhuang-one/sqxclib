@@ -141,12 +141,14 @@ void *sq_storage_get(SqStorage    *storage,
 	sqxc_value_container(xcvalue) = NULL;
 	sqxc_value_instance(xcvalue)  = NULL;
 
-	temp.column = sq_table_get_primary(NULL, table_type);
-
 	// SQL statement
 	buf = sqxc_get_buffer(xcvalue);
 	buf->writed = 0;
-	sqdb_sql_from(storage->db, buf, table_name, false);
+	// select query-only columns before others if table has query-only column
+	temp.column = sqdb_sql_select(storage->db, buf, table_name, table_type);
+	// WHERE primaryKey=...
+	if (temp.column == NULL)
+		temp.column = sq_table_get_primary(NULL, table_type);
 	print_where_column(temp.column, &id, buf, storage->db->info->quote.identifier);
 
 	sqxc_ready(xcvalue, NULL);
@@ -195,7 +197,8 @@ void *sq_storage_get_all(SqStorage    *storage,
 	// SQL statement
 	temp.buf = sqxc_get_buffer(xcvalue);
 	temp.buf->writed = 0;
-	sqdb_sql_from(storage->db, temp.buf, table_name, false);
+	// select query-only columns before others if table has query-only column
+	sqdb_sql_select(storage->db, temp.buf, table_name, table_type);
 
 	// SQL WHERE ... HAVING ...
 	if (sql_where_having)
@@ -372,7 +375,7 @@ void  sq_storage_remove(SqStorage    *storage,
 
 	buf = sqxc_get_buffer(storage->xc_output);
 	buf->writed = 0;
-	sqdb_sql_from(storage->db, buf, table_name, true);
+	sqdb_sql_delete(storage->db, buf, table_name);
 	print_where_column(temp.column, &id, buf, storage->db->info->quote.identifier);
 	sqdb_exec(storage->db, buf->mem, NULL, NULL);
 }
@@ -385,7 +388,7 @@ void  sq_storage_remove_all(SqStorage    *storage,
 
 	buf = sqxc_get_buffer(storage->xc_output);
 	buf->writed = 0;
-	sqdb_sql_from(storage->db, buf, table_name, true);
+	sqdb_sql_delete(storage->db, buf, table_name);
 	if (sql_where_having)
 		sq_buffer_write(buf, sql_where_having);
 	sqdb_exec(storage->db, buf->mem, NULL, NULL);

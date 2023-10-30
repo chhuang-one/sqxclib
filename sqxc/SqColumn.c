@@ -298,6 +298,12 @@ void  sq_column_use_current_on_update(SqColumn *column) {
 	column->bit_field |= SQB_COLUMN_CURRENT_ON_UPDATE;
 }
 
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+void  sq_column_query_only(SqColumn *column) {
+	column->bit_field |= SQB_COLUMN_QUERY_ONLY;
+}
+#endif
+
 void  sq_column_default(SqColumn *column, const char *default_value) {
 	SQ_COLUMN_SET_DEFAULT(column, default_value);
 }

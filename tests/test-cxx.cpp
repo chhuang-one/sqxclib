@@ -76,7 +76,7 @@ void test_schema_with_aggregate_initializer()
 
 	schema = new Sq::Schema("current");
 	table = schema->create<Company>("companies");
-	table->addColumn(UserColumns, SQ_N_PTRS(UserColumns));
+	table->addColumn(UserColumns, SQ_N_ELEMENTS(UserColumns));
 	delete schema;
 }
 

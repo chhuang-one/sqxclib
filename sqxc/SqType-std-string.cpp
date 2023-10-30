@@ -25,17 +25,21 @@
 	We can call C++ constructor/destructor in init()/final()
 
 	// ==== C++ constructor + C malloc()
-	buffer = malloc(size);
-	object = new (buffer) MyClass();
+	memory = malloc(size);
+	object = new (memory) MyClass();
 
 	// ==== C++ destructor  + C free()
 	object->~MyClass();
-	free(buffer);
+	free(memory);
  */
 
 static void sq_type_std_string_init(void *instance, const SqType *type)
 {
+#if 1
 	new (&(*(std::string*)instance)) std::string();
+#else
+	new (instance) std::string();
+#endif
 }
 
 static void sq_type_std_string_final(void *instance, const SqType *type)

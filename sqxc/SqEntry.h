@@ -18,6 +18,7 @@
 #include <stddef.h>    // NULL, offsetof()
 #include <stdbool.h>   // bool, true, false
 
+#include <SqConfig.h>
 #include <SqDefine.h>
 
 // ----------------------------------------------------------------------------
@@ -61,11 +62,18 @@ typedef struct SqReentry        SqReentry;
 #define SQB_CURRENT_ON_UPDATE    (1 << 15)    // SQL: CREATE TRIGGER AFTER UPDATE
 #define SQB_CURRENT_ALL          (SQB_CURRENT | SQB_CURRENT_ON_UPDATE)
 
-/* SQ_N_PTRS() calculate number of pointer in array. for example:
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+// SqColumn::name is for query only.
+#define SQB_QUERY                (1 << 20)                   // SQL: for bitwise AND use
+#define SQB_QUERY_ONLY           (SQB_QUERY | SQB_HIDDEN)    // SQL: query-only, JSON: hidden
+#endif
+
+/* deprecated. It replaced by SQ_N_ELEMENTS()
+	SQ_N_PTRS() count number of elements present in an array. for example:
 	SqEntry *FooEntries[] = {...};
 	int  n_entry = SQ_N_PTRS(FooEntries);
  */
-#define SQ_N_PTRS(PointerArray) ( sizeof(PointerArray)/sizeof(PointerArray[0]) )
+#define SQ_N_PTRS(PointerArray)  ( sizeof(PointerArray)/sizeof(PointerArray[0]) )
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.

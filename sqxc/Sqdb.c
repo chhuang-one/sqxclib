@@ -209,6 +209,11 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 		column = (SqColumn*)arranged_columns->data[index];
 		if (column == NULL)
 			continue;
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+		// skip QUERY ONLY columns
+		if (column->bit_field & SQB_COLUMN_QUERY)
+			continue;
+#endif
 		// skip INDEX
 		if (column->type == SQ_TYPE_INDEX)
 			continue;
@@ -293,12 +298,43 @@ void sqdb_sql_drop_table(Sqdb *db, SqBuffer *buffer, SqTable *table, bool if_exi
 	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
 }
 
-void sqdb_sql_from(Sqdb *db, SqBuffer *sql_buf, const char *table_name, bool is_delete)
+SqColumn *sqdb_sql_select(Sqdb *db, SqBuffer *sql_buf, const char *table_name, const SqType *table_type)
 {
-	sq_buffer_write(sql_buf, (is_delete) ? "DELETE" : "SELECT");
-	if (is_delete == false)
-		sq_buffer_write(sql_buf, " *");
-	sq_buffer_write(sql_buf, " FROM");
+	SqColumn **pcur;
+	SqColumn **pend;
+	SqColumn  *primary = NULL;
+
+	sq_buffer_write(sql_buf, "SELECT");
+
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+	if (table_type && table_type->bit_field & SQB_TYPE_QUERY_FIRST) {
+		for (pcur = (SqColumn**)table_type->entry, pend = pcur + table_type->n_entry;  pcur < pend;  pcur++) {
+			if (pcur[0]->bit_field & SQB_COLUMN_QUERY) {
+				sq_buffer_write_c(sql_buf, ' ');
+				sq_buffer_write(sql_buf, pcur[0]->name);
+				sq_buffer_write_c(sql_buf, ',');
+			}
+			if (primary == NULL) {
+				if (pcur[0]->bit_field & SQB_COLUMN_PRIMARY && SQ_TYPE_IS_INT(pcur[0]->type))
+					primary = pcur[0];
+			}
+		}
+	}
+#endif  // SQ_CONFIG_QUERY_ONLY_COLUMN
+
+	sq_buffer_write(sql_buf, " * ");
+	sq_buffer_write(sql_buf, "FROM");
+	sqdb_sql_write_identifier(db, sql_buf, table_name, false);
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
+
+	return primary;
+}
+
+void sqdb_sql_delete(Sqdb *db, SqBuffer *sql_buf, const char *table_name)
+{
+	sq_buffer_write(sql_buf, "DELETE");
+	sq_buffer_write_c(sql_buf, ' ');
+	sq_buffer_write(sql_buf, "FROM");
 
 	sqdb_sql_write_identifier(db, sql_buf, table_name, false);
 

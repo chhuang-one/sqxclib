@@ -48,7 +48,7 @@ int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 		buf->writed = 0;
 		if (src->value.str == NULL)
 			break;
-		len = strlen(src->value.str);
+		len = (int)strlen(src->value.str);
 
 #if SQ_CONFIG_HAVE_JSONC
 		if (src->info == SQXC_INFO_JSONC_PARSER) {

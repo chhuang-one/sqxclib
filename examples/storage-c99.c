@@ -54,6 +54,9 @@ struct User {
 
 	char  *comment;    // SQL Type: TEXT
 
+	// binary, blob
+	SqBuffer       binary;
+
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in SQL column
 	SqIntArray     ints;    // int array      (JSON array  in SQL column)
 	Post          *post;    // object pointer (JSON object in SQL column)
@@ -96,7 +99,9 @@ static const SqColumn cityColumnsVer1[] = {
 static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_INT,    "id",        offsetof(User, id),        SQB_PRIMARY | SQB_AUTOINCREMENT | SQB_HIDDEN},
 	{SQ_TYPE_STR,    "name",      offsetof(User, name),      0},
-	{SQ_TYPE_STR,    "email",     offsetof(User, email),     0,    .size = 60},
+	{SQ_TYPE_STR,    "email",     offsetof(User, email),     0,
+		.size = 60},
+
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   0,
 		.foreign = &(SqForeign) {"cities",  "id",  "CASCADE",  "CASCADE"} },
@@ -104,6 +109,14 @@ static const SqColumn userColumnsVer1[] = {
 	// type mapping: SQ_TYPE_STR map to SQL data type - TEXT
 	{SQ_TYPE_STR,    "comment",   offsetof(User, comment),   0,
 		.sql_type = SQ_SQL_TYPE_TEXT},
+
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+	// get length of binary and set it to SqBuffer.size before parsing binary.
+	{SQ_TYPE_INT,    "length(binary)", offsetof(User, binary) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
+#endif
+
+	{SQ_TYPE_BIN,    "binary",         offsetof(User, binary), 0,
+		.sql_type = SQ_SQL_TYPE_BLOB},
 
 #if SQ_CONFIG_HAVE_JSONC
 	{SQ_TYPE_INT_ARRAY,    "ints",  offsetof(User, ints),    0},
@@ -186,6 +199,7 @@ User *user_new(void) {
 
 	user = calloc(1, sizeof(User));
 //	user->post = calloc(1, sizeof(Post));
+	sq_buffer_init(&user->binary);
 	sq_int_array_init(&user->ints, 8);
 	return user;
 }
@@ -195,6 +209,7 @@ void user_free(User *user) {
 	free(user->name);
 	free(user->email);
 	free(user->comment);
+	sq_buffer_final(&user->binary);
 	if (user->post) {
 		free(user->post->title);
 		free(user->post->desc);
@@ -210,9 +225,22 @@ void user_print(User *user) {
 	       "user.email = %s\n"
 	       "user.city_id = %d\n"
 	       "user.comment = %s\n",
-	       user->id, user->name,
-	       user->email, user->city_id,
+	       user->id,
+	       user->name,
+	       user->email,
+	       user->city_id,
 	       user->comment);
+
+	int   hex_size = user->binary.writed * 2;
+	char *hex_mem  = malloc(hex_size + 1);
+	hex_mem[hex_size] = 0;
+	sq_bin_to_hex(hex_mem, user->binary.mem, user->binary.writed);
+	printf("user.binary has %d bytes\n"
+	       "user.binary = %*s\n",
+	       user->binary.writed,
+	       hex_size, hex_mem);
+	free(hex_mem);
+
 	printf("user.ints[] = ");
 	for (int i = 0;  i < user->ints.length;  i++) {
 		if (i > 0)
@@ -269,10 +297,10 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 //		schema->version = 1;
 		// CREATE TABLE "cities"
 		table = sq_schema_create(schema, "cities", City);
-		sq_table_add_column(table, cityColumnsVer1, SQ_N_COLUMNS(cityColumnsVer1));
+		sq_table_add_column(table, cityColumnsVer1, SQ_N_ELEMENTS(cityColumnsVer1));
 		// CREATE TABLE "users"
 		table = sq_schema_create(schema, "users", User);
-		sq_table_add_column(table, userColumnsVer1, SQ_N_COLUMNS(userColumnsVer1));
+		sq_table_add_column(table, userColumnsVer1, SQ_N_ELEMENTS(userColumnsVer1));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -283,7 +311,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 //		schema->version = 2;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_column(table, userColumnsVer2, SQ_N_COLUMNS(userColumnsVer2));
+		sq_table_add_column(table, userColumnsVer2, SQ_N_ELEMENTS(userColumnsVer2));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -294,7 +322,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 //		schema->version = 3;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_column(table, userColumnsVer3, SQ_N_COLUMNS(userColumnsVer3));
+		sq_table_add_column(table, userColumnsVer3, SQ_N_ELEMENTS(userColumnsVer3));
 		// add "test_drop" after dropping "test_drop"
 		column = sq_table_add_uint(table, "test_drop", offsetof(User, test_drop));
 		sq_column_nullable(column);
@@ -308,7 +336,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 //		schema->version = 4;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
-		sq_table_add_column(table, userColumnsVer4, SQ_N_COLUMNS(userColumnsVer4));
+		sq_table_add_column(table, userColumnsVer4, SQ_N_ELEMENTS(userColumnsVer4));
 		// migrate
 		sq_storage_migrate(storage, schema);
 		sq_schema_free(schema);
@@ -440,7 +468,7 @@ SqdbConfigPostgre  db_config_postgre = {
 	.host     = "localhost",
 	.port     = 5432,
 	.user     = "postgres",
-	.password = "",
+	.password = "postgres",
 };
 
 #endif
@@ -496,6 +524,10 @@ int  main(void)
 		user->name = strdup("Paul");
 		user->email = strdup("guest@");
 		user->comment = strdup("-- comment text 1");
+		sq_buffer_write_c(&user->binary, 0xFE);
+		sq_buffer_write_c(&user->binary, 0x5A);
+		sq_buffer_write_c(&user->binary, 0x00);
+		sq_buffer_write(&user->binary, "test binary 1");
 		sq_int_array_push(&user->ints, 3);
 		sq_int_array_push(&user->ints, 6);
 #if 1
