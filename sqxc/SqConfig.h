@@ -100,8 +100,11 @@
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
-/* Enable it to enable query-only column when SQL run command SELECT 'query-only-column', * FROM table.
+/* Enable it if you want store result of special query like 'SELECT length(BlobColumn), * FROM table' in C struct.
    Disable it if you don't use query-only column and want to reduce binary size.
+   This is mainly used by SQLite, MySQL to get length of BLOB column.
+   You can disable this if you use PostgreSQL and don't need store result of special query in C struct.
+   Affected source : SqType, SqEntry, SqColumn, SqTable, Sqdb, SqQuery, SqxcSql
  */
 #define SQ_CONFIG_QUERY_ONLY_COLUMN                1
 

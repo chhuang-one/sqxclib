@@ -47,6 +47,11 @@ struct User {
 
 	std::string   comment;    // SQL Type: TEXT
 
+	// If you use SQLite or MySQL to store binary data in SQL column,
+	// Please make sure that SQ_CONFIG_QUERY_ONLY_COLUMN is enabled.
+	// If you use PostgreSQL to do this, you don't need to care about SQ_CONFIG_QUERY_ONLY_COLUMN.
+	Sq::Buffer    picture;    // SQL Type: BLOB, BINARY...etc
+
 	time_t        created_at;
 	time_t        updated_at;
 
@@ -64,10 +69,18 @@ struct User {
 		          << "user.comment = "    << this->comment    << std::endl
 		          << "user.company_id = " << this->company_id << std::endl
 		          << "user.created_at = " << created_at       << std::endl
-		          << "user.updated_at = " << updated_at       << std::endl
-		          << std::endl;
+		          << "user.updated_at = " << updated_at       << std::endl;
 		free(created_at);
 		free(updated_at);
+
+		int   hex_size = this->picture.writed * 2;
+		char *hex_mem  = (char*)malloc(hex_size + 1);
+		hex_mem[hex_size] = 0;
+		sq_bin_to_hex(hex_mem, this->picture.mem, this->picture.writed);
+		std::cout << "user.picture has " << this->picture.writed << " bytes" << std::endl
+		          << "user.picture = " << hex_mem << std::endl
+		          << std::endl;
+		free(hex_mem);
 	}
 };
 
@@ -152,9 +165,20 @@ static const SqColumn userColumns[] = {
 		50},                               // .size    // VARCHAR(50)
 
 	// type mapping: SQ_TYPE_STD_STR map to SQL data type - TEXT
-	{SQ_TYPE_STD_STR, "comment",      offsetof(User, comment), 0,
+	{SQ_TYPE_STD_STR, "comment",      offsetof(User, comment),      0,
 		NULL,                              // .old_name
 		SQ_SQL_TYPE_TEXT},                 // .sql_type
+
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+	// get length of picture and set it to Sq::Buffer.size before parsing picture.
+	// This is mainly used by SQLite, MySQL to get length of BLOB column.
+	// If you use PostgreSQL and don't need store result of special query in C struct,
+	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
+	{SQ_TYPE_INT,     "length(picture)", offsetof(User, picture) + offsetof(Sq::Buffer, size), SQB_QUERY_ONLY},
+#endif
+
+	{SQ_TYPE_BUFFER,  "picture",      offsetof(User, picture),      0,
+		.sql_type = SQ_SQL_TYPE_BLOB},
 
 	{SQ_TYPE_TIME,    "created_at",   offsetof(User, created_at),   SQB_CURRENT},    // DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,    "updated_at",   offsetof(User, updated_at),   SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
@@ -207,7 +231,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table = schema->create<User>("users");
 #if USE_CXX_AGGREGATE_INITIALIZATION == 1
 	// create table by static columns
-	table->addColumn(userColumns, sizeof(userColumns) / sizeof(SqColumn));
+	table->addColumn(userColumns, SQ_N_ELEMENTS(userColumns));
 #else
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name, 50);
@@ -215,6 +239,8 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	// type mapping: SQ_TYPE_STD_STR map to SQL data type - TEXT
 	table->mapping("comment", &User::comment,
 	               SQ_TYPE_STD_STR, SQ_SQL_TYPE_TEXT);
+	// binary, blob
+	table->binary("picture", &User::picture);
 	// call table->timestamps() to use default column names
 	table->timestamps(&User::created_at,
 	                  &User::updated_at);
@@ -263,6 +289,8 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	// type mapping: SQ_TYPE_STD_STR map to SQL data type - TEXT
 	table->mapping("comment", &User::comment,
 	               SQ_TYPE_STD_STR, SQ_SQL_TYPE_TEXT);
+	// binary, blob
+	table->binary("picture", &User::picture);
 #if   1
 	// call table->timestamps() to use default column and member names
 	table->timestamps<User>();
@@ -557,16 +585,21 @@ int  main(int argc, char *argv[])
 	user->id = 1;
 	user->name = (char*)"Bob";
 	user->comment = (char*)"-- comment text 1";
+	user->picture.mem = (char*)"1 binary\x00 1";
+	user->picture.writed = (int)strlen(user->picture.mem) + 3;
 	user->company_id = 1;
 	storage->insert(user);
 
 	user->id = 2;
 	user->name = (char*)"Tom";
 	user->comment = (char*)"-- comment text 2";
+	user->picture.mem = (char*)"2 binary\x00 2";
+	user->picture.writed = (int)strlen(user->picture.mem) + 3;
 	user->company_id = 2;
 	storage->insert(user);
 
 	user->name = NULL;
+	user->picture.mem = NULL;
 	delete user;
 
 	// --- get data from database

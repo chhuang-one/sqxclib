@@ -315,6 +315,39 @@ SqColumn *sq_table_add_char(SqTable *table, const char *name, size_t offset, int
 	return column;
 }
 
+SqColumn *sq_table_add_text(SqTable *table, const char *name, size_t offset)
+{
+	sq_table_add_mapping(table, name, offset, SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+}
+
+SqColumn *sq_table_add_binary(SqTable *table, const char *name, size_t offset)
+{
+	SqColumn *column;
+
+// This is mainly used by SQLite, MySQL to get length of BLOB column.
+// If you use PostgreSQL and don't need store result of special query in C struct,
+// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+	// malloc(strlen("length()") + 1 + strlen(name));
+	char *query_name = malloc(9 + strlen(name));
+	strcpy(query_name, "length(");
+	strcpy(query_name + 7, name);
+	strcat(query_name + 7, ")");
+	column = sq_column_new(query_name, SQ_TYPE_INT);
+	free(query_name);
+	column->offset = offset + offsetof(SqBuffer, size);
+	column->bit_field = SQB_COLUMN_QUERY_ONLY;
+	sq_table_add_column(table, column, 1);
+
+	// sq_table_add_column() will call sq_type_add_entry() to add column;
+	// sq_type_add_entry() has set SQB_TYPE_QUERY_FIRST in table->type->bit_field.
+//	table->type->bit_field |= SQB_TYPE_QUERY_FIRST;
+#endif
+
+	sq_table_add_mapping(table, name, offset, SQ_TYPE_BUFFER, SQ_SQL_TYPE_BINARY);
+	return column;
+}
+
 SqColumn *sq_table_add_custom(SqTable *table, const char *name,
                               size_t offset, const SqType *sqtype,
                               int  length)

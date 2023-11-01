@@ -224,6 +224,8 @@ Below C++ methods (and C functions) are correspond to the different types of col
 | str         | sq_table_add_str       | char*         | VARCHAR           |
 | string      | sq_table_add_string    | char*         | VARCHAR           |
 | char_       | sq_table_add_char      | char*         | CHAR              |
+| text        | sq_table_add_text      | char*         | TEXT              |
+| binary      | sq_table_add_binary    | SqBuffer      | BLOB or BINARY    |
 | custom      | sq_table_add_custom    | *User define* | VARCHAR           |
 
 * Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, it must append '_' in tail of these methods.

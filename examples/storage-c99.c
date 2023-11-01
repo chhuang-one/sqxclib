@@ -54,8 +54,10 @@ struct User {
 
 	char  *comment;    // SQL Type: TEXT
 
-	// binary, blob
-	SqBuffer       binary;
+	// If you use SQLite or MySQL to store binary data in SQL column,
+	// Please make sure that SQ_CONFIG_QUERY_ONLY_COLUMN is enabled.
+	// If you use PostgreSQL to do this, you don't need to care about SQ_CONFIG_QUERY_ONLY_COLUMN.
+	SqBuffer       picture; // SQL Type: BLOB, BINARY...etc
 
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in SQL column
 	SqIntArray     ints;    // int array      (JSON array  in SQL column)
@@ -111,11 +113,14 @@ static const SqColumn userColumnsVer1[] = {
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
-	// get length of binary and set it to SqBuffer.size before parsing binary.
-	{SQ_TYPE_INT,    "length(binary)", offsetof(User, binary) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
+	// get length of picture and set it to SqBuffer.size before parsing picture.
+	// This is mainly used by SQLite, MySQL to get length of BLOB column.
+	// If you use PostgreSQL and don't need store result of special query in C struct,
+	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
+	{SQ_TYPE_INT,    "length(picture)", offsetof(User, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
 #endif
 
-	{SQ_TYPE_BIN,    "binary",         offsetof(User, binary), 0,
+	{SQ_TYPE_BUFFER, "picture",         offsetof(User, picture), 0,
 		.sql_type = SQ_SQL_TYPE_BLOB},
 
 #if SQ_CONFIG_HAVE_JSONC
@@ -199,7 +204,7 @@ User *user_new(void) {
 
 	user = calloc(1, sizeof(User));
 //	user->post = calloc(1, sizeof(Post));
-	sq_buffer_init(&user->binary);
+	sq_buffer_init(&user->picture);
 	sq_int_array_init(&user->ints, 8);
 	return user;
 }
@@ -209,7 +214,7 @@ void user_free(User *user) {
 	free(user->name);
 	free(user->email);
 	free(user->comment);
-	sq_buffer_final(&user->binary);
+	sq_buffer_final(&user->picture);
 	if (user->post) {
 		free(user->post->title);
 		free(user->post->desc);
@@ -231,13 +236,13 @@ void user_print(User *user) {
 	       user->city_id,
 	       user->comment);
 
-	int   hex_size = user->binary.writed * 2;
+	int   hex_size = user->picture.writed * 2;
 	char *hex_mem  = malloc(hex_size + 1);
 	hex_mem[hex_size] = 0;
-	sq_bin_to_hex(hex_mem, user->binary.mem, user->binary.writed);
-	printf("user.binary has %d bytes\n"
-	       "user.binary = %*s\n",
-	       user->binary.writed,
+	sq_bin_to_hex(hex_mem, user->picture.mem, user->picture.writed);
+	printf("user.picture has %d bytes\n"
+	       "user.picture = %*s\n",
+	       user->picture.writed,
 	       hex_size, hex_mem);
 	free(hex_mem);
 
@@ -524,10 +529,10 @@ int  main(void)
 		user->name = strdup("Paul");
 		user->email = strdup("guest@");
 		user->comment = strdup("-- comment text 1");
-		sq_buffer_write_c(&user->binary, 0xFE);
-		sq_buffer_write_c(&user->binary, 0x5A);
-		sq_buffer_write_c(&user->binary, 0x00);
-		sq_buffer_write(&user->binary, "test binary 1");
+		sq_buffer_write_c(&user->picture, 0xFE);
+		sq_buffer_write_c(&user->picture, 0x5A);
+		sq_buffer_write_c(&user->picture, 0x00);
+		sq_buffer_write(&user->picture, "test picture 1");
 		sq_int_array_push(&user->ints, 3);
 		sq_int_array_push(&user->ints, 6);
 #if 1
