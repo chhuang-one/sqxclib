@@ -12,6 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -317,7 +320,7 @@ SqColumn *sq_table_add_char(SqTable *table, const char *name, size_t offset, int
 
 SqColumn *sq_table_add_text(SqTable *table, const char *name, size_t offset)
 {
-	sq_table_add_mapping(table, name, offset, SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+	return sq_table_add_mapping(table, name, offset, SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
 }
 
 SqColumn *sq_table_add_binary(SqTable *table, const char *name, size_t offset)
