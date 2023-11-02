@@ -60,6 +60,7 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 | nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
 | useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
 | useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
+| queryOnly()          | sq_column_query_only()             | SQB_QUERY_ONLY        |
 | default_(string)     | sq_column_default()                |                       |
 
 * 因为 "default" 是 C/C++ 关键字，所以在此方法的尾部附加 "_"。
@@ -157,6 +158,7 @@ struct SqColumn
 | SQB_NULLABLE           | SQL 属性: 不要使用 "NOT NULL"                 |
 | SQB_CURRENT            | SQL 属性: DEFAULT CURRENT_TIMESTAMP           |
 | SQB_CURRENT_ON_UPDATE  | SQL 属性: 更新记录时使用 CURRENT_TIMESTAMP    |
+| SQB_QUERY_ONLY         | 列名仅适用于 SQL SELECT 查询。                |
 | SQB_RENAMED            | 列或表已重命名。                              |
 | SQB_CHANGED            | 列或表已更改。                                |
 

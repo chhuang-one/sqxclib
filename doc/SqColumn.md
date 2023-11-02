@@ -60,6 +60,7 @@ Below C++ methods (and C functions) are correspond to Column Modifiers:
 | nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
 | useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
 | useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
+| queryOnly()          | sq_column_query_only()             | SQB_QUERY_ONLY        |
 | default_(string)     | sq_column_default()                |                       |
 
 * Because 'default' is C/C++ keywords, it must append '_' in tail of this method.
@@ -157,6 +158,7 @@ Declaring bit_field that used by SqColumn:
 | SQB_NULLABLE           | SQL property: remove "NOT NULL"                 |
 | SQB_CURRENT            | SQL property: DEFAULT CURRENT_TIMESTAMP         |
 | SQB_CURRENT_ON_UPDATE  | SQL property: use CURRENT_TIMESTAMP when a record is updated. |
+| SQB_QUERY_ONLY         | column name only apply to SQL SELECT queries.   |
 | SQB_RENAMED            | column or table has been renamed.               |
 | SQB_CHANGED            | column or table has been altered.               |
 

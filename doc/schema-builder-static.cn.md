@@ -140,7 +140,6 @@ static const SqColumn  otherSampleChanged_2[] = {
 ```
 
 ## C++ 聚合初始化
-
 成员中的所有数据与上面的示例代码相同。  
   
 使用 C++ 聚合初始化在 schema_v1 中定义表和列 （静态）
@@ -198,6 +197,40 @@ static const SqColumn  userColumns[8] = {
 	table = schema_v1->create<User>("users");
 	// 将具有 8 个元素的静态 'userColumns' 添加到表中
 	table->addColumn(userColumns, 8);
+```
+
+## 仅查询列 (静态)
+
+如果您想在 C 结构中存储特殊查询的结果，例如 "SELECT length(BlobColumn), * FROM table"， 请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。
+要定义仅查询列，请将 SqColumn.name 设置为 SELECT 查询，并且 SqColumn.bit_field 具有 SQB_QUERY_ONLY。  
+  
+如果在 SqTable 中使用静态 SqType。 SqType.bit_field 必须有 SQB_TYPE_QUERY_FIRST。  
+  
+例如: 定义列，用于在查询数据时将 SQL 命令 "SELECT length(str), * FROM table" 的结果存储到 C 结构体中。
+
+```c++
+struct QueryFirst
+{
+	int    id;
+
+	char  *str;
+
+	// 'str' 的长度
+	// SQL 命令: SELECT length(str), * FROM table
+	int    str_length;
+};
+
+static const SqColumn  QueryFirstColumns[3] = {
+	// 主键
+	{SQ_TYPE_INT,    "id",          offsetof(QueryFirst, id),         SQB_PRIMARY},
+
+	// 仅查询列
+	// 列名称是 SELECT 查询并且 SqColumn.bit_field 具有 SQB_QUERY_ONLY
+	{SQ_TYPE_INT,    "length(str)", offsetof(QueryFirst, str_length), SQB_QUERY_ONLY},
+
+	// VARCHAR
+	{SQ_TYPE_STR,    "str",         offsetof(QueryFirst, str),        0},
+};
 ```
 
 ## 迁移

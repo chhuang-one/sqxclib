@@ -199,6 +199,40 @@ static const SqColumn  userColumns[8] = {
 	table->addColumn(userColumns, 8);
 ```
 
+## Query-only Column (static)
+
+Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want store result of special query like 'SELECT length(BlobColumn), * FROM table' in C struct.
+To define a query-only column, set SqColumn.name to the SELECT query and SqColumn.bit_field have SQB_QUERY_ONLY.  
+  
+If you use static SqType in SqTable. SqType.bit_field must have SQB_TYPE_QUERY_FIRST.  
+  
+e.g. Define columns used to store the results of the SQL command "SELECT length(str), * FROM table" into a C structure when querying data.
+
+```c++
+struct QueryFirst
+{
+	int    id;
+
+	char  *str;
+
+	// length of 'str'
+	// SQL command: SELECT length(str), * FROM table
+	int    str_length;
+};
+
+static const SqColumn  QueryFirstColumns[3] = {
+	// PRIMARY KEY
+	{SQ_TYPE_INT,    "id",          offsetof(QueryFirst, id),         SQB_PRIMARY},
+
+	// query-only column
+	// column name is SELECT queries and SqColumn.bit_field has SQB_QUERY_ONLY
+	{SQ_TYPE_INT,    "length(str)", offsetof(QueryFirst, str_length), SQB_QUERY_ONLY},
+
+	// VARCHAR
+	{SQ_TYPE_STR,    "str",         offsetof(QueryFirst, str),        0},
+};
+```
+
 ## Migrations
 
 Whether dynamic and static definitions, the code that running migrations is the same.  

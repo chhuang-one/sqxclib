@@ -165,6 +165,18 @@ typedef struct Company
 #define SQT_CHAR_AS(structure, member, length)   \
 		(column_cur_ = sq_table_add_char(table_cur_, #member, offsetof(structure, member), length))
 
+#define SQT_TEXT(column_name, structure, member)   \
+		(column_cur_ = sq_table_add_text(table_cur_, column_name, offsetof(structure, member)))
+
+#define SQT_TEXT_AS(structure, member)   \
+		(column_cur_ = sq_table_add_text(table_cur_, #member, offsetof(structure, member)))
+
+#define SQT_BINARY(column_name, structure, member)   \
+		(column_cur_ = sq_table_add_binary(table_cur_, column_name, offsetof(structure, member)))
+
+#define SQT_BINARY_AS(structure, member)   \
+		(column_cur_ = sq_table_add_binary(table_cur_, #member, offsetof(structure, member)))
+
 #define SQT_CUSTOM(column_name, structure, member, sqtype, length)  \
 		(column_cur_ = sq_table_add_custom(table_cur_, column_name, offsetof(structure, member), sqtype, length))
 

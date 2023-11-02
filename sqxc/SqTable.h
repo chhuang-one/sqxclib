@@ -195,6 +195,14 @@ SqColumn *sq_table_add_mapping(SqTable *table, const char *column_name,
 #define sq_table_add_char_as(table, Structure, Member, length)    \
 		sq_table_add_char(table, #Member, offsetof(Structure, Member), length)
 
+// SqColumn *sq_table_add_text_as(SqTable *table, Structure, Member)
+#define sq_table_add_text_as(table, Structure, Member)            \
+		sq_table_add_text(table, #Member, offsetof(Structure, Member))
+
+// SqColumn *sq_table_add_binary_as(SqTable *table, Structure, Member)
+#define sq_table_add_binary_as(table, Structure, Member)          \
+		sq_table_add_binary(table, #Member, offsetof(Structure, Member))
+
 // SqColumn *sq_table_add_custom_as(SqTable *table, Structure, Member, const SqType *type, int length)
 #define sq_table_add_custom_as(table, Structure, Member, type, length)    \
 		sq_table_add_custom(table, #Member, offsetof(Structure, Member), type, length)
@@ -302,8 +310,11 @@ struct TableMethod
 	                       const char *updated_at_name, size_t updated_at_offset);
 	void        timestamps(size_t created_at_offset, size_t updated_at_offset);
 	Sq::Column &double_(const char *column_name, size_t offset, int precision = 0, int scale = 0);
+
 	Sq::Column &string(const char *column_name, size_t offset, int length = -1);
+	// alias of string
 	Sq::Column &str(const char *column_name, size_t offset, int length = -1);
+
 	Sq::Column &char_(const char *column_name, size_t offset, int length = -1);
 	Sq::Column &text(const char *column_name, size_t offset);
 	Sq::Column &binary(const char *column_name, size_t offset);
@@ -311,6 +322,7 @@ struct TableMethod
 	Sq::Column &mapping(const char *column_name, size_t offset, const SqType *type, int sql_type);
 
 	Sq::Column &stdstring(const char *column_name, size_t offset, int length = -1);
+	// alias of stdstring()
 	Sq::Column &stdstr(const char *column_name, size_t offset, int length = -1);
 
 	template<class Store, class Type>
@@ -338,10 +350,13 @@ struct TableMethod
 	void        timestamps();
 	template<class Store, class Type>
 	Sq::Column &double_(const char *column_name, Type Store::*member, int precision = 0, int scale = 0);
+
 	template<class Store, class Type>
 	Sq::Column &string(const char *column_name, Type Store::*member, int length = -1);
+	// alias of string
 	template<class Store, class Type>
 	Sq::Column &str(const char *column_name, Type Store::*member, int length = -1);
+
 	template<class Store, class Type>
 	Sq::Column &char_(const char *column_name, Type Store::*member, int length = -1);
 	template<class Store, class Type>
@@ -355,6 +370,7 @@ struct TableMethod
 
 	template<class Store, class Type>
 	Sq::Column &stdstring(const char *column_name, Type Store::*member, int length = -1);
+	// alias of stdstring()
 	template<class Store, class Type>
 	Sq::Column &stdstr(const char *column_name, Type Store::*member, int length = -1);
 
