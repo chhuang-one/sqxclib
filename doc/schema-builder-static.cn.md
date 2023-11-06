@@ -19,7 +19,6 @@ struct User {
 	int     id;          // 主键
 	char   *name;
 	char   *email;
-	char   *text;
 	int     city_id;     // 外键
 
 	time_t  created_at;
@@ -49,10 +48,6 @@ static const SqColumn  userColumns[8] = {
 	// VARCHAR(60)
 	{SQ_TYPE_STR,    "email",      offsetof(User, email),
 		.size = 60},
-
-	// TEXT    // 类型映射：SQ_TYPE_STR 映射到 SQL 数据类型 - TEXT
-	{SQ_TYPE_STR,    "text",       offsetof(User, text),
-		.sql_type = SQ_SQL_TYPE_TEXT},   // 映射到 SQL 数据类型 - TEXT
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
@@ -165,11 +160,6 @@ static const SqColumn  userColumns[8] = {
 		0,                             // .sql_type
 		60},                           // .size        // VARCHAR(60)
 
-	// TEXT    // 类型映射：SQ_TYPE_STR 映射到 SQL 数据类型 - TEXT
-	{SQ_TYPE_STR,    "text",       offsetof(User, text),       0,
-		NULL,                          // .old_name
-		SQ_SQL_TYPE_TEXT},             // .sql_type    // 映射到 SQL 数据类型 - TEXT
-
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
 
@@ -204,8 +194,6 @@ static const SqColumn  userColumns[8] = {
 如果您想在 C 结构中存储特殊查询的结果，例如 "SELECT length(BlobColumn), * FROM table"， 请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。
 要定义仅查询列，请将 SqColumn.name 设置为 SELECT 查询，并且 SqColumn.bit_field 具有 SQB_QUERY_ONLY。  
   
-如果在 SqTable 中使用静态 SqType。 SqType.bit_field 必须有 SQB_TYPE_QUERY_FIRST。  
-  
 例如: 定义列，用于在查询数据时将 SQL 命令 "SELECT length(str), * FROM table" 的结果存储到 C 结构体中。
 
 ```c++
@@ -220,16 +208,65 @@ struct QueryFirst
 	int    str_length;
 };
 
-static const SqColumn  QueryFirstColumns[3] = {
+static const SqColumn  queryFirstColumns[3] = {
 	// 主键
 	{SQ_TYPE_INT,    "id",          offsetof(QueryFirst, id),         SQB_PRIMARY},
 
-	// 仅查询列
-	// 列名称是 SELECT 查询并且 SqColumn.bit_field 具有 SQB_QUERY_ONLY
+	// 仅查询列：SqColumn.bit_field 具有 SQB_QUERY_ONLY
+	// 列名称是 SELECT 查询
 	{SQ_TYPE_INT,    "length(str)", offsetof(QueryFirst, str_length), SQB_QUERY_ONLY},
 
 	// VARCHAR
 	{SQ_TYPE_STR,    "str",         offsetof(QueryFirst, str),        0},
+};
+```
+
+如果您定义具有仅查询列的常量 SqType。 SqType.bit_field 必须具有 SQB_TYPE_QUERY_FIRST。
+
+```c++
+// queryFirstColumns 的 SqColumn 常量指针数组
+static const SqColumn *queryFirstColumnPtrs[3] = {
+	&QueryFirstColumns[0],
+	&QueryFirstColumns[1],
+	&QueryFirstColumns[2],
+};
+
+// SqType.bit_field 必须具有 SQB_TYPE_QUERY_FIRST
+const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnPtrs, SQB_TYPE_QUERY_FIRST);
+```
+
+## 类型映射（静态）
+
+如果使用 SQL 类型 BLOB 和 TEXT 定义常量 SqColumn，则必须使用类型映射。
+
+```c
+struct Mapping
+{
+	int       id;
+
+	// 类型映射
+	char     *text;
+
+	// 类型映射 + 仅查询列
+	// 在解析之前在 SqBuffer.size 中指定 BLOB 的长度
+	SqBuffer  picture;
+};
+
+static const SqColumn  mappingColumns[4] = {
+	// 主键
+	{SQ_TYPE_INT,    "id",              offsetof(Mapping, id),         SQB_PRIMARY},
+
+	// 类型映射：SQ_TYPE_STR 映射到 SQL 数据类型 - TEXT
+	{SQ_TYPE_STR,    "text",            offsetof(Mapping, text),
+		.sql_type = SQ_SQL_TYPE_TEXT},
+
+	// 仅查询列：SqColumn.bit_field 必须具有 SQB_QUERY_ONLY
+	// 在解析 'picture' 之前在 SqBuffer.size 中指定 BLOB 的长度，这主要针对 SQLite 或 MySQL。
+	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
+
+	// 类型映射：SQ_TYPE_BUFFER 映射到 SQL 数据类型 - BLOB
+	{SQ_TYPE_BUFFER, "picture",         offsetof(Mapping, picture),    0,
+		.sql_type = SQ_SQL_TYPE_BLOB},
 };
 ```
 

@@ -76,10 +76,11 @@ SqType with it's C++ data type
 
 Define bit_field of SqType
 
-| name             | description                            | 
-| ---------------- | -------------------------------------- |
-| SQB_TYPE_DYNAMIC | type can be changed and freed          |
-| SQB_TYPE_SORTED  | type->entry is sorted by SqEntry.name  |
+| name                  | description                            | 
+| --------------------- | -------------------------------------- |
+| SQB_TYPE_DYNAMIC      | type can be changed and freed          |
+| SQB_TYPE_SORTED       | type->entry is sorted by SqEntry.name  |
+| SQB_TYPE_QUERY_FIRST  | type->entry has query-only columns     |
 
 * SQB_TYPE_DYNAMIC is for internal use only. User should NOT set or clear this bit.
 * User can NOT change or free SqType if SqType.bit_field has NOT set SQB_TYPE_DYNAMIC.

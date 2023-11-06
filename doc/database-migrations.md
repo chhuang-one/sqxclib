@@ -271,6 +271,7 @@ Below C++ methods (and C functions) are correspond to Column Modifiers:
 | nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
 | useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
 | useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
+| queryOnly()          | sq_column_query_only()             | SQB_QUERY_ONLY        |
 | default_(string)     | sq_column_default()                |                       |
 
 * Because 'default' is C/C++ keywords, it must append '_' in tail of this method.

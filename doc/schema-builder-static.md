@@ -19,7 +19,6 @@ struct User {
 	int     id;          // primary key
 	char   *name;
 	char   *email;
-	char   *text;
 	int     city_id;     // foreign key
 
 	time_t  created_at;
@@ -49,10 +48,6 @@ static const SqColumn  userColumns[8] = {
 	// VARCHAR(60)
 	{SQ_TYPE_STR,    "email",      offsetof(User, email),
 		.size = 60},
-
-	// TEXT    // type mapping: SQ_TYPE_STR map to SQL data type - TEXT
-	{SQ_TYPE_STR,    "text",       offsetof(User, text),
-		.sql_type = SQ_SQL_TYPE_TEXT},   // map to SQL data type - TEXT
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
@@ -165,11 +160,6 @@ static const SqColumn  userColumns[8] = {
 		0,                             // .sql_type
 		60},                           // .size        // VARCHAR(60)
 
-	// TEXT    // type mapping: SQ_TYPE_STR map to SQL data type - TEXT
-	{SQ_TYPE_STR,    "text",       offsetof(User, text),       0,
-		NULL,                          // .old_name
-		SQ_SQL_TYPE_TEXT},             // .sql_type    // map to SQL data type - TEXT
-
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
 
@@ -199,12 +189,10 @@ static const SqColumn  userColumns[8] = {
 	table->addColumn(userColumns, 8);
 ```
 
-## Query-only Column (static)
+## Query-only column (static)
 
 Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want store result of special query like 'SELECT length(BlobColumn), * FROM table' in C struct.
 To define a query-only column, set SqColumn.name to the SELECT query and SqColumn.bit_field have SQB_QUERY_ONLY.  
-  
-If you use static SqType in SqTable. SqType.bit_field must have SQB_TYPE_QUERY_FIRST.  
   
 e.g. Define columns used to store the results of the SQL command "SELECT length(str), * FROM table" into a C structure when querying data.
 
@@ -220,16 +208,65 @@ struct QueryFirst
 	int    str_length;
 };
 
-static const SqColumn  QueryFirstColumns[3] = {
+static const SqColumn  queryFirstColumns[3] = {
 	// PRIMARY KEY
 	{SQ_TYPE_INT,    "id",          offsetof(QueryFirst, id),         SQB_PRIMARY},
 
-	// query-only column
-	// column name is SELECT queries and SqColumn.bit_field has SQB_QUERY_ONLY
+	// query-only column: SqColumn.bit_field has SQB_QUERY_ONLY
+	// column name is SELECT queries
 	{SQ_TYPE_INT,    "length(str)", offsetof(QueryFirst, str_length), SQB_QUERY_ONLY},
 
 	// VARCHAR
 	{SQ_TYPE_STR,    "str",         offsetof(QueryFirst, str),        0},
+};
+```
+
+If you define constant SqType that has query-only column. SqType.bit_field must have SQB_TYPE_QUERY_FIRST.
+
+```c++
+// constant pointer array of SqColumn for queryFirstColumns
+static const SqColumn *queryFirstColumnPtrs[3] = {
+	&QueryFirstColumns[0],
+	&QueryFirstColumns[1],
+	&QueryFirstColumns[2],
+};
+
+// SqType.bit_field must have SQB_TYPE_QUERY_FIRST
+const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnPtrs, SQB_TYPE_QUERY_FIRST);
+```
+
+## Type mapping (static)
+
+If you define constant SqColumn with SQL type BLOB and TEXT, you must use type mapping.
+
+```c
+struct Mapping
+{
+	int       id;
+
+	// type mapping
+	char     *text;
+
+	// type mapping + query-only column
+	// Assign length of BLOB in SqBuffer.size before parsing
+	SqBuffer  picture;
+};
+
+static const SqColumn  mappingColumns[4] = {
+	// PRIMARY KEY
+	{SQ_TYPE_INT,    "id",              offsetof(Mapping, id),         SQB_PRIMARY},
+
+	// type mapping: SQ_TYPE_STR map to SQL data type - TEXT
+	{SQ_TYPE_STR,    "text",            offsetof(Mapping, text),
+		.sql_type = SQ_SQL_TYPE_TEXT},
+
+	// query-only column: SqColumn.bit_field must have SQB_QUERY_ONLY
+	// Assign length of BLOB in SqBuffer.size before parsing 'picture', This is mainly for SQLite or MySQL.
+	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
+
+	// type mapping: SQ_TYPE_BUFFER map to SQL data type - BLOB
+	{SQ_TYPE_BUFFER, "picture",         offsetof(Mapping, picture),    0,
+		.sql_type = SQ_SQL_TYPE_BLOB},
 };
 ```
 

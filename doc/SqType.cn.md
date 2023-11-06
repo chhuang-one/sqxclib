@@ -76,10 +76,11 @@ SqType 及其 C++ 数据类型
 
 定义 SqType 的 bit_field
 
-| 名称             | 描述                                   | 
-| ---------------- | -------------------------------------- |
-| SQB_TYPE_DYNAMIC | 类型可以改变和释放                     |
-| SQB_TYPE_SORTED  | type->entry 按照 SqEntry.name 排序     |
+| 名称                  | 描述                                   | 
+| --------------------- | -------------------------------------- |
+| SQB_TYPE_DYNAMIC      | 类型可以改变和释放                     |
+| SQB_TYPE_SORTED       | type->entry 按照 SqEntry.name 排序     |
+| SQB_TYPE_QUERY_FIRST  | type->entry 具有仅查询列               |
 
 * SQB_TYPE_DYNAMIC 仅供内部使用。用户不应设置或清除该位。
 * 如果 SqType.bit_field 没有设置 SQB_TYPE_DYNAMIC，用户不能更改或释放 SqType。
