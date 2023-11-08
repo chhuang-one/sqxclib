@@ -73,7 +73,7 @@ Special methods for structured data type.
 | hidden()         | SQB_HIDDEN        | Don't output this data member to JSON.                       |
 | hiddenNull()     | SQB_HIDDEN_NULL   | Don't output this data member to JSON if it's value is NULL. |
 
-For example, to make the column "nullable":
+Example 1: to make the column "nullable".
 
 ```c++
 	/* C++ sample code */
@@ -82,6 +82,20 @@ For example, to make the column "nullable":
 	/* C sample code */
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	sq_column_nullable(column);
+```
+
+Example 2: use query-only column to get length of value in a specified column.  
+It will use SQL statement 'SELECT length(text), * FROM table' to store value in YourStruct.text_length.  
+  
+**Note**: Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want to use this feature.
+
+```c++
+	/* C++ sample code */
+	table->integer("length(text)", &YourStruct::text_length)->queryOnly();
+
+	/* C sample code */
+	column = sq_table_add_integer(table, "length(text)", offsetof(YourStruct, text_length));
+	sq_column_query_only(column);
 ```
 
 ## Change column

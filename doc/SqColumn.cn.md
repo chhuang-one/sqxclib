@@ -73,7 +73,7 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 | hidden()         | SQB_HIDDEN        | 不要将此数据成员输出到 JSON。                      |
 | hiddenNull()     | SQB_HIDDEN_NULL   | 如果它的值为 NULL，则不要将此数据成员输出到 JSON。 |
 
-例如，使列 "nullable":
+示例1：使列 "nullable"。
 
 ```c++
 	/* C++ 示例代码 */
@@ -82,6 +82,20 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 	/* C 示例代码 */
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	sq_column_nullable(column);
+```
+
+示例2：使用仅查询列来获取指定列中值的长度。  
+它将使用 SQL 语句 'SELECT length(text), * FROM table' 将值存储在 YourStruct.text_length 中。  
+  
+**注意**：如果要使用此功能，请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。
+
+```c++
+	/* C++ 示例代码 */
+	table->integer("length(text)", &YourStruct::text_length)->queryOnly();
+
+	/* C 示例代码 */
+	column = sq_table_add_integer(table, "length(text)", offsetof(YourStruct, text_length));
+	sq_column_query_only(column);
 ```
 
 ## 更改列

@@ -226,9 +226,9 @@ If you define constant SqType that has query-only column. SqType.bit_field must 
 ```c++
 // constant pointer array of SqColumn for queryFirstColumns
 static const SqColumn *queryFirstColumnPtrs[3] = {
-	&QueryFirstColumns[0],
-	&QueryFirstColumns[1],
-	&QueryFirstColumns[2],
+	&queryFirstColumns[0],
+	&queryFirstColumns[1],
+	&queryFirstColumns[2],
 };
 
 // SqType.bit_field must have SQB_TYPE_QUERY_FIRST
@@ -261,7 +261,8 @@ static const SqColumn  mappingColumns[4] = {
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
 	// query-only column: SqColumn.bit_field must have SQB_QUERY_ONLY
-	// Assign length of BLOB in SqBuffer.size before parsing 'picture', This is mainly for SQLite or MySQL.
+	// Assign length of BLOB in SqBuffer.size before parsing 'picture'.
+	// use this to get length of BLOB data for SQLite or MySQL.
 	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
 
 	// type mapping: SQ_TYPE_BUFFER map to SQL data type - BLOB

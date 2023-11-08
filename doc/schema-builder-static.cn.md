@@ -226,9 +226,9 @@ static const SqColumn  queryFirstColumns[3] = {
 ```c++
 // queryFirstColumns 的 SqColumn 常量指针数组
 static const SqColumn *queryFirstColumnPtrs[3] = {
-	&QueryFirstColumns[0],
-	&QueryFirstColumns[1],
-	&QueryFirstColumns[2],
+	&queryFirstColumns[0],
+	&queryFirstColumns[1],
+	&queryFirstColumns[2],
 };
 
 // SqType.bit_field 必须具有 SQB_TYPE_QUERY_FIRST
@@ -261,7 +261,8 @@ static const SqColumn  mappingColumns[4] = {
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
 	// 仅查询列：SqColumn.bit_field 必须具有 SQB_QUERY_ONLY
-	// 在解析 'picture' 之前在 SqBuffer.size 中指定 BLOB 的长度，这主要针对 SQLite 或 MySQL。
+	// 在解析 'picture' 之前在 SqBuffer.size 中指定 BLOB 的长度。
+	// 使用它来获取 SQLite 或 MySQL 的 BLOB 数据的长度。
 	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
 
 	// 类型映射：SQ_TYPE_BUFFER 映射到 SQL 数据类型 - BLOB

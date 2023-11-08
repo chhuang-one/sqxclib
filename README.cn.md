@@ -8,21 +8,27 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## 目前的功能:
-1. 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL 表、列、迁移，
+* 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL 表、列、迁移，
    这可以减少制作架构时的运行时间，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)。
    当然也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
-2. 所有定义的 SQL表和列 都可以用于解析 JSON 对象和字段。也可以从 SQL 列 解析 JSON 对象和数组。
+* 所有定义的 SQL 表和列 都可以用于解析 JSON 对象和字段。也可以从 SQL 列 解析 JSON 对象和数组。
 
-3. 可以在低端硬件上工作。
+* BLOB 支持。
 
-4. 单一头文件 〈 **sqxclib.h** 〉 (注意: 不包含特殊宏和支持库)
+* 自定义类型映射。
 
-5. 命令行工具可以生成迁移并进行迁移。见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
+* 可以独立使用的查询生成器。
 
-6. 支持 SQLite, MySQL / MariaDB, PostgreSQL。
+* 可以在低端硬件上工作。
 
-7. 提供项目模板。见目录 [project-template](project-template)。
+* 单一头文件 〈 **sqxclib.h** 〉 (注意: 不包含特殊宏和支持库)
+
+* 命令行工具可以生成迁移并进行迁移。见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
+
+* 支持 SQLite, MySQL / MariaDB, PostgreSQL。
+
+* 提供项目模板。见目录 [project-template](project-template)。
 
 ## 数据库架构
 

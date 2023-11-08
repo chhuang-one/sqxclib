@@ -8,21 +8,27 @@ sqxclib is a library to convert data between C language and SQL (or JSON...etc).
 Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## Current features:
-1. User can use C99 designated initializer or C++ aggregate initialization to define SQL table, column, and migration statically,
+* User can use C99 designated initializer or C++ aggregate initialization to define SQL table, column, and migration statically,
    this can reduce running time when making schema, see doc/[schema-builder-static.md](doc/schema-builder-static.md).
    You can also use C functions or C++ methods to do these dynamically.
 
-2. All defined table and column can use to parse JSON object and field. Program can also parse JSON object and array from SQL column.
+* All defined table and column can use to parse JSON object and field. Program can also parse JSON object and array from SQL column.
 
-3. It can work in low-end hardware.
+* BLOB support.
 
-4. Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros and support libraries)
+* Custom type mapping.
 
-5. Command-line tools can generate migration and do migrate. See doc/[SqApp.md](doc/SqApp.md)
+* Query builder that can be used independently.
 
-6. Supports SQLite, MySQL / MariaDB, PostgreSQL.
+* It can work in low-end hardware.
 
-7. Provide project template. see directory [project-template](project-template).
+* Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros and support libraries)
+
+* Command-line tools can generate migration and do migrate. See doc/[SqApp.md](doc/SqApp.md)
+
+* Supports SQLite, MySQL / MariaDB, PostgreSQL.
+
+* Provide project template. see directory [project-template](project-template).
 
 ## Database schema
 
