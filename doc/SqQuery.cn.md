@@ -6,9 +6,7 @@ SqQuery 是支持子查询和括号的查询构建器。
   
 **SqQuery 设计上可以独立运作。**  
 若要单独使用 SqQuery，可将 SqQuery.h、SqQuery.c 和 SqQuery-proxy.h 复制到其他软件项目中，并在 SqQuery.h 头文件中将 SQ_QUERY_USE_ALONE 设置为 1。
-它只是删除了 SqQuery 中的 sq_query_get_table_as_names() 和 sq_query_select_table_as() 声明和函数。  
-  
-您还可以通过从 Makefile 中删除 SqQuery.c 和 SqStorage-query.c 来使用其他查询构建器来替换 sqxclib 中的 SqQuery。
+它只是删除了 SqQuery 中的 sq_query_get_table_as_names() 和 sq_query_select_table_as() 声明和函数。
 
 ## 创建查询并生成 SQL 语句
 
@@ -1299,25 +1297,4 @@ C++ 语言示例：
 	// 如果第二个参数不存在，则将第一个参数作为原始字符串处理。
 	// WHERE city LIKE 'ber%'
 	query->whereRaw("city LIKE 'ber%'");
-```
-
-## 附录 : 使用宏生成查询
-
-宏 SQ_QUERY_DO() 用于构建查询。宏中的最后一个参数类似于 lambda 函数。
-
-```c
-#include <sqxclib.h>
-#include <SqQuery-macro.h>    // sqxclib.h 不包含特殊的宏
-
-	SQ_QUERY_DO(query, {
-		SQQ_SELECT("id", "age");
-		SQQ_FROM("companies");
-		SQQ_JOIN_SUB({
-			SQQ_FROM("city");
-			SQQ_WHERE("id", "<", "%d", 100);
-		});
-		SQQ_AS("c");
-		SQQ_ON_RAW("c.id = companies.city_id");
-		SQQ_WHERE_RAW("age > %d", 5);
-	});
 ```

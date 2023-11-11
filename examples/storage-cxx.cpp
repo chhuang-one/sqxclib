@@ -172,7 +172,7 @@ static const SqColumn userColumns[] = {
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
 	// get length of picture and set it to Sq::Buffer.size before parsing picture.
 	// This is mainly used by SQLite, MySQL to get length of BLOB column.
-	// If you use PostgreSQL and don't need store result of special query in C struct,
+	// If you use PostgreSQL and don't need store result of special query to C structure's member,
 	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
 	{SQ_TYPE_INT,     "length(picture)", offsetof(User, picture) + offsetof(Sq::Buffer, size), SQB_QUERY_ONLY},
 #endif

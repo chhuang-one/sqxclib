@@ -184,7 +184,9 @@ struct User {
 #### 创建列（动态）
 
 要将列添加到表中，您可以使用 SqTable 中的函数。
-在 'schema' 中调用 alter 或 create 函数后，您将获得 SqTable 的实例。
+在 'schema' 中调用 alter 或 create 函数后，您将获得 SqTable 的实例。  
+  
+[SqTable](SqTable.cn.md) 中列出了所有可用的列类型。
 
 ```c++
 	/* C++ 示例代码 */
@@ -206,50 +208,12 @@ struct User {
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 ```
 
-#### 可用的列类型（动态）
-
-下面的 C++ 方法 (和 C 函数)对应于您可以添加到数据库表中的不同类型的列。
-
-| C++ 方法    | C 函数                 | C 数据类型    | SQL 数据类型      |
-| ----------- | ---------------------- | ------------- | ----------------- |
-| boolean     | sq_table_add_bool      | bool          | BOOLEAN           |
-| bool_       | sq_table_add_bool      | bool          | BOOLEAN           |
-| integer     | sq_table_add_integer   | int           | INT               |
-| int_        | sq_table_add_int       | int           | INT               |
-| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    |
-| int64       | sq_table_add_int64     | int64_t       | BIGINT            |
-| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) |
-| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         |
-| double_     | sq_table_add_double    | double        | DOUBLE            |
-| str         | sq_table_add_str       | char*         | VARCHAR           |
-| string      | sq_table_add_string    | char*         | VARCHAR           |
-| char_       | sq_table_add_char      | char*         | CHAR              |
-| text        | sq_table_add_text      | char*         | TEXT              |
-| binary      | sq_table_add_binary    | SqBuffer      | BLOB 或 BINARY    |
-| custom      | sq_table_add_custom    | *用戶定義*    | VARCHAR           |
-
-* 因为 'bool'、'int'、'double' 和 'char' 是 C/C++ 关键字，所以在这些方法的尾部附加 '_'。
-
-以下方法仅适用于 C++ 数据类型。
-
-| C++ 方法    | C 数据类型    |
-| ----------- | ------------- |
-| stdstr      | std::string   |
-| stdstring   | std::string   |
-
-**类型映射**  
-  
-将用户定义的 SqType 映射到 SQL 数据类型。
-
-| C++ 方法    | C 函数                 |
-| ----------- | ---------------------- |
-| mapping     | sq_table_add_mapping   |
-
-参考 [SqTable](SqTable.cn.md) 以获取更多信息。
-
 #### 列修饰符（动态）
 
-在将列添加到表或将条目添加到结构时，您可以使用几个 "修饰符"。
+在将列添加到表或将条目添加到结构时，您可以使用几个 "修饰符"。  
+  
+[SqColumn](SqColumn.cn.md) 中列出了所有可用的列修饰符。  
+  
 例如，使列 "nullable":
 
 ```c++
@@ -260,29 +224,6 @@ struct User {
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	sq_column_nullable(column);
 ```
-
-以下 C++ 方法 (和 C 函数) 对应于列修饰符：
-
-| C++ 方法             | C 函数                             | C 位字段名            |
-| -------------------- | ---------------------------------- | --------------------- |
-| primary()            | sq_column_primary()                | SQB_PRIMARY           |
-| unique()             | sq_column_unique()                 | SQB_UNIQUE            |
-| autoIncrement()      | sq_column_auto_increment()         | SQB_AUTOINCREMENT     |
-| nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
-| useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
-| useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
-| queryOnly()          | sq_column_query_only()             | SQB_QUERY_ONLY        |
-| default_(string)     | sq_column_default()                |                       |
-
-* 因为 "default" 是 C/C++ 关键字，所以在此方法的尾部附加 "_"。
-
-结构类型的特殊方法。
-
-| C++ 方法         | C 位字段名        | 描述                                               |
-| ---------------- | ----------------- | -------------------------------------------------- |
-| pointer()        | SQB_POINTER       | 此数据成员是一个指针。                             |
-| hidden()         | SQB_HIDDEN        | 不要将此数据成员输出到 JSON。                      |
-| hiddenNull()     | SQB_HIDDEN_NULL   | 如果它的值为 NULL，则不要将此数据成员输出到 JSON。 |
 
 #### 更新列属性
 

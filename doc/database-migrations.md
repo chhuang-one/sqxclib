@@ -184,7 +184,9 @@ You can use the drop function to drop an existing table.
 #### Creating Columns (dynamic)
 
 To add columns to the table, you can use functions of SqTable.
-You will get instance of SqTable after calling alter or create function in schema.
+You will get instance of SqTable after calling alter or create function in schema.  
+  
+All available column types are listed in [SqTable](SqTable.md).
 
 ```c++
 	/* C++ sample code */
@@ -206,50 +208,12 @@ You will get instance of SqTable after calling alter or create function in schem
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 ```
 
-#### Available Column Types (dynamic)
-
-Below C++ methods (and C functions) are correspond to the different types of columns that you can add to database tables.
-
-| C++ methods | C functions            | C data type   | SQL data type     |
-| ----------- | ---------------------- | ------------- | ----------------- |
-| boolean     | sq_table_add_bool      | bool          | BOOLEAN           |
-| bool_       | sq_table_add_bool      | bool          | BOOLEAN           |
-| integer     | sq_table_add_integer   | int           | INT               |
-| int_        | sq_table_add_int       | int           | INT               |
-| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    |
-| int64       | sq_table_add_int64     | int64_t       | BIGINT            |
-| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) |
-| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         |
-| double_     | sq_table_add_double    | double        | DOUBLE            |
-| str         | sq_table_add_str       | char*         | VARCHAR           |
-| string      | sq_table_add_string    | char*         | VARCHAR           |
-| char_       | sq_table_add_char      | char*         | CHAR              |
-| text        | sq_table_add_text      | char*         | TEXT              |
-| binary      | sq_table_add_binary    | SqBuffer      | BLOB or BINARY    |
-| custom      | sq_table_add_custom    | *User define* | VARCHAR           |
-
-* Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, it must append '_' in tail of these methods.
-
-Below method is for C++ data type only.
-
-| C++ methods | C++ data type |
-| ----------- | ------------- |
-| stdstr      | std::string   |
-| stdstring   | std::string   |
-
-**Type mapping**  
-  
-Map user defined SqType to SQL data type.
-
-| C++ methods | C functions            |
-| ----------- | ---------------------- |
-| mapping     | sq_table_add_mapping   |
-
-Refering [SqTable](SqTable.md) to get more information.
-
 #### Column Modifiers (dynamic)
 
-There are several "modifiers" you may use when adding a column to table or a entry to structure.
+There are several "modifiers" you may use when adding a column to table or a entry to structure.  
+  
+All available column modifiers are listed in [SqColumn](SqColumn.md).  
+  
 For example, to make the column "nullable":
 
 ```c++
@@ -260,29 +224,6 @@ For example, to make the column "nullable":
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	sq_column_nullable(column);
 ```
-
-Below C++ methods (and C functions) are correspond to Column Modifiers:
-
-| C++ methods          | C functions                        | C bit field name      |
-| -------------------- | ---------------------------------- | --------------------- |
-| primary()            | sq_column_primary()                | SQB_PRIMARY           |
-| unique()             | sq_column_unique()                 | SQB_UNIQUE            |
-| autoIncrement()      | sq_column_auto_increment()         | SQB_AUTOINCREMENT     |
-| nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
-| useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
-| useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
-| queryOnly()          | sq_column_query_only()             | SQB_QUERY_ONLY        |
-| default_(string)     | sq_column_default()                |                       |
-
-* Because 'default' is C/C++ keywords, it must append '_' in tail of this method.
-
-Special methods for structured data type.
-
-| C++ methods      | C bit field name  | Description                                                  |
-| ---------------- | ----------------- | ------------------------------------------------------------ |
-| pointer()        | SQB_POINTER       | This data member is a pointer.                               |
-| hidden()         | SQB_HIDDEN        | Don't output this data member to JSON.                       |
-| hiddenNull()     | SQB_HIDDEN_NULL   | Don't output this data member to JSON if it's value is NULL. |
 
 #### Updating Column Attributes
 

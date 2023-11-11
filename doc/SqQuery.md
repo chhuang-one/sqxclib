@@ -6,9 +6,7 @@ SqQuery is query builder that supports subquery and brackets.
   
 **SqQuery is designed to work independently.**  
 You can use SqQuery alone if you copy SqQuery.h, SqQuery.c, and SqQuery-proxy.h to other software projects and set SQ_QUERY_USE_ALONE to 1 in SqQuery.h header file.
-It just removes the sq_query_get_table_as_names() and sq_query_select_table_as() declarations and functions in SqQuery.  
-  
-You can also use other query builder to replace SqQuery in sqxclib by removing SqQuery.c and SqStorage-query.c from Makefile.
+It just removes the sq_query_get_table_as_names() and sq_query_select_table_as() declarations and functions in SqQuery.
 
 ## create query and generate SQL statement
 
@@ -1299,25 +1297,4 @@ C++ language example:
 	// If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 	// WHERE city LIKE 'ber%'
 	query->whereRaw("city LIKE 'ber%'");
-```
-
-## Appendix: use macro to produce query
-
-macro SQ_QUERY_DO() is used to build query. The last parameter in macro is like lambda function.
-
-```c
-#include <sqxclib.h>
-#include <SqQuery-macro.h>    // sqxclib.h doesn't contain special macros
-
-	SQ_QUERY_DO(query, {
-		SQQ_SELECT("id", "age");
-		SQQ_FROM("companies");
-		SQQ_JOIN_SUB({
-			SQQ_FROM("city");
-			SQQ_WHERE("id", "<", "%d", 100);
-		});
-		SQQ_AS("c");
-		SQQ_ON_RAW("c.id = companies.city_id");
-		SQQ_WHERE_RAW("age > %d", 5);
-	});
 ```

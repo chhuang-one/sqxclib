@@ -85,7 +85,8 @@ Example 1: to make the column "nullable".
 ```
 
 Example 2: use query-only column to get length of value in a specified column.  
-It will use SQL statement 'SELECT length(text), * FROM table' to store value in YourStruct.text_length.  
+  
+It will store result of special query 'SELECT length(text), * FROM table' to C structure's member (here is YourStruct.text_length).  
   
 **Note**: Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want to use this feature.
 
@@ -172,7 +173,7 @@ Declaring bit_field that used by SqColumn:
 | SQB_NULLABLE           | SQL property: remove "NOT NULL"                 |
 | SQB_CURRENT            | SQL property: DEFAULT CURRENT_TIMESTAMP         |
 | SQB_CURRENT_ON_UPDATE  | SQL property: use CURRENT_TIMESTAMP when a record is updated. |
-| SQB_QUERY_ONLY         | column name only apply to SQL SELECT queries.   |
+| SQB_QUERY_ONLY         | column name only apply to SQL SELECT query.     |
 | SQB_RENAMED            | column or table has been renamed.               |
 | SQB_CHANGED            | column or table has been altered.               |
 

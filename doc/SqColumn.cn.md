@@ -85,7 +85,8 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 ```
 
 示例2：使用仅查询列来获取指定列中值的长度。  
-它将使用 SQL 语句 'SELECT length(text), * FROM table' 将值存储在 YourStruct.text_length 中。  
+  
+它将特殊查询 'SELECT length(text), * FROM table' 的结果存储到 C 结构的成员（这里是 YourStruct.text_length）。  
   
 **注意**：如果要使用此功能，请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。
 

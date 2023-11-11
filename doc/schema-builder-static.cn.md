@@ -191,12 +191,17 @@ static const SqColumn  userColumns[8] = {
 
 ## 仅查询列 (静态)
 
-如果您想在 C 结构中存储特殊查询的结果，例如 "SELECT length(BlobColumn), * FROM table"， 请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。
+您可以在 C 结构的成员中存储特殊查询的结果，例如 'SELECT length(BlobColumn), * FROM table'。
 要定义仅查询列，请将 SqColumn.name 设置为 SELECT 查询，并且 SqColumn.bit_field 具有 SQB_QUERY_ONLY。  
   
-例如: 定义列，用于在查询数据时将 SQL 命令 "SELECT length(str), * FROM table" 的结果存储到 C 结构体中。
+**注意**：如果要使用此功能，请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。  
+  
+例如: 定义列，用于在查询数据时将 SQL 语句 'SELECT length(str), * FROM table' 的结果存储到 C 结构的成员中。
 
 ```c++
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
+typedef struct  QueryFirst    QueryFirst;
+
 struct QueryFirst
 {
 	int    id;
@@ -204,7 +209,7 @@ struct QueryFirst
 	char  *str;
 
 	// 'str' 的长度
-	// SQL 命令: SELECT length(str), * FROM table
+	// SQL 语句: SELECT length(str), * FROM table
 	int    str_length;
 };
 
@@ -212,8 +217,9 @@ static const SqColumn  queryFirstColumns[3] = {
 	// 主键
 	{SQ_TYPE_INT,    "id",          offsetof(QueryFirst, id),         SQB_PRIMARY},
 
-	// 仅查询列：SqColumn.bit_field 具有 SQB_QUERY_ONLY
-	// 列名称是 SELECT 查询
+	// 仅查询列：
+	// 1. 列名称是 SELECT 查询
+	// 2. SqColumn.bit_field 具有 SQB_QUERY_ONLY
 	{SQ_TYPE_INT,    "length(str)", offsetof(QueryFirst, str_length), SQB_QUERY_ONLY},
 
 	// VARCHAR
@@ -240,6 +246,9 @@ const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnP
 如果使用 SQL 类型 BLOB 和 TEXT 定义常量 SqColumn，则必须使用类型映射。
 
 ```c
+// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
+typedef struct  Mapping    Mapping;
+
 struct Mapping
 {
 	int       id;

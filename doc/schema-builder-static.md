@@ -191,12 +191,17 @@ static const SqColumn  userColumns[8] = {
 
 ## Query-only column (static)
 
-Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want store result of special query like 'SELECT length(BlobColumn), * FROM table' in C struct.
-To define a query-only column, set SqColumn.name to the SELECT query and SqColumn.bit_field have SQB_QUERY_ONLY.  
+You can store result of special query like 'SELECT length(BlobColumn), * FROM table' to C structure's member.
+To define a query-only column, set SqColumn.name to the SELECT query and SqColumn.bit_field has SQB_QUERY_ONLY.  
   
-e.g. Define columns used to store the results of the SQL command "SELECT length(str), * FROM table" into a C structure when querying data.
+**Note**: Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want to use this feature.  
+  
+e.g. Define columns used to store the results of the SQL statement "SELECT length(str), * FROM table" into a C structure's member when querying data.
 
 ```c++
+// If you use C language, please use 'typedef' to give a struct type a new name.
+typedef struct  QueryFirst    QueryFirst;
+
 struct QueryFirst
 {
 	int    id;
@@ -204,7 +209,7 @@ struct QueryFirst
 	char  *str;
 
 	// length of 'str'
-	// SQL command: SELECT length(str), * FROM table
+	// SQL statement: SELECT length(str), * FROM table
 	int    str_length;
 };
 
@@ -212,8 +217,9 @@ static const SqColumn  queryFirstColumns[3] = {
 	// PRIMARY KEY
 	{SQ_TYPE_INT,    "id",          offsetof(QueryFirst, id),         SQB_PRIMARY},
 
-	// query-only column: SqColumn.bit_field has SQB_QUERY_ONLY
-	// column name is SELECT queries
+	// Query-only column:
+	// 1. column name is SELECT query
+	// 2. SqColumn.bit_field has SQB_QUERY_ONLY
 	{SQ_TYPE_INT,    "length(str)", offsetof(QueryFirst, str_length), SQB_QUERY_ONLY},
 
 	// VARCHAR
@@ -240,6 +246,9 @@ const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnP
 If you define constant SqColumn with SQL type BLOB and TEXT, you must use type mapping.
 
 ```c
+// If you use C language, please use 'typedef' to give a struct type a new name.
+typedef struct  Mapping    Mapping;
+
 struct Mapping
 {
 	int       id;
@@ -260,7 +269,7 @@ static const SqColumn  mappingColumns[4] = {
 	{SQ_TYPE_STR,    "text",            offsetof(Mapping, text),
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
-	// query-only column: SqColumn.bit_field must have SQB_QUERY_ONLY
+	// Query-only column: SqColumn.bit_field must has SQB_QUERY_ONLY
 	// Assign length of BLOB in SqBuffer.size before parsing 'picture'.
 	// use this to get length of BLOB data for SQLite or MySQL.
 	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},

@@ -14,7 +14,6 @@ struct User {
 	int     id;          // primary key
 	char   *name;
 	char   *email;
-	char   *text;
 	int     city_id;     // foreign key
 
 	time_t  created_at;
@@ -44,9 +43,6 @@ macro SQC_XXXX() is used to set column properties.
 
 		// VARCHAR(60)
 		SQT_STRING("email", User, email, 60);
-
-		// TEXT    // type mapping: SQ_TYPE_STR map to SQL data type - TEXT
-		SQT_MAPPING("text", User, text, SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
 
 		// DEFAULT CURRENT_TIMESTAMP
 		SQT_TIMESTAMP("created_at", User, created_at);  SQC_USE_CURRENT();
@@ -87,5 +83,39 @@ macro SQ_SCHEMA_ALTER() can alter table. The last parameter in macro is like lam
 
 		// rename column
 		SQT_RENAME("email", "email2");
+	});
+```
+
+## Query-only column, Type mapping (C macro)
+
+To define a type mapping column, use macro SQT_MAPPING() to map SQL type and SqType.  
+  
+To define a query-only column, set column name to the SELECT query and use macro SQC_QUERY_ONLY() to set column properties.
+**Note**: Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want to use query-only column.  
+
+```c++
+// If you use C language, please use 'typedef' to give a struct type a new name.
+typedef struct  Demo    Demo;
+
+struct Demo {
+	int     id;          // primary key
+
+	char   *text;
+
+	// length of 'text'
+	// SQL statement: SELECT length(text), * FROM table
+	int     text_length;
+};
+
+	// create table "demo"
+	SQ_SCHEMA_CREATE(schema_v1, "demo", Demo, {
+		// PRIMARY KEY
+		SQT_INTEGER("id", Demo, id);  SQC_PRIMARY();
+
+		// type mapping: SQ_TYPE_STR map to SQL data type TEXT
+		SQT_MAPPING("text", Demo, text, SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+
+		// Query-only column
+		SQT_INTEGER("length(text)", Demo, text_length);  SQC_QUERY_ONLY();
 	});
 ```
