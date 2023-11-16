@@ -38,18 +38,8 @@ extern "C" {
 // SqBuffer *sq_buffer_new(void);
 #define sq_buffer_new()        (SqBuffer*) calloc(1, sizeof(SqBuffer))
 
+// void sq_buffer_free(SqBuffer *buf);
 #define sq_buffer_free(buf)    free(sq_buffer_resize(buf, 0))
-
-#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))    // C99
-#define sq_buffer_init(buffer)    \
-		*(buffer) = (SqBuffer){NULL, 0, 0}
-#else
-#define sq_buffer_init(buffer)    \
-		{ ((SqBuffer*)(buffer))->mem = NULL;  ((SqBuffer*)(buffer))->size = 0;  ((SqBuffer*)(buffer))->writed = 0; }
-#endif  // C99
-
-#define sq_buffer_final(buffer)   \
-		sq_buffer_resize((SqBuffer*)buffer, 0)
 
 // void sq_buffer_r_at(SqBuffer *buffer, int reverse_pos)
 #define sq_buffer_r_at(buffer, reverse_pos)    \
@@ -68,27 +58,41 @@ extern "C" {
 #define sq_buffer_insert_c(buffer, position, character)  \
 		*sq_buffer_alloc_at(buffer, position, 1) = (character)
 
-// alias of sq_buffer_insert_n()
-// void sq_buffer_insert_len(SqBuffer *buffer, int position, const char *string, int length);
-#define sq_buffer_insert_len         sq_buffer_insert_n
+// alias of sq_buffer_insert_len()
+// void sq_buffer_insert_n(SqBuffer *buffer, int position, const char *string, int length);
+#define sq_buffer_insert_n         sq_buffer_insert_len
 
-// alias of sq_buffer_write_n()
-//char *sq_buffer_write_len(SqBuffer *buffer, const char *string, int length);
-#define sq_buffer_write_len          sq_buffer_write_n
+// alias of sq_buffer_write_len()
+//char *sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);
+#define sq_buffer_write_n          sq_buffer_write_len
 
 /* --- macro functions --- for maintaining C/C++ inline functions easily */
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L))    // C99
+// void SQ_BUFFER_INIT(SqBuffer *buffer);
+#define SQ_BUFFER_INIT(buffer)    \
+		*(buffer) = (SqBuffer){NULL, 0, 0}
+#else
+// void SQ_BUFFER_INIT(SqBuffer *buffer);
+#define SQ_BUFFER_INIT(buffer)    \
+		{ ((SqBuffer*)(buffer))->mem = NULL;  ((SqBuffer*)(buffer))->size = 0;  ((SqBuffer*)(buffer))->writed = 0; }
+#endif  // C99
+
+//void *SQ_BUFFER_FINAL(SqBuffer *buffer)
+#define SQ_BUFFER_FINAL(buffer)   \
+		sq_buffer_resize((SqBuffer*)buffer, 0)
 
 //char* SQ_BUFFER_WRITE(SqBuffer *buffer, const char *string);
 #define SQ_BUFFER_WRITE(buffer, string)  \
 		strcpy(sq_buffer_alloc(buffer, (int)strlen(string)), string)
 
-//char* SQ_BUFFER_WRITE_N(SqBuffer *buffer, const char *string, int length);
-#define SQ_BUFFER_WRITE_N(buffer, string, length)   \
+//char* SQ_BUFFER_WRITE_LEN(SqBuffer *buffer, const char *string, int length);
+#define SQ_BUFFER_WRITE_LEN(buffer, string, length)   \
 		(char*)memcpy(sq_buffer_alloc(buffer, length), string, length)
 
-// alias of SQ_BUFFER_WRITE_N()
-//char* SQ_BUFFER_WRITE_LEN(SqBuffer *buffer, const char *string, int length);
-#define SQ_BUFFER_WRITE_LEN          SQ_BUFFER_WRITE_N
+// alias of SQ_BUFFER_WRITE_LEN()
+//char* SQ_BUFFER_WRITE_N(SqBuffer *buffer, const char *string, int length);
+#define SQ_BUFFER_WRITE_N          SQ_BUFFER_WRITE_LEN
 
 // void SQ_BUFFER_INSERT(SqBuffer *buffer, int position, const char *string);
 #define SQ_BUFFER_INSERT(buffer, position, string)  \
@@ -97,14 +101,14 @@ extern "C" {
 			       string, length);                 \
 		}
 
-// void SQ_BUFFER_INSERT_N(SqBuffer *buffer, int position, const char *string, int length);
-#define SQ_BUFFER_INSERT_N(buffer, position, string, length)  \
+// void SQ_BUFFER_INSERT_LEN(SqBuffer *buffer, int position, const char *string, int length);
+#define SQ_BUFFER_INSERT_LEN(buffer, position, string, length)  \
 		memcpy(sq_buffer_alloc_at(buffer, position, length),  \
 		       string, length)
 
-// alias of SQ_BUFFER_INSERT_N()
-// void SQ_BUFFER_INSERT_LEN(SqBuffer *buffer, int position, const char *string, int length);
-#define SQ_BUFFER_INSERT_LEN         SQ_BUFFER_INSERT_N
+// alias of SQ_BUFFER_INSERT_LEN()
+// void SQ_BUFFER_INSERT_N(SqBuffer *buffer, int position, const char *string, int length);
+#define SQ_BUFFER_INSERT_N         SQ_BUFFER_INSERT_LEN
 
 // void SQ_BUFFER_REQUIRE(SqBuffer *buffer, int length);
 #define SQ_BUFFER_REQUIRE(buffer, length)               \
@@ -113,6 +117,9 @@ extern "C" {
 			((SqBuffer*)(buffer))->mem  = (char*)realloc(((SqBuffer*)(buffer))->mem, (length)); }
 
 /* --- C functions --- */
+
+void  sq_buffer_init(SqBuffer *buf);
+void *sq_buffer_final(SqBuffer *buf);
 
 void *sq_buffer_resize(SqBuffer *buf, int size);
 
@@ -201,9 +208,9 @@ inline
 #else               // C99
 static inline
 #endif
-char *sq_buffer_write_n(SqBuffer *buffer, const char *string, int length)
+char *sq_buffer_write_len(SqBuffer *buffer, const char *string, int length)
 {
-	return SQ_BUFFER_WRITE_N(buffer, string, length);
+	return SQ_BUFFER_WRITE_LEN(buffer, string, length);
 }
 
 #ifdef __cplusplus  // C++
@@ -221,9 +228,9 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_buffer_insert_n(SqBuffer *buffer, int position, const char *string, int length)
+void  sq_buffer_insert_len(SqBuffer *buffer, int position, const char *string, int length)
 {
-	SQ_BUFFER_INSERT_N(buffer, position, string, length);
+	SQ_BUFFER_INSERT_LEN(buffer, position, string, length);
 }
 
 #ifdef __cplusplus  // C++
@@ -241,9 +248,9 @@ char *sq_buffer_require(SqBuffer *buffer, int length)
 // declare functions here if compiler does NOT support inline function.
 
 char *sq_buffer_write(SqBuffer *buffer, const char *string);
-char *sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);
+char *sq_buffer_write_len(SqBuffer *buffer, const char *string, int length);
 void  sq_buffer_insert(SqBuffer *buffer, int position, const char *string);
-void  sq_buffer_insert_n(SqBuffer *buffer, int position, const char *string, int length);
+void  sq_buffer_insert_len(SqBuffer *buffer, int position, const char *string, int length);
 char *sq_buffer_require(SqBuffer *buffer, int length);
 
 #endif  // __STDC_VERSION__ || __cplusplus
@@ -287,7 +294,7 @@ inline char  *BufferMethod::write(const char *string) {
 	return SQ_BUFFER_WRITE((SqBuffer*)this, string);
 }
 inline char  *BufferMethod::write(const char *string, int length) {
-	return SQ_BUFFER_WRITE_N((SqBuffer*)this, string, length);
+	return SQ_BUFFER_WRITE_LEN((SqBuffer*)this, string, length);
 }
 
 inline void   BufferMethod::insert(int position, char character) {
@@ -297,7 +304,7 @@ inline void   BufferMethod::insert(int position, const char *string) {
 	SQ_BUFFER_INSERT((SqBuffer*)this, position, string);
 }
 inline void   BufferMethod::insert(int position, const char *string, int length) {
-	SQ_BUFFER_INSERT_N((SqBuffer*)this, position, string, length);
+	SQ_BUFFER_INSERT_LEN((SqBuffer*)this, position, string, length);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */

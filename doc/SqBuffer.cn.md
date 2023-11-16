@@ -82,7 +82,7 @@ C 函数 sq_buffer_alloc_at()，C++ 重载方法 alloc() 可以从 SqBuffer 中�
 	sq_buffer_write(buffer, string);
 
 	// 写入一个字符串并指定它的长度
-	sq_buffer_write_n(buffer, string, length);
+	sq_buffer_write_len(buffer, string, length);
 ```
 
 使用 C++ 语言
@@ -112,7 +112,7 @@ C 函数 sq_buffer_alloc_at()，C++ 重载方法 alloc() 可以从 SqBuffer 中�
 	sq_buffer_insert(buffer, position, string);
 
 	// 插入一个字符串并指定它的长度
-	sq_buffer_insert_n(buffer, position, string, length);
+	sq_buffer_insert_len(buffer, position, string, length);
 ```
 
 使用 C++ 语言

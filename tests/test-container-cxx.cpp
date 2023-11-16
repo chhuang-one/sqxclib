@@ -245,9 +245,9 @@ void test_buffer(void)
 	snprintf(sq_buffer_alloc(buf, len), len+1, "%d", 13254);
 
 //	sq_buffer_insert(buf, 2, "xyz");
-	sq_buffer_insert_n(buf, 2, "xyz", 3);
+	sq_buffer_insert_len(buf, 2, "xyz", 3);
 //	sq_buffer_write(buf, "abc");
-	sq_buffer_write_n(buf, "abc", 3);
+	sq_buffer_write_len(buf, "abc", 3);
 	sq_buffer_write_c(buf, 'g');
 	sq_buffer_insert_c(buf, 3, 'q');
 

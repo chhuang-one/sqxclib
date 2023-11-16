@@ -295,7 +295,7 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 			// length of ") VALUES " is 9
 			sq_buffer_resize(buffer, buffer->writed + 9 + values->writed + 1);
 			sq_buffer_write(buffer, ") VALUES ");
-			sq_buffer_write_n(buffer, values->mem, values->writed);
+			sq_buffer_write_len(buffer, values->mem, values->writed);
 			// reset values buffer
 			values->writed = 0;
 		}

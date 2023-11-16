@@ -66,13 +66,13 @@ int   sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
 		if (buffer) {
 			sq_buffer_write_c(buffer, '-');
 			sq_buffer_write(buffer, option->shortcut);
-			sq_buffer_write_n(buffer, ", ", 2);
+			sq_buffer_write_len(buffer, ", ", 2);
 		}
 		length += (int)strlen(option->shortcut) + 2 + 1;
 	}
 	if (option->name) {
 		if (buffer) {
-			sq_buffer_write_n(buffer, "--", 2);
+			sq_buffer_write_len(buffer, "--", 2);
 			sq_buffer_write(buffer, option->name);
 		}
 		length += (int)strlen(option->name) + 2;

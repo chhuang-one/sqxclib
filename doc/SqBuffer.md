@@ -82,7 +82,7 @@ use C language
 	sq_buffer_write(buffer, string);
 
 	// write a string and specify its length
-	sq_buffer_write_n(buffer, string, length);
+	sq_buffer_write_len(buffer, string, length);
 ```
 
 use C++ language
@@ -112,7 +112,7 @@ use C language
 	sq_buffer_insert(buffer, position, string);
 
 	// insert a string and specify its length
-	sq_buffer_insert_n(buffer, position, string, length);
+	sq_buffer_insert_len(buffer, position, string, length);
 ```
 
 use C++ language

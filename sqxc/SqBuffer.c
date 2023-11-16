@@ -17,6 +17,18 @@
 
 #define SQ_BUFFER_SIZE_DEFAULT    SQ_CONFIG_BUFFER_SIZE_DEAULT
 
+void  sq_buffer_init(SqBuffer *buf)
+{
+	buf->mem    = NULL;
+	buf->writed = 0;
+	buf->size   = 0;
+}
+
+void *sq_buffer_final(SqBuffer *buf)
+{
+	return sq_buffer_resize(buf, 0);
+}
+
 void *sq_buffer_resize(SqBuffer *buf, int size)
 {
 	if (size == 0) {
@@ -67,9 +79,9 @@ char *sq_buffer_write(SqBuffer *buffer, const char *string)
 	return SQ_BUFFER_WRITE(buffer, string);
 }
 
-char *sq_buffer_write_n(SqBuffer *buffer, const char *string, int length)
+char *sq_buffer_write_len(SqBuffer *buffer, const char *string, int length)
 {
-	return SQ_BUFFER_WRITE_N(buffer, string, length);
+	return SQ_BUFFER_WRITE_LEN(buffer, string, length);
 }
 
 void  sq_buffer_insert(SqBuffer *buffer, int position, const char *string)
@@ -77,9 +89,9 @@ void  sq_buffer_insert(SqBuffer *buffer, int position, const char *string)
 	SQ_BUFFER_INSERT(buffer, position, string);
 }
 
-void  sq_buffer_insert_n(SqBuffer *buffer, int position, const char *string, int length)
+void  sq_buffer_insert_len(SqBuffer *buffer, int position, const char *string, int length)
 {
-	SQ_BUFFER_INSERT_N(buffer, position, string, length);
+	SQ_BUFFER_INSERT_LEN(buffer, position, string, length);
 }
 
 char *sq_buffer_require(SqBuffer *buffer, int length)

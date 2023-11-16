@@ -16,9 +16,9 @@
 #include <stdio.h>        // stderr
 #endif
 
+#include <SqError.h>
 #include <SqType.h>
 #include <SqBuffer.h>
-#include <SqError.h>
 #include <SqUtil.h>
 #include <SqxcSql.h>
 
@@ -26,17 +26,7 @@
 #include <SqxcJsonc.h>
 #endif
 
-void  sq_type_buffer_init(void *instance, const SqType *type)
-{
-	sq_buffer_init((SqBuffer*)instance);
-}
-
-void  sq_type_buffer_final(void *instance, const SqType *type)
-{
-	sq_buffer_final((SqBuffer*)instance);
-}
-
-int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
+static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	SqBuffer *buf = instance;
 	int   len;
@@ -61,7 +51,8 @@ int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 		}
 		else
 #endif
-		{         // if (src->info == SQXC_INFO_VALUE)
+		// if (src->info == SQXC_INFO_VALUE)
+		{
 			// convert Hex string to binary
 			// Hex format is \xFF  - PostgreSQL
 			if (src->value.str[0] == '\\' && src->value.str[1] == 'x')
@@ -104,7 +95,7 @@ int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 	return (src->code = SQCODE_OK);
 }
 
-Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest)
+static Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest)
 {
 	SqBuffer *buf = instance;
 	Sqxc     *xc;
@@ -119,29 +110,29 @@ Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest)
 	if (dest->info == SQXC_INFO_JSONC_WRITER) {
 		// TODO:
 		// convert binary to BASE64
-		len = buf->writed +1;    // + '\0'
-		mem = malloc(len);
-		memcpy(mem, buf->mem, buf->writed);
-		mem[len-1] = 0;
+		len = buf->writed;
+		mem = malloc(len +1);      // + null-terminated
+		memcpy(mem, buf->mem, len);
+		mem[len] = 0;
 	}
 	else
 #endif
 	if (dest->info == SQXC_INFO_SQL) {
 		// convert binary to HEX
-		len = buf->writed *2 +3 +1;    // + (0x , x'' , or \x ) + '\0'
-		mem = malloc(len);
+		len = buf->writed *2 +3;   // + 0x, x'', or \x
+		mem = malloc(len +1);      // + null-terminated
 		// Hex format is x'FF' - SQLite, MySQL
 		if (((SqxcSql*)dest)->db->info->product == SQDB_PRODUCT_SQLITE) {
 			mem[0] = 'x';
 			mem[1] = '\'';
-			mem[len-2] = '\'';
-			mem[len-1] = 0;        // null-terminated
+			mem[len-1] = '\'';
+			mem[len]   = 0;        // null-terminated
 		}
 		// Hex format is \xFF  - PostgreSQL
 		else if (((SqxcSql*)dest)->db->info->product == SQDB_PRODUCT_POSTGRE) {
 			mem[0] = '\\';
 			mem[1] = 'x';
-			mem[len-2] = 0;        // null-terminated
+			mem[len-1] = 0;        // null-terminated
 			// PostgreSQL send hex like SQL string
 			dest->type = SQXC_TYPE_STR;
 		}
@@ -149,7 +140,7 @@ Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest)
 		else {
 			mem[0] = '0';
 			mem[1] = 'x';
-			mem[len-2] = 0;        // null-terminated
+			mem[len-1] = 0;        // null-terminated
 		}
 		sq_bin_to_hex(mem+2, buf->mem, buf->writed);
 	}
@@ -167,8 +158,8 @@ Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest)
 const SqType SqType_Buffer_ =
 {
 	sizeof(SqBuffer),
-	sq_type_buffer_init,
-	sq_type_buffer_final,
+	(SqTypeFunc)sq_buffer_init,
+	(SqTypeFunc)sq_buffer_final,
 	sq_type_buffer_parse,
 	sq_type_buffer_write,
 };

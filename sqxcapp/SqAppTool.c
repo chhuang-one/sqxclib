@@ -296,8 +296,8 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write_c(buf, '_');
 	sq_buffer_write(buf, migration_name);
 	// strcspn() count length of template file extension
-	sq_buffer_write_n(buf, app->template_extension,
-	                  (int)strcspn(app->template_extension+1, ".") + 1);
+	sq_buffer_write_len(buf, app->template_extension,
+	                    (int)strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	out.path = strdup(buf->mem);
 
@@ -325,8 +325,8 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write_c(buf, '_');
 	sq_buffer_write(buf, migration_name);
 	// strcspn() count length of template file extension
-	sq_buffer_write_n(buf, app->template_extension,
-	                  (int)strcspn(app->template_extension+1, ".") + 1);
+	sq_buffer_write_len(buf, app->template_extension,
+	                    (int)strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	in.path = strdup(buf->mem);
 
@@ -337,8 +337,8 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, "migrations-files");
 	// strcspn() count length of template file extension
-	sq_buffer_write_n(buf, app->template_extension,
-	                  (int)strcspn(app->template_extension+1, ".") + 1);
+	sq_buffer_write_len(buf, app->template_extension,
+	                    (int)strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	out.file = fopen(buf->mem, "a");
 	if (out.file == NULL)
@@ -438,14 +438,14 @@ char *sq_template_write_buffer(const char *template_string, SqPairs *pairs, SqBu
 			break;
 		}
 
-		sq_buffer_write_n(buffer, template_string, (int)(temp_beg - template_string));
+		sq_buffer_write_len(buffer, template_string, (int)(temp_beg - template_string));
 		// + "{{"
 		temp_beg += 2;
 		// get key
 		while(temp_beg[0] == ' ')
 			temp_beg++;
 		len = (int)strcspn(temp_beg, " }");
-		str = sq_buffer_write_n(buffer, temp_beg, len);
+		str = sq_buffer_write_len(buffer, temp_beg, len);
 		str[len] = 0;
 		buffer->writed -= len;
 		// get value
