@@ -1072,7 +1072,7 @@ SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序
 	sq_query_where_exists(),     sq_query_where_not_exists(),
 	sq_query_having(),           sq_query_or_having(),
 	---
-	注意：您必须在子查询或括号的末尾调用 sq_query_end_sub()。
+	注意: 您必须在子查询或括号的末尾调用 sq_query_end_sub()。
 
 下面是上述函数/宏的 C 方便宏：  
 这些 C 宏使用可变参数宏在最后一个参数中传递 NULL。
@@ -1088,7 +1088,7 @@ SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序
 	sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
 	sq_query_having_sub(),       sq_query_or_having_sub(),
 	---
-	注意：您必须在子查询或括号的末尾调用 sq_query_end_sub()。
+	注意: 您必须在子查询或括号的末尾调用 sq_query_end_sub()。
 
 下面的 C++ 方法使用 lambda 函数来支持子查询或括号，用户不需要调用 sq_query_end_sub()  
 

@@ -243,7 +243,9 @@ const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnP
 
 ## 类型映射（静态）
 
-如果使用 SQL 类型 BLOB 和 TEXT 定义常量 SqColumn，则必须使用类型映射。
+如果使用 SQL 类型 BLOB 和 TEXT 定义常量 SqColumn，则必须使用类型映射。  
+  
+示例1: 使用 C SqBuffer 来存储 SQL BLOB 数据。
 
 ```c
 // 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
@@ -257,16 +259,16 @@ struct Mapping
 	char     *text;
 
 	// 类型映射 + 仅查询列
-	// 在解析之前在 SqBuffer.size 中指定 BLOB 的长度
+	// 在解析 'picture' 之前在 SqBuffer.size 中指定 BLOB 的长度
 	SqBuffer  picture;
 };
 
 static const SqColumn  mappingColumns[4] = {
 	// 主键
-	{SQ_TYPE_INT,    "id",              offsetof(Mapping, id),         SQB_PRIMARY},
+	{SQ_TYPE_INT,    "id",              offsetof(Mapping, id),   SQB_PRIMARY},
 
 	// 类型映射：SQ_TYPE_STR 映射到 SQL 数据类型 - TEXT
-	{SQ_TYPE_STR,    "text",            offsetof(Mapping, text),
+	{SQ_TYPE_STR,    "text",            offsetof(Mapping, text), 0,
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
 	// 仅查询列：SqColumn.bit_field 必须具有 SQB_QUERY_ONLY
@@ -276,6 +278,42 @@ static const SqColumn  mappingColumns[4] = {
 
 	// 类型映射：SQ_TYPE_BUFFER 映射到 SQL 数据类型 - BLOB
 	{SQ_TYPE_BUFFER, "picture",         offsetof(Mapping, picture),    0,
+		.sql_type = SQ_SQL_TYPE_BLOB},
+};
+```
+
+示例2: 使用 C++ std::vector<char> 来存储 SQL BLOB 数据。  
+  
+注意: SQ_TYPE_STD_VECTOR_SIZE 在解析整数值时将通过调用 std::vector<char>.resize() 来指定 BLOB 的大小。
+
+```c++
+struct MappingCpp
+{
+	int       id;
+
+	// 类型映射
+	std::string  text;
+
+	// 类型映射 + 仅查询列
+	// 在解析 'picture' 之前调用 std::vector<char>.resize() 来指定 BLOB 的长度。
+	std::vector<char>  picture;
+};
+
+static const SqColumn  mappingCppColumns[4] = {
+	// 主键
+	{SQ_TYPE_INT,     "id",              offsetof(MappingCpp, id),   SQB_PRIMARY},
+
+	// 类型映射：SQ_TYPE_STD_STR 映射到 SQL 数据类型 - TEXT
+	{SQ_TYPE_STD_STR, "text",            offsetof(MappingCpp, text), 0,
+		.sql_type = SQ_SQL_TYPE_TEXT},
+
+	// 仅查询列：SqColumn.bit_field 必须具有 SQB_QUERY_ONLY
+	// 在解析 'picture' 之前调用 std::vector<char>.resize() 来指定 BLOB 的长度。
+	// 使用它来获取 SQLite 或 MySQL 的 BLOB 数据的长度。
+	{SQ_TYPE_STD_VECTOR_SIZE, "length(picture)", offsetof(MappingCpp, picture), SQB_QUERY_ONLY},
+
+	// 类型映射：SQ_TYPE_STD_VECTOR 映射到 SQL 数据类型 - BLOB
+	{SQ_TYPE_STD_VECTOR,      "picture",         offsetof(MappingCpp, picture), 0,
 		.sql_type = SQ_SQL_TYPE_BLOB},
 };
 ```

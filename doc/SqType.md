@@ -59,28 +59,38 @@ Built-in SqType with it's data type
   
 SqType with it's C/C++ container type
 
-| SqType                 | C data type    | C++ data type  |
-| ---------------------- | -------------- | -------------- |
-| SQ_TYPE_ARRAY          | SqArray        | Sq::Array      |
-| SQ_TYPE_INT_ARRAY      | SqIntArray     | Sq::IntArray   |
-| SQ_TYPE_PTR_ARRAY      | SqPtrArray     | Sq::PtrArray   |
-| SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   |
+| SqType                 | C data type    | C++ data type  | description                      |
+| ---------------------- | -------------- | -------------- | -------------------------------- |
+| SQ_TYPE_ARRAY          | SqArray        | Sq::Array      | array of arbitrary elements      |
+| SQ_TYPE_INT_ARRAY      | SqIntArray     | Sq::IntArray   | integer array (used by JSON)     |
+| SQ_TYPE_PTR_ARRAY      | SqPtrArray     | Sq::PtrArray   | pointer array                    |
+| SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   | string array  (used by JSON)     |
+
+SqType with it's C/C++ binary data type
+
+| SqType                 | C data type    | C++ data type  | description                      |
+| ---------------------- | -------------- | -------------- | -------------------------------- |
+| SQ_TYPE_BUFFER         | SqBuffer       | Sq::Buffer     | It can map to SQL data type BLOB |
 
 SqType with it's C++ data type
 
-| SqType                 | C++ data type  |
-| ---------------------- | -------------- |
-| SQ_TYPE_STD_STR        | std::string    |
-| SQ_TYPE_STD_STRING     | std::string    |
-| Sq::TypeStl<Container> | STL containers |
+| SqType                  | C++ data type            | description                       |
+| ----------------------- | ------------------------ | --------------------------------- |
+| SQ_TYPE_STD_STRING      | std::string              | It can map to SQL data type CHAR  |
+| SQ_TYPE_STD_STR         | std::string              | alias of SQ_TYPE_STD_STRING       |
+| SQ_TYPE_STD_VECTOR      | std::vector<char>        | It can map to SQL data type BLOB  |
+| SQ_TYPE_STD_VEC         | std::vector<char>        | alias of SQ_TYPE_STD_VECTOR       |
+| SQ_TYPE_STD_VECTOR_SIZE | std::vector<char> resize | specify size of std::vector<char> |
+| SQ_TYPE_STD_VEC_SIZE    | std::vector<char> resize | alias of SQ_TYPE_STD_VECTOR_SIZE  |
+| Sq::TypeStl<Container>  | STL containers           | create SqType for STL container   |
 
 Define bit_field of SqType
 
-| name                  | description                            | 
+| name                  | description                            |
 | --------------------- | -------------------------------------- |
 | SQB_TYPE_DYNAMIC      | type can be changed and freed          |
-| SQB_TYPE_SORTED       | type->entry is sorted by SqEntry.name  |
-| SQB_TYPE_QUERY_FIRST  | type->entry has query-only columns     |
+| SQB_TYPE_SORTED       | SqType.entry is sorted by SqEntry.name |
+| SQB_TYPE_QUERY_FIRST  | SqType.entry has query-only columns    |
 
 * SQB_TYPE_DYNAMIC is for internal use only. User should NOT set or clear this bit.
 * User can NOT change or free SqType if SqType.bit_field has NOT set SQB_TYPE_DYNAMIC.

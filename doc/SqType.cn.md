@@ -59,28 +59,38 @@ struct SqType
   
 SqType 及其 C/C++ 容器类型
 
-| SqType                 | C 数据类型     | C++ 数据类型   |
-| ---------------------- | -------------- | -------------- |
-| SQ_TYPE_ARRAY          | SqArray        | Sq::Array      |
-| SQ_TYPE_INT_ARRAY      | SqIntArray     | Sq::IntArray   |
-| SQ_TYPE_PTR_ARRAY      | SqPtrArray     | Sq::PtrArray   |
-| SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   |
+| SqType                 | C 数据类型     | C++ 数据类型   | 描述                         |
+| ---------------------- | -------------- | -------------- | ---------------------------- |
+| SQ_TYPE_ARRAY          | SqArray        | Sq::Array      | 任意元素的数组               |
+| SQ_TYPE_INT_ARRAY      | SqIntArray     | Sq::IntArray   | 整数数组  （主要用于 JSON）  |
+| SQ_TYPE_PTR_ARRAY      | SqPtrArray     | Sq::PtrArray   | 指针数组                     |
+| SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   | 字符串数组（主要用于 JSON）  |
+
+SqType 及其 C/C++ 二进制数据类型
+
+| SqType                 | C 数据类型     | C++ 数据类型   | 描述                         |
+| ---------------------- | -------------- | -------------- | ---------------------------- |
+| SQ_TYPE_BUFFER         | SqBuffer       | Sq::Buffer     | 可以映射到 SQL 数据类型 BLOB |
 
 SqType 及其 C++ 数据类型
 
-| SqType                 | C++ 数据类型   |
-| ---------------------- | -------------- |
-| SQ_TYPE_STD_STR        | std::string    |
-| SQ_TYPE_STD_STRING     | std::string    |
-| Sq::TypeStl<Container> | STL containers |
+| SqType                  | C++ 数据类型             | 描述                           |
+| ----------------------- | ------------------------ | ------------------------------ |
+| SQ_TYPE_STD_STRING      | std::string              | 可以映射到 SQL 数据类型 CHAR   |
+| SQ_TYPE_STD_STR         | std::string              | SQ_TYPE_STD_STRING 的别名      |
+| SQ_TYPE_STD_VECTOR      | std::vector<char>        | 可以映射到 SQL 数据类型 BLOB   |
+| SQ_TYPE_STD_VEC         | std::vector<char>        | SQ_TYPE_STD_VECTOR 的别名      |
+| SQ_TYPE_STD_VECTOR_SIZE | std::vector<char> resize | 指定 std::vector<char> 的大小  |
+| SQ_TYPE_STD_VEC_SIZE    | std::vector<char> resize | SQ_TYPE_STD_VECTOR_SIZE 的别名 |
+| Sq::TypeStl<Container>  | STL 容器                 | 为 STL 容器创建 SqType         |
 
 定义 SqType 的 bit_field
 
-| 名称                  | 描述                                   | 
+| 名称                  | 描述                                   |
 | --------------------- | -------------------------------------- |
 | SQB_TYPE_DYNAMIC      | 类型可以改变和释放                     |
-| SQB_TYPE_SORTED       | type->entry 按照 SqEntry.name 排序     |
-| SQB_TYPE_QUERY_FIRST  | type->entry 具有仅查询列               |
+| SQB_TYPE_SORTED       | SqType.entry 按照 SqEntry.name 排序    |
+| SQB_TYPE_QUERY_FIRST  | SqType.entry 具有仅查询列              |
 
 * SQB_TYPE_DYNAMIC 仅供内部使用。用户不应设置或清除该位。
 * 如果 SqType.bit_field 没有设置 SQB_TYPE_DYNAMIC，用户不能更改或释放 SqType。

@@ -243,7 +243,9 @@ const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnP
 
 ## Type mapping (static)
 
-If you define constant SqColumn with SQL type BLOB and TEXT, you must use type mapping.
+If you define constant SqColumn with SQL type BLOB and TEXT, you must use type mapping.  
+  
+Example 1: use C SqBuffer to store SQL BLOB data.
 
 ```c
 // If you use C language, please use 'typedef' to give a struct type a new name.
@@ -257,25 +259,61 @@ struct Mapping
 	char     *text;
 
 	// type mapping + query-only column
-	// Assign length of BLOB in SqBuffer.size before parsing
+	// specify length of BLOB in SqBuffer.size before parsing 'picture'.
 	SqBuffer  picture;
 };
 
 static const SqColumn  mappingColumns[4] = {
 	// PRIMARY KEY
-	{SQ_TYPE_INT,    "id",              offsetof(Mapping, id),         SQB_PRIMARY},
+	{SQ_TYPE_INT,    "id",              offsetof(Mapping, id),   SQB_PRIMARY},
 
 	// type mapping: SQ_TYPE_STR map to SQL data type - TEXT
-	{SQ_TYPE_STR,    "text",            offsetof(Mapping, text),
+	{SQ_TYPE_STR,    "text",            offsetof(Mapping, text), 0,
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
 	// Query-only column: SqColumn.bit_field must has SQB_QUERY_ONLY
-	// Assign length of BLOB in SqBuffer.size before parsing 'picture'.
+	// specify length of BLOB in SqBuffer.size before parsing 'picture'.
 	// use this to get length of BLOB data for SQLite or MySQL.
 	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
 
 	// type mapping: SQ_TYPE_BUFFER map to SQL data type - BLOB
 	{SQ_TYPE_BUFFER, "picture",         offsetof(Mapping, picture),    0,
+		.sql_type = SQ_SQL_TYPE_BLOB},
+};
+```
+
+Example 2: use C++ std::vector<char> to store SQL BLOB data.  
+  
+Note: SQ_TYPE_STD_VECTOR_SIZE will specify size of BLOB by calling std::vector<char>.resize() when parsing integer value.
+
+```c++
+struct MappingCpp
+{
+	int       id;
+
+	// type mapping
+	std::string  text;
+
+	// type mapping + query-only column
+	// calling std::vector<char>.resize() to specify length of BLOB before parsing 'picture'.
+	std::vector<char>  picture;
+};
+
+static const SqColumn  mappingCppColumns[4] = {
+	// PRIMARY KEY
+	{SQ_TYPE_INT,     "id",              offsetof(MappingCpp, id),   SQB_PRIMARY},
+
+	// type mapping: SQ_TYPE_STD_STR map to SQL data type - TEXT
+	{SQ_TYPE_STD_STR, "text",            offsetof(MappingCpp, text), 0,
+		.sql_type = SQ_SQL_TYPE_TEXT},
+
+	// Query-only column: SqColumn.bit_field must has SQB_QUERY_ONLY
+	// calling std::vector<char>.resize() to specify length of BLOB before parsing 'picture'.
+	// use this to get length of BLOB data for SQLite or MySQL.
+	{SQ_TYPE_STD_VECTOR_SIZE, "length(picture)", offsetof(MappingCpp, picture), SQB_QUERY_ONLY},
+
+	// type mapping: SQ_TYPE_STD_VECTOR map to SQL data type - BLOB
+	{SQ_TYPE_STD_VECTOR,      "picture",         offsetof(MappingCpp, picture), 0,
 		.sql_type = SQ_SQL_TYPE_BLOB},
 };
 ```

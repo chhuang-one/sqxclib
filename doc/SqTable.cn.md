@@ -74,10 +74,12 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 
 以下方法仅适用于 C++ 数据类型。
 
-| C++ 方法    | C 数据类型    |
-| ----------- | ------------- |
-| stdstr      | std::string   |
-| stdstring   | std::string   |
+| C++ 方法    | C++ 数据类型      | SQL 数据类型      |
+| ----------- | ----------------- | ----------------- |
+| stdstring   | std::string       | VARCHAR           |
+| stdstr      | std::string       | VARCHAR           |
+| stdvector   | std::vector<char> | BLOB 或 BINARY    |
+| stdvec      | std::vector<char> | BLOB 或 BINARY    |
 
 **使用自订或 JSON 型态**  
   
@@ -133,34 +135,36 @@ struct User {
 
 **使用类型映射**  
   
-您还可以创建包含自定义类型的列并将其映射到 SQL 数据类型。
+要使用类型映射，您必须在创建列时将 [SqType](SqType.md) 映射到 SQL 数据类型。  
 下面是库定义的用于类型映射的常见 SQL 数据类型。
 
-| 库定义的 SQL 数据类型           |
-| ------------------------------- |
-| SQ_SQL_TYPE_BOOLEAN             |
-| SQ_SQL_TYPE_INT                 |
-| SQ_SQL_TYPE_INT_UNSIGNED        |
-| SQ_SQL_TYPE_BIGINT              |
-| SQ_SQL_TYPE_BIGINT_UNSIGNED     |
-| SQ_SQL_TYPE_TIMESTAMP           |
-| SQ_SQL_TYPE_DOUBLE              |
-| SQ_SQL_TYPE_VARCHAR             |
-| SQ_SQL_TYPE_CHAR                |
-| SQ_SQL_TYPE_TEXT                |
-| SQ_SQL_TYPE_BINARY              |
-| SQ_SQL_TYPE_DECIMAL             |
-| SQ_SQL_TYPE_TINYINT             |
-| SQ_SQL_TYPE_TINYINT_UNSIGNED    |
-| SQ_SQL_TYPE_SMALLINT            |
-| SQ_SQL_TYPE_SMALLINT_UNSIGNED   |
-| SQ_SQL_TYPE_MEDIUMINT           |
-| SQ_SQL_TYPE_MEDIUMINT_UNSIGNED  |
-| SQ_SQL_TYPE_TINYTEXT            |
-| SQ_SQL_TYPE_MEDIUMTEXT          |
-| SQ_SQL_TYPE_LONGTEXT            |
-
-例如 将用户定义的 SqType 映射到 SQL 数据类型：  
+| 库定义的 SQL 数据类型           | 库提供的 SqType                     |
+| ------------------------------- | ----------------------------------- |
+| SQ_SQL_TYPE_BOOLEAN             | SQ_TYPE_BOOL                        |
+| SQ_SQL_TYPE_INT                 | SQ_TYPE_INT                         |
+| SQ_SQL_TYPE_INT_UNSIGNED        | SQ_TYPE_UINT                        |
+| SQ_SQL_TYPE_BIGINT              | SQ_TYPE_INT64                       |
+| SQ_SQL_TYPE_BIGINT_UNSIGNED     | SQ_TYPE_UINT64                      |
+| SQ_SQL_TYPE_TIMESTAMP           | SQ_TYPE_TIME                        |
+| SQ_SQL_TYPE_DOUBLE              | SQ_TYPE_DOUBLE                      |
+| SQ_SQL_TYPE_VARCHAR             | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_CHAR                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_TEXT                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_BINARY              | SQ_TYPE_BUFFER, SQ_TYPE_STD_VECTOR  |
+| SQ_SQL_TYPE_DECIMAL             | SQ_TYPE_DOUBLE                      |
+| SQ_SQL_TYPE_TINYINT             | SQ_TYPE_INT                         |
+| SQ_SQL_TYPE_TINYINT_UNSIGNED    | SQ_TYPE_UINT                        |
+| SQ_SQL_TYPE_SMALLINT            | SQ_TYPE_INT                         |
+| SQ_SQL_TYPE_SMALLINT_UNSIGNED   | SQ_TYPE_UINT                        |
+| SQ_SQL_TYPE_MEDIUMINT           | SQ_TYPE_INT                         |
+| SQ_SQL_TYPE_MEDIUMINT_UNSIGNED  | SQ_TYPE_UINT                        |
+| SQ_SQL_TYPE_TINYTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_MEDIUMTEXT          | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_LONGTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+  
+**注意**: 也可以映射到用户定义的 [SqType](SqType.cn.md)。  
+  
+示例: 将 SqType 映射到 SQL 数据类型  
   
 使用 C 语言
 

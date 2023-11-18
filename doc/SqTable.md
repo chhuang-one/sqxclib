@@ -74,10 +74,12 @@ Below C++ methods (and C functions) are correspond to the different types of col
 
 Below method is for C++ data type only.
 
-| C++ methods | C++ data type |
-| ----------- | ------------- |
-| stdstr      | std::string   |
-| stdstring   | std::string   |
+| C++ methods | C++ data type     | SQL data type     |
+| ----------- | ----------------- | ----------------- |
+| stdstring   | std::string       | VARCHAR           |
+| stdstr      | std::string       | VARCHAR           |
+| stdvector   | std::vector<char> | BLOB or BINARY    |
+| stdvec      | std::vector<char> | BLOB or BINARY    |
 
 **Use custom or JSON type**  
   
@@ -133,34 +135,36 @@ You can also use pointer to member if you don't want to use offsetof().
 
 **Use type mapping**  
   
-You can also create column that contain custom type and map it to SQL data type.
+To use type mapping, you must map [SqType](SqType.md) to the SQL data type when creating column.  
 Below are Library-defined common SQL data type for type mapping.
 
-| Library-defined SQL data types  |
-| ------------------------------- |
-| SQ_SQL_TYPE_BOOLEAN             |
-| SQ_SQL_TYPE_INT                 |
-| SQ_SQL_TYPE_INT_UNSIGNED        |
-| SQ_SQL_TYPE_BIGINT              |
-| SQ_SQL_TYPE_BIGINT_UNSIGNED     |
-| SQ_SQL_TYPE_TIMESTAMP           |
-| SQ_SQL_TYPE_DOUBLE              |
-| SQ_SQL_TYPE_VARCHAR             |
-| SQ_SQL_TYPE_CHAR                |
-| SQ_SQL_TYPE_TEXT                |
-| SQ_SQL_TYPE_BINARY              |
-| SQ_SQL_TYPE_DECIMAL             |
-| SQ_SQL_TYPE_TINYINT             |
-| SQ_SQL_TYPE_TINYINT_UNSIGNED    |
-| SQ_SQL_TYPE_SMALLINT            |
-| SQ_SQL_TYPE_SMALLINT_UNSIGNED   |
-| SQ_SQL_TYPE_MEDIUMINT           |
-| SQ_SQL_TYPE_MEDIUMINT_UNSIGNED  |
-| SQ_SQL_TYPE_TINYTEXT            |
-| SQ_SQL_TYPE_MEDIUMTEXT          |
-| SQ_SQL_TYPE_LONGTEXT            |
-
-e.g. map user defined SqType to SQL data type:  
+| Library-defined SQL data types  | Library-provided SqType             |
+| ------------------------------- | ----------------------------------- |
+| SQ_SQL_TYPE_BOOLEAN             | SQ_TYPE_BOOL                        |
+| SQ_SQL_TYPE_INT                 | SQ_TYPE_INT                         |
+| SQ_SQL_TYPE_INT_UNSIGNED        | SQ_TYPE_UINT                        |
+| SQ_SQL_TYPE_BIGINT              | SQ_TYPE_INT64                       |
+| SQ_SQL_TYPE_BIGINT_UNSIGNED     | SQ_TYPE_UINT64                      |
+| SQ_SQL_TYPE_TIMESTAMP           | SQ_TYPE_TIME                        |
+| SQ_SQL_TYPE_DOUBLE              | SQ_TYPE_DOUBLE                      |
+| SQ_SQL_TYPE_VARCHAR             | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_CHAR                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_TEXT                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_BINARY              | SQ_TYPE_BUFFER, SQ_TYPE_STD_VECTOR  |
+| SQ_SQL_TYPE_DECIMAL             | SQ_TYPE_DOUBLE                      |
+| SQ_SQL_TYPE_TINYINT             | SQ_TYPE_INT                         |
+| SQ_SQL_TYPE_TINYINT_UNSIGNED    | SQ_TYPE_UINT                        |
+| SQ_SQL_TYPE_SMALLINT            | SQ_TYPE_INT                         |
+| SQ_SQL_TYPE_SMALLINT_UNSIGNED   | SQ_TYPE_UINT                        |
+| SQ_SQL_TYPE_MEDIUMINT           | SQ_TYPE_INT                         |
+| SQ_SQL_TYPE_MEDIUMINT_UNSIGNED  | SQ_TYPE_UINT                        |
+| SQ_SQL_TYPE_TINYTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_MEDIUMTEXT          | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_LONGTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+  
+**Note**: It can also map to user-defined [SqType](SqType.md).  
+  
+Example: map SqType to SQL data type  
   
 use C language
 
