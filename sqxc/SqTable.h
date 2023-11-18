@@ -122,6 +122,13 @@ SqColumn *sq_table_add_mapping(SqTable *table, const char *column_name,
                                size_t offset, const SqType *sqtype,
                                int  sql_type);
 
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+// for internal use only
+SqColumn *sq_table_add_function(SqTable *table, const char *column_name,
+                                size_t offset, const SqType *sqtype,
+                                const char *function_name);
+#endif
+
 // alias of sq_table_add_bool()
 // SqColumn *sq_table_add_boolean(SqTable *table, const char *column_name, size_t offset);
 #define sq_table_add_boolean    sq_table_add_bool
@@ -325,6 +332,11 @@ struct TableMethod
 	// alias of stdstring()
 	Sq::Column &stdstr(const char *column_name, size_t offset, int length = -1);
 
+	// BLOB, BINARY
+	Sq::Column &stdvector(const char *column_name, size_t offset);
+	// alias of stdvector()
+	Sq::Column &stdvec(const char *column_name, size_t offset);
+
 	template<class Store, class Type>
 	Sq::Column &boolean(const char *column_name, Type Store::*member);
 	template<class Store, class Type>
@@ -373,6 +385,12 @@ struct TableMethod
 	// alias of stdstring()
 	template<class Store, class Type>
 	Sq::Column &stdstr(const char *column_name, Type Store::*member, int length = -1);
+
+	template<class Store, class Type>
+	Sq::Column &stdvector(const char *column_name, Type Store::*member);
+	// alias of stdvector()
+	template<class Store, class Type>
+	Sq::Column &stdvec(const char *column_name, Type Store::*member);
 
 	// ----------------------------------------------------
 	// composite (constraint)
@@ -631,6 +649,18 @@ inline Sq::Column &TableMethod::stdstr(const char *column_name, size_t offset, i
 	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, offset, SQ_TYPE_STD_STR, length);
 }
 
+inline Sq::Column &TableMethod::stdvector(const char *column_name, size_t offset) {
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+	sq_table_add_function((SqTable*)this, column_name, offset,
+	                      SQ_TYPE_STD_VECTOR_SIZE, "length");
+#endif
+	return *(Sq::Column*)sq_table_add_mapping((SqTable*)this, column_name, offset,
+	                                          SQ_TYPE_STD_VECTOR, SQ_SQL_TYPE_BINARY);
+}
+inline Sq::Column &TableMethod::stdvec(const char *column_name, size_t offset) {
+	return stdvector(column_name, offset);
+}
+
 template<class Store, class Type>
 inline Sq::Column &TableMethod::boolean(const char *column_name, Type Store::*member) {
 	return *(Sq::Column*)sq_table_add_bool((SqTable*)this, column_name, Sq::offsetOf(member));
@@ -719,6 +749,15 @@ inline Sq::Column &TableMethod::stdstring(const char *column_name, Type Store::*
 template<class Store, class Type>
 inline Sq::Column &TableMethod::stdstr(const char *column_name, Type Store::*member, int length) {
 	return *(Sq::Column*)sq_table_add_custom((SqTable*)this, column_name, Sq::offsetOf(member), SQ_TYPE_STD_STR, length);
+};
+
+template<class Store, class Type>
+inline Sq::Column &TableMethod::stdvector(const char *column_name, Type Store::*member) {
+	return stdvector(column_name, Sq::offsetOf(member));
+};
+template<class Store, class Type>
+inline Sq::Column &TableMethod::stdvec(const char *column_name, Type Store::*member) {
+	return stdvector(column_name, Sq::offsetOf(member));
 };
 
 // define composite (constraint) methods of TableMethod

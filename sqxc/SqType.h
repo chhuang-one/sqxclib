@@ -526,10 +526,27 @@ extern  const  struct SqTypeFake   SqType_Fake_;
 
 #ifdef __cplusplus
 
-extern  const  SqType      SqType_StdString_;    // C++ std::string
+// C++ data type for SQL CHAR, VARCHAR, TEXT, or BLOB.
+extern  const  SqType      SqType_StdString_;       // std::string
+extern  const  SqType      SqType_StdVector_;       // std::vector<char>
+extern  const  SqType      SqType_StdVectorSize_;   // std::vector<char> resize
 
-#define SQ_TYPE_STD_STRING    ((SqType*)&SqType_StdString_)
-#define SQ_TYPE_STD_STR       SQ_TYPE_STD_STRING
+// C++ std::string
+#define SQ_TYPE_STD_STRING         ((SqType*)&SqType_StdString_)
+// alias of SQ_TYPE_STD_STRING
+#define SQ_TYPE_STD_STR            SQ_TYPE_STD_STRING
+
+// C++ std::vector<char>
+#define SQ_TYPE_STD_VECTOR         ((SqType*)&SqType_StdVector_)
+// alias of SQ_TYPE_STD_VECTOR
+#define SQ_TYPE_STD_VEC            SQ_TYPE_STD_VECTOR
+
+// C++ std::vector<char> resize
+// SQ_TYPE_STD_VECTOR_SIZE will specify size of BLOB by calling std::vector<char>.resize()
+// when parsing integer value.
+#define SQ_TYPE_STD_VECTOR_SIZE    ((SqType*)&SqType_StdVectorSize_)
+// alias of SQ_TYPE_STD_VECTOR_SIZE
+#define SQ_TYPE_STD_VEC_SIZE       SQ_TYPE_STD_VECTOR_SIZE
 
 /*
 #include <SqType-stl-cpp.h>

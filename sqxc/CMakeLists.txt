@@ -60,6 +60,7 @@ set(HEADERS
 
 set(SOURCES_CPP
     SqType-std-string.cpp
+	SqType-std-vector.cpp
 )
 set(HEADERS_CPP
     SqType-stl-cpp.h

@@ -72,6 +72,7 @@ install_headers(headers, subdir: 'sqxc')
 # --- 'sqxcpp' C++ sources and headers ---
 sources_cpp = [
     'SqType-std-string.cpp',
+    'SqType-std-vector.cpp',
 ]
 
 headers_cpp = [

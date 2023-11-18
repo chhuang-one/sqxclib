@@ -331,20 +331,8 @@ SqColumn *sq_table_add_binary(SqTable *table, const char *name, size_t offset)
 // If you use PostgreSQL and don't need store result of special query to C structure's member,
 // you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
-	// malloc(strlen("length()") + 1 + strlen(name));
-	char *query_name = malloc(9 + strlen(name));
-	strcpy(query_name, "length(");
-	strcpy(query_name + 7, name);
-	strcat(query_name + 7, ")");
-	column = sq_column_new(query_name, SQ_TYPE_INT);
-	free(query_name);
-	column->offset = offset + offsetof(SqBuffer, size);
-	column->bit_field = SQB_COLUMN_QUERY_ONLY;
-	sq_table_add_column(table, column, 1);
-
-	// sq_table_add_column() will call sq_type_add_entry() to add column;
-	// sq_type_add_entry() has set SQB_TYPE_QUERY_FIRST in table->type->bit_field.
-//	table->type->bit_field |= SQB_TYPE_QUERY_FIRST;
+	sq_table_add_function(table, name, offset + offsetof(SqBuffer, size),
+	                      SQ_TYPE_INT, "length");
 #endif
 
 	sq_table_add_mapping(table, name, offset, SQ_TYPE_BUFFER, SQ_SQL_TYPE_BINARY);
@@ -378,6 +366,41 @@ SqColumn *sq_table_add_mapping(SqTable *table, const char *column_name,
 	sq_table_add_column(table, column, 1);
 	return column;
 }
+
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+// This is mainly used by SQLite, MySQL to get length of BLOB column.
+// If you don't need store result of special query to C structure's member,
+// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
+SqColumn *sq_table_add_function(SqTable *table, const char *column_name,
+                                size_t offset, const SqType *sqtype,
+                                const char *function_name)
+{
+	char *query_name;
+	union {
+		SqColumn *column;
+		int       len;
+	} temp;
+
+	temp.len = strlen(function_name);
+	// function_name + ( + column_name + ) + null-terminated
+	query_name = malloc(temp.len + strlen(column_name) + 3);
+	strcpy(query_name, function_name);
+	strcpy(query_name + temp.len, "(");
+	strcpy(query_name + temp.len + 1, column_name);
+	strcat(query_name + temp.len + 1, ")");
+	temp.column = sq_column_new(query_name, sqtype);
+	free(query_name);
+	temp.column->offset = offset;
+	temp.column->bit_field = SQB_COLUMN_QUERY_ONLY;
+
+	// sq_table_add_column() will call sq_type_add_entry() to add column;
+	// sq_type_add_entry() has set SQB_TYPE_QUERY_FIRST in table->type->bit_field.
+//	table->type->bit_field |= SQB_TYPE_QUERY_FIRST;
+	sq_table_add_column(table, temp.column, 1);
+
+	return temp.column;
+}
+#endif  // SQ_CONFIG_QUERY_ONLY_COLUMN
 
 // --------------------------------------------------------
 // SqTable C functions for CONSTRAINT
