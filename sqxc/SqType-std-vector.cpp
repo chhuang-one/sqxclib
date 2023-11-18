@@ -53,7 +53,7 @@ static void sq_type_std_vector_final(void *instance, const SqType *type)
 static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	std::vector<char> *vector = (std::vector<char>*)instance;
-	size_t   len;
+	int   len;
 
 	switch (src->type) {
 	case SQXC_TYPE_NULL:
@@ -61,7 +61,7 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 //	case SQXC_TYPE_RAW:
 		if (src->value.str == NULL)
 			break;
-		len = strlen(src->value.str);
+		len = (int)strlen(src->value.str);
 
 #if SQ_CONFIG_HAVE_JSONC
 		if (src->info == SQXC_INFO_JSONC_PARSER) {
@@ -91,8 +91,8 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 				fprintf(stderr, "sq_type_std_vector_parse(): string is not hex format.\n");
 #endif
 				// User can assign length of BLOB in capacity of vector before parsing
-				if (len < vector->size())
-					len = vector->size();
+				if (len < (int)vector->size())
+					len = (int)vector->size();
 				vector->assign(src->value.str, src->value.str + len);
 				break;
 			}

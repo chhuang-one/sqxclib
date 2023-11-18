@@ -335,8 +335,7 @@ SqColumn *sq_table_add_binary(SqTable *table, const char *name, size_t offset)
 	                      SQ_TYPE_INT, "length");
 #endif
 
-	sq_table_add_mapping(table, name, offset, SQ_TYPE_BUFFER, SQ_SQL_TYPE_BINARY);
-	return column;
+	return sq_table_add_mapping(table, name, offset, SQ_TYPE_BUFFER, SQ_SQL_TYPE_BINARY);
 }
 
 SqColumn *sq_table_add_custom(SqTable *table, const char *name,
@@ -381,7 +380,7 @@ SqColumn *sq_table_add_function(SqTable *table, const char *column_name,
 		int       len;
 	} temp;
 
-	temp.len = strlen(function_name);
+	temp.len = (int)strlen(function_name);
 	// function_name + ( + column_name + ) + null-terminated
 	query_name = malloc(temp.len + strlen(column_name) + 3);
 	strcpy(query_name, function_name);
