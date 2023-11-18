@@ -89,15 +89,16 @@ SqColumn *sq_column_copy_static(const SqColumn *column_src)
 	column->type      = column_src->type;
 	column->offset    = column_src->offset;
 	column->bit_field = column_src->bit_field | SQB_DYNAMIC;
+	column->sql_type  = column_src->sql_type;
 	column->size      = column_src->size;
 	column->digits    = column_src->digits;
 
 	column->name          = column_src->name ? strdup(column_src->name) : NULL;
+	column->old_name      = column_src->old_name ? strdup(column_src->old_name) : NULL;
 	column->default_value = column_src->default_value ? strdup(column_src->default_value) : NULL;
 	column->reserve       = NULL;
 //	column->reserve       = column_src->reserve ? strdup(column_src->reserve) : NULL;
 	column->raw           = column_src->raw ? strdup(column_src->raw) : NULL;
-	column->old_name      = column_src->old_name ? strdup(column_src->old_name) : NULL;
 
 	column->foreign = NULL;
 	if (column_src->foreign) {
