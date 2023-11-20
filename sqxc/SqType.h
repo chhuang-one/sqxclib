@@ -390,6 +390,7 @@ extern  const  SqType      SqType_StrArray_;
 
 enum {
 	SQ_TYPE_BOOL_INDEX,
+	SQ_TYPE_BOOLEAN_INDEX = SQ_TYPE_BOOL_INDEX,  // alias of SQ_TYPE_BOOL_INDEX
 	SQ_TYPE_INT_INDEX,
 	SQ_TYPE_UINT_INDEX,
 	SQ_TYPE_INT64_INDEX,
@@ -402,7 +403,9 @@ enum {
 };
 
 #define SQ_TYPE_BOOL       (&SqType_BuiltIn_[SQ_TYPE_BOOL_INDEX])
+#define SQ_TYPE_BOOLEAN    SQ_TYPE_BOOL          // alias of SQ_TYPE_BOOL
 #define SQ_TYPE_INT        (&SqType_BuiltIn_[SQ_TYPE_INT_INDEX])
+#define SQ_TYPE_INTEGER    SQ_TYPE_INT           // alias of SQ_TYPE_INT
 #define SQ_TYPE_UINT       (&SqType_BuiltIn_[SQ_TYPE_UINT_INDEX])
 #define SQ_TYPE_INT64      (&SqType_BuiltIn_[SQ_TYPE_INT64_INDEX])
 #define SQ_TYPE_UINT64     (&SqType_BuiltIn_[SQ_TYPE_UINT64_INDEX])

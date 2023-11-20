@@ -42,18 +42,20 @@ struct SqType
 
 内置 SqType 及其数据类型
 
-| SqType          | C 数据类型   | SQL 数据类型      |
-| --------------- | ------------ | ----------------- |
-| SQ_TYPE_BOOL    | bool         | BOOLEAN           |
-| SQ_TYPE_INT     | int          | INT               |
-| SQ_TYPE_UINT    | unsigned int | INT (UNSIGNED)    |
-| SQ_TYPE_INT64   | int64_t      | BIGINT            |
-| SQ_TYPE_UINT64  | uint64_t     | BIGINT (UNSIGNED) |
-| SQ_TYPE_TIME    | time_t       | TIMESTAMP         |
-| SQ_TYPE_DOUBLE  | double       | DOUBLE            |
-| SQ_TYPE_STR     | char*        | VARCHAR           |
-| SQ_TYPE_STRING  | char*        | VARCHAR           |
-| SQ_TYPE_CHAR    | char*        | CHAR              |
+| SqType          | C 数据类型   | SQL 数据类型      | 描述                         |
+| --------------- | ------------ | ----------------- | ---------------------------- |
+| SQ_TYPE_BOOL    | bool         | BOOLEAN           |                              |
+| SQ_TYPE_BOOLEAN | bool         | BOOLEAN           | SQ_TYPE_BOOL 的别名          |
+| SQ_TYPE_INT     | int          | INT               |                              |
+| SQ_TYPE_INTEGER | int          | INT               | SQ_TYPE_INT 的别名           |
+| SQ_TYPE_UINT    | unsigned int | INT (UNSIGNED)    |                              |
+| SQ_TYPE_INT64   | int64_t      | BIGINT            |                              |
+| SQ_TYPE_UINT64  | uint64_t     | BIGINT (UNSIGNED) |                              |
+| SQ_TYPE_TIME    | time_t       | TIMESTAMP         |                              |
+| SQ_TYPE_DOUBLE  | double       | DOUBLE            |                              |
+| SQ_TYPE_STR     | char*        | VARCHAR           |                              |
+| SQ_TYPE_STRING  | char*        | VARCHAR           | SQ_TYPE_STR 的别名           |
+| SQ_TYPE_CHAR    | char*        | CHAR              | 为 SQL 数据类型 CHAR 定义    |
 
 * 不同的 SQL 产品可能将这些 C 数据类型对应到不同的 SQL 数据类型。
   

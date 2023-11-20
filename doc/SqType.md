@@ -42,18 +42,20 @@ struct SqType
 
 Built-in SqType with it's data type
 
-| SqType          | C data type  | SQL data type     |
-| --------------- | ------------ | ----------------- |
-| SQ_TYPE_BOOL    | bool         | BOOLEAN           |
-| SQ_TYPE_INT     | int          | INT               |
-| SQ_TYPE_UINT    | unsigned int | INT (UNSIGNED)    |
-| SQ_TYPE_INT64   | int64_t      | BIGINT            |
-| SQ_TYPE_UINT64  | uint64_t     | BIGINT (UNSIGNED) |
-| SQ_TYPE_TIME    | time_t       | TIMESTAMP         |
-| SQ_TYPE_DOUBLE  | double       | DOUBLE            |
-| SQ_TYPE_STR     | char*        | VARCHAR           |
-| SQ_TYPE_STRING  | char*        | VARCHAR           |
-| SQ_TYPE_CHAR    | char*        | CHAR              |
+| SqType          | C data type  | SQL data type     | description                      |
+| --------------- | ------------ | ----------------- | -------------------------------- |
+| SQ_TYPE_BOOL    | bool         | BOOLEAN           |                                  |
+| SQ_TYPE_BOOLEAN | bool         | BOOLEAN           | alias of SQ_TYPE_BOOL            |
+| SQ_TYPE_INT     | int          | INT               |                                  |
+| SQ_TYPE_INTEGER | int          | INT               | alias of SQ_TYPE_INT             |
+| SQ_TYPE_UINT    | unsigned int | INT (UNSIGNED)    |                                  |
+| SQ_TYPE_INT64   | int64_t      | BIGINT            |                                  |
+| SQ_TYPE_UINT64  | uint64_t     | BIGINT (UNSIGNED) |                                  |
+| SQ_TYPE_TIME    | time_t       | TIMESTAMP         |                                  |
+| SQ_TYPE_DOUBLE  | double       | DOUBLE            |                                  |
+| SQ_TYPE_STR     | char*        | VARCHAR           |                                  |
+| SQ_TYPE_STRING  | char*        | VARCHAR           | alias of SQ_TYPE_STR             |
+| SQ_TYPE_CHAR    | char*        | CHAR              | defined for SQL data type CHAR   |
 
 * Different SQL products may map these C data types to different SQL data types.
   
@@ -64,7 +66,7 @@ SqType with it's C/C++ container type
 | SQ_TYPE_ARRAY          | SqArray        | Sq::Array      | array of arbitrary elements      |
 | SQ_TYPE_INT_ARRAY      | SqIntArray     | Sq::IntArray   | integer array (used by JSON)     |
 | SQ_TYPE_PTR_ARRAY      | SqPtrArray     | Sq::PtrArray   | pointer array                    |
-| SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   | string array  (used by JSON)     |
+| SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   | string  array (used by JSON)     |
 
 SqType with it's C/C++ binary data type
 
