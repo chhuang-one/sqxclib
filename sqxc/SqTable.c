@@ -325,8 +325,6 @@ SqColumn *sq_table_add_text(SqTable *table, const char *name, size_t offset)
 
 SqColumn *sq_table_add_binary(SqTable *table, const char *name, size_t offset)
 {
-	SqColumn *column;
-
 // This is mainly used by SQLite, MySQL to get length of BLOB column.
 // If you use PostgreSQL and don't need store result of special query to C structure's member,
 // you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.

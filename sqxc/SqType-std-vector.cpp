@@ -12,6 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #ifndef NDEBUG
 #include <stdio.h>        // stderr
 #endif
@@ -139,7 +142,7 @@ static Sqxc *sq_type_std_vector_write(void *instance, const SqType *type, Sqxc *
 #endif
 	if (dest->info == SQXC_INFO_SQL) {
 		// convert binary to HEX
-		len = vector->size() *2 +3;       // + 0x, x'', or \x
+		len = (int)vector->size() *2 +3;       // + 0x, x'', or \x
 		mem = (char*)malloc(len +1);      // + null-terminated
 		// Hex format is x'FF' - SQLite, MySQL
 		if (((SqxcSql*)dest)->db->info->product == SQDB_PRODUCT_SQLITE) {
@@ -162,7 +165,7 @@ static Sqxc *sq_type_std_vector_write(void *instance, const SqType *type, Sqxc *
 			mem[1] = 'x';
 			mem[len-1] = 0;        // null-terminated
 		}
-		sq_bin_to_hex(mem+2, vector->data(), vector->size());
+		sq_bin_to_hex(mem+2, vector->data(), (int)vector->size());
 	}
 
 	dest->value.raw = mem;
