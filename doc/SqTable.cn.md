@@ -50,92 +50,105 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 
 ## 创建列
 
-下面的 C++ 方法 (和 C 函数)对应于您可以添加到表中的不同类型的列。
+下面的 C++ 方法 (C 函数) 对应于您可以添加到表中的不同类型的列。  
+大多数方法（函数）都在列中指定了默认的 [SqType](SqType.cn.md)。
 
-| C++ 方法    | C 函数                 | C 数据类型    | SQL 数据类型      |
-| ----------- | ---------------------- | ------------- | ----------------- |
-| boolean     | sq_table_add_bool      | bool          | BOOLEAN           |
-| bool_       | sq_table_add_bool      | bool          | BOOLEAN           |
-| integer     | sq_table_add_integer   | int           | INT               |
-| int_        | sq_table_add_int       | int           | INT               |
-| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    |
-| int64       | sq_table_add_int64     | int64_t       | BIGINT            |
-| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) |
-| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         |
-| double_     | sq_table_add_double    | double        | DOUBLE            |
-| str         | sq_table_add_str       | char*         | VARCHAR           |
-| string      | sq_table_add_string    | char*         | VARCHAR           |
-| char_       | sq_table_add_char      | char*         | CHAR              |
-| text        | sq_table_add_text      | char*         | TEXT              |
-| binary      | sq_table_add_binary    | SqBuffer      | BLOB 或 BINARY    |
-| custom      | sq_table_add_custom    | *用户定义*    | VARCHAR           |
+| C++ 方法    | C 函数                 | C 数据类型    | SQL 数据类型      | 指定的 SqType      |
+| ----------- | ---------------------- | ------------- | ----------------- | ------------------ |
+| boolean     | sq_table_add_bool      | bool          | BOOLEAN           | SQ_TYPE_BOOL       |
+| bool_       | sq_table_add_bool      | bool          | BOOLEAN           | SQ_TYPE_BOOL       |
+| integer     | sq_table_add_integer   | int           | INT               | SQ_TYPE_INT        |
+| int_        | sq_table_add_int       | int           | INT               | SQ_TYPE_INT        |
+| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    | SQ_TYPE_UINT       |
+| int64       | sq_table_add_int64     | int64_t       | BIGINT            | SQ_TYPE_INT64      |
+| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) | SQ_TYPE_UINT64     |
+| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         | SQ_TYPE_TIME       |
+| double_     | sq_table_add_double    | double        | DOUBLE            | SQ_TYPE_DOUBLE     |
+| str         | sq_table_add_str       | char*         | VARCHAR           | SQ_TYPE_STR        |
+| string      | sq_table_add_string    | char*         | VARCHAR           | SQ_TYPE_STR        |
+| char_       | sq_table_add_char      | char*         | CHAR              | SQ_TYPE_CHAR       |
+| text        | sq_table_add_text      | char*         | TEXT              | SQ_TYPE_STR        |
+| binary      | sq_table_add_binary    | SqBuffer      | BLOB 或 BINARY    | SQ_TYPE_BUFFER     |
+| custom      | sq_table_add_custom    | *用户定义*    | VARCHAR           | *用户定义*         |
+| mapping     | sq_table_add_mapping   | *用户指定*    | *用户指定*        | *用户指定*         |
 
 * 因为 'bool'、'int'、'double' 和 'char' 是 C/C++ 关键字，所以在这些方法的尾部附加 '_'。
 
 以下方法仅适用于 C++ 数据类型。
 
-| C++ 方法    | C++ 数据类型      | SQL 数据类型      |
-| ----------- | ----------------- | ----------------- |
-| stdstring   | std::string       | VARCHAR           |
-| stdstr      | std::string       | VARCHAR           |
-| stdvector   | std::vector<char> | BLOB 或 BINARY    |
-| stdvec      | std::vector<char> | BLOB 或 BINARY    |
+| C++ 方法    | C++ 数据类型      | SQL 数据类型      | 指定的 SqType      |
+| ----------- | ----------------- | ----------------- | ------------------ |
+| stdstring   | std::string       | VARCHAR           | SQ_TYPE_STD_STRING |
+| stdstr      | std::string       | VARCHAR           | SQ_TYPE_STD_STRING |
+| stdvector   | std::vector<char> | BLOB 或 BINARY    | SQ_TYPE_STD_VECTOR |
+| stdvec      | std::vector<char> | BLOB 或 BINARY    | SQ_TYPE_STD_VECTOR |
 
 **使用自订或 JSON 型态**  
   
-添加包含 JSON 对象或数组的列。  
+如果要在 SQL 列中存储 JSON 对象或数组，可以使用 sq_table_add_custom() 或 C++ 方法 custom() 来创建列。  
+添加使用自定义类型的列时，必须指定 [SqType](SqType.cn.md)。
   
-例如：定义一个包含结构和数组的 C 结构。
+例如: 定义一个包含结构和数组的 C 结构。
 
 ```c
-struct User {
+struct DemoTable {
 	// ...
 
-	// MyStructure 是 C 结构
+	// MyStructure 是用户定义的 C 结构
+	// 这会将 JSON 对象存储在 SQL 列中。
 	MyStructure    myStruct;
 
 	// SqIntArray 是在 SqArray.h 中定义的整数数组
-	SqIntArray     posts;
+	// 这会将 JSON 整数数组存储在 SQL 列中。
+	SqIntArray     intArray;
 };
 ```
 
-添加自定义类型时必须指定 [SqType](SqType.cn.md)。  
-  
 使用 C 语言
 
 ```c
 	// JSON 对象
-	column = sq_table_add_custom(table, "myStruct", offsetof(User, myStruct),
+	// SQ_TYPE_MY_STRUCT 是用户定义的 MyStructure 的 SqType。
+	column = sq_table_add_custom(table, "myStruct", offsetof(DemoTable, myStruct),
 	                             SQ_TYPE_MY_STRUCT, 128);
 
 	// JSON 整数数组
-	column = sq_table_add_custom(table, "posts", offsetof(User, posts),
-	                             SQ_TYPE_INT_ARRAY, 256);
+	// SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从 SQL 列的值解析 JSON 整数数组。
+	column = sq_table_add_custom(table, "intArray", offsetof(DemoTable, intArray),
+	                             SQ_TYPE_INT_ARRAY, 96);
 ```
 
 使用 C++ 语言
 
 ```c++
 	// JSON 对象
-	column = table->custom("myStruct", offsetof(User, myStruct),
+	// SQ_TYPE_MY_STRUCT 是用户定义的 MyStructure 的 SqType。
+	column = table->custom("myStruct", offsetof(DemoTable, myStruct),
 	                       SQ_TYPE_MY_STRUCT, 128);
 
 	// JSON 整数数组
-	column = table->custom("posts", offsetof(User, posts),
-	                       SQ_TYPE_INT_ARRAY, 256);
+	// SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从 SQL 列的值解析 JSON 整数数组。
+	column = table->custom("intArray", offsetof(DemoTable, intArray),
+	                       SQ_TYPE_INT_ARRAY, 96);
 ```
 
 如果您不想使用 offsetof()，也可以使用指向成员的指针。
 
 ```c++
-	// JSON 对象
-	column = table->custom("myStruct", &User::myStruct,
+	// 使用 '&DemoTable::myStruct' 替换 'offsetof(DemoTable, myStruct)'
+	column = table->custom("myStruct", &DemoTable::myStruct,
 	                       SQ_TYPE_MY_STRUCT, 128);
+
+	// 使用 '&DemoTable::intArray' 替换 'offsetof(DemoTable, intArray)'
+	column = table->custom("intArray", &DemoTable::intArray,
+	                       SQ_TYPE_INT_ARRAY, 96);
 ```
 
 **使用类型映射**  
   
-要使用类型映射，您必须在创建列时将 [SqType](SqType.md) 映射到 SQL 数据类型。  
+要使用类型映射，您必须在创建列时将 [SqType](SqType.cn.md) 映射到 SQL 数据类型。
+当然你也可以映射到用户自定义的 [SqType](SqType.cn.md)。  
+  
 下面是库定义的用于类型映射的常见 SQL 数据类型。
 
 | 库定义的 SQL 数据类型           | 库提供的 SqType                     |
@@ -161,25 +174,25 @@ struct User {
 | SQ_SQL_TYPE_TINYTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_MEDIUMTEXT          | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_LONGTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
-  
-**注意**: 也可以映射到用户定义的 [SqType](SqType.cn.md)。  
-  
+
 示例: 将 SqType 映射到 SQL 数据类型  
   
 使用 C 语言
 
 ```c
-	// 将 SQ_TYPE_STR 映射到 SQL 数据类型 - TEXT。
-	column = sq_table_add_mapping(table, "textMapping", offsetof(User, textMapping),
-	                              SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+	// 将 SQ_TYPE_INT_ARRAY 映射到 SQL 数据类型 - TEXT。
+	column = sq_table_add_mapping(table, "intArray", offsetof(DemoTable, intArray),
+	                              SQ_TYPE_INT_ARRAY,
+	                              SQ_SQL_TYPE_TEXT);
 ```
 
 使用 C++ 语言
 
 ```c++
-	// 将 SQ_TYPE_STR 映射到 SQL 数据类型 - TEXT。
-	column = table->mapping("textMapping", offsetof(User, textMapping),
-	                        SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+	// 将 SQ_TYPE_INT_ARRAY 映射到 SQL 数据类型 - TEXT。
+	column = table->mapping("intArray", offsetof(DemoTable, intArray),
+	                        SQ_TYPE_INT_ARRAY,
+	                        SQ_SQL_TYPE_TEXT);
 ```
 
 ## 添加列

@@ -50,92 +50,105 @@ Use C++ language
 
 ## Create column
 
-Below C++ methods (and C functions) are correspond to the different types of columns that you can add to tables.
+Below C++ methods (C functions) are correspond to the different types of columns that you can add to table.  
+Most methods (functions) specify a default [SqType](SqType.md) in the column.
 
-| C++ methods | C functions            | C data type   | SQL data type     |
-| ----------- | ---------------------- | ------------- | ----------------- |
-| boolean     | sq_table_add_bool      | bool          | BOOLEAN           |
-| bool_       | sq_table_add_bool      | bool          | BOOLEAN           |
-| integer     | sq_table_add_integer   | int           | INT               |
-| int_        | sq_table_add_int       | int           | INT               |
-| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    |
-| int64       | sq_table_add_int64     | int64_t       | BIGINT            |
-| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) |
-| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         |
-| double_     | sq_table_add_double    | double        | DOUBLE            |
-| str         | sq_table_add_str       | char*         | VARCHAR           |
-| string      | sq_table_add_string    | char*         | VARCHAR           |
-| char_       | sq_table_add_char      | char*         | CHAR              |
-| text        | sq_table_add_text      | char*         | TEXT              |
-| binary      | sq_table_add_binary    | SqBuffer      | BLOB or BINARY    |
-| custom      | sq_table_add_custom    | *User define* | VARCHAR           |
+| C++ methods | C functions            | C data type   | SQL data type     | specified SqType   |
+| ----------- | ---------------------- | ------------- | ----------------- | ------------------ |
+| boolean     | sq_table_add_bool      | bool          | BOOLEAN           | SQ_TYPE_BOOL       |
+| bool_       | sq_table_add_bool      | bool          | BOOLEAN           | SQ_TYPE_BOOL       |
+| integer     | sq_table_add_integer   | int           | INT               | SQ_TYPE_INT        |
+| int_        | sq_table_add_int       | int           | INT               | SQ_TYPE_INT        |
+| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    | SQ_TYPE_UINT       |
+| int64       | sq_table_add_int64     | int64_t       | BIGINT            | SQ_TYPE_INT64      |
+| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) | SQ_TYPE_UINT64     |
+| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         | SQ_TYPE_TIME       |
+| double_     | sq_table_add_double    | double        | DOUBLE            | SQ_TYPE_DOUBLE     |
+| str         | sq_table_add_str       | char*         | VARCHAR           | SQ_TYPE_STR        |
+| string      | sq_table_add_string    | char*         | VARCHAR           | SQ_TYPE_STR        |
+| char_       | sq_table_add_char      | char*         | CHAR              | SQ_TYPE_CHAR       |
+| text        | sq_table_add_text      | char*         | TEXT              | SQ_TYPE_STR        |
+| binary      | sq_table_add_binary    | SqBuffer      | BLOB or BINARY    | SQ_TYPE_BUFFER     |
+| custom      | sq_table_add_custom    | *User define* | VARCHAR           | *User define*      |
+| mapping     | sq_table_add_mapping   | *User specify*| *User specify*    | *User specify*     |
 
 * Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, it must append '_' in tail of these methods.
 
 Below method is for C++ data type only.
 
-| C++ methods | C++ data type     | SQL data type     |
-| ----------- | ----------------- | ----------------- |
-| stdstring   | std::string       | VARCHAR           |
-| stdstr      | std::string       | VARCHAR           |
-| stdvector   | std::vector<char> | BLOB or BINARY    |
-| stdvec      | std::vector<char> | BLOB or BINARY    |
+| C++ methods | C++ data type     | SQL data type     | specified SqType   |
+| ----------- | ----------------- | ----------------- | ------------------ |
+| stdstring   | std::string       | VARCHAR           | SQ_TYPE_STD_STRING |
+| stdstr      | std::string       | VARCHAR           | SQ_TYPE_STD_STRING |
+| stdvector   | std::vector<char> | BLOB or BINARY    | SQ_TYPE_STD_VECTOR |
+| stdvec      | std::vector<char> | BLOB or BINARY    | SQ_TYPE_STD_VECTOR |
 
 **Use custom or JSON type**  
   
-Add column that contain JSON object or array.  
+If you want to store JSON object or array in SQL column, you can use sq_table_add_custom() or C++ method custom() to create column.  
+When adding a column that uses a custom type, you must specify [SqType](SqType.md).  
   
-For example, define a C structure that contain struct and array.
+Example: define a C structure that contain struct and array.
 
 ```c
-struct User {
+struct DemoTable {
 	// ...
 
-	// MyStructure is C struct
+	// MyStructure is user-defined C struct
+	// This will store JSON object in SQL column.
 	MyStructure    myStruct;
 
 	// SqIntArray is integer array that defined in SqArray.h
-	SqIntArray     posts;
+	// This will store JSON integer array in SQL column.
+	SqIntArray     intArray;
 };
 ```
 
-You must specify [SqType](SqType.md) when you add custom type.  
-  
 use C language
 
 ```c
 	// JSON object
-	column = sq_table_add_custom(table, "myStruct", offsetof(User, myStruct),
+	// SQ_TYPE_MY_STRUCT is user-defined SqType of MyStructure.
+	column = sq_table_add_custom(table, "myStruct", offsetof(DemoTable, myStruct),
 	                             SQ_TYPE_MY_STRUCT, 128);
 
 	// JSON integer array
-	column = sq_table_add_custom(table, "posts", offsetof(User, posts),
-	                             SQ_TYPE_INT_ARRAY, 256);
+	// SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of SQL column.
+	column = sq_table_add_custom(table, "intArray", offsetof(DemoTable, intArray),
+	                             SQ_TYPE_INT_ARRAY, 96);
 ```
 
 use C++ language
 
 ```c++
 	// JSON object
-	column = table->custom("myStruct", offsetof(User, myStruct),
+	// SQ_TYPE_MY_STRUCT is user-defined SqType of MyStructure.
+	column = table->custom("myStruct", offsetof(DemoTable, myStruct),
 	                       SQ_TYPE_MY_STRUCT, 128);
 
 	// JSON integer array
-	column = table->custom("posts", offsetof(User, posts),
-	                       SQ_TYPE_INT_ARRAY, 256);
+	// SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of SQL column.
+	column = table->custom("intArray", offsetof(DemoTable, intArray),
+	                       SQ_TYPE_INT_ARRAY, 96);
 ```
 
 You can also use pointer to member if you don't want to use offsetof().
 
 ```c++
-	// JSON object
-	column = table->custom("myStruct", &User::myStruct,
+	// use '&DemoTable::myStruct' to replace 'offsetof(DemoTable, myStruct)'
+	column = table->custom("myStruct", &DemoTable::myStruct,
 	                       SQ_TYPE_MY_STRUCT, 128);
+
+	// use '&DemoTable::intArray' to replace 'offsetof(DemoTable, intArray)'
+	column = table->custom("intArray", &DemoTable::intArray,
+	                       SQ_TYPE_INT_ARRAY, 96);
 ```
 
 **Use type mapping**  
   
-To use type mapping, you must map [SqType](SqType.md) to the SQL data type when creating column.  
+To use type mapping, you must map [SqType](SqType.md) to the SQL data type when creating column.
+Of course you can also map to user-defined [SqType](SqType.md).  
+  
 Below are Library-defined common SQL data type for type mapping.
 
 | Library-defined SQL data types  | Library-provided SqType             |
@@ -161,25 +174,25 @@ Below are Library-defined common SQL data type for type mapping.
 | SQ_SQL_TYPE_TINYTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_MEDIUMTEXT          | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_LONGTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
-  
-**Note**: It can also map to user-defined [SqType](SqType.md).  
-  
+
 Example: map SqType to SQL data type  
   
 use C language
 
 ```c
-	// map SQ_TYPE_STR to SQL data type - TEXT.
-	column = sq_table_add_mapping(table, "textMapping", offsetof(User, textMapping),
-	                              SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+	// map SQ_TYPE_INT_ARRAY to SQL data type - TEXT.
+	column = sq_table_add_mapping(table, "intArray", offsetof(DemoTable, intArray),
+	                              SQ_TYPE_INT_ARRAY,
+	                              SQ_SQL_TYPE_TEXT);
 ```
 
 use C++ language
 
 ```c++
-	// map SQ_TYPE_STR to SQL data type - TEXT.
-	column = table->mapping("textMapping", offsetof(User, textMapping),
-	                        SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+	// map SQ_TYPE_INT_ARRAY to SQL data type - TEXT.
+	column = table->mapping("intArray", offsetof(DemoTable, intArray),
+	                        SQ_TYPE_INT_ARRAY,
+	                        SQ_SQL_TYPE_TEXT);
 ```
 
 ## Add column
