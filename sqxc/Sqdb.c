@@ -117,7 +117,7 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 			sqdb_sql_drop_column(db, buffer, table, column);
 		}
 		else if (column->old_name && (column->bit_field & SQB_COLUMN_RENAMED) == 0) {
-			// RENAME COLUMN - MySQL "CHANGE COLUMN" need original column data
+			// RENAME COLUMN - MySQL "CHANGE COLUMN" need original column properties
 			if (old_table)
 				old_column = sq_table_find_column(old_table, column->old_name);
 			else
@@ -442,7 +442,7 @@ void sqdb_sql_alter_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 
 void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column, SqColumn *old_column)
 {
-	// MySQL "CHANGE COLUMN" need original column data
+	// MySQL "CHANGE COLUMN" need original column properties
 	if (old_column == NULL)
 		old_column = column;
 

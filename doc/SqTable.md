@@ -51,7 +51,7 @@ Use C++ language
 ## Create column
 
 Below C++ methods (C functions) are correspond to the different types of columns that you can add to table.  
-Most methods (functions) specify a default [SqType](SqType.md) in the column.
+Most methods (functions) set a specific [SqType](SqType.md) to the column.
 
 | C++ methods | C functions            | C data type   | SQL data type     | specified SqType   |
 | ----------- | ---------------------- | ------------- | ----------------- | ------------------ |

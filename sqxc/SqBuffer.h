@@ -58,10 +58,12 @@ extern "C" {
 #define sq_buffer_insert_c(buffer, position, character)  \
 		*sq_buffer_alloc_at(buffer, position, 1) = (character)
 
+// deprecated
 // alias of sq_buffer_insert_len()
 // void sq_buffer_insert_n(SqBuffer *buffer, int position, const char *string, int length);
 #define sq_buffer_insert_n         sq_buffer_insert_len
 
+// deprecated
 // alias of sq_buffer_write_len()
 //char *sq_buffer_write_n(SqBuffer *buffer, const char *string, int length);
 #define sq_buffer_write_n          sq_buffer_write_len
@@ -90,6 +92,7 @@ extern "C" {
 #define SQ_BUFFER_WRITE_LEN(buffer, string, length)   \
 		(char*)memcpy(sq_buffer_alloc(buffer, length), string, length)
 
+// deprecated
 // alias of SQ_BUFFER_WRITE_LEN()
 //char* SQ_BUFFER_WRITE_N(SqBuffer *buffer, const char *string, int length);
 #define SQ_BUFFER_WRITE_N          SQ_BUFFER_WRITE_LEN
@@ -106,6 +109,7 @@ extern "C" {
 		memcpy(sq_buffer_alloc_at(buffer, position, length),  \
 		       string, length)
 
+// deprecated
 // alias of SQ_BUFFER_INSERT_LEN()
 // void SQ_BUFFER_INSERT_N(SqBuffer *buffer, int position, const char *string, int length);
 #define SQ_BUFFER_INSERT_N         SQ_BUFFER_INSERT_LEN

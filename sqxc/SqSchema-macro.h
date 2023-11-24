@@ -267,8 +267,11 @@ typedef struct Company
 
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
 #define SQC_QUERY_ONLY()    \
-		column_cur_->bit_field   |= SQB_COLUMN_QUERY_ONLY;
+		column_cur_->bit_field   |= SQB_COLUMN_QUERY_ONLY
 #endif
+
+#define SQC_SIZE(size_val)   \
+		column_cur_->size = size_val
 
 #define SQC_DEFAULT(default_val)   \
 		sq_column_default(column_cur_, default_val)
