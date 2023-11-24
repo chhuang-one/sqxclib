@@ -391,12 +391,90 @@ static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src)
 }
 ```
 
+**Handle nested data types:**
+
+When Sqxc handles nested data types like object or array, you may need to store/restore some value.
+This library defines structure SqxcNested to store values and provides functions to push/pop SqxcNested:
+
+| C++ methods  | C functions            | description                   |
+| ------------ | ---------------------- | ----------------------------- |
+| clearNested  | sqxc_clear_nested      | clear all SqxcNested in stack |
+| eraseNested  | sqxc_erase_nested      | remove SqxcNested from stack  |
+| removeNested | sqxc_remove_nested     | alias of eraseNested          |
+| pushNested   | sqxc_push_nested       | push a SqxcNested to stack    |
+| popNested    | sqxc_pop_nested        | pop a SqxcNested from stack   |
+
+The C++ method pushNested() and the C function sqxc_push_nested() return a newly created SqxcNested that has been pushed onto the stack.
+
+```c++
+	Sqxc       *xc;
+	SqxcNested *nested;
+
+	// C++ method
+//	nested = xc->pushNested();
+
+	// C function
+	nested = sqxc_push_nested(xc);
+
+	// SqxcNested has 3 pointer to store values.
+	nested->data  = pointer1;
+	nested->data2 = pointer2;
+	nested->data3 = pointer3;
+```
+
+The C++ method popNested() and the C function sqxc_pop_nested() can remove SqxcNested from the top of the stack.
+
+```c++
+	Sqxc       *xc;
+	SqxcNested *nested;
+
+	// C++ method
+//	xc->popNested();
+
+	// C function
+	sqxc_pop_nested(xc);
+
+	// get SqxcNested from the top of the stack.
+	nested = xc->nested;
+
+	// restore values from SqxcNested.
+	pointer1 = nested->data;
+	pointer2 = nested->data2;
+	pointer3 = nested->data3;
+```
+
 If new Sqxc element want to parse/write data in SQL column, it must:  
 1. support SQXC_TYPE_ARRAY or SQXC_TYPE_OBJECT.
 2. send converted data to dest (or next) element. see below:
 
 ```c++
-	Sqxc *xc_dest;
+	Sqxc       *xc_dest;
+	SqxcNested *nested;
+
+	// handle nested type - object
+	if (xc_src->type == SQXC_TYPE_OBJECT) {
+		// store current values
+		nested = sqxc_push_nested(xc_text);
+		nested->data  = current_value1;
+		nested->data2 = current_value2;
+		nested->data3 = current_value3;
+		// maybe do something here
+		xc_src->code = SQCODE_OK;
+		return SQCODE_OK;
+	}
+	else if (xc_src->type == SQXC_TYPE_OBJECT_END) {
+		// restore previous values
+		sqxc_pop_nested(xc_text);
+		nested = xc_text->nested;
+		current_value1 = nested->data;
+		current_value2 = nested->data2;
+		current_value3 = nested->data3;
+		// maybe do something here
+		xc_src->code = SQCODE_OK;
+		return SQCODE_OK;
+	}
+
+	// converting data...
 
 	// set converted data in 'xc_text'
 	xc_text->type = SQXC_TYPE_INT;

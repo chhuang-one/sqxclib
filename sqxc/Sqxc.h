@@ -413,7 +413,15 @@ struct XcMethod
 	int    finish(void *data = NULL);
 
 	void        clearNested(void);
+	void        eraseNested(SqxcNested *nested);
+	SqxcNested *pushNested(void);
+	void        popNested(void);
+
+	// alias of eraseNested()
+	void        removeNested(SqxcNested *nested);
+	// alias of pushNested()
 	SqxcNested *push(void);
+	// alias of popNested()
 	void        pop(void);
 
 	int    send(XcMethod *arguments_src);
@@ -613,9 +621,24 @@ inline int  XcMethod::finish(void *data) {
 inline void        XcMethod::clearNested(void) {
 	sqxc_clear_nested((Sqxc*)this);
 }
+inline void        XcMethod::eraseNested(SqxcNested *nested) {
+	sqxc_erase_nested((Sqxc*)this, nested);
+}
+inline SqxcNested *XcMethod::pushNested(void) {
+	return sqxc_push_nested((Sqxc*)this);
+}
+inline void        XcMethod::popNested(void) {
+	sqxc_pop_nested((Sqxc*)this);
+}
+// alias of eraseNested()
+inline void        XcMethod::removeNested(SqxcNested *nested) {
+	sqxc_erase_nested((Sqxc*)this, nested);
+}
+// alias of pushNested()
 inline SqxcNested *XcMethod::push(void) {
 	return sqxc_push_nested((Sqxc*)this);
 }
+// alias of popNested()
 inline void        XcMethod::pop(void) {
 	sqxc_pop_nested((Sqxc*)this);
 }

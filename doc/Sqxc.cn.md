@@ -391,12 +391,90 @@ static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src)
 }
 ```
 
+**处理嵌套数据类型:**
+
+当 Sqxc 处理对象或数组等嵌套数据类型时，您可能需要存储/恢复某些值。
+本库定义结构 SqxcNested 来存储值并提供 push/pop SqxcNested 的函数：
+
+| C++ 方法     | C 函数                 |  描述                         |
+| ------------ | ---------------------- | ----------------------------- |
+| clearNested  | sqxc_clear_nested      | 清除堆栈中所有 SqxcNested     |
+| eraseNested  | sqxc_erase_nested      | 从堆栈中删除 SqxcNested       |
+| removeNested | sqxc_remove_nested     | eraseNested 的别名            |
+| pushNested   | sqxc_push_nested       | 将 SqxcNested 推入堆栈        |
+| popNested    | sqxc_pop_nested        | 从堆栈中弹出 SqxcNested       |
+
+C++ 方法 pushNested() 和 C 函数 sqxc_push_nested() 返回已压入堆栈且新创建的 SqxcNested。
+
+```c++
+	Sqxc       *xc;
+	SqxcNested *nested;
+
+	// C++ 方法
+//	nested = xc->pushNested();
+
+	// C 函数
+	nested = sqxc_push_nested(xc);
+
+	// SqxcNested 有 3 个指针来存储值。
+	nested->data  = pointer1;
+	nested->data2 = pointer2;
+	nested->data3 = pointer3;
+```
+
+C++ 方法 popNested() 和 C 函数 sqxc_pop_nested() 可以从堆栈顶部删除 SqxcNested。
+
+```c++
+	Sqxc       *xc;
+	SqxcNested *nested;
+
+	// C++ 方法
+//	xc->popNested();
+
+	// C 函数
+	sqxc_pop_nested(xc);
+
+	// 从堆栈顶部获取 SqxcNested。
+	nested = xc->nested;
+
+	// 从 SqxcNested 恢复值。
+	pointer1 = nested->data;
+	pointer2 = nested->data2;
+	pointer3 = nested->data3;
+```
+
 如果新的 Sqxc 元素要解析/写入 SQL 列中的数据，它必须：  
 1. 支持 SQXC_TYPE_ARRAY 或 SQXC_TYPE_OBJECT。
 2. 将转换后的数据发送到 dest（或下一个）元素。见下文：
 
 ```c++
-	Sqxc *xc_dest;
+	Sqxc       *xc_dest;
+	SqxcNested *nested;
+
+	// 处理嵌套类型 - 对象
+	if (xc_src->type == SQXC_TYPE_OBJECT) {
+		// 存储当前值
+		nested = sqxc_push_nested(xc_text);
+		nested->data  = current_value1;
+		nested->data2 = current_value2;
+		nested->data3 = current_value3;
+		// 也许在这里做点什么
+		xc_src->code = SQCODE_OK;
+		return SQCODE_OK;
+	}
+	else if (xc_src->type == SQXC_TYPE_OBJECT_END) {
+		// 恢复以前的值
+		sqxc_pop_nested(xc_text);
+		nested = xc_text->nested;
+		current_value1 = nested->data;
+		current_value2 = nested->data2;
+		current_value3 = nested->data3;
+		// 也许在这里做点什么
+		xc_src->code = SQCODE_OK;
+		return SQCODE_OK;
+	}
+
+	// 转换数据...
 
 	// 在 'xc_text' 中设置转换后的数据
 	xc_text->type = SQXC_TYPE_INT;
