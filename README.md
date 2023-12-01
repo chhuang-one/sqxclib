@@ -796,23 +796,24 @@ sqxclib is case-sensitive when searching and sorting SQL column name and JSON fi
 ## Sqxc
 Sqxc is interface for data parse and write.  
 User can link multiple Sqxc element to convert different types of data.  
-You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)  
+You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)
+
+## SqType
+It define how to initialize, finalize, and convert C data type.  
+You can get more description and example in doc/[SqType.md](doc/SqType.md)
+
+## SqSchema
+SqSchema defines database schema. It store table and changed record of table.  
+You can get more description and example in doc/[SqSchema.md](doc/SqSchema.md)
 
 ## SqApp
 SqApp use configuration file (SqApp-config.h) to initialize database and do migrations for user's application.  
 It provide command-line program to generate migration and do migrate.  
-See document in doc/[SqApp.md](doc/SqApp.md)  
+See document in doc/[SqApp.md](doc/SqApp.md)
 
 ## SqConsole
 SqConsole provide command-line interface (mainly for SqAppTool).  
-See document in doc/[SqConsole.md](doc/SqConsole.md)  
-
-## Others
-SqType   document: doc/[SqType.md](doc/SqType.md)  
-SqEntry  document: doc/[SqEntry.md](doc/SqEntry.md)  
-SqTable  document: doc/[SqTable.md](doc/SqTable.md)  
-SqColumn document: doc/[SqColumn.md](doc/SqColumn.md)  
-SqSchema document: doc/[SqSchema.md](doc/SqSchema.md)  
+See document in doc/[SqConsole.md](doc/SqConsole.md)
 
 ## Licensing
 

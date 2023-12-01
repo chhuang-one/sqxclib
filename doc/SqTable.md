@@ -163,7 +163,8 @@ Below are Library-defined common SQL data type for type mapping.
 | SQ_SQL_TYPE_VARCHAR             | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_CHAR                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_TEXT                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
-| SQ_SQL_TYPE_BINARY              | SQ_TYPE_BUFFER, SQ_TYPE_STD_VECTOR  |
+| SQ_SQL_TYPE_CLOB                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_BLOB                | SQ_TYPE_BUFFER, SQ_TYPE_STD_VECTOR  |
 | SQ_SQL_TYPE_DECIMAL             | SQ_TYPE_DOUBLE                      |
 | SQ_SQL_TYPE_TINYINT             | SQ_TYPE_INT                         |
 | SQ_SQL_TYPE_TINYINT_UNSIGNED    | SQ_TYPE_UINT                        |
@@ -174,6 +175,17 @@ Below are Library-defined common SQL data type for type mapping.
 | SQ_SQL_TYPE_TINYTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_MEDIUMTEXT          | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_LONGTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+
+The following SQL data types are aliases:
+
+| Library-defined SQL data types  | alias of SQ_SQL_XXXX                    |
+| ------------------------------- | --------------------------------------- |
+| SQ_SQL_TYPE_BINARY              | alias of SQ_SQL_TYPE_BLOB               |
+| SQ_SQL_TYPE_UNSIGNED_INT        | alias of SQ_SQL_TYPE_INT_UNSIGNED       |
+| SQ_SQL_TYPE_UNSIGNED_BIGINT     | alias of SQ_SQL_TYPE_BIGINT_UNSIGNED    |
+| SQ_SQL_TYPE_UNSIGNED_TINYINT    | alias of SQ_SQL_TYPE_TINYINT_UNSIGNED   |
+| SQ_SQL_TYPE_UNSIGNED_SMALLINT   | alias of SQ_SQL_TYPE_SMALLINT_UNSIGNED  |
+| SQ_SQL_TYPE_UNSIGNED_MEDIUMINT  | alias of SQ_SQL_TYPE_MEDIUMINT_UNSIGNED |
 
 Example: map SqType to SQL data type  
   

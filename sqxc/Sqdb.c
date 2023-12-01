@@ -680,8 +680,12 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 			sq_buffer_write(buffer, "TEXT");
 		break;
 
-	//   SQ_SQL_TYPE_BLOB:
-	case SQ_SQL_TYPE_BINARY:
+	case SQ_SQL_TYPE_CLOB:
+		sq_buffer_write(buffer, "CLOB");
+		break;
+
+	case SQ_SQL_TYPE_BLOB:
+//	case SQ_SQL_TYPE_BINARY:
 /*		if (db->info->product == SQDB_PRODUCT_MSSQL) {
 			if (size > 0) {
 				len = snprintf(NULL, 0, "VARBINARY(%d)", size);

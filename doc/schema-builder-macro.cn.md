@@ -61,7 +61,8 @@ struct User {
 
 使用 C 宏更改 schema_v2 中的表和列（动态）  
   
-宏 SQ_SCHEMA_ALTER() 可以改变表。宏中的最后一个参数类似于 lambda 函数。
+宏 SQ_SCHEMA_ALTER() 可以改变表。宏中的最后一个参数类似于 lambda 函数。  
+使用宏 SQC_CHANGE() 修改现有列的类型和属性。
 
 ```c
 	// 创建架构并指定版本号为 2
@@ -90,8 +91,8 @@ struct User {
 
 要定义类型映射列，请使用宏 SQT_MAPPING() 来映射 SQL 类型和 SqType。  
   
-要定义仅查询列，请将列名称设置为 SELECT 查询并使用宏 SQC_QUERY_ONLY() 设置列属性。
-**注意**：如果要使用仅查询列，请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。  
+要定义仅查询列，请将列名称设置为 SELECT 查询并使用宏 SQC_QUERY_ONLY() 设置列属性。  
+**注意**：如果要使用仅查询列，请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。
 
 ```c++
 // 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。

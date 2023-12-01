@@ -796,23 +796,24 @@ sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写�
 ## Sqxc
 Sqxc 是数据解析和写入的接口。  
 用户可以链接多个 Sqxc 元素来转换不同类型的数据。  
-您可以在 doc/[Sqxc.cn.md](doc/Sqxc.cn.md) 中获得更多描述和示例。  
+您可以在 doc/[Sqxc.cn.md](doc/Sqxc.cn.md) 中获得更多描述和示例。
+
+## SqType
+它定义了如何初始化、终结和转换 C 数据类型。  
+您可以在 doc/[SqType.cn.md](doc/SqType.cn.md) 中获得更多描述和示例。
+
+## SqSchema
+SqSchema 定义数据库架构。它存储表和表的更改记录。  
+您可以在 doc/[SqSchema.cn.md](doc/SqSchema.cn.md) 中获得更多描述和示例。
 
 ## SqApp
 SqApp 使用配置文件（SqApp-config.h）来初始化数据库并为用户的应用程序进行迁移。  
 它提供命令行程序来生成迁移并进行迁移。  
-请参阅文档 doc/[SqApp.cn.md](doc/SqApp.cn.md)。  
+请参阅文档 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
 
 ## SqConsole
 SqConsole 提供命令行界面（主要用于 SqAppTool）。  
-请参阅文档 doc/[SqConsole.cn.md](doc/SqConsole.cn.md)。  
-
-## 其他
-SqType   文档: doc/[SqType.cn.md](doc/SqType.cn.md)  
-SqEntry  文档: doc/[SqEntry.cn.md](doc/SqEntry.cn.md)  
-SqTable  文档: doc/[SqTable.cn.md](doc/SqTable.cn.md)  
-SqColumn 文档: doc/[SqColumn.cn.md](doc/SqColumn.cn.md)  
-SqSchema 文档: doc/[SqSchema.cn.md](doc/SqSchema.cn.md)  
+请参阅文档 doc/[SqConsole.cn.md](doc/SqConsole.cn.md)。
 
 ## sqxc 怎么念
 

@@ -50,28 +50,28 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 ## 列修饰符
 
 在将列添加到表或将条目添加到结构时，您可以使用几个 "修饰符"。  
-以下 C++ 方法 (和 C 函数) 对应于列修饰符：
+大多数方法（函数）将 SqColumn.bit_field 的特定位设置为 1。
 
-| C++ 方法             | C 函数                             | C 位字段名            |
-| -------------------- | ---------------------------------- | --------------------- |
-| primary()            | sq_column_primary()                | SQB_PRIMARY           |
-| unique()             | sq_column_unique()                 | SQB_UNIQUE            |
-| autoIncrement()      | sq_column_auto_increment()         | SQB_AUTOINCREMENT     |
-| nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
-| useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
-| useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
-| queryOnly()          | sq_column_query_only()             | SQB_QUERY_ONLY        |
-| default_(string)     | sq_column_default()                |                       |
+| C++ 方法           | C 函数                          | 描述                               |
+| ------------------ | ------------------------------- | ---------------------------------- |
+| primary            | sq_column_primary               | 主键                               |
+| unique             | sq_column_unique                | 唯一索引                           |
+| autoIncrement      | sq_column_auto_increment        | 自动递增                           |
+| nullable           | sq_column_nullable              | 允许 NULL 值                       |
+| useCurrent         | sq_column_use_current           | 使用 CURRENT_TIMESTAMP 作为默认值。|
+| useCurrentOnUpdate | sq_column_use_current_on_update | 更新记录时使用 CURRENT_TIMESTAMP。 |
+| queryOnly          | sq_column_query_only            | 列名仅适用于 SQL SELECT 查询。     |
+| default_           | sq_column_default               | 为该列指定一个 "默认" 值。         |
 
 * 因为 "default" 是 C/C++ 关键字，所以在此方法的尾部附加 "_"。
 
 结构类型的特殊方法。
 
-| C++ 方法         | C 位字段名        | 描述                                               |
-| ---------------- | ----------------- | -------------------------------------------------- |
-| pointer()        | SQB_POINTER       | 此数据成员是一个指针。                           |
-| hidden()         | SQB_HIDDEN        | 不要将此数据成员输出到 JSON。                      |
-| hiddenNull()     | SQB_HIDDEN_NULL   | 如果它的值为 NULL，则不要将此数据成员输出到 JSON。 |
+| C++ 方法       | C 函数                | 描述                                               |
+| -------------- | --------------------- | -------------------------------------------------- |
+| pointer        | sq_column_pointer     | 此数据成员是一个指针。                             |
+| hidden         | sq_column_hidden      | 不要将此数据成员输出到 JSON。                      |
+| hiddenNull     | sq_column_hidden_null | 如果它的值为 NULL，则不要将此数据成员输出到 JSON。 |
 
 示例1: 使列 "nullable"。
 
@@ -161,7 +161,8 @@ struct SqColumn
 };
 ```
 
-声明 SqColumn 使用的 bit_field：
+定义 SqColumn 使用的 bit_field：  
+以下 SQB_XXXX 都必须使用按位操作来设置或清除 SqColumn.bit_field 中的位。
 
 | 名称                   | 描述                                          | 
 | ---------------------- | --------------------------------------------- |
@@ -177,7 +178,18 @@ struct SqColumn
 | SQB_RENAMED            | 列或表已重命名。                              |
 | SQB_CHANGED            | 列或表已更改。                                |
 
-* SqColumn 也继承了 [SqEntry](SqEntry.cn.md) 中 bit_field 的定义。
+* SQB_RENAMED 仅供内部使用。用户不应设置或清除该位。
+
+以下 bit_field 定义继承自 [SqEntry](SqEntry.cn.md)：
+
+| 名称                   | 描述                                          | 
+| ---------------------- | --------------------------------------------- |
+| SQB_DYNAMIC            | 列可以更改和释放                              |
+| SQB_POINTER            | 列的实例是指针                                |
+| SQB_HIDDEN             | JSON 转换器不会输出该列的值                   |
+| SQB_HIDDEN_NULL        | 如果值为 NULL，JSON 转换器将不会输出          |
+
+* SQB_DYNAMIC 仅供内部使用。用户不应设置或清除该位。
 
 #### 定义由常量 SqType 使用的常量 SqColumn（静态）
 
@@ -186,8 +198,8 @@ struct SqColumn
 
 ```c++
 static const SqColumn  columnArray[2] = {
-	{SQ_TYPE_UINT,   "id",         offsetof(YourStruct, id),         0},
-	{SQ_TYPE_STR,    "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
+	{SQ_TYPE_UINT,  "id",    offsetof(YourStruct, id),    SQB_PRIMARY | SQB_HIDDEN},
+	{SQ_TYPE_STR,   "name",  offsetof(YourStruct, name),  SQB_HIDDEN_NULL},
 };
 
 static const SqColumn *columnPointerArray[2] = {

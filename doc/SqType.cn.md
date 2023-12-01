@@ -40,7 +40,23 @@ struct SqType
 };
 ```
 
-内置 SqType 及其数据类型
+定义 SqType 的 bit_field：
+
+| 名称                  | 描述                                   |
+| --------------------- | -------------------------------------- |
+| SQB_TYPE_DYNAMIC      | 类型可以改变和释放                     |
+| SQB_TYPE_SORTED       | SqType.entry 按照 SqEntry.name 排序    |
+| SQB_TYPE_QUERY_FIRST  | SqType.entry 具有仅查询列              |
+
+* SQB_TYPE_DYNAMIC 仅供内部使用。用户不应设置或清除该位。
+* 如果 SqType.bit_field 没有设置 SQB_TYPE_DYNAMIC，用户不能更改或释放 SqType。
+* 用户必须使用位运算符来设置或清除 SqType.bit_field 中的位。
+* 最好将常量或静态 SqEntry 与常量或静态 SqType 一起使用。
+* 动态 SqEntry 可以与动态、常量或静态 SqType 一起使用。
+
+## 0 库提供的 SqType
+
+内置 SqType 及其数据类型：
 
 | SqType          | C 数据类型   | SQL 数据类型      | 描述                         |
 | --------------- | ------------ | ----------------- | ---------------------------- |
@@ -58,8 +74,8 @@ struct SqType
 | SQ_TYPE_CHAR    | char*        | CHAR              | 为 SQL 数据类型 CHAR 定义    |
 
 * 不同的 SQL 产品可能将这些 C 数据类型对应到不同的 SQL 数据类型。
-  
-SqType 及其 C/C++ 容器类型
+
+SqType 及其 C/C++ 容器类型：
 
 | SqType                 | C 数据类型     | C++ 数据类型   | 描述                         |
 | ---------------------- | -------------- | -------------- | ---------------------------- |
@@ -68,13 +84,13 @@ SqType 及其 C/C++ 容器类型
 | SQ_TYPE_PTR_ARRAY      | SqPtrArray     | Sq::PtrArray   | 指针数组                     |
 | SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   | 字符串数组（主要用于 JSON）  |
 
-SqType 及其 C/C++ 二进制数据类型
+SqType 及其 C/C++ 二进制数据类型：
 
 | SqType                 | C 数据类型     | C++ 数据类型   | 描述                         |
 | ---------------------- | -------------- | -------------- | ---------------------------- |
 | SQ_TYPE_BUFFER         | SqBuffer       | Sq::Buffer     | 可以映射到 SQL 数据类型 BLOB |
 
-SqType 及其 C++ 数据类型
+SqType 及其 C++ 数据类型：
 
 | SqType                  | C++ 数据类型             | 描述                           |
 | ----------------------- | ------------------------ | ------------------------------ |
@@ -86,26 +102,14 @@ SqType 及其 C++ 数据类型
 | SQ_TYPE_STD_VEC_SIZE    | std::vector<char> resize | SQ_TYPE_STD_VECTOR_SIZE 的别名 |
 | Sq::TypeStl<Container>  | STL 容器                 | 为 STL 容器创建 SqType         |
 
-定义 SqType 的 bit_field
+## 1 使用 SqType 定义原始数据类型
 
-| 名称                  | 描述                                   |
-| --------------------- | -------------------------------------- |
-| SQB_TYPE_DYNAMIC      | 类型可以改变和释放                     |
-| SQB_TYPE_SORTED       | SqType.entry 按照 SqEntry.name 排序    |
-| SQB_TYPE_QUERY_FIRST  | SqType.entry 具有仅查询列              |
+原始数据类型类似于整数和浮点数，并且不是结构或类。请参考源代码 SqType-built-in.c 以获得更多示例。
 
-* SQB_TYPE_DYNAMIC 仅供内部使用。用户不应设置或清除该位。
-* 如果 SqType.bit_field 没有设置 SQB_TYPE_DYNAMIC，用户不能更改或释放 SqType。
-* 用户必须使用位运算符来设置或清除 SqType.bit_field 中的位。
-* 最好将常量或静态 SqEntry 与常量或静态 SqType 一起使用。
-* 动态 SqEntry 可以与动态、常量或静态 SqType 一起使用。
-
-## 1 使用 SqType 定义基本（非结构化）数据类型
-参考源代码 SqType-built-in.c 以获得更多示例。
-
-#### 1.1 定义常量基本（非结构化）数据类型
+#### 1.1 定义常量原始数据类型
 
 使用 C99 指定初始化器或 C++ 聚合初始化来定义静态 SqType。
+
 ```
 const SqType type_int = {
 	.size  = sizeof(int),
@@ -114,22 +118,26 @@ const SqType type_int = {
 	.parse = int_parse_function,    // 从 Sqxc 实例解析数据的函数
 	.write = int_write_function,    // 将数据写入 Sqxc 实例的函数
 };
-
 ```
 
-#### 1.2 定义动态基本（非结构化）数据类型
+#### 1.2 定义动态原始数据类型
 
+使用 sq_type_new() 为 SqType 创建动态原始数据类型。
 函数 sq_type_new() 声明：
 
 ```c++
+// prealloc_size：SqType.entry 的容量（SqType.entry 是 SqEntry 指针数组）。
+// entry_destroy_func：SqType.entry 元素的 DestroyFunc。
+
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 ```
 
-1. 将参数 'prealloc_size' = -1, 'entry_destroy_func' = NULL 传递给 sq_type_new()
-2. 在 SqType 结构中分配大小、初始化、最终、解析和写入。
+例如：为 SqType 创建原始数据类型。
 
 ```c++
 	SqType *type;
+
+	// 1. 创建 SqType 并传递参数 'prealloc_size' = -1、'entry_destroy_func' = NULL。
 
 	/* C 函数 */
 	type = sq_type_new(-1, NULL);
@@ -137,6 +145,7 @@ SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 	/* C++ 方法 */
 //	type = new Sq::Type(-1, NULL);
 
+	// 2. 指定 SqType 结构中的 size，以及 init、final、parse 和 write 函数。
 	type->size  = sizeof(int);
 	type->init  = NULL;                  // 初始化函数
 	type->final = NULL;                  // 终结函数

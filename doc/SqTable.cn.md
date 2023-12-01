@@ -163,7 +163,8 @@ struct DemoTable {
 | SQ_SQL_TYPE_VARCHAR             | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_CHAR                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_TEXT                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
-| SQ_SQL_TYPE_BINARY              | SQ_TYPE_BUFFER, SQ_TYPE_STD_VECTOR  |
+| SQ_SQL_TYPE_CLOB                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+| SQ_SQL_TYPE_BLOB                | SQ_TYPE_BUFFER, SQ_TYPE_STD_VECTOR  |
 | SQ_SQL_TYPE_DECIMAL             | SQ_TYPE_DOUBLE                      |
 | SQ_SQL_TYPE_TINYINT             | SQ_TYPE_INT                         |
 | SQ_SQL_TYPE_TINYINT_UNSIGNED    | SQ_TYPE_UINT                        |
@@ -174,6 +175,17 @@ struct DemoTable {
 | SQ_SQL_TYPE_TINYTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_MEDIUMTEXT          | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_LONGTEXT            | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
+
+以下是 SQL 数据类型的别名:
+
+| 库定义的 SQL 数据类型           | SQ_SQL_XXXX 的别名                      |
+| ------------------------------- | --------------------------------------- |
+| SQ_SQL_TYPE_BINARY              | SQ_SQL_TYPE_BLOB 的别名                 |
+| SQ_SQL_TYPE_UNSIGNED_INT        | SQ_SQL_TYPE_INT_UNSIGNED 的别名         |
+| SQ_SQL_TYPE_UNSIGNED_BIGINT     | SQ_SQL_TYPE_BIGINT_UNSIGNED 的别名      |
+| SQ_SQL_TYPE_UNSIGNED_TINYINT    | SQ_SQL_TYPE_TINYINT_UNSIGNED 的别名     |
+| SQ_SQL_TYPE_UNSIGNED_SMALLINT   | SQ_SQL_TYPE_SMALLINT_UNSIGNED 的别名    |
+| SQ_SQL_TYPE_UNSIGNED_MEDIUMINT  | SQ_SQL_TYPE_MEDIUMINT_UNSIGNED 的别名   |
 
 示例: 将 SqType 映射到 SQL 数据类型  
   

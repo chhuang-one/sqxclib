@@ -33,7 +33,10 @@ struct User {
 
 ## C99 designated initializer
 
-use C99 designated initializer to define table and column in schema_v1 (static)
+use C99 designated initializer to define table and column in schema_v1 (static)  
+  
+SQ_TYPE_XXXX are C data types, they are listed in (SqType)[SqType.md].  
+SQB_XXXX are bit fields that used by (SqColumn)[SqColumn.md].
 
 ```c
 #include <sqxclib.h>
@@ -191,8 +194,7 @@ static const SqColumn  userColumns[8] = {
 
 ## Query-only column (static)
 
-You can store result of special query like 'SELECT length(BlobColumn), * FROM table' to C structure's member.
-To define a query-only column, set SqColumn.name to the SELECT query and SqColumn.bit_field has SQB_QUERY_ONLY.  
+Query-only column names only apply to SQL SELECT query. You can set SqColumn.name to the SELECT query and set SQB_QUERY_ONLY in SqColumn.bit_field to define query-only column. This can store result of special query like 'SELECT length(BlobColumn), * FROM table' to C structure's member.  
   
 **Note**: Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want to use this feature.  
   
@@ -243,7 +245,12 @@ const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnP
 
 ## Type mapping (static)
 
-If you define constant SqColumn with SQL type BLOB and TEXT, you must use type mapping.  
+Users can specify the SQL data type in SqColumn.sql_type, which will map to the C data type specified in SqColumn.type.
+If SqColumn.sql_type is equal to 0, program will try to determine the SQL data type from SqColumn.type.
+SQL data types are listed in [SqTable](SqTable.md).  
+  
+You must use type mapping if you define constant [SqColumn](SqColumn.md) with non-built-in [SqType](SqType.md).
+Because some SQL types (such as **BLOB**, **CLOB**, and **TEXT**) do not have default built-in SqType, user must specify which SqType map to these SQL data types.  
   
 Example 1: use C SqBuffer to store SQL BLOB data.
 

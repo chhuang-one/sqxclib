@@ -23,8 +23,8 @@ struct User {
 use C macro to define table and column in schema_v1 (dynamic)  
   
 macro SQ_SCHEMA_CREATE() can create table. The last parameter in macro is like lambda function.  
-macro SQT_XXXX() is used to add column to table.  
-macro SQC_XXXX() is used to set column properties.
+macro SQT_XXXX() are used to add column to table.  
+macro SQC_XXXX() are used to set column properties.
 
 ```c
 #include <sqxclib.h>
@@ -61,7 +61,8 @@ macro SQC_XXXX() is used to set column properties.
 
 use C macro to change table and column in schema_v2 (dynamic)  
   
-macro SQ_SCHEMA_ALTER() can alter table. The last parameter in macro is like lambda function.
+macro SQ_SCHEMA_ALTER() can alter table. The last parameter in macro is like lambda function.  
+Use macro SQC_CHANGE() to modify the type and attributes of existing columns.
 
 ```c
 	// create schema and specify version number as 2
@@ -90,8 +91,8 @@ macro SQ_SCHEMA_ALTER() can alter table. The last parameter in macro is like lam
 
 To define a type mapping column, use macro SQT_MAPPING() to map SQL type and SqType.  
   
-To define a query-only column, set column name to the SELECT query and use macro SQC_QUERY_ONLY() to set column properties.
-**Note**: Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want to use query-only column.  
+To define a query-only column, set column name to the SELECT query and use macro SQC_QUERY_ONLY() to set column properties.  
+**Note**: Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want to use query-only column.
 
 ```c++
 // If you use C language, please use 'typedef' to give a struct type a new name.

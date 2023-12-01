@@ -40,7 +40,23 @@ struct SqType
 };
 ```
 
-Built-in SqType with it's data type
+Define bit_field of SqType:
+
+| name                  | description                            |
+| --------------------- | -------------------------------------- |
+| SQB_TYPE_DYNAMIC      | type can be changed and freed          |
+| SQB_TYPE_SORTED       | SqType.entry is sorted by SqEntry.name |
+| SQB_TYPE_QUERY_FIRST  | SqType.entry has query-only columns    |
+
+* SQB_TYPE_DYNAMIC is for internal use only. User should NOT set or clear this bit.
+* User can NOT change or free SqType if SqType.bit_field has NOT set SQB_TYPE_DYNAMIC.
+* User must use bitwise operators to set or clear bits in SqType.bit_field.
+* It is better to use constant or static SqEntry with constant or static SqType.
+* Dynamic SqEntry can use with dynamic, constant, or static SqType.
+
+## 0 Library-provided SqType
+
+Built-in SqType with it's data type:
 
 | SqType          | C data type  | SQL data type     | description                      |
 | --------------- | ------------ | ----------------- | -------------------------------- |
@@ -58,8 +74,8 @@ Built-in SqType with it's data type
 | SQ_TYPE_CHAR    | char*        | CHAR              | defined for SQL data type CHAR   |
 
 * Different SQL products may map these C data types to different SQL data types.
-  
-SqType with it's C/C++ container type
+
+SqType with it's C/C++ container type:
 
 | SqType                 | C data type    | C++ data type  | description                      |
 | ---------------------- | -------------- | -------------- | -------------------------------- |
@@ -68,13 +84,13 @@ SqType with it's C/C++ container type
 | SQ_TYPE_PTR_ARRAY      | SqPtrArray     | Sq::PtrArray   | pointer array                    |
 | SQ_TYPE_STR_ARRAY      | SqStrArray     | Sq::StrArray   | string  array (used by JSON)     |
 
-SqType with it's C/C++ binary data type
+SqType with it's C/C++ binary data type:
 
 | SqType                 | C data type    | C++ data type  | description                      |
 | ---------------------- | -------------- | -------------- | -------------------------------- |
 | SQ_TYPE_BUFFER         | SqBuffer       | Sq::Buffer     | It can map to SQL data type BLOB |
 
-SqType with it's C++ data type
+SqType with it's C++ data type:
 
 | SqType                  | C++ data type            | description                       |
 | ----------------------- | ------------------------ | --------------------------------- |
@@ -86,26 +102,14 @@ SqType with it's C++ data type
 | SQ_TYPE_STD_VEC_SIZE    | std::vector<char> resize | alias of SQ_TYPE_STD_VECTOR_SIZE  |
 | Sq::TypeStl<Container>  | STL containers           | create SqType for STL container   |
 
-Define bit_field of SqType
+## 1 use SqType to define primitive data types
 
-| name                  | description                            |
-| --------------------- | -------------------------------------- |
-| SQB_TYPE_DYNAMIC      | type can be changed and freed          |
-| SQB_TYPE_SORTED       | SqType.entry is sorted by SqEntry.name |
-| SQB_TYPE_QUERY_FIRST  | SqType.entry has query-only columns    |
+Primitive data types are like integer and float and are not structure or class. Please refer source code SqType-built-in.c to get more example.
 
-* SQB_TYPE_DYNAMIC is for internal use only. User should NOT set or clear this bit.
-* User can NOT change or free SqType if SqType.bit_field has NOT set SQB_TYPE_DYNAMIC.
-* User must use bitwise operators to set or clear bits in SqType.bit_field.
-* It is better to use constant or static SqEntry with constant or static SqType.
-* Dynamic SqEntry can use with dynamic, constant, or static SqType.
-
-## 1 use SqType to define basic (not structured) data type
-refer source code SqType-built-in.c to get more example.
-
-#### 1.1 Define constant basic (not structured) data type
+#### 1.1 Define constant primitive data type
 
 use C99 designated initializer or C++ aggregate initialization to define static SqType.
+
 ```
 const SqType type_int = {
 	.size  = sizeof(int),
@@ -114,22 +118,26 @@ const SqType type_int = {
 	.parse = int_parse_function,    // Function that parse data from Sqxc instance
 	.write = int_write_function,    // Function that write data to   Sqxc instance
 };
-
 ```
 
-#### 1.2 Define dynamic basic (not structured) data type
+#### 1.2 Define dynamic primitive data type
 
-function sq_type_new() declarations:
+Using sq_type_new() to create dynamic primitive data type for SqType.
+Function sq_type_new() declarations:
 
 ```c++
+// prealloc_size : capacity of SqType.entry (SqType.entry is SqEntry pointer array).
+// entry_destroy_func : DestroyFunc of SqType.entry's elements.
+
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 ```
 
-1. pass argument 'prealloc_size' = -1, 'entry_destroy_func' = NULL to sq_type_new()
-2. assign size, init, final, parse, and write in SqType structure.
+e.g. Create primitive data type for SqType.
 
 ```c++
 	SqType *type;
+
+	// 1. Create SqType with argument 'prealloc_size' = -1, 'entry_destroy_func' = NULL.
 
 	/* C function */
 	type = sq_type_new(-1, NULL);
@@ -137,6 +145,7 @@ SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 	/* C++ method */
 //	type = new Sq::Type(-1, NULL);
 
+	// 2. Specify size, and the functions init, final, parse, and write in the SqType structure.
 	type->size  = sizeof(int);
 	type->init  = NULL;                  // initialize function
 	type->final = NULL;                  // finalize function

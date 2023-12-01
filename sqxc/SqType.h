@@ -107,6 +107,8 @@ extern "C" {
 #endif
 
 // create/destroy dynamic SqType.
+// prealloc_size : capacity of SqType.entry (SqType.entry is SqEntry pointer array).
+// entry_destroy_func : DestroyFunc of SqType.entry's elements.
 // if 'prealloc_size' is 0, allocate default size.
 // if user want create a basic (not structured) data type, pass 'prealloc_size' = -1 and 'entry_destroy_func' = NULL.
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
@@ -117,7 +119,9 @@ void     sq_type_free(SqType *type);
 // return dynamic SqType.
 SqType  *sq_type_copy_static(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func);
 
-// initialize/finalize self
+// initialize/finalize SqType itself
+// prealloc_size : capacity of SqType.entry (SqType.entry is SqEntry pointer array).
+// entry_destroy_func : DestroyFunc of SqType.entry's elements.
 // if 'prealloc_size' is 0, allocate default size.
 // if user want create a basic (not structured) data type, pass 'prealloc_size' = -1 and 'entry_destroy_func' = NULL.
 void     sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_destroy_func);

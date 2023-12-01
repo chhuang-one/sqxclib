@@ -28,7 +28,7 @@ extern "C" {
 
 typedef enum {
 	// If SqColumn.sql_type is equal to SQ_SQL_TYPE_UNKNOWN,
-	// program will try to determine the SQL data type through SqColumn.type.
+	// program will try to determine the SQL data type from SqColumn.type.
 	SQ_SQL_TYPE_UNKNOWN = 0,
 
 	// Order of below SQ_SQL_TYPE must the same as order of built-in SQ_TYPE.
@@ -45,10 +45,11 @@ typedef enum {
 	SQ_SQL_TYPE_CHAR,                // SQ_TYPE_CHAR
 
 	// other SQL types...
-	SQ_SQL_TYPE_TEXT,                // SQ_TYPE_STR or SQ_TYPE_STD_STR
-	SQ_SQL_TYPE_BINARY,              // BLOB...etc
-	SQ_SQL_TYPE_BLOB               = SQ_SQL_TYPE_BINARY,             // alias
-	SQ_SQL_TYPE_DECIMAL,
+	SQ_SQL_TYPE_TEXT,                // SQ_TYPE_STR    or SQ_TYPE_STD_STR
+	SQ_SQL_TYPE_CLOB,                // SQ_TYPE_STR    or SQ_TYPE_STD_STR
+	SQ_SQL_TYPE_BLOB,                // SQ_TYPE_BUFFER or SQ_TYPE_STD_VECTOR
+	SQ_SQL_TYPE_BINARY             = SQ_SQL_TYPE_BLOB,               // alias
+	SQ_SQL_TYPE_DECIMAL,             // SQ_TYPE_DOUBLE or SQ_TYPE_INT
 
 	// other INT series
 	SQ_SQL_TYPE_TINYINT,

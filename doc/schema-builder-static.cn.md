@@ -33,7 +33,10 @@ struct User {
 
 ## C99 指定初始化
 
-使用 C99 指定初始化程序在 schema_v1 中定义表和列 （静态）
+使用 C99 指定初始化程序在 schema_v1 中定义表和列 （静态）  
+  
+SQ_TYPE_XXXX 是 C 数据类型，它们列在 (SqType)[SqType.cn.md] 中。  
+SQB_XXXX 是 (SqColumn)[SqColumn.cn.md] 使用的位字段。
 
 ```c
 #include <sqxclib.h>
@@ -191,8 +194,7 @@ static const SqColumn  userColumns[8] = {
 
 ## 仅查询列 (静态)
 
-您可以在 C 结构的成员中存储特殊查询的结果，例如 'SELECT length(BlobColumn), * FROM table'。
-要定义仅查询列，请将 SqColumn.name 设置为 SELECT 查询，并且 SqColumn.bit_field 具有 SQB_QUERY_ONLY。  
+仅查询列名仅适用于 SQL SELECT 查询。您可以将 SqColumn.name 设置为 SELECT 查询，并在 SqColumn.bit_field 中设置 SQB_QUERY_ONLY 以定义仅查询列。这可以将特殊查询的结果（如“SELECT length(BlobColumn), * FROM table”）存储到 C 结构的成员中。  
   
 **注意**：如果要使用此功能，请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。  
   
@@ -243,7 +245,12 @@ const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnP
 
 ## 类型映射（静态）
 
-如果使用 SQL 类型 BLOB 和 TEXT 定义常量 SqColumn，则必须使用类型映射。  
+用户可以在 SqColumn.sql_type 中指定 SQL 数据类型，该数据类型将映射到 SqColumn.type 中指定的 C 数据类型。
+如果 SqColumn.sql_type 等于 0，程序将尝试从 SqColumn.type 确定 SQL 数据类型。
+SQL 数据类型在 [SqTable](SqTable.cn.md) 中列出。  
+  
+如果使用非内置 [SqType](SqType.cn.md) 定义常量 [SqColumn](SqColumn.cn.md)，则必须使用类型映射。
+由于某些 SQL 类型（例如 **BLOB**、**CLOB** 和 **TEXT**）没有默认的内置 SqType，因此用户必须指定哪个 SqType 映射到这些 SQL 数据类型。  
   
 示例1: 使用 C SqBuffer 来存储 SQL BLOB 数据。
 

@@ -50,28 +50,28 @@ Use C++ language
 ## Column Modifiers
 
 There are several "modifiers" you may use when adding a column to table or a entry to structure.  
-Below C++ methods (and C functions) are correspond to Column Modifiers:
+Most methods (functions) set a specific bit of SqColumn.bit_field to 1.
 
-| C++ methods          | C functions                        | C bit field name      |
-| -------------------- | ---------------------------------- | --------------------- |
-| primary()            | sq_column_primary()                | SQB_PRIMARY           |
-| unique()             | sq_column_unique()                 | SQB_UNIQUE            |
-| autoIncrement()      | sq_column_auto_increment()         | SQB_AUTOINCREMENT     |
-| nullable()           | sq_column_nullable()               | SQB_NULLABLE          |
-| useCurrent()         | sq_column_use_current()            | SQB_CURRENT           |
-| useCurrentOnUpdate() | sq_column_use_current_on_update()  | SQB_CURRENT_ON_UPDATE |
-| queryOnly()          | sq_column_query_only()             | SQB_QUERY_ONLY        |
-| default_(string)     | sq_column_default()                |                       |
+| C++ methods        | C functions                     | Description                                     |
+| ------------------ | ------------------------------- | ----------------------------------------------- |
+| primary            | sq_column_primary               | primary key                                     |
+| unique             | sq_column_unique                | unique index                                    |
+| autoIncrement      | sq_column_auto_increment        | auto-incrementing                               |
+| nullable           | sq_column_nullable              | allow NULL value                                |
+| useCurrent         | sq_column_use_current           | use CURRENT_TIMESTAMP as default value.         |
+| useCurrentOnUpdate | sq_column_use_current_on_update | use CURRENT_TIMESTAMP when a record is updated. |
+| queryOnly          | sq_column_query_only            | column name only apply to SQL SELECT query.     |
+| default_           | sq_column_default               | specify a "default" value for the column.       |
 
 * Because 'default' is C/C++ keywords, it must append '_' in tail of this method.
 
 Special methods for structured data type.
 
-| C++ methods      | C bit field name  | Description                                                  |
-| ---------------- | ----------------- | ------------------------------------------------------------ |
-| pointer()        | SQB_POINTER       | This data member is a pointer.                               |
-| hidden()         | SQB_HIDDEN        | Don't output this data member to JSON.                       |
-| hiddenNull()     | SQB_HIDDEN_NULL   | Don't output this data member to JSON if it's value is NULL. |
+| C++ methods    | C functions           | Description                                                  |
+| -------------- | --------------------- | ------------------------------------------------------------ |
+| pointer        | sq_column_pointer     | This data member is a pointer.                               |
+| hidden         | sq_column_hidden      | Don't output this data member to JSON.                       |
+| hiddenNull     | sq_column_hidden_null | Don't output this data member to JSON if it's value is NULL. |
 
 Example 1: to make the column "nullable".
 
@@ -126,7 +126,7 @@ use C++ language
 
 ## use SqColumn with SqType
 
-To define constant SqColumn, user must know SqColumn Structure Definition:
+To define constant SqColumn, user must know SqColumn structure definition:
 
 ```c
 struct SqColumn
@@ -161,7 +161,8 @@ struct SqColumn
 };
 ```
 
-Declaring bit_field that used by SqColumn:
+Define bit_field that used by SqColumn:  
+The following SQB_XXXX must use bitwise operation to set or clear bits in SqColumn.bit_field.
 
 | name                   | description                                     | 
 | ---------------------- | ----------------------------------------------- |
@@ -177,7 +178,18 @@ Declaring bit_field that used by SqColumn:
 | SQB_RENAMED            | column or table has been renamed.               |
 | SQB_CHANGED            | column or table has been altered.               |
 
-* SqColumn also inherits the definition of bit_field in [SqEntry](SqEntry.md).
+* SQB_RENAMED is for internal use only. User should NOT set or clear this bit.
+
+The following bit_field definitions are inherited from [SqEntry](SqEntry.md):
+
+| name                   | description                                          | 
+| ---------------------- | ---------------------------------------------------- |
+| SQB_DYNAMIC            | column can be changed and freed.                     |
+| SQB_POINTER            | column's instance is pointer.                        |
+| SQB_HIDDEN             | JSON converter will not output value of this column. |
+| SQB_HIDDEN_NULL        | JSON converter will not output if value is NULL.     |
+
+* SQB_DYNAMIC is for internal use only. User should NOT set or clear this bit.
 
 #### Define constant SqColumn that used by constant SqType (static)
 
@@ -186,8 +198,8 @@ This can reduce running time when making schema if your SQL table is fixed and n
 
 ```c++
 static const SqColumn  columnArray[2] = {
-	{SQ_TYPE_UINT,   "id",         offsetof(YourStruct, id),         0},
-	{SQ_TYPE_STR,    "name",       offsetof(YourStruct, name),       SQB_HIDDEN_NULL},
+	{SQ_TYPE_UINT,  "id",    offsetof(YourStruct, id),    SQB_PRIMARY | SQB_HIDDEN},
+	{SQ_TYPE_STR,   "name",  offsetof(YourStruct, name),  SQB_HIDDEN_NULL},
 };
 
 static const SqColumn *columnPointerArray[2] = {
