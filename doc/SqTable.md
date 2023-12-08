@@ -53,26 +53,30 @@ Use C++ language
 Below C++ methods (C functions) are correspond to the different types of columns that you can add to table.  
 Most methods (functions) set a specific [SqType](SqType.md) to the column.
 
-| C++ methods | C functions            | C data type   | SQL data type     | specified SqType   |
-| ----------- | ---------------------- | ------------- | ----------------- | ------------------ |
-| boolean     | sq_table_add_bool      | bool          | BOOLEAN           | SQ_TYPE_BOOL       |
-| bool_       | sq_table_add_bool      | bool          | BOOLEAN           | SQ_TYPE_BOOL       |
-| integer     | sq_table_add_integer   | int           | INT               | SQ_TYPE_INT        |
-| int_        | sq_table_add_int       | int           | INT               | SQ_TYPE_INT        |
-| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    | SQ_TYPE_UINT       |
-| int64       | sq_table_add_int64     | int64_t       | BIGINT            | SQ_TYPE_INT64      |
-| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) | SQ_TYPE_UINT64     |
-| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         | SQ_TYPE_TIME       |
-| double_     | sq_table_add_double    | double        | DOUBLE            | SQ_TYPE_DOUBLE     |
-| str         | sq_table_add_str       | char*         | VARCHAR           | SQ_TYPE_STR        |
-| string      | sq_table_add_string    | char*         | VARCHAR           | SQ_TYPE_STR        |
-| char_       | sq_table_add_char      | char*         | CHAR              | SQ_TYPE_CHAR       |
-| text        | sq_table_add_text      | char*         | TEXT              | SQ_TYPE_STR        |
-| binary      | sq_table_add_binary    | SqBuffer      | BLOB or BINARY    | SQ_TYPE_BUFFER     |
-| custom      | sq_table_add_custom    | *User define* | VARCHAR           | *User define*      |
-| mapping     | sq_table_add_mapping   | *User specify*| *User specify*    | *User specify*     |
+| C++ methods | C functions            | C data type    | SQL data type     | specified SqType    |
+| ----------- | ---------------------- | -------------- | ----------------- | ------------------- |
+| boolean     | sq_table_add_boolean   | bool           | BOOLEAN           | SQ_TYPE_BOOL        |
+| bool_       | sq_table_add_bool      | bool           | BOOLEAN           | SQ_TYPE_BOOL        |
+| integer     | sq_table_add_integer   | int            | INT               | SQ_TYPE_INT         |
+| int_        | sq_table_add_int       | int            | INT               | SQ_TYPE_INT         |
+| uint        | sq_table_add_uint      | unsigned int   | INT (UNSIGNED)    | SQ_TYPE_UINT        |
+| int64       | sq_table_add_int64     | int64_t        | BIGINT            | SQ_TYPE_INT64       |
+| uint64      | sq_table_add_uint64    | uint64_t       | BIGINT (UNSIGNED) | SQ_TYPE_UINT64      |
+| timestamp   | sq_table_add_timestamp | time_t         | TIMESTAMP         | SQ_TYPE_TIME        |
+| double_     | sq_table_add_double    | double         | DOUBLE            | SQ_TYPE_DOUBLE      |
+| str         | sq_table_add_str       | char*          | VARCHAR           | SQ_TYPE_STR         |
+| string      | sq_table_add_string    | char*          | VARCHAR           | SQ_TYPE_STR         |
+| char_       | sq_table_add_char      | char*          | CHAR              | SQ_TYPE_CHAR        |
+| text        | sq_table_add_text      | char*  default | TEXT              | SQ_TYPE_STR  default|
+| clob        | sq_table_add_clob      | char*  default | CLOB              | SQ_TYPE_STR  default|
+| blob        | sq_table_add_blob      | SqBuffer       | BLOB or BINARY    | SQ_TYPE_BUFFER      |
+| binary      | sq_table_add_binary    | SqBuffer       | BLOB or BINARY    | SQ_TYPE_BUFFER      |
+| custom      | sq_table_add_custom    | *User define*  | VARCHAR           | *User define*       |
+| mapping     | sq_table_add_mapping   | *User specify* | *User specify*    | *User specify*      |
 
 * Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, it must append '_' in tail of these methods.
+* Some methods/functions (such as boolean, integer, string, and binary) have shorter aliases.
+* text and clob methods/functions can specify SqType by user, or use default value.
 
 Below method is for C++ data type only.
 
@@ -82,6 +86,8 @@ Below method is for C++ data type only.
 | stdstr      | std::string       | VARCHAR           | SQ_TYPE_STD_STRING |
 | stdvector   | std::vector<char> | BLOB or BINARY    | SQ_TYPE_STD_VECTOR |
 | stdvec      | std::vector<char> | BLOB or BINARY    | SQ_TYPE_STD_VECTOR |
+
+* stdstr and stdvec are shorter aliases of stdstring and stdvector.
 
 **Use custom or JSON type**  
   

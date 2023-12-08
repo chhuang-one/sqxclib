@@ -53,26 +53,30 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 下面的 C++ 方法 (C 函数) 对应于您可以添加到表中的不同类型的列。  
 大多数方法（函数）都会为列设置特定的 [SqType](SqType.cn.md)。
 
-| C++ 方法    | C 函数                 | C 数据类型    | SQL 数据类型      | 指定的 SqType      |
-| ----------- | ---------------------- | ------------- | ----------------- | ------------------ |
-| boolean     | sq_table_add_bool      | bool          | BOOLEAN           | SQ_TYPE_BOOL       |
-| bool_       | sq_table_add_bool      | bool          | BOOLEAN           | SQ_TYPE_BOOL       |
-| integer     | sq_table_add_integer   | int           | INT               | SQ_TYPE_INT        |
-| int_        | sq_table_add_int       | int           | INT               | SQ_TYPE_INT        |
-| uint        | sq_table_add_uint      | unsigned int  | INT (UNSIGNED)    | SQ_TYPE_UINT       |
-| int64       | sq_table_add_int64     | int64_t       | BIGINT            | SQ_TYPE_INT64      |
-| uint64      | sq_table_add_uint64    | uint64_t      | BIGINT (UNSIGNED) | SQ_TYPE_UINT64     |
-| timestamp   | sq_table_add_timestamp | time_t        | TIMESTAMP         | SQ_TYPE_TIME       |
-| double_     | sq_table_add_double    | double        | DOUBLE            | SQ_TYPE_DOUBLE     |
-| str         | sq_table_add_str       | char*         | VARCHAR           | SQ_TYPE_STR        |
-| string      | sq_table_add_string    | char*         | VARCHAR           | SQ_TYPE_STR        |
-| char_       | sq_table_add_char      | char*         | CHAR              | SQ_TYPE_CHAR       |
-| text        | sq_table_add_text      | char*         | TEXT              | SQ_TYPE_STR        |
-| binary      | sq_table_add_binary    | SqBuffer      | BLOB 或 BINARY    | SQ_TYPE_BUFFER     |
-| custom      | sq_table_add_custom    | *用户定义*    | VARCHAR           | *用户定义*         |
-| mapping     | sq_table_add_mapping   | *用户指定*    | *用户指定*        | *用户指定*         |
+| C++ 方法    | C 函数                 | C 数据类型     | SQL 数据类型      | 指定的 SqType       |
+| ----------- | ---------------------- | -------------- | ----------------- | ------------------- |
+| boolean     | sq_table_add_boolean   | bool           | BOOLEAN           | SQ_TYPE_BOOL        |
+| bool_       | sq_table_add_bool      | bool           | BOOLEAN           | SQ_TYPE_BOOL        |
+| integer     | sq_table_add_integer   | int            | INT               | SQ_TYPE_INT         |
+| int_        | sq_table_add_int       | int            | INT               | SQ_TYPE_INT         |
+| uint        | sq_table_add_uint      | unsigned int   | INT (UNSIGNED)    | SQ_TYPE_UINT        |
+| int64       | sq_table_add_int64     | int64_t        | BIGINT            | SQ_TYPE_INT64       |
+| uint64      | sq_table_add_uint64    | uint64_t       | BIGINT (UNSIGNED) | SQ_TYPE_UINT64      |
+| timestamp   | sq_table_add_timestamp | time_t         | TIMESTAMP         | SQ_TYPE_TIME        |
+| double_     | sq_table_add_double    | double         | DOUBLE            | SQ_TYPE_DOUBLE      |
+| str         | sq_table_add_str       | char*          | VARCHAR           | SQ_TYPE_STR         |
+| string      | sq_table_add_string    | char*          | VARCHAR           | SQ_TYPE_STR         |
+| char_       | sq_table_add_char      | char*          | CHAR              | SQ_TYPE_CHAR        |
+| text        | sq_table_add_text      | char*  默认值  | TEXT              | SQ_TYPE_STR  默认值 |
+| clob        | sq_table_add_clob      | char*  默认值  | CLOB              | SQ_TYPE_STR  默认值 |
+| blob        | sq_table_add_blob      | SqBuffer       | BLOB 或 BINARY    | SQ_TYPE_BUFFER      |
+| binary      | sq_table_add_binary    | SqBuffer       | BLOB 或 BINARY    | SQ_TYPE_BUFFER      |
+| custom      | sq_table_add_custom    | *用户定义*     | VARCHAR           | *用户定义*          |
+| mapping     | sq_table_add_mapping   | *用户指定*     | *用户指定*        | *用户指定*          |
 
 * 因为 'bool'、'int'、'double' 和 'char' 是 C/C++ 关键字，所以在这些方法的尾部附加 '_'。
+* 某些方法/函数（例如 boolean, integer, string 和 binary）具有较短的别名。
+* text 和 clob 方法/函数可以由用户指定 SqType，或使用默认值。
 
 以下方法仅适用于 C++ 数据类型。
 
@@ -82,6 +86,8 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 | stdstr      | std::string       | VARCHAR           | SQ_TYPE_STD_STRING |
 | stdvector   | std::vector<char> | BLOB 或 BINARY    | SQ_TYPE_STD_VECTOR |
 | stdvec      | std::vector<char> | BLOB 或 BINARY    | SQ_TYPE_STD_VECTOR |
+
+* stdstr 和 stdvec 是 stdstring 和 stdvector 的较短别名。
 
 **使用自订或 JSON 型态**  
   

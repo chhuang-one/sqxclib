@@ -318,9 +318,20 @@ SqColumn *sq_table_add_char(SqTable *table, const char *name, size_t offset, int
 	return column;
 }
 
-SqColumn *sq_table_add_text(SqTable *table, const char *name, size_t offset)
+SqColumn *sq_table_add_text(SqTable *table, const char *name,
+                            size_t offset, const SqType *sqtype)
 {
-	return sq_table_add_mapping(table, name, offset, SQ_TYPE_STR, SQ_SQL_TYPE_TEXT);
+	if (sqtype == NULL)
+		sqtype = SQ_TYPE_STR;
+	return sq_table_add_mapping(table, name, offset, sqtype, SQ_SQL_TYPE_TEXT);
+}
+
+SqColumn *sq_table_add_clob(SqTable *table, const char *name,
+                            size_t offset, const SqType *sqtype)
+{
+	if (sqtype == NULL)
+		sqtype = SQ_TYPE_STR;
+	return sq_table_add_mapping(table, name, offset, sqtype, SQ_SQL_TYPE_CLOB);
 }
 
 SqColumn *sq_table_add_binary(SqTable *table, const char *name, size_t offset)

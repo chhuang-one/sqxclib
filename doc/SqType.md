@@ -73,6 +73,7 @@ Built-in SqType with it's data type:
 | SQ_TYPE_STRING  | char*        | VARCHAR           | alias of SQ_TYPE_STR             |
 | SQ_TYPE_CHAR    | char*        | CHAR              | defined for SQL data type CHAR   |
 
+* When using above SqType, user don't need to specify SQL data type because they will map to specific SQL data type by default.
 * Different SQL products may map these C data types to different SQL data types.
 
 SqType with it's C/C++ container type:
@@ -89,6 +90,8 @@ SqType with it's C/C++ binary data type:
 | SqType                 | C data type    | C++ data type  | description                      |
 | ---------------------- | -------------- | -------------- | -------------------------------- |
 | SQ_TYPE_BUFFER         | SqBuffer       | Sq::Buffer     | It can map to SQL data type BLOB |
+| SQ_TYPE_BINARY         | SqBuffer       | Sq::Buffer     | alias of SQ_TYPE_BUFFER          |
+| SQ_TYPE_BLOB           | SqBuffer       | Sq::Buffer     | alias of SQ_TYPE_BUFFER          |
 
 SqType with it's C++ data type:
 
@@ -101,6 +104,21 @@ SqType with it's C++ data type:
 | SQ_TYPE_STD_VECTOR_SIZE | std::vector<char> resize | specify size of std::vector<char> |
 | SQ_TYPE_STD_VEC_SIZE    | std::vector<char> resize | alias of SQ_TYPE_STD_VECTOR_SIZE  |
 | Sq::TypeStl<Container>  | STL containers           | create SqType for STL container   |
+
+SqType without instance:  
+  
+The following SqType do not require instance, and only SQ_TYPE_UNKNOWN (alias of SQ_TYPE_FAKE6) provides SqType's parse and write functions.
+
+| SqType                  | alias                    | description                       |
+| ----------------------- | ------------------------ | --------------------------------- |
+| SQ_TYPE_FAKE0           | SQ_TYPE_CONSTRAINT       | used by SQL migration             |
+| SQ_TYPE_FAKE1           | SQ_TYPE_INDEX            | used by SQL migration             |
+| SQ_TYPE_FAKE2           |                          |                                   |
+| SQ_TYPE_FAKE3           |                          |                                   |
+| SQ_TYPE_FAKE4           | SQ_TYPE_TRACING          | used by SQLite migration          |
+| SQ_TYPE_FAKE5           | SQ_TYPE_UNSYNCED         | used by SQLite migration          |
+| SQ_TYPE_FAKE6           | SQ_TYPE_REENTRY          | used by SQLite migration          |
+| SQ_TYPE_UNKNOWN         | SQ_TYPE_FAKE6            | Sqxc use it to skip unknown entry |
 
 ## 1 use SqType to define primitive data types
 

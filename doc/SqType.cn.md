@@ -73,6 +73,7 @@ struct SqType
 | SQ_TYPE_STRING  | char*        | VARCHAR           | SQ_TYPE_STR 的别名           |
 | SQ_TYPE_CHAR    | char*        | CHAR              | 为 SQL 数据类型 CHAR 定义    |
 
+* 使用上述 SqType 时，用户可以不指定 SQL 数据类型，因为它们默认会映射到特定的 SQL 数据类型。
 * 不同的 SQL 产品可能将这些 C 数据类型对应到不同的 SQL 数据类型。
 
 SqType 及其 C/C++ 容器类型：
@@ -89,6 +90,8 @@ SqType 及其 C/C++ 二进制数据类型：
 | SqType                 | C 数据类型     | C++ 数据类型   | 描述                         |
 | ---------------------- | -------------- | -------------- | ---------------------------- |
 | SQ_TYPE_BUFFER         | SqBuffer       | Sq::Buffer     | 可以映射到 SQL 数据类型 BLOB |
+| SQ_TYPE_BINARY         | SqBuffer       | Sq::Buffer     | SQ_TYPE_BUFFER 的别名        |
+| SQ_TYPE_BLOB           | SqBuffer       | Sq::Buffer     | SQ_TYPE_BUFFER 的别名        |
 
 SqType 及其 C++ 数据类型：
 
@@ -101,6 +104,21 @@ SqType 及其 C++ 数据类型：
 | SQ_TYPE_STD_VECTOR_SIZE | std::vector<char> resize | 指定 std::vector<char> 的大小  |
 | SQ_TYPE_STD_VEC_SIZE    | std::vector<char> resize | SQ_TYPE_STD_VECTOR_SIZE 的别名 |
 | Sq::TypeStl<Container>  | STL 容器                 | 为 STL 容器创建 SqType         |
+
+没有实例的 SqType：  
+  
+以下 SqType 不需要实例，只有 SQ_TYPE_UNKNOWN (SQ_TYPE_FAKE6 的别名) 提供了 SqType 的解析和写入函数。
+
+| SqType                  | 别名                     | 描述                           |
+| ----------------------- | ------------------------ | ------------------------------ |
+| SQ_TYPE_FAKE0           | SQ_TYPE_CONSTRAINT       | SQL 迁移时使用                 |
+| SQ_TYPE_FAKE1           | SQ_TYPE_INDEX            | SQL 迁移时使用                 |
+| SQ_TYPE_FAKE2           |                          |                                |
+| SQ_TYPE_FAKE3           |                          |                                |
+| SQ_TYPE_FAKE4           | SQ_TYPE_TRACING          | SQLite 迁移时使用              |
+| SQ_TYPE_FAKE5           | SQ_TYPE_UNSYNCED         | SQLite 迁移时使用              |
+| SQ_TYPE_FAKE6           | SQ_TYPE_REENTRY          | SQLite 迁移时使用              |
+| SQ_TYPE_UNKNOWN         | SQ_TYPE_FAKE6            | Sqxc 用它来跳过未知条目        |
 
 ## 1 使用 SqType 定义原始数据类型
 

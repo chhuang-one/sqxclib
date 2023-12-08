@@ -454,7 +454,7 @@ enum {
  */
 #define SQ_TYPE_BUFFER            (&SqType_Buffer_)     // SqBuffer
 #define SQ_TYPE_BINARY            SQ_TYPE_BUFFER        // alias of SQ_TYPE_BUFFER
-#define SQ_TYPE_BIN               SQ_TYPE_BUFFER        // alias of SQ_TYPE_BUFFER
+#define SQ_TYPE_BLOB              SQ_TYPE_BUFFER        // alias of SQ_TYPE_BUFFER
 
 /* define SqType for SqArray (SqType-array.c)
    User must assign element type in SqType.entry and set SqType.n_entry to -1.
