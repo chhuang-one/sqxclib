@@ -407,7 +407,7 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 #if SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	if (nested->data3 != instance) {
 		if (nested->data != instance) {
-			// Frist time to call this function to parse object
+			// First time to call this function to parse object
 			nested = sqxc_push_nested((Sqxc*)xc_value);
 			nested->data  = instance;
 			nested->data2 = (SqType*)type;

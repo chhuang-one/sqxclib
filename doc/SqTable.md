@@ -76,7 +76,7 @@ Most methods (functions) set a specific [SqType](SqType.md) to the column.
 
 * Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, it must append '_' in tail of these methods.
 * Some methods/functions (such as boolean, integer, string, and binary) have shorter aliases.
-* text and clob methods/functions can specify SqType by user, or use default value.
+* text and clob methods/functions can specify SqType by user, or use the default type SQ_TYPE_STR.
 
 Below method is for C++ data type only.
 
@@ -171,7 +171,7 @@ Below are Library-defined common SQL data type for type mapping.
 | SQ_SQL_TYPE_TEXT                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_CLOB                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_BLOB                | SQ_TYPE_BUFFER, SQ_TYPE_STD_VECTOR  |
-| SQ_SQL_TYPE_DECIMAL             | SQ_TYPE_DOUBLE                      |
+| SQ_SQL_TYPE_DECIMAL             | SQ_TYPE_DOUBLE, SQ_TYPE_INT         |
 | SQ_SQL_TYPE_TINYINT             | SQ_TYPE_INT                         |
 | SQ_SQL_TYPE_TINYINT_UNSIGNED    | SQ_TYPE_UINT                        |
 | SQ_SQL_TYPE_SMALLINT            | SQ_TYPE_INT                         |

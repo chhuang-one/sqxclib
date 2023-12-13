@@ -14,7 +14,7 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 * All defined table and column can use to parse JSON object and field. Program can also parse JSON object and array from SQL column.
 
-* BLOB support.
+* BLOB support. Supported types are listed in doc/[SqTable.md](doc/SqTable.md).
 
 * Custom type mapping.
 

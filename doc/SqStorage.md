@@ -68,10 +68,10 @@ use C functions
 ```c
 	// create table "users" in schema
 	table = sq_schema_create(schema, "users", User);
-	column = sq_table_int(table, "id", offsetof(User, id));
+	column = sq_table_add_int(table, "id", offsetof(User, id));
 	sq_column_primary(column);
-	column = sq_table_string(table, "name", offsetof(User, name), -1);
-	column = sq_table_string(table, "email", offsetof(User, email), -1);
+	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
+	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 
 	// migrate schema
 	sq_storage_migrate(storage, schema);

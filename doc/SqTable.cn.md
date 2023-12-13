@@ -76,7 +76,7 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 
 * 因为 'bool'、'int'、'double' 和 'char' 是 C/C++ 关键字，所以在这些方法的尾部附加 '_'。
 * 某些方法/函数（例如 boolean, integer, string 和 binary）具有较短的别名。
-* text 和 clob 方法/函数可以由用户指定 SqType，或使用默认值。
+* text 和 clob 方法/函数可以由用户指定 SqType，或使用默认的类型 SQ_TYPE_STR。
 
 以下方法仅适用于 C++ 数据类型。
 
@@ -171,7 +171,7 @@ struct DemoTable {
 | SQ_SQL_TYPE_TEXT                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_CLOB                | SQ_TYPE_STRING, SQ_TYPE_STD_STRING  |
 | SQ_SQL_TYPE_BLOB                | SQ_TYPE_BUFFER, SQ_TYPE_STD_VECTOR  |
-| SQ_SQL_TYPE_DECIMAL             | SQ_TYPE_DOUBLE                      |
+| SQ_SQL_TYPE_DECIMAL             | SQ_TYPE_DOUBLE, SQ_TYPE_INT         |
 | SQ_SQL_TYPE_TINYINT             | SQ_TYPE_INT                         |
 | SQ_SQL_TYPE_TINYINT_UNSIGNED    | SQ_TYPE_UINT                        |
 | SQ_SQL_TYPE_SMALLINT            | SQ_TYPE_INT                         |

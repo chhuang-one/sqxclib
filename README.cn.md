@@ -14,7 +14,7 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 
 * 所有定义的 SQL 表和列 都可以用于解析 JSON 对象和字段。也可以从 SQL 列 解析 JSON 对象和数组。
 
-* BLOB 支持。
+* BLOB 支持，支持的类型列表位于 doc/[SqTable.cn.md](doc/SqTable.cn.md) 中。
 
 * 自定义类型映射。
 

@@ -99,7 +99,7 @@ static int  sq_type_array_parse(void *array, const SqType *type, Sqxc *src)
 #if SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 	if (nested->data3 != array) {
 		if (nested->data != array) {
-			// Frist time to call this function to parse array
+			//  time to call this function to parse array
 			nested = sqxc_push_nested((Sqxc*)xc_value);
 			nested->data = array;
 			nested->data2 = (void*)type;
