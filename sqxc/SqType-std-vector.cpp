@@ -64,12 +64,12 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 //	case SQXC_TYPE_RAW:
 		if (src->value.str == NULL)
 			break;
-		len = (int)strlen(src->value.str);
 
 #if SQ_CONFIG_HAVE_JSONC
 		if (src->info == SQXC_INFO_JSONC_PARSER) {
 			// TODO:
 			// convert BASE64 to binary
+			len = (int)strlen(src->value.str);
 			vector->assign(src->value.str, src->value.str + len);
 		}
 		else
@@ -79,28 +79,36 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 			// convert Hex string to binary
 			// Hex format is \xFF  - PostgreSQL
 			if (src->value.str[0] == '\\' && src->value.str[1] == 'x')
-				len -= 2;    // remove prefix \x
+				len = 2;    // length of prefix \x
 /*
-			// Hex format is x'FF' - MySQL?
+			// Hex format is x'FF' - ?
 			else if (src->value.str[0] == 'x' && src->value.str[1] == '\'')
-				len -= 3;    // remove prefix x' and ' in tail
-			// Hex format is 0xFF  - MySQL?, SQL Server?
+				len = 3;    // length of prefix x' and postfix '
+			// Hex format is 0xFF  - SQL Server?
 			else if (src->value.str[0] == '0' && src->value.str[1] == 'x')
-				len -= 2;    // remove prefix 0x
+				len = 2;    // length of prefix 0x
  */
 			// No Hex format       - SQLite, MySQL
 			else {
+				// string is not hex format:
 #ifndef NDEBUG
 				fprintf(stderr, "sq_type_std_vector_parse(): string is not hex format.\n");
 #endif
 				// User can assign length of BLOB in capacity of vector before parsing
-				if (len < (int)vector->size())
-					len = (int)vector->size();
+				len = (int)vector->size();
+				if (len == 0)
+					len = (int)strlen(src->value.str);
 				vector->assign(src->value.str, src->value.str + len);
 				break;
 			}
 
-			// hex string
+			// string is hex format:
+			// User can assign length of BLOB in SqBuffer.size before parsing
+			if (vector->size() > 0)
+				len = (int)vector->size() << 1;    // len = (int)vector->size() * 2;
+			else
+				len = (int)strlen(src->value.str) - len;
+
 			char *mem = (char*)malloc(len >> 1);
 			sq_hex_to_bin(mem, src->value.str+2, len);
 			vector->assign(mem, mem + (len >> 1));

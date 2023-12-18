@@ -38,12 +38,12 @@ static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 		buf->writed = 0;
 		if (src->value.str == NULL)
 			break;
-		len = (int)strlen(src->value.str);
 
 #if SQ_CONFIG_HAVE_JSONC
 		if (src->info == SQXC_INFO_JSONC_PARSER) {
 			// TODO:
 			// convert BASE64 to binary
+			len = (int)strlen(src->value.str);
 			sq_buffer_resize(buf, len +1);
 			memcpy(buf->mem, src->value.str, len);
 			buf->writed = len;
@@ -56,31 +56,42 @@ static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 			// convert Hex string to binary
 			// Hex format is \xFF  - PostgreSQL
 			if (src->value.str[0] == '\\' && src->value.str[1] == 'x')
-				len -= 2;    // remove prefix \x
+				len = 2;    // length of prefix \x
 /*
-			// Hex format is x'FF' - MySQL?
+			// Hex format is x'FF' - ?
 			else if (src->value.str[0] == 'x' && src->value.str[1] == '\'')
-				len -= 3;    // remove prefix x' and ' in tail
-			// Hex format is 0xFF  - MySQL?, SQL Server?
+				len = 3;    // length of prefix x' and postfix '
+			// Hex format is 0xFF  - SQL Server?
 			else if (src->value.str[0] == '0' && src->value.str[1] == 'x')
-				len -= 2;    // remove prefix 0x
+				len = 2;    // length of prefix 0x
  */
 			// No Hex format       - SQLite, MySQL
 			else {
+				// string is not hex format:
 #ifndef NDEBUG
 				fprintf(stderr, "sq_type_buffer_parse(): string is not hex format.\n");
 #endif
 				// User can assign length of BLOB in SqBuffer.size before parsing
-				if (len < buf->size)
-					len = buf->size;
+				len = buf->size;
+				if (len == 0)
+					len = (int)strlen(src->value.str);
+				// allocate memory and write data
 				sq_buffer_resize(buf, len);
 				memcpy(buf->mem, src->value.str, len);
 				buf->writed = len;
 				break;
 			}
 
-			// hex string
-			sq_buffer_resize(buf, len >> 1);    // sq_buffer_resize(buf, len / 2)
+			// string is hex format:
+			// User can assign length of BLOB in SqBuffer.size before parsing
+			if (buf->size > 0)
+				len = buf->size << 1;    // len = buf->size * 2;
+			else {
+				len = (int)strlen(src->value.str) - len;
+				buf->size = len >> 1;    // buf->size = len / 2;
+			}
+
+			sq_buffer_resize(buf, buf->size);
 			buf->writed = sq_hex_to_bin(buf->mem, src->value.str+2, len);
 		}
 		break;
