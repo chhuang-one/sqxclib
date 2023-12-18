@@ -18,7 +18,7 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 * Custom type mapping.
 
-* Query builder that can be used independently.
+* Query builder that can be used independently. See doc/[SqQuery.md](doc/SqQuery.md)
 
 * It can work in low-end hardware.
 

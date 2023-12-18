@@ -63,12 +63,13 @@ Most methods (functions) set a specific [SqType](SqType.md) to the column.
 | int64       | sq_table_add_int64     | int64_t        | BIGINT            | SQ_TYPE_INT64       |
 | uint64      | sq_table_add_uint64    | uint64_t       | BIGINT (UNSIGNED) | SQ_TYPE_UINT64      |
 | timestamp   | sq_table_add_timestamp | time_t         | TIMESTAMP         | SQ_TYPE_TIME        |
+| timestamps  | sq_table_add_timestamps| time_t &ensp; x 2 | TIMESTAMP &ensp; x 2 | SQ_TYPE_TIME &ensp; x 2 |
 | double_     | sq_table_add_double    | double         | DOUBLE            | SQ_TYPE_DOUBLE      |
 | str         | sq_table_add_str       | char*          | VARCHAR           | SQ_TYPE_STR         |
 | string      | sq_table_add_string    | char*          | VARCHAR           | SQ_TYPE_STR         |
 | char_       | sq_table_add_char      | char*          | CHAR              | SQ_TYPE_CHAR        |
-| text        | sq_table_add_text      | char*  default | TEXT              | SQ_TYPE_STR  default|
-| clob        | sq_table_add_clob      | char*  default | CLOB              | SQ_TYPE_STR  default|
+| text        | sq_table_add_text      | char* &ensp; default | TEXT        | SQ_TYPE_STR &ensp; default |
+| clob        | sq_table_add_clob      | char* &ensp; default | CLOB        | SQ_TYPE_STR &ensp; default |
 | blob        | sq_table_add_blob      | SqBuffer       | BLOB or BINARY    | SQ_TYPE_BUFFER      |
 | binary      | sq_table_add_binary    | SqBuffer       | BLOB or BINARY    | SQ_TYPE_BUFFER      |
 | custom      | sq_table_add_custom    | *User define*  | VARCHAR           | *User define*       |
@@ -76,7 +77,8 @@ Most methods (functions) set a specific [SqType](SqType.md) to the column.
 
 * Because 'bool', 'int', 'double', and 'char' are C/C++ keywords, it must append '_' in tail of these methods.
 * Some methods/functions (such as boolean, integer, string, and binary) have shorter aliases.
-* text and clob methods/functions can specify SqType by user, or use the default type SQ_TYPE_STR.
+* timestamps() method is used to add 2 commonly used timestamp columns - created_at and updated_at.
+* text() and clob() methods can specify SqType by user, or use the default type SQ_TYPE_STR.
 
 Below method is for C++ data type only.
 
@@ -110,16 +112,18 @@ struct DemoTable {
 };
 ```
 
+In the following example,
+SQ_TYPE_MY_STRUCT is the user-defined SqType of MyStructure.  
+SQ_TYPE_INT_ARRAY is declared in SqType.h and parses a JSON integer array from value of SQL column.  
+  
 use C language
 
 ```c
-	// JSON object
-	// SQ_TYPE_MY_STRUCT is user-defined SqType of MyStructure.
+	// JSON object will be stored in SQL VARCHAR column.
 	column = sq_table_add_custom(table, "myStruct", offsetof(DemoTable, myStruct),
 	                             SQ_TYPE_MY_STRUCT, 128);
 
-	// JSON integer array
-	// SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of SQL column.
+	// JSON integer array will be stored in SQL VARCHAR column.
 	column = sq_table_add_custom(table, "intArray", offsetof(DemoTable, intArray),
 	                             SQ_TYPE_INT_ARRAY, 96);
 ```
@@ -127,13 +131,11 @@ use C language
 use C++ language
 
 ```c++
-	// JSON object
-	// SQ_TYPE_MY_STRUCT is user-defined SqType of MyStructure.
+	// JSON object will be stored in SQL VARCHAR column.
 	column = table->custom("myStruct", offsetof(DemoTable, myStruct),
 	                       SQ_TYPE_MY_STRUCT, 128);
 
-	// JSON integer array
-	// SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of SQL column.
+	// JSON integer array will be stored in SQL VARCHAR column.
 	column = table->custom("intArray", offsetof(DemoTable, intArray),
 	                       SQ_TYPE_INT_ARRAY, 96);
 ```
@@ -193,12 +195,12 @@ The following SQL data types are aliases:
 | SQ_SQL_TYPE_UNSIGNED_SMALLINT   | alias of SQ_SQL_TYPE_SMALLINT_UNSIGNED  |
 | SQ_SQL_TYPE_UNSIGNED_MEDIUMINT  | alias of SQ_SQL_TYPE_MEDIUMINT_UNSIGNED |
 
-Example: map SqType to SQL data type  
+Example: map SqType SQ_TYPE_INT_ARRAY to SQL data type TEXT  
   
 use C language
 
 ```c
-	// map SQ_TYPE_INT_ARRAY to SQL data type - TEXT.
+	// JSON integer array will be stored in SQL TEXT column.
 	column = sq_table_add_mapping(table, "intArray", offsetof(DemoTable, intArray),
 	                              SQ_TYPE_INT_ARRAY,
 	                              SQ_SQL_TYPE_TEXT);
@@ -207,7 +209,7 @@ use C language
 use C++ language
 
 ```c++
-	// map SQ_TYPE_INT_ARRAY to SQL data type - TEXT.
+	// JSON integer array will be stored in SQL TEXT column.
 	column = table->mapping("intArray", offsetof(DemoTable, intArray),
 	                        SQ_TYPE_INT_ARRAY,
 	                        SQ_SQL_TYPE_TEXT);

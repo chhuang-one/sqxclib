@@ -97,9 +97,9 @@ SqType with it's C++ data type:
 
 | SqType                  | C++ data type            | description                       |
 | ----------------------- | ------------------------ | --------------------------------- |
-| SQ_TYPE_STD_STRING      | std::string              | It can map to SQL data type CHAR  |
+| SQ_TYPE_STD_STRING      | std::string              | map to SQL data type CHAR, TEXT   |
 | SQ_TYPE_STD_STR         | std::string              | alias of SQ_TYPE_STD_STRING       |
-| SQ_TYPE_STD_VECTOR      | std::vector<char>        | It can map to SQL data type BLOB  |
+| SQ_TYPE_STD_VECTOR      | std::vector<char>        | map to SQL data type BLOB         |
 | SQ_TYPE_STD_VEC         | std::vector<char>        | alias of SQ_TYPE_STD_VECTOR       |
 | SQ_TYPE_STD_VECTOR_SIZE | std::vector<char> resize | specify size of std::vector<char> |
 | SQ_TYPE_STD_VEC_SIZE    | std::vector<char> resize | alias of SQ_TYPE_STD_VECTOR_SIZE  |

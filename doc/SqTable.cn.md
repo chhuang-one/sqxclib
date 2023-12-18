@@ -63,12 +63,13 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 | int64       | sq_table_add_int64     | int64_t        | BIGINT            | SQ_TYPE_INT64       |
 | uint64      | sq_table_add_uint64    | uint64_t       | BIGINT (UNSIGNED) | SQ_TYPE_UINT64      |
 | timestamp   | sq_table_add_timestamp | time_t         | TIMESTAMP         | SQ_TYPE_TIME        |
+| timestamps  | sq_table_add_timestamps| time_t &ensp; x 2 | TIMESTAMP &ensp; x 2 | SQ_TYPE_TIME &ensp; x 2 |
 | double_     | sq_table_add_double    | double         | DOUBLE            | SQ_TYPE_DOUBLE      |
 | str         | sq_table_add_str       | char*          | VARCHAR           | SQ_TYPE_STR         |
 | string      | sq_table_add_string    | char*          | VARCHAR           | SQ_TYPE_STR         |
 | char_       | sq_table_add_char      | char*          | CHAR              | SQ_TYPE_CHAR        |
-| text        | sq_table_add_text      | char*  默认值  | TEXT              | SQ_TYPE_STR  默认值 |
-| clob        | sq_table_add_clob      | char*  默认值  | CLOB              | SQ_TYPE_STR  默认值 |
+| text        | sq_table_add_text      | char* &ensp; 默认值 | TEXT         | SQ_TYPE_STR &ensp; 默认值 |
+| clob        | sq_table_add_clob      | char* &ensp; 默认值 | CLOB         | SQ_TYPE_STR &ensp; 默认值 |
 | blob        | sq_table_add_blob      | SqBuffer       | BLOB 或 BINARY    | SQ_TYPE_BUFFER      |
 | binary      | sq_table_add_binary    | SqBuffer       | BLOB 或 BINARY    | SQ_TYPE_BUFFER      |
 | custom      | sq_table_add_custom    | *用户定义*     | VARCHAR           | *用户定义*          |
@@ -76,7 +77,8 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 
 * 因为 'bool'、'int'、'double' 和 'char' 是 C/C++ 关键字，所以在这些方法的尾部附加 '_'。
 * 某些方法/函数（例如 boolean, integer, string 和 binary）具有较短的别名。
-* text 和 clob 方法/函数可以由用户指定 SqType，或使用默认的类型 SQ_TYPE_STR。
+* timestamps() 方法用于添加 2 个常用的时间戳列 - created_at 和 updated_at。
+* text() 和 clob() 方法可以由用户指定 SqType，或使用默认的类型 SQ_TYPE_STR。
 
 以下方法仅适用于 C++ 数据类型。
 
@@ -110,16 +112,18 @@ struct DemoTable {
 };
 ```
 
+在下面的示例中，
+SQ_TYPE_MY_STRUCT 是用户定义的 MyStructure 的 SqType。  
+SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从 SQL 列的值解析 JSON 整数数组。  
+  
 使用 C 语言
 
 ```c
-	// JSON 对象
-	// SQ_TYPE_MY_STRUCT 是用户定义的 MyStructure 的 SqType。
+	// JSON 对象将存储在 SQL VARCHAR 列中。
 	column = sq_table_add_custom(table, "myStruct", offsetof(DemoTable, myStruct),
 	                             SQ_TYPE_MY_STRUCT, 128);
 
-	// JSON 整数数组
-	// SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从 SQL 列的值解析 JSON 整数数组。
+	// JSON 整数数组将存储在 SQL VARCHAR 列中。
 	column = sq_table_add_custom(table, "intArray", offsetof(DemoTable, intArray),
 	                             SQ_TYPE_INT_ARRAY, 96);
 ```
@@ -127,13 +131,11 @@ struct DemoTable {
 使用 C++ 语言
 
 ```c++
-	// JSON 对象
-	// SQ_TYPE_MY_STRUCT 是用户定义的 MyStructure 的 SqType。
+	// JSON 对象将存储在 SQL VARCHAR 列中。
 	column = table->custom("myStruct", offsetof(DemoTable, myStruct),
 	                       SQ_TYPE_MY_STRUCT, 128);
 
-	// JSON 整数数组
-	// SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从 SQL 列的值解析 JSON 整数数组。
+	// JSON 整数数组将存储在 SQL VARCHAR 列中。
 	column = table->custom("intArray", offsetof(DemoTable, intArray),
 	                       SQ_TYPE_INT_ARRAY, 96);
 ```
@@ -193,12 +195,12 @@ struct DemoTable {
 | SQ_SQL_TYPE_UNSIGNED_SMALLINT   | SQ_SQL_TYPE_SMALLINT_UNSIGNED 的别名    |
 | SQ_SQL_TYPE_UNSIGNED_MEDIUMINT  | SQ_SQL_TYPE_MEDIUMINT_UNSIGNED 的别名   |
 
-示例: 将 SqType 映射到 SQL 数据类型  
+示例: 将 SqType SQ_TYPE_INT_ARRAY 映射到 SQL 数据类型 TEXT  
   
 使用 C 语言
 
 ```c
-	// 将 SQ_TYPE_INT_ARRAY 映射到 SQL 数据类型 - TEXT。
+	// JSON 整数数组将存储在 SQL TEXT 列中。
 	column = sq_table_add_mapping(table, "intArray", offsetof(DemoTable, intArray),
 	                              SQ_TYPE_INT_ARRAY,
 	                              SQ_SQL_TYPE_TEXT);
@@ -207,7 +209,7 @@ struct DemoTable {
 使用 C++ 语言
 
 ```c++
-	// 将 SQ_TYPE_INT_ARRAY 映射到 SQL 数据类型 - TEXT。
+	// JSON 整数数组将存储在 SQL TEXT 列中。
 	column = table->mapping("intArray", offsetof(DemoTable, intArray),
 	                        SQ_TYPE_INT_ARRAY,
 	                        SQ_SQL_TYPE_TEXT);

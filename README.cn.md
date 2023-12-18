@@ -18,7 +18,7 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 
 * 自定义类型映射。
 
-* 可以独立使用的查询生成器。
+* 可以独立使用的查询生成器。见 doc/[SqQuery.cn.md](doc/SqQuery.cn.md)。
 
 * 可以在低端硬件上工作。
 

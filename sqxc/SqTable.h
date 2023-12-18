@@ -103,6 +103,7 @@ SqColumn *sq_table_add_double(SqTable *table, const char *column_name,
                               size_t offset, int precision, int scale);
 SqColumn *sq_table_add_timestamp(SqTable *table, const char *column_name,
                                  size_t offset);
+// sq_table_add_timestamps() is used to add 2 timestamp columns - created_at and updated_at.
 // if 'created_at_name' (or 'updated_at_name') is NULL, use default name "created_at" (or "updated_at").
 void      sq_table_add_timestamps(SqTable *table,
                                   const char *created_at_name, size_t created_at_offset,

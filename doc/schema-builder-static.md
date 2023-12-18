@@ -31,12 +31,13 @@ struct User {
 };
 ```
 
+In the following example,
+SQ_TYPE_XXXX are C/C++ data types, they are listed in (SqType)[SqType.md].  
+SQB_XXXX     are bit fields that used by (SqColumn)[SqColumn.md].
+
 ## C99 designated initializer
 
-use C99 designated initializer to define table and column in schema_v1 (static)  
-  
-SQ_TYPE_XXXX are C data types, they are listed in (SqType)[SqType.md].  
-SQB_XXXX are bit fields that used by (SqColumn)[SqColumn.md].
+use C99 designated initializer to define table and column in schema_v1 (static)
 
 ```c
 #include <sqxclib.h>

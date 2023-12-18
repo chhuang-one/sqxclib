@@ -50,7 +50,8 @@ struct User {
 	// If you use SQLite or MySQL to store binary data in SQL column,
 	// Please make sure that SQ_CONFIG_QUERY_ONLY_COLUMN is enabled.
 	// If you use PostgreSQL to do this, you don't need to care about SQ_CONFIG_QUERY_ONLY_COLUMN.
-	Sq::Buffer    picture;    // SQL Type: BLOB, BINARY...etc
+	Sq::Buffer         picture;    // SQL Type: BLOB, BINARY...etc
+	std::vector<char>  angleShot;  // SQL Type: BLOB, BINARY...etc
 
 	time_t        created_at;
 	time_t        updated_at;
@@ -73,12 +74,23 @@ struct User {
 		free(created_at);
 		free(updated_at);
 
-		int   hex_size = this->picture.writed * 2;
-		char *hex_mem  = (char*)malloc(hex_size + 1);
+		int   hex_size;
+		char *hex_mem;
+
+		hex_size = this->picture.writed * 2;
+		hex_mem  = (char*)malloc(hex_size + 1);
 		hex_mem[hex_size] = 0;
 		sq_bin_to_hex(hex_mem, this->picture.mem, this->picture.writed);
 		std::cout << "user.picture has " << this->picture.writed << " bytes" << std::endl
-		          << "user.picture = " << hex_mem << std::endl
+		          << "user.picture = 0x" << hex_mem << std::endl;
+		free(hex_mem);
+
+		hex_size = this->angleShot.size() * 2;
+		hex_mem  = (char*)malloc(hex_size + 1);
+		hex_mem[hex_size] = 0;
+		sq_bin_to_hex(hex_mem, this->angleShot.data(), this->angleShot.size());
+		std::cout << "user.angleShot has " << this->angleShot.size() << " bytes" << std::endl
+		          << "user.angleShot = 0x" << hex_mem << std::endl
 		          << std::endl;
 		free(hex_mem);
 	}
@@ -176,8 +188,17 @@ static const SqColumn userColumns[] = {
 	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
 	{SQ_TYPE_INT,     "length(picture)", offsetof(User, picture) + offsetof(Sq::Buffer, size), SQB_QUERY_ONLY},
 #endif
+	{SQ_TYPE_BUFFER,  "picture",         offsetof(User, picture),      0,
+		.sql_type = SQ_SQL_TYPE_BLOB},
 
-	{SQ_TYPE_BUFFER,  "picture",      offsetof(User, picture),      0,
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+	// get length of angle_shot and call std::vector<char>.resize() before parsing picture.
+	// This is mainly used by SQLite, MySQL to get length of BLOB column.
+	// If you use PostgreSQL and don't need store result of special query to C structure's member,
+	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
+	{SQ_TYPE_STD_VECTOR_SIZE,  "length(angle_shot)",  offsetof(User, angleShot),    SQB_QUERY_ONLY},
+#endif
+	{SQ_TYPE_STD_VECTOR,       "angle_shot",          offsetof(User, angleShot),    0,
 		.sql_type = SQ_SQL_TYPE_BLOB},
 
 	{SQ_TYPE_TIME,    "created_at",   offsetof(User, created_at),   SQB_CURRENT},    // DEFAULT CURRENT_TIMESTAMP
@@ -238,9 +259,11 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->integer("company_id", &User::company_id);
 	// type mapping: SQ_TYPE_STD_STR map to SQL data type - TEXT
 	table->mapping("comment", &User::comment,
-	               SQ_TYPE_STD_STR, SQ_SQL_TYPE_TEXT);
+	               SQ_TYPE_STD_STR,
+	               SQ_SQL_TYPE_TEXT);
 	// binary, blob
 	table->binary("picture", &User::picture);
+	table->stdvector("angle_shot", &User::angleShot);
 	// call table->timestamps() to use default column names
 	table->timestamps(&User::created_at,
 	                  &User::updated_at);
@@ -288,9 +311,11 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->integer("company_id", &User::company_id);
 	// type mapping: SQ_TYPE_STD_STR map to SQL data type - TEXT
 	table->mapping("comment", &User::comment,
-	               SQ_TYPE_STD_STR, SQ_SQL_TYPE_TEXT);
+	               SQ_TYPE_STD_STR,
+	               SQ_SQL_TYPE_TEXT);
 	// binary, blob
 	table->binary("picture", &User::picture);
+	table->stdvector("angle_shot", &User::angleShot);
 #if   1
 	// call table->timestamps() to use default column and member names
 	table->timestamps<User>();
@@ -527,7 +552,7 @@ int  main(int argc, char *argv[])
 
 	config_postgre.host = "localhost";
 	config_postgre.port = 5432;
-	config_postgre.user = "postgre";
+	config_postgre.user = "postgres";
 	config_postgre.password = "";
 
 	db = new Sq::DbPostgre(&config_postgre);
@@ -587,6 +612,7 @@ int  main(int argc, char *argv[])
 	user->comment = (char*)"-- comment text 1";
 	user->picture.mem = (char*)"1 binary\x00 1";
 	user->picture.writed = (int)strlen(user->picture.mem) + 3;
+	user->angleShot.assign(user->picture.mem, user->picture.mem+4);
 	user->company_id = 1;
 	storage->insert(user);
 
@@ -595,6 +621,9 @@ int  main(int argc, char *argv[])
 	user->comment = (char*)"-- comment text 2";
 	user->picture.mem = (char*)"2 binary\x00 2";
 	user->picture.writed = (int)strlen(user->picture.mem) + 3;
+	user->angleShot.assign(user->picture.mem, user->picture.mem+4);
+	user->angleShot.push_back(0);
+	user->angleShot.push_back('X');
 	user->company_id = 2;
 	storage->insert(user);
 

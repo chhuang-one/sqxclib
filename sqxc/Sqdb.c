@@ -681,7 +681,10 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 		break;
 
 	case SQ_SQL_TYPE_CLOB:
-		sq_buffer_write(buffer, "CLOB");
+		if (db->info->product == SQDB_PRODUCT_POSTGRE)
+			sq_buffer_write(buffer, "TEXT");
+		else
+			sq_buffer_write(buffer, "CLOB");
 		break;
 
 	case SQ_SQL_TYPE_BLOB:

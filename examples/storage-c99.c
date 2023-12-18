@@ -119,7 +119,6 @@ static const SqColumn userColumnsVer1[] = {
 	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
 	{SQ_TYPE_INT,    "length(picture)", offsetof(User, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
 #endif
-
 	{SQ_TYPE_BUFFER, "picture",         offsetof(User, picture), 0,
 		.sql_type = SQ_SQL_TYPE_BLOB},
 
@@ -241,7 +240,7 @@ void user_print(User *user) {
 	hex_mem[hex_size] = 0;
 	sq_bin_to_hex(hex_mem, user->picture.mem, user->picture.writed);
 	printf("user.picture has %d bytes\n"
-	       "user.picture = %*s\n",
+	       "user.picture = 0x%*s\n",
 	       user->picture.writed,
 	       hex_size, hex_mem);
 	free(hex_mem);
@@ -473,7 +472,7 @@ SqdbConfigPostgre  db_config_postgre = {
 	.host     = "localhost",
 	.port     = 5432,
 	.user     = "postgres",
-	.password = "postgres",
+	.password = "",
 };
 
 #endif

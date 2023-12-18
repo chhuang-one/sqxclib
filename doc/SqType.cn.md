@@ -97,9 +97,9 @@ SqType 及其 C++ 数据类型：
 
 | SqType                  | C++ 数据类型             | 描述                           |
 | ----------------------- | ------------------------ | ------------------------------ |
-| SQ_TYPE_STD_STRING      | std::string              | 可以映射到 SQL 数据类型 CHAR   |
+| SQ_TYPE_STD_STRING      | std::string              | 映射到 SQL 数据类型 CHAR, TEXT |
 | SQ_TYPE_STD_STR         | std::string              | SQ_TYPE_STD_STRING 的别名      |
-| SQ_TYPE_STD_VECTOR      | std::vector<char>        | 可以映射到 SQL 数据类型 BLOB   |
+| SQ_TYPE_STD_VECTOR      | std::vector<char>        | 映射到 SQL 数据类型 BLOB       |
 | SQ_TYPE_STD_VEC         | std::vector<char>        | SQ_TYPE_STD_VECTOR 的别名      |
 | SQ_TYPE_STD_VECTOR_SIZE | std::vector<char> resize | 指定 std::vector<char> 的大小  |
 | SQ_TYPE_STD_VEC_SIZE    | std::vector<char> resize | SQ_TYPE_STD_VECTOR_SIZE 的别名 |

@@ -31,12 +31,13 @@ struct User {
 };
 ```
 
+在下面的示例中，
+SQ_TYPE_XXXX 是 C/C++ 数据类型，它们列在 (SqType)[SqType.cn.md] 中。  
+SQB_XXXX     是 (SqColumn)[SqColumn.cn.md] 使用的位字段。
+
 ## C99 指定初始化
 
-使用 C99 指定初始化程序在 schema_v1 中定义表和列 （静态）  
-  
-SQ_TYPE_XXXX 是 C 数据类型，它们列在 (SqType)[SqType.cn.md] 中。  
-SQB_XXXX 是 (SqColumn)[SqColumn.cn.md] 使用的位字段。
+使用 C99 指定初始化程序在 schema_v1 中定义表和列 （静态）
 
 ```c
 #include <sqxclib.h>
