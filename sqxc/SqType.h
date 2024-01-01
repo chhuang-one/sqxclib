@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -243,24 +243,25 @@ struct SqType
 	SqTypeParseFunc   parse;       // parse Sqxc(SQL/JSON) data to instance
 	SqTypeWriteFunc   write;       // write instance data to Sqxc(SQL/JSON)
 
-	// In C++, you must use typeid(TypeName).name() to assign "name"
+	// In C++, you must use typeid(TypeName).name() to generate type name,
 	// or use macro SQ_GET_TYPE_NAME()
 	char          *name;
 
-	// SqType.entry is array of SqEntry pointer if current SqType is for C struct type.
-	// SqType.entry isn't freed if SqType.n_entry == -1
-	SqEntry      **entry;          // SqPtrArray.data
-	int            n_entry;        // SqPtrArray.length
+	// SqType::entry is array of SqEntry pointer if current SqType is for C struct type.
+	// SqType::entry isn't freed if SqType::n_entry == -1
+	SqEntry      **entry;          // SqPtrArray::data
+	int            n_entry;        // SqPtrArray::length
 	// *** About above 2 fields:
 	// 1. They are expanded by macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
 	// 2. They can NOT change data type and order.
 
-	// SqType.bit_field has SQB_TYPE_DYNAMIC if SqType is dynamic and freeable.
-	// SqType.bit_field has SQB_TYPE_SORTED  if SqType.entry is sorted.
+	// SqType::bit_field has SQB_TYPE_DYNAMIC if SqType is dynamic and freeable.
+	// SqType::bit_field has SQB_TYPE_SORTED  if SqType.entry is sorted.
 	unsigned int   bit_field;
 
-	// This for derived or custom SqType.
-	// Instance of SqType will be passed to SqType.on_destroy
+	// SqType::on_destroy() is called when program releases SqType.
+	// This is mainly used for deriving or customizing SqType.
+	// Instance of SqType will be passed to SqType::on_destroy()
 	SqDestroyFunc  on_destroy;     // destroy notifier for SqType. It can be NULL.
  */
 

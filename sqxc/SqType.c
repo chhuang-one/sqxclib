@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -39,8 +39,6 @@ SqType *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
 void  sq_type_free(SqType *type)
 {
 	if (type->bit_field & SQB_TYPE_DYNAMIC) {
-		if (type->on_destroy)
-			type->on_destroy(type);
 		sq_type_final_self(type);
 		free(type);
 	}
@@ -91,6 +89,9 @@ void  sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_des
 
 void  sq_type_final_self(SqType *type)
 {
+	if (type->on_destroy)
+		type->on_destroy(type);
+
 	free(type->name);
 	// SqType.entry isn't freed if SqType.n_entry == -1
 	if (type->n_entry != -1)

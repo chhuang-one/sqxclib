@@ -18,24 +18,25 @@ struct SqType
 	SqTypeParseFunc   parse;       // 将 Sqxc(SQL/JSON) 数据解析为实例
 	SqTypeWriteFunc   write;       // 将实例数据写入 Sqxc(SQL/JSON)
 
-	// 在 C++ 中，必须使用 typeid(TypeName).name() 来分配 "名称"
+	// 在 C++ 中，必须使用 typeid(TypeName).name() 来生成类型名称，
 	// 或者使用宏 SQ_GET_TYPE_NAME()
 	char          *name;
 
-	// 如果当前 SqType 用于 C 结构类型，则 SqType.entry 是 SqEntry 指针数组。
-	// 如果 SqType.n_entry == -1，则 SqType.entry 不会被释放
-	SqEntry      **entry;          // SqPtrArray.data
-	int            n_entry;        // SqPtrArray.length
+	// 如果当前 SqType 用于 C 结构类型，则 SqType::entry 是 SqEntry 指针数组。
+	// 如果 SqType::n_entry == -1，     则 SqType::entry 不会被释放。
+	SqEntry      **entry;          // SqPtrArray::data
+	int            n_entry;        // SqPtrArray::length
 	// *** 关于以上 2 个字段：
 	// 1. 它们由宏 SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) 展开
 	// 2. 他们不能更改数据类型和顺序。
 
-	// 如果 SqType 是动态且可释放的，则 SqType.bit_field 具有 SQB_TYPE_DYNAMIC。
-	// 如果 SqType.entry 已排序，    则 SqType.bit_field 具有 SQB_TYPE_SORTED。
+	// 如果 SqType 是动态且可释放的，则 SqType::bit_field 具有 SQB_TYPE_DYNAMIC。
+	// 如果 SqType::entry 已排序，   则 SqType::bit_field 具有 SQB_TYPE_SORTED。
 	unsigned int   bit_field;
 
-	// 这用于派生或自定义 SqType。
-	// SqType 的实例将传递给 SqType.on_destroy
+	// SqType::on_destroy() 在程序释放 SqType 时被调用。
+	// 这主要用于派生或定制 SqType。
+	// SqType 的实例将传递给 SqType::on_destroy()
 	SqDestroyFunc  on_destroy;     // 销毁 SqType 的通知程序。它可以是 NULL。
 };
 ```
@@ -460,7 +461,7 @@ static int  sq_type_my_list_parse(void *mylist, const SqType *type, Sqxc *src)
 	if (nested->data != mylist) {
 		// 做类型匹配
 		if (src->type != SQXC_TYPE_ARRAY)
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
+			return (src->code = SQCODE_TYPE_NOT_MATCHED);
 		// 准备解析
 		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data = mylist;
