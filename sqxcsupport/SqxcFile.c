@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -26,10 +26,10 @@
 static int  sqxc_file_writer_send(SqxcFile *xcfile, Sqxc *src)
 {
 	if (src->type != SQXC_TYPE_STR) {
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		src->required_type = SQXC_TYPE_STR;
 		*/
-		return (src->code = SQCODE_TYPE_NOT_MATCH);
+		return (src->code = SQCODE_TYPE_NOT_MATCHED);
 	}
 
 	fputs(src->value.str, xcfile->file);
@@ -53,7 +53,7 @@ static int  sqxc_file_writer_ctrl(SqxcFile *xcfile, int id, void *data)
 		break;
 
 	default:
-		return SQCODE_NOT_SUPPORT;
+		return SQCODE_NOT_SUPPORTED;
 	}
 
 	return SQCODE_OK;

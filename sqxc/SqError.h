@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -28,11 +28,14 @@ extern "C" {
 #define SQCODE_OK                    (0   + SQCODE_STATUS)
 
 // sqxc_ctrl() result code
-#define SQCODE_NOT_SUPPORT           (2   + SQCODE_ERROR)
+#define SQCODE_NOT_SUPPORTED         (2   + SQCODE_ERROR)
+#define SQCODE_NOT_SUPPORT           SQCODE_NOT_SUPPORTED         // deprecated
 
 // parser
-#define SQCODE_TYPE_NOT_MATCH        (11  + SQCODE_STATUS)
-#define SQCODE_TYPE_NOT_SUPPORT      (12  + SQCODE_WARNING)
+#define SQCODE_TYPE_NOT_MATCHED      (11  + SQCODE_STATUS)
+#define SQCODE_TYPE_NOT_MATCH        SQCODE_TYPE_NOT_MATCHED      // deprecated
+#define SQCODE_TYPE_NOT_SUPPORTED    (12  + SQCODE_WARNING)
+#define SQCODE_TYPE_NOT_SUPPORT      SQCODE_TYPE_NOT_SUPPORTED    // deprecated
 #define SQCODE_TYPE_END_ERROR        (13  + SQCODE_ERROR)
 #define SQCODE_ENTRY_NOT_FOUND       (21  + SQCODE_WARNING)
 #define SQCODE_TOO_MANY_NESTED       (24  + SQCODE_ERROR)

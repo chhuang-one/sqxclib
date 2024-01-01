@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -221,7 +221,7 @@ Sqxc  *sqxc_send(Sqxc *xc)
 /*	xc->required_type = SQXC_TYPE_ALL;  */
 	for (cur = xc;  cur;  cur = cur->peer) {
 		if ((cur->supported_type & xc->type) == 0) {
-			xc->code = SQCODE_TYPE_NOT_SUPPORT;
+			xc->code = SQCODE_TYPE_NOT_SUPPORTED;
 			continue;
 		}
 /*		if ((cur->outputable_type & xc->required_type) == 0)
@@ -248,7 +248,7 @@ Sqxc  *sqxc_send(Sqxc *xc)
 #if SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 //	if (cur == NULL)
 	// check remaining SqxcNested if destination Sqxc use fast type match
-	if (xc->code == SQCODE_TYPE_NOT_MATCH) {
+	if (xc->code == SQCODE_TYPE_NOT_MATCHED) {
 		// pop SqxcNested if it is doing type match
 		if (SQXC_IS_DOING_TYPE_MATCH(xc))
 			sqxc_pop_nested(xc);

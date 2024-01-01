@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -111,10 +111,10 @@ static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 
 #if 0
 	if (src->type != SQXC_TYPE_STR) {
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		src->required_type = SQXC_TYPE_STR;
 		*/
-		return (src->code = SQCODE_TYPE_NOT_SUPPORT);
+		return (src->code = SQCODE_TYPE_NOT_SUPPORTED);
 	}
 #endif
 
@@ -144,7 +144,7 @@ static int  sqxc_jsonc_ctrl_in(SqxcJsonc *xcjson, int id, void *data)
 		break;
 
 	default:
-		return SQCODE_NOT_SUPPORT;
+		return SQCODE_NOT_SUPPORTED;
 	}
 
 	return SQCODE_OK;
@@ -237,7 +237,7 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 
 	default:
 //		jobject = json_object_new_null();
-		return (src->code = SQCODE_TYPE_NOT_SUPPORT);
+		return (src->code = SQCODE_TYPE_NOT_SUPPORTED);
 	}
 
 	if (xcjson->jroot == NULL) {
@@ -291,7 +291,7 @@ static int  sqxc_jsonc_ctrl_out(SqxcJsonc *xcjson, int id, void *data)
 		break;
 
 	default:
-		return SQCODE_NOT_SUPPORT;
+		return SQCODE_NOT_SUPPORTED;
 	}
 
 	return SQCODE_OK;

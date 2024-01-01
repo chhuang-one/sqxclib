@@ -367,7 +367,7 @@ static int  sqxc_text_parser_ctrl(SqxcText *xctext, int id, void *data)
 		break;
 
 	default:
-		return SQCODE_NOT_SUPPORT;
+		return SQCODE_NOT_SUPPORTED;
 	}
 	return SQCODE_OK;
 }

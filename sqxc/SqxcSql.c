@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -66,11 +66,11 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 
 	switch (src->type) {
 	case SQXC_TYPE_ARRAY:
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		src->required_type = SQXC_TYPE_OBJECT;
 		*/
 		if (xcsql->outer_type & (SQXC_TYPE_ARRAY | SQXC_TYPE_OBJECT))
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
+			return (src->code = SQCODE_TYPE_NOT_MATCHED);
 		xcsql->outer_type |= SQXC_TYPE_ARRAY;
 		xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
 		xcsql->supported_type |= SQXC_TYPE_END;
@@ -79,11 +79,11 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 		return (src->code = SQCODE_OK);
 
 	case SQXC_TYPE_OBJECT:
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		src->required_type = SQXC_TYPE_OBJECT;
 		*/
 		if (xcsql->outer_type & SQXC_TYPE_OBJECT)
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
+			return (src->code = SQCODE_TYPE_NOT_MATCHED);
 		xcsql->outer_type |= SQXC_TYPE_OBJECT;
 		xcsql->supported_type &= ~(SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY);
 		xcsql->supported_type |= SQXC_TYPE_END;
@@ -178,21 +178,21 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 
 	switch (src->type) {
 	case SQXC_TYPE_ARRAY:
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		if ((xcsql->outer_type & SQXC_TYPE_OBJECT) == 0)
 			src->required_type = SQXC_TYPE_OBJECT;
 		*/
-		return (src->code = SQCODE_TYPE_NOT_MATCH);
+		return (src->code = SQCODE_TYPE_NOT_MATCHED);
 
 	case SQXC_TYPE_ARRAY_END:
 		return (src->code = SQCODE_TYPE_END_ERROR);
 
 	case SQXC_TYPE_OBJECT:
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		src->required_type = SQXC_TYPE_OBJECT;
 		*/
 		if (xcsql->outer_type & SQXC_TYPE_OBJECT)
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
+			return (src->code = SQCODE_TYPE_NOT_MATCHED);
 		xcsql->outer_type |= SQXC_TYPE_OBJECT;
 		xcsql->supported_type &= ~(SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY);
 		xcsql->supported_type |= SQXC_TYPE_END;
@@ -330,7 +330,7 @@ static int  sqxc_sql_ctrl(SqxcSql *xcsql, int id, void *data)
 		break;
 
 	default:
-		return (xcsql->code = SQCODE_NOT_SUPPORT);
+		return (xcsql->code = SQCODE_NOT_SUPPORTED);
 	}
 
 	return SQCODE_OK;
@@ -538,7 +538,7 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 		break;
 
 	default:
-		return (src->code = SQCODE_TYPE_NOT_SUPPORT);
+		return (src->code = SQCODE_TYPE_NOT_SUPPORTED);
 	}
 
 	return (src->code = SQCODE_OK);

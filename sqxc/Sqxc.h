@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -471,7 +471,7 @@ struct SqxcInfo
 
 	SqxcNested.data3 has special usage that can run a bit faster when doing object and array type match.
 	1. Enable SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH In SqConfig.h
-	2. When SqxcNested.data3 pointer to it's Sqxc and Sqxc.send() return SQCODE_TYPE_NOT_MATCH,
+	2. When SqxcNested.data3 pointer to it's Sqxc and Sqxc.send() return SQCODE_TYPE_NOT_MATCHED,
 	   current SqxcNested is NOT ready to parse object or array, it is doing type match.
 	3. When SqxcNested.data3 pointer to SqxcNested.data,
 	   current SqxcNested is ready to parse object or array, type has been matched.
@@ -556,7 +556,7 @@ struct Sqxc
 	// arguments that used by SqxcInfo->send()
 
 	// output arguments
-//	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCH
+//	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCHED
 	uint16_t     code;            // error code (SQCODE_xxxx)
 
 	// input arguments

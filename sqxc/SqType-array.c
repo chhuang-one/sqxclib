@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -106,10 +106,10 @@ static int  sq_type_array_parse(void *array, const SqType *type, Sqxc *src)
 			nested->data3 = xc_value;    // SqxcNested is NOT ready to parse, it is doing type match.
 		}
 		if (src->type != SQXC_TYPE_ARRAY) {
-			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCHED
 			src->required_type = SQXC_TYPE_ARRAY;
 			*/
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
+			return (src->code = SQCODE_TYPE_NOT_MATCHED);
 		}
 		// SqxcNested is ready to parse array, type has been matched.
 		nested->data3 = array;
@@ -119,10 +119,10 @@ static int  sq_type_array_parse(void *array, const SqType *type, Sqxc *src)
 	if (nested->data != array) {
 		// do type match
 		if (src->type != SQXC_TYPE_ARRAY) {
-			/* set required type if return SQCODE_TYPE_NOT_MATCH
+			/* set required type if return SQCODE_TYPE_NOT_MATCHED
 			src->required_type = SQXC_TYPE_ARRAY;
 			*/
-			return (src->code = SQCODE_TYPE_NOT_MATCH);
+			return (src->code = SQCODE_TYPE_NOT_MATCHED);
 		}
 		// ready to parse
 		nested = sqxc_push_nested((Sqxc*)xc_value);

@@ -1,6 +1,6 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
- *   plushuang.tw@gmail.com
+ *   Copyright (C) 2020-2024 by C.H. Huang
+ *   plushuang.tw@gmail.com4
  *
  * sqxclib is licensed under Mulan PSL v2.
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
@@ -63,10 +63,10 @@ static int  sq_type_std_string_parse(void *instance, const SqType *type, Sqxc *s
 	}
 	else {
 		// TODO: convert to string
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		src->required_type = SQXC_TYPE_STR;
 		*/
-		return (src->code = SQCODE_TYPE_NOT_MATCH);
+		return (src->code = SQCODE_TYPE_NOT_MATCHED);
 	}
 
 	return (src->code = SQCODE_OK);

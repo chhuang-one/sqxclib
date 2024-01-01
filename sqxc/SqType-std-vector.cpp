@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2023 by C.H. Huang
+ *   Copyright (C) 2023-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -94,7 +94,7 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 #ifndef NDEBUG
 				fprintf(stderr, "sq_type_std_vector_parse(): string is not hex format.\n");
 #endif
-				// User can assign length of BLOB in capacity of vector before parsing
+				// User can set length of BLOB by calling std::vector<char>.resize() before parsing.
 				len = (int)vector->size();
 				if (len == 0)
 					len = (int)strlen(src->value.str);
@@ -103,7 +103,7 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 			}
 
 			// string is hex format:
-			// User can assign length of BLOB in SqBuffer.size before parsing
+			// User can set length of BLOB by calling std::vector<char>.resize() before parsing.
 			if (vector->size() > 0)
 				len = (int)vector->size() << 1;    // len = (int)vector->size() * 2;
 			else
@@ -117,10 +117,10 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 		break;
 
 	default:
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		src->required_type = SQXC_TYPE_BOOL;
 		*/
-		return (src->code = SQCODE_TYPE_NOT_MATCH);
+		return (src->code = SQCODE_TYPE_NOT_MATCHED);
 	}
 
 	return (src->code = SQCODE_OK);
@@ -209,10 +209,10 @@ static int  sq_type_std_vector_size_parse(void *instance, const SqType *entrytyp
 		break;
 
 	default:
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		src->required_type = SQXC_TYPE_INT;
 		*/
-		return (src->code = SQCODE_TYPE_NOT_MATCH);
+		return (src->code = SQCODE_TYPE_NOT_MATCHED);
 	}
 
 	return (src->code = SQCODE_OK);

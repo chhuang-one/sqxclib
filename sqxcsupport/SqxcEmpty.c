@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -34,10 +34,10 @@
 static int  sqxc_empty_send(SqxcEmpty *xcempty, Sqxc *args_src)
 {
 	if (args_src->type & xcempty->not_matched_type) {
-		/* set required type if return SQCODE_TYPE_NOT_MATCH
+		/* set required type if return SQCODE_TYPE_NOT_MATCHED
 		src->required_type = args_src->type;
 		*/
-		return SQCODE_TYPE_NOT_MATCH;
+		return SQCODE_TYPE_NOT_MATCHED;
 	}
 
 	switch (args_src->type) {
@@ -221,7 +221,7 @@ static int  sqxc_empty_ctrl(SqxcEmpty *xcempty, int id, void *data)
 		break;
 
 	default:
-		return SQCODE_NOT_SUPPORT;
+		return SQCODE_NOT_SUPPORTED;
 	}
 
 	return SQCODE_OK;

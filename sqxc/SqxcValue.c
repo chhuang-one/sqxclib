@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -81,7 +81,7 @@ static int  sqxc_value_ctrl(SqxcValue *xcvalue, int id, void *data)
 		break;
 
 	default:
-		return SQCODE_NOT_SUPPORT;
+		return SQCODE_NOT_SUPPORTED;
 	}
 
 	return SQCODE_OK;
