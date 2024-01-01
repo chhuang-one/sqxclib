@@ -1,6 +1,7 @@
 [English](SqEntry.md)
 
 # SqEntry
+
 SqEntry 定义结构类型的字段。它必须使用 [SqType](SqType.cn.md) 来定义字段的数据类型。
 
 	SqEntry

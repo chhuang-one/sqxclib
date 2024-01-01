@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,6 +12,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
+/*
+	Functions storage_make_migrated_schema() and storage_make_fixed_schema() are
+	example code for dynamically defining tables and columns.
+
+	This example code also use C++ designated initialization to define columns in tables statically.
+ */
 
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
@@ -85,10 +91,10 @@ struct User {
 		          << "user.picture = 0x" << hex_mem << std::endl;
 		free(hex_mem);
 
-		hex_size = this->angleShot.size() * 2;
+		hex_size = (int)this->angleShot.size() * 2;
 		hex_mem  = (char*)malloc(hex_size + 1);
 		hex_mem[hex_size] = 0;
-		sq_bin_to_hex(hex_mem, this->angleShot.data(), this->angleShot.size());
+		sq_bin_to_hex(hex_mem, this->angleShot.data(), (int)this->angleShot.size());
 		std::cout << "user.angleShot has " << this->angleShot.size() << " bytes" << std::endl
 		          << "user.angleShot = 0x" << hex_mem << std::endl
 		          << std::endl;
@@ -108,8 +114,8 @@ struct Company
 	time_t        updated_at;   // alter table
 
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array (vector) in SQL column
-	Sq::IntArray     ints;    // C array for int
-	Sq::StrArray     strs;    // C array for char*
+	Sq::IntArray     ints;    // C/C++ array for int
+	Sq::StrArray     strs;    // C/C++ array for char*
 	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
 	std::string      strCpp;  // C++ type
 
@@ -189,19 +195,23 @@ static const SqColumn userColumns[] = {
 	{SQ_TYPE_INT,     "length(picture)", offsetof(User, picture) + offsetof(Sq::Buffer, size), SQB_QUERY_ONLY},
 #endif
 	{SQ_TYPE_BUFFER,  "picture",         offsetof(User, picture),      0,
-		.sql_type = SQ_SQL_TYPE_BLOB},
+		NULL,                              // .old_name
+		SQ_SQL_TYPE_BLOB},                 // .sql_type
 
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
-	// get length of angle_shot and call std::vector<char>.resize() before parsing picture.
+	// get length of angle_shot and call std::vector<char>.resize() before parsing angle_shot.
 	// This is mainly used by SQLite, MySQL to get length of BLOB column.
 	// If you use PostgreSQL and don't need store result of special query to C structure's member,
 	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
 	{SQ_TYPE_STD_VECTOR_SIZE,  "length(angle_shot)",  offsetof(User, angleShot),    SQB_QUERY_ONLY},
 #endif
 	{SQ_TYPE_STD_VECTOR,       "angle_shot",          offsetof(User, angleShot),    0,
-		.sql_type = SQ_SQL_TYPE_BLOB},
+		NULL,                              // .old_name
+		SQ_SQL_TYPE_BLOB},                 // .sql_type
 
-	{SQ_TYPE_TIME,    "created_at",   offsetof(User, created_at),   SQB_CURRENT},    // DEFAULT CURRENT_TIMESTAMP
+	// created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,    "created_at",   offsetof(User, created_at),   SQB_CURRENT},
+	// updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,    "updated_at",   offsetof(User, updated_at),   SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
 	// This column is used by CONSTRAINT FOREIGN KEY below.

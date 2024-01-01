@@ -115,4 +115,4 @@ SqIntArray still defines some sq_int_array_xxx() macros and functions for C lang
 	sq_int_array_insert(array, index, ints, sizeof(ints) / sizeof(int));
 ```
 
-If you use C++ language, you can use Sq::Array<int> directly. Sq::IntArray is still defined, which is aliases for the Sq::Array<int>.
+If you use C++ language, you can use Sq::Array<int> directly. Sq::IntArray is defined as alias of Sq::Array<int>.

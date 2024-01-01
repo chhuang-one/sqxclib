@@ -115,4 +115,4 @@ SqIntArray 仍然为 C 语言定义了一些 sq_int_array_xxx() 宏和函数，�
 	sq_int_array_insert(array, index, ints, sizeof(ints) / sizeof(int));
 ```
 
-如果使用 C++ 语言，可以直接使用 Sq::Array<int>。Sq::IntArray 仍然被定义，它是 Sq::Array<int> 的别名。
+如果使用 C++ 语言，可以直接使用 Sq::Array<int>。Sq::IntArray 被定义为 Sq::Array<int> 的别名。

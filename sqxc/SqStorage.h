@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -56,15 +56,16 @@ void       sq_storage_free(SqStorage *storage);
 void  sq_storage_init(SqStorage *storage, Sqdb *db);
 void  sq_storage_final(SqStorage *storage);
 
+// open & close database
 int   sq_storage_open(SqStorage *storage, const char *database_name);
 int   sq_storage_close(SqStorage *storage);
 
-// synchronize storage->schema to database if 'schema' == NULL (Mainly used by SQLite)
+// synchronize SqStorage::schema to database if 'schema' == NULL (Mainly used by SQLite)
 int   sq_storage_migrate(SqStorage *storage, SqSchema *schema);
 
 /* ------------------------------------
 	CRUD functions:
-	1. If 'table_type' is NULL, SqStorage will try to find 'table_type' in its schema.
+	1. If 'table_type' is NULL, SqStorage will try to find 'table_type' in SqStorage::schema.
 	2. These can run a bit faster if user specify 'table_name' and 'table_type' at the same time.
  */
 void *sq_storage_get(SqStorage    *storage,
@@ -149,9 +150,9 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 /* sq_storage_query() execute 'query' and get result.
 
    If 'query' has only 1 table, it use type of table to create row data.
-   If 'query' has joined multi-table, it use SqStorage.joint_default to create row data.
+   If 'query' has joined multi-table, it use SqStorage::joint_default to create row data.
 
-   SqTypeJoint is default type of SqStorage.joint_default, it can be replaced by user custom type.
+   SqTypeJoint is default type of SqStorage::joint_default, it can be replaced by user custom type.
    SqTypeRow is derived from SqTypeJoint, it can parse unknown result.
 
    e.g. execute statement "SELECT * FROM table1 JOIN table2 ON ... JOIN table3 ON ..."
@@ -369,7 +370,7 @@ struct StorageMethod
 	Notes about multithreading:
 	1. 'schema', 'tables', 'tables_version' must be shared between threads.
 	   use readers-writer lock to access these data member.
-	2. 'xc_input', 'xc_output' is NOT shared between threads.
+	2. 'xc_input' and 'xc_output' are NOT shared between threads.
 	   each thread has its Sqxc chain ('xc_input' and 'xc_output').
  */
 

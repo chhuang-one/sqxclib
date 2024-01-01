@@ -1,6 +1,7 @@
 [中文](SqEntry.cn.md)
 
 # SqEntry
+
 SqEntry define field of structure type. It must use [SqType](SqType.md) to define data type of field.
 
 	SqEntry

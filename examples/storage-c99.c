@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -13,7 +13,9 @@
  */
 
 /*
-	This example code use C99 designated initializer to define table and column.
+	This example code mainly use C99 designated initializer to define columns in tables statically.
+
+	The function city_add_column_dynamically() is example code for dynamically defining columns in cities table.
  */
 
 #ifdef _MSC_VER
@@ -60,7 +62,7 @@ struct User {
 	SqBuffer       picture; // SQL Type: BLOB, BINARY...etc
 
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in SQL column
-	SqIntArray     ints;    // int array      (JSON array  in SQL column)
+	SqIntArray     ints;    // integer array  (JSON array  in SQL column)
 	Post          *post;    // object pointer (JSON object in SQL column)
 
 	time_t         created_at;
@@ -94,7 +96,9 @@ static const SqType   typePost = SQ_TYPE_INITIALIZER(Post, postEntryPointers, 0)
 static const SqColumn cityColumnsVer1[] = {
 	{SQ_TYPE_INT,    "id",        offsetof(City, id),        SQB_PRIMARY | SQB_AUTOINCREMENT | SQB_HIDDEN},
 	{SQ_TYPE_STR,    "name",      offsetof(City, name),      SQB_NULLABLE},
-//	{SQ_TYPE_BOOL,   "visited",   offsetof(City, visited)},
+
+	// This column will be added in schema Ver5.
+//	{SQ_TYPE_BOOL,   "visited",   offsetof(City, visited),   SQB_NULLABLE},
 };
 
 // CREATE TABLE "users"
@@ -132,13 +136,15 @@ static const SqColumn userColumnsVer1[] = {
 		.foreign = &(SqForeign) {"cities",  "id",  "NO ACTION",  "NO ACTION"},
 		.composite = (char *[]) {"city_id", NULL} },
 
+	// created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),  SQB_CURRENT},
+	// updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at",   offsetof(User, updated_at),  SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
-	// This column will be deleted in Ver3
+	// This column will be deleted in schema Ver3.
 	{SQ_TYPE_UINT,   "test_drop",   offsetof(User, test_drop),   0},
 
-	// This column will be renamed in Ver4
+	// This column will be renamed in schema Ver4.
 	{SQ_TYPE_UINT,   "test_rename", offsetof(User, test_rename), 0},
 };
 
@@ -284,8 +290,29 @@ void city_free(City *city) {
 void city_print(City *city) {
 	printf("\n"
 	       "city.id = %d\n"
-	       "city.name = %s\n",
-	       city->id, city->name);
+	       "city.name = %s\n"
+	       "city.visited = %d\n",
+	       city->id,
+	       city->name,
+	       city->visited);
+}
+
+// use C functions to define table and column dynamically
+void city_add_column_dynamically(SqTable *city_table)
+{
+	SqColumn *column;
+
+	column = sq_table_add_int(city_table, "id", offsetof(City, id));
+	sq_column_primary(column);
+	sq_column_hidden(column);
+	sq_column_auto_increment(column);
+
+	column = sq_table_add_string(city_table, "name", offsetof(City, name), 0);
+	sq_column_nullable(column);
+
+	// This column will be added in schema Ver5.
+//	column = sq_table_add_bool(city_table, "visited", offsetof(City, visited));
+//	sq_column_nullable(column);
 }
 
 // ----------------------------------------------------------------------------
@@ -297,11 +324,12 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	SqTable  *table;
 
 	if (end_version >= 1) {
-		schema = sq_schema_new("Ver1");
+		schema = sq_schema_new_ver(1, "Ver1");
 //		schema->version = 1;
 		// CREATE TABLE "cities"
 		table = sq_schema_create(schema, "cities", City);
 		sq_table_add_column(table, cityColumnsVer1, SQ_N_ELEMENTS(cityColumnsVer1));
+//		city_add_column_dynamically(table);
 		// CREATE TABLE "users"
 		table = sq_schema_create(schema, "users", User);
 		sq_table_add_column(table, userColumnsVer1, SQ_N_ELEMENTS(userColumnsVer1));
@@ -311,7 +339,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	}
 
 	if (end_version >= 2) {
-		schema = sq_schema_new("Ver2");
+		schema = sq_schema_new_ver(2, "Ver2");
 //		schema->version = 2;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
@@ -322,7 +350,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	}
 
 	if (end_version >= 3) {
-		schema = sq_schema_new("Ver3");
+		schema = sq_schema_new_ver(3, "Ver3");
 //		schema->version = 3;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
@@ -336,7 +364,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	}
 
 	if (end_version >= 4) {
-		schema = sq_schema_new("Ver4");
+		schema = sq_schema_new_ver(4, "Ver4");
 //		schema->version = 4;
 		// ALTER TABLE "users"
 		table = sq_schema_alter(schema, "users", NULL);
@@ -347,7 +375,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	}
 
 	if (end_version >= 5) {
-		schema = sq_schema_new("Ver5");
+		schema = sq_schema_new_ver(5, "Ver5");
 //		schema->version = 5;
 		// RENAME TABLE "users" TO "users2"
 		sq_schema_rename(schema, "users", "users2");
@@ -361,7 +389,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	}
 
 	if (end_version >= 6) {
-		schema = sq_schema_new("Ver6");
+		schema = sq_schema_new_ver(6, "Ver6");
 //		schema->version = 6;
 		// DROP TABLE "users2"
 		sq_schema_drop(schema, "users2");
