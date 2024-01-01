@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -18,7 +18,7 @@
 #include <limits.h>     // __WORDSIZE
 #include <stdint.h>     // __WORDSIZE (Apple)
 #include <stdarg.h>     // va_list, va_start, va_end, va_arg...etc
-#include <stdio.h>      // snprintf
+#include <stdio.h>      // snprintf, fprintf
 #include <inttypes.h>   // PRId64, PRIu64
 
 #include <SqError.h>
@@ -130,8 +130,13 @@ void *sq_storage_get(SqStorage    *storage,
 	if (table_type == NULL) {
 		// find SqTable by table_name
 		temp.table = sq_schema_find(storage->schema, table_name);
-		if (temp.table == NULL)
+		if (temp.table == NULL) {
+#ifndef NDEBUG
+			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
+			        "sq_storage_get()", table_name);
+#endif
 			return NULL;
+		}
 		table_type = temp.table->type;
 	}
 
@@ -181,8 +186,13 @@ void *sq_storage_get_all(SqStorage    *storage,
 	if (table_type == NULL) {
 		// find SqTable by table_name
 		temp.table = sq_schema_find(storage->schema, table_name);
-		if (temp.table == NULL)
+		if (temp.table == NULL) {
+#ifndef NDEBUG
+			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
+			        "sq_storage_get_all()", table_name);
+#endif
 			return NULL;
+		}
 		table_type = temp.table->type;
 	}
 	if (container_type == NULL)
@@ -224,8 +234,13 @@ int64_t sq_storage_insert(SqStorage    *storage,
 	if (table_type == NULL) {
 		// find SqTable by table_name
 		temp.table = sq_schema_find(storage->schema, table_name);
-		if (temp.table == NULL)
+		if (temp.table == NULL) {
+#ifndef NDEBUG
+			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
+			        "sq_storage_insert()", table_name);
+#endif
 			return 0;
+		}
 		table_type = temp.table->type;
 	}
 
@@ -257,8 +272,13 @@ int   sq_storage_update(SqStorage    *storage,
 	if (table_type == NULL) {
 		// find SqTable by table_name
 		temp.table = sq_schema_find(storage->schema, table_name);
-		if (temp.table == NULL)
+		if (temp.table == NULL) {
+#ifndef NDEBUG
+			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
+			        "sq_storage_update()", table_name);
+#endif
 			return 0;
+		}
 		table_type = temp.table->type;
 	}
 
@@ -302,8 +322,13 @@ int64_t sq_storage_update_all(SqStorage    *storage,
 	if (table_type == NULL) {
 		// find SqTable by table_name
 		temp.table = sq_schema_find(storage->schema, table_name);
-		if (temp.table == NULL)
+		if (temp.table == NULL) {
+#ifndef NDEBUG
+			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
+			        "sq_storage_update_all()", table_name);
+#endif
 			return 0;
+		}
 		table_type = temp.table->type;
 	}
 
@@ -336,8 +361,13 @@ int64_t sq_storage_update_field(SqStorage    *storage,
 	if (table_type == NULL) {
 		// find SqTable by table_name
 		temp.table = sq_schema_find(storage->schema, table_name);
-		if (temp.table == NULL)
+		if (temp.table == NULL) {
+#ifndef NDEBUG
+			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
+			        "sq_storage_update_field()", table_name);
+#endif
 			return 0;
+		}
 		table_type = temp.table->type;
 	}
 
@@ -369,6 +399,11 @@ void  sq_storage_remove(SqStorage    *storage,
 		temp.table = sq_schema_find(storage->schema, table_name);
 		if (temp.table)
 			table_type = temp.table->type;
+#ifndef NDEBUG
+		else
+			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
+			        "sq_storage_remove()", table_name);
+#endif
 	}
 
 	temp.column = table_type ? sq_table_get_primary(NULL, table_type) : NULL;

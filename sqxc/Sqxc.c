@@ -12,6 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#ifndef NDEBUG
+#include <stdio.h>     // fprintf
+#endif
 #include <stddef.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -244,6 +247,14 @@ Sqxc  *sqxc_send(Sqxc *xc)
 		else if (xc->code == SQCODE_ENTRY_NOT_FOUND)
 			return xc;
 	}
+
+#ifndef NDEBUG
+	if (cur == NULL) {
+		fprintf(stderr,
+		        "%s: SqxcType 0x%X is not supported by current Sqxc chain.\n",
+		        "sqxc_send()", (int)xc->type);
+	}
+#endif
 
 #if SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH
 //	if (cur == NULL)

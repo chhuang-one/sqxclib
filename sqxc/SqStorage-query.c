@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -40,6 +40,10 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 	for (int index = 0;  index < names.length;  index+=2) {
 		table = sq_schema_find(storage->schema, names.data[index]);
 		if (table == NULL) {
+#ifndef NDEBUG
+			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
+			        "sq_storage_setup_query()", names.data[index]);
+#endif
 			if (type_joint->bit_field & SQB_TYPE_PARSE_UNKNOWN)
 				continue;
 			n_table = 0;
