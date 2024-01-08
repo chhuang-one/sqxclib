@@ -15,6 +15,10 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+#ifndef NDEBUG
+#include <stdio.h>        // fprintf(), stderr
+#endif
+
 #include <SqConfig.h>
 #include <SqError.h>
 #include <SqRow.h>
@@ -324,6 +328,11 @@ static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 	p.addr = sq_type_find_entry(p.entry->type, src->name + temp.len, NULL);
 	if (p.addr == NULL) {
 		sq_type_row_parse_unknown(instance, src);
+#ifndef NDEBUG
+	// warning
+	fprintf(stderr, "%s: entry or column '%s' not found.\n",
+	        "sq_type_row_parse()", src->name);
+#endif
 		return (src->code = SQCODE_ENTRY_NOT_FOUND);
 	}
 	// 'p.addr' pointer to SqColumn in SqTable.type

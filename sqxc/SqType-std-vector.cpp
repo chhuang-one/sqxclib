@@ -16,7 +16,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #ifndef NDEBUG
-#include <stdio.h>        // stderr
+#include <stdio.h>        // fprintf(), stderr
 #endif
 
 #include <vector>
@@ -92,9 +92,11 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 			else {
 				// string is not hex format:
 #ifndef NDEBUG
-				fprintf(stderr, "sq_type_std_vector_parse(): string is not hex format.\n");
+				// message
+				fprintf(stderr, "%s: string is not hex format.\n",
+				        "sq_type_std_vector_parse()");
 #endif
-				// User can set length of BLOB by calling std::vector<char>.resize() before parsing.
+				// User can set length of BLOB by calling std::vector<char>::resize() before parsing.
 				len = (int)vector->size();
 				if (len == 0)
 					len = (int)strlen(src->value.str);
@@ -103,7 +105,7 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 			}
 
 			// string is hex format:
-			// User can set length of BLOB by calling std::vector<char>.resize() before parsing.
+			// User can set length of BLOB by calling std::vector<char>::resize() before parsing.
 			if (vector->size() > 0)
 				len = (int)vector->size() << 1;    // len = (int)vector->size() * 2;
 			else

@@ -15,12 +15,12 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <time.h>     // time_t
-#include <stdio.h>    // sprintf()
-#include <stdlib.h>   // realloc(), strtol()
-#include <string.h>   // strdup()
+#include <time.h>         // time_t
+#include <stdio.h>        // sprintf(), fprintf(), stderr
+#include <stdlib.h>       // realloc(), strtol()
+#include <string.h>       // strdup()
 
-#include <SqUtil.h>   // sq_time_to_string(), sq_time_from_string()
+#include <SqUtil.h>       // sq_time_to_string(), sq_time_from_string()
 #include <SqError.h>
 #include <SqPtrArray.h>
 #include <SqType.h>
@@ -468,6 +468,12 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 		}
 		return type->parse(instance, type, src);
 	}
+
+#ifndef NDEBUG
+	// warning
+	fprintf(stderr, "%s: entry or column '%s' not found.\n",
+	        "sq_type_object_parse()", src->name);
+#endif
 	return (src->code = SQCODE_ENTRY_NOT_FOUND);
 }
 

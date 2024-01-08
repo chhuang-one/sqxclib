@@ -550,7 +550,7 @@ extern  const  SqType      SqType_StdVectorSize_;   // std::vector<char> resize
 #define SQ_TYPE_STD_VEC            SQ_TYPE_STD_VECTOR
 
 // C++ std::vector<char> resize
-// SQ_TYPE_STD_VECTOR_SIZE will specify size of BLOB by calling std::vector<char>.resize()
+// SQ_TYPE_STD_VECTOR_SIZE will specify size of BLOB by calling std::vector<char>::resize()
 // when parsing integer value.
 #define SQ_TYPE_STD_VECTOR_SIZE    ((SqType*)&SqType_StdVectorSize_)
 // alias of SQ_TYPE_STD_VECTOR_SIZE

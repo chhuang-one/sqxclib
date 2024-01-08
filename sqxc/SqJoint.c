@@ -15,6 +15,9 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+#ifndef NDEBUG
+#include <stdio.h>        // fprintf(), stderr
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -218,6 +221,11 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 		return src->code;
 	}
 
+#ifndef NDEBUG
+	// warning
+	fprintf(stderr, "%s: entry or column '%s' not found.\n",
+	        "sq_type_joint_parse()", src->name);
+#endif
 	return SQCODE_ENTRY_NOT_FOUND;
 }
 

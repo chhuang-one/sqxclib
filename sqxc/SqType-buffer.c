@@ -13,7 +13,7 @@
  */
 
 #ifndef NDEBUG
-#include <stdio.h>        // stderr
+#include <stdio.h>        // fprintf(), stderr
 #endif
 
 #include <SqError.h>
@@ -69,9 +69,11 @@ static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 			else {
 				// string is not hex format:
 #ifndef NDEBUG
-				fprintf(stderr, "sq_type_buffer_parse(): string is not hex format.\n");
+				// message
+				fprintf(stderr, "%s: string is not hex format.\n",
+				        "sq_type_buffer_parse()");
 #endif
-				// User can set length of BLOB in SqBuffer.size before parsing.
+				// User can set length of BLOB in SqBuffer::size before parsing.
 				len = buf->size;
 				if (len == 0)
 					len = (int)strlen(src->value.str);
@@ -83,7 +85,7 @@ static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 			}
 
 			// string is hex format:
-			// User can set length of BLOB in SqBuffer.size before parsing.
+			// User can set length of BLOB in SqBuffer::size before parsing.
 			if (buf->size > 0)
 				len = buf->size << 1;    // len = buf->size * 2;
 			else {

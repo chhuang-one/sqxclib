@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdio.h>      // snprintf
+#include <stdio.h>        // snprintf(), fprintf(), stderr
 
 #include <SqError.h>
 #include <Sqdb-migration.h>
@@ -233,7 +233,8 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 		case 's':    // select
 #ifndef NDEBUG
 			if (xc->info != SQXC_INFO_VALUE) {
-				fprintf(stderr, "sqdb_mysql_exec(): SELECT command must use with SqxcValue.\n");
+				fprintf(stderr, "%s: SELECT command must use with SqxcValue.\n",
+				        "sqdb_mysql_exec()");
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
@@ -279,11 +280,14 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 						break;
 
 					case SQCODE_ENTRY_NOT_FOUND:
-						fprintf(stderr, "sqdb_mysql_exec(): column '%s' not found.\n", names[i]);
+						// warning
+						fprintf(stderr, "%s: column '%s' not found.\n",
+						        "sqdb_mysql_exec()", names[i]);
 						break;
 
 					default:
-						fprintf(stderr, "sqdb_mysql_exec(): error occurred during parsing column '%s'.\n", names[i]);
+						fprintf(stderr, "%s: error occurred during parsing column '%s'.\n",
+						        "sqdb_mysql_exec()", names[i]);
 						break;
 					}
 #endif  // NDEBUG
@@ -321,7 +325,8 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 		case 'u':    // update
 #ifndef NDEBUG
 			if (xc->info != SQXC_INFO_SQL) {
-				fprintf(stderr, "sqdb_mysql_exec(): INSERT and UPDATE command must use with SqxcSql.\n");
+				fprintf(stderr, "%s: INSERT and UPDATE command must use with SqxcSql.\n",
+				        "sqdb_mysql_exec()");
 				return SQCODE_EXEC_ERROR;
 			}
 #endif

@@ -142,7 +142,7 @@ struct TypeStl : SqType {
 		this->n_entry = -1;                       // SqType.entry isn't freed if SqType.n_entry == -1
 		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
 #if SQ_TYPE_STL_ENABLE_DYNAMIC == 1
-		// reset SqType.bit_field if it has not been set by operator new()
+		// reset SqType::bit_field if it has not been set by operator new()
 		if (this->bit_field != SQB_TYPE_DYNAMIC)
 			this->bit_field = 0;
 #else

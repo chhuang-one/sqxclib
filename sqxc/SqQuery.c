@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -19,7 +19,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>      // vsnprintf
+#include <stdio.h>        // vsnprintf(), fprintf(), stderr
 
 #include <SqQuery.h>
 
@@ -299,8 +299,13 @@ bool sq_query_select_list(SqQuery *query, ...)
 //		if (sub_node && sub_node->type != SQN_FROM)
 //			sub_node->type = SQN_FROM;
 	}
-	else if (select->type != SQN_SELECT)
+	else if (select->type != SQN_SELECT) {
+#ifndef NDEBUG
+		fprintf(stderr, "%s: current query is not SELECT statement.\n",
+		        "sq_query_select_list()");
+#endif
 		return false;
+	}
 
 	va_start(arg_list, query);
 	sq_query_insert_column_list(query, select, arg_list);
@@ -318,8 +323,13 @@ bool sq_query_distinct(SqQuery *query)
 		sq_query_select(query, NULL);
 		command = query->nested_cur->command;
 	}
-	else if (command->type != SQN_SELECT)
+	else if (command->type != SQN_SELECT) {
+#ifndef NDEBUG
+		fprintf(stderr, "%s: current query is not SELECT statement.\n",
+		        "sq_query_distinct()");
+#endif
 		return false;
+	}
 	// The first children node is reserved for DISTINCT by sq_query_select()
 	command->children->type = SQN_DISTINCT;
 	return true;

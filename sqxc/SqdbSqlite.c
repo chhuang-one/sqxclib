@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdio.h>      // snprintf
+#include <stdio.h>        // snprintf(), fprintf(), stderr
 
 #include <SqError.h>
 #include <SqdbSqlite.h>
@@ -327,11 +327,14 @@ static int query_callback(void *user_data, int argc, char **argv, char **columnN
 			break;
 
 		case SQCODE_ENTRY_NOT_FOUND:
-			fprintf(stderr, "sqdb_sqlite_exec(): column '%s' not found.\n", columnName[index]);
+			// warning
+			fprintf(stderr, "%s: column '%s' not found.\n",
+			        "sqdb_sqlite_exec()", columnName[index]);
 			break;
 
 		default:
-			fprintf(stderr, "sqdb_sqlite_exec(): error occurred during parsing column '%s'.\n", columnName[index]);
+			fprintf(stderr, "%s: error occurred during parsing column '%s'.\n",
+			        "sqdb_sqlite_exec()", columnName[index]);
 			// returns non-zero, the sqlite3_exec() routine returns SQLITE_ABORT
 //			return 1;
 			break;
@@ -393,7 +396,8 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 		case 's':    // select
 #ifndef NDEBUG
 			if (xc->info != SQXC_INFO_VALUE) {
-				fprintf(stderr, "sqdb_sqlite_exec(): SELECT command must use with SqxcValue.\n");
+				fprintf(stderr, "%s: SELECT command must use with SqxcValue.\n",
+				        "sqdb_sqlite_exec()");
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
@@ -427,7 +431,8 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 		case 'u':    // update
 #ifndef NDEBUG
 			if (xc->info != SQXC_INFO_SQL) {
-				fprintf(stderr, "sqdb_sqlite_exec(): INSERT and UPDATE command must use with SqxcSql.\n");
+				fprintf(stderr, "%s: INSERT and UPDATE command must use with SqxcSql.\n",
+				        "sqdb_sqlite_exec()");
 				return SQCODE_EXEC_ERROR;
 			}
 #endif

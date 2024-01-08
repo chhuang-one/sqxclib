@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2023 by C.H. Huang
+ *   Copyright (C) 2022-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdio.h>      // snprintf
+#include <stdio.h>        // snprintf(), fprintf(), stderr
 
 #include <SqError.h>
 #include <Sqdb-migration.h>
@@ -150,7 +150,8 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 		case 's':    // select
 #ifndef NDEBUG
 			if (xc->info != SQXC_INFO_VALUE) {
-				fprintf(stderr, "sqdb_postgre_exec(): SELECT command must use with SqxcValue.\n");
+				fprintf(stderr, "%s: SELECT command must use with SqxcValue.\n",
+				        "sqdb_postgre_exec()");
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
@@ -197,11 +198,14 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 						break;
 
 					case SQCODE_ENTRY_NOT_FOUND:
-						fprintf(stderr, "sqdb_postgre_exec(): column '%s' not found.\n", xc->name);
+						// warning
+						fprintf(stderr, "%s: column '%s' not found.\n",
+						        "sqdb_postgre_exec()", xc->name);
 						break;
 
 					default:
-						fprintf(stderr, "sqdb_postgre_exec(): error occurred during parsing column '%s'.\n", xc->name);
+						fprintf(stderr, "%s: error occurred during parsing column '%s'.\n",
+						        "sqdb_postgre_exec()", xc->name);
 						break;
 					}
 #endif  // NDEBUG
@@ -233,7 +237,8 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 		case 'u':    // update
 #ifndef NDEBUG
 			if (xc->info != SQXC_INFO_SQL) {
-				fprintf(stderr, "sqdb_postgre_exec(): INSERT and UPDATE command must use with SqxcSql.\n");
+				fprintf(stderr, "%s: INSERT and UPDATE command must use with SqxcSql.\n",
+				        "sqdb_postgre_exec()");
 				free(sql_new);
 				return SQCODE_EXEC_ERROR;
 			}
