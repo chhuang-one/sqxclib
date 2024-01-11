@@ -10,19 +10,17 @@ It just removes the sq_query_get_table_as_names() and sq_query_select_table_as()
 
 ## create query and generate SQL statement
 
+SqQuery provide sq_query_to_sql() and sq_query_c() to generate SQL statement.
+* The result of sq_query_to_sql() must free when you don't need it.
+* You can NOT free the result of sq_query_c(), it managed by SqQuery.
+* After calling sq_query_c(), user can use sq_query_last() to reuse generated SQL statement.
+  
 e.g. generate below SQL statement. It select all columns from a database table "companies".
 
 ```sql
 SELECT * FROM companies
 ```
 
-SqQuery provide sq_query_to_sql() and sq_query_c() to generate SQL statement.
-* The result of sq_query_to_sql() must free when you don't need it.
-* You can NOT free the result of sq_query_c(), it managed by SqQuery.
-* After calling sq_query_c(), user can use sq_query_last() to reuse generated SQL statement.
-
-Note: If user doesn't specify column by select(), it select all columns from a database table by default.  
-  
 use C language
 
 ```c
@@ -96,6 +94,8 @@ use C++ language
 #### from / table
 
 from() and table() can specify database table. They do the same thing and support subquery, other details are explained in the titled "Subquery and Brackets".  
+  
+Note: If user doesn't specify column by select(), it select all columns from a database table by default.  
   
 use C language
 

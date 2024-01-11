@@ -10,19 +10,17 @@ SqQuery 是支持子查询和括号的查询构建器。
 
 ## 创建查询并生成 SQL 语句
 
+SqQuery 提供 sq_query_to_sql() 和 sq_query_c() 来生成 SQL 语句。
+* sq_query_to_sql() 的结果在您不需要时必须释放。
+* 您不能释放 sq_query_c() 的结果，它由 SqQuery 管理。
+* 调用 sq_query_c() 后，用户可以使用 sq_query_last() 以重用生成的 SQL 语句。
+  
 例如: 生成下面的 SQL 语句。它从数据库表 "companies" 中选择所有列。
 
 ```sql
 SELECT * FROM companies
 ```
 
-SqQuery 提供 sq_query_to_sql() 和 sq_query_c() 来生成 SQL 语句。
-* sq_query_to_sql() 的结果在您不需要时必须释放。
-* 您不能释放 sq_query_c() 的结果，它由 SqQuery 管理。
-* 调用 sq_query_c() 后，用户可以使用 sq_query_last() 以重用生成的 SQL 语句。
-
-注意: 如果用户没有通过 select() 指定列，则默认选择数据库表中的所有列。  
-  
 使用 C 语言
 
 ```c
@@ -96,6 +94,8 @@ use C++ language
 #### from / table
 
 from() 和 table() 可以指定数据库表。他们做同样的事情并支持子查询，其他详细信息在标题为 "子查询和括号" 中解释。  
+  
+注意: 如果用户没有通过 select() 指定列，则默认选择数据库表中的所有列。  
   
 使用 C 语言
 

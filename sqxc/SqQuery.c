@@ -111,7 +111,6 @@ enum SqQueryNodeType {
 	SQN_BRACKETS_L = SQN_SYMBOL,  // (
 	SQN_BRACKETS_R,               // )
 	SQN_COMMA,                    // ,
-	SQN_ASTERISK,                 // *
 
 	SQN_N_CODE,
 
@@ -291,14 +290,6 @@ bool sq_query_select_list(SqQuery *query, ...)
 		sub_node = sq_query_node_new(query);
 		sub_node->type = SQN_NONE;
 		select->children = sub_node;
-		// default is 'SELECT *'
-		sub_node->children = sq_query_node_new(query);
-		sub_node = sub_node->children;
-		sub_node->type = SQN_ASTERISK;
-		// FROM
-//		sub_node = nested->name;
-//		if (sub_node && sub_node->type != SQN_FROM)
-//			sub_node->type = SQN_FROM;
 	}
 	else if (select->type != SQN_SELECT) {
 #ifndef NDEBUG
@@ -803,9 +794,11 @@ const char *sq_query_c(SqQuery *query)
 	} temp;
 
 	temp.nested = query->nested_cur;
+	// query has table name
 	if (temp.nested->name) {
+		// query has table name but no command, it must add 'SELECT *'.
 		if (temp.nested->command == NULL)
-			sq_query_select_list(query, NULL);
+			sq_query_select_list(query, "*", NULL);
 	}
 
 	if (query->str == NULL) {
@@ -856,12 +849,6 @@ static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *node, va_li
 
 	while ( (name = va_arg(arg_list, const char*)) ) {
 		sub_node = node->children;
-		// replace '*' if user specify column for sq_query_select()
-		if (sub_node && sub_node->type == SQN_ASTERISK) {
-			sub_node->type  = SQN_VALUE;
-			sub_node->value = strdup(name);
-			continue;
-		}
 		// add ',' if user specify multiple column
 		// if current 'node' was not just created.
 		if (node->children != NULL) {
@@ -1164,10 +1151,11 @@ void  sq_query_pop_nested(SqQuery *query)
 		// is not empty subquery?
 		node = nested->parent->children;
 		if (node) {
-			// subquery has command?
+			// subquery has table name
 			if (nested->name) {
+				// subquery has table name but no command, it must add 'SELECT *'.
 				if (nested->command == NULL)
-					sq_query_select_list(query, NULL);
+					sq_query_select_list(query, "*", NULL);
 			}
 			else if (node->type >= SQN_WHERE)
 				node->type = SQN_NONE;
@@ -1372,6 +1360,5 @@ static const char *sqnword[SQN_N_CODE] = {
 	"(",                 // SQN_BRACKETS_L
 	")",                 // SQN_BRACKETS_R
 	",",                 // SQN_COMMA
-	"*",                 // SQN_ASTERISK
 };
 
