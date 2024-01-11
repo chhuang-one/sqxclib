@@ -56,7 +56,7 @@ enum SqQueryNodeType {
 	// --------------------------------
 	// commands
 
-	SQN_CREATE_TABLE,
+	SQN_CREATE_TABLE,                    // maps to SQ_QUERY_CMD_CREATE_TABLE in SqQuery.h
 	SQN_ALERT_TABLE,
 	SQN_DROP_TABLE,
 	SQN_TRUNCATE_TABLE,
@@ -65,13 +65,14 @@ enum SqQueryNodeType {
 	SQN_DELETE,
 	SQN_SELECT,           // INSERT INTO can use this
 
+	SQN_COMMAND_BEG = SQN_CREATE_TABLE,
 	SQN_COMMAND_END = SQN_SELECT,
 
 	// --------------------------------
 	// SELECT (these must keep order)
 
 	SQN_FROM,
-	SQN_JOIN,      // INNER JOIN
+	SQN_JOIN,      // INNER JOIN         // maps to SQ_QUERYJOIN_INNER in SqQuery.h
 	SQN_LEFT_JOIN,
 	SQN_RIGHT_JOIN,
 	SQN_FULL_JOIN,
@@ -98,7 +99,7 @@ enum SqQueryNodeType {
 //	SQN_BETWEEN,   // WHERE, JOIN
 	SQN_LIKE,      // WHERE
 
-	SQN_ASC,       // ORDER BY
+	SQN_ASC,       // ORDER BY           // maps to SQ_QUERYSORT_ASC in SqQuery.h
 	SQN_DESC,      // ORDER BY
 
 	SQN_OFFSET,    // LIMIT
@@ -752,8 +753,91 @@ void sq_query_truncate(SqQuery *query)
 		node->type = SQN_NONE;
 }
 
+int  sq_query_get_command(SqQuery *query)
+{
+	SqQueryNode   *command = query->nested_cur->command;
+
+	if (command == NULL)
+		return SQ_QUERY_CMD_NONE;
+	else
+		return command->type;
+}
+
+// ------------------------------------
+// sq_query_to_sql()
+
+static void node_to_buf(SqQueryNode *node, SqQuery *query)
+{
+	char *src;
+	char *dest;
+	int   value_len;
+
+	for (;  node;  node = node->next) {
+		if (node->type < SQN_N_CODE) {
+			node->value = (char*) sqnword[node->type];
+			if (node->type == SQN_COMMA)
+				query->length--;
+		}
+		src = node->value;
+		if (*src) {
+			value_len = (int)strlen(src) + 1;    // + " "
+			if (query->length +value_len >= query->allocated) {
+				query->allocated *= 2;
+				query->str = realloc(query->str, query->allocated);
+			}
+			dest = query->str + query->length;
+			query->length += value_len; 
+			while (*src)
+				*dest++ = *src++;
+			*dest++ = ' ';
+		}
+		node_to_buf(node->children, query);
+	}
+}
+
+const char *sq_query_c(SqQuery *query)
+{
+	union {
+		SqQueryNested *nested;
+		char          *dest;
+	} temp;
+
+	temp.nested = query->nested_cur;
+	if (temp.nested->name) {
+		if (temp.nested->command == NULL)
+			sq_query_select_list(query, NULL);
+	}
+
+	if (query->str == NULL) {
+		query->str = malloc(SQ_QUERY_STR_SIZE_DEFAULT);
+		query->allocated = SQ_QUERY_STR_SIZE_DEFAULT;
+	}
+	query->length = 0;
+	node_to_buf(query->root.children, query);
+
+	temp.dest = query->str + query->length;
+	if (query->length > 0)
+		temp.dest--;
+	*temp.dest = 0;
+
+	return query->str;
+}
+
+char *sq_query_to_sql(SqQuery *query)
+{
+	char *result;
+
+	sq_query_c(query);
+	result = realloc(query->str, query->length);
+	query->str = NULL;
+	query->length = 0;
+//	query->allocated = 0;
+
+	return result;
+}
+
 // ----------------------------------------------------------------------------
-// static functions
+// static functions for above functions
 
 // used by SELECT, GROUP BY, ORDER BY
 static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *node, va_list arg_list)
@@ -930,78 +1014,9 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 	return node;
 }
 
-// ------------------------------------
-// sq_query_to_sql()
-
-static void node_to_buf(SqQueryNode *node, SqQuery *query)
-{
-	char *src;
-	char *dest;
-	int   value_len;
-
-	for (;  node;  node = node->next) {
-		if (node->type < SQN_N_CODE) {
-			node->value = (char*) sqnword[node->type];
-			if (node->type == SQN_COMMA)
-				query->length--;
-		}
-		src = node->value;
-		if (*src) {
-			value_len = (int)strlen(src) + 1;    // + " "
-			if (query->length +value_len >= query->allocated) {
-				query->allocated *= 2;
-				query->str = realloc(query->str, query->allocated);
-			}
-			dest = query->str + query->length;
-			query->length += value_len; 
-			while (*src)
-				*dest++ = *src++;
-			*dest++ = ' ';
-		}
-		node_to_buf(node->children, query);
-	}
-}
-
-const char *sq_query_c(SqQuery *query)
-{
-	union {
-		SqQueryNested *nested;
-		char          *dest;
-	} temp;
-
-	temp.nested = query->nested_cur;
-	if (temp.nested->name) {
-		if (temp.nested->command == NULL)
-			sq_query_select_list(query, NULL);
-	}
-
-	if (query->str == NULL) {
-		query->str = malloc(SQ_QUERY_STR_SIZE_DEFAULT);
-		query->allocated = SQ_QUERY_STR_SIZE_DEFAULT;
-	}
-	query->length = 0;
-	node_to_buf(query->root.children, query);
-
-	temp.dest = query->str + query->length;
-	if (query->length > 0)
-		temp.dest--;
-	*temp.dest = 0;
-
-	return query->str;
-}
-
-char *sq_query_to_sql(SqQuery *query)
-{
-	char *result;
-
-	sq_query_c(query);
-	result = realloc(query->str, query->length);
-	query->str = NULL;
-	query->length = 0;
-//	query->allocated = 0;
-
-	return result;
-}
+// ----------------------------------------------------------------------------
+// If you set SQ_QUERY_USE_ALONE to 1, you can use SqQuery alone.
+#if SQ_QUERY_USE_ALONE == 0
 
 // parent->type must be SQN_FROM or SQN_JOIN
 static const char *get_table(SqQueryNode *parent)
@@ -1022,9 +1037,6 @@ static const char *get_table(SqQueryNode *parent)
 	}
 	return NULL;
 }
-
-// If you set SQ_QUERY_USE_ALONE to 1, you can use SqQuery alone.
-#if SQ_QUERY_USE_ALONE == 0
 
 // array[0] = table1_name, array[1] = table1_as_name,
 // array[2] = table2_name, array[3] = table2_as_name, ...etc

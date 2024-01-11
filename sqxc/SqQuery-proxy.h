@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -494,6 +494,10 @@ public:
 	SQPT_RETURN  &delete_();
 	SQPT_RETURN  &deleteFrom();
 	SQPT_RETURN  &truncate();
+
+	// return SQL command (SQ_QUERY_CMD_XXXX series) in query.
+	// return SQ_QUERY_CMD_NONE if no SQL command in query.
+	int         getCommand();
 
 	// generate SQL statement
 	char       *toSql();
@@ -2184,6 +2188,10 @@ inline SQPT_RETURN  &SQPT_NAME::deleteFrom() {
 inline SQPT_RETURN  &SQPT_NAME::truncate() {
 	sq_query_truncate((SqQuery*)SQPT_DATAPTR);
 	return *(SQPT_RETURN*)this;
+}
+
+inline int   SQPT_NAME::getCommand() {
+	return sq_query_get_command((SqQuery*)SQPT_DATAPTR);
 }
 
 inline char *SQPT_NAME::toSql() {

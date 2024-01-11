@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -58,23 +58,40 @@ typedef struct SqQueryNested     SqQueryNested;
 extern "C" {
 #endif
 
-// join on, where, having
+// SQL command for sq_query_get_command()
+enum {
+	SQ_QUERY_CMD_NONE,             // maps to SQN_NONE         in SqQuery.c
+	SQ_QUERY_CMD_CREATE_TABLE,     // maps to SQN_CREATE_TABLE in SqQuery.c
+	SQ_QUERY_CMD_ALERT_TABLE,
+	SQ_QUERY_CMD_DROP_TABLE,
+	SQ_QUERY_CMD_TRUNCATE_TABLE,
+	SQ_QUERY_CMD_INSERT_INTO,
+	SQ_QUERY_CMD_UPDATE,
+	SQ_QUERY_CMD_DELETE,
+	SQ_QUERY_CMD_SELECT,
+};
+
+// for JOIN
+enum {
+	SQ_QUERYJOIN_INNER,            // maps to SQN_JOIN in SqQuery.c
+	SQ_QUERYJOIN_LEFT,
+	SQ_QUERYJOIN_RIGHT,
+	SQ_QUERYJOIN_FULL,
+	SQ_QUERYJOIN_CROSS,
+};
+
+// for ORDER BY
+enum {
+	SQ_QUERYSORT_ASC,              // maps to SQN_ASC in SqQuery.c
+	SQ_QUERYSORT_DESC,
+};
+
+// for JOIN ON, WHERE, HAVING
 #define SQ_QUERYLOGI_OR       0
 #define SQ_QUERYLOGI_AND      1
 #define SQ_QUERYLOGI_NOT      2
 #define SQ_QUERYLOGI_OR_NOT   (SQ_QUERYLOGI_OR  | SQ_QUERYLOGI_NOT)
 #define SQ_QUERYLOGI_AND_NOT  (SQ_QUERYLOGI_AND | SQ_QUERYLOGI_NOT)
-
-// join
-#define SQ_QUERYJOIN_INNER    0
-#define SQ_QUERYJOIN_LEFT     1
-#define SQ_QUERYJOIN_RIGHT    2
-#define SQ_QUERYJOIN_FULL     3
-#define SQ_QUERYJOIN_CROSS    4
-
-// order by
-#define SQ_QUERYSORT_ASC      0
-#define SQ_QUERYSORT_DESC     1
 
 // arguments: decide to use raw string or printf format string
 #define SQ_QUERYARGS_MASK     (0xFF00)
@@ -663,6 +680,10 @@ void    sq_query_delete(SqQuery *query);
 // SQL: TRUNCATE TABLE
 // call this function at last (before generating SQL statement).
 void    sq_query_truncate(SqQuery *query);
+
+// return SQL command (SQ_QUERY_CMD_XXXX series) in query.
+// return SQ_QUERY_CMD_NONE if no SQL command in query.
+int     sq_query_get_command(SqQuery *query);
 
 // generate SQL statements
 // The result of sq_query_to_sql() must free when you don't need it.

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -481,6 +481,22 @@ void test_query_c_limit(SqQuery *query)
 	free(sql);
 }
 
+void test_query_c_get_command(SqQuery *query)
+{
+	int  command;
+
+	// query has no command currently
+	command = sq_query_get_command(query);
+	assert(command == SQ_QUERY_CMD_NONE);
+
+	// query has DELETE command
+	sq_query_delete(query);
+	command = sq_query_get_command(query);
+	assert(command == SQ_QUERY_CMD_DELETE);
+
+	sq_query_clear(query);
+}
+
 // SqQuery-macro.h
 void test_query_macro_get_table_as(SqQuery *query)
 {
@@ -552,6 +568,7 @@ int main(int argc, char **argv)
 	test_query_c_delete(query);
 	test_query_c_truncate(query);
 	test_query_c_limit(query);
+	test_query_c_get_command(query);
 	test_query_macro_get_table_as(query);
 
 	sq_query_free(query);
