@@ -37,18 +37,21 @@ typedef struct Post     Post;
 typedef struct City     City;
 typedef struct User     User;
 
-struct Post {
+struct Post
+{
 	char  *title;
 	char  *desc;
 };
 
-struct City {
+struct City
+{
 	int    id;
 	char  *name;
 	bool   visited;
 };
 
-struct User {
+struct User
+{
 	int    id;         // primary key
 	char  *name;
 	char  *email;
@@ -117,13 +120,13 @@ static const SqColumn userColumnsVer1[] = {
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
-	// get length of picture and set it to SqBuffer.size before parsing picture.
+	// get length of picture and set it to SqBuffer::size before parsing picture.
 	// This is mainly used by SQLite, MySQL to get length of BLOB column.
 	// If you use PostgreSQL and don't need store result of special query to C structure's member,
 	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
 	{SQ_TYPE_INT,    "length(picture)", offsetof(User, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
 #endif
-	{SQ_TYPE_BUFFER, "picture",         offsetof(User, picture), 0,
+	{SQ_TYPE_BUFFER, "picture",         offsetof(User, picture),                            0,
 		.sql_type = SQ_SQL_TYPE_BLOB},
 
 #if SQ_CONFIG_HAVE_JSONC
@@ -204,7 +207,8 @@ static const SqColumn userColumnsVer4[] = {
 // ----------------------------------------------------------------------------
 // C Functions for City & User
 
-User *user_new(void) {
+User *user_new(void)
+{
 	User *user;
 
 	user = calloc(1, sizeof(User));
@@ -214,7 +218,8 @@ User *user_new(void) {
 	return user;
 }
 
-void user_free(User *user) {
+void user_free(User *user)
+{
 	sq_int_array_final(&user->ints);
 	free(user->name);
 	free(user->email);
@@ -228,9 +233,9 @@ void user_free(User *user) {
 	free(user);
 }
 
-void user_print(User *user) {
-	printf("\n"
-	       "user.id = %d\n"
+void user_print(User *user)
+{
+	printf("user.id = %d\n"
 	       "user.name = %s\n"
 	       "user.email = %s\n"
 	       "user.city_id = %d\n"
@@ -276,25 +281,29 @@ void user_print(User *user) {
 	       "user.test_drop = %d\n"
 	       "user.test_rename = %d\n",
 	       user->test_add, user->test_drop, user->test_rename);
+	puts("");
 }
 
-City *city_new(void) {
+City *city_new(void)
+{
 	return calloc(1, sizeof(City));
 }
 
-void city_free(City *city) {
+void city_free(City *city)
+{
 	free(city->name);
 	free(city);
 }
 
-void city_print(City *city) {
-	printf("\n"
-	       "city.id = %d\n"
+void city_print(City *city)
+{
+	printf("city.id = %d\n"
 	       "city.name = %s\n"
 	       "city.visited = %d\n",
 	       city->id,
 	       city->name,
 	       city->visited);
+	puts("");
 }
 
 // use C functions to define table and column dynamically
@@ -401,6 +410,29 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	// synchronize schema to database. create/alter SQL tables based on storage->schema
 	// This is mainly used by SQLite
 	sq_storage_migrate(storage, NULL);
+}
+
+void  storage_query_ptr_array(SqStorage *storage)
+{
+	SqPtrArray *array;
+	SqQuery    *query;
+	User       *user;
+
+	query = sq_query_new(NULL);
+//	sq_query_select(query, "id", "name");
+	sq_query_from(query, "users");
+
+	array = sq_storage_query(storage, query, NULL, NULL);
+	if (array) {
+		for (int i = 0;  i < array->length;  i++) {
+			user = (User*)array->data[i];
+			user_print(user);
+			user_free(user);
+		}
+		sq_ptr_array_free(array);
+	}
+
+	sq_query_free(query);
 }
 
 void  storage_query_join_array(SqStorage *storage)
@@ -602,6 +634,7 @@ int  main(void)
 		user_free(user);
 	}
 
+	storage_query_ptr_array(storage);
 	storage_query_join_array(storage);
 	storage_query_join_ptr_array(storage);
 

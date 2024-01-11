@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdio.h>      // snprintf
+#include <stdio.h>        // snprintf(), fprintf(), stderr
 
 #include <SqType.h>
 #include <SqxcValue.h>
@@ -32,10 +32,34 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 	SqPtrArray  names;
 	SqTable    *table;
 	int         n_table;
+	int         command = sq_query_get_command(query);
 
 	sq_ptr_array_init(&names, 8, NULL);
 	n_table = sq_query_get_table_as_names(query, &names);
 	sq_type_joint_clear(type_joint);
+
+#ifndef NDEBUG
+	// message
+	fprintf(stderr, "%s: query has %d tables.\n",
+	        "sq_storage_setup_query()", n_table);
+
+	if (command == SQ_QUERY_CMD_NONE) {
+		// message
+		fprintf(stderr, "%s: query has no command currently, it will add SELECT columns if needed.\n",
+		        "sq_storage_setup_query()");
+	}
+	else if (command == SQ_QUERY_CMD_SELECT) {
+		// message
+		fprintf(stderr, "%s: query has SELECT columns, it will not add SELECT columns.\n",
+		        "sq_storage_setup_query()");
+	}
+	else {
+		// warning
+		fprintf(stderr, "%s: query is not SQL SELECT statement.\n",
+		        "sq_storage_setup_query()");
+	}
+#endif  // NDEBUG
+
 	// multiple table names, query has 'FROM' and 'JOIN'.
 	for (int index = 0;  index < names.length;  index+=2) {
 		table = sq_schema_find(storage->schema, names.data[index]);
@@ -52,11 +76,27 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 		table_type = (SqType*)table->type;
 		// add table and it's name to SqTypeJoint
 		sq_type_joint_add(type_joint, table, names.data[index+1]);
-		// if there are multiple table's names in 'query'
-		if (n_table > 1) {
-			// add "SELECT table.column AS table_as_name.column" in query
-			sq_query_select_table_as(query, table, names.data[index+1],
-			                         storage->db->info->quote.identifier);
+
+		// if user has not SELECT any column in 'query'
+		if (command == SQ_QUERY_CMD_NONE) {
+			// There are multiple table's names in 'query'
+			if (n_table > 1) {
+				// add "SELECT table.column AS table_as_name.column" in query
+				sq_query_select_table_as(query, table, names.data[index+1],
+				                         storage->db->info->quote.identifier);
+			}
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+			// There is single table name in 'query'
+			else if (table_type->bit_field & SQB_TYPE_QUERY_FIRST) {
+				// add query-only column in 'query'
+				for (int index = 0;  index < table_type->n_entry;  index++) {
+					SqColumn *column = (SqColumn*)table_type->entry[index];
+					if (column->bit_field & SQB_COLUMN_QUERY)
+						sq_query_select(query, column->name);
+				}
+				sq_query_select(query, "*");
+			}
+#endif
 		}
 	}
 
