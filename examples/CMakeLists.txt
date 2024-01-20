@@ -1,6 +1,11 @@
 include_directories(${SQXC_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 
+# bili2mp4 can't compile with MSVC because it uses readdir()...etc functions.
+if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+	add_executable(bili2mp4  bili2mp4.c)
+endif ()
+
 add_executable(storage-c99  storage-c99.c)
 
 if (DEFINED CMAKE_CXX_COMPILER)
