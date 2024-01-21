@@ -357,24 +357,22 @@ int  bili2mp4_open_dir(Bili2Mp4 *b2m, const char *path, int path_depth)
 		char    *c;
 		wchar_t *wc;
 	} str;
-	union {
-		DIR   *c;
-		_WDIR *wc;
-	} dir;
-	union {
-		struct dirent   *c;
-		struct _wdirent *wc;
-	} dirent;
 
 #if defined(_WIN32) || defined(_WIN64)
+	_WDIR *dir;
+	struct _wdirent *dirent;
+
 	str.wc = fromUTF8(path, 0, NULL);
-	dir.wc = _wopendir(str.wc);
+	dir = _wopendir(str.wc);
 	free(str.wc);
 #else
-	dir.c = opendir(path);
+	DIR   *dir;
+	struct dirent *dirent;
+
+	dir = opendir(path);
 #endif
 
-	if (dir.c == NULL) {
+	if (dir == NULL) {
 		switch (errno) {
 		case EACCES:
 			printf("Directory '%s' permission denied\n", path);
@@ -396,13 +394,13 @@ int  bili2mp4_open_dir(Bili2Mp4 *b2m, const char *path, int path_depth)
 	errno = 0;
 	for (;;) {
 #if defined(_WIN32) || defined(_WIN64)
-		if ((dirent.wc = _wreaddir(dir.wc)) == NULL)
+		if ((dirent = _wreaddir(dir)) == NULL)
 			break;
-		if (wcscmp(dirent.wc->d_name, L".") == 0 || wcscmp(dirent.wc->d_name, L"..") == 0)
+		if (wcscmp(dirent->d_name, L".") == 0 || wcscmp(dirent->d_name, L"..") == 0)
 			continue;
 
 		buf.writed = buf_pathlen;
-		str.c = toUTF8(dirent.wc->d_name, 0, NULL);
+		str.c = toUTF8(dirent->d_name, 0, NULL);
 		sq_buffer_write(&buf, str.c);
 		buf.mem[buf.writed] = 0;
 		free(str.c);
@@ -411,13 +409,13 @@ int  bili2mp4_open_dir(Bili2Mp4 *b2m, const char *path, int path_depth)
 		_wstat(str.wc, &b2m->fstatus);
 		free(str.wc);
 #else
-		if ((dirent.c  = readdir(dir.c)) == NULL)
+		if ((dirent  = readdir(dir)) == NULL)
 			break;
-		if (strcmp(dirent.c->d_name, ".") == 0 || strcmp(dirent.c->d_name, "..") == 0)
+		if (strcmp(dirent->d_name, ".") == 0 || strcmp(dirent->d_name, "..") == 0)
 			continue;
 
 		buf.writed = buf_pathlen;
-		sq_buffer_write(&buf, dirent.c->d_name);
+		sq_buffer_write(&buf, dirent->d_name);
 		buf.mem[buf.writed] = 0;
 
 		stat(buf.mem, &b2m->fstatus);
@@ -458,9 +456,9 @@ int  bili2mp4_open_dir(Bili2Mp4 *b2m, const char *path, int path_depth)
 	}
 
 #if defined(_WIN32) || defined(_WIN64)
-	_wclosedir(dir.wc);
+	_wclosedir(dir);
 #else
-	closedir(dir.c);
+	closedir(dir);
 #endif
 
 	sq_buffer_final(&buf);
