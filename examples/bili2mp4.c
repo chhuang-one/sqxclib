@@ -490,6 +490,7 @@ void bili2mp4_output(Bili2Mp4 *b2m, BiliDir *bili_dir, const char *dest_path)
 {
 	SqBuffer   buf = {0};
 	int        len;
+	int        result;
 
 	if (bili_dir->entry == NULL) {
 		if (bili_dir->title) {
@@ -558,12 +559,15 @@ void bili2mp4_output(Bili2Mp4 *b2m, BiliDir *bili_dir, const char *dest_path)
 		printf("%s\n", buf.mem);
 		wchar_t *wstr = fromUTF8(buf.mem, buf.writed, NULL);
 //		wprintf(L"%S\n", wstr);
-		_wsystem(wstr);
+		result = _wsystem(wstr);
 		free(wstr);
 #else
 		printf("%s\n", buf.mem);
-		system(buf.mem);
+		result = system(buf.mem);
 #endif
+
+		if (result == -1)
+			printf("error occurred while executing ffmpeg.\n");
 	}
 
 	sq_buffer_final(&buf);
