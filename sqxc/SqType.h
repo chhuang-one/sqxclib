@@ -97,7 +97,10 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 #define SQB_TYPE_RESERVE_END              (1<<7)
 
 /* macro for accessing variable of SqType */
-#define sq_type_get_ptr_array(type)    ((SqPtrArray*)&(type)->entry)
+#define sq_type_entry_array(type)         ((SqPtrArray*)&(type)->entry)
+// deprecated
+// sq_type_get_ptr_array(type) is alias of sq_type_get_array(type)
+#define sq_type_get_ptr_array             sq_type_entry_array
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -107,8 +110,8 @@ extern "C" {
 #endif
 
 // create/destroy dynamic SqType.
-// prealloc_size : capacity of SqType.entry (SqType.entry is SqEntry pointer array).
-// entry_destroy_func : DestroyFunc of SqType.entry's elements.
+// prealloc_size : capacity of SqType::entry (SqType::entry is SqEntry pointer array).
+// entry_destroy_func : DestroyFunc of SqType::entry's elements.
 // if 'prealloc_size' is 0, allocate default size.
 // if user want create a basic (not structured) data type, pass 'prealloc_size' = -1 and 'entry_destroy_func' = NULL.
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
@@ -120,8 +123,8 @@ void     sq_type_free(SqType *type);
 SqType  *sq_type_copy_static(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func);
 
 // initialize/finalize SqType itself
-// prealloc_size : capacity of SqType.entry (SqType.entry is SqEntry pointer array).
-// entry_destroy_func : DestroyFunc of SqType.entry's elements.
+// prealloc_size : capacity of SqType::entry (SqType::entry is SqEntry pointer array).
+// entry_destroy_func : DestroyFunc of SqType::entry's elements.
 // if 'prealloc_size' is 0, allocate default size.
 // if user want create a basic (not structured) data type, pass 'prealloc_size' = -1 and 'entry_destroy_func' = NULL.
 void     sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_destroy_func);
@@ -147,14 +150,14 @@ void     sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_
 void     sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count);
 void     sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count);
 
-// find SqEntry in SqType.entry.
-// If 'compareFunc' is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
+// find SqEntry in SqType::entry.
+// If 'compareFunc' is NULL and SqType::entry is sorted, it will use binary search to find entry by name.
 void   **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc compareFunc);
 
 //void **sq_type_find_entry_addr(const SqType *type, const void *key, SqCompareFunc compareFunc);
 #define  sq_type_find_entry_addr    sq_type_find_entry
 
-// sort SqType.entry by name if SqType is dynamic.
+// sort SqType::entry by name if SqType is dynamic.
 void     sq_type_sort_entry(SqType *type);
 
 // calculate instance size for dynamic structured data type.
@@ -249,14 +252,14 @@ struct SqType
 
 	// SqType::entry is array of SqEntry pointer if current SqType is for C struct type.
 	// SqType::entry isn't freed if SqType::n_entry == -1
-	SqEntry      **entry;          // SqPtrArray::data
-	int            n_entry;        // SqPtrArray::length
+	SqEntry      **entry;          // maps to SqPtrArray::data
+	int            n_entry;        // maps to SqPtrArray::length
 	// *** About above 2 fields:
 	// 1. They are expanded by macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
 	// 2. They can NOT change data type and order.
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if SqType is dynamic and freeable.
-	// SqType::bit_field has SQB_TYPE_SORTED  if SqType.entry is sorted.
+	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
 	unsigned int   bit_field;
 
 	// SqType::on_destroy() is called when program releases SqType.
@@ -313,12 +316,12 @@ struct SqType
 		sq_type_add_entry_ptrs((SqType*)this, (const SqEntry**)entry_ptrs, n_entry_ptrs);
 	}
 
-	// find SqEntry in SqType.entry.
-	// If compareFunc is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
+	// find SqEntry in SqType::entry.
+	// If compareFunc is NULL and SqType::entry is sorted, it will use binary search to find entry by name.
 	Sq::Entry **findEntry(const void *key, SqCompareFunc compareFunc = NULL) {
 		return (Sq::Entry**)sq_type_find_entry((const SqType*)this, key, compareFunc);
 	}
-	// sort SqType.entry by name if SqType is dynamic.
+	// sort SqType::entry by name if SqType is dynamic.
 	void  sortEntry() {
 		sq_type_sort_entry((SqType*)this);
 	}
@@ -458,7 +461,7 @@ enum {
 #define SQ_TYPE_BLOB              SQ_TYPE_BUFFER        // alias of SQ_TYPE_BUFFER
 
 /* define SqType for SqArray (SqType-array.c)
-   User must assign element type in SqType.entry and set SqType.n_entry to -1.
+   User must assign element type in SqType::entry and set SqType::n_entry to -1.
 
 	SqType *typeArray = sq_type_copy_static(NULL, SQ_TYPE_ARRAY, NULL);
 	typeArray->entry = (SqEntry**) element_SqType;
@@ -471,7 +474,7 @@ enum {
 #define SQ_TYPE_INT_ARRAY     (&SqType_IntArray_)
 
 /* define SqType for SqPtrArray (SqType-array.c)
-   User must assign element type in SqType.entry and set SqType.n_entry to -1.
+   User must assign element type in SqType::entry and set SqType::n_entry to -1.
 
 	SqType *typePtrArray = sq_type_copy_static(NULL, SQ_TYPE_PTR_ARRAY, NULL);
 	typePtrArray->entry = (SqEntry**) element_SqType;
@@ -568,7 +571,8 @@ namespace Sq {
 
 	Note: If you add, remove, or change methods here, do the same things in SqType.
  */
-struct TypeMethod {
+struct TypeMethod
+{
 	// create dynamic SqType and copy data from static SqType
 	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) {
 		return (Sq::Type*)sq_type_copy_static(NULL, (const SqType*)this, entry_free_func);
@@ -614,12 +618,12 @@ struct TypeMethod {
 		sq_type_add_entry_ptrs((SqType*)this, (const SqEntry**)entry_ptrs, n_entry_ptrs);
 	}
 
-	// find SqEntry in SqType.entry.
-	// If compareFunc is NULL and SqType.entry is sorted, it will use binary search to find entry by name.
+	// find SqEntry in SqType::entry.
+	// If compareFunc is NULL and SqType::entry is sorted, it will use binary search to find entry by name.
 	Sq::Entry **findEntry(const void *key, SqCompareFunc compareFunc = NULL) {
 		return (Sq::Entry**)sq_type_find_entry((const SqType*)this, key, compareFunc);
 	}
-	// sort SqType.entry by name if SqType is dynamic.
+	// sort SqType::entry by name if SqType is dynamic.
 	void  sortEntry() {
 		sq_type_sort_entry((SqType*)this);
 	}
@@ -680,7 +684,8 @@ struct TypeMethod {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Type : SqType {
+struct Type : SqType
+{
 	Type() {}
 	Type(int prealloc_size, SqDestroyFunc entry_destroy_func) {
 		sq_type_init_self(this, prealloc_size, entry_destroy_func);

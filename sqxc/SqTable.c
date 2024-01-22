@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -151,7 +151,7 @@ int  sq_table_get_columns(SqTable *table, SqPtrArray *ptrarray,
 
 	if (ptrarray && ptrarray->data == NULL)
 		sq_ptr_array_init(ptrarray, 4, NULL);
-	colarray = sq_type_get_ptr_array(table->type);
+	colarray = sq_type_entry_array(table->type);
 	// for each columns
 	for (int index = 0;  index < colarray->length;  index++) {
 		column = colarray->data[index];
@@ -182,9 +182,9 @@ SqColumn *sq_table_get_primary(SqTable *table, const SqType *type_in_table)
 	SqColumn   *column;
 
 	if (type_in_table)
-		array = sq_type_get_ptr_array(type_in_table);
+		array = sq_type_entry_array(type_in_table);
 	else
-		array = sq_type_get_ptr_array(table->type);
+		array = sq_type_entry_array(table->type);
 
 	for (int index = 0;  index < array->length;  index++) {
 		column = array->data[index];

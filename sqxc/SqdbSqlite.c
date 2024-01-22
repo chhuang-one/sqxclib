@@ -499,7 +499,7 @@ static void  sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTab
 {
 	SqPtrArray   *columns;
 
-	columns = sq_type_get_ptr_array(table->type);
+	columns = sq_type_entry_array(table->type);
 
 	sq_buffer_write(sql_buf, "CREATE TABLE IF NOT EXISTS \"" NEW_TABLE_PREFIX_NAME);
 	sq_buffer_write(sql_buf, table->name);

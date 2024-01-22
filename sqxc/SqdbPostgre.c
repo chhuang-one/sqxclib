@@ -299,7 +299,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 #ifndef NDEBUG
 		fprintf(stderr, "PostgreSQL: start of migration ------\n");
 #endif
-		reentries = sq_type_get_ptr_array(schema_next->type);
+		reentries = sq_type_entry_array(schema_next->type);
 		for (int index = 0;  index < reentries->length;  index++) {
 			table = (SqTable*)reentries->data[index];
 

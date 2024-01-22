@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -49,8 +49,8 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 		entry->type = sq_type_copy_static(NULL, entry->type, destroy_func);
 	if ((entry->type->bit_field & SQB_TYPE_SORTED) == 0)
 		sq_type_sort_entry((SqType*)entry->type);
-	reentries = sq_type_get_ptr_array(entry->type);
-	reentries_src = sq_type_get_ptr_array(entry_src->type);
+	reentries = sq_type_entry_array(entry->type);
+	reentries_src = sq_type_entry_array(entry_src->type);
 
 	for (index = 0;  index < reentries_src->length;  index++) {
 		reentry_src = (SqReentry*)reentries_src->data[index];
@@ -196,7 +196,7 @@ void sq_schema_erase_fake_type(SqSchema *schema)
 		}
 		if (n_nulls > 0) {
 			n_nulls = 0;
-			sq_reentries_remove_null(sq_type_get_ptr_array(table_type), 0);
+			sq_reentries_remove_null(sq_type_entry_array(table_type), 0);
 		}
 	}
 }

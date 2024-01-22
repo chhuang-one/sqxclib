@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -182,8 +182,8 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 	if ((table->type->bit_field & SQB_TYPE_SORTED) == 0)
 		sq_type_sort_entry((SqType*)table->type);
 
-	reentries = sq_type_get_ptr_array(table->type);
-	reentries_src = sq_type_get_ptr_array(table_src->type);
+	reentries = sq_type_entry_array(table->type);
+	reentries_src = sq_type_entry_array(table_src->type);
 
 	// if table is empty table
 	if (reentries->length == 0) {
@@ -404,7 +404,7 @@ void   sq_table_complete(SqTable *table, bool no_need_to_sync)
 	}
 
 	if (table->type->bit_field & SQB_DYNAMIC) {
-		reentries = sq_type_get_ptr_array(table->type);
+		reentries = sq_type_entry_array(table->type);
 		for (int index = 0;  index < reentries->length;  index++) {
 			column = reentries->data[index];
 			if (column == NULL)
@@ -471,8 +471,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 		void **addr;
 	} temp;
 
-	reentries = sq_type_get_ptr_array(schema->type);
-	reentries_src = sq_type_get_ptr_array(schema_src->type);
+	reentries = sq_type_entry_array(schema->type);
+	reentries_src = sq_type_entry_array(schema_src->type);
 
 	// run sq_schema_include() first time.
 	if (schema->relation == NULL)
@@ -697,7 +697,7 @@ int     sq_schema_trace_name(SqSchema *schema)
 
 			// --------------------------------------------
 			// find referenced table
-			table_fore = (SqTable*)sq_ptr_array_find_sorted(sq_type_get_ptr_array(schema->type),
+			table_fore = (SqTable*)sq_ptr_array_find_sorted(sq_type_entry_array(schema->type),
 					column->foreign->table, sq_entry_cmp_str__name, NULL);
 			if (table_fore)
 				table_fore = *(SqTable**)table_fore;
@@ -764,7 +764,7 @@ void    sq_schema_complete(SqSchema *schema, bool no_need_to_sync)
 	SqTable    *table;
 	bool        has_null;
 
-	entries = sq_type_get_ptr_array(schema->type);
+	entries = sq_type_entry_array(schema->type);
 	sq_type_sort_entry((SqType*)schema->type);
 
 	for (int index = 0;  index < entries->length;  index++) {

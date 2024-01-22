@@ -433,13 +433,13 @@ void  sq_storage_remove_all(SqStorage    *storage,
 
 SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 {
-	SqPtrArray *type_tables;      // sorted by SqType.name
-	SqPtrArray *schema_tables;    // sorted by SqTable.name
+	SqPtrArray *type_tables;      // sorted by SqType::name
+	SqPtrArray *schema_tables;    // sorted by SqTable::name
 	SqTable   **table_addr;
 	int         count;
 
 	type_tables = &storage->tables;
-	schema_tables = sq_type_get_ptr_array(storage->schema->type);
+	schema_tables = sq_type_entry_array(storage->schema->type);
 	// if version is not the same
 	if (storage->tables_version != storage->schema->version) {
 		storage->tables_version  = storage->schema->version;
@@ -447,10 +447,10 @@ SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 		if (count > 0)
 			sq_ptr_array_alloc(type_tables, count);
 		memcpy(type_tables->data, schema_tables->data, sizeof(void*) * schema_tables->length);
-		// sort storage->tables by SqTable.type.name
+		// sort storage->tables by SqTable::type::name
 		sq_ptr_array_sort(type_tables, sq_entry_cmp_type_name);
 	}
-	// search storage->tables by SqTable.type.name
+	// search storage->tables by SqTable::type::name
 	table_addr = (SqTable**)sq_ptr_array_search(type_tables,
 	                                type_name, sq_entry_cmp_str__type_name);
 	if (table_addr)

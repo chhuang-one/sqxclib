@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -77,7 +77,7 @@ int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrAr
 	int  rc;
 
 	if (arranged_columns == NULL)
-		arranged_columns = sq_type_get_ptr_array(table->type);
+		arranged_columns = sq_type_entry_array(table->type);
 
 	sq_ptr_array_init(&indexes, 4, NULL);
 	sq_table_get_columns(table, &indexes, SQ_TYPE_INDEX, 0);    // get record of "CREATE INDEX"
@@ -103,7 +103,7 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 	int       rc;
 
 	if (arranged_columns == NULL)
-		arranged_columns = sq_type_get_ptr_array(table->type);
+		arranged_columns = sq_type_entry_array(table->type);
 	// ALTER TABLE
 	for (index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
@@ -149,7 +149,7 @@ int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArr
 	int  n_columns;
 
 	if (arranged_columns == NULL)
-		arranged_columns = sq_type_get_ptr_array(table->type);
+		arranged_columns = sq_type_entry_array(table->type);
 
 	// CREATE TABLE
 	sq_buffer_write(sql_buf, "CREATE TABLE");

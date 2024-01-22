@@ -47,13 +47,13 @@ void  sq_type_free(SqType *type)
 SqType  *sq_type_copy_static(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func)
 {
 //	if (static_type_src->bit_field & SQB_TYPE_DYNAMIC)
-//		entry_free_func = sq_ptr_array_clear_func(sq_type_get_ptr_array(static_type_src));
+//		entry_free_func = sq_ptr_array_clear_func(sq_type_entry_array(static_type_src));
 	if (type_dest == NULL)
 		type_dest = malloc(sizeof(SqType));
 	memcpy(type_dest, static_type_src, sizeof(SqType));
 	type_dest->bit_field |= SQB_TYPE_DYNAMIC;
 	// alloc & copy pointer array of SqEntry
-	sq_ptr_array_init(sq_type_get_ptr_array(type_dest), static_type_src->n_entry, entry_free_func);
+	sq_ptr_array_init(sq_type_entry_array(type_dest), static_type_src->n_entry, entry_free_func);
 	type_dest->n_entry = static_type_src->n_entry;
 	if (static_type_src->n_entry > 0)
 		memcpy(type_dest->entry, static_type_src->entry, sizeof(void*) * static_type_src->n_entry);
@@ -75,7 +75,7 @@ void  sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_des
 	type->on_destroy = NULL;
 
 	if (prealloc_size == -1) {
-		// SqType.entry isn't freed if SqType.n_entry == -1
+		// SqType::entry isn't freed if SqType::n_entry == -1
 		type->n_entry = -1;
 		type->entry = NULL;
 	}
@@ -83,7 +83,7 @@ void  sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_des
 		// if prealloc_size == 0, apply default value for small array
 		if (prealloc_size == 0)
 			prealloc_size = SQ_TYPE_N_ENTRY_DEFAULT;
-		sq_ptr_array_init(sq_type_get_ptr_array(type), SQ_TYPE_N_ENTRY_DEFAULT, entry_destroy_func);
+		sq_ptr_array_init(sq_type_entry_array(type), SQ_TYPE_N_ENTRY_DEFAULT, entry_destroy_func);
 	}
 }
 
@@ -93,9 +93,9 @@ void  sq_type_final_self(SqType *type)
 		type->on_destroy(type);
 
 	free(type->name);
-	// SqType.entry isn't freed if SqType.n_entry == -1
+	// SqType::entry isn't freed if SqType::n_entry == -1
 	if (type->n_entry != -1)
-		sq_ptr_array_final(sq_type_get_ptr_array(type));
+		sq_ptr_array_final(sq_type_entry_array(type));
 }
 
 void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
@@ -116,9 +116,9 @@ void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
 	// call init() if it exist
 	if (init)
 		init(instance, type);
-	// initialize SqEntry in SqType.entry if no init() function
+	// initialize SqEntry in SqType::entry if no init() function
 	else if (type->entry) {
-		temp.array = sq_type_get_ptr_array(type);
+		temp.array = sq_type_entry_array(type);
 		void **beg = sq_ptr_array_begin(temp.array);
 		void **end = sq_ptr_array_end(temp.array);
 		for (temp.cur = beg;  temp.cur < end;  temp.cur++) {
@@ -152,9 +152,9 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 	// call final() if it exist
 	if (final)
 		final(instance, type);
-	// finalize SqEntry in SqType.entry if no final() function
+	// finalize SqEntry in SqType::entry if no final() function
 	else if (type->entry) {
-		temp.array = sq_type_get_ptr_array(type);
+		temp.array = sq_type_entry_array(type);
 		void **beg = sq_ptr_array_begin(temp.array);
 		void **end = sq_ptr_array_end(temp.array);
 		for (temp.cur = beg;  temp.cur < end;  temp.cur++) {
@@ -175,9 +175,9 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 
 void  sq_type_clear_entry(SqType *type)
 {
-	// SqType.entry isn't freed if SqType.n_entry == -1
+	// SqType::entry isn't freed if SqType::n_entry == -1
 	if (type->bit_field & SQB_TYPE_DYNAMIC && type->n_entry > 0) {
-		sq_ptr_array_erase(sq_type_get_ptr_array(type), 0, type->n_entry);
+		sq_ptr_array_erase(sq_type_entry_array(type), 0, type->n_entry);
 		type->size = 0;
 	}
 }
@@ -191,7 +191,7 @@ void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t 
 		if (sizeof_entry == 0)
 			sizeof_entry = sizeof(SqEntry);
 		type->bit_field &= ~SQB_TYPE_SORTED;
-		array = sq_type_get_ptr_array(type);
+		array = sq_type_entry_array(type);
 		entry_addr = sq_ptr_array_alloc(array, n_entry);
 		for (;  n_entry;  n_entry--, entry_addr++) {
 			*entry_addr = (void*)entry;
@@ -211,7 +211,7 @@ void  sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_ent
 
 	if (type->bit_field & SQB_TYPE_DYNAMIC) {
 		type->bit_field &= ~SQB_TYPE_SORTED;
-		array = sq_type_get_ptr_array(type);
+		array = sq_type_entry_array(type);
 		SQ_PTR_ARRAY_APPEND(array, entry_ptrs, n_entry_ptrs);
 		for (int index = 0;  index < n_entry_ptrs;  index++, entry_ptrs++) {
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
@@ -227,7 +227,7 @@ void  sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, int cou
 {
 	if ((type)->bit_field & SQB_TYPE_DYNAMIC) {
 		sq_type_decide_size(type, *inner_entry_addr, true);
-		sq_ptr_array_erase(sq_type_get_ptr_array(type),
+		sq_ptr_array_erase(sq_type_entry_array(type),
 				(int)(inner_entry_addr - type->entry), count);
 	}
 }
@@ -236,13 +236,13 @@ void  sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, int cou
 {
 	if ((type)->bit_field & SQB_TYPE_DYNAMIC) {
 		sq_type_decide_size(type, *inner_entry_addr, true);
-		SQ_PTR_ARRAY_STEAL_ADDR(&(type)->entry, inner_entry_addr, count);
+		SQ_PTR_ARRAY_STEAL_ADDR(sq_type_entry_array(type), inner_entry_addr, count);
 	}
 }
 
 void **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc compareFunc)
 {
-	SqPtrArray *array = (SqPtrArray*) &type->entry;
+	SqPtrArray *array = sq_type_entry_array(type);
 
 	if (type->n_entry == 0)
 		return NULL;
@@ -257,7 +257,7 @@ void **sq_type_find_entry(const SqType *type, const void *key, SqCompareFunc com
 
 void  sq_type_sort_entry(SqType *type)
 {
-	SqPtrArray *array = (SqPtrArray*)&type->entry;
+	SqPtrArray *array = sq_type_entry_array(type);
 
 	if ( type->bit_field & SQB_TYPE_DYNAMIC &&
 	    (type->bit_field & SQB_TYPE_SORTED) == 0 )
@@ -303,7 +303,7 @@ unsigned int  sq_type_decide_size(SqType *type, const SqEntry *inner_entry, bool
 		type->size = 0;
 		if (type->entry == NULL)
 			return 0;
-		temp.array = sq_type_get_ptr_array(type);
+		temp.array = sq_type_entry_array(type);
 		void **beg = sq_ptr_array_begin(temp.array);
 		void **end = sq_ptr_array_end(temp.array);
 		for (temp.cur = beg;  temp.cur < end;  temp.cur++) {
