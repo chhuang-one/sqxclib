@@ -16,14 +16,12 @@
 
 	How to use this program:
 
-	1. copy files from downloaded path of bilibili Android app:
+	1. copy directories and files from downloaded path of bilibili Android app:
 	Android/data/com.bilibili.app.in/download
 
-	2. change current directory to copy of downloaded directories/files.
+	2. run bili2mp4 in directory that has copy of directories and files in step 1.
 
-	3. run bili2mp4 in copied directories/files.
-
-	4. bili2mp4 will parse files in downloaded directories and launch ffmpeg to merge files.
+	3. bili2mp4 will parse files in downloaded directories and launch ffmpeg to merge files.
  */
 
 // ----------------------------------------------------------------------------
@@ -202,17 +200,17 @@ struct BiliDir
 	BiliDir    *children;
 
 	int         n_children;
-	char       *title;    // pointer to BiliDir::entry::title
+	char       *title;        // copy of BiliDir::entry::title
 	char       *path;
 };
 
-BiliDir *bili_node_free(BiliDir *bili_dir)
+BiliDir *bili_dir_free(BiliDir *bili_dir)
 {
 	BiliDir *cur, *next;
 
 	for (cur = bili_dir->children;  cur;  cur = next) {
 		next = cur->next;
-		bili_node_free(cur);
+		bili_dir_free(cur);
 	}
 
 	next = bili_dir->next;
@@ -258,7 +256,7 @@ void  bili2mp4_final(Bili2Mp4 *b2m)
 	sqxc_free_chain((Sqxc*)b2m->xcvalue);
 
 	if (b2m->last)
-		bili_node_free(b2m->last);
+		bili_dir_free(b2m->last);
 }
 
 BiliDir *bili2mp4_add(Bili2Mp4 *b2m, BiliDir *parent, BiliEntry *bili_entry)
@@ -476,7 +474,7 @@ int  bili2mp4_keep_valid(Bili2Mp4 *b2m)
 		if (cur->entry == NULL && cur->n_children == 0) {
 			if (b2m->last == cur)
 				b2m->last =  next;
-			bili_node_free(cur);
+			bili_dir_free(cur);
 			continue;
 		}
 		count++;
