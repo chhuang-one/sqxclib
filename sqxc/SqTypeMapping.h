@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2023 by C.H. Huang
+ *   Copyright (C) 2023-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -27,8 +27,8 @@ extern "C" {
 #endif
 
 typedef enum {
-	// If SqColumn.sql_type is equal to SQ_SQL_TYPE_UNKNOWN,
-	// program will try to determine the SQL data type from SqColumn.type.
+	// If SqColumn::sql_type is equal to SQ_SQL_TYPE_UNKNOWN,
+	// program will try to determine the SQL data type from SqColumn::type.
 	SQ_SQL_TYPE_UNKNOWN = 0,
 
 	// Order of below SQ_SQL_TYPE must the same as order of built-in SQ_TYPE.

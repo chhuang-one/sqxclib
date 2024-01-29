@@ -62,13 +62,9 @@ extern const SqxcInfo      SqxcInfo_SQL_;
 	|
 	`--- SqxcSql
 
-	                 +-> SqxcJsoncWriter -+
-	( output )       |                    |       (SQL statement)
-	SqType.write() --+--------------------+-> SqxcSql   ---> Sqdb.exec()
-	                 |                    |
-	                 +--> SqxcXmlWriter --+
-
-	Note: SqxcXmlWriter doesn't implement yet because it is rarely used.
+	                  +-> SqxcJsoncWriter -+
+	( output )        |                    |       (SQL statement)
+	SqType::write() --+--------------------+-> SqxcSql   ---> sqdb_exec()
 
    The correct way to derive Sqxc:  (conforming C++11 standard-layout)
    1. Use Sq::XcMethod to inherit member function(method).
@@ -111,7 +107,7 @@ struct SqxcSql
 //	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
 
 	// ------------------------------------------
-	// arguments that used by SqxcInfo->send()
+	// arguments that used by SqxcInfo::send()
 
 	// output arguments
 //	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCHED

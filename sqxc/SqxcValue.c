@@ -19,7 +19,7 @@
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - destination of input chain
 
-	SQXC_TYPE_xxx ---> SqxcValue ---> SqType.parse()
+	SQXC_TYPE_xxx ---> SqxcValue ---> SqType::parse()
  */
 
 static int  sqxc_value_send(SqxcValue *xcvalue, Sqxc *src)

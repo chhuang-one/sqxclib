@@ -27,7 +27,7 @@ struct SqPtrArray
 };
 ```
 
-SqPtrArray.data 前面有隐藏成员：  
+SqPtrArray::data 前面有隐藏成员：  
 capacity  是数组中实际分配的元素个数。（不包括数组前面的表头）  
 clearFunc 是数组中清除元素的函数。  
   

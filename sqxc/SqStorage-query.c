@@ -66,7 +66,7 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 		if (table == NULL) {
 #ifndef NDEBUG
 			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
-			        "sq_storage_setup_query()", names.data[index]);
+			        "sq_storage_setup_query()", (char*)names.data[index]);
 #endif
 			if (type_joint->bit_field & SQB_TYPE_PARSE_UNKNOWN)
 				continue;

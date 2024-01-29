@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -69,13 +69,15 @@ namespace Sq {
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-struct SqMigration {
+struct SqMigration
+{
 	SqMigrationFunc  up;
 	SqMigrationFunc  down;
 	const char      *name;
 };
 
-struct SqMigrationTable {
+struct SqMigrationTable
+{
 	int   id;           // PRIMARY KEY
 	char *migration;    // VARCHAR(255)
 	int   batch;

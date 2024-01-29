@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -78,7 +78,8 @@ namespace Sq {
 
 	It's derived struct/class must be C++11 standard-layout and has SqAppTool members.
  */
-struct AppToolMethod : AppMethod {
+struct AppToolMethod : AppMethod
+{
 	void init(const char *program_name, const struct SqAppSetting *setting = SQ_APP_DEFAULT);
 	void final();
 
@@ -176,7 +177,8 @@ inline int  AppToolMethod::makeMigration(const char *template_filename,
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct AppTool : SqAppTool {
+struct AppTool : SqAppTool
+{
 	AppTool(const char *program_name) {
 		init(program_name);
 	}

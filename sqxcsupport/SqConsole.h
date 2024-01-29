@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -62,7 +62,8 @@ namespace Sq {
 
 	It's derived struct/class must be C++11 standard-layout and has SqConsole members.
 */
-struct ConsoleMethod {
+struct ConsoleMethod
+{
 	void  add(const SqCommand *command_type);
 	void  add(const Sq::CommandMethod *command_type);
 	void  printHelp(const SqCommand *command = NULL);
@@ -146,7 +147,8 @@ inline Sq::CommandValue *ConsoleMethod::parse(int argc, char **argv, bool argv_h
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Console : SqConsole {
+struct Console : SqConsole
+{
 	Console() {
 		sq_console_init(this);
 	}

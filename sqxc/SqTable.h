@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -554,8 +554,7 @@ inline
 #else               // C99
 static inline
 #endif
-bool      sq_table_has_column(SqTable *table, const char *column_name)
-{
+bool  sq_table_has_column(SqTable *table, const char *column_name) {
 	return (sq_type_find_entry(table->type, column_name, NULL) != NULL);
 }
 
@@ -564,8 +563,7 @@ inline
 #else               // C99
 static inline
 #endif
-SqColumn *sq_table_find_column(SqTable *table, const char *column_name)
-{
+SqColumn *sq_table_find_column(SqTable *table, const char *column_name) {
 	return (SqColumn*)sq_entry_find((SqEntry*)table, column_name, NULL);
 }
 
@@ -899,7 +897,8 @@ inline Sq::Column *TableMethod::primary(const char *(&column_array)[N], const ch
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Table : SqTable {
+struct Table : SqTable
+{
 	Table(const char *name = NULL, const SqType *tableType = NULL) {
 		sq_table_init(this, name, tableType);
 	}

@@ -7,11 +7,14 @@ Note: SqConsole is in sqxcsupport library.
   
 Relationship of SqConsole, SqCommand, and SqOption.
 
-	SqConsole ---┬--- SqCommand 1 ---┬--- SqOption 1
+	           1 : N               1 : N
+	SqConsole ---┬--- SqCommand 1 ---┬--- SqOption 1-1
 	             │                   │
-	             │                   └--- SqOption n
+	             │                   └--- SqOption 1-2
 	             │
-	             └--- SqCommand n ---  ...
+	             └--- SqCommand 2 ---┬--- SqOption 2-1
+	                                 │
+	                                 └--- SqOption 2-2
 
 # SqCommand
 

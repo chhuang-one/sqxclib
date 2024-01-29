@@ -30,7 +30,7 @@ struct SqArray
 };
 ```
 
-SqArray.data 前面有隐藏成员：  
+SqArray::data 前面有隐藏成员：  
 capacity    : 数组中实际分配的元素个数。（不包括数组前面的表头）  
 elementSize : 数组中的元素大小。  
   

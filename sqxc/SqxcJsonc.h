@@ -52,12 +52,12 @@ extern const SqxcInfo               SqxcInfo_JsoncWriter_;
 	`--- SqxcJsonc
 
 	*** In input chain:
-	SQXC_TYPE_STR ---> SqxcJsonc Parser ---> SQXC_TYPE_xxxx
+	SQXC_TYPE_STR  ---> SqxcJsonc Parser ---> SQXC_TYPE_xxxx
 	(JSON string)
 
 	*** In output chain:
-	SQXC_TYPE_xxxx -----> SqxcJsonc Writer ---> SQXC_TYPE_STR
-	                                            (JSON string)
+	SQXC_TYPE_xxxx ---> SqxcJsonc Writer ---> SQXC_TYPE_STR
+	                                          (JSON string)
 
 
    The correct way to derive Sqxc:  (conforming C++11 standard-layout)
@@ -101,7 +101,7 @@ struct SqxcJsonc
 //	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
 
 	// ------------------------------------------
-	// arguments that used by SqxcInfo->send()
+	// arguments that used by SqxcInfo::send()
 
 	// output arguments
 //	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCHED

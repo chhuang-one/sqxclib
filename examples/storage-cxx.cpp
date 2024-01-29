@@ -46,7 +46,8 @@ Sq::TypeStl< std::vector<int> >  SqTypeIntVector(SQ_TYPE_INT);
 typedef struct User       User;
 typedef struct Company    Company;
 
-struct User {
+struct User
+{
 	int    id;
 	char  *name;
 	int    company_id;
@@ -70,8 +71,7 @@ struct User {
 		char *created_at = sq_time_to_string(this->created_at, 0);
 		char *updated_at = sq_time_to_string(this->updated_at, 0);
 
-		std::cout << std::endl
-		          << "user.id = "         << this->id         << std::endl
+		std::cout << "user.id = "         << this->id         << std::endl
 		          << "user.name = "       << this->name       << std::endl
 		          << "user.comment = "    << this->comment    << std::endl
 		          << "user.company_id = " << this->company_id << std::endl
@@ -96,9 +96,10 @@ struct User {
 		hex_mem[hex_size] = 0;
 		sq_bin_to_hex(hex_mem, this->angleShot.data(), (int)this->angleShot.size());
 		std::cout << "user.angleShot has " << this->angleShot.size() << " bytes" << std::endl
-		          << "user.angleShot = 0x" << hex_mem << std::endl
-		          << std::endl;
+		          << "user.angleShot = 0x" << hex_mem << std::endl;
 		free(hex_mem);
+
+		std::cout << std::endl;
 	}
 };
 
@@ -123,8 +124,7 @@ struct Company
 	// member functions
 
 	void print() {
-		std::cout << std::endl
-		          << "company.id = "      << this->id      << std::endl
+		std::cout << "company.id = "      << this->id      << std::endl
 		          << "company.name = "    << this->name    << std::endl
 		          << "company.age = "     << this->age     << std::endl
 		          << "company.address = " << this->address << std::endl
@@ -150,6 +150,8 @@ struct Company
 				std::cout << ",";
 			std::cout << this->ints[index];
 		}
+		std::cout << std::endl;
+
 		std::cout << std::endl;
 	}
 };
@@ -188,7 +190,7 @@ static const SqColumn userColumns[] = {
 		SQ_SQL_TYPE_TEXT},                 // .sql_type
 
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
-	// get length of picture and set it to Sq::Buffer.size before parsing picture.
+	// get length of picture and set it to Sq::Buffer::size before parsing picture.
 	// This is mainly used by SQLite, MySQL to get length of BLOB column.
 	// If you use PostgreSQL and don't need store result of special query to C structure's member,
 	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
@@ -199,7 +201,7 @@ static const SqColumn userColumns[] = {
 		SQ_SQL_TYPE_BLOB},                 // .sql_type
 
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
-	// get length of angle_shot and call std::vector<char>.resize() before parsing angle_shot.
+	// get length of angle_shot and call std::vector<char>::resize() before parsing angle_shot.
 	// This is mainly used by SQLite, MySQL to get length of BLOB column.
 	// If you use PostgreSQL and don't need store result of special query to C structure's member,
 	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
@@ -417,6 +419,43 @@ void  storage_get_all_stl_container(Sq::Storage *storage)
 	}
 }
 
+// Sq::Storage::query() doesn't use Sq::Storage::joint_default because only 1 table in query.
+void  storage_query_ptr_array(Sq::Storage *storage)
+{
+	Sq::PtrArray  *array;
+	Sq::Query     *query;
+	union {
+		Company       *company;
+		User          *user;
+	} temp;
+
+	query = new Sq::Query();
+//	query->select("id", "name");
+#if 0
+	query->from("companies");
+#else
+	query->from("users");
+#endif
+
+	array = (Sq::PtrArray*)storage->query(query);
+	if (array) {
+		for (int i = 0;  i < array->length;  i++) {
+#if 0
+			temp.company = (Company*)array->data[i];
+			temp.company->print();
+			delete temp.company;
+#else
+			temp.user = (User*)array->data[i];
+			temp.user->print();
+			delete temp.user;
+#endif
+		}
+		delete array;
+	}
+	delete query;
+}
+
+// Sq::Storage::query() use Sq::Storage::joint_default because multiple tables in query.
 void  storage_query_join_array(Sq::Storage *storage)
 {
 	typedef void *Joint2[2];
@@ -428,7 +467,7 @@ void  storage_query_join_array(Sq::Storage *storage)
 	User        *user;
 
 	query = new Sq::Query;
-//	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
+//	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'");
 	query->from("companies")->join("users", "companies.id", "=", "%s", "users.company_id");
 
 	array = (Sq::Array<Joint2>*)storage->query(query, SQ_TYPE_ARRAY);
@@ -457,7 +496,7 @@ void  storage_query_join_ptr_array(Sq::Storage *storage)
 	User          *user;
 
 	query = new Sq::Query();
-//	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
+//	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'");
 	query->from("companies");
 	query->join("users", "companies.id", "users.company_id");
 //	query->join("users", "companies.id", "%s", "users.company_id");
@@ -489,7 +528,7 @@ void  storage_query_join_stl_container(Sq::Storage *storage)
 	User        *user;
 
 	query = new Sq::Query;
-//	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'", NULL);
+//	query->select("companies.id AS 'companies.id'", "users.id AS 'users.id'");
 	query->from("companies")->join("users", "companies.id", "=", "%s", "users.company_id");
 
 	j2vector = storage->query< std::vector< Sq::Joint<2> > >(query);
@@ -653,6 +692,7 @@ int  main(int argc, char *argv[])
 	storage_get_all_stl_container(storage);
 
 	// call Sq::Storage.query()
+	storage_query_ptr_array(storage);
 	storage_query_join_array(storage);
 	storage_query_join_ptr_array(storage);
 	storage_query_join_stl_container(storage);

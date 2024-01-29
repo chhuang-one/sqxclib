@@ -848,7 +848,6 @@ static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *node, va_li
 	node = sub_node;
 
 	while ( (name = va_arg(arg_list, const char*)) ) {
-		sub_node = node->children;
 		// add ',' if user specify multiple column
 		// if current 'node' was not just created.
 		if (node->children != NULL) {

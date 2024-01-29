@@ -195,7 +195,7 @@ static const SqColumn  userColumns[8] = {
 
 ## 仅查询列 (静态)
 
-仅查询列名仅适用于 SQL SELECT 查询。您可以将 SqColumn.name 设置为 SELECT 查询，并在 SqColumn.bit_field 中设置 SQB_QUERY_ONLY 以定义仅查询列。这可以将特殊查询的结果（如“SELECT length(BlobColumn), * FROM table”）存储到 C 结构的成员中。  
+仅查询列名仅适用于 SQL SELECT 查询。您可以将 SqColumn::name 设置为 SELECT 查询，并在 SqColumn::bit_field 中设置 SQB_QUERY_ONLY 以定义仅查询列。这可以将特殊查询的结果（如“SELECT length(BlobColumn), * FROM table”）存储到 C 结构的成员中。  
   
 **注意**：如果要使用此功能，请在 SqConfig.h 中启用 SQ_CONFIG_QUERY_ONLY_COLUMN。  
   
@@ -222,7 +222,7 @@ static const SqColumn  queryFirstColumns[3] = {
 
 	// 仅查询列：
 	// 1. 列名称是 SELECT 查询
-	// 2. SqColumn.bit_field 具有 SQB_QUERY_ONLY
+	// 2. SqColumn::bit_field 具有 SQB_QUERY_ONLY
 	{SQ_TYPE_INT,    "length(str)", offsetof(QueryFirst, str_length), SQB_QUERY_ONLY},
 
 	// VARCHAR
@@ -230,7 +230,7 @@ static const SqColumn  queryFirstColumns[3] = {
 };
 ```
 
-如果您定义具有仅查询列的常量 SqType。 SqType.bit_field 必须具有 SQB_TYPE_QUERY_FIRST。
+如果您定义具有仅查询列的常量 SqType。 SqType::bit_field 必须具有 SQB_TYPE_QUERY_FIRST。
 
 ```c++
 // queryFirstColumns 的 SqColumn 常量指针数组
@@ -240,14 +240,14 @@ static const SqColumn *queryFirstColumnPtrs[3] = {
 	&queryFirstColumns[2],
 };
 
-// SqType.bit_field 必须具有 SQB_TYPE_QUERY_FIRST
+// SqType::bit_field 必须具有 SQB_TYPE_QUERY_FIRST
 const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnPtrs, SQB_TYPE_QUERY_FIRST);
 ```
 
 ## 类型映射（静态）
 
-用户可以在 SqColumn.sql_type 中指定 SQL 数据类型，该数据类型将映射到 SqColumn.type 中指定的 C 数据类型。
-如果 SqColumn.sql_type 等于 0，程序将尝试从 SqColumn.type 确定 SQL 数据类型。
+用户可以在 SqColumn::sql_type 中指定 SQL 数据类型，该数据类型将映射到 SqColumn::type 中指定的 C 数据类型。
+如果 SqColumn::sql_type 等于 0，程序将尝试从 SqColumn::type 确定 SQL 数据类型。
 SQL 数据类型在 [SqTable](SqTable.cn.md) 中列出。  
   
 如果使用非内置 [SqType](SqType.cn.md) 定义常量 [SqColumn](SqColumn.cn.md)，则必须使用类型映射。
@@ -267,7 +267,7 @@ struct Mapping
 	char     *text;
 
 	// 类型映射 + 仅查询列
-	// 在解析 'picture' 之前在 SqBuffer.size 中指定 BLOB 的长度
+	// 在解析 'picture' 之前在 SqBuffer::size 中指定 BLOB 的长度
 	SqBuffer  picture;
 };
 
@@ -279,8 +279,8 @@ static const SqColumn  mappingColumns[4] = {
 	{SQ_TYPE_STR,    "text",            offsetof(Mapping, text), 0,
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
-	// 仅查询列：SqColumn.bit_field 必须具有 SQB_QUERY_ONLY
-	// 在解析 'picture' 之前在 SqBuffer.size 中指定 BLOB 的长度。
+	// 仅查询列：SqColumn::bit_field 必须具有 SQB_QUERY_ONLY
+	// 在解析 'picture' 之前在 SqBuffer::size 中指定 BLOB 的长度。
 	// 使用它来获取 SQLite 或 MySQL 的 BLOB 数据的长度。
 	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
 
@@ -292,7 +292,7 @@ static const SqColumn  mappingColumns[4] = {
 
 示例2: 使用 C++ std::vector<char> 来存储 SQL BLOB 数据。  
   
-注意: SQ_TYPE_STD_VECTOR_SIZE 在解析整数值时将通过调用 std::vector<char>.resize() 来指定 BLOB 的大小。
+注意: SQ_TYPE_STD_VECTOR_SIZE 在解析整数值时将通过调用 std::vector<char>::resize() 来指定 BLOB 的大小。
 
 ```c++
 struct MappingCpp
@@ -303,7 +303,7 @@ struct MappingCpp
 	std::string  text;
 
 	// 类型映射 + 仅查询列
-	// 在解析 'picture' 之前调用 std::vector<char>.resize() 来指定 BLOB 的长度。
+	// 在解析 'picture' 之前调用 std::vector<char>::resize() 来指定 BLOB 的长度。
 	std::vector<char>  picture;
 };
 
@@ -315,8 +315,8 @@ static const SqColumn  mappingCppColumns[4] = {
 	{SQ_TYPE_STD_STR, "text",            offsetof(MappingCpp, text), 0,
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
-	// 仅查询列：SqColumn.bit_field 必须具有 SQB_QUERY_ONLY
-	// 在解析 'picture' 之前调用 std::vector<char>.resize() 来指定 BLOB 的长度。
+	// 仅查询列：SqColumn::bit_field 必须具有 SQB_QUERY_ONLY
+	// 在解析 'picture' 之前调用 std::vector<char>::resize() 来指定 BLOB 的长度。
 	// 使用它来获取 SQLite 或 MySQL 的 BLOB 数据的长度。
 	{SQ_TYPE_STD_VECTOR_SIZE, "length(picture)", offsetof(MappingCpp, picture), SQB_QUERY_ONLY},
 

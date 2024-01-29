@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -47,11 +47,11 @@ extern "C" {
 
 // allocation count+1 character for null-terminated string
 //char *sq_buffer_alloc(SqBuffer *buf, int count);
-#define sq_buffer_alloc(buffer, count)   \
+#define sq_buffer_alloc(buffer, count)         \
 		sq_buffer_alloc_at((SqBuffer*)buffer, ((SqBuffer*)(buffer))->writed, count)
 
 // void sq_buffer_write_c(SqBuffer *buffer, char character);
-#define sq_buffer_write_c(buffer, character)  \
+#define sq_buffer_write_c(buffer, character)   \
 		*sq_buffer_alloc(buffer, 1) = (character)
 
 // void sq_buffer_insert_c(SqBuffer *buffer, int position, char character);
@@ -98,15 +98,15 @@ extern "C" {
 #define SQ_BUFFER_WRITE_N          SQ_BUFFER_WRITE_LEN
 
 // void SQ_BUFFER_INSERT(SqBuffer *buffer, int position, const char *string);
-#define SQ_BUFFER_INSERT(buffer, position, string)  \
-		{	int  length = (int)strlen(string);           \
+#define SQ_BUFFER_INSERT(buffer, position, string)                \
+		{	int  length = (int)strlen(string);                    \
 			memcpy(sq_buffer_alloc_at(buffer, position, length),  \
-			       string, length);                 \
+			       string, length);                               \
 		}
 
 // void SQ_BUFFER_INSERT_LEN(SqBuffer *buffer, int position, const char *string, int length);
 #define SQ_BUFFER_INSERT_LEN(buffer, position, string, length)  \
-		memcpy(sq_buffer_alloc_at(buffer, position, length),  \
+		memcpy(sq_buffer_alloc_at(buffer, position, length),    \
 		       string, length)
 
 // deprecated
@@ -145,7 +145,8 @@ namespace Sq {
 
 	It's derived struct/class must be C++11 standard-layout and has SqBuffer members.
  */
-struct BufferMethod {
+struct BufferMethod
+{
 	void   init();
 	void   final();
 
@@ -202,8 +203,7 @@ inline
 #else               // C99
 static inline
 #endif
-char *sq_buffer_write(SqBuffer *buffer, const char *string)
-{
+char *sq_buffer_write(SqBuffer *buffer, const char *string) {
 	return SQ_BUFFER_WRITE(buffer, string);
 }
 
@@ -212,8 +212,7 @@ inline
 #else               // C99
 static inline
 #endif
-char *sq_buffer_write_len(SqBuffer *buffer, const char *string, int length)
-{
+char *sq_buffer_write_len(SqBuffer *buffer, const char *string, int length) {
 	return SQ_BUFFER_WRITE_LEN(buffer, string, length);
 }
 
@@ -222,8 +221,7 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_buffer_insert(SqBuffer *buffer, int position, const char *string)
-{
+void  sq_buffer_insert(SqBuffer *buffer, int position, const char *string) {
 	SQ_BUFFER_INSERT(buffer, position, string);
 }
 
@@ -232,8 +230,7 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_buffer_insert_len(SqBuffer *buffer, int position, const char *string, int length)
-{
+void  sq_buffer_insert_len(SqBuffer *buffer, int position, const char *string, int length) {
 	SQ_BUFFER_INSERT_LEN(buffer, position, string, length);
 }
 
@@ -242,8 +239,7 @@ inline
 #else               // C99
 static inline
 #endif
-char *sq_buffer_require(SqBuffer *buffer, int length)
-{
+char *sq_buffer_require(SqBuffer *buffer, int length) {
 	SQ_BUFFER_REQUIRE(buffer, length);
 	return buffer->mem;
 }
@@ -312,7 +308,8 @@ inline void   BufferMethod::insert(int position, const char *string, int length)
 }
 
 /* All derived struct/class must be C++11 standard-layout. */
-struct Buffer : SqBuffer {
+struct Buffer : SqBuffer
+{
 	// constructor
 	Buffer() {
 		sq_buffer_init(this);

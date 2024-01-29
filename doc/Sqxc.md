@@ -81,20 +81,20 @@ Function insert() and steal() only link or unlink 'peer' ('peer' is single linke
 user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especially custom data flow.
 
 ## Send data according to data type
-sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc.dest) at runtime.  
+sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc::dest) at runtime.  
   
 **Data flow 1:** sqxc_send() send from SQL result (column has JSON data) to C value  
 If SqxcValue can't match current data type, it will forward data to SqxcJsoncParser.
 
-	input ─>         ┌─> SqxcJsoncParser ─┐
-	Sqdb.exec()    ──┴────────────────────┴──> SqxcValue ───> SqType.parse()
+	input ─>          ┌─> SqxcJsoncParser ─┐
+	sqdb_exec()     ──┴────────────────────┴──> SqxcValue ───> SqType::parse()
 
 
 **Data flow 2:** sqxc_send() send from C value to SQL (column has JSON data)  
 If SqxcSql doesn't support current data type, it will forward data to SqxcJsoncWriter.
 
-	output ─>        ┌─> SqxcJsoncWriter ─┐
-	SqType.write() ──┴────────────────────┴──> SqxcSql   ───> Sqdb.exec()
+	output ─>         ┌─> SqxcJsoncWriter ─┐
+	SqType::write() ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()
 
 sqxc_send() is called by data source side. It send data(arguments) to Sqxc element and try to match type in Sqxc chain.  
 Because different data type is processed by different Sqxc element, It returns current Sqxc elements.  
@@ -545,7 +545,7 @@ use C++ language
 The Sqxc input data flow in your [SqStorage](SqStorage.md) object will look like this:
 
 	input ->         ┌-> SqxcTextParser --┐
-	Sqdb.exec()    --┴--------------------┴-> SqxcValue ---> SqType.parse()
+	sqdb_exec()    --┴--------------------┴-> SqxcValue ---> SqType::parse()
 
 Note: You also need replace SqxcJsoncWriter by SqxcTextWriter in SqStorage::xc_output.
 

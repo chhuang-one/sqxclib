@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -61,7 +61,7 @@ extern "C" {
 		(db)->info->migrate(db, schema_cur, schema_next)
 
 // int  sqdb_exec(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
-#define sqdb_exec(db, sql, xc, reserve)    \
+#define sqdb_exec(db, sql, xc, reserve)              \
 		(db)->info->exec(db, sql, xc, reserve)
 
 /* --- C Functions --- */
@@ -260,7 +260,8 @@ inline int  DbMethod::migrate(SqSchema *schema_cur, SqSchema *schema_next) {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Db : Sqdb {
+struct Db : Sqdb
+{
 	~Db(void) {
 		sqdb_final(this);
 	}

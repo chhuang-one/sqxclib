@@ -50,7 +50,7 @@ Use C++ language
 ## Column Modifiers
 
 There are several "modifiers" you may use when adding a column to table or a entry to structure.  
-Most methods (functions) set a specific bit of SqColumn.bit_field to 1.
+Most methods (functions) set a specific bit of SqColumn::bit_field to 1.
 
 | C++ methods        | C functions                     | Description                                     |
 | ------------------ | ------------------------------- | ----------------------------------------------- |
@@ -162,7 +162,7 @@ struct SqColumn
 ```
 
 Define bit_field that used by SqColumn:  
-The following SQB_XXXX must use bitwise operation to set or clear bits in SqColumn.bit_field.
+The following SQB_XXXX must use bitwise operation to set or clear bits in SqColumn::bit_field.
 
 | name                   | description                                     | 
 | ---------------------- | ----------------------------------------------- |

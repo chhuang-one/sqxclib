@@ -28,7 +28,8 @@ typedef struct SqCommandValue    SqCommandValue;
 
 /*	SqCommand initializer macro. below is sample code:
 
-	typedef struct MyCommandValue {
+	typedef struct MyCommandValue
+	{
 		SQ_COMMAND_VALUE_MEMBERS;
 		int  option1_value;
 		int  option2_value;
@@ -135,7 +136,8 @@ struct CommandMethod;
 
 	It's derived struct/class must be C++11 standard-layout and has SqCommandValue members.
  */
-struct CommandValueMethod {
+struct CommandValueMethod
+{
 	void *operator new(size_t size);
 
 	void  init(const SqCommand *cmd_type);
@@ -187,9 +189,11 @@ struct SqCommand
 
 	// SqType::entry is array of SqEntry pointer if current SqType is for C struct type.
 	// SqType::entry isn't freed if SqType::n_entry == -1
-	SqEntry      **entry;          // SqPtrArray::data
-	int            n_entry;        // SqPtrArray::length
-	// macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) expands to above 2 fields.
+	SqEntry      **entry;          // maps to SqPtrArray::data
+	int            n_entry;        // maps to SqPtrArray::length
+	// *** About above 2 fields:
+	// 1. They are expanded by macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
+	// 2. They can NOT change data type and order.
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if SqType is dynamic and freeable.
 	// SqType::bit_field has SQB_TYPE_SORTED  if SqType::entry is sorted.
@@ -315,7 +319,8 @@ namespace Sq {
 
 	Note: If you add, remove, or change methods here, do the same things in SqCommand.
  */
-struct CommandMethod {
+struct CommandMethod
+{
 	// initialize/finalize self
 	void  initSelf(const char *cmd_name) {
 		sq_command_init_self((SqCommand*)this, cmd_name);
@@ -367,7 +372,8 @@ inline void  CommandValueMethod::final() {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Command : SqCommand {
+struct Command : SqCommand
+{
 	// constructor
 	Command() {}
 	Command(const char *cmd_name) {
@@ -379,7 +385,8 @@ struct Command : SqCommand {
 	}
 };
 
-struct CommandValue : SqCommandValue {
+struct CommandValue : SqCommandValue
+{
 	// constructor
 	CommandValue() {}
 	CommandValue(const SqCommand *cmd_type) {

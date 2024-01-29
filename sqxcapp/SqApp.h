@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -34,7 +34,8 @@ extern "C" {
 /* struct SqAppSetting for internal use only.
    used by SqApp.c and SqApp-config.c
  */
-struct SqAppSetting {
+struct SqAppSetting
+{
 	const SqdbInfo      *db_info;
 	const SqdbConfig    *db_config;
 	const char          *db_database;
@@ -92,7 +93,8 @@ namespace Sq {
 
 	It's derived struct/class must be C++11 standard-layout and has SqApp members.
  */
-struct AppMethod {
+struct AppMethod
+{
 	void  init(const struct SqAppSetting *setting = SQ_APP_DEFAULT);
 	void  final();
 
@@ -191,7 +193,8 @@ inline int   AppMethod::rollback(int step) {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct App : SqApp {
+struct App : SqApp
+{
 	App(const struct SqAppSetting *setting = SQ_APP_DEFAULT) {
 		sq_app_init(this, setting);
 	}

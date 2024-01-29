@@ -37,22 +37,22 @@
 	user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especially custom data flow.
 
 	===========================================================================
-	sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc.dest) at runtime.
+	sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc::dest) at runtime.
 
 	Data flow 1: sqxc_send() send from SQL result (column has JSON data) to C value
 	If SqxcValue can't match current data type, it will forward data to SqxcJsoncParser.
 
-	                 ┌-> SqxcJsoncParser -┐
-	( input )        |                    |
-	Sqdb.exec()    --┴--------------------┴--> SqxcValue ---> SqType.parse()
+	                  ┌-> SqxcJsoncParser -┐
+	( input )         |                    |
+	sqdb_exec()     --┴--------------------┴--> SqxcValue ---> SqType::parse()
 
 
 	Data flow 2: sqxc_send() send from C value to SQL (column has JSON data)
 	If SqxcSql doesn't support current data type, it will forward data to SqxcJsoncWriter.
 
-	                 ┌-> SqxcJsoncWriter -┐
-	( output )       |                    |
-	SqType.write() --┴--------------------┴--> SqxcSql   ---> Sqdb.exec()
+	                  ┌-> SqxcJsoncWriter -┐
+	( output )        |                    |
+	SqType::write() --┴--------------------┴--> SqxcSql   ---> sqdb_exec()
  */
 
 #ifndef SQXC_H
@@ -77,7 +77,7 @@ typedef struct SqEntry          SqEntry;    // define in SqEntry.h
 typedef enum {
 	SQXC_TYPE_UNKNOWN  =  0,                       // result of bitwise AND
 
-	SQXC_TYPE_NULL     = (1 << 0),    // 0x0001    // Sqxc.value.ptr = NULL
+	SQXC_TYPE_NULL     = (1 << 0),    // 0x0001    // Sqxc::value::ptr = NULL
 	SQXC_TYPE_BOOL     = (1 << 1),    // 0x0002
 	SQXC_TYPE_INT      = (1 << 2),    // 0x0004
 	SQXC_TYPE_UINT     = (1 << 3),    // 0x0008
@@ -133,7 +133,7 @@ typedef enum {
 	                     SQXC_TYPE_ARRAY,
 } SqxcType;
 
-/* --- control id that used by SqxcInfo.ctrl() --- */
+/* --- control id that used by SqxcInfo::ctrl() --- */
 
 typedef enum {
 	// common
@@ -342,7 +342,7 @@ Sqxc   *sqxc_find(Sqxc *xc, const SqxcInfo *info);
 #define sqxc_ctrl(xc, code, data)   ((Sqxc*)(xc))->info->ctrl(xc, code, (void*)(data))
 
 // sqxc_broadcast() broadcast Sqxc chain.
-// It will call Sqxc.ctrl() from src to dest in chain of Sqxc.
+// It will call sqxc_ctrl() from src to dest in chain of Sqxc.
 int     sqxc_broadcast(Sqxc *xc, int id, void *data);
 
 // sqxc_ready() broadcast Sqxc chain to ready
@@ -469,14 +469,14 @@ struct SqxcInfo
 
 /*	SqxcNested - stack data for Sqxc parser or writer
 
-	SqxcNested.data3 has special usage that can run a bit faster when doing object and array type match.
-	1. Enable SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH In SqConfig.h
-	2. When SqxcNested.data3 pointer to it's Sqxc and Sqxc.send() return SQCODE_TYPE_NOT_MATCHED,
+	SqxcNested::data3 has special usage that can run a bit faster when doing object and array type match.
+	1. Enable SQ_CONFIG_SQXC_NESTED_FAST_TYPE_MATCH in SqConfig.h
+	2. When SqxcNested::data3 pointer to it's Sqxc and sqxc_send() return SQCODE_TYPE_NOT_MATCHED,
 	   current SqxcNested is NOT ready to parse object or array, it is doing type match.
-	3. When SqxcNested.data3 pointer to SqxcNested.data,
+	3. When SqxcNested::data3 pointer to SqxcNested::data,
 	   current SqxcNested is ready to parse object or array, type has been matched.
 
-	SqxcNested.data3 pointer to other address (or NULL) if you don't use fast type match.
+	SqxcNested::data3 pointer to other address (or NULL) if you don't use fast type match.
 
 	Because fast type match may change in future, I recommend that user don't use it in their custom parser.
  */
@@ -553,7 +553,7 @@ struct Sqxc
 //	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
 
 	// ------------------------------------------
-	// arguments that used by SqxcInfo->send()
+	// arguments that used by SqxcInfo::send()
 
 	// output arguments
 //	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCHED
@@ -729,7 +729,8 @@ inline Sq::Xc  *XcMethod::sendArrayEnd(const char *entry_name) {
 }
 
 /* All derived struct/class must be C++11 standard-layout. */
-struct Xc : Sqxc {
+struct Xc : Sqxc
+{
 	~Xc() {
 		sqxc_final(this);
 	}

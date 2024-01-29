@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -59,7 +59,7 @@ typedef struct SqForeign      SqForeign;    // used by SqColumn
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
 // SqColumn::name is for query only.
 #define SQB_COLUMN_QUERY                SQB_QUERY                // SQL: for bitwise AND use
-#define SQB_COLUMN_QUERY_ONLY          (SQB_QUERY | SQB_HIDDEN)  // SQL: query-only column, JSON: hidden
+#define SQB_COLUMN_QUERY_ONLY          (SQB_QUERY | SQB_HIDDEN)  // SQL: query-only column + JSON: hidden
 #endif
 
 // ----------------------------------------------------------------------------
@@ -73,7 +73,7 @@ extern "C" {
 #define SQ_COLUMN_SET_DEFAULT(column, default_value_str)    \
 		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->default_value, default_value_str)
 
-#define SQ_COLUMN_SET_RAW(column, raw_property_str)    \
+#define SQ_COLUMN_SET_RAW(column, raw_property_str)         \
 		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->raw, raw_property_str)
 
 /* SqColumn C functions */
@@ -583,7 +583,8 @@ struct ColumnMethod
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Column : SqColumn {
+struct Column : SqColumn
+{
 	Column(const char *name = NULL, const SqType *dataType = NULL) {
 		sq_column_init(this, name, dataType);
 	}

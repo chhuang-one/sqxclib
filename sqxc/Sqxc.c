@@ -13,7 +13,7 @@
  */
 
 #ifndef NDEBUG
-#include <stdio.h>     // fprintf
+#include <stdio.h>     // fprintf(), stderr
 #endif
 #include <stddef.h>
 #include <stdarg.h>
@@ -25,10 +25,10 @@
 #include <Sqxc.h>
 
 /*	after sqxc_init():
-	Sqxc.nested_count = 0
-	Sqxc.nested       = SQXC_NESTED_EMPTY
+	Sqxc::nested_count = 0
+	Sqxc::nested       = SQXC_NESTED_EMPTY
 
-	Sqxc.nested_count used by sqxc_push_nested() and sqxc_pop_nested(). They use it to alloc/free chunk.
+	Sqxc::nested_count used by sqxc_push_nested() and sqxc_pop_nested(). They use it to alloc/free chunk.
 	SQXC_NESTED_EMPTY is used to reduce "If Statements".
  */
 static const SqxcNested SqxcNested_Empty_ = {0};
@@ -199,7 +199,7 @@ int   sqxc_broadcast(Sqxc *xc, int id, void *data)
 	int   code = SQCODE_OK;
 	Sqxc *peer;
 
-	// call SqxcInfo.ctrl()
+	// call SqxcInfo::ctrl()
 	for (;  xc;  xc = peer) {
 		peer = xc->peer;
 		if (xc->info->ctrl) {

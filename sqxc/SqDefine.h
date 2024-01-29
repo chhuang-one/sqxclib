@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -30,7 +30,7 @@ typedef union SqValue        SqValue;
 	int  intArray[] = {10, 9, 8, 7, 6};
 	int  n_ints = SQ_N_ELEMENTS(intArray);
  */
-#define SQ_N_ELEMENTS(Array)     ( sizeof(Array)/sizeof(Array[0]) )
+#define SQ_N_ELEMENTS(Array)     ( sizeof(Array) / sizeof(Array[0]) )
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.

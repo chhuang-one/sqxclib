@@ -37,11 +37,13 @@ struct Query;
 
 #ifdef SQPT_USE_STRUCT
 // struct QueryMethod
-struct SQPT_NAME {
+struct SQPT_NAME
+{
 
 #else
 // class  QueryProxy
-class  SQPT_NAME {
+class  SQPT_NAME
+{
 
 protected:
 	Sq::Query *SQPT_DATAPTR;

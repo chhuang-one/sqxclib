@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -57,7 +57,7 @@ extern "C" {
 #define sq_array_header(array)         \
 		( (SqArrayHeader*) (((SqArray*)(array))->data - sizeof(SqArrayHeader)) )
 
-#define sq_array_header_offsetof(HeaderField)    \
+#define sq_array_header_offsetof(HeaderField)     \
 		( sizeof(SqArrayHeader) - offsetof(SqArrayHeader, HeaderField) )
 
 #define sq_array_element_size(array)   \
@@ -129,7 +129,7 @@ extern "C" {
 
 // Removes a value from array without calling the destroy function.
 // void SQ_ARRAY_STEAL(void *array, ElementType, int index, int count);
-#define SQ_ARRAY_STEAL(array, ElementType, index, count)             \
+#define SQ_ARRAY_STEAL(array, ElementType, index, count)                           \
 		memmove(sq_array_data(array) + sizeof(ElementType) * (index),              \
 		        sq_array_data(array) + sizeof(ElementType) * ((index)+(count)),    \
 		        sizeof(ElementType) * ((sq_array_length(array) -= (count)) - (index)) )

@@ -290,14 +290,14 @@ void    sq_query_append(SqQuery *query, unsigned int raw_args, ...);
 bool    sq_query_from(SqQuery *query, const char *table);
 
 // bool sq_query_from_sub(SqQuery *query);
-#define sq_query_from_sub(query)     \
+#define sq_query_from_sub(query)       \
 		sq_query_from(query, NULL)
 
 // bool sq_query_table(SqQuery *query, const char *table);
 #define sq_query_table    sq_query_from
 
 // bool sq_query_table_sub(SqQuery *query);
-#define sq_query_table_sub(query)    \
+#define sq_query_table_sub(query)      \
 		sq_query_from(query, NULL)
 
 // SQL: AS
@@ -919,7 +919,8 @@ namespace Sq {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Query : SqQuery {
+struct Query : SqQuery
+{
 	Query(const char *table_name = NULL) {
 		sq_query_init(this, table_name);
 	}

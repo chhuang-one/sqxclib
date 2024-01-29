@@ -24,8 +24,8 @@ struct SqType
 
 	// 如果当前 SqType 用于 C 结构类型，则 SqType::entry 是 SqEntry 指针数组。
 	// 如果 SqType::n_entry == -1，     则 SqType::entry 不会被释放。
-	SqEntry      **entry;          // SqPtrArray::data
-	int            n_entry;        // SqPtrArray::length
+	SqEntry      **entry;          // 映射到 SqPtrArray::data
+	int            n_entry;        // 映射到 SqPtrArray::length
 	// *** 关于以上 2 个字段：
 	// 1. 它们由宏 SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) 展开
 	// 2. 他们不能更改数据类型和顺序。
@@ -46,12 +46,12 @@ struct SqType
 | 名称                  | 描述                                   |
 | --------------------- | -------------------------------------- |
 | SQB_TYPE_DYNAMIC      | 类型可以改变和释放                     |
-| SQB_TYPE_SORTED       | SqType.entry 按照 SqEntry.name 排序    |
-| SQB_TYPE_QUERY_FIRST  | SqType.entry 具有仅查询列              |
+| SQB_TYPE_SORTED       | SqType::entry 按照 SqEntry::name 排序  |
+| SQB_TYPE_QUERY_FIRST  | SqType::entry 具有仅查询列             |
 
 * SQB_TYPE_DYNAMIC 仅供内部使用。用户不应设置或清除该位。
-* 如果 SqType.bit_field 没有设置 SQB_TYPE_DYNAMIC，用户不能更改或释放 SqType。
-* 用户必须使用位运算符来设置或清除 SqType.bit_field 中的位。
+* 如果 SqType::bit_field 没有设置 SQB_TYPE_DYNAMIC，用户不能更改或释放 SqType。
+* 用户必须使用位运算符来设置或清除 SqType::bit_field 中的位。
 * 最好将常量或静态 SqEntry 与常量或静态 SqType 一起使用。
 * 动态 SqEntry 可以与动态、常量或静态 SqType 一起使用。
 
@@ -145,8 +145,8 @@ const SqType type_int = {
 函数 sq_type_new() 声明：
 
 ```c++
-// prealloc_size：SqType.entry 的容量（SqType.entry 是 SqEntry 指针数组）。
-// entry_destroy_func：SqType.entry 元素的 DestroyFunc。
+// prealloc_size：SqType::entry 的容量（SqType::entry 是 SqEntry 指针数组）。
+// entry_destroy_func：SqType::entry 元素的 DestroyFunc。
 
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 ```
@@ -222,7 +222,7 @@ const SqType typeUser = {
 #### 2.2 常量 SqType 使用 SqEntry '已排序'的常量指针数组
 1. 使用 C99 指定初始化器定义 SqEntry '已排序'的**指针数组**。
 2. 定义常量 SqType 以使用 SqEntry 的**指针数组**。
-3. SqType.bit_field 必须设置 SQB_TYPE_SORTED。
+3. SqType::bit_field 必须设置 SQB_TYPE_SORTED。
 
 ```c
 /* sortedEntryPointers 是'已排序'的 entryPointers（按名称排序） */
@@ -297,7 +297,7 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 	entry = sq_entry_new(SQ_TYPE_INT);
 	sq_entry_set_name(entry, "id");
 	entry->offset = offsetof(User, id);
-	entry->bit_field |= SQB_HIDDEN;        // 设置 SqEntry.bit_field
+	entry->bit_field |= SQB_HIDDEN;        // 设置 SqEntry::bit_field
 	sq_type_add_entry(type, entry, 1, 0);
 
 	entry = sq_entry_new(SQ_TYPE_STR);
@@ -322,7 +322,7 @@ const SqType  sortedTypeUserM = SQ_TYPE_INITIALIZER(User, sortedEntryPointers, S
 	entry = new Sq::Entry(SQ_TYPE_INT);
 	entry->setName("id");
 	entry->offset = offsetof(User, id);
-	entry->bit_field |= SQB_HIDDEN;    // 设置 SqEntry.bit_field
+	entry->bit_field |= SQB_HIDDEN;        // 设置 SqEntry::bit_field
 	type->addEntry(entry);
 
 	entry = new Sq::Entry(SQ_TYPE_STR);
@@ -454,7 +454,7 @@ static int  sq_type_my_list_parse(void *mylist, const SqType *type, Sqxc *src)
 	SqxcNested   *nested   = xc_value->nested;
 	const SqType *element_type;
 
-	// 您可以在 SqType.entry 中指定元素类型
+	// 您可以在 SqType::entry 中指定元素类型
 	element_type = (SqType*)type->entry;
 
 	// 容器的开始
@@ -484,7 +484,7 @@ static Sqxc *sq_type_my_list_write(void *mylist, const SqType *type, Sqxc *dest)
 	const SqType *element_type;
 	const char   *container_name = dest->name;
 
-	// 您可以在 SqType.entry 中指定元素类型
+	// 您可以在 SqType::entry 中指定元素类型
 	element_type = (SqType*)type->entry;
 
 	// 容器的开始
@@ -522,8 +522,8 @@ const SqType SqType_MyList_ =
 	sq_type_my_list_write,         // write
 
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE__yours_,   // entry   : 您可以在 SqType.entry 中指定元素类型
-	-1,                            // n_entry : 如果 SqType.n_entry == -1，则不会释放 SqType.entry
+	(SqEntry**) SQ_TYPE__yours_,   // entry   : 您可以在 SqType::entry 中指定元素类型
+	-1,                            // n_entry : 如果 SqType::n_entry == -1，则不会释放 SqType::entry
 	0,                             // bit_field
 	NULL,                          // on_destroy
 };
@@ -532,7 +532,7 @@ const SqType SqType_MyList_ =
 #### 4 派生 SqType (动态)
 
 这定义从 SqType 派生的新结构。  
-如果要在派生的 SqType 中添加成员，你可以使用 SqType.on_destroy 回调函数释放它们。
+如果要在派生的 SqType 中添加成员，你可以使用 SqType::on_destroy 回调函数释放它们。
 
 ```c++
 // 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
@@ -600,7 +600,7 @@ SqType *my_type_new()
 
 ## 5 释放动态 SqType
 
-sq_type_free() 可以释放动态 SqType（SqType.bit_field 有 SQB_TYPE_DYNAMIC）。它可以发出销毁通知程序。
+sq_type_free() 可以释放动态 SqType（SqType::bit_field 有 SQB_TYPE_DYNAMIC）。它可以发出销毁通知程序。
 
 ```c++
 	/* C 函数 */

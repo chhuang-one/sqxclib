@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -296,7 +296,8 @@ struct EntryMethod
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Entry : SqEntry {
+struct Entry : SqEntry
+{
 	Entry() {}
 	Entry(const SqType *type_info) {
 		sq_entry_init(this, type_info);

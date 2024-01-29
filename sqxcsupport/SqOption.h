@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -234,7 +234,8 @@ namespace Sq {
 
 	Note: If you add, remove, or change methods here, do the same things in SqOption.
  */
-struct OptionMethod {
+struct OptionMethod
+{
 	void  init(const SqType *type) {
 		sq_option_init((SqOption*)this, type);
 	}
@@ -268,7 +269,8 @@ struct OptionMethod {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Option : SqOption {
+struct Option : SqOption
+{
 	// constructor
 	Option() {}
 	Option(const SqType *type) {

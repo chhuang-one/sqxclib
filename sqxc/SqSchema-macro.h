@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -152,7 +152,7 @@ typedef struct Company
 #define SQT_STRING(column_name, structure, member, length)   \
 		(column_cur_ = sq_table_add_string(table_cur_, column_name, offsetof(structure, member), length))
 
-#define SQT_STRING_AS(structure, member, length)   \
+#define SQT_STRING_AS(structure, member, length)             \
 		(column_cur_ = sq_table_add_string(table_cur_, #member, offsetof(structure, member), length))
 
 #define SQT_STR       SQT_STRING
@@ -180,54 +180,54 @@ typedef struct Company
 #define SQT_BLOB(column_name, structure, member)     \
 		(column_cur_ = sq_table_add_binary(table_cur_, column_name, offsetof(structure, member)))
 
-#define SQT_BLOB_AS(structure, member)     \
+#define SQT_BLOB_AS(structure, member)               \
 		(column_cur_ = sq_table_add_binary(table_cur_, #member, offsetof(structure, member)))
 
 #define SQT_BINARY(column_name, structure, member)   \
 		(column_cur_ = sq_table_add_binary(table_cur_, column_name, offsetof(structure, member)))
 
-#define SQT_BINARY_AS(structure, member)   \
+#define SQT_BINARY_AS(structure, member)             \
 		(column_cur_ = sq_table_add_binary(table_cur_, #member, offsetof(structure, member)))
 
-#define SQT_CUSTOM(column_name, structure, member, sqtype, length)  \
+#define SQT_CUSTOM(column_name, structure, member, sqtype, length)     \
 		(column_cur_ = sq_table_add_custom(table_cur_, column_name, offsetof(structure, member), sqtype, length))
 
-#define SQT_CUSTOM_AS(structure, member, sqtype, length)   \
+#define SQT_CUSTOM_AS(structure, member, sqtype, length)               \
 		(column_cur_ = sq_table_add_custom(table_cur_, #member, offsetof(structure, member), sqtype, length))
 
 #define SQT_MAPPING(column_name, structure, member, sqtype, sql_type)  \
 		(column_cur_ = sq_table_add_mapping(table_cur_, column_name, offsetof(structure, member), sqtype, sql_type))
 
-#define SQT_MAPPING_AS(structure, member, sqtype, sql_type)   \
+#define SQT_MAPPING_AS(structure, member, sqtype, sql_type)            \
 		(column_cur_ = sq_table_add_mapping(table_cur_, #member, offsetof(structure, member), sqtype, sql_type))
 
 // ----------------------------------------------------------------------------
 
 //      SQT_ADD_INDEX(index_name, column1_name, ...)
-#define SQT_ADD_INDEX(index_name, ...)    \
+#define SQT_ADD_INDEX(index_name, ...)        \
 		(column_cur_ = sq_table_add_index(table_cur_, index_name, __VA_ARGS__, NULL))
 
-#define SQT_DROP_INDEX(index_name)    \
+#define SQT_DROP_INDEX(index_name)            \
 		sq_table_drop_index(table_cur_, index_name)
 
 //      SQT_ADD_UNIQUE(unique_name, column1_name, ...)
-#define SQT_ADD_UNIQUE(unique_name, ...)    \
+#define SQT_ADD_UNIQUE(unique_name, ...)      \
 		(column_cur_ = sq_table_add_unique(table_cur_, unique_name, __VA_ARGS__, NULL))
 
-#define SQT_DROP_UNIQUE(unique_name)    \
+#define SQT_DROP_UNIQUE(unique_name)          \
 		sq_table_drop_unique(table_cur_, unique_name)
 
 //      SQT_ADD_PRIMARY(primary_name, column1_name, ...)
 #define SQT_ADD_PRIMARY(primary_name, ...)    \
 		(column_cur_ = sq_table_add_primary(table_cur_, primary_name, __VA_ARGS__, NULL))
 
-#define SQT_DROP_PRIMARY(primary_name)    \
+#define SQT_DROP_PRIMARY(primary_name)        \
 		sq_table_drop_primary(table_cur_, primary_name)
 
 #define SQT_ADD_FOREIGN(foreign_name, column_name)    \
 		(column_cur_ = sq_table_add_foreign(table_cur_, foreign_name, column_name))
 
-#define SQT_DROP_FOREIGN(foreign_name)    \
+#define SQT_DROP_FOREIGN(foreign_name)                \
 		sq_table_drop_foreign(table_cur_, foreign_name)
 
 // ----------------------------------------------------------------------------

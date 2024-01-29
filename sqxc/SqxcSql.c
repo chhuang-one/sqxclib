@@ -55,7 +55,7 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer);
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - destination of output chain
 
-	SQXC_TYPE_xxx ---> SqxcSql ---> Sqdb.exec()
+	SQXC_TYPE_xxx ---> SqxcSql ---> sqdb_exec()
  */
 
 static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
@@ -401,7 +401,7 @@ static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name)
 	sq_buffer_write(buffer, " SET ");
 
 	xcsql->supported_type &= ~SQXC_TYPE_ARRAY;
-	// reuse after running Sqdb.exec()
+	// reuse after running sqdb_exec()
 	xcsql->buf_reuse = xcsql->buf_writed;
 }
 

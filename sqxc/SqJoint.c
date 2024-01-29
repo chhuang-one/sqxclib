@@ -198,14 +198,14 @@ static int  sq_type_joint_parse(void *instance, const SqType *type, Sqxc *src)
 		strncpy(sq_buffer_alloc(buf, temp.len*2), src->name, temp.len);   // alloc(buf, (temp.len+1)*2)
 		buf->mem[temp.len] = 0;    // null-terminated
 		temp.len++;                // + '.'
-		// find table by it's name in SqTypeRow.entry
+		// find table by it's name in SqTypeRow::entry
 		p.addr = sq_type_find_entry(type, buf->mem, NULL);
 	}
 
 	if (p.addr) {
-		// 'p.entry' pointer to element of SqTypeRow.entry
+		// 'p.entry' pointer to element of SqTypeRow::entryy
 		p.entry = *p.addr;
-		// push nested for parser of 'p.entry' ('p.entry->type' pointer to SqTable.type)
+		// push nested for parser of 'p.entry' ('p.entry->type' pointer to SqTable::type)
 		nested = sqxc_push_nested((Sqxc*)xc_value);
 		nested->data = *(void**)((char*)instance +p.entry->offset);
 		nested->data2 = (void*)p.entry->type;

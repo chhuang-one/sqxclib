@@ -30,7 +30,8 @@ namespace Sq {
 
 // SqType for C++ STL containers
 template<class Container>
-struct TypeStl : SqType {
+struct TypeStl : SqType
+{
 	static void  cxxInit(void *instance, const SqType *type) {
 		new (&(*(Container*)instance)) Container();
 	}
@@ -39,7 +40,7 @@ struct TypeStl : SqType {
 	}
 
 	static int   cxxParse(void *instance, const SqType *type, Sqxc *src) {
-		SqType     *element_type = (SqType*)type->entry;    // TypeStl use SqType.entry to store element type
+		SqType     *element_type = (SqType*)type->entry;    // TypeStl use SqType::entry to store element type
 		SqxcValue  *xc_value = (SqxcValue*)src->dest;
 		SqxcNested *nested;
 		void       *element;
@@ -100,7 +101,7 @@ struct TypeStl : SqType {
 	}
 
 	static Sqxc *cxxWrite(void *instance, const SqType *type, Sqxc *dest) {
-		SqType     *element_type = (SqType*)type->entry;    // TypeStl use SqType.entry to store element type
+		SqType     *element_type = (SqType*)type->entry;    // TypeStl use SqType::entry to store element type
 		const char *array_name = dest->name;
 		void       *element;
 		Container  *container = (Container*)instance;
@@ -139,8 +140,8 @@ struct TypeStl : SqType {
 		this->parse = cxxParse;
 		this->write = cxxWrite;
 		this->name  = NULL;
-		this->n_entry = -1;                       // SqType.entry isn't freed if SqType.n_entry == -1
-		this->entry = (SqEntry**)element_type;    // TypeStl use SqType.entry to store element type
+		this->n_entry = -1;                       // SqType::entry isn't freed if SqType::n_entry == -1
+		this->entry = (SqEntry**)element_type;    // TypeStl use SqType::entry to store element type
 #if SQ_TYPE_STL_ENABLE_DYNAMIC == 1
 		// reset SqType::bit_field if it has not been set by operator new()
 		if (this->bit_field != SQB_TYPE_DYNAMIC)

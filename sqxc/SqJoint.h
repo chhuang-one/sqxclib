@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -70,7 +70,7 @@ extern "C" {
 SqTypeJoint *sq_type_joint_new();
 
 // void sq_type_joint_free(SqTypeJoint *type_joint);
-#define sq_type_joint_free(type_joint)    \
+#define sq_type_joint_free(type_joint)     \
 		sq_type_free((SqType*)(type_joint))
 
 void    sq_type_joint_init(SqTypeJoint *type_joint);
@@ -103,7 +103,8 @@ namespace Sq {
 
 	It's derived struct/class must be C++11 standard-layout and has SqTypeJoint members.
  */
-struct TypeJointMethod {
+struct TypeJointMethod
+{
 	void  add(SqTable *table, const char *table_as_name = NULL);
 	void  erase(SqTable *table, const char *table_as_name = NULL);
 	void  remove(SqTable *table, const char *table_as_name = NULL);
@@ -163,7 +164,8 @@ struct TypeJoint : TypeJointMethod,                // <-- 1. inherit C++ method
 
 // This is for directly use only. You can NOT derived it.
 template <unsigned int n_tables>
-struct Joint {
+struct Joint
+{
 	void *data[n_tables];
 
 	// operator

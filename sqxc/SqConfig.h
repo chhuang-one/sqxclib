@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -66,7 +66,7 @@
 #endif
 #undef HAVE_POSTGRESQL
 
-/* Enable SqxcNested.data3 to do fast type match.
+/* Enable SqxcNested::data3 to do fast type match.
    Sqxc can run a bit faster when doing object and array type match.
    Disable it to reduce code size.
    Affected source : SqJoint, SqType, SqCommand

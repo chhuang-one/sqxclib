@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2023 by C.H. Huang
+ *   Copyright (C) 2022-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -51,10 +51,10 @@ void   sq_row_free(SqRow *row);
 void   sq_row_init(SqRow *row, int cols_capacity, int capacity);
 void   sq_row_final(SqRow *row);
 
-// free 'name' in SqRow.cols
+// free 'name' in SqRow::cols
 void   sq_row_free_cols_name(SqRow *row);
 
-/* share SqRow.cols to other SqRow.
+/* share SqRow::cols to other SqRow.
 
    Because all rows in the query result have the same column array,
    sharing the column array among these rows reduces memory usage.
@@ -118,14 +118,16 @@ typedef struct SqRowColumn  RowColumn;
 
 	It's derived struct/class must be C++11 standard-layout and has SqTypeRow members.
  */
-struct TypeRowMethod : Sq::TypeJointMethod {
+struct TypeRowMethod : Sq::TypeJointMethod
+{
 };
 
 /*	RowMethod is used by SqRow and it's children.
 
 	It's derived struct/class must be C++11 standard-layout and has SqRow members.
  */
-struct RowMethod : ArrayMethod<Sq::Value> {
+struct RowMethod : ArrayMethod<Sq::Value>
+{
 	int   colsCapacity(void);
 
 	void  freeColsName(void);
@@ -143,9 +145,9 @@ struct RowMethod : ArrayMethod<Sq::Value> {
 // C/C++ common definitions: define structure
 
 /*
-	SqRow.cols.type is type of SqRow.data.xxx
-	If SqRow.cols.type is SQ_TYPE_BOOL, value is SqRow.data.boolean
-	If SqRow.cols.type is SQ_TYPE_STR,  value is SqRow.data.str
+	SqRow::cols::type is type of SqRow::data::xxx
+	If SqRow::cols::type is SQ_TYPE_BOOL, value is SqRow::data::boolean
+	If SqRow::cols::type is SQ_TYPE_STR,  value is SqRow::data::str
  */
 struct SqRowColumn
 {

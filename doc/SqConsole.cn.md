@@ -7,11 +7,14 @@ SqConsole 提供命令行界面（主要用于 SqAppTool）。它必须与 SqCom
   
 SqConsole、SqCommand 和 SqOption 的关系。
 
-	SqConsole ---┬--- SqCommand 1 ---┬--- SqOption 1
+	           1 : N               1 : N
+	SqConsole ---┬--- SqCommand 1 ---┬--- SqOption 1-1
 	             │                   │
-	             │                   └--- SqOption n
+	             │                   └--- SqOption 1-2
 	             │
-	             └--- SqCommand n ---  ...
+	             └--- SqCommand 2 ---┬--- SqOption 2-1
+	                                 │
+	                                 └--- SqOption 2-2
 
 # SqCommand
 

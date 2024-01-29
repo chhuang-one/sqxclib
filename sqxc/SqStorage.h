@@ -125,7 +125,7 @@ void  sq_storage_remove_all(SqStorage    *storage,
                             const char   *sql_where_having);
 
 // ------------------------------------
-// find table by SqTable.name or SqType.name
+// find table by SqTable.name or SqType::name
 
 #define  sq_storage_find(storage, table_name)    sq_schema_find((storage)->schema, table_name)
 
@@ -395,7 +395,8 @@ struct SqStorage
 	Sqdb      *db;          // database
 	SqSchema  *schema;      // current schema
 
-	// tables is an array that sorted by SqTable.type.name
+	// 'tables' is an array that sorted by SqTable::type::name
+	// 'tables_version' is used to compare with SqStorage::schema::version
 	SqPtrArray tables;
 	int        tables_version;
 

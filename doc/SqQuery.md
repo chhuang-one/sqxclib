@@ -1179,6 +1179,30 @@ use C++ language to generate subquery in condition:
 	     });
 ```
 
+## Alias (SQL AS)
+
+C sq_query_as() and C++ as() can take an alias for table or column in SQL statement.  
+  
+C function sq_query_as() can be called after sq_query_from(), sq_query_join(), sq_query_select().
+
+```c
+	// SELECT name as n
+	sq_query_select(query, "name");
+	sq_query_as(query, "n");
+	// FROM users as u
+	sq_query_from(query, "users");
+	sq_query_as(query, "u");
+```
+
+C++ method as() can be called after from(), join(), select().
+
+```c++
+	// SELECT name as n
+	query->select("name")->as("n");
+	// FROM users as u
+	query->from("users")->as("u");
+```
+
 ## Appendix : functions that support printf format string
 
 There are many functions can specify SQL condition and them also support printf format string. Please pass printf format string before passing value of condition. If you want to use SQL Wildcard Characters '%' in printf format string, you must print "%" using "%%".  

@@ -361,13 +361,13 @@ static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *re
 
 		case 'I':    // INSERT
 		case 'i':    // insert
-			// 将插入的行 id 设置为 SqxcSql.id
+			// 将插入的行 id 设置为 SqxcSql::id
 			((SqxcSql*)xc)->id = inserted_id;
 			break;
 
 		case 'U':    // UPDATE
 		case 'u':    // update
-			// 设置 SqxcSql.changes 为更改行数
+			// 设置 SqxcSql::changes 为更改行数
 			((SqxcSql*)xc)->changes = number_of_rows_changed;
 			break;
 

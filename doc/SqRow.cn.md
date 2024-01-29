@@ -95,33 +95,35 @@ union SqValue {
 如果 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型，SqRow 中的数组应该如下所示：
 
 ```c
-	SqRow.cols[0].name   = "id";
-	SqRow.cols[0].type   = SQ_TYPE_STR;
-	SqRow.cols[0].entry  = NULL;
-	SqRow.data[0].str    = "1";
+//	SqRow  sqRow;
 
-	SqRow.cols[1].name   = "name";
-	SqRow.cols[1].type   = SQ_TYPE_STR;
-	SqRow.cols[1].entry  = NULL;
-	SqRow.data[1].str    = "Bob";
+	sqRow.cols[0].name   = "id";
+	sqRow.cols[0].type   = SQ_TYPE_STR;
+	sqRow.cols[0].entry  = NULL;
+	sqRow.data[0].str    = "1";
 
-	SqRow.cols[2].name   = "state";
-	SqRow.cols[2].type   = SQ_TYPE_STR;
-	SqRow.cols[2].entry  = NULL;
-	SqRow.data[2].str    = "NY";
+	sqRow.cols[1].name   = "name";
+	sqRow.cols[1].type   = SQ_TYPE_STR;
+	sqRow.cols[1].entry  = NULL;
+	sqRow.data[1].str    = "Bob";
+
+	sqRow.cols[2].name   = "state";
+	sqRow.cols[2].type   = SQ_TYPE_STR;
+	sqRow.cols[2].entry  = NULL;
+	sqRow.data[2].str    = "NY";
 
 	// 这一行有 3 列
-	SqRow.length = 3;
-	SqRow.cols_length = 3;
+	sqRow.length = 3;
+	sqRow.cols_length = 3;
 ```
 
 否则第一列是这样的：
 
 ```c
-	SqRow.cols[0].name    = "id";
-	SqRow.cols[0].type    = SQ_TYPE_INT;
-	SqRow.cols[0].entry   = (const SqEntry*) pointerToSqColumn;
-	SqRow.data[0].integer = 1;
+	sqRow.cols[0].name    = "id";
+	sqRow.cols[0].type    = SQ_TYPE_INT;
+	sqRow.cols[0].entry   = (const SqEntry*) pointerToSqColumn;
+	sqRow.data[0].integer = 1;
 ```
 
 ## 创建和释放 SqRow
@@ -204,7 +206,7 @@ C 函数 sq_row_share_cols()、C++ 方法 shareCols() 可以做到这一点。
 ```c
 	SqRow *row = array->data[0];     // 此 'array' 有查询结果
 
-	// 将 SqRow.cols 分享给其他 SqRow
+	// 将 SqRow::cols 分享给其他 SqRow
 	for (int index = 1;  index < array.length;  index++)
 		sq_row_share_cols(row, array->data[index]);
 ```
@@ -214,7 +216,7 @@ C 函数 sq_row_share_cols()、C++ 方法 shareCols() 可以做到这一点。
 ```c++
 	Sq::Row *row = vector->at(0);    // 此 'vector' 有查询结果
 
-	// 将 SqRow.cols 分享给其他 SqRow
+	// 将 SqRow::cols 分享给其他 SqRow
 	for (cur = vector->begin()+1, end = vector->end();  cur != end;  cur++)
 		row->shareCols(*cur);
 ```

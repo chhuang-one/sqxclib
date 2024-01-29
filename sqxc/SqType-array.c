@@ -44,7 +44,7 @@ static void sq_type_array_clear_element(void *array, const SqType *element_type,
 
 /* ----------------------------------------------------------------------------
 	SQ_TYPE_ARRAY
-	User must assign element type in SqType.entry and set SqType.n_entry to -1.
+	User must assign element type in SqType::entry and set SqType::n_entry to -1.
  */
 
 static void sq_type_array_init(void *array, const SqType *type)
@@ -67,7 +67,7 @@ static void sq_type_array_init(void *array, const SqType *type)
 
 static void sq_type_array_final(void *array, const SqType *type)
 {
-	// User must assign element type in SqType.entry and set SqType.n_entry to -1.
+	// User must assign element type in SqType::entry and set SqType::n_entry to -1.
 	sq_type_array_clear_element(array, (SqType*)type->entry, false);
 	sq_array_final(array);
 }
@@ -80,7 +80,7 @@ static int  sq_type_array_parse(void *array, const SqType *type, Sqxc *src)
 	void         *element;
 
 	// get element type information
-	if (type->n_entry == -1)    // SqType.entry isn't freed if SqType.n_entry == -1
+	if (type->n_entry == -1)    // SqType::entry isn't freed if SqType::n_entry == -1
 		element_type = (SqType*)type->entry;
 	else if (xc_value->nested_count < 2) {
 		element_type = xc_value->element;
@@ -154,7 +154,7 @@ static Sqxc *sq_type_array_write(void *array, const SqType *type, Sqxc *dest)
 	uint8_t *cur, *end;
 
 	// get element type information.
-	if (type->n_entry == -1)    // SqType.entry isn't freed if SqType.n_entry == -1
+	if (type->n_entry == -1)    // SqType::entry isn't freed if SqType::n_entry == -1
 		element_type = (SqType*)type->entry;
 //	else if (dest->nested_count < 1)
 //		element_type = ((SqxcValue*)dest)->element;
@@ -215,13 +215,13 @@ const SqType SqType_IntArray_ =
 	sq_type_array_parse,
 	sq_type_array_write,
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE_INT,       // entry   : assign element type in SqType.entry
-	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
+	(SqEntry**) SQ_TYPE_INT,       // entry   : assign element type in SqType::entry
+	-1,                            // n_entry : SqType::entry isn't freed if SqType::n_entry == -1
 };
 
 /* ----------------------------------------------------------------------------
 	SQ_TYPE_PTR_ARRAY
-	User must assign element type in SqType.entry and set SqType.n_entry to -1.
+	User must assign element type in SqType::entry and set SqType::n_entry to -1.
  */
 
 static void sq_type_ptr_array_init(void *array, const SqType *type)
@@ -231,7 +231,7 @@ static void sq_type_ptr_array_init(void *array, const SqType *type)
 
 static void sq_type_ptr_array_final(void *array, const SqType *type)
 {
-	// get element type information in SqType.entry and free elements
+	// get element type information in SqType::entry and free elements
 	if (sq_ptr_array_clear_func(array) == NULL)
 		sq_type_array_clear_element(array, (SqType*)type->entry, true);
 	// free memory that allocated by array
@@ -266,7 +266,7 @@ const SqType SqType_StrArray_ =
 	sq_type_array_parse,
 	sq_type_array_write,
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE_STR,       // entry   : assign element type in SqType.entry
-	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
+	(SqEntry**) SQ_TYPE_STR,       // entry   : assign element type in SqType::entry
+	-1,                            // n_entry : SqType::entry isn't freed if SqType::n_entry == -1
 };
 

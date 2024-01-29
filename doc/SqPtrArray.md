@@ -27,7 +27,7 @@ struct SqPtrArray
 };
 ```
 
-There are hidden members in front of SqPtrArray.data:  
+There are hidden members in front of SqPtrArray::data :  
 capacity  is the number of elements actually allocated in the array. (excluding the header in front of the array)  
 clearFunc is a function that clears elements in an array.  
   

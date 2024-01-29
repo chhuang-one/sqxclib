@@ -24,8 +24,8 @@ struct SqType
 
 	// SqType::entry is array of SqEntry pointer if current SqType is for C struct type.
 	// SqType::entry isn't freed if SqType::n_entry == -1
-	SqEntry      **entry;          // SqPtrArray::data
-	int            n_entry;        // SqPtrArray::length
+	SqEntry      **entry;          // maps to SqPtrArray::data
+	int            n_entry;        // maps to SqPtrArray::length
 	// *** About above 2 fields:
 	// 1. They are expanded by macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
 	// 2. They can NOT change data type and order.
@@ -43,15 +43,15 @@ struct SqType
 
 Define bit_field of SqType:
 
-| name                  | description                            |
-| --------------------- | -------------------------------------- |
-| SQB_TYPE_DYNAMIC      | type can be changed and freed          |
-| SQB_TYPE_SORTED       | SqType.entry is sorted by SqEntry.name |
-| SQB_TYPE_QUERY_FIRST  | SqType.entry has query-only columns    |
+| name                  | description                              |
+| --------------------- | ---------------------------------------- |
+| SQB_TYPE_DYNAMIC      | type can be changed and freed            |
+| SQB_TYPE_SORTED       | SqType::entry is sorted by SqEntry::name |
+| SQB_TYPE_QUERY_FIRST  | SqType::entry has query-only columns     |
 
 * SQB_TYPE_DYNAMIC is for internal use only. User should NOT set or clear this bit.
-* User can NOT change or free SqType if SqType.bit_field has NOT set SQB_TYPE_DYNAMIC.
-* User must use bitwise operators to set or clear bits in SqType.bit_field.
+* User can NOT change or free SqType if SqType::bit_field has NOT set SQB_TYPE_DYNAMIC.
+* User must use bitwise operators to set or clear bits in SqType::bit_field.
 * It is better to use constant or static SqEntry with constant or static SqType.
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
@@ -145,8 +145,8 @@ Using sq_type_new() to create dynamic primitive data type for SqType.
 Function sq_type_new() declarations:
 
 ```c++
-// prealloc_size : capacity of SqType.entry (SqType.entry is SqEntry pointer array).
-// entry_destroy_func : DestroyFunc of SqType.entry's elements.
+// prealloc_size : capacity of SqType::entry (SqType::entry is SqEntry pointer array).
+// entry_destroy_func : DestroyFunc of SqType::entry's elements.
 
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 ```
@@ -222,7 +222,7 @@ about above macro SQ_GET_TYPE_NAME(Type):
 #### 2.2 constant SqType use 'sorted' constant pointer array of SqEntry
 1. use C99 designated initializer to define 'sorted' **pointer array** of SqEntry.
 2. define constant SqType to use **pointer array** of SqEntry.
-3. SqType.bit_field must set SQB_TYPE_SORTED.
+3. SqType::bit_field must set SQB_TYPE_SORTED.
 
 ```c
 /* sortedEntryPointers is 'sorted' entryPointers (sorted by name) */
@@ -297,7 +297,7 @@ use C language to add dynamic SqEntry.
 	entry = sq_entry_new(SQ_TYPE_INT);
 	sq_entry_set_name(entry, "id");
 	entry->offset = offsetof(User, id);
-	entry->bit_field |= SQB_HIDDEN;        // set bit in SqEntry.bit_field
+	entry->bit_field |= SQB_HIDDEN;        // set bit in SqEntry::bit_field
 	sq_type_add_entry(type, entry, 1, 0);
 
 	entry = sq_entry_new(SQ_TYPE_STR);
@@ -322,7 +322,7 @@ use C++ language to add dynamic SqEntry.
 	entry = new Sq::Entry(SQ_TYPE_INT);
 	entry->setName("id");
 	entry->offset = offsetof(User, id);
-	entry->bit_field |= SQB_HIDDEN;    // set bit in SqEntry.bit_field
+	entry->bit_field |= SQB_HIDDEN;        // set bit in SqEntry::bit_field
 	type->addEntry(entry);
 
 	entry = new Sq::Entry(SQ_TYPE_STR);
@@ -454,7 +454,7 @@ static int  sq_type_my_list_parse(void *mylist, const SqType *type, Sqxc *src)
 	SqxcNested   *nested   = xc_value->nested;
 	const SqType *element_type;
 
-	// You can assign element type in SqType.entry
+	// You can assign element type in SqType::entry
 	element_type = (SqType*)type->entry;
 
 	// Start of Container
@@ -484,7 +484,7 @@ static Sqxc *sq_type_my_list_write(void *mylist, const SqType *type, Sqxc *dest)
 	const SqType *element_type;
 	const char   *container_name = dest->name;
 
-	// You can assign element type in SqType.entry
+	// You can assign element type in SqType::entry
 	element_type = (SqType*)type->entry;
 
 	// Begin of Container
@@ -522,8 +522,8 @@ const SqType SqType_MyList_ =
 	sq_type_my_list_write,         // write
 
 	NULL,                          // name
-	(SqEntry**) SQ_TYPE__yours_,   // entry   : You can assign element type in SqType.entry
-	-1,                            // n_entry : SqType.entry isn't freed if SqType.n_entry == -1
+	(SqEntry**) SQ_TYPE__yours_,   // entry   : You can assign element type in SqType::entry
+	-1,                            // n_entry : SqType::entry isn't freed if SqType::n_entry == -1
 	0,                             // bit_field
 	NULL,                          // on_destroy
 };
@@ -532,7 +532,7 @@ const SqType SqType_MyList_ =
 ## 4 derived SqType (dynamic)
 
 This defines new structure that derived from SqType.  
-If you want add members in derived SqType, you can use SqType.on_destroy callback function to release them.
+If you want add members in derived SqType, you can use SqType::on_destroy callback function to release them.
 
 ```c++
 // If you use C language, please use 'typedef' to give a struct type a new name.
@@ -600,7 +600,7 @@ SqType *my_type_new()
 
 ## 5 free dynamic SqType
 
-sq_type_free() can destroy dynamic SqType (SqType.bit_field has SQB_TYPE_DYNAMIC). It can emit destroy notifier.
+sq_type_free() can destroy dynamic SqType (SqType::bit_field has SQB_TYPE_DYNAMIC). It can emit destroy notifier.
 
 ```c++
 	/* C function */

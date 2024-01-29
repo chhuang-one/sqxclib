@@ -59,9 +59,7 @@ extern const SqxcInfo        SqxcInfo_Value_;
 
 	                 +-> SqxcJsoncParser -+
 	( input )        |                    |
-	Sqdb.exec()    --+--------------------+-> SqxcValue ---> SqType.parse()
-	                 |                    |
-	                 +--> SqxcXmlParser --+
+	sqdb_exec()    --+--------------------+-> SqxcValue ---> SqType::parse()
 
 
    The correct way to derive Sqxc:  (conforming C++11 standard-layout)
@@ -105,7 +103,7 @@ struct SqxcValue
 //	uint16_t     outputable_type; // supported SqxcType (bit field) for outputting, it can change at runtime.
 
 	// ------------------------------------------
-	// arguments that used by SqxcInfo->send()
+	// arguments that used by SqxcInfo::send()
 
 	// output arguments
 //	uint16_t     required_type;   // required SqxcType (bit field) if 'code' == SQCODE_TYPE_NOT_MATCHED

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -257,7 +257,8 @@ inline Sq::Table *SchemaMethod::find(const char *table_name) {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Schema : SqSchema {
+struct Schema : SqSchema
+{
 	Schema(const char *name = NULL) {
 		sq_schema_init(this, name);
 	}

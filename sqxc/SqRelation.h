@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -103,7 +103,8 @@ struct RelationNode;
 
 	It's derived struct/class must be C++11 standard-layout and has SqRelation members.
  */
-struct RelationMethod {
+struct RelationMethod
+{
 	void  init(SqRelationPool *pool, int capacity);
 	void  final();
 
@@ -119,7 +120,8 @@ struct RelationMethod {
 
 	It's derived struct/class must be C++11 standard-layout and has SqRelationNode members.
 */
-struct RelationNodeMethod {
+struct RelationNodeMethod
+{
 	Sq::RelationNode *find(const void *object, SqRelationNode **prev_of_returned_node = NULL);
 	Sq::RelationNode *find(const void *object, Sq::RelationNode **prev_of_returned_node);
 	Sq::RelationNode *find(const void *object, Sq::RelationNodeMethod **prev_of_returned_node);
@@ -156,7 +158,7 @@ struct SqRelation
  */
 };
 
-/*	SqRelationNode is singly linked list. They store in SqRelation.pool (chunk) and SqRelation.data (array).
+/*	SqRelationNode is singly linked list. They store in SqRelation::pool (chunk) and SqRelation::data (array).
 	               size of this structure == size of 2 pointers because SqRelationNode has 2 pointers
  */
 #ifdef __cplusplus
@@ -229,7 +231,8 @@ inline Sq::RelationNode *RelationNodeMethod::reverse() {
 
 /* All derived struct/class must be C++11 standard-layout. */
 
-struct Relation : SqRelation {
+struct Relation : SqRelation
+{
 	Relation(SqRelationPool *pool, int capacity) {
 		sq_relation_init(this, pool, capacity);
 	}
@@ -238,7 +241,8 @@ struct Relation : SqRelation {
 	}
 };
 
-struct RelationNode : SqRelationNode {
+struct RelationNode : SqRelationNode
+{
 	// It can NOT add variable and virtual function in derived struct.
 };
 

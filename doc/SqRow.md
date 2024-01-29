@@ -95,33 +95,35 @@ For example, there is a row in customers table.
 If [SqTypeRow](SqTypeRow.md) does not know the type of the columns, arrays in SqRow should look like this:
 
 ```c
-	SqRow.cols[0].name   = "id";
-	SqRow.cols[0].type   = SQ_TYPE_STR;
-	SqRow.cols[0].entry  = NULL;
-	SqRow.data[0].str    = "1";
+//	SqRow  sqRow;
 
-	SqRow.cols[1].name   = "name";
-	SqRow.cols[1].type   = SQ_TYPE_STR;
-	SqRow.cols[1].entry  = NULL;
-	SqRow.data[1].str    = "Bob";
+	sqRow.cols[0].name   = "id";
+	sqRow.cols[0].type   = SQ_TYPE_STR;
+	sqRow.cols[0].entry  = NULL;
+	sqRow.data[0].str    = "1";
 
-	SqRow.cols[2].name   = "state";
-	SqRow.cols[2].type   = SQ_TYPE_STR;
-	SqRow.cols[2].entry  = NULL;
-	SqRow.data[2].str    = "NY";
+	sqRow.cols[1].name   = "name";
+	sqRow.cols[1].type   = SQ_TYPE_STR;
+	sqRow.cols[1].entry  = NULL;
+	sqRow.data[1].str    = "Bob";
+
+	sqRow.cols[2].name   = "state";
+	sqRow.cols[2].type   = SQ_TYPE_STR;
+	sqRow.cols[2].entry  = NULL;
+	sqRow.data[2].str    = "NY";
 
 	// This row has 3 columns
-	SqRow.length = 3;
-	SqRow.cols_length = 3;
+	sqRow.length = 3;
+	sqRow.cols_length = 3;
 ```
 
 Otherwise the first column is this:
 
 ```c
-	SqRow.cols[0].name    = "id";
-	SqRow.cols[0].type    = SQ_TYPE_INT;
-	SqRow.cols[0].entry   = (const SqEntry*) pointerToSqColumn;
-	SqRow.data[0].integer = 1;
+	sqRow.cols[0].name    = "id";
+	sqRow.cols[0].type    = SQ_TYPE_INT;
+	sqRow.cols[0].entry   = (const SqEntry*) pointerToSqColumn;
+	sqRow.data[0].integer = 1;
 ```
 
 ## Create and free SqRow
@@ -204,7 +206,7 @@ use C language
 ```c
 	SqRow *row = array->data[0];     // This 'array' has query result
 
-	// share SqRow.cols to other SqRow
+	// share SqRow::cols to other SqRow
 	for (int index = 1;  index < array.length;  index++)
 		sq_row_share_cols(row, array->data[index]);
 ```
@@ -214,7 +216,7 @@ use C++ STL
 ```c++
 	Sq::Row *row = vector->at(0);    // The 'vector' has query result
 
-	// share SqRow.cols to other SqRow
+	// share SqRow::cols to other SqRow
 	for (cur = vector->begin()+1, end = vector->end();  cur != end;  cur++)
 		row->shareCols(*cur);
 ```

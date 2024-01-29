@@ -361,13 +361,13 @@ static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *re
 
 		case 'I':    // INSERT
 		case 'i':    // insert
-			// set inserted row id to SqxcSql.id
+			// set inserted row id to SqxcSql::id
 			((SqxcSql*)xc)->id = inserted_id;
 			break;
 
 		case 'U':    // UPDATE
 		case 'u':    // update
-			// set number of rows changed to SqxcSql.changes
+			// set number of rows changed to SqxcSql::changes
 			((SqxcSql*)xc)->changes = number_of_rows_changed;
 			break;
 

@@ -195,7 +195,7 @@ static const SqColumn  userColumns[8] = {
 
 ## Query-only column (static)
 
-Query-only column names only apply to SQL SELECT query. You can set SqColumn.name to the SELECT query and set SQB_QUERY_ONLY in SqColumn.bit_field to define query-only column. This can store result of special query like 'SELECT length(BlobColumn), * FROM table' to C structure's member.  
+Query-only column names only apply to SQL SELECT query. You can set SqColumn::name to the SELECT query and set SQB_QUERY_ONLY in SqColumn::bit_field to define query-only column. This can store result of special query like 'SELECT length(BlobColumn), * FROM table' to C structure's member.  
   
 **Note**: Enable SQ_CONFIG_QUERY_ONLY_COLUMN in SqConfig.h if you want to use this feature.  
   
@@ -222,7 +222,7 @@ static const SqColumn  queryFirstColumns[3] = {
 
 	// Query-only column:
 	// 1. column name is SELECT query
-	// 2. SqColumn.bit_field has SQB_QUERY_ONLY
+	// 2. SqColumn::bit_field has SQB_QUERY_ONLY
 	{SQ_TYPE_INT,    "length(str)", offsetof(QueryFirst, str_length), SQB_QUERY_ONLY},
 
 	// VARCHAR
@@ -230,7 +230,7 @@ static const SqColumn  queryFirstColumns[3] = {
 };
 ```
 
-If you define constant SqType that has query-only column. SqType.bit_field must have SQB_TYPE_QUERY_FIRST.
+If you define constant SqType that has query-only column. SqType::bit_field must have SQB_TYPE_QUERY_FIRST.
 
 ```c++
 // constant pointer array of SqColumn for queryFirstColumns
@@ -240,14 +240,14 @@ static const SqColumn *queryFirstColumnPtrs[3] = {
 	&queryFirstColumns[2],
 };
 
-// SqType.bit_field must have SQB_TYPE_QUERY_FIRST
+// SqType::bit_field must have SQB_TYPE_QUERY_FIRST
 const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnPtrs, SQB_TYPE_QUERY_FIRST);
 ```
 
 ## Type mapping (static)
 
-Users can specify the SQL data type in SqColumn.sql_type, which will map to the C data type specified in SqColumn.type.
-If SqColumn.sql_type is equal to 0, program will try to determine the SQL data type from SqColumn.type.
+Users can specify the SQL data type in SqColumn::sql_type, which will map to the C data type specified in SqColumn::type.
+If SqColumn::sql_type is equal to 0, program will try to determine the SQL data type from SqColumn::type.
 SQL data types are listed in [SqTable](SqTable.md).  
   
 You must use type mapping if you define constant [SqColumn](SqColumn.md) with non-built-in [SqType](SqType.md).
@@ -267,7 +267,7 @@ struct Mapping
 	char     *text;
 
 	// type mapping + query-only column
-	// specify length of BLOB in SqBuffer.size before parsing 'picture'.
+	// specify length of BLOB in SqBuffer::size before parsing 'picture'.
 	SqBuffer  picture;
 };
 
@@ -279,8 +279,8 @@ static const SqColumn  mappingColumns[4] = {
 	{SQ_TYPE_STR,    "text",            offsetof(Mapping, text), 0,
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
-	// Query-only column: SqColumn.bit_field must has SQB_QUERY_ONLY
-	// specify length of BLOB in SqBuffer.size before parsing 'picture'.
+	// Query-only column: SqColumn::bit_field must has SQB_QUERY_ONLY
+	// specify length of BLOB in SqBuffer::size before parsing 'picture'.
 	// use this to get length of BLOB data for SQLite or MySQL.
 	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
 
@@ -292,7 +292,7 @@ static const SqColumn  mappingColumns[4] = {
 
 Example 2: use C++ std::vector<char> to store SQL BLOB data.  
   
-Note: SQ_TYPE_STD_VECTOR_SIZE will specify size of BLOB by calling std::vector<char>.resize() when parsing integer value.
+Note: SQ_TYPE_STD_VECTOR_SIZE will specify size of BLOB by calling std::vector<char>::resize() when parsing integer value.
 
 ```c++
 struct MappingCpp
@@ -303,7 +303,7 @@ struct MappingCpp
 	std::string  text;
 
 	// type mapping + query-only column
-	// calling std::vector<char>.resize() to specify length of BLOB before parsing 'picture'.
+	// calling std::vector<char>::resize() to specify length of BLOB before parsing 'picture'.
 	std::vector<char>  picture;
 };
 
@@ -315,8 +315,8 @@ static const SqColumn  mappingCppColumns[4] = {
 	{SQ_TYPE_STD_STR, "text",            offsetof(MappingCpp, text), 0,
 		.sql_type = SQ_SQL_TYPE_TEXT},
 
-	// Query-only column: SqColumn.bit_field must has SQB_QUERY_ONLY
-	// calling std::vector<char>.resize() to specify length of BLOB before parsing 'picture'.
+	// Query-only column: SqColumn::bit_field must has SQB_QUERY_ONLY
+	// calling std::vector<char>::resize() to specify length of BLOB before parsing 'picture'.
 	// use this to get length of BLOB data for SQLite or MySQL.
 	{SQ_TYPE_STD_VECTOR_SIZE, "length(picture)", offsetof(MappingCpp, picture), SQB_QUERY_ONLY},
 

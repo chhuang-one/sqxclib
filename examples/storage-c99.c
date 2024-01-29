@@ -412,6 +412,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 	sq_storage_migrate(storage, NULL);
 }
 
+// sq_storage_query() doesn't use SqStorage::joint_default because only 1 table in query.
 void  storage_query_ptr_array(SqStorage *storage)
 {
 	SqPtrArray *array;
@@ -435,6 +436,7 @@ void  storage_query_ptr_array(SqStorage *storage)
 	sq_query_free(query);
 }
 
+// sq_storage_query() use SqStorage::joint_default because multiple tables in query.
 void  storage_query_join_array(SqStorage *storage)
 {
 	typedef void *Joint2[2];

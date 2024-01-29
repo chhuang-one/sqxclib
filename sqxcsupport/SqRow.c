@@ -314,7 +314,7 @@ static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 		strncpy(sq_buffer_alloc(buf, temp.len*2), src->name, temp.len);   // alloc(buf, (temp.len+1)*2)
 		buf->mem[temp.len] = 0;    // null-terminated
 		temp.len++;                // + '.'
-		// find table by it's name in SqTypeRow.entry
+		// find table by it's name in SqTypeRow::entry
 		p.addr = sq_type_find_entry(type, buf->mem, NULL);
 		if (p.addr == NULL) {
 			sq_type_row_parse_unknown(instance, src);
@@ -322,9 +322,9 @@ static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 		}
 	}
 
-	// 'p.entry' pointer to element of SqTypeRow.entry
+	// 'p.entry' pointer to element of SqTypeRow::entry
 	p.entry = *p.addr;
-	// find column by it's name in 'p.entry->type' ('p.entry->type' pointer to SqTable.type)
+	// find column by it's name in 'p.entry->type' ('p.entry->type' pointer to SqTable::type)
 	p.addr = sq_type_find_entry(p.entry->type, src->name + temp.len, NULL);
 	if (p.addr == NULL) {
 		sq_type_row_parse_unknown(instance, src);
@@ -335,7 +335,7 @@ static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 #endif
 		return (src->code = SQCODE_ENTRY_NOT_FOUND);
 	}
-	// 'p.addr' pointer to SqColumn in SqTable.type
+	// 'p.addr' pointer to SqColumn in SqTable::type
 	p.column = *p.addr;
 	type = p.column->type;
 	if (type->parse == NULL) {
@@ -373,7 +373,7 @@ static Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest)
 		return dest;
 
 	for (int index = 0;  index < row->length;  index++) {
-		// SqRow.cols
+		// SqRow::cols
 		temp.col = row->cols + ((row->cols_length==1) ? 0 : index);
 		member_type = temp.col->type;
 		if (member_type == NULL)           // NULL type
@@ -382,7 +382,7 @@ static Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest)
 			continue;
 		dest->name  = temp.col->name;      // set "name" before calling write()
 		dest->entry = (SqEntry*)temp.col->entry;
-		// SqRow.data
+		// SqRow::data
 		temp.val = &row->data[index];
 		if (SQ_TYPE_NOT_BUILTIN(member_type)) {
 			temp.val = temp.val->pointer;

@@ -50,7 +50,7 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 ## 列修饰符
 
 在将列添加到表或将条目添加到结构时，您可以使用几个 "修饰符"。  
-大多数方法（函数）将 SqColumn.bit_field 的特定位设置为 1。
+大多数方法（函数）将 SqColumn::bit_field 的特定位设置为 1。
 
 | C++ 方法           | C 函数                          | 描述                               |
 | ------------------ | ------------------------------- | ---------------------------------- |
@@ -162,7 +162,7 @@ struct SqColumn
 ```
 
 定义 SqColumn 使用的 bit_field：  
-以下 SQB_XXXX 都必须使用按位操作来设置或清除 SqColumn.bit_field 中的位。
+以下 SQB_XXXX 都必须使用按位操作来设置或清除 SqColumn::bit_field 中的位。
 
 | 名称                   | 描述                                          | 
 | ---------------------- | --------------------------------------------- |

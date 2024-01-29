@@ -37,8 +37,8 @@ Declaring bit_field of SqEntry
 | SQB_HIDDEN_NULL | Converter will not output if value is NULL    |
 
 * SQB_DYNAMIC is for internal use only. User should NOT set or clear this bit.
-* User can NOT change or free SqEntry if SqEntry.bit_field has NOT set SQB_DYNAMIC.
-* User must use bitwise operators to set or clear bits in SqEntry.bit_field.
+* User can NOT change or free SqEntry if SqEntry::bit_field has NOT set SQB_DYNAMIC.
+* User must use bitwise operators to set or clear bits in SqEntry::bit_field.
 * It is better to use constant (or static) SqEntry with constant (or static) SqType.
 * Dynamic SqEntry can use with dynamic, constant, or static SqType.
 
@@ -102,8 +102,8 @@ use C language
 
 	sq_entry_set_name(entry, "name");
 	entry->offset = offsetof(YourStruct, name);
-	entry->bit_field |= SQB_HIDDEN_NULL;    // set bit in SqEntry.bit_field
-//	entry->bit_field &= ~SQB_HIDDEN_NULL;   // clear bit in SqEntry.bit_field
+	entry->bit_field |=  SQB_HIDDEN_NULL;   // set   bit in SqEntry::bit_field
+//	entry->bit_field &= ~SQB_HIDDEN_NULL;   // clear bit in SqEntry::bit_field
 
 	sq_type_add_entry(type, entry, 1, 0);
 ```
@@ -115,8 +115,8 @@ use C++ language
 
 	entry->setName("name");
 	entry->offset = offsetof(YourStruct, name);
-	entry->bit_field |= SQB_HIDDEN_NULL;    // set bit in SqEntry.bit_field
-//	entry->bit_field &= ~SQB_HIDDEN_NULL;   // clear bit in SqEntry.bit_field
+	entry->bit_field |=  SQB_HIDDEN_NULL;   // set   bit in SqEntry::bit_field
+//	entry->bit_field &= ~SQB_HIDDEN_NULL;   // clear bit in SqEntry::bit_field
 
 	type->addEntry(entry);
 ```

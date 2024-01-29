@@ -30,7 +30,7 @@ struct SqArray
 };
 ```
 
-There are hidden members in front of SqArray.data:  
+There are hidden members in front of SqArray::data :  
 capacity    : the number of elements actually allocated in the array. (excluding the header in front of the array)  
 elementSize : element size in the array.  
   

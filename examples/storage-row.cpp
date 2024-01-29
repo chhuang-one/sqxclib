@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2023 by C.H. Huang
+ *   Copyright (C) 2022-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -111,12 +111,24 @@ void printRow(Sq::Row *row)
 		}
 		else {
 			switch (SQ_TYPE_BUILTIN_INDEX(col->type)) {
+			case SQ_TYPE_BOOL_INDEX:
+				std::cout << val->boolean;
+				break;
+
 			case SQ_TYPE_INT_INDEX:
 				std::cout << val->int_;
 				break;
 
 			case SQ_TYPE_UINT_INDEX:
 				std::cout << val->uint;
+				break;
+
+			case SQ_TYPE_INT64_INDEX:
+				std::cout << val->int64;
+				break;
+
+			case SQ_TYPE_UINT64_INDEX:
+				std::cout << val->uint64;
 				break;
 
 			case SQ_TYPE_TIME_INDEX:
@@ -135,6 +147,8 @@ void printRow(Sq::Row *row)
 		}
 		std::cout << std::endl;
 	}
+
+	std::cout << std::endl;
 }
 
 // ----------------------------------------------------------------------------
@@ -209,7 +223,7 @@ void  queryUnknown(Sq::Storage *storage)
 	rowVector = storage->query< std::vector<Sq::Row*> >(query, SQ_TYPE_ROW);
 
 	if (rowVector) {
-		// share SqRow.cols to other SqRow.
+		// share SqRow::cols to other SqRow.
 		Sq::Row *row = rowVector->at(0);
 		for (cur = rowVector->begin()+1, end = rowVector->end();  cur != end;  cur++)
 			row->shareCols(*cur);
@@ -313,6 +327,9 @@ void getRowStl(Sq::Storage *storage)
 	std::vector<Sq::Row*> *rowVector;
 	std::vector<Sq::Row*>::iterator cur, end;
 
+	std::cout << std::endl
+	          << "getRowStl(): get SqRow by using Sq::Storage::get() and Sq::Storage::getAll() with STL" << std::endl;
+
 	// specify the table type as SQ_TYPE_ROW.
 	// specify the container type of returned data as std::vector<Sq::Row*>
 	rowVector = storage->getAll< std::vector<Sq::Row*> >("users", SQ_TYPE_ROW, NULL);
@@ -333,6 +350,9 @@ void getRowStl(Sq::Storage *storage)
 void getRow(Sq::Storage *storage)
 {
 	Sq::Row     *row;
+
+	std::cout << std::endl
+	          << "getRow(): get SqRow by using Sq::Storage::get() and Sq::Storage::getAll()" << std::endl;
 
 	// specify the table type as SQ_TYPE_ROW.
 	row = (Sq::Row*)storage->get("users", SQ_TYPE_ROW, 1);

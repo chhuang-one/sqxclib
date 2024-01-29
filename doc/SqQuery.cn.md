@@ -1179,6 +1179,30 @@ WHERE price < ( SELECT AVG(amount) FROM incomes )
 	     });
 ```
 
+## 别名 (SQL AS)
+
+C sq_query_as() 和 C++ as() 可以在 SQL 語句中為表格或欄位使用別名。  
+  
+C 函數 sq_query_as() 可以在 sq_query_from()、sq_query_join()、sq_query_select() 之後呼叫。
+
+```c
+	// SELECT name as n
+	sq_query_select(query, "name");
+	sq_query_as(query, "n");
+	// FROM users as u
+	sq_query_from(query, "users");
+	sq_query_as(query, "u");
+```
+
+C++ 方法 as() 可以在 from(), join(), select() 之後呼叫。
+
+```c++
+	// SELECT name as n
+	query->select("name")->as("n");
+	// FROM users as u
+	query->from("users")->as("u");
+```
+
 ## 附录 : 支持 printf 格式字符串的函数
 
 有很多函数可以指定 SQL 条件，它们也支持 printf 格式字符串。请在传递条件值之前传递 printf 格式字符串。如果要在 printf 格式字符串中使用 SQL 通配符 '%'，则必须使用 "%%" 打印 "%"。  

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -48,7 +48,7 @@ extern "C" {
 /* macro functions - parameter used only once in macro (except parameter 'array') */
 
 //void *sq_ptr_array_new(int capacity, SqClearFunc clear_func);
-#define sq_ptr_array_new(capacity, clear_func)  \
+#define sq_ptr_array_new(capacity, clear_func)     \
 		(SqPtrArray*)sq_ptr_array_init(malloc(sizeof(SqPtrArray)), capacity, clear_func)
 
 //void  sq_ptr_array_free(void *array);
@@ -74,11 +74,11 @@ extern "C" {
 //		*( ((SqPtrArray*)(array))->data + (index) )
 
 //void *sq_ptr_array_begin(void *array);
-#define sq_ptr_array_begin(array)  \
+#define sq_ptr_array_begin(array)        \
 		(((SqPtrArray*)(array))->data)
 
 //void *sq_ptr_array_end(void *array);
-#define sq_ptr_array_end(array)    \
+#define sq_ptr_array_end(array)          \
 		( (((SqPtrArray*)(array))->data) + ((SqPtrArray*)(array))->length )
 
 //void **sq_ptr_array_alloc(void *array, int count);
