@@ -230,6 +230,15 @@ static const SqColumn  queryFirstColumns[3] = {
 };
 ```
 
+**Join multiple tables using the same column name**  
+  
+If you join multiple tables using the same column name and use query-only column with function, you can add table name as prefix in column name of function parameter.
+
+```c
+	// change "length(ColumnName)" to "length(TableName.ColumnName)"
+	{SQ_TYPE_INT,    "length(TableName.ColumnName)", offsetof(TableName, ColumnName), SQB_QUERY_ONLY},
+```
+
 If you define constant SqType that has query-only column. SqType::bit_field must have SQB_TYPE_QUERY_FIRST.
 
 ```c++

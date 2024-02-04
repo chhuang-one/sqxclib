@@ -124,9 +124,13 @@ static const SqColumn userColumnsVer1[] = {
 	// This is mainly used by SQLite, MySQL to get length of BLOB column.
 	// If you use PostgreSQL and don't need store result of special query to C structure's member,
 	// you can disable SQ_CONFIG_QUERY_ONLY_COLUMN.
-	{SQ_TYPE_INT,    "length(picture)", offsetof(User, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
+	// ---
+	// If you join multiple tables using the same column name and use query-only column with function,
+	// you can add table name as prefix in column name of function parameter.
+//	{SQ_TYPE_INT,    "length(users.picture)", offsetof(User, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
+	{SQ_TYPE_INT,    "length(picture)",       offsetof(User, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
 #endif
-	{SQ_TYPE_BUFFER, "picture",         offsetof(User, picture),                            0,
+	{SQ_TYPE_BUFFER, "picture",               offsetof(User, picture),                            0,
 		.sql_type = SQ_SQL_TYPE_BLOB},
 
 #if SQ_CONFIG_HAVE_JSONC

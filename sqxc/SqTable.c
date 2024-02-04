@@ -390,12 +390,18 @@ SqColumn *sq_table_add_function(SqTable *table, const char *column_name,
 	} temp;
 
 	temp.len = (int)strlen(function_name);
-	// function_name + ( + column_name + ) + null-terminated
-	query_name = malloc(temp.len + strlen(column_name) + 3);
+	// query_name = function_name(table_name.column_name)
+	//              function_name + ( + table_name + . + column_name + ) + null-terminated
+	query_name = malloc(temp.len + strlen(table->name) + strlen(column_name) + 4);
 	strcpy(query_name, function_name);
-	strcpy(query_name + temp.len, "(");
-	strcpy(query_name + temp.len + 1, column_name);
-	strcat(query_name + temp.len + 1, ")");
+	strcpy(query_name + temp.len++, "(");
+	// append table name as prefix.
+	strcpy(query_name + temp.len  , table->name);
+	strcat(query_name + temp.len++, ".");
+	// append column name.
+	strcat(query_name + temp.len  , column_name);
+	strcat(query_name + temp.len  , ")");
+	// create query-only column
 	temp.column = sq_column_new(query_name, sqtype);
 	free(query_name);
 	temp.column->offset = offset;

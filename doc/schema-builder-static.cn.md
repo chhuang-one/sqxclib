@@ -230,6 +230,15 @@ static const SqColumn  queryFirstColumns[3] = {
 };
 ```
 
+**使用相同的列名连接多个表**  
+  
+如果使用相同的列名连接多个表并使用仅查询列和函数，则可以在函数参数的列名中添加表名作为前缀。
+
+```c
+	// 将 "length(ColumnName)" 更改为 "length(TableName.ColumnName)"
+	{SQ_TYPE_INT,    "length(TableName.ColumnName)", offsetof(TableName, ColumnName), SQB_QUERY_ONLY},
+```
+
 如果您定义具有仅查询列的常量 SqType。 SqType::bit_field 必须具有 SQB_TYPE_QUERY_FIRST。
 
 ```c++
