@@ -320,6 +320,7 @@ struct TableMethod
 	int         getColumns(SqPtrArray *ptr_array, const SqType *type, unsigned int bit_field);
 	Sq::Column *getPrimary();
 
+	void        addColumn(const SqColumn &columns);
 	void        addColumn(const SqColumn *columns, int n_columns = 1);
 	void        addColumn(const SqColumn **column_ptrs, int n_column_ptrs = 1);
 
@@ -444,27 +445,27 @@ struct TableMethod
 
 	// index(index_name, column_name...)
 	template <typename... Args>
-	Sq::Column *index(const char *index_name, const Args... args);
+	Sq::Column &index(const char *index_name, const Args... args);
 	template <typename... Args>
-	Sq::Column *addIndex(const char *index_name, const Args... args);
+	Sq::Column &addIndex(const char *index_name, const Args... args);
 	void        dropIndex(const char *index_name);
 
 	// unique(unique_name, column_name...)
 	template <typename... Args>
-	Sq::Column *unique(const char *unique_name, const Args... args);
+	Sq::Column &unique(const char *unique_name, const Args... args);
 	template <typename... Args>
-	Sq::Column *addUnique(const char *unique_name, const Args... args);
+	Sq::Column &addUnique(const char *unique_name, const Args... args);
 	void        dropUnique(const char *unique_name);
 
 	// primary(primary_name, column_name...)
 	template <typename... Args>
-	Sq::Column *primary(const char *primary_name, const Args... args);
+	Sq::Column &primary(const char *primary_name, const Args... args);
 	template <typename... Args>
-	Sq::Column *addPrimary(const char *primary_name, const Args... args);
+	Sq::Column &addPrimary(const char *primary_name, const Args... args);
 	void        dropPrimary(const char *primary_name);
 
-	Sq::Column *foreign(const char *foreign_name, const char *column_name);
-	Sq::Column *addForeign(const char *foreign_name, const char *column_name);
+	Sq::Column &foreign(const char *foreign_name, const char *column_name);
+	Sq::Column &addForeign(const char *foreign_name, const char *column_name);
 	void        dropForeign(const char *foreign_name);
 
 /*
@@ -622,6 +623,9 @@ inline Sq::Column *TableMethod::getPrimary() {
 	return (Sq::Column*)sq_table_get_primary((SqTable*)this, NULL);
 }
 
+inline void  TableMethod::addColumn(const SqColumn &columns) {
+	sq_table_add_column((SqTable*)this, &columns, 1);
+}
 inline void  TableMethod::addColumn(const SqColumn *columns, int n_columns) {
 	sq_table_add_column((SqTable*)this, columns, n_columns);
 }
@@ -834,12 +838,12 @@ inline Sq::Column &TableMethod::stdvec(const char *column_name, Type Store::*mem
 // define composite (constraint) methods of TableMethod
 
 template <typename... Args>
-inline Sq::Column *TableMethod::index(const char *index_name, const Args... args) {
-	return (Sq::Column*)sq_table_add_index((SqTable*)this, index_name, args..., NULL);
+inline Sq::Column &TableMethod::index(const char *index_name, const Args... args) {
+	return *(Sq::Column*)sq_table_add_index((SqTable*)this, index_name, args..., NULL);
 }
 template <typename... Args>
-inline Sq::Column *TableMethod::addIndex(const char *index_name, const Args... args) {
-	return (Sq::Column*)sq_table_add_index((SqTable*)this, index_name, args..., NULL);
+inline Sq::Column &TableMethod::addIndex(const char *index_name, const Args... args) {
+	return *(Sq::Column*)sq_table_add_index((SqTable*)this, index_name, args..., NULL);
 }
 inline void  TableMethod::dropIndex(const char *index_name) {
 //	sq_table_drop_index((SqTable*)this, index_name);
@@ -847,12 +851,12 @@ inline void  TableMethod::dropIndex(const char *index_name) {
 }
 
 template <typename... Args>
-inline Sq::Column *TableMethod::unique(const char *unique_name, const Args... args) {
-	return (Sq::Column*)sq_table_add_unique((SqTable*)this, unique_name, args..., NULL);
+inline Sq::Column &TableMethod::unique(const char *unique_name, const Args... args) {
+	return *(Sq::Column*)sq_table_add_unique((SqTable*)this, unique_name, args..., NULL);
 }
 template <typename... Args>
-inline Sq::Column *TableMethod::addUnique(const char *unique_name, const Args... args) {
-	return (Sq::Column*)sq_table_add_unique((SqTable*)this, unique_name, args..., NULL);
+inline Sq::Column &TableMethod::addUnique(const char *unique_name, const Args... args) {
+	return *(Sq::Column*)sq_table_add_unique((SqTable*)this, unique_name, args..., NULL);
 }
 inline void  TableMethod::dropUnique(const char *unique_name) {
 //	sq_table_drop_unique((SqTable*)this, unique_name);
@@ -860,23 +864,23 @@ inline void  TableMethod::dropUnique(const char *unique_name) {
 }
 
 template <typename... Args>
-inline Sq::Column *TableMethod::primary(const char *primary_name, const Args... args) {
-	return (Sq::Column*)sq_table_add_primary((SqTable*)this, primary_name, args..., NULL);
+inline Sq::Column &TableMethod::primary(const char *primary_name, const Args... args) {
+	return *(Sq::Column*)sq_table_add_primary((SqTable*)this, primary_name, args..., NULL);
 }
 template <typename... Args>
-inline Sq::Column *TableMethod::addPrimary(const char *primary_name, const Args... args) {
-	return (Sq::Column*)sq_table_add_primary((SqTable*)this, primary_name, args..., NULL);
+inline Sq::Column &TableMethod::addPrimary(const char *primary_name, const Args... args) {
+	return *(Sq::Column*)sq_table_add_primary((SqTable*)this, primary_name, args..., NULL);
 }
 inline void  TableMethod::dropPrimary(const char *primary_name) {
 //	sq_table_drop_primary((SqTable*)this, primary_name);
 	sq_table_drop_composite((SqTable*)this, SQ_TYPE_CONSTRAINT, SQB_COLUMN_PRIMARY, primary_name);
 }
 
-inline Sq::Column *TableMethod::foreign(const char *foreign_name, const char *column_name) {
-	return (Sq::Column*)sq_table_add_foreign((SqTable*)this, foreign_name, column_name);
+inline Sq::Column &TableMethod::foreign(const char *foreign_name, const char *column_name) {
+	return *(Sq::Column*)sq_table_add_foreign((SqTable*)this, foreign_name, column_name);
 }
-inline Sq::Column *TableMethod::addForeign(const char *foreign_name, const char *column_name) {
-	return (Sq::Column*)sq_table_add_foreign((SqTable*)this, foreign_name, column_name);
+inline Sq::Column &TableMethod::addForeign(const char *foreign_name, const char *column_name) {
+	return *(Sq::Column*)sq_table_add_foreign((SqTable*)this, foreign_name, column_name);
 }
 inline void  TableMethod::dropForeign(const char *foreign_name) {
 //	sq_table_drop_foreign((SqTable*)this, foreign_name);

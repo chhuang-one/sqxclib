@@ -204,8 +204,9 @@ struct SqColumn
 		return (Sq::Column*)this;
 	}
 
-	void        setName(const char *columnName) {
+	Sq::Column &setName(const char *columnName) {
 		SQ_ENTRY_SET_NAME(this, columnName);
+		return *(Sq::Column*)this;
 	}
 	Sq::Column &reference(const char *table_name, const char *column_name) {
 		sq_column_reference((SqColumn*)this, table_name, column_name);
@@ -486,8 +487,9 @@ struct ColumnMethod
 		return (Sq::Column*)this;
 	}
 
-	void        setName(const char *columnName) {
+	Sq::Column &setName(const char *columnName) {
 		SQ_ENTRY_SET_NAME(this, columnName);
+		return *(Sq::Column*)this;
 	}
 	Sq::Column &reference(const char *table_name, const char *column_name) {
 		sq_column_reference((SqColumn*)this, table_name, column_name);
