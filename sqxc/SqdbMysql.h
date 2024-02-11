@@ -16,7 +16,7 @@
 #define SQDB_MYSQL_H
 
 /* --- set 0 or 1 to choose one of include path for mysql.h --- */
-#if 0
+#if 1
 #include <mysql.h>
 #else
 #include <mysql/mysql.h>
