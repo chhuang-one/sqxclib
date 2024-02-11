@@ -96,6 +96,7 @@ namespace Sq {
 struct AppMethod
 {
 	void  init(const struct SqAppSetting *setting = SQ_APP_DEFAULT);
+	void  init(const struct SqAppSetting &setting);
 	void  final();
 
 	int   openDatabase(const char *db_database = NULL);
@@ -167,7 +168,10 @@ namespace Sq {
 /* define AppMethod functions. */
 
 inline void  AppMethod::init(const struct SqAppSetting *setting) {
-	sq_app_init((SqApp*)this, setting);
+	sq_app_init((SqApp*)this,  setting);
+}
+inline void  AppMethod::init(const struct SqAppSetting &setting) {
+	sq_app_init((SqApp*)this, &setting);
 }
 inline void  AppMethod::final() {
 	sq_app_final((SqApp*)this);
@@ -196,7 +200,10 @@ inline int   AppMethod::rollback(int step) {
 struct App : SqApp
 {
 	App(const struct SqAppSetting *setting = SQ_APP_DEFAULT) {
-		sq_app_init(this, setting);
+		sq_app_init(this,  setting);
+	}
+	App(const struct SqAppSetting &setting) {
+		sq_app_init(this, &setting);
 	}
 	~App() {
 		sq_app_final(this);

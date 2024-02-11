@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2023 by C.H. Huang
+ *   Copyright (C) 2022-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -117,6 +117,9 @@ struct DbPostgre : SqdbPostgre
 {
 	DbPostgre(const SqdbConfigPostgre *config = NULL) {
 		init(SQDB_INFO_POSTGRE, (const SqdbConfig*)config);
+	}
+	DbPostgre(const SqdbConfigPostgre &config) {
+		init(SQDB_INFO_POSTGRE, (const SqdbConfig*)&config);
 	}
 	~DbPostgre() {
 		final();

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -115,6 +115,9 @@ struct DbSqlite : SqdbSqlite
 {
 	DbSqlite(const SqdbConfigSqlite *config = NULL) {
 		init(SQDB_INFO_SQLITE, (const SqdbConfig*)config);
+	}
+	DbSqlite(const SqdbConfigSqlite &config) {
+		init(SQDB_INFO_SQLITE, (const SqdbConfig*)&config);
 	}
 	~DbSqlite() {
 		final();

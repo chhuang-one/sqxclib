@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -16,7 +16,7 @@
 #define SQDB_MYSQL_H
 
 /* --- set 0 or 1 to choose one of include path for mysql.h --- */
-#if 1
+#if 0
 #include <mysql.h>
 #else
 #include <mysql/mysql.h>
@@ -123,6 +123,9 @@ struct DbMysql : SqdbMysql
 {
 	DbMysql(const SqdbConfigMysql *config = NULL) {
 		init(SQDB_INFO_MYSQL, (const SqdbConfig*)config);
+	}
+	DbMysql(const SqdbConfigMysql &config) {
+		init(SQDB_INFO_MYSQL, (const SqdbConfig*)&config);
 	}
 	~DbMysql() {
 		final();
