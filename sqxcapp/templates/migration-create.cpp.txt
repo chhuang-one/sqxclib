@@ -1,9 +1,11 @@
 /* This template file is used by sqxcpptool
+// define struct '{{ struct_name }}' in workspace/sqxcapp/CStructs.h
 // migrations-files.cpp has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
-#include "CStructs.h"        // define struct '{{ struct_name }}' in CStructs.h
+#include "CStructs.h"
  */
+
 
 const SqMigration {{ migration_name }}_{{ timestamp }} = {
 

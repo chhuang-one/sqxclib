@@ -5,6 +5,7 @@
 #include "CStructs.h"
  */
 
+
 // Run the migrations.
 static void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
 {

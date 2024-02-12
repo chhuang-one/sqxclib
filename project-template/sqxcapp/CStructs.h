@@ -4,19 +4,21 @@
 #include <time.h>      // time_t
 #include <stdint.h>    // int64_t
 
-// C structures for SQL tables
+// C/C++ structures for SQL tables
 
 
-/* define structure User, SQL table "users"
-   This structure is used by ../database/migrations/2021_10_12_000000_create_users_table.c
+/* 1. define structure 'User' for SQL table "users".
+   2. run console command to generate migration file:
+      sqxctool make:migration create_users_table
+   3. edit generated migration file is in ../database/migrations/yyyy_MM_dd_HHmmss_create_users_table.c
  */
 typedef struct User {
-	unsigned int   id;
-	int            age;    // altered in 2021_11_26_091532
-	char          *name;
-	char          *email;
-	time_t         created_at;
-	time_t         updated_at;
+	int        id;
+	int        age;
+	char      *name;
+	char      *email;
+	time_t     created_at;
+	time_t     updated_at;
 } User;
 
 

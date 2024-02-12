@@ -5,6 +5,7 @@
 #include "CStructs.h"
  */
 
+
 const SqMigration {{ migration_name }}_{{ timestamp }} = {
 
 	// Run the migrations.

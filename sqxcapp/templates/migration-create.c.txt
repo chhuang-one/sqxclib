@@ -1,9 +1,11 @@
 /* This template file is used by sqxctool
+// define struct '{{ struct_name }}' in workspace/sqxcapp/CStructs.h
 // migrations-files.c has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
-#include "CStructs.h"        // define struct '{{ struct_name }}' in CStructs.h
+#include "CStructs.h"
  */
+
 
 // Run the migrations.
 static void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
@@ -13,7 +15,7 @@ static void up_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
 
 	table  = sq_schema_create(schema, "{{ table_name }}", {{ struct_name }});
 /*
-	column = sq_table_add_uint(table, "id", offsetof({{ struct_name }}, id));
+	column = sq_table_add_int(table, "id", offsetof({{ struct_name }}, id));
 	sq_column_primary(column);
 	sq_column_auto_increment(column);
 

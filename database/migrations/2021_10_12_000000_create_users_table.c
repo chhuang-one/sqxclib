@@ -1,9 +1,11 @@
 /* This template file is used by sqxctool
+// define struct 'User' in workspace/sqxcapp/CStructs.h
 // migrations-files.c has included below headers.
 #include <SqStorage.h>
 #include <SqMigration.h>
-#include "CStructs.h"        // define struct 'User' in CStructs.h
+#include "CStructs.h"
  */
+
 
 // Run the migrations.
 static void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
@@ -12,23 +14,24 @@ static void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 	SqColumn *column;
 
 	table  = sq_schema_create(schema, "users", User);
-	column = sq_table_add_uint(table, "id", offsetof(User, id));
+	column = sq_table_add_int(table, "id", offsetof(User, id));
 	sq_column_primary(column);
 	sq_column_auto_increment(column);
 
 	column = sq_table_add_string(table, "name", offsetof(User, name), 0);
 	column = sq_table_add_string(table, "email", offsetof(User, email), 0);
 
+#if 1
 	sq_table_add_timestamps_struct(table, User);
-
-/*	// sq_table_add_timestamps_struct(table, User) will do these
+#else
+	// sq_table_add_timestamps_struct(table, User) will do these
 	column = sq_table_add_timestamp(table, "created_at", offsetof(User, created_at));
 	sq_column_use_current(column);
 
 	column = sq_table_add_timestamp(table, "updated_at", offsetof(User, updated_at));
 	sq_column_use_current(column);
 	sq_column_use_current_on_update(column);
- */
+#endif
 }
 
 // Reverse the migrations.
