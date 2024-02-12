@@ -191,7 +191,7 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 	int       index, n_columns = 0;
 	bool      has_constraint = false;
 
-	if (primary_first) {
+	if (primary_first && arranged_columns->length > 0) {
 		// if first column is not primary key
 		column = (SqColumn*)arranged_columns->data[0];
 		if ((column->bit_field & SQB_COLUMN_PRIMARY) == 0) {
@@ -276,7 +276,7 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 		}
 	}
 
-	if (arranged_columns == &array)     //  primary_first
+	if (arranged_columns == &array)     // primary_first
 		sq_ptr_array_final(&array);
 
 	sq_buffer_write_c(buffer, ')');
