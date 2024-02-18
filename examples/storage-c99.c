@@ -552,11 +552,14 @@ int  main(void)
 	User       *user;
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &db_config_sqlite);
+	db = sqdb_sqlite_new(&db_config_sqlite);
+//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &db_config_sqlite);
 #elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
-	db = sqdb_new(SQDB_INFO_MYSQL,  (SqdbConfig*) &db_config_mysql);
+	db = sqdb_mysql_new(&db_config_mysql);
+//	db = sqdb_new(SQDB_INFO_MYSQL,  (SqdbConfig*) &db_config_mysql);
 #elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
-	db = sqdb_new(SQDB_INFO_POSTGRE, (SqdbConfig*) &db_config_postgre);
+	db = sqdb_postgre_new(&db_config_postgre);
+//	db = sqdb_new(SQDB_INFO_POSTGRE, (SqdbConfig*) &db_config_postgre);
 #else
 	fprintf(stderr, "No supported database\n");
 	return EXIT_SUCCESS;

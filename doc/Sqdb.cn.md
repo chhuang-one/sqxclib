@@ -64,7 +64,7 @@ SqdbConfig 是 SQL 产品的设置
 struct SqdbConfig
 {
 	// 你可以使用 SQDB_CONFIG_MEMBERS 来定义下面的成员
-	unsigned int    product;
+	unsigned int    product;      // 保留。枚举 SqdbProduct 的值
 	unsigned int    bit_field;    // 保留。config 的实例是常量还是动态的？
 };
 ```
@@ -74,18 +74,48 @@ struct SqdbConfig
 sqdb_open() 将在打开数据库时获取当前架构版本号。  
 * SQLite 用户可以在 SqdbConfigSqlite 中设置 '文件夹' 和 '扩展名'，这些会影响数据库文件名和路径。
 
+使用 C 函数
+
 ```c
-	SqdbConfigSqlite config = { .folder = "/home/dir", .extension = "db" };
+	// 数据库配置
+	SqdbConfigSqlite config = {
+		.folder    = "/home/dir",
+		.extension = "db"
+	};
+	// 接口
 	Sqdb  *db;
 
-	// 使用 'config' 创建 SqdbSqlite
-	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
+	// 使用 'config' 创建 SqdbSqlite。如果 config 为 NULL，则使用默认设置。
+	db = sqdb_sqlite_new(&config);
+	// 结果与上一行相同。
+//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
 
 	// 打开数据库文件 - "/home/dir/local-base.db"
 	sqdb_open(db, "local-base");
 
 	// 关闭数据库
 	sqdb_close(db);
+```
+
+使用 C++ 方法
+
+```c++
+	// 数据库配置
+	Sq::DbConfigSqlite config = {
+		"/home/dir",   // .folder    = "/home/dir",
+		"db"           // .extension = "db",
+	};
+	// 接口
+	Sq::DbMethod  *db;
+
+	// 使用 'config' 创建 Sq::DbSqlite。如果 config 为 NULL，则使用默认设置。
+	db = new Sq::DbSqlite(config);
+
+	// 打开数据库文件 - "/home/dir/local-base.db"
+	db->open("local-base");
+
+	// 关闭数据库
+	db->close();
 ```
 
 ## 迁移
@@ -277,6 +307,9 @@ struct SqdbXxsql
 		// 调用 Sq::DbMethod::init()
 		init(SQDB_INFO_XXSQL, (SqdbConfig*)config);
 	}
+	SqdbXxsql(const SqdbConfigXxsql &config) {
+		init(SQDB_INFO_XXSQL, (SqdbConfig&)config);
+	}
 	~SqdbXxsql() {
 		// 调用 Sq::DbMethod::final()
 		final();
@@ -443,7 +476,7 @@ static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema_current, SqSchema
 	Sq::Storage     *storage;
 
 	// 使用配置数据创建自定义 Sqdb 对象
-	db = new SqdbXxsql(&config);
+	db = new SqdbXxsql(config);
 
 	// 创建使用新 Sqdb 的存储对象
 	storage = new Sq::Storage(db);

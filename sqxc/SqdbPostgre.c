@@ -641,3 +641,18 @@ static void sqdb_postgre_schema_set_version(SqdbPostgre *sqdb, int version)
 	PQclear(results);
 	free(buf);
 }
+
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline function.
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqEntry.h
+
+#else   // __STDC_VERSION__
+// define functions here if compiler does NOT support inline function.
+
+Sqdb *sqdb_postgre_new(const SqdbConfigPostgre *config) {
+	return sqdb_new(SQDB_INFO_POSTGRE, (SqdbConfig*)config);
+}
+
+#endif  // __STDC_VERSION__

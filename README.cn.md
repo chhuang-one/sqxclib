@@ -192,13 +192,16 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C 函数打开 SQLite 数据库
 
 ```c
+	// 数据库配置
 	SqdbConfigSqlite  config = {
 		.folder    = "/path",
 		.extension = "db"
 	};
+	// 接口
+	Sqdb  *db;
 
-	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
-//	db = sqdb_new(SQDB_INFO_SQLITE, NULL);     // 如果 config 为 NULL，则使用默认设置。
+	db = sqdb_sqlite_new(&config);
+//	db = sqdb_sqlite_new(NULL);                // 如果 config 为 NULL，则使用默认设置。
 
 	storage = sq_storage_new(db);
 	sq_storage_open(storage, "sqxc_local");    // 这将打开文件 "sqxc_local.db"
@@ -207,15 +210,18 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C 函数打开 MySQL 数据库
 
 ```c
+	// 数据库配置
 	SqdbConfigMysql  config = {
 		.host = "localhost",
 		.port = 3306,
 		.user = "name",
 		.password = "xxx"
 	};
+	// 接口
+	Sqdb  *db;
 
-	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config);
-//	db = sqdb_new(SQDB_INFO_MYSQL, NULL);    // 如果 config 为 NULL，则使用默认设置。
+	db = sqdb_mysql_new(&config);
+//	db = sqdb_mysql_new(NULL);               // 如果 config 为 NULL，则使用默认设置。
 
 	storage = sq_storage_new(db);
 	sq_storage_open(storage, "sqxc_local");
@@ -224,14 +230,16 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 使用 C++ 方法打开 SQLite 数据库
 
 ```c++
+	// 数据库配置
 	Sq::DbConfigSqlite  config = {
 		"/path",        // .folder    = "/path",
 		"db",           // .extension = "db",
 	};
+	// 接口
+	Sq::DbMethod  *db;
 
-	db = new Sq::DbSqlite(&config);
+	db = new Sq::DbSqlite(config);
 //	db = new Sq::DbSqlite(NULL);    // 如果 config 为 NULL，则使用默认设置。
-//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);    // 这也能用。
 
 	storage = new Sq::Storage(db);
 	storage->open("sqxc_local");    // 这将打开文件 "sqxc_local.db"

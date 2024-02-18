@@ -128,6 +128,7 @@ namespace Sq {
 struct DbMethod
 {
 	void init(const SqdbInfo *info, const SqdbConfig *config);
+	void init(const SqdbInfo *info, const SqdbConfig &config);
 	void final(void);
 
 	int  open(const char *name);
@@ -221,7 +222,7 @@ struct SqdbConfig
 {
 	SQDB_CONFIG_MEMBERS;                   // <-- 1. inherit member variable
 /*	// ------ SqdbConfig members ------
-	unsigned int    product;
+	unsigned int    product;      // reserve. value of enum SqdbProduct
 	unsigned int    bit_field;    // reserve. Is the instance of config constant or dynamic?
  */
 };
@@ -237,6 +238,9 @@ namespace Sq {
 
 inline void DbMethod::init(const SqdbInfo *info, const SqdbConfig *config) {
 	sqdb_init((Sqdb*)this, info, config);
+}
+inline void DbMethod::init(const SqdbInfo *info, const SqdbConfig &config) {
+	sqdb_init((Sqdb*)this, info, &config);
 }
 inline void DbMethod::final(void) {
 	sqdb_final((Sqdb*)this);

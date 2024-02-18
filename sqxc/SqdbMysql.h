@@ -40,8 +40,6 @@ extern "C" {
 extern const SqdbInfo        SqdbInfo_MySQL_;
 #define SQDB_INFO_MYSQL    (&SqdbInfo_MySQL_)
 
-#define sqdb_mysql_new(sqdb_config)    sqdb_new(SQDB_INFO_MYSQL, sqdb_config)
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -107,6 +105,27 @@ struct SqdbConfigMysql
 	const char   *db;
 };
 
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define global inline function
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// define inline functions here if compiler supports inline function.
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+Sqdb *sqdb_mysql_new(const SqdbConfigMysql *config) {
+	return sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*)config);
+}
+
+#else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
+
+Sqdb *sqdb_mysql_new(const SqdbConfigMysql *config);
+
+#endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.
@@ -125,7 +144,7 @@ struct DbMysql : SqdbMysql
 		init(SQDB_INFO_MYSQL, (const SqdbConfig*)config);
 	}
 	DbMysql(const SqdbConfigMysql &config) {
-		init(SQDB_INFO_MYSQL, (const SqdbConfig*)&config);
+		init(SQDB_INFO_MYSQL, (const SqdbConfig&)config);
 	}
 	~DbMysql() {
 		final();

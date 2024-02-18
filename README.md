@@ -192,13 +192,16 @@ use C functions to change table and column in schema_v2 (dynamic)
 use C functions to open SQLite database
 
 ```c
+	// database configuration
 	SqdbConfigSqlite  config = {
 		.folder    = "/path",
 		.extension = "db"
 	};
+	// interface
+	Sqdb  *db;
 
-	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
-//	db = sqdb_new(SQDB_INFO_SQLITE, NULL);     // use default setting if config is NULL.
+	db = sqdb_sqlite_new(&config);
+//	db = sqdb_sqlite_new(NULL);                // use default setting if config is NULL.
 
 	storage = sq_storage_new(db);
 	sq_storage_open(storage, "sqxc_local");    // This will open file "sqxc_local.db"
@@ -207,15 +210,18 @@ use C functions to open SQLite database
 use C functions to open MySQL database
 
 ```c
+	// database configuration
 	SqdbConfigMysql  config = {
 		.host = "localhost",
 		.port = 3306,
 		.user = "name",
 		.password = "xxx"
 	};
+	// interface
+	Sqdb  *db;
 
-	db = sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*) &config);
-//	db = sqdb_new(SQDB_INFO_MYSQL, NULL);    // use default setting if config is NULL.
+	db = sqdb_mysql_new(&config);
+//	db = sqdb_mysql_new(NULL);               // use default setting if config is NULL.
 
 	storage = sq_storage_new(db);
 	sq_storage_open(storage, "sqxc_local");
@@ -224,14 +230,16 @@ use C functions to open MySQL database
 use C++ methods to open SQLite database
 
 ```c++
+	// database configuration
 	Sq::DbConfigSqlite  config = {
 		"/path",        // .folder    = "/path",
 		"db",           // .extension = "db",
 	};
+	// interface
+	Sq::DbMethod  *db;
 
-	db = new Sq::DbSqlite(&config);
+	db = new Sq::DbSqlite(config);
 //	db = new Sq::DbSqlite(NULL);    // use default setting if config is NULL.
-//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);    // this also works.
 
 	storage = new Sq::Storage(db);
 	storage->open("sqxc_local");    // This will open file "sqxc_local.db"

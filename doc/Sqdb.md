@@ -64,7 +64,7 @@ SqdbConfig is setting of SQL product
 struct SqdbConfig
 {
 	// you can use SQDB_CONFIG_MEMBERS to define below members
-	unsigned int    product;
+	unsigned int    product;      // reserve. value of enum SqdbProduct
 	unsigned int    bit_field;    // reserve. Is the instance of config constant or dynamic?
 };
 ```
@@ -74,18 +74,48 @@ struct SqdbConfig
 sqdb_open() will get current schema version number while opening database.  
 * SQLite user can set 'folder' and 'extension' in SqdbConfigSqlite, these affect database filename and path.
 
+use C functions
+
 ```c
-	SqdbConfigSqlite config = { .folder = "/home/dir", .extension = "db" };
+	// database configuration
+	SqdbConfigSqlite config = {
+		.folder    = "/home/dir",
+		.extension = "db"
+	};
+	// interface
 	Sqdb  *db;
 
-	// create SqdbSqlite with 'config'
-	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
+	// create SqdbSqlite with 'config'. use default setting if config is NULL.
+	db = sqdb_sqlite_new(&config);
+	// result is the same as the previous line.
+//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
 
 	// open database file - "/home/dir/local-base.db"
 	sqdb_open(db, "local-base");
 
 	// close database
 	sqdb_close(db);
+```
+
+use C++ methods
+
+```c++
+	// database configuration
+	Sq::DbConfigSqlite config = {
+		"/home/dir",   // .folder    = "/home/dir",
+		"db"           // .extension = "db",
+	};
+	// interface
+	Sq::DbMethod  *db;
+
+	// create Sq::DbSqlite with 'config'. use default setting if config is NULL.
+	db = new Sq::DbSqlite(config);
+
+	// open database file - "/home/dir/local-base.db"
+	db->open("local-base");
+
+	// close database
+	db->close();
 ```
 
 ## migrate
@@ -277,6 +307,9 @@ struct SqdbXxsql
 		// call Sq::DbMethod::init()
 		init(SQDB_INFO_XXSQL, (SqdbConfig*)config);
 	}
+	SqdbXxsql(const SqdbConfigXxsql &config) {
+		init(SQDB_INFO_XXSQL, (SqdbConfig&)config);
+	}
 	~SqdbXxsql() {
 		// call Sq::DbMethod::final()
 		final();
@@ -443,7 +476,7 @@ use C++ language
 	Sq::Storage     *storage;
 
 	// create custom Sqdb object with config data
-	db = new SqdbXxsql(&config);
+	db = new SqdbXxsql(config);
 
 	// create storage object that use new Sqdb
 	storage = new Sq::Storage(db);

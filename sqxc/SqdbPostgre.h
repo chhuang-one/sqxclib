@@ -35,8 +35,6 @@ extern "C" {
 extern const SqdbInfo         SqdbInfo_Postgre_;
 #define SQDB_INFO_POSTGRE   (&SqdbInfo_Postgre_)
 
-#define sqdb_postgre_new(sqdb_config)    sqdb_new(SQDB_INFO_POSTGRE, sqdb_config)
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -103,6 +101,28 @@ struct SqdbConfigPostgre
 };
 
 // ----------------------------------------------------------------------------
+// C/C++ common definitions: define global inline function
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// define inline functions here if compiler supports inline function.
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+Sqdb *sqdb_postgre_new(const SqdbConfigPostgre *config) {
+	return sqdb_new(SQDB_INFO_POSTGRE, (SqdbConfig*)config);
+}
+
+#else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
+
+Sqdb *sqdb_postgre_new(const SqdbConfigPostgre *config);
+
+#endif  // __STDC_VERSION__ || __cplusplus
+
+// ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
@@ -119,7 +139,7 @@ struct DbPostgre : SqdbPostgre
 		init(SQDB_INFO_POSTGRE, (const SqdbConfig*)config);
 	}
 	DbPostgre(const SqdbConfigPostgre &config) {
-		init(SQDB_INFO_POSTGRE, (const SqdbConfig*)&config);
+		init(SQDB_INFO_POSTGRE, (const SqdbConfig&)config);
 	}
 	~DbPostgre() {
 		final();

@@ -35,8 +35,6 @@ extern "C" {
 extern const SqdbInfo         SqdbInfo_SQLite_;
 #define SQDB_INFO_SQLITE    (&SqdbInfo_SQLite_)
 
-#define sqdb_sqlite_new(sqdb_config)    sqdb_new(SQDB_INFO_SQLITE, sqdb_config)
-
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -101,6 +99,28 @@ struct SqdbConfigSqlite
 };
 
 // ----------------------------------------------------------------------------
+// C/C++ common definitions: define global inline function
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// define inline functions here if compiler supports inline function.
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+Sqdb *sqdb_sqlite_new(const SqdbConfigSqlite *config) {
+	return sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*)config);
+}
+
+#else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
+
+Sqdb *sqdb_sqlite_new(const SqdbConfigSqlite *config);
+
+#endif  // __STDC_VERSION__ || __cplusplus
+
+// ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.
 
 #ifdef __cplusplus
@@ -117,7 +137,7 @@ struct DbSqlite : SqdbSqlite
 		init(SQDB_INFO_SQLITE, (const SqdbConfig*)config);
 	}
 	DbSqlite(const SqdbConfigSqlite &config) {
-		init(SQDB_INFO_SQLITE, (const SqdbConfig*)&config);
+		init(SQDB_INFO_SQLITE, (const SqdbConfig&)config);
 	}
 	~DbSqlite() {
 		final();

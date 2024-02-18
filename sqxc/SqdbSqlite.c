@@ -658,3 +658,18 @@ static bool sqdb_sqlite_alter_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTable *
 
 	return true;
 }
+
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline function.
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqEntry.h
+
+#else   // __STDC_VERSION__
+// define functions here if compiler does NOT support inline function.
+
+Sqdb *sqdb_sqlite_new(const SqdbConfigSqlite *config) {
+	return sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*)config);
+}
+
+#endif  // __STDC_VERSION__

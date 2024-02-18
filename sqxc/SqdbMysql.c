@@ -391,3 +391,18 @@ static void sqdb_mysql_schema_set_version(SqdbMysql *sqdb, int version)
 	mysql_query(sqdb->self, buf);
 	free(buf);
 }
+
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline function.
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqEntry.h
+
+#else   // __STDC_VERSION__
+// define functions here if compiler does NOT support inline function.
+
+Sqdb *sqdb_mysql_new(const SqdbConfigMysql *config) {
+	return sqdb_new(SQDB_INFO_MYSQL, (SqdbConfig*)config);
+}
+
+#endif  // __STDC_VERSION__
