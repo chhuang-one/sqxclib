@@ -97,9 +97,9 @@ void  sq_command_final_self(SqCommand *cmd_type)
 	free((char*)cmd_type->description);
 }
 
-SqCommand *sq_command_copy_static(SqCommand       *cmd_type_dest,
-                                  const SqCommand *static_cmd_type_src,
-                                  SqDestroyFunc    option_free_func)
+SqCommand *sq_command_copy(SqCommand       *cmd_type_dest,
+                           const SqCommand *cmd_type_src,
+                           SqDestroyFunc    option_free_func)
 {
 	if (cmd_type_dest == NULL)
 		cmd_type_dest = malloc(sizeof(SqCommand));
@@ -107,11 +107,11 @@ SqCommand *sq_command_copy_static(SqCommand       *cmd_type_dest,
 		option_free_func = (SqDestroyFunc)sq_option_free;
 
 	// copy SqType members
-	sq_type_copy_static((SqType*)cmd_type_dest, (SqType*)static_cmd_type_src, option_free_func);
+	sq_type_copy((SqType*)cmd_type_dest, (SqType*)cmd_type_src, option_free_func);
 	// copy SqCommand members
-	cmd_type_dest->handle = static_cmd_type_src->handle;
-	cmd_type_dest->parameter = strdup(static_cmd_type_src->parameter);
-	cmd_type_dest->description = strdup(static_cmd_type_src->description);
+	cmd_type_dest->handle = cmd_type_src->handle;
+	cmd_type_dest->parameter = strdup(cmd_type_src->parameter);
+	cmd_type_dest->description = strdup(cmd_type_src->description);
 
 	return cmd_type_dest;
 }

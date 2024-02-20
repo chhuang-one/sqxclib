@@ -44,7 +44,7 @@ void  sq_type_free(SqType *type)
 	}
 }
 
-SqType  *sq_type_copy_static(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func)
+SqType  *sq_type_copy(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func)
 {
 //	if (static_type_src->bit_field & SQB_TYPE_DYNAMIC)
 //		entry_free_func = sq_ptr_array_clear_func(sq_type_entry_array(static_type_src));

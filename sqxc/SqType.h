@@ -117,10 +117,12 @@ extern "C" {
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 void     sq_type_free(SqType *type);
 
-// copy data from static SqType to dynamic SqType. 'type_dest' must be raw memory.
-// if 'type_dest' is NULL, function will create dynamic SqType.
-// return dynamic SqType.
-SqType  *sq_type_copy_static(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func);
+// copy data from 'type_src' to 'type_dest'. 'type_dest' must be raw memory.
+// if 'type_dest' is NULL, function will allocate memory for 'type_dest'.
+// return 'type_dest' or newly created SqType.
+SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src, SqDestroyFunc entry_free_func);
+// deprecated
+#define sq_type_copy_static    sq_type_copy
 
 // initialize/finalize SqType itself
 // prealloc_size : capacity of SqType::entry (SqType::entry is SqEntry pointer array).
@@ -271,9 +273,13 @@ struct SqType
 #ifdef __cplusplus
 	/* Note: If you add, remove, or change methods here, do the same things in Sq::TypeMethod. */
 
-	// create dynamic SqType and copy data from static SqType
+	// copy
+	Sq::Type *copy(SqDestroyFunc entry_free_func) {
+		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func);
+	}
+	// deprecated
 	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) {
-		return (Sq::Type*)sq_type_copy_static(NULL, (const SqType*)this, entry_free_func);
+		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func);
 	}
 
 	// initialize/finalize self
@@ -300,6 +306,12 @@ struct SqType
 		sq_type_clear_entry((SqType*)this);
 	}
 
+	void  addEntry(const SqEntry &entry) {
+		sq_type_add_entry((SqType*)this, &entry, 1, 0);
+	}
+	void  addEntry(const Sq::EntryMethod &entry) {
+		sq_type_add_entry((SqType*)this, (const SqEntry*)&entry, 1, 0);
+	}
 	// add entry from SqEntry array (NOT pointer array) to dynamic SqType.
 	// if 'sizeof_entry' == 0, 'sizeof_entry' will equal sizeof(SqEntry)
 	void  addEntry(const SqEntry *entry, int n_entry = 1, size_t sizeof_entry = 0) {
@@ -463,7 +475,7 @@ enum {
 /* define SqType for SqArray (SqType-array.c)
    User must assign element type in SqType::entry and set SqType::n_entry to -1.
 
-	SqType *typeArray = sq_type_copy_static(NULL, SQ_TYPE_ARRAY, NULL);
+	SqType *typeArray = sq_type_copy(NULL, SQ_TYPE_ARRAY, NULL);
 	typeArray->entry = (SqEntry**) element_SqType;
 	typeArray->n_entry = -1;
  */
@@ -476,7 +488,7 @@ enum {
 /* define SqType for SqPtrArray (SqType-array.c)
    User must assign element type in SqType::entry and set SqType::n_entry to -1.
 
-	SqType *typePtrArray = sq_type_copy_static(NULL, SQ_TYPE_PTR_ARRAY, NULL);
+	SqType *typePtrArray = sq_type_copy(NULL, SQ_TYPE_PTR_ARRAY, NULL);
 	typePtrArray->entry = (SqEntry**) element_SqType;
 	typePtrArray->n_entry = -1;
  */
@@ -573,9 +585,13 @@ namespace Sq {
  */
 struct TypeMethod
 {
-	// create dynamic SqType and copy data from static SqType
+	// copy
+	Sq::Type *copy(SqDestroyFunc entry_free_func) {
+		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func);
+	}
+	// deprecated
 	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) {
-		return (Sq::Type*)sq_type_copy_static(NULL, (const SqType*)this, entry_free_func);
+		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func);
 	}
 
 	// initialize/finalize self
@@ -602,6 +618,12 @@ struct TypeMethod
 		sq_type_clear_entry((SqType*)this);
 	}
 
+	void  addEntry(const SqEntry &entry) {
+		sq_type_add_entry((SqType*)this, &entry, 1, 0);
+	}
+	void  addEntry(const Sq::EntryMethod &entry) {
+		sq_type_add_entry((SqType*)this, (const SqEntry*)&entry, 1, 0);
+	}
 	// add entry from SqEntry array (NOT pointer array) to dynamic SqType.
 	// if 'sizeof_entry' == 0, 'sizeof_entry' will equal sizeof(SqEntry)
 	void  addEntry(const SqEntry *entry, int n_entry = 1, size_t sizeof_entry = 0) {

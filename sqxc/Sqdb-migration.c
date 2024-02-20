@@ -46,7 +46,7 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 	} temp;
 
 	if ((entry->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
-		entry->type = sq_type_copy_static(NULL, entry->type, destroy_func);
+		entry->type = sq_type_copy(NULL, entry->type, destroy_func);
 	if ((entry->type->bit_field & SQB_TYPE_SORTED) == 0)
 		sq_type_sort_entry((SqType*)entry->type);
 	reentries = sq_type_entry_array(entry->type);
@@ -120,7 +120,7 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 				reentry = *(SqReentry**)addr;
 				if (destroy_func == (SqDestroyFunc)sq_column_free) {
 					if ((reentry->bit_field & SQB_DYNAMIC) == 0)
-						reentry = (SqReentry*)sq_column_copy_static((SqColumn*)reentry);
+						reentry = (SqReentry*)sq_column_copy(NULL, (SqColumn*)reentry);
 				}
 				// get new index after renaming
 				sq_ptr_array_find_sorted(reentries,

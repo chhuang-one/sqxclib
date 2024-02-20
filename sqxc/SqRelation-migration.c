@@ -149,7 +149,7 @@ SqColumn *sq_table_replace_column(SqTable *table, SqColumn *old_column, SqColumn
 	SqEntry **end, **cur;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
-		type = sq_type_copy_static(NULL, type, (SqDestroyFunc)sq_column_free);
+		type = sq_type_copy(NULL, type, (SqDestroyFunc)sq_column_free);
 		table->type = type;
 	}
 	if (table->relation)
@@ -178,7 +178,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 	} temp;
 
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
-		table->type = sq_type_copy_static(NULL, table->type, (SqDestroyFunc)sq_column_free);
+		table->type = sq_type_copy(NULL, table->type, (SqDestroyFunc)sq_column_free);
 	if ((table->type->bit_field & SQB_TYPE_SORTED) == 0)
 		sq_type_sort_entry((SqType*)table->type);
 
@@ -277,7 +277,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				// create dynamic column to replace static one if column is static
 				column = *(SqColumn**)addr;
 				if ((column->bit_field & SQB_DYNAMIC) == 0) {
-					column = sq_column_copy_static(column);
+					column = sq_column_copy(NULL, column);
 					sq_relation_replace(table->relation, *addr, column, 0);
 					*addr = column;
 				}
@@ -376,7 +376,7 @@ void  sq_table_erase_records(SqTable *table, char version_comparison)
 {
 	// copy table->type if it is static SqType.
 	if ((table->type->bit_field & SQB_TYPE_DYNAMIC) == 0)
-		table->type = sq_type_copy_static(NULL, table->type, (SqDestroyFunc)sq_column_free);
+		table->type = sq_type_copy(NULL, table->type, (SqDestroyFunc)sq_column_free);
 
 	// erase relation for renamed & dropped records in table
 	sq_relation_exclude(table->relation, SQ_TYPE_REENTRY, SQ_TYPE_UNSYNCED);
@@ -666,7 +666,7 @@ int     sq_schema_trace_name(SqSchema *schema)
 					}
 					// column has been renamed
 					if ((column->bit_field & SQB_DYNAMIC) == 0)
-						column = sq_table_replace_column(table, column, sq_column_copy_static(column));
+						column = sq_table_replace_column(table, column, sq_column_copy(NULL, column));
 					free(column->composite[index]);
 					column->composite[index] = strdup(reentry->name);
 				}
@@ -689,7 +689,7 @@ int     sq_schema_trace_name(SqSchema *schema)
 				// table has been renamed
 				else if ((column->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic column to replace static one
-					column = sq_table_replace_column(table, column, sq_column_copy_static(column));
+					column = sq_table_replace_column(table, column, sq_column_copy(NULL, column));
 				}
 				free((char*)column->foreign->table);
 				column->foreign->table = strdup(reentry->name);
@@ -725,7 +725,7 @@ int     sq_schema_trace_name(SqSchema *schema)
 				// column has been renamed
 				else if ((column->bit_field & SQB_DYNAMIC) == 0) {
 					// create dynamic column to replace static one
-					column = sq_table_replace_column(table, column, sq_column_copy_static(column));
+					column = sq_table_replace_column(table, column, sq_column_copy(NULL, column));
 				}
 				free((char*)column->foreign->column);
 				column->foreign->column = strdup(reentry->name);

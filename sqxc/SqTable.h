@@ -320,6 +320,8 @@ struct TableMethod
 	int         getColumns(SqPtrArray *ptr_array, const SqType *type, unsigned int bit_field);
 	Sq::Column *getPrimary();
 
+	void        addColumn(const Sq::ColumnMethod &column);
+	void        addColumn(const Sq::ColumnMethod *column);
 	void        addColumn(const SqColumn &columns);
 	void        addColumn(const SqColumn *columns, int n_columns = 1);
 	void        addColumn(const SqColumn **column_ptrs, int n_column_ptrs = 1);
@@ -623,6 +625,12 @@ inline Sq::Column *TableMethod::getPrimary() {
 	return (Sq::Column*)sq_table_get_primary((SqTable*)this, NULL);
 }
 
+inline void  TableMethod::addColumn(const Sq::ColumnMethod &column) {
+	sq_table_add_column((SqTable*)this, (SqColumn*)&column, 1);
+}
+inline void  TableMethod::addColumn(const Sq::ColumnMethod *column) {
+	sq_table_add_column((SqTable*)this, (SqColumn*) column, 1);
+}
 inline void  TableMethod::addColumn(const SqColumn &columns) {
 	sq_table_add_column((SqTable*)this, &columns, 1);
 }

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -80,12 +80,13 @@ void  sq_column_final(SqColumn *column)
 	}
 }
 
-SqColumn *sq_column_copy_static(const SqColumn *column_src)
+SqColumn *sq_column_copy(SqColumn *column, const SqColumn *column_src)
 {
-	SqColumn *column;
 	int       index, length;
 
-	column = malloc(sizeof(SqColumn));
+	if (column == NULL)
+		column = malloc(sizeof(SqColumn));
+
 	column->type      = column_src->type;
 	column->offset    = column_src->offset;
 	column->bit_field = column_src->bit_field | SQB_DYNAMIC;
