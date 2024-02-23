@@ -102,14 +102,20 @@ void       sq_command_free(SqCommand *cmd_type);
 void  sq_command_init_self(SqCommand *cmd_type, const char *cmd_name);
 void  sq_command_final_self(SqCommand *cmd_type);
 
-// copy data from 'cmd_type_src' to 'cmd_type_dest'. 'cmd_type_dest' must be raw memory.
-// if 'cmd_type_dest' is NULL, function will allocate memory for 'cmd_type_dest'.
-// return 'cmd_type_dest' or newly created SqColumn.
-SqCommand *sq_command_copy(SqCommand       *cmd_type_dest,
-                           const SqCommand *cmd_type_src,
-                           SqDestroyFunc    option_free_func);
+// This function is used to copy SqCommand.
+// It copy data from 'cmd_src' to 'cmd_dest', 'cmd_dest' must be raw memory.
+// If 'option_copy_func' is NULL, 'cmd_dest' will share SqOption instances from 'cmd_src'.
+// If 'cmd_dest' is NULL, it will allocate memory for 'cmd_dest'.
+// return 'cmd_dest' or newly created SqCommand.
+SqCommand *sq_command_copy(SqCommand       *cmd_dest,
+                           const SqCommand *cmd_src,
+                           SqDestroyFunc    option_free_func,
+                           SqCopyFunc       option_copy_func);
 // deprecated
-#define sq_command_copy_static    sq_command_copy
+// This function is used to copy SqCommand from static instance.
+//SqCommand *sq_command_copy_static(SqCommand *cmd_dest, const SqCommand *cmd_src, SqDestroyFunc option_free_func)
+#define sq_command_copy_static(cmd_dest, cmd_src, option_free_func)    \
+        sq_command_copy(cmd_dest, cmd_src, option_free_func, NULL)
 
 void  sq_command_add_option(SqCommand *cmd_type, const SqOption *option, int n_option);
 
@@ -230,11 +236,13 @@ struct SqCommand
 	}
 
 	// copy
-	Sq::Command *copy(SqDestroyFunc option_free_func = NULL) {
-		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func);
+	Sq::Command *copy(SqDestroyFunc option_free_func = NULL, SqCopyFunc option_copy_func = NULL) {
+		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func, option_copy_func);
 	}
+	// deprecated
+	// This method is used to copy Sq::Command from static instance.
 	Sq::Command *copyStatic(SqDestroyFunc option_free_func = NULL) {
-		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func);
+		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func, NULL);
 	}
 
 	// add option from SqOption array (NOT pointer array) to dynamic SqCommand.
@@ -341,11 +349,12 @@ struct CommandMethod
 	}
 
 	// copy
-	Sq::Command *copy(SqDestroyFunc option_free_func = NULL) {
-		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func);
+	Sq::Command *copy(SqDestroyFunc option_free_func = NULL, SqCopyFunc option_copy_func = NULL) {
+		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func, option_copy_func);
 	}
+	// This method is used to copy Command from static instance.
 	Sq::Command *copyStatic(SqDestroyFunc option_free_func = NULL) {
-		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func);
+		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func, NULL);
 	}
 
 	// add option from SqOption array (NOT pointer array) to dynamic SqCommand.

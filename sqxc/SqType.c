@@ -44,22 +44,35 @@ void  sq_type_free(SqType *type)
 	}
 }
 
-SqType  *sq_type_copy(SqType *type_dest, const SqType *static_type_src, SqDestroyFunc entry_free_func)
+SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
+                      SqDestroyFunc entry_free_func,
+                      SqCopyFunc    entry_copy_func)
 {
-//	if (static_type_src->bit_field & SQB_TYPE_DYNAMIC)
-//		entry_free_func = sq_ptr_array_clear_func(sq_type_entry_array(static_type_src));
+//	if (type_src->bit_field & SQB_TYPE_DYNAMIC)
+//		entry_free_func = sq_ptr_array_clear_func(sq_type_entry_array(type_src));
 	if (type_dest == NULL)
 		type_dest = malloc(sizeof(SqType));
-	memcpy(type_dest, static_type_src, sizeof(SqType));
+	memcpy(type_dest, type_src, sizeof(SqType));
 	type_dest->bit_field |= SQB_TYPE_DYNAMIC;
-	// alloc & copy pointer array of SqEntry
-	sq_ptr_array_init(sq_type_entry_array(type_dest), static_type_src->n_entry, entry_free_func);
-	type_dest->n_entry = static_type_src->n_entry;
-	if (static_type_src->n_entry > 0)
-		memcpy(type_dest->entry, static_type_src->entry, sizeof(void*) * static_type_src->n_entry);
 	// copy name string
-	if (static_type_src->name)
-		type_dest->name = strdup(static_type_src->name);
+	if (type_src->name)
+		type_dest->name = strdup(type_src->name);
+	// alloc & copy pointer array of SqEntry
+	if (type_src->n_entry != -1) {
+		// initialize array of SqEntry in 'type_dest'
+		sq_ptr_array_init(sq_type_entry_array(type_dest), type_src->n_entry, entry_free_func);
+		type_dest->n_entry = type_src->n_entry;
+		if (entry_copy_func == NULL) {
+			// copy pointers from array of SqEntry directly
+			memcpy(type_dest->entry, type_src->entry, sizeof(void*) * type_src->n_entry);
+		}
+		else {
+			// copy instances from array of SqEntry if 'entry_copy_func' is present
+			for (int i = 0;  i < type_src->n_entry;  i++)
+				type_dest->entry[i] = entry_copy_func(NULL, type_src->entry[i]);
+		}
+	}
+	// return 'type_dest' or newly created SqType
 	return type_dest;
 }
 

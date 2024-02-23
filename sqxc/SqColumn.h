@@ -84,11 +84,14 @@ void       sq_column_free(SqColumn *column);
 void       sq_column_init(SqColumn *column, const char *name, const SqType *type_info);
 void       sq_column_final(SqColumn *column);
 
-// copy data from 'column_src' to 'column_dest'. 'column_dest' must be raw memory.
-// if 'column_dest' is NULL, function will allocate memory for 'column_dest'.
+// This function is used to copy SqColumn.
+// It copy data from 'column_src' to 'column_dest', 'column_dest' must be raw memory.
+// If 'column_dest' is NULL, it will allocate memory for 'column_dest'.
 // return 'column_dest' or newly created SqColumn.
 SqColumn  *sq_column_copy(SqColumn *column_dest, const SqColumn *column_src);
 // deprecated
+// This function is used to copy SqColumn from static instance.
+//SqColumn  *sq_column_copy_static(const SqColumn *column_src);
 #define sq_column_copy_static(column_src)    sq_column_copy(NULL, column_src)
 
 // foreign key references
@@ -591,11 +594,17 @@ struct ColumnMethod
 
 struct Column : SqColumn
 {
+	// constructor
 	Column(const char *name = NULL, const SqType *dataType = NULL) {
 		sq_column_init(this, name, dataType);
 	}
+	// destructor
 	~Column() {
 		sq_column_final(this);
+	}
+	// copy constructor
+	Column(const Column &src) {
+		sq_column_copy(this, &src);
 	}
 };
 

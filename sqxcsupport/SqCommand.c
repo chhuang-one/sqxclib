@@ -99,7 +99,8 @@ void  sq_command_final_self(SqCommand *cmd_type)
 
 SqCommand *sq_command_copy(SqCommand       *cmd_type_dest,
                            const SqCommand *cmd_type_src,
-                           SqDestroyFunc    option_free_func)
+                           SqDestroyFunc    option_free_func,
+                           SqCopyFunc       option_copy_func)
 {
 	if (cmd_type_dest == NULL)
 		cmd_type_dest = malloc(sizeof(SqCommand));
@@ -107,7 +108,8 @@ SqCommand *sq_command_copy(SqCommand       *cmd_type_dest,
 		option_free_func = (SqDestroyFunc)sq_option_free;
 
 	// copy SqType members
-	sq_type_copy((SqType*)cmd_type_dest, (SqType*)cmd_type_src, option_free_func);
+	sq_type_copy((SqType*)cmd_type_dest, (SqType*)cmd_type_src,
+	             option_free_func, option_copy_func);
 	// copy SqCommand members
 	cmd_type_dest->handle = cmd_type_src->handle;
 	cmd_type_dest->parameter = strdup(cmd_type_src->parameter);

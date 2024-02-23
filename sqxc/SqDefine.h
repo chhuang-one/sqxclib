@@ -44,6 +44,7 @@ typedef void  (*SqFinalFunc)(void *value);
 typedef void  (*SqClearFunc)(void *value);
 typedef void  (*SqDestroyFunc)(void *value);
 typedef int   (*SqCompareFunc)(const void *a, const void *b);
+typedef void *(*SqCopyFunc)(void *dest, void *src);
 
 /* sq_compare_xxx() series C functions for SqCompareFunc */
 

@@ -117,12 +117,19 @@ extern "C" {
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 void     sq_type_free(SqType *type);
 
-// copy data from 'type_src' to 'type_dest'. 'type_dest' must be raw memory.
-// if 'type_dest' is NULL, function will allocate memory for 'type_dest'.
+// This function is used to copy SqType.
+// It copy data from 'type_src' to 'type_dest', 'type_dest' must be raw memory.
+// If 'entry_copy_func' is NULL, 'type_dest' will share SqEntry instances from 'type_src'.
+// If 'type_dest' is NULL, it will allocate memory for 'type_dest'.
 // return 'type_dest' or newly created SqType.
-SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src, SqDestroyFunc entry_free_func);
+SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
+                      SqDestroyFunc entry_free_func,
+                      SqCopyFunc    entry_copy_func);
 // deprecated
-#define sq_type_copy_static    sq_type_copy
+// This function is used to copy SqType from static instance.
+//SqType  *sq_type_copy_static(SqType *type_dest, const SqType *type_src, SqDestroyFunc entry_free_func);
+#define sq_type_copy_static(type_dest, type_src, entry_free_func)    \
+        sq_type_copy(type_dest, type_src, entry_free_func, NULL)
 
 // initialize/finalize SqType itself
 // prealloc_size : capacity of SqType::entry (SqType::entry is SqEntry pointer array).
@@ -274,12 +281,13 @@ struct SqType
 	/* Note: If you add, remove, or change methods here, do the same things in Sq::TypeMethod. */
 
 	// copy
-	Sq::Type *copy(SqDestroyFunc entry_free_func) {
-		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func);
+	Sq::Type *copy(SqDestroyFunc entry_free_func, SqCopyFunc entry_copy_func = NULL) {
+		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, entry_copy_func);
 	}
 	// deprecated
+	// This method is only used to copy SqType from static instance.
 	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) {
-		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func);
+		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, NULL);
 	}
 
 	// initialize/finalize self
@@ -475,7 +483,7 @@ enum {
 /* define SqType for SqArray (SqType-array.c)
    User must assign element type in SqType::entry and set SqType::n_entry to -1.
 
-	SqType *typeArray = sq_type_copy(NULL, SQ_TYPE_ARRAY, NULL);
+	SqType *typeArray = sq_type_copy(NULL, SQ_TYPE_ARRAY, NULL, NULL);
 	typeArray->entry = (SqEntry**) element_SqType;
 	typeArray->n_entry = -1;
  */
@@ -488,7 +496,7 @@ enum {
 /* define SqType for SqPtrArray (SqType-array.c)
    User must assign element type in SqType::entry and set SqType::n_entry to -1.
 
-	SqType *typePtrArray = sq_type_copy(NULL, SQ_TYPE_PTR_ARRAY, NULL);
+	SqType *typePtrArray = sq_type_copy(NULL, SQ_TYPE_PTR_ARRAY, NULL, NULL);
 	typePtrArray->entry = (SqEntry**) element_SqType;
 	typePtrArray->n_entry = -1;
  */
@@ -586,12 +594,13 @@ namespace Sq {
 struct TypeMethod
 {
 	// copy
-	Sq::Type *copy(SqDestroyFunc entry_free_func) {
-		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func);
+	Sq::Type *copy(SqDestroyFunc entry_free_func, SqCopyFunc entry_copy_func = NULL) {
+		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, entry_copy_func);
 	}
 	// deprecated
+	// This method is used to copy SqType from static instance.
 	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) {
-		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func);
+		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, NULL);
 	}
 
 	// initialize/finalize self
@@ -708,6 +717,7 @@ struct TypeMethod
 
 struct Type : SqType
 {
+	// constructor
 	Type() {}
 	Type(int prealloc_size, SqDestroyFunc entry_destroy_func) {
 		sq_type_init_self(this, prealloc_size, entry_destroy_func);
@@ -715,6 +725,7 @@ struct Type : SqType
 	Type(int prealloc_size, void (*entry_destroy_func)(SqEntry*)) {
 		sq_type_init_self(this, prealloc_size, (SqDestroyFunc)entry_destroy_func);
 	}
+	// destructor
 	~Type(void) {
 		sq_type_final_self(this);
 	}
