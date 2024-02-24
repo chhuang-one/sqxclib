@@ -105,6 +105,7 @@ These data(arguments) will be processed between Sqxc elements.
 use C language
 
 ```c
+	// Sqxc interface
 	Sqxc *xc = xcsql;
 
 	// set Sqxc arguments
@@ -124,7 +125,8 @@ use C language
 use C++ language
 
 ```c++
-	Sq::Xc *xc = (Sq::Xc*)xcsql;
+	// Sqxc interface
+	Sq::XcMethod *xc = xcsql;
 
 	// set Sqxc arguments
 	xc->type = SQXC_TYPE_INT;
@@ -146,9 +148,11 @@ If you want to parse/write object or array and reuse Sqxc elements:
 2. call sqxc_finish() after sending data.
 
 ```c
-	Sqxc *xcur = xc;   // current Sqxc element
+	// Sqxc interface
+	Sqxc *xcur;
 
 	sqxc_ready(xc);    // notify Sqxc elements to get ready
+	xcur = xc;         // current Sqxc element
 
 	xcur->type = SQXC_TYPE_OBJECT;      // {
 	xcur->name = NULL;
@@ -212,9 +216,11 @@ If you want to parse/write object or array, and reuse Sqxc elements:
 2. call finish() after sending data.
 
 ```c++
-	Sq::Xc *xcur = xc; // current Sqxc element
+	// Sqxc interface
+	Sq::XcMethod *xcur;
 
 	xc->ready();       // notify Sqxc elements to get ready
+	xcur = xc;         // current Sqxc element
 
 	xcur->type = SQXC_TYPE_ARRAY;       // [
 	xcur->name = NULL;

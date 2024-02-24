@@ -140,12 +140,14 @@ typedef struct SqdbConfigMysql    DbConfigMysql;
 
 struct DbMysql : SqdbMysql
 {
+	// constructor
 	DbMysql(const SqdbConfigMysql *config = NULL) {
 		init(SQDB_INFO_MYSQL, (const SqdbConfig*)config);
 	}
 	DbMysql(const SqdbConfigMysql &config) {
 		init(SQDB_INFO_MYSQL, (const SqdbConfig&)config);
 	}
+	// destructor
 	~DbMysql() {
 		final();
 	}

@@ -266,6 +266,7 @@ inline int  DbMethod::migrate(SqSchema *schema_cur, SqSchema *schema_next) {
 
 struct Db : Sqdb
 {
+	// destructor
 	~Db(void) {
 		sqdb_final(this);
 	}

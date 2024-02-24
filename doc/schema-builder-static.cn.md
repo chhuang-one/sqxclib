@@ -146,9 +146,11 @@ static const SqColumn  otherSampleChanged_2[] = {
 ```c++
 #include <sqxclib.h>
 
-/* 为 C++ STL 定义全局类型 */
-Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
+/* 为 C++ STL 定义全局类型
+   为 C++ std::vector<int> 创建新的 SqType */
+Sq::TypeStl< std::vector<int> > SqTypeIntVector(SQ_TYPE_INT);
 
+/* 此外键约束由下面的 userColumns[] 使用 */
 static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
 
 static const SqColumn  userColumns[8] = {
@@ -191,6 +193,38 @@ static const SqColumn  userColumns[8] = {
 	table = schema_v1->create<User>("users");
 	// 将具有 8 个元素的静态 'userColumns' 添加到表中
 	table->addColumn(userColumns, 8);
+```
+
+## 使用自订或 JSON 型态
+
+如果要在 SQL 列中存储 JSON 对象或数组，必须指定 [SqType](SqType.cn.md)。  
+  
+例如: 定义一个包含结构和数组的 C 结构。
+
+```c
+struct DemoTable {
+	// ...
+
+	// MyStructure 是用户定义的 C 结构
+	// 这会将 JSON 对象存储在 SQL 列中。
+	MyStructure    myStruct;
+
+	// SqIntArray 是在 SqArray.h 中定义的整数数组
+	// 这会将 JSON 整数数组存储在 SQL 列中。
+	SqIntArray     intArray;
+};
+
+static const SqColumn  demoTableColumns[] = {
+	// ...
+
+	// SQ_TYPE_MY_STRUCT 是用户定义的 MyStructure 的 SqType。
+	// 如果未指定 SQL 类型，JSON 对象将存储在 SQL VARCHAR 列中。
+	{SQ_TYPE_MY_STRUCT,    "myStruct",       offsetof(DemoTable, myStruct)},
+
+	// SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从 SQL 列的值解析 JSON 整数数组。
+	// 如果未指定 SQL 类型，JSON 整数数组将存储在 SQL VARCHAR 列中。
+	{SQ_TYPE_INT_ARRAY,    "intArray",       offsetof(DemoTable, intArray)},
+};
 ```
 
 ## 仅查询列 (静态)

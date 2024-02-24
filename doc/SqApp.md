@@ -420,9 +420,9 @@ use C language
 use C++ language
 
 ```c++
-	Sq::App *appSQLite = new Sq::App(&forSQLite);
+	Sq::App *appSQLite = new Sq::App(forSQLite);
 
-	Sq::App *appPostgreSQL = new Sq::App(&forPostgreSQL);
+	Sq::App *appPostgreSQL = new Sq::App(forPostgreSQL);
 ```
 
 **Step 3:** run migrations  

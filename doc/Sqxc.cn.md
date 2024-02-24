@@ -105,6 +105,7 @@ sqxc_send() 由数据源端调用。它将数据（参数）发送到 Sqxc 元�
 使用 C 语言
 
 ```c
+	// Sqxc 接口
 	Sqxc *xc = xcsql;
 
 	// set Sqxc arguments
@@ -124,7 +125,8 @@ sqxc_send() 由数据源端调用。它将数据（参数）发送到 Sqxc 元�
 use C++ language
 
 ```c++
-	Sq::Xc *xc = (Sq::Xc*)xcsql;
+	// Sqxc 接口
+	Sq::XcMethod *xc = xcsql;
 
 	// set Sqxc arguments
 	xc->type = SQXC_TYPE_INT;
@@ -146,9 +148,11 @@ use C++ language
 2. 发送数据后调用 sqxc_finish()。
 
 ```c
-	Sqxc *xcur = xc;   // 当前 Sqxc 元素
+	// Sqxc 接口
+	Sqxc *xcur;
 
 	sqxc_ready(xc);    // 通知 Sqxc 元素准备好
+	xcur = xc;         // 当前 Sqxc 元素
 
 	xcur->type = SQXC_TYPE_OBJECT;      // {
 	xcur->name = NULL;
@@ -212,9 +216,11 @@ JSON 看起来像这样：
 2. 发送数据后调用 finish()。
 
 ```c++
-	Sq::Xc *xcur = xc; // 当前 Sqxc 元素
+	// Sqxc 接口
+	Sq::XcMethod *xcur;
 
 	xc->ready();       // 通知 Sqxc 元素准备好
+	xcur = xc;         // 当前 Sqxc 元素
 
 	xcur->type = SQXC_TYPE_ARRAY;       // [
 	xcur->name = NULL;

@@ -921,9 +921,11 @@ namespace Sq {
 
 struct Query : SqQuery
 {
+	// constructor
 	Query(const char *table_name = NULL) {
 		sq_query_init(this, table_name);
 	}
+	// destructor
 	~Query() {
 		sq_query_final(this);
 	}

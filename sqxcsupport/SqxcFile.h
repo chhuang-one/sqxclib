@@ -127,9 +127,11 @@ namespace Sq {
 
 struct XcFileWriter : SqxcFile
 {
+	// constructor
 	XcFileWriter() {
 		sqxc_init((Sqxc*)this, SQXC_INFO_FILE_WRITER);
 	}
+	// destructor
 	~XcFileWriter() {
 		sqxc_final((Sqxc*)this);
 	}

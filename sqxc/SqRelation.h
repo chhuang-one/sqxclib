@@ -233,9 +233,11 @@ inline Sq::RelationNode *RelationNodeMethod::reverse() {
 
 struct Relation : SqRelation
 {
+	// constructor
 	Relation(SqRelationPool *pool, int capacity) {
 		sq_relation_init(this, pool, capacity);
 	}
+	// destructor
 	~Relation() {
 		sq_relation_final(this);
 	}

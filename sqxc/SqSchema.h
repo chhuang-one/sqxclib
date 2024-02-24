@@ -259,12 +259,14 @@ inline Sq::Table *SchemaMethod::find(const char *table_name) {
 
 struct Schema : SqSchema
 {
+	// constructor
 	Schema(const char *name = NULL) {
 		sq_schema_init(this, name);
 	}
 	Schema(int version, const char *name = NULL) {
 		sq_schema_init_ver(this, version, name);
 	}
+	// destructor
 	~Schema() {
 		sq_schema_final(this);
 	}

@@ -124,9 +124,11 @@ namespace Sq {
 
 struct XcEmpty : SqxcEmpty
 {
+	// constructor
 	XcEmpty() {
 		sqxc_init((Sqxc*)this, SQXC_INFO_EMPTY);
 	}
+	// destructor
 	~XcEmpty() {
 		sqxc_final((Sqxc*)this);
 	}

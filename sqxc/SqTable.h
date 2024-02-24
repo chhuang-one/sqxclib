@@ -911,9 +911,11 @@ inline Sq::Column *TableMethod::primary(const char *(&column_array)[N], const ch
 
 struct Table : SqTable
 {
+	// constructor
 	Table(const char *name = NULL, const SqType *tableType = NULL) {
 		sq_table_init(this, name, tableType);
 	}
+	// destructor
 	~Table() {
 		sq_table_final(this);
 	}

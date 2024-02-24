@@ -135,12 +135,14 @@ typedef struct SqdbConfigPostgre    DbConfigPostgre;
 
 struct DbPostgre : SqdbPostgre
 {
+	// constructor
 	DbPostgre(const SqdbConfigPostgre *config = NULL) {
 		init(SQDB_INFO_POSTGRE, (const SqdbConfig*)config);
 	}
 	DbPostgre(const SqdbConfigPostgre &config) {
 		init(SQDB_INFO_POSTGRE, (const SqdbConfig&)config);
 	}
+	// destructor
 	~DbPostgre() {
 		final();
 	}

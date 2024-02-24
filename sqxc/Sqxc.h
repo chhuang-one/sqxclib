@@ -731,6 +731,7 @@ inline Sq::Xc  *XcMethod::sendArrayEnd(const char *entry_name) {
 /* All derived struct/class must be C++11 standard-layout. */
 struct Xc : Sqxc
 {
+	// destructor
 	~Xc() {
 		sqxc_final(this);
 	}

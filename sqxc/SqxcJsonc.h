@@ -146,9 +146,11 @@ namespace Sq {
 
 struct XcJsoncParser : SqxcJsonc
 {
+	// constructor
 	XcJsoncParser() {
 		sqxc_init((Sqxc*)this, SQXC_INFO_JSONC_PARSER);
 	}
+	// destructor
 	~XcJsoncParser() {
 		sqxc_final((Sqxc*)this);
 	}
@@ -156,9 +158,11 @@ struct XcJsoncParser : SqxcJsonc
 
 struct XcJsoncWriter : SqxcJsonc
 {
+	// constructor
 	XcJsoncWriter() {
 		sqxc_init((Sqxc*)this, SQXC_INFO_JSONC_WRITER);
 	}
+	// destructor
 	~XcJsoncWriter() {
 		sqxc_final((Sqxc*)this);
 	}

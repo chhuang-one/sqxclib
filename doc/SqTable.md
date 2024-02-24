@@ -93,7 +93,7 @@ Below method is for C++ data type only.
 
 **Use custom or JSON type**  
   
-If you want to store JSON object or array in SQL column, you can use sq_table_add_custom() or C++ method custom() to create column.  
+If you want to store JSON object or array in SQL column, you can use sq_table_add_custom(), sq_table_add_mapping() or C++ method custom(), mapping() to create column.  
 When adding a column that uses a custom type, you must specify [SqType](SqType.md).  
   
 Example: define a C structure that contain struct and array.
@@ -114,16 +114,16 @@ struct DemoTable {
 
 In the following example,
 SQ_TYPE_MY_STRUCT is the user-defined SqType of MyStructure.  
-SQ_TYPE_INT_ARRAY is declared in SqType.h and parses a JSON integer array from value of SQL column.  
+SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of SQL column.  
   
 use C language
 
 ```c
-	// JSON object will be stored in SQL VARCHAR column.
+	// JSON object will be stored in SQL VARCHAR column if SQL type is not specified.
 	column = sq_table_add_custom(table, "myStruct", offsetof(DemoTable, myStruct),
 	                             SQ_TYPE_MY_STRUCT, 128);
 
-	// JSON integer array will be stored in SQL VARCHAR column.
+	// JSON integer array will be stored in SQL VARCHAR column if SQL type is not specified.
 	column = sq_table_add_custom(table, "intArray", offsetof(DemoTable, intArray),
 	                             SQ_TYPE_INT_ARRAY, 96);
 ```
@@ -131,11 +131,11 @@ use C language
 use C++ language
 
 ```c++
-	// JSON object will be stored in SQL VARCHAR column.
+	// JSON object will be stored in SQL VARCHAR column if SQL type is not specified.
 	column = table->custom("myStruct", offsetof(DemoTable, myStruct),
 	                       SQ_TYPE_MY_STRUCT, 128);
 
-	// JSON integer array will be stored in SQL VARCHAR column.
+	// JSON integer array will be stored in SQL VARCHAR column if SQL type is not specified.
 	column = table->custom("intArray", offsetof(DemoTable, intArray),
 	                       SQ_TYPE_INT_ARRAY, 96);
 ```

@@ -146,9 +146,11 @@ use C++ aggregate initialization to define table and column in schema_v1 (static
 ```c++
 #include <sqxclib.h>
 
-/* define global type for C++ STL */
-Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vector
+/* define global type for C++ STL
+   create new SqType  for C++ std::vector<int> */
+Sq::TypeStl< std::vector<int> > SqTypeIntVector(SQ_TYPE_INT);
 
+/* this foreign key constraint is used by below userColumns[] */
 static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
 
 static const SqColumn  userColumns[8] = {
@@ -191,6 +193,38 @@ static const SqColumn  userColumns[8] = {
 	table = schema_v1->create<User>("users");
 	// add static 'userColumns' that has 8 elements to table
 	table->addColumn(userColumns, 8);
+```
+
+## Use custom or JSON type
+
+If you want to store JSON object or array in SQL column, you must specify [SqType](SqType.md).  
+  
+Example: define a C structure that contain struct and array.
+
+```c
+struct DemoTable {
+	// ...
+
+	// MyStructure is user-defined C struct
+	// This will store JSON object in SQL column.
+	MyStructure    myStruct;
+
+	// SqIntArray is integer array that defined in SqArray.h
+	// This will store JSON integer array in SQL column.
+	SqIntArray     intArray;
+};
+
+static const SqColumn  demoTableColumns[] = {
+	// ...
+
+	// SQ_TYPE_MY_STRUCT is the user-defined SqType of MyStructure.
+	// JSON object will be stored in SQL VARCHAR column if SQL type is not specified.
+	{SQ_TYPE_MY_STRUCT,    "myStruct",       offsetof(DemoTable, myStruct)},
+
+	// SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of SQL column.
+	// JSON integer array will be stored in SQL VARCHAR column if SQL type is not specified.
+	{SQ_TYPE_INT_ARRAY,    "intArray",       offsetof(DemoTable, intArray)},
+};
 ```
 
 ## Query-only column (static)

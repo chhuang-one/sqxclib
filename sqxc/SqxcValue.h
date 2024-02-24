@@ -140,9 +140,11 @@ namespace Sq {
 
 struct XcValue : SqxcValue
 {
+	// constructor
 	XcValue() {
 		sqxc_init((Sqxc*)this, SQXC_INFO_VALUE);
 	}
+	// destructor
 	~XcValue() {
 		sqxc_final((Sqxc*)this);
 	}

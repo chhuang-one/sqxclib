@@ -298,6 +298,7 @@ struct EntryMethod
 
 struct Entry : SqEntry
 {
+	// constructor
 	Entry() {}
 	Entry(const SqType *type_info) {
 		sq_entry_init(this, type_info);
@@ -305,6 +306,7 @@ struct Entry : SqEntry
 	Entry(const Sq::TypeMethod *type_info) {
 		sq_entry_init(this, (const SqType*)type_info);
 	}
+	// destructor
 	~Entry() {
 		sq_entry_final(this);
 	}

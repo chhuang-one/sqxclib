@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -439,6 +439,7 @@ struct Pairs : Sq::PairsMethod<Key, Value>       // <-- 1. inherit C++ member fu
 	SqDestroyFunc  value_destroy_func;
  */
 
+	// constructor
 	Pairs(SqCompareFunc keyCompareFunc   = Sq::compare<Key>,
 	      SqDestroyFunc keyDestroyFunc   = NULL,
 	      SqDestroyFunc valueDestroyFunc = NULL)
@@ -455,6 +456,7 @@ struct Pairs : Sq::PairsMethod<Key, Value>       // <-- 1. inherit C++ member fu
 		this->key_destroy_func   = keyDestroyFunc;
 		this->value_destroy_func = valueDestroyFunc;
 	}
+	// destructor
 	~Pairs() {
 		sq_pairs_final((SqPairs*)this);
 	}

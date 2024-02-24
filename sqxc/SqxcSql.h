@@ -164,9 +164,11 @@ namespace Sq {
 
 struct XcSql : SqxcSql
 {
+	// constructor
 	XcSql() {
 		sqxc_init((Sqxc*)this, SQXC_INFO_SQL);
 	}
+	// destructor
 	~XcSql() {
 		sqxc_final((Sqxc*)this);
 	}

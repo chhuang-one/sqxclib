@@ -154,9 +154,11 @@ struct TypeJoint : TypeJointMethod,                // <-- 1. inherit C++ method
 	// It doesn't need this line because current struct already inherits from SqTypeJoint.
 //	SQ_TYPE_JOINT_MEMBERS;
 
+	// constructor
 	TypeJoint() {
 		sq_type_joint_init((SqTypeJoint*)this);
 	}
+	// destructor
 	~TypeJoint() {
 		sq_type_joint_final((SqTypeJoint*)this);
 	}

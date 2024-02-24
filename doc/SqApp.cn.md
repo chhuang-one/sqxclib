@@ -420,9 +420,9 @@ Sq::AppSetting  forPostgreSQL = {
 使用 C++ 语言
 
 ```c++
-	Sq::App *appSQLite = new Sq::App(&forSQLite);
+	Sq::App *appSQLite = new Sq::App(forSQLite);
 
-	Sq::App *appPostgreSQL = new Sq::App(&forPostgreSQL);
+	Sq::App *appPostgreSQL = new Sq::App(forPostgreSQL);
 ```
 
 **Step 3:** 运行迁移  

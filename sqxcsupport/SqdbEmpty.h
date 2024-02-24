@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -100,9 +100,11 @@ typedef struct SqdbConfigEmpty    DbConfigEmpty;
 
 struct DbEmpty : SqdbEmpty
 {
+	// constructor
 	DbEmpty(const SqdbConfigEmpty *config = NULL) {
 		init(SQDB_INFO_EMPTY, (const SqdbConfig*)config);
 	}
+	// destructor
 	~DbEmpty() {
 		final();
 	}

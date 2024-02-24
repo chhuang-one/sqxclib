@@ -133,12 +133,14 @@ typedef struct SqdbConfigSqlite    DbConfigSqlite;
 
 struct DbSqlite : SqdbSqlite
 {
+	// constructor
 	DbSqlite(const SqdbConfigSqlite *config = NULL) {
 		init(SQDB_INFO_SQLITE, (const SqdbConfig*)config);
 	}
 	DbSqlite(const SqdbConfigSqlite &config) {
 		init(SQDB_INFO_SQLITE, (const SqdbConfig&)config);
 	}
+	// destructor
 	~DbSqlite() {
 		final();
 	}
