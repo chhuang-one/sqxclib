@@ -57,8 +57,8 @@ SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
 	// copy name string
 	if (type_src->name)
 		type_dest->name = strdup(type_src->name);
-	// alloc & copy pointer array of SqEntry
-	if (type_src->n_entry != -1) {
+	// copy array of SqEntry if array in 'type_src' is initialized.
+	if (type_src->entry != NULL && type_src->n_entry != -1) {
 		// initialize array of SqEntry in 'type_dest'
 		sq_ptr_array_init(sq_type_entry_array(type_dest), type_src->n_entry, entry_free_func);
 		type_dest->n_entry = type_src->n_entry;
