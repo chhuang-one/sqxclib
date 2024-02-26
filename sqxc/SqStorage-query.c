@@ -17,6 +17,7 @@
 #endif
 #include <stdio.h>        // snprintf(), fprintf(), stderr
 
+#include <SqError.h>
 #include <SqType.h>
 #include <SqxcValue.h>
 #include <SqStorage.h>
@@ -119,6 +120,7 @@ void *sq_storage_query(SqStorage    *storage,
 {
 	Sqxc       *xcvalue;
 	void       *instance;
+	int         code;
 
 	if (container_type == NULL)
 		container_type = storage->container_default;
@@ -136,9 +138,15 @@ void *sq_storage_query(SqStorage    *storage,
 
 	// execute SQL statement and get result
 	sqxc_ready(xcvalue, NULL);
-	sqdb_exec(storage->db, sq_query_c(query), xcvalue, NULL);
+	code = sqdb_exec(storage->db, sq_query_c(query), xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
+	if (code != SQCODE_OK) {
+		storage->xc_input->code = code;
+		sq_type_final_instance(table_type, sqxc_value_instance(xcvalue), false);
+		free(sqxc_value_instance(xcvalue));
+		sqxc_value_instance(xcvalue) = NULL;
+		return NULL;
+	}
 	instance = sqxc_value_instance(xcvalue);
-
 	return instance;
 }
