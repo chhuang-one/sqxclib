@@ -150,3 +150,45 @@ void *sq_storage_query(SqStorage    *storage,
 	instance = sqxc_value_instance(xcvalue);
 	return instance;
 }
+
+void *sq_storage_query_raw(SqStorage    *storage,
+                           const char   *query_str,
+                           const SqType *table_type,
+                           const SqType *container_type)
+{
+	Sqxc       *xcvalue;
+	void       *instance;
+	int         code;
+
+	if (container_type == NULL) {
+		fprintf(stderr, "%s: It will not use default container type if 'container_type' is NULL.\n",
+		        "sq_storage_query_raw()");
+	}
+	if (table_type == NULL) {
+#ifndef NDEBUG
+		fprintf(stderr, "%s: User must specify parameter 'table_type' such as SQ_TYPE_ROW.\n",
+		        "sq_storage_query_raw()");
+#endif
+		return NULL;
+	}
+
+	// destination of input
+	xcvalue = (Sqxc*) storage->xc_input;
+	sqxc_value_element(xcvalue)   = table_type;
+	sqxc_value_container(xcvalue) = container_type;
+	sqxc_value_instance(xcvalue)  = NULL;
+
+	// execute SQL statement and get result
+	sqxc_ready(xcvalue, NULL);
+	code = sqdb_exec(storage->db, query_str, xcvalue, NULL);
+	sqxc_finish(xcvalue, NULL);
+	if (code != SQCODE_OK) {
+		storage->xc_input->code = code;
+		sq_type_final_instance(table_type, sqxc_value_instance(xcvalue), false);
+		free(sqxc_value_instance(xcvalue));
+		sqxc_value_instance(xcvalue) = NULL;
+		return NULL;
+	}
+	instance = sqxc_value_instance(xcvalue);
+	return instance;
+}

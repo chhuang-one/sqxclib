@@ -12,7 +12,6 @@
  * See the Mulan PSL v2 for more details.
  */
 
-
 #ifndef SQ_STORAGE
 #define SQ_STORAGE
 
@@ -168,6 +167,11 @@ void *sq_storage_query(SqStorage    *storage,
                        const SqType *table_type,
                        const SqType *container_type);
 
+void *sq_storage_query_raw(SqStorage    *storage,
+                           const char   *query_str,
+                           const SqType *table_type,
+                           const SqType *container_type);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
@@ -247,9 +251,12 @@ struct StorageMethod
 	StlContainer *query(Sq::QueryMethod &query, const SqType *tableType);
 	template <class StlContainer>
 	StlContainer *query(Sq::QueryProxy &qproxy, const SqType *tableType);
-	// query(struct_pointer)   + tableType
+	// query(struct_pointer) + tableType
 	template <class StlContainer>
 	StlContainer *query(Sq::QueryMethod *query, const SqType *tableType);
+	// query(C string) + tableType
+	template <class StlContainer>
+	StlContainer *query(const char  *query_str, const SqType *tableType);
 	// query() without template
 	void *query(Sq::QueryMethod &query, const SqType *containerType = NULL);
 	void *query(Sq::QueryProxy &qproxy, const SqType *containerType = NULL);
@@ -257,6 +264,7 @@ struct StorageMethod
 	void *query(Sq::QueryMethod &query, const SqType *tableType, const SqType *containerType);
 	void *query(Sq::QueryProxy &qproxy, const SqType *tableType, const SqType *containerType);
 	void *query(Sq::QueryMethod *query, const SqType *tableType, const SqType *containerType);
+	void *query(const char  *query_str, const SqType *tableType, const SqType *containerType);
 
 	// insert(struct_reference);
 	template <class StructType>
@@ -571,18 +579,11 @@ inline Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod *query, Sq::TypeJoint
 
 template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryMethod &query) {
-	void    *instance  = NULL;
-	SqType  *tableType = sq_storage_setup_query((SqStorage*)this, (SqQuery*)&query, ((SqStorage*)this)->joint_default);
-	if (tableType) {
-		Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
-		instance = sq_storage_query((SqStorage*)this, (SqQuery*)&query, tableType, containerType);
-		delete containerType;
-	}
-	return (StlContainer*)instance;
+	return this->query<StlContainer>(&query);
 }
 template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryProxy &qproxy) {
-	return query<StlContainer>(qproxy.query());
+	return this->query<StlContainer>(qproxy.query());
 }
 template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryMethod *query) {
@@ -597,21 +598,25 @@ inline StlContainer *StorageMethod::query(Sq::QueryMethod *query) {
 }
 template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryMethod &query, const SqType *tableType) {
-	void    *instance  = NULL;
-	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
-	instance = sq_storage_query((SqStorage*)this, (SqQuery*)&query, tableType, containerType);
-	delete containerType;
-	return (StlContainer*)instance;
+	return this->query<StlContainer>(&query, tableType);
 }
 template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryProxy &qproxy, const SqType *tableType) {
-	return query<StlContainer>(qproxy.query(), tableType);
+	return this->query<StlContainer>(qproxy.query(), tableType);
 }
 template <class StlContainer>
 inline StlContainer *StorageMethod::query(Sq::QueryMethod *query, const SqType *tableType) {
 	void    *instance  = NULL;
 	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
 	instance = sq_storage_query((SqStorage*)this, (SqQuery*)query, tableType, containerType);
+	delete containerType;
+	return (StlContainer*)instance;
+}
+template <class StlContainer>
+inline StlContainer *StorageMethod::query(const char  *query_str, const SqType *tableType) {
+	void    *instance  = NULL;
+	Sq::TypeStl<StlContainer> *containerType = new Sq::TypeStl<StlContainer>(tableType);
+	instance = sq_storage_query_raw((SqStorage*)this, query_str, tableType, containerType);
 	delete containerType;
 	return (StlContainer*)instance;
 }
@@ -632,6 +637,9 @@ inline void *StorageMethod::query(Sq::QueryProxy &qproxy, const SqType *tableTyp
 }
 inline void *StorageMethod::query(Sq::QueryMethod *query, const SqType *tableType, const SqType *containerType) {
 	return sq_storage_query((SqStorage*)this, (SqQuery*)query, tableType, containerType);
+}
+inline void *StorageMethod::query(const char  *query_str, const SqType *tableType, const SqType *containerType) {
+	return sq_storage_query_raw((SqStorage*)this, query_str, tableType, containerType);
 }
 
 template <class StructType>

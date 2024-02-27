@@ -523,9 +523,9 @@ DELETE FROM users WHERE id > 50
 		storage->commitTrans();
 ```
 
-## 自定义查询 (使用 SqQuery)
+## 自定义查询
 
-SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来运行数据库查询。和 getAll() 一样，如果程序没有指定容器类型，它们将使用默认容器类型 [SqPtrArray](SqPtrArray.cn.md)。  
+SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来使用 SqQuery 进行查询。和 getAll() 一样，如果程序没有指定容器类型，它们将使用默认容器类型 [SqPtrArray](SqPtrArray.cn.md)。  
 
 #### 没有 JOIN 子句的查询
 
@@ -636,6 +636,48 @@ Sq::Joint 只是将指针数组包装到结构中。因为 C++ STL 不能直接�
 
 	// 将 Sq::from 与 query 方法一起使用
 	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
+```
+
+#### 使用原始字符串进行查询
+
+SqStorage 提供 sq_storage_query_raw() 来使用原始字符串进行查询。与 getAll() 不同，程序必须指定数据类型和容器类型。  
+
+使用 C 函数
+
+```c
+	int  *p2integer;
+	int   max_id;
+
+	// 如果只查询 MAX(id)，会得到一个整数。
+	// 因此指定表类型为 SQ_TYPE_INT，容器类型为 NULL。
+	p2integer = sq_storage_query_raw(storage, "SELECT MAX(id) FROM table", SQ_TYPE_INT, NULL);
+	// 返回整数指针
+	max_id = *p2integer;
+	// 不需要时释放整数指针。
+	free(p2integer);
+
+	// 如果只查询一行，则不需要容器。
+	// 因此指定容器类型为 NULL。
+	table = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id=1", tableType, NULL);
+```
+
+使用 C++ 方法
+
+```c++
+	int  *p2integer;
+	int   max_id;
+
+	// 如果只查询 MAX(id)，会得到一个整数。
+	// 因此指定表类型为 SQ_TYPE_INT，容器类型为 NULL。
+	p2integer = storage->query("SELECT MAX(id) FROM table", SQ_TYPE_INT, NULL);
+	// 返回整数指针
+	max_id = *p2integer;
+	// 不需要时释放整数指针。
+	free(p2integer);
+
+	// 如果只查询一行，则不需要容器。
+	// 因此指定容器类型为 NULL。
+	table = storage->query("SELECT * FROM table WHERE id=1", tableType, NULL);
 ```
 
 ## 使用自定义数据类型

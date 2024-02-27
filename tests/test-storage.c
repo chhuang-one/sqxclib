@@ -126,6 +126,44 @@ void test_storage_crud(SqStorage *storage)
 	company_ptr = sq_storage_get(storage, "companies", NULL, id);
 	assert(company_ptr == NULL);
 	fprintf(stderr, "remove(): ok.\n");
+
+	fprintf(stderr, "\n");
+}
+
+void test_storage_query(SqStorage *storage)
+{
+	Company   company;
+	SqQuery  *query;
+	union {
+		void *unknown;
+		int  *integer;
+	} ptr;
+
+	fprintf(stderr, "Trying to query rows from a table that doesn't exist.\n");
+	query = sq_query_new("NotExistTable");
+	ptr.unknown = sq_storage_query(storage, query, NULL, NULL);
+	sq_query_free(query);
+	assert(ptr.unknown == NULL);
+	fprintf(stderr, "query(): return NULL because the table doesn't exist.\n");
+
+	// insert testing row for sq_storage_query_raw()
+	company.id = 0;    // auto increment
+	company.name = "tester";
+	company.salary = 9009;
+	company.age = 52;
+	company.address = "everywhere";
+	company.id = sq_storage_insert(storage, "companies", NULL, &company);
+
+	// query with raw string
+	ptr.integer = sq_storage_query_raw(storage, "SELECT MAX(id) FROM companies", SQ_TYPE_INT, NULL);
+	fprintf(stderr, "get result: MAX(id) = %d\n", *ptr.integer);
+	assert(*ptr.integer == company.id);
+	free(ptr.integer);
+
+	// remove testing row
+	sq_storage_remove(storage, "companies", NULL, company.id);
+
+	fprintf(stderr, "\n");
 }
 
 void test_storage_xxx_all(SqStorage *storage)
@@ -135,6 +173,9 @@ void test_storage_xxx_all(SqStorage *storage)
 	Company  company;
 	int64_t  id[2];
 	int64_t  n_changes;
+
+	// remove all
+	sq_storage_remove_all(storage, "companies", NULL);
 
 	company.id = 0;    // for auto increment
 	company.name = "McD";
@@ -157,6 +198,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	                                  NULL,
 	                                  "name", "age",
 	                                  NULL);
+	fprintf(stderr, "update_all(): number of rows changed = %"PRId64"\n", n_changes);
 	assert(n_changes == 2);
 
 	// get_all
@@ -218,6 +260,8 @@ void test_storage_xxx_all(SqStorage *storage)
 	company_ptr = sq_storage_get(storage, "companies", NULL, id[1]);
 	assert(company_ptr == NULL);
 	fprintf(stderr, "remove_all(): ok.\n");
+
+	fprintf(stderr, "\n");
 }
 
 void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
@@ -243,6 +287,8 @@ void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
 
 	// test get(), insert(), update(), and remove()
 	test_storage_crud(storage);
+	// test query()
+	test_storage_query(storage);
 	// test update_all(), get_all(), and remove_all()
 	test_storage_xxx_all(storage);
 

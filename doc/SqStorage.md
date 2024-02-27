@@ -523,9 +523,9 @@ use C++ methods
 		storage->commitTrans();
 ```
 
-## Custom query (with SqQuery)
+## Custom query
 
-SqStorage provides sq_storage_query() and C++ method query() to run database queries. Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](SqPtrArray.md).  
+SqStorage provides sq_storage_query() and C++ method query() to query with SqQuery. Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](SqPtrArray.md).  
 
 #### query without JOIN clause
 
@@ -636,6 +636,48 @@ use C++ Sq::select or Sq::from to run database queries.
 
 	// use Sq::from with query method
 	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
+```
+
+#### query with raw string
+
+SqStorage provides sq_storage_query_raw() to query with raw string. Unlike getAll(), program must specify data type and container type.  
+
+use C function
+
+```c
+	int  *p2integer;
+	int   max_id;
+
+	// If you just query MAX(id), it will get an integer.
+	// Therefore specify the table type as SQ_TYPE_INT and the container type as NULL.
+	p2integer = sq_storage_query_raw(storage, "SELECT MAX(id) FROM table", SQ_TYPE_INT, NULL);
+	// return integer pointer
+	max_id = *p2integer;
+	// free the integer pointer when no longer needed
+	free(p2integer);
+
+	// If you just query a row, it doesn't need a container.
+	// Therefore specify the container type as NULL.
+	table = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id=1", tableType, NULL);
+```
+
+use C++ method
+
+```c++
+	int  *p2integer;
+	int   max_id;
+
+	// If you just query MAX(id), it will get an integer.
+	// Therefore specify the table type as SQ_TYPE_INT and the container type as NULL.
+	p2integer = storage->query("SELECT MAX(id) FROM table", SQ_TYPE_INT, NULL);
+	// return integer pointer
+	max_id = *p2integer;
+	// free the integer pointer when no longer needed
+	free(p2integer);
+
+	// If you just query a row, it doesn't need a container.
+	// Therefore specify the container type as NULL.
+	table = storage->query("SELECT * FROM table WHERE id=1", tableType, NULL);
 ```
 
 ## use custom data type
