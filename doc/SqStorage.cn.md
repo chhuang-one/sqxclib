@@ -640,7 +640,7 @@ Sq::Joint 只是将指针数组包装到结构中。因为 C++ STL 不能直接�
 
 #### 使用原始字符串进行查询
 
-SqStorage 提供 sq_storage_query_raw() 来使用原始字符串进行查询。与 getAll() 不同，程序必须指定数据类型和容器类型。  
+SqStorage 提供 sq_storage_query_raw() 来使用原始字符串进行查询。与 getAll() 不同，程序必须指定数据类型和容器类型，因为当容器类型为 NULL 时程序不会使用默认容器类型。  
 
 使用 C 函数
 
@@ -658,7 +658,10 @@ SqStorage 提供 sq_storage_query_raw() 来使用原始字符串进行查询。�
 
 	// 如果只查询一行，则不需要容器。
 	// 因此指定容器类型为 NULL。
-	table = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id=1", tableType, NULL);
+	table = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id = 1", tableType, NULL);
+
+	// 如果查询多行，则需要容器。
+	container = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id < 25", tableType, containerType);
 ```
 
 使用 C++ 方法
@@ -677,7 +680,10 @@ SqStorage 提供 sq_storage_query_raw() 来使用原始字符串进行查询。�
 
 	// 如果只查询一行，则不需要容器。
 	// 因此指定容器类型为 NULL。
-	table = storage->query("SELECT * FROM table WHERE id=1", tableType, NULL);
+	table = storage->query("SELECT * FROM table WHERE id = 1", tableType, NULL);
+
+	// 如果查询多行，则需要容器。
+	container = storage->query("SELECT * FROM table WHERE id < 25", tableType, containerType);
 ```
 
 ## 使用自定义数据类型
@@ -690,6 +696,7 @@ SqStorage 提供 sq_storage_query_raw() 来使用原始字符串进行查询。�
 | sq_storage_get()          | get()         |
 | sq_storage_get_all()      | getAll()      |
 | sq_storage_query()        | query()       |
+| sq_storage_query_raw()    | query()       |
 
 如果用户同时指定 'table_name' 和 'table_type'，下面的函数可以运行得更快一些。
 
@@ -704,7 +711,7 @@ SqStorage 提供 sq_storage_query_raw() 来使用原始字符串进行查询。�
 | sq_storage_update_field() | updateField() |
 
 注意: 如果用户未指定对象类型，SqStorage 将尝试查找匹配的类型。  
-注意: 如果用户未指定容器类型，SqStorage 将使用默认容器类型。  
+注意: 如果用户未指定容器类型，SqStorage 将使用默认容器类型。（sq_storage_query_raw 除外）  
 
 使用 C 函数  
   

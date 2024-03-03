@@ -460,6 +460,48 @@ sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 来使用这些文件。请参阅 doc
 	storage->removeAll<User>("WHERE id < 5");
 ```
 
+## 使用原始字符串进行查询
+
+sq_storage_query_raw() 使用原始字符串进行查询。程序必须指定数据类型和容器类型。
+
+使用 C 函数
+
+```c
+	int  *p2integer;
+	int   max_id;
+
+	// 如果只查询 MAX(id)，会得到一个整数。
+	// 因此指定表类型为 SQ_TYPE_INT，容器类型为 NULL。
+	p2integer = sq_storage_query_raw(storage, "SELECT MAX(id) FROM table", SQ_TYPE_INT, NULL);
+	// 返回整数指针
+	max_id = *p2integer;
+	// 不需要时释放整数指针。
+	free(p2integer);
+
+	// 如果只查询一行，则不需要容器。
+	// 因此指定容器类型为 NULL。
+	table = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id=1", tableType, NULL);
+```
+
+使用 C++ 方法
+
+```c++
+	int  *p2integer;
+	int   max_id;
+
+	// 如果只查询 MAX(id)，会得到一个整数。
+	// 因此指定表类型为 SQ_TYPE_INT，容器类型为 NULL。
+	p2integer = storage->query("SELECT MAX(id) FROM table", SQ_TYPE_INT, NULL);
+	// 返回整数指针
+	max_id = *p2integer;
+	// 不需要时释放整数指针。
+	free(p2integer);
+
+	// 如果只查询一行，则不需要容器。
+	// 因此指定容器类型为 NULL。
+	table = storage->query("SELECT * FROM table WHERE id=1", tableType, NULL);
+```
+
 ## 查询生成器
 
 [SqQuery](doc/SqQuery.cn.md) 可以使用 C 函数或 C++ 方法生成 SQL 语句。

@@ -160,10 +160,12 @@ void *sq_storage_query_raw(SqStorage    *storage,
 	void       *instance;
 	int         code;
 
+#ifndef NDEBUG
 	if (container_type == NULL) {
 		fprintf(stderr, "%s: It will not use default container type if 'container_type' is NULL.\n",
 		        "sq_storage_query_raw()");
 	}
+#endif
 	if (table_type == NULL) {
 #ifndef NDEBUG
 		fprintf(stderr, "%s: User must specify parameter 'table_type' such as SQ_TYPE_ROW.\n",

@@ -460,6 +460,48 @@ use C++ template functions
 	storage->removeAll<User>("WHERE id < 5");
 ```
 
+## Query with raw string
+
+sq_storage_query_raw() can query with raw string, program must specify data type and container type.
+
+use C function
+
+```c
+	int  *p2integer;
+	int   max_id;
+
+	// If you just query MAX(id), it will get an integer.
+	// Therefore specify the table type as SQ_TYPE_INT and the container type as NULL.
+	p2integer = sq_storage_query_raw(storage, "SELECT MAX(id) FROM table", SQ_TYPE_INT, NULL);
+	// return integer pointer
+	max_id = *p2integer;
+	// free the integer pointer when no longer needed
+	free(p2integer);
+
+	// If you just query a row, it doesn't need a container.
+	// Therefore specify the container type as NULL.
+	table = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id=1", tableType, NULL);
+```
+
+use C++ method
+
+```c++
+	int  *p2integer;
+	int   max_id;
+
+	// If you just query MAX(id), it will get an integer.
+	// Therefore specify the table type as SQ_TYPE_INT and the container type as NULL.
+	p2integer = storage->query("SELECT MAX(id) FROM table", SQ_TYPE_INT, NULL);
+	// return integer pointer
+	max_id = *p2integer;
+	// free the integer pointer when no longer needed
+	free(p2integer);
+
+	// If you just query a row, it doesn't need a container.
+	// Therefore specify the container type as NULL.
+	table = storage->query("SELECT * FROM table WHERE id=1", tableType, NULL);
+```
+
 ## Query builder
 
 [SqQuery](doc/SqQuery.md) can generate SQL statement by using C functions or C++ methods.

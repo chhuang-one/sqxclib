@@ -640,7 +640,7 @@ use C++ Sq::select or Sq::from to run database queries.
 
 #### query with raw string
 
-SqStorage provides sq_storage_query_raw() to query with raw string. Unlike getAll(), program must specify data type and container type.  
+SqStorage provides sq_storage_query_raw() to query with raw string. Unlike getAll(), program must specify data type and container type because it will not use default container type when container type is NULL.  
 
 use C function
 
@@ -658,7 +658,10 @@ use C function
 
 	// If you just query a row, it doesn't need a container.
 	// Therefore specify the container type as NULL.
-	table = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id=1", tableType, NULL);
+	table = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id = 1", tableType, NULL);
+
+	// If you query multiple rows, it needs container.
+	container = sq_storage_query_raw(storage, "SELECT * FROM table WHERE id < 25", tableType, containerType);
 ```
 
 use C++ method
@@ -677,7 +680,10 @@ use C++ method
 
 	// If you just query a row, it doesn't need a container.
 	// Therefore specify the container type as NULL.
-	table = storage->query("SELECT * FROM table WHERE id=1", tableType, NULL);
+	table = storage->query("SELECT * FROM table WHERE id = 1", tableType, NULL);
+
+	// If you query multiple rows, it needs container.
+	container = storage->query("SELECT * FROM table WHERE id < 25", tableType, containerType);
 ```
 
 ## use custom data type
@@ -690,6 +696,7 @@ See the documentation [SqType](SqType.md) to learn how to customize types.
 | sq_storage_get()          | get()         |
 | sq_storage_get_all()      | getAll()      |
 | sq_storage_query()        | query()       |
+| sq_storage_query_raw()    | query()       |
 
 below functions can run a bit faster if user specify 'table_name' and 'table_type' at the same time.
 
@@ -704,7 +711,7 @@ below functions can run a bit faster if user specify 'table_name' and 'table_typ
 | sq_storage_update_field() | updateField() |
 
 Note: SqStorage will try to find matched type if user does NOT specify object type.  
-Note: SqStorage will use default container type if user does NOT specify container type.  
+Note: SqStorage will use default container type if user does NOT specify container type. (except sq_storage_query_raw)  
   
 use C function  
   
