@@ -171,20 +171,20 @@ struct Entry;
 	SqEntry must have no base struct because I need use aggregate initialization with it.
  */
 
-#define SQ_ENTRY_MEMBERS        \
-	const SqType *type;         \
-	const char   *name;         \
-	size_t        offset;       \
-	unsigned int  bit_field
+#define SQ_ENTRY_MEMBERS          \
+	const SqType   *type;         \
+	const char     *name;         \
+	size_t          offset;       \
+	unsigned int    bit_field
 
 struct SqEntry
 {
 	SQ_ENTRY_MEMBERS;
 /*	// ------ SqEntry members ------
-	const SqType *type;        // type information of entry
-	const char   *name;
-	size_t        offset;
-	unsigned int  bit_field;
+	const SqType   *type;           // type information of entry
+	const char     *name;
+	size_t          offset;
+	unsigned int    bit_field;
  */
 
 #ifdef __cplusplus
@@ -217,22 +217,22 @@ struct SqEntry
 	C++ user can initialize static structure easily.
 */
 
-#define SQ_REENTRY_MEMBERS      \
-	const SqType *type;         \
-	const char   *name;         \
-	size_t        offset;       \
-	unsigned int  bit_field;    \
-	const char   *old_name
+#define SQ_REENTRY_MEMBERS        \
+	const SqType   *type;         \
+	const char     *name;         \
+	size_t          offset;       \
+	unsigned int    bit_field;    \
+	const char     *old_name
 
 struct SqReentry
 {
 	SQ_REENTRY_MEMBERS;
 /*	// ------ SqReentry members ------
-	const SqType *type;        // type information of entry
-	const char   *name;
-	size_t        offset;
-	unsigned int  bit_field;
-	const char   *old_name;    // rename or drop
+	const SqType   *type;           // type information of entry
+	const char     *name;
+	size_t          offset;
+	unsigned int    bit_field;
+	const char     *old_name;       // rename or drop
  */
 	// if name is NULL, it will drop old_name
 	// if name is NOT NULL, it will rename from old_name to name

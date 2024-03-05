@@ -104,6 +104,8 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 
 	if (arranged_columns == NULL)
 		arranged_columns = sq_type_entry_array(table->type);
+	// clear cache
+	table->primary_key = NULL;
 	// ALTER TABLE
 	for (index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];

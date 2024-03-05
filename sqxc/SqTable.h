@@ -505,10 +505,11 @@ struct TableMethod
 	C++ user can initialize static structure easily.
  */
 
-#define SQ_TABLE_MEMBERS       \
-	SQ_REENTRY_MEMBERS;        \
-	SqDestroyFunc  on_destory; \
-	SqRelation    *relation
+#define SQ_TABLE_MEMBERS           \
+	SQ_REENTRY_MEMBERS;            \
+	SqColumn       *primary_key;   \
+	SqDestroyFunc   on_destory;    \
+	SqRelation     *relation
 
 #ifdef __cplusplus
 struct SqTable : Sq::TableMethod         // <-- 1. inherit C++ member function(method)
@@ -518,22 +519,23 @@ struct SqTable
 {
 	SQ_TABLE_MEMBERS;                    // <-- 2. inherit member variable
 /*	// ------ SqEntry members ------
-	const SqType *type;        // type information for this entry
-	const char   *name;
-	size_t        offset;      // migration use this. Number of columns have existed in database
-	unsigned int  bit_field;
+	const SqType   *type;           // type information for this entry
+	const char     *name;
+	size_t          offset;         // migration use this. Number of columns have existed in database
+	unsigned int    bit_field;
 
 	// ------ SqReentry members ------
-	const char   *old_name;    // rename or drop
+	const char     *old_name;       // rename or drop
 
 	// ------ SqTable members ------
-	SqDestroyFunc on_destory;  // on destroy callback. It is used by derived Sqdb.
+	SqColumn       *primary_key;    // It works like cache, so don't access it directly.
+	SqDestroyFunc   on_destory;     // on destroy callback. It is used by derived Sqdb.
 
 	// SqColumn's relation for (SQLite) migration.
 	// sq_table_include() and sq_schema_include() store columns that having foreign reference.
 	// sq_schema_trace_name() use these to trace renamed (or dropped) column that was referenced by others.
 	// free it if you don't need to sync table changed to database.
-	SqRelation   *relation;
+	SqRelation     *relation;
  */
 };
 

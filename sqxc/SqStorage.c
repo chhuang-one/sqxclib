@@ -119,8 +119,8 @@ void *sq_storage_get(SqStorage    *storage,
 {
 	SqBuffer *buf;
 	Sqxc     *xcvalue;
+	SqColumn *primary = NULL;
 	union {
-		SqColumn *column;
 		SqTable  *table;
 		void     *instance;
 		int       len;
@@ -137,6 +137,7 @@ void *sq_storage_get(SqStorage    *storage,
 #endif
 			return NULL;
 		}
+		primary = temp.table->primary_key;
 		table_type = temp.table->type;
 	}
 
@@ -150,11 +151,11 @@ void *sq_storage_get(SqStorage    *storage,
 	buf = sqxc_get_buffer(xcvalue);
 	buf->writed = 0;
 	// select query-only columns before others if table has query-only column
-	temp.column = sqdb_sql_select(storage->db, buf, table_name, table_type);
+	primary = sqdb_sql_select(storage->db, buf, table_name, table_type);
 	// WHERE primaryKey=...
-	if (temp.column == NULL)
-		temp.column = sq_table_get_primary(NULL, table_type);
-	print_where_column(temp.column, &id, buf, storage->db->info->quote.identifier);
+	if (primary == NULL)
+		primary = sq_table_get_primary(NULL, table_type);
+	print_where_column(primary, &id, buf, storage->db->info->quote.identifier);
 
 	sqxc_ready(xcvalue, NULL);
 	temp.code = sqdb_exec(storage->db, buf->mem, xcvalue, NULL);
@@ -389,16 +390,16 @@ void  sq_storage_remove(SqStorage    *storage,
                         int64_t       id)
 {
 	SqBuffer  *buf;
-	union {
-		SqTable   *table;
-		SqColumn  *column;
-	} temp;
+	SqColumn  *primary = NULL;
+	SqTable   *table;
 
 	if (table_type == NULL) {
 		// find SqTable by table_name
-		temp.table = sq_schema_find(storage->schema, table_name);
-		if (temp.table)
-			table_type = temp.table->type;
+		table = sq_schema_find(storage->schema, table_name);
+		if (table) {
+			table_type = table->type;
+			primary = table->primary_key;
+		}
 #ifndef NDEBUG
 		else
 			fprintf(stderr, "%s: table '%s' not found in SqStorage::schema.\n",
@@ -406,12 +407,13 @@ void  sq_storage_remove(SqStorage    *storage,
 #endif
 	}
 
-	temp.column = table_type ? sq_table_get_primary(NULL, table_type) : NULL;
+	if (primary == NULL)
+		primary = table_type ? sq_table_get_primary(NULL, table_type) : NULL;
 
 	buf = sqxc_get_buffer(storage->xc_output);
 	buf->writed = 0;
 	sqdb_sql_delete(storage->db, buf, table_name);
-	print_where_column(temp.column, &id, buf, storage->db->info->quote.identifier);
+	print_where_column(primary, &id, buf, storage->db->info->quote.identifier);
 	sqdb_exec(storage->db, buf->mem, NULL, NULL);
 }
 

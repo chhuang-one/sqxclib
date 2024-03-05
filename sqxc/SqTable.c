@@ -51,6 +51,8 @@ void  sq_table_init(SqTable *table, const char *name, const SqType *table_type)
 	table->name = (name) ? strdup(name) : NULL;
 //	table->bit_field |= SQB_POINTER;
 	table->old_name = NULL;
+	// --- SqTable members ---
+	table->primary_key = NULL;
 	// callback for derived Sqdb
 	table->on_destory = NULL;
 	// for (SQLite) migration.
@@ -78,6 +80,7 @@ void  sq_table_add_column(SqTable *table, const SqColumn *column, int n_column)
 	SqType *type = (SqType*)table->type;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
+		// create dynamic SqType & copy data from static SqType instance.
 		type = sq_type_copy(NULL, type, (SqDestroyFunc)sq_column_free, NULL);
 		table->type = type;
 	}
@@ -89,6 +92,7 @@ void  sq_table_add_column_ptrs(SqTable *table, const SqColumn **column_ptrs, int
 	SqType  *type = (SqType*)table->type;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0) {
+		// create dynamic SqType & copy data from static SqType instance.
 		type = sq_type_copy(NULL, type, (SqDestroyFunc)sq_column_free, NULL);
 		table->type = type;
 	}
@@ -99,9 +103,10 @@ void  sq_table_drop_column(SqTable *table, const char *column_name)
 {
 	SqColumn  *column;
 
+	// create dropped record
 	column = calloc(1, sizeof(SqColumn));
 	column->old_name = strdup(column_name);
-
+	// add dropped record
 	sq_table_add_column(table, column, 1);
 	table->bit_field |= SQB_TABLE_CHANGED;
 
@@ -117,11 +122,12 @@ void  sq_table_rename_column(SqTable *table, const char *from, const char *to)
 {
 	SqColumn  *column;
 
+	// create renamed record
 	column = calloc(1, sizeof(SqColumn));
 	column->old_name = strdup(from);
 	column->name = strdup(to);
 	column->bit_field = SQB_DYNAMIC;
-
+	// add renamed record
 	sq_table_add_column(table, column, 1);
 	table->bit_field |= SQB_TABLE_CHANGED;
 
@@ -181,6 +187,10 @@ SqColumn *sq_table_get_primary(SqTable *table, const SqType *type_in_table)
 	SqPtrArray *array;
 	SqColumn   *column;
 
+	// return primary key if it cached
+	if (table && table->primary_key)
+		return table->primary_key;
+
 	if (type_in_table)
 		array = sq_type_entry_array(type_in_table);
 	else
@@ -188,8 +198,13 @@ SqColumn *sq_table_get_primary(SqTable *table, const SqType *type_in_table)
 
 	for (int index = 0;  index < array->length;  index++) {
 		column = array->data[index];
-		if (column->bit_field & SQB_COLUMN_PRIMARY && SQ_TYPE_IS_INT(column->type))
+//		if (column->bit_field & SQB_COLUMN_PRIMARY && SQ_TYPE_IS_INT(column->type))
+		if (column->bit_field & SQB_COLUMN_PRIMARY) {
+			// update cache
+			if (table)
+				table->primary_key = column;
 			return column;
+		}
 	}
 	return NULL;
 }
