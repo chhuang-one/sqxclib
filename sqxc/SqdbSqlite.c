@@ -504,7 +504,8 @@ static void  sqdb_sqlite_recreate_table(SqdbSqlite *db, SqBuffer *sql_buf, SqTab
 	sq_buffer_write(sql_buf, "CREATE TABLE IF NOT EXISTS \"" NEW_TABLE_PREFIX_NAME);
 	sq_buffer_write(sql_buf, table->name);
 	sq_buffer_write_c(sql_buf, '\"');
-	sqdb_sql_create_table_params((Sqdb*)db, sql_buf, columns, true);
+	sqdb_sql_create_table_params((Sqdb*)db, sql_buf, columns,
+	                             sq_table_get_primary(table, NULL));
 	sq_buffer_write_c(sql_buf, ';');
 
 	// -- copy data from the table to the new_tables
