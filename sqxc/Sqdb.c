@@ -146,7 +146,9 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 // ----------------------------------------------------------------------------
 // write SQL statement to 'sql_buf'
 
-int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArray *arranged_columns, bool primary_first)
+int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table,
+                           SqPtrArray *arranged_columns,
+                           bool        primary_first)
 {
 	int  n_columns;
 
@@ -166,17 +168,21 @@ int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrArr
 	return n_columns;
 }
 
-int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arranged_columns, SqColumn *primary_key)
+int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
+                                  SqPtrArray *arranged_columns,
+                                  SqColumn   *primary_key)
 {
 	SqColumn *column;
-	int       index, n_columns = 0;
+	int       index;
+	int       n_columns = 0;    // number of columns have been written
 	bool      has_constraint = false;
 
 	sq_buffer_write(buffer, "(");
 
-	// primary key first
-	if (primary_key) {
+	// primary key first, but exclude composite primary key.
+	if (primary_key && primary_key->type != SQ_TYPE_CONSTRAINT) {
 		sqdb_sql_write_column(db, buffer, primary_key, NULL);
+		// increase number of columns have been written
 		n_columns++;
 	}
 
@@ -184,7 +190,7 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 		column = (SqColumn*)arranged_columns->data[index];
 		if (column == NULL)
 			continue;
-		// skip primary key if parameters of primary key has been writed in buffer.
+		// skip primary key if primary key parameter has been written.
 		if (column->bit_field & SQB_COLUMN_PRIMARY && primary_key)
 			continue;
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
@@ -205,8 +211,9 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 		if (n_columns > 0)
 			sq_buffer_write_c(buffer, ',');
 
+		// increase number of columns have been written
 		n_columns++;
-		// write column
+		// write column parameters
 		sqdb_sql_write_column(db, buffer, column, NULL);
 	}
 
@@ -240,11 +247,8 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer, SqPtrArray *arrang
 	if (has_constraint) {
 		for (index = 0;  index < arranged_columns->length;  index++) {
 			column = (SqColumn*)arranged_columns->data[index];
-			// DROP COLUMN
+			// skip DROP COLUMN record
 			if (column->name == NULL)
-				continue;
-			// CREATE INDEX
-			if (column->type == SQ_TYPE_INDEX)
 				continue;
 			// CONSTRAINT
 			if (column->type == SQ_TYPE_CONSTRAINT) {
