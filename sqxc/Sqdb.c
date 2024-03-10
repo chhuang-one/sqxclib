@@ -190,7 +190,16 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
 		column = (SqColumn*)arranged_columns->data[index];
 		if (column == NULL)
 			continue;
+		// skip INDEX
+		if (column->type == SQ_TYPE_INDEX)
+			continue;
+		// skip CONSTRAINT and check if table has constraint)
+		if (column->type == SQ_TYPE_CONSTRAINT) {
+			has_constraint = true;
+			continue;
+		}
 		// skip primary key if primary key parameter has been written.
+		// this must run after checking if table has constraint.
 		if (column->bit_field & SQB_COLUMN_PRIMARY && primary_key)
 			continue;
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
@@ -198,14 +207,6 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
 		if (column->bit_field & SQB_COLUMN_QUERY)
 			continue;
 #endif
-		// skip INDEX
-		if (column->type == SQ_TYPE_INDEX)
-			continue;
-		// skip CONSTRAINT
-		if (column->type == SQ_TYPE_CONSTRAINT) {
-			has_constraint = true;
-			continue;
-		}
 
 		// write comma between two columns
 		if (n_columns > 0)

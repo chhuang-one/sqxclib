@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -24,9 +24,10 @@
 // ----------------------------------------------------------------------------
 // C structure
 
-typedef struct User     User;
-typedef struct City     City;
-typedef struct Company  Company;
+typedef struct User         User;
+typedef struct City         City;
+typedef struct Company      Company;
+typedef struct Composite    Composite;
 
 struct User {
 	int    id;
@@ -61,6 +62,14 @@ struct Company {
 
 	time_t         created_at;
 	time_t         updated_at;
+};
+
+struct Composite {
+	int    user_id;
+	int    city_id;
+	int    company_id;
+
+	char  *name;
 };
 
 // ----------------------------------------------------------------------------
@@ -336,6 +345,25 @@ void change_city_table_by_c(SqSchema *schema)
 	sq_column_use_current_on_update(column);
 }
 
+void create_composite_table_by_c(SqSchema *schema)
+{
+	SqTable  *table;
+	SqColumn *column;
+
+//	table = sq_schema_create(schema, "composites", User);
+	table = sq_schema_create_full(schema, "composites", SQ_GET_TYPE_NAME(Composite), NULL, sizeof(Composite));
+
+	column = sq_table_add_int(table, "user_id", offsetof(Composite, user_id));
+	column = sq_table_add_int(table, "city_id", offsetof(Composite, city_id));
+	column = sq_table_add_int(table, "company_id", offsetof(Composite, company_id));
+	column = sq_table_add_string(table, "name", offsetof(Composite, name), -1);
+
+	column = sq_table_add_primary(table,
+			"user_city_company_id",
+			"user_id", "city_id", "company_id",
+			NULL);
+}
+
 // ----------------------------------------------------------------------------
 
 void test_sqdb_migrate(Sqdb *db)
@@ -364,6 +392,7 @@ void test_sqdb_migrate(Sqdb *db)
 	create_user_table_by_type(schema_v3);
 //	create_user_table_by_macro(schema_v3);
 //	create_user_table_by_c(schema_v3);
+	create_composite_table_by_c(schema_v1);
 
 	schema_v4 = sq_schema_new("ver4");
 	schema_v4->version = 4;
@@ -428,6 +457,7 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 	// other testing in 'schema_v4'
 	sq_schema_rename(schema_v4, "cities", "cities2");
 //	sq_schema_drop(schema_v4, "users");
+	create_composite_table_by_c(schema_v1);
 
 	sqdb_migrate(db, schema, schema_v1);
 	sqdb_migrate(db, schema, schema_v2);
