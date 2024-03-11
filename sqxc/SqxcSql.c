@@ -15,10 +15,10 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <limits.h>     // __WORDSIZE
-#include <stdint.h>     // __WORDSIZE (Apple)
-#include <stdio.h>      // snprintf
-#include <inttypes.h>   // PRId64, PRIu64
+#include <limits.h>       // __WORDSIZE
+#include <stdint.h>       // __WORDSIZE  for Apple Developer
+#include <stdio.h>        // snprintf()
+#include <inttypes.h>     // PRId64, PRIu64
 
 #include <SqError.h>
 #include <SqConfig.h>

@@ -15,10 +15,10 @@
 #ifndef SQ_DEFINE_H
 #define SQ_DEFINE_H
 
-#include <stdint.h>     // int64_t, intptr_t...etc
-#include <stdbool.h>    // bool
-#include <string.h>     // strcmp() for Sq::compare<char*>
-#include <time.h>       // time_t
+#include <stdint.h>       // int64_t, intptr_t...etc
+#include <stdbool.h>      // bool
+#include <string.h>       // strcmp() for Sq::compare<char*>
+#include <time.h>         // time_t
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

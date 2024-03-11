@@ -15,7 +15,7 @@
 
 #include <stdio.h>
 #include <assert.h>
-#include <inttypes.h>   // PRId64, PRIu64
+#include <inttypes.h>     // PRId64, PRIu64
 
 #include <sqxclib.h>
 #include <SqSchema-macro.h>

@@ -710,7 +710,7 @@ SqStorage 提供 sq_storage_query_raw() 来使用原始字符串进行查询。�
 | sq_storage_update_all()   | updateAll()   |
 | sq_storage_update_field() | updateField() |
 
-注意: 如果用户未指定对象类型，SqStorage 将尝试查找匹配的类型。  
+注意: 如果用户未指定对象类型，SqStorage 将尝试查找匹配的类型。（sq_storage_query_raw 除外）  
 注意: 如果用户未指定容器类型，SqStorage 将使用默认容器类型。（sq_storage_query_raw 除外）  
 
 使用 C 函数  

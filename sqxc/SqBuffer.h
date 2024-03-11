@@ -18,8 +18,8 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdlib.h>    // calloc(), realloc()
-#include <string.h>    // memcpy(), strcpy(), strlen()
+#include <stdlib.h>       // calloc(), realloc()
+#include <string.h>       // memcpy(), strcpy(), strlen()
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

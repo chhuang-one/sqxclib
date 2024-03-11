@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -13,7 +13,7 @@
  */
 
 #include <sqxclib.h>
-#include <SqxcFile.h>    // SqxcFile in sqxcsupport library
+#include <SqxcFile.h>     // SqxcFile in sqxcsupport library
 
 /*	Sqxc chain data flow for SqxcJsonc Writer
 

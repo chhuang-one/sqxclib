@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -17,12 +17,12 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <iostream>     // cout
-#include <type_traits>  // is_standard_layout<>
+#include <iostream>       // cout
+#include <type_traits>    // is_standard_layout<>
 
 #include <sqxclib.h>
 #include <SqApp.h>
-#include <CStructs.h>   // struct User
+#include <CStructs.h>     // struct User
 
 #define USE_DERVIDED_MYAPP    0
 

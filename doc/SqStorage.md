@@ -710,7 +710,7 @@ below functions can run a bit faster if user specify 'table_name' and 'table_typ
 | sq_storage_update_all()   | updateAll()   |
 | sq_storage_update_field() | updateField() |
 
-Note: SqStorage will try to find matched type if user does NOT specify object type.  
+Note: SqStorage will try to find matched type if user does NOT specify object type. (except sq_storage_query_raw)  
 Note: SqStorage will use default container type if user does NOT specify container type. (except sq_storage_query_raw)  
   
 use C function  

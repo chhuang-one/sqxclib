@@ -57,17 +57,17 @@ SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
 	// copy name string
 	if (type_src->name)
 		type_dest->name = strdup(type_src->name);
-	// copy array of SqEntry if array in 'type_src' is initialized.
+	// copy SqEntry array if array in 'type_src' is initialized.
 	if (type_src->entry != NULL && type_src->n_entry != -1) {
-		// initialize array of SqEntry in 'type_dest'
+		// initialize SqEntry array in 'type_dest'
 		sq_ptr_array_init(sq_type_entry_array(type_dest), type_src->n_entry, entry_free_func);
 		type_dest->n_entry = type_src->n_entry;
 		if (entry_copy_func == NULL) {
-			// copy pointers from array of SqEntry directly
+			// copy pointers from SqEntry array directly
 			memcpy(type_dest->entry, type_src->entry, sizeof(void*) * type_src->n_entry);
 		}
 		else {
-			// copy instances from array of SqEntry if 'entry_copy_func' is present
+			// copy instances from SqEntry array if 'entry_copy_func' is present
 			for (int i = 0;  i < type_src->n_entry;  i++)
 				type_dest->entry[i] = entry_copy_func(NULL, type_src->entry[i]);
 		}
@@ -126,16 +126,19 @@ void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
 		instance = *(void**)instance;
 	}
 
-	// call init() if it exist
+	// call SqType::init() to initialize instance if the function exists
 	if (init)
 		init(instance, type);
-	// initialize SqEntry in SqType::entry if no init() function
+	// initialize fields in instance if there is no SqType::init() function
 	else if (type->entry) {
+		// initialize fields by using entry array
 		temp.array = sq_type_entry_array(type);
 		void **beg = sq_ptr_array_begin(temp.array);
 		void **end = sq_ptr_array_end(temp.array);
 		for (temp.cur = beg;  temp.cur < end;  temp.cur++) {
+			// get field entry from array
 			SqEntry *entry = *temp.cur;
+			// get field data type from SqEntry::type
 			type = entry->type;
 			if (SQ_TYPE_NOT_BUILTIN(type)) {
 				sq_type_init_instance(type,
@@ -162,16 +165,19 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 			return;
 	}
 
-	// call final() if it exist
+	// call SqType::final() to finalize instance if the function exists
 	if (final)
 		final(instance, type);
-	// finalize SqEntry in SqType::entry if no final() function
+	// finalize fields in instance if there is no SqType::final() function
 	else if (type->entry) {
+		// finalize fields by using entry array
 		temp.array = sq_type_entry_array(type);
 		void **beg = sq_ptr_array_begin(temp.array);
 		void **end = sq_ptr_array_end(temp.array);
 		for (temp.cur = beg;  temp.cur < end;  temp.cur++) {
+			// get field entry from array
 			SqEntry *entry = *temp.cur;
+			// get field data type from SqEntry::type
 			type = entry->type;
 			if (SQ_TYPE_NOT_ARITHMETIC(type)) {
 				sq_type_final_instance(type,

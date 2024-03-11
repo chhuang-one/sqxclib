@@ -27,9 +27,9 @@
 // ----------------------------------------------------------------------------
 
 #if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>    // MultiByteToWideChar(), WideCharToMultiByte()
-#include <fcntl.h>      // _O_U16TEXT
-#include <direct.h>     // _mkdir(), _wmkdir() for Windows
+#include <windows.h>      // MultiByteToWideChar(), WideCharToMultiByte()
+#include <fcntl.h>        // _O_U16TEXT
+#include <direct.h>       // _mkdir(), _wmkdir() for Windows
 
 /*	These UTF-8 functions was copied from:
 	https://gist.github.com/xebecnan/6d070c93fb69f40c3673
@@ -84,16 +84,16 @@ toUTF8(
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdio.h>      // snprintf
+#include <stdio.h>        // snprintf()
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>     // strpbrk()
+#include <string.h>       // strpbrk()
 
 #include <errno.h>
-#include <dirent.h>     // struct dirent
+#include <dirent.h>       // struct dirent
 //#include <stat.h>
-#include <sys/stat.h>   // stat(), mkdir()
+#include <sys/stat.h>     // stat(), mkdir()
 
 #include <sqxclib.h>
 

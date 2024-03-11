@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,11 +15,11 @@
 /* This is sample code for sqxclib and sqxcapp */
 
 #include <stdio.h>
-#include <inttypes.h>   // PRId64, PRIu64
+#include <inttypes.h>     // PRId64, PRIu64
 
 #include <sqxclib.h>
 #include <SqApp.h>
-#include <CStructs.h>  // struct User
+#include <CStructs.h>     // struct User
 
 typedef struct MyApp    MyApp;
 

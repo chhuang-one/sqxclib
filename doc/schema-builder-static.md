@@ -83,7 +83,9 @@ static const SqColumn  userColumns[8] = {
 	sq_table_add_column(table, userColumns, 8);
 ```
 
-use C99 designated initializer to change table and column in schema_v2 (static)
+use C99 designated initializer to change table and column in schema_v2 (static)  
+  
+In the example below, 'userColumnsChanged' contains records to add, alter, drop, and rename columns.
 
 ```c
 static const SqColumn  userColumnsChanged[5] = {
@@ -114,7 +116,11 @@ static const SqColumn  userColumnsChanged[5] = {
 	sq_table_add_column(table, userColumnsChanged, 5);
 ```
 
-use C99 designated initializer to change constraint (static)
+use C99 designated initializer to change composite constraint (static)  
+  
+In the example below:
+'otherSampleChanged_1' add  composite primary key and composite unique constraint.  
+'otherSampleChanged_2' drop composite primary key and composite unique constraint.
 
 ```c
 static const SqColumn  otherSampleChanged_1[] = {

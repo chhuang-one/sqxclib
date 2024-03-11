@@ -15,8 +15,8 @@
 #ifndef SQ_PAIRS_H
 #define SQ_PAIRS_H
 
-#include <stdint.h>     // intptr_t
-#include <stdbool.h>    // bool
+#include <stdint.h>       // intptr_t
+#include <stdbool.h>      // bool
 
 #include <SqArray.h>
 

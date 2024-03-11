@@ -49,7 +49,7 @@ Below is the code to access these hidden members:
 ## Initialize
 
 C function sq_array_init(), C++ constructor can initialize instance of SqArray.  
-In below samples, ElementType is element type of SqArray.  
+In following samples, ElementType is element type of SqArray.  
   
 use C language
 

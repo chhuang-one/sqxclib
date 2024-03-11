@@ -13,7 +13,7 @@
  */
 
 #ifndef NDEBUG
-#include <stdio.h>     // fprintf(), stderr
+#include <stdio.h>        // fprintf(), stderr
 #endif
 #include <stddef.h>
 #include <stdarg.h>

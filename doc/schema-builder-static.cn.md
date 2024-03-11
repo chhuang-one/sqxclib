@@ -83,7 +83,9 @@ static const SqColumn  userColumns[8] = {
 	sq_table_add_column(table, userColumns, 8);
 ```
 
-使用 C99 指定初始化程序更改 schema_v2 中的表和列 （静态）
+使用 C99 指定初始化程序更改 schema_v2 中的表和列 （静态）  
+  
+在下面的例子中，'userColumnsChanged' 包含要添加、更改、删除和重命名列的记录。
 
 ```c
 static const SqColumn  userColumnsChanged[5] = {
@@ -114,7 +116,11 @@ static const SqColumn  userColumnsChanged[5] = {
 	sq_table_add_column(table, userColumnsChanged, 5);
 ```
 
-使用 C99 指定初始化器更改 constraint（静态）
+使用 C99 指定初始化器更改复合约束（静态）  
+  
+在下面的例子中：  
+'otherSampleChanged_1' 添加复合主键和复合唯一约束。  
+'otherSampleChanged_2' 删除复合主键和复合唯一约束。
 
 ```c
 static const SqColumn  otherSampleChanged_1[] = {

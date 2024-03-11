@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -20,7 +20,7 @@
 /* ------ Windows ------ */
 
 #include <windows.h>
-#include <process.h>    // _beginthreadex
+#include <process.h>      // _beginthreadex
 
 int  sq_thread_create(SqThread *thread, SqThreadFunc func, void *data)
 {
