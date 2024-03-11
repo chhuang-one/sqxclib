@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdio.h>      // snprintf
+#include <stdio.h>        // snprintf()
 
 #include <SqConfig.h>
 #include <SqError.h>
@@ -188,12 +188,10 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
 
 	for (index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
-		if (column == NULL)
-			continue;
 		// skip INDEX
 		if (column->type == SQ_TYPE_INDEX)
 			continue;
-		// skip CONSTRAINT and check if table has constraint)
+		// skip CONSTRAINT and check if table has constraint
 		if (column->type == SQ_TYPE_CONSTRAINT) {
 			has_constraint = true;
 			continue;
@@ -245,13 +243,10 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
 		}
 //	}
 
+	// write constraints at last
 	if (has_constraint) {
 		for (index = 0;  index < arranged_columns->length;  index++) {
 			column = (SqColumn*)arranged_columns->data[index];
-			// skip DROP COLUMN record
-			if (column->name == NULL)
-				continue;
-			// CONSTRAINT
 			if (column->type == SQ_TYPE_CONSTRAINT) {
 				sq_buffer_write(buffer, ", ");
 				sqdb_sql_write_constraint(db, buffer, column);
