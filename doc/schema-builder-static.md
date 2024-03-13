@@ -35,14 +35,16 @@ In the following example,
 SQ_TYPE_XXXX are C/C++ data types, they are listed in (SqType)[SqType.md].  
 SQB_XXXX     are bit fields that used by (SqColumn)[SqColumn.md].
 
-## C99 designated initializer
+## Creating Tables (static)
 
-use C99 designated initializer to define table and column in schema_v1 (static)
+**C99 designated initializer**  
+  
+use C99 designated initializer to define table and column in schema_v1.
 
 ```c
 #include <sqxclib.h>
 
-static const SqColumn  userColumns[8] = {
+static const SqColumn  userColumns[6] = {
 	// PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
@@ -53,24 +55,15 @@ static const SqColumn  userColumns[8] = {
 	{SQ_TYPE_STR,    "email",      offsetof(User, email),
 		.size = 60},
 
+	// FOREIGN KEY
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
+		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
+
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
 
 	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
-
-	// FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
-		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
-
-	// CONSTRAINT FOREIGN KEY
-	{SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
-		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
-		.composite = (char *[]) {"city_id", NULL} },
-
-	// CREATE INDEX
-	{SQ_TYPE_INDEX,       "users_id_index",
-		.composite = (char *[]) {"id", NULL} },
 };
 
 	/* create schema and specify version number as 1 */
@@ -79,75 +72,15 @@ static const SqColumn  userColumns[8] = {
 	// create table "users"
 	table = sq_schema_create(schema_v1, "users", User);
 
-	// add static 'userColumns' that has 8 elements to table
-	sq_table_add_column(table, userColumns, 8);
+	// add static 'userColumns' that has 6 elements to table
+	sq_table_add_column(table, userColumns, 6);
 ```
 
-use C99 designated initializer to change table and column in schema_v2 (static)  
+**C++ aggregate initialization**  
   
-In the example below, 'userColumnsChanged' contains records to add, alter, drop, and rename columns.
-
-```c
-static const SqColumn  userColumnsChanged[5] = {
-	// ADD COLUMN "test_add"
-	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
-
-	// ALTER COLUMN "city_id"
-	{SQ_TYPE_INT,  "city_id",  offsetof(User, city_id), SQB_CHANGED},
-
-	// DROP CONSTRAINT FOREIGN KEY
-	{.old_name = "users_city_id_foreign",     .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_FOREIGN },
-
-	// DROP COLUMN "name"
-	{.old_name = "name",      .name = NULL},
-
-	// RENAME COLUMN "email" TO "email2"
-	{.old_name = "email",     .name = "email2"},
-};
-
-	/* create schema and specify version number as 2 */
-	schema_v2 = sq_schema_new_ver(2, "Ver 2");
-
-	// alter table "users"
-	table = sq_schema_alter(schema_v2, "users", NULL);
-
-	// alter table by static 'userColumnsChanged' that has 5 elements
-	sq_table_add_column(table, userColumnsChanged, 5);
-```
-
-use C99 designated initializer to change composite constraint (static)  
+If your C++ compiler can't use designated initializer, you may use aggregate initialization as shown below.  
   
-In the example below:
-'otherSampleChanged_1' add  composite primary key and composite unique constraint.  
-'otherSampleChanged_2' drop composite primary key and composite unique constraint.
-
-```c
-static const SqColumn  otherSampleChanged_1[] = {
-	// CONSTRAINT PRIMARY KEY
-	{SQ_TYPE_CONSTRAINT,  "other_primary", 0,  SQB_PRIMARY,
-		.composite = (char *[]) {"column1", "column2", NULL} },
-
-	// CONSTRAINT UNIQUE
-	{SQ_TYPE_CONSTRAINT,  "other_unique",  0,  SQB_UNIQUE,
-		.composite = (char *[]) {"column1", "column2", NULL} },
-};
-
-static const SqColumn  otherSampleChanged_2[] = {
-	// DROP CONSTRAINT PRIMARY KEY
-	{.old_name = "other_primary",  .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_PRIMARY },
-
-	// DROP CONSTRAINT UNIQUE
-	{.old_name = "other_unique",   .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_UNIQUE },
-};
-```
-
-## C++ aggregate initialization
-All data in members are the same as above sample code.  
-  
-use C++ aggregate initialization to define table and column in schema_v1 (static)
+use C++ aggregate initialization to define table and column in schema_v1.
 
 ```c++
 #include <sqxclib.h>
@@ -172,12 +105,6 @@ static const SqColumn  userColumns[8] = {
 		0,                             // .sql_type
 		60},                           // .size        // VARCHAR(60)
 
-	// DEFAULT CURRENT_TIMESTAMP
-	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
-
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
-
 	// FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    0,
 		NULL,                          // .old_name,
@@ -185,10 +112,16 @@ static const SqColumn  userColumns[8] = {
 		NULL,                          // .default_value,
 		(SqForeign*) &userForeign},    // .foreign
 
-	// C++ std::string
+	// DEFAULT CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
+
+	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
+
+	// C++ data type std::string
 	{SQ_TYPE_STD_STRING, "strCpp", offsetof(User, strCpp)     },
 
-	// C++ std::vector
+	// C++ data type std::vector
 	{&SqTypeIntVector,  "intsCpp", offsetof(User, intsCpp)    },
 };
 
@@ -201,7 +134,111 @@ static const SqColumn  userColumns[8] = {
 	table->addColumn(userColumns, 8);
 ```
 
-## Use custom or JSON type
+## Updating Tables (static)
+
+use C99 designated initializer to change table and column in schema_v2.  
+  
+In the example below:  
+* set field 'name' as NULL     to drop   column 'old_name'.
+* set field 'name' as new name to rename column 'old_name'.
+* add SQB_CHANGE to field 'bit_field' to change column properties.
+
+'userColumnsChanged' contains records to add, alter, drop, and rename columns.
+
+```c
+static const SqColumn  userColumnsChanged[4] = {
+	// ADD COLUMN "test_add"
+	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
+
+	// ALTER COLUMN "city_id"
+	{SQ_TYPE_INT,  "city_id",  offsetof(User, city_id), SQB_CHANGED},
+
+	// DROP COLUMN "name"
+	{.old_name = "name",      .name = NULL},
+
+	// RENAME COLUMN "email" TO "email2"
+	{.old_name = "email",     .name = "email2"},
+};
+
+	/* create schema and specify version number as 2 */
+	schema_v2 = sq_schema_new_ver(2, "Ver 2");
+
+	// alter table "users"
+	table = sq_schema_alter(schema_v2, "users", NULL);
+
+	// alter table by static 'userColumnsChanged' that has 4 elements
+	sq_table_add_column(table, userColumnsChanged, 4);
+```
+
+## Constraint (static)
+
+use C99 designated initializer to add/remove constraint.  
+  
+In the example below:  
+* field 'type' must be set as SQ_TYPE_CONSTRAINT.
+* field 'composite' can be used to set composite constraint. It must end with a NULL.
+* field 'foreign' is used to set referenced table, column, on delete and on update actions.
+
+'otherChanged_1' add  constraint (primary key, foreign key, and unique).  
+'otherChanged_2' drop constraint (primary key, foreign key, and unique).  
+
+```c
+static const SqColumn  otherChanged_1[] = {
+	// CONSTRAINT PRIMARY KEY
+	{SQ_TYPE_CONSTRAINT,  "other_primary", 0,  SQB_PRIMARY,
+		.composite = (char *[]) {"column1", "column2", NULL} },
+
+	// CONSTRAINT FOREIGN KEY
+	{SQ_TYPE_CONSTRAINT,  "other_foreign", 0,  SQB_FOREIGN,
+		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
+		.composite = (char *[]) {"city_id", NULL} },
+
+	// CONSTRAINT UNIQUE
+	{SQ_TYPE_CONSTRAINT,  "other_unique",  0,  SQB_UNIQUE,
+		.composite = (char *[]) {"column1", "column2", NULL} },
+};
+
+static const SqColumn  otherChanged_2[] = {
+	// DROP CONSTRAINT PRIMARY KEY
+	{.old_name = "other_primary",  .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_PRIMARY },
+
+	// DROP CONSTRAINT FOREIGN KEY
+	{.old_name = "other_foreign",  .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_FOREIGN },
+
+	// DROP CONSTRAINT UNIQUE
+	{.old_name = "other_unique",   .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_UNIQUE },
+};
+```
+
+## Index (static)
+
+use C99 designated initializer to add/remove index.  
+  
+In the example below:  
+* field 'type' must be set as SQ_TYPE_INDEX.
+* field 'composite' can be used to set composite index. It must end with a NULL.
+
+'otherChanged_3' add  index.  
+'otherChanged_4' drop index.  
+
+```c
+static const SqColumn  otherChanged_3[] = {
+	// CREATE INDEX
+	{SQ_TYPE_INDEX,  "other_index", 0,  0,
+		.composite = (char *[]) {"column1", "column2", NULL} },
+};
+
+static const SqColumn  otherChanged_4[] = {
+	// DROP INDEX
+	{.old_name = "other_index",  .name = NULL,
+	 .type = SQ_TYPE_INDEX },
+};
+```
+
+## Use custom or JSON type (static)
 
 If you want to store JSON object or array in SQL column, you must specify [SqType](SqType.md).  
   

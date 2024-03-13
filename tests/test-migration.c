@@ -358,8 +358,7 @@ void create_composite_table_by_c(SqSchema *schema)
 	column = sq_table_add_int(table, "company_id", offsetof(Composite, company_id));
 	column = sq_table_add_string(table, "name", offsetof(Composite, name), -1);
 
-	column = sq_table_add_primary(table,
-			"user_city_company_id",
+	column = sq_table_add_primary(table, "user_city_company_id",
 			"user_id", "city_id", "company_id",
 			NULL);
 }
@@ -376,34 +375,27 @@ void test_sqdb_migrate(Sqdb *db)
 	SqSchema   *schema_v5;
 	SqSchema   *schema_v6;
 
-	schema  = sq_schema_new("current");
-	schema->version = 0;
+	schema  = sq_schema_new_ver(0, "current");
 
-	schema_v1  = sq_schema_new("ver1");
-	schema_v1->version = 1;
+	schema_v1  = sq_schema_new_ver(1, "ver1");
 	create_city_table_by_c(schema_v1);
 
-	schema_v2 = sq_schema_new("ver2");
-	schema_v2->version = 2;
+	schema_v2 = sq_schema_new_ver(2, "ver2");
 	create_company_table_by_c(schema_v2);
 
-	schema_v3 = sq_schema_new("ver3");
-	schema_v3->version = 3;
+	schema_v3 = sq_schema_new_ver(3, "ver3");
 	create_user_table_by_type(schema_v3);
 //	create_user_table_by_macro(schema_v3);
 //	create_user_table_by_c(schema_v3);
-	create_composite_table_by_c(schema_v1);
+	create_composite_table_by_c(schema_v3);
 
-	schema_v4 = sq_schema_new("ver4");
-	schema_v4->version = 4;
+	schema_v4 = sq_schema_new_ver(4, "ver4");
 	change_user_table_by_c_type(schema_v4);
 
-	schema_v5 = sq_schema_new("ver5");
-	schema_v5->version = 5;
+	schema_v5 = sq_schema_new_ver(5, "ver5");
 	change_company_table_by_c(schema_v5);
 
-	schema_v6 = sq_schema_new("ver6");
-	schema_v6->version = 6;
+	schema_v6 = sq_schema_new_ver(6, "ver6");
 	change_city_table_by_c(schema_v6);
 	// other testing in 'schema_v6'
 	sq_schema_rename(schema_v6, "cities", "cities2");
@@ -434,30 +426,25 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 	SqSchema   *schema_v3;
 	SqSchema   *schema_v4;
 
-	schema  = sq_schema_new("current");
-	schema->version = 0;
+	schema  = sq_schema_new_ver(0, "current");
 
-	schema_v1  = sq_schema_new("ver1");
-	schema_v1->version = 1;
+	schema_v1  = sq_schema_new_ver(1, "ver1");
 	create_user_table_by_type(schema_v1);
 //	create_user_table_by_macro(schema_v1);
 //	create_user_table_by_c(schema_v1);
 
-	schema_v2 = sq_schema_new("ver2");
-	schema_v2->version = 2;
+	schema_v2 = sq_schema_new_ver(2, "ver2");
 	change_user_table_by_c_type(schema_v2);
 
-	schema_v3 = sq_schema_new("ver3");
-	schema_v3->version = 3;
+	schema_v3 = sq_schema_new_ver(3, "ver3");
 	create_company_table_by_c(schema_v3);
 
-	schema_v4 = sq_schema_new("ver4");
-	schema_v4->version = 4;
+	schema_v4 = sq_schema_new_ver(4, "ver4");
 	create_city_table_by_c(schema_v4);
 	// other testing in 'schema_v4'
 	sq_schema_rename(schema_v4, "cities", "cities2");
 //	sq_schema_drop(schema_v4, "users");
-	create_composite_table_by_c(schema_v1);
+	create_composite_table_by_c(schema_v4);
 
 	sqdb_migrate(db, schema, schema_v1);
 	sqdb_migrate(db, schema, schema_v2);

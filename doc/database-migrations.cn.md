@@ -91,7 +91,7 @@ struct User {
 	table->integer("id", &User::id)->primary();
 	table->string("name", &User::name);
 	table->string("email", &User::email, 60);    // VARCHAR(60)
-	table->timestamp("created_at", &User::created_at)->default_("CURRENT_TIMESTAMP");
+	table->timestamp("created_at", &User::created_at)->useCurrent();
 ```
 
 ```c
@@ -108,7 +108,7 @@ struct User {
 	column = sq_table_add_string(table, "email", offsetof(User, email), 60);    // VARCHAR(60)
 
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
-	sq_column_default("CURRENT_TIMESTAMP");
+	sq_column_use_current(column);
 ```
 
 #### 检查表是否存在

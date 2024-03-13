@@ -35,14 +35,16 @@ struct User {
 SQ_TYPE_XXXX 是 C/C++ 数据类型，它们列在 (SqType)[SqType.cn.md] 中。  
 SQB_XXXX     是 (SqColumn)[SqColumn.cn.md] 使用的位字段。
 
-## C99 指定初始化
+## 创建表（静态）
 
-使用 C99 指定初始化程序在 schema_v1 中定义表和列 （静态）
+**C99 指定初始化**  
+  
+使用 C99 指定初始化程序在 schema_v1 中定义表和列。
 
 ```c
 #include <sqxclib.h>
 
-static const SqColumn  userColumns[8] = {
+static const SqColumn  userColumns[6] = {
 	// 主键 PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
@@ -53,24 +55,15 @@ static const SqColumn  userColumns[8] = {
 	{SQ_TYPE_STR,    "email",      offsetof(User, email),
 		.size = 60},
 
+	// 外键 FOREIGN KEY
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
+		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
+
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
 
 	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
-
-	// 外键 FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
-		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
-
-	// 约束外键 CONSTRAINT FOREIGN KEY
-	{SQ_TYPE_CONSTRAINT,  "users_city_id_foreign",
-		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
-		.composite = (char *[]) {"city_id", NULL} },
-
-	// 创建索引 CREATE INDEX
-	{SQ_TYPE_INDEX,       "users_id_index",
-		.composite = (char *[]) {"id", NULL} },
 };
 
 	/* 创建架构并指定版本号为 1 */
@@ -79,75 +72,15 @@ static const SqColumn  userColumns[8] = {
 	// 创建表 "users"
 	table = sq_schema_create(schema_v1, "users", User);
 
-	// 将具有 8 个元素的静态 'userColumns' 添加到表中
-	sq_table_add_column(table, userColumns, 8);
+	// 将具有 6 个元素的静态 'userColumns' 添加到表中
+	sq_table_add_column(table, userColumns, 6);
 ```
 
-使用 C99 指定初始化程序更改 schema_v2 中的表和列 （静态）  
+**C++ 聚合初始化**  
   
-在下面的例子中，'userColumnsChanged' 包含要添加、更改、删除和重命名列的记录。
-
-```c
-static const SqColumn  userColumnsChanged[5] = {
-	// 向表中添加列 ADD COLUMN "test_add"
-	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
-
-	// 更改表中的列 ALTER COLUMN "city_id"
-	{SQ_TYPE_INT,  "city_id",  offsetof(User, city_id), SQB_CHANGED},
-
-	// 删除约束外键 DROP CONSTRAINT FOREIGN KEY
-	{.old_name = "users_city_id_foreign",     .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,  .bit_field = SQB_FOREIGN },
-
-	// 删除列 DROP COLUMN "name"
-	{.old_name = "name",      .name = NULL},
-
-	// 重命名列 RENAME COLUMN "email" TO "email2"
-	{.old_name = "email",     .name = "email2"},
-};
-
-	/* 创建架构并指定版本号为 2 */
-	schema_v2 = sq_schema_new_ver(2, "Ver 2");
-
-	// 更改表 "users"
-	table = sq_schema_alter(schema_v2, "users", NULL);
-
-	// 通过具有 5 个元素的静态 'userColumnsChanged' 更改表
-	sq_table_add_column(table, userColumnsChanged, 5);
-```
-
-使用 C99 指定初始化器更改复合约束（静态）  
+如果您的 C++ 编译器无法使用指定初始化程序，您可以使用聚合初始化，如下所示。  
   
-在下面的例子中：  
-'otherSampleChanged_1' 添加复合主键和复合唯一约束。  
-'otherSampleChanged_2' 删除复合主键和复合唯一约束。
-
-```c
-static const SqColumn  otherSampleChanged_1[] = {
-	// 约束主键 CONSTRAINT PRIMARY KEY
-	{SQ_TYPE_CONSTRAINT,  "other_primary", 0,  SQB_PRIMARY,
-		.composite = (char *[]) {"column1", "column2", NULL} },
-
-	// 约束唯一 CONSTRAINT UNIQUE
-	{SQ_TYPE_CONSTRAINT,  "other_unique",  0,  SQB_UNIQUE,
-		.composite = (char *[]) {"column1", "column2", NULL} },
-};
-
-static const SqColumn  otherSampleChanged_2[] = {
-	// 删除约束主键 DROP CONSTRAINT PRIMARY KEY
-	{.old_name = "other_primary",  .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_PRIMARY },
-
-	// 删除约束唯一 DROP CONSTRAINT UNIQUE
-	{.old_name = "other_unique",   .name = NULL,
-	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_UNIQUE },
-};
-```
-
-## C++ 聚合初始化
-成员中的所有数据与上面的示例代码相同。  
-  
-使用 C++ 聚合初始化在 schema_v1 中定义表和列 （静态）
+使用 C++ 聚合初始化在 schema_v1 中定义表和列。
 
 ```c++
 #include <sqxclib.h>
@@ -172,12 +105,6 @@ static const SqColumn  userColumns[8] = {
 		0,                             // .sql_type
 		60},                           // .size        // VARCHAR(60)
 
-	// DEFAULT CURRENT_TIMESTAMP
-	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
-
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
-
 	// 外键 FOREIGN KEY
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    0,
 		NULL,                          // .old_name,
@@ -185,10 +112,16 @@ static const SqColumn  userColumns[8] = {
 		NULL,                          // .default_value,
 		(SqForeign*) &userForeign},    // .foreign
 
-	// C++ std::string
+	// DEFAULT CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
+
+	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
+
+	// C++ 数据类型 std::string
 	{SQ_TYPE_STD_STRING, "strCpp", offsetof(User, strCpp)     },
 
-	// C++ std::vector
+	// C++ 数据类型 std::vector
 	{&SqTypeIntVector,  "intsCpp", offsetof(User, intsCpp)    },
 };
 
@@ -201,7 +134,111 @@ static const SqColumn  userColumns[8] = {
 	table->addColumn(userColumns, 8);
 ```
 
-## 使用自订或 JSON 型态
+## 更新表（静态）
+
+使用 C99 指定初始化程序更改 schema_v2 中的表和列。  
+  
+在下面的例子中：  
+* 将字段 'name' 设置为 NULL 以删除列   'old_name'。
+* 将字段 'name' 设置为新名称以重命名列 'old_name'。
+* 将 SQB_CHANGE 添加到字段 'bit_field' 以更改列属性。
+
+'userColumnsChanged' 包含要添加、更改、删除和重命名列的记录。
+
+```c
+static const SqColumn  userColumnsChanged[4] = {
+	// 向表中添加列 ADD COLUMN "test_add"
+	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
+
+	// 更改表中的列 ALTER COLUMN "city_id"
+	{SQ_TYPE_INT,  "city_id",  offsetof(User, city_id), SQB_CHANGED},
+
+	// 删除列 DROP COLUMN "name"
+	{.old_name = "name",      .name = NULL},
+
+	// 重命名列 RENAME COLUMN "email" TO "email2"
+	{.old_name = "email",     .name = "email2"},
+};
+
+	/* 创建架构并指定版本号为 2 */
+	schema_v2 = sq_schema_new_ver(2, "Ver 2");
+
+	// 更改表 "users"
+	table = sq_schema_alter(schema_v2, "users", NULL);
+
+	// 通过具有 4 个元素的静态 'userColumnsChanged' 更改表
+	sq_table_add_column(table, userColumnsChanged, 4);
+```
+
+## 约束 Constraint （静态）
+
+使用 C99 指定初始化器添加/删除约束。  
+  
+在下面的例子中：  
+* 字段 'type' 必须设置为 SQ_TYPE_CONSTRAINT。
+* 字段 'composite' 可用于设置复合约束。它必须以 NULL 结尾。
+* 字段 'foreign' 用于设置引用的表、列、删除和更新操作。
+
+'otherChanged_1' 添加约束（主键、外键和唯一）。  
+'otherChanged_2' 删除约束（主键、外键和唯一）。  
+
+```c
+static const SqColumn  otherChanged_1[] = {
+	// 约束主键 CONSTRAINT PRIMARY KEY
+	{SQ_TYPE_CONSTRAINT,  "other_primary", 0,  SQB_PRIMARY,
+		.composite = (char *[]) {"column1", "column2", NULL} },
+
+	// 约束外键 CONSTRAINT FOREIGN KEY
+	{SQ_TYPE_CONSTRAINT,  "other_foreign", 0,  SQB_FOREIGN,
+		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
+		.composite = (char *[]) {"city_id", NULL} },
+
+	// 约束唯一 CONSTRAINT UNIQUE
+	{SQ_TYPE_CONSTRAINT,  "other_unique",  0,  SQB_UNIQUE,
+		.composite = (char *[]) {"column1", "column2", NULL} },
+};
+
+static const SqColumn  otherChanged_2[] = {
+	// 删除约束主键 DROP CONSTRAINT PRIMARY KEY
+	{.old_name = "other_primary",  .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_PRIMARY },
+
+	// 删除约束外键 DROP CONSTRAINT FOREIGN KEY
+	{.old_name = "other_foreign",  .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_FOREIGN },
+
+	// 删除约束唯一 DROP CONSTRAINT UNIQUE
+	{.old_name = "other_unique",   .name = NULL,
+	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_UNIQUE },
+};
+```
+
+## 索引 Index （静态）
+
+使用 C99 指定的初始值设定项来添加/删除索引  
+  
+在下面的例子中：  
+* 字段 'type' 必须设置为 SQ_TYPE_INDEX。
+* 字段 'composite' 可用于设置复合索引。它必须以 NULL 结尾。
+
+'otherChanged_3' 添加索引。  
+'otherChanged_4' 删除索引。  
+
+```c
+static const SqColumn  otherChanged_3[] = {
+	// 创建索引 CREATE INDEX
+	{SQ_TYPE_INDEX,  "other_index", 0,  0,
+		.composite = (char *[]) {"column1", "column2", NULL} },
+};
+
+static const SqColumn  otherChanged_4[] = {
+	// 删除索引 DROP INDEX
+	{.old_name = "other_index",  .name = NULL,
+	 .type = SQ_TYPE_INDEX },
+};
+```
+
+## 使用自订或 JSON 型态 (静态)
 
 如果要在 SQL 列中存储 JSON 对象或数组，必须指定 [SqType](SqType.cn.md)。  
   
