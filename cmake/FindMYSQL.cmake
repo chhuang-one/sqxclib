@@ -59,7 +59,7 @@ else()
 			  "/usr/mysql/include/mysql" )
 	
 	find_library( MYSQL_LIBRARY
-		NAMES "mysqlclient" "mysqlclient_r"
+		NAMES "mysqlclient" "mysqlclient_r" "mariadbclient" "mariadbclient_r"
 		PATHS "/lib/mysql"
 			  "/lib64/mysql"
 			  "/usr/lib/mysql"
