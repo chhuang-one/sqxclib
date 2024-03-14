@@ -112,7 +112,7 @@ static const SqColumn userColumnsVer1[] = {
 		.size = 60},
 
 	// FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   0,
+	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   SQB_FOREIGN,
 		.foreign = &(SqForeign) {"cities",  "id",  "CASCADE",  "CASCADE"} },
 
 	// type mapping: SQ_TYPE_STR map to SQL data type - TEXT
@@ -139,7 +139,7 @@ static const SqColumn userColumnsVer1[] = {
 #endif
 
 	// CONSTRAINT FOREIGN KEY
-	{SQ_TYPE_CONSTRAINT,   "users_city_id_foreign",
+	{SQ_TYPE_CONSTRAINT,   "users_city_id_foreign",    0,    SQB_FOREIGN,
 		.foreign = &(SqForeign) {"cities",  "id",  "NO ACTION",  "NO ACTION"},
 		.composite = (char *[]) {"city_id", NULL} },
 

@@ -219,7 +219,7 @@ static const SqColumn userColumns[] = {
 	// This column is used by CONSTRAINT FOREIGN KEY below.
 	{SQ_TYPE_INT,     "company_id",   offsetof(User, company_id),   0},
 	// CONSTRAINT FOREIGN KEY
-	{SQ_TYPE_CONSTRAINT,   "users_companies_id_foreign", 0, 0,
+	{SQ_TYPE_CONSTRAINT,   "users_companies_id_foreign",       0,   SQB_FOREIGN,
 		NULL,                              // .old_name,
 		0, 0, 0,                           // .sql_type, .size, .digits,
 		NULL,                              // .default_value,
@@ -227,7 +227,7 @@ static const SqColumn userColumns[] = {
 		(char **) userForeignComposite },  // .composite
 
 	// INDEX
-	{SQ_TYPE_INDEX,   "users_id_index", 0, 0,
+	{SQ_TYPE_INDEX,   "users_id_index",  0,  0,
 		NULL,                              // .old_name,
 		0, 0, 0,                           // .sql_type, .size, .digits,
 		NULL,                              // .default_value,
@@ -344,6 +344,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	table->timestamp("created_at", &User::created_at)->useCurrent();
 	table->timestamp("updated_at", &User::updated_at)->useCurrent()->useCurrentOnUpdate();
 #endif
+	// CONSTRAINT 'users_companies_id_foreign' will be dropped in schema ver 3.
 	table->addForeign("users_companies_id_foreign", "company_id")
 	     ->reference("companies", "id")->onDelete("CASCADE")->onUpdate("CASCADE");;
 	table->addIndex("users_id_index", "id");

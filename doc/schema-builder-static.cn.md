@@ -56,7 +56,7 @@ static const SqColumn  userColumns[6] = {
 		.size = 60},
 
 	// 外键 FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
 		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
 
 	// DEFAULT CURRENT_TIMESTAMP
@@ -106,7 +106,7 @@ static const SqColumn  userColumns[8] = {
 		60},                           // .size        // VARCHAR(60)
 
 	// 外键 FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    0,
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
 		NULL,                          // .old_name,
 		0, 0, 0,                       // .sql_type, .size, .digits,
 		NULL,                          // .default_value,
@@ -136,17 +136,15 @@ static const SqColumn  userColumns[8] = {
 
 ## 更新表（静态）
 
-使用 C99 指定初始化程序更改 schema_v2 中的表和列。  
-  
-在下面的例子中：  
-* 将字段 'name' 设置为 NULL 以删除列   'old_name'。
-* 将字段 'name' 设置为新名称以重命名列 'old_name'。
-* 将 SQB_CHANGE 添加到字段 'bit_field' 以更改列属性。
+* 要重命名列，请将字段 'old_name' 设置为当前列名称，并将 'name' 设置为新列名称。
+* 要删除列，  请将字段 'old_name' 设置为当前列名称，并将 'name' 设置为 NULL。
+* 要更改列属性，请将 SQB_CHANGE 添加到字段 'bit_field'。
 
-'userColumnsChanged' 包含要添加、更改、删除和重命名列的记录。
+例如: 使用 C99 指定初始化程序更改 schema_v2 中的表和列。  
+'columnsChanges' 包含要添加、更改、删除和重命名列的记录。  
 
 ```c
-static const SqColumn  userColumnsChanged[4] = {
+static const SqColumn  columnsChanges[4] = {
 	// 向表中添加列 ADD COLUMN "test_add"
 	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
 
@@ -166,24 +164,22 @@ static const SqColumn  userColumnsChanged[4] = {
 	// 更改表 "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
 
-	// 通过具有 4 个元素的静态 'userColumnsChanged' 更改表
-	sq_table_add_column(table, userColumnsChanged, 4);
+	// 通过具有 4 个元素的静态 'columnsChanges' 更改表
+	sq_table_add_column(table, columnsChanges, 4);
 ```
 
 ## 约束 Constraint （静态）
 
-使用 C99 指定初始化器添加/删除约束。  
-  
-在下面的例子中：  
-* 字段 'type' 必须设置为 SQ_TYPE_CONSTRAINT。
+* 字段 'type' 必须设置为 SQ_TYPE_CONSTRAINT。 SQ_TYPE_CONSTRAINT 是迁移使用的假数据类型。
 * 字段 'composite' 可用于设置复合约束。它必须以 NULL 结尾。
 * 字段 'foreign' 用于设置引用的表、列、删除和更新操作。
 
-'otherChanged_1' 添加约束（主键、外键和唯一）。  
-'otherChanged_2' 删除约束（主键、外键和唯一）。  
+例如: 使用 C99 指定初始化器添加/删除约束。  
+'otherChanges1' 添加约束（主键、外键和唯一）。  
+'otherChanges2' 删除约束（主键、外键和唯一）。  
 
 ```c
-static const SqColumn  otherChanged_1[] = {
+static const SqColumn  otherChanges1[] = {
 	// 约束主键 CONSTRAINT PRIMARY KEY
 	{SQ_TYPE_CONSTRAINT,  "other_primary", 0,  SQB_PRIMARY,
 		.composite = (char *[]) {"column1", "column2", NULL} },
@@ -198,7 +194,7 @@ static const SqColumn  otherChanged_1[] = {
 		.composite = (char *[]) {"column1", "column2", NULL} },
 };
 
-static const SqColumn  otherChanged_2[] = {
+static const SqColumn  otherChanges2[] = {
 	// 删除约束主键 DROP CONSTRAINT PRIMARY KEY
 	{.old_name = "other_primary",  .name = NULL,
 	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_PRIMARY },
@@ -215,23 +211,21 @@ static const SqColumn  otherChanged_2[] = {
 
 ## 索引 Index （静态）
 
-使用 C99 指定的初始值设定项来添加/删除索引  
-  
-在下面的例子中：  
-* 字段 'type' 必须设置为 SQ_TYPE_INDEX。
+* 字段 'type' 必须设置为 SQ_TYPE_INDEX。 SQ_TYPE_INDEX 是迁移使用的假数据类型。
 * 字段 'composite' 可用于设置复合索引。它必须以 NULL 结尾。
 
-'otherChanged_3' 添加索引。  
-'otherChanged_4' 删除索引。  
+例如: 使用 C99 指定的初始值设定项来添加/删除索引  
+'otherChanges3' 添加索引。  
+'otherChanges4' 删除索引。  
 
 ```c
-static const SqColumn  otherChanged_3[] = {
+static const SqColumn  otherChanges3[] = {
 	// 创建索引 CREATE INDEX
 	{SQ_TYPE_INDEX,  "other_index", 0,  0,
 		.composite = (char *[]) {"column1", "column2", NULL} },
 };
 
-static const SqColumn  otherChanged_4[] = {
+static const SqColumn  otherChanges4[] = {
 	// 删除索引 DROP INDEX
 	{.old_name = "other_index",  .name = NULL,
 	 .type = SQ_TYPE_INDEX },

@@ -56,7 +56,7 @@ static const SqColumn  userColumns[6] = {
 		.size = 60},
 
 	// FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
 		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
 
 	// DEFAULT CURRENT_TIMESTAMP
@@ -106,7 +106,7 @@ static const SqColumn  userColumns[8] = {
 		60},                           // .size        // VARCHAR(60)
 
 	// FOREIGN KEY
-	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    0,
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
 		NULL,                          // .old_name,
 		0, 0, 0,                       // .sql_type, .size, .digits,
 		NULL,                          // .default_value,
@@ -136,17 +136,15 @@ static const SqColumn  userColumns[8] = {
 
 ## Updating Tables (static)
 
-use C99 designated initializer to change table and column in schema_v2.  
-  
-In the example below:  
-* set field 'name' as NULL     to drop   column 'old_name'.
-* set field 'name' as new name to rename column 'old_name'.
-* add SQB_CHANGE to field 'bit_field' to change column properties.
+* To rename a column, set field 'old_name' as current column name and 'name' as new column name.
+* To delete a column, set field 'old_name' as current column name and 'name' as NULL.
+* To change a column properties, add SQB_CHANGE to field 'bit_field'.
 
-'userColumnsChanged' contains records to add, alter, drop, and rename columns.
+e.g. use C99 designated initializer to change table and column in schema_v2.  
+'columnsChanges' contains records to add, alter, drop, and rename columns.  
 
 ```c
-static const SqColumn  userColumnsChanged[4] = {
+static const SqColumn  columnsChanges[4] = {
 	// ADD COLUMN "test_add"
 	{SQ_TYPE_INT,  "test_add", offsetof(User, test_add)},
 
@@ -166,24 +164,22 @@ static const SqColumn  userColumnsChanged[4] = {
 	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
 
-	// alter table by static 'userColumnsChanged' that has 4 elements
-	sq_table_add_column(table, userColumnsChanged, 4);
+	// alter table by static 'columnsChanges' that has 4 elements
+	sq_table_add_column(table, columnsChanges, 4);
 ```
 
 ## Constraint (static)
 
-use C99 designated initializer to add/remove constraint.  
-  
-In the example below:  
-* field 'type' must be set as SQ_TYPE_CONSTRAINT.
+* field 'type' must be set as SQ_TYPE_CONSTRAINT. SQ_TYPE_CONSTRAINT is a fake data type used by migrations.
 * field 'composite' can be used to set composite constraint. It must end with a NULL.
 * field 'foreign' is used to set referenced table, column, on delete and on update actions.
 
-'otherChanged_1' add  constraint (primary key, foreign key, and unique).  
-'otherChanged_2' drop constraint (primary key, foreign key, and unique).  
+e.g. use C99 designated initializer to add/remove constraint.  
+'otherChanges1' add  constraint (primary key, foreign key, and unique).  
+'otherChanges2' drop constraint (primary key, foreign key, and unique).  
 
 ```c
-static const SqColumn  otherChanged_1[] = {
+static const SqColumn  otherChanges1[] = {
 	// CONSTRAINT PRIMARY KEY
 	{SQ_TYPE_CONSTRAINT,  "other_primary", 0,  SQB_PRIMARY,
 		.composite = (char *[]) {"column1", "column2", NULL} },
@@ -198,7 +194,7 @@ static const SqColumn  otherChanged_1[] = {
 		.composite = (char *[]) {"column1", "column2", NULL} },
 };
 
-static const SqColumn  otherChanged_2[] = {
+static const SqColumn  otherChanges2[] = {
 	// DROP CONSTRAINT PRIMARY KEY
 	{.old_name = "other_primary",  .name = NULL,
 	 .type = SQ_TYPE_CONSTRAINT,   .bit_field = SQB_PRIMARY },
@@ -215,23 +211,21 @@ static const SqColumn  otherChanged_2[] = {
 
 ## Index (static)
 
-use C99 designated initializer to add/remove index.  
-  
-In the example below:  
-* field 'type' must be set as SQ_TYPE_INDEX.
+* field 'type' must be set as SQ_TYPE_INDEX. SQ_TYPE_INDEX is a fake data type used by migrations.
 * field 'composite' can be used to set composite index. It must end with a NULL.
 
-'otherChanged_3' add  index.  
-'otherChanged_4' drop index.  
+e.g. use C99 designated initializer to add/remove index.  
+'otherChanges3' add  index.  
+'otherChanges4' drop index.  
 
 ```c
-static const SqColumn  otherChanged_3[] = {
+static const SqColumn  otherChanges3[] = {
 	// CREATE INDEX
 	{SQ_TYPE_INDEX,  "other_index", 0,  0,
 		.composite = (char *[]) {"column1", "column2", NULL} },
 };
 
-static const SqColumn  otherChanged_4[] = {
+static const SqColumn  otherChanges4[] = {
 	// DROP INDEX
 	{.old_name = "other_index",  .name = NULL,
 	 .type = SQ_TYPE_INDEX },

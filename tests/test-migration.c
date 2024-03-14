@@ -78,7 +78,7 @@ struct Composite {
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
 	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
-	&(SqColumn) {SQ_TYPE_INT, "city_id",     offsetof(User, city_id),    SQB_HIDDEN,
+	&(SqColumn) {SQ_TYPE_INT, "city_id",     offsetof(User, city_id),    SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = &(SqForeign) {"cities", "id",  "CASCADE",  "CASCADE"} },
 
 	// "comment"  TEXT
@@ -86,11 +86,11 @@ static const SqColumn  *UserColumns[] = {
 	             .sql_type = SQ_SQL_TYPE_TEXT},
 
 	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
-	&(SqColumn) {SQ_TYPE_INT, "company_id",  offsetof(User, company_id), SQB_HIDDEN,
+	&(SqColumn) {SQ_TYPE_INT, "company_id",  offsetof(User, company_id), SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = &(SqForeign) {"companies", "id",  "CASCADE",  "CASCADE"} },
 
 	// "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
-	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_HIDDEN,
+	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = &(SqForeign) {"companies", "id",  "NO ACTION",  "NO ACTION"} },
 
 	// "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -100,7 +100,7 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_STR,  "email",      offsetof(User, email), SQB_HIDDEN_NULL},
 
 	// CONSTRAINT FOREIGN KEY
-	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "fk_cities_id",
+	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "fk_cities_id",            0, SQB_FOREIGN,
 	             .foreign = &(SqForeign) {"cities", "id", "no action", "cascade"},
 	             .composite = (char *[]) {"city_id", NULL} },
 

@@ -388,6 +388,45 @@ use C++ language to find & remove SqEntry
 //	type->decideSize(*entry_addr, true);
 ```
 
+#### 2.8 Copy SqType
+
+Because static constant SqType can't be modified directly, user must copy it before modifying.  
+function sq_type_copy() can copy SqType. It's declarations:
+
+```c
+SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
+                      SqDestroyFunc entry_free_func,
+                      SqCopyFunc    entry_copy_func);
+```
+
+It copy data from 'type_src' to 'type_dest', 'type_dest' must be raw memory.  
+If 'entry_copy_func' is NULL, 'type_dest' will share SqEntry instances from 'type_src'.  
+If 'type_dest' is NULL, it will allocate memory for 'type_dest'.  
+return 'type_dest' or newly created SqType.  
+  
+use C language to copy SqType
+
+```c
+	// copy static constant SqType - SQ_TYPE_ARRAY
+	// This is mainly used to modify static constant SqType.
+	type = sq_type_copy(NULL, SQ_TYPE_ARRAY,
+	                    (SqDestroyFunc) NULL,
+	                    (SqCopyFunc)    NULL);
+
+	// copy static constant SqType from SqTable::type
+	// The new instance 'type' shares SqColumn instances in 'table->type'
+	// This is mainly used to modify static constant SqType (from SqTable::type) when migrating.
+	type = sq_type_copy(NULL, table->type,
+	                    (SqDestroyFunc) sq_column_free,
+	                    (SqCopyFunc)    NULL);
+
+	// full copy SqType from SqTable::type
+	// The new instance 'type' copies SqColumn instances from 'table->type'
+	type = sq_type_copy(NULL, table->type,
+	                    (SqDestroyFunc) sq_column_free,
+	                    (SqCopyFunc)    sq_column_copy);
+```
+
 ## 3 How to support new container type
 
 User must implement 4 functions to support a new type and must handle data of SQXC_TYPE_XXXX in parser and writer of type.  
