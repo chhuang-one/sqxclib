@@ -355,11 +355,12 @@ To drop an primary key, you must specify the primary key's name.
 
 **Create foreign key**  
   
-To create a foreign key, you can pass a column to foreign() method.
+If you use C function sq_table_add_foreign() to create foreign key, the last argument must be NULL.
 
 ```c++
 	// C function
-	column = sq_table_add_foreign(table, "foreignName", "columnName");
+	// The last argument of sq_table_add_foreign() must be NULL.
+	column = sq_table_add_foreign(table, "foreignName", "columnName", NULL);
 
 	// C++ method
 	column = table->foreign("foreignName", "columnName");

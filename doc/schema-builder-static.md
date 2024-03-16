@@ -31,15 +31,21 @@ struct User {
 };
 ```
 
-In the following example,
-SQ_TYPE_XXXX are C/C++ data types, they are listed in (SqType)[SqType.md].  
-SQB_XXXX     are bit fields that used by (SqColumn)[SqColumn.md].
-
 ## Creating Tables (static)
+
+The first four fields of SqColumn are the most commonly used, they are type, name, offset, and bit_field.  
+
+* field 'type' is used to specify the C/C++ data type.
+* field 'name' is used to specify the column name.
+* field 'offset' is used to specify the offset of the field in the structure.
+* field 'bit_field' is used to specify attributes such as primary keys.
+
+SQ_TYPE_XXXX are C/C++ data types, they are listed in (SqType)[SqType.md].  
+SQB_XXXX     are bit fields that used by (SqColumn)[SqColumn.md].  
 
 **C99 designated initializer**  
   
-use C99 designated initializer to define table and column in schema_v1.
+e.g. use C99 designated initializer to define table and column in schema_v1.
 
 ```c
 #include <sqxclib.h>
@@ -80,7 +86,7 @@ static const SqColumn  userColumns[6] = {
   
 If your C++ compiler can't use designated initializer, you may use aggregate initialization as shown below.  
   
-use C++ aggregate initialization to define table and column in schema_v1.
+e.g. use C++ aggregate initialization to define table and column in schema_v1.
 
 ```c++
 #include <sqxclib.h>
@@ -138,7 +144,7 @@ static const SqColumn  userColumns[8] = {
 
 * To rename a column, set field 'old_name' as current column name and 'name' as new column name.
 * To delete a column, set field 'old_name' as current column name and 'name' as NULL.
-* To change a column properties, add SQB_CHANGE to field 'bit_field'.
+* To change a column properties, add SQB_CHANGED to field 'bit_field'.
 
 e.g. use C99 designated initializer to change table and column in schema_v2.  
 'columnsChanges' contains records to add, alter, drop, and rename columns.  

@@ -141,11 +141,11 @@ use C functions to define table and column in schema_v1 (dynamic)
 
 	// FOREIGN KEY
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
-	sq_column_reference(column, "cities", "id");
+	sq_column_reference(column, "cities", "id", NULL);
 
 	// CONSTRAINT FOREIGN KEY
-	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
-	sq_column_reference(column, "cities", "id");
+	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id", NULL);
+	sq_column_reference(column, "cities", "id", NULL);
 	sq_column_on_delete(column, "NO ACTION");
 	sq_column_on_update(column, "NO ACTION");
 

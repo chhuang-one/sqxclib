@@ -95,9 +95,11 @@ SqColumn  *sq_column_copy(SqColumn *column_dest, const SqColumn *column_src);
 #define sq_column_copy_static(column_src)    sq_column_copy(NULL, column_src)
 
 // foreign key references
+// sq_column_reference(table, column, table_name, column_name, ..., NULL);
+// The last argument of sq_column_reference() must be NULL.
 void       sq_column_reference(SqColumn *column,
                                const char *foreign_table_name,
-                               const char *foreign_column_name);
+                               ...);
 // foreign key on delete
 void       sq_column_on_delete(SqColumn *column, const char *act);
 // foreign key on update
@@ -215,8 +217,10 @@ struct SqColumn
 		SQ_ENTRY_SET_NAME(this, columnName);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column &reference(const char *table_name, const char *column_name) {
-		sq_column_reference((SqColumn*)this, table_name, column_name);
+	// reference(tableName, columnName, ...);
+	template <typename... Args>
+	Sq::Column &reference(const char *table_name, const Args... args) {
+		sq_column_reference((SqColumn*)this, table_name, args..., NULL);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &onDelete(const char *act) {
@@ -498,8 +502,9 @@ struct ColumnMethod
 		SQ_ENTRY_SET_NAME(this, columnName);
 		return *(Sq::Column*)this;
 	}
-	Sq::Column &reference(const char *table_name, const char *column_name) {
-		sq_column_reference((SqColumn*)this, table_name, column_name);
+	template <typename... Args>
+	Sq::Column &reference(const char *table_name, const Args... args) {
+		sq_column_reference((SqColumn*)this, table_name, args..., NULL);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &onDelete(const char *act) {

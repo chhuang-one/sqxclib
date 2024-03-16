@@ -141,11 +141,11 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// 外键 FOREIGN KEY
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
-	sq_column_reference(column, "cities", "id");
+	sq_column_reference(column, "cities", "id", NULL);
 
 	// 约束外键 CONSTRAINT FOREIGN KEY
-	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
-	sq_column_reference(column, "cities", "id");
+	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id", NULL);
+	sq_column_reference(column, "cities", "id", NULL);
 	sq_column_on_delete(column, "NO ACTION");
 	sq_column_on_update(column, "NO ACTION");
 

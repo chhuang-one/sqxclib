@@ -31,15 +31,21 @@ struct User {
 };
 ```
 
-在下面的示例中，
-SQ_TYPE_XXXX 是 C/C++ 数据类型，它们列在 (SqType)[SqType.cn.md] 中。  
-SQB_XXXX     是 (SqColumn)[SqColumn.cn.md] 使用的位字段。
-
 ## 创建表（静态）
+
+SqColumn 的前四个字段是最常用的，它们是 type, name, offset 和 bit_field。  
+
+* 字段 'type' 用于指定 C/C++ 数据类型。
+* 字段 'name' 用于指定列名称。
+* 字段 'offset' 用于指定结构体中字段的偏移量。
+* 字段 'bit_field' 用于指定主键等属性。
+
+SQ_TYPE_XXXX 是 C/C++ 数据类型，它们列在 (SqType)[SqType.cn.md] 中。  
+SQB_XXXX     是 (SqColumn)[SqColumn.cn.md] 使用的位字段。  
 
 **C99 指定初始化**  
   
-使用 C99 指定初始化程序在 schema_v1 中定义表和列。
+例如: 使用 C99 指定初始化程序在 schema_v1 中定义表和列。
 
 ```c
 #include <sqxclib.h>
@@ -80,7 +86,7 @@ static const SqColumn  userColumns[6] = {
   
 如果您的 C++ 编译器无法使用指定初始化程序，您可以使用聚合初始化，如下所示。  
   
-使用 C++ 聚合初始化在 schema_v1 中定义表和列。
+例如: 使用 C++ 聚合初始化在 schema_v1 中定义表和列。
 
 ```c++
 #include <sqxclib.h>
@@ -138,7 +144,7 @@ static const SqColumn  userColumns[8] = {
 
 * 要重命名列，请将字段 'old_name' 设置为当前列名称，并将 'name' 设置为新列名称。
 * 要删除列，  请将字段 'old_name' 设置为当前列名称，并将 'name' 设置为 NULL。
-* 要更改列属性，请将 SQB_CHANGE 添加到字段 'bit_field'。
+* 要更改列属性，请将 SQB_CHANGED 添加到字段 'bit_field'。
 
 例如: 使用 C99 指定初始化程序更改 schema_v2 中的表和列。  
 'columnsChanges' 包含要添加、更改、删除和重命名列的记录。  

@@ -12,7 +12,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <stdarg.h>
+#include <stdio.h>        // fprintf(), stderr
+#include <stdarg.h>       // va_list
 #include <stdlib.h>
 #include <string.h>
 
@@ -125,8 +126,11 @@ SqColumn *sq_column_copy(SqColumn *column, const SqColumn *column_src)
 // foreign key references
 void  sq_column_reference(SqColumn *column,
                           const char *foreign_table_name,
-                          const char *foreign_column_name)
+                          ...)
 {
+	va_list   arg_list;
+	char     *name;
+
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
 
@@ -148,8 +152,21 @@ void  sq_column_reference(SqColumn *column,
 		free((char*)column->foreign->column);
 	}
 
+	// C API parameter change
+	va_start(arg_list, foreign_table_name);
+	name = va_arg(arg_list, char*);
+	name = va_arg(arg_list, char*);
+	if (name != NULL) {
+		fprintf(stderr, "%s: the last argument must be NULL\n",
+		        "sq_column_reference()");
+	}
+	va_end(arg_list);
+
+	va_start(arg_list, foreign_table_name);
+	name = va_arg(arg_list, char*);
 	column->foreign->table = strdup(foreign_table_name);
-	column->foreign->column = strdup(foreign_column_name);
+	column->foreign->column = strdup(name);
+	va_end(arg_list);
 }
 
 // foreign key on delete

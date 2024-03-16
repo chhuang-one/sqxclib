@@ -348,8 +348,8 @@ The first argument specify the foreign key name, second is column name.
 
 	/* C sample code */
 
-	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id");
-	sq_column_reference(column, "cities", "id");
+	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id", NULL);
+	sq_column_reference(column, "cities", "id", NULL);
 	sq_column_on_delete(column, "NO ACTION");
 	sq_column_on_update(column, "NO ACTION");
 ```

@@ -203,29 +203,30 @@ typedef struct Company
 
 // ----------------------------------------------------------------------------
 
-//      SQT_ADD_INDEX(index_name, column1_name, ...)
+//      SQT_ADD_INDEX(index_name, column_name, ...)
 #define SQT_ADD_INDEX(index_name, ...)        \
 		(column_cur_ = sq_table_add_index(table_cur_, index_name, __VA_ARGS__, NULL))
 
 #define SQT_DROP_INDEX(index_name)            \
 		sq_table_drop_index(table_cur_, index_name)
 
-//      SQT_ADD_UNIQUE(unique_name, column1_name, ...)
+//      SQT_ADD_UNIQUE(unique_name, column_name, ...)
 #define SQT_ADD_UNIQUE(unique_name, ...)      \
 		(column_cur_ = sq_table_add_unique(table_cur_, unique_name, __VA_ARGS__, NULL))
 
 #define SQT_DROP_UNIQUE(unique_name)          \
 		sq_table_drop_unique(table_cur_, unique_name)
 
-//      SQT_ADD_PRIMARY(primary_name, column1_name, ...)
+//      SQT_ADD_PRIMARY(primary_name, column_name, ...)
 #define SQT_ADD_PRIMARY(primary_name, ...)    \
 		(column_cur_ = sq_table_add_primary(table_cur_, primary_name, __VA_ARGS__, NULL))
 
 #define SQT_DROP_PRIMARY(primary_name)        \
 		sq_table_drop_primary(table_cur_, primary_name)
 
-#define SQT_ADD_FOREIGN(foreign_name, column_name)    \
-		(column_cur_ = sq_table_add_foreign(table_cur_, foreign_name, column_name))
+//      SQT_ADD_FOREIGN(foreign_name, column_name, ...)
+#define SQT_ADD_FOREIGN(foreign_name, ...)    \
+		(column_cur_ = sq_table_add_foreign(table_cur_, foreign_name, __VA_ARGS__, NULL))
 
 #define SQT_DROP_FOREIGN(foreign_name)                \
 		sq_table_drop_foreign(table_cur_, foreign_name)
@@ -244,14 +245,15 @@ typedef struct Company
 #define SQC_PRIMARY()    \
 		column_cur_->bit_field   |= SQB_COLUMN_PRIMARY
 
-#define SQC_FOREIGN(table_name, column_name)   \
+#define SQC_FOREIGN()    \
 		column_cur_->bit_field   |= SQB_COLUMN_FOREIGN
 
-#define SQC_UNIQUE()  \
+#define SQC_UNIQUE()     \
 		column_cur_->bit_field   |= SQB_COLUMN_UNIQUE
 
-#define SQC_REFERENCE(table_name, column_name)   \
-		sq_column_reference(column_cur_, table_name, column_name)
+// SQC_REFERENCE(table_name, column_name, ...)
+#define SQC_REFERENCE(table_name, ...)   \
+		sq_column_reference(column_cur_, table_name,  __VA_ARGS__, NULL)
 
 #define SQC_ON_DELETE(act)  \
 		sq_column_on_delete(column_cur_, act)

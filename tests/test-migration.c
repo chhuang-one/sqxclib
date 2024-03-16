@@ -190,10 +190,10 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 	table = sq_schema_create_full(schema, "users", SQ_GET_TYPE_NAME(User), NULL, sizeof(User));
 
 	column = sq_table_add_int(table, "city_id", offsetof(User, city_id));
-	sq_column_reference(column, "cities", "id");
+	sq_column_reference(column, "cities", "id", NULL);
 
 	column = sq_table_add_int(table, "company_id", offsetof(User, city_id));
-	sq_column_reference(column, "companies", "id");
+	sq_column_reference(column, "companies", "id", NULL);
 	sq_column_on_delete(column, "cascade");
 
 	// type mapping: SQ_TYPE_STR map to SQL data type - TEXT
@@ -202,8 +202,8 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 
-	column = sq_table_add_foreign(table, "fk_cities_id", "city_id");
-	sq_column_reference(column, "cities", "id");
+	column = sq_table_add_foreign(table, "fk_cities_id", "city_id", NULL);
+	sq_column_reference(column, "cities", "id", NULL);
 	sq_column_on_delete(column, "no action");
 	sq_column_on_update(column, "cascade");
 

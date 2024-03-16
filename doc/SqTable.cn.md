@@ -355,11 +355,12 @@ C 函数 sq_table_get_primary()，C++ 方法 getPrimary() 可以获取主键。
 
 **创建外键 Create foreign key**  
   
-要创建外键，您可以将列传递给 foreign() 方法。
+如果使用 C 函数 sq_table_add_foreign() 创建主键，则最后一个参数必须为 NULL。
 
 ```c++
 	// C 函数
-	column = sq_table_add_foreign(table, "foreignName", "columnName");
+	// sq_table_add_foreign() 的最后一个参数必须为 NULL。
+	column = sq_table_add_foreign(table, "foreignName", "columnName", NULL);
 
 	// C++ 方法
 	column = table->foreign("foreignName", "columnName");
