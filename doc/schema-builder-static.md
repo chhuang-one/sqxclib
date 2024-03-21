@@ -33,15 +33,12 @@ struct User {
 
 ## Creating Tables (static)
 
-The first four fields of SqColumn are the most commonly used, they are type, name, offset, and bit_field.  
+To define column statically, The first four fields of [SqColumn](SqColumn.md) are the most commonly used. They are type, name, offset, and bit_field.  
 
-* field 'type' is used to specify the C/C++ data type.
+* field 'type' is used to specify the C/C++ data type, usually starting with SQ_TYPE, see [SqType](SqType.md).
 * field 'name' is used to specify the column name.
 * field 'offset' is used to specify the offset of the field in the structure.
-* field 'bit_field' is used to specify attributes such as primary keys.
-
-SQ_TYPE_XXXX are C/C++ data types, they are listed in (SqType)[SqType.md].  
-SQB_XXXX     are bit fields that used by (SqColumn)[SqColumn.md].  
+* field 'bit_field' is used to specify attributes such as primary key, usually starting with SQB, see [SqColumn](SqColumn.md).
 
 **C99 designated initializer**  
   

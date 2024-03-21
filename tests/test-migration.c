@@ -101,7 +101,7 @@ static const SqColumn  *UserColumns[] = {
 
 	// CONSTRAINT FOREIGN KEY
 	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "fk_cities_id",            0, SQB_FOREIGN,
-	             .foreign = &(SqForeign) {"cities", "id", "no action", "cascade"},
+	             .foreign = &(SqForeign) {"cities", "id", "NO ACTION", "CASCADE"},
 	             .composite = (char *[]) {"city_id", NULL} },
 
 	// PRIMARY KEY
@@ -142,7 +142,9 @@ static const SqColumn  *UserColumnsChange[] = {
 	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGED)
 //	&(SqColumn) {SQ_TYPE_INT,  "city_id",  offsetof(User, city_id),  SQB_CHANGED},
 
-	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+	// ALTER COLUMN "company_test_id"  (remove FOREIGN KEY properties in 'UserColumns')
+	// From: "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+	// To:   "company_test_id"  INT
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_NULLABLE | SQB_CHANGED },
 
 	// DROP CONSTRAINT FOREIGN KEY "fk_cities_id"
@@ -192,9 +194,15 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 	column = sq_table_add_int(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id", NULL);
 
-	column = sq_table_add_int(table, "company_id", offsetof(User, city_id));
+	column = sq_table_add_int(table, "company_id", offsetof(User, company_id));
 	sq_column_reference(column, "companies", "id", NULL);
-	sq_column_on_delete(column, "cascade");
+	sq_column_on_delete(column, "CASCADE");
+	sq_column_on_update(column, "CASCADE");
+
+	column = sq_table_add_int(table, "company_test_id", offsetof(User, company_id));
+	sq_column_reference(column, "companies", "id", NULL);
+	sq_column_on_delete(column, "NO ACTION");
+	sq_column_on_update(column, "NO ACTION");
 
 	// type mapping: SQ_TYPE_STR map to SQL data type - TEXT
 	column = sq_table_add_mapping(table, "comment", offsetof(User, comment),
@@ -204,8 +212,8 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 
 	column = sq_table_add_foreign(table, "fk_cities_id", "city_id", NULL);
 	sq_column_reference(column, "cities", "id", NULL);
-	sq_column_on_delete(column, "no action");
-	sq_column_on_update(column, "cascade");
+	sq_column_on_delete(column, "NO ACTION");
+	sq_column_on_update(column, "CASCADE");
 
 	column = sq_table_add_integer(table, "id", offsetof(User, id));
 	sq_column_primary(column);
@@ -249,8 +257,8 @@ void  create_user_table_by_macro(SqSchema *schema)
 		SQT_INTEGER_AS(User, id);  SQC_PRIMARY();  SQC_HIDDEN();
 		SQT_STRING_AS(User, name, -1);
 		SQT_STRING_AS(User, email, -1);
-		SQT_INTEGER_AS(User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
-		SQT_INTEGER_AS(User, company_id);  SQC_REFERENCE("companies", "id");  SQC_ON_DELETE("cascade");
+		SQT_INTEGER_AS(User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("SET NULL");
+		SQT_INTEGER_AS(User, company_id);  SQC_REFERENCE("companies", "id");  SQC_ON_DELETE("CASCADE");
 		SQT_CUSTOM_AS(User, posts, SQ_TYPE_INT_ARRAY, -1);
 		SQT_TIMESTAMP_AS(User, created_at);  SQC_USE_CURRENT();
 		SQT_TIMESTAMP_AS(User, updated_at);  SQC_USE_CURRENT();  SQC_USE_CURRENT_ON_UPDATE();
@@ -261,8 +269,8 @@ void  create_user_table_by_macro(SqSchema *schema)
 		SQT_INTEGER("id", User, id);  SQC_PRIMARY();  SQC_HIDDEN();
 		SQT_STRING("name", User, name, -1);
 		SQT_STRING("email", User, email, -1);
-		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("set null");
-		SQT_INTEGER("company_id", User, company_id);  SQC_REFERENCE("companies", "id");  SQC_ON_DELETE("cascade");
+		SQT_INTEGER("city_id", User, city_id);  SQC_REFERENCE("cities", "id");  SQC_ON_DELETE("SET NULL");
+		SQT_INTEGER("company_id", User, company_id);  SQC_REFERENCE("companies", "id");  SQC_ON_DELETE("CASCADE");
 		SQT_CUSTOM("posts", User, posts, SQ_TYPE_INT_ARRAY, -1);
 		SQT_TIMESTAMP("created_at", User, created_at);  SQC_USE_CURRENT();
 		SQT_TIMESTAMP("updated_at", User, updated_at);  SQC_USE_CURRENT();  SQC_USE_CURRENT_ON_UPDATE();

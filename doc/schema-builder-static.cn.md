@@ -33,15 +33,12 @@ struct User {
 
 ## 创建表（静态）
 
-SqColumn 的前四个字段是最常用的，它们是 type, name, offset 和 bit_field。  
+要静态定义列，最常用的是 [SqColumn](SqColumn.cn.md) 的前四个字段。它们是 type, name, offset 和 bit_field。  
 
-* 字段 'type' 用于指定 C/C++ 数据类型。
+* 字段 'type' 用于指定 C/C++ 数据类型，一般以 SQ_TYPE 开头，参见 [SqType](SqType.cn.md)。
 * 字段 'name' 用于指定列名称。
 * 字段 'offset' 用于指定结构体中字段的偏移量。
-* 字段 'bit_field' 用于指定主键等属性。
-
-SQ_TYPE_XXXX 是 C/C++ 数据类型，它们列在 (SqType)[SqType.cn.md] 中。  
-SQB_XXXX     是 (SqColumn)[SqColumn.cn.md] 使用的位字段。  
+* 字段 'bit_field' 用于指定主键等属性，一般以 SQB 开头，参见 [SqColumn](SqColumn.cn.md)。
 
 **C99 指定初始化**  
   

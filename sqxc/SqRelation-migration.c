@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <stdio.h>
+#include <stdio.h>        // fprintf(), stderr
 #include <string.h>
 
 #include <SqError.h>
@@ -221,8 +221,9 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 			}
 #ifndef NDEBUG
 			else {
-				fprintf(stderr, "SqTable %s: Can't alter column %s. It is not found.\n",
-				        table->name, column_src->name);
+				fprintf(stderr, "%s: Column '%s' not found in table '%s'. %s\n",
+				        "sq_table_include()", column_src->name, table->name,
+				        "It can't be altered.");
 			}
 #endif
 		}
@@ -256,8 +257,9 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 			}
 			else {
 #ifndef NDEBUG
-				fprintf(stderr, "SqTable %s: Can't drop column %s. It is not found.\n",
-				        table->name, column_src->old_name);
+				fprintf(stderr, "%s: Column '%s' not found in table '%s'. %s\n",
+				        "sq_table_include()", column_src->old_name, table->name,
+				        "It can't be dropped.");
 #endif
 				sq_column_free(column_src);
 			}
@@ -314,8 +316,9 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 			}
 			else {
 #ifndef NDEBUG
-				fprintf(stderr, "SqTable %s: Can't rename column %s. It is not found.\n",
-				        table->name, column_src->old_name);
+				fprintf(stderr, "%s: Column '%s' not found in table '%s'. %s\n",
+				        "sq_table_include()", column_src->old_name, table->name,
+				        "It can't be renamed.");
 #endif
 				sq_column_free(column_src);
 			}
@@ -363,7 +366,8 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 			}
 #ifndef NDEBUG
 			else {
-				fprintf(stderr, "SqTable: column %s is exist.\n", column_src->name);
+				fprintf(stderr, "%s: Column '%s' already exists in table '%s'.\n",
+				        "sq_table_include()", column_src->name, table->name);
 			}
 #endif
 		}
@@ -498,7 +502,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 			}
 #ifndef NDEBUG
 			else {
-				fprintf(stderr, "SqSchema: Can't alter table %s. It is not found.\n", table_src->name);
+				fprintf(stderr, "%s: Can't alter table '%s'. It is not found.\n",
+				        "sq_schema_include()", table_src->name);
 			}
 #endif
 			// It doesn't need to steal 'table_src' from 'schema_src'
@@ -533,7 +538,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 			}
 #ifndef NDEBUG
 			else {
-				fprintf(stderr, "SqSchema: Can't drop table %s. It is not found.\n", table_src->old_name);
+				fprintf(stderr, "%s: Can't drop table '%s'. It is not found.\n",
+				        "sq_schema_include()", table_src->old_name);
 			}
 #endif
 			// It doesn't need to steal 'table_src' from 'schema_src'
@@ -582,7 +588,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 			}
 #ifndef NDEBUG
 			else {
-				fprintf(stderr, "SqSchema: Can't rename table %s. It is not found.\n", table_src->old_name);
+				fprintf(stderr, "%s: Can't rename table '%s'. It is not found.\n",
+				        "sq_schema_include()", table_src->old_name);
 			}
 #endif
 		}
@@ -611,7 +618,8 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 			}
 #ifndef NDEBUG
 			else {
-				fprintf(stderr, "SqSchema: table %s is exist.\n", table_src->name);
+				fprintf(stderr, "%s: Table '%s' is exist.\n",
+				        "sq_schema_include()", table_src->name);
 			}
 #endif
 		}
@@ -660,7 +668,8 @@ int     sq_schema_trace_name(SqSchema *schema)
 					if (reentry->name == NULL) {
 						result = SQCODE_REENTRY_DROPPED;
 #ifndef NDEBUG
-						fprintf(stderr, "SqSchema: column %s has been dropped.\n", column->composite[index]);
+						fprintf(stderr, "%s: column '%s' has been dropped.\n",
+						        "sq_schema_trace_name()", column->composite[index]);
 #endif
 						continue;   // error...
 					}
@@ -682,7 +691,8 @@ int     sq_schema_trace_name(SqSchema *schema)
 				if (reentry->name == NULL) {
 					result = SQCODE_REENTRY_DROPPED;
 #ifndef NDEBUG
-					fprintf(stderr, "SqSchema: foreign table %s has been dropped.\n", column->foreign->table);
+					fprintf(stderr, "%s: foreign table '%s' has been dropped.\n",
+					        "sq_schema_trace_name()", column->foreign->table);
 #endif
 					continue;   // error...
 				}
@@ -705,7 +715,8 @@ int     sq_schema_trace_name(SqSchema *schema)
 				// (renamed) table not found. dropped?
 				result = SQCODE_REFERENCE_NOT_FOUND;
 #ifndef NDEBUG
-				fprintf(stderr, "SqSchema: foreign table %s not found.\n", column->foreign->table);
+				fprintf(stderr, "%s: foreign table '%s' not found.\n",
+				        "sq_schema_trace_name()", column->foreign->table);
 #endif
 				continue;  // error...
 			}
@@ -718,7 +729,8 @@ int     sq_schema_trace_name(SqSchema *schema)
 				if (reentry->name == NULL) {
 					result = SQCODE_REENTRY_DROPPED;
 #ifndef NDEBUG
-					fprintf(stderr, "SqSchema: foreign column %s has been dropped.\n", column->foreign->column);
+					fprintf(stderr, "%s: foreign column '%s' has been dropped.\n",
+					        "sq_schema_trace_name()", column->foreign->column);
 #endif
 					continue;   // error...
 				}
