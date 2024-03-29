@@ -495,8 +495,11 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 				table = *(SqTable**)addr;
 				sq_table_include(table, table_src, schema);
 				// If table has foreign/composite key, add it to SQ_TYPE_TRACING
-				if (sq_relation_find(table->relation, SQ_TYPE_TRACING, NULL))
-					sq_relation_add(schema->relation, SQ_TYPE_TRACING, table, 0);
+				if (sq_relation_find(table->relation, SQ_TYPE_TRACING, NULL)) {
+					// If table has already been added to SQ_TYPE_TRACING of schema, do not add it again.
+					if (sq_relation_find(schema->relation, SQ_TYPE_TRACING, table) == NULL)
+						sq_relation_add(schema->relation, SQ_TYPE_TRACING, table, 0);
+				}
 				else
 					sq_relation_erase(schema->relation, SQ_TYPE_TRACING, table, 0, NULL);
 			}
