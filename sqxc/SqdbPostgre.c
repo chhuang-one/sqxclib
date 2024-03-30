@@ -16,6 +16,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <stdio.h>        // snprintf(), fprintf(), stderr
+#include <stdbool.h>      // bool, true, false
 
 #include <SqError.h>
 #include <Sqdb-migration.h>
@@ -273,12 +274,31 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 	return code;
 }
 
+// used by sqdb_postgre_migrate()
+static bool sqdb_postgre_has_error(SqdbPostgre *sqdb, PGresult *result)
+{
+	bool has_error;
+
+	if (PQresultStatus(result) == PGRES_COMMAND_OK)
+		has_error = false;
+	else {
+		has_error = true;
+#ifndef NDEBUG
+		fprintf(stderr, "PostgreSQL: %s\n", PQerrorMessage(sqdb->conn));
+#endif
+	}
+
+	PQclear(result);
+	return has_error;
+}
+
 static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *schema_next)
 {
 	SqBuffer    sql_buf;
 	SqTable    *table, *old_table;
 	SqPtrArray *reentries;
-	PGresult   *results = NULL;
+	PGresult   *results;
+	bool        has_error = false;
 
 	if (sqdb->conn == NULL)
 		return SQCODE_ERROR;
@@ -326,8 +346,9 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 					fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
 					results = PQexec(sqdb->conn, sql_buf.mem);
-					if (PQresultStatus(results) != PGRES_COMMAND_OK)
-						goto atExit;
+					has_error = sqdb_postgre_has_error(sqdb, results);
+					if (has_error)
+						break;
 				}
 				sql_buf.writed = 0;    // write to start of buffer
 				sqdb_postgre_create_dependent(sqdb, &sql_buf, table);
@@ -340,8 +361,9 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 				fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
 				results = PQexec(sqdb->conn, sql_buf.mem);
-				if (PQresultStatus(results) != PGRES_COMMAND_OK)
-					goto atExit;
+				has_error = sqdb_postgre_has_error(sqdb, results);
+				if (has_error)
+					break;
 			}
 		}
 #ifndef NDEBUG
@@ -356,17 +378,10 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 	sq_schema_update(schema, schema_next);
 	schema->version = schema_next->version;
 
-atExit:
 	sq_buffer_final(&sql_buf);
-	if (results && PQresultStatus(results) != PGRES_COMMAND_OK) {
-#ifndef NDEBUG
-		fprintf(stderr, "PostgreSQL: %s\n", PQerrorMessage(sqdb->conn));
-#endif
-		PQclear(results);
-		return SQCODE_EXEC_ERROR;
-	}
-	PQclear(results);
 
+	if (has_error)
+		return SQCODE_EXEC_ERROR;
 	return SQCODE_OK;
 }
 
@@ -470,14 +485,16 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 			// check
 			if (old_table == NULL) {
 #ifndef NDEBUG
-				fprintf(stderr, "sqdb_postgre_alter_table(): table '%s' not found in current schema.\n", old_table->name);
+				fprintf(stderr, "%s: table '%s' not found in current schema.\n",
+				        "sqdb_postgre_alter_table()", table->name);
 #endif
 			}
 
 			old_column = sq_table_find_column(old_table, column->name);
 			if (old_column == NULL) {
 #ifndef NDEBUG
-				fprintf(stderr, "sqdb_postgre_alter_table(): altering column '%s' not found.\n", column->name);
+				fprintf(stderr, "%s: altering column '%s' not found.\n",
+				        "sqdb_postgre_alter_table()", column->name);
 #endif
 				continue;
 			}
@@ -562,7 +579,8 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 			old_column = sq_table_find_column(old_table, column->old_name);
 			if (old_column == NULL) {
 #ifndef NDEBUG
-				fprintf(stderr, "sqdb_postgre_alter_table(): dropping column '%s' not found.\n", column->old_name);
+				fprintf(stderr, "%s: dropping column '%s' not found.\n",
+				        "sqdb_postgre_alter_table()", column->old_name);
 #endif
 			}
 			else if (old_column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE)

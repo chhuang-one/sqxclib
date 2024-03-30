@@ -16,6 +16,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <stdio.h>        // snprintf(), fprintf(), stderr
+#include <stdbool.h>      // bool, true, false
 
 #include <SqError.h>
 #include <Sqdb-migration.h>
@@ -124,7 +125,7 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 	SqBuffer    sql_buf;
 	SqTable    *table, *table_data;
 	SqPtrArray *reentries;
-	int         rc = 0;
+	bool        has_error = false;
 
 	if (db->self == NULL)
 		return SQCODE_ERROR;
@@ -171,9 +172,13 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 #ifndef NDEBUG
 					fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-					rc = mysql_query(db->self, sql_buf.mem);
-					if (rc)
-						goto atExit;
+					if (mysql_query(db->self, sql_buf.mem)) {
+						has_error = true;
+#ifndef NDEBUG
+						fprintf(stderr, "MySQL: %s\n", mysql_error(db->self));
+#endif
+						break;
+					}
 				}
 				sql_buf.writed = 0;
 				sqdb_exec_create_index((Sqdb*)db, &sql_buf, table, NULL);
@@ -183,9 +188,13 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 #ifndef NDEBUG
 				fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-				rc = mysql_query(db->self, sql_buf.mem);
-				if (rc)
-					goto atExit;
+				if (mysql_query(db->self, sql_buf.mem)) {
+					has_error = true;
+#ifndef NDEBUG
+					fprintf(stderr, "MySQL: %s\n", mysql_error(db->self));
+#endif
+					break;
+				}
 			}
 		}
 #ifndef NDEBUG
@@ -200,14 +209,10 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 	sq_schema_update(schema, schema_next);
 	schema->version = schema_next->version;
 
-atExit:
 	sq_buffer_final(&sql_buf);
-	if (rc) {
-#ifndef NDEBUG
-		fprintf(stderr, "MySQL: %s\n", mysql_error(db->self));
-#endif
+
+	if (has_error)
 		return SQCODE_EXEC_ERROR;
-	}
 	return SQCODE_OK;
 }
 

@@ -80,10 +80,10 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 #ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
-					fprintf(stderr, "%s: Can't alter column %s in table %s.\n",
+					fprintf(stderr, "%s: Can't alter column '%s' in table '%s'.\n",
 					        "sq_entry_update()", reentry_src->name, entry->name);
 				else
-					fprintf(stderr, "%s: Can't alter table %s in schema %s.\n",
+					fprintf(stderr, "%s: Can't alter table '%s' in schema '%s'.\n",
 					        "sq_entry_update()", reentry_src->name, entry->name);
 			}
 #endif
@@ -107,10 +107,10 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 #ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
-					fprintf(stderr, "%s: Can't drop column %s in table %s.\n",
+					fprintf(stderr, "%s: Can't drop column '%s' in table '%s'.\n",
 					        "sq_entry_update()", reentry_src->old_name, entry->name);
 				else
-					fprintf(stderr, "%s: Can't drop table %s in schema %s.\n",
+					fprintf(stderr, "%s: Can't drop table '%s' in schema '%s'.\n",
 					        "sq_entry_update()", reentry_src->old_name, entry->name);
 			}
 #endif
@@ -143,10 +143,10 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 #ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
-					fprintf(stderr, "%s: Can't rename column %s in table %s.\n",
+					fprintf(stderr, "%s: Can't rename column '%s' in table '%s'.\n",
 					        "sq_entry_update()", reentry_src->old_name, entry->name);
 				else
-					fprintf(stderr, "%s: Can't rename table %s in schema %s.\n",
+					fprintf(stderr, "%s: Can't rename table '%s' in schema '%s'.\n",
 					        "sq_entry_update()", reentry_src->old_name, entry->name);
 			}
 #endif
@@ -168,10 +168,10 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 #ifndef NDEBUG
 			else {
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
-					fprintf(stderr, "%s: Can't add column %s to table %s.\n",
+					fprintf(stderr, "%s: Can't add column '%s' to table '%s'.\n",
 					        "sq_entry_update()", reentry_src->name, entry->name);
 				else
-					fprintf(stderr, "%s: Can't add table %s to schema %s.\n",
+					fprintf(stderr, "%s: Can't add table '%s' to schema '%s'.\n",
 					        "sq_entry_update()", reentry_src->name, entry->name);
 			}
 #endif
