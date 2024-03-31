@@ -16,6 +16,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <stdio.h>        // snprintf(), fprintf(), stderr
+#include <stdbool.h>      // bool, true, false
 
 #include <SqError.h>
 #include <SqdbSqlite.h>
@@ -125,6 +126,20 @@ static int  sqdb_sqlite_close(SqdbSqlite *sqdb)
 	return SQCODE_OK;
 }
 
+// used by sqdb_sqlite_migrate_sync() and sqdb_sqlite_exec()
+static bool sq_sqlite_has_error(int  sqlite_rc, char *sqliteErrorMsg)
+{
+	if (sqlite_rc == SQLITE_OK)
+		return false;
+	else {
+#ifndef NDEBUG
+		fprintf(stderr, "SQLite: %s\n", sqliteErrorMsg);
+#endif
+		sqlite3_free(sqliteErrorMsg);
+		return true;
+	}
+}
+
 // synchronize schema to database
 static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 {
@@ -133,6 +148,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	SqTable    *table;
 	SqType     *type;
 	char       *errorMsg;
+	bool        has_error = false;
 	int   rc;
 
 	// Don't synchronize if database schema version greater than or equal to the latest schema version
@@ -162,8 +178,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	fprintf(stderr, "SQLite: BEGIN TRANSACTION ------\n");
 #endif
 	rc = sqlite3_exec(sqdb->self, "PRAGMA foreign_keys=off; BEGIN TRANSACTION", NULL, NULL, &errorMsg);
-	if (rc != SQLITE_OK)    // error occurred
-		goto atExit;
+	has_error = sq_sqlite_has_error(rc, errorMsg);
 
 	// --------- rename and drop table ---------
 	if (schema->relation)
@@ -190,7 +205,8 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 #ifndef NDEBUG
 			fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-			sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, NULL);
+			rc = sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, &errorMsg);
+			has_error = sq_sqlite_has_error(rc, errorMsg);
 		}
 	}
 
@@ -224,22 +240,14 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 			fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
 			rc = sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, &errorMsg);
-			if (rc != SQLITE_OK) {
-				// error occurred
-#ifndef NDEBUG
-				fprintf(stderr, "SQLite: ROLLBACK TRANSACTION ------\n");
-#endif
-				sqlite3_exec(sqdb->self, "ROLLBACK", NULL, NULL, NULL);
-				goto atExit;
-			}
+			has_error = sq_sqlite_has_error(rc, errorMsg);
 		}
 	}
 #ifndef NDEBUG
 	fprintf(stderr, "SQLite: END TRANSACTION ------\n");
 #endif
 	rc = sqlite3_exec(sqdb->self, "COMMIT; PRAGMA foreign_keys=on", NULL, NULL, &errorMsg);
-	if (rc != SQLITE_OK)    // error occurred
-		goto atExit;
+	has_error = sq_sqlite_has_error(rc, errorMsg);
 
 	if (schema->relation) {
 		// clear all renamed and dropped records
@@ -259,19 +267,13 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
 	rc = sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, &errorMsg);
+	has_error = sq_sqlite_has_error(rc, errorMsg);
 
-atExit:
 	// free buffer for SQL statement
 	sq_buffer_final(&sql_buf);
 
-	if (rc != SQLITE_OK) {
-		// error occurred
-#ifndef NDEBUG
-		fprintf(stderr, "SQLite: %s\n", errorMsg);
-#endif
-		sqlite3_free(errorMsg);
-		return SQCODE_ERROR;
-	}
+	if (has_error)
+		return SQCODE_EXEC_ERROR;
 	return SQCODE_OK;
 }
 
@@ -449,13 +451,8 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 	}
 
 	// check return value of sqlite3_exec()
-	if (rc != SQLITE_OK) {
-#ifndef NDEBUG
-		fprintf(stderr, "SQLite: %s\n", errorMsg);
-#endif
-		sqlite3_free(errorMsg);
+	if (sq_sqlite_has_error(rc, errorMsg))
 		return SQCODE_EXEC_ERROR;
-	}
 	return code;
 }
 
