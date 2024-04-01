@@ -39,7 +39,10 @@ To define column statically, The first four fields of [SqColumn](SqColumn.md) ar
 * field 'name' is used to specify the column name.
 * field 'offset' is used to specify the offset of the field in the structure.
 * field 'bit_field' is used to specify attributes such as primary key, usually starting with SQB, see [SqColumn](SqColumn.md).
-
+* field 'foreign' is NULL-terminated array for setting referenced table, columns, ON DELETE action and ON UPDATE action. It uses empty string "" to separate columns and ON DELETE action.
+  
+field 'foreign' has more details in the section **About the field SqColumn::foreign**.  
+  
 **C99 designated initializer**  
   
 e.g. use C99 designated initializer to define table and column in schema_v1.
@@ -59,13 +62,15 @@ static const SqColumn  userColumns[6] = {
 		.size = 60},
 
 	// FOREIGN KEY
+	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE CASCADE  ON UPDATE SET DEFAULT
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
-		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
+		.foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "SET DEFAULT", NULL}  },
+	// In the previous line, column "id" and ON DELETE action "CASCADE" must be separated by the empty string "".
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
 
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 };
 
@@ -92,8 +97,9 @@ e.g. use C++ aggregate initialization to define table and column in schema_v1.
    create new SqType  for C++ std::vector<int> */
 Sq::TypeStl< std::vector<int> > SqTypeIntVector(SQ_TYPE_INT);
 
-/* this foreign key constraint is used by below userColumns[] */
-static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
+/* this foreign key constraint is used by below userColumns[]
+   In the next line, column "id" and ON DELETE action "CASCADE" must be separated by the empty string "". */
+static const char *userForeign[] = {"cities", "id",  "",  "CASCADE", "SET DEFAULT", NULL};
 
 static const SqColumn  userColumns[8] = {
 	// PRIMARY KEY
@@ -109,16 +115,17 @@ static const SqColumn  userColumns[8] = {
 		60},                           // .size        // VARCHAR(60)
 
 	// FOREIGN KEY
+	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE CASCADE  ON UPDATE SET DEFAULT
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
 		NULL,                          // .old_name,
 		0, 0, 0,                       // .sql_type, .size, .digits,
 		NULL,                          // .default_value,
-		(SqForeign*) &userForeign},    // .foreign
+		(char **) userForeign},        // .foreign
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
 
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
 	// C++ data type std::string
@@ -171,12 +178,33 @@ static const SqColumn  columnsChanges[4] = {
 	sq_table_add_column(table, columnsChanges, 4);
 ```
 
-## Constraint (static)
+## Constraints (static)
+
+set the SqColumn::bit_field in column definition:
+* set SQB_PRIMARY in SqColumn::bit_field to define primary key column.
+* SQB_FOREIGN and SQB_UNIQUE can set foreign key and unique onto column definition.
+
+```c
+static const SqColumn  columns[] = {
+	// PRIMARY KEY
+	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
+
+	// FOREIGN KEY
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
+		.foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "CASCADE", NULL}  },
+	// FOREIGN KEY: If no ON DELETE action is specified, set it to empty string "" as shown below.
+	//	.foreign = (char *[]) {"cities", "id",  "",         "", "CASCADE", NULL}  },
+}
+```
+
+**Composite Constraints**  
 
 * field 'type' must be set as SQ_TYPE_CONSTRAINT. SQ_TYPE_CONSTRAINT is a fake data type used by migrations.
-* field 'composite' can be used to set composite constraint. It must end with a NULL.
-* field 'foreign' is used to set referenced table, column, on delete and on update actions.
-
+* field 'composite' is NULL-terminated array for setting columns of composite constraint.
+* field 'foreign'   is NULL-terminated array for setting referenced table, columns, ON DELETE action and ON UPDATE action. It uses empty string "" to separate columns and ON DELETE action.
+  
+Because number of columns in foreign key must match the number of columns in the referenced table, number of columns in 'foreign' and 'composite' field must match.  
+  
 e.g. use C99 designated initializer to add/remove constraint.  
 'otherChanges1' add  constraint (primary key, foreign key, and unique).  
 'otherChanges2' drop constraint (primary key, foreign key, and unique).  
@@ -189,8 +217,10 @@ static const SqColumn  otherChanges1[] = {
 
 	// CONSTRAINT FOREIGN KEY
 	{SQ_TYPE_CONSTRAINT,  "other_foreign", 0,  SQB_FOREIGN,
-		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
-		.composite = (char *[]) {"city_id", NULL} },
+		.foreign   = (char *[]) {"table",  "column1", "column2",  "",  "NO ACTION", "NO ACTION",  NULL},
+		.composite = (char *[]) {          "column1", "column2",  NULL} },
+	// Because number of columns in foreign key must match the number of columns in the referenced table,
+	// number of columns in 'foreign' and 'composite' field must match.
 
 	// CONSTRAINT UNIQUE
 	{SQ_TYPE_CONSTRAINT,  "other_unique",  0,  SQB_UNIQUE,
@@ -212,10 +242,41 @@ static const SqColumn  otherChanges2[] = {
 };
 ```
 
+**About the field SqColumn::foreign**
+
+* It is NULL-terminated array.
+* It is used to setting referenced table, columns, ON DELETE action and ON UPDATE action.
+* ON DELETE action and columns must be separated by an empty string "".
+* ON DELETE action or ON UPDATE action can be set to empty string "" if not specified.
+
+```c
+	// ON DELETE action and column must be separated by an empty string "".
+	// ON DELETE action is "CASCADE"
+	// ON UPDATE action is "SET DEFAULT"
+	.foreign   = (char *[]) {"table", "column",  "",  "CASCADE", "SET DEFAULT", NULL},
+
+	// ON DELETE action and column must be separated by an empty string "".
+	// ON DELETE action is not specified because it set to empty string "".
+	// ON UPDATE action is "SET DEFAULT"
+	.foreign   = (char *[]) {"table", "column",  "",         "", "SET DEFAULT", NULL},
+
+	// ON DELETE action "CASCADE" and column must be separated by the empty string "".
+	// ON UPDATE action is not specified because the last element is NULL.
+	.foreign   = (char *[]) {"table", "column",  "",  "CASCADE", NULL},
+
+	// specify table and column only
+	// ON DELETE action and ON UPDATE action are not specified because the last element is NULL.
+	.foreign   = (char *[]) {"table", "column", NULL},
+
+	// specify table and multiple columns
+	// ON DELETE action and ON UPDATE action are not specified because the last element is NULL.
+	.foreign   = (char *[]) {"table", "column1", "column2", NULL},
+```
+
 ## Index (static)
 
 * field 'type' must be set as SQ_TYPE_INDEX. SQ_TYPE_INDEX is a fake data type used by migrations.
-* field 'composite' can be used to set composite index. It must end with a NULL.
+* field 'composite' is NULL-terminated array for setting composite index.
 
 e.g. use C99 designated initializer to add/remove index.  
 'otherChanges3' add  index.  

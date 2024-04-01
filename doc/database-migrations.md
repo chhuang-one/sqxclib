@@ -12,7 +12,7 @@ Actually the design of sqxclib is different from Laravel, so the usage cannot be
 
 migrate schema and synchronize to database.  
   
-use C++ language  
+use C++ language
 
 ```c++
 	// migrate 'schema_v1' and 'schema_v2'
@@ -80,10 +80,10 @@ If SqTable::type defined in C language, you may NOT use below C++ template funct
 
 use the create function in the schema to create a new database table.  
 The function accepts two arguments: one argument is the name of table, another is structured data type.  
+  
+use C++ language
 
 ```c++
-	/* C++ sample code */
-
 	// create table "users"
 	table = schema->create<User>("users");
 
@@ -94,9 +94,9 @@ The function accepts two arguments: one argument is the name of table, another i
 	table->timestamp("created_at", &User::created_at)->useCurrent();
 ```
 
-```c
-	/* C sample code */
+use C language
 
+```c
 	// create table "users"
 	table = sq_schema_create(schema, "users", User);
 
@@ -130,28 +130,30 @@ You may check for the existence of a table using the find function:
 
 #### Updating Tables (dynamic)
 
-use the alter function to update existing tables.
+use the alter function to update existing tables.  
+  
+use C++ language
 
 ```c++
-	/* C++ sample code */
-
 	// alter table "users"
 	table = schema->alter("users");
 
 	// add column to table
 	table->integer("test_add", &User::test_add);
+
 	// alter column "email" in table
 	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
 ```
 
-```c
-	/* C sample code */
+use C language
 
+```c
 	// alter table "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
 	// add columns to table
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
+
 	// alter column "email" in table
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
 	sq_column_change(column);
@@ -186,11 +188,11 @@ You can use the drop function to drop an existing table.
 To add columns to the table, you can use functions of SqTable.
 You will get instance of SqTable after calling alter or create function in schema.  
   
-All available column types are listed in [SqTable](SqTable.md).
+All available column types are listed in [SqTable](SqTable.md).  
+  
+use C++ language
 
 ```c++
-	/* C++ sample code */
-
 	// alter table "users"
 	table = schema->alter("users");
 
@@ -198,9 +200,9 @@ All available column types are listed in [SqTable](SqTable.md).
 	column = table->integer("test_add", &User::test_add);
 ```
 
-```c
-	/* C sample code */
+use C language
 
+```c
 	// alter table "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
@@ -252,106 +254,116 @@ use C++ language
 
 #### Renaming and Dropping Columns
 
-use C++ method renameColumn and C function sq_table_rename_column to rename a column.  
-use C++ method dropColumn and C function sq_table_drop_column to drop a column.
+use C++ method renameColumn() to rename a column.  
+use C++ method dropColumn() to drop a column.
 
 ```c++
-	/* C++ sample code */
-
 	// alter table "users"
 	table = schema->alter("users");
+
 	// rename column
 	table->renameColumn("from", "to");
+
 	// drop column
 	table->dropColumn("columnName");
+```
 
-	/* C sample code */
+use C function sq_table_rename_column() to rename a column.  
+use C function sq_table_drop_column() to drop a column.
 
+```c
 	// alter table "users"
 	table = sq_schema_alter(schema, "users", NULL);
+
 	// rename column
 	sq_table_rename_column(table, "from", "to");
+
 	// drop column
 	sq_table_drop_column(table, "columnName");
 ```
 
-## Indexes
+## Primary Key Constraints
 
-#### Creating Indexes
-
-use the unique method onto the column definition:
+To define a primary key column, use the primary() method onto the column definition:
 
 ```c++
-	/* C++ sample code */
-	table->string("email", &User::email)->unique();
-
 	/* C sample code */
-	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
-	sq_column_unique(column);
+	column = sq_table_add_int(table, "id", offsetof(User, id));
+	sq_column_primary(column);
+
+	/* C++ sample code */
+	table->integer("id", &User::id)
+	     ->primary();
 ```
 
-To use C functions to create composite unique, index, and primary key,
-the 2nd argument specify the name of unique, index, primary key, others are list of column name that must be null-terminated.
+#### Creating Primary Keys
 
-```c
-	column = sq_table_add_index(table, "index_email_account_id", "email", "account_id", NULL);
-
-	column = sq_table_add_unique(table, "unique_email_account_id", "email", "account_id", NULL);
-
-	column = sq_table_add_primary(table, "primary_email_account_id", "email", "account_id", NULL);
-```
-
-To use C++ methods to create composite unique, index, and primary key,
-the 1st argument specify the name of unique, index, primary key, others are list of column name.  
-Because C++ methods use parameter pack, the last argument can pass (or not) NULL.
+C function sq_table_add_primary() and C++ method primary() can create primary key constraint.
+Arguments are the name of primary key constraint, others are NULL-terminated column name argument list.  
+Because C++ methods use parameter pack, the last argument can pass NULL or not.
 
 ```c++
-	table->index("index_email_account_id", "email", "account_id");
+	/* C sample code */
+	column = sq_table_add_primary(table, "primary_email_account_id", "email", "account_id", NULL);
 
-	table->unique("unique_email_account_id", "email", "account_id");
-
+	/* C++ sample code */
 	table->primary("primary_email_account_id", "email", "account_id");
 ```
 
-#### Dropping Indexes
+#### Dropping Primary Keys
 
-User must specify name of index, unique, and primary key to drop them.
+User must specify name of primary key constraint to drop it.
 
 ```c++
-	/* C++ sample code */
-
-	table->dropIndex("index_email_account_id");
-
-	table->dropUnique("unique_email_account_id");
-
-	table->dropPrimary("primary_email_account_id");
-
 	/* C sample code */
-
-	sq_table_drop_index(table, "index_email_account_id");
-
-	sq_table_drop_unique(table, "unique_email_account_id");
-
 	sq_table_drop_primary(table, "primary_email_account_id");
+
+	/* C++ sample code */
+	table->dropPrimary("primary_email_account_id");
 ```
 
 ## Foreign Key Constraints
 
-use foreign function to create foreign key.  
-The first argument specify the foreign key name, second is column name.
+C function sq_column_reference() and C++ method reference() are used to set foreign key referenced table, columns.
+Arguments are the name of foreign table, others are NULL-terminated column name argument list.  
+  
+To define a foreign key column, use reference() onto the column definition:
 
 ```c++
-	/* C++ sample code */
-
-	table->foreign("users_city_id_foreign", "city_id")
-	     ->reference("cities", "id")->onDelete("NO ACTION")->onUpdate("NO ACTION");
-
 	/* C sample code */
-
-	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id", NULL);
+	column = sq_table_add_int(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id", NULL);
+
+	/* C++ sample code */
+	table->integer("city_id", &User::city_id)
+	     ->reference("cities", "id");
+```
+
+#### Creating Foreign Keys
+
+C function sq_table_add_foreign() and C++ method foreign() can create foreign key constraint.
+Arguments are the name of foreign key constraint, others are NULL-terminated column name argument list.  
+  
+Because number of columns in foreign key must match the number of columns in the referenced table, number of columns in foreign() and reference() arguments must match.  
+  
+use C language
+
+```c
+	column = sq_table_add_foreign(table, "foreignName", "column1", "column2", NULL);
+	sq_column_reference(column, "foreignTableName",     "column1", "column2", NULL);
 	sq_column_on_delete(column, "NO ACTION");
 	sq_column_on_update(column, "NO ACTION");
+```
+
+use C++ language  
+  
+Because C++ methods use parameter pack, the last argument can pass NULL or not.
+
+```c++
+	table->foreign("foreignName", "column1", "column2")
+	     ->reference("tableName", "column1", "column2")
+	     ->onDelete("NO ACTION")
+	     ->onUpdate("NO ACTION");
 ```
 
 #### Dropping Foreign Keys
@@ -359,9 +371,58 @@ The first argument specify the foreign key name, second is column name.
 use the name of the foreign key constraint to delete it.
 
 ```c++
-	/* C++ sample code */
-	table->dropForeign("users_city_id_foreign");
-
 	/* C sample code */
 	sq_table_drop_foreign(table, "users_city_id_foreign");
+
+	/* C++ sample code */
+	table->dropForeign("users_city_id_foreign");
+```
+
+## Indexes
+
+To define a unique column, use the unique() method onto the column definition:
+
+```c++
+	/* C sample code */
+	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
+	sq_column_unique(column);
+
+	/* C++ sample code */
+	table->string("email", &User::email)
+	     ->unique();
+```
+
+#### Creating Indexes
+
+To use C functions to create composite index and unique constraint,
+The 2nd argument is the name of index and unique constraint, others are NULL-terminated column name argument list.
+
+```c
+	column = sq_table_add_index(table, "index_email_account_id", "email", "account_id", NULL);
+
+	column = sq_table_add_unique(table, "unique_email_account_id", "email", "account_id", NULL);
+```
+
+To use C++ methods to create composite index and unique constraint,
+The 1st Argument is the name of index and unique constraint, others are column name argument list.  
+Because C++ methods use parameter pack, the last argument can pass NULL or not.
+
+```c++
+	table->index("index_email_account_id", "email", "account_id");
+
+	table->unique("unique_email_account_id", "email", "account_id");
+```
+
+#### Dropping Indexes
+
+User must specify name of index and unique constraint to drop them.
+
+```c++
+	/* C sample code */
+	sq_table_drop_index(table, "index_email_account_id");
+	sq_table_drop_unique(table, "unique_email_account_id");
+
+	/* C++ sample code */
+	table->dropIndex("index_email_account_id");
+	table->dropUnique("unique_email_account_id");
 ```

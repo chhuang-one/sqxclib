@@ -27,7 +27,8 @@
 typedef struct User         User;
 typedef struct City         City;
 typedef struct Company      Company;
-typedef struct Composite    Composite;
+typedef struct Account      Account;
+typedef struct SubAccount   SubAccount;
 
 struct User {
 	int    id;
@@ -64,12 +65,22 @@ struct Company {
 	time_t         updated_at;
 };
 
-struct Composite {
-	int    user_id;
-	int    city_id;
-	int    company_id;
+// create_account_table_by_c()
+struct Account {
+	int    acc_num;
+	int    acc_type;
+	char  *acc_descr;    // CHAR(20),
+	// PRIMARY KEY (acc_num, acc_type)
+};
 
-	char  *name;
+struct SubAccount {
+	int    sub_id;       // PRIMARY KEY
+
+	int    ref_num;
+	int    ref_type;
+
+	int    sub_descr;    // CHAR(20),
+	// FOREIGN KEY (ref_num, ref_type) REFERENCES accounts (acc_num, acc_type)
 };
 
 // ----------------------------------------------------------------------------
@@ -79,7 +90,7 @@ struct Composite {
 static const SqColumn  *UserColumns[] = {
 	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
 	&(SqColumn) {SQ_TYPE_INT, "city_id",     offsetof(User, city_id),    SQB_FOREIGN | SQB_HIDDEN,
-	             .foreign = &(SqForeign) {"cities", "id",  "CASCADE",  "CASCADE"} },
+	             .foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "CASCADE", NULL} },
 
 	// "comment"  TEXT
 	&(SqColumn) {SQ_TYPE_STR, "comment",     offsetof(User, comment),  0,
@@ -87,11 +98,11 @@ static const SqColumn  *UserColumns[] = {
 
 	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
 	&(SqColumn) {SQ_TYPE_INT, "company_id",  offsetof(User, company_id), SQB_FOREIGN | SQB_HIDDEN,
-	             .foreign = &(SqForeign) {"companies", "id",  "CASCADE",  "CASCADE"} },
+	             .foreign = (char *[]) {"companies", "id",  "",  "CASCADE", "CASCADE", NULL} },
 
 	// "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_FOREIGN | SQB_HIDDEN,
-	             .foreign = &(SqForeign) {"companies", "id",  "NO ACTION",  "NO ACTION"} },
+	             .foreign = (char *[]) {"companies", "id",  "",  "NO ACTION", "NO ACTION", NULL} },
 
 	// "created_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 	&(SqColumn) {SQ_TYPE_TIME, "created_at", offsetof(User, created_at), SQB_CURRENT},
@@ -101,7 +112,7 @@ static const SqColumn  *UserColumns[] = {
 
 	// CONSTRAINT FOREIGN KEY
 	&(SqColumn) {SQ_TYPE_CONSTRAINT,  "fk_cities_id",            0, SQB_FOREIGN,
-	             .foreign = &(SqForeign) {"cities", "id", "NO ACTION", "CASCADE"},
+	             .foreign   = (char *[]) {"cities", "id",  "",  "NO ACTION", "CASCADE", NULL},
 	             .composite = (char *[]) {"city_id", NULL} },
 
 	// PRIMARY KEY
@@ -195,9 +206,11 @@ SqTable *create_user_table_by_c(SqSchema *schema)
 	sq_column_reference(column, "cities", "id", NULL);
 
 	column = sq_table_add_int(table, "company_id", offsetof(User, company_id));
-	sq_column_reference(column, "companies", "id", NULL);
-	sq_column_on_delete(column, "CASCADE");
+	sq_column_on_delete(column, "SET DEFAULT");    // this will replace by "CASCADE" later
 	sq_column_on_update(column, "CASCADE");
+	sq_column_reference(column, "companies", "id", NULL);
+	sq_column_on_delete(column, NULL);
+	sq_column_on_delete(column, "CASCADE");
 
 	column = sq_table_add_int(table, "company_test_id", offsetof(User, company_id));
 	sq_column_reference(column, "companies", "id", NULL);
@@ -300,7 +313,7 @@ void create_company_table_by_c(SqSchema *schema)
 	sq_column_primary(column);
 	column = sq_table_add_string(table, "name", offsetof(Company, name), 0);
 	column = sq_table_add_integer(table, "city_id", offsetof(Company, city_id));
-	sq_column_foreign(column, "cities", "id");
+	sq_column_reference(column, "cities", "id", NULL);
 //	sq_column_on_delete(column, "set null");
 
 	column = sq_table_add_timestamp(table, "created_at", offsetof(Company, created_at));
@@ -353,22 +366,31 @@ void change_city_table_by_c(SqSchema *schema)
 	sq_column_use_current_on_update(column);
 }
 
-void create_composite_table_by_c(SqSchema *schema)
+// composite key
+void create_account_table_by_c(SqSchema *schema)
 {
 	SqTable  *table;
 	SqColumn *column;
 
-//	table = sq_schema_create(schema, "composites", User);
-	table = sq_schema_create_full(schema, "composites", SQ_GET_TYPE_NAME(Composite), NULL, sizeof(Composite));
+	table = sq_schema_create_full(schema, "accounts",
+			SQ_GET_TYPE_NAME(Account), NULL, sizeof(Account));
+	column = sq_table_add_int(table, "acc_num",  offsetof(Account, acc_num));
+	column = sq_table_add_int(table, "acc_type", offsetof(Account, acc_type));
+	column = sq_table_add_char(table, "acc_descr", offsetof(Account, acc_descr), 20);
+	column = sq_table_add_primary(table, "num_type_primary",
+			"acc_num", "acc_type", NULL);
 
-	column = sq_table_add_int(table, "user_id", offsetof(Composite, user_id));
-	column = sq_table_add_int(table, "city_id", offsetof(Composite, city_id));
-	column = sq_table_add_int(table, "company_id", offsetof(Composite, company_id));
-	column = sq_table_add_string(table, "name", offsetof(Composite, name), -1);
-
-	column = sq_table_add_primary(table, "user_city_company_id",
-			"user_id", "city_id", "company_id",
-			NULL);
+	table = sq_schema_create_full(schema, "sub_accounts",
+			SQ_GET_TYPE_NAME(SubAccount), NULL, sizeof(SubAccount));
+	column = sq_table_add_int(table, "sub_id",  offsetof(SubAccount, sub_id));
+	sq_column_primary(column);
+	column = sq_table_add_int(table, "ref_num",  offsetof(SubAccount, ref_num));
+	column = sq_table_add_int(table, "ref_type", offsetof(SubAccount, ref_type));
+	column = sq_table_add_char(table, "sub_descr", offsetof(SubAccount, sub_descr), 20);
+	column = sq_table_add_foreign(table, "acc_num_type_foreign",
+			"ref_num", "ref_type", NULL);
+	sq_column_reference(column, "accounts",
+			"acc_num", "acc_type", NULL);
 }
 
 // ----------------------------------------------------------------------------
@@ -395,7 +417,7 @@ void test_sqdb_migrate(Sqdb *db)
 	create_user_table_by_type(schema_v3);
 //	create_user_table_by_macro(schema_v3);
 //	create_user_table_by_c(schema_v3);
-	create_composite_table_by_c(schema_v3);
+	create_account_table_by_c(schema_v3);    // composite key
 
 	schema_v4 = sq_schema_new_ver(4, "ver4");
 	change_user_table_by_c_type(schema_v4);
@@ -437,9 +459,9 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 	schema  = sq_schema_new_ver(0, "current");
 
 	schema_v1  = sq_schema_new_ver(1, "ver1");
-	create_user_table_by_type(schema_v1);
+//	create_user_table_by_type(schema_v1);
 //	create_user_table_by_macro(schema_v1);
-//	create_user_table_by_c(schema_v1);
+	create_user_table_by_c(schema_v1);
 
 	schema_v2 = sq_schema_new_ver(2, "ver2");
 	change_user_table_by_c_type(schema_v2);
@@ -452,7 +474,7 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 	// other testing in 'schema_v4'
 	sq_schema_rename(schema_v4, "cities", "cities2");
 //	sq_schema_drop(schema_v4, "users");
-	create_composite_table_by_c(schema_v4);
+	create_account_table_by_c(schema_v4);    // composite key
 
 	sqdb_migrate(db, schema, schema_v1);
 	sqdb_migrate(db, schema, schema_v2);

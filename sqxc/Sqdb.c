@@ -831,28 +831,84 @@ void sqdb_sql_write_composite_columns(Sqdb *db, SqBuffer *sql_buf, SqColumn *col
 	sq_buffer_write(sql_buf, ") ");
 }
 
+// used by sqdb_sql_write_foreign_ref()
+#define FOREIGN_N_EVENTS            2     // ON DELETE, ON UPDATE
+
+static const char *foreign_events[FOREIGN_N_EVENTS] = {
+	" ON DELETE ",
+	" ON UPDATE ",
+};
+
 void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 {
-	// REFERENCES "foreign table name"("foreign column name")
+	char **foreign;
+	union {
+		char        **end_column;
+		const char  **on_event;
+	} temp;
+
+	foreign = column->foreign;
+	// get address of the last column name
+	for (temp.end_column = foreign;  *temp.end_column;  temp.end_column++)
+		if (**temp.end_column == 0)    // separator is empty string ""
+			break;
+
+#ifndef NDEBUG
+	//  foreign[0] == tableName,      foreign[1] == first columnName
+	if (foreign == temp.end_column || foreign +1 == temp.end_column) {
+		fprintf(stderr, "\n\n"
+		        "%s: In column '%s', "
+		        "No reference table or columns were specified in SqColumn::foreign." "\n\n",
+		        "sqdb_sql_write_foreign_ref()",
+		        column->name);
+	}
+#endif
+
+	// REFERENCES "foreign table name" ("foreign column name" ...)
 	sq_buffer_write(buffer, "REFERENCES");
 
-	// write "column foreign table"
-	sqdb_sql_write_identifier(db, buffer, column->foreign->table, false);
+	// "foreign table name"
+	sqdb_sql_write_identifier(db, buffer, *foreign, false);
 	buffer->writed--;    // remove space
+	foreign++;
 
-	// write ("column foreign column")
-	sqdb_sql_write_identifier(db, buffer, column->foreign->column, true);
-	buffer->writed--;    // remove space
-
-	// ON DELETE
-	if (column->foreign->on_delete) {
-		sq_buffer_write(buffer, " ON DELETE ");
-		sq_buffer_write(buffer, column->foreign->on_delete);
+	// ("foreign column name" ...)
+	sq_buffer_write_c(buffer, '(');
+	while (foreign < temp.end_column) {
+		//  foreign > address of first column name
+		if (foreign > column->foreign + 1)
+			sq_buffer_write_c(buffer, ',');
+		sqdb_sql_write_identifier(db, buffer, *foreign, false);
+		buffer->writed--;    // remove space
+		foreign++;
 	}
-	// ON UPDATE
-	if (column->foreign->on_update) {
-		sq_buffer_write(buffer, " ON UPDATE ");
-		sq_buffer_write(buffer, column->foreign->on_update);
+	sq_buffer_write_c(buffer, ')');
+
+	// return if no separator. (separator is empty string "")
+	if (*foreign == NULL)
+		return;
+	foreign++;
+
+	// ON DELETE action  ON UPDATE action
+	temp.on_event = foreign_events;
+	for (;  *foreign;  foreign++, temp.on_event++) {
+		// if too many strings in reserve block of SqColumn::foreign
+		if (temp.on_event == foreign_events + FOREIGN_N_EVENTS) {
+#ifndef NDEBUG
+			fprintf(stderr, "\n\n"
+			        "%s: In column '%s', "
+			        "list of column names in SqColumn::foreign can only be followed by at most %d strings. "
+			        "They will correspond to options of 'ON DELETE' and 'ON UPDATE'...etc." "\n\n",
+			        "sqdb_sql_write_foreign_ref()",
+			        column->name,
+			        FOREIGN_N_EVENTS);
+#endif
+			break;
+		}
+		// if action is not empty string
+		if (**foreign) {
+			sq_buffer_write(buffer, *temp.on_event);
+			sq_buffer_write(buffer, *foreign);
+		}
 	}
 }
-

@@ -139,17 +139,17 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	sq_column_use_current(column);
 	sq_column_use_current_on_update(column);
 
-	// 外键 FOREIGN KEY
+	// 外键 FOREIGN KEY.                 注意：此处使用 NULL 终止的参数列表
 	column = sq_table_add_integer(table, "city_id", offsetof(User, city_id));
 	sq_column_reference(column, "cities", "id", NULL);
 
-	// 约束外键 CONSTRAINT FOREIGN KEY
+	// 约束外键 CONSTRAINT FOREIGN KEY.  注意：此处使用 NULL 终止的参数列表
 	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id", NULL);
 	sq_column_reference(column, "cities", "id", NULL);
 	sq_column_on_delete(column, "NO ACTION");
 	sq_column_on_update(column, "NO ACTION");
 
-	// 创建索引 CREATE INDEX
+	// 创建索引 CREATE INDEX.            注意：此处使用 NULL 终止的参数列表
 	column = sq_table_add_index(table, "users_id_index", "id", NULL);
 
 	/* 如果您将当前时间存储在列和成员中并且它们使用默认名称 - 'created_at' 和 'updated_at',

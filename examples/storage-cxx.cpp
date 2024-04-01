@@ -172,9 +172,10 @@ void  company_array_print(SqPtrArray *array)
 // ----------------------------------------------------------------------------
 // use C++ aggregate initialization to define static SqColumn
 
-static const SqForeign userForeign = {"companies",  "id",  "CASCADE",  "CASCADE"};
-static const char     *userForeignComposite[] = {"company_id", NULL};
-static const char     *userIndexComposite[]   = {"id", NULL};
+//                                  {     table ,column,separator,  ON DELETE, ON UPDATE, NULL};
+static const char  *userForeign[] = {"companies",  "id",       "",  "CASCADE", "CASCADE", NULL};
+static const char  *userForeignComposite[] = {"company_id", NULL};
+static const char  *userIndexComposite[]   = {"id", NULL};
 
 // CREATE TABLE "users"
 static const SqColumn userColumns[] = {
@@ -223,7 +224,7 @@ static const SqColumn userColumns[] = {
 		NULL,                              // .old_name,
 		0, 0, 0,                           // .sql_type, .size, .digits,
 		NULL,                              // .default_value,
-		(SqForeign*)&userForeign,          // .foreign
+		(char **) userForeign,             // .foreign
 		(char **) userForeignComposite },  // .composite
 
 	// INDEX

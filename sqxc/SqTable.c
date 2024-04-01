@@ -568,18 +568,9 @@ SqColumn *sq_table_add_foreign(SqTable *table, const char *foreign_name, ...)
 	va_list   arg_list;
 
 	column = sq_table_add_composite(table, SQ_TYPE_CONSTRAINT, SQB_COLUMN_FOREIGN, foreign_name);
-
-	// C API parameter change
 	va_start(arg_list, foreign_name);
-	const char *name1 = va_arg(arg_list, const char*);
-	const char *name2 = va_arg(arg_list, const char*);
-	if (name2 != NULL) {
-		fprintf(stderr, "%s: the last argument must be NULL\n",
-		        "sq_table_add_foreign()");
-	}
+	sq_column_set_composite_va(column, arg_list);
 	va_end(arg_list);
-
-	sq_column_set_composite(column, name1, NULL);
 	return column;
 }
 

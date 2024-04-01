@@ -291,10 +291,10 @@ To drop an index, you must specify the index's name.
 
 ```c++
 	// C function
-	column = sq_table_drop_index(table, "indexName");
+	sq_table_drop_index(table, "indexName");
 
 	// C++ method
-	column = table->dropIndex("indexName");
+	table->dropIndex("indexName");
 ```
 
 ## Unique (composite)
@@ -318,10 +318,10 @@ To drop an unique, you must specify the unique's name.
 
 ```c++
 	// C function
-	column = sq_table_drop_unique(table, "uniqueName");
+	sq_table_drop_unique(table, "uniqueName");
 
 	// C++ method
-	column = table->dropUnique("uniqueName");
+	table->dropUnique("uniqueName");
 ```
 
 ## Primary key (composite)
@@ -345,25 +345,30 @@ To drop an primary key, you must specify the primary key's name.
 
 ```c++
 	// C function
-	column = sq_table_drop_primary(table, "primaryName");
+	sq_table_drop_primary(table, "primaryName");
 
 	// C++ method
-	column = table->dropPrimary("primaryName");
+	table->dropPrimary("primaryName");
 ```
 
 ## Foreign Key
 
 **Create foreign key**  
   
-If you use C function sq_table_add_foreign() to create foreign key, the last argument must be NULL.
+To create a composite foreign key, you can pass multiple columns to foreign() method.
+If you use C function sq_table_add_foreign() to create foreign key, the last argument must be NULL.  
+  
+Because number of columns in foreign key must match the number of columns in the referenced table, number of columns in foreign() and reference() arguments must match.
 
 ```c++
 	// C function
 	// The last argument of sq_table_add_foreign() must be NULL.
-	column = sq_table_add_foreign(table, "foreignName", "columnName", NULL);
+	column = sq_table_add_foreign(table, "foreignName", "column1", "column2", NULL);
+	sq_column_reference(column, "foreignTableName",     "column1", "column2", NULL);
 
 	// C++ method
-	column = table->foreign("foreignName", "columnName");
+	column = table->foreign("foreignName", "column1", "column2");
+	column->reference("foreignTableName",  "column1", "column2");
 ```
 
 **Drop foreign key**  
@@ -372,8 +377,8 @@ To drop an foreign key, you must specify the foreign key's name.
 
 ```c++
 	// C function
-	column = sq_table_drop_foreign(table, "foreignName");
+	sq_table_drop_foreign(table, "foreignName");
 
 	// C++ method
-	column = table->dropForeign("foreignName");
+	table->dropForeign("foreignName");
 ```

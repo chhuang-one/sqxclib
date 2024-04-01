@@ -291,10 +291,10 @@ C 函数 sq_table_get_primary()，C++ 方法 getPrimary() 可以获取主键。
 
 ```c++
 	// C 函数
-	column = sq_table_drop_index(table, "indexName");
+	sq_table_drop_index(table, "indexName");
 
 	// C++ 方法
-	column = table->dropIndex("indexName");
+	table->dropIndex("indexName");
 ```
 
 ## 唯一（复合） Unique (composite)
@@ -318,10 +318,10 @@ C 函数 sq_table_get_primary()，C++ 方法 getPrimary() 可以获取主键。
 
 ```c++
 	// C 函数
-	column = sq_table_drop_unique(table, "uniqueName");
+	sq_table_drop_unique(table, "uniqueName");
 
 	// C++ 方法
-	column = table->dropUnique("uniqueName");
+	table->dropUnique("uniqueName");
 ```
 
 ## 主键（复合） Primary key (composite)
@@ -345,25 +345,30 @@ C 函数 sq_table_get_primary()，C++ 方法 getPrimary() 可以获取主键。
 
 ```c++
 	// C 函数
-	column = sq_table_drop_primary(table, "primaryName");
+	sq_table_drop_primary(table, "primaryName");
 
 	// C++ 方法
-	column = table->dropPrimary("primaryName");
+	table->dropPrimary("primaryName");
 ```
 
 ## 外键 Foreign Key
 
 **创建外键 Create foreign key**  
   
-如果使用 C 函数 sq_table_add_foreign() 创建外键，则最后一个参数必须为 NULL。
+要创建复合外键，您可以将多个列传递给 foreign() 方法。
+如果使用 C 函数 sq_table_add_foreign() 创建外键，则最后一个参数必须为 NULL。  
+  
+由于外键中的列数必须与引用表中的列数匹配，因此 foreign() 和 reference() 参数中的列数必须匹配。
 
 ```c++
 	// C 函数
 	// sq_table_add_foreign() 的最后一个参数必须为 NULL。
-	column = sq_table_add_foreign(table, "foreignName", "columnName", NULL);
+	column = sq_table_add_foreign(table, "foreignName", "column1", "column2", NULL);
+	sq_column_reference(column, "foreignTableName",     "column1", "column2", NULL);
 
 	// C++ 方法
-	column = table->foreign("foreignName", "columnName");
+	column = table->foreign("foreignName", "column1", "column2");
+	column->reference("foreignTableName",  "column1", "column2");
 ```
 
 **删除外键 Drop foreign key**  
@@ -372,8 +377,8 @@ C 函数 sq_table_get_primary()，C++ 方法 getPrimary() 可以获取主键。
 
 ```c++
 	// C 函数
-	column = sq_table_drop_foreign(table, "foreignName");
+	sq_table_drop_foreign(table, "foreignName");
 
 	// C++ 方法
-	column = table->dropForeign("foreignName");
+	table->dropForeign("foreignName");
 ```

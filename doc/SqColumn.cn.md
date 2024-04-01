@@ -151,10 +151,12 @@ struct SqColumn
 	// digits: 小数点后的位数，或 SQL 类型的第二个参数。
 	int32_t       digits;
 
-	const char   *default_value;    // DEFAULT
+	const char   *default_value;    // 默认值 DEFAULT
 
-	SqForeign    *foreign;          // 外键
-	char        **composite;        // Null-terminated （列名）字符串数组
+	// 'foreign'   是以 NULL 结尾的数组，用于设置外键引用和操作。
+	char        **foreign;
+	// 'composite' 是以 NULL 结尾的数组，用于设置复合约束的 列。
+	char        **composite;
 
 	const char   *reserve;          // 保留
 	const char   *raw;              // 原始 SQL 列属性

@@ -13,7 +13,8 @@
  */
 
 #include <stdio.h>        // fprintf(), stderr
-#include <stdarg.h>       // va_list
+#include <stdbool.h>      // bool, true, false
+#include <stdarg.h>       // va_list, va_start, va_end, va_arg...etc
 #include <stdlib.h>
 #include <string.h>
 
@@ -23,18 +24,127 @@
 #define strdup       _strdup
 #endif
 
-static void  sq_foreign_free(SqForeign *foreign);
-static SqForeign *sq_foreign_copy(SqForeign *src);
+// foreign key actions
+#define FOREIGN_ON_DELETE           1
+#define FOREIGN_ON_UPDATE           2
+#define FOREIGN_N_ACTIONS           2     // ON DELETE, ON UPDATE
+// reserve array length for empty string "", ON DELETE, ON UPDATE
+#define FOREIGN_N_RESERVE          (1+FOREIGN_N_ACTIONS)
+
+// ----------------------------------------------------------------------------
+// --- Simple C string array ---
+// It's separator is empty string "", the last element must be NULL.
+// It used by SqColumn::foreign and SqColumn::composite
+
+#define SQ_STRS_HEADER_LEN          2
+#define SQ_STRS_DEFAULT_LEN         4
+#define sq_strs_header(strs)       ((strs) - SQ_STRS_HEADER_LEN)
+
+#define sq_strs_length(strs)      *( (intptr_t*) ((strs)-2) )
+#define sq_strs_capacity(strs)    *( (intptr_t*) ((strs)-1) )
+
+#define sq_strs_malloc(n)          ( (char**)malloc(sizeof(char*) *(n+SQ_STRS_HEADER_LEN))    +SQ_STRS_HEADER_LEN )
+#define sq_strs_realloc(strs, n)   ( (char**)realloc(sq_strs_header(strs), sizeof(char*) *(n+SQ_STRS_HEADER_LEN)) +SQ_STRS_HEADER_LEN )
+
+static const char *sq_strs_empty_string = "";
+#define SQ_STRS_EMPTY_STRING       ( (char*)sq_strs_empty_string )
+
+static void sq_strs_clear(char **strs, bool release_array)
+{
+	char  **element;
+
+	if (strs) {
+		for (element = strs;  *element;  element++)
+			if (*element != SQ_STRS_EMPTY_STRING)
+				free(*element);
+		if (release_array)
+			free(sq_strs_header(strs));
+	}
+}
+
+static char **sq_strs_copy(char **src, int reserve_len)
+{
+	char **strs, **cur;
+	int    capacity;
+	int    length = -1;    // number of strings in array before separator
+
+	if (src == NULL)
+		return NULL;
+	// count number of strings in 'src'
+	for (cur = src;  *cur;  cur++) {
+		if (**cur == 0)    // separator is empty string ""
+			if (length == -1)
+				length = (int)(cur - src);
+	}
+	// decide array capacity
+	capacity = (int)(cur - src);
+	if (length == -1) {
+		length = capacity;
+		capacity += reserve_len;
+	}
+	else if (capacity < length + reserve_len)
+		capacity = length + reserve_len;
+	capacity += 1;    // + 1 for NULL-terminated array
+	// create & initialize array
+	strs = sq_strs_malloc(capacity);
+	sq_strs_capacity(strs) = capacity;
+	sq_strs_length(strs) = length;
+	// copy strings from 'src'
+	for (cur = strs;  *src;  src++, cur++)
+		*cur = (**src) ? strdup(*src) : SQ_STRS_EMPTY_STRING;
+	// NULL-terminated array
+	*cur = NULL;
+	// return newly created 'strs'
+	return strs;
+}
+
+static char **sq_strs_set_va(char **strs, int reserve_len, va_list arg_list)
+{
+	int    index, capacity;
+
+	if (strs) {
+		capacity = sq_strs_capacity(strs);
+		sq_strs_clear(strs, false);
+	}
+	else {
+		capacity = SQ_STRS_DEFAULT_LEN + reserve_len;
+		strs = sq_strs_malloc(capacity);
+	}
+
+	// add & replace strings in array
+	for (index = 0;  ;  index++) {
+		if (index + reserve_len >= capacity) {
+			capacity *= 2;
+			strs = sq_strs_realloc(strs, capacity);
+		}
+
+		const char *name = va_arg(arg_list, const char*);
+		if (name == NULL)
+			break;
+//		strs[index] = (*name) ? strdup(name) : SQ_STRS_EMPTY_STRING;
+		strs[index] = strdup(name);
+	}
+	// update capacity & length
+	sq_strs_capacity(strs) = capacity;
+	sq_strs_length(strs) = index;
+	// NULL-terminated array
+	strs[index] = NULL;
+	// return 'strs' or newly created string array
+	return strs;
+}
+
+static char **sq_strs_set(char **strs, int reserve_len, ...)
+{
+	va_list   arg_list;
+
+	va_start(arg_list, reserve_len);
+	strs = sq_strs_set_va(strs, reserve_len, arg_list);
+	va_end(arg_list);
+	return strs;
+}
 
 // ----------------------------------------------------------------------------
 // SqColumn C functions
-
-#define SQ_COMPOSITE_LENGTH_DEFAULT    4
-
-#define sq_composite_capacity(constraint)    *( (intptr_t*) ((constraint)-1) )
-#define sq_composite_alloc(n)                 ( (char**)malloc(sizeof(char*) *(n+1)) +1)
-#define sq_composite_realloc(constraint, n)   ( (char**)realloc((constraint)-1, sizeof(char*) *(n+1)) +1)
-#define sq_composite_free(constraint)         free((constraint)-1)
 
 SqColumn  *sq_column_new(const char *name, const SqType *typeinfo)
 {
@@ -71,20 +181,14 @@ void  sq_column_final(SqColumn *column)
 //		free((char*)column->reserve);
 		free((char*)column->raw);
 		free((char*)column->old_name);
-		if (column->foreign)
-			sq_foreign_free(column->foreign);
-		if (column->composite) {
-			for (char **cur = column->composite;  *cur;  cur++)
-				free(*cur);
-			sq_composite_free(column->composite);
-		}
+		// free string array
+		sq_strs_clear(column->foreign,   true);
+		sq_strs_clear(column->composite, true);
 	}
 }
 
 SqColumn *sq_column_copy(SqColumn *column, const SqColumn *column_src)
 {
-	int       index, length;
-
 	if (column == NULL)
 		column = malloc(sizeof(SqColumn));
 
@@ -102,162 +206,110 @@ SqColumn *sq_column_copy(SqColumn *column, const SqColumn *column_src)
 //	column->reserve       = column_src->reserve ? strdup(column_src->reserve) : NULL;
 	column->raw           = column_src->raw ? strdup(column_src->raw) : NULL;
 
-	column->foreign = NULL;
-	if (column_src->foreign) {
-		column->foreign = sq_foreign_copy(column_src->foreign);
-		column->bit_field |= SQB_COLUMN_FOREIGN;
-	}
+	column->foreign   = sq_strs_copy(column_src->foreign,   FOREIGN_N_RESERVE);
+	column->composite = sq_strs_copy(column_src->composite, 0);
 
-	column->composite = NULL;
-	if (column_src->composite) {
-		for (index = 0;  column_src->composite[index];  index++)
-			;
-		if (index > 0) {
-			length = index + 1;
-			column->composite = sq_composite_alloc(length);
-			column->composite[index] = NULL;
-			for (index = 0;  index < length;  index++)
-				column->composite[index] = strdup(column_src->composite[index]);
-		}
-	}
 	return column;
 }
 
 // foreign key references
-void  sq_column_reference(SqColumn *column,
-                          const char *foreign_table_name,
-                          ...)
+void  sq_column_reference(SqColumn *column, ...)
 {
 	va_list   arg_list;
-	char     *name;
+	char     *action[FOREIGN_N_RESERVE];
+	char    **action_end = action + FOREIGN_N_RESERVE;
+	char    **cur;
+	union {
+		char  **old;
+		char  **newed;
+		char  **reserve;
+	} foreign;
 
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
 
-	// remove foreign key if foreign_table_name == NULL
-	if (foreign_table_name == NULL) {
-		if (column)
-			sq_foreign_free(column->foreign);
-		column->foreign = NULL;
-		return;
+	foreign.old = column->foreign;
+	// backup reserve block: empty string, ON DELETE, ON UPDATE actions
+	if (foreign.old) {
+		foreign.reserve = foreign.old + sq_strs_length(foreign.old);
+		for (cur = action;  cur < action_end;  cur++) {
+			*cur = *foreign.reserve;
+			*foreign.reserve++ = NULL;    // clear reserve block
+		}
 	}
 
-	if (column->foreign == NULL) {
-		column->foreign = malloc(sizeof(SqForeign));
-		column->foreign->on_delete = NULL;
-		column->foreign->on_update = NULL;
-	}
-	else {
-		free((char*)column->foreign->table);
-		free((char*)column->foreign->column);
-	}
-
-	// C API parameter change
-	va_start(arg_list, foreign_table_name);
-	name = va_arg(arg_list, char*);
-	name = va_arg(arg_list, char*);
-	if (name != NULL) {
-		fprintf(stderr, "%s: the last argument must be NULL\n",
-		        "sq_column_reference()");
-	}
+	va_start(arg_list, column);
+	column->foreign = sq_strs_set_va(column->foreign, FOREIGN_N_RESERVE, arg_list);
 	va_end(arg_list);
 
-	va_start(arg_list, foreign_table_name);
-	name = va_arg(arg_list, char*);
-	column->foreign->table = strdup(foreign_table_name);
-	column->foreign->column = strdup(name);
-	va_end(arg_list);
-}
-
-// foreign key on delete
-void  sq_column_on_delete(SqColumn *column, const char *act)
-{
-	if ((column->bit_field & SQB_DYNAMIC) == 0)
-		return;
-
-	if (column->foreign) {
-		free((char*)column->foreign->on_delete);
-		column->foreign->on_delete = (act) ? strdup(act) : NULL;
+	// restore reserve block: empty string, ON DELETE, ON UPDATE actions
+	if (foreign.reserve) {
+		foreign.newed = column->foreign;
+		foreign.reserve = foreign.newed + sq_strs_length(foreign.newed);
+		for (cur = action;  cur < action_end;  cur++)
+			*foreign.reserve++ = *cur;
+		*foreign.reserve = NULL;        // NULL-terminated
 	}
 }
 
-// foreign key on update
-void  sq_column_on_update(SqColumn *column, const char *act)
+// foreign key ON DELETE, ON UPDATE actions
+static void sq_column_on_event(SqColumn *column, int on_index, const char *action)
 {
+	char  **cur, **end, **on;
+	bool    overwrite = false;
+
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
 
-	if (column->foreign) {
-		free((char*)column->foreign->on_update);
-		column->foreign->on_update = (act) ? strdup(act) : NULL;
+	// if SqColumn::foreign == NULL, allocate memory for it.
+	if (column->foreign == NULL)
+		column->foreign = sq_strs_set(column->foreign, FOREIGN_N_RESERVE, NULL);
+
+	cur = column->foreign + sq_strs_length(column->foreign);
+	end = cur + FOREIGN_N_RESERVE;
+	on  = cur + on_index;
+	for (;  cur < end;  cur++) {
+		if (*cur == NULL || overwrite) {
+			*cur = SQ_STRS_EMPTY_STRING;
+			overwrite = true;
+		}
 	}
+	// set action
+	if (*on != SQ_STRS_EMPTY_STRING)
+		free(*on);
+	*on = (action) ? strdup(action) : SQ_STRS_EMPTY_STRING;
+	// NULL-terminated array
+	*end = NULL;
+}
+
+void  sq_column_on_delete(SqColumn *column, const char *action)
+{
+	sq_column_on_event(column, FOREIGN_ON_DELETE, action);
+}
+
+void  sq_column_on_update(SqColumn *column, const char *action)
+{
+	sq_column_on_event(column, FOREIGN_ON_UPDATE, action);
 }
 
 void  sq_column_set_composite(SqColumn *column, ...)
 {
 	va_list  arg_list;
 
+	if ((column->bit_field & SQB_DYNAMIC) == 0)
+		return;
+
 	va_start(arg_list, column);
-	sq_column_set_composite_va(column, arg_list);
+	column->composite = sq_strs_set_va(column->composite, 0, arg_list);
 	va_end(arg_list);
 }
 
 void  sq_column_set_composite_va(SqColumn *column, va_list arg_list)
 {
-	int   index, capacity;
-
 	if ((column->bit_field & SQB_DYNAMIC) == 0)
 		return;
 
-	if (column->composite == NULL) {
-		column->composite = sq_composite_alloc(SQ_COMPOSITE_LENGTH_DEFAULT);
-		capacity = SQ_COMPOSITE_LENGTH_DEFAULT;
-	}
-	else {
-		capacity = (int)sq_composite_capacity(column->composite);
-		for (index = 0;  column->composite[index];  index++)
-			free(column->composite[index]);
-	}
-
-	for (index = 0;  ;  index++) {
-		// add string to null terminated string array 
-		if (index == capacity) {
-			capacity *= 2;
-			column->composite = sq_composite_realloc(column->composite, capacity);
-			sq_composite_capacity(column->composite) = capacity;
-		}
-		const char *name = va_arg(arg_list, const char*);
-		if (name)
-			column->composite[index] = strdup(name);
-		else {
-			column->composite[index] = NULL;
-			break;
-		}
-	}
-}
-
-// ----------------------------------------------------------------------------
-// SqForeign C functions
-
-static void  sq_foreign_free(SqForeign *foreign)
-{
-	free((char*)foreign->table);
-	free((char*)foreign->column);
-	free((char*)foreign->on_delete);
-	free((char*)foreign->on_update);
-	free((char*)foreign);
-}
-
-static SqForeign *sq_foreign_copy(SqForeign *src)
-{
-	SqForeign  *foreign;
-
-	foreign = malloc(sizeof(SqForeign));
-	foreign->table  = strdup(src->table);
-	foreign->column = strdup(src->column);
-	foreign->on_delete = strdup(src->on_delete);
-	foreign->on_update = strdup(src->on_update);
-	return foreign;
+	column->composite = sq_strs_set_va(column->composite, 0, arg_list);
 }
 
 // ----------------------------------------------------------------------------

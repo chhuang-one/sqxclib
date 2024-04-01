@@ -643,6 +643,7 @@ int     sq_schema_trace_name(SqSchema *schema)
 	SqTable    *table,  *table_fore;
 	SqColumn   *column;
 	SqReentry  *reentry;
+	char      **cur;
 	int         result = SQCODE_OK;
 
 	// get tables that has foreign key
@@ -663,8 +664,8 @@ int     sq_schema_trace_name(SqSchema *schema)
 			// --------------------------------------------
 			// trace renamed column in composite key
 			if (column->composite) {
-				for (int index = 0;  column->composite[index];  index++) {
-					reentry = sq_relation_trace_reentry(table->relation, column->composite[index]);
+				for (cur = column->composite;  *cur;  cur++) {
+					reentry = sq_relation_trace_reentry(table->relation, *cur);
 					if (reentry == NULL)
 						continue;
 					// column dropped.
@@ -672,15 +673,15 @@ int     sq_schema_trace_name(SqSchema *schema)
 						result = SQCODE_REENTRY_DROPPED;
 #ifndef NDEBUG
 						fprintf(stderr, "%s: column '%s' has been dropped.\n",
-						        "sq_schema_trace_name()", column->composite[index]);
+						        "sq_schema_trace_name()", *cur);
 #endif
 						continue;   // error...
 					}
 					// column has been renamed
 					if ((column->bit_field & SQB_DYNAMIC) == 0)
 						column = sq_table_replace_column(table, column, sq_column_copy(NULL, column));
-					free(column->composite[index]);
-					column->composite[index] = strdup(reentry->name);
+					free(*cur);
+					*cur = strdup(reentry->name);
 				}
 			}
 
@@ -688,14 +689,26 @@ int     sq_schema_trace_name(SqSchema *schema)
 			// trace renamed table
 			if (column->foreign == NULL)
 				continue;
-			reentry = sq_relation_trace_reentry(schema->relation, column->foreign->table);
+			// foreign table name is in SqColumn::foreign[0]
+			cur = column->foreign;
+#ifndef NDEBUG
+			if (*cur == NULL || **cur == 0) {
+				fprintf(stderr, "\n\n"
+				        "%s: In column '%s' of table '%s', "
+				        "No reference table was specified in SqColumn::foreign." "\n\n",
+				        "sq_schema_trace_name()",
+				         column->name,
+				         table->name);
+			}
+#endif
+			reentry = sq_relation_trace_reentry(schema->relation, *cur);
 			if (reentry) {
 				// table dropped.
 				if (reentry->name == NULL) {
 					result = SQCODE_REENTRY_DROPPED;
 #ifndef NDEBUG
 					fprintf(stderr, "%s: foreign table '%s' has been dropped.\n",
-					        "sq_schema_trace_name()", column->foreign->table);
+					        "sq_schema_trace_name()", *cur);
 #endif
 					continue;   // error...
 				}
@@ -704,14 +717,14 @@ int     sq_schema_trace_name(SqSchema *schema)
 					// create dynamic column to replace static one
 					column = sq_table_replace_column(table, column, sq_column_copy(NULL, column));
 				}
-				free((char*)column->foreign->table);
-				column->foreign->table = strdup(reentry->name);
+				free(*cur);
+				*cur = strdup(reentry->name);
 			}
 
 			// --------------------------------------------
 			// find referenced table
 			table_fore = (SqTable*)sq_ptr_array_find_sorted(sq_type_entry_array(schema->type),
-					column->foreign->table, sq_entry_cmp_str__name, NULL);
+					*cur, sq_entry_cmp_str__name, NULL);
 			if (table_fore)
 				table_fore = *(SqTable**)table_fore;
 			else {
@@ -719,21 +732,41 @@ int     sq_schema_trace_name(SqSchema *schema)
 				result = SQCODE_REFERENCE_NOT_FOUND;
 #ifndef NDEBUG
 				fprintf(stderr, "%s: foreign table '%s' not found.\n",
-				        "sq_schema_trace_name()", column->foreign->table);
+				        "sq_schema_trace_name()", *cur);
 #endif
 				continue;  // error...
 			}
 
 			// --------------------------------------------
-			// trace renamed column
-			reentry = sq_relation_trace_reentry(table_fore->relation, column->foreign->column);
-			if (reentry) {
+			// trace renamed columns
+			char **end_column;
+			// foreign column names start with SqColumn::foreign[1]
+			cur += 1;
+#ifndef NDEBUG
+			if (*cur == NULL || **cur == 0) {
+				fprintf(stderr, "\n\n"
+				        "%s: In column '%s' of table '%s', "
+				        "No reference columns were specified in SqColumn::foreign." "\n\n",
+				        "sq_schema_trace_name()",
+				         column->name,
+				         table->name);
+			}
+#endif
+			// get address of the last column name
+			for (end_column = cur;  *end_column;  end_column++)
+				if (**end_column == 0)    // separator is empty string ""
+					break;
+			// range is [SqColumn::foreign + 1,  end_column)
+			for (;  cur < end_column;  cur++) {
+				reentry = sq_relation_trace_reentry(table_fore->relation, *cur);
+				if (reentry == NULL)
+					continue;
 				// column dropped.
 				if (reentry->name == NULL) {
 					result = SQCODE_REENTRY_DROPPED;
 #ifndef NDEBUG
 					fprintf(stderr, "%s: foreign column '%s' has been dropped.\n",
-					        "sq_schema_trace_name()", column->foreign->column);
+					        "sq_schema_trace_name()", *cur);
 #endif
 					continue;   // error...
 				}
@@ -742,8 +775,8 @@ int     sq_schema_trace_name(SqSchema *schema)
 					// create dynamic column to replace static one
 					column = sq_table_replace_column(table, column, sq_column_copy(NULL, column));
 				}
-				free((char*)column->foreign->column);
-				column->foreign->column = strdup(reentry->name);
+				free(*cur);
+				*cur = strdup(reentry->name);
 			}
 		}
 	}

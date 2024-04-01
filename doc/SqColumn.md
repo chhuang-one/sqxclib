@@ -153,8 +153,10 @@ struct SqColumn
 
 	const char   *default_value;    // DEFAULT
 
-	SqForeign    *foreign;          // foreign key
-	char        **composite;        // Null-terminated (column-name) string array
+	// 'foreign'   is NULL-terminated array for setting foreign key references and actions.
+	char        **foreign;
+	// 'composite' is NULL-terminated array for setting columns of composite constraint.
+	char        **composite;
 
 	const char   *reserve;          // reserve
 	const char   *raw;              // raw SQL column property

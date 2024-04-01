@@ -12,7 +12,7 @@
 
 迁移架构并同步到数据库。  
   
-使用 C++ 语言  
+使用 C++ 语言
 
 ```c++
 	// 迁移 'schema_v1' 和 'schema_v2'
@@ -80,10 +80,10 @@ struct User {
 
 使用 Schema 的 create 函数来创建一个新的数据库表。  
 该函数接受两个参数：一个参数是表的名称，另一个是结构类型。  
+  
+使用 C++ 语言
 
 ```c++
-	/* C++ 示例代码 */
-
 	// 创建表 "users"
 	table = schema->create<User>("users");
 
@@ -94,9 +94,9 @@ struct User {
 	table->timestamp("created_at", &User::created_at)->useCurrent();
 ```
 
-```c
-	/* C 示例代码 */
+使用 C 语言
 
+```c
 	// 创建表 "users"
 	table = sq_schema_create(schema, "users", User);
 
@@ -130,28 +130,30 @@ struct User {
 
 #### 更新表（动态）
 
-使用 alter 函数更新现有表。
+使用 alter 函数更新现有表。  
+  
+使用 C++ 语言
 
 ```c++
-	/* C++ 示例代码 */
-
 	// 更改表 "users"
 	table = schema->alter("users");
 
 	// 将列添加到表中
 	table->integer("test_add", &User::test_add);
+
 	// 更改表中的 "email" 列
 	table->string("email", &User::email, 100)->change();    // VARCHAR(100)
 ```
 
-```c
-	/* C 示例代码 */
+使用 C 语言
 
+```c
 	// 更改表 "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
 	// 向表中添加列
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
+
 	// 更改表中的 "email" 列
 	column = sq_table_add_string(table, "email", offsetof(User, email), 100);    // VARCHAR(100)
 	sq_column_change(column);
@@ -186,11 +188,11 @@ struct User {
 要将列添加到表中，您可以使用 SqTable 中的函数。
 在 'schema' 中调用 alter 或 create 函数后，您将获得 SqTable 的实例。  
   
-[SqTable](SqTable.cn.md) 中列出了所有可用的列类型。
+[SqTable](SqTable.cn.md) 中列出了所有可用的列类型。  
+  
+使用 C++ 语言
 
 ```c++
-	/* C++ 示例代码 */
-
 	// 更改表 "users"
 	table = schema->alter("users");
 
@@ -198,9 +200,9 @@ struct User {
 	column = table->integer("test_add", &User::test_add);
 ```
 
-```c
-	/* C 示例代码 */
+使用 C 语言
 
+```c
 	// 更改表 "users"
 	table = sq_schema_alter(schema, "users", NULL);
 
@@ -252,116 +254,175 @@ C 函数 sq_column_change()、C++ 方法 change() 允许您修改现有列的类
 
 #### 重命名和删除列
 
-使用 C++ 方法 renameColumn 和 C 函数 sq_table_rename_column 重命名列。  
-使用 C++ 方法 dropColumn 和 C 函数 sq_table_drop_column 删除列。
+使用 C++ 方法 renameColumn() 重命名列。  
+使用 C++ 方法 dropColumn() 删除列。
 
 ```c++
-	/* C++ 示例代码 */
-
 	// 更改表 "users"
 	table = schema->alter("users");
+
 	// 重命名列
 	table->renameColumn("from", "to");
+
 	// 删除列
 	table->dropColumn("columnName");
+```
 
-	/* C 示例代码 */
+使用 C 函数 sq_table_rename_column() 重命名列。  
+使用 C 函数 sq_table_drop_column() 删除列。
 
+```c
 	// 更改表 "users"
 	table = sq_schema_alter(schema, "users", NULL);
+
 	// 重命名列
 	sq_table_rename_column(table, "from", "to");
+
 	// 删除列
 	sq_table_drop_column(table, "columnName");
 ```
 
-## 索引
+## 主键约束
 
-#### 创建索引
-
-在列定义上使用 unique 方法：
+要定义主键列，请在列定义上使用 primary() 方法：
 
 ```c++
-	/* C++ 示例代码 */
-	table->string("email", &User::email)->unique();
+	/* C 示例代码 */
+	column = sq_table_add_int(table, "id", offsetof(User, id));
+	sq_column_primary(column);
 
+	/* C++ 示例代码 */
+	table->integer("id", &User::id)
+	     ->primary();
+```
+
+#### 创建主键
+
+C 函数 sq_table_add_primary() 和 C++ 方法 primary() 可以创建主键约束。
+参数是主键约束的名称，其他参数是以 NULL 结尾的列名参数列表。  
+由于 C++ 方法使用参数包，因此最后一个参数可以传递 NULL，也可以不传递。
+
+```c++
+	/* C 示例代码 */
+	column = sq_table_add_primary(table, "primary_email_account_id", "email", "account_id", NULL);
+
+	/* C++ 示例代码 */
+	table->primary("primary_email_account_id", "email", "account_id");
+```
+
+#### 删除主键
+
+用户必须指定主键约束的名称才能删除它。
+
+```c++
+	/* C 示例代码 */
+	sq_table_drop_primary(table, "primary_email_account_id");
+
+	/* C++ 示例代码 */
+	table->dropPrimary("primary_email_account_id");
+```
+
+## 外键约束
+
+C 函数 sq_column_reference() 和 C++ 方法 reference() 用于设置外键引用的 表、列。
+参数是外部表的名称，其他是以 NULL 结尾的列名参数列表。  
+  
+要定义外键列，请在列定义上使用 reference()：
+
+```c++
+	/* C 示例代码 */
+	column = sq_table_add_int(table, "city_id", offsetof(User, city_id));
+	sq_column_reference(column, "cities", "id", NULL);
+
+	/* C++ 示例代码 */
+	table->integer("city_id", &User::city_id)
+	     ->reference("cities", "id");
+```
+
+#### 创建外键
+
+C 函数 sq_table_add_foreign() 和 C++ 方法 foreign() 可以创建外键约束。
+参数是外键约束的名称，其他是以 NULL 结尾的列名参数列表。  
+  
+由于外键中的列数必须与引用表中的列数匹配，因此 foreign() 和 reference() 参数中的列数必须匹配。  
+  
+使用 C 语言
+
+```c
+	column = sq_table_add_foreign(table, "foreignName", "column1", "column2", NULL);
+	sq_column_reference(column, "foreignTableName",     "column1", "column2", NULL);
+	sq_column_on_delete(column, "NO ACTION");
+	sq_column_on_update(column, "NO ACTION");
+```
+
+使用 C++ 语言  
+  
+由于 C++ 方法使用参数包，因此最后一个参数可以传递 NULL，也可以不传递。
+
+```c++
+	table->foreign("foreignName", "column1", "column2")
+	     ->reference("tableName", "column1", "column2")
+	     ->onDelete("NO ACTION")
+	     ->onUpdate("NO ACTION");
+```
+
+#### 删除外键
+
+使用外键的约束名称来删除。
+
+```c++
+	/* C 示例代码 */
+	sq_table_drop_foreign(table, "users_city_id_foreign");
+
+	/* C++ 示例代码 */
+	table->dropForeign("users_city_id_foreign");
+```
+
+## 索引
+
+要定义唯一列，请在列定义上使用 unique() 方法：
+
+```c++
 	/* C 示例代码 */
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 	sq_column_unique(column);
+
+	/* C++ 示例代码 */
+	table->string("email", &User::email)
+	     ->unique();
 ```
 
-要使用 C 函数创建复合 唯一、索引、主键，
-第二个参数指定 唯一、索引、主键的名称，其他是必须以空值结尾的列名列表。
+#### 创建索引
+
+要使用 C 函数创建复合 索引 和 唯一 的约束，
+第二个参数指定 索引 和 唯一 的约束名称，其他是以 NULL 结尾的列名参数列表。
 
 ```c
 	column = sq_table_add_index(table, "index_email_account_id", "email", "account_id", NULL);
 
 	column = sq_table_add_unique(table, "unique_email_account_id", "email", "account_id", NULL);
-
-	column = sq_table_add_primary(table, "primary_email_account_id", "email", "account_id", NULL);
 ```
 
-要使用 C++ 方法创建复合 唯一、索引、主键，
-第一个参数指定 唯一、索引、主键的名称，其他是列名列表。  
-因为 C++ 方法使用参数包，所以最后一个参数可以传递（或不传递）NULL。
+要使用 C++ 方法创建复合 索引 和 唯一 的约束，
+第一个参数指定 索引 和 唯一 的约束名称，其他是列名的参数列表。  
+由于 C++ 方法使用参数包，因此最后一个参数可以传递 NULL，也可以不传递。
 
 ```c++
 	table->index("index_email_account_id", "email", "account_id");
 
 	table->unique("unique_email_account_id", "email", "account_id");
-
-	table->primary("primary_email_account_id", "email", "account_id");
 ```
 
 #### 删除索引
 
-用户必须指定要删除的 索引、唯一、主键的名称。
+用户必须指定要删除的 索引 和 唯一 的约束名称。
 
 ```c++
-	/* C++ 示例代码 */
-
-	table->dropIndex("index_email_account_id");
-
-	table->dropUnique("unique_email_account_id");
-
-	table->dropPrimary("primary_email_account_id");
-
 	/* C 示例代码 */
-
 	sq_table_drop_index(table, "index_email_account_id");
-
 	sq_table_drop_unique(table, "unique_email_account_id");
 
-	sq_table_drop_primary(table, "primary_email_account_id");
-```
-
-## 外键约束
-
-使用 foreign 函数创建外键。  
-第一个参数指定外键名称，第二个是列名。
-
-```c++
 	/* C++ 示例代码 */
-
-	table->foreign("users_city_id_foreign", "city_id")
-	     ->reference("cities", "id")->onDelete("NO ACTION")->onUpdate("NO ACTION");
-
-	/* C 示例代码 */
-
-	column = sq_table_add_foreign(table, "users_city_id_foreign", "city_id", NULL);
-	sq_column_reference(column, "cities", "id", NULL);
-	sq_column_on_delete(column, "NO ACTION");
-	sq_column_on_update(column, "NO ACTION");
-```
-
-#### 删除外键
-
-使用外键约束的名称来删除。
-
-```c++
-	/* C++ 示例代码 */
-	table->dropForeign("users_city_id_foreign");
-
-	/* C 示例代码 */
-	sq_table_drop_foreign(table, "users_city_id_foreign");
+	table->dropIndex("index_email_account_id");
+	table->dropUnique("unique_email_account_id");
 ```

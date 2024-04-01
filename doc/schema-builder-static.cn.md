@@ -39,7 +39,10 @@ struct User {
 * 字段 'name' 用于指定列名称。
 * 字段 'offset' 用于指定结构体中字段的偏移量。
 * 字段 'bit_field' 用于指定主键等属性，一般以 SQB 开头，参见 [SqColumn](SqColumn.cn.md)。
-
+* 字段 'foreign' 是以 NULL 结尾的数组，用于设置引用的 表、列、删除时的操作 和 更新时的操作。用空字符串 "" 来分隔 列 和 删除时的操作。
+  
+字段 'foreign' 在 **关于字段 SqColumn::foreign** 部分中有更多详细信息。  
+  
 **C99 指定初始化**  
   
 例如: 使用 C99 指定初始化程序在 schema_v1 中定义表和列。
@@ -59,13 +62,15 @@ static const SqColumn  userColumns[6] = {
 		.size = 60},
 
 	// 外键 FOREIGN KEY
+	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE CASCADE  ON UPDATE SET DEFAULT
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
-		.foreign = &(SqForeign) {"cities", "id", NULL, NULL}    },
+		.foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "SET DEFAULT", NULL}  },
+	// 在上一行中， 列 "id" 和 ON DELETE 的操作 "CASCADE" 必须用空字符串 "" 分隔。
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
 
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 };
 
@@ -92,8 +97,9 @@ static const SqColumn  userColumns[6] = {
    为 C++ std::vector<int> 创建新的 SqType */
 Sq::TypeStl< std::vector<int> > SqTypeIntVector(SQ_TYPE_INT);
 
-/* 此外键约束由下面的 userColumns[] 使用 */
-static const SqForeign userForeign = {"cities",  "id",  "CASCADE",  "CASCADE"};
+/* 此外键约束由下面的 userColumns[] 使用
+   在下一行中， 列 "id" 和 ON DELETE 的操作 "CASCADE" 必须用空字符串 "" 分隔。 */
+static const char *userForeign[] = {"cities", "id",  "",  "CASCADE", "SET DEFAULT", NULL};
 
 static const SqColumn  userColumns[8] = {
 	// 主键 PRIMARY KEY
@@ -109,16 +115,17 @@ static const SqColumn  userColumns[8] = {
 		60},                           // .size        // VARCHAR(60)
 
 	// 外键 FOREIGN KEY
+	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE CASCADE  ON UPDATE SET DEFAULT
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
 		NULL,                          // .old_name,
 		0, 0, 0,                       // .sql_type, .size, .digits,
 		NULL,                          // .default_value,
-		(SqForeign*) &userForeign},    // .foreign
+		(char **) userForeign},        // .foreign
 
 	// DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at", offsetof(User, created_at), SQB_CURRENT},
 
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at", offsetof(User, updated_at), SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
 	// C++ 数据类型 std::string
@@ -144,7 +151,7 @@ static const SqColumn  userColumns[8] = {
 * 要更改列属性，请将 SQB_CHANGED 添加到字段 'bit_field'。
 
 例如: 使用 C99 指定初始化程序更改 schema_v2 中的表和列。  
-'columnsChanges' 包含要添加、更改、删除和重命名列的记录。  
+'columnsChanges' 包含要 添加、更改、删除 和 重命名列 的记录。  
 
 ```c
 static const SqColumn  columnsChanges[4] = {
@@ -171,12 +178,33 @@ static const SqColumn  columnsChanges[4] = {
 	sq_table_add_column(table, columnsChanges, 4);
 ```
 
-## 约束 Constraint （静态）
+## 约束 Constraints （静态）
+
+在列定义中设置 SqColumn::bit_field ：
+* 在 SqColumn::bit_field 中设置 SQB_PRIMARY 来定义主键列。
+* SQB_FOREIGN 和 SQB_UNIQUE 可以在列定义上设置 外键 和 唯一。
+
+```c
+static const SqColumn  columns[] = {
+	// 主键 PRIMARY KEY
+	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
+
+	// 外键 FOREIGN KEY
+	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
+		.foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "CASCADE", NULL}  },
+	// 外键: 如果未指定 ON DELETE 操作，请将其设为空字符串 "" ，如下所示。
+	//	.foreign = (char *[]) {"cities", "id",  "",         "", "CASCADE", NULL}  },
+}
+```
+
+**复合约束**  
 
 * 字段 'type' 必须设置为 SQ_TYPE_CONSTRAINT。 SQ_TYPE_CONSTRAINT 是迁移使用的假数据类型。
-* 字段 'composite' 可用于设置复合约束。它必须以 NULL 结尾。
-* 字段 'foreign' 用于设置引用的表、列、删除和更新操作。
-
+* 字段 'composite' 是以 NULL 结尾的数组，用于设置复合约束的 列。
+* 字段 'foreign'   是以 NULL 结尾的数组，用于设置引用的 表、列、删除时的操作 和 更新时的操作。用空字符串 "" 来分隔 列 和 删除时的操作。
+  
+由于外键中的列数必须与引用表中的列数匹配，因此 'foreign' 和 'composite' 字段中的列数必须匹配。  
+  
 例如: 使用 C99 指定初始化器添加/删除约束。  
 'otherChanges1' 添加约束（主键、外键和唯一）。  
 'otherChanges2' 删除约束（主键、外键和唯一）。  
@@ -189,8 +217,10 @@ static const SqColumn  otherChanges1[] = {
 
 	// 约束外键 CONSTRAINT FOREIGN KEY
 	{SQ_TYPE_CONSTRAINT,  "other_foreign", 0,  SQB_FOREIGN,
-		.foreign = &(SqForeign) {"cities", "id", "NO ACTION", "NO ACTION"},
-		.composite = (char *[]) {"city_id", NULL} },
+		.foreign   = (char *[]) {"table",  "column1", "column2",  "",  "NO ACTION", "NO ACTION",  NULL},
+		.composite = (char *[]) {          "column1", "column2",  NULL} },
+	// 由于外键中的列数必须与引用表中的列数匹配，
+	// 因此 'foreign' 和 'composite' 字段中的列数必须匹配。
 
 	// 约束唯一 CONSTRAINT UNIQUE
 	{SQ_TYPE_CONSTRAINT,  "other_unique",  0,  SQB_UNIQUE,
@@ -212,10 +242,41 @@ static const SqColumn  otherChanges2[] = {
 };
 ```
 
+**关于字段 SqColumn::foreign**
+
+* 它是 NULL 结尾的数组。
+* 用于设置引用的 表、列、删除时的操作 (ON DELETE) 和 更新时的操作 (ON UPDATE)。
+* 列 和 删除时的操作 (ON DELETE) 必须用空字符串 "" 分隔。
+* 如果未指定 删除时的操作 (ON DELETE) 或 更新时的操作 (ON UPDATE)，可以设置为空字符串 ""。
+
+```c
+	// ON DELETE 操作 和 列 必须用空字符串 "" 分隔。
+	// ON DELETE 操作为 "CASCADE"
+	// ON UPDATE 操作为 "SET DEFAULT"
+	.foreign   = (char *[]) {"table", "column",  "",  "CASCADE", "SET DEFAULT", NULL},
+
+	// ON DELETE 操作 和 列 必须用空字符串 "" 分隔。
+	// 未指定 ON DELETE 操作，因为它设置为空字符串 ""。
+	// ON UPDATE 操作为 "SET DEFAULT"
+	.foreign   = (char *[]) {"table", "column",  "",         "", "SET DEFAULT", NULL},
+
+	// ON DELETE 操作 "CASCADE" 和 列 必须用空字符串 "" 分隔。
+	// 未指定 ON UPDATE 操作，因为最后一个元素为 NULL。
+	.foreign   = (char *[]) {"table", "column",  "",  "CASCADE", NULL},
+
+	// 仅指定 表 和 列
+	// 未指定 ON DELETE 操作 和 ON UPDATE 操作，因为最后一个元素为 NULL。
+	.foreign   = (char *[]) {"table", "column", NULL},
+
+	// 指定 表 和 多列
+	// 未指定 ON DELETE 操作 和 ON UPDATE 操作，因为最后一个元素为 NULL。
+	.foreign   = (char *[]) {"table", "column1", "column2", NULL},
+```
+
 ## 索引 Index （静态）
 
 * 字段 'type' 必须设置为 SQ_TYPE_INDEX。 SQ_TYPE_INDEX 是迁移使用的假数据类型。
-* 字段 'composite' 可用于设置复合索引。它必须以 NULL 结尾。
+* 字段 'composite' 是以 NULL 结尾的数组，用于设置复合索引。
 
 例如: 使用 C99 指定的初始值设定项来添加/删除索引  
 'otherChanges3' 添加索引。  

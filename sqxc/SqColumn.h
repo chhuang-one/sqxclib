@@ -15,7 +15,7 @@
 #ifndef SQ_COLUMN_H
 #define SQ_COLUMN_H
 
-#include <stdarg.h>
+#include <stdarg.h>       // va_list
 
 #include <SqType.h>
 #include <SqEntry.h>
@@ -24,7 +24,6 @@
 // C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqColumn       SqColumn;
-typedef struct SqForeign      SqForeign;    // used by SqColumn
 
 
 // SQL special type
@@ -94,16 +93,13 @@ SqColumn  *sq_column_copy(SqColumn *column_dest, const SqColumn *column_src);
 //SqColumn  *sq_column_copy_static(const SqColumn *column_src);
 #define sq_column_copy_static(column_src)    sq_column_copy(NULL, column_src)
 
-// foreign key references
-// sq_column_reference(table, column, table_name, column_name, ..., NULL);
-// The last argument of sq_column_reference() must be NULL.
-void       sq_column_reference(SqColumn *column,
-                               const char *foreign_table_name,
-                               ...);
-// foreign key on delete
-void       sq_column_on_delete(SqColumn *column, const char *act);
-// foreign key on update
-void       sq_column_on_update(SqColumn *column, const char *act);
+// void sq_column_reference(column, foreignTableName, foreignColumnName, ..., NULL);
+// Set foreign key references, The last argument of sq_column_reference() must be NULL.
+void       sq_column_reference(SqColumn *column, ...);
+// Set foreign key ON DELETE action. If 'action' is NULL, remove ON DELETE action.
+void       sq_column_on_delete(SqColumn *column, const char *action);
+// Set foreign key ON UPDATE action. If 'action' is NULL, remove ON UPDATE action.
+void       sq_column_on_update(SqColumn *column, const char *action);
 
 // void sq_column_foreign(SqColumn *column, const char *foreign_table_name, const char *foreign_column_name);
 #define sq_column_foreign    sq_column_reference
@@ -133,17 +129,6 @@ struct Column;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/*	SqForeign: foreign key data in SqColumn
- */
-struct SqForeign
-{
-	// Note: use 'const char*' to declare string here, C++ user can initialize static structure easily.
-	const char  *table;
-	const char  *column;
-	const char  *on_delete;
-	const char  *on_update;
-};
-
 /*	SqColumn defines column in SQL table.
 
 	SqEntry
@@ -168,7 +153,7 @@ struct SqForeign
 	int32_t      size;          \
 	int32_t      digits;        \
 	const char  *default_value; \
-	SqForeign   *foreign;       \
+	char       **foreign;       \
 	char       **composite;     \
 	const char  *reserve;       \
 	const char  *raw
@@ -187,17 +172,24 @@ struct SqColumn
 
 	// ------ SqColumn members ------
 
-	// sql_type: map type to SQL data type. Don't map if this field is 0.
+	// It can map type to SQL data type. Don't map if this field is 0.
 	int32_t       sql_type;
-	// size  : total number of digits is specified in size, or length of string.
+
+	// It is total number of digits is specified in size, or length of string.
 	int32_t       size;
-	// digits: number of digits after the decimal point, or 2nd parameter of SQL type.
+
+	// It is number of digits after the decimal point, or 2nd parameter of SQL type.
 	int32_t       digits;
 
 	const char   *default_value;    // DEFAULT
 
-	SqForeign    *foreign;          // foreign key
-	char        **composite;        // Null-terminated (column-name) string array
+	// 'foreign'   is NULL-terminated array for setting foreign key references and actions.
+	// e.g. { "table", "column1", "column2", ...,  "",  "CASCADE", "SET DEFAULT", NULL }
+	char        **foreign;
+
+	// 'composite' is NULL-terminated array for setting columns of composite constraint.
+	// e.g. { "column1", "column2", ..., NULL }
+	char        **composite;
 
 	const char   *reserve;          // reserve, set it to NULL.
 	const char   *raw;              // raw SQL column property
@@ -612,8 +604,6 @@ struct Column : SqColumn
 		sq_column_copy(this, &src);
 	}
 };
-
-typedef struct SqForeign   Foreign;
 
 };  // namespace Sq
 

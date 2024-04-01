@@ -252,9 +252,10 @@ void      sq_table_drop_composite(SqTable *table,
 // SQL statement:
 // CREATE INDEX "index_name" ON "table" ("column")
 // CREATE INDEX "index_name" ON "table" ("column1", "column2")
-// ---
-// sq_table_add_index(table, index_name, column_name, ..., NULL);
+
 // The last argument of sq_table_add_index() must be NULL.
+//
+// sq_table_add_index(table, "indexName", "columnName", ..., NULL);
 SqColumn *sq_table_add_index(SqTable *table,
                              const char *index_name,
                              ...);
@@ -266,11 +267,12 @@ void      sq_table_drop_index(SqTable *table, const char *index_name);
 
 // ---
 // SQL statement:
-// CONSTRAINT "unique_name" UNIQUE ("column1_name", "column2_name")
-// ADD CONSTRAINT "unique_name" UNIQUE ("column1_name", "column2_name")
-// ---
-// sq_table_add_unique(table, unique_name, column_name, ..., NULL);
+// CONSTRAINT "unique_name" UNIQUE ("column1", "column2")
+// ADD CONSTRAINT "unique_name" UNIQUE ("column1", "column2")
+
 // The last argument of sq_table_add_unique() must be NULL.
+//
+// sq_table_add_unique(table, "uniqueName", "columnName", ..., NULL);
 SqColumn *sq_table_add_unique(SqTable *table,
                               const char *unique_name,
                               ...);
@@ -281,11 +283,12 @@ void      sq_table_drop_unique(SqTable *table, const char *unique_name);
 
 // ---
 // SQL statement:
-// CONSTRAINT "primary_name" PRIMARY KEY ("column1_name", "column2_name")
-// ADD CONSTRAINT "primary_name" PRIMARY KEY ("column1_name", "column2_name")
-// ---
-// sq_table_add_primary(table, primary_name, column_name, ..., NULL);
+// CONSTRAINT "primary_name" PRIMARY KEY ("column1", "column2")
+// ADD CONSTRAINT "primary_name" PRIMARY KEY ("column1", "column2")
+
 // The last argument of sq_table_add_primary() must be NULL.
+//
+// sq_table_add_primary(table, "primaryName", "columnName", ..., NULL);
 SqColumn *sq_table_add_primary(SqTable *table,
                                const char *primary_name,
                                ...);
@@ -299,8 +302,9 @@ void      sq_table_drop_primary(SqTable *table, const char *name);
 // CONSTRAINT "foreign_name" FOREIGN KEY ("column1", "column2") REFERENCES ...
 // ADD CONSTRAINT "foreign_name" FOREIGN KEY ("column1", "column2") REFERENCES ...
 // ---
-// sq_table_add_foreign(table, foreign_name, column_name, ..., NULL);
 // The last argument of sq_table_add_foreign() must be NULL.
+//
+// sq_table_add_foreign(table, "foreignName", "columnName", ..., NULL);
 SqColumn *sq_table_add_foreign(SqTable *table,
                                const char *foreign_name,
                                ...);
