@@ -180,20 +180,25 @@ static const SqColumn  columnsChanges[4] = {
 
 ## 约束 Constraints （静态）
 
-在列定义中设置 SqColumn::bit_field ：
-* 在 SqColumn::bit_field 中设置 SQB_PRIMARY 来定义主键列。
-* SQB_FOREIGN 和 SQB_UNIQUE 可以在列定义上设置 外键 和 唯一。
+将约束设置到列定义上：
+* 要定义主键列，请在 SqColumn::bit_field 中设置 SQB_PRIMARY。
+* 要定义外键列，请在 SqColumn::foreign 中设置引用的 表、列、操作。 如果 'foreign' 不为 NULL，则 'bit_field' 中的 SQB_FOREIGN 可以省略。
+* 要定义唯一列，请在 SqColumn::bit_field 中设置 SQB_UNIQUE。
 
 ```c
 static const SqColumn  columns[] = {
 	// 主键 PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
-	// 外键 FOREIGN KEY
+	// 外键 FOREIGN KEY:  如果 'foreign' 不为 NULL，则 'bit_field' 中的 SQB_FOREIGN 可以省略。
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
 		.foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "CASCADE", NULL}  },
-	// 外键: 如果未指定 ON DELETE 操作，请将其设为空字符串 "" ，如下所示。
+	//	                                             ^^^^^^^^^
 	//	.foreign = (char *[]) {"cities", "id",  "",         "", "CASCADE", NULL}  },
+	// 外键 FOREIGN KEY:  如果未指定 ON DELETE 操作，请将其设为空字符串 "" ，如上所示。
+
+	// 唯一 UNIQUE
+	{SQ_TYPE_STR,    "name",       offsetof(User, name),       SQB_UNIQUE},
 }
 ```
 

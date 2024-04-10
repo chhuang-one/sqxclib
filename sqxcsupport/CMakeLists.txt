@@ -78,7 +78,9 @@ set_target_properties(sqxcsupport
 )
 if (BUILD_SHARED_LIBS)
     target_link_libraries(sqxcsupport sqxc)
-endif(BUILD_SHARED_LIBS)
+#else ()
+#	target_link_libraries(sqxcsupport ${SQXC_LIBRARIES})
+endif (BUILD_SHARED_LIBS)
 
 #install
 install(

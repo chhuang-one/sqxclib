@@ -101,6 +101,7 @@ void       sq_column_on_delete(SqColumn *column, const char *action);
 // Set foreign key ON UPDATE action. If 'action' is NULL, remove ON UPDATE action.
 void       sq_column_on_update(SqColumn *column, const char *action);
 
+// deprecated
 // void sq_column_foreign(SqColumn *column, const char *foreign_table_name, const char *foreign_column_name);
 #define sq_column_foreign    sq_column_reference
 

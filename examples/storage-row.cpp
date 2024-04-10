@@ -363,7 +363,7 @@ void getRow(Sq::Storage *storage)
 	Sq::PtrArray *array = (Sq::PtrArray*)storage->getAll("users", SQ_TYPE_ROW, NULL, NULL);
 
 	if (array) {
-		for (int  index = 0;  index < array->length;  index++) {
+		for (int index = 0;  index < array->length;  index++) {
 			// get Sq::Row from array
 			row = (Sq::Row*)array->data[index];
 			// handle columns in Sq::Row

@@ -109,7 +109,9 @@ set_target_properties(sqxcapp
 )
 if (BUILD_SHARED_LIBS)
 	target_link_libraries(sqxcapp sqxc)
-endif(BUILD_SHARED_LIBS)
+#else ()
+#	target_link_libraries(sqxcapp ${SQXC_LIBRARIES})
+endif (BUILD_SHARED_LIBS)
 
 # 'sqxcapp-user' has database settings and migration data for user application.
 add_library(sqxcapp-user

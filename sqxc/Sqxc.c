@@ -16,7 +16,7 @@
 #include <stdio.h>        // fprintf(), stderr
 #endif
 #include <stddef.h>
-#include <stdarg.h>
+#include <stdarg.h>       // va_list, va_start, va_end, va_arg...etc
 #include <stdlib.h>
 #include <string.h>
 

@@ -23,7 +23,7 @@
  */
 #ifdef __cplusplus
 #include <typeinfo>
-#define SQ_GET_TYPE_NAME(Type)        ( (char*)typeid(Type).name() )
+#define SQ_GET_TYPE_NAME(Type)        typeid(Type).name()
 #else
 #define SQ_GET_TYPE_NAME(Type)        #Type
 #endif
@@ -228,6 +228,9 @@ struct Type;
 /*	SqType - define how to initialize, finalize, and convert instance.
 	         User can define constant or dynamic SqType.
 
+	Because 'const' is used to define string 'char*',
+	C++ user can initialize static structure easily.
+
 	SqType must have no base struct because I need use aggregate initialization with it.
  */
 
@@ -237,7 +240,7 @@ struct Type;
 	SqTypeFunc        final;      \
 	SqTypeParseFunc   parse;      \
 	SqTypeWriteFunc   write;      \
-	char             *name;       \
+	const char       *name;       \
 	SqEntry         **entry;      \
 	int               n_entry;    \
 	unsigned int      bit_field;  \
@@ -257,7 +260,7 @@ struct SqType
 
 	// In C++, you must use typeid(TypeName).name() to generate type name,
 	// or use macro SQ_GET_TYPE_NAME()
-	char          *name;
+	const char    *name;
 
 	// SqType::entry is array of SqEntry pointer if current SqType is for C struct type.
 	// SqType::entry isn't freed if SqType::n_entry == -1
@@ -408,14 +411,6 @@ struct SqType
 extern "C" {
 #endif
 
-/* SqType-built-in.c - built-in types */
-extern  const  SqType      SqType_BuiltIn_[];
-extern  const  SqType      SqType_Buffer_;        // SqBuffer
-extern  const  SqType      SqType_Array_;         // SqArray
-extern  const  SqType      SqType_IntArray_;
-extern  const  SqType      SqType_PtrArray_;
-extern  const  SqType      SqType_StrArray_;
-
 enum {
 	SQ_TYPE_BOOL_INDEX,
 	SQ_TYPE_BOOLEAN_INDEX = SQ_TYPE_BOOL_INDEX,  // alias of SQ_TYPE_BOOL_INDEX
@@ -428,7 +423,17 @@ enum {
 	SQ_TYPE_STR_INDEX,
 	SQ_TYPE_STRING_INDEX = SQ_TYPE_STR_INDEX,    // alias of SQ_TYPE_STR_INDEX
 	SQ_TYPE_CHAR_INDEX,
+
+	SQ_TYPE_N_BUILT_IN,
 };
+
+/* SqType-built-in.c - built-in types */
+extern  const  SqType      SqType_BuiltIn_[SQ_TYPE_N_BUILT_IN];
+extern  const  SqType      SqType_Buffer_;        // SqBuffer
+extern  const  SqType      SqType_Array_;         // SqArray
+extern  const  SqType      SqType_IntArray_;
+extern  const  SqType      SqType_PtrArray_;
+extern  const  SqType      SqType_StrArray_;
 
 #define SQ_TYPE_BOOL       (&SqType_BuiltIn_[SQ_TYPE_BOOL_INDEX])
 #define SQ_TYPE_BOOLEAN    SQ_TYPE_BOOL          // alias of SQ_TYPE_BOOL

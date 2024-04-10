@@ -16,7 +16,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <stdint.h>
-#include <stdarg.h>
+#include <stdarg.h>       // va_list, va_start, va_end, va_arg...etc
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>        // vsnprintf(), fprintf(), stderr

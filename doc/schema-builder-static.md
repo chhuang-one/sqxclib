@@ -180,20 +180,25 @@ static const SqColumn  columnsChanges[4] = {
 
 ## Constraints (static)
 
-set the SqColumn::bit_field in column definition:
-* set SQB_PRIMARY in SqColumn::bit_field to define primary key column.
-* SQB_FOREIGN and SQB_UNIQUE can set foreign key and unique onto column definition.
+set the constraint onto column definition:
+* To define primary key column, set SQB_PRIMARY in SqColumn::bit_field.
+* To define foreign key column, set referenced table, columns, actions in foreign. SQB_FOREIGN in 'bit_field' can be omitted if 'foreign' is not NULL.
+* To define unique column, set SQB_UNIQUE in SqColumn::bit_field.
 
 ```c
 static const SqColumn  columns[] = {
 	// PRIMARY KEY
 	{SQ_TYPE_INT,    "id",         offsetof(User, id),         SQB_PRIMARY},
 
-	// FOREIGN KEY
+	// FOREIGN KEY:  SQB_FOREIGN in 'bit_field' can be omitted if 'foreign' is not NULL.
 	{SQ_TYPE_INT,    "city_id",    offsetof(User, city_id),    SQB_FOREIGN,
 		.foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "CASCADE", NULL}  },
-	// FOREIGN KEY: If no ON DELETE action is specified, set it to empty string "" as shown below.
+	//	                                             ^^^^^^^^^
 	//	.foreign = (char *[]) {"cities", "id",  "",         "", "CASCADE", NULL}  },
+	// FOREIGN KEY:  If no ON DELETE action is specified, set it to empty string "" as shown above.
+
+	// UNIQUE
+	{SQ_TYPE_STR,    "name",       offsetof(User, name),       SQB_UNIQUE},
 }
 ```
 

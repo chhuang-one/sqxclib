@@ -105,7 +105,7 @@ void  sq_type_final_self(SqType *type)
 	if (type->on_destroy)
 		type->on_destroy(type);
 
-	free(type->name);
+	free((char*)type->name);
 	// SqType::entry isn't freed if SqType::n_entry == -1
 	if (type->n_entry != -1)
 		sq_ptr_array_final(sq_type_entry_array(type));
