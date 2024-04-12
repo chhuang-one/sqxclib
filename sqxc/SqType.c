@@ -12,6 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <stdio.h>        // fprintf(), stderr
 #include <string.h>
 
 #include <SqConfig.h>
@@ -201,45 +202,61 @@ void  sq_type_clear_entry(SqType *type)
 	}
 }
 
+// if 'sizeof_entry' == size of pointer, type of 'entry' is 'const SqEntry**'.
 void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry)
 {
 	SqPtrArray  *array;
-	void  **entry_addr;
+	SqEntry    **entry_addr;
+	int          index;
 
-	if (type->bit_field & SQB_TYPE_DYNAMIC) {
-		if (sizeof_entry == 0)
-			sizeof_entry = sizeof(SqEntry);
+	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0)
+		return;
+	if (sizeof_entry == 0)
+		sizeof_entry = sizeof(SqEntry);
+
+	array = sq_type_entry_array(type);
+	if (n_entry > 1) {
 		type->bit_field &= ~SQB_TYPE_SORTED;
-		array = sq_type_entry_array(type);
-		entry_addr = sq_ptr_array_alloc(array, n_entry);
-		for (;  n_entry;  n_entry--, entry_addr++) {
-			*entry_addr = (void*)entry;
-#if SQ_CONFIG_QUERY_ONLY_COLUMN
-			if (entry->bit_field & SQB_QUERY)
-				type->bit_field |= SQB_TYPE_QUERY_FIRST;
-#endif
-			sq_type_decide_size(type, entry, false);
-			entry = (SqEntry*) ((char*)entry + sizeof_entry);
-		}
+		entry_addr = (SqEntry**)sq_ptr_array_alloc(array, n_entry);
 	}
+	else {
+		entry_addr = (SqEntry**)sq_ptr_array_find_sorted(array,
+				(sizeof(SqEntry*) == sizeof_entry) ? (*(SqEntry**)entry)->name : entry->name,
+				sq_entry_cmp_str__name,
+				&index);
+#ifndef NDEBUG
+		if (entry_addr) {
+			fprintf(stderr, "%s: entry '%s' already exists in type '%s'.\n",
+					"sq_type_add_entry()",
+					(sizeof(SqEntry*) == sizeof_entry) ? (*(SqEntry**)entry)->name : entry->name,
+					type->name);
+		}
+		entry_addr = (SqEntry**)sq_ptr_array_alloc_at(array, index, 1);
+#endif
+	}
+
+	for (;  n_entry;  n_entry--, entry_addr++) {
+		// if 'sizeof_entry' == size of pointer, type of 'entry' is 'const SqEntry**'.
+		if (sizeof(SqEntry*) == sizeof_entry)
+			*entry_addr = *(SqEntry**)entry;
+		else
+			*entry_addr =  (SqEntry *)entry;
+#if SQ_CONFIG_QUERY_ONLY_COLUMN
+		if ((*entry_addr)->bit_field & SQB_QUERY)
+			type->bit_field |= SQB_TYPE_QUERY_FIRST;
+#endif
+		sq_type_decide_size(type, *entry_addr, false);
+		entry = (SqEntry*) ((char*)entry + sizeof_entry);
+	}
+
+	if ((type->bit_field & SQB_TYPE_SORTED) == 0)
+		sq_type_sort_entry(type);
 }
 
 void  sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_entry_ptrs)
 {
-	SqPtrArray *array;
-
-	if (type->bit_field & SQB_TYPE_DYNAMIC) {
-		type->bit_field &= ~SQB_TYPE_SORTED;
-		array = sq_type_entry_array(type);
-		SQ_PTR_ARRAY_APPEND(array, entry_ptrs, n_entry_ptrs);
-		for (int index = 0;  index < n_entry_ptrs;  index++, entry_ptrs++) {
-#if SQ_CONFIG_QUERY_ONLY_COLUMN
-			if (entry_ptrs[index]->bit_field & SQB_QUERY)
-				type->bit_field |= SQB_TYPE_QUERY_FIRST;
-#endif
-			sq_type_decide_size(type, *entry_ptrs, false);
-		}
-	}
+	// if 'sizeof_entry' == size of pointer, type of 'entry' is 'const SqEntry**'.
+	sq_type_add_entry(type, (SqEntry*)entry_ptrs, n_entry_ptrs, sizeof(SqEntry*));
 }
 
 void  sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count)
@@ -361,5 +378,10 @@ void  sq_type_set_str_addr(SqType *type, char **str_addr, const char *str_src)
 
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.
+
+void  sq_type_set_name(SqType *type, const char *name)
+{
+	sq_type_set_str_addr(type, (char**)&type->name, name);
+}
 
 #endif  // __STDC_VERSION__

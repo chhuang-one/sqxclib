@@ -88,7 +88,7 @@ struct SubAccount {
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
-	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
+	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE  ON UPDATE CASCADE
 	&(SqColumn) {SQ_TYPE_INT, "city_id",     offsetof(User, city_id),    SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "CASCADE", NULL} },
 
@@ -96,11 +96,11 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_STR, "comment",     offsetof(User, comment),  0,
 	             .sql_type = SQ_SQL_TYPE_TEXT},
 
-	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE ON UPDATE CASCADE
+	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE  ON UPDATE CASCADE
 	&(SqColumn) {SQ_TYPE_INT, "company_id",  offsetof(User, company_id), SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = (char *[]) {"companies", "id",  "",  "CASCADE", "CASCADE", NULL} },
 
-	// "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+	// "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION  ON UPDATE NO ACTION
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = (char *[]) {"companies", "id",  "",  "NO ACTION", "NO ACTION", NULL} },
 
@@ -173,7 +173,7 @@ static const SqColumn  *UserColumnsChange[] = {
 };
 
 const SqType UserTypeChange = {
-	.name  = SQ_GET_TYPE_NAME(User),
+	.name    = SQ_GET_TYPE_NAME(User),
 	.entry   = (SqEntry**) UserColumnsChange,
 	.n_entry = sizeof(UserColumnsChange) / sizeof(SqColumn*)
 };

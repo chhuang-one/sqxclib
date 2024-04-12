@@ -20,7 +20,7 @@ struct SqType
 
 	// 在 C++ 中，必须使用 typeid(TypeName).name() 来生成类型名称，
 	// 或者使用宏 SQ_GET_TYPE_NAME()
-	char          *name;
+	const char    *name;
 
 	// 如果当前 SqType 用于 C 结构类型，则 SqType::entry 是 SqEntry 指针数组。
 	// 如果 SqType::n_entry == -1，     则 SqType::entry 不会被释放。

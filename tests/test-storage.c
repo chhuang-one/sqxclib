@@ -264,7 +264,7 @@ void test_storage_xxx_all(SqStorage *storage)
 	fprintf(stderr, "\n");
 }
 
-void test_storage(const SqdbInfo *dbinfo, SqdbConfig *config)
+void test_storage(const SqdbInfo *dbinfo, const SqdbConfig *config)
 {
 	Sqdb      *db;
 	SqStorage *storage;
@@ -324,22 +324,28 @@ SqdbConfigPostgre  db_config_postgre = {
 
 int  main(int argc, char *argv[])
 {
+	const SqdbInfo   *db_info;
+	const SqdbConfig *db_config;
+
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 	fprintf(stderr, "\n\n" "test SqStorage with SQLite..." "\n\n");
-	test_storage(SQDB_INFO_SQLITE, (SqdbConfig*) &db_config_sqlite);
-
+	db_info   = SQDB_INFO_SQLITE;
+	db_config = (SqdbConfig*) &db_config_sqlite;
 #elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
 	fprintf(stderr, "\n\n" "test SqStorage with MySQL..." "\n\n");
-	test_storage(SQDB_INFO_MYSQL, (SqdbConfig*) &db_config_mysql);
-
+	db_info   = SQDB_INFO_MYSQL;
+	db_config = (SqdbConfig*) &db_config_mysql;
 #elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
 	fprintf(stderr, "\n\n" "test SqStorage with PostgreSQL..." "\n\n");
-	test_storage(SQDB_INFO_POSTGRE, (SqdbConfig*) &db_config_postgre);
-
+	db_info   = SQDB_INFO_POSTGRE;
+	db_config = (SqdbConfig*) &db_config_postgre;
 #else
-	fprintf(stderr, "No supported database");
-
+	fprintf(stderr, "\n\n" "No supported database" "\n\n");
+	db_info   = NULL;
+	db_config = NULL;
+	return EXIT_SUCCESS;
 #endif
 
+	test_storage(db_info, db_config);
 	return EXIT_SUCCESS;
 }

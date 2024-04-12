@@ -312,6 +312,10 @@ struct SqType
 		sq_type_final_instance((const SqType*)this, instance, is_pointer);
 	}
 
+	void  setName(const char *name) {
+		sq_type_set_str_addr((SqType*)this, (char**) &((SqType*)this)->name, name);
+	}
+
 	// clear entry from SqEntry array in dynamic SqType.
 	void  clearEntry() {
 		sq_type_clear_entry((SqType*)this);
@@ -552,8 +556,19 @@ extern  const  struct SqTypeFake   SqType_Fake_;
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
 // define inline functions here if compiler supports inline function.
 
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_type_set_name(SqType *type, const char *name) {
+	sq_type_set_str_addr(type, (char**)&type->name, name);
+}
+
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
+
+void  sq_type_set_name(SqType *type, const char *name);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -625,6 +640,10 @@ struct TypeMethod
 	}
 	void  finalInstance(void *instance, int is_pointer = 0) {
 		sq_type_final_instance((const SqType*)this, instance, is_pointer);
+	}
+
+	void  setName(const char *name) {
+		sq_type_set_str_addr((SqType*)this, (char**) &((SqType*)this)->name, name);
 	}
 
 	// clear entry from SqEntry array in dynamic SqType.

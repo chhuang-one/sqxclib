@@ -20,7 +20,7 @@ struct SqType
 
 	// In C++, you must use typeid(TypeName).name() to generate type name,
 	// or use macro SQ_GET_TYPE_NAME()
-	char          *name;
+	const char    *name;
 
 	// SqType::entry is array of SqEntry pointer if current SqType is for C struct type.
 	// SqType::entry isn't freed if SqType::n_entry == -1
