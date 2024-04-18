@@ -384,4 +384,9 @@ void  sq_type_set_name(SqType *type, const char *name)
 	sq_type_set_str_addr(type, (char**)&type->name, name);
 }
 
+void  sq_type_use_constant(SqType *type)
+{
+	type->bit_field &= ~SQB_TYPE_DYNAMIC;
+}
+
 #endif  // __STDC_VERSION__

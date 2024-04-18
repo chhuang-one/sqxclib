@@ -315,6 +315,9 @@ struct SqType
 	void  setName(const char *name) {
 		sq_type_set_str_addr((SqType*)this, (char**) &((SqType*)this)->name, name);
 	}
+	void  useConstant() {
+		((SqType*)this)->bit_field &= ~SQB_TYPE_DYNAMIC;
+	}
 
 	// clear entry from SqEntry array in dynamic SqType.
 	void  clearEntry() {
@@ -565,10 +568,20 @@ void  sq_type_set_name(SqType *type, const char *name) {
 	sq_type_set_str_addr(type, (char**)&type->name, name);
 }
 
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_type_use_constant(SqType *type) {
+	type->bit_field &= ~SQB_TYPE_DYNAMIC;
+}
+
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
 
 void  sq_type_set_name(SqType *type, const char *name);
+void  sq_type_use_constant(SqType *type);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -644,6 +657,9 @@ struct TypeMethod
 
 	void  setName(const char *name) {
 		sq_type_set_str_addr((SqType*)this, (char**) &((SqType*)this)->name, name);
+	}
+	void  useConstant() {
+		((SqType*)this)->bit_field &= ~SQB_TYPE_DYNAMIC;
 	}
 
 	// clear entry from SqEntry array in dynamic SqType.
