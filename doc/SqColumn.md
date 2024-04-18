@@ -193,7 +193,7 @@ The following bit_field definitions are inherited from [SqEntry](SqEntry.md):
 
 * SQB_DYNAMIC is for internal use only. User should NOT set or clear this bit.
 
-#### Define constant SqColumn that used by constant SqType (static)
+#### Define constant SqColumn that used by constant SqType
 
 This can reduce running time when making schema if your SQL table is fixed and not changed in future.  
 * Note: If you define constant SqType for structure, it must use with **pointer array** of SqColumn.

@@ -8,8 +8,8 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## 目前的功能:
-* 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 静态定义 SQL 表、列、迁移，
-   这可以减少制作架构时的运行时间，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)。
+* 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 定义常量 SQL 表、列、迁移，
+   这可以减少制作架构时的运行时间，请参阅 doc/[schema-builder-constant.cn.md](doc/schema-builder-constant.cn.md)。
    当然也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
 * 所有定义的 SQL 表和列 都可以用于解析 JSON 对象和字段。也可以从 SQL 列 解析 JSON 对象和数组。
@@ -73,7 +73,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	table->string("email", &User::email, 60);
 	// DEFAULT CURRENT_TIMESTAMP
 	table->timestamp("created_at", &User::created_at)->useCurrent();
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	table->timestamp("updated_at", &User::updated_at)->useCurrent()->useCurrentOnUpdate();
 	// C++ 类型 - std::string 和 std::vector
 	table->stdstring("strCpp", &User::strCpp);
@@ -134,7 +134,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
 	sq_column_use_current(column);
 
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	column = sq_table_add_timestamp(table, "updated_at", offset(User, updated_at));
 	sq_column_use_current(column);
 	sq_column_use_current_on_update(column);
@@ -182,7 +182,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 **还有更多...**  
   
 * 您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关架构和迁移的更多信息
-* 要使用初始化器静态定义（或更改）表，请参阅 doc/[schema-builder-static.cn.md](doc/schema-builder-static.cn.md)
+* 要使用初始化器定义（或更改）表，请参阅 doc/[schema-builder-constant.cn.md](doc/schema-builder-constant.cn.md)
 * 要使用宏动态定义（或更改）表，请参阅 doc/[schema-builder-macro.cn.md](doc/schema-builder-macro.cn.md)
 
 ## 数据库产品

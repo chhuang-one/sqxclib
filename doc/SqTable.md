@@ -222,7 +222,7 @@ C function sq_table_add_column() and sq_table_add_column_ptrs(), C++ method addC
 sq_table_add_column(), addColumn()      can add SqColumn array.  
 sq_table_add_column_ptrs(), addColumn() can add SqColumn pointer array.  
   
-You can see [schema-builder-static.md](schema-builder-static.md) to get more information and sample.
+You can see [schema-builder-constant.md](schema-builder-constant.md) to get more information and sample.
 
 ## Drop column
 

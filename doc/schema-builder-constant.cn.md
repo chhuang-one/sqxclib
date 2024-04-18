@@ -1,12 +1,12 @@
-[English](schema-builder-static.md)
+[English](schema-builder-constant.md)
 
-# Schema Builder (静态)
+# Schema Builder (常量)
 
 本文档介绍如何使用 C99 指定初始化器（或 C++ 聚合初始化）来定义表。
 * 这可以减少制作架构时的运行时间。
-* 架构可以处理动态和静态列/表定义。
-* 如果用户修改静态定义的列/表，程序将在修改之前复制列/表。
-* 程序不会从内存中释放静态定义的列/表。它只是不使用它们。
+* 架构可以处理动态和常量列/表定义。
+* 如果用户修改常量列/表，程序将在修改之前复制列/表。
+* 程序不会从内存中释放常量列/表。它只是不使用它们。
 * 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 [SqType](SqType.cn.md) 来定义表来减少更多的运行时间。见文件 [SqColumn.cn.md](SqColumn.cn.md)
 
 定义 C 结构化数据类型以映射数据库表 "users"。
@@ -31,9 +31,9 @@ struct User {
 };
 ```
 
-## 创建表（静态）
+## 创建表（常量）
 
-要静态定义列，最常用的是 [SqColumn](SqColumn.cn.md) 的前四个字段。它们是 type, name, offset 和 bit_field。  
+要定义常量列，最常用的是 [SqColumn](SqColumn.cn.md) 的前四个字段。它们是 type, name, offset 和 bit_field。  
 
 * 字段 'type' 用于指定 C/C++ 数据类型，一般以 SQ_TYPE 开头，参见 [SqType](SqType.cn.md)。
 * 字段 'name' 用于指定列名称。
@@ -80,7 +80,7 @@ static const SqColumn  userColumns[6] = {
 	// 创建表 "users"
 	table = sq_schema_create(schema_v1, "users", User);
 
-	// 将具有 6 个元素的静态 'userColumns' 添加到表中
+	// 将具有 6 个元素的 'userColumns' 添加到表中
 	sq_table_add_column(table, userColumns, 6);
 ```
 
@@ -140,11 +140,11 @@ static const SqColumn  userColumns[8] = {
 
 	// 创建表 "users"
 	table = schema_v1->create<User>("users");
-	// 将具有 8 个元素的静态 'userColumns' 添加到表中
+	// 将具有 8 个元素的 'userColumns' 添加到表中
 	table->addColumn(userColumns, 8);
 ```
 
-## 更新表（静态）
+## 更新表（常量）
 
 * 要重命名列，请将字段 'old_name' 设置为当前列名称，并将 'name' 设置为新列名称。
 * 要删除列，  请将字段 'old_name' 设置为当前列名称，并将 'name' 设置为 NULL。
@@ -174,11 +174,11 @@ static const SqColumn  columnsChanges[4] = {
 	// 更改表 "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
 
-	// 通过具有 4 个元素的静态 'columnsChanges' 更改表
+	// 通过具有 4 个元素的 'columnsChanges' 更改表
 	sq_table_add_column(table, columnsChanges, 4);
 ```
 
-## 约束 Constraints （静态）
+## 约束 Constraints （常量）
 
 将约束设置到列定义上：
 * 要定义主键列，请在 SqColumn::bit_field 中设置 SQB_PRIMARY。
@@ -278,7 +278,7 @@ static const SqColumn  otherChanges2[] = {
 	.foreign   = (char *[]) {"table", "column1", "column2", NULL},
 ```
 
-## 索引 Index （静态）
+## 索引 Index （常量）
 
 * 字段 'type' 必须设置为 SQ_TYPE_INDEX。 SQ_TYPE_INDEX 是迁移使用的假数据类型。
 * 字段 'composite' 是以 NULL 结尾的数组，用于设置复合索引。
@@ -301,7 +301,7 @@ static const SqColumn  otherChanges4[] = {
 };
 ```
 
-## 使用自订或 JSON 型态 (静态)
+## 使用自订或 JSON 型态 (常量)
 
 如果要在 SQL 列中存储 JSON 对象或数组，必须指定 [SqType](SqType.cn.md)。  
   
@@ -333,7 +333,7 @@ static const SqColumn  demoTableColumns[] = {
 };
 ```
 
-## 仅查询列 (静态)
+## 仅查询列 (常量)
 
 仅查询列名仅适用于 SQL SELECT 查询。您可以将 SqColumn::name 设置为 SELECT 查询，并在 SqColumn::bit_field 中设置 SQB_QUERY_ONLY 以定义仅查询列。这可以将特殊查询的结果（如“SELECT length(BlobColumn), * FROM table”）存储到 C 结构的成员中。  
   
@@ -393,7 +393,7 @@ static const SqColumn *queryFirstColumnPtrs[3] = {
 const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnPtrs, SQB_TYPE_QUERY_FIRST);
 ```
 
-## 类型映射（静态）
+## 类型映射（常量）
 
 用户可以在 SqColumn::sql_type 中指定 SQL 数据类型，该数据类型将映射到 SqColumn::type 中指定的 C 数据类型。
 如果 SqColumn::sql_type 等于 0，程序将尝试从 SqColumn::type 确定 SQL 数据类型。
@@ -477,7 +477,7 @@ static const SqColumn  mappingCppColumns[4] = {
 
 ## 迁移
 
-无论是动态定义还是静态定义，运行迁移的代码都是一样的。  
+无论是动态定义还是常量定义，运行迁移的代码都是一样的。  
   
 使用 C++ 方法迁移架构并同步到数据库
 

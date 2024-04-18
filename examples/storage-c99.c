@@ -13,7 +13,7 @@
  */
 
 /*
-	This example code mainly use C99 designated initializer to define columns in tables statically.
+	This example code mainly use C99 designated initializer to define constant columns in tables.
 
 	The function city_add_column_dynamically() is example code for dynamically defining columns in cities table.
  */
@@ -145,7 +145,7 @@ static const SqColumn userColumnsVer1[] = {
 
 	// created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "created_at",   offsetof(User, created_at),  SQB_CURRENT},
-	// updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,   "updated_at",   offsetof(User, updated_at),  SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
 	// This column will be deleted in schema Ver3.

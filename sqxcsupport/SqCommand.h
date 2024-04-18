@@ -159,8 +159,7 @@ struct CommandValueMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/*	SqCommand: User can use SqCommand to define command and it's options
-	           statically (or dynamically).
+/*	SqCommand: User can use SqCommand to define constant (or dynamic) command and it's options.
 
 	           SqConsole use this to parse data from command-line and
 	           store parsed data in SqCommandValue.

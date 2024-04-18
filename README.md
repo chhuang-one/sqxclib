@@ -8,8 +8,8 @@ sqxclib is a library to convert data between C language and SQL (or JSON...etc).
 Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## Current features:
-* User can use C99 designated initializer or C++ aggregate initialization to define SQL table, column, and migration statically,
-   this can reduce running time when making schema, see doc/[schema-builder-static.md](doc/schema-builder-static.md).
+* User can use C99 designated initializer or C++ aggregate initialization to define constant SQL table, column, and migration,
+   this can reduce running time when making schema, see doc/[schema-builder-constant.md](doc/schema-builder-constant.md).
    You can also use C functions or C++ methods to do these dynamically.
 
 * All defined table and column can use to parse JSON object and field. Program can also parse JSON object and array from SQL column.
@@ -73,7 +73,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	table->string("email", &User::email, 60);
 	// DEFAULT CURRENT_TIMESTAMP
 	table->timestamp("created_at", &User::created_at)->useCurrent();
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	table->timestamp("updated_at", &User::updated_at)->useCurrent()->useCurrentOnUpdate();
 	// C++ types - std::string and std::vector
 	table->stdstring("strCpp", &User::strCpp);
@@ -134,7 +134,7 @@ use C functions to define table and column in schema_v1 (dynamic)
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
 	sq_column_use_current(column);
 
-	// DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	column = sq_table_add_timestamp(table, "updated_at", offset(User, updated_at));
 	sq_column_use_current(column);
 	sq_column_use_current_on_update(column);
@@ -182,7 +182,7 @@ use C functions to change table and column in schema_v2 (dynamic)
 **There are more...**  
   
 * You can get more information about schema and migrations in doc/[database-migrations.md](doc/database-migrations.md)
-* To use initializer to define (or change) table statically, see doc/[schema-builder-static.md](doc/schema-builder-static.md)
+* To use initializer to define (or change) table, see doc/[schema-builder-constant.md](doc/schema-builder-constant.md)
 * To use macro to define (or change) table dynamically, see doc/[schema-builder-macro.md](doc/schema-builder-macro.md)
 
 ## Database products

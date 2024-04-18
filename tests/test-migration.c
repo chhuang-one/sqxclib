@@ -88,7 +88,7 @@ struct SubAccount {
 
 // --- UserColumns is sorted by programer... :)
 static const SqColumn  *UserColumns[] = {
-	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE  ON UPDATE CASCADE
+	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE CASCADE  ON UPDATE CASCADE
 	&(SqColumn) {SQ_TYPE_INT, "city_id",     offsetof(User, city_id),    SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "CASCADE", NULL} },
 
@@ -96,11 +96,11 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_STR, "comment",     offsetof(User, comment),  0,
 	             .sql_type = SQ_SQL_TYPE_TEXT},
 
-	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE CASCADE  ON UPDATE CASCADE
+	// "company_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE CASCADE  ON UPDATE CASCADE
 	&(SqColumn) {SQ_TYPE_INT, "company_id",  offsetof(User, company_id), SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = (char *[]) {"companies", "id",  "",  "CASCADE", "CASCADE", NULL} },
 
-	// "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION  ON UPDATE NO ACTION
+	// "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE NO ACTION  ON UPDATE NO ACTION
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = (char *[]) {"companies", "id",  "",  "NO ACTION", "NO ACTION", NULL} },
 
@@ -121,7 +121,7 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_STR, "name",        offsetof(User, name),     0},
 	&(SqColumn) {SQ_TYPE_INT_ARRAY, "posts", offsetof(User, posts),    0},
 
-	// "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// "updated_at" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	&(SqColumn) {SQ_TYPE_TIME, "updated_at", offsetof(User, updated_at),  SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 };
 
@@ -154,7 +154,7 @@ static const SqColumn  *UserColumnsChange[] = {
 //	&(SqColumn) {SQ_TYPE_INT,  "city_id",  offsetof(User, city_id),  SQB_CHANGED},
 
 	// ALTER COLUMN "company_test_id"  (remove FOREIGN KEY properties in 'UserColumns')
-	// From: "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id") ON DELETE NO ACTION ON UPDATE NO ACTION
+	// From: "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE NO ACTION  ON UPDATE NO ACTION
 	// To:   "company_test_id"  INT
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_NULLABLE | SQB_CHANGED },
 

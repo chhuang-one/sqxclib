@@ -18,7 +18,7 @@ SqConsole、SqCommand 和 SqOption 的关系。
 
 # SqCommand
 
-用户可以使用 SqCommand 静态（或动态）定义命令及其选项。
+用户可以使用 SqCommand 定义常量（或动态）命令及其选项。
 SqConsole 使用它来解析来自命令行的数据并将解析的数据存储在 SqCommandValue 中。
 
 	SqType
@@ -37,7 +37,7 @@ SqConsole 使用它来解析来自命令行的数据并将解析的数据存储�
 
 它存储来自命令行的选项值。
 
-## 1 静态定义新命令
+## 1 定义常量命令
 
 例如: 定义 'mycommand' 有两个选项 - '--help' 和 '--quiet'
 
@@ -66,7 +66,7 @@ struct MyCommandValue
 };
 ```
 
-#### 1.2 静态定义命令选项
+#### 1.2 定义常量命令选项
 
 如果定义常量 SqCommand，它必须与 SqOption 的**指针数组**一起使用。
 
@@ -96,7 +96,7 @@ static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void
 }
 ```
 
-#### 1.4 静态定义命令
+#### 1.4 定义常量命令
 
 ```c++
 static const SqCommand mycommand = SQ_COMMAND_INITIALIZER(

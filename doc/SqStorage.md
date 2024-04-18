@@ -61,7 +61,7 @@ struct User {
 
 Here we use functions or methods for running migration dynamically.
 * You can get more information about schema and migrations in [database-migrations.md](database-migrations.md)
-* To use initializer to define (or change) table statically, see [schema-builder-static.md](schema-builder-static.md)
+* To use initializer to define (or change) table, see [schema-builder-constant.md](schema-builder-constant.md)
   
 use C functions
 

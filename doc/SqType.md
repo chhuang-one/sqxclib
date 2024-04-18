@@ -49,11 +49,11 @@ Define bit_field of SqType:
 | SQB_TYPE_SORTED       | SqType::entry is sorted by SqEntry::name |
 | SQB_TYPE_QUERY_FIRST  | SqType::entry has query-only columns     |
 
-* SQB_TYPE_DYNAMIC is for internal use only. User should NOT set or clear this bit.
+* When user call function to creates or initializes a SqType, SqType::bit_field is set to SQB_TYPE_DYNAMIC.
 * User can NOT change or free SqType if SqType::bit_field has NOT set SQB_TYPE_DYNAMIC.
 * User must use bitwise operators to set or clear bits in SqType::bit_field.
-* It is better to use constant or static SqEntry with constant or static SqType.
-* Dynamic SqEntry can use with dynamic, constant, or static SqType.
+* Constant or static SqType must be used with constant or static SqEntry.
+* Dynamic SqType can use with dynamic, constant, or static SqEntry.
 
 ## 0 Library-provided SqType
 

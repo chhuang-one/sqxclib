@@ -3,7 +3,7 @@
 # SqApp
 
 SqApp 使用配置文件 (SqApp-config.h) 来初始化数据库并进行迁移。它由应用程序使用。  
-注意: SqApp 在 sqxcapp 库中。  
+注意: SqApp 在 sqxcapp 库的 SqApp.h 中声明。  
 
 	SqApp
 	│
@@ -23,6 +23,9 @@ SQ_APP_DEFAULT 是 SqAppSetting 的内置默认设置。用户可以通过编辑
 使用 C 语言
 
 ```c
+// sqxclib.h 不包含 sqxcapp 库
+#include <SqApp.h>
+
 	// 'SQ_APP_DEFAULT' 具有用户应用程序的数据库设置和迁移数据。
 	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
 ```
@@ -30,6 +33,9 @@ SQ_APP_DEFAULT 是 SqAppSetting 的内置默认设置。用户可以通过编辑
 使用 C++ 语言
 
 ```c++
+// sqxclib.h 不包含 sqxcapp 库
+#include <SqApp.h>
+
 	// 'SQ_APP_DEFAULT' 具有用户应用程序的数据库设置和迁移数据。
 	Sq::App *sqapp = new Sq::App(SQ_APP_DEFAULT);
 ```

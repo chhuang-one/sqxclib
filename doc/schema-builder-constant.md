@@ -1,12 +1,12 @@
-[中文](schema-builder-static.cn.md)
+[中文](schema-builder-constant.cn.md)
 
-# Schema Builder (static)
+# Schema Builder (constant)
 
 This document introduce how to use C99 designated initializer (or C++ aggregate initialization) to define table.
 * This can reduce running time when making schema.
-* Schema can handle both dynamic and static column/table definitions.
-* If user modify static defined column/table, program will copy column/table before modifying it.
-* Program will not free static defined columns/tables from memory. It just doesn't use them.
+* Schema can handle both dynamic and constant column/table definitions.
+* If user modify constant column/table, program will copy column/table before modifying it.
+* Program will not free constant columns/tables from memory. It just doesn't use them.
 * If your SQL table is fixed and not changed in future, you can reduce more running time by using constant [SqType](SqType.md) to define table. see [SqColumn.md](SqColumn.md)
 
 Define a C structured data type to map database table "users".
@@ -31,9 +31,9 @@ struct User {
 };
 ```
 
-## Creating Tables (static)
+## Creating Tables (constant)
 
-To define column statically, The first four fields of [SqColumn](SqColumn.md) are the most commonly used. They are type, name, offset, and bit_field.  
+To define constant column, The first four fields of [SqColumn](SqColumn.md) are the most commonly used. They are type, name, offset, and bit_field.  
 
 * field 'type' is used to specify the C/C++ data type, usually starting with SQ_TYPE, see [SqType](SqType.md).
 * field 'name' is used to specify the column name.
@@ -80,7 +80,7 @@ static const SqColumn  userColumns[6] = {
 	// create table "users"
 	table = sq_schema_create(schema_v1, "users", User);
 
-	// add static 'userColumns' that has 6 elements to table
+	// add 'userColumns' that has 6 elements to table
 	sq_table_add_column(table, userColumns, 6);
 ```
 
@@ -140,11 +140,11 @@ static const SqColumn  userColumns[8] = {
 
 	// create table "users"
 	table = schema_v1->create<User>("users");
-	// add static 'userColumns' that has 8 elements to table
+	// add 'userColumns' that has 8 elements to table
 	table->addColumn(userColumns, 8);
 ```
 
-## Updating Tables (static)
+## Updating Tables (constant)
 
 * To rename a column, set field 'old_name' as current column name and 'name' as new column name.
 * To delete a column, set field 'old_name' as current column name and 'name' as NULL.
@@ -174,11 +174,11 @@ static const SqColumn  columnsChanges[4] = {
 	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
 
-	// alter table by static 'columnsChanges' that has 4 elements
+	// alter table by 'columnsChanges' that has 4 elements
 	sq_table_add_column(table, columnsChanges, 4);
 ```
 
-## Constraints (static)
+## Constraints (constant)
 
 set the constraint onto column definition:
 * To define primary key column, set SQB_PRIMARY in SqColumn::bit_field.
@@ -278,7 +278,7 @@ static const SqColumn  otherChanges2[] = {
 	.foreign   = (char *[]) {"table", "column1", "column2", NULL},
 ```
 
-## Index (static)
+## Index (constant)
 
 * field 'type' must be set as SQ_TYPE_INDEX. SQ_TYPE_INDEX is a fake data type used by migrations.
 * field 'composite' is NULL-terminated array for setting composite index.
@@ -301,7 +301,7 @@ static const SqColumn  otherChanges4[] = {
 };
 ```
 
-## Use custom or JSON type (static)
+## Use custom or JSON type (constant)
 
 If you want to store JSON object or array in SQL column, you must specify [SqType](SqType.md).  
   
@@ -333,7 +333,7 @@ static const SqColumn  demoTableColumns[] = {
 };
 ```
 
-## Query-only column (static)
+## Query-only column (constant)
 
 Query-only column names only apply to SQL SELECT query. You can set SqColumn::name to the SELECT query and set SQB_QUERY_ONLY in SqColumn::bit_field to define query-only column. This can store result of special query like 'SELECT length(BlobColumn), * FROM table' to C structure's member.  
   
@@ -393,7 +393,7 @@ static const SqColumn *queryFirstColumnPtrs[3] = {
 const SqType  queryFirstType = SQ_TYPE_INITIALIZER(QueryFirst, queryFirstColumnPtrs, SQB_TYPE_QUERY_FIRST);
 ```
 
-## Type mapping (static)
+## Type mapping (constant)
 
 Users can specify the SQL data type in SqColumn::sql_type, which will map to the C data type specified in SqColumn::type.
 If SqColumn::sql_type is equal to 0, program will try to determine the SQL data type from SqColumn::type.
@@ -477,7 +477,7 @@ static const SqColumn  mappingCppColumns[4] = {
 
 ## Migrations
 
-Whether dynamic and static definitions, the code that running migrations is the same.  
+Whether dynamic and constant definitions, the code that running migrations is the same.  
   
 use C++ methods to migrate schema and synchronize to database
 

@@ -49,11 +49,11 @@ struct SqType
 | SQB_TYPE_SORTED       | SqType::entry 按照 SqEntry::name 排序  |
 | SQB_TYPE_QUERY_FIRST  | SqType::entry 具有仅查询列             |
 
-* SQB_TYPE_DYNAMIC 仅供内部使用。用户不应设置或清除该位。
+* 当用户调用函数创建或初始化 SqType 时，SqType::bit_field 设置为 SQB_TYPE_DYNAMIC。
 * 如果 SqType::bit_field 没有设置 SQB_TYPE_DYNAMIC，用户不能更改或释放 SqType。
 * 用户必须使用位运算符来设置或清除 SqType::bit_field 中的位。
-* 最好将常量或静态 SqEntry 与常量或静态 SqType 一起使用。
-* 动态 SqEntry 可以与动态、常量或静态 SqType 一起使用。
+* 常量或静态 SqType 必须与常量或静态 SqEntry 一起使用。
+* 动态 SqType 可以与动态、常量或静态 SqEntry 一起使用。
 
 ## 0 库提供的 SqType
 

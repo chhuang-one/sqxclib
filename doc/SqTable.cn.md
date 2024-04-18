@@ -222,7 +222,7 @@ C 函数 sq_table_add_column() 和 sq_table_add_column_ptrs(), C++ 方法 addCol
 sq_table_add_column(), addColumn()      可以添加 SqColumn 数组。  
 sq_table_add_column_ptrs(), addColumn() 可以添加 SqColumn 指针数组。  
   
-您可以查看 [schema-builder-static.cn.md](schema-builder-static.cn.md) 以获取更多信息和示例。
+您可以查看 [schema-builder-constant.cn.md](schema-builder-constant.cn.md) 以获取更多信息和示例。
 
 ## 删除列
 

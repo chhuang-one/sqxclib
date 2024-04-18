@@ -18,7 +18,7 @@ Relationship of SqConsole, SqCommand, and SqOption.
 
 # SqCommand
 
-User can use SqCommand to define command and it's options statically (or dynamically).
+User can use SqCommand to define constant (or dynamic) command and it's options.
 SqConsole use this to parse data from command-line and store parsed data in SqCommandValue.
 
 	SqType
@@ -37,7 +37,7 @@ It defines option in command.
 
 It stores value of option from command-line.
 
-## 1 Define a new command statically
+## 1 Define a constant command
 
 e.g. define 'mycommand' that has two options - '--help' and '--quiet'
 
@@ -66,7 +66,7 @@ struct MyCommandValue
 };
 ```
 
-#### 1.2 define options of command statically
+#### 1.2 define constant options of command
 
 If you define constant SqCommand, it must use with **pointer array** of SqOption.
 
@@ -96,7 +96,7 @@ static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void
 }
 ```
 
-#### 1.4 define command statically
+#### 1.4 define constant command
 
 ```c++
 static const SqCommand mycommand = SQ_COMMAND_INITIALIZER(

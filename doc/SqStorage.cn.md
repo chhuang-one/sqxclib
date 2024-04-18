@@ -61,7 +61,7 @@ struct User {
 
 在这里，我们使用函数或方法来动态运行迁移。
 * 您可以在 [database-migrations.cn.md](database-migrations.cn.md) 中获得有关架构和迁移的更多信息
-* 要使用初始化器静态定义（或更改）表，请参阅 [schema-builder-static.cn.md](schema-builder-static.cn.md)
+* 要使用初始化器定义（或更改）表，请参阅 [schema-builder-constant.cn.md](schema-builder-constant.cn.md)
   
 使用 C 函数
 

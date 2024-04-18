@@ -3,7 +3,7 @@
 # SqApp
 
 SqApp use configuration file (SqApp-config.h) to initialize database and do migrations. It used by application.  
-Note: SqApp is in sqxcapp library.  
+Note: SqApp is declared in SqApp.h of the sqxcapp library.  
 
 	SqApp
 	│
@@ -23,6 +23,9 @@ SQ_APP_DEFAULT is build-in default setting for SqAppSetting, user can change it 
 use C language
 
 ```c
+// sqxclib.h doesn't contain sqxcapp library
+#include <SqApp.h>
+
 	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
 	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
 ```
@@ -30,6 +33,9 @@ use C language
 use C++ language
 
 ```c++
+// sqxclib.h doesn't contain sqxcapp library
+#include <SqApp.h>
+
 	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
 	Sq::App *sqapp = new Sq::App(SQ_APP_DEFAULT);
 ```

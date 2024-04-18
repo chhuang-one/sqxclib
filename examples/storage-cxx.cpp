@@ -16,7 +16,7 @@
 	Functions storage_make_migrated_schema() and storage_make_fixed_schema() are
 	example code for dynamically defining tables and columns.
 
-	This example code also use C++ designated initialization to define columns in tables statically.
+	This example code also use C++ designated initialization to define constant columns in tables.
  */
 
 #ifdef _MSC_VER
@@ -214,7 +214,7 @@ static const SqColumn userColumns[] = {
 
 	// created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,    "created_at",   offsetof(User, created_at),   SQB_CURRENT},
-	// updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+	// updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
 	{SQ_TYPE_TIME,    "updated_at",   offsetof(User, updated_at),   SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 
 	// This column is used by CONSTRAINT FOREIGN KEY below.
