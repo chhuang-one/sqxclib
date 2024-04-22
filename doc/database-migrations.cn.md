@@ -65,23 +65,11 @@ struct User {
 
 #### 创建表（动态）
 
-因为 gcc 的 typeid(Type).name() 会返回奇怪的名称，你会从 C 和 C++ 源代码中得到不同的类型名称。  
-**如果您的应用程序是用 C++ 语言编写的，请用 C++ 语言创建或定义 SqTable 的类型。**  
+在数据库中创建一个新表及其列。  
   
-如果 SqTable::type 用 C 语言定义，你不能使用下面的 C++ 模板函数来访问 SQL 表。
-
-	storage->insert<StructType>(...)
-	storage->update<StructType>(...)
-	storage->updateAll<StructType>(...)
-	storage->remove<StructType>(...)
-	storage->removeAll<StructType>(...)
-	storage->get<StructType>(...)
-	storage->getAll<StructType>(...)
-
-使用 Schema 的 create 函数来创建一个新的数据库表。  
-该函数接受两个参数：一个参数是表的名称，另一个是结构类型。  
+使用 C++ 语言  
   
-使用 C++ 语言
+create() 方法需要指定 结构数据类型 和 表名称。
 
 ```c++
 	// 创建表 "users"
@@ -94,7 +82,9 @@ struct User {
 	table->timestamp("created_at", &User::created_at)->useCurrent();
 ```
 
-使用 C 语言
+使用 C 语言  
+  
+sq_schema_create() 函数接受两个参数：第一个参数是表的名称，第二个参数是结构化数据类型。
 
 ```c
 	// 创建表 "users"
@@ -109,6 +99,28 @@ struct User {
 
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
 	sq_column_use_current(column);
+```
+
+如果您的表是用 C 语言定义的，并且应用程序是用 C++ 语言编写的，则不能使用以下 C++ 模板函数来访问 SQL 表。
+
+	storage->insert<StructType>(...)
+	storage->update<StructType>(...)
+	storage->updateAll<StructType>(...)
+	storage->remove<StructType>(...)
+	storage->removeAll<StructType>(...)
+	storage->get<StructType>(...)
+	storage->getAll<StructType>(...)
+
+因为 gcc 的 typeid(Type).name() 会返回奇怪的名称，所以你会从 C 和 C++ 源代码中得到不同的类型名称。 在这种情况下，您必须用 C++ 语言创建或定义 SqTable 的类型，或者使用 setName() 方法设置 C 语言创建的 SqTable::type 的名称。
+
+```c++
+	// 如果 'cUserTable' 是用 C 语言创建的并且不是常量。
+	SqTable *table = cUserTable;
+
+	// 将 C 类型名称更改为 C++ 类型名称
+	table->type->setName(typeid(User).name());
+		// 或
+	table->type->setName(SQ_GET_TYPE_NAME(User));
 ```
 
 #### 检查表是否存在

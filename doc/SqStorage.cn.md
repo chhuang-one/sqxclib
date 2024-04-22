@@ -170,7 +170,7 @@ SELECT * FROM users
   
 如果不想使用指针数组，可以指定其他容器类型。  
   
-例如：容器类型指定为 SQ_TYPE_ARRAY（参见 [SqArray](SqArray.cn.md)）。
+例如: 容器类型指定为 SQ_TYPE_ARRAY（参见 [SqArray](SqArray.cn.md)）。
 
 ```c++
 	SqArray    *array;

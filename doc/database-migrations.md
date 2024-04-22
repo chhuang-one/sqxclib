@@ -65,23 +65,11 @@ struct User {
 
 #### Creating Tables (dynamic)
 
-You will get different type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.  
-**Please create or define type of SqTable in C++ language if your application written in C++ language.**  
+Create a new table and it's columns in database.  
   
-If SqTable::type defined in C language, you may NOT use below C++ template functions to access SQL table.
-
-	storage->insert<StructType>(...)
-	storage->update<StructType>(...)
-	storage->updateAll<StructType>(...)
-	storage->remove<StructType>(...)
-	storage->removeAll<StructType>(...)
-	storage->get<StructType>(...)
-	storage->getAll<StructType>(...)
-
-use the create function in the schema to create a new database table.  
-The function accepts two arguments: one argument is the name of table, another is structured data type.  
+use C++ language  
   
-use C++ language
+The create() method requires specifying the structure data type and table name.
 
 ```c++
 	// create table "users"
@@ -94,7 +82,9 @@ use C++ language
 	table->timestamp("created_at", &User::created_at)->useCurrent();
 ```
 
-use C language
+use C language  
+  
+The sq_schema_create() function accepts two arguments: first argument is the name of table, second is structure data type.  
 
 ```c
 	// create table "users"
@@ -109,6 +99,28 @@ use C language
 
 	column = sq_table_add_timestamp(table, "created_at", offset(User, created_at));
 	sq_column_use_current(column);
+```
+
+If your table is defined in C language and application is written in C++ language, you may NOT use below C++ template functions to access SQL table.
+
+	storage->insert<StructType>(...)
+	storage->update<StructType>(...)
+	storage->updateAll<StructType>(...)
+	storage->remove<StructType>(...)
+	storage->removeAll<StructType>(...)
+	storage->get<StructType>(...)
+	storage->getAll<StructType>(...)
+
+Because gcc's typeid(Type).name() will return strange name, you will get different type name from C and C++ source code. In this case, you must create or define type of SqTable in C++ language, or use setName() method to set name of SqTable::type created in C language.
+
+```c++
+	// if 'cUserTable' is created in C language and is not a constant.
+	SqTable *table = cUserTable;
+
+	// change C type name to C++ type name
+	table->type->setName(typeid(User).name());
+		// or
+	table->type->setName(SQ_GET_TYPE_NAME(User));
 ```
 
 #### Checking For Table Existence

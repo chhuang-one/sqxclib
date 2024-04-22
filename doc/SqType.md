@@ -390,7 +390,7 @@ use C++ language to find & remove SqEntry
 
 #### 2.8 Copy SqType
 
-Because static constant SqType can't be modified directly, user must copy it before modifying.  
+Because constant SqType can't be modified directly, user must copy it before modifying.  
 function sq_type_copy() can copy SqType. It's declarations:
 
 ```c
@@ -407,15 +407,15 @@ return 'type_dest' or newly created SqType.
 use C language to copy SqType
 
 ```c
-	// copy static constant SqType - SQ_TYPE_ARRAY
-	// This is mainly used to modify static constant SqType.
+	// copy constant SqType - SQ_TYPE_ARRAY
+	// This is mainly used to modify constant SqType.
 	type = sq_type_copy(NULL, SQ_TYPE_ARRAY,
 	                    (SqDestroyFunc) NULL,
 	                    (SqCopyFunc)    NULL);
 
-	// copy static constant SqType from SqTable::type
+	// copy constant SqType from SqTable::type
 	// The new instance 'type' shares SqColumn instances in 'table->type'
-	// This is mainly used to modify static constant SqType (from SqTable::type) when migrating.
+	// This is mainly used to modify constant SqType (from SqTable::type) when migrating.
 	type = sq_type_copy(NULL, table->type,
 	                    (SqDestroyFunc) sq_column_free,
 	                    (SqCopyFunc)    NULL);
@@ -425,6 +425,33 @@ use C language to copy SqType
 	type = sq_type_copy(NULL, table->type,
 	                    (SqDestroyFunc) sq_column_free,
 	                    (SqCopyFunc)    sq_column_copy);
+```
+
+#### 2.9 Change dynamic to constant
+
+C function sq_type_use_constant(), C++ method useConstant() can clear SQB_TYPE_DYNAMIC from SqType::bit_field.
+These are typically used with global static SqType.  
+  
+use C language
+
+```c
+// global static SqType
+static SqType  type;
+
+	// initialize
+	sq_type_init_self(&type, 0, NULL);
+	sq_type_use_constant(&type);
+```
+
+use C++ language
+
+```c++
+// global static Sq::Type
+static Sq::Type  type;
+
+	// initialize
+	type.initSelf(0, NULL);
+	type.useConstant();
 ```
 
 ## 3 How to support new container type

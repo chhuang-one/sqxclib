@@ -10,8 +10,7 @@
 您可以使用 CMake 或 meson 来构建和安装 sqxclib。  
 如果在加载共享库时出错，您可能需要设置 LD_LIBRARY_PATH 环境变量。  
   
-例如：  
-sqxclib 共享库安装在 /usr/local/lib
+例如: sqxclib 共享库安装在 /usr/local/lib
 
 ```
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib

@@ -10,8 +10,7 @@ You must install sqxclib headers and libraries in system before you use these fi
 You can use CMake or meson to build and install sqxclib.  
 If you get error while loading shared libraries, you may need setup LD_LIBRARY_PATH environment variable.  
   
-For example:  
-sqxclib shared libraries installed in /usr/local/lib
+For example: sqxclib shared libraries installed in /usr/local/lib
 
 ```
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib

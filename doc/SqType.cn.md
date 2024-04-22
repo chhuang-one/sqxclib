@@ -151,7 +151,7 @@ const SqType type_int = {
 SqType  *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func);
 ```
 
-例如：为 SqType 创建原始数据类型。
+例如: 为 SqType 创建原始数据类型。
 
 ```c++
 	SqType *type;
@@ -390,7 +390,7 @@ unsigned int  Sq::Type::decideSize(const SqEntry *inner_entry, bool entry_remove
 
 #### 2.8 复制 SqType
 
-由于静态常量 SqType 不能直接修改，所以修改前必须复制它。  
+由于常量 SqType 不能直接修改，所以修改前必须复制它。  
 函数 sq_type_copy() 可以复制 SqType。 它的声明：
 
 ```c
@@ -407,15 +407,15 @@ SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
 使用 C 语言复制 SqType
 
 ```c
-	// 复制静态常量 SqType - SQ_TYPE_ARRAY
-	// 这主要用于修改静态常量 SqType。
+	// 复制常量 SqType - SQ_TYPE_ARRAY
+	// 这主要用于修改常量 SqType。
 	type = sq_type_copy(NULL, SQ_TYPE_ARRAY,
 	                    (SqDestroyFunc) NULL,
 	                    (SqCopyFunc)    NULL);
 
-	// 从 SqTable::type 复制静态常量 SqType
+	// 从 SqTable::type 复制常量 SqType
 	// 新实例 'type' 共享来自 'table->type' 的 SqColumn 实例
-	// 这主要用于迁移时修改静态常量 SqType（来自 SqTable::type）。
+	// 这主要用于迁移时修改常量 SqType（来自 SqTable::type）。
 	type = sq_type_copy(NULL, table->type,
 	                    (SqDestroyFunc) sq_column_free,
 	                    (SqCopyFunc)    NULL);
@@ -425,6 +425,33 @@ SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
 	type = sq_type_copy(NULL, table->type,
 	                    (SqDestroyFunc) sq_column_free,
 	                    (SqCopyFunc)    sq_column_copy);
+```
+
+#### 2.9 将动态更改为常量
+
+C 函数 sq_type_use_constant()、 C++ 方法 useConstant() 可以从 SqType::bit_field 中清除 SQB_TYPE_DYNAMIC。
+这些通常与全局静态 SqType 一起使用。  
+  
+使用 C 语言
+
+```c
+// 全局静态 SqType
+static SqType  type;
+
+	// 初始化
+	sq_type_init_self(&type, 0, NULL);
+	sq_type_use_constant(&type);
+```
+
+使用 C++ 语言
+
+```c++
+// 全局静态 Sq::Type
+static Sq::Type  type;
+
+	// 初始化
+	type.initSelf(0, NULL);
+	type.useConstant();
 ```
 
 ## 3 如何支持新的容器类型
