@@ -101,7 +101,7 @@ The sq_schema_create() function accepts two arguments: first argument is the nam
 	sq_column_use_current(column);
 ```
 
-If your table is defined in C language and application is written in C++ language, you may NOT use below C++ template functions to access SQL table.
+If your table is defined in C language but application is written in C++ language, you may NOT use below C++ template functions to access SQL table.
 
 	storage->insert<StructType>(...)
 	storage->update<StructType>(...)
@@ -114,7 +114,7 @@ If your table is defined in C language and application is written in C++ languag
 Because gcc's typeid(Type).name() will return strange name, you will get different type name from C and C++ source code. In this case, you must create or define type of SqTable in C++ language, or use setName() method to set name of SqTable::type created in C language.
 
 ```c++
-	// if 'cUserTable' is created in C language and is not a constant.
+	// 'cUserTable' is created in C language and is not a constant.
 	SqTable *table = cUserTable;
 
 	// change C type name to C++ type name

@@ -130,6 +130,7 @@ struct DbMethod
 	void init(const SqdbInfo *info, const SqdbConfig *config);
 	void init(const SqdbInfo *info, const SqdbConfig &config);
 	void final(void);
+	void free(void);
 
 	int  open(const char *name);
 	int  close(void);
@@ -244,6 +245,9 @@ inline void DbMethod::init(const SqdbInfo *info, const SqdbConfig &config) {
 }
 inline void DbMethod::final(void) {
 	sqdb_final((Sqdb*)this);
+}
+inline void DbMethod::free(void) {
+	sqdb_free((Sqdb*)this);
 }
 
 inline int  DbMethod::open(const char *name) {

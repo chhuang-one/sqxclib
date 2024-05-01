@@ -399,6 +399,8 @@ struct XcMethod
 {
 	Sq::Buffer *buffer(void);
 
+	void   init(const SqxcInfo *xcinfo);
+	void   final();
 	void   free();
 	void   freeChain();
 
@@ -585,6 +587,12 @@ inline Sq::Buffer *XcMethod::buffer(void) {
 	return (Sq::Buffer*)sqxc_get_buffer(this);
 }
 
+inline void   XcMethod::init(const SqxcInfo *xcinfo) {
+	sqxc_init((Sqxc*)this, xcinfo);
+}
+inline void   XcMethod::final() {
+	sqxc_final((Sqxc*)this);
+}
 inline void   XcMethod::free() {
 	return sqxc_free((Sqxc*)this);
 }

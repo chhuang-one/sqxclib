@@ -430,28 +430,28 @@ use C language to copy SqType
 #### 2.9 Change dynamic to constant
 
 C function sq_type_use_constant(), C++ method useConstant() can clear SQB_TYPE_DYNAMIC from SqType::bit_field.
-These are typically used with global static SqType.  
+These are typically used with global SqType.  
   
 use C language
 
 ```c
-// global static SqType
-static SqType  type;
+	// 'globalType' is a global variable and not a constant.
+	SqType *type = globalType;
 
 	// initialize
-	sq_type_init_self(&type, 0, NULL);
-	sq_type_use_constant(&type);
+	sq_type_init_self(type, 0, NULL);
+	sq_type_use_constant(type);
 ```
 
 use C++ language
 
 ```c++
-// global static Sq::Type
-static Sq::Type  type;
+	// 'globalType' is a global variable and not a constant.
+	Sq::Type *type = globalType;
 
 	// initialize
-	type.initSelf(0, NULL);
-	type.useConstant();
+	type->initSelf(0, NULL);
+	type->useConstant();
 ```
 
 ## 3 How to support new container type

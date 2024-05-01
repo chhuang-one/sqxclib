@@ -52,7 +52,7 @@ int  sq_type_bool_parse(void *instance, const SqType *entrytype, Sqxc *src)
 
 	case SQXC_TYPE_STR:
 		if (src->value.str) {
-			ch = src->value.str[0]; 
+			ch = src->value.str[0];
 			if (ch == '0' || ch == 'f' || ch == 'F')    // '0', 'false', or 'FALSE'
 				*(bool*)instance = false;
 			else

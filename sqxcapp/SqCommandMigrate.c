@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -35,9 +35,9 @@ static const SqOption option_database = {
 // ----------------------------------------------------------------------------
 // migrate
 
-static void migrate(SqCommandValue *cmd_value, SqConsole *console, void *data)
+static void migrate(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)cmd_value;
+	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
 	SqApp *app = data;
 	int    code;
 
@@ -105,9 +105,9 @@ static const SqCommand migrate_command = {
 // ----------------------------------------------------------------------------
 // migrate:install
 
-static void migrate_install(SqCommandValue *cmd_value, SqConsole *console, void *data)
+static void migrate_install(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)cmd_value;
+	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
 	SqApp *app = data;
 	int    code;
 
@@ -169,9 +169,9 @@ static const SqCommand migrate_install_command = {
 // ----------------------------------------------------------------------------
 // migrate:rollback
 
-static void migrate_rollback(SqCommandValue *cmd_value, SqConsole *console, void *data)
+static void migrate_rollback(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)cmd_value;
+	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
 	SqApp *app = data;
 	int    code;
 
@@ -240,9 +240,9 @@ static const SqCommand migrate_rollback_command = {
 // ----------------------------------------------------------------------------
 // migrate:reset
 
-static void migrate_reset(SqCommandValue *cmd_value, SqConsole *console, void *data)
+static void migrate_reset(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)cmd_value;
+	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
 	SqApp *app = data;
 	int    code;
 
@@ -289,9 +289,9 @@ static const SqCommand migrate_reset_command = SQ_COMMAND_INITIALIZER(
 // ----------------------------------------------------------------------------
 // migrate:refresh
 
-static void migrate_refresh(SqCommandValue *cmd_value, SqConsole *console, void *data)
+static void migrate_refresh(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)cmd_value;
+	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
 	SqApp *app = data;
 	int    code;
 

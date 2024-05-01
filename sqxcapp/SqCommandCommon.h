@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -79,9 +79,11 @@ struct SqCommandCommon
 /*	// ------ SqCommandValue members ------
 	const SqCommand  *type;
 
-	// shortcuts is an array that sorted by SqOption.shortcut
+	// 'shortcuts' is an array that sorted by SqOption::shortcut
 	SqPtrArray     shortcuts;
 	SqPtrArray     arguments;
+
+	// The following are option values.
 
 	// ------ SqCommandCommon members ------       // <-- 3. Add variable and non-virtual function in derived struct.
 	bool           help;

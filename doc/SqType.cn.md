@@ -430,28 +430,28 @@ SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
 #### 2.9 将动态更改为常量
 
 C 函数 sq_type_use_constant()、 C++ 方法 useConstant() 可以从 SqType::bit_field 中清除 SQB_TYPE_DYNAMIC。
-这些通常与全局静态 SqType 一起使用。  
+这些通常与全局 SqType 一起使用。  
   
 使用 C 语言
 
 ```c
-// 全局静态 SqType
-static SqType  type;
+	// 'globalType' 是全局变量并且不是常量。
+	SqType *type = globalType;
 
 	// 初始化
-	sq_type_init_self(&type, 0, NULL);
-	sq_type_use_constant(&type);
+	sq_type_init_self(type, 0, NULL);
+	sq_type_use_constant(type);
 ```
 
 使用 C++ 语言
 
 ```c++
-// 全局静态 Sq::Type
-static Sq::Type  type;
+	// 'globalType' 是全局变量并且不是常量。
+	Sq::Type *type = globalType;
 
 	// 初始化
-	type.initSelf(0, NULL);
-	type.useConstant();
+	type->initSelf(0, NULL);
+	type->useConstant();
 ```
 
 ## 3 如何支持新的容器类型

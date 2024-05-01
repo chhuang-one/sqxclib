@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -20,9 +20,9 @@
 // ----------------------------------------------------------------------------
 // make:migration
 
-static void make_migration(SqCommandValue *cmd_value, SqConsole *console, void *data)
+static void make_migration(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMake *value = (SqCommandMake*)cmd_value;
+	SqCommandMake *value = (SqCommandMake*)commandValue;
 	SqAppTool   *app = data;
 	const char  *template_file = NULL;
 	int          code;

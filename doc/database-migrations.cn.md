@@ -101,7 +101,7 @@ sq_schema_create() 函数接受两个参数：第一个参数是表的名称，�
 	sq_column_use_current(column);
 ```
 
-如果您的表是用 C 语言定义的，并且应用程序是用 C++ 语言编写的，则不能使用以下 C++ 模板函数来访问 SQL 表。
+如果您的表是用 C 语言定义的，但应用程序是用 C++ 语言编写的，则不能使用以下 C++ 模板函数来访问 SQL 表。
 
 	storage->insert<StructType>(...)
 	storage->update<StructType>(...)
@@ -114,7 +114,7 @@ sq_schema_create() 函数接受两个参数：第一个参数是表的名称，�
 因为 gcc 的 typeid(Type).name() 会返回奇怪的名称，所以你会从 C 和 C++ 源代码中得到不同的类型名称。 在这种情况下，您必须用 C++ 语言创建或定义 SqTable 的类型，或者使用 setName() 方法设置 C 语言创建的 SqTable::type 的名称。
 
 ```c++
-	// 如果 'cUserTable' 是用 C 语言创建的并且不是常量。
+	// 'cUserTable' 是用 C 语言创建的并且不是常量。
 	SqTable *table = cUserTable;
 
 	// 将 C 类型名称更改为 C++ 类型名称

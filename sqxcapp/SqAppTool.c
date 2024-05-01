@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -57,9 +57,11 @@ struct SqCommandList
 /*	// ------ SqCommandValue members ------
 	const SqCommand  *type;
 
-	// shortcuts is an array that sorted by SqOption.shortcut
+	// 'shortcuts' is an array that sorted by SqOption::shortcut
 	SqPtrArray     shortcuts;
 	SqPtrArray     arguments;
+
+	// The following are option values.
 
 	// ------ SqCommandCommon members ------
 	bool           help;
@@ -73,9 +75,9 @@ struct SqCommandList
 // ----------------------------------------------------------------------------
 // list
 
-static void list(SqCommandValue *cmd_value, SqConsole *console, void *data)
+static void list(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandList *value = (SqCommandList*)cmd_value;
+	SqCommandList *value = (SqCommandList*)commandValue;
 //	SqAppTool *app = data;
 //	console = app->console;
 
@@ -155,7 +157,7 @@ void   sq_app_tool_final(SqAppTool *app)
 int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
 {
 	SqConsole *console;
-	SqCommandValue *cmd_value;
+	SqCommandValue *commandValue;
 
 	console = app->console;
 	if (argc <= 1) {
@@ -163,8 +165,8 @@ int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
 		return SQCODE_OK;
 	}
 
-	cmd_value = sq_console_parse(console, argc, (char**)argv, true);
-	if (cmd_value == NULL) {
+	commandValue = sq_console_parse(console, argc, (char**)argv, true);
+	if (commandValue == NULL) {
 		puts("unknown command");
 		return SQCODE_ERROR;
 	}
@@ -172,8 +174,8 @@ int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
 	// decide workspace folder
 	sq_app_tool_decide_path(app);
 	// handle command
-	cmd_value->type->handle(cmd_value, console, app);
-	sq_command_value_free(cmd_value);
+	commandValue->type->handle(commandValue, console, app);
+	sq_command_value_free(commandValue);
 	return SQCODE_OK;
 }
 

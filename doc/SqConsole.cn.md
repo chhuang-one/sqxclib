@@ -27,7 +27,7 @@ SqConsole 使用它来解析来自命令行的数据并将解析的数据存储�
 
 # SqOption
 
-它在命令中定义选项。
+它在命令中定义选项。由于它派生自 [SqEntry](SqEntry.cn.md)，因此如果 C/C++ 语言中的选项值为指针类型，则可以在 SqOption::bit_field 中设置 SQB_POINTER。
 
 	SqEntry
 	│
@@ -61,8 +61,13 @@ struct MyCommandValue
 {
 	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. 继承成员变量
 
-	bool    help;                                  // <-- 3. 在派生结构中添加变量和非虚函数。
+	// 以下是选项值。
+
+	// ------ MyCommandValue 成员 ------           // <-- 3. 在派生结构中添加变量和非虚函数。
+	bool    help;
 	bool    quiet;
+
+	int     step;
 };
 ```
 
@@ -79,18 +84,34 @@ static const SqOption  mycommand_option_array[] = {
 	{SQ_TYPE_BOOL,  "quiet",     offsetof(MyCommandValue, quiet),
 		.shortcut = "q",  .default_value = "true",
 		.description = "Do not output any message."},
+
+	{SQ_TYPE_INT,   "step",      offsetof(MyCommandValue, step),
+		.shortcut = "s",  .default_value = "1",
+		.description = "Take step."},
 };
 
 static const SqOption *mycommand_options[] = {
 	& mycommand_option_array[0],
 	& mycommand_option_array[1],
+	& mycommand_option_array[2],
 };
+```
+
+如果 C/C++ 语言中的选项值是指针类型，则在 SqOption::bit_field 中设置 SQB_POINTER。
+
+```c
+const SqOption  options[] = {
+	{SQ_TYPE_MY_OBJECT,  "obj",  offsetof(MyCommandValue, obj),  SQB_POINTER},
+	//                                                           ^^^^^^^^^^^
+
+	// 省略
+}
 ```
 
 #### 1.3 定义命令处理程序的功能
 
 ```c++
-static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void *data)
+static void mycommand_handle(MyCommandValue *commandValue, SqConsole *console, void *data)
 {
 	// 执行命令时将调用该函数。
 }
@@ -99,7 +120,7 @@ static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void
 #### 1.4 定义常量命令
 
 ```c++
-static const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
+const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
 	MyCommandValue,                                // 结构类型
 	0,                                             // bit_field
 	"mycommand",                                   // 命令名称
@@ -110,7 +131,7 @@ static const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
 );
 
 /* 以上 SQ_COMMAND_INITIALIZER() 宏扩展为
-static const SqCommand mycommand = {
+const SqCommand mycommand = {
 	// --- SqType 成员 ---
 	.size  = sizeof(MyCommandValue),
 	.parse = sq_command_parse_option,
@@ -200,6 +221,16 @@ static const SqCommand mycommand = {
 	mycommand->addOption(option);
 ```
 
+如果 C/C++ 语言中的选项值是指针类型，则调用 pointer()。
+
+```c++
+	// C 函数
+	sq_option_pointer(option);
+
+	// C++ 方法
+	option->pointer();
+```
+
 ## 3 将命令添加到 SqConsole
 
 ```c
@@ -208,4 +239,111 @@ static const SqCommand mycommand = {
 
 	// C++ 方法
 	console->add(&mycommand)
+```
+
+## 4 解析命令行
+
+例如: 使用指定的命令、选项和参数执行程序。
+
+```console
+program  mycommand  --step=5  argument1  argument2
+```
+
+调用 parse() 来解析命令行参数。
+
+```c++
+int  main(int argc, char **argv)
+{
+	MyCommandValue *commandValue;
+	bool            command_in_argv = true;
+
+	// C 函数
+	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
+
+	// C++ 方法
+	commandValue = console->parse(argc, argv, command_in_argv);
+}
+```
+
+'commandValue' 的值应如下所示：
+
+```c
+	commandValue->type = mycommand;
+
+	commandValue->arguments.data[0] = "argument1";
+	commandValue->arguments.data[1] = "argument2";
+	commandValue->arguments.length  = 2;
+
+	commandValue->help  = false;
+	commandValue->quiet = false;
+	commandValue->step  = 5;
+```
+
+例如: 不指定命令执行程序。 在这种情况下，SqConsole 默认使用第一个添加的命令。
+
+```console
+program  --step=5  argument1  argument2
+```
+
+调用 parse() 并将最后一个参数指定为 false 以解析没有命令的命令行参数。
+
+```c++
+int  main(int argc, char **argv)
+{
+	// C 函数
+	commandValue = sq_console_parse(console, argc, argv, false);
+
+	// C++ 方法
+	commandValue = console->parse(argc, argv, false);
+}
+```
+
+**释放 'commandValue' 的内存**  
+  
+使用 C 语言
+
+```c
+	sq_command_value_free(commandValue);
+```
+
+使用 C++ 语言  
+  
+如果 'MyCommandValue' 定义了析构函数，则可以使用 C++ 关键字 delete 来释放内存。  
+以下示例未从 Sq::CommandValueMethod 派生方法，但它仍然有效。
+
+```c++
+struct MyCommandValue
+{
+	// 继承 SqCommandValue 成员变量
+	SQ_COMMAND_VALUE_MEMBERS;
+
+	// 成员变量 (选项值)
+	bool    help;
+	bool    quiet;
+	int     step;
+
+	// 析构函数
+	~MyCommandValue() {
+		sq_command_value_final((SqCommandValue*)this);
+	}
+};
+
+int  main(int argc, char **argv)
+{
+	MyCommandValue *commandValue;
+
+	// 从命令行解析值
+	commandValue = (MyCommandValue*)console->parse(argc, argv, true);
+	// 删除 MyCommandValue 实例
+	delete commandValue;
+}
+```
+
+如果 'MyCommandValue' 未定义析构函数，则变量必须强制转换为 Sq::CommandValue 然后删除实例，或调用 Sq::CommandValueMethod::free() 方法来释放实例内存。
+
+```c++
+	// 转换为 Sq::CommandValue 然后删除实例
+	delete (Sq::CommandValue*)commandValue;
+	// 或调用 Sq::CommandValueMethod::free()
+	commandValue->free();
 ```

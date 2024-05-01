@@ -27,7 +27,7 @@ SqConsole use this to parse data from command-line and store parsed data in SqCo
 
 # SqOption
 
-It defines option in command.
+It defines option in command. Because it derives from [SqEntry](SqEntry.md), you can set SQB_POINTER in SqOption::bit_field if the option value in C/C++ language is a pointer type.
 
 	SqEntry
 	│
@@ -61,8 +61,13 @@ struct MyCommandValue
 {
 	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
 
-	bool    help;                                  // <-- 3. Add variable and non-virtual function in derived struct.
+	// The following are option values.
+
+	// ------ MyCommandValue members ------        // <-- 3. Add variable and non-virtual function in derived struct.
+	bool    help;
 	bool    quiet;
+
+	int     step;
 };
 ```
 
@@ -79,18 +84,34 @@ static const SqOption  mycommand_option_array[] = {
 	{SQ_TYPE_BOOL,  "quiet",     offsetof(MyCommandValue, quiet),
 		.shortcut = "q",  .default_value = "true",
 		.description = "Do not output any message."},
+
+	{SQ_TYPE_INT,   "step",      offsetof(MyCommandValue, step),
+		.shortcut = "s",  .default_value = "1",
+		.description = "Take step."},
 };
 
 static const SqOption *mycommand_options[] = {
 	& mycommand_option_array[0],
 	& mycommand_option_array[1],
+	& mycommand_option_array[2],
 };
+```
+
+Setting SQB_POINTER in SqOption::bit_field if the option value in C/C++ language is a pointer type.
+
+```c
+const SqOption  options[] = {
+	{SQ_TYPE_MY_OBJECT,  "obj",      offsetof(MyCommandValue, obj),  SQB_POINTER},
+	//                                                               ^^^^^^^^^^^
+
+	// Omitted
+}
 ```
 
 #### 1.3 define function of command handler
 
 ```c++
-static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void *data)
+static void mycommand_handle(MyCommandValue *commandValue, SqConsole *console, void *data)
 {
 	// The function will be called when your command is executed.
 }
@@ -99,7 +120,7 @@ static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void
 #### 1.4 define constant command
 
 ```c++
-static const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
+const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
 	MyCommandValue,                                // StructureType
 	0,                                             // bit_field
 	"mycommand",                                   // command name
@@ -110,7 +131,7 @@ static const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
 );
 
 /* above SQ_COMMAND_INITIALIZER() Macro Expands to
-static const SqCommand mycommand = {
+const SqCommand mycommand = {
 	// --- SqType members ---
 	.size  = sizeof(MyCommandValue),
 	.parse = sq_command_parse_option,
@@ -200,6 +221,16 @@ use C++ language
 	mycommand->addOption(option);
 ```
 
+Calling pointer() if the option value in C/C++ language is a pointer type.
+
+```c++
+	// C function
+	sq_option_pointer(option);
+
+	// C++ method
+	option->pointer();
+```
+
 ## 3 add command to SqConsole
 
 ```c
@@ -208,4 +239,111 @@ use C++ language
 
 	// C++ method
 	console->add(&mycommand)
+```
+
+## 4 Parse command-line
+
+e.g. execute program with specified command, options, and arguments.
+
+```console
+program  mycommand  --step=5  argument1  argument2
+```
+
+Calling parse() to parse command-line arguments.
+
+```c++
+int  main(int argc, char **argv)
+{
+	MyCommandValue *commandValue;
+	bool            command_in_argv = true;
+
+	// C function
+	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
+
+	// C++ method
+	commandValue = console->parse(argc, argv, command_in_argv);
+}
+```
+
+values of 'commandValue' should look like this:
+
+```c
+	commandValue->type = mycommand;
+
+	commandValue->arguments.data[0] = "argument1";
+	commandValue->arguments.data[1] = "argument2";
+	commandValue->arguments.length  = 2;
+
+	commandValue->help  = false;
+	commandValue->quiet = false;
+	commandValue->step  = 5;
+```
+
+e.g. execute program without specified command. In this case, SqConsole use first added command by default.
+
+```console
+program  --step=5  argument1  argument2
+```
+
+Call parse() and specify the last argument as false to parse command line arguments without a command.
+
+```c++
+int  main(int argc, char **argv)
+{
+	// C function
+	commandValue = sq_console_parse(console, argc, argv, false);
+
+	// C++ method
+	commandValue = console->parse(argc, argv, false);
+}
+```
+
+**release memory of 'commandValue'**  
+  
+use C language
+
+```c
+	sq_command_value_free(commandValue);
+```
+
+use C++ language  
+  
+If 'MyCommandValue' has defined destructor, you can use C++ keywords "delete" to release memory.  
+The following example does not derive methods from Sq::CommandValueMethod, but it still works.
+
+```c++
+struct MyCommandValue
+{
+	// inherit member variable from SqCommandValue
+	SQ_COMMAND_VALUE_MEMBERS;
+
+	// member variable (option values)
+	bool    help;
+	bool    quiet;
+	int     step;
+
+	// destructor
+	~MyCommandValue() {
+		sq_command_value_final((SqCommandValue*)this);
+	}
+};
+
+int  main(int argc, char **argv)
+{
+	MyCommandValue *commandValue;
+
+	// parse values from command-line
+	commandValue = (MyCommandValue*)console->parse(argc, argv, true);
+	// delete MyCommandValue instance
+	delete commandValue;
+}
+```
+
+If 'MyCommandValue' does not have a destructor defined, the variable must be cast to Sq::CommandValue and then delete instance, or call Sq::CommandValueMethod::free() method to free instance memory.
+
+```c++
+	// cast to Sq::CommandValue and then delete instance
+	delete (Sq::CommandValue*)commandValue;
+	// or call Sq::CommandValueMethod::free()
+	commandValue->free();
 ```
