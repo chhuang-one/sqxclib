@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -154,6 +154,11 @@ void  sq_option_set_value_description(SqOption *option, const char *value_descri
 void  sq_option_set_description(SqOption *option, const char *description)
 {
 	SQ_OPTION_SET_DESCRIPTION(option, description);
+}
+
+void  sq_option_pointer(SqOption *option)
+{
+	option->bit_field |= SQB_POINTER;
 }
 
 #endif  // __STDC_VERSION__

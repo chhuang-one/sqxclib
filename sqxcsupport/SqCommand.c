@@ -24,112 +24,112 @@
 #define strdup       _strdup
 #endif
 
-SqCommandValue  *sq_command_value_new(const SqCommand *cmd_type)
+void *sq_command_value_new(const SqCommand *commandType)
 {
-	SqCommandValue *cmd_value;
+	SqCommandValue *commandValue;
 
-	cmd_value = calloc(1, cmd_type->size);
-	sq_command_value_init(cmd_value, cmd_type);
-	return cmd_value;
+	commandValue = calloc(1, commandType->size);
+	sq_command_value_init(commandValue, commandType);
+	return commandValue;
 }
 
-void  sq_command_value_free(SqCommandValue *cmd_value)
+void  sq_command_value_free(void *commandValue)
 {
-	sq_command_value_final(cmd_value);
-	free(cmd_value);
+	sq_command_value_final(commandValue);
+	free(commandValue);
 }
 
-void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommand *cmd_type)
+void  sq_command_value_init(SqCommandValue *commandValue, const SqCommand *commandType)
 {
-	sq_type_init_instance((SqType*)cmd_type, cmd_value, 0);
-	cmd_value->type = cmd_type;
-	sq_ptr_array_init(&cmd_value->shortcuts, 8, NULL);
-	sq_ptr_array_init(&cmd_value->arguments, 8, NULL);
+	sq_type_init_instance((SqType*)commandType, commandValue, 0);
+	commandValue->type = commandType;
+	sq_ptr_array_init(&commandValue->shortcuts, 8, NULL);
+	sq_ptr_array_init(&commandValue->arguments, 8, NULL);
 //	sq_ptr_array_init(&cmd->arguments, 8, (SqDestroyFunc)free);
 }
 
-void  sq_command_value_final(SqCommandValue *cmd_value)
+void  sq_command_value_final(SqCommandValue *commandValue)
 {
-	sq_ptr_array_final(&cmd_value->arguments);
-	sq_ptr_array_final(&cmd_value->shortcuts);
-	sq_type_final_instance((SqType*)cmd_value->type, cmd_value, 0);
+	sq_ptr_array_final(&commandValue->arguments);
+	sq_ptr_array_final(&commandValue->shortcuts);
+	sq_type_final_instance((SqType*)commandValue->type, commandValue, 0);
 }
 
 // ----------------------------------------------------------------------------
 // --- SqCommand C functions ---
 
-SqCommand *sq_command_new(const char *cmd_name)
+SqCommand *sq_command_new(const char *commandName)
 {
-	SqCommand *cmd_type;
+	SqCommand *commandType;
 
-	cmd_type = malloc(sizeof(SqCommand));
-	sq_command_init_self(cmd_type, cmd_name);
-	return cmd_type;
+	commandType = malloc(sizeof(SqCommand));
+	sq_command_init_self(commandType, commandName);
+	return commandType;
 }
 
-void  sq_command_free(SqCommand *cmd_type)
+void  sq_command_free(SqCommand *commandType)
 {
-	if (cmd_type->bit_field & SQB_TYPE_DYNAMIC) {
-		sq_command_final_self(cmd_type);
-		free(cmd_type);
+	if (commandType->bit_field & SQB_TYPE_DYNAMIC) {
+		sq_command_final_self(commandType);
+		free(commandType);
 	}
 }
 
-void  sq_command_init_self(SqCommand *cmd_type, const char *cmd_name)
+void  sq_command_init_self(SqCommand *commandType, const char *commandName)
 {
 	// set SqType members
-	sq_type_init_self((SqType*)cmd_type, 0, (SqDestroyFunc)sq_option_free);
-	cmd_type->parse = sq_command_parse_option;
-	cmd_type->write = NULL;
-	cmd_type->name  = (cmd_name) ? strdup(cmd_name) : NULL;
+	sq_type_init_self((SqType*)commandType, 0, (SqDestroyFunc)sq_option_free);
+	commandType->parse = sq_command_parse_option;
+	commandType->write = NULL;
+	commandType->name  = (commandName) ? strdup(commandName) : NULL;
 	// set SqCommand members
-	cmd_type->handle = NULL;
-	cmd_type->parameter = NULL;
-	cmd_type->description = NULL;
+	commandType->handle = NULL;
+	commandType->parameter = NULL;
+	commandType->description = NULL;
 }
 
-void  sq_command_final_self(SqCommand *cmd_type)
+void  sq_command_final_self(SqCommand *commandType)
 {
 	// free SqType members
-	sq_type_final_self((SqType*)cmd_type);
+	sq_type_final_self((SqType*)commandType);
 	// free SqCommand members
-	free((char*)cmd_type->parameter);
-	free((char*)cmd_type->description);
+	free((char*)commandType->parameter);
+	free((char*)commandType->description);
 }
 
-SqCommand *sq_command_copy(SqCommand       *cmd_type_dest,
-                           const SqCommand *cmd_type_src,
+SqCommand *sq_command_copy(SqCommand       *commandType_dest,
+                           const SqCommand *commandType_src,
                            SqDestroyFunc    option_free_func,
                            SqCopyFunc       option_copy_func)
 {
-	if (cmd_type_dest == NULL)
-		cmd_type_dest = malloc(sizeof(SqCommand));
+	if (commandType_dest == NULL)
+		commandType_dest = malloc(sizeof(SqCommand));
 	if (option_free_func == NULL)
 		option_free_func = (SqDestroyFunc)sq_option_free;
 
 	// copy SqType members
-	sq_type_copy((SqType*)cmd_type_dest, (SqType*)cmd_type_src,
+	sq_type_copy((SqType*)commandType_dest, (SqType*)commandType_src,
 	             option_free_func, option_copy_func);
 	// copy SqCommand members
-	cmd_type_dest->handle = cmd_type_src->handle;
-	cmd_type_dest->parameter = strdup(cmd_type_src->parameter);
-	cmd_type_dest->description = strdup(cmd_type_src->description);
+	commandType_dest->handle = commandType_src->handle;
+	commandType_dest->parameter = strdup(commandType_src->parameter);
+	commandType_dest->description = strdup(commandType_src->description);
 
-	return cmd_type_dest;
+	return commandType_dest;
 }
 
-void  sq_command_add_option(SqCommand *cmd_type, const SqOption *option, int n_option)
+void  sq_command_add_option(SqCommand *commandType, const SqOption *option, int n_option)
 {
-	sq_type_add_entry((SqType*)cmd_type, (SqEntry*)option, n_option, sizeof(SqOption));
+	sq_type_add_entry((SqType*)commandType, (SqEntry*)option, n_option, sizeof(SqOption));
 }
 
-void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array)
+void  sq_command_sort_shortcuts(const SqCommand *commandType, SqPtrArray *array)
 {
 	SqOption *option;
 
 	array->length = 0;
-	for (int i = 0;  i < cmd_type->n_entry;  i++) {
-		option = (SqOption*)cmd_type->entry[i];
+	for (int i = 0;  i < commandType->n_entry;  i++) {
+		option = (SqOption*)commandType->entry[i];
         if (option->shortcut)
             sq_ptr_array_push(array, option);
 	}
@@ -214,8 +214,9 @@ int  sq_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 			// try to use existed instance
 			if (*(void**)instance)
 				instance = *(void**)instance;
-//			else if (src->type != SQXC_TYPE_STR || src->value.str != NULL)
-//				instance = sq_type_init_instance(type, instance, true);
+			// allocate & initialize instance if source is not NULL
+			else if (src->type != SQXC_TYPE_NULL)
+				instance = sq_type_init_instance(type, instance, true);
 			else
 				return (src->code = SQCODE_OK);
 		}

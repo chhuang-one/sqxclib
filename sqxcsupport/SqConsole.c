@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -29,8 +29,8 @@
 #define COMMAND_BORDER_WIDTH    2
 
 // SqType SqCompareFunc
-static int  sq_command_cmp_name(const void *cmd_type1, const void *cmd_type2);
-static int  sq_command_cmp_str__name(const void *str,  const void *cmd_type);
+static int  sq_command_cmp_name(const void *commandType1, const void *commandType2);
+static int  sq_command_cmp_str__name(const void *str,  const void *commandType);
 
 SqConsole *sq_console_new()
 {
@@ -93,7 +93,7 @@ SqCommand  *sq_console_find(SqConsole *console, const char* command_name)
 SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command)
 {
     const SqCommand  *type;
-	SqCommandValue   *cmd_value;
+	SqCommandValue   *commandValue;
 	Sqxc       *xc;
 	char       *equ;
 	int         n_dash;
@@ -113,13 +113,13 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool
 	if (type == NULL)
 		return NULL;
 
-	cmd_value = sq_command_value_new(type);
-	sq_command_sort_shortcuts(type, &cmd_value->shortcuts);
+	commandValue = sq_command_value_new(type);
+	sq_command_sort_shortcuts(type, &commandValue->shortcuts);
 
 	xc = console->xc_input;
 	sqxc_value_container(xc) = NULL;
 	sqxc_value_element(xc) = (SqType*)type;
-	sqxc_value_instance(xc) = cmd_value;
+	sqxc_value_instance(xc) = commandValue;
 
 	sqxc_ready(xc, NULL);
 	xc->type = SQXC_TYPE_OBJECT;
@@ -145,7 +145,7 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool
 		}
 		else {
 			// argument
-			sq_ptr_array_push(&cmd_value->arguments, argv[i]);
+			sq_ptr_array_push(&commandValue->arguments, argv[i]);
 			continue;
 		}
 	}
@@ -156,7 +156,7 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool
 	xc = sqxc_send(xc);
 	sqxc_finish(xc, NULL);
 
-	return cmd_value;
+	return commandValue;
 }
 
 void  sq_console_print_options(SqConsole *console, SqOption **options, int  n_options)
@@ -181,47 +181,47 @@ void  sq_console_print_options(SqConsole *console, SqOption **options, int  n_op
 	}
 }
 
-void  sq_console_print_help(SqConsole  *console, const SqCommand *cmd_type)
+void  sq_console_print_help(SqConsole  *console, const SqCommand *commandType)
 {
-	if (cmd_type == NULL)
-		cmd_type = (SqCommand*)console->commands.data[0];    // default command
+	if (commandType == NULL)
+		commandType = (SqCommand*)console->commands.data[0];    // default command
 
 	puts("");
-	if (cmd_type == NULL) {
+	if (commandType == NULL) {
 		puts("Unknown command");
 		return;
 	}
 
-	if (cmd_type->description) {
+	if (commandType->description) {
 		puts("Description:");
-		printf("%*c%s\n\n", 2, ' ', cmd_type->description);
+		printf("%*c%s\n\n", 2, ' ', commandType->description);
 	}
 
 	puts("Usage:");
 	printf("%*c", 2, ' ');
 	if (console->program_name)
 		printf("%s ", console->program_name);
-	if (cmd_type->name)
-		printf("%s ", cmd_type->name);
-	if (cmd_type->parameter)
-		printf("%s ", cmd_type->parameter);
+	if (commandType->name)
+		printf("%s ", commandType->name);
+	if (commandType->parameter)
+		printf("%s ", commandType->parameter);
 	puts("[options]" "\n");
 
 	puts("Options:");
-	sq_console_print_options(console, (SqOption**)cmd_type->entry, cmd_type->n_entry);
+	sq_console_print_options(console, (SqOption**)commandType->entry, commandType->n_entry);
 	puts("\n");
 }
 
 // print command list
 void  sq_console_print_list(SqConsole  *console, const char *program_description)
 {
-	const SqCommand *cmd_type;
+	const SqCommand *commandType;
 	int    command_max_length = 0;
 	int    length;
 
 	for (int i = 0;  i < console->commands.length;  i++) {
-		cmd_type = console->commands.data[i];
-		length = (int)strlen(cmd_type->name);
+		commandType = console->commands.data[i];
+		length = (int)strlen(commandType->name);
 		if (command_max_length < length)
 			command_max_length = length;
 	}
@@ -240,11 +240,11 @@ void  sq_console_print_list(SqConsole  *console, const char *program_description
 
 	puts("Available commands:");
 	for (int i = 0;  i < console->commands.length;  i++) {
-		cmd_type = console->commands.data[i];
+		commandType = console->commands.data[i];
 		printf("%*c", COMMAND_BORDER_WIDTH, ' ');
-		printf("%s%*c", cmd_type->name,
-		       command_max_length - (int)strlen(cmd_type->name), ' ');
-		puts(cmd_type->description);
+		printf("%s%*c", commandType->name,
+		       command_max_length - (int)strlen(commandType->name), ' ');
+		puts(commandType->description);
 	}
 }
 
@@ -252,14 +252,14 @@ void  sq_console_print_list(SqConsole  *console, const char *program_description
 // SqType SqCompareFunc
 
 // This function is used by sort(). Its actual parameter type:
-//     int  sq_command_cmp_name(SqCommand **cmd_type1, SqCommand **cmd_type2);
-static int  sq_command_cmp_name(const void *cmd_type1, const void *cmd_type2)
+//     int  sq_command_cmp_name(SqCommand **commandType1, SqCommand **commandType2);
+static int  sq_command_cmp_name(const void *commandType1, const void *commandType2)
 {
 	const char *name1;
 	const char *name2;
 
-	name1 = (*(SqCommand**)cmd_type1) ? (*(SqCommand**)cmd_type1)->name : "";
-	name2 = (*(SqCommand**)cmd_type2) ? (*(SqCommand**)cmd_type2)->name : "";
+	name1 = (*(SqCommand**)commandType1) ? (*(SqCommand**)commandType1)->name : "";
+	name2 = (*(SqCommand**)commandType2) ? (*(SqCommand**)commandType2)->name : "";
 #if SQ_CONFIG_COMMAND_CASE_SENSITIVE
 	return strcmp(name1, name2);
 #else
@@ -268,12 +268,12 @@ static int  sq_command_cmp_name(const void *cmd_type1, const void *cmd_type2)
 }
 
 // This function is used by find(). Its actual parameter type:
-//     int  sq_command_cmp_str__name(const char *str, SqCommand **cmd_type);
-static int  sq_command_cmp_str__name(const void *str, const void *cmd_type)
+//     int  sq_command_cmp_str__name(const char *str, SqCommand **commandType);
+static int  sq_command_cmp_str__name(const void *str, const void *commandType)
 {
 	const char *name;
 
-	name = (*(SqCommand**)cmd_type) ? (*(SqCommand**)cmd_type)->name : "";
+	name = (*(SqCommand**)commandType) ? (*(SqCommand**)commandType)->name : "";
 #if SQ_CONFIG_COMMAND_CASE_SENSITIVE
 	return strcmp(str, name);
 #else

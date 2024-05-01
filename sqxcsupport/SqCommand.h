@@ -35,7 +35,7 @@ typedef struct SqCommandValue    SqCommandValue;
 		int  option2_value;
 	} MyCommandValue;
 
-	static void mycommand_handle(MyCommandValue *cmd_value, SqConsole *console, void *data) {
+	static void mycommand_handle(MyCommandValue *commandValue, SqConsole *console, void *data) {
 		// The function will be called when your command is executed.
 	}
 
@@ -78,7 +78,7 @@ typedef struct SqCommandValue    SqCommandValue;
 extern "C" {
 #endif
 
-typedef void (*SqCommandFunc)(SqCommandValue *cmd_value, SqConsole *console, void *data);
+typedef void (*SqCommandFunc)(SqCommandValue *commandValue, SqConsole *console, void *data);
 
 /* --- macro functions --- for maintaining C/C++ inline functions easily */
 #define SQ_COMMAND_SET_PARAMETER(command, parameter)    \
@@ -88,19 +88,23 @@ typedef void (*SqCommandFunc)(SqCommandValue *cmd_value, SqConsole *console, voi
 		sq_type_set_str_addr((SqType*)command, (char**) &((SqCommand*)command)->description, description)
 
 /* --- SqCommandValue C functions --- */
-SqCommandValue *sq_command_value_new(const SqCommand *cmd_type);
-void            sq_command_value_free(SqCommandValue *cmd_value);
 
-void  sq_command_value_init(SqCommandValue *cmd_value, const SqCommand *cmd_type);
-void  sq_command_value_final(SqCommandValue *cmd_value);
+// SqCommandValue *sq_command_value_new(const SqCommand *commandType);
+void  *sq_command_value_new(const SqCommand *commandType);
+
+//void sq_command_value_free(SqCommandValue *commandValue);
+void   sq_command_value_free(void *commandValue);
+
+void   sq_command_value_init(SqCommandValue *commandValue, const SqCommand *commandType);
+void   sq_command_value_final(SqCommandValue *commandValue);
 
 
 /* --- SqCommand C functions --- */
-SqCommand *sq_command_new(const char *cmd_name);
-void       sq_command_free(SqCommand *cmd_type);
+SqCommand *sq_command_new(const char *commandName);
+void       sq_command_free(SqCommand *commandType);
 
-void  sq_command_init_self(SqCommand *cmd_type, const char *cmd_name);
-void  sq_command_final_self(SqCommand *cmd_type);
+void  sq_command_init_self(SqCommand *commandType, const char *commandName);
+void  sq_command_final_self(SqCommand *commandType);
 
 // This function is used to copy SqCommand.
 // It copy data from 'cmd_src' to 'cmd_dest', 'cmd_dest' must be raw memory.
@@ -117,13 +121,13 @@ SqCommand *sq_command_copy(SqCommand       *cmd_dest,
 #define sq_command_copy_static(cmd_dest, cmd_src, option_free_func)    \
         sq_command_copy(cmd_dest, cmd_src, option_free_func, NULL)
 
-void  sq_command_add_option(SqCommand *cmd_type, const SqOption *option, int n_option);
+void  sq_command_add_option(SqCommand *commandType, const SqOption *option, int n_option);
 
-// sort options by SqOption.shortcut and save result in array. this function is called by SqConsole
-void  sq_command_sort_shortcuts(const SqCommand *cmd_type, SqPtrArray *array);
+// sort options by SqOption::shortcut and save result in array. this function is called by SqConsole
+void  sq_command_sort_shortcuts(const SqCommand *commandType, SqPtrArray *array);
 
 // SqCommand parse function
-int   sq_command_parse_option(void *cmd_value, const SqType *cmd_type, Sqxc *src);
+int   sq_command_parse_option(void *commandValue, const SqType *commandType, Sqxc *src);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -147,9 +151,10 @@ struct CommandValueMethod
 {
 	void *operator new(size_t size);
 
-	void  init(const SqCommand *cmd_type);
-	void  init(const Sq::CommandMethod *cmd_type);
+	void  init(const SqCommand *commandType);
+	void  init(const Sq::CommandMethod *commandType);
 	void  final();
+	void  free();
 };
 
 }  // namespace Sq
@@ -220,8 +225,8 @@ struct SqCommand
 	/* Note: If you add, remove, or change methods here, do the same things in Sq::CommandMethod. */
 
 	// initialize/finalize self
-	void  initSelf(const char *cmd_name) {
-		sq_command_init_self((SqCommand*)this, cmd_name);
+	void  initSelf(const char *commandName) {
+		sq_command_init_self((SqCommand*)this, commandName);
 	}
 	void  finalSelf() {
 		sq_command_final_self((SqCommand*)this);
@@ -258,7 +263,7 @@ struct SqCommand
 #endif  // __cplusplus
 };
 
-/*	SqCommandValue: It stores value of option from command-line.
+/*	SqCommandValue: It stores option values and arguments from command-line.
  */
 #define SQ_COMMAND_VALUE_MEMBERS \
 	const SqCommand  *type;      \
@@ -276,11 +281,13 @@ struct SqCommandValue
 	const SqCommand  *type;
 
 	// shortcuts & arguments are used by SqConsole
-	SqPtrArray     shortcuts;    // sorted by SqOption.shortcut
+	SqPtrArray     shortcuts;    // sorted by SqOption::shortcut
 	SqPtrArray     arguments;
  */
 
 	/* Add variable and function */                // <-- 3. Add variable and non-virtual function in derived struct.
+
+	// option values added here
 };
 
 // ----------------------------------------------------------------------------
@@ -333,8 +340,8 @@ namespace Sq {
 struct CommandMethod
 {
 	// initialize/finalize self
-	void  initSelf(const char *cmd_name) {
-		sq_command_init_self((SqCommand*)this, cmd_name);
+	void  initSelf(const char *commandName) {
+		sq_command_init_self((SqCommand*)this, commandName);
 	}
 	void  finalSelf() {
 		sq_command_final_self((SqCommand*)this);
@@ -375,14 +382,17 @@ inline void *CommandValueMethod::operator new(size_t size) {
 	return calloc(1, size);
 }
 
-inline void  CommandValueMethod::init(const SqCommand *cmd_type) {
-	sq_command_value_init((SqCommandValue*)this, cmd_type);
+inline void  CommandValueMethod::init(const SqCommand *commandType) {
+	sq_command_value_init((SqCommandValue*)this, commandType);
 }
-inline void  CommandValueMethod::init(const Sq::CommandMethod *cmd_type) {
-	sq_command_value_init((SqCommandValue*)this, (const SqCommand*)cmd_type);
+inline void  CommandValueMethod::init(const Sq::CommandMethod *commandType) {
+	sq_command_value_init((SqCommandValue*)this, (const SqCommand*)commandType);
 }
 inline void  CommandValueMethod::final() {
 	sq_command_value_final((SqCommandValue*)this);
+}
+inline void  CommandValueMethod::free() {
+	sq_command_value_free((SqCommandValue*)this);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */
@@ -391,8 +401,8 @@ struct Command : SqCommand
 {
 	// constructor
 	Command() {}
-	Command(const char *cmd_name) {
-		sq_command_init_self(this, cmd_name);
+	Command(const char *commandName) {
+		sq_command_init_self(this, commandName);
 	}
 	// destructor
 	~Command() {
@@ -404,11 +414,11 @@ struct CommandValue : SqCommandValue
 {
 	// constructor
 	CommandValue() {}
-	CommandValue(const SqCommand *cmd_type) {
-		sq_command_value_init(this, cmd_type);
+	CommandValue(const SqCommand *commandType) {
+		sq_command_value_init(this, commandType);
 	}
-	CommandValue(const Sq::CommandMethod *cmd_type) {
-		sq_command_value_init(this, (const SqCommand*)cmd_type);
+	CommandValue(const Sq::CommandMethod *commandType) {
+		sq_command_value_init(this, (const SqCommand*)commandType);
 	}
 	// destructor
 	~CommandValue() {

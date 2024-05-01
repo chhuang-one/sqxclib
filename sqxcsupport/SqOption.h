@@ -77,6 +77,8 @@ int   sq_option_cmp_shortcut(const void *option1, const void *option2);
 
 namespace Sq {
 
+struct Option;
+
 }  // namespace Sq
 
 #endif  // __cplusplus
@@ -122,6 +124,10 @@ struct SqOption
 #ifdef __cplusplus
 	/* Note: If you add, remove, or change methods here, do the same things in Sq::OptionMethod. */
 
+	Sq::Option *operator->() {
+		return (Sq::Option*)this;
+	}
+
 	void  init(const SqType *type) {
 		sq_option_init((SqOption*)this, type);
 	}
@@ -146,6 +152,12 @@ struct SqOption
 	}
 	void  setDescription(const char *description) {
 		SQ_OPTION_SET_DESCRIPTION(this, description);
+	}
+
+	// option value is C/C++ pointer
+	Sq::Option &pointer() {
+		((SqOption*)this)->bit_field |= SQB_POINTER;
+		return *(Sq::Option*)this;
 	}
 
 	int   print(Sq::BufferMethod *buffer, int opt_max_length) {
@@ -210,6 +222,15 @@ void  sq_option_set_description(SqOption *option, const char *description)
 	SQ_OPTION_SET_DESCRIPTION(option, description);
 }
 
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_option_pointer(SqOption *option) {
+	option->bit_field |= SQB_POINTER;
+}
+
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
 
@@ -218,6 +239,7 @@ void  sq_option_set_shortcut(SqOption *option, const char *shortcut);
 void  sq_option_set_default(SqOption *option, const char *default_value);
 void  sq_option_set_value_description(SqOption *option, const char *value_description);
 void  sq_option_set_description(SqOption *option, const char *description);
+void  sq_option_pointer(SqOption *option);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -236,6 +258,10 @@ namespace Sq {
  */
 struct OptionMethod
 {
+	Sq::Option *operator->() {
+		return (Sq::Option*)this;
+	}
+
 	void  init(const SqType *type) {
 		sq_option_init((SqOption*)this, type);
 	}
@@ -260,6 +286,12 @@ struct OptionMethod
 	}
 	void  setDescription(const char *description) {
 		SQ_OPTION_SET_DESCRIPTION(this, description);
+	}
+
+	// option value is C/C++ pointer
+	Sq::Option &pointer() {
+		((SqOption*)this)->bit_field |= SQB_POINTER;
+		return *(Sq::Option*)this;
 	}
 
 	int   print(Sq::BufferMethod *buffer, int opt_max_length) {
