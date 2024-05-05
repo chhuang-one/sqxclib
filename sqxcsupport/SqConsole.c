@@ -183,33 +183,38 @@ void  sq_console_print_options(SqConsole *console, SqOption **options, int  n_op
 
 void  sq_console_print_help(SqConsole  *console, const SqCommand *commandType)
 {
-	if (commandType == NULL)
-		commandType = (SqCommand*)console->commands.data[0];    // default command
+	bool  has_command = true;
 
-	puts("");
 	if (commandType == NULL) {
-		puts("Unknown command");
+		commandType = (SqCommand*)console->commands.data[0];    // default command
+		has_command = false;
+	}
+
+	printf("\n");
+	if (commandType == NULL) {
+		printf("Unknown command"  "\n");
 		return;
 	}
 
 	if (commandType->description) {
-		puts("Description:");
-		printf("%*c%s\n\n", 2, ' ', commandType->description);
+		printf("Description:"  "\n"
+		       "%*c%s"         "\n\n",
+		       2, ' ', commandType->description);
 	}
 
-	puts("Usage:");
-	printf("%*c", 2, ' ');
+	printf("Usage:"  "\n"  "%*c", 2, ' ');
 	if (console->program_name)
 		printf("%s ", console->program_name);
-	if (commandType->name)
+	if (commandType->name && has_command)
 		printf("%s ", commandType->name);
+	printf("[options] ");
 	if (commandType->parameter)
 		printf("%s ", commandType->parameter);
-	puts("[options]" "\n");
+	printf("\n\n");
 
-	puts("Options:");
+	printf("Options:"  "\n");
 	sq_console_print_options(console, (SqOption**)commandType->entry, commandType->n_entry);
-	puts("\n");
+	printf("\n");
 }
 
 // print command list
@@ -246,6 +251,7 @@ void  sq_console_print_list(SqConsole  *console, const char *program_description
 		       command_max_length - (int)strlen(commandType->name), ' ');
 		puts(commandType->description);
 	}
+	puts("");
 }
 
 // ------------------------------------

@@ -38,10 +38,12 @@ void       sq_console_final(SqConsole *console);
 void       sq_console_add(SqConsole *console, const SqCommand *command_type);
 
 SqCommand *sq_console_find(SqConsole *console, const char* command_name);
+
 SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command);
 
 void       sq_console_print_options(SqConsole *console, SqOption **options, int n_options);
 
+// if 'command' is NULL, function use first added SqCommand to print help message without name of command.
 void       sq_console_print_help(SqConsole  *console, const SqCommand *command);
 
 // print command list
@@ -64,13 +66,16 @@ namespace Sq {
 */
 struct ConsoleMethod
 {
-	void  add(const SqCommand *command_type);
-	void  add(const Sq::CommandMethod *command_type);
+	void  add(const SqCommand *commandType);
+	void  add(const Sq::CommandMethod *commandType);
+	void  printOptions(SqOption **options, int nOptions);
+	void  printOptions(Sq::OptionMethod **options, int nOptions);
 	void  printHelp(const SqCommand *command = NULL);
 	void  printHelp(const Sq::CommandMethod *command = NULL);
+	void  printList(const char *programDescription);
 
 	Sq::Command      *find(const char *name);
-	Sq::CommandValue *parse(int argc, char **argv, bool argv_has_command = true);
+	Sq::CommandValue *parse(int argc, char **argv, bool argvHasCommand = true);
 };
 
 }  // namespace Sq
@@ -126,11 +131,17 @@ namespace Sq {
 
 /* define ConsoleMethod functions. */
 
-inline void  ConsoleMethod::add(const SqCommand *command_type) {
-	sq_console_add((SqConsole*)this, command_type);
+inline void  ConsoleMethod::add(const SqCommand *commandType) {
+	sq_console_add((SqConsole*)this, commandType);
 }
-inline void  ConsoleMethod::add(const Sq::CommandMethod *command_type) {
-	sq_console_add((SqConsole*)this, (const SqCommand*)command_type);
+inline void  ConsoleMethod::add(const Sq::CommandMethod *commandType) {
+	sq_console_add((SqConsole*)this, (const SqCommand*)commandType);
+}
+inline void  ConsoleMethod::printOptions(SqOption **options, int nOptions) {
+	sq_console_print_options((SqConsole*)this, options, nOptions);
+}
+inline void  ConsoleMethod::printOptions(Sq::OptionMethod **options, int nOptions) {
+	sq_console_print_options((SqConsole*)this, (SqOption**)options, nOptions);
 }
 inline void  ConsoleMethod::printHelp(const SqCommand *command) {
 	sq_console_print_help((SqConsole*)this, command);
@@ -138,11 +149,15 @@ inline void  ConsoleMethod::printHelp(const SqCommand *command) {
 inline void  ConsoleMethod::printHelp(const Sq::CommandMethod *command) {
 	sq_console_print_help((SqConsole*)this, (const SqCommand*)command);
 }
+inline void  ConsoleMethod::printList(const char *programDescription) {
+	sq_console_print_list((SqConsole*)this, programDescription);
+}
+
 inline Sq::Command *ConsoleMethod::find(const char *name) {
 	return (Sq::Command*)sq_console_find((SqConsole*)this, name);
 }
-inline Sq::CommandValue *ConsoleMethod::parse(int argc, char **argv, bool argv_has_command) {
-	return (Sq::CommandValue*)sq_console_parse((SqConsole*)this, argc, argv, argv_has_command);
+inline Sq::CommandValue *ConsoleMethod::parse(int argc, char **argv, bool argvHasCommand) {
+	return (Sq::CommandValue*)sq_console_parse((SqConsole*)this, argc, argv, argvHasCommand);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */
