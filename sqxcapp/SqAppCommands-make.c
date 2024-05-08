@@ -15,37 +15,37 @@
 #include <stdio.h>
 #include <SqError.h>
 #include <SqAppTool.h>
-#include <SqCommandMake.h>
+#include <SqAppOptions.h>
 
 // ----------------------------------------------------------------------------
 // make:migration
 
 static void make_migration(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMake *value = (SqCommandMake*)commandValue;
+	SqMakeOptions *options = (SqMakeOptions*)commandValue->options;
 	SqAppTool   *app = data;
 	const char  *template_file = NULL;
 	int          code;
 
-	if (value->help || value->arguments.length == 0) {
-		sq_console_print_help(console, value->type);
+	if (options->help || commandValue->arguments.length == 0) {
+		sq_console_print_help(console, commandValue->type);
 		return;
 	}
 
-	if (value->table_to_migrate) {
+	if (options->table_to_migrate) {
 		template_file = "migration-alter";
-		sq_pairs_add(&app->pairs, "table_name", value->table_to_migrate);
+		sq_pairs_add(&app->pairs, "table_name", options->table_to_migrate);
 	}
-	if (value->table_to_create) {
+	if (options->table_to_create) {
 		template_file = "migration-create";
-		if (value->table_to_migrate == NULL)
-			sq_pairs_add(&app->pairs, "table_name", value->table_to_create);
+		if (options->table_to_migrate == NULL)
+			sq_pairs_add(&app->pairs, "table_name", options->table_to_create);
 	}
 	if (template_file == NULL)
 		template_file = "migration-create";    // default
 
 	code = sq_app_tool_make_migration(app, template_file,
-			value->arguments.data[0], &app->pairs);
+			commandValue->arguments.data[0], &app->pairs);
 	if (code != SQCODE_OK)
 		puts("make:migration error");
 
@@ -53,21 +53,21 @@ static void make_migration(SqCommandValue *commandValue, SqConsole *console, voi
 }
 
 static const SqOption *make_migration_options[] = {
-	// --- SqCommandCommon options ---
-	SQ_OPTION_COMMAND_COMMON_HELP,
-//	SQ_OPTION_COMMAND_COMMON_QUIET,
+	// --- SqCommonOptions options ---
+	SQ_COMMON_OPTION_HELP,
+//	SQ_COMMON_OPTION_QUIET,
 
-	// --- SqCommandMake options ---
-	&(SqOption) {SQ_TYPE_STR,    "create",  offsetof(SqCommandMake, table_to_create),
+	// --- SqMakeOptions options ---
+	&(SqOption) {SQ_TYPE_STR,    "create",  offsetof(SqMakeOptions, table_to_create),
 		.value_description = "[=CREATE]",
 		.description = "The table to be created"},
-	&(SqOption) {SQ_TYPE_STR,    "table",   offsetof(SqCommandMake, table_to_migrate),
+	&(SqOption) {SQ_TYPE_STR,    "table",   offsetof(SqMakeOptions, table_to_migrate),
 		.value_description = "[=TABLE]",
 		.description = "The table to migrate"},
 };
 
 static const SqCommand make_migration_command = SQ_COMMAND_INITIALIZER(
-	SqCommandMake,                                 // StructureType
+	SqMakeOptions,                                 // StructureType
 	0,                                             // bit_field
 	"make:migration",                              // command string
 	make_migration_options,                        // pointer array of SqOption
@@ -79,7 +79,7 @@ static const SqCommand make_migration_command = SQ_COMMAND_INITIALIZER(
 /* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand make_migration_command = {
 	// --- SqType members ---
-	.size  = sizeof(SqCommandMake),
+	.size  = sizeof(SqMakeOptions),
 	.parse = sq_command_parse_option,
 	.name  = "make:migration",
 	.entry   = (SqEntry**) make_migration_options,

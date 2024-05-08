@@ -25,51 +25,36 @@
 #include <SqBuffer.h>
 #include <SqAppTool.h>
 #include <SqAppTool-config.h>
-#include <SqCommandCommon.h>
-#include <SqCommandMigrate.h>
-#include <SqCommandMake.h>
+#include <SqAppOptions.h>
+#include <SqAppCommands.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup
 #endif
 
 // ----------------------------------------------------------------------------
-// SqCommandList
+// SqListOptions
 
-typedef struct SqCommandList        SqCommandList;
+typedef struct SqListOptions       SqListOptions;
 
-/*	SqCommandList: migrate command
+/*	SqListOptions:
 
-	SqCommandValue
+	SqCommonOptions
 	|
-	`--- SqCommandCommon
-	     |
-	     `--- SqCommandList
+	`--- SqListOptions
  */
 
-#ifdef __cplusplus
-struct SqCommandList : Sq::CommandValueMethod   // <-- 1. inherit C++ member function(method)
-#else
-struct SqCommandList
-#endif
+struct SqListOptions
 {
-	SQ_COMMAND_COMMON_MEMBERS;                  // <-- 2. inherit member variable
-/*	// ------ SqCommandValue members ------
-	const SqCommand  *type;
-
-	// 'shortcuts' is an array that sorted by SqOption::shortcut
-	SqPtrArray     shortcuts;
-	SqPtrArray     arguments;
-
-	// The following are option values.
-
-	// ------ SqCommandCommon members ------
+	SQ_COMMON_OPTIONS_MEMBERS;
+/*	// ------ SqCommonOptions members ------
 	bool           help;
 	bool           quiet;
 	bool           version;    // Display this application version
  */
 
-	// ------ SqCommandList members ------      // <-- 3. Add variable and non-virtual function in derived struct.
+	// ------ SqListOptions members ------
+	// none
 };
 
 // ----------------------------------------------------------------------------
@@ -77,12 +62,12 @@ struct SqCommandList
 
 static void list(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandList *value = (SqCommandList*)commandValue;
+	SqListOptions *options = (SqListOptions*)commandValue->options;
 //	SqAppTool *app = data;
 //	console = app->console;
 
-	if (value->help) {
-		sq_console_print_help(console, value->type);
+	if (options->help) {
+		sq_console_print_help(console, commandValue->type);
 		return;
 	}
 
@@ -90,11 +75,11 @@ static void list(SqCommandValue *commandValue, SqConsole *console, void *data)
 }
 
 static const SqOption *list_options[] = {
-	SQ_OPTION_COMMAND_COMMON_HELP,
+	SQ_COMMON_OPTION_HELP,
 };
 
 static const SqCommand list_command = SQ_COMMAND_INITIALIZER(
-	SqCommandList,                                 // StructureType
+	SqListOptions,                                 // StructureType
 	0,                                             // bit_field
 	"list",                                        // command string
 	list_options,                                  // pointer array of SqOption
@@ -106,7 +91,7 @@ static const SqCommand list_command = SQ_COMMAND_INITIALIZER(
 /* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand list_command = {
 	// --- SqType members ---
-	.size  = sizeof(SqCommandList),
+	.size  = sizeof(SqListOptions),
 	.parse = sq_command_parse_option,
 	.name  = "list",
 	.entry   = (SqEntry**) list_options,

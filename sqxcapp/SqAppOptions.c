@@ -12,24 +12,24 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <SqCommandCommon.h>
+#include <SqAppOptions.h>
 
-const SqOption SqOption_CommandCommonHelp_ = {
-	SQ_TYPE_BOOL,  "help",      offsetof(SqCommandCommon, help),
+const SqOption SqCommonOption_Help_ = {
+	SQ_TYPE_BOOL,  "help",      offsetof(SqCommonOptions, help),
 	.shortcut = "h",
 	.default_value = "true",
 	.description = "Display help for the given command.",
 };
 
-const SqOption SqOption_CommandCommonQuiet_ = {
-	SQ_TYPE_BOOL,  "quiet",     offsetof(SqCommandCommon, quiet),
+const SqOption SqCommonOption_Quiet_ = {
+	SQ_TYPE_BOOL,  "quiet",     offsetof(SqCommonOptions, quiet),
 	.shortcut = "q",
 	.default_value = "true",
 	.description = "Do not output any message.",
 };
 
-const SqOption SqOption_CommandCommonVersion_ = {
-	SQ_TYPE_BOOL,  "version",   offsetof(SqCommandCommon, version),
+const SqOption SqCommonOption_Version_ = {
+	SQ_TYPE_BOOL,  "version",   offsetof(SqCommonOptions, version),
 	.shortcut = "V",
 	.default_value = "true",
 	.description = "Display this application version.",

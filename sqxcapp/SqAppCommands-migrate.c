@@ -19,42 +19,42 @@
 
 #include <SqConsole.h>
 #include <SqApp.h>
-#include <SqCommandMigrate.h>
+#include <SqAppOptions.h>
 
 // ----------------------------------------------------------------------------
 static const SqOption option_database = {
-	SQ_TYPE_STR,     "database",      offsetof(SqCommandMigrate, database),
+	SQ_TYPE_STR,     "database",      offsetof(SqMigrateOptions, database),
 		.shortcut = NULL,
 		.default_value = NULL,
 		.value_description = "[=DATABASE]",
 		.description = "The database connection to use.",
 };
 
-#define SQ_OPTION_COMMAND_MIGRATE_DATABASE    (&option_database)
+#define SQ_MIGRATE_OPTION_DATABASE    (&option_database)
 
 // ----------------------------------------------------------------------------
 // migrate
 
 static void migrate(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
+	SqMigrateOptions *options = (SqMigrateOptions*)commandValue->options;
 	SqApp *app = data;
 	int    code;
 
-	if (value->help) {
-		sq_console_print_help(console, value->type);
+	if (options->help) {
+		sq_console_print_help(console, commandValue->type);
 		return;
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
 	// make current schema in database
 	sq_app_make_schema(app, 0);
 
-	code = sq_app_migrate(app, value->step);
+	code = sq_app_migrate(app, options->step);
 	if (code)
 		printf("Can't migrate\n");
 
@@ -63,20 +63,20 @@ static void migrate(SqCommandValue *commandValue, SqConsole *console, void *data
 }
 
 static const SqOption *migrate_options[] = {
-	// --- SqCommandCommon options ---
-	SQ_OPTION_COMMAND_COMMON_HELP,
-//	SQ_OPTION_COMMAND_COMMON_QUIET,
+	// --- SqCommonOptions options ---
+	SQ_COMMON_OPTION_HELP,
+//	SQ_COMMON_OPTION_QUIET,
 
-	// --- SqCommandMigrate options ---
-	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
+	// --- SqMigrateOptions options ---
+	SQ_MIGRATE_OPTION_DATABASE,
 
-	&(SqOption) {SQ_TYPE_INT, "step",   offsetof(SqCommandMigrate, step),
+	&(SqOption) {SQ_TYPE_INT, "step",   offsetof(SqMigrateOptions, step),
 		.default_value = "1",
 		.description = "Force the migrations to be run so they can be rolled back individually"},
 };
 
 static const SqCommand migrate_command = SQ_COMMAND_INITIALIZER(
-	SqCommandMigrate,                              // StructureType
+	SqMigrateOptions,                              // StructureType
 	0,                                             // bit_field
 	"migrate",                                     // command string
 	migrate_options,                               // pointer array of SqOption
@@ -88,7 +88,7 @@ static const SqCommand migrate_command = SQ_COMMAND_INITIALIZER(
 /* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand migrate_command = {
 	// --- SqType members ---
-	.size  = sizeof(SqCommandMigrate),
+	.size  = sizeof(SqMigrateOptions),
 	.parse = sq_command_parse_option,
 	.name  = "migrate",
 	.entry   = (SqEntry**) migrate_options,
@@ -107,17 +107,17 @@ static const SqCommand migrate_command = {
 
 static void migrate_install(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
+	SqMigrateOptions *options = (SqMigrateOptions*)commandValue->options;
 	SqApp *app = data;
 	int    code;
 
-	if (value->help) {
-		sq_console_print_help(console, value->type);
+	if (options->help) {
+		sq_console_print_help(console, commandValue->type);
 		return;
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
@@ -131,16 +131,16 @@ static void migrate_install(SqCommandValue *commandValue, SqConsole *console, vo
 }
 
 static const SqOption *migrate_install_options[] = {
-	// --- SqCommandCommon options ---
-	SQ_OPTION_COMMAND_COMMON_HELP,
-//	SQ_OPTION_COMMAND_COMMON_QUIET,
+	// --- SqCommonOptions options ---
+	SQ_COMMON_OPTION_HELP,
+//	SQ_COMMON_OPTION_QUIET,
 
-	// --- SqCommandMigrate options ---
-	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
+	// --- SqMigrateOptions options ---
+	SQ_MIGRATE_OPTION_DATABASE,
 };
 
 static const SqCommand migrate_install_command = SQ_COMMAND_INITIALIZER(
-	SqCommandMigrate,                             // StructureType
+	SqMigrateOptions,                             // StructureType
 	0,                                            // bit_field
 	"migrate:install",                            // command string
 	migrate_install_options,                      // pointer array of SqOption
@@ -152,7 +152,7 @@ static const SqCommand migrate_install_command = SQ_COMMAND_INITIALIZER(
 /* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand migrate_install_command = {
 	// --- SqType members ---
-	.size  = sizeof(SqCommandMigrate),
+	.size  = sizeof(SqMigrateOptions),
 	.parse = sq_command_parse_option,
 	.name  = "migrate:install",
 	.entry   = (SqEntry**)migrate_install_options,
@@ -171,24 +171,24 @@ static const SqCommand migrate_install_command = {
 
 static void migrate_rollback(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
+	SqMigrateOptions *options = (SqMigrateOptions*)commandValue->options;
 	SqApp *app = data;
 	int    code;
 
-	if (value->help) {
-		sq_console_print_help(console, value->type);
+	if (options->help) {
+		sq_console_print_help(console, commandValue->type);
 		return;
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
 	// make current schema in database
 	sq_app_make_schema(app, 0);
 
-	code = sq_app_rollback(app, value->step);
+	code = sq_app_rollback(app, options->step);
 	if (code != SQCODE_OK)
 		printf("Can't rollback\n");
 
@@ -197,21 +197,21 @@ static void migrate_rollback(SqCommandValue *commandValue, SqConsole *console, v
 }
 
 static const SqOption *migrate_rollback_options[] = {
-	// --- SqCommandCommon options ---
-	SQ_OPTION_COMMAND_COMMON_HELP,
-//	SQ_OPTION_COMMAND_COMMON_QUIET,
+	// --- SqCommonOptions options ---
+	SQ_COMMON_OPTION_HELP,
+//	SQ_COMMON_OPTION_QUIET,
 
-	// --- SqCommandMigrate options ---
-	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
+	// --- SqMigrateOptions options ---
+	SQ_MIGRATE_OPTION_DATABASE,
 
-	&(SqOption) {SQ_TYPE_INT,  "step",   offsetof(SqCommandMigrate, step),
+	&(SqOption) {SQ_TYPE_INT,  "step",   offsetof(SqMigrateOptions, step),
 		.default_value = "0",
 		.value_description = "[=STEP]",
 		.description = "The number of migrations to be reverted"},
 };
 
 static const SqCommand migrate_rollback_command = SQ_COMMAND_INITIALIZER(
-	SqCommandMigrate,                             // StructureType
+	SqMigrateOptions,                             // StructureType
 	0,                                            // bit_field
 	"migrate:rollback",                           // command string
 	migrate_rollback_options,                     // pointer array of SqOption
@@ -223,7 +223,7 @@ static const SqCommand migrate_rollback_command = SQ_COMMAND_INITIALIZER(
 /* above SQ_COMMAND_INITIALIZER() Macro Expands to
 static const SqCommand migrate_rollback_command = {
 	// --- SqType members ---
-	.size  = sizeof(SqCommandMigrate),
+	.size  = sizeof(SqMigrateOptions),
 	.parse = sq_command_parse_option,
 	.name  = "migrate:rollback",
 	.entry   = (SqEntry**)migrate_rollback_options,
@@ -242,17 +242,17 @@ static const SqCommand migrate_rollback_command = {
 
 static void migrate_reset(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
+	SqMigrateOptions *options = (SqMigrateOptions*)commandValue->options;
 	SqApp *app = data;
 	int    code;
 
-	if (value->help) {
-		sq_console_print_help(console, value->type);
+	if (options->help) {
+		sq_console_print_help(console, commandValue->type);
 		return;
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
@@ -268,16 +268,16 @@ static void migrate_reset(SqCommandValue *commandValue, SqConsole *console, void
 }
 
 static const SqOption *migrate_reset_options[] = {
-	// --- SqCommandCommon options ---
-	SQ_OPTION_COMMAND_COMMON_HELP,
-//	SQ_OPTION_COMMAND_COMMON_QUIET,
+	// --- SqCommonOptions options ---
+	SQ_COMMON_OPTION_HELP,
+//	SQ_COMMON_OPTION_QUIET,
 
-	// --- SqCommandMigrate options ---
-	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
+	// --- SqMigrateOptions options ---
+	SQ_MIGRATE_OPTION_DATABASE,
 };
 
 static const SqCommand migrate_reset_command = SQ_COMMAND_INITIALIZER(
-	SqCommandMigrate,                             // StructureType
+	SqMigrateOptions,                             // StructureType
 	0,                                            // bit_field
 	"migrate:reset",                              // command string
 	migrate_reset_options,                        // pointer array of SqOption
@@ -291,17 +291,17 @@ static const SqCommand migrate_reset_command = SQ_COMMAND_INITIALIZER(
 
 static void migrate_refresh(SqCommandValue *commandValue, SqConsole *console, void *data)
 {
-	SqCommandMigrate *value = (SqCommandMigrate*)commandValue;
+	SqMigrateOptions *options = (SqMigrateOptions*)commandValue->options;
 	SqApp *app = data;
 	int    code;
 
-	if (value->help) {
-		sq_console_print_help(console, value->type);
+	if (options->help) {
+		sq_console_print_help(console, commandValue->type);
 		return;
 	}
 
 	// open database
-	if (sq_app_open_database((SqApp*)app, value->database) != SQCODE_OK) {
+	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
 		puts("Can't open database");
 		return;
 	}
@@ -325,16 +325,16 @@ static void migrate_refresh(SqCommandValue *commandValue, SqConsole *console, vo
 }
 
 static const SqOption *migrate_refresh_options[] = {
-	// --- SqCommandCommon options ---
-	SQ_OPTION_COMMAND_COMMON_HELP,
-//	SQ_OPTION_COMMAND_COMMON_QUIET,
+	// --- SqCommonOptions options ---
+	SQ_COMMON_OPTION_HELP,
+//	SQ_COMMON_OPTION_QUIET,
 
-	// --- SqCommandMigrate options ---
-	SQ_OPTION_COMMAND_MIGRATE_DATABASE,
+	// --- SqMigrateOptions options ---
+	SQ_MIGRATE_OPTION_DATABASE,
 };
 
 static const SqCommand migrate_refresh_command = SQ_COMMAND_INITIALIZER(
-	SqCommandMigrate,                             // StructureType
+	SqMigrateOptions,                             // StructureType
 	0,                                            // bit_field
 	"migrate:refresh",                            // command string
 	migrate_refresh_options,                      // pointer array of SqOption

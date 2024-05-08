@@ -35,57 +35,50 @@ It defines option in command. Because it derives from [SqEntry](SqEntry.md), you
 
 # SqCommandValue
 
-It stores value of option from command-line.
+SqCommandValue stores option values and arguments from command-line.
 
-## 1 Define a constant command
+## Define New Command
 
-e.g. define 'mycommand' that has two options - '--help' and '--quiet'
+e.g. define 'mycommand' that has 3 options - 'help', 'quiet', and 'step'.  
+  
+First define structure MyCommandOptions for options of 'mycommand'.
 
-#### 1.1 define value of command option
-
-Define MyCommandValue that is derived from SqCommandValue.
-
-	SqCommandValue
-	│
-	└--- MyCommandValue
-
-```c++
-// If you use C language, please use 'typedef' to give a struct type a new name.
-typedef struct MyCommandValue    MyCommandValue;
-
-#ifdef __cplusplus
-struct MyCommandValue : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
-#else
-struct MyCommandValue
-#endif
+```c
+struct MyCommandOptions
 {
-	SQ_COMMAND_VALUE_MEMBERS;                      // <-- 2. inherit member variable
-
-	// The following are option values.
-
-	// ------ MyCommandValue members ------        // <-- 3. Add variable and non-virtual function in derived struct.
 	bool    help;
 	bool    quiet;
-
 	int     step;
 };
 ```
 
-#### 1.2 define constant options of command
+#### define function of command handler
+
+```c++
+// The function will be called when your command is executed.
+void  mycommand_handle(SqCommandValue *commandValue, SqConsole *console, void *data)
+{
+	MyCommandOptions *options = (MyCommandOptions*)commandValue->options;
+
+	// do something here...
+}
+```
+
+#### 1.1 define constant options of command
 
 If you define constant SqCommand, it must use with **pointer array** of SqOption.
 
 ```c
 static const SqOption  mycommand_option_array[] = {
-	{SQ_TYPE_BOOL,  "help",      offsetof(MyCommandValue, help),
+	{SQ_TYPE_BOOL,  "help",      offsetof(MyCommandOptions, help),
 		.shortcut = "h",  .default_value = "true",
 		.description = "Display help for the given command."},
 
-	{SQ_TYPE_BOOL,  "quiet",     offsetof(MyCommandValue, quiet),
+	{SQ_TYPE_BOOL,  "quiet",     offsetof(MyCommandOptions, quiet),
 		.shortcut = "q",  .default_value = "true",
 		.description = "Do not output any message."},
 
-	{SQ_TYPE_INT,   "step",      offsetof(MyCommandValue, step),
+	{SQ_TYPE_INT,   "step",      offsetof(MyCommandOptions, step),
 		.shortcut = "s",  .default_value = "1",
 		.description = "Take step."},
 };
@@ -101,27 +94,18 @@ Setting SQB_POINTER in SqOption::bit_field if the option value in C/C++ language
 
 ```c
 const SqOption  options[] = {
-	{SQ_TYPE_MY_OBJECT,  "obj",      offsetof(MyCommandValue, obj),  SQB_POINTER},
-	//                                                               ^^^^^^^^^^^
+	{SQ_TYPE_MY_OBJECT,  "obj",  offsetof(MyCommandOptions, obj),  SQB_POINTER},
+	//                                                             ^^^^^^^^^^^
 
 	// Omitted
 }
 ```
 
-#### 1.3 define function of command handler
-
-```c++
-static void mycommand_handle(MyCommandValue *commandValue, SqConsole *console, void *data)
-{
-	// The function will be called when your command is executed.
-}
-```
-
-#### 1.4 define constant command
+#### 1.2 define constant command
 
 ```c++
 const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
-	MyCommandValue,                                // StructureType
+	MyCommandOptions,                              // StructureType
 	0,                                             // bit_field
 	"mycommand",                                   // command name
 	mycommand_options,                             // pointer array of SqOption
@@ -133,7 +117,7 @@ const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
 /* above SQ_COMMAND_INITIALIZER() Macro Expands to
 const SqCommand mycommand = {
 	// --- SqType members ---
-	.size  = sizeof(MyCommandValue),
+	.size  = sizeof(MyCommandOptions),
 	.parse = sq_command_parse_option,
 	.name  = "mycommand",
 	.entry   = (SqEntry**) mycommand_options,
@@ -149,7 +133,7 @@ const SqCommand mycommand = {
  */
 ```
 
-## 2 Define a new command dynamically
+#### 2.1 define a new command dynamically
 
 e.g. create 'mycommand' by function.  
   
@@ -159,7 +143,7 @@ use C language
 	SqCommand *mycommand;
 
 	mycommand = sq_command_new("mycommand");
-	mycommand->size   = sizeof(MyCommandValue);
+	mycommand->size   = sizeof(MyCommandOptions);
 	mycommand->handle = mycommand_handle;
 	sq_command_set_parameter(mycommand, "mycommand parameterName");
 	sq_command_set_description(mycommand, "mycommand description");
@@ -171,13 +155,13 @@ use C++ language
 	Sq::Command *mycommand;
 
 	mycommand = new Sq::Command("mycommand");
-	mycommand->size   = sizeof(MyCommandValue);
+	mycommand->size   = sizeof(MyCommandOptions);
 	mycommand->handle = mycommand_handle;
 	mycommand->setParameter("mycommand parameterName");
 	mycommand->setDescription("mycommand description");
 ```
 
-#### 2.1 dynamic SqCommand use constant array of SqOption
+#### 2.2 dynamic SqCommand use constant array of SqOption
 
 e.g. add array that has 2 options.
 
@@ -189,7 +173,7 @@ e.g. add array that has 2 options.
 	mycommand->addOption(mycommand_option_array, 2);
 ```
 
-#### 2.2 dynamic SqCommand use dynamic SqOption
+#### 2.3 dynamic SqCommand use dynamic SqOption
 
 use C language
 
@@ -197,7 +181,7 @@ use C language
 	SqOption  *option;
 
 	option = sq_option_new(SQ_TYPE_BOOL);
-	option->offset = offsetof(MyCommandValue, help);
+	option->offset = offsetof(MyCommandOptions, help);
 	sq_option_set_name(option, "help");
 	sq_option_set_shortcut(option, "h");
 	sq_option_set_default_value(option, "true");
@@ -212,7 +196,7 @@ use C++ language
 	Sq::Option  *option;
 
 	option = new Sq::Option(SQ_TYPE_BOOL);
-	option->offset = offsetof(MyCommandValue, help);
+	option->offset = offsetof(MyCommandOptions, help);
 	option->setName("help");
 	option->setShortcut("h");
 	option->setDefault("true");
@@ -231,7 +215,7 @@ Calling pointer() if the option value in C/C++ language is a pointer type.
 	option->pointer();
 ```
 
-## 3 add command to SqConsole
+## Add command to SqConsole
 
 ```c
 	// C function
@@ -241,7 +225,7 @@ Calling pointer() if the option value in C/C++ language is a pointer type.
 	console->add(&mycommand)
 ```
 
-## 4 Parse command-line
+## Parse command-line
 
 e.g. execute program with specified command, options, and arguments.
 
@@ -249,23 +233,33 @@ e.g. execute program with specified command, options, and arguments.
 program  mycommand  --step=5  argument1  argument2
 ```
 
-Calling parse() to parse command-line arguments.
+Calling parse() to parse command-line arguments.  
+  
+use C language
+
+```c
+int  main(int argc, char **argv)
+{
+	SqCommandValue *commandValue;
+	bool            command_in_argv = true;
+
+	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
+}
+```
+
+use C++ language
 
 ```c++
 int  main(int argc, char **argv)
 {
-	MyCommandValue *commandValue;
-	bool            command_in_argv = true;
+	Sq::CommandValue *commandValue;
+	bool              command_in_argv = true;
 
-	// C function
-	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
-
-	// C++ method
 	commandValue = console->parse(argc, argv, command_in_argv);
 }
 ```
 
-values of 'commandValue' should look like this:
+The return value of sq_console_parse() is 'commandValue', it should look like this:
 
 ```c
 	commandValue->type = mycommand;
@@ -274,12 +268,16 @@ values of 'commandValue' should look like this:
 	commandValue->arguments.data[1] = "argument2";
 	commandValue->arguments.length  = 2;
 
-	commandValue->help  = false;
-	commandValue->quiet = false;
-	commandValue->step  = 5;
+	MyCommandOptions *options = commandValue->options;
+	options->help  = false;
+	options->quiet = false;
+	options->step  = 5;
 ```
 
-e.g. execute program without specified command. In this case, SqConsole use first added command by default.
+If you only need options and arguments and no command, calling parse() and specify the last argument as false.
+In this case, SqConsole use first added command by default.  
+  
+e.g. Execute the program with only options and parameters, no command specified.
 
 ```console
 program  --step=5  argument1  argument2
@@ -288,14 +286,11 @@ program  --step=5  argument1  argument2
 Call parse() and specify the last argument as false to parse command line arguments without a command.
 
 ```c++
-int  main(int argc, char **argv)
-{
 	// C function
 	commandValue = sq_console_parse(console, argc, argv, false);
 
 	// C++ method
 	commandValue = console->parse(argc, argv, false);
-}
 ```
 
 **release memory of 'commandValue'**  
@@ -303,47 +298,46 @@ int  main(int argc, char **argv)
 use C language
 
 ```c
+	SqCommandValue *commandValue;
+
 	sq_command_value_free(commandValue);
 ```
 
 use C++ language  
   
-If 'MyCommandValue' has defined destructor, you can use C++ keywords "delete" to release memory.  
-The following example does not derive methods from Sq::CommandValueMethod, but it still works.
+C++ Sq::CommandValue has defined destructor, so user can use 'delete' keyword to free memory.
 
 ```c++
-struct MyCommandValue
-{
-	// inherit member variable from SqCommandValue
-	SQ_COMMAND_VALUE_MEMBERS;
+	Sq::CommandValue *commandValue;
 
-	// member variable (option values)
-	bool    help;
-	bool    quiet;
-	int     step;
-
-	// destructor
-	~MyCommandValue() {
-		sq_command_value_final((SqCommandValue*)this);
-	}
-};
-
-int  main(int argc, char **argv)
-{
-	MyCommandValue *commandValue;
-
-	// parse values from command-line
-	commandValue = (MyCommandValue*)console->parse(argc, argv, true);
-	// delete MyCommandValue instance
 	delete commandValue;
-}
+	// or
+	// commandValue->free();
 ```
 
-If 'MyCommandValue' does not have a destructor defined, the variable must be cast to Sq::CommandValue and then delete instance, or call Sq::CommandValueMethod::free() method to free instance memory.
+## Print help message
+
+To print help message, you can use C function sq_console_print_help(), C++ method printHelp().  
+If 'command' is NULL, they use first added SqCommand to print help message without name of command.
 
 ```c++
-	// cast to Sq::CommandValue and then delete instance
-	delete (Sq::CommandValue*)commandValue;
-	// or call Sq::CommandValueMethod::free()
-	commandValue->free();
+	SqCommand*  command = mycommand;
+
+	// C function
+	sq_console_print_help(console, command);
+
+	// C++ method
+	console->printHelp(command);
+```
+
+When your program has multiple command, you can use printList() to list all commands added in SqConsole.
+
+```c++
+	const char *program_description = "Program description, which is printed before other help messages.";
+
+	// C function
+	q_console_print_list(console, program_description);
+
+	// C++ method
+	console->printList(program_description);
 ```

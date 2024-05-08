@@ -28,15 +28,15 @@ typedef struct SqCommandValue    SqCommandValue;
 
 /*	SqCommand initializer macro. below is sample code:
 
-	typedef struct MyCommandValue
+	typedef struct MyCommandOptions
 	{
-		SQ_COMMAND_VALUE_MEMBERS;
 		int  option1_value;
 		int  option2_value;
-	} MyCommandValue;
+	} MyCommandOptions;
 
-	static void mycommand_handle(MyCommandValue *commandValue, SqConsole *console, void *data) {
-		// The function will be called when your command is executed.
+	// The function will be called when your command is executed.
+	static void mycommand_handle(SqCommandValue *commandValue, SqConsole *console, void *data) {
+		MyCommandOptions *options = (MyCommandOptions*)commandValue->options;
 	}
 
 	static const SqOption *mycommand_options[] = {
@@ -45,7 +45,7 @@ typedef struct SqCommandValue    SqCommandValue;
 	};
 
 	const SqCommand  mycommand = SQ_COMMAND_INITIALIZER(
-		MyCommandValue, 0,                             // StructureType, bit_field
+		MyCommandOptions, 0,                           // StructureType, bit_field
 		"mycommand",                                   // command string
 		mycommand_options,                             // pointer array of SqOption
 		mycommand_handle,                              // handle function
@@ -89,11 +89,9 @@ typedef void (*SqCommandFunc)(SqCommandValue *commandValue, SqConsole *console, 
 
 /* --- SqCommandValue C functions --- */
 
-// SqCommandValue *sq_command_value_new(const SqCommand *commandType);
-void  *sq_command_value_new(const SqCommand *commandType);
+SqCommandValue  *sq_command_value_new(const SqCommand *commandType);
 
-//void sq_command_value_free(SqCommandValue *commandValue);
-void   sq_command_value_free(void *commandValue);
+void   sq_command_value_free(SqCommandValue *commandValue);
 
 void   sq_command_value_init(SqCommandValue *commandValue, const SqCommand *commandType);
 void   sq_command_value_final(SqCommandValue *commandValue);
@@ -265,10 +263,11 @@ struct SqCommand
 
 /*	SqCommandValue: It stores option values and arguments from command-line.
  */
-#define SQ_COMMAND_VALUE_MEMBERS \
-	const SqCommand  *type;      \
-	SqPtrArray     shortcuts;    \
-	SqPtrArray     arguments
+#define SQ_COMMAND_VALUE_MEMBERS    \
+	const SqCommand  *type;         \
+	SqPtrArray        shortcuts;    \
+	SqPtrArray        arguments;    \
+	void             *options
 
 #ifdef __cplusplus
 struct SqCommandValue : Sq::CommandValueMethod     // <-- 1. inherit C++ member function(method)
@@ -281,13 +280,12 @@ struct SqCommandValue
 	const SqCommand  *type;
 
 	// shortcuts & arguments are used by SqConsole
-	SqPtrArray     shortcuts;    // sorted by SqOption::shortcut
-	SqPtrArray     arguments;
+	SqPtrArray        shortcuts;    // sorted by SqOption::shortcut
+	SqPtrArray        arguments;
+
+	// pointer to structure of option values
+	void             *options;
  */
-
-	/* Add variable and function */                // <-- 3. Add variable and non-virtual function in derived struct.
-
-	// option values added here
 };
 
 // ----------------------------------------------------------------------------

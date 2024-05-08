@@ -24,16 +24,16 @@
 #define strdup       _strdup
 #endif
 
-void *sq_command_value_new(const SqCommand *commandType)
+SqCommandValue *sq_command_value_new(const SqCommand *commandType)
 {
 	SqCommandValue *commandValue;
 
-	commandValue = calloc(1, commandType->size);
+	commandValue = malloc(sizeof(SqCommandValue));
 	sq_command_value_init(commandValue, commandType);
 	return commandValue;
 }
 
-void  sq_command_value_free(void *commandValue)
+void  sq_command_value_free(SqCommandValue *commandValue)
 {
 	sq_command_value_final(commandValue);
 	free(commandValue);
@@ -41,18 +41,22 @@ void  sq_command_value_free(void *commandValue)
 
 void  sq_command_value_init(SqCommandValue *commandValue, const SqCommand *commandType)
 {
-	sq_type_init_instance((SqType*)commandType, commandValue, 0);
 	commandValue->type = commandType;
 	sq_ptr_array_init(&commandValue->shortcuts, 8, NULL);
 	sq_ptr_array_init(&commandValue->arguments, 8, NULL);
 //	sq_ptr_array_init(&cmd->arguments, 8, (SqDestroyFunc)free);
+
+	commandValue->options = calloc(1, commandType->size);
+	sq_type_init_instance((SqType*)commandValue->type, commandValue->options, 0);
 }
 
 void  sq_command_value_final(SqCommandValue *commandValue)
 {
 	sq_ptr_array_final(&commandValue->arguments);
 	sq_ptr_array_final(&commandValue->shortcuts);
-	sq_type_final_instance((SqType*)commandValue->type, commandValue, 0);
+
+	sq_type_final_instance((SqType*)commandValue->type, commandValue->options, 0);
+	free(commandValue->options);
 }
 
 // ----------------------------------------------------------------------------
@@ -199,6 +203,8 @@ int  sq_command_parse_option(void *instance, const SqType *type, Sqxc *src)
 				src->name, sq_option_cmp_str__shortcut);
 	}
 
+	// 'instance' pointer to structure of option values
+	instance = ((SqCommandValue*)instance)->options;
 	// parse entries in type
 	if (temp.addr) {
 		temp.option = *(SqOption**)temp.addr;
