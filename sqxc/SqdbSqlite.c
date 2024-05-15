@@ -393,6 +393,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 #endif
 	}
 	else {
+		// Determines command based on the first character in SQL statement.
 		switch (sql[0]) {
 		case 'S':    // SELECT
 		case 's':    // select
@@ -445,7 +446,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 			// set the last inserted row id
 			((SqxcSql*)xc)->id = sqlite3_last_insert_rowid(sqdb->self);
 			// set number of rows changed
-			((SqxcSql*)xc)->changes = sqlite3_changes(sqdb->self);
+			((SqxcSql*)xc)->changes = sqlite3_changes64(sqdb->self);
 			break;
 		}
 	}
