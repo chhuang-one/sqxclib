@@ -146,6 +146,7 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 	if (xc == NULL)
 		results = PQexec(sqdb->conn, sql);
 	else {
+		// Determines command based on the first character in SQL statement.
 		switch (sql[0]) {
 		case 'S':    // SELECT
 		case 's':    // select
@@ -251,7 +252,7 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 			// set the last inserted row id
 			if (sql_new) {
 				if (PQntuples(results) > 0)
-					((SqxcSql*)xc)->id = strtol(PQgetvalue(results, 0, 0), NULL, 10);
+					((SqxcSql*)xc)->id = (int64_t)strtoll(PQgetvalue(results, 0, 0), NULL, 10);
 				else
 					((SqxcSql*)xc)->id = 0;
 				free(sql_new);
