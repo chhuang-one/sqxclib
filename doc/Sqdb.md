@@ -306,6 +306,8 @@ struct SqdbXxsql
 	SqdbXxsql(const SqdbConfigXxsql *config) {
 		// call Sq::DbMethod::init()
 		init(SQDB_INFO_XXSQL, (SqdbConfig*)config);
+		// or call C function:
+		// sqdb_init((Sqdb*)this, SQDB_INFO_XXSQL, (SqdbConfig*)config);
 	}
 	SqdbXxsql(const SqdbConfigXxsql &config) {
 		init(SQDB_INFO_XXSQL, (SqdbConfig&)config);
@@ -313,6 +315,8 @@ struct SqdbXxsql
 	~SqdbXxsql() {
 		// call Sq::DbMethod::final()
 		final();
+		// or call C function:
+		// sqdb_final((Sqdb*)this);
 	}
 #endif
 };
@@ -386,6 +390,7 @@ static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *re
 		// execute query
 	}
 	else {
+		// Determines command based on the first character in SQL statement.
 		switch (sql[0]) {
 		case 'S':    // SELECT
 		case 's':    // select

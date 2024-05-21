@@ -541,7 +541,6 @@ use C functions to produce query
 	sq_query_from(query, "companies");
 
 	sq_query_join_sub(query);      // start of subquery
-//	sq_query_join(query, NULL);    // start of subquery
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);       // end of subquery

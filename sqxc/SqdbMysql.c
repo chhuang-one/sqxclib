@@ -233,6 +233,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 	if (xc == NULL)
 		rc = mysql_query(sqdb->self, sql);
 	else {
+		// Determines command based on the first character in SQL statement.
 		switch (sql[0]) {
 		case 'S':    // SELECT
 		case 's':    // select

@@ -541,7 +541,6 @@ SQL 语句
 	sq_query_from(query, "companies");
 
 	sq_query_join_sub(query);      // 子查询的开始
-//	sq_query_join(query, NULL);    // 子查询的开始
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);       // 子查询的结尾

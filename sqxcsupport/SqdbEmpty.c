@@ -137,6 +137,7 @@ static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *re
 		return SQCODE_OK;
 	}
 
+	// Determines command based on the first character in SQL statement.
 	switch (sql[0]) {
 	case 'S':    // SELECT
 	case 's':    // select

@@ -306,6 +306,8 @@ struct SqdbXxsql
 	SqdbXxsql(const SqdbConfigXxsql *config) {
 		// 调用 Sq::DbMethod::init()
 		init(SQDB_INFO_XXSQL, (SqdbConfig*)config);
+		// 或调用 C 函数：
+		// sqdb_init((Sqdb*)this, SQDB_INFO_XXSQL, (SqdbConfig*)config);
 	}
 	SqdbXxsql(const SqdbConfigXxsql &config) {
 		init(SQDB_INFO_XXSQL, (SqdbConfig&)config);
@@ -313,6 +315,8 @@ struct SqdbXxsql
 	~SqdbXxsql() {
 		// 调用 Sq::DbMethod::final()
 		final();
+		// 或调用 C 函数：
+		// sqdb_final((Sqdb*)this);
 	}
 #endif
 };
@@ -386,6 +390,7 @@ static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *re
 		// 执行查询
 	}
 	else {
+		// 根据 SQL 语句中的第一个字符确定命令。
 		switch (sql[0]) {
 		case 'S':    // SELECT
 		case 's':    // select

@@ -39,7 +39,7 @@ SqCommandValue stores option values and arguments from command-line.
 
 ## Define New Command
 
-e.g. define 'mycommand' that has 3 options - 'help', 'quiet', and 'step'.  
+e.g. Define new command "mycommand", which has 3 options: "help", "quiet" and "step".  
   
 First define structure MyCommandOptions for options of 'mycommand'.
 
@@ -163,14 +163,14 @@ use C++ language
 
 #### 2.2 dynamic SqCommand use constant array of SqOption
 
-e.g. add array that has 2 options.
+e.g. add array that has 3 options to 'mycommand'.
 
 ```c++
 	// C function
-	sq_command_add_option(mycommand, mycommand_option_array, 2);
+	sq_command_add_option(mycommand, mycommand_option_array, 3);
 
 	// C++ method
-	mycommand->addOption(mycommand_option_array, 2);
+	mycommand->addOption(mycommand_option_array, 3);
 ```
 
 #### 2.3 dynamic SqCommand use dynamic SqOption
@@ -259,7 +259,7 @@ int  main(int argc, char **argv)
 }
 ```
 
-The return value of sq_console_parse() is 'commandValue', it should look like this:
+The return value of sq_console_parse() is 'commandValue', and its member values ​​should be as follows:
 
 ```c
 	commandValue->type = mycommand;

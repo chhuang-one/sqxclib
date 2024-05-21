@@ -431,7 +431,7 @@ static const SqColumn  mappingColumns[4] = {
 	// Query-only column: SqColumn::bit_field must has SQB_QUERY_ONLY
 	// specify length of BLOB in SqBuffer::size before parsing 'picture'.
 	// use this to get length of BLOB data for SQLite or MySQL.
-	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
+	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture.size), SQB_QUERY_ONLY},
 
 	// type mapping: SQ_TYPE_BUFFER map to SQL data type - BLOB
 	{SQ_TYPE_BUFFER, "picture",         offsetof(Mapping, picture),    0,

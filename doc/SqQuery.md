@@ -109,8 +109,7 @@ use C language
 
 	// subquery
 	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
-//	sq_query_from_sub(query);
-	sq_query_from(query, NULL);
+	sq_query_from_sub(query);
 		sq_query_from(query, "companies");
 		sq_query_where_raw(query, "id < 65");
 	sq_query_end_sub(query);
@@ -188,7 +187,6 @@ These functions/methods are used to filter the results and apply conditions.
 * The order of arguments are - name of column, operator, printf format string, and values that depending on the format string.
 * If user doesn't specify the values following format string, program handle printf format string as raw string.
 * Not recommended: If the argument of operator is =, it can be omitted (like Laravel, but less readable).
-* Deprecated: If name of column has % character, It handle as printf format string (This will NOT support in future).
 * The usage of condition arguments is basically the same in where(), join(), on(), and having() series functions.
 
 e.g. generate below SQL statement.
@@ -240,7 +238,6 @@ use C language
 
 	// WHERE NOT ( city_id = 6 OR price < 100 )
 	sq_query_where_not_sub(query);      // start of brackets
-//	sq_query_where_not(query, NULL);    // start of brackets
 		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
 	sq_query_end_sub(query);            // end of brackets
@@ -404,7 +401,6 @@ use C language
 ```c
 	// ... HAVING ( salary > 45 OR age < 21 )
 	sq_query_having_sub(query);                 // start of brackets
-//	sq_query_having(query, NULL);               // start of brackets
 		sq_query_having(query, "salary", ">", "%d", 45);
 		sq_query_or_having(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of brackets
@@ -930,7 +926,6 @@ use C language to generate subquery:
 	sq_query_from(query, "companies");
 
 	sq_query_join_sub(query);                   // start of subquery
-//	sq_query_join(query, NULL);                 // start of subquery
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // end of subquery
@@ -959,28 +954,31 @@ use C++ lambda functions to generate subquery:
 use C language
 
 ```c
+	// SQL statement:
 	// ... JOIN city ON ( city.id = companies.city_id )
 	sq_query_join_sub(query, "city");           // start of brackets
-//	sq_query_join(query, "city", NULL);         // start of brackets
 		sq_query_on(query, "city.id", "=", "%s", "companies.city_id");
 	sq_query_end_sub(query);                    // end of brackets
 
+
+	// SQL statement:
 	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
 	sq_query_join_sub(query, "city", "city.id", "=");    // start of subquery
-//	sq_query_join(query, "city", "city.id", "=", NULL);  // start of subquery
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 	sq_query_end_sub(query);                             // end of subquery
 
+
+	// SQL statement:
 	// ... ON ( city.id < 100 )
 	sq_query_on_sub(query);                     // start of brackets
-//	sq_query_on(query, NULL);                   // start of brackets
 		sq_query_on(query, "city.id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // end of brackets
 
+
+	// SQL statement:
 	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
 	sq_query_on_sub(query, "city.id", "<");     // start of subquery
-//	sq_query_on(query, "city.id", "<", NULL);   // start of subquery
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 		sq_query_where(query, "id", "=", "%d", 25);
@@ -990,22 +988,29 @@ use C language
 use C++ language
 
 ```c++
+	// SQL statement:
 	// ... JOIN city ON ( city.id = companies.city_id )
 	query->join("city", [query] {
 		query->on("city.id", "=", "companies.city_id");
 	});
 
+
+	// SQL statement:
 	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
 	query->join("city", "city.id", "=", [query] {
 		query->from("companies")
 		     ->select("city_id");
 	});
 
+
+	// SQL statement:
 	// ... ON ( city.id < 100 )
 	query->on([query] {
 		query->on("city.id", "<", 100);
 	});
 
+
+	// SQL statement:
 	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
 	query->on("city.id", "<", [query] {
 		query->from("companies")
@@ -1057,38 +1062,43 @@ use C++ language
 
 SqQuery can produce subquery or brackets. In fact, They are implemented the same way inside programs.  
   
-Below C functions/macros support subquery or brackets:  
-Except sq_query_where_exists() series, the last argument in these functions/macros must be NULL.
+Below C functions/macros support subquery or brackets, user must call sq_query_end_sub() in end of subquery or brackets.
 
-	sq_query_from(),
-	sq_query_join(),
-	sq_query_left_join(),
-	sq_query_right_join(),
-	sq_query_full_join(),
-	sq_query_cross_join(),
-	sq_query_on(),               sq_query_or_on(),
-	sq_query_where(),            sq_query_or_where(),
-	sq_query_where_not(),        sq_query_or_where_not(),
-	sq_query_where_exists(),     sq_query_where_not_exists(),
-	sq_query_having(),           sq_query_or_having(),
-	---
-	Note: You must call sq_query_end_sub() in end of subquery or brackets.
+| C Functions                 | C Macros                    |
+| --------------------------- | --------------------------- |
+| sq_query_from()             | sq_query_from_sub()         |
+| sq_query_join()             | sq_query_join_sub()         |
+| sq_query_left_join()        | sq_query_left_join_sub()    |
+| sq_query_right_join()       | sq_query_right_join_sub()   |
+| sq_query_full_join()        | sq_query_full_join_sub()    |
+| sq_query_cross_join()       | sq_query_cross_join_sub()   |
+| sq_query_on()               | sq_query_on_sub()           |
+| sq_query_or_on()            | sq_query_or_on_sub()        |
+| sq_query_having()           | sq_query_having_sub()       |
+| sq_query_or_having()        | sq_query_or_having_sub()    |
+| sq_query_where()            | sq_query_where_sub()        |
+| sq_query_or_where()         | sq_query_or_where_sub()     |
+| sq_query_where_not()        | sq_query_where_not_sub()    |
+| sq_query_or_where_not()     | sq_query_or_where_not_sub() |
+| sq_query_where_exists()     |                             |
+| sq_query_where_not_exists() |                             |
 
-Below C convenient macros for above functions/macros:  
-These C macro use variadic macro to pass NULL in the last argument.
+Difference between these C functions and macros:  
+Except sq_query_where_exists() series, the last argument in these C functions must be NULL when producing a subquery or brackets.
+Because these C macros pass NULL in the last argument of functions, user can omit NULL in last argument when using these macros.
 
-	sq_query_from_sub(),
-	sq_query_join_sub(),
-	sq_query_left_join_sub(),
-	sq_query_right_join_sub(),
-	sq_query_full_join_sub(),
-	sq_query_cross_join_sub(),
-	sq_query_on_sub(),           sq_query_or_on_sub(),
-	sq_query_where_sub(),        sq_query_or_where_sub(),
-	sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
-	sq_query_having_sub(),       sq_query_or_having_sub(),
-	---
-	Note: You must call sq_query_end_sub() in end of subquery or brackets.
+```c
+	// start of subquery (C function)
+//	sq_query_on(query, "city.id", "<", NULL);
+
+	// start of subquery (C macro)
+	sq_query_on_sub(query, "city.id", "<");
+
+	// omit subquery...
+
+	// end of subquery   (both C function and macro)
+	sq_query_end_sub(query);
+```
 
 Below C++ method use lambda function to support subquery or brackets, user does NOT need to call sq_query_end_sub()  
 
@@ -1098,11 +1108,16 @@ Below C++ method use lambda function to support subquery or brackets, user does 
 	rightJoin(),
 	fullJoin(),
 	crossJoin(),
-	on(),          orOn(),
-	where(),       orWhere(),
-	whereNot(),    orWhereNot(),
-	whereExists(), whereNotExists(),
-	having(),      orHaving(),
+	on(),
+	orOn(),
+	having(),
+	orHaving(),
+	where(),
+	orWhere(),
+	whereNot(),
+	orWhereNot(),
+	whereExists(),
+	whereNotExists(),
 
 #### Brackets
 
@@ -1122,7 +1137,6 @@ use C functions to generate brackets:
 	sq_query_table(query, "users");
 
 	sq_query_where_sub(query);                  // start of brackets
-//	sq_query_where(query, NULL);                // start of brackets
 		sq_query_where(query, "salary", ">", "%d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // end of brackets
@@ -1161,7 +1175,6 @@ use C language to generate subquery in condition:
 
 	// WHERE price < ( SELECT AVG(amount) FROM incomes )
 	sq_query_where_sub(query, "price", "<");    // start of subquery
-//	sq_query_where(query, "price", "<", NULL);  // start of subquery
 		sq_query_select_raw(query, "AVG(amount)");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // end of subquery

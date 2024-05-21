@@ -431,7 +431,7 @@ static const SqColumn  mappingColumns[4] = {
 	// 仅查询列：SqColumn::bit_field 必须具有 SQB_QUERY_ONLY
 	// 在解析 'picture' 之前在 SqBuffer::size 中指定 BLOB 的长度。
 	// 使用它来获取 SQLite 或 MySQL 的 BLOB 数据的长度。
-	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
+	{SQ_TYPE_INT,    "length(picture)", offsetof(Mapping, picture.size), SQB_QUERY_ONLY},
 
 	// 类型映射：SQ_TYPE_BUFFER 映射到 SQL 数据类型 - BLOB
 	{SQ_TYPE_BUFFER, "picture",         offsetof(Mapping, picture),    0,

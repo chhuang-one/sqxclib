@@ -319,10 +319,16 @@ struct SqxcText
 
 #ifdef __cplusplus
 	SqxcText() {
-		sqxc_init((Sqxc*)this, SQXC_INFO_TEXT_PARSER);
+		// call Sq::XcMethod::init()
+		init(SQXC_INFO_TEXT_PARSER);
+		// or call C function:
+		// sqxc_init((Sqxc*)this, SQXC_INFO_TEXT_PARSER);
 	}
 	~SqxcText() {
-		sqxc_final((Sqxc*)this);
+		// call Sq::XcMethod::final()
+		final();
+		// or call C function:
+		// sqxc_final((Sqxc*)this);
 	}
 #endif
 };

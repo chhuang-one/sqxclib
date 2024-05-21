@@ -109,8 +109,7 @@ from() 和 table() 可以指定数据库表。他们做同样的事情并支持�
 
 	// 子查询
 	// SELECT * FROM ( SELECT * FROM companies WHERE id < 65 )
-//	sq_query_from_sub(query);
-	sq_query_from(query, NULL);
+	sq_query_from_sub(query);
 		sq_query_from(query, "companies");
 		sq_query_where_raw(query, "id < 65");
 	sq_query_end_sub(query);
@@ -188,7 +187,6 @@ sq_query_select() 可以在参数中指定多个列。
 * 参数的顺序是 列名、运算符、printf 格式字符串、取决于格式字符串的值。
 * 如果用户没有指定格式字符串后面的值，程序将 printf 格式字符串作为原始字符串处理。
 * 不建议：如果运算符的参数是 =，则可以省略 (像 Laravel，但可读性较差)。
-* 已弃用：如果列名有 % 字符，则作为 printf 格式字符串处理 (这将不再支持)。
 * 条件参数的用法在 where()、join()、on() 和 having() 系列函数中基本相同。
 
 例如: 生成下面的 SQL 语句。
@@ -240,7 +238,6 @@ C++ 方法 where() 系列具有省略 printf 格式字符串的重载函数：
 	// WHERE NOT ( city_id = 6 OR price < 100 )
 
 	sq_query_where_not_sub(query);      // 括号的开始
-//	sq_query_where_not(query, NULL);    // 括号的开始
 		sq_query_where(query, "city_id", "=", "%d", 6);
 		sq_query_or_where_raw(query, "price < %d", 100);
 	sq_query_end_sub(query);            // 括号的结束
@@ -404,7 +401,6 @@ having() 系列的用法与 where() 类似。
 ```c
 	// ... HAVING ( salary > 45 OR age < 21 )
 	sq_query_having_sub(query);                 // 括号的开始
-//	sq_query_having(query, NULL);               // 括号的开始
 		sq_query_having(query, "salary", ">", "%d", 45);
 		sq_query_or_having(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // 括号的结束
@@ -930,7 +926,6 @@ WHERE age > 5
 	sq_query_from(query, "companies");
 
 	sq_query_join_sub(query);                   // 子查询的开始
-//	sq_query_join(query, NULL);                 // 子查询的开始
 		sq_query_from(query, "city");
 		sq_query_where(query, "id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // 子查询的结束
@@ -959,28 +954,31 @@ WHERE age > 5
 使用 C 语言
 
 ```c
+	// SQL 语句:
 	// ... JOIN city ON ( city.id = companies.city_id )
 	sq_query_join_sub(query, "city");           // 括号的开始
-//	sq_query_join(query, "city", NULL);         // 括号的开始
 		sq_query_on(query, "city.id", "=", "%s", "companies.city_id");
 	sq_query_end_sub(query);                    // 括号的结束
 
+
+	// SQL 语句:
 	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
 	sq_query_join_sub(query, "city", "city.id", "=");    // 子查询的开始
-//	sq_query_join(query, "city", "city.id", "=", NULL);  // 子查询的开始
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 	sq_query_end_sub(query);                             // 子查询的结束
 
+
+	// SQL 语句:
 	// ... ON ( city.id < 100 )
 	sq_query_on_sub(query);                     // 括号的开始
-//	sq_query_on(query, NULL);                   // 括号的开始
 		sq_query_on(query, "city.id", "<", "%d", 100);
 	sq_query_end_sub(query);                    // 括号的结束
 
+
+	// SQL 语句:
 	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
 	sq_query_on_sub(query, "city.id", "<");     // 子查询的开始
-//	sq_query_on(query, "city.id", "<", NULL);   // 子查询的开始
 		sq_query_from(query, "companies");
 		sq_query_select(query, "city_id");
 		sq_query_where(query, "id", "=", "%d", 25);
@@ -990,22 +988,29 @@ WHERE age > 5
 使用 C++ 语言
 
 ```c++
+	// SQL 语句:
 	// ... JOIN city ON ( city.id = companies.city_id )
 	query->join("city", [query] {
 		query->on("city.id", "=", "companies.city_id");
 	});
 
+
+	// SQL 语句:
 	// ... JOIN city ON city.id = ( SELECT city_id FROM companies )
 	query->join("city", "city.id", "=", [query] {
 		query->from("companies")
 		     ->select("city_id");
 	});
 
+
+	// SQL 语句:
 	// ... ON ( city.id < 100 )
 	query->on([query] {
 		query->on("city.id", "<", 100);
 	});
 
+
+	// SQL 语句:
 	// ... ON city.id < ( SELECT city_id FROM companies WHERE id = 25 )
 	query->on("city.id", "<", [query] {
 		query->from("companies")
@@ -1057,38 +1062,43 @@ C++ 方法 union_() 和 unionAll() 使用 lambda 函数添加其他查询。
 
 SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序内部的实现方式相同。  
   
-以下 C 函数支持子查询或括号：  
-除了 sq_query_where_exists() 系列，这些函数/宏中的最后一个参数必须为 NULL。
+以下 C 函数/宏 支持子查询或括号，用户必须在子查询或括号的末尾调用 sq_query_end_sub()。
 
-	sq_query_from(),
-	sq_query_join(),
-	sq_query_left_join(),
-	sq_query_right_join(),
-	sq_query_full_join(),
-	sq_query_cross_join(),
-	sq_query_on(),               sq_query_or_on(),
-	sq_query_where(),            sq_query_or_where(),
-	sq_query_where_not(),        sq_query_or_where_not(),
-	sq_query_where_exists(),     sq_query_where_not_exists(),
-	sq_query_having(),           sq_query_or_having(),
-	---
-	注意: 您必须在子查询或括号的末尾调用 sq_query_end_sub()。
+| C 函数                      | C 宏                        |
+| --------------------------- | --------------------------- |
+| sq_query_from()             | sq_query_from_sub()         |
+| sq_query_join()             | sq_query_join_sub()         |
+| sq_query_left_join()        | sq_query_left_join_sub()    |
+| sq_query_right_join()       | sq_query_right_join_sub()   |
+| sq_query_full_join()        | sq_query_full_join_sub()    |
+| sq_query_cross_join()       | sq_query_cross_join_sub()   |
+| sq_query_on()               | sq_query_on_sub()           |
+| sq_query_or_on()            | sq_query_or_on_sub()        |
+| sq_query_having()           | sq_query_having_sub()       |
+| sq_query_or_having()        | sq_query_or_having_sub()    |
+| sq_query_where()            | sq_query_where_sub()        |
+| sq_query_or_where()         | sq_query_or_where_sub()     |
+| sq_query_where_not()        | sq_query_where_not_sub()    |
+| sq_query_or_where_not()     | sq_query_or_where_not_sub() |
+| sq_query_where_exists()     |                             |
+| sq_query_where_not_exists() |                             |
 
-下面是上述函数/宏的 C 方便宏：  
-这些 C 宏使用可变参数宏在最后一个参数中传递 NULL。
+这些 C 函数和宏的区别：  
+除了 sq_query_where_exists() 系列，这些 C 函数中的最后一个参数在生成子查询或括号时必须为 NULL。
+由于这些 C 宏在函数的最后一个参数传递 NULL，因此用户在使用这些宏时可以在最后一个参数中省略 NULL。
 
-	sq_query_from_sub(),
-	sq_query_join_sub(),
-	sq_query_left_join_sub(),
-	sq_query_right_join_sub(),
-	sq_query_full_join_sub(),
-	sq_query_cross_join_sub(),
-	sq_query_on_sub(),           sq_query_or_on_sub(),
-	sq_query_where_sub(),        sq_query_or_where_sub(),
-	sq_query_where_not_sub(),    sq_query_or_where_not_sub(),
-	sq_query_having_sub(),       sq_query_or_having_sub(),
-	---
-	注意: 您必须在子查询或括号的末尾调用 sq_query_end_sub()。
+```c
+	// 子查询开始（C 函数）
+//	sq_query_on(query, "city.id", "<", NULL);
+
+	// 子查询开始（C 宏）
+	sq_query_on_sub(query, "city.id", "<");
+
+	// 子查询省略...
+
+	// 子查询结束（C 函数和宏）
+	sq_query_end_sub(query);
+```
 
 下面的 C++ 方法使用 lambda 函数来支持子查询或括号，用户不需要调用 sq_query_end_sub()  
 
@@ -1098,11 +1108,16 @@ SqQuery 可以产生子查询或括号。事实上，子查询和括号在程序
 	rightJoin(),
 	fullJoin(),
 	crossJoin(),
-	on(),          orOn(),
-	where(),       orWhere(),
-	whereNot(),    orWhereNot(),
-	whereExists(), whereNotExists(),
-	having(),      orHaving(),
+	on(),
+	orOn(),
+	having(),
+	orHaving(),
+	where(),
+	orWhere(),
+	whereNot(),
+	orWhereNot(),
+	whereExists(),
+	whereNotExists(),
 
 #### 括号 Brackets
 
@@ -1122,7 +1137,6 @@ WHERE ( salary > 45 AND age < 21 ) OR id > 100
 	sq_query_table(query, "users");
 
 	sq_query_where_sub(query);                  // 括号的开始
-//	sq_query_where(query, NULL);                // 括号的开始
 		sq_query_where(query, "salary", ">", "%d", 45);
 		sq_query_where(query, "age", "<", "%d", 21);
 	sq_query_end_sub(query);                    // 括号结束
@@ -1161,7 +1175,6 @@ WHERE price < ( SELECT AVG(amount) FROM incomes )
 
 	// WHERE price < ( SELECT AVG(amount) FROM incomes )
 	sq_query_where_sub(query, "price", "<");    // 子查询的开始
-//	sq_query_where(query, "price", "<", NULL);  // 子查询的开始
 		sq_query_select_raw(query, "AVG(amount)");
 		sq_query_from(query, "incomes");
 	sq_query_end_sub(query);                    // 子查询的结束

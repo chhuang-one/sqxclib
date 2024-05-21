@@ -39,7 +39,7 @@ SqCommandValue 存储来自命令行的选项值和参数。
 
 ## 定义新命令
 
-例如: 定义具有 3 个选项的 'mycommand' - 'help', 'quiet' 和 'step'。  
+例如: 定义新命令 'mycommand'，它有 3 个选项： 'help'、'quiet' 和 'step'。  
   
 首先为 'mycommand' 的选项定义结构体 MyCommandOptions。
 
@@ -163,14 +163,14 @@ const SqCommand mycommand = {
 
 #### 2.2 动态 SqCommand 使用 SqOption 的常量数组
 
-例如: 添加具有 2 个选项的数组。
+例如: 将具有 3 个选项的数组添加到 'mycommand'。
 
 ```c++
 	// C 函数
-	sq_command_add_option(mycommand, mycommand_option_array, 2);
+	sq_command_add_option(mycommand, mycommand_option_array, 3);
 
 	// C++ 方法
-	mycommand->addOption(mycommand_option_array, 2);
+	mycommand->addOption(mycommand_option_array, 3);
 ```
 
 #### 2.3 动态 SqCommand 使用动态 SqOption
@@ -259,7 +259,7 @@ int  main(int argc, char **argv)
 }
 ```
 
-sq_console_parse() 的返回值是 'commandValue'，它应该如下所示：
+sq_console_parse() 的返回值是 'commandValue'，其成员值应该如下：
 
 ```c
 	commandValue->type = mycommand;

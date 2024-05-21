@@ -127,8 +127,8 @@ static const SqColumn userColumnsVer1[] = {
 	// ---
 	// If you join multiple tables using the same column name and use query-only column with function,
 	// you can add table name as prefix in column name of function parameter.
-//	{SQ_TYPE_INT,    "length(users.picture)", offsetof(User, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
-	{SQ_TYPE_INT,    "length(picture)",       offsetof(User, picture) + offsetof(SqBuffer, size), SQB_QUERY_ONLY},
+//	{SQ_TYPE_INT,    "length(users.picture)", offsetof(User, picture.size), SQB_QUERY_ONLY},
+	{SQ_TYPE_INT,    "length(picture)",       offsetof(User, picture.size), SQB_QUERY_ONLY},
 #endif
 	{SQ_TYPE_BUFFER, "picture",               offsetof(User, picture),                            0,
 		.sql_type = SQ_SQL_TYPE_BLOB},
