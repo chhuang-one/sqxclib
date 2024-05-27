@@ -42,13 +42,13 @@ extern "C" {
 #endif
 
 // SqOption for SqCommonOptions
-extern const SqOption SqCommonOption_Help_;
-extern const SqOption SqCommonOption_Quiet_;
-extern const SqOption SqCommonOption_Version_;
+extern const SqOption sqCommonOption_Help;
+extern const SqOption sqCommonOption_Quiet;
+extern const SqOption sqCommonOption_Version;
 
-#define SQ_COMMON_OPTION_HELP       (&SqCommonOption_Help_)
-#define SQ_COMMON_OPTION_QUIET      (&SqCommonOption_Quiet_)
-#define SQ_COMMON_OPTION_VERSION    (&SqCommonOption_Version_)
+#define SQ_COMMON_OPTION_HELP       (&sqCommonOption_Help)
+#define SQ_COMMON_OPTION_QUIET      (&sqCommonOption_Quiet)
+#define SQ_COMMON_OPTION_VERSION    (&sqCommonOption_Version)
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -62,7 +62,7 @@ extern const SqOption SqCommonOption_Version_;
 #define SQ_COMMON_OPTIONS_MEMBERS      \
 	bool           help;               \
 	bool           quiet;              \
-    bool           version
+	bool           version
 
 struct SqCommonOptions
 {

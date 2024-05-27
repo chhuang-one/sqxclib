@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -14,21 +14,21 @@
 
 #include <SqAppOptions.h>
 
-const SqOption SqCommonOption_Help_ = {
+const SqOption sqCommonOption_Help = {
 	SQ_TYPE_BOOL,  "help",      offsetof(SqCommonOptions, help),
 	.shortcut = "h",
 	.default_value = "true",
 	.description = "Display help for the given command.",
 };
 
-const SqOption SqCommonOption_Quiet_ = {
+const SqOption sqCommonOption_Quiet = {
 	SQ_TYPE_BOOL,  "quiet",     offsetof(SqCommonOptions, quiet),
 	.shortcut = "q",
 	.default_value = "true",
 	.description = "Do not output any message.",
 };
 
-const SqOption SqCommonOption_Version_ = {
+const SqOption sqCommonOption_Version = {
 	SQ_TYPE_BOOL,  "version",   offsetof(SqCommonOptions, version),
 	.shortcut = "V",
 	.default_value = "true",

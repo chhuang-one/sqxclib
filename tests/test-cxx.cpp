@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -20,17 +20,13 @@
 #include <type_traits>  // is_standard_layout<>
 #include <iostream>     // cout
 
-#include <SqSchema.h>
-#include <SqSchema-macro.h>
-
 #include <SqQuery.h>
-#include <SqQuery-macro.h>
-
-#include <SqdbEmpty.h>
-#include <SqxcEmpty.h>
+#include <SqSchema.h>
 #include <SqStorage.h>
 
 #include <SqPairs.h>
+#include <SqdbEmpty.h>
+#include <SqxcEmpty.h>
 
 using namespace std;
 
@@ -57,16 +53,16 @@ struct Company
 	double salary;
 };
 
-static const SqColumn  UserColumnArray[] = {
+static const SqColumn  userColumnArray[] = {
 	{SQ_TYPE_INT,      "id",      offsetof(User, id),    SQB_PRIMARY | SQB_HIDDEN},
 	{SQ_TYPE_STR,      "name",    offsetof(User, name),  0 },
 	{SQ_TYPE_STR,      "email",   offsetof(User, email), 0 },
 };
 
-static const SqColumn  *UserColumns[] = {
-	&UserColumnArray[0],
-	&UserColumnArray[1],
-	&UserColumnArray[2],
+static const SqColumn  *userColumns[] = {
+	&userColumnArray[0],
+	&userColumnArray[1],
+	&userColumnArray[2],
 };
 
 void test_schema_with_aggregate_initializer()
@@ -76,7 +72,7 @@ void test_schema_with_aggregate_initializer()
 
 	schema = new Sq::Schema("current");
 	table = schema->create<Company>("companies");
-	table->addColumn(UserColumns, SQ_N_ELEMENTS(UserColumns));
+	table->addColumn(userColumns, SQ_N_ELEMENTS(userColumns));
 	delete schema;
 }
 

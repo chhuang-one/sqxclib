@@ -299,8 +299,8 @@ extern "C" {
 #endif
 
 // define in SqxcText.c
-extern const SqxcInfo               SqxcInfo_TextParser_;
-#define SQXC_INFO_TEXT_PARSER     (&SqxcInfo_TextParser_)
+extern const SqxcInfo               sqxcInfo_TextParser;
+#define SQXC_INFO_TEXT_PARSER     (&sqxcInfo_TextParser)
 
 #ifdef __cplusplus    // mix C and C++
 }  // extern "C"
@@ -348,7 +348,7 @@ static int  sqxc_text_parser_ctrl(SqxcText *xctext, int id, void *data);
 static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src);
 
 // used by SqxcText.h
-const SqxcInfo SqxcInfo_TextParser_ =
+const SqxcInfo sqxcInfo_TextParser =
 {
 	.size  = sizeof(SqxcText),
 	.init  = (SqInitFunc)   sqxc_text_parser_init,

@@ -105,7 +105,7 @@ static void  sqxc_value_final(SqxcValue *xcvalue)
 // ----------------------------------------------------------------------------
 // SqxcInfo
 
-const SqxcInfo SqxcInfo_Value_ =
+const SqxcInfo sqxcInfo_Value =
 {
 	sizeof(SqxcValue),
 	(SqInitFunc)sqxc_value_init,

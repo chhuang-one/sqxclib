@@ -56,7 +56,7 @@ static const SqdbConfigPostgre db_default = {
 	.password = POSTGRE_DEFAULT_PASSWORD,
 };
 
-const SqdbInfo SqdbInfo_Postgre_ = {
+const SqdbInfo sqdbInfo_Postgres = {
 	.size    = sizeof(SqdbPostgre),
 	.product = SQDB_PRODUCT_POSTGRE,
 	.column  = {

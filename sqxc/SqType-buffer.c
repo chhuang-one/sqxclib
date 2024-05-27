@@ -168,7 +168,7 @@ static Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest
 	SQ_TYPE_BUFFER
  */
 
-const SqType SqType_Buffer_ =
+const SqType sqType_Buffer =
 {
 	sizeof(SqBuffer),
 	(SqTypeFunc)sq_buffer_init,

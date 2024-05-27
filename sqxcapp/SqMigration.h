@@ -34,9 +34,9 @@ typedef void (*SqMigrationFunc)(SqSchema *schema, SqStorage *storage);
 extern "C" {
 #endif
 
-extern const SqType SqType_migration_table_;
+extern const SqType sqType_MigrationTable;
 
-#define SQ_TYPE_MIGRATION_TABLE    (&SqType_migration_table_)
+#define SQ_TYPE_MIGRATION_TABLE    (&sqType_MigrationTable)
 #define SQ_MIGRATION_TABLE_NAME    "migrations"
 
 /* --- SqMigrationTable functions --- */

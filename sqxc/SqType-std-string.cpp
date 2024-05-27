@@ -81,7 +81,7 @@ static Sqxc *sq_type_std_string_write(void *instance, const SqType *type, Sqxc *
 }
 
 // extern
-const SqType SqType_StdString_ =
+const SqType sqType_StdString =
 {
 	sizeof(std::string),
 	sq_type_std_string_init,

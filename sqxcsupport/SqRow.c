@@ -408,7 +408,7 @@ static Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest)
 }
 
 // extern
-const SqType SqType_Row_ =
+const SqType sqType_Row =
 {
 	sizeof(SqRow),
 	(SqTypeFunc)sq_type_row_init_instance,

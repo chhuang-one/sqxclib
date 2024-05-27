@@ -193,7 +193,7 @@ static Sqxc *sq_type_array_write(void *array, const SqType *type, Sqxc *dest)
 }
 
 // extern
-const SqType SqType_Array_ =
+const SqType sqType_Array =
 {
 	sizeof(SqArray),
 	sq_type_array_init,
@@ -207,7 +207,7 @@ const SqType SqType_Array_ =
  */
 
 // extern
-const SqType SqType_IntArray_ =
+const SqType sqType_IntArray =
 {
 	sizeof(SqArray),
 	sq_type_array_init,
@@ -239,7 +239,7 @@ static void sq_type_ptr_array_final(void *array, const SqType *type)
 }
 
 // extern
-const SqType SqType_PtrArray_ =
+const SqType sqType_PtrArray =
 {
 	sizeof(SqPtrArray),
 	sq_type_ptr_array_init,
@@ -258,7 +258,7 @@ static void sq_type_str_array_init(void *array, const SqType *type)
 }
 
 // extern
-const SqType SqType_StrArray_ =
+const SqType sqType_StrArray =
 {
 	sizeof(SqPtrArray),
 	sq_type_str_array_init,

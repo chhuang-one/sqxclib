@@ -30,8 +30,8 @@ typedef struct SqxcFile        SqxcFile;
 extern "C" {
 #endif
 
-extern const SqxcInfo              SqxcInfo_FileWriter_;
-#define SQXC_INFO_FILE_WRITER    (&SqxcInfo_FileWriter_)
+extern const SqxcInfo              sqxcInfo_FileWriter;
+#define SQXC_INFO_FILE_WRITER    (&sqxcInfo_FileWriter)
 
 #define sqxc_file_writer_new()        sqxc_new(SQXC_INFO_FILE_WRITER)
 

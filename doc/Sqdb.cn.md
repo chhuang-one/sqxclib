@@ -273,8 +273,8 @@ extern "C" {
 #endif
 
 // 在 SqdbXxsql.c 中定义
-extern const SqdbInfo        SqdbInfo_XXSQL_;
-#define SQDB_INFO_XXSQL    (&SqdbInfo_XXSQL_)
+extern const SqdbInfo        sqdbInfo_XXSQL;
+#define SQDB_INFO_XXSQL    (&sqdbInfo_XXSQL)
 
 #ifdef __cplusplus    // 混合 C 和 C++
 }  // extern "C"
@@ -337,7 +337,7 @@ static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *re
 static int  sqdb_xxsql_migrate(SqdbXxsql *sqdb, SqSchema *schema, SqSchema *schema_next);
 
 // 由 SqdbXxsql.h 使用
-const SqdbInfo SqdbInfo_XXSQL_ = {
+const SqdbInfo sqdbInfo_XXSQL = {
 	.size    = sizeof(SqdbXxsql),
 	.product = SQDB_PRODUCT_XXSQL,
 	.column  = {

@@ -50,7 +50,7 @@ static const SqdbConfigMysql db_default = {
 	.password = MYSQL_DEFAULT_PASSWORD,
 };
 
-const SqdbInfo SqdbInfo_MySQL_ = {
+const SqdbInfo sqdbInfo_MySQL = {
 	.size    = sizeof(SqdbMysql),
 	.product = SQDB_PRODUCT_MYSQL,
 	.column  = {

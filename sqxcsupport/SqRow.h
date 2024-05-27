@@ -34,8 +34,8 @@ typedef        SqTypeJoint        SqTypeRow;
 extern "C" {
 #endif
 
-extern  const  SqType      SqType_Row_;
-#define SQ_TYPE_ROW      (&SqType_Row_)
+extern  const  SqType      sqType_Row;
+#define SQ_TYPE_ROW      (&sqType_Row)
 
 /* macro for accessing variable of SqArray */
 

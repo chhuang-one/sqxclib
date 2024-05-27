@@ -32,8 +32,8 @@ typedef struct SqdbConfigPostgre    SqdbConfigPostgre;
 extern "C" {
 #endif
 
-extern const SqdbInfo         SqdbInfo_Postgre_;
-#define SQDB_INFO_POSTGRE   (&SqdbInfo_Postgre_)
+extern const SqdbInfo         sqdbInfo_Postgres;
+#define SQDB_INFO_POSTGRE   (&sqdbInfo_Postgres)
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -311,7 +311,7 @@ static void  sqxc_jsonc_final_out(SqxcJsonc *xcjson)
 // ----------------------------------------------------------------------------
 // SqxcInfo
 
-const SqxcInfo SqxcInfo_JsoncParser_ =
+const SqxcInfo sqxcInfo_JsoncParser =
 {
 	sizeof(SqxcJsonc),
 	(SqInitFunc)sqxc_jsonc_init_in,
@@ -320,7 +320,7 @@ const SqxcInfo SqxcInfo_JsoncParser_ =
 	(SqxcSendFunc)sqxc_jsonc_send_in,
 };
 
-const SqxcInfo SqxcInfo_JsoncWriter_ =
+const SqxcInfo sqxcInfo_JsoncWriter =
 {
 	sizeof(SqxcJsonc),
 	(SqInitFunc)sqxc_jsonc_init_out,

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -25,7 +25,7 @@ static Sqxc *sq_type_unknown_write(void *instance, const SqType *type, Sqxc *des
 	return dest;
 }
 
-const struct SqTypeFake SqType_Fake_ = {
+const struct SqTypeFake sqType_Fake = {
 	.nth = {0},
 	.spacing = NULL,
 	.unknown = {

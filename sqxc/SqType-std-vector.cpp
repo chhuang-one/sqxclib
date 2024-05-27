@@ -185,7 +185,7 @@ static Sqxc *sq_type_std_vector_write(void *instance, const SqType *type, Sqxc *
 }
 
 // extern
-const SqType SqType_StdVector_ =
+const SqType sqType_StdVector =
 {
 	sizeof(std::vector<char>),
 	sq_type_std_vector_init,
@@ -221,7 +221,7 @@ static int  sq_type_std_vector_size_parse(void *instance, const SqType *entrytyp
 }
 
 // extern
-const SqType SqType_StdVectorSize_ =
+const SqType sqType_StdVectorSize =
 {
 	sizeof(std::vector<char>),
 	NULL,

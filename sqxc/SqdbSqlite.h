@@ -32,8 +32,8 @@ typedef struct SqdbConfigSqlite    SqdbConfigSqlite;
 extern "C" {
 #endif
 
-extern const SqdbInfo         SqdbInfo_SQLite_;
-#define SQDB_INFO_SQLITE    (&SqdbInfo_SQLite_)
+extern const SqdbInfo         sqdbInfo_SQLite;
+#define SQDB_INFO_SQLITE    (&sqdbInfo_SQLite)
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -37,7 +37,7 @@ SqConsole 使用它来解析来自命令行的数据并将解析的数据存储�
 
 SqCommandValue 存储来自命令行的选项值和参数。
 
-## 定义新命令
+## 1 定义新命令
 
 例如: 定义新命令 'mycommand'，它有 3 个选项： 'help'、'quiet' 和 'step'。  
   
@@ -52,7 +52,7 @@ struct MyCommandOptions
 };
 ```
 
-#### 定义命令处理程序的功能
+#### 1.1 定义命令处理的函数
 
 ```c++
 // 执行命令时将调用该函数。
@@ -64,7 +64,7 @@ void  mycommand_handle(SqCommandValue *commandValue, SqConsole *console, void *d
 }
 ```
 
-#### 1.1 定义常量命令选项
+#### 1.2 定义常量命令选项
 
 如果定义常量 SqCommand，它必须与 SqOption 的**指针数组**一起使用。
 
@@ -101,7 +101,9 @@ const SqOption  options[] = {
 }
 ```
 
-#### 1.2 定义常量命令
+#### 1.3 定义常量命令
+
+要定义常量 SqCommand，可以使用 C99 指定初始化程序（或 C++ 聚合初始化）或使用 C 宏 SQ_COMMAND_INITIALIZER()。
 
 ```c++
 const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
@@ -133,8 +135,10 @@ const SqCommand mycommand = {
  */
 ```
 
-#### 2.1 动态定义新命令
+#### 1.4 定义动态命令
 
+如果您创建动态 SqCommand，它可以添加常量和动态选项。  
+  
 例如: 通过函数创建 "mycommand"。  
   
 使用 C 语言
@@ -161,8 +165,12 @@ const SqCommand mycommand = {
 	mycommand->setDescription("mycommand description");
 ```
 
-#### 2.2 动态 SqCommand 使用 SqOption 的常量数组
+#### 1.5 向动态命令添加选项
 
+要向命令添加选项，可以使用 C 函数 sq_command_add_option()、C++ 方法 addOption()。  
+  
+**添加 SqOption 常量数组**  
+  
 例如: 将具有 3 个选项的数组添加到 'mycommand'。
 
 ```c++
@@ -173,8 +181,10 @@ const SqCommand mycommand = {
 	mycommand->addOption(mycommand_option_array, 3);
 ```
 
-#### 2.3 动态 SqCommand 使用动态 SqOption
-
+**添加动态 SqOption**  
+  
+例如: 创建一个选项并将其添加到命令中。  
+  
 使用 C 语言
 
 ```c
@@ -215,7 +225,7 @@ const SqCommand mycommand = {
 	option->pointer();
 ```
 
-## 将命令添加到 SqConsole
+## 2 将命令添加到 SqConsole
 
 ```c
 	// C 函数
@@ -225,7 +235,7 @@ const SqCommand mycommand = {
 	console->add(&mycommand)
 ```
 
-## 解析命令行
+## 3 解析命令行
 
 例如: 使用指定的命令、选项和参数执行程序。
 
@@ -315,7 +325,7 @@ C++ Sq::CommandValue 已定义析构函数，因此用户可以使用 'delete' �
 	// commandValue->free();
 ```
 
-## 打印帮助信息
+## 4 打印帮助信息
 
 要打印帮助信息，可以使用 C 函数 sq_console_print_help()、C++ 方法 printHelp()。  
 如果 'command' 为 NULL，则它们使用第一个添加的 SqCommand 来打印不带命令名称的帮助信息。

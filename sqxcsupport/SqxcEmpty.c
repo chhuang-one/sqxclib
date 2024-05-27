@@ -241,7 +241,7 @@ static void  sqxc_empty_final(SqxcEmpty *xcempty)
 // ----------------------------------------------------------------------------
 // SqxcInfo
 
-const SqxcInfo SqxcInfo_Empty_ =
+const SqxcInfo sqxcInfo_Empty =
 {
 	sizeof(SqxcEmpty),
 	(SqInitFunc)sqxc_empty_init,

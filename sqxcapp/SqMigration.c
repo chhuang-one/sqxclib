@@ -45,9 +45,11 @@ static void sq_migration_table_free(SqMigrationTable *mtable)
 }
 
 /* column_ptrs are sorted by name, specify SQB_TYPE_SORTED. */
-const SqType SqType_migration_table_ = SQ_TYPE_INITIALIZER_FULL(SqMigrationTable,
-                                                                column_ptrs, SQB_TYPE_SORTED,
-                                                                NULL, sq_migration_table_free);
+const SqType sqType_MigrationTable = SQ_TYPE_INITIALIZER_FULL(SqMigrationTable,
+                                                              column_ptrs,
+                                                              SQB_TYPE_SORTED,
+                                                              NULL,
+                                                              sq_migration_table_free);
 
 // ----------------------------------------------------------------------------
 // SqMigrationTable functions
@@ -58,7 +60,7 @@ int  sq_migration_install(Sqdb *db)
 	SqTable  *table;
 	int       code;
 
-	table = sq_table_new(SQ_MIGRATION_TABLE_NAME, &SqType_migration_table_);
+	table = sq_table_new(SQ_MIGRATION_TABLE_NAME, &sqType_MigrationTable);
 	sqdb_sql_create_table(db, &buffer, table, NULL, true);
 	code = sqdb_exec(db, buffer.mem, NULL, NULL);
 	sq_buffer_final(&buffer);
@@ -71,7 +73,7 @@ int  sq_migration_get_last(SqStorage *storage, int *batch)
 	SqMigrationTable  mtable = {-1, NULL, 0};
 
 	sqxc_value_container(storage->xc_input) = NULL;
-	sqxc_value_element(storage->xc_input)   = &SqType_migration_table_;
+	sqxc_value_element(storage->xc_input)   = &sqType_MigrationTable;
 	sqxc_value_instance(storage->xc_input)  = &mtable;
 
 	sqdb_exec(storage->db,
@@ -120,7 +122,7 @@ int  sq_migration_insert(SqStorage *storage, SqMigration **migrations, int index
 		if (mtable.migration == NULL)
 			mtable.migration = "";
 		sq_storage_insert(storage, SQ_MIGRATION_TABLE_NAME,
-		                  &SqType_migration_table_, &mtable);
+		                  &sqType_MigrationTable, &mtable);
 	}
 
 	// commit transaction to improve SQLite performance

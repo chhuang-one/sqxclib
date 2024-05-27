@@ -483,10 +483,10 @@ struct MyList {
 extern "C" {
 #endif
 
-// SqType_MyList_ 在源代码文件中定义。
-extern const SqType                 SqType_MyList_
+// sqType_MyList 在源代码文件中定义。
+extern const SqType                 sqType_MyList
 
-#define SQ_TYPE_MY_LIST           (&SqType_MyList_)
+#define SQ_TYPE_MY_LIST           (&sqType_MyList)
 
 #ifdef __cplusplus    // 混合 C 和 C++
 }  // extern "C"
@@ -579,7 +579,7 @@ static Sqxc *sq_type_my_list_write(void *mylist, const SqType *type, Sqxc *dest)
 }
 
 // 由头文件使用。
-const SqType SqType_MyList_ =
+const SqType sqType_MyList =
 {
 	sizeof(MyList),                // size
 	sq_type_my_list_init,          // init

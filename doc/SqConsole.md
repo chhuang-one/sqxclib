@@ -37,7 +37,7 @@ It defines option in command. Because it derives from [SqEntry](SqEntry.md), you
 
 SqCommandValue stores option values and arguments from command-line.
 
-## Define New Command
+## 1 Define New Command
 
 e.g. Define new command "mycommand", which has 3 options: "help", "quiet" and "step".  
   
@@ -52,7 +52,7 @@ struct MyCommandOptions
 };
 ```
 
-#### define function of command handler
+#### 1.1 define function of command handler
 
 ```c++
 // The function will be called when your command is executed.
@@ -64,7 +64,7 @@ void  mycommand_handle(SqCommandValue *commandValue, SqConsole *console, void *d
 }
 ```
 
-#### 1.1 define constant options of command
+#### 1.2 define constant options of command
 
 If you define constant SqCommand, it must use with **pointer array** of SqOption.
 
@@ -101,7 +101,9 @@ const SqOption  options[] = {
 }
 ```
 
-#### 1.2 define constant command
+#### 1.3 define constant command
+
+To define constant SqCommand, you can use C99 designated initializer (or C++ aggregate initialization) or use C macro SQ_COMMAND_INITIALIZER().
 
 ```c++
 const SqCommand mycommand = SQ_COMMAND_INITIALIZER(
@@ -133,8 +135,10 @@ const SqCommand mycommand = {
  */
 ```
 
-#### 2.1 define a new command dynamically
+#### 1.4 define dynamic command
 
+If you create dynamic SqCommand, it can add both constant and dynamic options.  
+  
 e.g. create 'mycommand' by function.  
   
 use C language
@@ -161,8 +165,12 @@ use C++ language
 	mycommand->setDescription("mycommand description");
 ```
 
-#### 2.2 dynamic SqCommand use constant array of SqOption
+#### 1.5 Add options to dynamic command
 
+To add options to command, you can use C function sq_command_add_option(), C++ method addOption().  
+  
+**Add constant array of SqOption**  
+  
 e.g. add array that has 3 options to 'mycommand'.
 
 ```c++
@@ -173,8 +181,10 @@ e.g. add array that has 3 options to 'mycommand'.
 	mycommand->addOption(mycommand_option_array, 3);
 ```
 
-#### 2.3 dynamic SqCommand use dynamic SqOption
-
+**Add dynamic SqOption**  
+  
+e.g. create a option and add it to command.  
+  
 use C language
 
 ```c
@@ -215,7 +225,7 @@ Calling pointer() if the option value in C/C++ language is a pointer type.
 	option->pointer();
 ```
 
-## Add command to SqConsole
+## 2 Add command to SqConsole
 
 ```c
 	// C function
@@ -225,7 +235,7 @@ Calling pointer() if the option value in C/C++ language is a pointer type.
 	console->add(&mycommand)
 ```
 
-## Parse command-line
+## 3 Parse command-line
 
 e.g. execute program with specified command, options, and arguments.
 
@@ -315,7 +325,7 @@ C++ Sq::CommandValue has defined destructor, so user can use 'delete' keyword to
 	// commandValue->free();
 ```
 
-## Print help message
+## 4 Print help message
 
 To print help message, you can use C function sq_console_print_help(), C++ method printHelp().  
 If 'command' is NULL, they use first added SqCommand to print help message without name of command.

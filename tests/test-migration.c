@@ -86,8 +86,8 @@ struct SubAccount {
 // ----------------------------------------------------------------------------
 // use C99 designated initializer to define table and column
 
-// --- UserColumns is sorted by programer... :)
-static const SqColumn  *UserColumns[] = {
+// --- userColumns is sorted by programer... :)
+static const SqColumn  *userColumns[] = {
 	// "city_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE CASCADE  ON UPDATE CASCADE
 	&(SqColumn) {SQ_TYPE_INT, "city_id",     offsetof(User, city_id),    SQB_FOREIGN | SQB_HIDDEN,
 	             .foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "CASCADE", NULL} },
@@ -125,24 +125,24 @@ static const SqColumn  *UserColumns[] = {
 	&(SqColumn) {SQ_TYPE_TIME, "updated_at", offsetof(User, updated_at),  SQB_CURRENT | SQB_CURRENT_ON_UPDATE},
 };
 
-// --- UserType use sorted UserColumns
-const SqType UserType = SQ_TYPE_INITIALIZER(User, UserColumns, SQB_TYPE_SORTED);
+// --- UserType use sorted userColumns
+const SqType UserType = SQ_TYPE_INITIALIZER(User, userColumns, SQB_TYPE_SORTED);
 /*
 const SqType UserType = {
 	.size  = sizeof(User),
 	.parse = sq_type_object_parse,
 	.write = sq_type_object_write,
 	.name  = SQ_GET_TYPE_NAME(User),
-	.entry   = (SqEntry**) UserColumns,
-	.n_entry = sizeof(UserColumns) / sizeof(SqColumn*),
-	.bit_field  = SQB_TYPE_SORTED,                          // UserColumns is sorted
+	.entry   = (SqEntry**) userColumns,
+	.n_entry = sizeof(userColumns) / sizeof(SqColumn*),
+	.bit_field  = SQB_TYPE_SORTED,                          // userColumns is sorted
 };
  */
 
 /* ----------------------------------------------------------------------------
    use C99 designated initializer to define table and column changed (migration)
 */
-static const SqColumn  *UserColumnsChange[] = {
+static const SqColumn  *userColumnsChange[] = {
 	// ADD COLUMN "test_add"
 	&(SqColumn) {SQ_TYPE_UINT, "test_add", offsetof(User, test_add), SQB_NULLABLE},
 
@@ -153,7 +153,7 @@ static const SqColumn  *UserColumnsChange[] = {
 	// ALTER COLUMN "city_id"   (.bit_field = SQB_CHANGED)
 //	&(SqColumn) {SQ_TYPE_INT,  "city_id",  offsetof(User, city_id),  SQB_CHANGED},
 
-	// ALTER COLUMN "company_test_id"  (remove FOREIGN KEY properties in 'UserColumns')
+	// ALTER COLUMN "company_test_id"  (remove FOREIGN KEY properties in 'userColumns')
 	// From: "company_test_id"  INT  FOREIGN KEY REFERENCES "cities"("id")  ON DELETE NO ACTION  ON UPDATE NO ACTION
 	// To:   "company_test_id"  INT
 	&(SqColumn) {SQ_TYPE_INT, "company_test_id", offsetof(User, company_id), SQB_NULLABLE | SQB_CHANGED },
@@ -172,10 +172,10 @@ static const SqColumn  *UserColumnsChange[] = {
 	&(SqColumn) {.old_name = "email2", .name = "email3"},
 };
 
-const SqType UserTypeChange = {
+const SqType userTypeChanges = {
 	.name    = SQ_GET_TYPE_NAME(User),
-	.entry   = (SqEntry**) UserColumnsChange,
-	.n_entry = sizeof(UserColumnsChange) / sizeof(SqColumn*)
+	.entry   = (SqEntry**) userColumnsChange,
+	.n_entry = sizeof(userColumnsChange) / sizeof(SqColumn*)
 };
 
 // ------------------------------------
@@ -188,7 +188,7 @@ SqTable *create_user_table_by_type(SqSchema *schema)
 
 SqTable *change_user_table_by_c_type(SqSchema *schema)
 {
-	return sq_schema_alter(schema, "users", &UserTypeChange);
+	return sq_schema_alter(schema, "users", &userTypeChanges);
 }
 
 // ----------------------------------------------------------------------------

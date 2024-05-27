@@ -525,7 +525,7 @@ Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *dest)
 // ----------------------------------------------------------------------------
 // extern SqType
 
-const SqType SqType_BuiltIn_[SQ_TYPE_N_BUILT_IN] = {
+const SqType sqType_BuiltIn[SQ_TYPE_N_BUILT_IN] = {
 	// SQ_TYPE_BOOL
 	{
 		sizeof(bool),

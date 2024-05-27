@@ -31,7 +31,7 @@ static int  sqdb_empty_close(SqdbEmpty *sqdb);
 static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *reserve);
 static int  sqdb_empty_migrate(SqdbEmpty *sqdb, SqSchema *schema, SqSchema *schema_next);
 
-const SqdbInfo SqdbInfo_Empty_ = {
+const SqdbInfo sqdbInfo_Empty = {
 	.size    = sizeof(SqdbEmpty),
 	.product = SQDB_PRODUCT_UNKNOWN,
 	.column  = {

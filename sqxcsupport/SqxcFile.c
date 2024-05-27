@@ -75,7 +75,7 @@ static void  sqxc_file_writer_final(SqxcFile *xcfile)
 // ----------------------------------------------------------------------------
 // SqxcInfo
 
-const SqxcInfo SqxcInfo_FileWriter_ =
+const SqxcInfo sqxcInfo_FileWriter =
 {
 	sizeof(SqxcFile),
 	(SqInitFunc)sqxc_file_writer_init,

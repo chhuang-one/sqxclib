@@ -435,27 +435,27 @@ enum {
 };
 
 /* SqType-built-in.c - built-in types */
-extern  const  SqType      SqType_BuiltIn_[SQ_TYPE_N_BUILT_IN];
-extern  const  SqType      SqType_Buffer_;        // SqBuffer
-extern  const  SqType      SqType_Array_;         // SqArray
-extern  const  SqType      SqType_IntArray_;
-extern  const  SqType      SqType_PtrArray_;
-extern  const  SqType      SqType_StrArray_;
+extern  const  SqType      sqType_BuiltIn[SQ_TYPE_N_BUILT_IN];
+extern  const  SqType      sqType_Buffer;        // SqBuffer
+extern  const  SqType      sqType_Array;         // SqArray
+extern  const  SqType      sqType_IntArray;
+extern  const  SqType      sqType_PtrArray;
+extern  const  SqType      sqType_StrArray;
 
-#define SQ_TYPE_BOOL       (&SqType_BuiltIn_[SQ_TYPE_BOOL_INDEX])
+#define SQ_TYPE_BOOL       (&sqType_BuiltIn[SQ_TYPE_BOOL_INDEX])
 #define SQ_TYPE_BOOLEAN    SQ_TYPE_BOOL          // alias of SQ_TYPE_BOOL
-#define SQ_TYPE_INT        (&SqType_BuiltIn_[SQ_TYPE_INT_INDEX])
+#define SQ_TYPE_INT        (&sqType_BuiltIn[SQ_TYPE_INT_INDEX])
 #define SQ_TYPE_INTEGER    SQ_TYPE_INT           // alias of SQ_TYPE_INT
-#define SQ_TYPE_UINT       (&SqType_BuiltIn_[SQ_TYPE_UINT_INDEX])
-#define SQ_TYPE_INT64      (&SqType_BuiltIn_[SQ_TYPE_INT64_INDEX])
-#define SQ_TYPE_UINT64     (&SqType_BuiltIn_[SQ_TYPE_UINT64_INDEX])
-#define SQ_TYPE_TIME       (&SqType_BuiltIn_[SQ_TYPE_TIME_INDEX])
-#define SQ_TYPE_DOUBLE     (&SqType_BuiltIn_[SQ_TYPE_DOUBLE_INDEX])
-#define SQ_TYPE_STR        (&SqType_BuiltIn_[SQ_TYPE_STR_INDEX])
+#define SQ_TYPE_UINT       (&sqType_BuiltIn[SQ_TYPE_UINT_INDEX])
+#define SQ_TYPE_INT64      (&sqType_BuiltIn[SQ_TYPE_INT64_INDEX])
+#define SQ_TYPE_UINT64     (&sqType_BuiltIn[SQ_TYPE_UINT64_INDEX])
+#define SQ_TYPE_TIME       (&sqType_BuiltIn[SQ_TYPE_TIME_INDEX])
+#define SQ_TYPE_DOUBLE     (&sqType_BuiltIn[SQ_TYPE_DOUBLE_INDEX])
+#define SQ_TYPE_STR        (&sqType_BuiltIn[SQ_TYPE_STR_INDEX])
 #define SQ_TYPE_STRING     SQ_TYPE_STR           // alias of SQ_TYPE_STR
 // ---- SQ_TYPE for SQL ----
-#define SQ_TYPE_CHAR       (&SqType_BuiltIn_[SQ_TYPE_CHAR_INDEX])
-/* update below definition if you insert type in SqType_BuiltIn_[] */
+#define SQ_TYPE_CHAR       (&sqType_BuiltIn[SQ_TYPE_CHAR_INDEX])
+/* update below definition if you insert type in sqType_BuiltIn[] */
 
 // std::is_integral<Type>::value == true
 #define SQ_TYPE_INTEGER_BEG       SQ_TYPE_BOOL
@@ -488,7 +488,7 @@ extern  const  SqType      SqType_StrArray_;
 
 /* define SqType for SqBuffer (SqType-buffer.c)
  */
-#define SQ_TYPE_BUFFER            (&SqType_Buffer_)     // SqBuffer
+#define SQ_TYPE_BUFFER            (&sqType_Buffer)      // SqBuffer
 #define SQ_TYPE_BINARY            SQ_TYPE_BUFFER        // alias of SQ_TYPE_BUFFER
 #define SQ_TYPE_BLOB              SQ_TYPE_BUFFER        // alias of SQ_TYPE_BUFFER
 
@@ -499,11 +499,11 @@ extern  const  SqType      SqType_StrArray_;
 	typeArray->entry = (SqEntry**) element_SqType;
 	typeArray->n_entry = -1;
  */
-#define SQ_TYPE_ARRAY         (&SqType_Array_)
+#define SQ_TYPE_ARRAY         (&sqType_Array)
 
 /* implement int array by SqArray (SqType-array.c)
    User can use SQ_TYPE_INT_ARRAY directly. */
-#define SQ_TYPE_INT_ARRAY     (&SqType_IntArray_)
+#define SQ_TYPE_INT_ARRAY     (&sqType_IntArray)
 
 /* define SqType for SqPtrArray (SqType-array.c)
    User must assign element type in SqType::entry and set SqType::n_entry to -1.
@@ -512,25 +512,25 @@ extern  const  SqType      SqType_StrArray_;
 	typePtrArray->entry = (SqEntry**) element_SqType;
 	typePtrArray->n_entry = -1;
  */
-#define SQ_TYPE_PTR_ARRAY     (&SqType_PtrArray_)
+#define SQ_TYPE_PTR_ARRAY     (&sqType_PtrArray)
 
 /* implement string (char*) array by SqPtrArray (SqType-array.c)
    User can use SQ_TYPE_STR_ARRAY directly. */
-#define SQ_TYPE_STR_ARRAY     (&SqType_StrArray_)
+#define SQ_TYPE_STR_ARRAY     (&sqType_StrArray)
 
 // alias of SQ_TYPE_STR_ARRAY
 #define SQ_TYPE_STRING_ARRAY  SQ_TYPE_STR_ARRAY
 
 /* Fake type for user-defined special type (SqType-fake.c) */
 #define SQ_TYPE_N_FAKE     6
-#define SQ_TYPE_FAKE0      ((SqType*)&SqType_Fake_.nth[0])
-#define SQ_TYPE_FAKE1      ((SqType*)&SqType_Fake_.nth[1])
-#define SQ_TYPE_FAKE2      ((SqType*)&SqType_Fake_.nth[2])
-#define SQ_TYPE_FAKE3      ((SqType*)&SqType_Fake_.nth[3])
-#define SQ_TYPE_FAKE4      ((SqType*)&SqType_Fake_.nth[4])
-#define SQ_TYPE_FAKE5      ((SqType*)&SqType_Fake_.nth[5])
-#define SQ_TYPE_FAKE6      ((SqType*)&SqType_Fake_.unknown)
-#define SQ_TYPE_UNKNOWN    ((SqType*)&SqType_Fake_.unknown)
+#define SQ_TYPE_FAKE0      ((SqType*)&sqType_Fake.nth[0])
+#define SQ_TYPE_FAKE1      ((SqType*)&sqType_Fake.nth[1])
+#define SQ_TYPE_FAKE2      ((SqType*)&sqType_Fake.nth[2])
+#define SQ_TYPE_FAKE3      ((SqType*)&sqType_Fake.nth[3])
+#define SQ_TYPE_FAKE4      ((SqType*)&sqType_Fake.nth[4])
+#define SQ_TYPE_FAKE5      ((SqType*)&sqType_Fake.nth[5])
+#define SQ_TYPE_FAKE6      ((SqType*)&sqType_Fake.unknown)
+#define SQ_TYPE_UNKNOWN    ((SqType*)&sqType_Fake.unknown)
 
 // condition
 #define SQ_TYPE_IS_FAKE(type)     \
@@ -547,7 +547,7 @@ struct SqTypeFake {
 	SqType  unknown;
 };
 
-extern  const  struct SqTypeFake   SqType_Fake_;
+extern  const  struct SqTypeFake   sqType_Fake;
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -591,24 +591,24 @@ void  sq_type_use_constant(SqType *type);
 #ifdef __cplusplus
 
 // C++ data type for SQL CHAR, VARCHAR, TEXT, or BLOB.
-extern  const  SqType      SqType_StdString_;       // std::string
-extern  const  SqType      SqType_StdVector_;       // std::vector<char>
-extern  const  SqType      SqType_StdVectorSize_;   // std::vector<char> resize
+extern  const  SqType      sqType_StdString;       // std::string
+extern  const  SqType      sqType_StdVector;       // std::vector<char>
+extern  const  SqType      sqType_StdVectorSize;   // std::vector<char> resize
 
 // C++ std::string
-#define SQ_TYPE_STD_STRING         ((SqType*)&SqType_StdString_)
+#define SQ_TYPE_STD_STRING         ((SqType*)&sqType_StdString)
 // alias of SQ_TYPE_STD_STRING
 #define SQ_TYPE_STD_STR            SQ_TYPE_STD_STRING
 
 // C++ std::vector<char>
-#define SQ_TYPE_STD_VECTOR         ((SqType*)&SqType_StdVector_)
+#define SQ_TYPE_STD_VECTOR         ((SqType*)&sqType_StdVector)
 // alias of SQ_TYPE_STD_VECTOR
 #define SQ_TYPE_STD_VEC            SQ_TYPE_STD_VECTOR
 
 // C++ std::vector<char> resize
 // SQ_TYPE_STD_VECTOR_SIZE will specify size of BLOB by calling std::vector<char>::resize()
 // when parsing integer value.
-#define SQ_TYPE_STD_VECTOR_SIZE    ((SqType*)&SqType_StdVectorSize_)
+#define SQ_TYPE_STD_VECTOR_SIZE    ((SqType*)&sqType_StdVectorSize)
 // alias of SQ_TYPE_STD_VECTOR_SIZE
 #define SQ_TYPE_STD_VEC_SIZE       SQ_TYPE_STD_VECTOR_SIZE
 

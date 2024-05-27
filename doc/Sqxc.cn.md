@@ -299,8 +299,8 @@ extern "C" {
 #endif
 
 // 在 SqxcText.c 中定义
-extern const SqxcInfo               SqxcInfo_TextParser_;
-#define SQXC_INFO_TEXT_PARSER     (&SqxcInfo_TextParser_)
+extern const SqxcInfo               sqxcInfo_TextParser;
+#define SQXC_INFO_TEXT_PARSER     (&sqxcInfo_TextParser)
 
 #ifdef __cplusplus    // 混合 C 和 C++
 }  // extern "C"
@@ -348,7 +348,7 @@ static int  sqxc_text_parser_ctrl(SqxcText *xctext, int id, void *data);
 static int  sqxc_text_parser_send(SqxcText *xctext, Sqxc *src);
 
 // 由 SqxcText.h 使用
-const SqxcInfo SqxcInfo_TextParser_ =
+const SqxcInfo sqxcInfo_TextParser =
 {
 	.size  = sizeof(SqxcText),
 	.init  = (SqInitFunc)   sqxc_text_parser_init,

@@ -33,8 +33,8 @@ typedef struct SqxcSql        SqxcSql;
 extern "C" {
 #endif
 
-extern const SqxcInfo      SqxcInfo_SQL_;
-#define SQXC_INFO_SQL    (&SqxcInfo_SQL_)
+extern const SqxcInfo      sqxcInfo_SQL;
+#define SQXC_INFO_SQL    (&sqxcInfo_SQL)
 
 #define sqxc_sql_new()        sqxc_new(SQXC_INFO_SQL)
 
