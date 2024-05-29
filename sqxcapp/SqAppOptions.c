@@ -14,21 +14,21 @@
 
 #include <SqAppOptions.h>
 
-const SqOption sqCommonOption_Help = {
+const SqOption sqCommonOptions_help = {
 	SQ_TYPE_BOOL,  "help",      offsetof(SqCommonOptions, help),
 	.shortcut = "h",
 	.default_value = "true",
 	.description = "Display help for the given command.",
 };
 
-const SqOption sqCommonOption_Quiet = {
+const SqOption sqCommonOptions_quiet = {
 	SQ_TYPE_BOOL,  "quiet",     offsetof(SqCommonOptions, quiet),
 	.shortcut = "q",
 	.default_value = "true",
 	.description = "Do not output any message.",
 };
 
-const SqOption sqCommonOption_Version = {
+const SqOption sqCommonOptions_version = {
 	SQ_TYPE_BOOL,  "version",   offsetof(SqCommonOptions, version),
 	.shortcut = "V",
 	.default_value = "true",

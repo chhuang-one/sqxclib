@@ -30,7 +30,7 @@ static const SqOption option_database = {
 		.description = "The database connection to use.",
 };
 
-#define SQ_MIGRATE_OPTION_DATABASE    (&option_database)
+#define SQ_MIGRATE_OPTIONS_DATABASE    (&option_database)
 
 // ----------------------------------------------------------------------------
 // migrate
@@ -64,11 +64,11 @@ static void migrate(SqCommandValue *commandValue, SqConsole *console, void *data
 
 static const SqOption *migrate_options[] = {
 	// --- SqCommonOptions options ---
-	SQ_COMMON_OPTION_HELP,
-//	SQ_COMMON_OPTION_QUIET,
+	SQ_COMMON_OPTIONS_HELP,
+//	SQ_COMMON_OPTIONS_QUIET,
 
 	// --- SqMigrateOptions options ---
-	SQ_MIGRATE_OPTION_DATABASE,
+	SQ_MIGRATE_OPTIONS_DATABASE,
 
 	&(SqOption) {SQ_TYPE_INT, "step",   offsetof(SqMigrateOptions, step),
 		.default_value = "1",
@@ -132,11 +132,11 @@ static void migrate_install(SqCommandValue *commandValue, SqConsole *console, vo
 
 static const SqOption *migrate_install_options[] = {
 	// --- SqCommonOptions options ---
-	SQ_COMMON_OPTION_HELP,
-//	SQ_COMMON_OPTION_QUIET,
+	SQ_COMMON_OPTIONS_HELP,
+//	SQ_COMMON_OPTIONS_QUIET,
 
 	// --- SqMigrateOptions options ---
-	SQ_MIGRATE_OPTION_DATABASE,
+	SQ_MIGRATE_OPTIONS_DATABASE,
 };
 
 static const SqCommand migrate_install_command = SQ_COMMAND_INITIALIZER(
@@ -198,11 +198,11 @@ static void migrate_rollback(SqCommandValue *commandValue, SqConsole *console, v
 
 static const SqOption *migrate_rollback_options[] = {
 	// --- SqCommonOptions options ---
-	SQ_COMMON_OPTION_HELP,
-//	SQ_COMMON_OPTION_QUIET,
+	SQ_COMMON_OPTIONS_HELP,
+//	SQ_COMMON_OPTIONS_QUIET,
 
 	// --- SqMigrateOptions options ---
-	SQ_MIGRATE_OPTION_DATABASE,
+	SQ_MIGRATE_OPTIONS_DATABASE,
 
 	&(SqOption) {SQ_TYPE_INT,  "step",   offsetof(SqMigrateOptions, step),
 		.default_value = "0",
@@ -269,11 +269,11 @@ static void migrate_reset(SqCommandValue *commandValue, SqConsole *console, void
 
 static const SqOption *migrate_reset_options[] = {
 	// --- SqCommonOptions options ---
-	SQ_COMMON_OPTION_HELP,
-//	SQ_COMMON_OPTION_QUIET,
+	SQ_COMMON_OPTIONS_HELP,
+//	SQ_COMMON_OPTIONS_QUIET,
 
 	// --- SqMigrateOptions options ---
-	SQ_MIGRATE_OPTION_DATABASE,
+	SQ_MIGRATE_OPTIONS_DATABASE,
 };
 
 static const SqCommand migrate_reset_command = SQ_COMMAND_INITIALIZER(
@@ -326,11 +326,11 @@ static void migrate_refresh(SqCommandValue *commandValue, SqConsole *console, vo
 
 static const SqOption *migrate_refresh_options[] = {
 	// --- SqCommonOptions options ---
-	SQ_COMMON_OPTION_HELP,
-//	SQ_COMMON_OPTION_QUIET,
+	SQ_COMMON_OPTIONS_HELP,
+//	SQ_COMMON_OPTIONS_QUIET,
 
 	// --- SqMigrateOptions options ---
-	SQ_MIGRATE_OPTION_DATABASE,
+	SQ_MIGRATE_OPTIONS_DATABASE,
 };
 
 static const SqCommand migrate_refresh_command = SQ_COMMAND_INITIALIZER(

@@ -75,7 +75,7 @@ static void list(SqCommandValue *commandValue, SqConsole *console, void *data)
 }
 
 static const SqOption *list_options[] = {
-	SQ_COMMON_OPTION_HELP,
+	SQ_COMMON_OPTIONS_HELP,
 };
 
 static const SqCommand list_command = SQ_COMMAND_INITIALIZER(

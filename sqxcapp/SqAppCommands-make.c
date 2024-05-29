@@ -54,8 +54,8 @@ static void make_migration(SqCommandValue *commandValue, SqConsole *console, voi
 
 static const SqOption *make_migration_options[] = {
 	// --- SqCommonOptions options ---
-	SQ_COMMON_OPTION_HELP,
-//	SQ_COMMON_OPTION_QUIET,
+	SQ_COMMON_OPTIONS_HELP,
+//	SQ_COMMON_OPTIONS_QUIET,
 
 	// --- SqMakeOptions options ---
 	&(SqOption) {SQ_TYPE_STR,    "create",  offsetof(SqMakeOptions, table_to_create),
