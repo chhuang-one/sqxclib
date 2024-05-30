@@ -39,7 +39,10 @@ void       sq_console_add(SqConsole *console, const SqCommand *command_type);
 
 SqCommand *sq_console_find(SqConsole *console, const char* command_name);
 
-SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command);
+// argv_has_command ==  0  if you only need to parse options and arguments and no command.
+// argv_has_command ==  1  if you need to parse command, options, and arguments.
+// argv_has_command == -1  if you want to parse both a command or just options.
+SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int argv_has_command);
 
 void       sq_console_print_options(SqConsole *console, SqOption **options, int n_options);
 
@@ -75,7 +78,7 @@ struct ConsoleMethod
 	void  printList(const char *programDescription);
 
 	Sq::Command      *find(const char *name);
-	Sq::CommandValue *parse(int argc, char **argv, bool argvHasCommand = true);
+	Sq::CommandValue *parse(int argc, char **argv, int argvHasCommand = 1);
 };
 
 }  // namespace Sq
@@ -91,6 +94,7 @@ struct ConsoleMethod
 #define SQ_CONSOLE_MEMBERS         \
 	SqPtrArray commands;           \
 	bool       commands_sorted;    \
+	SqCommand *command_default;    \
 	char      *program_name;       \
 	Sqxc      *xc_input;           \
 	SqBuffer   buf
@@ -105,6 +109,7 @@ struct SqConsole
 /*	// ------ SqConsole members ------
 	SqPtrArray commands;
 	bool       commands_sorted;
+	SqCommand *command_default;    // default command
 	char      *program_name;
 	Sqxc      *xc_input;
 	SqBuffer   buf;
@@ -156,7 +161,7 @@ inline void  ConsoleMethod::printList(const char *programDescription) {
 inline Sq::Command *ConsoleMethod::find(const char *name) {
 	return (Sq::Command*)sq_console_find((SqConsole*)this, name);
 }
-inline Sq::CommandValue *ConsoleMethod::parse(int argc, char **argv, bool argvHasCommand) {
+inline Sq::CommandValue *ConsoleMethod::parse(int argc, char **argv, int argvHasCommand) {
 	return (Sq::CommandValue*)sq_console_parse((SqConsole*)this, argc, argv, argvHasCommand);
 }
 

@@ -51,8 +51,8 @@ void  sq_console_init(SqConsole *console)
 {
 	sq_buffer_init(&console->buf);
 	sq_ptr_array_init(&console->commands, 8, (SqDestroyFunc)sq_command_free);
-	console->commands.data[0] = NULL;    // default command
 	console->commands_sorted  = false;
+	console->command_default  = NULL;
 
 	console->program_name = NULL;
 	console->xc_input = sqxc_new(SQXC_INFO_VALUE);
@@ -72,6 +72,8 @@ void  sq_console_final(SqConsole *console)
 
 void  sq_console_add(SqConsole *console, const SqCommand *command_type)
 {
+	if (console->command_default == NULL)
+		console->command_default = (SqCommand*)command_type;
 	sq_ptr_array_push(&console->commands, (void*)command_type);
 }
 
@@ -90,9 +92,9 @@ SqCommand  *sq_console_find(SqConsole *console, const char* command_name)
 	return NULL;
 }
 
-SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool argv_has_command)
+SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int argv_has_command)
 {
-    const SqCommand  *type;
+	const SqCommand  *type;
 	SqCommandValue   *commandValue;
 	Sqxc       *xc;
 	char       *equ;
@@ -100,16 +102,26 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, bool
 
 	if (argc < 2)
 		return NULL;
-	if (argv_has_command) {
+	if (argv_has_command == -1) {
+		// if argv[1] is an option, not a command
+		if (argv[1][0] == '-')
+			argv_has_command = 0;
+		else
+			argv_has_command = 1;
+	}
+
+	if (argv_has_command == 0) {
+		// if argv_has_command == 0, use SqConsole::command_default as command
+		type = console->command_default;
+		argc -= 1;
+		argv += 1;
+	}
+	else {
 		type = sq_console_find(console, argv[1]);
 		argc -= 2;
 		argv += 2;
 	}
-	else {
-		type = console->commands.data[0];    // default command
-		argc -= 1;
-		argv += 1;
-	}
+
 	if (type == NULL)
 		return NULL;
 
@@ -186,7 +198,7 @@ void  sq_console_print_help(SqConsole  *console, const SqCommand *commandType)
 	bool  has_command = true;
 
 	if (commandType == NULL) {
-		commandType = (SqCommand*)console->commands.data[0];    // default command
+		commandType = console->command_default;
 		has_command = false;
 	}
 

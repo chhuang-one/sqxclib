@@ -150,9 +150,11 @@ int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
 		return SQCODE_OK;
 	}
 
-	commandValue = sq_console_parse(console, argc, (char**)argv, true);
+	commandValue = sq_console_parse(console, argc, (char**)argv, 1);
 	if (commandValue == NULL) {
-		puts("unknown command");
+		printf("\n"
+		       "Unknown command '%s'\n\n",
+		       (argc > 1) ? argv[1] : NULL);
 		return SQCODE_ERROR;
 	}
 

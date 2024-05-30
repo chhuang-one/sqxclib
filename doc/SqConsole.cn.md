@@ -251,7 +251,7 @@ program  mycommand  --step=5  argument1  argument2
 int  main(int argc, char **argv)
 {
 	SqCommandValue *commandValue;
-	bool            command_in_argv = true;
+	int             command_in_argv = 1;
 
 	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
 }
@@ -263,7 +263,7 @@ int  main(int argc, char **argv)
 int  main(int argc, char **argv)
 {
 	Sq::CommandValue *commandValue;
-	bool              command_in_argv = true;
+	int               command_in_argv = 1;
 
 	commandValue = console->parse(argc, argv, command_in_argv);
 }
@@ -284,7 +284,7 @@ sq_console_parse() 的返回值是 'commandValue'，其成员值应该如下：
 	options->step  = 5;
 ```
 
-如果您只需要选项和参数而不需要命令，请调用 parse() 并将最后一个参数指定为 false。
+如果您只需要解析选项和参数而不需要命令，请调用 parse() 并将最后一个参数指定为 0。
 在这种情况下，SqConsole 默认使用第一个添加的命令。  
   
 例如: 仅使用选项和参数执行程序，不指定命令。
@@ -293,14 +293,25 @@ sq_console_parse() 的返回值是 'commandValue'，其成员值应该如下：
 program  --step=5  argument1  argument2
 ```
 
-调用 parse() 并将最后一个参数指定为 false 以解析没有命令的命令行参数。
+调用 parse() 并将最后一个参数指定为 0 以解析没有命令的命令行参数。
 
 ```c++
+	int  command_in_argv = 0;
+
 	// C 函数
-	commandValue = sq_console_parse(console, argc, argv, false);
+	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
 
 	// C++ 方法
-	commandValue = console->parse(argc, argv, false);
+	commandValue = console->parse(argc, argv, command_in_argv);
+```
+
+如果您想同时解析命令或仅选项，请调用 parse() 并指定 -1 作为最后一个参数。
+如果命令行上只有选项，SqConsole 默认使用第一个添加的命令。  
+  
+例如: 打印版本信息（通过第一个添加命令的处理程序）。
+
+```console
+program  --version
 ```
 
 **释放 'commandValue' 的内存**  

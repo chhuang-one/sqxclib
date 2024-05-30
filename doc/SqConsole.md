@@ -251,7 +251,7 @@ use C language
 int  main(int argc, char **argv)
 {
 	SqCommandValue *commandValue;
-	bool            command_in_argv = true;
+	int             command_in_argv = 1;
 
 	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
 }
@@ -263,7 +263,7 @@ use C++ language
 int  main(int argc, char **argv)
 {
 	Sq::CommandValue *commandValue;
-	bool              command_in_argv = true;
+	int               command_in_argv = 1;
 
 	commandValue = console->parse(argc, argv, command_in_argv);
 }
@@ -284,7 +284,7 @@ The return value of sq_console_parse() is 'commandValue', and its member values 
 	options->step  = 5;
 ```
 
-If you only need options and arguments and no command, calling parse() and specify the last argument as false.
+If you only need to parse options and arguments and no command, calling parse() and specify the last argument as 0.
 In this case, SqConsole use first added command by default.  
   
 e.g. Execute the program with only options and parameters, no command specified.
@@ -293,14 +293,25 @@ e.g. Execute the program with only options and parameters, no command specified.
 program  --step=5  argument1  argument2
 ```
 
-Call parse() and specify the last argument as false to parse command line arguments without a command.
+Call parse() and specify the last argument as 0 to parse command-line arguments without a command.
 
 ```c++
+	int  command_in_argv = 0;
+
 	// C function
-	commandValue = sq_console_parse(console, argc, argv, false);
+	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
 
 	// C++ method
-	commandValue = console->parse(argc, argv, false);
+	commandValue = console->parse(argc, argv, command_in_argv);
+```
+
+If you want to parse both a command or just options, call parse() and specify -1 as the last argument.
+If there are only options on the command-line, SqConsole use first added command by default.  
+  
+e.g. print version information (by handler of first added command).
+
+```console
+program  --version
 ```
 
 **release memory of 'commandValue'**  
