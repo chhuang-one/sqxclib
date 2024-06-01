@@ -140,8 +140,6 @@ static int  sqxc_sql_send_insert_command(SqxcSql *xcsql, Sqxc *src)
 		if (entry->type == SQ_TYPE_TIME && src->type == SQXC_TYPE_TIME && src->value.rawtime == 0) {
 			if (entry->bit_field & SQB_COLUMN_CURRENT)
 				return (src->code = SQCODE_OK);
-			if ( ((SqColumn*)entry)->default_value && strncasecmp("CURRENT_", ((SqColumn*)entry)->default_value, 8) == 0 )
-				return (src->code = SQCODE_OK);
 		}
 	}
 
@@ -239,8 +237,6 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 		// Don't output column that has DEFAULT CURRENT_XXXX and value.rawtime is 0
 		if (entry->type == SQ_TYPE_TIME && src->type == SQXC_TYPE_TIME && src->value.rawtime == 0) {
 			if (entry->bit_field & SQB_COLUMN_CURRENT_ALL)
-				return (src->code = SQCODE_OK);
-			if ( ((SqColumn*)entry)->default_value && strncasecmp("CURRENT_", ((SqColumn*)entry)->default_value, 8) == 0 )
 				return (src->code = SQCODE_OK);
 		}
 	}

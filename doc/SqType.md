@@ -2,8 +2,9 @@
 
 # SqType
 
-It define how to initialize, finalize, and convert C data type.
-SqEntry use it to define data type. Sqxc use it to convert data.
+It define how to initialize, finalize, and convert C data type.  
+Sqxc use it to convert data between C language and SQL (or JSON...etc).
+SqEntry and its derived structures use it to define data type.
   
 Structure Definition:
 
