@@ -84,7 +84,7 @@ void  sq_command_init_self(SqCommand *commandType, const char *commandName)
 	// set SqType members
 	sq_type_init_self((SqType*)commandType, 0, (SqDestroyFunc)sq_option_free);
 	commandType->parse = sq_command_parse_option;
-	commandType->write = NULL;
+	commandType->write = sq_type_object_write;
 	commandType->name  = (commandName) ? strdup(commandName) : NULL;
 	// set SqCommand members
 	commandType->handle = NULL;

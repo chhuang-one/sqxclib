@@ -93,6 +93,7 @@ static const SqCommand list_command = {
 	// --- SqType members ---
 	.size  = sizeof(SqListOptions),
 	.parse = sq_command_parse_option,
+	.write = sq_type_object_write,
 	.name  = "list",
 	.entry   = (SqEntry**) list_options,
 	.n_entry = sizeof(list_options) / sizeof(SqOption*),

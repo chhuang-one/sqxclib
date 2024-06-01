@@ -59,7 +59,7 @@ typedef struct SqCommandValue    SqCommandValue;
 	(SqTypeFunc) NULL,                                             \
 	(SqTypeFunc) NULL,                                             \
 	sq_command_parse_option,                                       \
-	NULL,                                                          \
+	sq_type_object_write,                                          \
 	command_string,                                                \
 	(SqEntry**) command_options,                                   \
 	sizeof(command_options) / sizeof(SqOption*),                   \

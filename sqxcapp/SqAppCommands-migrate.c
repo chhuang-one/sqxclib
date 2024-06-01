@@ -90,6 +90,7 @@ static const SqCommand migrate_command = {
 	// --- SqType members ---
 	.size  = sizeof(SqMigrateOptions),
 	.parse = sq_command_parse_option,
+	.write = sq_type_object_write,
 	.name  = "migrate",
 	.entry   = (SqEntry**) migrate_options,
 	.n_entry = sizeof(migrate_options) / sizeof(SqOption*),
@@ -154,6 +155,7 @@ static const SqCommand migrate_install_command = {
 	// --- SqType members ---
 	.size  = sizeof(SqMigrateOptions),
 	.parse = sq_command_parse_option,
+	.write = sq_type_object_write,
 	.name  = "migrate:install",
 	.entry   = (SqEntry**)migrate_install_options,
 	.n_entry = sizeof(migrate_install_options) / sizeof(SqOption*),
@@ -225,6 +227,7 @@ static const SqCommand migrate_rollback_command = {
 	// --- SqType members ---
 	.size  = sizeof(SqMigrateOptions),
 	.parse = sq_command_parse_option,
+	.write = sq_type_object_write,
 	.name  = "migrate:rollback",
 	.entry   = (SqEntry**)migrate_rollback_options,
 	.n_entry = sizeof(migrate_rollback_options) / sizeof(SqOption*),

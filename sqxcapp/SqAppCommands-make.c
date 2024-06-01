@@ -81,6 +81,7 @@ static const SqCommand make_migration_command = {
 	// --- SqType members ---
 	.size  = sizeof(SqMakeOptions),
 	.parse = sq_command_parse_option,
+	.write = sq_type_object_write,
 	.name  = "make:migration",
 	.entry   = (SqEntry**) make_migration_options,
 	.n_entry = sizeof(make_migration_options) / sizeof(SqOption*),

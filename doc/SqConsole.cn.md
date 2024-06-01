@@ -8,22 +8,22 @@ SqConsole 提供命令行界面（主要用于 SqAppTool）。它必须与 SqCom
 SqConsole、SqCommand 和 SqOption 的关系。
 
 	           1 : N               1 : N
-	SqConsole ---┬--- SqCommand 1 ---┬--- SqOption 1-1
+	SqConsole ───┬─── SqCommand 1 ───┬─── SqOption 1-1
 	             │                   │
-	             │                   └--- SqOption 1-2
+	             │                   └─── SqOption 1-2
 	             │
-	             └--- SqCommand 2 ---┬--- SqOption 2-1
+	             └─── SqCommand 2 ───┬─── SqOption 2-1
 	                                 │
-	                                 └--- SqOption 2-2
+	                                 └─── SqOption 2-2
 
 # SqCommand
 
-用户可以使用 SqCommand 定义常量（或动态）命令及其选项。
+用户可以使用 SqCommand 定义常量（或动态）命令及其选项。由于它派生自 [SqType](SqType.cn.md)，SqCommand 的选项可以使用 Sqxc 来输出 JSON 或 SQL。  
 SqConsole 使用它来解析来自命令行的数据并将解析的数据存储在 SqCommandValue 中。
 
 	SqType
 	│
-	└--- SqCommand
+	└─── SqCommand
 
 # SqOption
 
@@ -31,7 +31,7 @@ SqConsole 使用它来解析来自命令行的数据并将解析的数据存储�
 
 	SqEntry
 	│
-	└--- SqOption
+	└─── SqOption
 
 # SqCommandValue
 
@@ -121,6 +121,7 @@ const SqCommand mycommand = {
 	// --- SqType 成员 ---
 	.size  = sizeof(MyCommandOptions),
 	.parse = sq_command_parse_option,
+	.write = sq_type_object_write,
 	.name  = "mycommand",
 	.entry   = (SqEntry**) mycommand_options,
 	.n_entry = sizeof(mycommand_options) / sizeof(SqOption*),

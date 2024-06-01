@@ -8,22 +8,22 @@ Note: SqConsole is in sqxcsupport library.
 Relationship of SqConsole, SqCommand, and SqOption.
 
 	           1 : N               1 : N
-	SqConsole ---┬--- SqCommand 1 ---┬--- SqOption 1-1
+	SqConsole ───┬─── SqCommand 1 ───┬─── SqOption 1-1
 	             │                   │
-	             │                   └--- SqOption 1-2
+	             │                   └─── SqOption 1-2
 	             │
-	             └--- SqCommand 2 ---┬--- SqOption 2-1
+	             └─── SqCommand 2 ───┬─── SqOption 2-1
 	                                 │
-	                                 └--- SqOption 2-2
+	                                 └─── SqOption 2-2
 
 # SqCommand
 
-User can use SqCommand to define constant (or dynamic) command and it's options.
+User can use SqCommand to define constant (or dynamic) command and it's options. Because it derives from [SqType](SqType.md), SqCommand's options can use Sqxc to output JSON or SQL.  
 SqConsole use this to parse data from command-line and store parsed data in SqCommandValue.
 
 	SqType
 	│
-	└--- SqCommand
+	└─── SqCommand
 
 # SqOption
 
@@ -31,7 +31,7 @@ It defines option in command. Because it derives from [SqEntry](SqEntry.md), you
 
 	SqEntry
 	│
-	└--- SqOption
+	└─── SqOption
 
 # SqCommandValue
 
@@ -121,6 +121,7 @@ const SqCommand mycommand = {
 	// --- SqType members ---
 	.size  = sizeof(MyCommandOptions),
 	.parse = sq_command_parse_option,
+	.write = sq_type_object_write,
 	.name  = "mycommand",
 	.entry   = (SqEntry**) mycommand_options,
 	.n_entry = sizeof(mycommand_options) / sizeof(SqOption*),
