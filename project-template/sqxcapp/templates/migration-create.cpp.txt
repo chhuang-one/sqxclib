@@ -10,7 +10,7 @@
 const SqMigration {{ migration_name }}_{{ timestamp }} = {
 
 	// Run the migrations.
-//	.up = 
+//	.up =
 	[](SqSchema *schema, SqStorage *storage) {
 		SqTable  *table;
 /*
@@ -20,13 +20,13 @@ const SqMigration {{ migration_name }}_{{ timestamp }} = {
 	},
 
 	// Reverse the migrations.
-//	.down = 
+//	.down =
 	[](SqSchema *schema, SqStorage *storage) {
 		schema->drop("{{ table_name }}");
 	},
 
 #if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
-//	.name = 
+//	.name =
 	"{{ timestamp }}_{{ migration_name }}",
 #endif
 };

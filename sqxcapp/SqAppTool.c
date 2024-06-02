@@ -331,8 +331,10 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	                    (int)strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	out.file = fopen(buf->mem, "a");
-	if (out.file == NULL)
+	if (out.file == NULL) {
+		printf("\n" "Can't open file - %s" "\n", buf->mem);
 		code = SQCODE_ERROR;
+	}
 	else {
 		fprintf(out.file, "#include \"%s\"" "\n", in.path);
 		fclose(out.file);
@@ -346,8 +348,10 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, "migrations-declarations");
 	buf->mem[buf->writed] = 0;
 	out.file = fopen(buf->mem, "a");
-	if (out.file == NULL)
+	if (out.file == NULL) {
+		printf("\n" "Can't open file - %s" "\n", buf->mem);
 		code = SQCODE_ERROR;
+	}
 	else {
 		// print comment and declaration
 		fprintf(out.file,
@@ -367,8 +371,10 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, "migrations-elements");
 	buf->mem[buf->writed] = 0;
 	out.file = fopen(buf->mem, "a");
-	if (out.file == NULL)
+	if (out.file == NULL) {
+		printf("\n" "Can't open file - %s" "\n", buf->mem);
 		code = SQCODE_ERROR;
+	}
 	else {
 		// print comment and element
 		fprintf(out.file,

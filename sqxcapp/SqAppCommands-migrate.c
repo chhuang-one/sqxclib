@@ -48,7 +48,7 @@ static void migrate(SqCommandValue *commandValue, SqConsole *console, void *data
 
 	// open database
 	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
-		puts("Can't open database");
+		puts("\n" "Can't open database");
 		return;
 	}
 	// make current schema in database
@@ -56,7 +56,9 @@ static void migrate(SqCommandValue *commandValue, SqConsole *console, void *data
 
 	code = sq_app_migrate(app, options->step);
 	if (code)
-		printf("Can't migrate\n");
+		printf("\n" "Can't migrate\n");
+	else
+		printf("\n" "OK\n");
 
 	// close database
 	sq_app_close_database(app);
@@ -119,13 +121,15 @@ static void migrate_install(SqCommandValue *commandValue, SqConsole *console, vo
 
 	// open database
 	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
-		puts("Can't open database");
+		puts("\n" "Can't open database");
 		return;
 	}
 
 	code = sq_migration_install(app->db);
 	if (code != SQCODE_OK)
-		printf("Can't install migration table\n");
+		printf("\n" "Can't install migration table\n");
+	else
+		printf("\n" "OK\n");
 
 	// close database
 	sq_app_close_database(app);
@@ -184,7 +188,7 @@ static void migrate_rollback(SqCommandValue *commandValue, SqConsole *console, v
 
 	// open database
 	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
-		puts("Can't open database");
+		puts("\n" "Can't open database");
 		return;
 	}
 	// make current schema in database
@@ -192,7 +196,9 @@ static void migrate_rollback(SqCommandValue *commandValue, SqConsole *console, v
 
 	code = sq_app_rollback(app, options->step);
 	if (code != SQCODE_OK)
-		printf("Can't rollback\n");
+		printf("\n" "Can't rollback\n");
+	else
+		printf("\n" "OK\n");
 
 	// close database
 	sq_app_close_database(app);
@@ -256,7 +262,7 @@ static void migrate_reset(SqCommandValue *commandValue, SqConsole *console, void
 
 	// open database
 	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
-		puts("Can't open database");
+		puts("\n" "Can't open database");
 		return;
 	}
 	// make current schema in database
@@ -264,7 +270,9 @@ static void migrate_reset(SqCommandValue *commandValue, SqConsole *console, void
 
 	code = sq_app_rollback(app, app->db->version);
 	if (code != SQCODE_OK)
-		printf("Can't reset\n");
+		printf("\n" "Can't reset\n");
+	else
+		printf("\n" "OK\n");
 
 	// close database
 	sq_app_close_database(app);
@@ -305,7 +313,7 @@ static void migrate_refresh(SqCommandValue *commandValue, SqConsole *console, vo
 
 	// open database
 	if (sq_app_open_database((SqApp*)app, options->database) != SQCODE_OK) {
-		puts("Can't open database");
+		puts("\n" "Can't open database");
 		return;
 	}
 	// make current schema in database
@@ -313,7 +321,7 @@ static void migrate_refresh(SqCommandValue *commandValue, SqConsole *console, vo
 
 	code = sq_app_rollback(app, app->db->version);
 	if (code != SQCODE_OK)
-		printf("Can't refresh\n");
+		printf("\n" "Can't refresh\n");
 
 	// synchronize schema to database and update schema in 'storage'
 	// This Mainly used by SQLite
@@ -321,7 +329,9 @@ static void migrate_refresh(SqCommandValue *commandValue, SqConsole *console, vo
 
 	code = sq_app_migrate(app, 0);
 	if (code)
-		printf("Can't refresh\n");
+		printf("\n" "Can't refresh\n");
+	else
+		printf("\n" "OK\n");
 
 	// close database
 	sq_app_close_database(app);

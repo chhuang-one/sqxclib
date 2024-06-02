@@ -46,8 +46,11 @@ static void make_migration(SqCommandValue *commandValue, SqConsole *console, voi
 
 	code = sq_app_tool_make_migration(app, template_file,
 			commandValue->arguments.data[0], &app->pairs);
+
 	if (code != SQCODE_OK)
-		puts("make:migration error");
+		puts("\n" "make:migration error\n");
+	else
+		puts("\n" "create migration file in WorkspaceFolder/database/migrations\n");
 
 	sq_pairs_steal(&app->pairs, "table_name");
 }
