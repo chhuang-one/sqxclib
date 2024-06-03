@@ -2,7 +2,7 @@
 
 # SqApp
 
-SqApp use configuration file (SqApp-config.h) to initialize database and do migrations. It used by application.  
+SqApp use configuration file (SqApp-config.h) to initialize database and use separate migration files to do migrations. It used by application.  
 Note: SqApp is declared in SqApp.h of the sqxcapp library.  
 
 	SqApp
@@ -13,7 +13,7 @@ Note: SqApp is declared in SqApp.h of the sqxcapp library.
 
 SqAppTool is used by command-line program - **sqxctool** and **sqxcpptool**. It use the same configuration values as SqApp.  
   
-Both **sqxctool** and **sqxcpptool** can generate migration and do migrate. They can help with the user's application that using SqApp library. The difference is that sqxctool generate C migration file and sqxcpptool generate C++ migration file.
+Both **sqxctool** and **sqxcpptool** can generate separate migration files and use them to do migrate. They can help with the user's application that using SqApp library. The difference is that sqxctool generate C migration file and sqxcpptool generate C++ migration file.
 
 ## 1 Create
 
@@ -26,8 +26,12 @@ use C language
 // sqxclib.h doesn't contain sqxcapp library
 #include <SqApp.h>
 
+	/*  Omit other codes...  */
+
+	SqApp *sqApp;
+
 	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
-	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
+	sqApp = sq_app_new(SQ_APP_DEFAULT);
 ```
 
 use C++ language
@@ -36,8 +40,12 @@ use C++ language
 // sqxclib.h doesn't contain sqxcapp library
 #include <SqApp.h>
 
+	/*  Omit other codes...  */
+
+	Sq::App *sqApp;
+
 	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
-	Sq::App *sqapp = new Sq::App(SQ_APP_DEFAULT);
+	sqApp = new Sq::App(SQ_APP_DEFAULT);
 ```
 
 ## 2 Default Configurations
@@ -104,7 +112,7 @@ use C language
 
 ```c
 	// open database that defined in SqApp-config.h
-	if (sq_app_open_database(sqapp, NULL) != SQCODE_OK)
+	if (sq_app_open_database(sqApp, NULL) != SQCODE_OK)
 		return EXIT_FAILURE;
 ```
 
@@ -112,7 +120,7 @@ use C++ language
 
 ```c++
 	// open database that defined in SqApp-config.h
-	if (sqapp->openDatabase(NULL) != SQCODE_OK)
+	if (sqApp->openDatabase(NULL) != SQCODE_OK)
 		return EXIT_FAILURE;
 ```
 
@@ -131,7 +139,7 @@ use C language
 	int  version = 0;
 
 	// if the version of schema in database is 0 (no migrations have been done)
-	if (sq_app_make_schema(sqapp, version) == SQCODE_DB_SCHEMA_VERSION_0)
+	if (sq_app_make_schema(sqApp, version) == SQCODE_DB_SCHEMA_VERSION_0)
 		return EXIT_FAILURE;
 ```
 
@@ -141,7 +149,7 @@ use C++ language
 	int  version = 0;
 
 	// if the version of schema in database is 0 (no migrations have been done)
-	if (sqapp->makeSchema(version) == SQCODE_DB_SCHEMA_VERSION_0)
+	if (sqApp->makeSchema(version) == SQCODE_DB_SCHEMA_VERSION_0)
 		return EXIT_FAILURE;
 ```
 
@@ -190,6 +198,9 @@ static void up_2021_12_12_180000(SqSchema *schema, SqStorage *storage)
 	SqColumn *column;
 
 	table  = sq_schema_create(schema, "companies", Company);
+
+	column = sq_table_add_integer(table, "id", offsetof(Company, id));
+	sq_column_primary(column);
 }
 
 // Reverse the migrations.
@@ -230,23 +241,27 @@ The file looks like below:
 const SqMigration alter_companies_table_2021_12_26_191532 = {
 
 	// Run the migrations.
-//	.up = 
+//	.up =
 	[](SqSchema *schema, SqStorage *storage) {
-		SqTable  *table;
+		Sq::Table  *table;
 
 		table = schema->alter("companies");
+
+		// alter columns in table
 	},
 
 	// Reverse the migrations.
 //	.down =
 	[](SqSchema *schema, SqStorage *storage) {
-		SqTable  *table;
+		Sq::Table  *table;
 
 		table = schema->alter("companies");
+
+		// alter columns in table
 	},
 
 #if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
-//	.name = 
+//	.name =
 	"2021_12_26_191532_alter_companies_table",
 #endif
 };
@@ -289,9 +304,9 @@ use C language
 	int  migration_id = 0;
 
 	// if the version of schema in database is 0 (no migrations have been done)
-	if (sq_app_make_schema(sqapp, migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
+	if (sq_app_make_schema(sqApp, migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
 		// run migrations that defined in ../database/migrations
-		if (sq_app_migrate(sqapp, step) != SQCODE_OK)
+		if (sq_app_migrate(sqApp, step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
@@ -303,9 +318,9 @@ use C++ language
 	int  migration_id = 0;
 
 	// if the version of schema in database is 0 (no migrations have been done)
-	if (sqapp->makeSchema(migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
+	if (sqApp->makeSchema(migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
 		// run migrations that defined in ../database/migrations
-		if (sqapp->migrate(step) != SQCODE_OK)
+		if (sqApp->migrate(step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
@@ -327,7 +342,7 @@ use C++ language
 ```c++
 	int  step = 0;
 
-	sqapp->rollback(step);
+	sqApp->rollback(step);
 ```
 
 #### 4.3 Delete migration

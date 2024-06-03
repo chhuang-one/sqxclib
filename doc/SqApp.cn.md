@@ -2,7 +2,7 @@
 
 # SqApp
 
-SqApp 使用配置文件 (SqApp-config.h) 来初始化数据库并进行迁移。它由应用程序使用。  
+SqApp 使用配置文件 (SqApp-config.h) 来初始化数据库并使用单独的迁移文件进行迁移。它由应用程序使用。  
 注意: SqApp 在 sqxcapp 库的 SqApp.h 中声明。  
 
 	SqApp
@@ -13,7 +13,7 @@ SqApp 使用配置文件 (SqApp-config.h) 来初始化数据库并进行迁移�
 
 SqAppTool 由命令行程序使用 - **sqxctool** 和 **sqxcpptool**。它使用与 SqApp 相同的配置值。  
   
-**sqxctool** 和 **sqxcpptool** 都可以生成迁移并执行迁移。他们可以帮助使用 SqApp 库的用户应用程序。区别在于 sqxctool 生成 C 迁移文件，而 sqxcpptool 生成 C++ 迁移文件。
+**sqxctool** 和 **sqxcpptool** 都可以生成单独的迁移文件并使用它们进行迁移。他们可以帮助使用 SqApp 库的用户应用程序。区别在于 sqxctool 生成 C 迁移文件，而 sqxcpptool 生成 C++ 迁移文件。
 
 ## 1 创建
 
@@ -26,8 +26,12 @@ SQ_APP_DEFAULT 是 SqAppSetting 的内置默认设置。用户可以通过编辑
 // sqxclib.h 不包含 sqxcapp 库
 #include <SqApp.h>
 
+	/*  省略其他代码...  */
+
+	SqApp *sqApp;
+
 	// 'SQ_APP_DEFAULT' 具有用户应用程序的数据库设置和迁移数据。
-	SqApp *sqapp = sq_app_new(SQ_APP_DEFAULT);
+	sqApp = sq_app_new(SQ_APP_DEFAULT);
 ```
 
 使用 C++ 语言
@@ -36,8 +40,12 @@ SQ_APP_DEFAULT 是 SqAppSetting 的内置默认设置。用户可以通过编辑
 // sqxclib.h 不包含 sqxcapp 库
 #include <SqApp.h>
 
+	/*  省略其他代码...  */
+
+	Sq::App *sqApp;
+
 	// 'SQ_APP_DEFAULT' 具有用户应用程序的数据库设置和迁移数据。
-	Sq::App *sqapp = new Sq::App(SQ_APP_DEFAULT);
+	sqApp = new Sq::App(SQ_APP_DEFAULT);
 ```
 
 ## 2 默认配置
@@ -104,7 +112,7 @@ C 函数 sq_app_open_database()，C++ 方法 openDatabase() 可以打开指定�
 
 ```c
 	// 打开在 SqApp-config.h 中定义的数据库
-	if (sq_app_open_database(sqapp, NULL) != SQCODE_OK)
+	if (sq_app_open_database(sqApp, NULL) != SQCODE_OK)
 		return EXIT_FAILURE;
 ```
 
@@ -112,7 +120,7 @@ C 函数 sq_app_open_database()，C++ 方法 openDatabase() 可以打开指定�
 
 ```c++
 	// 打开在 SqApp-config.h 中定义的数据库
-	if (sqapp->openDatabase(NULL) != SQCODE_OK)
+	if (sqApp->openDatabase(NULL) != SQCODE_OK)
 		return EXIT_FAILURE;
 ```
 
@@ -131,7 +139,7 @@ SQCODE_DB_WRONG_MIGRATIONS : 如果这些迁移不是此数据库的。
 	int  version = 0;
 
 	// 如果数据库中的架构版本为 0 (未进行任何迁移)
-	if (sq_app_make_schema(sqapp, version) == SQCODE_DB_SCHEMA_VERSION_0)
+	if (sq_app_make_schema(sqApp, version) == SQCODE_DB_SCHEMA_VERSION_0)
 		return EXIT_FAILURE;
 ```
 
@@ -141,7 +149,7 @@ SQCODE_DB_WRONG_MIGRATIONS : 如果这些迁移不是此数据库的。
 	int  version = 0;
 
 	// 如果数据库中的架构版本为 0 (未进行任何迁移)
-	if (sqapp->makeSchema(version) == SQCODE_DB_SCHEMA_VERSION_0)
+	if (sqApp->makeSchema(version) == SQCODE_DB_SCHEMA_VERSION_0)
 		return EXIT_FAILURE;
 ```
 
@@ -190,9 +198,12 @@ static void up_2021_12_12_180000(SqSchema *schema, SqStorage *storage)
 	SqColumn *column;
 
 	table  = sq_schema_create(schema, "companies", Company);
+
+	column = sq_table_add_integer(table, "id", offsetof(Company, id));
+	sq_column_primary(column);
 }
 
-// 反转迁移。
+// 反向迁移。
 static void down_2021_12_12_180000(SqSchema *schema, SqStorage *storage)
 {
 	sq_schema_drop(schema, "companies");
@@ -230,23 +241,27 @@ sqxcpptool  make:migration  --table=companies  alter_companies_table
 const SqMigration alter_companies_table_2021_12_26_191532 = {
 
 	// 运行迁移。
-//	.up = 
+//	.up =
 	[](SqSchema *schema, SqStorage *storage) {
-		SqTable  *table;
+		Sq::Table  *table;
 
 		table = schema->alter("companies");
+
+		// 修改表中的列
 	},
 
-	// 反转迁移。
+	// 反向迁移。
 //	.down =
 	[](SqSchema *schema, SqStorage *storage) {
-		SqTable  *table;
+		Sq::Table  *table;
 
 		table = schema->alter("companies");
+
+		// 修改表中的列
 	},
 
 #if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
-//	.name = 
+//	.name =
 	"2021_12_26_191532_alter_companies_table",
 #endif
 };
@@ -289,9 +304,9 @@ sq_app_migrate() 的 'step' 参数如果为 0，将运行所有未完成的迁�
 	int  migration_id = 0;
 
 	// 如果数据库中的架构版本为 0 (未进行任何迁移)
-	if (sq_app_make_schema(sqapp, migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
+	if (sq_app_make_schema(sqApp, migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
 		// 运行在 ../database/migrations 中定义的迁移
-		if (sq_app_migrate(sqapp, step) != SQCODE_OK)
+		if (sq_app_migrate(sqApp, step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
@@ -303,9 +318,9 @@ sq_app_migrate() 的 'step' 参数如果为 0，将运行所有未完成的迁�
 	int  migration_id = 0;
 
 	// 如果数据库中的架构版本为 0 (未进行任何迁移)
-	if (sqapp->makeSchema(migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
+	if (sqApp->makeSchema(migration_id) == SQCODE_DB_SCHEMA_VERSION_0) {
 		// 运行在 ../database/migrations 中定义的迁移
-		if (sqapp->migrate(step) != SQCODE_OK)
+		if (sqApp->migrate(step) != SQCODE_OK)
 			return EXIT_FAILURE;
 	}
 ```
@@ -327,7 +342,7 @@ sq_app_migrate() 的 'step' 参数如果为 0，将运行所有未完成的迁�
 ```c++
 	int  step = 0;
 
-	sqapp->rollback(step);
+	sqApp->rollback(step);
 ```
 
 #### 4.3 删除迁移
