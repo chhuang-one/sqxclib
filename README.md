@@ -24,7 +24,7 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 * Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros and support libraries)
 
-* Command-line tools can generate migration and do migrate. See doc/[SqApp.md](doc/SqApp.md)
+* Command-line tools can generate migration file and do migrate. See doc/[SqApp.md](doc/SqApp.md)
 
 * Supports SQLite, MySQL / MariaDB, PostgreSQL.
 
@@ -54,7 +54,8 @@ struct User {
 };
 ```
 
-use C++ methods to define table and column in schema_v1 (dynamic)
+use C++ methods to define table and column in schema_v1 (dynamic):  
+You can use create() method of Sq::Schema to create a table in schema.
 
 ```c++
 /* define global type for C++ STL */
@@ -92,7 +93,8 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 //	table->timestamps<User>();
 ```
 
-use C++ methods to change table and column in schema_v2 (dynamic)
+use C++ methods to change table and column in schema_v2 (dynamic):  
+You can use alter() method to alter a table in schema.
 
 ```c++
 	/* create schema and specify version number as 2 */
@@ -112,7 +114,8 @@ use C++ methods to change table and column in schema_v2 (dynamic)
 	table->renameColumn("email", "email2");
 ```
 
-use C functions to define table and column in schema_v1 (dynamic)
+use C functions to define table and column in schema_v1 (dynamic):  
+You can use sq_schema_create() function to create a table in schema.
 
 ```c
 	/* create schema and specify version number as 1 */
@@ -158,7 +161,8 @@ use C functions to define table and column in schema_v1 (dynamic)
 //	sq_table_add_timestamps_struct(table, User);
 ```
 
-use C functions to change table and column in schema_v2 (dynamic)
+use C functions to change table and column in schema_v2 (dynamic):  
+You can use sq_schema_alter() function to alter a table in schema.
 
 ```c
 	/* create schema and specify version number as 2 */
@@ -189,7 +193,12 @@ use C functions to change table and column in schema_v2 (dynamic)
 
 **Sqdb** is base structure for database products (SQLite, MySQL...etc). You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
   
-use C functions to open SQLite database
+e.g. Create Sqdb interface for SQLite database  
+  
+SQLite will open/create the file in the specified folder of SqdbConfigSqlite when user open database.  
+In this example, database file path is "/path/DatabaseName.db".  
+  
+use C functions to create SQLite database interface
 
 ```c
 	// database configuration
@@ -197,17 +206,31 @@ use C functions to open SQLite database
 		.folder    = "/path",
 		.extension = "db"
 	};
-	// interface
+	// Pointer to SQL product instance
 	Sqdb  *db;
 
 	db = sqdb_sqlite_new(&config);
 //	db = sqdb_sqlite_new(NULL);                // use default setting if config is NULL.
-
-	storage = sq_storage_new(db);
-	sq_storage_open(storage, "sqxc_local");    // This will open file "sqxc_local.db"
 ```
 
-use C functions to open MySQL database
+use C++ methods to create SQLite database interface
+
+```c++
+	// database configuration
+	Sq::DbConfigSqlite  config = {
+		"/path",        // .folder    = "/path",
+		"db",           // .extension = "db",
+	};
+	// Pointer to SQL product instance
+	Sq::DbMethod  *db;
+
+	db = new Sq::DbSqlite(config);
+//	db = new Sq::DbSqlite(NULL);    // use default setting if config is NULL.
+```
+
+use C functions to create MySQL database interface  
+  
+MySQL, PostgreSQL must specify host, port, and authentication...etc in their SqdbConfig.
 
 ```c
 	// database configuration
@@ -217,54 +240,40 @@ use C functions to open MySQL database
 		.user = "name",
 		.password = "xxx"
 	};
-	// interface
+	// Pointer to SQL product instance
 	Sqdb  *db;
 
 	db = sqdb_mysql_new(&config);
 //	db = sqdb_mysql_new(NULL);               // use default setting if config is NULL.
-
-	storage = sq_storage_new(db);
-	sq_storage_open(storage, "sqxc_local");
 ```
 
-use C++ methods to open SQLite database
+## Open Database
+
+To access database, create [SqStorage](doc/SqStorage.md) and specify database product [Sqdb](doc/Sqdb.md).  
+  
+use C functions to open database
+
+```c
+	SqStorage *storage;
+
+	storage = sq_storage_new(db);
+	sq_storage_open(storage, "DatabaseName");
+```
+
+use C++ methods to open database
 
 ```c++
-	// database configuration
-	Sq::DbConfigSqlite  config = {
-		"/path",        // .folder    = "/path",
-		"db",           // .extension = "db",
-	};
-	// interface
-	Sq::DbMethod  *db;
-
-	db = new Sq::DbSqlite(config);
-//	db = new Sq::DbSqlite(NULL);    // use default setting if config is NULL.
+	Sq::Storage *storage;
 
 	storage = new Sq::Storage(db);
-	storage->open("sqxc_local");    // This will open file "sqxc_local.db"
+	storage->open("DatabaseName");
 ```
 
 ## Database migration
 
+This library use [SqStorage](doc/SqStorage.md) to do migration. It checks the schema version to decide whether to do.  
 You can get more description about migrations and schema in doc/[database-migrations.md](doc/database-migrations.md).  
   
-use C++ methods to migrate schema and synchronize to database
-
-```c++
-	// migrate 'schema_v1' and 'schema_v2'
-	storage->migrate(schema_v1);
-	storage->migrate(schema_v2);
-
-	// synchronize schema to database and update schema in 'storage'
-	// This is mainly used by SQLite
-	storage->migrate(NULL);
-
-	// free unused 'schema_v1' and 'schema_v2'
-	delete schema_v1;
-	delete schema_v2;
-```
-
 use C functions to migrate schema and synchronize to database
 
 ```c
@@ -281,13 +290,29 @@ use C functions to migrate schema and synchronize to database
 	sq_schema_free(schema_v2);
 ```
 
-If you want to use individual migration files to do this, you can placed all migration files in workspace/database/migrations.  
-sqxclib provided [SqApp](doc/SqApp.md) to use these files. See doc/[SqApp.md](doc/SqApp.md) to get more information.
+use C++ methods to migrate schema and synchronize to database
+
+```c++
+	// migrate 'schema_v1' and 'schema_v2'
+	storage->migrate(schema_v1);
+	storage->migrate(schema_v2);
+
+	// synchronize schema to database and update schema in 'storage'
+	// This is mainly used by SQLite
+	storage->migrate(NULL);
+
+	// free unused 'schema_v1' and 'schema_v2'
+	delete schema_v1;
+	delete schema_v2;
+```
+
+If you want to do this using separate migration files like Laravel, this library provided [SqApp](doc/SqApp.md) for this purpose.  
+[SqApp](doc/SqApp.md) will use migration files in workspace/database/migrations. See doc/[SqApp.md](doc/SqApp.md) to get more information.
 
 ## CRUD
 
-This library use [SqStorage](doc/SqStorage.md) to do Create, Read, Update, and Delete rows in database.  
-To get more information and sample, you can see doc/[SqStorage.md](doc/SqStorage.md)  
+This library use [SqStorage](doc/SqStorage.md) to do Create, Read, Update, and Delete rows in database. These functions can use with [SqQuery](doc/SqQuery.md) (explain in "Query builder").  
+To get more information and sample, you can see doc/[SqStorage.md](doc/SqStorage.md)
 
 #### Get
 
@@ -303,6 +328,11 @@ The container type is specified as NULL (use default container type).
 
 	// get multiple rows
 	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
+
+	// get multiple rows with SqQuery (explain in "Query builder")
+	sq_query_where(query, "id", ">", 8);
+	sq_query_where_raw(query, "id < %d", 20);
+	array = sq_storage_get_all(storage, "users", NULL, NULL, query->c());
 
 	// get all rows
 	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
@@ -320,7 +350,7 @@ use C++ methods
 	// get multiple rows
 	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
 
-	// get multiple rows with C++ class 'where' series (explain below "Query builder")
+	// get multiple rows with C++ class 'where' series (explain in "Query builder")
 	array = storage->getAll("users", Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// get all rows
@@ -339,13 +369,13 @@ The container type is specified as std::vector<User>.
 	std::vector<User> *vector;
 
 	// get multiple rows
-	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
+	vector = storage->getAll< std::vector<User> >("WHERE id > 8 AND id < 20");
 
-	// get multiple rows with C++ class 'where' series (explain below "Query builder")
-	vector = storage->getAll<std::vector<User>>(Sq::where("id", ">", 8).whereRaw("id < %d", 20));
+	// get multiple rows with C++ class 'where' series (explain in "Query builder")
+	vector = storage->getAll< std::vector<User> >(Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// get all rows
-	vector = storage->getAll<std::vector<User>>();
+	vector = storage->getAll< std::vector<User> >();
 
 	// get one row (where id = 2)
 	user = storage->get<User>(2);
@@ -584,7 +614,7 @@ use C++ methods
 	     ->where("id", ">", 10)
 	     ->orWhereRaw("city_id < %d", 22);
 
-	array = storage->getAll("users", query->c());
+	array = storage->getAll("users", query);
 ```
 
 **convenient C++ class 'where' series**  

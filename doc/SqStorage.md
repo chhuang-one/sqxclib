@@ -2,7 +2,7 @@
 
 # SqStorage
 
-SqStorage use [Sqdb](Sqdb.md) to access database. It using [Sqxc](Sqxc.md) to convert data between C language and [Sqdb](Sqdb.md) interface.
+SqStorage use [Sqdb](Sqdb.md) to access database. It using [Sqxc](Sqxc.md) to convert data between C language and [Sqdb](Sqdb.md) instance.
 
 ## create storage
 
@@ -46,7 +46,7 @@ use C++ methods
 
 ## do migration
 
-Define a data structure 'User' for SQL table "users".
+Define a data structure 'User' for database table "users".
 
 ```c++
 // If you use C language, please use 'typedef' to give a struct type a new name.
@@ -68,8 +68,10 @@ use C functions
 ```c
 	// create table "users" in schema
 	table = sq_schema_create(schema, "users", User);
+
 	column = sq_table_add_int(table, "id", offsetof(User, id));
 	sq_column_primary(column);
+
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 
@@ -86,6 +88,7 @@ use C++ methods
 ```c
 	// create table "users" in schema
 	table = schema->create<User>("users");
+
 	table->integer("id", &User::id)->primary()->autoIncrement();  // PRIMARY KEY
 	table->string("name", &User::name);
 	table->string("email", &User::email);
@@ -237,7 +240,7 @@ use C++ Standard Template Library (STL)
 
 ## getAll (with SqQuery)
 
-SqQuery can generate SQL statement that exclude "SELECT * FROM table_name"  
+[SqQuery](SqQuery.md) can generate SQL statement that exclude "SELECT * FROM table_name"  
   
 use C language
 
@@ -257,7 +260,7 @@ use C++ language
 	query->whereRaw("id > %d", 10);
 	     ->where("id", "<", 99);
 
-	array = storage->getAll("users", query->c());
+	array = storage->getAll("users", query);
 ```
 
 #### convenient C++ class 'where'
@@ -281,6 +284,7 @@ use C functions
 
 	user.id   = 0;       // primary key set to 0 for auto increment
 	user.name = "xman";
+
 	inserted_id = sq_storage_insert(storage, "users", NULL, &user);
 ```
 
@@ -292,6 +296,7 @@ use C++ methods
 
 	user.id   = 0;       // primary key set to 0 for auto increment
 	user.name = "xman";
+
 	inserted_id = storage->insert("users", &user);
 	// or call template function: insert<User>(...)
 	inserted_id = storage->insert(user);
@@ -309,6 +314,7 @@ use C functions
 
 	user.id   = id;
 	user.name = "yael";
+
 	n_changes = sq_storage_update(storage, "users", NULL, &user);
 ```
 
@@ -320,6 +326,7 @@ use C++ methods
 
 	user.id   = id;
 	user.name = "yael";
+
 	n_changes = storage->update("users", &user);
 	// or call template function: update<User>(...)
 	n_changes = storage->update(user);
@@ -346,8 +353,16 @@ use C functions
 
 	user.name  = "yael";
 	user.email = "user@server";
+
 	n_changes  = sq_storage_update_all(storage, "users", NULL, &user,
 	                                   "WHERE id > 10",
+	                                   "name", "email",
+	                                   NULL);
+
+	// or use with SqQuery
+	sq_query_where(query, "id", ">", 10);
+	n_changes  = sq_storage_update_all(storage, "users", NULL, &user,
+	                                   sq_query_c(query),
 	                                   "name", "email",
 	                                   NULL);
 ```
@@ -362,13 +377,16 @@ Because C++ method updateAll() use parameter pack, the last argument can pass (o
 
 	user.name  = "yael";
 	user.email = "user@server";
+
 	n_changes  = storage->updateAll("users", &user,
 	                                "WHERE id > 10",
 	                                "name", "email");
+
 	// or call template function: updateAll<User>(...)
 	n_changes  = storage->updateAll(user,
 	                                "WHERE id > 10",
 	                                "name", "email");
+
 	// or use convenient C++ class 'where'
 	n_changes  = storage->updateAll(user,
 	                                Sq::where("id", ">", 10),
@@ -387,6 +405,7 @@ use C functions
 
 	user.name  = "yael";
 	user.email = "user@server";
+
 	n_changes  = sq_storage_update_field(storage, "users", NULL, &user,
 	                                     "WHERE id > 10",
 	                                     offsetof(User, name),
@@ -404,15 +423,18 @@ Because C++ method updateField() use parameter pack, the last argument can pass 
 
 	user.name  = "yael";
 	user.email = "user@server";
+
 	n_changes  = storage->updateField("users", &user,
 	                                  "WHERE id > 10",
 	                                  &User::name,
 	                                  &User::email);
+
 	// or call template function: updateField<User>(...)
 	n_changes  = storage->updateField(user,
 	                                  "WHERE id > 10",
 	                                  &User::name,
 	                                  &User::email);
+
 	// or use convenient C++ class 'where'
 	n_changes  = storage->updateField("users", &user,
 	                                  Sq::where("id", ">", 10),
@@ -483,6 +505,9 @@ use C functions
 
 ```c
 	sq_storage_remove_all(storage, "users", "WHERE id > 50");
+		// or use with SqQuery
+	sq_query_where_raw(query, "WHERE id > %d", 50);
+	sq_storage_remove_all(storage, "users", sq_query_c(query));
 ```
 
 use C++ methods
@@ -525,7 +550,7 @@ use C++ methods
 
 ## Custom query
 
-SqStorage provides sq_storage_query() and C++ method query() to query with SqQuery. Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](SqPtrArray.md).  
+SqStorage provides sq_storage_query() and C++ method query() to query with [SqQuery](SqQuery.md). Like getAll(), If the program does not specify a container type, they will use the default container type [SqPtrArray](SqPtrArray.md).  
 
 #### query without JOIN clause
 
@@ -603,7 +628,7 @@ User can specify pointer to pointer (double pointer) as element of STL container
 	vector = storage->query< std::vector<void**> >(query);
 
 	for (unsigned int index = 0;  index < vector->size();  index++) {
-		void **element = = vector->at(index);
+		void **element = vector->at(index);
 		city = (City*)element[0];      // from("cities")
 		user = (User*)element[1];      // join("users")
 	}

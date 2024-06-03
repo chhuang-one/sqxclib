@@ -2,7 +2,7 @@
 
 # SqStorage
 
-SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。它使用 [Sqxc](Sqxc.cn.md) 在 C 语言和 [Sqdb](Sqdb.cn.md) 接口之间转换数据。
+SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。它使用 [Sqxc](Sqxc.cn.md) 在 C 语言和 [Sqdb](Sqdb.cn.md) 实例之间转换数据。
 
 ## 创建 storage
 
@@ -46,7 +46,7 @@ SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。它使用 [Sqxc](Sqxc.cn.m
 
 ## 进行迁移
 
-为 SQL 表 "users" 定义数据结构 'User'。
+为数据库表 "users" 定义数据结构 'User'。
 
 ```c++
 // 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
@@ -68,8 +68,10 @@ struct User {
 ```c
 	// 在架构中创建表 "users"
 	table = sq_schema_create(schema, "users", User);
+
 	column = sq_table_add_int(table, "id", offsetof(User, id));
 	sq_column_primary(column);
+
 	column = sq_table_add_string(table, "name", offsetof(User, name), -1);
 	column = sq_table_add_string(table, "email", offsetof(User, email), -1);
 
@@ -86,6 +88,7 @@ struct User {
 ```c
 	// 在架构中创建表 "users"
 	table = schema->create<User>("users");
+
 	table->integer("id", &User::id)->primary()->autoIncrement();  // 主键
 	table->string("name", &User::name);
 	table->string("email", &User::email);
@@ -107,7 +110,7 @@ get() 的参数是 表名、表类型 和 id。
 如果表类型为 NULL，SqStorage 将尝试在其架构中查找表类型。  
 如果用户同时指定参数 表名 和 表类型，它可以运行得更快一些。  
   
-例如: 从数据库表 "users" 中获取一行。
+例如: 从数据库表 users 中获取一行。
 
 ```sql
 SELECT * FROM users WHERE id = 3
@@ -237,7 +240,7 @@ SELECT * FROM users WHERE id > 10 AND id < 99
 
 ## getAll (配合 SqQuery)
 
-SqQuery 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句  
+[SqQuery](SqQuery.cn.md) 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句  
   
 使用 C 语言
 
@@ -257,7 +260,7 @@ SqQuery 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句
 	query->whereRaw("id > %d", 10)
 	     ->where("id", "<", 99);
 
-	array = storage->getAll("users", query->c());
+	array = storage->getAll("users", query);
 ```
 
 #### 方便的 C++ 类 'where'
@@ -281,6 +284,7 @@ sq_storage_insert() 用于在表中插入一个新记录并返回插入的行 ID
 
 	user.id   = 0;       // 主键设置为 0 用于自动递增
 	user.name = "xman";
+
 	inserted_id = sq_storage_insert(storage, "users", NULL, &user);
 ```
 
@@ -292,6 +296,7 @@ sq_storage_insert() 用于在表中插入一个新记录并返回插入的行 ID
 
 	user.id   = 0;       // 主键设置为 0 用于自动递增
 	user.name = "xman";
+
 	inserted_id = storage->insert("users", &user);
 	// 或调用模板函数： insert<User>(...)
 	inserted_id = storage->insert(user);
@@ -309,6 +314,7 @@ sq_storage_update() 用于修改表中的一个现有记录并返回更改的行
 
 	user.id   = id;
 	user.name = "yael";
+
 	n_changes = sq_storage_update(storage, "users", NULL, &user);
 ```
 
@@ -320,6 +326,7 @@ sq_storage_update() 用于修改表中的一个现有记录并返回更改的行
 
 	user.id   = id;
 	user.name = "yael";
+
 	n_changes = storage->update("users", &user);
 	// 或调用模板函数： update<User>(...)
 	n_changes = storage->update(user);
@@ -346,8 +353,16 @@ UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
 
 	user.name  = "yael";
 	user.email = "user@server";
+
 	n_changes  = sq_storage_update_all(storage, "users", NULL, &user,
 	                                   "WHERE id > 10",
+	                                   "name", "email",
+	                                   NULL);
+
+	// 或与 SqQuery 一起使用
+	sq_query_where(query, "id", ">", 10);
+	n_changes  = sq_storage_update_all(storage, "users", NULL, &user,
+	                                   sq_query_c(query),
 	                                   "name", "email",
 	                                   NULL);
 ```
@@ -362,13 +377,16 @@ UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
 
 	user.name  = "yael";
 	user.email = "user@server";
+
 	n_changes  = storage->updateAll("users", &user,
 	                                "WHERE id > 10",
 	                                "name", "email");
+
 	// 或调用模板函数： updateAll<User>(...)
 	n_changes  = storage->updateAll(user,
 	                                "WHERE id > 10",
 	                                "name", "email");
+
 	// 或用方便的 C++ 类 'where'
 	n_changes  = storage->updateAll(user,
 	                                Sq::where("id", ">", 10),
@@ -387,6 +405,7 @@ sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参
 
 	user.name  = "yael";
 	user.email = "user@server";
+
 	n_changes  = sq_storage_update_field(storage, "users", NULL, &user,
 	                                     "WHERE id > 10",
 	                                     offsetof(User, name),
@@ -404,15 +423,18 @@ sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参
 
 	user.name  = "yael";
 	user.email = "user@server";
+
 	n_changes  = storage->updateField("users", &user,
 	                                  "WHERE id > 10",
 	                                  &User::name,
 	                                  &User::email);
+
 	// 或调用模板函数： updateField<User>(...)
 	n_changes  = storage->updateField(user,
 	                                  "WHERE id > 10",
 	                                  &User::name,
 	                                  &User::email);
+
 	// 或用方便的 C++ 类 'where'
 	n_changes  = storage->updateField("users", &user,
 	                                  Sq::where("id", ">", 10),
@@ -483,6 +505,9 @@ DELETE FROM users WHERE id > 50
 
 ```c
 	sq_storage_remove_all(storage, "users", "WHERE id > 50");
+		// 或与 SqQuery 一起使用
+	sq_query_where_raw(query, "WHERE id > %d", 50);
+	sq_storage_remove_all(storage, "users", sq_query_c(query));
 ```
 
 使用 C++ 方法
@@ -525,7 +550,7 @@ DELETE FROM users WHERE id > 50
 
 ## 自定义查询
 
-SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来使用 SqQuery 进行查询。和 getAll() 一样，如果程序没有指定容器类型，它们将使用默认容器类型 [SqPtrArray](SqPtrArray.cn.md)。  
+SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来使用 [SqQuery](SqQuery.cn.md) 进行查询。和 getAll() 一样，如果程序没有指定容器类型，它们将使用默认容器类型 [SqPtrArray](SqPtrArray.cn.md)。  
 
 #### 没有 JOIN 子句的查询
 
@@ -603,7 +628,7 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来使用 SqQuery 进
 	vector = storage->query< std::vector<void**> >(query);
 
 	for (unsigned int index = 0;  index < vector->size();  index++) {
-		void **element = = vector->at(index);
+		void **element = vector->at(index);
 		city = (City*)element[0];      // from("cities")
 		user = (User*)element[1];      // join("users")
 	}

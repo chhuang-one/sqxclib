@@ -24,7 +24,7 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 
 * 单一头文件 〈 **sqxclib.h** 〉 (注意: 不包含特殊宏和支持库)
 
-* 命令行工具可以生成迁移并进行迁移。见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
+* 命令行工具可以生成迁移文件并执行迁移。见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
 
 * 支持 SQLite, MySQL / MariaDB, PostgreSQL。
 
@@ -54,7 +54,8 @@ struct User {
 };
 ```
 
-使用 C++ 方法在 schema_v1 中定义表和列 （动态）
+使用 C++ 方法在 schema_v1 中定义表和列 （动态）:  
+您可以使用 Sq::Schema 的 create() 方法在架构中创建表。
 
 ```c++
 /* 为 C++ STL 定义全局类型 */
@@ -92,7 +93,8 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 //	table->timestamps<User>();
 ```
 
-使用 C++ 方法更改 schema_v2 中的表和列 （动态）
+使用 C++ 方法更改 schema_v2 中的表和列 （动态）:  
+您可以使用 alter() 方法来改变架构中的表。
 
 ```c++
 	/* 创建架构并指定版本号为 2 */
@@ -112,7 +114,8 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	table->renameColumn("email", "email2");
 ```
 
-使用 C 函数在 schema_v1 中定义表和列 （动态）
+使用 C 函数在 schema_v1 中定义表和列 （动态）:  
+您可以使用 sq_schema_create() 函数在架构中创建表。
 
 ```c
 	/* 创建架构并指定版本号为 1 */
@@ -158,7 +161,8 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 //	sq_table_add_timestamps_struct(table, User);
 ```
 
-使用 C 函数更改 schema_v2 中的表和列 （动态）
+使用 C 函数更改 schema_v2 中的表和列 （动态）:  
+您可以使用 sq_schema_alter() 函数来改变架构中的表。
 
 ```c
 	/* 创建架构并指定版本号为 2 */
@@ -189,7 +193,12 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 **Sqdb** 是数据库产品（SQLite、MySQL 等）的基础结构。您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
   
-使用 C 函数打开 SQLite 数据库
+例如: 为 SQLite 数据库创建 Sqdb 接口  
+  
+当用户打开数据库时，SQLite 将在 Sq::DbConfigSqlite 指定的文件夹中打开/创建文件。  
+在此示例中，数据库文件路径为 "/path/DatabaseName.db"。  
+  
+使用 C 函数创建 SQLite 数据库接口
 
 ```c
 	// 数据库配置
@@ -197,17 +206,31 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 		.folder    = "/path",
 		.extension = "db"
 	};
-	// 接口
+	// 指向 SQL 产品实例的指针
 	Sqdb  *db;
 
 	db = sqdb_sqlite_new(&config);
 //	db = sqdb_sqlite_new(NULL);                // 如果 config 为 NULL，则使用默认设置。
-
-	storage = sq_storage_new(db);
-	sq_storage_open(storage, "sqxc_local");    // 这将打开文件 "sqxc_local.db"
 ```
 
-使用 C 函数打开 MySQL 数据库
+使用 C++ 方法创建 SQLite 数据库接口
+
+```c++
+	// 数据库配置
+	Sq::DbConfigSqlite  config = {
+		"/path",        // .folder    = "/path",
+		"db",           // .extension = "db",
+	};
+	// 指向 SQL 产品实例的指针
+	Sq::DbMethod  *db;
+
+	db = new Sq::DbSqlite(config);
+//	db = new Sq::DbSqlite(NULL);    // 如果 config 为 NULL，则使用默认设置。
+```
+
+使用 C 函数创建 MySQL 数据库接口  
+  
+MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验证等。
 
 ```c
 	// 数据库配置
@@ -217,54 +240,40 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 		.user = "name",
 		.password = "xxx"
 	};
-	// 接口
+	// 指向 SQL 产品实例的指针
 	Sqdb  *db;
 
 	db = sqdb_mysql_new(&config);
 //	db = sqdb_mysql_new(NULL);               // 如果 config 为 NULL，则使用默认设置。
-
-	storage = sq_storage_new(db);
-	sq_storage_open(storage, "sqxc_local");
 ```
 
-使用 C++ 方法打开 SQLite 数据库
+## 打开数据库
+
+要访问数据库，请创建 [SqStorage](doc/SqStorage.cn.md) 并指定数据库产品 [Sqdb](doc/Sqdb.cn.md)。  
+  
+使用 C 函数打开数据库
+
+```c
+	SqStorage *storage;
+
+	storage = sq_storage_new(db);
+	sq_storage_open(storage, "DatabaseName");
+```
+
+使用 C++ 方法打开数据库
 
 ```c++
-	// 数据库配置
-	Sq::DbConfigSqlite  config = {
-		"/path",        // .folder    = "/path",
-		"db",           // .extension = "db",
-	};
-	// 接口
-	Sq::DbMethod  *db;
-
-	db = new Sq::DbSqlite(config);
-//	db = new Sq::DbSqlite(NULL);    // 如果 config 为 NULL，则使用默认设置。
+	Sq::Storage *storage;
 
 	storage = new Sq::Storage(db);
-	storage->open("sqxc_local");    // 这将打开文件 "sqxc_local.db"
+	storage->open("DatabaseName");
 ```
 
 ## 数据库迁移
 
+此库使用 [SqStorage](doc/SqStorage.cn.md) 进行迁移。它会检查架构版本来决定是否执行。  
 您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关迁移和架构的更多描述。  
   
-使用 C++ 方法迁移架构并同步到数据库
-
-```c++
-	// 迁移 'schema_v1' 和 'schema_v2'
-	storage->migrate(schema_v1);
-	storage->migrate(schema_v2);
-
-	// 将架构同步到数据库并更新 'storage' 中的架构
-	// 这主要由 SQLite 使用
-	storage->migrate(NULL);
-
-	// 释放未使用的 'schema_v1' 和 'schema_v2'
-	delete schema_v1;
-	delete schema_v2;
-```
-
 使用 C 函数迁移架构并同步到数据库
 
 ```c
@@ -281,13 +290,29 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	sq_schema_free(schema_v2);
 ```
 
-如果要使用单独的迁移文件来执行此操作，则可以将所有迁移文件放在 workspace/database/migrations 中。  
-sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 来使用这些文件。请参阅 doc/[SqApp.cn.md](doc/SqApp.cn.md) 以获取更多信息。
+使用 C++ 方法迁移架构并同步到数据库
+
+```c++
+	// 迁移 'schema_v1' 和 'schema_v2'
+	storage->migrate(schema_v1);
+	storage->migrate(schema_v2);
+
+	// 将架构同步到数据库并更新 'storage' 中的架构
+	// 这主要由 SQLite 使用
+	storage->migrate(NULL);
+
+	// 释放未使用的 'schema_v1' 和 'schema_v2'
+	delete schema_v1;
+	delete schema_v2;
+```
+
+如果你想使用像 Laravel 这样的单独迁移文件来执行此操作，此库为此提供了 [SqApp](doc/SqApp.cn.md)。  
+[SqApp](doc/SqApp.cn.md) 将使用 Workspace/database/migrations 中的迁移文件。请参阅 doc/[SqApp.cn.md](doc/SqApp.cn.md) 以获取更多信息。
 
 ## 增删查改 CRUD
 
-此库使用 [SqStorage](doc/SqStorage.cn.md) 在数据库中创建、读取、更新和删除行。  
-要获取更多信息和示例，您可以查看 doc/[SqStorage.cn.md](doc/SqStorage.cn.md)  
+此库使用 [SqStorage](doc/SqStorage.cn.md) 在数据库中创建、读取、更新和删除行。这些函数可与 [SqQuery](doc/SqQuery.cn.md) 一起使用 （在下面的 "查询生成器" 中说明）。  
+要获取更多信息和示例，您可以查看 doc/[SqStorage.cn.md](doc/SqStorage.cn.md)
 
 #### 获取 Get
 
@@ -303,6 +328,11 @@ sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 来使用这些文件。请参阅 doc
 
 	// 获取多行
 	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
+
+	// 使用 SqQuery 获取多行 （在下面的 "查询生成器" 中说明）
+	sq_query_where(query, "id", ">", 8);
+	sq_query_where_raw(query, "id < %d", 20);
+	array = sq_storage_get_all(storage, "users", NULL, NULL, query->c());
 
 	// 获取所有行
 	array = sq_storage_get_all(storage, "users", NULL, NULL, NULL);
@@ -320,7 +350,7 @@ sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 来使用这些文件。请参阅 doc
 	// 获取多行
 	array = storage->getAll("users", "WHERE id > 8 AND id < 20");
 
-	// 使用 C++ 类 'where' 系列获取多行（在下面的 "查询生成器" 中说明）
+	// 使用 C++ 类 'where' 系列获取多行 （在下面的 "查询生成器" 中说明）
 	array = storage->getAll("users", Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// 获取所有行
@@ -339,13 +369,13 @@ sqxclib 提供了 [SqApp](doc/SqApp.cn.md) 来使用这些文件。请参阅 doc
 	std::vector<User> *vector;
 
 	// 获取多行
-	vector = storage->getAll<std::vector<User>>("WHERE id > 8 AND id < 20");
+	vector = storage->getAll< std::vector<User> >("WHERE id > 8 AND id < 20");
 
-	// 使用 C++ 类 'where' 系列获取多行（在下面的 "查询生成器" 中说明）
-	vector = storage->getAll<std::vector<User>>(Sq::where("id", ">", 8).whereRaw("id < %d", 20));
+	// 使用 C++ 类 'where' 系列获取多行 （在下面的 "查询生成器" 中说明）
+	vector = storage->getAll< std::vector<User> >(Sq::where("id", ">", 8).whereRaw("id < %d", 20));
 
 	// 获取所有行
-	vector = storage->getAll<std::vector<User>>();
+	vector = storage->getAll< std::vector<User> >();
 
 	// 获取一行 (其中 id 等于 2)
 	user = storage->get<User>(2);
@@ -584,7 +614,7 @@ SQL 语句
 	     ->where("id", ">", 10)
 	     ->orWhereRaw("city_id < %d", 22);
 
-	array = storage->getAll("users", query->c());
+	array = storage->getAll("users", query);
 ```
 
 **方便的 C++ 类 'where' 系列**  
@@ -703,7 +733,7 @@ SQL 语句
 
 如果你不想使用指针作为容器的元素：
 1. 使用 Sq::Joint 作为 C++ STL 容器的元素。
-2. 使用 typedef 为 C 语言定义 [SqArray](doc/SqArray.md) 的元素类型。
+2. 使用 typedef 为 C 语言定义 [SqArray](doc/SqArray.cn.md) 的元素类型。
 
 参考 [SqTypeJoint](doc/SqTypeJoint.cn.md) 以获取更多信息。  
 以下是 C++ STL 示例之一：
