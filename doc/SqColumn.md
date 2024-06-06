@@ -2,7 +2,7 @@
 
 # SqColumn
 
-SqColumn derives from [SqEntry](SqEntry.md). It defines columns in SQL table and works with SqType.
+SqColumn derives from [SqEntry](SqEntry.md). It defines columns in database table and works with SqType.
 
 	SqEntry
 	│
@@ -159,7 +159,7 @@ struct SqColumn
 	char        **composite;
 
 	const char   *reserve;          // reserve
-	const char   *raw;              // raw SQL column property
+	const char   *raw;              // raw database column property
 };
 ```
 
@@ -195,7 +195,7 @@ The following bit_field definitions are inherited from [SqEntry](SqEntry.md):
 
 #### Define constant SqColumn that used by constant SqType
 
-This can reduce running time when making schema if your SQL table is fixed and not changed in future.  
+This can reduce running time when making schema if your database table is fixed and not changed in future.  
 * Note: If you define constant SqType for structure, it must use with **pointer array** of SqColumn.
 
 ```c++

@@ -128,7 +128,7 @@ struct SqxcJsonc
 	int16_t      jcur_type;    // SqxcType
 	/*
 	// at json entry begin from SQL
-	cx->name = SQL column name
+	cx->name = database column name
 
 	// at json begin from file
 	cx->name = NULL

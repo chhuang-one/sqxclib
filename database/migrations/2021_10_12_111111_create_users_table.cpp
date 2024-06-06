@@ -1,16 +1,16 @@
 /* This template file is used by sqxcpptool
-// define struct 'User' in workspace/sqxcapp/CStructs.h
-// migrations-files.cpp has included below headers.
-#include <SqStorage.h>
-#include <SqMigration.h>
-#include "CStructs.h"
+ * Please define structure 'User' in workspace/sqxcapp/CStructs.h
+ *
+ * Normally this file should be included in migrations-files.cpp if you use sqxcpptool to make migration file.
+ * migrations-files.cpp has included following headers.
+ * #include <SqStorage.h>
+ * #include <SqMigration.h>
+ * #include "CStructs.h"
  */
 
-/*  This file is a rewrite of 2021_10_12_000000_create_users_table.c in C++.
-    Normally it should be included in migrations-files.cpp if you use sqxcpptool to make migration file.
- */
+/*  This file is a rewrite of 2021_10_12_000000_create_users_table.c in C++. */
 
-const SqMigration create_users_table_2021_10_12_111111 = {
+const SqMigration CreateUsersTable_2021_10_12_111111 = {
 
 	// Run the migrations.
 //	.up =

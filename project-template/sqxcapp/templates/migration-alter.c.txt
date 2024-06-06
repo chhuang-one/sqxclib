@@ -1,8 +1,10 @@
 /* This template file is used by sqxctool
-// migrations-files.c has included below headers.
-#include <SqStorage.h>
-#include <SqMigration.h>
-#include "CStructs.h"
+ *
+ * Normally this file should be included in migrations-files.c if you use sqxctool to make migration file.
+ * migrations-files.c has included following headers.
+ * #include <SqStorage.h>
+ * #include <SqMigration.h>
+ * #include "CStructs.h"
  */
 
 

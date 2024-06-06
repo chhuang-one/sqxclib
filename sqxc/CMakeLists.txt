@@ -21,7 +21,7 @@ set(SOURCES
     SqStorage-query.c
     SqQuery.c
     Sqdb.c
-    Sqdb-migration.c    # Most of the SQL products may use this (exclude SQLite)
+    Sqdb-migration.c    # Most of the Database products may use this (exclude SQLite)
     Sqxc.c
     SqxcValue.c
     SqxcSql.c
@@ -52,7 +52,7 @@ set(HEADERS
     SqQuery-macro.h
     SqRelation.h
     Sqdb.h
-    Sqdb-migration.h    # Most of the SQL products may use this (exclude SQLite)
+    Sqdb-migration.h    # Most of the Database products may use this (exclude SQLite)
     Sqxc.h
     SqxcValue.h
     SqxcSql.h

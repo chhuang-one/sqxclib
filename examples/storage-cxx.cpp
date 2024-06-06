@@ -54,7 +54,7 @@ struct User
 
 	std::string   comment;    // SQL Type: TEXT
 
-	// If you use SQLite or MySQL to store binary data in SQL column,
+	// If you use SQLite or MySQL to store binary data in database column,
 	// Please make sure that SQ_CONFIG_QUERY_ONLY_COLUMN is enabled.
 	// If you use PostgreSQL to do this, you don't need to care about SQ_CONFIG_QUERY_ONLY_COLUMN.
 	Sq::Buffer         picture;    // SQL Type: BLOB, BINARY...etc
@@ -114,7 +114,7 @@ struct Company
 	time_t        created_at;   // alter table
 	time_t        updated_at;   // alter table
 
-	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array (vector) in SQL column
+	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array (vector) in database column
 	Sq::IntArray     ints;    // C/C++ array for int
 	Sq::StrArray     strs;    // C/C++ array for char*
 	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
@@ -287,7 +287,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->addIndex("users_id_index", "id");
 #endif
 
-	// synchronize schema to database. create/alter SQL tables based on storage->schema
+	// synchronize schema to database. create/alter database tables based on storage->schema
 	// This is mainly used by SQLite
 	storage->migrate(NULL);
 }
@@ -377,7 +377,7 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	storage->migrate(schemaVer3);
 	storage->migrate(schemaVer4);
 	storage->migrate(schemaVer5);
-	// synchronize schema to database. create/alter SQL tables based on storage->schema
+	// synchronize schema to database. create/alter database tables based on storage->schema
 	storage->migrate(NULL);
 
 	// free migrated schema

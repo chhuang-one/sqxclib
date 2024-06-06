@@ -14,23 +14,23 @@ Sqxc 在 X 和 C 语言之间转换数据 （X = SQL, JSON...等）
 
 Sqxc 转换器的数据类型
 
-| Sqxc 类型名称        | 描述                           |
-| -------------------- | ------------------------------ |
-| SQXC_TYPE_NULL       | 对应C值：        NULL          |
-| SQXC_TYPE_BOOL       | 对应C数据类型：  bool          |
-| SQXC_TYPE_INT        | 对应C数据类型：  int           |
-| SQXC_TYPE_UINT       | 对应C数据类型：  unsigned int  |
-| SQXC_TYPE_INT64      | 对应C数据类型：  int64_t       |
-| SQXC_TYPE_UINT64     | 对应C数据类型：  uint64_t      |
-| SQXC_TYPE_TIME       | 对应C数据类型：  time_t        |
-| SQXC_TYPE_DOUBLE     | 对应C数据类型：  double        |
-| SQXC_TYPE_STR        | 对应C数据类型：  char*         |
-| SQXC_TYPE_STRING     | 对应C数据类型：  char*         |
-| SQXC_TYPE_RAW        | 对应C数据类型：  char*         |
-| SQXC_TYPE_OBJECT     | 对象的开头                     |
-| SQXC_TYPE_ARRAY      | 数组的开头 (或其他容器)        |
-| SQXC_TYPE_OBJECT_END | 对象结束                       |
-| SQXC_TYPE_ARRAY_END  | 数组结束 (或其他容器)          |
+| Sqxc 类型名称        | 描述                             |
+| -------------------- | -------------------------------- |
+| SQXC_TYPE_NULL       | 对应 C 值：        NULL          |
+| SQXC_TYPE_BOOL       | 对应 C 数据类型：  bool          |
+| SQXC_TYPE_INT        | 对应 C 数据类型：  int           |
+| SQXC_TYPE_UINT       | 对应 C 数据类型：  unsigned int  |
+| SQXC_TYPE_INT64      | 对应 C 数据类型：  int64_t       |
+| SQXC_TYPE_UINT64     | 对应 C 数据类型：  uint64_t      |
+| SQXC_TYPE_TIME       | 对应 C 数据类型：  time_t        |
+| SQXC_TYPE_DOUBLE     | 对应 C 数据类型：  double        |
+| SQXC_TYPE_STR        | 对应 C 数据类型：  char*         |
+| SQXC_TYPE_STRING     | 对应 C 数据类型：  char*         |
+| SQXC_TYPE_RAW        | 对应 C 数据类型：  char*         |
+| SQXC_TYPE_OBJECT     | 对象的开头                       |
+| SQXC_TYPE_ARRAY      | 数组的开头 (或其他容器)          |
+| SQXC_TYPE_OBJECT_END | 对象结束                         |
+| SQXC_TYPE_ARRAY_END  | 数组结束 (或其他容器)            |
 
 注意: SQXC_TYPE_RAW    是原始字符串，主要用于 SQL 数据类型。  
 注意: SQXC_TYPE_STRING 是 SQXC_TYPE_STR 的別名。  
@@ -38,7 +38,7 @@ Sqxc 转换器的数据类型
 注意: SQXC_TYPE_ARRAY  对应 SQL 多行。  
 
 ## 创建 Sqxc 元素
-创建元素以将数据转换为 SQL INSERT/UPDATE 语句，并添加元素以将数据转换为 SQL 列中的 JSON 数组/对象。  
+创建元素以将数据转换为 SQL INSERT/UPDATE 语句，并添加元素以将数据转换为数据库列中的 JSON 数组/对象。  
   
 使用 C 语言
 
@@ -70,12 +70,12 @@ Sqxc 转换器的数据类型
 [Sqxc element 1] 是 Sqxc 链的头，'peer' 是单链表，'dest' 是数据流。
 
 	                    peer                      peer
-	┌----------------┐  <---  ┌----------------┐  <---  ┌----------------┐
-	| Sqxc element 3 |        | Sqxc element 2 |        | Sqxc element 1 |
-	└----------------┘        └----------------┘  --->  └----------------┘
-	        |                                     dest          ^
-	        |           dest                                    |
-	        └---------------------------------------------------┘
+	┌────────────────┐  <───  ┌────────────────┐  <───  ┌────────────────┐
+	│ Sqxc element 3 │        │ Sqxc element 2 │        │ Sqxc element 1 │
+	└────────────────┘        └────────────────┘  ───>  └────────────────┘
+	        │                                     dest          ^
+	        │           dest                                    │
+	        └───────────────────────────────────────────────────┘
 
 函数 insert() 和 steal() 仅链接或取消链接 'peer' （'peer' 是单链表），
 用户可能需要自己在 Sqxc 链中链接 'dest'（'dest' 是数据流），尤其是自定义数据流。
@@ -105,7 +105,7 @@ sqxc_send() 由数据源端调用。它将数据（参数）发送到 Sqxc 元�
 使用 C 语言
 
 ```c
-	// Sqxc 接口
+	// 指向 Sqxc 实例的指针
 	Sqxc *xc = xcsql;
 
 	// set Sqxc arguments
@@ -125,7 +125,7 @@ sqxc_send() 由数据源端调用。它将数据（参数）发送到 Sqxc 元�
 use C++ language
 
 ```c++
-	// Sqxc 接口
+	// 指向 Sqxc 实例的指针
 	Sq::XcMethod *xc = xcsql;
 
 	// set Sqxc arguments
@@ -148,7 +148,7 @@ use C++ language
 2. 发送数据后调用 sqxc_finish()。
 
 ```c
-	// Sqxc 接口
+	// 指向当前 Sqxc 实例的指针
 	Sqxc *xcur;
 
 	sqxc_ready(xc);    // 通知 Sqxc 元素准备好
@@ -198,7 +198,7 @@ SqxcSql 会在上面的例子中输出 SQL 语句：
 INSERT INTO table_name (id, int_array) VALUES (1, '[ 2, 4 ]');
 ```
 
-SQL 表如下所示：
+数据库表如下所示：
 
 | id | int_array |
 | -- | --------- |
@@ -216,7 +216,7 @@ JSON 看起来像这样：
 2. 发送数据后调用 finish()。
 
 ```c++
-	// Sqxc 接口
+	// 指向当前 Sqxc 实例的指针
 	Sq::XcMethod *xcur;
 
 	xc->ready();       // 通知 Sqxc 元素准备好
@@ -455,7 +455,7 @@ C++ 方法 popNested() 和 C 函数 sqxc_pop_nested() 可以从堆栈顶部删�
 	pointer3 = nested->data3;
 ```
 
-如果新的 Sqxc 元素要解析/写入 SQL 列中的数据，它必须：  
+如果新的 Sqxc 元素要解析/写入数据库列中的数据，它必须：  
 1. 支持 SQXC_TYPE_ARRAY 或 SQXC_TYPE_OBJECT。
 2. 将转换后的数据发送到 dest（或下一个）元素。见下文：
 
@@ -556,8 +556,8 @@ C++ 方法 popNested() 和 C 函数 sqxc_pop_nested() 可以从堆栈顶部删�
 
 [SqStorage](SqStorage.cn.md) 对象中的 Sqxc 输入数据流如下所示：
 
-	input ->         ┌-> SqxcTextParser --┐
-	sqdb_exec()    --┴--------------------┴-> SqxcValue ---> SqType::parse()
+	input ->         ┌─> SqxcTextParser ──┐
+	sqdb_exec()    ──┴────────────────────┴─> SqxcValue ───> SqType::parse()
 
 注意: 您还需要在 SqStorage::xc_output 中将 SqxcJsoncWriter 替换为 SqxcTextWriter。
 

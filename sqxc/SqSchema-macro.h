@@ -17,7 +17,7 @@
 
 #include <SqSchema.h>
 
-/* C Macro functions to create SQL Table easily, for example:
+/* C Macro functions to create database table easily, for example:
 
 typedef struct Company
 {

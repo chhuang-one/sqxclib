@@ -7,7 +7,7 @@ This document introduce how to use C99 designated initializer (or C++ aggregate 
 * Schema can handle both dynamic and constant column/table definitions.
 * If user modify constant column/table, program will copy column/table before modifying it.
 * Program will not free constant columns/tables from memory. It just doesn't use them.
-* If your SQL table is fixed and not changed in future, you can reduce more running time by using constant [SqType](SqType.md) to define table. see [SqColumn.md](SqColumn.md)
+* If your database table is fixed and not changed in future, you can reduce more running time by using constant [SqType](SqType.md) to define table. see [SqColumn.md](SqColumn.md)
 
 Define a C structured data type to map database table "users".
 
@@ -303,7 +303,7 @@ static const SqColumn  otherChanges4[] = {
 
 ## Use custom or JSON type (constant)
 
-If you want to store JSON object or array in SQL column, you must specify [SqType](SqType.md).  
+If you want to store JSON object or array in database column, you must specify [SqType](SqType.md).  
   
 Example: define a C structure that contain struct and array.
 
@@ -312,11 +312,11 @@ struct DemoTable {
 	// ...
 
 	// MyStructure is user-defined C struct
-	// This will store JSON object in SQL column.
+	// This will store JSON object in database column.
 	MyStructure    myStruct;
 
 	// SqIntArray is integer array that defined in SqArray.h
-	// This will store JSON integer array in SQL column.
+	// This will store JSON integer array in database column.
 	SqIntArray     intArray;
 };
 
@@ -324,11 +324,11 @@ static const SqColumn  demoTableColumns[] = {
 	// ...
 
 	// SQ_TYPE_MY_STRUCT is the user-defined SqType of MyStructure.
-	// JSON object will be stored in SQL VARCHAR column if SQL type is not specified.
+	// JSON object will be stored in VARCHAR column if SQL type is not specified.
 	{SQ_TYPE_MY_STRUCT,    "myStruct",       offsetof(DemoTable, myStruct)},
 
-	// SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of SQL column.
-	// JSON integer array will be stored in SQL VARCHAR column if SQL type is not specified.
+	// SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of database column.
+	// JSON integer array will be stored in VARCHAR column if SQL type is not specified.
 	{SQ_TYPE_INT_ARRAY,    "intArray",       offsetof(DemoTable, intArray)},
 };
 ```

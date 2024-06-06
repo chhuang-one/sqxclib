@@ -2,7 +2,7 @@
 
 # Sqdb
 
-Sqdb is a base structure for database product (SQLite, MySQL...etc).  
+Sqdb is a base structure for Database product (SQLite, MySQL...etc).  
 
 | derived structure | Database product | source file    |
 | ----------------- | ---------------- | -------------- |
@@ -15,19 +15,19 @@ struct Sqdb
 {
 	// you can use SQDB_MEMBERS to define below members
 	const SqdbInfo *info;       // data and function interface
-	int             version;    // schema version in SQL database
+	int             version;    // schema version of the currently opened database
 };
 ```
 
 # SqdbInfo
 
-SqdbInfo is interface for database product.
+SqdbInfo is interface for Database product.
 
 ```c
 struct SqdbInfo
 {
 	uintptr_t      size;       // Sqdb instance size
-	SqdbProduct    product;    // SQL  product code
+	SqdbProduct    product;    // Database product code
 
 	struct {
 		unsigned int has_boolean:1;      // has Boolean Data Type
@@ -45,7 +45,7 @@ struct SqdbInfo
 	// finalize derived structure of Sqdb
 	void (*final)(Sqdb *db);
 
-	// open a database file or establish a connection to a database server
+	// open a database file or establish a connection to a Database server
 	int  (*open)(Sqdb *db, const char *name);
 	// close a previously opened file or connection.
 	int  (*close)(Sqdb *db);
@@ -58,7 +58,7 @@ struct SqdbInfo
 
 # SqdbConfig
 
-SqdbConfig is setting of SQL product
+SqdbConfig is setting of Database product.
 
 ```c
 struct SqdbConfig
@@ -82,7 +82,7 @@ use C functions
 		.folder    = "/home/dir",
 		.extension = "db"
 	};
-	// interface
+	// database instance pointer
 	Sqdb  *db;
 
 	// create SqdbSqlite with 'config'. use default setting if config is NULL.
@@ -105,7 +105,7 @@ use C++ methods
 		"/home/dir",   // .folder    = "/home/dir",
 		"db"           // .extension = "db",
 	};
-	// interface
+	// database instance pointer
 	Sq::DbMethod  *db;
 
 	// create Sq::DbSqlite with 'config'. use default setting if config is NULL.
@@ -248,9 +248,9 @@ Use C++ language to get multiple rows from "migrations" table
 	}
 ```
 
-## How to support new SQL product:
+## How to support new Database product:
 
-User can refer SqdbMysql.h and SqdbMysql.c to support new SQL product.  
+User can refer SqdbMysql.h and SqdbMysql.c to support new Database product.  
 SqdbEmpty.h and SqdbEmpty.c is a workable sample, but it do nothing.  
 
 #### 1 define new structure that derived from SqdbConfig and Sqdb
@@ -265,7 +265,7 @@ All derived structure must conforme C++11 standard-layout
 typedef struct SqdbXxsql          SqdbXxsql;
 typedef struct SqdbConfigXxsql    SqdbConfigXxsql;
 
-// define SQL product code
+// define Database product code
 #define  SQDB_PRODUCT_XXSQL    (SQDB_PRODUCT_CUSTOM + 1)
 
 #ifdef __cplusplus    // mix C and C++

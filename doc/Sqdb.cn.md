@@ -15,7 +15,7 @@ struct Sqdb
 {
 	// 您可以使用 SQDB_MEMBERS 定义以下成员
 	const SqdbInfo *info;       // 数据与功能接口
-	int             version;    // SQL 数据库中的架构 (schema) 版本
+	int             version;    // 当前打开的数据库的架构版本
 };
 ```
 
@@ -27,7 +27,7 @@ SqdbInfo 是数据库产品的接口。
 struct SqdbInfo
 {
 	uintptr_t      size;       // Sqdb 实例大小
-	SqdbProduct    product;    // SQL  产品代码
+	SqdbProduct    product;    // 数据库产品代码
 
 	struct {
 		unsigned int has_boolean:1;      // 具有布尔数据类型
@@ -58,7 +58,7 @@ struct SqdbInfo
 
 # SqdbConfig
 
-SqdbConfig 是 SQL 产品的设置
+SqdbConfig 是数据库产品的设置。
 
 ```c
 struct SqdbConfig
@@ -82,7 +82,7 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 		.folder    = "/home/dir",
 		.extension = "db"
 	};
-	// 接口
+	// 数据库实例的指针
 	Sqdb  *db;
 
 	// 使用 'config' 创建 SqdbSqlite。如果 config 为 NULL，则使用默认设置。
@@ -105,7 +105,7 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 		"/home/dir",   // .folder    = "/home/dir",
 		"db"           // .extension = "db",
 	};
-	// 接口
+	// 数据库实例的指针
 	Sq::DbMethod  *db;
 
 	// 使用 'config' 创建 Sq::DbSqlite。如果 config 为 NULL，则使用默认设置。
@@ -248,9 +248,9 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它将 'schema_next'
 	}
 ```
 
-## 如何支持新的 SQL 产品：
+## 如何支持新的数据库产品：
 
-用户可以参考 SqdbMysql.h 和 SqdbMysql.c 来支持新的 SQL 产品。  
+用户可以参考 SqdbMysql.h 和 SqdbMysql.c 来支持新的数据库产品。  
 SqdbEmpty.h 和 SqdbEmpty.c 是一个可行的示例，但它什么也不做。
 
 #### 1 定义从 SqdbConfig 和 Sqdb 派生的新结构
@@ -265,7 +265,7 @@ SqdbEmpty.h 和 SqdbEmpty.c 是一个可行的示例，但它什么也不做。
 typedef struct SqdbXxsql          SqdbXxsql;
 typedef struct SqdbConfigXxsql    SqdbConfigXxsql;
 
-// 定义 SQL 产品代码
+// 定义数据库产品代码
 #define  SQDB_PRODUCT_XXSQL    (SQDB_PRODUCT_CUSTOM + 1)
 
 #ifdef __cplusplus    // 混合 C 和 C++

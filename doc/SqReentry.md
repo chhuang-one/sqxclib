@@ -2,7 +2,7 @@
 
 # SqReentry
 
-SqReentry is used to change previously-defined entries. It derives from SqEntry and adds a field 'old_name' for recording name changes (rename or remove).
+SqReentry is used to change previously-defined entries. It derives from SqEntry and adds a field 'old_name' for recording name changes (rename or remove). This is mainly used by database migration.
 
 	SqEntry
 	│
@@ -10,6 +10,8 @@ SqReentry is used to change previously-defined entries. It derives from SqEntry 
 
 ## Record of rename
 
+To rename a entry, you can specify name in SqReentry::old_name and new name in SqReentry::name.  
+  
 e.g. rename "name" to "new name".
 
 ```c
@@ -21,6 +23,8 @@ e.g. rename "name" to "new name".
 
 ## Record of remove
 
+To remove a entry, you can specify name that you want to remove in SqReentry::old_name and NULL in SqReentry::name.  
+  
 e.g. delete city_id.
 
 ```c

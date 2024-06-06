@@ -69,7 +69,7 @@ static void sqdb_empty_final(SqdbEmpty *sqdb)
 
 static int  sqdb_empty_open(SqdbEmpty *sqdb, const char *database_name)
 {
-	// connect to SQL product and open database
+	// connect to Database product and open database
 	return SQCODE_OK;
 }
 
@@ -154,7 +154,7 @@ static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *re
 			xc = sqxc_send(xc);
 		}
 
-		// get rows from SQL product and send them to Sqxc element 'xc'
+		// get rows from Database product and send them to Sqxc element 'xc'
 
 		// if Sqxc element prepare for multiple row
 		if (sqxc_value_container(xc)) {

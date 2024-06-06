@@ -6,7 +6,7 @@ SqSchema defines database schema. It store table and changed record of table.
 
 	SqEntry
 	│
-	└--- SqSchema
+	└─── SqSchema
 
 ## 1 Create schema
 
@@ -50,7 +50,7 @@ SqSchema must be used with [SqTable](SqTable.md) and [SqColumn](SqColumn.md) to 
 You will get different type name from C and C++ source code when you use gcc to compile because gcc's typeid(Type).name() will return strange name.  
 **Please create or define type of SqTable in C++ language if your application written in C++ language.**  
   
-If SqTable::type defined in C language, you may NOT use below C++ template functions to access SQL table.
+If SqTable::type defined in C language, you may NOT use below C++ template functions to access database table.
 
 	storage->insert<StructType>(...)
 	storage->update<StructType>(...)

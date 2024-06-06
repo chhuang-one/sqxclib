@@ -2,7 +2,7 @@
 
 # SqTable
 
-SqTable 派生自 [SqEntry](SqEntry.cn.md)。它定义 SQL 表。
+SqTable 派生自 [SqEntry](SqEntry.cn.md)。用于定义数据库表。
 
 	SqEntry
 	│
@@ -93,7 +93,7 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 
 **使用自订或 JSON 型态**  
   
-如果要在 SQL 列中存储 JSON 对象或数组，可以使用 sq_table_add_custom(), sq_table_add_mapping() 或 C++ 方法 custom(), mapping() 来创建列。  
+如果要在数据库列中存储 JSON 对象或数组，可以使用 sq_table_add_custom(), sq_table_add_mapping() 或 C++ 方法 custom(), mapping() 来创建列。  
 添加使用自定义类型的列时，必须指定 [SqType](SqType.cn.md)。  
   
 例如: 定义一个包含结构和数组的 C 结构。
@@ -103,27 +103,27 @@ struct DemoTable {
 	// ...
 
 	// MyStructure 是用户定义的 C 结构
-	// 这会将 JSON 对象存储在 SQL 列中。
+	// 这会将 JSON 对象存储在数据库列中。
 	MyStructure    myStruct;
 
 	// SqIntArray 是在 SqArray.h 中定义的整数数组
-	// 这会将 JSON 整数数组存储在 SQL 列中。
+	// 这会将 JSON 整数数组存储在数据库列中。
 	SqIntArray     intArray;
 };
 ```
 
 在下面的示例中，
 SQ_TYPE_MY_STRUCT 是用户定义的 MyStructure 的 SqType。  
-SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从 SQL 列的值解析 JSON 整数数组。  
+SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从数据库列的值解析 JSON 整数数组。  
   
 使用 C 语言
 
 ```c
-	// 如果未指定 SQL 类型，JSON 对象将存储在 SQL VARCHAR 列中。
+	// 如果未指定 SQL 类型，JSON 对象将存储在 VARCHAR 列中。
 	column = sq_table_add_custom(table, "myStruct", offsetof(DemoTable, myStruct),
 	                             SQ_TYPE_MY_STRUCT, 128);
 
-	// 如果未指定 SQL 类型，JSON 整数数组将存储在 SQL VARCHAR 列中。
+	// 如果未指定 SQL 类型，JSON 整数数组将存储在 VARCHAR 列中。
 	column = sq_table_add_custom(table, "intArray", offsetof(DemoTable, intArray),
 	                             SQ_TYPE_INT_ARRAY, 96);
 ```
@@ -131,11 +131,11 @@ SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从 SQL 列的值解析 JSON 整�
 使用 C++ 语言
 
 ```c++
-	// 如果未指定 SQL 类型，JSON 对象将存储在 SQL VARCHAR 列中。
+	// 如果未指定 SQL 类型，JSON 对象将存储在 VARCHAR 列中。
 	column = table->custom("myStruct", offsetof(DemoTable, myStruct),
 	                       SQ_TYPE_MY_STRUCT, 128);
 
-	// 如果未指定 SQL 类型，JSON 整数数组将存储在 SQL VARCHAR 列中。
+	// 如果未指定 SQL 类型，JSON 整数数组将存储在 VARCHAR 列中。
 	column = table->custom("intArray", offsetof(DemoTable, intArray),
 	                       SQ_TYPE_INT_ARRAY, 96);
 ```

@@ -8,11 +8,11 @@ sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。�
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## 目前的功能:
-* 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 定义常量 SQL 表、列、迁移，
+* 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 定义常量数据库 表、列、迁移，
    这可以减少制作架构时的运行时间，请参阅 doc/[schema-builder-constant.cn.md](doc/schema-builder-constant.cn.md)。
    当然也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
-* 所有定义的 SQL 表和列 都可以用于解析 JSON 对象和字段。也可以从 SQL 列 解析 JSON 对象和数组。
+* 所有定义的 SQL 表和列 都可以用于解析 JSON 对象和字段。也可以从数据库列 解析 JSON 对象和数组。
 
 * BLOB 支持，支持的类型列表位于 doc/[SqTable.cn.md](doc/SqTable.cn.md) 中。
 
@@ -66,6 +66,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// 创建表 "users"，然后将列添加到表中。
 	table = schema_v1->create<User>("users");
+
 	// 主键 PRIMARY KEY
 	table->integer("id", &User::id)->primary();
 	// VARCHAR
@@ -102,6 +103,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// 更改表 "users"
 	table = schema_v2->alter("users");
+
 	// 向表中添加列
 	table->integer("test_add", &User::test_add);
 	// 更改表中的列
@@ -170,6 +172,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// 更改表 "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
+
 	// 将列添加到表中
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	// 更改表中的列
@@ -193,12 +196,12 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 **Sqdb** 是数据库产品（SQLite、MySQL 等）的基础结构。您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
   
-例如: 为 SQLite 数据库创建 Sqdb 接口  
+例如: 为 SQLite 数据库创建 Sqdb 实例  
   
 当用户打开数据库时，SQLite 将在 Sq::DbConfigSqlite 指定的文件夹中打开/创建文件。  
 在此示例中，数据库文件路径为 "/path/DatabaseName.db"。  
   
-使用 C 函数创建 SQLite 数据库接口
+使用 C 函数创建 SQLite 数据库实例
 
 ```c
 	// 数据库配置
@@ -206,14 +209,14 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 		.folder    = "/path",
 		.extension = "db"
 	};
-	// 指向 SQL 产品实例的指针
+	// 数据库实例的指针
 	Sqdb  *db;
 
 	db = sqdb_sqlite_new(&config);
 //	db = sqdb_sqlite_new(NULL);                // 如果 config 为 NULL，则使用默认设置。
 ```
 
-使用 C++ 方法创建 SQLite 数据库接口
+使用 C++ 方法创建 SQLite 数据库实例
 
 ```c++
 	// 数据库配置
@@ -221,14 +224,14 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 		"/path",        // .folder    = "/path",
 		"db",           // .extension = "db",
 	};
-	// 指向 SQL 产品实例的指针
+	// 数据库实例的指针
 	Sq::DbMethod  *db;
 
 	db = new Sq::DbSqlite(config);
 //	db = new Sq::DbSqlite(NULL);    // 如果 config 为 NULL，则使用默认设置。
 ```
 
-使用 C 函数创建 MySQL 数据库接口  
+使用 C 函数创建 MySQL 数据库实例  
   
 MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验证等。
 
@@ -240,7 +243,7 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 		.user = "name",
 		.password = "xxx"
 	};
-	// 指向 SQL 产品实例的指针
+	// 数据库实例的指针
 	Sqdb  *db;
 
 	db = sqdb_mysql_new(&config);
@@ -249,7 +252,7 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 
 ## 打开数据库
 
-要访问数据库，请创建 [SqStorage](doc/SqStorage.cn.md) 并指定数据库产品 [Sqdb](doc/Sqdb.cn.md)。  
+要访问数据库，请创建 [SqStorage](doc/SqStorage.cn.md) 并指定数据库实例 [Sqdb](doc/Sqdb.cn.md)。  
   
 使用 C 函数打开数据库
 
@@ -850,13 +853,13 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 
 更改构建配置。  
   
-sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写。用户可以在 sqxc/[SqConfig.h](sqxc/SqConfig.h) 中更改。
+sqxclib 在搜索和排序数据库列名和 JSON 字段名时默认区分大小写。用户可以在 sqxc/[SqConfig.h](sqxc/SqConfig.h) 中更改。
 
 ```c
 // SqConfig.h 中的常用设置
 
-/* sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写。
-   某些旧的 SQL 产品可能需要禁用此功能。
+/* sqxclib 在搜索和排序数据库列名和 JSON 字段名时默认区分大小写。
+   某些旧的数据库产品可能需要禁用此功能。
    受影响的源代码 : SqEntry, SqRelation-migration
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
@@ -873,12 +876,13 @@ sqxclib 在搜索和排序 SQL 列名和 JSON 字段名时默认区分大小写�
 - 程序还可以解析存储在列中的 JSON 对象和数组。
 
 ## Sqxc
-Sqxc 是数据解析和写入的接口。  
+Sqxc 用于数据解析和写入。  
 用户可以链接多个 Sqxc 元素来转换不同类型的数据。  
 您可以在 doc/[Sqxc.cn.md](doc/Sqxc.cn.md) 中获得更多描述和示例。
 
 ## SqType
 它定义了如何初始化、终结和转换 C 数据类型。  
+*Sqxc* 使用它在 C 语言和 SQL（或 JSON...等）之间转换数据。  
 您可以在 doc/[SqType.cn.md](doc/SqType.cn.md) 中获得更多描述和示例。
 
 ## SqSchema

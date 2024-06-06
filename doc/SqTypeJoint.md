@@ -13,6 +13,7 @@ SqTypeJoint is the default type for handling query that join multi-table. It can
 Because SqStorage will set built-in SqTypeJoint when querying, it generally does not need to be set.  
 But when used alone, user must setup SqTypeJoint before using it.
 Because the parser of SqTypeJoint must know type of columns in table, user must add, remove, clear tables in SqTypeJoint.  
+You can specify table alias name (used by SQL AS keyword) in the last argument when you add or remove tables. If alias name is NULL, Sqxc use table name directly.  
   
 use C language
 
@@ -50,8 +51,12 @@ Because SqTypeJoint create pointer array, user can specify pointer to pointer (d
 The value of the element is determined by the query statement.  
   
 Example: Build query and get result:  
-The first table in the query is "cities" and the second table is "users".  
-  
+The first table in the query is "cities" and the second table is "users".
+
+```sql
+SELECT * FROM cities JOIN users ON cities.id = users.city_id
+```
+
 use C language
 
 ```c

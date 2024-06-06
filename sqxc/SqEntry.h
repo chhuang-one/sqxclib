@@ -155,7 +155,7 @@ struct Entry;
 // C/C++ common definitions: define structure
 
 /*	SqEntry:  define field of structure type.
-	SqColumn: define SQL column (field) in SQL table (structure/class).
+	SqColumn: define database column (field) in database table (structure/class).
 
 	SqEntry
 	|

@@ -59,14 +59,14 @@ struct User
 
 	char  *comment;    // SQL Type: TEXT
 
-	// If you use SQLite or MySQL to store binary data in SQL column,
+	// If you use SQLite or MySQL to store binary data in database column,
 	// Please make sure that SQ_CONFIG_QUERY_ONLY_COLUMN is enabled.
 	// If you use PostgreSQL to do this, you don't need to care about SQ_CONFIG_QUERY_ONLY_COLUMN.
 	SqBuffer       picture; // SQL Type: BLOB, BINARY...etc
 
-	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in SQL column
-	SqIntArray     ints;    // integer array  (JSON array  in SQL column)
-	Post          *post;    // object pointer (JSON object in SQL column)
+	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in database column
+	SqIntArray     ints;    // integer array  (JSON array  in database column)
+	Post          *post;    // object pointer (JSON object in database column)
 
 	time_t         created_at;
 	time_t         updated_at;
@@ -78,7 +78,7 @@ struct User
 };
 
 // ----------------------------------------------------------------------------
-// use C99 designated initializer to define object (JSON object in SQL column)
+// use C99 designated initializer to define object (JSON object in database column)
 // SqType for structure Post. It also work if SqEntry is replaced by SqColumn.
 
 // If you define constant SqType for structure, it must use with pointer array of SqEntry.
@@ -411,7 +411,7 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 		sq_schema_free(schema);
 	}
 
-	// synchronize schema to database. create/alter SQL tables based on storage->schema
+	// synchronize schema to database. create/alter database tables based on storage->schema
 	// This is mainly used by SQLite
 	sq_storage_migrate(storage, NULL);
 }

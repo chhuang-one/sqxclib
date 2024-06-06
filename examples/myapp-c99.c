@@ -75,7 +75,7 @@ int  main(void)
 	}
 
 
-	/*	SQL table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
+	/*	database table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
 		strcut User defined in  sqxcapp/CStructs.h
 	 */
 	SqStorage *storage = myapp->base.storage;

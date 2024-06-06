@@ -49,6 +49,7 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 
 如果你想从 [SqRow](SqRow.cn.md) 获得正确的数据类型，你必须创建动态 SqTypeRow 并设置它。
 因为 SqTypeRow 的解析器必须知道表中列的类型，所以用户必须在 SqTypeRow 中添加、删除、清除表。  
+添加或删除表时，您可以在最后一个参数中指定表别名（由 SQL AS 关键字使用）。如果别名为 NULL，Sqxc 将直接使用表名。  
   
 使用 C 语言
 
@@ -90,6 +91,15 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 **当 SqTypeRow 为默认联合类型时，在以下情况下 query() 结果的元素类型为 SqRow：**
 1. 查询已经加入了多表。
 2. 查询有未知表或未知结果。
+
+例：构建查询并获得结果：  
+在查询中的第一个表是 cities，第二个表是 users。
+
+```sql
+SELECT * FROM cities JOIN users ON cities.id = users.city_id
+```
+
+使用 C++ 语言
 
 ```c++
 	std::vector<Sq::Row> *vector;

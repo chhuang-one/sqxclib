@@ -5,8 +5,8 @@
 Instance of SqRow is created by [SqTypeRow](SqTypeRow.md). If [SqTypeRow](SqTypeRow.md) don't know type of columns, all data type in SqRow is C string.
 
 	SqArray
-	|
-	+--- SqRow
+	│
+	└─── SqRow
 
 ## Arrays in SqRow
 

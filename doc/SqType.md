@@ -3,9 +3,13 @@
 # SqType
 
 It define how to initialize, finalize, and convert C data type.  
-Sqxc use it to convert data between C language and SQL (or JSON...etc).
-SqEntry and its derived structures use it to define data type.
-  
+[Sqxc](Sqxc.md) use it to convert data between C language and SQL (or JSON...etc).
+[SqEntry](SqEntry.md) and its derived structures use it to define data type.
+
+	SqType
+	│
+	└─── SqCommand    (define in sqxcsupport library)
+
 Structure Definition:
 
 ```c
@@ -76,7 +80,7 @@ Built-in SqType with it's data type:
 | SQ_TYPE_CHAR    | char*        | CHAR              | defined for SQL data type CHAR   |
 
 * When using above SqType, user don't need to specify SQL data type because they will map to specific SQL data type by default.
-* Different SQL products may map these C data types to different SQL data types.
+* Different Database products may map these C data types to different SQL data types.
 
 SqType with it's C/C++ container type:
 
@@ -113,8 +117,8 @@ The following SqType do not require instance, and only SQ_TYPE_UNKNOWN (alias of
 
 | SqType                  | alias                    | description                       |
 | ----------------------- | ------------------------ | --------------------------------- |
-| SQ_TYPE_FAKE0           | SQ_TYPE_CONSTRAINT       | used by SQL migration             |
-| SQ_TYPE_FAKE1           | SQ_TYPE_INDEX            | used by SQL migration             |
+| SQ_TYPE_FAKE0           | SQ_TYPE_CONSTRAINT       | used by database migration        |
+| SQ_TYPE_FAKE1           | SQ_TYPE_INDEX            | used by database migration        |
 | SQ_TYPE_FAKE2           |                          |                                   |
 | SQ_TYPE_FAKE3           |                          |                                   |
 | SQ_TYPE_FAKE4           | SQ_TYPE_TRACING          | used by SQLite migration          |

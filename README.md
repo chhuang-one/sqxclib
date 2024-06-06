@@ -8,11 +8,11 @@ sqxclib is a library to convert data between C language and SQL (or JSON...etc).
 Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## Current features:
-* User can use C99 designated initializer or C++ aggregate initialization to define constant SQL table, column, and migration,
+* User can use C99 designated initializer or C++ aggregate initialization to define constant database table, column, and migration,
    this can reduce running time when making schema, see doc/[schema-builder-constant.md](doc/schema-builder-constant.md).
    You can also use C functions or C++ methods to do these dynamically.
 
-* All defined table and column can use to parse JSON object and field. Program can also parse JSON object and array from SQL column.
+* All defined table and column can use to parse JSON object and field. Program can also parse JSON object and array from database column.
 
 * BLOB support. Supported types are listed in doc/[SqTable.md](doc/SqTable.md).
 
@@ -66,6 +66,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 	// create table "users", then add columns to table.
 	table = schema_v1->create<User>("users");
+
 	// PRIMARY KEY
 	table->integer("id", &User::id)->primary();
 	// VARCHAR
@@ -102,6 +103,7 @@ You can use alter() method to alter a table in schema.
 
 	// alter table "users"
 	table = schema_v2->alter("users");
+
 	// add column to table
 	table->integer("test_add", &User::test_add);
 	// alter column in table
@@ -170,6 +172,7 @@ You can use sq_schema_alter() function to alter a table in schema.
 
 	// alter table "users"
 	table = sq_schema_alter(schema_v2, "users", NULL);
+
 	// add column to table
 	column = sq_table_add_integer(table, "test_add", offsetof(User, test_add));
 	// alter column in table
@@ -191,14 +194,14 @@ You can use sq_schema_alter() function to alter a table in schema.
 
 ## Database products
 
-**Sqdb** is base structure for database products (SQLite, MySQL...etc). You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
+**Sqdb** is base structure for Database products (SQLite, MySQL...etc). You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
   
-e.g. Create Sqdb interface for SQLite database  
+e.g. Create Sqdb instance for SQLite database  
   
 SQLite will open/create the file in the specified folder of SqdbConfigSqlite when user open database.  
 In this example, database file path is "/path/DatabaseName.db".  
   
-use C functions to create SQLite database interface
+use C functions to create SQLite database instance
 
 ```c
 	// database configuration
@@ -206,14 +209,14 @@ use C functions to create SQLite database interface
 		.folder    = "/path",
 		.extension = "db"
 	};
-	// Pointer to SQL product instance
+	// database instance pointer
 	Sqdb  *db;
 
 	db = sqdb_sqlite_new(&config);
 //	db = sqdb_sqlite_new(NULL);                // use default setting if config is NULL.
 ```
 
-use C++ methods to create SQLite database interface
+use C++ methods to create SQLite database instance
 
 ```c++
 	// database configuration
@@ -221,14 +224,14 @@ use C++ methods to create SQLite database interface
 		"/path",        // .folder    = "/path",
 		"db",           // .extension = "db",
 	};
-	// Pointer to SQL product instance
+	// database instance pointer
 	Sq::DbMethod  *db;
 
 	db = new Sq::DbSqlite(config);
 //	db = new Sq::DbSqlite(NULL);    // use default setting if config is NULL.
 ```
 
-use C functions to create MySQL database interface  
+use C functions to create MySQL database instance  
   
 MySQL, PostgreSQL must specify host, port, and authentication...etc in their SqdbConfig.
 
@@ -240,7 +243,7 @@ MySQL, PostgreSQL must specify host, port, and authentication...etc in their Sqd
 		.user = "name",
 		.password = "xxx"
 	};
-	// Pointer to SQL product instance
+	// database instance pointer
 	Sqdb  *db;
 
 	db = sqdb_mysql_new(&config);
@@ -249,7 +252,7 @@ MySQL, PostgreSQL must specify host, port, and authentication...etc in their Sqd
 
 ## Open Database
 
-To access database, create [SqStorage](doc/SqStorage.md) and specify database product [Sqdb](doc/Sqdb.md).  
+To access database, create [SqStorage](doc/SqStorage.md) and specify database instance [Sqdb](doc/Sqdb.md).  
   
 use C functions to open database
 
@@ -850,13 +853,13 @@ use C++ methods
 
 change build configuration.  
   
-sqxclib is case-sensitive when searching and sorting SQL column name and JSON field name by default. User can change it in sqxc/[SqConfig.h](sqxc/SqConfig.h).
+sqxclib is case-sensitive when searching and sorting database column name and JSON field name by default. User can change it in sqxc/[SqConfig.h](sqxc/SqConfig.h).
 
 ```c
 // Common settings in SqConfig.h
 
-/* sqxclib is case-sensitive when searching and sorting SQL column name and JSON field name by default.
-   You may disable this for some old SQL product.
+/* sqxclib is case-sensitive when searching and sorting database column name and JSON field name by default.
+   You may disable this for some old Database product.
    Affected source : SqEntry, SqRelation-migration
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
@@ -873,12 +876,13 @@ sqxclib is case-sensitive when searching and sorting SQL column name and JSON fi
 - program can also parse JSON object and array that store in column.
 
 ## Sqxc
-Sqxc is interface for data parse and write.  
+Sqxc is used for data parsing and writing.  
 User can link multiple Sqxc element to convert different types of data.  
 You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)
 
 ## SqType
 It define how to initialize, finalize, and convert C data type.  
+*Sqxc* use it to convert data between C language and SQL (or JSON...etc).  
 You can get more description and example in doc/[SqType.md](doc/SqType.md)
 
 ## SqSchema

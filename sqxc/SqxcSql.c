@@ -39,7 +39,7 @@
 #endif  // _MSC_VER
 
 /*
-	Because SQL table == C struct (object),
+	Because database table == C struct (object),
 	SqxcSql must "support" SQXC_TYPE_OBJECT at startup.
 	             unsupport SQXC_TYPE_OBJECT while parsing/writing column.
 

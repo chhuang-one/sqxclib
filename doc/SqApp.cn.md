@@ -52,12 +52,12 @@ SQ_APP_DEFAULT 是 SqAppSetting 的内置默认设置。用户可以通过编辑
 
 用户可以编辑 SqApp-config.h 来更改 SQ_APP_DEFAULT 使用的默认配置。
 
-### 2.1 选择 SQL 产品
+### 2.1 选择数据库产品
 
-用户在这里只能使用一种 SQL 产品（例如使用 MySQL）
+用户在这里只能使用一种数据库产品（例如使用 MySQL）
 
 ```c++
-// 此处只能启用一种 SQL 产品
+// 此处只能启用一种数据库产品
 
 // #define DB_SQLITE      1
 #define DB_MYSQL       1

@@ -13,6 +13,7 @@ SqTypeJoint 是处理多表连接查询的默认类型。它可以为查询结�
 因为 SqStorage 在查询时会设置内置的 SqTypeJoint，所以一般不需要设置。  
 但单独使用时，用户必须在使用前设置 SqTypeJoint。
 因为 SqTypeJoint 的解析器必须知道表中列的类型，所以用户必须在 SqTypeJoint 中添加、删除、清除表。  
+添加或删除表时，您可以在最后一个参数中指定表别名（由 SQL AS 关键字使用）。如果别名为 NULL，Sqxc 将直接使用表名。  
   
 使用 C 语言
 
@@ -50,8 +51,12 @@ SqTypeJoint 是处理多表连接查询的默认类型。它可以为查询结�
 元素的值是由查询语句决定的。  
   
 例：构建查询并获得结果：  
-在查询中的第一个表是 cities，第二个表是 users。  
-  
+在查询中的第一个表是 cities，第二个表是 users。
+
+```sql
+SELECT * FROM cities JOIN users ON cities.id = users.city_id
+```
+
 使用 C 语言
 
 ```c

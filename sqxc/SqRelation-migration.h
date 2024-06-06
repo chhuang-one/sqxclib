@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -98,7 +98,7 @@ int   sq_schema_trace_name(SqSchema *schema);
  */
 void  sq_schema_erase_records(SqSchema *schema, char version_comparison);
 
-// call this function after synchronize schema to database (creating/altering SQL tables).
+// call this function after synchronize schema to database (creating/altering database tables).
 // It will free temporary data.
 // If 'no_need_to_sync' == true, it will free unused index and composite constraint in memory.
 // set 'no_need_to_sync' to false if your program needs to synchronize schema to the SQLite database at any time.

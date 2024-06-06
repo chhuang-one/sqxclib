@@ -512,7 +512,7 @@ struct TableMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/*	SqTable defines SQL Table
+/*	SqTable defines database table
 
 	SqEntry
 	|

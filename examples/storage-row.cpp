@@ -167,7 +167,7 @@ void makeSchema(Sq::Storage *storage)
 	storage->migrate(schema);
 	delete schema;
 
-	// synchronize schema to database. create/alter SQL tables based on storage->schema
+	// synchronize schema to database. create/alter database tables based on storage->schema
 	// This is mainly used by SQLite
 	storage->migrate(NULL);
 }

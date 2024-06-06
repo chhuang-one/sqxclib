@@ -553,7 +553,7 @@ struct StorageMethod
 // C/C++ common definitions: define structure
 
 /*	SqStorage
-	  SqStorage access database. It using Sqxc to convert data between C language and Sqdb interface.
+	  SqStorage access database. It using Sqxc to convert data between C language and Sqdb instance.
 
 	Notes about multithreading:
 	1. 'schema', 'tables', 'tables_version' must be shared between threads.

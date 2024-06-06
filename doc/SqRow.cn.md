@@ -5,8 +5,8 @@
 SqRow 的实例由 [SqTypeRow](SqTypeRow.cn.md) 创建。如果 [SqTypeRow](SqTypeRow.cn.md) 不知道列的类型，则 SqRow 中的所有数据类型都是 C 字符串。
 
 	SqArray
-	|
-	+--- SqRow
+	│
+	└─── SqRow
 
 ## SqRow 中的数组
 

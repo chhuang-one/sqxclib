@@ -26,12 +26,12 @@
 	[Sqxc element 1] is head of Sqxc chain, 'peer' is single linked list, 'dest' is data flow.
 
 	                    peer                      peer
-	┌----------------┐  <---  ┌----------------┐  <---  ┌----------------┐
+	+----------------+  <---  +----------------+  <---  +----------------+
 	| Sqxc element 3 |        | Sqxc element 2 |        | Sqxc element 1 |
-	└----------------┘        └----------------┘  --->  └----------------┘
+	+----------------+        +----------------+  --->  +----------------+
 	        |                                     dest          ^
 	        |           dest                                    |
-	        └---------------------------------------------------┘
+	        +---------------------------------------------------+
 
 	Function insert() and steal() only link or unlink 'peer' ('peer' is single linked list),
 	user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especially custom data flow.
@@ -42,17 +42,17 @@
 	Data flow 1: sqxc_send() send from SQL result (column has JSON data) to C value
 	If SqxcValue can't match current data type, it will forward data to SqxcJsoncParser.
 
-	                  ┌-> SqxcJsoncParser -┐
+	                  +-> SqxcJsoncParser -+
 	( input )         |                    |
-	sqdb_exec()     --┴--------------------┴--> SqxcValue ---> SqType::parse()
+	sqdb_exec()     --+--------------------+--> SqxcValue ---> SqType::parse()
 
 
 	Data flow 2: sqxc_send() send from C value to SQL (column has JSON data)
 	If SqxcSql doesn't support current data type, it will forward data to SqxcJsoncWriter.
 
-	                  ┌-> SqxcJsoncWriter -┐
+	                  +-> SqxcJsoncWriter -+
 	( output )        |                    |
-	SqType::write() --┴--------------------┴--> SqxcSql   ---> sqdb_exec()
+	SqType::write() --+--------------------+--> SqxcSql   ---> sqdb_exec()
  */
 
 #ifndef SQXC_H

@@ -59,7 +59,7 @@ struct SqdbEmpty
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
 
-	// schema version in SQL database
+	// schema version of the currently opened database
 	int             version;
  */
 

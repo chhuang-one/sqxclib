@@ -2,7 +2,7 @@
 
 # SqColumn
 
-SqColumn 派生自 [SqEntry](SqEntry.cn.md)。它定义 SQL 表中的列并与 SqType 一起使用。
+SqColumn 派生自 [SqEntry](SqEntry.cn.md)。它定义数据库表中的列并与 SqType 一起使用。
 
 	SqEntry
 	│
@@ -159,7 +159,7 @@ struct SqColumn
 	char        **composite;
 
 	const char   *reserve;          // 保留
-	const char   *raw;              // 原始 SQL 列属性
+	const char   *raw;              // 原始数据库列属性
 };
 ```
 
@@ -195,7 +195,7 @@ struct SqColumn
 
 #### 定义由常量 SqType 使用的常量 SqColumn
 
-如果您的 SQL 表是固定的并且将来不会更改，这可以减少创架构时的运行时间。  
+如果您的数据库表是固定的并且将来不会更改，这可以减少创架构时的运行时间。  
 * 注意: 如果为结构定义常量 SqType，它必须与 SqColumn 的**指针数组**一起使用。
 
 ```c++

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -17,7 +17,7 @@
 #include <SqApp-config.h>
 
 // ----------------------------------------------------------------------------
-// SQL products
+// Database products
 
 /* ------ SQLite ------ */
 #if   DB_SQLITE && SQ_CONFIG_HAVE_SQLITE

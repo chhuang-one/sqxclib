@@ -110,11 +110,11 @@ int  main(void)
 	}
 
 
-	/*	SQL table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
+	/*	database table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
 		strcut User defined in  sqxcapp/CStructs.h
 
-		Because SQL table "users" defined in C language,
-		you may NOT use below C++ template functions to access SQL table "users":
+		Because database table "users" defined in C language,
+		you may NOT use below C++ template functions to access database table "users":
 			storage->insert<User>(...)
 			storage->update<User>(...)
 			storage->updateAll<User>(...)

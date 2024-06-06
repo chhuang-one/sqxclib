@@ -13,7 +13,7 @@
  */
 
 /* ----------------------------------------------------------------------------
-	Sqdb - Database interface for SQLite, MySQL...etc
+	Sqdb - Database base structure for SQLite, MySQL...etc
  */
 
 #ifndef SQDB_H
@@ -146,7 +146,7 @@ struct DbMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/* SqdbInfo - It is interface for database product.
+/* SqdbInfo - It is interface for Database product.
  */
 
 struct SqdbInfo
@@ -170,7 +170,7 @@ struct SqdbInfo
 	// finalize derived structure of Sqdb
 	void (*final)(Sqdb *db);
 
-	// open a database file or establish a connection to a database server
+	// open a database file or establish a connection to a Database server
 	int  (*open)(Sqdb *db, const char *name);
 	// close a previously opened file or connection.
 	int  (*close)(Sqdb *db);
@@ -180,7 +180,7 @@ struct SqdbInfo
 	int  (*migrate)(Sqdb *db, SqSchema *schema_current, SqSchema *schema_next);
 };
 
-/*	Sqdb - It is a base structure for database product (SQLite, MySQL...etc).
+/*	Sqdb - It is a base structure for Database product (SQLite, MySQL...etc).
 
 	TODO: Sqdb should be thread safe...
 
@@ -205,12 +205,12 @@ struct Sqdb
 /*	// ------ Sqdb members ------
 	const SqdbInfo *info;
 
-	// schema version in SQL database
+	// schema version of the currently opened database
 	int             version;
  */
 };
 
-/*	SqdbConfig - setting of SQL product
+/*	SqdbConfig - setting of Database product
 
 	SqdbConfig must have no base struct because I need use aggregate initialization with it.
  */

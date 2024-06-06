@@ -2,7 +2,7 @@
 
 # Database: Migrations
 
-This document describe how to define SQL table, column, and migration dynamically. Migration function can handle both dynamic and static column/table definitions.
+This document describe how to define database table, column, and migration dynamically. Migration function can handle both dynamic and static column/table definitions.
 You can also use SqApp to run and reverse migrations with command-line tool, see [SqApp.md](SqApp.md)  
 
 Note: Because many users have used Laravel, there are many sqxclib C++ method names are similar to it.
@@ -101,7 +101,7 @@ The sq_schema_create() function accepts two arguments: first argument is the nam
 	sq_column_use_current(column);
 ```
 
-If your table is defined in C language but application is written in C++ language, you may NOT use below C++ template functions to access SQL table.
+If your table is defined in C language but application is written in C++ language, you may NOT use below C++ template functions to access database table.
 
 	storage->insert<StructType>(...)
 	storage->update<StructType>(...)

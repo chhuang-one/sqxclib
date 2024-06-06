@@ -4,13 +4,13 @@
 #include <time.h>         // time_t
 #include <stdint.h>       // int64_t
 
-// C/C++ structures for SQL tables
+// C/C++ structures for database tables
 
-
-/* 1. define structure 'User' for SQL table "users".
-   2. run console command to generate migration file:
-      sqxctool make:migration create_users_table
-   3. edit generated migration file is in ../database/migrations/yyyy_MM_dd_HHmmss_create_users_table.c
+/* To create "users" table in database schema:
+   1. Define structure 'User' for database table "users" in this header file.
+   2. Run the following command in the console to generate the migration file:
+      $ sqxctool make:migration create_users_table
+   3. Edit generated migration file is in ../database/migrations/yyyy_MM_dd_HHmmss_create_users_table.c
  */
 typedef struct User {
 	int        id;

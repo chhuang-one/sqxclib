@@ -52,12 +52,12 @@ use C++ language
 
 User can edit SqApp-config.h to change the default configuration used by SQ_APP_DEFAULT.
 
-### 2.1 choose SQL product
+### 2.1 choose Database product
 
-User can use only one SQL products here (e.g. use MySQL)
+User can use only one Database product here (e.g. use MySQL)
 
 ```c++
-// You can enable only one SQL products here
+// You can enable only one Database product here
 
 // #define DB_SQLITE      1
 #define DB_MYSQL       1

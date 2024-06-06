@@ -38,7 +38,7 @@ Note: SQXC_TYPE_OBJECT corresponds to SQL row.
 Note: SQXC_TYPE_ARRAY  corresponds to SQL multiple row.  
 
 ## Create Sqxc elements
-create element to convert data to SQL INSERT/UPDATE statement and add element to convert data to JSON array/object in SQL column.  
+create element to convert data to SQL INSERT/UPDATE statement and add element to convert data to JSON array/object in database column.  
   
 use C language
 
@@ -70,12 +70,12 @@ use C++ language
 [Sqxc element 1] is head of Sqxc chain, 'peer' is single linked list, 'dest' is data flow.
 
 	                    peer                      peer
-	┌----------------┐  <---  ┌----------------┐  <---  ┌----------------┐
-	| Sqxc element 3 |        | Sqxc element 2 |        | Sqxc element 1 |
-	└----------------┘        └----------------┘  --->  └----------------┘
-	        |                                     dest          ^
-	        |           dest                                    |
-	        └---------------------------------------------------┘
+	┌────────────────┐  <───  ┌────────────────┐  <───  ┌────────────────┐
+	│ Sqxc element 3 │        │ Sqxc element 2 │        │ Sqxc element 1 │
+	└────────────────┘        └────────────────┘  ───>  └────────────────┘
+	        │                                     dest          ^
+	        │           dest                                    │
+	        └───────────────────────────────────────────────────┘
 
 Function insert() and steal() only link or unlink 'peer' ('peer' is single linked list),
 user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especially custom data flow.
@@ -105,7 +105,7 @@ These data(arguments) will be processed between Sqxc elements.
 use C language
 
 ```c
-	// Sqxc interface
+	// pointer to Sqxc instance
 	Sqxc *xc = xcsql;
 
 	// set Sqxc arguments
@@ -125,7 +125,7 @@ use C language
 use C++ language
 
 ```c++
-	// Sqxc interface
+	// pointer to Sqxc instance
 	Sq::XcMethod *xc = xcsql;
 
 	// set Sqxc arguments
@@ -148,7 +148,7 @@ If you want to parse/write object or array and reuse Sqxc elements:
 2. call sqxc_finish() after sending data.
 
 ```c
-	// Sqxc interface
+	// pointer to current Sqxc instance
 	Sqxc *xcur;
 
 	sqxc_ready(xc);    // notify Sqxc elements to get ready
@@ -198,7 +198,7 @@ SqxcSql will output SQL statement in above example:
 INSERT INTO table_name (id, int_array) VALUES (1, '[ 2, 4 ]');
 ```
 
-SQL table look like this:
+database table look like this:
 
 | id | int_array |
 | -- | --------- |
@@ -216,7 +216,7 @@ If you want to parse/write object or array, and reuse Sqxc elements:
 2. call finish() after sending data.
 
 ```c++
-	// Sqxc interface
+	// pointer to current Sqxc instance
 	Sq::XcMethod *xcur;
 
 	xc->ready();       // notify Sqxc elements to get ready
@@ -455,7 +455,7 @@ The C++ method popNested() and the C function sqxc_pop_nested() can remove SqxcN
 	pointer3 = nested->data3;
 ```
 
-If new Sqxc element want to parse/write data in SQL column, it must:  
+If new Sqxc element want to parse/write data in database column, it must:  
 1. support SQXC_TYPE_ARRAY or SQXC_TYPE_OBJECT.
 2. send converted data to dest (or next) element. see below:
 
@@ -556,8 +556,8 @@ use C++ language
 
 The Sqxc input data flow in your [SqStorage](SqStorage.md) object will look like this:
 
-	input ->         ┌-> SqxcTextParser --┐
-	sqdb_exec()    --┴--------------------┴-> SqxcValue ---> SqType::parse()
+	input ->         ┌─> SqxcTextParser ──┐
+	sqdb_exec()    ──┴────────────────────┴─> SqxcValue ───> SqType::parse()
 
 Note: You also need replace SqxcJsoncWriter by SqxcTextWriter in SqStorage::xc_output.
 

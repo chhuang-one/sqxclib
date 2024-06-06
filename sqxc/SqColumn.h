@@ -130,7 +130,7 @@ struct Column;
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/*	SqColumn defines column in SQL table.
+/*	SqColumn defines column in database table.
 
 	SqEntry
 	|
@@ -193,7 +193,7 @@ struct SqColumn
 	char        **composite;
 
 	const char   *reserve;          // reserve, set it to NULL.
-	const char   *raw;              // raw SQL column property
+	const char   *raw;              // raw database column property
 
 	// if column->name is NULL, it will drop column->old_name
 	// if column->name is NOT NULL, it will rename from column->old_name to column->name
@@ -245,7 +245,7 @@ struct SqColumn
 		((SqColumn*)this)->bit_field |= SQB_HIDDEN_NULL;
 		return *(Sq::Column*)this;
 	}
-	// SQL column property
+	// database column property
 	Sq::Column &primary() {
 		((SqColumn*)this)->bit_field |= SQB_COLUMN_PRIMARY;
 		return *(Sq::Column*)this;
@@ -529,7 +529,7 @@ struct ColumnMethod
 		((SqColumn*)this)->bit_field |= SQB_HIDDEN_NULL;
 		return *(Sq::Column*)this;
 	}
-	// SQL column property
+	// database column property
 	Sq::Column &primary() {
 		((SqColumn*)this)->bit_field |= SQB_COLUMN_PRIMARY;
 		return *(Sq::Column*)this;

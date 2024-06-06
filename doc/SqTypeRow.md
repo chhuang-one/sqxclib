@@ -49,6 +49,7 @@ use C++ language
 
 If you want get correct data type from [SqRow](SqRow.md), you must create dynamic SqTypeRow and setup it.
 Because the parser of SqTypeRow must know type of columns in table, user must add, remove, clear tables in SqTypeRow.  
+You can specify table alias name (used by SQL AS keyword) in the last argument when you add or remove tables. If alias name is NULL, Sqxc use table name directly.  
   
 use C language
 
@@ -90,6 +91,15 @@ You can use SqTypeRow to replace default joint type in [SqStorage](SqStorage.md)
 **When SqTypeRow is default joint type, the element type of query() result is SqRow in the following cases:**
 1. 'query' has joined multi-table.
 2. 'query' has unknown table or unknown result.
+
+Example: Build query and get result:  
+The first table in the query is "cities" and the second table is "users".
+
+```sql
+SELECT * FROM cities JOIN users ON cities.id = users.city_id
+```
+
+use C++ language
 
 ```c++
 	std::vector<Sq::Row> *vector;

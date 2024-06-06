@@ -240,6 +240,7 @@ use C language
 	ElementType *key = pointerToKey;
 	ElementType *element;
 	int          insertingIndex;
+
 	//  You must specify ElementType here
 	element = SQ_ARRAY_FIND(array, ElementType, key, elementCompare);
 	element = SQ_ARRAY_FIND_SORTED(array, ElementType, key, elementCompare, &insertingIndex);
@@ -253,6 +254,7 @@ use C++ language
 	ElementType *key = pointerToKey;
 	ElementType *element;
 	int          insertingIndex;
+
 	element = array->find(key, elementCompare);
 	element = array->findSorted(key, elementCompare, &insertingIndex);
 ```
@@ -263,8 +265,8 @@ In this case, you can use custom comparison function or use default comparison f
 ```c++
 	// --- arithmetic type ---
 	Sq::Array<int>  intArray;
+	int            *intElement;
 
-	int   *intElement;
 	intArray->sort();
 	// use integer as key value directly and use default comparison function
 	intElement = intArray->find(233);
@@ -272,9 +274,9 @@ In this case, you can use custom comparison function or use default comparison f
 
 
 	// --- C string type ---
-	Sq::Array<char*>  strArray;
+	Sq::Array<char*>   strArray;
+	char             **strElement;
 
-	char **strElement;
 	strArray->sort();
 	// use string as key value directly and use default comparison function
 	strElement = strArray->find("KeyString");

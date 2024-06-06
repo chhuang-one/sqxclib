@@ -240,6 +240,7 @@ findSorted() : 使用二分查找在已排序数组中查找元素，如果没�
 	ElementType *key = pointerToKey;
 	ElementType *element;
 	int          insertingIndex;
+
 	// 您必须在此处指定 ElementType
 	element = SQ_ARRAY_FIND(array, ElementType, key, elementCompare);
 	element = SQ_ARRAY_FIND_SORTED(array, ElementType, key, elementCompare, &insertingIndex);
@@ -253,6 +254,7 @@ findSorted() : 使用二分查找在已排序数组中查找元素，如果没�
 	ElementType *key = pointerToKey;
 	ElementType *element;
 	int          insertingIndex;
+
 	element = array->find(key, elementCompare);
 	element = array->findSorted(key, elementCompare, &insertingIndex);
 ```
@@ -263,8 +265,8 @@ findSorted() : 使用二分查找在已排序数组中查找元素，如果没�
 ```c++
 	// --- 算术类型 ---
 	Sq::Array<int>  intArray;
+	int            *intElement;
 
-	int   *intElement;
 	intArray->sort();
 	// 直接使用整数作为键值并使用默认比较函数
 	intElement = intArray->find(233);
@@ -272,9 +274,9 @@ findSorted() : 使用二分查找在已排序数组中查找元素，如果没�
 
 
 	// --- C 字符串类型 ---
-	Sq::Array<char*>  strArray;
+	Sq::Array<char*>   strArray;
+	char             **strElement;
 
-	char **strElement;
 	strArray->sort();
 	// 直接使用字符串作为键值并使用默认比较函数
 	strElement = strArray->find("KeyString");

@@ -2,7 +2,7 @@
 
 # SqTable
 
-SqTable derives from [SqEntry](SqEntry.md). It defines SQL table.
+SqTable derives from [SqEntry](SqEntry.md). It is used to define database tables.
 
 	SqEntry
 	│
@@ -93,7 +93,7 @@ Below method is for C++ data type only.
 
 **Use custom or JSON type**  
   
-If you want to store JSON object or array in SQL column, you can use sq_table_add_custom(), sq_table_add_mapping() or C++ method custom(), mapping() to create column.  
+If you want to store JSON object or array in database column, you can use sq_table_add_custom(), sq_table_add_mapping() or C++ method custom(), mapping() to create column.  
 When adding a column that uses a custom type, you must specify [SqType](SqType.md).  
   
 Example: define a C structure that contain struct and array.
@@ -103,27 +103,27 @@ struct DemoTable {
 	// ...
 
 	// MyStructure is user-defined C struct
-	// This will store JSON object in SQL column.
+	// This will store JSON object in database column.
 	MyStructure    myStruct;
 
 	// SqIntArray is integer array that defined in SqArray.h
-	// This will store JSON integer array in SQL column.
+	// This will store JSON integer array in database column.
 	SqIntArray     intArray;
 };
 ```
 
 In the following example,
 SQ_TYPE_MY_STRUCT is the user-defined SqType of MyStructure.  
-SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of SQL column.  
+SQ_TYPE_INT_ARRAY is declared in SqType.h and parses JSON integer array from value of database column.  
   
 use C language
 
 ```c
-	// JSON object will be stored in SQL VARCHAR column if SQL type is not specified.
+	// JSON object will be stored in VARCHAR column if SQL type is not specified.
 	column = sq_table_add_custom(table, "myStruct", offsetof(DemoTable, myStruct),
 	                             SQ_TYPE_MY_STRUCT, 128);
 
-	// JSON integer array will be stored in SQL VARCHAR column if SQL type is not specified.
+	// JSON integer array will be stored in VARCHAR column if SQL type is not specified.
 	column = sq_table_add_custom(table, "intArray", offsetof(DemoTable, intArray),
 	                             SQ_TYPE_INT_ARRAY, 96);
 ```
@@ -131,11 +131,11 @@ use C language
 use C++ language
 
 ```c++
-	// JSON object will be stored in SQL VARCHAR column if SQL type is not specified.
+	// JSON object will be stored in VARCHAR column if SQL type is not specified.
 	column = table->custom("myStruct", offsetof(DemoTable, myStruct),
 	                       SQ_TYPE_MY_STRUCT, 128);
 
-	// JSON integer array will be stored in SQL VARCHAR column if SQL type is not specified.
+	// JSON integer array will be stored in VARCHAR column if SQL type is not specified.
 	column = table->custom("intArray", offsetof(DemoTable, intArray),
 	                       SQ_TYPE_INT_ARRAY, 96);
 ```

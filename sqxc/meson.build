@@ -25,11 +25,11 @@ sources = [
     'SqStorage-query.c',
     'SqQuery.c',
 
-    # Sqdb - Database interface
+    # Sqdb - Database base structure
     'Sqdb.c',
-    'Sqdb-migration.c',    # Most of the SQL products may use this (exclude SQLite)
+    'Sqdb-migration.c',    # Most of the Database products may use this (exclude SQLite)
 
-    # Sqxc - Converter interface
+    # Sqxc - Converter base structure
     'Sqxc.c',
     'SqxcValue.c',
     'SqxcSql.c',
@@ -58,11 +58,11 @@ headers = [
     'SqQuery.h', 'SqQuery-proxy.h', 'SqQuery-macro.h',
     'SqRelation.h',
 
-    # Sqdb - Database interface
+    # Sqdb - Database base structure
     'Sqdb.h',
-    'Sqdb-migration.h',    # Most of the SQL products may use this (exclude SQLite)
+    'Sqdb-migration.h',    # Most of the Database products may use this (exclude SQLite)
 
-    # Sqxc - Converter interface
+    # Sqxc - Converter base structure
     'Sqxc.h',
     'SqxcValue.h',
     'SqxcSql.h',

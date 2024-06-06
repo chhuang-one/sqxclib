@@ -28,10 +28,10 @@
 #endif
 
 // ----------------------------------------------------------------------------
-// Naming convention
+// camel case and snake case conversion
 
 // camel case form snake case
-int  sq_snake2camel(char *dest_camel, const char *src_snake_name, bool prev_underline)
+int   sq_snake2camel(char *dest_camel, const char *src_snake_name, bool prev_underline)
 {
 	int  length;
 
@@ -50,7 +50,7 @@ int  sq_snake2camel(char *dest_camel, const char *src_snake_name, bool prev_unde
 }
 
 // snake case from camel case
-int  sq_camel2snake(char *dest_snake, const char *src_camel_name)
+int   sq_camel2snake(char *dest_snake, const char *src_camel_name)
 {
 	bool prev_upper = true;
 	int  length;
@@ -98,8 +98,8 @@ char* sq_str_snake(const char *camel_name)
     return snake;
 }
 
-// ------------------------------------
-//	singular and plural
+// ----------------------------------------------------------------------------
+// singular and plural conversion
 
 struct
 {
@@ -115,7 +115,7 @@ struct
 };
 
 // singular to plural
-int sq_singular2plural(char *dest, const char *src)
+int   sq_singular2plural(char *dest, const char *src)
 {
 	char tail[2];   // last 2 characters in src string
 	int  index;
@@ -158,7 +158,7 @@ int sq_singular2plural(char *dest, const char *src)
 }
 
 // plural to singular
-int sq_plural2singular(char *dest, const char *src)
+int   sq_plural2singular(char *dest, const char *src)
 {
 	int  index;
 	int  diff_pos;
@@ -207,8 +207,8 @@ char* sq_str_plural(const char *singular)
     return plural;
 }
 
-// ------------------------------------
-//	table name and type name
+// ----------------------------------------------------------------------------
+// table name and type name
 
 char *sq_str_table_name(const char *src_type_name)
 {

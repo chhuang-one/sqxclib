@@ -7,7 +7,7 @@
 * 架构可以处理动态和常量列/表定义。
 * 如果用户修改常量列/表，程序将在修改之前复制列/表。
 * 程序不会从内存中释放常量列/表。它只是不使用它们。
-* 如果您的 SQL 表是固定的并且以后不会更改，您可以通过使用常量 [SqType](SqType.cn.md) 来定义表来减少更多的运行时间。见文件 [SqColumn.cn.md](SqColumn.cn.md)
+* 如果您的数据库表是固定的并且以后不会更改，您可以通过使用常量 [SqType](SqType.cn.md) 来定义表来减少更多的运行时间。见文件 [SqColumn.cn.md](SqColumn.cn.md)
 
 定义 C 结构化数据类型以映射数据库表 "users"。
 
@@ -303,7 +303,7 @@ static const SqColumn  otherChanges4[] = {
 
 ## 使用自订或 JSON 型态 (常量)
 
-如果要在 SQL 列中存储 JSON 对象或数组，必须指定 [SqType](SqType.cn.md)。  
+如果要在数据库列中存储 JSON 对象或数组，必须指定 [SqType](SqType.cn.md)。  
   
 例如: 定义一个包含结构和数组的 C 结构。
 
@@ -312,11 +312,11 @@ struct DemoTable {
 	// ...
 
 	// MyStructure 是用户定义的 C 结构
-	// 这会将 JSON 对象存储在 SQL 列中。
+	// 这会将 JSON 对象存储在数据库列中。
 	MyStructure    myStruct;
 
 	// SqIntArray 是在 SqArray.h 中定义的整数数组
-	// 这会将 JSON 整数数组存储在 SQL 列中。
+	// 这会将 JSON 整数数组存储在数据库列中。
 	SqIntArray     intArray;
 };
 
@@ -324,11 +324,11 @@ static const SqColumn  demoTableColumns[] = {
 	// ...
 
 	// SQ_TYPE_MY_STRUCT 是用户定义的 MyStructure 的 SqType。
-	// 如果未指定 SQL 类型，JSON 对象将存储在 SQL VARCHAR 列中。
+	// 如果未指定 SQL 类型，JSON 对象将存储在 VARCHAR 列中。
 	{SQ_TYPE_MY_STRUCT,    "myStruct",       offsetof(DemoTable, myStruct)},
 
-	// SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从 SQL 列的值解析 JSON 整数数组。
-	// 如果未指定 SQL 类型，JSON 整数数组将存储在 SQL VARCHAR 列中。
+	// SQ_TYPE_INT_ARRAY 在 SqType.h 中声明，并从数据库列的值解析 JSON 整数数组。
+	// 如果未指定 SQL 类型，JSON 整数数组将存储在 VARCHAR 列中。
 	{SQ_TYPE_INT_ARRAY,    "intArray",       offsetof(DemoTable, intArray)},
 };
 ```
