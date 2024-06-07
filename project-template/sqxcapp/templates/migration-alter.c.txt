@@ -26,7 +26,7 @@ static void down_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
 	table = sq_schema_alter(schema, "{{ table_name }}", NULL);
 }
 
-const SqMigration {{ migration_name }}_{{ timestamp }} = {
+const SqMigration {{ migration_name_camel }}_{{ timestamp }} = {
 	.up   = up_{{ timestamp }},
 	.down = down_{{ timestamp }},
 

@@ -10,7 +10,7 @@
 
 /*  This file is a rewrite of 2021_10_12_000000_create_users_table.c in C++. */
 
-const SqMigration CreateUsersTable_2021_10_12_111111 = {
+const SqMigration createUsersTable_2021_10_12_111111 = {
 
 	// Run the migrations.
 //	.up =

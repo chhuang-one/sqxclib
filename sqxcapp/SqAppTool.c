@@ -121,7 +121,7 @@ void   sq_app_tool_init(SqAppTool *app, const char *program_name, const struct S
 	sq_console_add_command_make(app->console);
 	// Key-Value pairs for temporary use
 	sq_pairs_init(&app->pairs, sq_pairs_cmp_string);
-	app->pairs.key_destroy_func   = free;
+	app->pairs.key_destroy_func   = NULL;
 	app->pairs.value_destroy_func = free;
 	// buffer for temporary use
 	sq_buffer_init(&app->buffer);
@@ -209,12 +209,15 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
                                   SqPairs    *pairs)
 {
 	SqBuffer *buf = &app->buffer;
-	char     *struct_name, *table_name;
 	int       code = SQCODE_OK;
+	char     *table_name;
+	char     *struct_name;
+	char     *migration_name_camel;
 	struct {
 		unsigned int  table_name:1;
 		unsigned int  struct_name:1;
 		unsigned int  migration_name:1;
+		unsigned int  migration_name_camel:1;
 		unsigned int  timestr:1;
 	} added = {0};
 	union {
@@ -226,14 +229,22 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		char *path;
 	} out;
 	union {
+		char *snake_case;
 		char *timestr;
 		int   len;
 	} temp;
 
 
 	if (sq_pairs_get(pairs, "migration_name") == NULL) {
-		sq_pairs_add(pairs, "migration_name", (void*)migration_name);
+		sq_pairs_add(pairs, "migration_name", strdup(migration_name));
 		added.migration_name = 1;
+	}
+	migration_name_camel = sq_pairs_get(pairs, "migration_name_camel");
+	if (migration_name_camel == NULL) {
+		temp.snake_case = sq_pairs_get(pairs, "migration_name");
+		migration_name_camel = sq_str_camel(temp.snake_case, false);
+		sq_pairs_add(pairs, "migration_name_camel", migration_name_camel);
+		added.migration_name_camel = 1;
 	}
 
 	table_name = sq_pairs_get(pairs, "table_name");
@@ -359,7 +370,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		        "// defined in %s" "\n"
 		        "extern const SqMigration  %s_%s;" "\n",
 		        in.path,
-		        migration_name, temp.timestr);
+		        migration_name_camel, temp.timestr);
 		fclose(out.file);
 	}
 
@@ -382,28 +393,23 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		        "// defined in %s" "\n"
 		        "& %s_%s," "\n",
 		        in.path,
-		        migration_name, temp.timestr);
+		        migration_name_camel, temp.timestr);
 		fclose(out.file);
 	}
 
 	free(in.path);
 
 exit:
-	if (added.migration_name) {
-		sq_pairs_steal(pairs, "migration_name");
-	}
-	if (added.struct_name) {
-		sq_pairs_steal(pairs, "struct_name");
-		free(struct_name);
-	}
-	if (added.table_name) {
-		sq_pairs_steal(pairs, "table_name");
-		free(table_name);
-	}
-	if (added.timestr) {
-		sq_pairs_steal(pairs, "timestamp");
-		free(temp.timestr);
-	}
+	if (added.migration_name)
+		sq_pairs_erase(pairs, "migration_name");
+	if (added.migration_name_camel)
+		sq_pairs_erase(pairs, "migration_name_camel");
+	if (added.struct_name)
+		sq_pairs_erase(pairs, "struct_name");
+	if (added.table_name)
+		sq_pairs_erase(pairs, "table_name");
+	if (added.timestr)
+		sq_pairs_erase(pairs, "timestamp");
 	return code;
 }
 

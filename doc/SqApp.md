@@ -2,7 +2,8 @@
 
 # SqApp
 
-SqApp use configuration file (SqApp-config.h) to initialize database and use separate migration files to do migrations. It used by application.  
+SqApp is developed based on sqxclib, supports separate migration files for migration, and uses the configuration file (SqApp-config.h) to initialize the database.  
+  
 Note: SqApp is declared in SqApp.h of the sqxcapp library.  
 
 	SqApp
@@ -23,10 +24,8 @@ SQ_APP_DEFAULT is build-in default setting for SqAppSetting, user can change it 
 use C language
 
 ```c
-// sqxclib.h doesn't contain sqxcapp library
-#include <SqApp.h>
+#include <SqApp.h>    // sqxclib.h doesn't contain sqxcapp library
 
-	/*  Omit other codes...  */
 
 	SqApp *sqApp;
 
@@ -37,10 +36,8 @@ use C language
 use C++ language
 
 ```c++
-// sqxclib.h doesn't contain sqxcapp library
-#include <SqApp.h>
+#include <SqApp.h>    // sqxclib.h doesn't contain sqxcapp library
 
-	/*  Omit other codes...  */
 
 	Sq::App *sqApp;
 
@@ -181,15 +178,20 @@ sqxctool  make:migration  create_companies_table
 ```
 
 Above command will create file workspace/database/migrations/yyyy_MM_dd_HHmmss_create_companies_table.c  
-It is suggested that user define structure "Company" in workspace/sqxcapp/CStructs.h in this case.  
+It is suggested that user define structure 'Company' in workspace/sqxcapp/CStructs.h in this case.  
 The file looks like below:
 
 ```c
-/* migrations-files.c has included below headers.
-#include <SqStorage.h>
-#include <SqMigration.h>
-#include "CStructs.h"        // define struct "Company" in CStructs.h
+/* This template file is used by sqxctool
+ * Please define structure 'Company' in workspace/sqxcapp/CStructs.h
+ *
+ * Normally this file should be included in migrations-files.c if you use sqxctool to make migration file.
+ * migrations-files.c has included following headers.
+ * #include <SqStorage.h>
+ * #include <SqMigration.h>
+ * #include "CStructs.h"
  */
+
 
 // Run the migrations.
 static void up_2021_12_12_180000(SqSchema *schema, SqStorage *storage)
@@ -209,7 +211,7 @@ static void down_2021_12_12_180000(SqSchema *schema, SqStorage *storage)
 	sq_schema_drop(schema, "companies");
 }
 
-const SqMigration create_companies_table_2021_12_12_180000 = {
+const SqMigration createCompaniesTable_2021_12_12_180000 = {
 	.up   = up_2021_12_12_180000,
 	.down = down_2021_12_12_180000,
 
@@ -232,13 +234,16 @@ The file looks like below:
 
 ```c++
 /* This template file is used by sqxcpptool
-// migrations-files.cpp has included below header files.
-#include <SqStorage.h>
-#include <SqMigration.h>
-#include "CStructs.h"
+ *
+ * Normally this file should be included in migrations-files.cpp if you use sqxcpptool to make migration file.
+ * migrations-files.cpp has included following headers.
+ * #include <SqStorage.h>
+ * #include <SqMigration.h>
+ * #include "CStructs.h"
  */
 
-const SqMigration alter_companies_table_2021_12_26_191532 = {
+
+const SqMigration alterCompaniesTable_2021_12_26_191532 = {
 
 	// Run the migrations.
 //	.up =

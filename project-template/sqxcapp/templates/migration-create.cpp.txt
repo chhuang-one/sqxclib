@@ -9,7 +9,7 @@
  */
 
 
-const SqMigration {{ migration_name }}_{{ timestamp }} = {
+const SqMigration {{ migration_name_camel }}_{{ timestamp }} = {
 
 	// Run the migrations.
 //	.up =

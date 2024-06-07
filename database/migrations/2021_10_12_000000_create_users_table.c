@@ -1,6 +1,6 @@
 /* This template file is used by sqxctool
  * Please define structure 'User' in workspace/sqxcapp/CStructs.h
-
+ *
  * Normally this file should be included in migrations-files.c if you use sqxctool to make migration file.
  * migrations-files.c has included following headers.
  * #include <SqStorage.h>
@@ -42,7 +42,7 @@ static void down_2021_10_12_000000(SqSchema *schema, SqStorage *storage)
 	sq_schema_drop(schema, "users");
 }
 
-const SqMigration CreateUsersTable_2021_10_12_000000 = {
+const SqMigration createUsersTable_2021_10_12_000000 = {
 	.up   = up_2021_10_12_000000,
 	.down = down_2021_10_12_000000,
 

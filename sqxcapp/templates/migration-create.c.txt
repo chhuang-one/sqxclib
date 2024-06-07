@@ -1,6 +1,6 @@
 /* This template file is used by sqxctool
  * Please define structure '{{ struct_name }}' in workspace/sqxcapp/CStructs.h
-
+ *
  * Normally this file should be included in migrations-files.c if you use sqxctool to make migration file.
  * migrations-files.c has included following headers.
  * #include <SqStorage.h>
@@ -31,7 +31,7 @@ static void down_{{ timestamp }}(SqSchema *schema, SqStorage *storage)
 	sq_schema_drop(schema, "{{ table_name }}");
 }
 
-const SqMigration {{ migration_name }}_{{ timestamp }} = {
+const SqMigration {{ migration_name_camel }}_{{ timestamp }} = {
 	.up   = up_{{ timestamp }},
 	.down = down_{{ timestamp }},
 

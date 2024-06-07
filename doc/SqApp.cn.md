@@ -2,7 +2,8 @@
 
 # SqApp
 
-SqApp 使用配置文件 (SqApp-config.h) 来初始化数据库并使用单独的迁移文件进行迁移。它由应用程序使用。  
+SqApp 它基于 sqxclib 开发，支持单独的迁移文件进行迁移，并使用配置文件 (SqApp-config.h) 初始化数据库。  
+  
 注意: SqApp 在 sqxcapp 库的 SqApp.h 中声明。  
 
 	SqApp
@@ -23,10 +24,8 @@ SQ_APP_DEFAULT 是 SqAppSetting 的内置默认设置。用户可以通过编辑
 使用 C 语言
 
 ```c
-// sqxclib.h 不包含 sqxcapp 库
-#include <SqApp.h>
+#include <SqApp.h>    // sqxclib.h 不包含 sqxcapp 库
 
-	/*  省略其他代码...  */
 
 	SqApp *sqApp;
 
@@ -37,10 +36,8 @@ SQ_APP_DEFAULT 是 SqAppSetting 的内置默认设置。用户可以通过编辑
 使用 C++ 语言
 
 ```c++
-// sqxclib.h 不包含 sqxcapp 库
-#include <SqApp.h>
+#include <SqApp.h>    // sqxclib.h 不包含 sqxcapp 库
 
-	/*  省略其他代码...  */
 
 	Sq::App *sqApp;
 
@@ -181,15 +178,20 @@ sqxctool  make:migration  create_companies_table
 ```
 
 上面的命令将创建文件 工作区目录/database/migrations/yyyy_MM_dd_HHmmss_create_companies_table.c  
-在这种情况下，建议用户在 工作区目录/sqxcapp/CStructs.h 中定义结构 "Company"。  
+在这种情况下，建议用户在 工作区目录/sqxcapp/CStructs.h 中定义结构 'Company'。  
 该文件如下所示：
 
 ```c
-/* migrations-files.c 包含以下标题。
-#include <SqStorage.h>
-#include <SqMigration.h>
-#include "CStructs.h"        // 在 CStructs.h 中定义结构 "Company"
+/* 此模板文件由 sqxctool 使用
+ * 请在 工作区/sqxcapp/CStructs.h 中定义结构 'Company'
+ *
+ * 通常，如果您使用 sqxctool 制作迁移文件，则此文件应包含在 migrations-files.c 中。
+ * migrations-files.c 已包含以下标头。
+ * #include <SqStorage.h>
+ * #include <SqMigration.h>
+ * #include "CStructs.h"
  */
+
 
 // 运行迁移。
 static void up_2021_12_12_180000(SqSchema *schema, SqStorage *storage)
@@ -209,7 +211,7 @@ static void down_2021_12_12_180000(SqSchema *schema, SqStorage *storage)
 	sq_schema_drop(schema, "companies");
 }
 
-const SqMigration create_companies_table_2021_12_12_180000 = {
+const SqMigration createCompaniesTable_2021_12_12_180000 = {
 	.up   = up_2021_12_12_180000,
 	.down = down_2021_12_12_180000,
 
@@ -231,14 +233,17 @@ sqxcpptool  make:migration  --table=companies  alter_companies_table
 该文件如下所示：
 
 ```c++
-/* 该模板文件由 sqxcpptool 使用
-// migrations-files.cpp 已包含以下头文件。
-#include <SqStorage.h>
-#include <SqMigration.h>
-#include "CStructs.h"
+/* 此模板文件由 sqxcpptool 使用
+ *
+ * 如果您使用 sqxcpptool 制作迁移文件，则通常应将此文件包含在 migrations-files.cpp 中。
+ * migrations-files.cpp 已包含以下标头。
+ * #include <SqStorage.h>
+ * #include <SqMigration.h>
+ * #include "CStructs.h"
  */
 
-const SqMigration alter_companies_table_2021_12_26_191532 = {
+
+const SqMigration alterCompaniesTable_2021_12_26_191532 = {
 
 	// 运行迁移。
 //	.up =
