@@ -11,4 +11,5 @@
 
 /* C source files in ../database/migrations */
 
-#include "../database/migrations/2021_10_12_000000_create_users_table.c"
+/* sample code: */
+// #include "../database/migrations/2021_10_12_000000_create_users_table.c"

@@ -10,7 +10,7 @@
 
 /*  This file is a rewrite of 2021_10_12_000000_create_users_table.c in C++. */
 
-const SqMigration createUsersTable_2021_10_12_111111 = {
+const SqMigration createUsersTable_2021_10_12_000000 = {
 
 	// Run the migrations.
 //	.up =
@@ -40,6 +40,6 @@ const SqMigration createUsersTable_2021_10_12_111111 = {
 
 #if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
 //	.name =
-	"2021_10_12_111111_create_users_table",
+	"2021_10_12_000000_create_users_table",
 #endif
 };

@@ -367,7 +367,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		// print comment and declaration
 		fprintf(out.file,
 		        "\n"
-		        "// defined in %s" "\n"
+		        "/* defined in %s */" "\n"
 		        "extern const SqMigration  %s_%s;" "\n",
 		        in.path,
 		        migration_name_camel, temp.timestr);
@@ -390,7 +390,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		// print comment and element
 		fprintf(out.file,
 		        "\n"
-		        "// defined in %s" "\n"
+		        "/* defined in %s */" "\n"
 		        "& %s_%s," "\n",
 		        in.path,
 		        migration_name_camel, temp.timestr);
