@@ -80,12 +80,12 @@ static const SqdbConfigPostgre  db_config_postgre = {
 // ----------------------------------------------------------------------------
 // default setting
 
-const struct SqAppSetting SqAppSetting_default_ = {
-    .db_info      = DB_CONNECTION,
-    .db_config    = DB_CONFIG,
-    .db_database  = DB_DATABASE,
-    .migrations   = migrations_default_,
-    .n_migrations = &n_migrations_default_,
+const struct SqAppSetting sqAppSetting_default = {
+    .db_info      =  DB_CONNECTION,
+    .db_config    =  DB_CONFIG,
+    .db_database  =  DB_DATABASE,
+    .migrations   =  sqApp_migrations_default,
+    .n_migrations = &sqApp_n_migrations_default,
 
 #ifdef DB_PRODUCT_ERROR
     .error        = DB_PRODUCT_ERROR,

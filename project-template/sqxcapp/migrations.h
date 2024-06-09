@@ -28,8 +28,8 @@
 extern "C" {
 #endif
 
-extern const SqMigration *migrations_default_[];
-extern const int          n_migrations_default_;
+extern const SqMigration *sqApp_migrations_default[];
+extern const int          sqApp_n_migrations_default;
 
 #include "migrations-declarations"
 

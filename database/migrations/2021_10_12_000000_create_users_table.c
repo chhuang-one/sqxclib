@@ -8,6 +8,12 @@
  * #include "CStructs.h"
  */
 
+/* This is example of C migration file for structure 'User' defined in CStructs.h
+   To enable this file, please edit following files in ../../sqapp/
+     migrations-declarations
+     migrations-elements
+     migrations-files.c
+ */
 
 // Run the migrations.
 static void up_2021_10_12_000000(SqSchema *schema, SqStorage *storage)

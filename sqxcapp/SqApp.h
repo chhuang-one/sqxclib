@@ -31,8 +31,7 @@ typedef struct SqApp             SqApp;
 extern "C" {
 #endif
 
-/* struct SqAppSetting for internal use only.
-   used by SqApp.c and SqApp-config.c
+/* SqAppSetting contains settings of SqApp.
  */
 struct SqAppSetting
 {
@@ -48,12 +47,14 @@ struct SqAppSetting
 /* 'SQ_APP_DEFAULT' has database settings and migration data for user application.
  * It should define in user's project (static library 'sqxcapp-user' or 'sqxcapptool-user').
  */
-extern const struct SqAppSetting   SqAppSetting_default_;
-#define SQ_APP_DEFAULT           (&SqAppSetting_default_)
+extern const struct SqAppSetting        sqAppSetting_default;
+#define SQ_APP_DEFAULT                (&sqAppSetting_default)
 
-#define SQ_APP_DEFAULT_DATABASE        (SqAppSetting_default_.db_database)
-#define SQ_APP_DEFAULT_MIGRATIONS      (SqAppSetting_default_.migrations)
-#define SQ_APP_DEFAULT_N_MIGRATIONS    (SqAppSetting_default_.n_migrations)
+#define SQ_APP_DEFAULT_DB_INFO         (sqAppSetting_default.db_info)
+#define SQ_APP_DEFAULT_DB_CONFIG       (sqAppSetting_default.db_config)
+#define SQ_APP_DEFAULT_DATABASE        (sqAppSetting_default.db_database)
+#define SQ_APP_DEFAULT_MIGRATIONS      (sqAppSetting_default.migrations)
+#define SQ_APP_DEFAULT_N_MIGRATIONS    (sqAppSetting_default.n_migrations)
 
 /* SqApp C functions */
 SqApp *sq_app_new(const struct SqAppSetting *setting);

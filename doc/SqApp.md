@@ -16,10 +16,96 @@ SqAppTool is used by command-line program - **sqxctool** and **sqxcpptool**. It 
   
 Both **sqxctool** and **sqxcpptool** can generate separate migration files and use them to do migrate. They can help with the user's application that using SqApp library. The difference is that sqxctool generate C migration file and sqxcpptool generate C++ migration file.
 
-## 1 Create
+## 1 Configurations
 
-Each instance of SqApp must specify setting when creating. SqAppSetting contains all settings required by SqApp.  
-SQ_APP_DEFAULT is build-in default setting for SqAppSetting, user can change it by editing file (SqApp-config.h).  
+SqApp-config.h is default configuration file of SqApp. You can also create a SqAppSetting instance and specify settings of SqApp in it.
+
+#### 1.1 Configuration file
+
+SqApp-config.h is configuration file of SqApp, it contains default settings of connection, authentication, etc.  
+  
+The **first part** of SqApp-config.h can choose Database product:
+
+```c++
+// You can enable only one Database product here
+
+// #define DB_SQLITE      1
+#define DB_MYSQL       1
+// #define DB_POSTGRE     1
+```
+
+The **second part** of SqApp-config.h is database configuration values:  
+  
+DB_DATABASE  is the default name of the database that SqApp will open.  
+DB_HOST      is settings of connection.  
+DB_PORT      is settings of connection.  
+DB_USERNAME  is settings of authentication.  
+DB_PASSWORD  is settings of authentication.  
+DB_FOLDER    is the folder name. SQLite create or access database files in this folder.  
+DB_EXTENSION is extension name of SQLite database files.  
+
+* Please make sure that your app and it's sqxctool use the same path of database file if you enable SQLite.
+
+```c++
+// common configuration values
+#define DB_DATABASE    "sqxcapp-example"
+
+// connection configuration values
+#define DB_HOST        "localhost"
+#define DB_PORT        3306
+#define DB_USERNAME    "root"
+#define DB_PASSWORD    ""
+
+// --- SQLite ---
+// file configuration values
+#define DB_FOLDER      NULL
+#define DB_EXTENSION   NULL
+```
+
+#### 1.2 Replace SqApp-config.h by other config file
+
+User can define macro SQ_APP_CONFIG_FILE to replace SqApp-config.h when compiling.  
+  
+e.g. use workspace/myapp-config.h to replace default workspace/sqxcapp/SqApp-config.h  
+  
+If myapp-config.h place in C include directories...
+
+```console
+gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
+```
+
+OR use relative path of workspace/sqxcapp
+
+```console
+gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
+```
+
+#### 1.3 SqAppSetting
+
+SqAppSetting contains all settings required by SqApp.  
+SQ_APP_DEFAULT is an instance of SqAppSetting, which uses the values ​​in SqApp-config.h to set its member values.
+So user can edit SqApp-config.h to change values in SQ_APP_DEFAULT.  
+  
+e.g. create SqAppSetting with default settings.  
+  
+SQ_APP_DEFAULT_XXXX below are settings in SQ_APP_DEFAULT.
+
+```
+	SqAppSetting  settings;
+
+	settings.db_info      = SQ_APP_DEFAULT_DB_INFO;
+	settings.db_config    = SQ_APP_DEFAULT_DB_CONFIG;
+	settings.db_database  = SQ_APP_DEFAULT_DATABASE;
+	settings.migrations   = SQ_APP_DEFAULT_MIGRATIONS
+	settings.n_migrations = SQ_APP_DEFAULT_N_MIGRATIONS;
+```
+
+## 2 Create SqApp
+
+Each instance of SqApp must specify SqAppSetting when creating.  
+SQ_APP_DEFAULT is the default settings as mentioned above.  
+  
+e.g. create SqApp with default settings  
   
 use C language
 
@@ -43,62 +129,6 @@ use C++ language
 
 	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
 	sqApp = new Sq::App(SQ_APP_DEFAULT);
-```
-
-## 2 Default Configurations
-
-User can edit SqApp-config.h to change the default configuration used by SQ_APP_DEFAULT.
-
-### 2.1 choose Database product
-
-User can use only one Database product here (e.g. use MySQL)
-
-```c++
-// You can enable only one Database product here
-
-// #define DB_SQLITE      1
-#define DB_MYSQL       1
-// #define DB_POSTGRE     1
-```
-
-### 2.2 Database configuration values
-
-DB_DATABASE is the default name of the database that SqApp will open.
-
-```c++
-// common configuration values
-#define DB_DATABASE    "sqxcapp-example"
-
-// connection configuration values
-#define DB_HOST        "localhost"
-#define DB_PORT        3306
-#define DB_USERNAME    "root"
-#define DB_PASSWORD    ""
-
-// --- SQLite ---
-// file configuration values
-#define DB_FOLDER      NULL
-#define DB_EXTENSION   NULL
-```
-
-* Please make sure that your app and it's sqxctool use the same path of database file if you enable SQLite.
-
-### 2.3 replace SqApp-config.h by other config file
-
-User can define macro SQ_APP_CONFIG_FILE to replace SqApp-config.h when compiling.  
-  
-e.g. use workspace/myapp-config.h to replace default workspace/sqxcapp/SqApp-config.h  
-  
-If myapp-config.h place in C include directories...
-
-```
-gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
-```
-
-OR use relative path of workspace/sqxcapp
-
-```
-gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
 ```
 
 ## 3 Open database
@@ -154,7 +184,7 @@ use C++ language
 
 generate C migration file by command-line program
 
-```
+```console
 sqxctool  make:migration  migration_name
 ```
 
@@ -173,7 +203,7 @@ Finally, you must recompile migration code after defining table.
 
 e.g. generate C migration file to create "companies" table
 
-```
+```console
 sqxctool  make:migration  create_companies_table
 ```
 
@@ -225,7 +255,7 @@ const SqMigration createCompaniesTable_2021_12_12_180000 = {
 
 e.g. generate C++ migration file to alter "companies" table
 
-```
+```console
 sqxcpptool  make:migration  --table=companies  alter_companies_table
 ```
 
@@ -277,19 +307,19 @@ const SqMigration alterCompaniesTable_2021_12_26_191532 = {
 
 Run all of your outstanding migrations
 
-```
+```console
 sqxctool  migrate
 ```
 
-Rollback the last database migration
+rolls back the last "batch" of migrations
 
-```
+```console
 sqxctool  migrate:rollback
 ```
 
 You may roll back a limited number of migrations by providing the step option to the rollback command.
 
-```
+```console
 sqxctool  migrate:rollback --step=5
 ```
 
@@ -330,16 +360,16 @@ use C++ language
 	}
 ```
 
-#### 4.2.2 Rollback the last database migration
+#### 4.2.2 Rolling Back Migrations
 
-sq_app_rollback() will roll back the latest migration operation if 'step' is 0.  
+sq_app_rollback() will roll back the last "batch" of migrations if 'step' is 0.  
   
 use C language
 
 ```c
 	int  step = 0;
 
-	sq_app_rollback(app, step);
+	sq_app_rollback(sqApp, step);
 ```
 
 use C++ language
@@ -363,13 +393,41 @@ Example for point 4: edit workspace/sqxcapp/migrations-elements to delete migrat
 
 ```c
 // Before editing
-& CreateUsersTable_2021_10_12_000000,
+& createUsersTable_2021_10_12_000000,
 
 // After editing
 NULL,
 ```
 
-## 5 Multiple SqApp instance
+## 5 Access Databasse
+
+After completing the above steps, SqApp::storage should work. Now you can use [SqStorage](SqStorage.md) to access database.  
+  
+use C language
+
+```c
+	SqStorage *storage;
+
+	storage = sqApp->storage;
+
+	// use 'storage' to access database
+	User *user;
+	user = sq_storage_get(storage, "users", NULL, 3);
+```
+
+use C++ language
+
+```c++
+	Sq::Storage *storage;
+
+	storage = sqApp->storage;
+
+	// use 'storage' to access database
+	User *user;
+	user = storage->get("users", 3);
+```
+
+## 6 Multiple SqApp instance
 
 For example, create two SqApps to synchronize the schema of SQLite and PostgreSQL.  
   

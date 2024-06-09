@@ -16,10 +16,10 @@
 #include <SqMigration.h>
 #include "migrations.h"
 
-const SqMigration *migrations_default_[] = {
+const SqMigration *sqApp_migrations_default[] = {
 	NULL,                              // migration not existed or deleted
 
 	#include "migrations-elements"
 };
 
-const int  n_migrations_default_ = sizeof(migrations_default_) / sizeof(void*);
+const int  sqApp_n_migrations_default = sizeof(sqApp_migrations_default) / sizeof(void*);

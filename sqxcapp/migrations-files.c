@@ -11,5 +11,5 @@
 
 /* C source files in ../database/migrations */
 
-/* sample code: */
+/* This is example of C migration file for structure 'User' defined in CStructs.h */
 // #include "../database/migrations/2021_10_12_000000_create_users_table.c"

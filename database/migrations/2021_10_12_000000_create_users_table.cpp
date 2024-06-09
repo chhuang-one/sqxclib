@@ -8,7 +8,12 @@
  * #include "CStructs.h"
  */
 
-/*  This file is a rewrite of 2021_10_12_000000_create_users_table.c in C++. */
+/* This is example of C++ migration file for structure 'User' defined in CStructs.h
+   To enable this file, please edit following files in ../../sqapp/
+     migrations-declarations
+     migrations-elements
+     migrations-files.cpp
+ */
 
 const SqMigration createUsersTable_2021_10_12_000000 = {
 
