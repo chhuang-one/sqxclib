@@ -133,21 +133,25 @@ use C++ language
 
 ## 3 Open database
 
-C function sq_app_open_database(), C++ method openDatabase() can open database with specified name. If user does not specify name, it will open database with default name.  
+C function sq_app_open_database(), C++ method openDatabase() can open database with specified name. If user does not specify name, it will use default name defined in SqApp-config.h to open database.  
   
 use C language
 
 ```c
-	// open database that defined in SqApp-config.h
-	if (sq_app_open_database(sqApp, NULL) != SQCODE_OK)
+	// if databaseName = NULL, open database name defined in SqApp-config.h
+	char *databaseName = "web";
+
+	if (sq_app_open_database(sqApp, databaseName) != SQCODE_OK)
 		return EXIT_FAILURE;
 ```
 
 use C++ language
 
 ```c++
-	// open database that defined in SqApp-config.h
-	if (sqApp->openDatabase(NULL) != SQCODE_OK)
+	// if databaseName = NULL, open database name defined in SqApp-config.h
+	char *databaseName = "web";
+
+	if (sqApp->openDatabase(databaseName) != SQCODE_OK)
 		return EXIT_FAILURE;
 ```
 
@@ -245,7 +249,7 @@ const SqMigration createCompaniesTable_2021_12_12_180000 = {
 	.up   = up_2021_12_12_180000,
 	.down = down_2021_12_12_180000,
 
-#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
+#if SQ_APP_HAS_MIGRATION_NAME
 	.name = "2021_12_12_180000_create_companies_table",
 #endif
 };
@@ -295,7 +299,7 @@ const SqMigration alterCompaniesTable_2021_12_26_191532 = {
 		// alter columns in table
 	},
 
-#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
+#if SQ_APP_HAS_MIGRATION_NAME
 //	.name =
 	"2021_12_26_191532_alter_companies_table",
 #endif
@@ -325,8 +329,8 @@ sqxctool  migrate:rollback --step=5
 
 ### 4.2 migrate at runtime
 
-When user migrate at runtime, column 'migrations.name' in database will be empty string because SqApp does NOT contain SqMigration.name string by default.  
-Enable SQ_APP_HAS_MIGRATION_NAME in "migrations.h" to change default setting.  
+If user do migration at runtime, column 'migrations.name' in database will be empty string because SqApp does NOT contain SqMigration::name string by default. This can reduce application binary size.  
+To change default setting, you can set SQ_APP_HAS_MIGRATION_NAME to 1 in "migrations.h".  
 
 #### 4.2.1 Run all of your outstanding migrations
 

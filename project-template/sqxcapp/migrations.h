@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2022 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -21,7 +21,9 @@
    because SqApp does NOT contain SqMigration.name string by default.
    Disable it to reduce code size of SqApp.
  */
+#ifndef SQ_APP_HAS_MIGRATION_NAME
 #define SQ_APP_HAS_MIGRATION_NAME    0
+#endif
 
 // How to mix C and C++ - https://isocpp.org/wiki/faq/mixing-c-and-cpp
 #ifdef __cplusplus

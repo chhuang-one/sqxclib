@@ -133,21 +133,25 @@ SQ_APP_DEFAULT 是上面提到的默认设置。
 
 ## 3 打开数据库
 
-C 函数 sq_app_open_database()，C++ 方法 openDatabase() 可以打开指定名称的数据库。如果用户没有指定名称，它将使用默认名称打开数据库。  
+C 函数 sq_app_open_database()，C++ 方法 openDatabase() 可以打开指定名称的数据库。如果用户没有指定名称，它将使用 SqApp-config.h 中定义的默认名称来打开数据库。  
   
 使用 C 语言
 
 ```c
-	// 打开在 SqApp-config.h 中定义的数据库
-	if (sq_app_open_database(sqApp, NULL) != SQCODE_OK)
+	// 如果 databaseName = NULL，则打开 SqApp-config.h 中定义的数据库名称
+	char   *databaseName = "web";
+
+	if (sq_app_open_database(sqApp, databaseName) != SQCODE_OK)
 		return EXIT_FAILURE;
 ```
 
 使用 C++ 语言
 
 ```c++
-	// 打开在 SqApp-config.h 中定义的数据库
-	if (sqApp->openDatabase(NULL) != SQCODE_OK)
+	// 如果 databaseName = NULL，则打开 SqApp-config.h 中定义的数据库名称
+	char   *databaseName = "web";
+
+	if (sqApp->openDatabase(databaseName) != SQCODE_OK)
 		return EXIT_FAILURE;
 ```
 
@@ -245,7 +249,7 @@ const SqMigration createCompaniesTable_2021_12_12_180000 = {
 	.up   = up_2021_12_12_180000,
 	.down = down_2021_12_12_180000,
 
-#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
+#if SQ_APP_HAS_MIGRATION_NAME
 	.name = "2021_12_12_180000_create_companies_table",
 #endif
 };
@@ -295,7 +299,7 @@ const SqMigration alterCompaniesTable_2021_12_26_191532 = {
 		// 修改表中的列
 	},
 
-#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
+#if SQ_APP_HAS_MIGRATION_NAME
 //	.name =
 	"2021_12_26_191532_alter_companies_table",
 #endif
@@ -325,8 +329,9 @@ sqxctool  migrate:rollback --step=5
 
 ### 4.2 在运行时迁移
 
-因为 SqApp 默认不包含 SqMigration.name 字符串，所以用户在运行时迁移时，数据库中的 'migrations.name' 列将为空字符串。  
-在 "migrations.h" 中启用 SQ_APP_HAS_MIGRATION_NAME 以更改默认设置。  
+如果用户在运行时进行迁移，数据库中的列 'migrations.name' 将为空字符串，因为 SqApp 默认不包含 SqMigration::name 字符串。
+这可以减少应用程序二进制大小。  
+要更改默认设置，您可以在 migrations.h 中将 SQ_APP_HAS_MIGRATION_NAME 设置为 1。  
 
 #### 4.2.1 运行所有未完成的迁移
 

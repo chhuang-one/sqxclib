@@ -30,7 +30,7 @@ const SqMigration {{ migration_name_camel }}_{{ timestamp }} = {
 	.up   = up_{{ timestamp }},
 	.down = down_{{ timestamp }},
 
-#if defined(SQ_APP_TOOL) || SQ_APP_HAS_MIGRATION_NAME
+#if SQ_APP_HAS_MIGRATION_NAME
 	.name = "{{ timestamp }}_{{ migration_name }}",
 #endif
 };

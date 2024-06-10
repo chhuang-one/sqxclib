@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2022 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,7 +12,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-// define SQ_APP_TOOL, than compile C source files in ../database/migrations
-#define SQ_APP_TOOL
+// Define SQ_APP_HAS_MIGRATION_NAME to override the definition in migrations.h,
+// then compile C source files in ../database/migrations.
+#define SQ_APP_HAS_MIGRATION_NAME    1
 
 #include "migrations-files.c"

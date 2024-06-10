@@ -113,7 +113,7 @@ Sq::Migration CreateUsersTable = {
 	.down = [](SqSchema *schema, SqStorage *storage) {
 	},
 
-#ifdef SQ_APP_TOOL
+#if SQ_APP_HAS_MIGRATION_NAME
 	.name = "2021_07_06_000000_create_users_table",
 #endif
 };
