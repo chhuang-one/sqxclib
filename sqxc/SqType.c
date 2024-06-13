@@ -231,8 +231,8 @@ void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t 
 					(sizeof(SqEntry*) == sizeof_entry) ? (*(SqEntry**)entry)->name : entry->name,
 					type->name);
 		}
-		entry_addr = (SqEntry**)sq_ptr_array_alloc_at(array, index, 1);
 #endif
+		entry_addr = (SqEntry**)sq_ptr_array_alloc_at(array, index, 1);
 	}
 
 	for (;  n_entry;  n_entry--, entry_addr++) {
