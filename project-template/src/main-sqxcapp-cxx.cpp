@@ -20,7 +20,7 @@ int  main(void)
 		return EXIT_FAILURE;
 #endif
 
-	/*	If you use command-line program "sqxcpptool" to do migrate,
+	/*	If you use command-line program "sqtool-cpp" to do migrate,
 		you can remove below migrate() code.
 	 */
 	// if the database vesion is 0 (no migrations have been done)

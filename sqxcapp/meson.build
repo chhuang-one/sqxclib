@@ -46,10 +46,10 @@ headers_apptool_user = [
     'SqAppTool-config.h',
 ]
 
-# --- 'sqxctool' sources ---
-sources = ['sqxctool.c']
+# --- 'sqtool' sources ---
+sources = ['sqtool.c']
 
-sources_cpp = ['sqxcpptool.cpp']
+sources_cpp = ['sqtool-cpp.cpp']
 
 # ---
 
@@ -165,12 +165,22 @@ sqxcapptool_shared = declare_dependency(
     dependencies: sqxcsupport_shared
 )
 
-# --- 'sqxctool' executable file ---
+# --- 'sqtool' executable file ---
+executable('sqtool',
+           sources,
+           dependencies: sqxcapptool)
+
+# --- deprecated 'sqxctool' executable file ---
 executable('sqxctool',
            sources,
            dependencies: sqxcapptool)
 
-# --- 'sqxcpptool' executable file ---
+# --- 'sqtool-cpp' executable file ---
+executable('sqtool-cpp',
+           sources_cpp,
+           dependencies: sqxcapptool)
+
+# --- deprecated 'sqxcpptool' executable file ---
 executable('sqxcpptool',
            sources_cpp,
            dependencies: sqxcapptool)

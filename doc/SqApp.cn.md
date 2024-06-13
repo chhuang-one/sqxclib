@@ -12,9 +12,9 @@ SqApp 它基于 sqxclib 开发，支持单独的迁移文件进行迁移，并�
 
 # SqAppTool
 
-SqAppTool 由命令行程序使用 - **sqxctool** 和 **sqxcpptool**。它使用与 SqApp 相同的配置值。  
+SqAppTool 由命令行程序使用 - **sqtool** 和 **sqtool-cpp**。它使用与 SqApp 相同的配置值。  
   
-**sqxctool** 和 **sqxcpptool** 都可以生成单独的迁移文件并使用它们进行迁移。他们可以帮助使用 SqApp 库的用户应用程序。区别在于 sqxctool 生成 C 迁移文件，而 sqxcpptool 生成 C++ 迁移文件。
+**sqtool** 和 **sqtool-cpp** 都可以生成单独的迁移文件并使用它们进行迁移。他们可以帮助使用 SqApp 库的用户应用程序。区别在于 sqtool 生成 C 迁移文件，而 sqtool-cpp 生成 C++ 迁移文件。
 
 ## 1 配置
 
@@ -44,7 +44,7 @@ DB_PASSWORD  是认证的设置。
 DB_FOLDER    是文件夹名称。SQLite 在此文件夹中创建或访问数据库文件。  
 DB_EXTENSION 是 SQLite 数据库文件的扩展名。  
 
-* 如果您启用 SQLite，请确保您的应用程序及其 sqxctool 使用相同的数据库文件路径。
+* 如果您启用 SQLite，请确保您的应用程序及其 sqtool 使用相同的数据库文件路径。
 
 ```c++
 // 通用配置值
@@ -68,13 +68,13 @@ DB_EXTENSION 是 SQLite 数据库文件的扩展名。
   
 例如: 使用 工作区目录/myapp-config.h 替换默认的 工作区目录/sqxcapp/SqApp-config.h。  
   
-如果 myapp-config.h 放在 C 包含目录中...
+如果 myapp-config.h 位于 C 包含目录中，请使用尖括号括住文件名。
 
 ```console
 gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
 ```
 
-或使用 工作区目录/sqxcapp 的相对路径
+如果配置文件位于 工作区目录/sqxcapp 的相对路径中，则将文件名括在双引号中。
 
 ```console
 gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
@@ -155,6 +155,14 @@ C 函数 sq_app_open_database()，C++ 方法 openDatabase() 可以打开指定�
 		return EXIT_FAILURE;
 ```
 
+打开数据库后，您可以从 SqApp::db.version 获取数据库中当前的架构版本。
+
+```c
+	int  schemaVersion;
+
+	schemaVersion = sqApp->db->version;
+```
+
 ## 4 迁移
 
 C 函数 sq_app_make_schema()，C++ 方法 makeSchema() 可以使用迁移文件生成架构。  
@@ -186,40 +194,45 @@ SQCODE_DB_WRONG_MIGRATIONS : 如果这些迁移不是此数据库的。
 
 ### 4.1 创建迁移文件
 
-通过命令行程序生成 C 迁移文件
+SqMigration 是迁移结构。每个迁移文件都有一个 SqMigration 实例用于迁移。  
+  
+示例 1: 通过命令行程序生成 C 迁移文件
 
 ```console
-sqxctool  make:migration  migration_name
+sqtool  make:migration  migration_name
+```
+
+示例 2: 通过命令行程序生成 C++ 迁移文件
+
+```console
+sqtool-cpp  make:migration  migration_name
 ```
 
 该命令将：
-1. 生成迁移文件 - 工作区目录/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c
-2. 将迁移文件的相对路径附加到 工作区目录/sqxcapp/migrations-files.c
+1. 生成迁移文件 - 工作区目录/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c (或 .cpp)
+2. 将迁移文件的相对路径附加到 工作区目录/sqxcapp/migrations-files.c (或 .cpp)
 3. 将迁移声明附加到 工作区目录/sqxcapp/migrations-declarations
 4. 将迁移数组的元素附加到 工作区目录/sqxcapp/migrations-elements
 
-如果使用 C++ 进行迁移，可以将 sqxctool 替换为 sqxcpptool。不同的是
-**sqxcpptool** 可以生成 C++ 迁移文件并将路径附加到 工作区目录/sqxcapp/migrations-files.cpp  
-  
 最后，您必须在定义表后重新编译迁移代码。
 
-#### 4.1.1 sqxctool 建表 (C 语言)
+#### 4.1.1 使用 sqtool 建表 (C 语言)
 
 例如: 生成 C 迁移文件以创建 "companies" 表
 
 ```console
-sqxctool  make:migration  create_companies_table
+sqtool  make:migration  create_companies_table
 ```
 
-上面的命令将创建文件 工作区目录/database/migrations/yyyy_MM_dd_HHmmss_create_companies_table.c  
+上述命令将在 工作区目录/database/migrations 中创建文件 yyyy_MM_dd_HHmmss_create_companies_table.c。  
 在这种情况下，建议用户在 工作区目录/sqxcapp/CStructs.h 中定义结构 'Company'。  
 该文件如下所示：
 
 ```c
-/* 此模板文件由 sqxctool 使用
+/* 此模板文件由 sqtool 使用
  * 请在 工作区/sqxcapp/CStructs.h 中定义结构 'Company'
  *
- * 通常，如果您使用 sqxctool 制作迁移文件，则此文件应包含在 migrations-files.c 中。
+ * 通常，如果您使用 sqtool 制作迁移文件，则此文件应包含在 migrations-files.c 中。
  * migrations-files.c 已包含以下标头。
  * #include <SqStorage.h>
  * #include <SqMigration.h>
@@ -255,21 +268,23 @@ const SqMigration createCompaniesTable_2021_12_12_180000 = {
 };
 ```
 
-#### 4.1.2 通过 sqxcpptool 更改表（C++ 语言）
+#### 4.1.2 通过 sqtool-cpp 更改表（C++ 语言）
 
+要更改表，您必须使用 sqtool 或 sqtool-cpp 的 --table 选项指定表名。  
+  
 例如: 生成 C++ 迁移文件以更改 "companies" 表
 
 ```console
-sqxcpptool  make:migration  --table=companies  alter_companies_table
+sqtool-cpp  make:migration  --table=companies  alter_companies_table
 ```
 
-上面的命令将在 工作区目录/database/migrations/yyyy_MM_dd_HHmmss_alter_companies_table.cpp 中创建文件  
+上述命令将在 工作区目录/database/migrations 中创建文件 yyyy_MM_dd_HHmmss_alter_companies_table.cpp。  
 该文件如下所示：
 
 ```c++
-/* 此模板文件由 sqxcpptool 使用
+/* 此模板文件由 sqtool-cpp 使用
  *
- * 如果您使用 sqxcpptool 制作迁移文件，则通常应将此文件包含在 migrations-files.cpp 中。
+ * 如果您使用 sqtool-cpp 制作迁移文件，则通常应将此文件包含在 migrations-files.cpp 中。
  * migrations-files.cpp 已包含以下标头。
  * #include <SqStorage.h>
  * #include <SqMigration.h>
@@ -307,30 +322,29 @@ const SqMigration alterCompaniesTable_2021_12_26_191532 = {
 
 ```
 
-#### 4.1.3 通过 sqxctool（或 sqxcpptool）迁移
+#### 4.1.3 通过 sqtool（或 sqtool-cpp）迁移
 
 运行所有未完成的迁移
 
 ```console
-sqxctool  migrate
+sqtool  migrate
 ```
 
 回滚最后一批迁移
 
 ```console
-sqxctool  migrate:rollback
+sqtool  migrate:rollback
 ```
 
 您可以通过向 rollback 命令提供 step 选项来回滚有限数量的迁移。
 
 ```console
-sqxctool  migrate:rollback --step=5
+sqtool  migrate:rollback  --step=5
 ```
 
 ### 4.2 在运行时迁移
 
-如果用户在运行时进行迁移，数据库中的列 'migrations.name' 将为空字符串，因为 SqApp 默认不包含 SqMigration::name 字符串。
-这可以减少应用程序二进制大小。  
+如果用户在运行时进行迁移，数据库中的列 'migrations.name' 将为空字符串，因为 SqApp 默认不包含 SqMigration::name 字符串。这可以减少应用程序二进制大小。  
 要更改默认设置，您可以在 migrations.h 中将 SQ_APP_HAS_MIGRATION_NAME 设置为 1。  
 
 #### 4.2.1 运行所有未完成的迁移
@@ -436,7 +450,7 @@ NULL,
 
 例如，创建两个 SqApp 来同步 SQLite 和 PostgreSQL 的架构。  
   
-**第一步：** 为 SQLite 和 PostgreSQL 准备两个 SqAppSetting  
+**步骤 1**： 为 SQLite 和 PostgreSQL 准备两个 SqAppSetting  
   
 SQ_APP_DEFAULT_xxx 系列是 'SQ_APP_DEFAULT' 中的默认设置。  
 
@@ -496,7 +510,7 @@ Sq::AppSetting  forPostgreSQL = {
 };
 ```
 
-**第 2 步：** 使用其设置创建两个 SqApp  
+**步骤 2**: 使用其设置创建两个 SqApp  
   
 使用 C 语言
 
@@ -514,7 +528,7 @@ Sq::AppSetting  forPostgreSQL = {
 	Sq::App *appPostgreSQL = new Sq::App(forPostgreSQL);
 ```
 
-**Step 3:** 运行迁移  
+**步骤 3**: 运行迁移  
   
 使用 C 语言
 

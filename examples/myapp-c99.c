@@ -64,7 +64,7 @@ int  main(void)
 		return EXIT_FAILURE;
 #endif
 
-	/*	If you use command-line program "sqxctool" to do migrate,
+	/*	If you use command-line program "sqtool" to do migrate,
 		you can remove below 'sq_app_migrate()' code.
 	 */
 	// if the version of schema in database is 0 (no migrations have been done)

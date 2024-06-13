@@ -12,9 +12,9 @@ Note: SqApp is declared in SqApp.h of the sqxcapp library.
 
 # SqAppTool
 
-SqAppTool is used by command-line program - **sqxctool** and **sqxcpptool**. It use the same configuration values as SqApp.  
+SqAppTool is used by command-line program - **sqtool** and **sqtool-cpp**. It use the same configuration values as SqApp.  
   
-Both **sqxctool** and **sqxcpptool** can generate separate migration files and use them to do migrate. They can help with the user's application that using SqApp library. The difference is that sqxctool generate C migration file and sqxcpptool generate C++ migration file.
+Both **sqtool** and **sqtool-cpp** can generate separate migration files and use them to do migrate. They can help with the user's application that using SqApp library. The difference is that sqtool generate C migration file and sqtool-cpp generate C++ migration file.
 
 ## 1 Configurations
 
@@ -44,7 +44,7 @@ DB_PASSWORD  is settings of authentication.
 DB_FOLDER    is the folder name. SQLite create or access database files in this folder.  
 DB_EXTENSION is extension name of SQLite database files.  
 
-* Please make sure that your app and it's sqxctool use the same path of database file if you enable SQLite.
+* Please make sure that your app and it's sqtool use the same path of database file if you enable SQLite.
 
 ```c++
 // common configuration values
@@ -68,13 +68,13 @@ User can define macro SQ_APP_CONFIG_FILE to replace SqApp-config.h when compilin
   
 e.g. use workspace/myapp-config.h to replace default workspace/sqxcapp/SqApp-config.h  
   
-If myapp-config.h place in C include directories...
+If myapp-config.h place in C include directories, enclose the file name in angle brackets.
 
 ```console
 gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
 ```
 
-OR use relative path of workspace/sqxcapp
+If the configuration file is in relative path of workspace/sqxcapp, enclose the file name in double-quotes.
 
 ```console
 gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
@@ -155,6 +155,14 @@ use C++ language
 		return EXIT_FAILURE;
 ```
 
+After opening the database, you can get current schema version in the database from SqApp::db.version.
+
+```c
+	int  schemaVersion;
+
+	schemaVersion = sqApp->db->version;
+```
+
 ## 4 Migrations
 
 C function sq_app_make_schema(), C++ method makeSchema() can produce schema by using migration files.  
@@ -186,40 +194,45 @@ use C++ language
 
 ### 4.1 create migration files
 
-generate C migration file by command-line program
+SqMigration is migration structure. Each migration file has a instance of SqMigration for the migration.  
+  
+Example 1: generate C migration file by command-line program
 
 ```console
-sqxctool  make:migration  migration_name
+sqtool  make:migration  migration_name
+```
+
+Example 2: generate C++ migration file by command-line program
+
+```console
+sqtool-cpp  make:migration  migration_name
 ```
 
 This command will:
-1. generate migration file - workspace/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c
-2. append relative path of migration file to workspace/sqxcapp/migrations-files.c
+1. generate migration file - workspace/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c (or .cpp)
+2. append relative path of migration file to workspace/sqxcapp/migrations-files.c (or .cpp)
 3. append declaration of migration to workspace/sqxcapp/migrations-declarations
 4. append element of migrations array to workspace/sqxcapp/migrations-elements
 
-If you use C++ to do migration, you can replace sqxctool by sqxcpptool. The difference is
-**sqxcpptool** can generate C++ migration file and append path to workspace/sqxcapp/migrations-files.cpp  
-  
 Finally, you must recompile migration code after defining table.
 
-#### 4.1.1 create table by sqxctool (C language)
+#### 4.1.1 create table by sqtool (C language)
 
 e.g. generate C migration file to create "companies" table
 
 ```console
-sqxctool  make:migration  create_companies_table
+sqtool  make:migration  create_companies_table
 ```
 
-Above command will create file workspace/database/migrations/yyyy_MM_dd_HHmmss_create_companies_table.c  
+Above command will create file yyyy_MM_dd_HHmmss_create_companies_table.c in workspace/database/migrations.  
 It is suggested that user define structure 'Company' in workspace/sqxcapp/CStructs.h in this case.  
 The file looks like below:
 
 ```c
-/* This template file is used by sqxctool
+/* This template file is used by sqtool
  * Please define structure 'Company' in workspace/sqxcapp/CStructs.h
  *
- * Normally this file should be included in migrations-files.c if you use sqxctool to make migration file.
+ * Normally this file should be included in migrations-files.c if you use sqtool to make migration file.
  * migrations-files.c has included following headers.
  * #include <SqStorage.h>
  * #include <SqMigration.h>
@@ -255,21 +268,23 @@ const SqMigration createCompaniesTable_2021_12_12_180000 = {
 };
 ```
 
-#### 4.1.2 alter table by sqxcpptool (C++ language)
+#### 4.1.2 alter table by sqtool-cpp (C++ language)
 
+To alter a table, you must specify the table name using the --table option of sqtool or sqtool-cpp.  
+  
 e.g. generate C++ migration file to alter "companies" table
 
 ```console
-sqxcpptool  make:migration  --table=companies  alter_companies_table
+sqtool-cpp  make:migration  --table=companies  alter_companies_table
 ```
 
-Above command will create file in workspace/database/migrations/yyyy_MM_dd_HHmmss_alter_companies_table.cpp  
+Above command will create file yyyy_MM_dd_HHmmss_alter_companies_table.cpp in workspace/database/migrations.  
 The file looks like below:
 
 ```c++
-/* This template file is used by sqxcpptool
+/* This template file is used by sqtool-cpp
  *
- * Normally this file should be included in migrations-files.cpp if you use sqxcpptool to make migration file.
+ * Normally this file should be included in migrations-files.cpp if you use sqtool-cpp to make migration file.
  * migrations-files.cpp has included following headers.
  * #include <SqStorage.h>
  * #include <SqMigration.h>
@@ -307,24 +322,24 @@ const SqMigration alterCompaniesTable_2021_12_26_191532 = {
 
 ```
 
-#### 4.1.3 migrate by sqxctool (or sqxcpptool)
+#### 4.1.3 migrate by sqtool (or sqtool-cpp)
 
 Run all of your outstanding migrations
 
 ```console
-sqxctool  migrate
+sqtool  migrate
 ```
 
 rolls back the last "batch" of migrations
 
 ```console
-sqxctool  migrate:rollback
+sqtool  migrate:rollback
 ```
 
 You may roll back a limited number of migrations by providing the step option to the rollback command.
 
 ```console
-sqxctool  migrate:rollback --step=5
+sqtool  migrate:rollback  --step=5
 ```
 
 ### 4.2 migrate at runtime
@@ -435,7 +450,7 @@ use C++ language
 
 For example, create two SqApps to synchronize the schema of SQLite and PostgreSQL.  
   
-**Step 1:** Prepare two SqAppSetting for SQLite and PostgreSQL  
+**Step 1**: Prepare two SqAppSetting for SQLite and PostgreSQL  
   
 SQ_APP_DEFAULT_xxx series are default setting in 'SQ_APP_DEFAULT'.  
 
@@ -495,7 +510,7 @@ Sq::AppSetting  forPostgreSQL = {
 };
 ```
 
-**Step 2:** Create two SqApp with their settings  
+**Step 2**: Create two SqApp with their settings  
   
 use C language
 
@@ -513,7 +528,7 @@ use C++ language
 	Sq::App *appPostgreSQL = new Sq::App(forPostgreSQL);
 ```
 
-**Step 3:** run migrations  
+**Step 3**: run migrations  
   
 use C language
 

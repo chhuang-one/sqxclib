@@ -97,7 +97,7 @@ struct AppToolMethod : AppMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/*	SqAppTool is used by command-line program - sqxctool and sqxcpptool.
+/*	SqAppTool is used by command-line program - sqtool and sqtool-cpp.
 
 	SqApp
 	|

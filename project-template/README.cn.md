@@ -25,10 +25,10 @@ export LD_LIBRARY_PATH
 ## 项目目录
 
 #### /sqxcapp
-此目录包含 sqxctool 和静态库 'sqxcapp-user'、'sqxcapptool-user'。
+此目录包含 sqtool 和静态库 'sqxcapp-user'、'sqxcapptool-user'。
 
 #### /database/migrations
-此目录包含由 sqxctool（或 sqxcpptool）生成的 C 或 C++ 迁移文件。  
+此目录包含由 sqtool（或 sqtool-cpp）生成的 C 或 C++ 迁移文件。  
 CMake 或 meson 会将这些迁移文件编译成静态库 'sqxcapp-user' 和 'sqxcapptool-user'。
 
 #### /src
@@ -36,5 +36,5 @@ CMake 或 meson 会将这些迁移文件编译成静态库 'sqxcapp-user' 和 's
 
 1. ***main.c***  仅使用 'sqxc' 共享库。
 2. ***main-cxx.cpp***  与 ***main.c*** 相同，但使用 C++ 语言。
-3. ***main-sqxcapp.c***  使用 sqxctool 和 'sqxc' 和 'sqxcapp' 共享库。
+3. ***main-sqxcapp.c***  使用 sqtool 和 'sqxc' 和 'sqxcapp' 共享库。
 4. ***main-sqxcapp-cxx.cpp***  与 ***main-sqxcapp.c*** 相同，但使用 C++ 语言。

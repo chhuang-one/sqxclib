@@ -12,9 +12,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
+#include <stdio.h>        // printf()
+
 #include <sqxclib.h>
 #include <SqAppTool.h>
 
@@ -22,21 +21,21 @@
 
 #ifdef TEST_ARGV
 const char *test_argv[] = {
-	"sqxcpptool", "migrate",
-//	"sqxcpptool", "migrate", "--step", "testarg",
-//	"sqxcpptool", "migrate:install", "testarg",
-//	"sqxcpptool", "migrate:rollback", "--step", "testarg",
-//	"sqxcpptool", "make:migration", "create_companies_table",
-//	"sqxcpptool", "make:migration", "--table=companies", "alter_companies_table",
-//	"sqxcpptool",
+	"sqtool", "migrate",
+//	"sqtool", "migrate", "--step", "testarg",
+//	"sqtool", "migrate:install", "testarg",
+//	"sqtool", "migrate:rollback", "--step", "testarg",
+//	"sqtool", "make:migration", "create_companies_table",
+//	"sqtool", "make:migration", "--table=companies", "alter_companies_table",
+//	"sqtool",
 };
 const int   test_argc = sizeof(test_argv) / sizeof(char*);
 #endif
 
 int  main(int argc, char **argv)
 {
-	Sq::AppTool *apptool;
-	char        *program_name;
+	SqAppTool *apptool;
+	char      *program_name;
 
 	// get 'program_name'
 #if defined(_WIN32) || defined(_WIN64)
@@ -49,8 +48,14 @@ int  main(int argc, char **argv)
 	else
 		program_name = argv[0];
 
-	// create Sq::AppTool with 'program_name'
-	apptool = new Sq::AppTool(program_name);
+	// check program_name
+	if (strncmp(program_name, "sqxc", 4) == 0)
+		printf("\n" "* Warning: %s is deprecated. Please use sqtool or sqtool-cpp instead." "\n", program_name);
+
+	// create SqAppTool with 'program_name'
+	apptool = malloc(sizeof(SqAppTool));
+	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+	sq_app_tool_init(apptool, program_name, SQ_APP_DEFAULT);
 
 	// if 'program_name' contains "cpp", program outputs cpp files.
 	if (strstr(program_name, "cpp"))
@@ -63,9 +68,10 @@ int  main(int argc, char **argv)
 	argv = (char**)test_argv;
 #endif
 
-	apptool->run(argc, argv);
+	sq_app_tool_run(apptool, argc, argv);
 
-	delete apptool;
+	sq_app_tool_final(apptool);
+	free(apptool);
 
 	return EXIT_SUCCESS;
 }

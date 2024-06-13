@@ -7,9 +7,17 @@
 // C/C++ structures for database tables
 
 /* To create "users" table in database schema:
+
    1. Define structure 'User' for database table "users" in this header file.
-   2. Run the following command in the console to generate the migration file:
-      $ sqxctool make:migration create_users_table
+
+   2. Run the following command in the console to generate C migration file:
+
+      $ sqtool  make:migration  create_users_table
+
+      This will append data in migrations-declarations
+                               migrations-elements
+                               migrations-files.c
+
    3. Edit generated migration file is in ../database/migrations/yyyy_MM_dd_HHmmss_create_users_table.c
  */
 typedef struct User {

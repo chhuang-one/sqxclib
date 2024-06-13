@@ -1,7 +1,7 @@
-/* This template file is used by sqxcpptool
+/* This template file is used by sqtool-cpp
  * Please define structure 'User' in workspace/sqxcapp/CStructs.h
  *
- * Normally this file should be included in migrations-files.cpp if you use sqxcpptool to make migration file.
+ * Normally this file should be included in migrations-files.cpp if you use sqtool-cpp to make migration file.
  * migrations-files.cpp has included following headers.
  * #include <SqStorage.h>
  * #include <SqMigration.h>

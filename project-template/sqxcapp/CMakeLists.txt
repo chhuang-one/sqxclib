@@ -57,13 +57,13 @@ set(SQXCAPPTOOL_LIBRARIES
     ${SQXC_LIBRARIES}
 )
 
-# --- 'sqxctool' sources ---
+# --- 'sqtool' sources ---
 set(SOURCES
-    sqxctool.c
+    sqtool.c
 )
 
 set(SOURCES_CPP
-    sqxcpptool.cpp
+    sqtool-cpp.cpp
 )
 
 # --- build library ---
@@ -84,11 +84,21 @@ add_library(sqxcapptool-user
             ${HEADERS_APPTOOL}
 )
 
-# --- 'sqxctool' executable file ---
+# --- 'sqtool' executable file ---
+add_executable(sqtool  ${SOURCES})
+target_link_libraries(sqtool  ${SQXCAPPTOOL_LIBRARIES})
+
+# --- deprecated 'sqxctool' executable file ---
 add_executable(sqxctool  ${SOURCES})
 target_link_libraries(sqxctool  ${SQXCAPPTOOL_LIBRARIES})
 
-# --- 'sqxcpptool' executable file ---
+# --- 'sqtool-cpp' executable file ---
+if (DEFINED CMAKE_CXX_COMPILER)
+	add_executable(sqtool-cpp  ${SOURCES_CPP})
+	target_link_libraries(sqtool-cpp  ${SQXCAPPTOOL_LIBRARIES})
+endif (DEFINED CMAKE_CXX_COMPILER)
+
+# --- deprecated 'sqxcpptool' executable file ---
 if (DEFINED CMAKE_CXX_COMPILER)
 	add_executable(sqxcpptool  ${SOURCES_CPP})
 	target_link_libraries(sqxcpptool  ${SQXCAPPTOOL_LIBRARIES})
