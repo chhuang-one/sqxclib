@@ -17,7 +17,7 @@
 #endif
 #include <limits.h>       // __WORDSIZE
 #include <stdint.h>       // __WORDSIZE  for Apple Developer
-#include <stdarg.h>       // va_list, va_start, va_end, va_arg...etc
+#include <stdarg.h>       // va_list, va_start, va_end, va_arg, etc.
 #include <stdio.h>        // snprintf(), fprintf(), stderr
 #include <inttypes.h>     // PRId64, PRIu64
 

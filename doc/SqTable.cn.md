@@ -3,6 +3,7 @@
 # SqTable
 
 SqTable 派生自 [SqEntry](SqEntry.cn.md)。用于定义数据库表。
+它使用 [SqType](SqType.cn.md) 来定义列和 C 结构的成员。
 
 	SqEntry
 	│

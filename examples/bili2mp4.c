@@ -351,14 +351,14 @@ int  bili2mp4_open_dir(Bili2Mp4 *b2m, const char *path, int path_depth)
 	BiliEntry *bili_entry;
 	SqBuffer   buf = {0};
 	int        buf_pathlen;
-	union {
-		char    *c;
-		wchar_t *wc;
-	} str;
 
 #if defined(_WIN32) || defined(_WIN64)
 	_WDIR *dir;
 	struct _wdirent *dirent;
+	union {
+		char    *c;
+		wchar_t *wc;
+	} str;
 
 	str.wc = fromUTF8(path, 0, NULL);
 	dir = _wopendir(str.wc);

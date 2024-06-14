@@ -4,10 +4,11 @@
 
 # sqxclib
 
-sqxclib is a library to convert data between C language and SQL (or JSON...etc). It provides ORM features and C++ wrapper.  
+sqxclib is a library to convert data between C language and SQL, JSON, etc. It provides ORM features and C++ wrapper.  
 Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## Current features:
+
 * User can use C99 designated initializer or C++ aggregate initialization to define constant database table, column, and migration,
    this can reduce running time when making schema, see doc/[schema-builder-constant.md](doc/schema-builder-constant.md).
    You can also use C functions or C++ methods to do these dynamically.
@@ -194,12 +195,12 @@ You can use sq_schema_alter() function to alter a table in schema.
 
 ## Database products
 
-**Sqdb** is base structure for Database products (SQLite, MySQL...etc). You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
+**Sqdb** is base structure for Database products such as SQLite, MySQL, etc. You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
   
 e.g. Create Sqdb instance for SQLite database  
   
 SQLite will open/create the file in the specified folder of SqdbConfigSqlite when user open database.  
-In this example, database file path is "/path/DatabaseName.db".  
+In this example, database file path is "/path/databaseName.db".  
   
 use C functions to create SQLite database instance
 
@@ -233,7 +234,7 @@ use C++ methods to create SQLite database instance
 
 use C functions to create MySQL database instance  
   
-MySQL, PostgreSQL must specify host, port, and authentication...etc in their SqdbConfig.
+MySQL, PostgreSQL must specify host, port, and authentication, etc. in their SqdbConfig.
 
 ```c
 	// database configuration
@@ -260,7 +261,7 @@ use C functions to open database
 	SqStorage *storage;
 
 	storage = sq_storage_new(db);
-	sq_storage_open(storage, "DatabaseName");
+	sq_storage_open(storage, "databaseName");
 ```
 
 use C++ methods to open database
@@ -269,7 +270,7 @@ use C++ methods to open database
 	Sq::Storage *storage;
 
 	storage = new Sq::Storage(db);
-	storage->open("DatabaseName");
+	storage->open("databaseName");
 ```
 
 ## Database migration
@@ -537,7 +538,7 @@ use C++ method
 
 ## Query builder
 
-[SqQuery](doc/SqQuery.md) can generate SQL statement by using C functions or C++ methods.
+[SqQuery](doc/SqQuery.md) can generate SQL statement by using C functions or C++ methods, and provide where(), join(), on(), and having() series functions that support printf format.  
 To get more information and sample, you can see doc/[SqQuery.md](doc/SqQuery.md)  
   
 SQL statement
@@ -617,7 +618,10 @@ use C++ methods
 	     ->where("id", ">", 10)
 	     ->orWhereRaw("city_id < %d", 22);
 
-	array = storage->getAll("users", query);
+	array = storage->getAll("users", query->c());
+
+	// overloaded function of getAll() can pass 'query' directly.
+//	array = storage->getAll("users", query);
 ```
 
 **convenient C++ class 'where' series**  
@@ -672,7 +676,7 @@ use C++ Sq::select or Sq::from to run database queries.
 	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
 
 	// use Sq::from with query method
-	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
+	array = storage->query(Sq::from("users").whereRaw("city_id > %d", 5));
 ```
 
 ## JOIN support
@@ -882,7 +886,7 @@ You can get more description and example in doc/[Sqxc.md](doc/Sqxc.md)
 
 ## SqType
 It define how to initialize, finalize, and convert C data type.  
-*Sqxc* use it to convert data between C language and SQL (or JSON...etc).  
+*Sqxc* use it to convert data between C language and SQL, JSON, etc.  
 You can get more description and example in doc/[SqType.md](doc/SqType.md)
 
 ## SqSchema

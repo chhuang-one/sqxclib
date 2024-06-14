@@ -16,7 +16,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <stdint.h>
-#include <stdarg.h>       // va_list, va_start, va_end, va_arg...etc
+#include <stdarg.h>       // va_list, va_start, va_end, va_arg, etc.
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>        // vsnprintf(), fprintf(), stderr
@@ -89,7 +89,7 @@ enum SqQueryNodeType {
 	// --------------------------------
 
 	SQN_DISTINCT,  // SELECT
-	SQN_AS,        // SELECT...etc : alias name for table or column
+	SQN_AS,        // SELECT xxx AS : alias name for table or column
 	SQN_OR,        // WHERE, JOIN
 	SQN_AND,       // WHERE, JOIN, BETWEEN
 	SQN_NOT,       // WHERE
@@ -125,7 +125,7 @@ struct SqQueryNested
 	SqQueryNested  *inner;
 
 	SqQueryNode    *parent;
-	SqQueryNode    *command;    // SQL command (SELECT, UPDATE ...etc)
+	SqQueryNode    *command;    // SQL command (SELECT, UPDATE, etc.)
 	SqQueryNode    *name;       // table, column, index, or database name
 	SqQueryNode    *aliasable;  // sq_query_as()
 
@@ -1025,7 +1025,7 @@ static const char *get_table(SqQueryNode *parent)
 }
 
 // array[0] = table1_name, array[1] = table1_as_name,
-// array[2] = table2_name, array[3] = table2_as_name, ...etc
+// array[2] = table2_name, array[3] = table2_as_name, etc.
 int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
 {
 	SqQueryNode  *qnode;

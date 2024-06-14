@@ -48,17 +48,17 @@ typedef struct Company    Company;
 
 struct User
 {
-	int    id;
+	int    id;             // primary key
 	char  *name;
-	int    company_id;
+	int    company_id;     // foreign key
 
-	std::string   comment;    // SQL Type: TEXT
+	std::string   comment;         // SQL Type: TEXT
 
 	// If you use SQLite or MySQL to store binary data in database column,
 	// Please make sure that SQ_CONFIG_QUERY_ONLY_COLUMN is enabled.
 	// If you use PostgreSQL to do this, you don't need to care about SQ_CONFIG_QUERY_ONLY_COLUMN.
-	Sq::Buffer         picture;    // SQL Type: BLOB, BINARY...etc
-	std::vector<char>  angleShot;  // SQL Type: BLOB, BINARY...etc
+	Sq::Buffer         picture;    // SQL Type: BLOB, BINARY, etc.
+	std::vector<char>  angleShot;  // SQL Type: BLOB, BINARY, etc.
 
 	time_t        created_at;
 	time_t        updated_at;
@@ -219,7 +219,9 @@ static const SqColumn userColumns[] = {
 
 	// This column is used by CONSTRAINT FOREIGN KEY below.
 	{SQ_TYPE_INT,     "company_id",   offsetof(User, company_id),   0},
-	// CONSTRAINT FOREIGN KEY
+
+	// CONSTRAINT users_companies_id_foreign
+	// FOREIGN KEY (company_id) REFERENCES companies(id)  ON DELETE CASCADE  ON UPDATE CASCADE
 	{SQ_TYPE_CONSTRAINT,   "users_companies_id_foreign",       0,   SQB_FOREIGN,
 		NULL,                              // .old_name,
 		0, 0, 0,                           // .sql_type, .size, .digits,

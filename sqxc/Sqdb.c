@@ -898,7 +898,7 @@ void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 			fprintf(stderr, "\n\n"
 			        "%s: In column '%s', "
 			        "list of column names in SqColumn::foreign can only be followed by at most %d strings. "
-			        "They will correspond to options of 'ON DELETE' and 'ON UPDATE'...etc." "\n\n",
+			        "They will correspond to options of 'ON DELETE' and 'ON UPDATE'." "\n\n",
 			        "sqdb_sql_write_foreign_ref()",
 			        column->name,
 			        FOREIGN_N_EVENTS);

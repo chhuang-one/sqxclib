@@ -13,7 +13,7 @@
  */
 
 /* ----------------------------------------------------------------------------
-	Sqdb - Database base structure for SQLite, MySQL...etc
+	Sqdb - Database base structure for SQLite, MySQL, etc.
  */
 
 #ifndef SQDB_H
@@ -180,7 +180,7 @@ struct SqdbInfo
 	int  (*migrate)(Sqdb *db, SqSchema *schema_current, SqSchema *schema_next);
 };
 
-/*	Sqdb - It is a base structure for Database product (SQLite, MySQL...etc).
+/*	Sqdb - It is a base structure for Database product such as SQLite, MySQL, etc.
 
 	TODO: Sqdb should be thread safe...
 

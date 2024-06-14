@@ -6,7 +6,7 @@
 您还可以使用 SqApp 通过命令行工具运行和反向迁移，请参阅 [SqApp.cn.md](SqApp.cn.md)  
 
 注意: 因为很多用户使用过 Laravel，所以有很多 sqxclib C++ 方法名和它类似。
-实际上 sqxclib 的设计与 Laravel 不同，所以用法不可能相同。  
+实际上 sqxclib 的设计与 Laravel 不同，所以用法不可能相同。
 
 ## 运行迁移
 
@@ -43,6 +43,9 @@
 	sq_schema_free(schema_v1);
 	sq_schema_free(schema_v2);
 ```
+
+注意1: 迁移后不要重复使用 'schema_v1' 和 'schema_v2'，因为数据已被移动到 SqStorage::schema。  
+注意2: 如果使用 SQLite，迁移后必须将架构同步到数据库。  
 
 ## 表
 

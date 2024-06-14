@@ -2,7 +2,7 @@
 
 # Sqdb
 
-Sqdb is a base structure for Database product (SQLite, MySQL...etc).  
+Sqdb is a base structure for Database product such as SQLite, MySQL, etc.  
 
 | derived structure | Database product | source file    |
 | ----------------- | ---------------- | -------------- |
@@ -374,7 +374,8 @@ static void sqdb_xxsql_final(SqdbXxsql *sqdb)
 static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name)
 {
 	// open database and get it's schema version
-	sqdb->version = db_schema_version;
+	sqdb->version = schemaVersion;
+
 	return SQCODE_OK;
 }
 

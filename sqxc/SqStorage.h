@@ -160,7 +160,6 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
    table1 = element[0];
    table2 = element[1];
    table3 = element[2];
-   ...etc
  */
 void *sq_storage_query(SqStorage    *storage,
                        SqQuery      *query,

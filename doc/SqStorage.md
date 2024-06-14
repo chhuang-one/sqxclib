@@ -30,18 +30,26 @@ use C++ language
 
 ## open database
 
+After opening the database, you can get current schema version in the database from SqStorage::db.version.  
+  
 use C functions
 
 ```c
-	// open database "sqxc_local"
-	sq_storage_open(storage, "sqxc_local");
+	// open database "local"
+	sq_storage_open(storage, "local");
+
+	// get current schema version in database "local"
+	int  schemaVersion = storage->db->version;
 ```
 
 use C++ methods
 
 ```c
-	// open database "sqxc_local"
-	storage->open("sqxc_local");
+	// open database "local"
+	storage->open("local");
+
+	// get current schema version in database "local"
+	int  schemaVersion = storage->db->version;
 ```
 
 ## do migration
@@ -101,7 +109,7 @@ use C++ methods
 	storage->migrate(NULL);
 ```
 
-Note1: Don't reuse 'schema' after migration because data is moved from 'schema' to 'storage->schema'.  
+Note1: Don't reuse 'schema' after migration because data is moved from 'schema' to SqStorage::schema.  
 Note2: If you use SQLite, you must synchronize schema to database after migration.  
 
 ## get

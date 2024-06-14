@@ -30,18 +30,26 @@ SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。它使用 [Sqxc](Sqxc.cn.m
 
 ## 打开数据库
 
+打开数据库后，您可以从 SqStorage::db.version 获取数据库中当前的架构版本。  
+  
 使用 C 函数
 
 ```c
-	// 打开数据库 "sqxc_local"
-	sq_storage_open(storage, "sqxc_local");
+	// 打开数据库 "local"
+	sq_storage_open(storage, "local");
+
+	// 获取数据库 "local" 中的当前架构版本。
+	int  schemaVersion = storage->db->version;
 ```
 
 使用 C++ 方法
 
 ```c
-	// 打开数据库 "sqxc_local"
-	storage->open("sqxc_local");
+	// 打开数据库 "local"
+	storage->open("local");
+
+	// 获取数据库 "local" 中的当前架构版本。
+	int  schemaVersion = storage->db->version;
 ```
 
 ## 进行迁移
@@ -101,7 +109,7 @@ struct User {
 	storage->migrate(NULL);
 ```
 
-注意1: 迁移后不要重复使用 'schema'，因为数据会从 'schema' 移动到 'storage->schema'。  
+注意1: 迁移后不要重复使用 'schema'，因为数据会从 'schema' 移动到 SqStorage::schema。  
 注意2: 如果使用 SQLite，迁移后必须将架构同步到数据库。  
 
 ## get

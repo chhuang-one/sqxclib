@@ -49,7 +49,7 @@ typedef struct SqTable        SqTable;
 #define SQB_TABLE_COL_ADDED_UNIQUE        (1 << 20)    // UNIQUE or PRIMARY KEY
 #define SQB_TABLE_COL_ADDED_CONSTRAINT    (1 << 21)
 #define SQB_TABLE_COL_ADDED_EXPRESSION    (1 << 22)    // DEFAULT (expression)
-#define SQB_TABLE_COL_ADDED_CURRENT_TIME  (1 << 23)    // DEFAULT CURRENT_TIME or CURRENT_DATE...etc
+#define SQB_TABLE_COL_ADDED_CURRENT_TIME  (1 << 23)    // DEFAULT CURRENT_TIME or CURRENT_DATE, etc.
 
 #define SQB_TABLE_COL_CHANGED             (SQB_TABLE_COL_ALTERED          | \
                                            SQB_TABLE_COL_RENAMED          | \

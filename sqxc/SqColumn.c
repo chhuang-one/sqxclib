@@ -14,7 +14,7 @@
 
 #include <stdio.h>        // fprintf(), stderr
 #include <stdbool.h>      // bool, true, false
-#include <stdarg.h>       // va_list, va_start, va_end, va_arg...etc
+#include <stdarg.h>       // va_list, va_start, va_end, va_arg, etc.
 #include <stdlib.h>
 #include <string.h>
 

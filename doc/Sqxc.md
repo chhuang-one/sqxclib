@@ -2,8 +2,7 @@
 
 # Sqxc
 
-Sqxc convert data between X and C language (X = SQL, JSON...etc)  
-It contain status, buffer, and input/output arguments in one C structure.  
+Sqxc convert data between X and C language (X = SQL, JSON, etc.). It contain status, buffer, and input/output arguments in one C structure.  
 User can link multiple Sqxc elements to convert different types of data.  
 
 | element name | description           | source file |

@@ -105,7 +105,7 @@ enum {
 #define SQ_QUERYARGS_N_SET(n)       ((n) << 8)
 #define SQ_QUERYARGS_N_GET(n)       ( ((n) & SQ_QUERYARGS_N_MASK) >> 8)
 
-/*	SQ_QUERYARGS_DECIDE(...)  return SQ_QUERYARGS_1, SQ_QUERYARGS_2...etc
+/*	SQ_QUERYARGS_DECIDE(...)  return SQ_QUERYARGS_1, SQ_QUERYARGS_2, etc.
 
 	Warning: SQ_QUERYARGS_COUNT() can't return 0.
 
@@ -257,7 +257,7 @@ SqQuery *sq_query_final(SqQuery *query);
 void    sq_query_clear(SqQuery *query);
 
 /*	sq_query_push_nested() was called by sq_query_where_exists(), sq_query_from(),
-	                       sq_query_join(), sq_query_on(), sq_query_where() ...etc
+	                       sq_query_join(), sq_query_on(), sq_query_where(), etc.
 	It usually doesn't call by user.
  */
 
@@ -703,7 +703,7 @@ const char *sq_query_c(SqQuery *query);
 // return number of tables in query.
 // result array 'table_and_as_names':
 //   element_0 = table1_name, element_1 = table1_as_name,
-//   element_2 = table2_name, element_3 = table2_as_name, ...etc
+//   element_2 = table2_name, element_3 = table2_as_name, etc.
 //   elements are const string (const char*). User can't free elements in 'table_and_as_names'.
 int   sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names);
 

@@ -4,10 +4,11 @@
 
 # 思库可思 sqxclib
 
-sqxclib 是在 C 语言和 SQL（或 JSON ...等）之间转换数据的库。它提供 ORM 的功能和 C++ 包装器 (C++ wrapper)  
+sqxclib 是在 C 语言和 SQL、JSON 等之间转换数据的库。它提供 ORM 的功能和 C++ 包装器。  
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
 
 ## 目前的功能:
+
 * 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 定义常量数据库 表、列、迁移，
    这可以减少制作架构时的运行时间，请参阅 doc/[schema-builder-constant.cn.md](doc/schema-builder-constant.cn.md)。
    当然也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
@@ -194,12 +195,12 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 ## 数据库产品
 
-**Sqdb** 是数据库产品（SQLite、MySQL 等）的基础结构。您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
+**Sqdb** 是 SQLite、MySQL 等数据库产品的基础结构。您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
   
 例如: 为 SQLite 数据库创建 Sqdb 实例  
   
 当用户打开数据库时，SQLite 将在 Sq::DbConfigSqlite 指定的文件夹中打开/创建文件。  
-在此示例中，数据库文件路径为 "/path/DatabaseName.db"。  
+在此示例中，数据库文件路径为 "/path/databaseName.db"。  
   
 使用 C 函数创建 SQLite 数据库实例
 
@@ -260,7 +261,7 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 	SqStorage *storage;
 
 	storage = sq_storage_new(db);
-	sq_storage_open(storage, "DatabaseName");
+	sq_storage_open(storage, "databaseName");
 ```
 
 使用 C++ 方法打开数据库
@@ -269,7 +270,7 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 	Sq::Storage *storage;
 
 	storage = new Sq::Storage(db);
-	storage->open("DatabaseName");
+	storage->open("databaseName");
 ```
 
 ## 数据库迁移
@@ -537,7 +538,7 @@ sq_storage_query_raw() 使用原始字符串进行查询。程序必须指定数
 
 ## 查询生成器
 
-[SqQuery](doc/SqQuery.cn.md) 可以使用 C 函数或 C++ 方法生成 SQL 语句。
+[SqQuery](doc/SqQuery.cn.md) 可以使用 C 函数或 C++ 方法生成 SQL 语句，并提供了支持 printf 格式的 where()、join()、on()、having() 系列函数。  
 要获取更多信息和示例，您可以查看 doc/[SqQuery.cn.md](doc/SqQuery.cn.md)  
   
 SQL 语句
@@ -617,7 +618,10 @@ SQL 语句
 	     ->where("id", ">", 10)
 	     ->orWhereRaw("city_id < %d", 22);
 
-	array = storage->getAll("users", query);
+	array = storage->getAll("users", query->c());
+
+	// getAll() 重载函数可以直接传递 'query'
+//	array = storage->getAll("users", query);
 ```
 
 **方便的 C++ 类 'where' 系列**  
@@ -672,7 +676,7 @@ SQL 语句
 	array = storage->query(Sq::select("email").from("users").whereRaw("city_id > 5"));
 
 	// 将 Sq::from 与 query 方法一起使用
-	array = storage->query(Sq::from("users").whereRaw("city_id > 5"));
+	array = storage->query(Sq::from("users").whereRaw("city_id > %d", 5));
 ```
 
 ## JOIN 支持
@@ -882,7 +886,7 @@ Sqxc 用于数据解析和写入。
 
 ## SqType
 它定义了如何初始化、终结和转换 C 数据类型。  
-*Sqxc* 使用它在 C 语言和 SQL（或 JSON...等）之间转换数据。  
+*Sqxc* 使用它在 C 语言和 SQL、JSON 等之间转换数据。  
 您可以在 doc/[SqType.cn.md](doc/SqType.cn.md) 中获得更多描述和示例。
 
 ## SqSchema

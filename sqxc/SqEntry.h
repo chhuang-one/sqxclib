@@ -125,7 +125,7 @@ void  sq_entry_set_str_addr(SqEntry *entry, char **str_addr, const char *str_src
 
 /*	SqReentries: unsorted pointer array of SqReentry.
 	             element can be NULL in array.
-	             It used by migration, change list...etc
+	             It used by migration, change list, etc.
  */
 
 // It remove all NULL pointer in array

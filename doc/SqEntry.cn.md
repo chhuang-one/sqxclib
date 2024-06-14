@@ -3,7 +3,7 @@
 # SqEntry
 
 SqEntry 定义结构类型的字段。它必须使用 [SqType](SqType.cn.md) 来定义字段的数据类型。  
-[Sqxc](Sqxc.cn.md) 使用 SqEntry 及其派生结构（例如 SqColumn 和 SqOption）在 C 和 SQL（或 JSON...等）之间转换数据。
+[Sqxc](Sqxc.cn.md) 使用 SqEntry 及其派生结构（例如 SqColumn 和 SqOption）在 C 和 SQL、JSON 等之间转换数据。
 
 	SqEntry
 	│

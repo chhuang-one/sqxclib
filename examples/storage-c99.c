@@ -13,9 +13,10 @@
  */
 
 /*
-	This example code mainly use C99 designated initializer to define constant columns in tables.
+	This example code use C99 designated initializer to define constant columns in tables.
 
-	The function city_add_column_dynamically() is example code for dynamically defining columns in cities table.
+	storage_make_migrated_schema() and city_add_column_dynamically() are
+	example code for dynamically defining columns in cities table.
  */
 
 #ifdef _MSC_VER
@@ -57,16 +58,16 @@ struct User
 	char  *email;
 	int    city_id;    // foreign key
 
-	char  *comment;    // SQL Type: TEXT
+	char  *comment;          // SQL Type: TEXT
 
 	// If you use SQLite or MySQL to store binary data in database column,
 	// Please make sure that SQ_CONFIG_QUERY_ONLY_COLUMN is enabled.
 	// If you use PostgreSQL to do this, you don't need to care about SQ_CONFIG_QUERY_ONLY_COLUMN.
-	SqBuffer       picture; // SQL Type: BLOB, BINARY...etc
+	SqBuffer       picture;  // SQL Type: BLOB, BINARY, etc.
 
 	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in database column
-	SqIntArray     ints;    // integer array  (JSON array  in database column)
-	Post          *post;    // object pointer (JSON object in database column)
+	SqIntArray     ints;     // integer array  (JSON array  in database column)
+	Post          *post;     // object pointer (JSON object in database column)
 
 	time_t         created_at;
 	time_t         updated_at;
@@ -111,7 +112,7 @@ static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_STR,    "email",     offsetof(User, email),     0,
 		.size = 60},
 
-	// FOREIGN KEY
+	// FOREIGN KEY (city_id) REFERENCES cities(id)  ON DELETE CASCADE  ON UPDATE CASCADE
 	{SQ_TYPE_INT,    "city_id",   offsetof(User, city_id),   SQB_FOREIGN,
 		.foreign = (char *[]) {"cities", "id",  "",  "CASCADE", "CASCADE", NULL} },
 
@@ -138,7 +139,8 @@ static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER | SQB_NULLABLE},    // User.post is pointer
 #endif
 
-	// CONSTRAINT FOREIGN KEY
+	// CONSTRAINT users_city_id_foreign
+	// FOREIGN KEY (city_id) REFERENCES cities(id)  ON DELETE NO ACTION  ON UPDATE NO ACTION
 	{SQ_TYPE_CONSTRAINT,   "users_city_id_foreign",    0,    SQB_FOREIGN,
 		.foreign   = (char *[]) {"cities", "id",  "",  "NO ACTION", "NO ACTION", NULL},
 		.composite = (char *[]) {"city_id", NULL} },

@@ -2,7 +2,7 @@
 
 # Sqdb
 
-Sqdb 是数据库产品（SQLite、MySQL...等）的基础结构。  
+Sqdb 是 SQLite、MySQL 等数据库产品的基础结构。  
 
 | 派生结构      | 数据库产品 | 源代码文件     |
 | ------------- | ---------- | -------------- |
@@ -374,7 +374,8 @@ static void sqdb_xxsql_final(SqdbXxsql *sqdb)
 static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name)
 {
 	// 打开数据库并获取它的架构版本
-	sqdb->version = db_schema_version;
+	sqdb->version = schemaVersion;
+
 	return SQCODE_OK;
 }
 

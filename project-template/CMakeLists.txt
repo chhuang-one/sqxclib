@@ -26,8 +26,9 @@ set(CMAKE_MODULE_PATH
 
 # set(CMAKE_C_FLAGS    "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H")
 
-# use find_package(PkgConfig REQUIRED) before use pkg-config module
-find_package(PkgConfig REQUIRED)
+# find_package(PkgConfig REQUIRED) or
+# find_package(PkgConfig) before use pkg-config module
+find_package(PkgConfig)
 
 # pkg-config module
 if (PKG_CONFIG_FOUND)

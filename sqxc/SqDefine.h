@@ -15,7 +15,7 @@
 #ifndef SQ_DEFINE_H
 #define SQ_DEFINE_H
 
-#include <stdint.h>       // int64_t, intptr_t...etc
+#include <stdint.h>       // int64_t, intptr_t, etc.
 #include <stdbool.h>      // bool
 #include <string.h>       // strcmp() for Sq::compare<char*>
 #include <time.h>         // time_t

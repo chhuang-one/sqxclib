@@ -3,6 +3,7 @@
 # SqTable
 
 SqTable derives from [SqEntry](SqEntry.md). It is used to define database tables.
+It use [SqType](SqType.md) to define columns and C structure's members.
 
 	SqEntry
 	│

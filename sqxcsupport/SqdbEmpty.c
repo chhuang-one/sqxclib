@@ -70,6 +70,10 @@ static void sqdb_empty_final(SqdbEmpty *sqdb)
 static int  sqdb_empty_open(SqdbEmpty *sqdb, const char *database_name)
 {
 	// connect to Database product and open database
+
+	// set Sq::Db.version to the current schema version in the database.
+	sqdb->version = 0;
+
 	return SQCODE_OK;
 }
 

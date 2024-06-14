@@ -1,7 +1,7 @@
 include_directories(${SQXC_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 
-# bili2mp4 can't compile with MSVC because it uses readdir()...etc functions.
+# bili2mp4 can't compile with MSVC because it uses readdir() series functions.
 if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	if (JSONC_FOUND)
 		add_executable(bili2mp4  bili2mp4.c)

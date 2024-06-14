@@ -6,7 +6,7 @@ This document describe how to define database table, column, and migration dynam
 You can also use SqApp to run and reverse migrations with command-line tool, see [SqApp.md](SqApp.md)  
 
 Note: Because many users have used Laravel, there are many sqxclib C++ method names are similar to it.
-Actually the design of sqxclib is different from Laravel, so the usage cannot be the same.  
+Actually the design of sqxclib is different from Laravel, so the usage cannot be the same.
 
 ## Running Migrations
 
@@ -43,6 +43,9 @@ use C language
 	sq_schema_free(schema_v1);
 	sq_schema_free(schema_v2);
 ```
+
+Note1: Don't reuse 'schema_v1' and 'schema_v2' after migration because data are moved to SqStorage::schema.  
+Note2: If you use SQLite, you must synchronize schema to database after migration.  
 
 ## Tables
 

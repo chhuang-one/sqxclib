@@ -26,10 +26,6 @@
 typedef struct SqColumn       SqColumn;
 
 
-// SQL special type
-#define SQ_TYPE_CONSTRAINT    SQ_TYPE_FAKE0
-#define SQ_TYPE_INDEX         SQ_TYPE_FAKE1
-
 // deprecated. It replaced by SQ_N_ELEMENTS()
 #define SQ_N_COLUMNS(ColumnArray)    ( sizeof(ColumnArray) / sizeof(ColumnArray[0]) )
 

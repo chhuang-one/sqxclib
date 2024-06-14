@@ -13,7 +13,7 @@
  */
 
 /*	The origin of the name 'Sqxc'
-	Sqxc convert data between X and C language (X = SQL, JSON...etc)
+	Sqxc convert data between X and C language (X = SQL, JSON, etc.)
 	xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
 	SqxcSql     - convert to SQL (Sqdb)   - SqxcSql.c
@@ -77,7 +77,7 @@ typedef struct SqEntry          SqEntry;    // define in SqEntry.h
 typedef enum {
 	SQXC_TYPE_UNKNOWN  =  0,                       // result of bitwise AND
 
-	SQXC_TYPE_NULL     = (1 << 0),    // 0x0001    // Sqxc::value::ptr = NULL
+	SQXC_TYPE_NULL     = (1 << 0),    // 0x0001    // Sqxc::value.ptr = NULL
 	SQXC_TYPE_BOOL     = (1 << 1),    // 0x0002
 	SQXC_TYPE_INT      = (1 << 2),    // 0x0004
 	SQXC_TYPE_UINT     = (1 << 3),    // 0x0008

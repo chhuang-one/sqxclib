@@ -4,7 +4,7 @@ includedir=${prefix}/include
 libdir=${exec_prefix}/lib
 
 Name: sqxclib
-Description: sqxclib is a library to convert data between C language and SQL (or JSON...etc).
+Description: sqxclib is a library to convert data between C language and SQL, JSON, etc.
 Version: @SQXCLIB_PC_VERSION@
 Requires: @SQXCLIB_PC_REQUIRE_POSTGRESQL@ @SQXCLIB_PC_REQUIRE_MYSQL@ @SQXCLIB_PC_REQUIRE_SQLITE@ @SQXCLIB_PC_REQUIRE_JSONC@
 Cflags: -I${includedir}/sqxc -I${includedir}/sqxc/app -I${includedir}/sqxc/support

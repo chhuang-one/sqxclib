@@ -47,8 +47,9 @@ include(GNUInstallDirs)
 # options
 option(BUILD_SHARED_LIBS "Build the shared library" OFF)
 
-# use find_package(PkgConfig REQUIRED) before use pkg-config module
-find_package(PkgConfig REQUIRED)
+# find_package(PkgConfig REQUIRED) or
+# find_package(PkgConfig) before use pkg-config module
+find_package(PkgConfig)
 
 # pkg-config module
 if (PKG_CONFIG_FOUND)

@@ -260,7 +260,7 @@ use C++ language
 ```
 
 If you specify arithmetic type (or C string type) to Sq::Array template in C++, it can use constant value as key value directly and generate default comparison function.  
-In this case, you can use custom comparison function or use default comparison function to call sort(), findSorted()...etc. Of course, the original more complicated method can also continue to be used.
+In this case, you can use custom comparison function or use default comparison function to call sort(), findSorted(), etc. Of course, the original more complicated method can also continue to be used.
 
 ```c++
 	// --- arithmetic type ---

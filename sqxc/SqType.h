@@ -43,13 +43,13 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 
 /*	SqType initializer macro
 
-	// sample 1:
+	// example 1:
 	typedef struct User    User;
 
 	const SqEntry *UserEntries[] = {...};
 	const SqType   UserType1 = SQ_TYPE_INITIALIZER(User, UserEntries, 0);
 
-	// sample 2: initializer with init/final func
+	// example 2: initializer with init/final func
 	void  user_init(User *user);
 	void  user_final(User *user);
 
@@ -531,6 +531,10 @@ extern  const  SqType      sqType_StrArray;
 #define SQ_TYPE_FAKE5      ((SqType*)&sqType_Fake.nth[5])
 #define SQ_TYPE_FAKE6      ((SqType*)&sqType_Fake.unknown)
 #define SQ_TYPE_UNKNOWN    ((SqType*)&sqType_Fake.unknown)
+
+// SQL special type
+#define SQ_TYPE_CONSTRAINT    SQ_TYPE_FAKE0
+#define SQ_TYPE_INDEX         SQ_TYPE_FAKE1
 
 // condition
 #define SQ_TYPE_IS_FAKE(type)     \

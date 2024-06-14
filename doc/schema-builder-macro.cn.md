@@ -1,6 +1,6 @@
 [English](schema-builder-macro.md)
 
-# Schema Builder (C 宏)
+# 架构生成器 (C 宏) (实验性功能)
 
 本文档介绍如何使用 C 宏动态定义表。  
 

@@ -3,7 +3,7 @@
 # SqEntry
 
 SqEntry define field of structure type. It must use [SqType](SqType.md) to define data type of field.  
-[Sqxc](Sqxc.md) use SqEntry and its derived structures (such as SqColumn and SqOption) to convert data between C and SQL (or JSON...etc).
+[Sqxc](Sqxc.md) use SqEntry and its derived structures (such as SqColumn and SqOption) to convert data between C and SQL, JSON, etc.
 
 	SqEntry
 	│
