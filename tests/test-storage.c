@@ -152,7 +152,7 @@ void test_storage_query(SqStorage *storage)
 	company.salary = 9009;
 	company.age = 52;
 	company.address = "everywhere";
-	company.id = sq_storage_insert(storage, "companies", NULL, &company);
+	company.id = (int) sq_storage_insert(storage, "companies", NULL, &company);
 
 	// query with raw string
 	ptr.integer = sq_storage_query_raw(storage, "SELECT MAX(id) FROM companies", SQ_TYPE_INT, NULL);

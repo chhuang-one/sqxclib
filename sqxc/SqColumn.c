@@ -103,7 +103,7 @@ static char **sq_strs_set_va(char **strs, int reserve_len, va_list arg_list)
 	int    index, capacity;
 
 	if (strs) {
-		capacity = sq_strs_capacity(strs);
+		capacity = (int) sq_strs_capacity(strs);
 		sq_strs_clear(strs, false);
 	}
 	else {
