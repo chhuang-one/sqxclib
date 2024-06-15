@@ -203,6 +203,7 @@ void  sq_type_clear_entry(SqType *type)
 }
 
 // if 'sizeof_entry' == size of pointer, type of 'entry' is 'const SqEntry**'.
+// SqType::entry can NOT sort during migration.
 void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry)
 {
 	SqPtrArray  *array;
@@ -214,26 +215,9 @@ void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t 
 	if (sizeof_entry == 0)
 		sizeof_entry = sizeof(SqEntry);
 
+	type->bit_field &= ~SQB_TYPE_SORTED;
 	array = sq_type_entry_array(type);
-	if (n_entry > 1) {
-		type->bit_field &= ~SQB_TYPE_SORTED;
-		entry_addr = (SqEntry**)sq_ptr_array_alloc(array, n_entry);
-	}
-	else {
-		entry_addr = (SqEntry**)sq_ptr_array_find_sorted(array,
-				(sizeof(SqEntry*) == sizeof_entry) ? (*(SqEntry**)entry)->name : entry->name,
-				sq_entry_cmp_str__name,
-				&index);
-#ifndef NDEBUG
-		if (entry_addr) {
-			fprintf(stderr, "%s: entry '%s' already exists in type '%s'.\n",
-					"sq_type_add_entry()",
-					(sizeof(SqEntry*) == sizeof_entry) ? (*(SqEntry**)entry)->name : entry->name,
-					type->name);
-		}
-#endif
-		entry_addr = (SqEntry**)sq_ptr_array_alloc_at(array, index, 1);
-	}
+	entry_addr = (SqEntry**)sq_ptr_array_alloc(array, n_entry);
 
 	for (;  n_entry;  n_entry--, entry_addr++) {
 		// if 'sizeof_entry' == size of pointer, type of 'entry' is 'const SqEntry**'.
@@ -248,9 +232,6 @@ void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t 
 		sq_type_decide_size(type, *entry_addr, false);
 		entry = (SqEntry*) ((char*)entry + sizeof_entry);
 	}
-
-	if ((type->bit_field & SQB_TYPE_SORTED) == 0)
-		sq_type_sort_entry(type);
 }
 
 void  sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_entry_ptrs)
