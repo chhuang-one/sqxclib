@@ -103,8 +103,8 @@ int   sq_app_make_schema(SqApp *app, int cur)
 	}
 	free(schema);
 
-	// synchronize schema to database and update schema in 'storage'
-	// This mainly used by SQLite
+	// This will update and sort schema in SqStorage::schema
+	// and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(app->storage, NULL);
 
 	return code;

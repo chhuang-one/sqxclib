@@ -22,11 +22,17 @@
 #endif
 
 static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc destroy_func);
+static void sq_type_sort_recursive(SqType *type, int level);
 
 
 int  sq_schema_update(SqSchema *schema, SqSchema *schema_src)
 {
 	return sq_entry_update((SqEntry*)schema, (SqEntry*)schema_src, (SqDestroyFunc)sq_table_free);
+}
+
+void  sq_schema_sort_table_column(SqSchema *schema)
+{
+	sq_type_sort_recursive((SqType*)schema->type, 2);
 }
 
 // ----------------------------------------------------------------------------
@@ -180,6 +186,21 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 	}
 
 	return SQCODE_OK;
+}
+
+static void sq_type_sort_recursive(SqType *type, int level)
+{
+	SqEntry **cur, **end;
+
+	if (type->n_entry > 0 && type->bit_field & SQB_TYPE_DYNAMIC) {
+		sq_type_sort_entry(type);
+		if (level > 1) {
+			cur = type->entry;
+			end = cur + type->n_entry;
+			for (;  cur < end;  cur++)
+				sq_type_sort_recursive((SqType*)cur[0]->type, level-1);
+		}
+	}
 }
 
 #if SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB

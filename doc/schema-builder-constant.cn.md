@@ -486,8 +486,8 @@ static const SqColumn  mappingCppColumns[4] = {
 	storage->migrate(schema_v1);
 	storage->migrate(schema_v2);
 
-	// 将架构同步到数据库并更新 'storage' 中的架构
-	// 这主要由 SQLite 使用
+	// 这将更新和排序 SqStorage::schema 中的架构并
+	// 将架构同步到数据库（主要用于 SQLite）。
 	storage->migrate(NULL);
 
 	// 释放未使用的 'schema_v1' 和 'schema_v2'
@@ -502,8 +502,8 @@ static const SqColumn  mappingCppColumns[4] = {
 	sq_storage_migrate(storage, schema_v1);
 	sq_storage_migrate(storage, schema_v2);
 
-	// 将架构同步到数据库并更新 'storage' 中的架构
-	// 这主要由 SQLite 使用
+	// 这将更新和排序 SqStorage::schema 中的架构并
+	// 将架构同步到数据库（主要用于 SQLite）。
 	sq_storage_migrate(storage, NULL);
 
 	// 释放未使用的 'schema_v1' 和 'schema_v2'

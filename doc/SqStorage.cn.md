@@ -86,8 +86,8 @@ struct User {
 	// 迁移架构
 	sq_storage_migrate(storage, schema);
 
-	// 将架构同步到数据库并更新 'storage' 中的架构
-	// 这主要由 SQLite 使用
+	// 这将更新和排序 SqStorage::schema 中的架构并
+	// 将架构同步到数据库（主要用于 SQLite）。
 	sq_storage_migrate(storage, NULL);
 ```
 
@@ -104,8 +104,8 @@ struct User {
 	// 迁移架构
 	storage->migrate(schema);
 
-	// 将架构同步到数据库并更新 'storage' 中的架构
-	// 这主要由 SQLite 使用
+	// 这将更新和排序 SqStorage::schema 中的架构并
+	// 将架构同步到数据库（主要用于 SQLite）。
 	storage->migrate(NULL);
 ```
 

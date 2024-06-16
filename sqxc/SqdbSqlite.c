@@ -22,6 +22,7 @@
 #include <SqdbSqlite.h>
 #include <SqxcValue.h>
 #include <SqxcSql.h>
+#include <Sqdb-migration.h>
 #include <SqRelation-migration.h>
 
 #ifdef _MSC_VER
@@ -274,6 +275,8 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 
 	if (has_error)
 		return SQCODE_EXEC_ERROR;
+	// sort tables and columns by their name
+	sq_schema_sort_table_column(schema);
 	return SQCODE_OK;
 }
 
@@ -282,7 +285,8 @@ static int  sqdb_sqlite_migrate(SqdbSqlite *sqdb, SqSchema *schema, SqSchema *sc
 	if (sqdb->self == NULL)
 		return SQCODE_ERROR;
 
-	// If 'schema_next' is NULL, synchronize schema to database
+	// If 'schema_next' is NULL, update and sort 'schema' and
+	// synchronize 'schema' to database (mainly for SQLite).
 	if (schema_next == NULL)
 		return sqdb_sqlite_migrate_sync(sqdb, schema);
 

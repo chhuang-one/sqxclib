@@ -129,8 +129,8 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它将 'schema_next'
 	// 将 'schema_next' 的更改应用于 'schema_current'
 	sqdb_migrate(db, schema_current, schema_next);
 
-	// 将 'schema_current' 同步到数据库并更新 'schema_current'
-	// 这主要由 SQLite 使用
+	// 这将更新和排序 'schema_current' 并且
+	// 将 'schema_current' 同步到数据库（主要用于 SQLite）。
 	sqdb_migrate(db, schema_current, NULL);
 ```
 
@@ -140,8 +140,8 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它将 'schema_next'
 	// 将 'schema_next' 的更改应用于 'schema_current'
 	db->migrate(schema_current, schema_next);
 
-	// 将 'schema_current' 同步到数据库并更新 'schema_current'
-	// 这主要由 SQLite 使用
+	// 这将更新和排序 'schema_current' 并且
+	// 将 'schema_current' 同步到数据库（主要用于 SQLite）。
 	db->migrate(schema_current, NULL);
 ```
 
@@ -424,8 +424,11 @@ static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *re
 
 static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema_current, SqSchema *schema_next)
 {
+	// 如果 'schema_next' 为 NULL，则更新并排序 'schema_current'，并
+	// 将 'schema_current' 同步到数据库（主要用于 SQLite）。
 	if (schema_next == NULL) {
-		// 将 'schema_current' 同步到数据库。这主要由 SQLite 使用
+		// 按名称对表和列进行排序
+		sq_schema_sort_table_column(schema);
 		return SQCODE_OK;
 	}
 

@@ -86,8 +86,8 @@ use C functions
 	// migrate schema
 	sq_storage_migrate(storage, schema);
 
-	// synchronize schema to database and update schema in 'storage'
-	// This is mainly used by SQLite
+	// This will update and sort schema in SqStorage::schema
+	// and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(storage, NULL);
 ```
 
@@ -104,8 +104,8 @@ use C++ methods
 	// migrate schema
 	storage->migrate(schema);
 
-	// synchronize schema to database and update schema in 'storage'
-	// This is mainly used by SQLite
+	// This will update and sort schema in SqStorage::schema
+	// and synchronize schema to database (mainly for SQLite).
 	storage->migrate(NULL);
 ```
 

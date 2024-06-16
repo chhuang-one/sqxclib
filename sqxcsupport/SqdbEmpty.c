@@ -88,8 +88,10 @@ static int  sqdb_empty_migrate(SqdbEmpty *db, SqSchema *schema, SqSchema *schema
 	SqTable    *table;
 	SqPtrArray *reentries;
 
-	// If 'schema_next' is NULL, synchronize schema to database. This is mainly used by SQLite.
+	// If 'schema_next' is NULL, update and sort 'schema' and synchronize 'schema' to database (mainly for SQLite).
 	if (schema_next == NULL) {
+		// sort tables and columns by their name
+		sq_schema_sort_table_column(schema);
 		return SQCODE_OK;
 	}
 

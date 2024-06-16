@@ -129,8 +129,8 @@ use C functions
 	// apply changes of 'schema_next' to 'schema_current'
 	sqdb_migrate(db, schema_current, schema_next);
 
-	// synchronize 'schema_current' to database and update 'schema_current'
-	// This is mainly used by SQLite
+	// This will update and sort 'schema_current' and
+	// synchronize 'schema_current' to database (mainly for SQLite).
 	sqdb_migrate(db, schema_current, NULL);
 ```
 
@@ -140,8 +140,8 @@ use C++ methods
 	// apply changes of 'schema_next' to 'schema_current'
 	db->migrate(schema_current, schema_next);
 
-	// synchronize 'schema_current' to database and update 'schema_current'
-	// This is mainly used by SQLite
+	// This will update and sort 'schema_current' and
+	// synchronize 'schema_current' to database (mainly for SQLite).
 	db->migrate(schema_current, NULL);
 ```
 
@@ -424,8 +424,11 @@ static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *re
 
 static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema_current, SqSchema *schema_next)
 {
+	// If 'schema_next' is NULL, update and sort 'schema_current' and
+	// synchronize 'schema_current' to database (mainly for SQLite).
 	if (schema_next == NULL) {
-		// synchronize 'schema_current' to database. This is mainly used by SQLite
+		// sort tables and columns by their name
+		sq_schema_sort_table_column(schema);
 		return SQCODE_OK;
 	}
 

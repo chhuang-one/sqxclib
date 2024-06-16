@@ -282,6 +282,8 @@ void test_storage(const SqdbInfo *dbinfo, const SqdbConfig *config)
 	schema = sq_schema_new(NULL);
 	create_company_table(schema);
 	sq_storage_migrate(storage, schema);
+	// This will update and sort schema in SqStorage::schema
+	// and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(storage, NULL);
 	sq_schema_free(schema);
 

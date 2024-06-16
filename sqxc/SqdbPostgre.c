@@ -304,11 +304,14 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 	if (sqdb->conn == NULL)
 		return SQCODE_ERROR;
 
-	// If 'schema_next' is NULL, synchronize schema to database. This is mainly used by SQLite.
+	// If 'schema_next' is NULL, update and sort 'schema' and
+	// synchronize 'schema' to database (mainly for SQLite).
 	if (schema_next == NULL) {
 #if SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB
 		sq_schema_erase_fake_type(schema);
 #endif
+		// sort tables and columns by their name
+		sq_schema_sort_table_column(schema);
 		return SQCODE_OK;
 	}
 

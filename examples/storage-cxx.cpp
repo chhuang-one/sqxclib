@@ -289,8 +289,8 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->addIndex("users_id_index", "id");
 #endif
 
-	// synchronize schema to database. create/alter database tables based on storage->schema
-	// This is mainly used by SQLite
+	// This will update and sort schema in SqStorage::schema
+	// and synchronize schema to database (mainly for SQLite).
 	storage->migrate(NULL);
 }
 
@@ -379,7 +379,8 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	storage->migrate(schemaVer3);
 	storage->migrate(schemaVer4);
 	storage->migrate(schemaVer5);
-	// synchronize schema to database. create/alter database tables based on storage->schema
+	// This will update and sort schema in SqStorage::schema
+	// and synchronize schema to database (mainly for SQLite).
 	storage->migrate(NULL);
 
 	// free migrated schema

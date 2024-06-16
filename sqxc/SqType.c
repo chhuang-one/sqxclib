@@ -203,12 +203,11 @@ void  sq_type_clear_entry(SqType *type)
 }
 
 // if 'sizeof_entry' == size of pointer, type of 'entry' is 'const SqEntry**'.
-// SqType::entry can NOT sort during migration.
+// sq_type_add_entry() can NOT sort SqType::entry before doing migration because it needs to keep migration order.
 void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry)
 {
 	SqPtrArray  *array;
 	SqEntry    **entry_addr;
-	int          index;
 
 	if ((type->bit_field & SQB_TYPE_DYNAMIC) == 0)
 		return;

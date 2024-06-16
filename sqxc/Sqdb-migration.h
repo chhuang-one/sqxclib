@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -31,6 +31,11 @@ extern "C" {
  */
 int  sq_schema_update(SqSchema *schema, SqSchema *schema_src);
 
+/* This is used by migration.
+   It sorts tables and columns in the schema according to their names.
+   Call this function after migration.
+ */
+void  sq_schema_sort_table_column(SqSchema *schema);
 
 #if SQ_CONFIG_ERASE_FAKE_TYPE_WHEN_SYNC_DB
 
