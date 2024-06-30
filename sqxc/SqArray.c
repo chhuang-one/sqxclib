@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -77,7 +77,7 @@ void *sq_array_alloc_at(void *array, int index, int count)
 	return ((SqArray*)array)->data + index * elementSize;
 }
 
-void *sq_array_find(void *array,
+void *sq_array_find(const void *array,
                     int   elementSize,
                     const void *key,
                     SqCompareFunc compareFunc)
@@ -92,7 +92,7 @@ void *sq_array_find(void *array,
 	return NULL;
 }
 
-void  *sq_array_find_sorted(void *array,
+void  *sq_array_find_sorted(const void *array,
                             int   elementSize,
                             const void *key,
                             SqCompareFunc compareFunc,

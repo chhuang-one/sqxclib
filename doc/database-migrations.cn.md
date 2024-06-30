@@ -3,49 +3,76 @@
 # 数据库：迁移
 
 本文档描述了如何动态定义数据库 表、列、迁移。迁移功能可以处理动态和静态列/表定义。
-您还可以使用 SqApp 通过命令行工具运行和反向迁移，请参阅 [SqApp.cn.md](SqApp.cn.md)  
+您还可以使用 SqApp 通过命令行工具运行和反向迁移，请参阅 [SqApp.cn.md](SqApp.cn.md)。  
 
 注意: 因为很多用户使用过 Laravel，所以有很多 sqxclib C++ 方法名和它类似。
 实际上 sqxclib 的设计与 Laravel 不同，所以用法不可能相同。
 
-## 运行迁移
+## 架构
 
-迁移架构并同步到数据库。  
+[SqSchema](SqSchema.cn.md) 用于定义数据库架构。它存储表和表的更改记录。迁移时，程序使用架构的版本来决定是否迁移。  
+  
+要创建模式并指定其版本号，请使用 sq_schema_new_ver()。  
   
 使用 C++ 语言
 
 ```c++
-	// 迁移 'schema_v1' 和 'schema_v2'
-	storage->migrate(schema_v1);
-	storage->migrate(schema_v2);
+	Sq::Schema *schema;
+	int         version = 1;
 
-	// 这将更新和排序 SqStorage::schema 中的架构并
-	// 将架构同步到数据库（主要用于 SQLite）。
-	storage->migrate(NULL);
-
-	// 释放未使用的 'schema_v1' 和 'schema_v2'
-	delete schema_v1;
-	delete schema_v2;
+	// 创建架构并指定其版本号。
+	schema = new Sq::Schema(version, "SchemaName");
 ```
 
 使用 C 语言
 
 ```c
-	// 迁移 'schema_v1' 和 'schema_v2'
-	sq_storage_migrate(storage, schema_v1);
-	sq_storage_migrate(storage, schema_v2);
+	SqSchema *schema;
+	int       version = 1;
 
-	// 这将更新和排序 SqStorage::schema 中的架构并
-	// 将架构同步到数据库（主要用于 SQLite）。
-	sq_storage_migrate(storage, NULL);
-
-	// 释放未使用的 'schema_v1' 和 'schema_v2'
-	sq_schema_free(schema_v1);
-	sq_schema_free(schema_v2);
+	// 创建架构并指定其版本号。
+	schema = sq_schema_new_ver(version, "SchemaName");
 ```
 
-注意1: 迁移后不要重复使用 'schema_v1' 和 'schema_v2'，因为数据已被移动到 SqStorage::schema。  
-注意2: 如果使用 SQLite，迁移后必须将架构同步到数据库。  
+#### 运行迁移
+
+[SqStorage](SqStorage.cn.md) 的 C++ 方法 migrate() 和 C 函数 sq_storage_migrate() 需要 [SqSchema](SqSchema.cn.md) 实例来进行迁移。它们的 'schema' 参数将应用于 SqStorage::schema。  
+  
+注意: 迁移后不要重复使用传递给 migrate() 的 'schema'，因为数据会从 'schema' 移动到 SqStorage::schema。  
+  
+例如: 迁移架构并同步到数据库。  
+  
+使用 C++ 语言
+
+```c++
+	Sq::Storage *storage = instance;    // 省略初始化
+
+	// 迁移 'schema'
+	storage->migrate(schema);
+
+	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
+	// 这将更新和排序 SqStorage 中的架构并将架构同步到数据库（主要用于 SQLite）。
+	storage->migrate(NULL);
+
+	// 释放不再使用的 'schema'
+	delete schema;
+```
+
+使用 C 语言
+
+```c
+	SqStorage *storage = instance;      // 省略初始化
+
+	// 迁移 'schema'
+	sq_storage_migrate(storage, schema);
+
+	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
+	// 这将更新和排序 SqStorage 中的架构并将架构同步到数据库（主要用于 SQLite）。
+	sq_storage_migrate(storage, NULL);
+
+	// 释放不再使用的 'schema'
+	sq_schema_free(schema);
+```
 
 ## 表
 
@@ -72,7 +99,7 @@ struct User {
   
 使用 C++ 语言  
   
-create() 方法需要指定 结构数据类型 和 表名称。
+Sq::Schema::create() 方法需要指定 结构数据类型 和 表名称。
 
 ```c++
 	// 创建表 "users"
@@ -118,12 +145,13 @@ sq_schema_create() 函数接受两个参数：第一个参数是表的名称，�
 
 ```c++
 	// 'cUserTable' 是用 C 语言创建的并且不是常量。
-	SqTable *table = cUserTable;
+	Sq::Table *table = cUserTable;
+	Sq::Type  *type  = (Sq::Type*)table->type;
 
 	// 将 C 类型名称更改为 C++ 类型名称
-	table->type->setName(typeid(User).name());
+	type->setName(typeid(User).name());
 		// 或
-	table->type->setName(SQ_GET_TYPE_NAME(User));
+	type->setName(SQ_GET_TYPE_NAME(User));
 ```
 
 #### 检查表是否存在

@@ -54,7 +54,7 @@ void  sq_option_final(SqOption *option)
 	}
 }
 
-int   sq_option_print(SqOption *option, SqBuffer *buffer, int opt_max_length)
+int   sq_option_print(const SqOption *option, SqBuffer *buffer, int opt_max_length)
 {
 	int   length;
 

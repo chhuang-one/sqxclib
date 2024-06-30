@@ -61,7 +61,7 @@ void  sq_entry_final(SqEntry *entry)
 		free((char*)entry->name);
 }
 
-SqEntry *sq_entry_find(SqEntry *entry, const void *key, SqCompareFunc compareFunc)
+SqEntry *sq_entry_find(const SqEntry *entry, const void *key, SqCompareFunc compareFunc)
 {
 	SqEntry **addr;
 

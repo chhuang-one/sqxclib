@@ -97,7 +97,7 @@ void  sq_entry_init(SqEntry *entry, const SqType *type_info);
 void  sq_entry_final(SqEntry *entry);
 
 // If 'compareFunc' is NULL, it will use sq_entry_cmp_str__name() by default.
-SqEntry *sq_entry_find(SqEntry *entry, const void *key, SqCompareFunc compareFunc);
+SqEntry *sq_entry_find(const SqEntry *entry, const void *key, SqCompareFunc compareFunc);
 
 /* SqCompareFunc for sorting and finding SqEntry */
 
@@ -200,8 +200,8 @@ struct SqEntry
 		sq_entry_final((SqEntry*)this);
 	}
 
-	Sq::Entry *find(const void *key, SqCompareFunc compareFunc = NULL) {
-		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, compareFunc);
+	Sq::Entry *find(const void *key, SqCompareFunc compareFunc = NULL) const {
+		return (Sq::Entry*)sq_entry_find((const SqEntry*)this, key, compareFunc);
 	}
 
 	void  setName(const char *name) {
@@ -285,12 +285,12 @@ struct EntryMethod
 		sq_entry_final((SqEntry*)this);
 	}
 
-	Sq::Entry *find(const void *key, SqCompareFunc compareFunc = NULL) {
-		return (Sq::Entry*)sq_entry_find((SqEntry*)this, key, compareFunc);
+	Sq::Entry *find(const void *key, SqCompareFunc compareFunc = NULL) const {
+		return (Sq::Entry*)sq_entry_find((const SqEntry*)this, key, compareFunc);
 	}
 
 	void  setName(const char *name) {
-		SQ_ENTRY_SET_NAME((SqEntry*)this, name);
+		SQ_ENTRY_SET_NAME(this, name);
 	}
 };
 

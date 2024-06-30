@@ -284,12 +284,12 @@ struct SqType
 	/* Note: If you add, remove, or change methods here, do the same things in Sq::TypeMethod. */
 
 	// copy
-	Sq::Type *copy(SqDestroyFunc entry_free_func, SqCopyFunc entry_copy_func = NULL) {
+	Sq::Type *copy(SqDestroyFunc entry_free_func, SqCopyFunc entry_copy_func = NULL) const {
 		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, entry_copy_func);
 	}
 	// deprecated
 	// This method is only used to copy SqType from static instance.
-	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) {
+	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) const {
 		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, NULL);
 	}
 
@@ -305,10 +305,10 @@ struct SqType
 	}
 
 	// initialize/finalize instance
-	void *initInstance(void *instance, int is_pointer = 0) {
+	void *initInstance(void *instance, int is_pointer = 0) const {
 		return sq_type_init_instance((const SqType*)this, instance, is_pointer);
 	}
-	void  finalInstance(void *instance, int is_pointer = 0) {
+	void  finalInstance(void *instance, int is_pointer = 0) const {
 		sq_type_final_instance((const SqType*)this, instance, is_pointer);
 	}
 
@@ -348,7 +348,7 @@ struct SqType
 
 	// find SqEntry in SqType::entry.
 	// If compareFunc is NULL and SqType::entry is sorted, it will use binary search to find entry by name.
-	Sq::Entry **findEntry(const void *key, SqCompareFunc compareFunc = NULL) {
+	Sq::Entry **findEntry(const void *key, SqCompareFunc compareFunc = NULL) const {
 		return (Sq::Entry**)sq_type_find_entry((const SqType*)this, key, compareFunc);
 	}
 	// sort SqType::entry by name if SqType is dynamic.
@@ -631,12 +631,12 @@ namespace Sq {
 struct TypeMethod
 {
 	// copy
-	Sq::Type *copy(SqDestroyFunc entry_free_func, SqCopyFunc entry_copy_func = NULL) {
+	Sq::Type *copy(SqDestroyFunc entry_free_func, SqCopyFunc entry_copy_func = NULL) const {
 		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, entry_copy_func);
 	}
 	// deprecated
-	// This method is used to copy SqType from static instance.
-	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) {
+	// This method is only used to copy SqType from static instance.
+	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) const {
 		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, NULL);
 	}
 
@@ -652,10 +652,10 @@ struct TypeMethod
 	}
 
 	// initialize/finalize instance
-	void *initInstance(void *instance, int is_pointer = 0) {
+	void *initInstance(void *instance, int is_pointer = 0) const {
 		return sq_type_init_instance((const SqType*)this, instance, is_pointer);
 	}
-	void  finalInstance(void *instance, int is_pointer = 0) {
+	void  finalInstance(void *instance, int is_pointer = 0) const {
 		sq_type_final_instance((const SqType*)this, instance, is_pointer);
 	}
 
@@ -695,7 +695,7 @@ struct TypeMethod
 
 	// find SqEntry in SqType::entry.
 	// If compareFunc is NULL and SqType::entry is sorted, it will use binary search to find entry by name.
-	Sq::Entry **findEntry(const void *key, SqCompareFunc compareFunc = NULL) {
+	Sq::Entry **findEntry(const void *key, SqCompareFunc compareFunc = NULL) const {
 		return (Sq::Entry**)sq_type_find_entry((const SqType*)this, key, compareFunc);
 	}
 	// sort SqType::entry by name if SqType is dynamic.

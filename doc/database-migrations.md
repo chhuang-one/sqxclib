@@ -3,49 +3,76 @@
 # Database: Migrations
 
 This document describe how to define database table, column, and migration dynamically. Migration function can handle both dynamic and static column/table definitions.
-You can also use SqApp to run and reverse migrations with command-line tool, see [SqApp.md](SqApp.md)  
+You can also use SqApp to run and reverse migrations with command-line tool, see [SqApp.md](SqApp.md).  
 
 Note: Because many users have used Laravel, there are many sqxclib C++ method names are similar to it.
 Actually the design of sqxclib is different from Laravel, so the usage cannot be the same.
 
-## Running Migrations
+## Schema
 
-migrate schema and synchronize to database.  
+[SqSchema](SqSchema.md) is used to define database schema. It store table and changed record of table. When migrating, the program uses schema's version to decide to migrate or not.  
+  
+To create schema and specify it's version number, use sq_schema_new_ver().  
   
 use C++ language
 
 ```c++
-	// migrate 'schema_v1' and 'schema_v2'
-	storage->migrate(schema_v1);
-	storage->migrate(schema_v2);
+	Sq::Schema *schema;
+	int         version = 1;
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
-	storage->migrate(NULL);
-
-	// free unused 'schema_v1' and 'schema_v2'
-	delete schema_v1;
-	delete schema_v2;
+	// Create schema and specify it's version number.
+	schema = new Sq::Schema(version, "SchemaName");
 ```
 
 use C language
 
 ```c
-	// migrate 'schema_v1' and 'schema_v2'
-	sq_storage_migrate(storage, schema_v1);
-	sq_storage_migrate(storage, schema_v2);
+	SqSchema *schema;
+	int       version = 1;
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
-	sq_storage_migrate(storage, NULL);
-
-	// free unused 'schema_v1' and 'schema_v2'
-	sq_schema_free(schema_v1);
-	sq_schema_free(schema_v2);
+	// Create schema and specify it's version number.
+	schema = sq_schema_new_ver(version, "SchemaName");
 ```
 
-Note1: Don't reuse 'schema_v1' and 'schema_v2' after migration because data are moved to SqStorage::schema.  
-Note2: If you use SQLite, you must synchronize schema to database after migration.  
+#### Running Migrations
+
+C++ method migrate() and C function sq_storage_migrate() of [SqStorage](SqStorage.md) require a instance of [SqSchema](SqSchema.md) to do migration. Their 'schema' parameter will be applied to SqStorage::schema.  
+  
+Note: Don't reuse the 'schema' passed to the migrate() after migration because data is moved from 'schema' to SqStorage::schema.  
+  
+e.g. migrate schema and synchronize to database.  
+  
+use C++ language
+
+```c++
+	Sq::Storage *storage = instance;    // omitted initialize
+
+	// migrate 'schema'
+	storage->migrate(schema);
+
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
+	storage->migrate(NULL);
+
+	// free unused 'schema'
+	delete schema;
+```
+
+use C language
+
+```c
+	SqStorage *storage = instance;      // omitted initialize
+
+	// migrate 'schema'
+	sq_storage_migrate(storage, schema);
+
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
+	sq_storage_migrate(storage, NULL);
+
+	// free unused 'schema'
+	sq_schema_free(schema);
+```
 
 ## Tables
 
@@ -72,7 +99,7 @@ Create a new table and it's columns in database.
   
 use C++ language  
   
-The create() method requires specifying the structure data type and table name.
+The Sq::Schema::create() method requires specifying the structure data type and table name.
 
 ```c++
 	// create table "users"
@@ -118,12 +145,13 @@ Because gcc's typeid(Type).name() will return strange name, you will get differe
 
 ```c++
 	// 'cUserTable' is created in C language and is not a constant.
-	SqTable *table = cUserTable;
+	Sq::Table *table = cUserTable;
+	Sq::Type  *type  = (Sq::Type*)table->type;
 
 	// change C type name to C++ type name
-	table->type->setName(typeid(User).name());
+	type->setName(typeid(User).name());
 		// or
-	table->type->setName(SQ_GET_TYPE_NAME(User));
+	type->setName(SQ_GET_TYPE_NAME(User));
 ```
 
 #### Checking For Table Existence

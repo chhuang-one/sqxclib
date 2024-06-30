@@ -238,12 +238,12 @@ struct SqCommand
 	}
 
 	// copy
-	Sq::Command *copy(SqDestroyFunc option_free_func = NULL, SqCopyFunc option_copy_func = NULL) {
+	Sq::Command *copy(SqDestroyFunc option_free_func = NULL, SqCopyFunc option_copy_func = NULL) const {
 		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func, option_copy_func);
 	}
 	// deprecated
-	// This method is used to copy Sq::Command from static instance.
-	Sq::Command *copyStatic(SqDestroyFunc option_free_func = NULL) {
+	// This method is only used to copy Sq::Command from static instance.
+	Sq::Command *copyStatic(SqDestroyFunc option_free_func = NULL) const {
 		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func, NULL);
 	}
 
@@ -353,11 +353,12 @@ struct CommandMethod
 	}
 
 	// copy
-	Sq::Command *copy(SqDestroyFunc option_free_func = NULL, SqCopyFunc option_copy_func = NULL) {
+	Sq::Command *copy(SqDestroyFunc option_free_func = NULL, SqCopyFunc option_copy_func = NULL) const {
 		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func, option_copy_func);
 	}
-	// This method is used to copy Command from static instance.
-	Sq::Command *copyStatic(SqDestroyFunc option_free_func = NULL) {
+	// deprecated
+	// This method is only used to copy Sq::Command from static instance.
+	Sq::Command *copyStatic(SqDestroyFunc option_free_func = NULL) const {
 		return (Sq::Command*)sq_command_copy(NULL, (const SqCommand*)this, option_free_func, NULL);
 	}
 
