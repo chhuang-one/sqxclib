@@ -123,6 +123,10 @@ void  sq_storage_remove_all(SqStorage    *storage,
                             const char   *table_name,
                             const char   *sql_where_having);
 
+int      sq_storage_begin_trans(SqStorage *storage);
+int      sq_storage_commit_trans(SqStorage *storage);
+int      sq_storage_rollback_trans(SqStorage *storage);
+
 // ------------------------------------
 // find table by SqTable.name or SqType::name
 
@@ -602,40 +606,8 @@ struct SqStorage
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
 // define inline functions here if compiler supports inline function.
 
-#ifdef __cplusplus  // C++
-inline
-#else               // C99
-static inline
-#endif
-int      sq_storage_begin_trans(SqStorage *storage) {
-	return SQ_STORAGE_BEGIN_TRANS(storage);
-}
-
-#ifdef __cplusplus  // C++
-inline
-#else               // C99
-static inline
-#endif
-int      sq_storage_commit_trans(SqStorage *storage) {
-	return SQ_STORAGE_COMMIT_TRANS(storage);
-}
-
-#ifdef __cplusplus  // C++
-inline
-#else               // C99
-static inline
-#endif
-int      sq_storage_rollback_trans(SqStorage *storage) {
-	return SQ_STORAGE_ROLLBACK_TRANS(storage);
-}
-
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
-
-// C functions
-int      sq_storage_begin_trans(SqStorage *storage);
-int      sq_storage_commit_trans(SqStorage *storage);
-int      sq_storage_rollback_trans(SqStorage *storage);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -1252,13 +1224,13 @@ inline void  StorageMethod::removeAll(const char *tableName, QueryType *query) {
 //  --- End of removeAll() for QueryProxy & QueryMethod pointer ---
 
 inline int  StorageMethod::beginTrans() {
-	return SQ_STORAGE_BEGIN_TRANS((SqStorage*)this);
+	return sq_storage_begin_trans((SqStorage*)this);
 }
 inline int  StorageMethod::commitTrans() {
-	return SQ_STORAGE_COMMIT_TRANS((SqStorage*)this);
+	return sq_storage_commit_trans((SqStorage*)this);
 }
 inline int  StorageMethod::rollbackTrans() {
-	return SQ_STORAGE_ROLLBACK_TRANS((SqStorage*)this);
+	return sq_storage_rollback_trans((SqStorage*)this);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */

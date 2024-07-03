@@ -431,6 +431,21 @@ void  sq_storage_remove_all(SqStorage    *storage,
 	sqdb_exec(storage->db, buf->mem, NULL, NULL);
 }
 
+int  sq_storage_begin_trans(SqStorage *storage)
+{
+	return SQ_STORAGE_BEGIN_TRANS(storage);
+}
+
+int  sq_storage_commit_trans(SqStorage *storage)
+{
+	return SQ_STORAGE_COMMIT_TRANS(storage);
+}
+
+int  sq_storage_rollback_trans(SqStorage *storage)
+{
+	return SQ_STORAGE_ROLLBACK_TRANS(storage);
+}
+
 // ------------------------------------
 
 SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
@@ -651,17 +666,5 @@ static int  print_where_column(const SqColumn *column, void *instance, SqBuffer 
 
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.
-
-int  sq_storage_begin_trans(SqStorage *storage) {
-	return SQ_STORAGE_BEGIN_TRANS(storage);
-}
-
-int  sq_storage_commit_trans(SqStorage *storage) {
-	return SQ_STORAGE_COMMIT_TRANS(storage);
-}
-
-int  sq_storage_rollback_trans(SqStorage *storage) {
-	return SQ_STORAGE_ROLLBACK_TRANS(storage);
-}
 
 #endif  // __STDC_VERSION
