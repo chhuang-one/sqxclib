@@ -44,13 +44,13 @@ SqCommand *sq_console_find(SqConsole *console, const char* command_name);
 // argv_has_command == -1  if you want to parse both a command or just options.
 SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int argv_has_command);
 
-void       sq_console_print_options(SqConsole *console, SqOption **options, int n_options);
+void       sq_console_print_options(const SqConsole *console, SqOption **options, int n_options);
 
 // if 'command' is NULL, function use first added SqCommand to print help message without name of command.
-void       sq_console_print_help(SqConsole  *console, const SqCommand *command);
+void       sq_console_print_help(const SqConsole *console, const SqCommand *command);
 
 // print command list
-void       sq_console_print_list(SqConsole  *console, const char *program_description);
+void       sq_console_print_list(const SqConsole *console, const char *program_description);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -71,11 +71,11 @@ struct ConsoleMethod
 {
 	void  add(const SqCommand *commandType);
 	void  add(const Sq::CommandMethod *commandType);
-	void  printOptions(SqOption **options, int nOptions);
-	void  printOptions(Sq::OptionMethod **options, int nOptions);
-	void  printHelp(const SqCommand *command = NULL);
-	void  printHelp(const Sq::CommandMethod *command = NULL);
-	void  printList(const char *programDescription);
+	void  printOptions(SqOption **options, int nOptions) const;
+	void  printOptions(Sq::OptionMethod **options, int nOptions) const;
+	void  printHelp(const SqCommand *command = NULL) const;
+	void  printHelp(const Sq::CommandMethod *command = NULL) const;
+	void  printList(const char *programDescription) const;
 
 	Sq::Command      *find(const char *name);
 	Sq::CommandValue *parse(int argc, char **argv, int argvHasCommand = 1);
@@ -96,8 +96,7 @@ struct ConsoleMethod
 	bool       commands_sorted;    \
 	SqCommand *command_default;    \
 	char      *program_name;       \
-	Sqxc      *xc_input;           \
-	SqBuffer   buf
+	Sqxc      *xc_input
 
 #ifdef __cplusplus
 struct SqConsole : Sq::ConsoleMethod         // <-- 1. inherit C++ member function(method)
@@ -112,7 +111,6 @@ struct SqConsole
 	SqCommand *command_default;    // default command
 	char      *program_name;
 	Sqxc      *xc_input;
-	SqBuffer   buf;
  */
 };
 
@@ -142,19 +140,19 @@ inline void  ConsoleMethod::add(const SqCommand *commandType) {
 inline void  ConsoleMethod::add(const Sq::CommandMethod *commandType) {
 	sq_console_add((SqConsole*)this, (const SqCommand*)commandType);
 }
-inline void  ConsoleMethod::printOptions(SqOption **options, int nOptions) {
+inline void  ConsoleMethod::printOptions(SqOption **options, int nOptions) const {
 	sq_console_print_options((SqConsole*)this, options, nOptions);
 }
-inline void  ConsoleMethod::printOptions(Sq::OptionMethod **options, int nOptions) {
+inline void  ConsoleMethod::printOptions(Sq::OptionMethod **options, int nOptions) const {
 	sq_console_print_options((SqConsole*)this, (SqOption**)options, nOptions);
 }
-inline void  ConsoleMethod::printHelp(const SqCommand *command) {
+inline void  ConsoleMethod::printHelp(const SqCommand *command) const {
 	sq_console_print_help((SqConsole*)this, command);
 }
-inline void  ConsoleMethod::printHelp(const Sq::CommandMethod *command) {
+inline void  ConsoleMethod::printHelp(const Sq::CommandMethod *command) const {
 	sq_console_print_help((SqConsole*)this, (const SqCommand*)command);
 }
-inline void  ConsoleMethod::printList(const char *programDescription) {
+inline void  ConsoleMethod::printList(const char *programDescription) const {
 	sq_console_print_list((SqConsole*)this, programDescription);
 }
 

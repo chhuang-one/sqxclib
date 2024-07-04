@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -20,9 +20,9 @@
 #include <sqxclib.h>
 #include <SqAppTool.h>
 
-//#define TEST_ARGV
+#define TEST_ARGV    0
 
-#ifdef TEST_ARGV
+#if TEST_ARGV
 const char *test_argv[] = {
 	"sqtool-cpp", "migrate",
 //	"sqtool-cpp", "migrate", "--step", "testarg",
@@ -64,7 +64,7 @@ int  main(int argc, char **argv)
 	else
 		apptool->template_extension = ".c.txt";
 
-#ifdef TEST_ARGV
+#if TEST_ARGV
 	argc = test_argc;
 	argv = (char**)test_argv;
 #endif

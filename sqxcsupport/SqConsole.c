@@ -49,7 +49,6 @@ void  sq_console_free(SqConsole *console)
 
 void  sq_console_init(SqConsole *console)
 {
-	sq_buffer_init(&console->buf);
 	sq_ptr_array_init(&console->commands, 8, (SqDestroyFunc)sq_command_free);
 	console->commands_sorted  = false;
 	console->command_default  = NULL;
@@ -67,7 +66,6 @@ void  sq_console_final(SqConsole *console)
 	sq_ptr_array_final(&console->commands);
 	free(console->program_name);
 	sqxc_free_chain(console->xc_input);
-	sq_buffer_final(&console->buf);
 }
 
 void  sq_console_add(SqConsole *console, const SqCommand *command_type)
@@ -97,6 +95,7 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 	const SqCommand  *type;
 	SqCommandValue   *commandValue;
 	Sqxc       *xc;
+	char       *arg;
 	char       *equ;
 	int         n_dash;
 
@@ -146,14 +145,15 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 			else                    // option shortcut
 				n_dash = 1;
 
-			sq_buffer_write(&console->buf, argv[i]+n_dash);
-			if ((equ = strchr(console->buf.mem, '=')) != NULL)
+			arg = strdup(argv[i]+n_dash);
+			if ((equ = strchr(arg, '=')) != NULL)
 				*equ = 0;
 
 			xc->type = SQXC_TYPE_STR;
-			xc->name = console->buf.mem;
+			xc->name = arg;
 			xc->value.str = (equ) ? equ + 1 : NULL;
 			xc = sqxc_send(xc);
+			free(arg);
 		}
 		else {
 			// argument
@@ -171,8 +171,9 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 	return commandValue;
 }
 
-void  sq_console_print_options(SqConsole *console, SqOption **options, int  n_options)
+void  sq_console_print_options(const SqConsole *console, SqOption **options, int  n_options)
 {
+	SqBuffer   buffer = {0};
 	SqOption  *option;
 	int        option_max_length = 0;
 	int        length;
@@ -187,13 +188,14 @@ void  sq_console_print_options(SqConsole *console, SqOption **options, int  n_op
 
 	for (int j = 0;  j < n_options;  j++) {
 		option = options[j];
-		console->buf.writed = 0;
-		sq_option_print(option, &console->buf, option_max_length);
-		puts(console->buf.mem);
+		buffer.writed = 0;
+		sq_option_print(option, &buffer, option_max_length);
+		puts(buffer.mem);
 	}
+	sq_buffer_final(&buffer);
 }
 
-void  sq_console_print_help(SqConsole  *console, const SqCommand *commandType)
+void  sq_console_print_help(const SqConsole *console, const SqCommand *commandType)
 {
 	bool  has_command = true;
 
@@ -230,7 +232,7 @@ void  sq_console_print_help(SqConsole  *console, const SqCommand *commandType)
 }
 
 // print command list
-void  sq_console_print_list(SqConsole  *console, const char *program_description)
+void  sq_console_print_list(const SqConsole *console, const char *program_description)
 {
 	const SqCommand *commandType;
 	int    command_max_length = 0;
