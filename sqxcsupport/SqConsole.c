@@ -96,8 +96,12 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 	SqCommandValue   *commandValue;
 	Sqxc       *xc;
 	char       *arg;
-	char       *equ;
-	int         n_dash;
+	int         arg_len;
+	union {
+		char   *equ;
+		int     len;
+		int     n_dash;
+	} temp;
 
 	if (argc < 2)
 		return NULL;
@@ -138,22 +142,30 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 	xc->value.pointer = NULL;
 	xc = sqxc_send(xc);
 
+	arg = NULL;
+	arg_len = 0;
 	for (int i = 0;  i < argc;  i++) {
+		// if current argument is option
 		if (argv[i][0] == '-') {
-			if (argv[i][1] == '-')  // option
-				n_dash = 2;
-			else                    // option shortcut
-				n_dash = 1;
-
-			arg = strdup(argv[i]+n_dash);
-			if ((equ = strchr(arg, '=')) != NULL)
-				*equ = 0;
-
+			// copy command option without dash '-' character
+			temp.len = strlen(argv[i]);
+			if (arg_len < temp.len) {
+				arg_len = temp.len;
+				arg = realloc(arg, arg_len);
+			}
+			if (argv[i][1] == '-')  // "--" option
+				temp.n_dash = 2;
+			else                    // "-"  option shortcut
+				temp.n_dash = 1;
+			strncpy(arg, argv[i] + temp.n_dash, arg_len);
+			// command option take a value following the option name
+			if ((temp.equ = strchr(arg, '=')) != NULL)
+				*temp.equ = 0;
+			// send option name and value to Sqxc converter
 			xc->type = SQXC_TYPE_STR;
 			xc->name = arg;
-			xc->value.str = (equ) ? equ + 1 : NULL;
+			xc->value.str = (temp.equ) ? temp.equ + 1 : NULL;
 			xc = sqxc_send(xc);
-			free(arg);
 		}
 		else {
 			// argument
@@ -161,6 +173,7 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 			continue;
 		}
 	}
+	free(arg);
 
 	xc->type = SQXC_TYPE_OBJECT_END;
 	xc->name = NULL;
