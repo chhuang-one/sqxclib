@@ -275,7 +275,7 @@ use C++ methods to open database
 
 ## Database migration
 
-This library use [SqStorage](doc/SqStorage.md) to do migration. It checks the schema version to decide whether to do.  
+To do migration, use migrate function of [SqStorage](doc/SqStorage.md). It checks the schema version to decide whether to do.  
 You can get more description about migrations and schema in doc/[database-migrations.md](doc/database-migrations.md).  
   
 use C functions to migrate schema and synchronize to database
@@ -285,8 +285,8 @@ use C functions to migrate schema and synchronize to database
 	sq_storage_migrate(storage, schema_v1);
 	sq_storage_migrate(storage, schema_v2);
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(storage, NULL);
 
 	// free unused 'schema_v1' and 'schema_v2'
@@ -301,8 +301,8 @@ use C++ methods to migrate schema and synchronize to database
 	storage->migrate(schema_v1);
 	storage->migrate(schema_v2);
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	storage->migrate(NULL);
 
 	// free unused 'schema_v1' and 'schema_v2'
@@ -385,8 +385,10 @@ The container type is specified as std::vector<User>.
 	user = storage->get<User>(2);
 ```
 
-#### Insert / Update
+#### Insert
 
+The insert() can insert a row into table. It must specify the table name and struct instance. If the primary key is auto-incremented, its value can be set to 0.  
+  
 use C functions
 
 ```c
@@ -394,22 +396,6 @@ use C functions
 
 	// insert one row
 	sq_storage_insert(storage, "users", NULL, &user);
-
-	// update one row
-	sq_storage_update(storage, "users", NULL, &user);
-
-	// update specific columns - "name" and "email" in multiple rows.
-	sq_storage_update_all(storage, "users", NULL, &user, 
-	                      "WHERE id > 11 AND id < 28",
-	                      "name", "email",
-	                      NULL);
-
-	// update specific fields - User::name and User::email in multiple rows.
-	sq_storage_update_field(storage, "users", NULL, &user, 
-	                        "WHERE id > 11 AND id < 28",
-	                        offsetof(User, name),
-	                        offsetof(User, email),
-	                        -1);
 ```
 
 use C++ methods
@@ -419,19 +405,6 @@ use C++ methods
 
 	// insert one row
 	storage->insert("users", &user);
-
-	// update one row
-	storage->update("users", &user);
-
-	// update specific columns - "name" and "email" in multiple rows.
-	storage->updateAll("users", &user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
-
-	// update specific fields - User::name and User::email in multiple rows.
-	storage->updateField("users", &user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
 ```
 
 use C++ template functions
@@ -443,27 +416,85 @@ use C++ template functions
 	storage->insert<User>(&user);
 		// or
 	storage->insert(&user);
+```
+
+#### Update
+
+updateAll() is used to modify the existing records in a table and return number of rows changed. It can update specific columns by appending column names to its arguments.  
+updateField() is similar to updateAll(). It can update specific columns by appending field's offset to its arguments.  
+  
+use C functions
+
+```c
+	User  user = {10, "Bob2", "bob2@server"};
+	int   n_changes;
 
 	// update one row
-	storage->update<User>(&user);
+	n_changes = sq_storage_update(storage, "users", NULL, &user);
+
+	// update specific columns - "name" and "email" in multiple rows.
+	n_changes = sq_storage_update_all(storage, "users", NULL, &user, 
+	                                  "WHERE id > 11 AND id < 28",
+	                                  "name", "email",
+	                                  NULL);
+
+	// update specific fields - User::name and User::email in multiple rows.
+	n_changes = sq_storage_update_field(storage, "users", NULL, &user, 
+	                                    "WHERE id > 11 AND id < 28",
+	                                    offsetof(User, name),
+	                                    offsetof(User, email),
+	                                    -1);
+```
+
+use C++ methods
+
+```c++
+	User  user = {10, "Bob2", "bob2@server"};
+	int   n_changes;
+
+	// update one row
+	n_changes = storage->update("users", &user);
+
+	// update specific columns - "name" and "email" in multiple rows.
+	n_changes = storage->updateAll("users", &user,
+	                               "WHERE id > 11 AND id < 28",
+	                               "name", "email");
+
+	// update specific fields - User::name and User::email in multiple rows.
+	n_changes = storage->updateField("users", &user,
+	                                 "WHERE id > 11 AND id < 28",
+	                                 &User::name, &User::email);
+```
+
+use C++ template functions
+
+```c++
+	User  user = {10, "Bob2", "bob2@server"};
+	int   n_changes;
+
+	// update one row
+	n_changes = storage->update<User>(&user);
 		// or
-	storage->update(&user);
+	n_changes = storage->update(&user);
 
 	// update specific columns - "name" and "email" in multiple rows.
 	// call updateAll<User>(...)
-	storage->updateAll(&user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
+	n_changes = storage->updateAll(&user,
+	                               "WHERE id > 11 AND id < 28",
+	                               "name", "email");
 
 	// update specific fields - User::name and User::email in multiple rows.
 	// call updateField<User>(...)
-	storage->updateField(&user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
+	n_changes = storage->updateField(&user,
+	                                 "WHERE id > 11 AND id < 28",
+	                                 &User::name, &User::email);
 ```
 
 #### Remove
 
+remove() can delete a row in table.  
+removeAll() can delete multiple rows by condition. If no condition is specified, all rows in the table are deleted.  
+  
 use C functions
 
 ```c
@@ -693,7 +724,7 @@ use C functions
 
 	SqPtrArray *array = sq_storage_query(storage, query, NULL, NULL);
 
-	for (int i = 0;  i < array->length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
 		user = (User*)element[1];    // sq_query_join(query, "users", ...);
@@ -710,7 +741,7 @@ use C++ methods
 
 	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
 
-	for (int i = 0;  i < array->length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
 		user = (User*)element[1];    // join("users")
@@ -827,13 +858,17 @@ use C++ STL
 
 ## Transaction
 
+	beginTrans():    Starts a new transaction.
+	commitTrans():   Saves any changes made during the current transaction and ends the transaction.
+	rollbackTrans(): Cancels any changes made during the current transaction and ends the transaction.
+
 use C functions
 
 ```c
-	User  *user;
-
 	sq_storage_begin_trans(storage);
-	sq_storage_insert(storage, "users", NULL, user);
+
+	// do something to database here...
+
 	if (abort)
 		sq_storage_rollback_trans(storage);
 	else
@@ -843,10 +878,10 @@ use C functions
 use C++ methods
 
 ```c++
-	User  *user;
-
 	storage->beginTrans();
-	storage->insert(user);
+
+	// do something to database here...
+
 	if (abort)
 		storage->rollbackTrans();
 	else

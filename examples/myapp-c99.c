@@ -75,8 +75,14 @@ int  main(void)
 	}
 
 
-	/*	database table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
-		strcut User defined in  sqxcapp/CStructs.h
+	/*	strcut User is defined in  sqxcapp/CStructs.h
+		Database table "users" is defined in  database/migrations/2021_10_12_000000_create_users_table.c
+		but it is disabled by default.
+
+		To enable the table "users", modify following files:
+			migrations-declarations
+			migrations-elements
+			migrations-files.c
 	 */
 	SqStorage *storage = myapp->base.storage;
 	User     user = {0};
@@ -84,6 +90,7 @@ int  main(void)
 	int64_t  id[2];
 	int64_t  n;
 
+	/* CRUD --- insert, update, get, remove */
 	user.age   = 18;
 	user.email = "alex@guest";
 	user.name  = "Alex";

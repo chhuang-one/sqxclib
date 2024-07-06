@@ -486,8 +486,8 @@ use C++ methods to migrate schema and synchronize to database
 	storage->migrate(schema_v1);
 	storage->migrate(schema_v2);
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	storage->migrate(NULL);
 
 	// free unused 'schema_v1' and 'schema_v2'
@@ -502,8 +502,8 @@ use C functions to migrate schema and synchronize to database
 	sq_storage_migrate(storage, schema_v1);
 	sq_storage_migrate(storage, schema_v2);
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(storage, NULL);
 
 	// free unused 'schema_v1' and 'schema_v2'

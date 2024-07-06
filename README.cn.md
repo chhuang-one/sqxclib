@@ -275,7 +275,7 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 
 ## 数据库迁移
 
-此库使用 [SqStorage](doc/SqStorage.cn.md) 进行迁移。它会检查架构版本来决定是否执行。  
+要进行迁移，请使用 [SqStorage](doc/SqStorage.cn.md) 的迁移功能。它会检查架构版本来决定是否执行。  
 您可以在 doc/[database-migrations.cn.md](doc/database-migrations.cn.md) 中获得有关迁移和架构的更多描述。  
   
 使用 C 函数迁移架构并同步到数据库
@@ -285,8 +285,8 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 	sq_storage_migrate(storage, schema_v1);
 	sq_storage_migrate(storage, schema_v2);
 
-	// 这将更新和排序 SqStorage::schema 中的架构并
-	// 将架构同步到数据库（主要用于 SQLite）。
+	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
+	// 这将更新和排序 SqStorage 中的架构并将架构同步到数据库（主要用于 SQLite）。
 	sq_storage_migrate(storage, NULL);
 
 	// 释放未使用的 'schema_v1' 和 'schema_v2'
@@ -301,8 +301,8 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 	storage->migrate(schema_v1);
 	storage->migrate(schema_v2);
 
-	// 这将更新和排序 SqStorage::schema 中的架构并
-	// 将架构同步到数据库（主要用于 SQLite）。
+	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
+	// 这将更新和排序 SqStorage 中的架构并将架构同步到数据库（主要用于 SQLite）。
 	storage->migrate(NULL);
 
 	// 释放未使用的 'schema_v1' 和 'schema_v2'
@@ -385,8 +385,10 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 	user = storage->get<User>(2);
 ```
 
-#### 插入 Insert / 更新 Update
+#### 插入 Insert
 
+insert() 可以向表中插入一行。它必须指定表名和结构实例。如果主键是自动增加的，则可以将其值设置为 0。  
+  
 使用 C 函数
 
 ```c
@@ -394,22 +396,6 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 
 	// 插入一行
 	sq_storage_insert(storage, "users", NULL, &user);
-
-	// 更新一行
-	sq_storage_update(storage, "users", NULL, &user);
-
-	// 更新特定列 - 多行中的 "name" 和 "email"。
-	sq_storage_update_all(storage, "users", NULL, &user, 
-	                      "WHERE id > 11 AND id < 28",
-	                      "name", "email",
-	                      NULL);
-
-	// 更新特定字段 - 多行中的 User::name 和 User::email。
-	sq_storage_update_field(storage, "users", NULL, &user, 
-	                        "WHERE id > 11 AND id < 28",
-	                        offsetof(User, name),
-	                        offsetof(User, email),
-	                        -1);
 ```
 
 使用 C++ 方法
@@ -419,19 +405,6 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 
 	// 插入一行
 	storage->insert("users", &user);
-
-	// 更新一行
-	storage->update("users", &user);
-
-	// 更新特定列 - 多行中的 "name" 和 "email"。
-	storage->updateAll("users", &user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
-
-	// 更新特定字段 - 多行中的 User::name 和 User::email。
-	storage->updateField("users", &user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
 ```
 
 使用 C++ 模板函数
@@ -443,27 +416,85 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 	storage->insert<User>(&user);
 		// 或
 	storage->insert(&user);
+```
+
+#### 更新 Update
+
+updateAll() 用于修改表中的多条现有记录并返回更改的行数。它可以通过将列名附加到其参数来更新特定的列。  
+updateField() 类似于 updateAll()。它可以通过将字段偏移量附加到其参数来更新特定列。  
+  
+使用 C 函数
+
+```c
+	User  user = {10, "Bob2", "bob2@server"};
+	int   n_changes;
 
 	// 更新一行
-	storage->update<User>(&user);
+	n_changes = sq_storage_update(storage, "users", NULL, &user);
+
+	// 更新特定列 - 多行中的 "name" 和 "email"。
+	n_changes = sq_storage_update_all(storage, "users", NULL, &user, 
+	                                  "WHERE id > 11 AND id < 28",
+	                                  "name", "email",
+	                                  NULL);
+
+	// 更新特定字段 - 多行中的 User::name 和 User::email。
+	n_changes = sq_storage_update_field(storage, "users", NULL, &user, 
+	                                    "WHERE id > 11 AND id < 28",
+	                                    offsetof(User, name),
+	                                    offsetof(User, email),
+	                                    -1);
+```
+
+使用 C++ 方法
+
+```c++
+	User  user = {10, "Bob2", "bob2@server"};
+	int   n_changes;
+
+	// 更新一行
+	n_changes = storage->update("users", &user);
+
+	// 更新特定列 - 多行中的 "name" 和 "email"。
+	n_changes = storage->updateAll("users", &user,
+	                               "WHERE id > 11 AND id < 28",
+	                               "name", "email");
+
+	// 更新特定字段 - 多行中的 User::name 和 User::email。
+	n_changes = storage->updateField("users", &user,
+	                                 "WHERE id > 11 AND id < 28",
+	                                 &User::name, &User::email);
+```
+
+使用 C++ 模板函数
+
+```c++
+	User  user = {10, "Bob2", "bob2@server"};
+	int   n_changes;
+
+	// 更新一行
+	n_changes = storage->update<User>(&user);
 		// 或
-	storage->update(&user);
+	n_changes = storage->update(&user);
 
 	// 更新特定列 - 多行中的 "name" 和 "email"。
 	// 调用 updateAll<User>(...)
-	storage->updateAll(&user,
-	                   "WHERE id > 11 AND id < 28",
-	                   "name", "email");
+	n_changes = storage->updateAll(&user,
+	                               "WHERE id > 11 AND id < 28",
+	                               "name", "email");
 
 	// 更新特定字段 - 多行中的 User::name 和 User::email。
 	// 调用 updateField<User>(...)
-	storage->updateField(&user,
-	                     "WHERE id > 11 AND id < 28",
-	                     &User::name, &User::email);
+	n_changes = storage->updateField(&user,
+	                                 "WHERE id > 11 AND id < 28",
+	                                 &User::name, &User::email);
 ```
 
 #### 删除 Remove
 
+remove() 可以删除表中的一行。  
+removeAll() 可以根据条件删除多行。如果没有指定条件，则删除表中的所有行。  
+  
 使用 C 函数
 
 ```c
@@ -693,7 +724,7 @@ SQL 语句
 
 	SqPtrArray *array = sq_storage_query(storage, query, NULL, NULL);
 
-	for (int i = 0;  i < array->length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
 		user = (User*)element[1];    // sq_query_join(query, "users", ...);
@@ -710,7 +741,7 @@ SQL 语句
 
 	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
 
-	for (int i = 0;  i < array->length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
 		user = (User*)element[1];    // join("users")
@@ -827,13 +858,17 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 
 ## 交易 Transaction
 
+	beginTrans()：   开始新交易。
+	commitTrans()：  保存当前交易期间所做的任何更改并结束交易。
+	rollbackTrans()：取消当前交易期间所做的任何更改并结束交易。
+
 使用 C 函数
 
 ```c
-	User  *user;
-
 	sq_storage_begin_trans(storage);
-	sq_storage_insert(storage, "users", NULL, user);
+
+	// 在这里对数据库做一些事情...
+
 	if (abort)
 		sq_storage_rollback_trans(storage);
 	else
@@ -843,10 +878,10 @@ SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRo
 使用 C++ 方法
 
 ```c++
-	User  *user;
-
 	storage->beginTrans();
-	storage->insert(user);
+
+	// 在这里对数据库做一些事情...
+
 	if (abort)
 		storage->rollbackTrans();
 	else

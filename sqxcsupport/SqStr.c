@@ -108,9 +108,9 @@ struct
 	char   *str;
 } plural_[4] =
 {
-	{-1, 3, "ies"},
-	{0,  2, "es"},
-	{0,  1, "s"},
+	{-1, 3, "ies"},    // To change word to plural form by replacing "y" to "ies"
+	{0,  2, "es"},     // To change word to plural form by adding "es"
+	{0,  1, "s"},      // To change word to plural form by adding "s"
 	{0,  0, ""}        // sq_plural2singular() need this element
 };
 

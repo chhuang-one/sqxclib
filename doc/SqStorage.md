@@ -32,7 +32,7 @@ use C++ language
 
 After opening the database, you can get current schema version in the database from SqStorage::db.version.  
   
-use C functions
+use C language
 
 ```c
 	// open database "local"
@@ -42,7 +42,7 @@ use C functions
 	int  schemaVersion = storage->db->version;
 ```
 
-use C++ methods
+use C++ language
 
 ```c
 	// open database "local"
@@ -67,11 +67,13 @@ struct User {
 };
 ```
 
-Here we use functions or methods for running migration dynamically.
-* You can get more information about schema and migrations in [database-migrations.md](database-migrations.md)
-* To use initializer to define (or change) table, see [schema-builder-constant.md](schema-builder-constant.md)
+C function sq_storage_migrate() and C++ method migrate() use schema's version to decide to migrate or not. Their 'schema' parameter is the next version of the schema, changes of 'schema' will be applied to SqStorage::schema.  
   
-use C functions
+To notify the database instance that the migration is completed, call sq_storage_migrate() and pass NULL in the last parameter. This will clear unused data, sort tables and columns, and synchronize current schema to database (mainly for SQLite).  
+  
+Note: Don't reuse the 'schema' passed to the migrate() after migration because data is moved from 'schema' to SqStorage::schema.  
+  
+use C language
 
 ```c
 	// create table "users" in schema
@@ -86,12 +88,12 @@ use C functions
 	// migrate schema
 	sq_storage_migrate(storage, schema);
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(storage, NULL);
 ```
 
-use C++ methods
+use C++ language
 
 ```c
 	// create table "users" in schema
@@ -104,13 +106,13 @@ use C++ methods
 	// migrate schema
 	storage->migrate(schema);
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	storage->migrate(NULL);
 ```
 
-Note1: Don't reuse 'schema' after migration because data is moved from 'schema' to SqStorage::schema.  
-Note2: If you use SQLite, you must synchronize schema to database after migration.  
+* You can get more information about schema and migrations in [database-migrations.md](database-migrations.md)
+* To use initializer to define (or change) table, see [schema-builder-constant.md](schema-builder-constant.md)
 
 ## get
 
@@ -282,7 +284,7 @@ use C++ Sq::where and Sq::whereRaw to generate SQL statement
 
 ## insert
 
-sq_storage_insert() is used to insert a new record in a table and return inserted row id.  
+sq_storage_insert() is used to insert a new record in a table and return inserted row id. If the primary key is auto-incremented, its value can be set to 0.  
   
 use C functions
 
@@ -342,10 +344,10 @@ use C++ methods
 
 ## updateAll (Where conditions)
 
-sq_storage_update_all() is used to modify the existing records in a table and return number of rows changed.  
-Parameter 'SQL statement' must exclude "UPDATE table_name SET column=value". Then append list of column name, the last argument must be NULL.  
+sq_storage_update_all() is used to modify the existing records in a table and return number of rows changed. It can update specific columns by appending column names to its arguments, but the last argument must be NULL.  
+Parameter 'SQL statement' must exclude "UPDATE table_name SET column=value".  
   
-Note: SqQuery can generate SQL statement exclude "UPDATE table_name SET column=value". Please see above "getAll (with SqQuery)".  
+Note: [SqQuery](SqQuery.md) can generate SQL statement exclude "UPDATE table_name SET column=value". Please see above "getAll (with SqQuery)".  
   
 e.g. update specific columns in rows.
 
@@ -403,7 +405,7 @@ Because C++ method updateAll() use parameter pack, the last argument can pass (o
 
 ## updateField (Where conditions)
 
-sq_storage_update_field() is similar to sq_storage_update_all(). User must append list of field's offset after parameter 'SQL statement' and the last argument must be -1.  
+sq_storage_update_field() is similar to sq_storage_update_all(). It can update specific columns by appending field's offset to its arguments, but the last argument must be -1.  
   
 use C functions
 
@@ -476,6 +478,8 @@ use C++ methods
 
 ## removeAll
 
+sq_storage_remove_all() will delete all rows in the table if The last argument is NULL.  
+  
 e.g. remove all rows from database table "users".
 
 ```sql
@@ -498,10 +502,10 @@ use C++ methods
 
 ## removeAll (Where conditions)
 
-sq_storage_remove_all() is used to delete existing records in a table.  
+sq_storage_remove_all() can delete multiple existing records in a table by condition. If no condition is specified, all rows in the table are deleted.  
 The last parameter is SQL statement that exclude "DELETE FROM table_name".  
   
-Note: SqQuery can generate SQL statement exclude "DELETE FROM table_name". Please see above "getAll (with SqQuery)".  
+Note: [SqQuery](SqQuery.md) can generate SQL statement exclude "DELETE FROM table_name". Please see above "getAll (with SqQuery)".  
   
 e.g. remove multiple rows from database table "users" with where conditions.
 
@@ -530,13 +534,17 @@ use C++ methods
 
 ## Transaction
 
+	beginTrans():    Starts a new transaction.
+	commitTrans():   Saves any changes made during the current transaction and ends the transaction.
+	rollbackTrans(): Cancels any changes made during the current transaction and ends the transaction.
+
 use C functions
 
 ```c
-	User  *user;
-
 	sq_storage_begin_trans(storage);
-	sq_storage_insert(storage, "users", NULL, user);
+
+	// do something to database here...
+
 	if (abort)
 		sq_storage_rollback_trans(storage);
 	else
@@ -546,10 +554,10 @@ use C functions
 use C++ methods
 
 ```c++
-	User  *user;
-
 	storage->beginTrans();
-	storage->insert(user);
+
+	// do something to database here...
+
 	if (abort)
 		storage->rollbackTrans();
 	else

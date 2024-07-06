@@ -323,8 +323,8 @@ static void migrate_refresh(SqCommandValue *commandValue, SqConsole *console, vo
 	if (code != SQCODE_OK)
 		printf("\n" "Can't refresh\n");
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(app->storage, NULL);
 
 	code = sq_app_migrate(app, 0);

@@ -2,8 +2,9 @@
 
 # SqPairs
 
-SqPairs is array of key-value pairs. It only provides simple functions because this library need a build-in small and simple key-value pairs.  
-There are some limitations in use:
+SqPairs is array of key-value pairs. It only provides simple functions because this library need a build-in small and simple key-value pairs.
+
+* There are some limitations in use:
 1. It doesn't check for duplicate keys in the array.
 2. Data types in key-value pair only support pointer or integer (only intptr_t or uintptr_t).
 
@@ -77,11 +78,12 @@ Sq::Pairs use template functions to add key-value pair.
 
 ## Get
 
-The user must specify the key to get the value in the key-value pair. get() will directly returns value in key-value pair.  
-If get() not found the key in the array:
-1. This method will return NULL or 0. You can use it if you never add NULL or 0.
+The user must specify the key to get the value in the key-value pair. get() will directly returns value in key-value pair.
+
+* If get() not found the key in the array:
+1. This method will return NULL or 0. If you need to add NULL or 0, you cannot use this to determine whether key is found.
 2. C function sq_pairs_is_found(), C++ method isFound() will return false.
-  
+
 use C language  
   
 SqPairs has function sq_pairs_get() and below 3 convenient macro to get value in key-value pair.  

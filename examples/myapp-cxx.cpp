@@ -110,20 +110,14 @@ int  main(void)
 	}
 
 
-	/*	database table "users" defined in  database/migrations/2021_10_12_000000_create_users_table.c
-		strcut User defined in  sqxcapp/CStructs.h
+	/*	strcut User is defined in  sqxcapp/CStructs.h
+		Database table "users" is defined in  database/migrations/2021_10_12_000000_create_users_table.cpp
+		but it is disabled by default.
 
-		Because database table "users" defined in C language,
-		you may NOT use below C++ template functions to access database table "users":
-			storage->insert<User>(...)
-			storage->update<User>(...)
-			storage->updateAll<User>(...)
-			storage->remove<User>(...)
-			storage->removeAll<User>(...)
-			storage->get<User>(...)
-			storage->getAll<User>(...)
-
-		To get more information about this, you can see document doc/database-migrations.md
+		To enable the table "users", modify following files:
+			migrations-declarations
+			migrations-elements
+			migrations-files.cpp
 	 */
 	Sq::Storage *storage = myapp->getStorage();
 	User     user = {0};
@@ -131,6 +125,21 @@ int  main(void)
 	int64_t  id[2];
 	int64_t  n;
 
+	/*	If database table "users" is defined in C language but application is written in C++ language,
+		You must change C language type names to C++ type names because
+		template functions of Sq::Storage use type name to get Sq::Table.
+
+		See the documentation  doc/database-migrations.md  for more information on this.
+
+		If your database table "users" is defined in C++, you can remove following code.
+	 */
+	Sq::Table *userTable = storage->schema->find("users");
+	if (userTable) {
+		Sq::Type  *userType = (Sq::Type*)userTable->type;
+		userType->setName(typeid(User).name());
+	}
+
+	/* CRUD --- insert, update, get, remove */
 	user.age   = 18;
 	user.email = (char*)"alex@guest";
 	user.name  = (char*)"Alex";

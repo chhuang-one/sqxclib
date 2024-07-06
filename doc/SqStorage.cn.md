@@ -32,7 +32,7 @@ SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。它使用 [Sqxc](Sqxc.cn.m
 
 打开数据库后，您可以从 SqStorage::db.version 获取数据库中当前的架构版本。  
   
-使用 C 函数
+使用 C 语言
 
 ```c
 	// 打开数据库 "local"
@@ -42,7 +42,7 @@ SqStorage 使用 [Sqdb](Sqdb.cn.md) 访问数据库。它使用 [Sqxc](Sqxc.cn.m
 	int  schemaVersion = storage->db->version;
 ```
 
-使用 C++ 方法
+使用 C++ 语言
 
 ```c
 	// 打开数据库 "local"
@@ -67,11 +67,13 @@ struct User {
 };
 ```
 
-在这里，我们使用函数或方法来动态运行迁移。
-* 您可以在 [database-migrations.cn.md](database-migrations.cn.md) 中获得有关架构和迁移的更多信息
-* 要使用初始化器定义（或更改）表，请参阅 [schema-builder-constant.cn.md](schema-builder-constant.cn.md)
+C 函数 sq_storage_migrate() 和 C++ 方法 migrate() 使用架构的版本来决定是否迁移。它们的 'schema' 参数是下一个版本的架构，'schema' 的更改将应用​​于 SqStorage::schema。  
   
-使用 C 函数
+要通知数据库实例迁移已完成，请调用 sq_storage_migrate() 并在最后一个参数中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。  
+  
+注意: 迁移后不要重复使用传递给 migrate() 的 'schema'，因为数据会从 'schema' 移动到 SqStorage::schema。  
+  
+使用 C 语言
 
 ```c
 	// 在架构中创建表 "users"
@@ -86,12 +88,12 @@ struct User {
 	// 迁移架构
 	sq_storage_migrate(storage, schema);
 
-	// 这将更新和排序 SqStorage::schema 中的架构并
-	// 将架构同步到数据库（主要用于 SQLite）。
+	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
+	// 这将更新和排序 SqStorage 中的架构并将架构同步到数据库（主要用于 SQLite）。
 	sq_storage_migrate(storage, NULL);
 ```
 
-使用 C++ 方法
+使用 C++ 语言
 
 ```c
 	// 在架构中创建表 "users"
@@ -104,15 +106,15 @@ struct User {
 	// 迁移架构
 	storage->migrate(schema);
 
-	// 这将更新和排序 SqStorage::schema 中的架构并
-	// 将架构同步到数据库（主要用于 SQLite）。
+	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
+	// 这将更新和排序 SqStorage 中的架构并将架构同步到数据库（主要用于 SQLite）。
 	storage->migrate(NULL);
 ```
 
-注意1: 迁移后不要重复使用 'schema'，因为数据会从 'schema' 移动到 SqStorage::schema。  
-注意2: 如果使用 SQLite，迁移后必须将架构同步到数据库。  
+* 您可以在 [database-migrations.cn.md](database-migrations.cn.md) 中获得有关架构和迁移的更多信息
+* 要使用初始化器定义（或更改）表，请参阅 [schema-builder-constant.cn.md](schema-builder-constant.cn.md)
 
-## get
+## 获取 get
 
 get() 的参数是 表名、表类型 和 id。  
 如果表类型为 NULL，SqStorage 将尝试在其架构中查找表类型。  
@@ -144,7 +146,7 @@ SELECT * FROM users WHERE id = 3
 	user = storage->get<User>(3);
 ```
 
-## getAll
+## 获取所有列 getAll
 
 getAll() 的参数是 表名、表类型、容器类型 和 SQL where 条件。它可以指定返回数据的 表类型 和 容器类型。  
 如果程序没有指定容器类型，getAll() 将使用默认的容器类型 [SqPtrArray](SqPtrArray.cn.md)。  
@@ -207,7 +209,7 @@ SELECT * FROM users
 //	list = storage->getAll< std::list<User> >("users", NULL, where);
 ```
 
-## getAll (Where 条件)
+## 获取所有列 getAll (Where 条件)
 
 sq_storage_get_all() 中的最后一个参数是排除 "SELECT * FROM table_name" 的 SQL 语句。  
   
@@ -246,7 +248,7 @@ SELECT * FROM users WHERE id > 10 AND id < 99
 	list = storage->getAll< std::list<User> >("WHERE id > 10 AND id < 99");
 ```
 
-## getAll (配合 SqQuery)
+## 获取所有列 getAll (配合 SqQuery)
 
 [SqQuery](SqQuery.cn.md) 可以生成排除 "SELECT * FROM table_name" 的 SQL 语句  
   
@@ -280,9 +282,9 @@ SELECT * FROM users WHERE id > 10 AND id < 99
 			Sq::whereRaw("id > 10").where("id", "<", 99));
 ```
 
-## insert
+## 插入 insert
 
-sq_storage_insert() 用于在表中插入一个新记录并返回插入的行 ID。  
+sq_storage_insert() 用于在表中插入一个新记录并返回插入的行 ID。如果主键是自动增加的，则可以将其值设置为 0。  
   
 使用 C 函数
 
@@ -310,7 +312,7 @@ sq_storage_insert() 用于在表中插入一个新记录并返回插入的行 ID
 	inserted_id = storage->insert(user);
 ```
 
-## update
+## 更新 update
 
 sq_storage_update() 用于修改表中的一个现有记录并返回更改的行数。  
   
@@ -340,12 +342,12 @@ sq_storage_update() 用于修改表中的一个现有记录并返回更改的行
 	n_changes = storage->update(user);
 ```
 
-## updateAll (Where 条件)
+## 更新所有列 updateAll (Where 条件)
 
-sq_storage_update_all() 用于修改表中的多条现有记录并返回更改的行数。  
-参数 'SQL 语句' 必须排除 "UPDATE table_name SET column=value"。然后追加列名列表，最后一个参数必须为 NULL。  
+sq_storage_update_all() 用于修改表中的多条现有记录并返回更改的行数。它可以通过将列名附加到其参数来更新特定列，但最后一个参数必须为 NULL。  
+参数 'SQL 语句' 必须排除 "UPDATE table_name SET column=value"。  
   
-注意: SqQuery 可以生成排除 "UPDATE table_name SET column=value" 的 SQL 语句。请参阅上面的 "getAll (配合 SqQuery)"。  
+注意: [SqQuery](SqQuery.cn.md) 可以生成排除 "UPDATE table_name SET column=value" 的 SQL 语句。请参阅上面的 "getAll (配合 SqQuery)"。  
   
 例如: 更新行中的特定列。
 
@@ -401,9 +403,9 @@ UPDATE "users" SET "name"='yael',"email"='user@server' WHERE id > 10
 	                                "name", "email");
 ```
 
-## updateField (Where 条件)
+## 更新字段 updateField (Where 条件)
 
-sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参数 'SQL 语句' 之后附加字段的偏移量列表，最后一个参数必须为 -1。  
+sq_storage_update_field() 类似于 sq_storage_update_all()。它可以通过将字段偏移量附加到其参数来更新特定列，但最后一个参数必须为 -1。  
   
 使用 C 函数
 
@@ -450,7 +452,7 @@ sq_storage_update_field() 类似于 sq_storage_update_all()。用户必须在参
 	                                  &User::email);
 ```
 
-## remove
+## 删除 remove
 
 sq_storage_remove() 用于删除表中的一个现有记录。  
   
@@ -474,8 +476,10 @@ DELETE FROM users WHERE id = 3
 	storage->remove<User>(3);
 ```
 
-## removeAll
+## 删除所有列 removeAll
 
+如果最后一个参数为 NULL，sq_storage_remove_all() 将删除表中的所有行。  
+  
 例如: 从数据库表 "users" 中删除所有行。
 
 ```sql
@@ -496,12 +500,12 @@ DELETE FROM users
 	storage->removeAll<User>();
 ```
 
-## removeAll (Where 条件)
+## 删除所有列 removeAll (Where 条件)
 
-sq_storage_remove_all() 用于删除表中的多条现有记录。  
+sq_storage_remove_all() 可以根据条件删除表中多个现有记录。如果不指定条件，则删除表中的所有行。  
 最后一个参数是排除 "DELETE FROM table_name" 的 SQL 语句。  
   
-注意: SqQuery 可以生成排除 "DELETE FROM table_name" 的 SQL 语句。请参阅上面的 "getAll (配合 SqQuery)"。  
+注意: [SqQuery](SqQuery.cn.md) 可以生成排除 "DELETE FROM table_name" 的 SQL 语句。请参阅上面的 "getAll (配合 SqQuery)"。  
   
 例如: 使用 where 条件从数据库表 "users" 中删除多行。
 
@@ -530,13 +534,17 @@ DELETE FROM users WHERE id > 50
 
 ## 交易 Transaction
 
+	beginTrans()：   开始新交易。
+	commitTrans()：  保存当前交易期间所做的任何更改并结束交易。
+	rollbackTrans()：取消当前交易期间所做的任何更改并结束交易。
+
 使用 C 函数
 
 ```c
-	User  *user;
-
 	sq_storage_begin_trans(storage);
-	sq_storage_insert(storage, "users", NULL, user);
+
+	// 在这里对数据库做一些事情...
+
 	if (abort)
 		sq_storage_rollback_trans(storage);
 	else
@@ -546,10 +554,10 @@ DELETE FROM users WHERE id > 50
 使用 C++ 方法
 
 ```c++
-	User  *user;
-
 	storage->beginTrans();
-	storage->insert(user);
+
+	// 在这里对数据库做一些事情...
+
 	if (abort)
 		storage->rollbackTrans();
 	else

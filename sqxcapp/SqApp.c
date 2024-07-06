@@ -103,8 +103,8 @@ int   sq_app_make_schema(SqApp *app, int cur)
 	}
 	free(schema);
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(app->storage, NULL);
 
 	return code;

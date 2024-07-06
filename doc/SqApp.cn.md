@@ -34,15 +34,15 @@ SqApp-config.h 的**第一部分**可以选择数据库产品：
 // #define DB_POSTGRE     1
 ```
 
-SqApp-config.h 的**第二部分**是数据库配置值：  
-  
-DB_DATABASE  是 SqApp 将打开的数据库的默认名称。  
-DB_HOST      是连接的设置。  
-DB_PORT      是连接的设置。  
-DB_USERNAME  是认证的设置。  
-DB_PASSWORD  是认证的设置。  
-DB_FOLDER    是文件夹名称。SQLite 在此文件夹中创建或访问数据库文件。  
-DB_EXTENSION 是 SQLite 数据库文件的扩展名。  
+SqApp-config.h 的**第二部分**是数据库配置值：
+
+	DB_DATABASE  是 SqApp 将打开的数据库的默认名称。
+	DB_HOST      是连接的设置。
+	DB_PORT      是连接的设置。
+	DB_USERNAME  是认证的设置。
+	DB_PASSWORD  是认证的设置。
+	DB_FOLDER    是文件夹名称。SQLite 在此文件夹中创建或访问数据库文件。
+	DB_EXTENSION 是 SQLite 数据库文件的扩展名。
 
 * 如果您启用 SQLite，请确保您的应用程序及其 sqtool 使用相同的数据库文件路径。
 
@@ -166,12 +166,13 @@ C 函数 sq_app_open_database()，C++ 方法 openDatabase() 可以打开指定�
 ## 4 迁移
 
 C 函数 sq_app_make_schema()，C++ 方法 makeSchema() 可以使用迁移文件生成架构。  
-用户可以指定要生成的架构版本。如果用户将版本指定为 0，程序将使用默认版本（数据库中架构的版本）。  
-  
-函数 sq_app_make_schema() 的返回值：  
-SQCODE_DB_SCHEMA_VERSION_0 : 如果数据库中的架构版本为 0（未完成任何迁移）。  
-SQCODE_DB_WRONG_MIGRATIONS : 如果这些迁移不是此数据库的。  
-  
+用户可以指定要生成的架构版本。如果用户将版本指定为 0，程序将使用默认版本（数据库中架构的版本）。
+
+	C 函数 sq_app_make_schema()、C++ makeSchema() 的返回值：
+
+	SQCODE_DB_SCHEMA_VERSION_0 : 如果数据库中的架构版本为 0（未完成任何迁移）。
+	SQCODE_DB_WRONG_MIGRATIONS : 如果这些迁移不是此数据库的。
+
 使用 C 语言
 
 ```c
@@ -194,25 +195,26 @@ SQCODE_DB_WRONG_MIGRATIONS : 如果这些迁移不是此数据库的。
 
 ### 4.1 创建迁移文件
 
-SqMigration 是迁移结构。每个迁移文件都有一个 SqMigration 实例用于迁移。  
-  
-示例 1: 通过命令行程序生成 C 迁移文件
+C 迁移文件由 sqtool 创建，C++ 迁移文件由 sqtool-cpp 创建。每个迁移文件都有一个 SqMigration 实例用于迁移。
 
-```console
-sqtool  make:migration  migration_name
-```
+	要创建新的数据库表：
 
-示例 2: 通过命令行程序生成 C++ 迁移文件
+	1. 在头文件 sqapp/CStructs.h 中为数据库表 "newbies" 定义结构 'Newbie'。
 
-```console
-sqtool-cpp  make:migration  migration_name
-```
+	2. 在控制台中运行以下命令以生成迁移文件：
+	   $ sqtool      make:migration  create_newbies_table  (生成 C   迁移文件)
+	   $ sqtool-cpp  make:migration  create_newbies_table  (生成 C++ 迁移文件)
 
-该命令将：
-1. 生成迁移文件 - 工作区目录/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c (或 .cpp)
-2. 将迁移文件的相对路径附加到 工作区目录/sqxcapp/migrations-files.c (或 .cpp)
-3. 将迁移声明附加到 工作区目录/sqxcapp/migrations-declarations
-4. 将迁移数组的元素附加到 工作区目录/sqxcapp/migrations-elements
+	   该命令将：
+	   将迁移声明附加到       sqapp/migrations-declarations
+	   将迁移数组的元素附加到 sqapp/migrations-elements
+
+	   将迁移文件的相对路径通过 sqtool     附加到 sqapp/migrations-files.c
+	                     或通过 sqtool-cpp 附加到 sqapp/migrations-files.cpp
+
+	3. 编辑生成的迁移文件 yyyy_MM_dd_HHmmss_create_newbies_table.c    (由 sqtool     生成)
+	                   或 yyyy_MM_dd_HHmmss_create_newbies_table.cpp  (由 sqtool-cpp 生成)
+	   位于文件夹 database/migrations/
 
 最后，您必须在定义表后重新编译迁移代码。
 
@@ -401,14 +403,20 @@ sq_app_migrate() 的 'step' 参数如果为 0，将运行所有未完成的迁�
 
 #### 4.3 删除迁移
 
-1. 删除迁移文件 - 工作区目录/database/migrations/yyyy_MM_dd_HHmmss_migration_name.c
-2. 移除 工作区目录/sqxcapp/migrations-files.c 中迁移文件的相对路径
-3. 移除 工作区目录/sqxcapp/migrations-declarations 中的迁移声明
-4. 在 工作区目录/sqxcapp/migrations-elements 中将迁移元素设置为 NULL
-  
-第 2 点特别说明： C++ 用户必须删除 工作区目录/sqxcapp/migrations-files.cpp 中 C++ 迁移文件的相对路  
-  
-第 4 点的示例： 编辑 工作区目录/sqxcapp/migrations-elements 以删除迁移
+要删除 sqtool 创建的迁移，您必须：
+
+	1. 删除迁移文件 yyyy_MM_dd_HHmmss_migration_name.c    (由 sqtool     生成)
+	             或 yyyy_MM_dd_HHmmss_migration_name.cpp  (由 sqtool-cpp 生成)
+	   位于文件夹 database/migrations/
+
+	2. 移除 sqxcapp/migrations-files.c   中迁移文件的相对路径  (由 sqtool     添加)
+	     或 sqxcapp/migrations-files.cpp 中迁移文件的相对路径  (由 sqtool-cpp 添加)
+
+	3. 移除 sqxcapp/migrations-declarations 中的迁移声明
+
+	4. 在   sqxcapp/migrations-elements 中将迁移元素设置为 NULL
+
+第 4 点的示例： 编辑 sqxcapp/migrations-elements 以删除迁移
 
 ```c
 // 编辑前
@@ -510,7 +518,7 @@ Sq::AppSetting  forPostgreSQL = {
 };
 ```
 
-**步骤 2**: 使用其设置创建两个 SqApp  
+**步骤 2**: 使用上面定义的 SqAppSetting 创建两个 SqApp 实例  
   
 使用 C 语言
 
@@ -528,7 +536,7 @@ Sq::AppSetting  forPostgreSQL = {
 	Sq::App *appPostgreSQL = new Sq::App(forPostgreSQL);
 ```
 
-**步骤 3**: 运行迁移  
+**步骤 3**: 使用两个 SqApp 运行迁移  
   
 使用 C 语言
 

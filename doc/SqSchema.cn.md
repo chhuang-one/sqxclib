@@ -43,22 +43,10 @@ SqSchema 定义数据库架构。它存储表和表的更改记录。
 
 ## 2 创建表
 
-SqSchema 必须与 [SqTable](SqTable.cn.md) 和 [SqColumn](SqColumn.cn.md) 一起使用来创建表。您可以查看以下文档获取更多信息和示例：  
+SqSchema 必须与 [SqTable](SqTable.cn.md) 和 [SqColumn](SqColumn.cn.md) 一起使用来创建表。您可以查看以下文档获取更多信息和示例：
+
 1. [database-migrations.cn.md](database-migrations.cn.md)
 2. ../[README.cn.md](../README.cn.md#数据库架构) 中的 "**数据库架构**" 部分
-  
-因为 gcc 的 typeid(Type).name() 会返回奇怪的名称，所以你使用 gcc 编译时，你会从 C 和 C++ 源代码中得到不同的类型名称。  
-**如果您的应用程序是用 C++ 语言编写的，请用 C++ 语言创建或定义 SqTable 的类型。**  
-  
-如果 SqTable::type 是用 C 语言定义的，你不能使用下面的 C++ 模板函数来访问数据库表。
-
-	storage->insert<StructType>(...)
-	storage->update<StructType>(...)
-	storage->updateAll<StructType>(...)
-	storage->remove<StructType>(...)
-	storage->removeAll<StructType>(...)
-	storage->get<StructType>(...)
-	storage->getAll<StructType>(...)
 
 #### 2.1 为 C 结构创建表
 

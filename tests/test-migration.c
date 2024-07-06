@@ -437,8 +437,8 @@ void test_sqdb_migrate(Sqdb *db)
 	sqdb_migrate(db, schema, schema_v4);
 	sqdb_migrate(db, schema, schema_v5);
 	sqdb_migrate(db, schema, schema_v6);
-	// This will update and sort 'schema' and
-	// synchronize 'schema' to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort 'schema' and synchronize 'schema' to database (mainly for SQLite).
 	sqdb_migrate(db, schema, NULL);
 
 	sq_schema_free(schema);
@@ -482,8 +482,8 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 	sqdb_migrate(db, schema, schema_v2);
 	sqdb_migrate(db, schema, schema_v3);
 	sqdb_migrate(db, schema, schema_v4);
-	// This will update and sort 'schema' and
-	// synchronize 'schema' to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort 'schema' and synchronize 'schema' to database (mainly for SQLite).
 	sqdb_migrate(db, schema, NULL);
 
 	sq_schema_free(schema);
