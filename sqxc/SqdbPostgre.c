@@ -136,7 +136,6 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 	int        n_tuples;
 	int        code = SQCODE_OK;
 	// used by INSERT
-	int   sql_len;
 	char *sql_new = NULL;
 
 #ifndef NDEBUG
@@ -228,8 +227,9 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 		case 'I':    // INSERT
 		case 'i':    // insert
 			// for last inserted row id
-			sql_len = (int) strlen(sql);
-			sql_new = malloc(sql_len + 14);    // + " RETURNING id" "\0"
+			// The new SQL statment is sql  + " RETURNING id"         + "\0"
+			// sql_new = malloc(strlen(sql) + strlen(" RETURNING id") + 1)
+			sql_new = malloc(strlen(sql) + 14);    // + " RETURNING id" "\0"
 			strcpy(sql_new, sql);
 			strcat(sql_new, " RETURNING id");
 			sql = sql_new;
@@ -324,7 +324,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 		fprintf(stderr, "PostgreSQL: start of migration ------\n");
 #endif
 		reentries = sq_type_entry_array(schema_next->type);
-		for (int index = 0;  index < reentries->length;  index++) {
+		for (unsigned int index = 0;  index < reentries->length;  index++) {
 			table = (SqTable*)reentries->data[index];
 
 			// clear sql_buf
@@ -476,7 +476,7 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 {
 	const SqType *table_type = table->type;
 	SqColumn *old_column, *column;
-	int       index;
+	unsigned int  index;
 	int       temp;
 	PGresult *results;
 

@@ -18,8 +18,8 @@ SqIntArray 结构定义:
 ```c
 struct SqIntArray
 {
-	int      *data;
-	int       length;
+	int          *data;
+	unsigned int  length;
 };
 ```
 
@@ -51,7 +51,7 @@ struct SqIntArray
 ```c
 	int  *key;
 	int  *element;
-	int   insertingIndex;
+	unsigned int  insertingIndex;
 
 	// 使用整数指针作为键值
 	element = sq_int_array_find(array, key, compareFunc);
@@ -109,7 +109,7 @@ SqIntArray 仍然为 C 语言定义了一些 sq_int_array_xxx() 宏和函数，�
 **插入 Insert**
 
 ```c
-	int   index = 5;
+	unsigned int  index = 5;
 
 	sq_int_array_push_to(array, index, 16384);
 	sq_int_array_insert(array, index, ints, sizeof(ints) / sizeof(int));

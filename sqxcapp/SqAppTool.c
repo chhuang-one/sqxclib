@@ -421,8 +421,8 @@ char *sq_template_write_buffer(const char *template_string, SqPairs *pairs, SqBu
 	char *temp_beg;
 	char *temp_end;
 	char *str;
-	int   writed_pos;
-	int   len;
+	size_t  writed_pos;
+	size_t  len;
 
 	writed_pos = buffer->writed;
 
@@ -440,13 +440,13 @@ char *sq_template_write_buffer(const char *template_string, SqPairs *pairs, SqBu
 			break;
 		}
 
-		sq_buffer_write_len(buffer, template_string, (int)(temp_beg - template_string));
+		sq_buffer_write_len(buffer, template_string, temp_beg - template_string);
 		// + "{{"
 		temp_beg += 2;
 		// get key
 		while(temp_beg[0] == ' ')
 			temp_beg++;
-		len = (int)strcspn(temp_beg, " }");
+		len = strcspn(temp_beg, " }");
 		str = sq_buffer_write_len(buffer, temp_beg, len);
 		str[len] = 0;
 		buffer->writed -= len;

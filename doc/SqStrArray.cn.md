@@ -20,8 +20,8 @@ SqStrArray 结构定义:
 ```c
 struct SqStrArray
 {
-	char    **data;
-	int       length;
+	char         **data;
+	unsigned int   length;
 };
 ```
 
@@ -94,7 +94,7 @@ SqStrArray (C++ Sq::StrArray) 在添加和插入时会复制字符串，这一�
 ```c
 	char **key;
 	char **element;
-	int    insertingIndex;
+	unsigned int  insertingIndex;
 
 	// 使用字符串指针作为键值
 	element = sq_str_array_find(array, key, compareFunc);

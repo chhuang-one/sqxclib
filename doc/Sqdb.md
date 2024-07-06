@@ -120,17 +120,19 @@ use C++ methods
 
 ## migrate
 
-sqdb_migrate() use schema's version to decide to migrate or not. It apply changes of 'schema_next' to 'schema_current'.  
-This function may move data from 'schema_next' to 'schema_current', you can't reuse 'schema_next' after migration.
-
+sqdb_migrate() use schema's version to decide to migrate or not. It has 2 schema parameters, the first 'schema_current' parameter is the current version of the schema, and the second 'schema_next' parameter is the next version of the schema. Changes of 'schema_next' will be applied to 'schema_current'.  
+You can't reuse 'schema_next' after migration because this function may move data from 'schema_next' to 'schema_current'.  
+  
+To notify the database instance that the migration is completed, call sqdb_migrate() and pass NULL in the last parameter. This will clear unused data, sort tables and columns, and synchronize current schema to database (mainly for SQLite).  
+  
 use C functions
 
 ```c
 	// apply changes of 'schema_next' to 'schema_current'
 	sqdb_migrate(db, schema_current, schema_next);
 
-	// This will update and sort 'schema_current' and
-	// synchronize 'schema_current' to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort 'schema_current' and synchronize 'schema_current' to database (mainly for SQLite).
 	sqdb_migrate(db, schema_current, NULL);
 ```
 
@@ -140,8 +142,8 @@ use C++ methods
 	// apply changes of 'schema_next' to 'schema_current'
 	db->migrate(schema_current, schema_next);
 
-	// This will update and sort 'schema_current' and
-	// synchronize 'schema_current' to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort 'schema_current' and synchronize 'schema_current' to database (mainly for SQLite).
 	db->migrate(schema_current, NULL);
 ```
 
@@ -434,7 +436,7 @@ static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema_current, SqSchema
 
 	if (db->version < schema_next->version) {
 		// do migrations by 'schema_next'
-		for (int index = 0;  index < schema_next->type->n_entry;  index++) {
+		for (unsigned int index = 0;  index < schema_next->type->n_entry;  index++) {
 			SqTable *table = (SqTable*)schema_next->type->entry[index];
 			if (table->bit_field & SQB_CHANGED) {
 				// ALTER TABLE

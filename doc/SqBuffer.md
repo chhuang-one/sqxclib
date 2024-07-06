@@ -46,8 +46,8 @@ use C language
 
 ```c
 	char *memory;
-	int   length = 16;
-	int   position = 8;
+	unsigned int  length = 16;
+	unsigned int  position = 8;
 
 	memory = sq_buffer_alloc(buffer, length);
 
@@ -59,8 +59,8 @@ use C++ language
 
 ```c++
 	char *memory;
-	int   length = 16;
-	int   position = 8;
+	unsigned int  length = 16;
+	unsigned int  position = 8;
 
 	memory = buffer->alloc(length);
 

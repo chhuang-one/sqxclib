@@ -29,9 +29,9 @@ struct SqType
 	// 如果当前 SqType 用于 C 结构类型，则 SqType::entry 是 SqEntry 指针数组。
 	// 如果 SqType::n_entry == -1，     则 SqType::entry 不会被释放。
 	SqEntry      **entry;          // 映射到 SqPtrArray::data
-	int            n_entry;        // 映射到 SqPtrArray::length
+	unsigned int   n_entry;        // 映射到 SqPtrArray::length
 	// *** 关于以上 2 个字段：
-	// 1. 它们由宏 SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry) 展开
+	// 1. 它们由宏 SQ_ARRAY_MEMBERS(SqEntry*, entry, n_entry) 展开
 	// 2. 他们不能更改数据类型和顺序。
 
 	// 如果 SqType 是动态且可释放的，则 SqType::bit_field 具有 SQB_TYPE_DYNAMIC。
@@ -261,7 +261,7 @@ C 函数 sq_type_add_entry_ptrs() 及其 C++ 方法 addEntry() 可以添加 SqEn
 
 ```c
 	SqType  *type;
-	int      n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
+	unsigned int  n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
 
 	type = sq_type_new(8, (SqDestroyFunc)sq_entry_free);
 
@@ -272,7 +272,7 @@ C 函数 sq_type_add_entry_ptrs() 及其 C++ 方法 addEntry() 可以添加 SqEn
 
 ```c++
 	Sq::Type  *type;
-	int        n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
+	unsigned int  n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
 
 	type = new Sq::Type(8, sq_entry_free);
 

@@ -130,7 +130,7 @@ void  sq_table_create_relation(SqTable *table, SqRelationPool *pool) {
 	table->relation = sq_relation_new(pool, SQ_TABLE_RELATION_SIZE);
 	table->on_destory = (SqDestroyFunc)sq_table_on_destroy;
 	type = (SqType*)table->type;
-	for (int i = 0;  i < type->n_entry;  i++) {
+	for (unsigned int i = 0;  i < type->n_entry;  i++) {
 		column = (SqColumn*)type->entry[i];
 		if (column->foreign) {
 			sq_relation_add(table->relation, SQ_TYPE_TRACING, column, 0);
@@ -170,10 +170,10 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 	SqColumn   *column,    *column_src;
 	SqPtrArray *reentries, *reentries_src;
 	// other variable
-	int       index;
+	unsigned int  index;
 	void    **addr;
 	union {
-		int    index;
+		unsigned int  index;
 		void **addr;
 	} temp;
 
@@ -450,7 +450,7 @@ void  sq_schema_create_relation(SqSchema *schema)
 	schema->relation = sq_relation_new(schema->relation_pool, SQ_SCHEMA_RELATION_SIZE);
 	schema->on_destory = (SqDestroyFunc)sq_schema_on_destroy;
 
-	for (int i = 0;  i < type->n_entry;  i++) {
+	for (unsigned int i = 0;  i < type->n_entry;  i++) {
 		table = (SqTable*)type->entry[i];
 		// skip ALTER TABLE
 		if (table->bit_field & SQB_CHANGED)
@@ -468,10 +468,10 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 	SqTable    *table,     *table_src;
 	SqPtrArray *reentries, *reentries_src;
 	// other variable
-	int      index;
+	unsigned int  index;
 	void   **addr;
 	union {
-		int    index;
+		unsigned int  index;
 		void **addr;
 	} temp;
 
@@ -802,7 +802,7 @@ void  sq_schema_erase_records(SqSchema *schema, char version_comparison)
 
 	type = (SqType*)schema->type;
 	// erase renamed & dropped records of column in tables
-	for (int index = 0;  index < type->n_entry;  index++)
+	for (unsigned int index = 0;  index < type->n_entry;  index++)
 		sq_table_erase_records((SqTable*)type->entry[index], version_comparison);
 }
 

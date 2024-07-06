@@ -56,7 +56,7 @@ bool  sq_pairs_add(SqPairs *pairs, void *key, void *value)
 {
 	SqPair *element;
 #if SQ_PAIRS_CHECK_IF_KEY_EXIST
-	int     index;
+	unsigned int  index;
 
 	element = (SqPair*)SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key,
 	                                        pairs->key_compare_func,

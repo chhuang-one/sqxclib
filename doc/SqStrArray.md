@@ -20,8 +20,8 @@ SqStrArray Structure Definition:
 ```c
 struct SqStrArray
 {
-	char    **data;
-	int       length;
+	char         **data;
+	unsigned int   length;
 };
 ```
 
@@ -94,7 +94,7 @@ use C language
 ```c
 	char **key;
 	char **element;
-	int    insertingIndex;
+	unsigned int  insertingIndex;
 
 	// use string pointer as key value
 	element = sq_str_array_find(array, key, compareFunc);

@@ -39,16 +39,18 @@ extern  const  SqType      sqType_Row;
 
 /* macro for accessing variable of SqArray */
 
+// unsigned int  sq_row_capacity(SqRow *row);
 #define sq_row_capacity         sq_array_capacity
 
+// unsigned int  sq_row_cols_capacity(SqRow *row);
 #define sq_row_cols_capacity(row)    \
 		sq_array_capacity(&(row)->cols)
 
 // --- SqRow functions ---
-SqRow *sq_row_new(int cols_capacity, int capacity);
+SqRow *sq_row_new(unsigned int cols_capacity, unsigned int capacity);
 void   sq_row_free(SqRow *row);
 
-void   sq_row_init(SqRow *row, int cols_capacity, int capacity);
+void   sq_row_init(SqRow *row, unsigned int cols_capacity, unsigned int capacity);
 void   sq_row_final(SqRow *row);
 
 // free 'name' in SqRow::cols
@@ -64,11 +66,11 @@ void   sq_row_free_cols_name(SqRow *row);
  */
 bool   sq_row_share_cols(SqRow *row, SqRow *share_to);
 
-// SqValue  *sq_row_alloc(SqRow *row, int n_element);
+// SqValue  *sq_row_alloc(SqRow *row, unsigned int n_element);
 #define sq_row_alloc(row, n_element)    \
 		((SqValue*)sq_array_alloc(row, n_element))
 
-SqRowColumn *sq_row_alloc_column(SqRow *row, int n_element);
+SqRowColumn *sq_row_alloc_column(SqRow *row, unsigned int n_element);
 
 // --- SqTypeRow functions ---
 
@@ -128,13 +130,13 @@ struct TypeRowMethod : Sq::TypeJointMethod
  */
 struct RowMethod : ArrayMethod<Sq::Value>
 {
-	int   colsCapacity(void);
+	unsigned int  colsCapacity(void);
 
 	void  freeColsName(void);
 	bool  shareCols(SqRow *share_to);
 	bool  shareCols(SqRow &share_to);
 
-	Sq::RowColumn *allocColumn(int  n_element = 1);
+	Sq::RowColumn *allocColumn(unsigned int  n_element = 1);
 };
 
 };  // namespace Sq
@@ -175,10 +177,10 @@ struct SqRow
 	SQ_ROW_MEMBERS;                          // <-- 2. inherit member variable
 /*	// ------ SqRow members ------
 	SqValue      *data;
-	int           length;
+	unsigned int  length;
 
 	SqRowColumn  *cols;
-	int           cols_length;
+	unsigned int  cols_length;
  */
 };
 
@@ -214,7 +216,7 @@ namespace Sq {
 /* define TypeRowMethod functions. */
 
 /* define RowMethod functions. */
-int  RowMethod::colsCapacity(void) {
+unsigned int  RowMethod::colsCapacity(void) {
 	return sq_row_cols_capacity((SqRow*)this);
 }
 void RowMethod::freeColsName(void) {
@@ -226,7 +228,7 @@ bool RowMethod::shareCols(SqRow *share_to) {
 bool RowMethod::shareCols(SqRow &share_to) {
 	return sq_row_share_cols((SqRow*)this, &share_to);
 }
-Sq::RowColumn *RowMethod::allocColumn(int  n_element) {
+Sq::RowColumn *RowMethod::allocColumn(unsigned int  n_element) {
 	return sq_row_alloc_column((SqRow*)this, n_element);
 }
 
@@ -252,7 +254,7 @@ struct Row : SqRow                               // inherit C++ method and membe
 //	SQ_ROW_MEMBERS;
 
 	// constructor
-	Row(int colCapacity = 0, int capacity = 0) {
+	Row(unsigned int colCapacity = 0, unsigned int capacity = 0) {
 		sq_row_init((SqRow*)this, colCapacity, capacity);
 	}
 	// destructor

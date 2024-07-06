@@ -47,7 +47,7 @@ extern "C" {
 
 /* macro functions - parameter used only once in macro (except parameter 'array') */
 
-//void *sq_ptr_array_new(int capacity, SqClearFunc clear_func);
+//void *sq_ptr_array_new(unsigned int capacity, SqClearFunc clear_func);
 #define sq_ptr_array_new(capacity, clear_func)     \
 		(SqPtrArray*)sq_ptr_array_init(malloc(sizeof(SqPtrArray)), capacity, clear_func)
 
@@ -64,11 +64,11 @@ extern "C" {
 #define sq_ptr_array_empty               sq_array_empty
 
 // Get address of element
-//void **sq_ptr_array_addr(void *array, int index);
+//void **sq_ptr_array_addr(void *array, unsigned int index);
 #define sq_ptr_array_addr(array, index)  \
 		( ((SqPtrArray*)(array))->data + (index) )
 
-//void *sq_ptr_array_at(void *array, int index);
+//void *sq_ptr_array_at(void *array, unsigned int index);
 #define sq_ptr_array_at(array, index)    \
 		((SqPtrArray*)(array))->data[index]
 //		*( ((SqPtrArray*)(array))->data + (index) )
@@ -81,30 +81,30 @@ extern "C" {
 #define sq_ptr_array_end(array)          \
 		( (((SqPtrArray*)(array))->data) + ((SqPtrArray*)(array))->length )
 
-//void **sq_ptr_array_alloc(void *array, int count);
+//void **sq_ptr_array_alloc(void *array, unsigned int count);
 #define sq_ptr_array_alloc               (void**)sq_array_alloc
 
-//void **sq_ptr_array_alloc_at(void *array, int index, int count);
+//void **sq_ptr_array_alloc_at(void *array, unsigned int index, unsigned int count);
 #define sq_ptr_array_alloc_at            (void**)sq_array_alloc_at
 
 // void sq_ptr_array_push(void *array, void *value);
 #define sq_ptr_array_push(array, value)            \
 		*(void**)sq_array_alloc_at(array, sq_array_length(array), 1) = (void*)(value)
 
-// void sq_ptr_array_push_to(void *array, int index, void *value);
+// void sq_ptr_array_push_to(void *array, unsigned int index, void *value);
 #define sq_ptr_array_push_to(array, index, value)  \
 		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
 
-// void sq_ptr_array_erase_addr(void *array, void **elementAddr, int count);
+// void sq_ptr_array_erase_addr(void *array, void **elementAddr, unsigned int count);
 #define sq_ptr_array_erase_addr(array, elementAddr, count)       \
-		sq_ptr_array_erase(array, (int)((void**)(elementAddr) - sq_ptr_array_data(array)), count)
+		sq_ptr_array_erase(array, (void**)(elementAddr) - sq_ptr_array_data(array), count)
 
 // alias of sq_ptr_array_erase()
-// void sq_ptr_array_remove(void *array, int index, int count);
+// void sq_ptr_array_remove(void *array, unsigned int index, unsigned int count);
 #define sq_ptr_array_remove              sq_ptr_array_erase
 
 // alias of sq_ptr_array_erase_addr()
-// void sq_ptr_array_remove_addr(void *array, void **elementAddr, int count);
+// void sq_ptr_array_remove_addr(void *array, void **elementAddr, unsigned int count);
 #define sq_ptr_array_remove_addr         sq_ptr_array_erase_addr
 
 // Quick sort
@@ -121,36 +121,36 @@ extern "C" {
 #define sq_ptr_array_find(array, key, compareFunc)      \
 		(void**)SQ_ARRAY_FIND(array, void*, key, compareFunc)
 
-//void **sq_array_find_sorted(void *array, const void *key, SqCompareFunc compareFunc, int *insertingIndex);
+//void **sq_array_find_sorted(void *array, const void *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define sq_ptr_array_find_sorted(array, key, compareFunc, insertingIndex)    \
 		(void**)SQ_ARRAY_FIND_SORTED(array, void*, key, compareFunc, insertingIndex)
 
 /* macro for maintaining C/C++ inline functions easily */
 
-//void **SQ_PTR_ARRAY_APPEND(void *array, const void *values, int count);
+//void **SQ_PTR_ARRAY_APPEND(void *array, const void *values, unsigned int count);
 #define SQ_PTR_ARRAY_APPEND(array, values, count)                \
 		(void**)SQ_ARRAY_APPEND(array, void*, values, count)
 
-//void **SQ_PTR_ARRAY_INSERT(void *array, int index, const void *values, int count);
+//void **SQ_PTR_ARRAY_INSERT(void *array, unsigned int index, const void *values, unsigned int count);
 #define SQ_PTR_ARRAY_INSERT(array, index, values, count)         \
 		(void**)SQ_ARRAY_INSERT(array, void*, index, values, count)
 
 // Removes a value from array without calling the destroy function.
-// void SQ_PTR_ARRAY_STEAL(void *array, int index, int count);
+// void SQ_PTR_ARRAY_STEAL(void *array, unsigned int index, unsigned int count);
 #define SQ_PTR_ARRAY_STEAL(array, index, count)                  \
 		SQ_ARRAY_STEAL(array, void*, index, count)
 
-// void SQ_PTR_ARRAY_STEAL_ADDR(void *array, void **elementAddr, int count);
+// void SQ_PTR_ARRAY_STEAL_ADDR(void *array, void **elementAddr, unsigned int count);
 #define SQ_PTR_ARRAY_STEAL_ADDR(array, elementAddr, count)       \
 		SQ_ARRAY_STEAL_ADDR(array, void*, elementAddr, count)
 
 /* C functions */
 
-void  *sq_ptr_array_init(void *array, int capacity, SqClearFunc clear_func);
+void  *sq_ptr_array_init(void *array, unsigned int capacity, SqClearFunc clear_func);
 
 void  *sq_ptr_array_final(void *array);
 
-void   sq_ptr_array_erase(void *array, int index, int count);
+void   sq_ptr_array_erase(void *array, unsigned int index, unsigned int count);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -180,19 +180,19 @@ struct PtrArrayMethod : ArrayMethod<Type>
 	void        clearFunc(SqClearFunc func);
 
 	// member functions
-	void   init(int capacity = 8, SqClearFunc func = NULL);
+	void   init(unsigned int capacity = 8, SqClearFunc func = NULL);
 	void   final(void);
 
 	bool   isInited(void);
 	bool   notInited(void);
 
 	// removes elements from array with calling the clear function.
-	void   erase(int index, int count = 1);
-	void   erase(Type *addr, int count = 1);
+	void   erase(unsigned int index, unsigned int count = 1);
+	void   erase(Type *addr, unsigned int count = 1);
 
 	// alias of erase().
-	void   remove(int index, int count = 1);
-	void   remove(Type *addr, int count = 1);
+	void   remove(unsigned int index, unsigned int count = 1);
+	void   remove(Type *addr, unsigned int count = 1);
 
 	// foreach
 	void   foreach(std::function<void(Type  element)> func);
@@ -208,6 +208,7 @@ struct PtrArrayMethod : ArrayMethod<Type>
 
 /* SqPtrArray is array of pointer */
 
+// deprecated
 #define SQ_PTR_ARRAY_MEMBERS             SQ_ARRAY_MEMBERS
 
 #ifdef __cplusplus
@@ -218,8 +219,8 @@ struct SqPtrArray
 {
 	SQ_ARRAY_MEMBERS(void*, data, length);           // <-- 2. inherit member variable
 /*	// ------ SqArray members ------
-	void    **data;
-	int       length;
+	void         **data;
+	unsigned int   length;
  */
 };
 
@@ -235,7 +236,7 @@ inline
 #else               // C99
 static inline
 #endif
-void **sq_ptr_array_append(void *array, const void *values, int count)
+void **sq_ptr_array_append(void *array, const void *values, unsigned int count)
 {
 	return SQ_PTR_ARRAY_APPEND(array, values, count);
 }
@@ -245,7 +246,7 @@ inline
 #else               // C99
 static inline
 #endif
-void **sq_ptr_array_insert(void *array, int index, const void *values, int count)
+void **sq_ptr_array_insert(void *array, unsigned int index, const void *values, unsigned int count)
 {
 	return SQ_PTR_ARRAY_INSERT(array, index, values, count);
 }
@@ -255,7 +256,7 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_ptr_array_steal(void *array, int index, int count)
+void  sq_ptr_array_steal(void *array, unsigned int index, unsigned int count)
 {
 	SQ_PTR_ARRAY_STEAL(array, index, count);
 }
@@ -265,7 +266,7 @@ inline
 #else               // C99
 static inline
 #endif
-void  sq_ptr_array_steal_addr(void *array, void **elementAddr, int count)
+void  sq_ptr_array_steal_addr(void *array, void **elementAddr, unsigned int count)
 {
 	SQ_PTR_ARRAY_STEAL_ADDR(array, elementAddr, count);
 }
@@ -273,10 +274,10 @@ void  sq_ptr_array_steal_addr(void *array, void **elementAddr, int count)
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
 
-void **sq_ptr_array_append(void *array, const void *values, int count);
-void **sq_ptr_array_insert(void *array, int index, const void *values, int count);
-void   sq_ptr_array_steal(void *array, int index, int count);
-void   sq_ptr_array_steal_addr(void *array, void **elementAddr, int count);
+void **sq_ptr_array_append(void *array, const void *values, unsigned int count);
+void **sq_ptr_array_insert(void *array, unsigned int index, const void *values, unsigned int count);
+void   sq_ptr_array_steal(void *array, unsigned int index, unsigned int count);
+void   sq_ptr_array_steal_addr(void *array, void **elementAddr, unsigned int count);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -299,7 +300,7 @@ inline void  PtrArrayMethod<Type>::clearFunc(SqClearFunc func) {
 }
 
 template<class Type>
-inline void  PtrArrayMethod<Type>::init(int capacity, SqClearFunc func) {
+inline void  PtrArrayMethod<Type>::init(unsigned int capacity, SqClearFunc func) {
 	sq_ptr_array_init(this, capacity, func);
 }
 template<class Type>
@@ -318,21 +319,21 @@ inline bool  PtrArrayMethod<Type>::notInited(void) {
 
 // removes elements from array with calling the clear function.
 template<class Type>
-inline void  PtrArrayMethod<Type>::erase(int index, int count) {
+inline void  PtrArrayMethod<Type>::erase(unsigned int index, unsigned int count) {
 	sq_ptr_array_erase(this, index, count);
 }
 template<class Type>
-inline void  PtrArrayMethod<Type>::erase(Type *addr, int count) {
+inline void  PtrArrayMethod<Type>::erase(Type *addr, unsigned int count) {
 	sq_ptr_array_erase_addr(this, (void**)addr, count);
 }
 
 // These are aliases of erase().
 template<class Type>
-inline void  PtrArrayMethod<Type>::remove(int index, int count) {
+inline void  PtrArrayMethod<Type>::remove(unsigned int index, unsigned int count) {
 	sq_ptr_array_erase(this, index, count);
 }
 template<class Type>
-inline void  PtrArrayMethod<Type>::remove(Type *addr, int count) {
+inline void  PtrArrayMethod<Type>::remove(Type *addr, unsigned int count) {
 	sq_ptr_array_erase_addr(this, (void**)addr, count);
 }
 
@@ -356,7 +357,7 @@ inline void  PtrArrayMethod<Type>::foreach(std::function<void(Type *address)> fu
 struct PtrArray : SqPtrArray
 {
 	// constructor
-	PtrArray(int capacity = 8, SqClearFunc func = NULL) {
+	PtrArray(unsigned int capacity = 8, SqClearFunc func = NULL) {
 		sq_ptr_array_init(this, capacity, func);
 	}
 	// destructor

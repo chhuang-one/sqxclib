@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -133,7 +133,7 @@ SqRelationNode *sq_relation_node_reverse(SqRelationNode *node) {
 // ----------------------------------------------------------------------------
 // SqRelation
 
-SqRelation *sq_relation_init(SqRelation *relation, SqRelationPool *rpool, int capacity) {
+SqRelation *sq_relation_init(SqRelation *relation, SqRelationPool *rpool, unsigned int capacity) {
 	sq_array_init(relation, sizeof(SqRelationNode), capacity);
 	relation->pool = rpool;
 	return relation;
@@ -158,7 +158,7 @@ void  sq_relation_clear(SqRelation *relation) {
 }
 
 void  sq_relation_add(SqRelation *relation, const void *from, const void *to, int no_reverse) {
-	int      index;
+	unsigned int    index;
 	SqRelationNode *rnode_from, *rnode_to, *rnode_pool;
 
 	rnode_from = SQ_ARRAY_FIND_SORTED(relation, SqRelationNode, from, cmp_object__node_object, &index);
@@ -217,7 +217,7 @@ void  sq_relation_erase(SqRelation *relation, const void *from, const void *to, 
 
 void  sq_relation_replace(SqRelation *relation, const void *old_object, const void *new_object, int no_reverse) {
 	SqRelationNode *rnode, *rnode_new, *rnode_pool;
-	int  new_index;
+	unsigned int  new_index;
 
 	rnode = SQ_ARRAY_FIND_SORTED(relation, SqRelationNode, old_object, cmp_object__node_object, NULL);
 	if (rnode == NULL)

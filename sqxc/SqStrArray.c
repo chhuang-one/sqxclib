@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -18,18 +18,18 @@
 #define strdup       _strdup
 #endif
 
-void  *sq_str_array_init(SqStrArray *array, int capacity)
+void  *sq_str_array_init(SqStrArray *array, unsigned int capacity)
 {
 	// SqStrArray should use alloc() and free() series functions from the same library.
 	return sq_ptr_array_init(array, capacity, free);
 }
 
-void   sq_str_array_push_to(SqStrArray *array, int index, const char *str)
+void   sq_str_array_push_to(SqStrArray *array, unsigned int index, const char *str)
 {
 	sq_ptr_array_push_to(array, index, strdup(str));
 }
 
-char **sq_str_array_insert(SqStrArray *array, int index, const char **strs, int count)
+char **sq_str_array_insert(SqStrArray *array, unsigned int index, const char **strs, unsigned int count)
 {
 	char **addr;
 
@@ -43,7 +43,7 @@ void   sq_str_array_push(SqStrArray *array, const char *str)
 	sq_ptr_array_push(array, strdup(str));
 }
 
-char **sq_str_array_append(SqStrArray *array, const char **strs, int count)
+char **sq_str_array_append(SqStrArray *array, const char **strs, unsigned int count)
 {
 	char **addr;
 
@@ -52,7 +52,7 @@ char **sq_str_array_append(SqStrArray *array, const char **strs, int count)
 	return addr;
 }
 
-void   sq_str_array_strdup(SqStrArray *array, int index, int count)
+void   sq_str_array_strdup(SqStrArray *array, unsigned int index, unsigned int count)
 {
 	char **cur = array->data + index;
 	char **end = cur + count;

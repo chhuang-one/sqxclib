@@ -19,11 +19,11 @@ SqRow 结构定义：
 struct SqRow {
 	// 数据数组
 	SqValue      *data;
-	int           length;
+	unsigned int  length;
 
 	// 列数组
 	SqRowColumn  *cols;
-	int           cols_length;
+	unsigned int  cols_length;
 };
 ```
 
@@ -134,8 +134,8 @@ union SqValue {
 
 ```c
 	SqRow  *row;
-	int     cols_capacity = 0;    // 列数组的预分配长度
-	int     data_capacity = 0;    // 数据数组的预分配长度
+	unsigned int  cols_capacity = 0;    // 列数组的预分配长度
+	unsigned int  data_capacity = 0;    // 数据数组的预分配长度
 
 	// 创建新的 SqRow
 	row = sq_row_new(cols_capacity, data_capacity);
@@ -147,8 +147,8 @@ union SqValue {
 
 ```c++
 	Sq::Row *row;
-	int      colsCapacity = 0;    // 列数组的预分配长度
-	int      dataCapacity = 0;    // 数据数组的预分配长度
+	unsigned int  colsCapacity = 0;    // 列数组的预分配长度
+	unsigned int  dataCapacity = 0;    // 数据数组的预分配长度
 
 	// 创建新的 Sq::Row
 	row = new Sq::Row(colsCapacity, dataCapacity);
@@ -164,8 +164,8 @@ C 函数 sq_row_alloc_column() 和 sq_row_alloc()，C++ 方法 allocColumn() 和
 使用 C 语言
 
 ```c
-	int  n_columns = 1;
-	int  n_values  = 1;
+	unsigned int  n_columns = 1;
+	unsigned int  n_values  = 1;
 
 	SqRowColumn *col = sq_row_alloc_column(row, n_columns);
 	SqValue     *val = sq_row_alloc(row, n_values);
@@ -180,8 +180,8 @@ C 函数 sq_row_alloc_column() 和 sq_row_alloc()，C++ 方法 allocColumn() 和
 使用 C++ 语言
 
 ```c++
-	int  nColumns = 1;
-	int  nValues  = 1;
+	unsigned int  nColumns = 1;
+	unsigned int  nValues  = 1;
 
 	Sq::RowColumn *col = row->allocColumn(nColumns);
 	Sq::Value     *val = row->alloc(nValues);
@@ -207,7 +207,7 @@ C 函数 sq_row_share_cols()、C++ 方法 shareCols() 可以做到这一点。
 	SqRow *row = array->data[0];     // 此 'array' 有查询结果
 
 	// 将 SqRow::cols 分享给其他 SqRow
-	for (int index = 1;  index < array.length;  index++)
+	for (unsigned int index = 1;  index < array.length;  index++)
 		sq_row_share_cols(row, array->data[index]);
 ```
 

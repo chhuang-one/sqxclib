@@ -46,8 +46,8 @@ C 函数 sq_buffer_alloc_at()，C++ 重载方法 alloc() 可以从 SqBuffer 中�
 
 ```c
 	char *memory;
-	int   length = 16;
-	int   position = 8;
+	unsigned int  length = 16;
+	unsigned int  position = 8;
 
 	memory = sq_buffer_alloc(buffer, length);
 
@@ -59,8 +59,8 @@ C 函数 sq_buffer_alloc_at()，C++ 重载方法 alloc() 可以从 SqBuffer 中�
 
 ```c++
 	char *memory;
-	int   length = 16;
-	int   position = 8;
+	unsigned int  length = 16;
+	unsigned int  position = 8;
 
 	memory = buffer->alloc(length);
 

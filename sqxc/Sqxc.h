@@ -509,8 +509,8 @@ struct SqxcNested
 	SqxcNested  *nested;               \
 	int          nested_count;         \
 	char        *buf;                  \
-	int          buf_size;             \
-	int          buf_writed;           \
+	size_t       buf_size;             \
+	size_t       buf_writed;           \
 	uint16_t     supported_type;       \
 /*	uint16_t     outputable_type; */   \
 /*	uint16_t     required_type;   */   \
@@ -545,8 +545,8 @@ struct Sqxc
 
 //	SQ_BUFFER_MEMBERS(buf, buf_size, buf_writed);
 	char        *buf;
-	int          buf_size;
-	int          buf_writed;
+	size_t       buf_size;
+	size_t       buf_writed;
 
 	// ------------------------------------------
 	// properties

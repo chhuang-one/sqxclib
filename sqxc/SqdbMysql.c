@@ -150,7 +150,7 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 		fprintf(stderr, "MySQL: start of migration ------\n");
 #endif
 		reentries = sq_type_entry_array(schema_next->type);
-		for (int index = 0;  index < reentries->length;  index++) {
+		for (unsigned int index = 0;  index < reentries->length;  index++) {
 			table = (SqTable*)reentries->data[index];
 
 			// clear sql_buf

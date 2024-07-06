@@ -131,7 +131,7 @@ void  sq_entry_set_str_addr(SqEntry *entry, char **str_addr, const char *str_src
 // It remove all NULL pointer in array
 // n_old_elements: number of old elements before removing NULL
 // return:         number of old elements after  removing NULL
-int   sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements);
+unsigned int  sq_reentries_remove_null(void *reentry_ptr_array, unsigned int n_old_elements);
 
 #ifdef __cplusplus
 }

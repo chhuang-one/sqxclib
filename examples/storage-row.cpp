@@ -95,7 +95,7 @@ void printRow(Sq::Row *row)
 	SqRowColumn *col;
 	SqValue     *val;
 
-	for (int i = 0;  i < row->length;  i++) {
+	for (unsigned int i = 0;  i < row->length;  i++) {
 		col = row->cols + i;
 		val = row->data + i;
 
@@ -167,8 +167,8 @@ void makeSchema(Sq::Storage *storage)
 	storage->migrate(schema);
 	delete schema;
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	storage->migrate(NULL);
 }
 
@@ -363,7 +363,7 @@ void getRow(Sq::Storage *storage)
 	Sq::PtrArray *array = (Sq::PtrArray*)storage->getAll("users", SQ_TYPE_ROW, NULL, NULL);
 
 	if (array) {
-		for (int index = 0;  index < array->length;  index++) {
+		for (unsigned int index = 0;  index < array->length;  index++) {
 			// get Sq::Row from array
 			row = (Sq::Row*)array->data[index];
 			// handle columns in Sq::Row

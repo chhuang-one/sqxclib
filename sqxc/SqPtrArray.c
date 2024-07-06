@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -14,7 +14,7 @@
 
 #include <SqPtrArray.h>
 
-void *sq_ptr_array_init(void *array, int capacity, SqClearFunc clear_func)
+void *sq_ptr_array_init(void *array, unsigned int capacity, SqClearFunc clear_func)
 {
 	if (capacity == 0)
 		capacity  = 8;
@@ -33,7 +33,7 @@ void *sq_ptr_array_final(void *array)
 	return sq_array_final(array);
 }
 
-void sq_ptr_array_erase(void *array, int index, int count)
+void sq_ptr_array_erase(void *array, unsigned int index, unsigned int count)
 {
 	SqClearFunc  clear_func;
 	void **beg;
@@ -68,22 +68,22 @@ void sq_ptr_array_erase(void *array, int index, int count)
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.
 
-void **sq_ptr_array_append(void *array, const void *values, int count)
+void **sq_ptr_array_append(void *array, const void *values, unsigned int count)
 {
 	return SQ_PTR_ARRAY_APPEND(array, values, count);
 }
 
-void **sq_ptr_array_insert(void *array, int index, const void *values, int count)
+void **sq_ptr_array_insert(void *array, unsigned int index, const void *values, unsigned int count)
 {
 	return SQ_PTR_ARRAY_INSERT(array, index, values, count);
 }
 
-void  sq_ptr_array_steal(void *array, int index, int count)
+void  sq_ptr_array_steal(void *array, unsigned int index, unsigned int count)
 {
 	SQ_PTR_ARRAY_STEAL(array, index, count);
 }
 
-void  sq_ptr_array_steal_addr(void *array, void **element_addr, int count)
+void  sq_ptr_array_steal_addr(void *array, void **element_addr, unsigned int count)
 {
 	SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
 }

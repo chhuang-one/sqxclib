@@ -172,7 +172,7 @@ static int  sqxc_sql_send_update_command(SqxcSql *xcsql, Sqxc *src)
 {
 	SqBuffer  *buffer = sqxc_get_buffer(xcsql);
 	SqEntry   *entry;
-	int        len;
+	size_t     len;
 
 	switch (src->type) {
 	case SQXC_TYPE_ARRAY:
@@ -403,7 +403,8 @@ static void sqxc_sql_use_update_command(SqxcSql *xcsql, const char *table_name)
 
 static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 {
-	int   len, idx;
+	size_t  pos;
+	size_t  len;
 	union {
 		char        ch;
 		char       *str;
@@ -509,17 +510,17 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 			if (*temp.str == '\'')
 				len++;
 		}
-		idx = buffer->writed;
+		pos = buffer->writed;
 		// add quotes around string
 		sq_buffer_alloc(buffer, len +2);    // + '\'' x 2
-		buffer->mem[idx++] = '\'';
-		buffer->mem[idx +len] = '\'';
+		buffer->mem[pos++] = '\'';
+		buffer->mem[pos +len] = '\'';
 		// copy and convert original string to SQL string
 		for (temp.str = (char*)src->value.str;  *temp.str;  temp.str++) {
 			// double up on the single quotes
 			if (*temp.str == '\'')
-				buffer->mem[idx++] = '\'';
-			buffer->mem[idx++] = *temp.str;
+				buffer->mem[pos++] = '\'';
+			buffer->mem[pos++] = *temp.str;
 		}
 		break;
 
@@ -528,7 +529,7 @@ static int  sqxc_sql_write_value(SqxcSql *xcsql, Sqxc *src, SqBuffer *buffer)
 			sq_buffer_write(buffer, "NULL");
 			break;
 		}
-		len = (int)strlen(src->value.raw);
+		len = strlen(src->value.raw);
 		temp.str = sq_buffer_alloc(buffer, len);
 		memcpy(temp.str, src->value.raw, len);
 		break;

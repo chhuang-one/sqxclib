@@ -29,7 +29,7 @@
 static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	SqBuffer *buf = instance;
-	int   len;
+	size_t    len;
 
 	switch (src->type) {
 	case SQXC_TYPE_NULL:
@@ -43,7 +43,7 @@ static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 		if (src->info == SQXC_INFO_JSONC_PARSER) {
 			// TODO:
 			// convert BASE64 to binary
-			len = (int)strlen(src->value.str);
+			len = strlen(src->value.str);
 			sq_buffer_resize(buf, len +1);
 			memcpy(buf->mem, src->value.str, len);
 			buf->writed = len;
@@ -76,7 +76,7 @@ static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 				// User can set length of BLOB in SqBuffer::size before parsing.
 				len = buf->size;
 				if (len == 0)
-					len = (int)strlen(src->value.str);
+					len =  strlen(src->value.str);
 				// allocate memory and write data
 				sq_buffer_resize(buf, len);
 				memcpy(buf->mem, src->value.str, len);
@@ -89,7 +89,7 @@ static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 			if (buf->size > 0)
 				len = buf->size << 1;    // len = buf->size * 2;
 			else {
-				len = (int)strlen(src->value.str) - len;
+				len = strlen(src->value.str) - len;
 				buf->size = len >> 1;    // buf->size = len / 2;
 			}
 
@@ -112,8 +112,8 @@ static Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest
 {
 	SqBuffer *buf = instance;
 	Sqxc     *xc;
-	char *mem = NULL;
-	int   len;
+	char     *mem = NULL;
+	size_t    len;
 
 	// use SQXC_TYPE_RAW to send hex (exclude PostgreSQL)
 	dest->type = SQXC_TYPE_RAW;

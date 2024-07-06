@@ -25,8 +25,8 @@ SqArray 结构定义：
 ```c
 struct SqArray
 {
-	uint8_t  *data;
-	int       length;
+	uint8_t      *data;
+	unsigned int  length;
 };
 ```
 
@@ -111,9 +111,9 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 使用 C 语言
 
 ```c
-	ElementType *elements;
-	int   count = 16;
-	int   index = 8;
+	ElementType  *elements;
+	unsigned int  count = 16;
+	unsigned int  index = 8;
 
 	// 从后面分配元素
 	elements = (ElementType*)sq_array_alloc(array, count);
@@ -125,9 +125,9 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 使用 C++ 语言
 
 ```c++
-	ElementType *elements;
-	int   count = 16;
-	int   index = 8;
+	ElementType  *elements;
+	unsigned int  count = 16;
+	unsigned int  index = 8;
 
 	// 从后面分配元素
 	elements = array->alloc(count);
@@ -237,9 +237,9 @@ findSorted() : 使用二分查找在已排序数组中查找元素，如果没�
 	// 您必须在此处指定 ElementType
 	SQ_ARRAY_SORT(array, ElementType, elementCompare);
 
-	ElementType *key = pointerToKey;
-	ElementType *element;
-	int          insertingIndex;
+	ElementType  *key = pointerToKey;
+	ElementType  *element;
+	unsigned int  insertingIndex;
 
 	// 您必须在此处指定 ElementType
 	element = SQ_ARRAY_FIND(array, ElementType, key, elementCompare);
@@ -251,9 +251,9 @@ findSorted() : 使用二分查找在已排序数组中查找元素，如果没�
 ```c++
 	array->sort(elementCompare);
 
-	ElementType *key = pointerToKey;
-	ElementType *element;
-	int          insertingIndex;
+	ElementType  *key = pointerToKey;
+	ElementType  *element;
+	unsigned int  insertingIndex;
 
 	element = array->find(key, elementCompare);
 	element = array->findSorted(key, elementCompare, &insertingIndex);

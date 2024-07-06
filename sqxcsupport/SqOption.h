@@ -54,7 +54,7 @@ void  sq_option_init(SqOption *option, const SqType *type);
 void  sq_option_final(SqOption *option);
 
 // return length of option string
-int   sq_option_print(const SqOption *option, SqBuffer *buffer, int opt_max_length);
+size_t sq_option_print(const SqOption *option, SqBuffer *buffer, size_t opt_max_length);
 
 /* SqCompareFunc for sorting and finding SqOption by SqOption::shortcut */
 
@@ -160,7 +160,7 @@ struct SqOption
 		return *(Sq::Option*)this;
 	}
 
-	int   print(Sq::BufferMethod *buffer, int opt_max_length) const {
+	size_t print(Sq::BufferMethod *buffer, size_t opt_max_length) const {
 		return sq_option_print((const SqOption*)this, (SqBuffer*)buffer, opt_max_length);
 	}
 #endif  // __cplusplus
@@ -294,7 +294,7 @@ struct OptionMethod
 		return *(Sq::Option*)this;
 	}
 
-	int   print(Sq::BufferMethod *buffer, int opt_max_length) const {
+	size_t print(Sq::BufferMethod *buffer, size_t opt_max_length) const {
 		return sq_option_print((const SqOption*)this, (SqBuffer*)buffer, opt_max_length);
 	}
 };

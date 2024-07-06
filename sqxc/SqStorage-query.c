@@ -62,7 +62,7 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 #endif  // NDEBUG
 
 	// multiple table names, query has 'FROM' and 'JOIN'.
-	for (int index = 0;  index < names.length;  index+=2) {
+	for (unsigned int index = 0;  index < names.length;  index+=2) {
 		table = sq_schema_find(storage->schema, names.data[index]);
 		if (table == NULL) {
 #ifndef NDEBUG
@@ -90,7 +90,7 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 			// There is single table name in 'query'
 			else if (table_type->bit_field & SQB_TYPE_QUERY_FIRST) {
 				// add query-only column in 'query'
-				for (int index = 0;  index < table_type->n_entry;  index++) {
+				for (unsigned int index = 0;  index < table_type->n_entry;  index++) {
 					SqColumn *column = (SqColumn*)table_type->entry[index];
 					if (column->bit_field & SQB_COLUMN_QUERY)
 						sq_query_select(query, column->name);

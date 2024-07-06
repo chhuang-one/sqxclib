@@ -97,8 +97,8 @@ struct SqxcSql
 
 //	SQ_BUFFER_MEMBERS(buf, buf_size, buf_writed);
 	char        *buf;
-	int          buf_size;
-	int          buf_writed;
+	size_t       buf_size;
+	size_t       buf_writed;
 
 	// ------------------------------------------
 	// properties
@@ -148,7 +148,7 @@ struct SqxcSql
 	uint16_t     outer_type;  // SQXC_TYPE_OBJECT, SQXC_TYPE_ARRAY or SQXC_TYPE_UNKNOWN
 	int          row_count;   // used by INSERT
 	int          col_count;   // used by INSERT and UPDATE
-	int          buf_reuse;   // used by INSERT and UPDATE
+	size_t       buf_reuse;   // used by INSERT and UPDATE
 
 	SqBuffer     values_buf;  // used by INSERT INTO VALUES
 };

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -36,7 +36,7 @@ void test_str_array()
 	const char   *strs[] = {"One", "Two", "Three"};
 	const int     n_strs = sizeof(strs) / sizeof(char*);
 	char        **element;
-	int           index;
+	unsigned int  index;
 
 	array = new Sq::StrArray();
 	array->append(strs, n_strs);
@@ -100,7 +100,7 @@ void test_int_array_cpp()
 	Sq::Array<int>::iterator cur;
 	int  data[]  = {13, 10, 19, 17};
 	int  data2[] = {28, 25, 27, 26};
-	int  index;
+	unsigned int   index;
 	int *intaddr;
 
 	// append & insert
@@ -181,7 +181,7 @@ void test_intx3_array()
 
 	SQ_ARRAY_STEAL(&array, IntX3, 1, 2);
 
-	for (int i = 0;  i < array.length;  i++) {
+	for (unsigned int i = 0;  i < array.length;  i++) {
 		pix3 = sq_array_addr(&array, IntX3, i);
 		printf("%d, %d, %d" "\n", pix3[0][0], pix3[0][1], pix3[0][2]);
 	}

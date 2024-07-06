@@ -44,10 +44,10 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 	SqReentry  *reentry,   *reentry_src;
 	SqPtrArray *reentries, *reentries_src;
 	// other variable
-	int      index;
+	unsigned int  index;
 	void   **addr;
 	union {
-		int    index;
+		unsigned int  index;
 		void **addr;
 	} temp;
 
@@ -209,14 +209,14 @@ void sq_schema_erase_fake_type(SqSchema *schema)
 {
 	SqType   *table_type;
 	SqColumn *column;
-	int  n_tables = schema->type->n_entry;
-	int  n_nulls = 0;
+	unsigned int  n_tables = schema->type->n_entry;
+	unsigned int  n_nulls = 0;
 
-	for (int i = 0;  i < n_tables;  i++) {
+	for (unsigned int i = 0;  i < n_tables;  i++) {
 		table_type = (SqType*)schema->type->entry[i]->type;
 		if ((table_type->bit_field & SQB_TYPE_DYNAMIC) == 0)
 			continue;
-		for (int j = 0;  j < table_type->n_entry;  j++) {
+		for (unsigned int j = 0;  j < table_type->n_entry;  j++) {
 			column = (SqColumn*)table_type->entry[j];
 			if (SQ_TYPE_IS_FAKE(column->type)) {
 				table_type->entry[j] = NULL;

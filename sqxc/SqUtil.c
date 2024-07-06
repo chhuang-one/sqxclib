@@ -160,12 +160,12 @@ char   *sq_time_to_string(time_t timeraw, int format_type)
 
 // ----------------------------------------------------------------------------
 
-int   sq_bin_to_hex(char *dest_hex, const char *src_bin, int src_length)
+size_t  sq_bin_to_hex(char *dest_hex, const char *src_bin, size_t src_length)
 {
 	const char hex[] = {"0123456789ABCDEF"};
 
 	if (dest_hex != NULL) {
-		for (int idx = 0;  idx < src_length;  idx++) {
+		for (size_t idx = 0;  idx < src_length;  idx++) {
 			uint8_t ch = *(uint8_t*)src_bin++;
 			*dest_hex++ = hex[ch >> 4];
 			*dest_hex++ = hex[ch  & 0x0F];
@@ -175,13 +175,13 @@ int   sq_bin_to_hex(char *dest_hex, const char *src_bin, int src_length)
 	return src_length * 2;
 }
 
-int   sq_hex_to_bin(char *dest_bin, const char *src_hex, int src_length)
+size_t  sq_hex_to_bin(char *dest_bin, const char *src_hex, size_t src_length)
 {
 //	if (src_length == 0)
 //		src_length  = strlen(src_hex);
 
 	if (dest_bin != NULL) {
-		for (int idx = 0;  idx < src_length;  idx++) {
+		for (size_t idx = 0;  idx < src_length;  idx++) {
 			uint8_t ch = *(uint8_t*)src_hex++;
 			if (ch > 96)
 				ch = ch - 'a' + 10;

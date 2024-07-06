@@ -61,10 +61,10 @@ extern "C" {
 		( sizeof(SqArrayHeader) - offsetof(SqArrayHeader, HeaderField) )
 
 #define sq_array_element_size(array)   \
-		*(int*)( ((SqArray*)(array))->data - sq_array_header_offsetof(element_size) )
+		*(unsigned int*)( ((SqArray*)(array))->data - sq_array_header_offsetof(element_size) )
 
 #define sq_array_capacity(array)       \
-		*(int*)( ((SqArray*)(array))->data - sq_array_header_offsetof(capacity) )
+		*(unsigned int*)( ((SqArray*)(array))->data - sq_array_header_offsetof(capacity) )
 
 #define sq_array_ref_count(array)      \
 		*(int*)( ((SqArray*)(array))->data - sq_array_header_offsetof(ref_count) )
@@ -74,7 +74,7 @@ extern "C" {
 
 /* macro functions - parameter used only once in macro (except parameter 'array') */
 
-//void *sq_array_new(int elementSize, int capacity);
+//void *sq_array_new(unsigned int elementSize, unsigned int capacity);
 #define sq_array_new(elementSize, capacity)       \
 		(SqArray*)sq_array_init(malloc(sizeof(SqArray)), elementSize, capacity)
 
@@ -91,11 +91,11 @@ extern "C" {
 #define sq_array_empty(array)        (sq_array_length(array) == 0)
 
 // Get address of element
-//ElementType *sq_array_addr(void *array, ElementType, int index);
+//ElementType *sq_array_addr(void *array, ElementType, unsigned int index);
 #define sq_array_addr(array, ElementType, index)  \
 		( ((ElementType*)((SqArray*)(array))->data) + (index) )
 
-//ElementType  sq_array_at(void *array, ElementType, int index);
+//ElementType  sq_array_at(void *array, ElementType, unsigned int index);
 #define sq_array_at(array, ElementType, index)    \
 		*sq_array_addr(array, ElementType, index)
 
@@ -111,30 +111,30 @@ extern "C" {
 #define sq_array_push(array, ElementType, value)              \
 		*(ElementType*)sq_array_alloc(array, 1) = (ElementType)(value)
 
-// void sq_array_push_to(void *array, ElementType, int index, ElementType value);
+// void sq_array_push_to(void *array, ElementType, unsigned int index, ElementType value);
 #define sq_array_push_to(array, ElementType, index, value)    \
 		*(ElementType*)sq_array_alloc_at(array, index, 1) = (ElementType)(value)
 
 /* macro for maintaining C/C++ inline functions easily */
 
-//void *SQ_ARRAY_APPEND(void *array, ElementType, const void *values, int count);
+//void *SQ_ARRAY_APPEND(void *array, ElementType, const void *values, unsigned int count);
 #define SQ_ARRAY_APPEND(array, ElementType, values, count)           \
 		memcpy(sq_array_alloc(array, count), values,                 \
 		       sizeof(ElementType) * (count))
 
-//void *SQ_ARRAY_INSERT(void *array, ElementType, int index, const void *values, int count);
+//void *SQ_ARRAY_INSERT(void *array, ElementType, unsigned int index, const void *values, unsigned int count);
 #define SQ_ARRAY_INSERT(array, ElementType, index, values, count)    \
 		memcpy(sq_array_alloc_at(array, index, count), values,       \
 		       sizeof(ElementType) * (count))
 
 // Removes a value from array without calling the destroy function.
-// void SQ_ARRAY_STEAL(void *array, ElementType, int index, int count);
+// void SQ_ARRAY_STEAL(void *array, ElementType, unsigned int index, unsigned int count);
 #define SQ_ARRAY_STEAL(array, ElementType, index, count)                           \
 		memmove(sq_array_data(array) + sizeof(ElementType) * (index),              \
 		        sq_array_data(array) + sizeof(ElementType) * ((index)+(count)),    \
 		        sizeof(ElementType) * ((sq_array_length(array) -= (count)) - (index)) )
 
-// void SQ_ARRAY_STEAL_ADDR(void *array, ElementType, ElementType *elementAddr, int count);
+// void SQ_ARRAY_STEAL_ADDR(void *array, ElementType, ElementType *elementAddr, unsigned int count);
 #define SQ_ARRAY_STEAL_ADDR(array, ElementType, elementAddr, count)  \
 		memmove(elementAddr,                                         \
 		        (ElementType*)(elementAddr) + (count),               \
@@ -159,38 +159,38 @@ extern "C" {
 		sq_array_find(array, sizeof(ElementType), key, (SqCompareFunc)compareFunc)
 
 // find element in sorted array and get index of element
-//void *SQ_ARRAY_FIND_SORTED(void *array, ElementType, const void *key, SqCompareFunc compareFunc, int *insertingIndex);
+//void *SQ_ARRAY_FIND_SORTED(void *array, ElementType, const void *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define SQ_ARRAY_FIND_SORTED(array, ElementType, key, compareFunc, insertingIndex)    \
 		sq_array_find_sorted(array, sizeof(ElementType), key, (SqCompareFunc)compareFunc, insertingIndex)
 
 /* C functions */
 
 void *sq_array_init(void *array,
-                    int   elementSize,
-                    int   capacity);
+                    unsigned int  elementSize,
+                    unsigned int  capacity);
 
 void *sq_array_final(void *array);
 
 // Allocate space at the specified array location.
 // It returns allocated address in the array.
-void *sq_array_alloc_at(void *array, int index, int count);
+void *sq_array_alloc_at(void *array, unsigned int index, unsigned int count);
 
-//void *sq_array_alloc(void *array, int count)
+//void *sq_array_alloc(void *array, unsigned int count)
 #define sq_array_alloc(array, count)              \
 		sq_array_alloc_at(array, sq_array_length(array), count)
 
 // find element in unsorted array
-void *sq_array_find(const void *array,
-                    int   elementSize,
-                    const void *key,
+void *sq_array_find(const void   *array,
+                    unsigned int  elementSize,
+                    const void   *key,
                     SqCompareFunc compareFunc);
 
 // find element in sorted array and get index of element
-void *sq_array_find_sorted(const void *array,
-                           int   elementSize,
-                           const void *key,
+void *sq_array_find_sorted(const void   *array,
+                           unsigned int  elementSize,
+                           const void   *key,
                            SqCompareFunc compareFunc,
-                           int  *insertingIndex);
+                           unsigned int *insertingIndex);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -210,9 +210,9 @@ namespace Sq {
 template<class Type>
 struct ArrayMethod
 {
-	Type  *alloc(int count = 1);
-	Type  *alloc(int index, int count);
-	Type  *allocAt(int index, int count = 1);
+	Type  *alloc(unsigned int count = 1);
+	Type  *alloc(unsigned int index, unsigned int count);
+	Type  *allocAt(unsigned int index, unsigned int count = 1);
 
 	// append
 	template<typename ValueType = Type,
@@ -221,7 +221,7 @@ struct ArrayMethod
 	                                  std::is_same<char*, ValueType>::value)  ||
 	                                 (std::is_same<char*, Type>::value &&
 	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
-	void   append(ValueType *values, int count = 1);
+	void   append(ValueType *values, unsigned int count = 1);
 
 	template<typename ValueType = Type,
 	         typename std::enable_if<(std::is_same<Type, ValueType>::value &&
@@ -246,7 +246,7 @@ struct ArrayMethod
 	                                  std::is_same<char*, ValueType>::value)  ||
 	                                 (std::is_same<char*, Type>::value &&
 	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
-	void   insert(int index, ValueType *values, int count = 1);
+	void   insert(unsigned int index, ValueType *values, unsigned int count = 1);
 
 	template<typename ValueType = Type,
 	         typename std::enable_if<(std::is_same<Type, ValueType>::value &&
@@ -256,17 +256,17 @@ struct ArrayMethod
 	                                  std::is_same<char*, ValueType>::value)  ||
 	                                 (std::is_same<char*, Type>::value &&
 	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
-	void   insert(int index, ValueType  value);
+	void   insert(unsigned int index, ValueType  value);
 
 	template<typename ValueType = Type,
 	         typename std::enable_if< std::is_same<Type, ValueType>::value &&
 	                                 !std::is_arithmetic<ValueType>::value &&
 	                                 !std::is_pointer<ValueType>::value>::type * = nullptr>
-	void   insert(int index, ValueType &value);
+	void   insert(unsigned int index, ValueType &value);
 
 	// steal
-	void   steal(int index, int count = 1);
-	void   steal(Type *addr, int count = 1);
+	void   steal(unsigned int index, unsigned int count = 1);
+	void   steal(Type *addr, unsigned int count = 1);
 
 	// quick sort
 	void   sort(SqCompareFunc compareFunc);
@@ -318,7 +318,7 @@ struct ArrayMethod
 	Type  *find(ValueType &key, SqCompareFunc compareFunc) const;
 
 	// find element in sorted array and get index of element
-	Type  *findSorted(const void *key, SqCompareFunc compareFunc, int *insertingIndex = NULL) const;
+	Type  *findSorted(const void *key, SqCompareFunc compareFunc, unsigned int *insertingIndex = NULL) const;
 
 	template<typename ValueType = Type,
 	         typename std::enable_if<(std::is_same<Type, ValueType>::value &&
@@ -329,13 +329,13 @@ struct ArrayMethod
 	                                  std::is_same<char*, ValueType>::value)            ||
 	                                 (std::is_same<char*, Type>::value &&
 	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
-	Type  *findSorted(ValueType  key, SqCompareFunc compareFunc, int *insertingIndex = NULL) const;
+	Type  *findSorted(ValueType  key, SqCompareFunc compareFunc, unsigned int *insertingIndex = NULL) const;
 
 	template<typename ValueType = Type,
 	         typename std::enable_if< std::is_same<Type, ValueType>::value &&
 	                                 !std::is_arithmetic<ValueType>::value &&
 	                                 !std::is_pointer<ValueType>::value>::type * = nullptr>
-	Type  *findSorted(ValueType &key, SqCompareFunc compareFunc, int *insertingIndex = NULL) const;
+	Type  *findSorted(ValueType &key, SqCompareFunc compareFunc, unsigned int *insertingIndex = NULL) const;
 
 	template<typename ValueType = Type,
 	         typename std::enable_if<(std::is_same<Type, ValueType>::value &&
@@ -346,13 +346,13 @@ struct ArrayMethod
 	                                  std::is_same<char*, ValueType>::value)            ||
 	                                 (std::is_same<char*, Type>::value &&
 	                                  std::is_same<const char*, ValueType>::value)>::type * = nullptr>
-	Type  *findSorted(ValueType  key, int *insertingIndex = NULL) const;
+	Type  *findSorted(ValueType  key, unsigned int *insertingIndex = NULL) const;
 
 	// access member variable
-	int    elementSize();
+	unsigned int  elementSize();
 
 	// get address of element
-	Type  *addr(int index);
+	Type  *addr(unsigned int index);
 
 	/* ArrayMethod C++ definition (uncompleted) */
 	typedef Type         value_type;
@@ -363,13 +363,13 @@ struct ArrayMethod
 	typedef Type        *iterator;
 	typedef const Type  *const_iterator;
 
-	int    size() const;
-	int    capacity();
-	void   reserve(int n);
+	unsigned int  size() const;
+	unsigned int  capacity();
+	void   reserve(unsigned int n);
 	Type  *begin();
 	Type  *end();
-	Type  &at(int index);
-	Type  &operator[](int index);
+	Type  &at(unsigned int index);
+	Type  &operator[](unsigned int index);
 };
 
 };  // namespace Sq
@@ -383,8 +383,8 @@ struct ArrayMethod
 
 struct SqArrayHeader
 {
-	int   element_size;
-	int   capacity;
+	unsigned int  element_size;
+	unsigned int  capacity;
 
 	// reserve: ref_count, bit_field
 	int   ref_count;
@@ -398,8 +398,8 @@ struct SqArrayHeader
 /* SqArray is array of arbitrary elements */
 
 #define SQ_ARRAY_MEMBERS(Type, data_name, length_name)   \
-		Type     *data_name;    \
-		int       length_name
+		Type         *data_name;    \
+		unsigned int  length_name
 
 #define SQ_ARRAY_STRUCT(Type)           \
 		struct { SQ_ARRAY_MEMBERS(Type, data, length); }
@@ -411,8 +411,8 @@ struct SqArray
 {
 	SQ_ARRAY_MEMBERS(uint8_t, data, length);
 /*	// ------ SqArray members ------
-	uint8_t  *data;
-	int       length;
+	uint8_t      *data;
+	unsigned int  length;
  */
 };
 
@@ -437,15 +437,15 @@ namespace Sq {
 /* define ArrayMethod template functions */
 
 template<class Type>
-inline Type *ArrayMethod<Type>::alloc(int count) {
+inline Type *ArrayMethod<Type>::alloc(unsigned int count) {
 	return (Type*) sq_array_alloc(this, count);
 }
 template<class Type>
-inline Type *ArrayMethod<Type>::alloc(int index, int count) {
+inline Type *ArrayMethod<Type>::alloc(unsigned int index, unsigned int count) {
 	return (Type*) sq_array_alloc_at(this, index, count);
 }
 template<class Type>
-inline Type *ArrayMethod<Type>::allocAt(int index, int count) {
+inline Type *ArrayMethod<Type>::allocAt(unsigned int index, unsigned int count) {
 	return (Type*) sq_array_alloc_at(this, index, count);
 }
 
@@ -457,7 +457,7 @@ template<typename ValueType,
                                   std::is_same<char*, ValueType>::value)  ||
                                  (std::is_same<char*, Type>::value &&
                                   std::is_same<const char*, ValueType>::value)>::type *>
-inline void  ArrayMethod<Type>::append(ValueType *values, int count) {
+inline void  ArrayMethod<Type>::append(ValueType *values, unsigned int count) {
 	SQ_ARRAY_APPEND(this, Type, values, count);
 }
 
@@ -491,7 +491,7 @@ template<typename ValueType,
                                   std::is_same<char*, ValueType>::value)  ||
                                  (std::is_same<char*, Type>::value &&
                                   std::is_same<const char*, ValueType>::value)>::type *>
-inline void  ArrayMethod<Type>::insert(int index, ValueType *values, int count) {
+inline void  ArrayMethod<Type>::insert(unsigned int index, ValueType *values, unsigned int count) {
 	SQ_ARRAY_INSERT(this, Type, index, values, count);
 }
 
@@ -504,7 +504,7 @@ template<typename ValueType,
                                   std::is_same<char*, ValueType>::value)  ||
                                  (std::is_same<char*, Type>::value &&
                                   std::is_same<const char*, ValueType>::value)>::type *>
-inline void  ArrayMethod<Type>::insert(int index, ValueType  value) {
+inline void  ArrayMethod<Type>::insert(unsigned int index, ValueType  value) {
 	*(Type*)sq_array_alloc_at(this, index, 1) = (Type)value;
 }
 
@@ -513,17 +513,17 @@ template<typename ValueType,
          typename std::enable_if< std::is_same<Type, ValueType>::value &&
                                  !std::is_arithmetic<ValueType>::value &&
                                  !std::is_pointer<ValueType>::value>::type *>
-inline void  ArrayMethod<Type>::insert(int index, ValueType &value) {
+inline void  ArrayMethod<Type>::insert(unsigned int index, ValueType &value) {
 	SQ_ARRAY_INSERT(this, Type, index, &value, 1);
 }
 
 // steal
 template<class Type>
-inline void  ArrayMethod<Type>::steal(int index, int count) {
+inline void  ArrayMethod<Type>::steal(unsigned int index, unsigned int count) {
 	SQ_ARRAY_STEAL(this, Type, index, count);
 }
 template<class Type>
-inline void  ArrayMethod<Type>::steal(Type *addr, int count) {
+inline void  ArrayMethod<Type>::steal(Type *addr, unsigned int count) {
 	SQ_ARRAY_STEAL_ADDR(this, Type, addr, count);
 }
 
@@ -602,7 +602,7 @@ inline Type  *ArrayMethod<Type>::find(ValueType &key, SqCompareFunc compareFunc)
 
 // find element in sorted array and get index of element
 template<class Type>
-inline Type  *ArrayMethod<Type>::findSorted(const void *key, SqCompareFunc compareFunc, int *insertingIndex) const {
+inline Type  *ArrayMethod<Type>::findSorted(const void *key, SqCompareFunc compareFunc, unsigned int *insertingIndex) const {
 	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, key, compareFunc, insertingIndex);
 }
 
@@ -616,7 +616,7 @@ template<typename ValueType,
                                   std::is_same<char*, ValueType>::value)            ||
                                  (std::is_same<char*, Type>::value &&
                                   std::is_same<const char*, ValueType>::value)>::type *>
-inline Type  *ArrayMethod<Type>::findSorted(ValueType  key, SqCompareFunc compareFunc, int *insertingIndex) const {
+inline Type  *ArrayMethod<Type>::findSorted(ValueType  key, SqCompareFunc compareFunc, unsigned int *insertingIndex) const {
 	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, compareFunc, insertingIndex);
 }
 
@@ -625,7 +625,7 @@ template<typename ValueType,
          typename std::enable_if< std::is_same<Type, ValueType>::value &&
                                  !std::is_arithmetic<ValueType>::value &&
                                  !std::is_pointer<ValueType>::value>::type *>
-inline Type  *ArrayMethod<Type>::findSorted(ValueType &key, SqCompareFunc compareFunc, int *insertingIndex) const {
+inline Type  *ArrayMethod<Type>::findSorted(ValueType &key, SqCompareFunc compareFunc, unsigned int *insertingIndex) const {
 	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, compareFunc, insertingIndex);
 }
 
@@ -639,35 +639,35 @@ template<typename ValueType,
                                   std::is_same<char*, ValueType>::value)            ||
                                  (std::is_same<char*, Type>::value &&
                                   std::is_same<const char*, ValueType>::value)>::type *>
-inline Type  *ArrayMethod<Type>::findSorted(ValueType  key, int *insertingIndex) const {
+inline Type  *ArrayMethod<Type>::findSorted(ValueType  key, unsigned int *insertingIndex) const {
 	return (Type*) SQ_ARRAY_FIND_SORTED(this, Type, &key, Sq::compare<Type>, insertingIndex);
 }
 
 // access member variable
 template<class Type>
-inline int   ArrayMethod<Type>::elementSize() {
+inline unsigned int   ArrayMethod<Type>::elementSize() {
 	return sq_array_element_size(this);
 }
 
 // get address of element
 template<class Type>
-inline Type *ArrayMethod<Type>::addr(int index) {
+inline Type *ArrayMethod<Type>::addr(unsigned int index) {
 	return (Type*)sq_array_addr(this, Type, index);
 }
 
 /* ArrayMethod iterator (uncompleted) */
 
 template<class Type>
-inline int   ArrayMethod<Type>::size() const {
+inline unsigned int   ArrayMethod<Type>::size() const {
 	return sq_array_length(this);
 }
 template<class Type>
-inline int   ArrayMethod<Type>::capacity() {
+inline unsigned int   ArrayMethod<Type>::capacity() {
 	return sq_array_capacity(this);
 }
 template<class Type>
-inline void  ArrayMethod<Type>::reserve(int  n) {
-	int  length = sq_array_length(this);
+inline void  ArrayMethod<Type>::reserve(unsigned int  n) {
+	unsigned int  length = sq_array_length(this);
 	if (n > length) {
 		sq_array_alloc_at(this, length, n - length);
 		sq_array_length(this) = length;
@@ -682,11 +682,11 @@ inline Type *ArrayMethod<Type>::end() {
 	return (Type*)sq_array_end(this, Type);
 }
 template<class Type>
-inline Type &ArrayMethod<Type>::at(int index) {
+inline Type &ArrayMethod<Type>::at(unsigned int index) {
 	return sq_array_at(this, Type, index);
 }
 template<class Type>
-inline Type &ArrayMethod<Type>::operator[](int index) {
+inline Type &ArrayMethod<Type>::operator[](unsigned int index) {
 	return sq_array_at(this, Type, index);
 }
 
@@ -697,12 +697,12 @@ struct Array : ArrayMethod<Type>                 // <-- 1. inherit C++ method
 {
 	SQ_ARRAY_MEMBERS(Type, data, length);        // <-- 2. inherit member variable
 /*	// ------ SqArray members ------
-	Type     *data;
-	int       length;
+	Type         *data;
+	unsigned int  length;
  */
 
 	// constructor
-	Array(int capacity = 8) {
+	Array(unsigned int capacity = 8) {
 		sq_array_init(this, sizeof(Type), capacity);
 	}
 	// destructor
@@ -735,17 +735,17 @@ typedef Array<int>    IntArray;
 
 #define sq_int_array_capacity            sq_array_capacity
 
-//void *sq_int_array_init(void *array, int capacity);
+//void *sq_int_array_init(void *array, unsigned int capacity);
 #define sq_int_array_init(array, capacity)           \
 		sq_array_init(array, sizeof(int), capacity)
 
 //void *sq_int_array_final(void *array);
 #define sq_int_array_final               sq_array_final
 
-// int *sq_int_array_addr(void *array, int index);
+// int *sq_int_array_addr(void *array, unsigned int index);
 #define sq_int_array_addr(array, index)  sq_array_addr(array, int, index)
 
-// int  sq_int_array_at(void *array, int index);
+// int  sq_int_array_at(void *array, unsigned int index);
 #define sq_int_array_at(array, index)    sq_array_at(array, int, index)
 
 // int *sq_int_array_begin(void *array);
@@ -754,33 +754,33 @@ typedef Array<int>    IntArray;
 // int *sq_int_array_end(void *array);
 #define sq_int_array_end(array)          sq_array_end(array, int)
 
-// int *sq_int_array_alloc(void *array, int count);
+// int *sq_int_array_alloc(void *array, unsigned int count);
 #define sq_int_array_alloc               (int*)sq_array_alloc
 
-// int *sq_int_array_alloc_at(void *array, int index, int count);
+// int *sq_int_array_alloc_at(void *array, unsigned int index, unsigned int count);
 #define sq_int_array_alloc_at            (int*)sq_array_alloc_at
 
 // void sq_int_array_push(void *array, int value);
 #define sq_int_array_push(array, value)              \
 		*sq_int_array_alloc(array, 1) = (int)(value);
 
-// void sq_int_array_push_to(void *array, int index, int value);
+// void sq_int_array_push_to(void *array, unsigned int index, int value);
 #define sq_int_array_push_to(array, index, value)    \
 		*sq_int_array_alloc_at(array, index, 1) = (int)(value);
 
-// int *sq_int_array_append(void *array, const int *values, int count);
+// int *sq_int_array_append(void *array, const int *values, unsigned int count);
 #define sq_int_array_append(array, values, count)    \
 		(int*)SQ_ARRAY_APPEND(array, int, values, count)
 
-// int *sq_int_array_insert(void *array, int index, const int *values, int count);
+// int *sq_int_array_insert(void *array, unsigned int index, const int *values, unsigned int count);
 #define sq_int_array_insert(array, index, values, count)    \
 		(int*)SQ_ARRAY_INSERT(array, int, index, values, count)
 
-// void sq_int_array_steal(void *array, int index, int count);
+// void sq_int_array_steal(void *array, unsigned int index, unsigned int count);
 #define sq_int_array_steal(array, index, count)             \
 		SQ_ARRAY_STEAL(array, int, index, count)
 
-// void sq_int_array_steal_addr(void *array, int *elementAddr, int count);
+// void sq_int_array_steal_addr(void *array, int *elementAddr, unsigned int count);
 #define sq_int_array_steal_addr(array, elementAddr, count)  \
 		SQ_ARRAY_STEAL_ADDR(array, int, elementAddr, count)
 
@@ -800,7 +800,7 @@ typedef Array<int>    IntArray;
 		(int*)SQ_ARRAY_FIND(array, int, key, compareFunc)
 
 // find element in sorted array and get index of element
-// int *sq_int_array_find_sorted(void *array, const int *key, SqCompareFunc compareFunc, int *insertingIndex);
+// int *sq_int_array_find_sorted(void *array, const int *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define sq_int_array_find_sorted(array, key, compareFunc, insertingIndex)    \
 		(int*)SQ_ARRAY_FIND_SORTED(array, int, key, compareFunc, insertingIndex)
 
@@ -818,8 +818,8 @@ struct SqIntArray
 {
 	SQ_ARRAY_MEMBERS(int, data, length);         // <-- 2. inherit member variable
 /*	// ------ SqArray members ------
-	int      *data;
-	int       length;
+	int          *data;
+	unsigned int  length;
  */
 };
 

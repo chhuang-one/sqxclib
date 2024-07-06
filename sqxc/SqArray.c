@@ -15,8 +15,8 @@
 #include <SqArray.h>
 
 void *sq_array_init(void *array,
-                    int   elementSize,
-                    int   capacity)
+                    unsigned int  elementSize,
+                    unsigned int  capacity)
 {
 	((SqArray*)array)->data = (uint8_t*)malloc(sizeof(SqArrayHeader) + capacity * elementSize)
 	                          + sizeof(SqArrayHeader);
@@ -40,12 +40,12 @@ void *sq_array_final(void *array)
 	return array;
 }
 
-void *sq_array_alloc_at(void *array, int index, int count)
+void *sq_array_alloc_at(void *array, unsigned int index, unsigned int count)
 {
-	int   new_length;
-	int   capacity;
-	int   length;
-	int   elementSize;
+	unsigned int  new_length;
+	unsigned int  capacity;
+	unsigned int  length;
+	unsigned int  elementSize;
 
 	// it doesn't initialize.
 //	if (sq_array_not_inited(array))
@@ -77,9 +77,9 @@ void *sq_array_alloc_at(void *array, int index, int count)
 	return ((SqArray*)array)->data + index * elementSize;
 }
 
-void *sq_array_find(const void *array,
-                    int   elementSize,
-                    const void *key,
+void *sq_array_find(const void   *array,
+                    unsigned int  elementSize,
+                    const void   *key,
                     SqCompareFunc compareFunc)
 {
 	uint8_t *cur = sq_array_data(array);
@@ -92,15 +92,15 @@ void *sq_array_find(const void *array,
 	return NULL;
 }
 
-void  *sq_array_find_sorted(const void *array,
-                            int   elementSize,
-                            const void *key,
+void  *sq_array_find_sorted(const void   *array,
+                            unsigned int  elementSize,
+                            const void   *key,
                             SqCompareFunc compareFunc,
-                            int  *insertingIndex)
+                            unsigned int *insertingIndex)
 {
-	int      low;
-	int      cur;
-	int      high;
+	unsigned int  low;
+	unsigned int  cur;
+	unsigned int  high;
 	int      diff;
 	uint8_t *cur_addr;
 

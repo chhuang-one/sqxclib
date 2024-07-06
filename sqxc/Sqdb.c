@@ -81,8 +81,8 @@ int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrAr
 
 	sq_ptr_array_init(&indexes, 4, NULL);
 	sq_table_get_columns(table, &indexes, SQ_TYPE_INDEX, 0);    // get record of "CREATE INDEX"
-	for (int i = 0;  i < indexes.length;  i++) {
-		sqdb_sql_create_index(db, sql_buf, table, (SqColumn*)indexes.data[i]);
+	for (unsigned int idx = 0;  idx < indexes.length;  idx++) {
+		sqdb_sql_create_index(db, sql_buf, table, (SqColumn*)indexes.data[idx]);
 		sql_buf->writed = 0;
 #ifndef NDEBUG
 		// Don't run this because sqdb_exec() will output this debug message.
@@ -99,7 +99,6 @@ int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrAr
 int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArray *arranged_columns, SqTable *old_table)
 {
 	SqColumn *column, *old_column;
-	int       index;
 	int       rc;
 
 	if (arranged_columns == NULL)
@@ -107,7 +106,7 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 	// clear cache
 	table->primary_key = NULL;
 	// ALTER TABLE
-	for (index = 0;  index < arranged_columns->length;  index++) {
+	for (unsigned int index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
 
 		if (column->bit_field & SQB_COLUMN_CHANGED) {
@@ -172,10 +171,10 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
                                   SqPtrArray *arranged_columns,
                                   SqColumn   *primary_key)
 {
-	SqColumn *column;
-	int       index;
-	int       n_columns = 0;    // number of columns have been written
-	bool      has_constraint = false;
+	SqColumn     *column;
+	unsigned int  index;
+	int   n_columns = 0;    // number of columns have been written
+	bool  has_constraint = false;
 
 	sq_buffer_write(buffer, "(");
 

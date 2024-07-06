@@ -143,10 +143,10 @@ void  sq_entry_set_str_addr(SqEntry *entry, char **str_addr, const char *str_src
 // ----------------------------------------------------------------------------
 // SqReentry functions for SqPtrArray
 
-int   sq_reentries_remove_null(void *reentry_ptr_array, int n_old_elements)
+unsigned int  sq_reentries_remove_null(void *reentry_ptr_array, unsigned int n_old_elements)
 {
 	SqPtrArray *array = (SqPtrArray*)reentry_ptr_array;
-	int  index_src, index_dest;
+	unsigned int  index_src, index_dest;
 
 	// find first NULL pointer
 	for (index_dest = 0;  index_dest < array->length;  index_dest++) {

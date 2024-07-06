@@ -28,7 +28,7 @@
 #define strdup       _strdup
 #endif
 
-SqType *sq_type_new(int prealloc_size, SqDestroyFunc entry_destroy_func)
+SqType *sq_type_new(unsigned int prealloc_size, SqDestroyFunc entry_destroy_func)
 {
 	SqType  *type;
 
@@ -69,7 +69,7 @@ SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
 		}
 		else {
 			// copy instances from SqEntry array if 'entry_copy_func' is present
-			for (int i = 0;  i < type_src->n_entry;  i++)
+			for (unsigned int i = 0;  i < type_src->n_entry;  i++)
 				type_dest->entry[i] = entry_copy_func(NULL, type_src->entry[i]);
 		}
 	}
@@ -77,7 +77,7 @@ SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
 	return type_dest;
 }
 
-void  sq_type_init_self(SqType *type, int prealloc_size, SqDestroyFunc entry_destroy_func)
+void  sq_type_init_self(SqType *type, unsigned int prealloc_size, SqDestroyFunc entry_destroy_func)
 {
 	type->size  = 0;
 	type->init  = NULL;
@@ -204,7 +204,7 @@ void  sq_type_clear_entry(SqType *type)
 
 // if 'sizeof_entry' == size of pointer, type of 'entry' is 'const SqEntry**'.
 // sq_type_add_entry() can NOT sort SqType::entry before doing migration because it needs to keep migration order.
-void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t sizeof_entry)
+void  sq_type_add_entry(SqType *type, const SqEntry *entry, unsigned int n_entry, size_t sizeof_entry)
 {
 	SqPtrArray  *array;
 	SqEntry    **entry_addr;
@@ -233,13 +233,13 @@ void  sq_type_add_entry(SqType *type, const SqEntry *entry, int n_entry, size_t 
 	}
 }
 
-void  sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, int n_entry_ptrs)
+void  sq_type_add_entry_ptrs(SqType *type, const SqEntry **entry_ptrs, unsigned int n_entry_ptrs)
 {
 	// if 'sizeof_entry' == size of pointer, type of 'entry' is 'const SqEntry**'.
 	sq_type_add_entry(type, (SqEntry*)entry_ptrs, n_entry_ptrs, sizeof(SqEntry*));
 }
 
-void  sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count)
+void  sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, unsigned int count)
 {
 	if ((type)->bit_field & SQB_TYPE_DYNAMIC) {
 		sq_type_decide_size(type, *inner_entry_addr, true);
@@ -248,7 +248,7 @@ void  sq_type_erase_entry_addr(SqType *type, SqEntry **inner_entry_addr, int cou
 	}
 }
 
-void  sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, int count)
+void  sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, unsigned int count)
 {
 	if ((type)->bit_field & SQB_TYPE_DYNAMIC) {
 		sq_type_decide_size(type, *inner_entry_addr, true);

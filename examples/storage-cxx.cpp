@@ -13,8 +13,8 @@
  */
 
 /*
-	Functions storage_make_migrated_schema() and storage_make_fixed_schema() are
-	example code for dynamically defining tables and columns.
+	Functions storage_make_schema() and storage_make_fixed_schema()
+	are example code for dynamically defining tables and columns.
 
 	This example code also use C++ designated initialization to define constant columns in tables.
  */
@@ -80,8 +80,8 @@ struct User
 		free(created_at);
 		free(updated_at);
 
-		int   hex_size;
-		char *hex_mem;
+		size_t  hex_size;
+		char   *hex_mem;
 
 		hex_size = this->picture.writed * 2;
 		hex_mem  = (char*)malloc(hex_size + 1);
@@ -131,7 +131,7 @@ struct Company
 		          << "company.salary = "  << this->salary  << std::endl
 		          << "company.strCpp = "  << this->strCpp  << std::endl;
 		std::cout << "company.strs[] = ";
-		for (int index = 0;  index < this->strs.length;  index++) {
+		for (unsigned int index = 0;  index < this->strs.length;  index++) {
 			if (index > 0)
 				std::cout << ",";
 			std::cout << strs[index];
@@ -145,7 +145,7 @@ struct Company
 		}
 		std::cout << std::endl;
 		std::cout << "company.ints[] = ";
-		for (int index = 0;  index < this->ints.length;  index++) {
+		for (unsigned int index = 0;  index < this->ints.length;  index++) {
 			if (index > 0)
 				std::cout << ",";
 			std::cout << this->ints[index];
@@ -159,7 +159,7 @@ struct Company
 void  company_array_print(SqPtrArray *array)
 {
 	Company   *company;
-	int        index;
+	unsigned int  index;
 
 	for (index = 0;  index < array->length;  index++) {
 		company = (Company*)(array->data[index]);
@@ -242,6 +242,8 @@ static const SqColumn userColumns[] = {
 // ----------------------------------------------------------------------------
 // use C++ functions to define dynamic SqColumn
 
+// If schema is fixed and not changed in future,
+// you can directly access SqStorage::schema.
 void  storage_make_fixed_schema(Sq::Storage *storage)
 {
 	Sq::Schema   *schema;
@@ -294,7 +296,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	storage->migrate(NULL);
 }
 
-void  storage_make_migrated_schema(Sq::Storage *storage)
+void  storage_make_schema(Sq::Storage *storage)
 {
 	Sq::Schema   *schemaVer1;
 	Sq::Schema   *schemaVer2;
@@ -379,8 +381,8 @@ void  storage_make_migrated_schema(Sq::Storage *storage)
 	storage->migrate(schemaVer3);
 	storage->migrate(schemaVer4);
 	storage->migrate(schemaVer5);
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	storage->migrate(NULL);
 
 	// free migrated schema
@@ -398,7 +400,7 @@ void  storage_get_all_ptr_array(Sq::Storage *storage)
 
 	array = (Sq::PtrArray*)storage->getAll<Company>(NULL, NULL);
 	if (array) {
-		for (int i = 0;  i < array->length;  i++) {
+		for (unsigned int i = 0;  i < array->length;  i++) {
 			company = (Company*)array->data[i];
 			company->print();
 			delete company;
@@ -444,7 +446,7 @@ void  storage_query_ptr_array(Sq::Storage *storage)
 
 	array = (Sq::PtrArray*)storage->query(query);
 	if (array) {
-		for (int i = 0;  i < array->length;  i++) {
+		for (unsigned int i = 0;  i < array->length;  i++) {
 #if 0
 			temp.company = (Company*)array->data[i];
 			temp.company->print();
@@ -509,7 +511,7 @@ void  storage_query_join_ptr_array(Sq::Storage *storage)
 
 	array = (Sq::PtrArray*)storage->query(query);
 	if (array) {
-		for (int i = 0;  i < array->length;  i++) {
+		for (unsigned int i = 0;  i < array->length;  i++) {
 			element = (void**)array->data[i];
 			company = (Company*)element[0];
 			company->print();
@@ -624,8 +626,8 @@ int  main(int argc, char *argv[])
 	}
 
 	// --- make schema
+	storage_make_schema(storage);
 //	storage_make_fixed_schema(storage);
-	storage_make_migrated_schema(storage);
 
 	// --- add rows to companies table
 	company = new Company();
@@ -665,7 +667,7 @@ int  main(int argc, char *argv[])
 	user->name = (char*)"Bob";
 	user->comment = (char*)"-- comment text 1";
 	user->picture.mem = (char*)"1 binary\x00 1";
-	user->picture.writed = (int)strlen(user->picture.mem) + 3;
+	user->picture.writed = strlen(user->picture.mem) + 3;
 	user->angleShot.assign(user->picture.mem, user->picture.mem+4);
 	user->company_id = 1;
 	storage->insert(user);
@@ -674,7 +676,7 @@ int  main(int argc, char *argv[])
 	user->name = (char*)"Tom";
 	user->comment = (char*)"-- comment text 2";
 	user->picture.mem = (char*)"2 binary\x00 2";
-	user->picture.writed = (int)strlen(user->picture.mem) + 3;
+	user->picture.writed = strlen(user->picture.mem) + 3;
 	user->angleShot.assign(user->picture.mem, user->picture.mem+4);
 	user->angleShot.push_back(0);
 	user->angleShot.push_back('X');

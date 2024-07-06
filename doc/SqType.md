@@ -29,9 +29,9 @@ struct SqType
 	// SqType::entry is array of SqEntry pointer if current SqType is for C struct type.
 	// SqType::entry isn't freed if SqType::n_entry == -1
 	SqEntry      **entry;          // maps to SqPtrArray::data
-	int            n_entry;        // maps to SqPtrArray::length
+	unsigned int   n_entry;        // maps to SqPtrArray::length
 	// *** About above 2 fields:
-	// 1. They are expanded by macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
+	// 1. They are expanded by macro SQ_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
 	// 2. They can NOT change data type and order.
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if SqType is dynamic and freeable.
@@ -261,7 +261,7 @@ use C language to add **pointer array** of SqEntry.
 
 ```c
 	SqType  *type;
-	int      n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
+	unsigned int  n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
 
 	type = sq_type_new(8, (SqDestroyFunc)sq_entry_free);
 
@@ -272,7 +272,7 @@ use C++ language to add **pointer array** of SqEntry.
 
 ```c++
 	Sq::Type  *type;
-	int        n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
+	unsigned int  n_entry = sizeof(entryPointers) / sizeof(SqEntry*);
 
 	type = new Sq::Type(8, sq_entry_free);
 

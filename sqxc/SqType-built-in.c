@@ -491,7 +491,7 @@ Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *dest)
 	if (dest->code != SQCODE_OK)
 		return dest;
 
-	for (int index = 0;  index < type->n_entry;  index++) {
+	for (unsigned int index = 0;  index < type->n_entry;  index++) {
 		SqEntry *entry = type->entry[index];
 		member_type = (SqType*)entry->type;
 		if (member_type->write == NULL)  // don't write anything if function pointer is NULL

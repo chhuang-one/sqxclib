@@ -54,9 +54,9 @@ void  sq_option_final(SqOption *option)
 	}
 }
 
-int   sq_option_print(const SqOption *option, SqBuffer *buffer, int opt_max_length)
+size_t sq_option_print(const SqOption *option, SqBuffer *buffer, size_t opt_max_length)
 {
-	int   length;
+	size_t   length;
 
 	if (buffer)
 		memset(sq_buffer_alloc(buffer,2), ' ', OPTION_BORDER_WIDTH);
@@ -68,20 +68,20 @@ int   sq_option_print(const SqOption *option, SqBuffer *buffer, int opt_max_leng
 			sq_buffer_write(buffer, option->shortcut);
 			sq_buffer_write_len(buffer, ", ", 2);
 		}
-		length += (int)strlen(option->shortcut) + 2 + 1;
+		length += strlen(option->shortcut) + 2 + 1;
 	}
 	if (option->name) {
 		if (buffer) {
 			sq_buffer_write_len(buffer, "--", 2);
 			sq_buffer_write(buffer, option->name);
 		}
-		length += (int)strlen(option->name) + 2;
+		length += strlen(option->name) + 2;
 	}
 
 	if (option->value_description) {
 		if (buffer)
 			sq_buffer_write(buffer, option->value_description);
-		length += (int)strlen(option->value_description);
+		length += strlen(option->value_description);
 	}
 
 	if (opt_max_length < length)

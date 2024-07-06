@@ -33,10 +33,10 @@ extern "C" {
 
 /* --- SqRelation functions --- */
 
-SqRelation *sq_relation_init(SqRelation *relation, SqRelationPool *pool, int capacity);
+SqRelation *sq_relation_init(SqRelation *relation, SqRelationPool *pool, unsigned int capacity);
 SqRelation *sq_relation_final(SqRelation *relation);
 
-// SqRelation *sq_relation_new(SqRelationPool *rpool, int capacity);
+// SqRelation *sq_relation_new(SqRelationPool *rpool, unsigned int capacity);
 #define sq_relation_new(pool, capacity)    sq_relation_init((SqRelation*)malloc(sizeof(SqRelation)), pool, capacity)
 // void        sq_relation_free(SqRelation *relation);
 #define sq_relation_free(relation)         free(sq_relation_final(relation))
@@ -105,7 +105,7 @@ struct RelationNode;
  */
 struct RelationMethod
 {
-	void  init(SqRelationPool *pool, int capacity);
+	void  init(SqRelationPool *pool, unsigned int capacity);
 	void  final();
 
 	void  add(const void *from_object, const void *to_object, int no_reverse = 0);
@@ -151,7 +151,7 @@ struct SqRelation
 	SQ_RELATION_MEMBERS;                     // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
 	SqRelationNode  *data;        // sorted by object address.
-	int              length;
+	unsigned int     length;
 
 	// ------ SqRelation members ------
 	SqRelationPool  *pool;
@@ -190,7 +190,7 @@ struct SqRelationNode
 namespace Sq {
 
 /* define RelationMethod functions. */
-inline void  RelationMethod::init(SqRelationPool *pool, int capacity) {
+inline void  RelationMethod::init(SqRelationPool *pool, unsigned int capacity) {
 	sq_relation_init((SqRelation*)this, pool, capacity);
 }
 inline void  RelationMethod::final() {
@@ -234,7 +234,7 @@ inline Sq::RelationNode *RelationNodeMethod::reverse() {
 struct Relation : SqRelation
 {
 	// constructor
-	Relation(SqRelationPool *pool, int capacity) {
+	Relation(SqRelationPool *pool, unsigned int capacity) {
 		sq_relation_init(this, pool, capacity);
 	}
 	// destructor

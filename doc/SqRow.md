@@ -19,11 +19,11 @@ SqRow Structure Definition:
 struct SqRow {
 	// data array
 	SqValue      *data;
-	int           length;
+	unsigned int  length;
 
 	// column array
 	SqRowColumn  *cols;
-	int           cols_length;
+	unsigned int  cols_length;
 };
 ```
 
@@ -134,8 +134,8 @@ use C language
 
 ```c
 	SqRow  *row;
-	int     cols_capacity = 0;    // pre-allocated length of column array
-	int     data_capacity = 0;    // pre-allocated length of data array
+	unsigned int  cols_capacity = 0;    // pre-allocated length of column array
+	unsigned int  data_capacity = 0;    // pre-allocated length of data array
 
 	// create new SqRow
 	row = sq_row_new(cols_capacity, data_capacity);
@@ -147,8 +147,8 @@ use C++ language
 
 ```c++
 	Sq::Row *row;
-	int      colsCapacity = 0;    // pre-allocated length of column array
-	int      dataCapacity = 0;    // pre-allocated length of data array
+	unsigned int  colsCapacity = 0;    // pre-allocated length of column array
+	unsigned int  dataCapacity = 0;    // pre-allocated length of data array
 
 	// create new Sq::Row
 	row = new Sq::Row(colsCapacity, dataCapacity);
@@ -164,8 +164,8 @@ The C functions sq_row_alloc_column() and sq_row_alloc(), C++ methods allocColum
 use C language
 
 ```c
-	int  n_columns = 1;
-	int  n_values  = 1;
+	unsigned int  n_columns = 1;
+	unsigned int  n_values  = 1;
 
 	SqRowColumn *col = sq_row_alloc_column(row, n_columns);
 	SqValue     *val = sq_row_alloc(row, n_values);
@@ -180,8 +180,8 @@ use C language
 use C++ language
 
 ```c++
-	int  nColumns = 1;
-	int  nValues  = 1;
+	unsigned int  nColumns = 1;
+	unsigned int  nValues  = 1;
 
 	Sq::RowColumn *col = row->allocColumn(nColumns);
 	Sq::Value     *val = row->alloc(nValues);
@@ -207,7 +207,7 @@ use C language
 	SqRow *row = array->data[0];     // This 'array' has query result
 
 	// share SqRow::cols to other SqRow
-	for (int index = 1;  index < array.length;  index++)
+	for (unsigned int index = 1;  index < array.length;  index++)
 		sq_row_share_cols(row, array->data[index]);
 ```
 

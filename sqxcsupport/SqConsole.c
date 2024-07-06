@@ -12,6 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <stdio.h>
 #include <string.h>
 
@@ -96,10 +99,10 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 	SqCommandValue   *commandValue;
 	Sqxc       *xc;
 	char       *arg;
-	int         arg_len;
+	size_t      arg_len;
 	union {
 		char   *equ;
-		int     len;
+		size_t  len;
 		int     n_dash;
 	} temp;
 
@@ -188,8 +191,8 @@ void  sq_console_print_options(const SqConsole *console, SqOption **options, int
 {
 	SqBuffer   buffer = {0};
 	SqOption  *option;
-	int        option_max_length = 0;
-	int        length;
+	size_t     option_max_length = 0;
+	size_t     length;
 
 	// count max length
 	for (int i = 0;  i < n_options;  i++) {
@@ -248,12 +251,12 @@ void  sq_console_print_help(const SqConsole *console, const SqCommand *commandTy
 void  sq_console_print_list(const SqConsole *console, const char *program_description)
 {
 	const SqCommand *commandType;
-	int    command_max_length = 0;
-	int    length;
+	size_t  command_max_length = 0;
+	size_t  length;
 
-	for (int i = 0;  i < console->commands.length;  i++) {
+	for (unsigned int i = 0;  i < console->commands.length;  i++) {
 		commandType = console->commands.data[i];
-		length = (int)strlen(commandType->name);
+		length = strlen(commandType->name);
 		if (command_max_length < length)
 			command_max_length = length;
 	}
@@ -271,11 +274,11 @@ void  sq_console_print_list(const SqConsole *console, const char *program_descri
 	puts("command [options] [arguments]\n");
 
 	puts("Available commands:");
-	for (int i = 0;  i < console->commands.length;  i++) {
+	for (unsigned int i = 0;  i < console->commands.length;  i++) {
 		commandType = console->commands.data[i];
 		printf("%*c", COMMAND_BORDER_WIDTH, ' ');
 		printf("%s%*c", commandType->name,
-		       command_max_length - (int)strlen(commandType->name), ' ');
+		       (int)(command_max_length - strlen(commandType->name)), ' ');
 		puts(commandType->description);
 	}
 	puts("");

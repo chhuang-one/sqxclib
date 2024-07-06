@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -73,7 +73,7 @@ const SqType UserType = {
 
 void print_user(User *user)
 {
-	int  index;
+	unsigned int  index;
 
 	printf("User" "\n"
 	       "  id = %d" "\n"

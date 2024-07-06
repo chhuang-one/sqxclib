@@ -258,7 +258,7 @@ struct SqPairs
 	SQ_PAIRS_MEMBERS;                            // <-- 2. inherit member variable
 /*	// ------ SqArray members ------
 	void         **data;
-	int            length;
+	unsigned int   length;
 
 	// ------ SqPairs members ------
 	unsigned int   bit_field;
@@ -430,7 +430,7 @@ struct Pairs : Sq::PairsMethod<Key, Value>       // <-- 1. inherit C++ member fu
 	SQ_PAIRS_MEMBERS;                            // <-- 2. inherit member variable
 /*	// ------ SqArray members ------
 	void         **data;
-	int            length;
+	unsigned int   length;
 
 	// ------ SqPairs members ------
 	unsigned int   bit_field;

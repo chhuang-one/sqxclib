@@ -120,17 +120,19 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 
 ## 迁移
 
-sqdb_migrate() 使用架构的版本来决定是否迁移。它将 'schema_next' 的更改应用于 'schema_current'。  
-此函数可能会将数据从 'schema_next' 移动到 'schema_current'，迁移后您不能重用 'schema_next'。
-
+sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 参数，第一个 'schema_current' 参数是当前版本的架构，第二个 'schema_next' 参数是下一个版本的架构。'schema_next' 的更改将应用​​于 'schema_current'。  
+迁移后您无法重用 'schema_next'，因为此功能可能会将数据从 'schema_next' 移动到 'schema_current'。  
+  
+要通知数据库实例迁移已完成，请调用 sqdb_migrate() 并在最后一个参数中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。  
+  
 使用 C 函数
 
 ```c
 	// 将 'schema_next' 的更改应用于 'schema_current'
 	sqdb_migrate(db, schema_current, schema_next);
 
-	// 这将更新和排序 'schema_current' 并且
-	// 将 'schema_current' 同步到数据库（主要用于 SQLite）。
+	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
+	// 这将更新和排序 'schema_current' 并且将 'schema_current' 同步到数据库（主要用于 SQLite）。
 	sqdb_migrate(db, schema_current, NULL);
 ```
 
@@ -140,8 +142,8 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它将 'schema_next'
 	// 将 'schema_next' 的更改应用于 'schema_current'
 	db->migrate(schema_current, schema_next);
 
-	// 这将更新和排序 'schema_current' 并且
-	// 将 'schema_current' 同步到数据库（主要用于 SQLite）。
+	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
+	// 这将更新和排序 'schema_current' 并且将 'schema_current' 同步到数据库（主要用于 SQLite）。
 	db->migrate(schema_current, NULL);
 ```
 
@@ -434,7 +436,7 @@ static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema_current, SqSchema
 
 	if (db->version < schema_next->version) {
 		// 通过 'schema_next' 进行迁移
-		for (int index = 0;  index < schema_next->type->n_entry;  index++) {
+		for (unsigned int index = 0;  index < schema_next->type->n_entry;  index++) {
 			SqTable *table = (SqTable*)schema_next->type->entry[index];
 			if (table->bit_field & SQB_CHANGED) {
 				// 更改表   ALTER TABLE

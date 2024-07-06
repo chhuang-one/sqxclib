@@ -160,7 +160,7 @@ int  sq_table_get_columns(SqTable *table, SqPtrArray *ptrarray,
 		sq_ptr_array_init(ptrarray, 4, NULL);
 	colarray = sq_type_entry_array(table->type);
 	// for each columns
-	for (int index = 0;  index < colarray->length;  index++) {
+	for (unsigned int index = 0;  index < colarray->length;  index++) {
 		column = colarray->data[index];
 		// reset variable
 		matched_count = 0;
@@ -197,7 +197,7 @@ SqColumn *sq_table_get_primary(SqTable *table, const SqType *type_in_table)
 	else
 		array = sq_type_entry_array(table->type);
 
-	for (int index = 0;  index < array->length;  index++) {
+	for (unsigned int index = 0;  index < array->length;  index++) {
 		column = array->data[index];
 //		if (column->bit_field & SQB_COLUMN_PRIMARY && SQ_TYPE_IS_INT(column->type))
 		if (column->bit_field & SQB_COLUMN_PRIMARY) {
@@ -402,10 +402,10 @@ SqColumn *sq_table_add_function(SqTable *table, const char *column_name,
 	char *query_name;
 	union {
 		SqColumn *column;
-		int       len;
+		size_t    len;
 	} temp;
 
-	temp.len = (int)strlen(function_name);
+	temp.len = strlen(function_name);
 	// query_name = function_name(table_name.column_name)
 	//              function_name + ( + table_name + . + column_name + ) + null-terminated
 	query_name = malloc(temp.len + strlen(table->name) + strlen(column_name) + 4);

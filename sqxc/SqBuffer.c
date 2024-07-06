@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -29,7 +29,7 @@ void *sq_buffer_final(SqBuffer *buf)
 	return sq_buffer_resize(buf, 0);
 }
 
-void *sq_buffer_resize(SqBuffer *buf, int size)
+void *sq_buffer_resize(SqBuffer *buf, size_t size)
 {
 	if (size == 0) {
 		free(buf->mem);
@@ -46,9 +46,9 @@ void *sq_buffer_resize(SqBuffer *buf, int size)
 	return (void*)buf;
 }
 
-char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count)
+char *sq_buffer_alloc_at(SqBuffer *buf, size_t position, size_t length)
 {
-	int  new_length = buf->writed + count +1;    // +1 to reserve space for NULL-terminated
+	size_t  new_length = buf->writed + length +1;    // +1 to reserve space for NULL-terminated
 
 	if (buf->size < new_length) {
 		buf->size = (buf->size < SQ_BUFFER_SIZE_DEFAULT) ? SQ_BUFFER_SIZE_DEFAULT : buf->size * 2;
@@ -57,7 +57,7 @@ char *sq_buffer_alloc_at(SqBuffer *buf, int position, int count)
 		buf->mem = realloc(buf->mem, buf->size);
 	}
 	if (position < buf->writed) {
-		memmove(buf->mem + position + count,
+		memmove(buf->mem + position + length,
 		        buf->mem + position,
 		        buf->writed - position);
 	}
@@ -79,22 +79,22 @@ char *sq_buffer_write(SqBuffer *buffer, const char *string)
 	return SQ_BUFFER_WRITE(buffer, string);
 }
 
-char *sq_buffer_write_len(SqBuffer *buffer, const char *string, int length)
+char *sq_buffer_write_len(SqBuffer *buffer, const char *string, size_t length)
 {
 	return SQ_BUFFER_WRITE_LEN(buffer, string, length);
 }
 
-void  sq_buffer_insert(SqBuffer *buffer, int position, const char *string)
+void  sq_buffer_insert(SqBuffer *buffer, size_t position, const char *string)
 {
 	SQ_BUFFER_INSERT(buffer, position, string);
 }
 
-void  sq_buffer_insert_len(SqBuffer *buffer, int position, const char *string, int length)
+void  sq_buffer_insert_len(SqBuffer *buffer, size_t position, const char *string, size_t length)
 {
 	SQ_BUFFER_INSERT_LEN(buffer, position, string, length);
 }
 
-char *sq_buffer_require(SqBuffer *buffer, int length)
+char *sq_buffer_require(SqBuffer *buffer, size_t length)
 {
 	SQ_BUFFER_REQUIRE(buffer, length);
 	return buffer->mem;

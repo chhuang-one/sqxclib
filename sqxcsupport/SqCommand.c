@@ -132,7 +132,7 @@ void  sq_command_sort_shortcuts(const SqCommand *commandType, SqPtrArray *array)
 	SqOption *option;
 
 	array->length = 0;
-	for (int i = 0;  i < commandType->n_entry;  i++) {
+	for (unsigned int i = 0;  i < commandType->n_entry;  i++) {
 		option = (SqOption*)commandType->entry[i];
         if (option->shortcut)
             sq_ptr_array_push(array, option);

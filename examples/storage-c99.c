@@ -252,18 +252,18 @@ void user_print(User *user)
 	       user->city_id,
 	       user->comment);
 
-	int   hex_size = user->picture.writed * 2;
-	char *hex_mem  = malloc(hex_size + 1);
+	size_t  hex_size = user->picture.writed * 2;
+	char   *hex_mem  = malloc(hex_size + 1);
 	hex_mem[hex_size] = 0;
 	sq_bin_to_hex(hex_mem, user->picture.mem, user->picture.writed);
 	printf("user.picture has %d bytes\n"
 	       "user.picture = 0x%*s\n",
-	       user->picture.writed,
-	       hex_size, hex_mem);
+	       (int)user->picture.writed,
+	       (int)hex_size, hex_mem);
 	free(hex_mem);
 
 	printf("user.ints[] = ");
-	for (int i = 0;  i < user->ints.length;  i++) {
+	for (unsigned int i = 0;  i < user->ints.length;  i++) {
 		if (i > 0)
 			printf(",");
 		printf("%d", (int)user->ints.data[i]);
@@ -413,8 +413,8 @@ void storage_make_migrated_schema(SqStorage *storage, int end_version)
 		sq_schema_free(schema);
 	}
 
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(storage, NULL);
 }
 
@@ -431,7 +431,7 @@ void  storage_query_ptr_array(SqStorage *storage)
 
 	array = sq_storage_query(storage, query, NULL, NULL);
 	if (array) {
-		for (int i = 0;  i < array->length;  i++) {
+		for (unsigned int i = 0;  i < array->length;  i++) {
 			user = (User*)array->data[i];
 			user_print(user);
 			user_free(user);
@@ -465,7 +465,7 @@ void  storage_query_join_array(SqStorage *storage)
 
 	array = sq_storage_query(storage, query, NULL, SQ_TYPE_ARRAY);
 	if (array) {
-		for (int i = 0;  i < array->length;  i++) {
+		for (unsigned int i = 0;  i < array->length;  i++) {
 			element = sq_array_at(array, Joint2, i);
 			city = (City*)element[0];
 			city_print(city);
@@ -501,7 +501,7 @@ void  storage_query_join_ptr_array(SqStorage *storage)
 
 	array = sq_storage_query(storage, query, NULL, NULL);
 	if (array) {
-		for (int i = 0;  i < array->length;  i++) {
+		for (unsigned int i = 0;  i < array->length;  i++) {
 			element = (void**)array->data[i];
 			city = (City*)element[0];
 			city_print(city);
@@ -626,7 +626,7 @@ int  main(void)
 
 	array = sq_storage_get_all(storage, "cities", NULL, NULL, NULL);
 	if (array) {
-		for (int i = 0;  i < array->length;  i++) {
+		for (unsigned int i = 0;  i < array->length;  i++) {
 			city = array->data[i];
 			city_print(city);
 			city_free(city);

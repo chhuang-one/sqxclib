@@ -25,8 +25,8 @@ SqArray Structure Definition:
 ```c
 struct SqArray
 {
-	uint8_t  *data;
-	int       length;
+	uint8_t      *data;
+	unsigned int  length;
 };
 ```
 
@@ -111,9 +111,9 @@ SqArray will expand array if it does not have enough space.
 use C language
 
 ```c
-	ElementType *elements;
-	int   count = 16;
-	int   index = 8;
+	ElementType  *elements;
+	unsigned int  count = 16;
+	unsigned int  index = 8;
 
 	// allocate elements from rear
 	elements = (ElementType*)sq_array_alloc(array, count);
@@ -125,9 +125,9 @@ use C language
 use C++ language
 
 ```c++
-	ElementType *elements;
-	int   count = 16;
-	int   index = 8;
+	ElementType  *elements;
+	unsigned int  count = 16;
+	unsigned int  index = 8;
 
 	// allocate elements from rear
 	elements = array->alloc(count);
@@ -237,9 +237,9 @@ use C language
 	//  You must specify ElementType here
 	SQ_ARRAY_SORT(array, ElementType, elementCompare);
 
-	ElementType *key = pointerToKey;
-	ElementType *element;
-	int          insertingIndex;
+	ElementType  *key = pointerToKey;
+	ElementType  *element;
+	unsigned int  insertingIndex;
 
 	//  You must specify ElementType here
 	element = SQ_ARRAY_FIND(array, ElementType, key, elementCompare);
@@ -251,9 +251,9 @@ use C++ language
 ```c++
 	array->sort(elementCompare);
 
-	ElementType *key = pointerToKey;
-	ElementType *element;
-	int          insertingIndex;
+	ElementType  *key = pointerToKey;
+	ElementType  *element;
+	unsigned int  insertingIndex;
 
 	element = array->find(key, elementCompare);
 	element = array->findSorted(key, elementCompare, &insertingIndex);

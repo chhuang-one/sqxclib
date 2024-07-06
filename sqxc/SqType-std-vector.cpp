@@ -56,7 +56,7 @@ static void sq_type_std_vector_final(void *instance, const SqType *type)
 static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	std::vector<char> *vector = (std::vector<char>*)instance;
-	int   len;
+	size_t   len;
 
 	switch (src->type) {
 	case SQXC_TYPE_NULL:
@@ -69,7 +69,7 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 		if (src->info == SQXC_INFO_JSONC_PARSER) {
 			// TODO:
 			// convert BASE64 to binary
-			len = (int)strlen(src->value.str);
+			len = strlen(src->value.str);
 			vector->assign(src->value.str, src->value.str + len);
 		}
 		else
@@ -97,9 +97,9 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 				        "sq_type_std_vector_parse()");
 #endif
 				// User can set length of BLOB by calling std::vector<char>::resize() before parsing.
-				len = (int)vector->size();
+				len = vector->size();
 				if (len == 0)
-					len = (int)strlen(src->value.str);
+					len = strlen(src->value.str);
 				vector->assign(src->value.str, src->value.str + len);
 				break;
 			}
@@ -107,9 +107,9 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 			// string is hex format:
 			// User can set length of BLOB by calling std::vector<char>::resize() before parsing.
 			if (vector->size() > 0)
-				len = (int)vector->size() << 1;    // len = (int)vector->size() * 2;
+				len = vector->size() << 1;    // len = (int)vector->size() * 2;
 			else
-				len = (int)strlen(src->value.str) - len;
+				len = strlen(src->value.str) - len;
 
 			char *mem = (char*)malloc(len >> 1);
 			sq_hex_to_bin(mem, src->value.str+2, len);

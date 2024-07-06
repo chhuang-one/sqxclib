@@ -88,7 +88,8 @@ static int  sqdb_empty_migrate(SqdbEmpty *db, SqSchema *schema, SqSchema *schema
 	SqTable    *table;
 	SqPtrArray *reentries;
 
-	// If 'schema_next' is NULL, update and sort 'schema' and synchronize 'schema' to database (mainly for SQLite).
+	// If 'schema_next' is NULL, update and sort 'schema' and
+	// synchronize 'schema' to database (mainly for SQLite).
 	if (schema_next == NULL) {
 		// sort tables and columns by their name
 		sq_schema_sort_table_column(schema);
@@ -98,7 +99,7 @@ static int  sqdb_empty_migrate(SqdbEmpty *db, SqSchema *schema, SqSchema *schema
 	if (db->version < schema_next->version) {
 		// do migrations by 'schema_next'
 		reentries = sq_type_entry_array(schema_next->type);
-		for (int index = 0;  index < reentries->length;  index++) {
+		for (unsigned int index = 0;  index < reentries->length;  index++) {
 			table = (SqTable*)reentries->data[index];
 
 			if (table->bit_field & SQB_CHANGED) {

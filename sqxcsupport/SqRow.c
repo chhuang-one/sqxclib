@@ -34,7 +34,7 @@
 #define sq_row_cols_ref_count(row)    sq_array_ref_count(&(row)->cols)
 
 
-SqRow *sq_row_new(int cols_capacity, int capacity)
+SqRow *sq_row_new(unsigned int cols_capacity, unsigned int capacity)
 {
 	SqRow *row;
 
@@ -49,7 +49,7 @@ void   sq_row_free(SqRow *row)
 	free(row);
 }
 
-void  sq_row_init(SqRow *row, int cols_capacity, int capacity)
+void  sq_row_init(SqRow *row, unsigned int cols_capacity, unsigned int capacity)
 {
 	if (cols_capacity == 0)
 		cols_capacity = SQ_ROW_LENGTH_DEFAULT;
@@ -64,10 +64,9 @@ void  sq_row_final(SqRow *row)
 {
 	SqRowColumn *col;
 	SqValue     *val;
-	int          index;
 	int          cols_ref_count = --sq_row_cols_ref_count(row);
 
-	for (index = 0;  index < row->length;  index++) {
+	for (unsigned int index = 0;  index < row->length;  index++) {
 		val = row->data + index;
 		col = row->cols + ((row->cols_length == 1) ? 0 : index);
 		if (col->type == SQ_TYPE_STR || col->type == SQ_TYPE_CHAR)
@@ -111,7 +110,7 @@ bool   sq_row_share_cols(SqRow *row, SqRow *share_to)
 	return true;
 }
 
-SqRowColumn *sq_row_alloc_column(SqRow *row, int n_element)
+SqRowColumn *sq_row_alloc_column(SqRow *row, unsigned int n_element)
 {
 	// Don't allocate space if row->cols is shared
 	if (sq_row_cols_ref_count(row) > 1)
@@ -372,7 +371,7 @@ static Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest)
 	if (dest->code != SQCODE_OK)
 		return dest;
 
-	for (int index = 0;  index < row->length;  index++) {
+	for (unsigned int index = 0;  index < row->length;  index++) {
 		// SqRow::cols
 		temp.col = row->cols + ((row->cols_length==1) ? 0 : index);
 		member_type = temp.col->type;

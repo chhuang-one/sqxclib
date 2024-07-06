@@ -404,14 +404,14 @@ void sq_query_where_between_logical(SqQuery *query, const char *column_name, uns
 	va_list        arg_list;
 	va_list        arg_copy;
 	char          *str;
-	int            length;
+	size_t         length;
 	union {
 		char          *format;
 		SqQueryNode   *node;
 	} temp;
 
 	// generate new printf format string
-	length = (int)strlen(format) *2 + 13 + 1;    // strlen("BETWEEN  AND ") + '\0'
+	length = strlen(format) *2 + 13 + 1;    // strlen("BETWEEN  AND ") + '\0'
 	temp.format = malloc(length);
 	strcpy(temp.format, "BETWEEN ");
 	strcpy(temp.format +8,  format);    // str + strlen("BETWEEN ")
@@ -441,15 +441,15 @@ void sq_query_where_in_logical(SqQuery *query, const char *column_name, unsigned
 	va_list        arg_list;
 	va_list        arg_copy;
 	char          *str;
-	int            length;
-	int            format_len;
+	size_t         length;
+	size_t         format_len;
 	union {
 		char          *format;
 		SqQueryNode   *node;
 	} temp;
 
 	// generate new printf format string
-	format_len = (int)strlen(format);
+	format_len = strlen(format);
 	length = (format_len+1) *n_args + 5 + 1;    // strlen("IN ()") + '\0'
 	temp.format = malloc(length);
 	strcpy(temp.format, "IN (");
@@ -759,9 +759,9 @@ int  sq_query_get_command(SqQuery *query)
 
 static void node_to_buf(SqQueryNode *node, SqQuery *query)
 {
-	char *src;
-	char *dest;
-	int   value_len;
+	char   *src;
+	char   *dest;
+	size_t  value_len;
 
 	for (;  node;  node = node->next) {
 		if (node->type < SQN_N_CODE) {
@@ -771,7 +771,7 @@ static void node_to_buf(SqQueryNode *node, SqQuery *query)
 		}
 		src = node->value;
 		if (*src) {
-			value_len = (int)strlen(src) + 1;    // + " "
+			value_len = strlen(src) + 1;    // + " "
 			if (query->length +value_len >= query->allocated) {
 				query->allocated *= 2;
 				query->str = realloc(query->str, query->allocated);
@@ -916,11 +916,11 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 	va_list   arg_copy;
 	char     *args[3];
 	union {
-		int       length;
+		size_t    length;
 		char     *dest;
 	} mem;
 	union {
-		int       length;
+		size_t    length;
 		int       index;
 		char     *cur;
 	} temp;
@@ -936,7 +936,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 		return NULL;
 	}
 	// count length of argv[0]
-	mem.length = (int)(strlen(args[0]) + 1);              // + ' '
+	mem.length = strlen(args[0]) + 1;              // + ' '
 	// create node for condition
 	node = sq_query_node_new(query);
 	node->type = SQN_VALUE;
@@ -967,7 +967,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 		// 2 arguments special case: "column", "valueStr"         or   "column", "strHas%sign"
 		// 3 arguments special case: "column", ">", "valueStr"    or   "column", ">", "strHas%sign"
 		if (logi_args == 2 || (logi_args == 3 && *temp.cur != '%')) {
-			temp.length = (int)strlen(args[2]) +1;
+			temp.length = strlen(args[2]) +1;
 			node->value = malloc(mem.length + temp.length);
 			strncpy(node->value + mem.length, args[2], temp.length);
 		}
@@ -1069,7 +1069,7 @@ void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_
 
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
 	if (table->type->bit_field & SQB_TYPE_QUERY_FIRST) {
-		for (int index = 0;  index < type->n_entry;  index++) {
+		for (unsigned int index = 0;  index < type->n_entry;  index++) {
 			column = (SqColumn*)type->entry[index];
 			if (column->bit_field & SQB_COLUMN_QUERY) {
 				buf_len = snprintf(NULL, 0, "%s AS %c%s.%s%c",
@@ -1085,7 +1085,7 @@ void sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table_
 	}
 #endif
 
-	for (int index = 0;  index < type->n_entry;  index++) {
+	for (unsigned int index = 0;  index < type->n_entry;  index++) {
 		column = (SqColumn*)type->entry[index];
 #if SQ_CONFIG_QUERY_ONLY_COLUMN
 		if (column->bit_field & SQB_COLUMN_QUERY)

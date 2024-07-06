@@ -104,7 +104,7 @@ static void sq_type_joint_init_instance(void *instance, const SqType *type)
 	SqEntry    *table;
 
 	// initialize structure of joined tables
-	for (int index = 0;  index < type->n_entry;  index++) {
+	for (unsigned int index = 0;  index < type->n_entry;  index++) {
 		table = type->entry[index];
 		sq_type_init_instance(table->type, (char*)instance + table->offset, true);
 	}
@@ -115,7 +115,7 @@ static void sq_type_joint_final_instance(void *instance, const SqType *type)
 	SqEntry    *table;
 
 	// finalize structure of joined tables
-	for (int index = 0;  index < type->n_entry;  index++) {
+	for (unsigned int index = 0;  index < type->n_entry;  index++) {
 		table = type->entry[index];
 		sq_type_final_instance(table->type, (char*)instance + table->offset, true);
 	}

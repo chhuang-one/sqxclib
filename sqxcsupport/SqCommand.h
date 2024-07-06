@@ -199,9 +199,9 @@ struct SqCommand
 	// SqType::entry is array of SqEntry pointer if current SqType is for C struct type.
 	// SqType::entry isn't freed if SqType::n_entry == -1
 	SqEntry      **entry;          // maps to SqPtrArray::data
-	int            n_entry;        // maps to SqPtrArray::length
+	unsigned int   n_entry;        // maps to SqPtrArray::length
 	// *** About above 2 fields:
-	// 1. They are expanded by macro SQ_PTR_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
+	// 1. They are expanded by macro SQ_ARRAY_MEMBERS(SqEntry*, entry, n_entry)
 	// 2. They can NOT change data type and order.
 
 	// SqType::bit_field has SQB_TYPE_DYNAMIC if SqType is dynamic and freeable.

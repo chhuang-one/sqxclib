@@ -212,7 +212,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 	}
 
 	// --------- create and recreate table ---------
-	for (int index = 0;  index < type->n_entry;  index++) {
+	for (unsigned int index = 0;  index < type->n_entry;  index++) {
 		table = (SqTable*)type->entry[index];
 		// clear sql_buf
 		sql_buf.writed = 0;
@@ -471,7 +471,7 @@ void  sqdb_write_exist_column_list(Sqdb *db, SqBuffer *sql_buf, SqTable* table, 
 	char *allocated;
 	int   count = 0;
 
-	for (int index = 0;  index < tabletype->n_entry;  index++) {
+	for (unsigned int index = 0;  index < tabletype->n_entry;  index++) {
 		column = (SqColumn*)tabletype->entry[index];
 		// skip SQ_TYPE_CONSTRAINT and SQ_TYPE_INDEX. They are fake types.
 		if (SQ_TYPE_IS_FAKE(column->type))

@@ -58,7 +58,7 @@ void  company_object_print(Company *company)
 void  company_array_print(SqPtrArray *array)
 {
 	Company   *company;
-	int        index;
+	unsigned int  index;
 
 	for (index = 0;  index < array->length;  index++) {
 		company = (Company*)(array->data[index]);
@@ -282,8 +282,8 @@ void test_storage(const SqdbInfo *dbinfo, const SqdbConfig *config)
 	schema = sq_schema_new(NULL);
 	create_company_table(schema);
 	sq_storage_migrate(storage, schema);
-	// This will update and sort schema in SqStorage::schema
-	// and synchronize schema to database (mainly for SQLite).
+	// To notify database instance that migration is completed, pass NULL to the last parameter.
+	// This will update and sort schema in SqStorage and synchronize schema to database (mainly for SQLite).
 	sq_storage_migrate(storage, NULL);
 	sq_schema_free(schema);
 

@@ -18,8 +18,8 @@ SqIntArray Structure Definition:
 ```c
 struct SqIntArray
 {
-	int      *data;
-	int       length;
+	int          *data;
+	unsigned int  length;
 };
 ```
 
@@ -51,7 +51,7 @@ use C language
 ```c
 	int  *key;
 	int  *element;
-	int   insertingIndex;
+	unsigned int  insertingIndex;
 
 	// use integer pointer as key value
 	element = sq_int_array_find(array, key, compareFunc);
@@ -109,7 +109,7 @@ SqIntArray still defines some sq_int_array_xxx() macros and functions for C lang
 **Insert**
 
 ```c
-	int   index = 5;
+	unsigned int  index = 5;
 
 	sq_int_array_push_to(array, index, 16384);
 	sq_int_array_insert(array, index, ints, sizeof(ints) / sizeof(int));

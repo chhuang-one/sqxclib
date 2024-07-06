@@ -525,7 +525,7 @@ void test_query_macro_get_table_as(SqQuery *query)
 	// get table name and it's as name in query.
 	SqPtrArray *table_as = sq_ptr_array_new(4, NULL);
 	sq_query_get_table_as_names(query, table_as);
-	for (int i = 0;  i < table_as->length;  i += 2)
+	for (unsigned int i = 0;  i < table_as->length;  i += 2)
 		printf("%s - %s\n", (char*)table_as->data[i], (char*)table_as->data[i+1]);
 
 	assert(strcmp(table_as->data[0], "companies") == 0);

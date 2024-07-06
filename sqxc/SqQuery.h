@@ -866,8 +866,8 @@ struct SqQueryNode
 	SqQueryNested *nested_cur;    \
 	int            nested_count;  \
 	char          *str;           \
-	int            length;        \
-	int            allocated
+	size_t         length;        \
+	size_t         allocated
 
 #ifdef __cplusplus
 struct SqQuery : Sq::QueryMethod             // <-- 1. inherit C++ member function(method)
@@ -887,8 +887,8 @@ struct SqQuery
 
 	// sq_query_c() and sq_query_to_sql() use these
 	char          *str;
-	int            length;
-	int            allocated;
+	size_t         length;
+	size_t         allocated;
  */
 };
 

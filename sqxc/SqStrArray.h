@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2024 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -40,30 +40,30 @@ extern "C" {
 //void *sq_str_array_final(SqStrArray *array);
 #define sq_str_array_final           sq_ptr_array_final
 
-//char **sq_str_array_alloc(SqStrArray *array, int count);
+//char **sq_str_array_alloc(SqStrArray *array, unsigned int count);
 #define sq_str_array_alloc           (char**)sq_array_alloc
 
-//char **sq_str_array_alloc_at(SqStrArray *array, int index, int count);
+//char **sq_str_array_alloc_at(SqStrArray *array, unsigned int index, unsigned int count);
 #define sq_str_array_alloc_at        (char**)sq_array_alloc_at
 
-// void sq_str_array_erase(SqStrArray *array, int index, int count);
+// void sq_str_array_erase(SqStrArray *array, unsigned int index, unsigned int count);
 #define sq_str_array_erase           sq_ptr_array_erase
 
-// void sq_str_array_erase_addr(SqStrArray *array, char **elementAddr, int count);
+// void sq_str_array_erase_addr(SqStrArray *array, char **elementAddr, unsigned int count);
 #define sq_str_array_erase_addr      sq_ptr_array_erase_addr
 
 // alias of sq_str_array_erase()
-// void sq_str_array_remove(SqStrArray *array, int index, int count);
+// void sq_str_array_remove(SqStrArray *array, unsigned int index, unsigned int count);
 #define sq_str_array_remove          sq_ptr_array_erase
 
 // alias of sq_str_array_erase_addr()
-// void sq_str_array_remove_addr(SqStrArray *array, char **elementAddr, int count);
+// void sq_str_array_remove_addr(SqStrArray *array, char **elementAddr, unsigned int count);
 #define sq_str_array_remove_addr     sq_ptr_array_erase_addr
 
-// void sq_str_array_steal(SqStrArray *array, int index, int count);
+// void sq_str_array_steal(SqStrArray *array, unsigned int index, unsigned int count);
 #define sq_str_array_steal           sq_ptr_array_steal
 
-// void sq_str_array_steal_addr(SqStrArray *array, char **elementAddr, int count);
+// void sq_str_array_steal_addr(SqStrArray *array, char **elementAddr, unsigned int count);
 #define sq_str_array_steal_addr      sq_ptr_array_steal_addr
 
 // void sq_str_array_sort(void *array, SqCompareFunc compareFunc);
@@ -77,21 +77,21 @@ extern "C" {
 #define sq_str_array_find(array, key, compareFunc)      \
 		(char**)SQ_ARRAY_FIND(array, char*, key, compareFunc)
 
-//char **sq_array_find_sorted(void *array, const char *key, SqCompareFunc compareFunc, int *insertingIndex);
+//char **sq_array_find_sorted(void *array, const char *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define sq_str_array_find_sorted(array, key, compareFunc, insertingIndex)   \
 		(char**)SQ_ARRAY_FIND_SORTED(array, char*, key, compareFunc, insertingIndex)
 
 /* C functions */
-void  *sq_str_array_init(SqStrArray *array, int capacity);
+void  *sq_str_array_init(SqStrArray *array, unsigned int capacity);
 
-void   sq_str_array_push_to(SqStrArray *array, int index, const char *str);
-char **sq_str_array_insert(SqStrArray *array, int index, const char **strs, int count);
+void   sq_str_array_push_to(SqStrArray *array, unsigned int index, const char *str);
+char **sq_str_array_insert(SqStrArray *array, unsigned int index, const char **strs, unsigned int count);
 
 void   sq_str_array_push(SqStrArray *array, const char *str);
-char **sq_str_array_append(SqStrArray *array, const char **strs, int count);
+char **sq_str_array_append(SqStrArray *array, const char **strs, unsigned int count);
 
 // for internal use only
-void   sq_str_array_strdup(SqStrArray *array, int index, int count);
+void   sq_str_array_strdup(SqStrArray *array, unsigned int index, unsigned int count);
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -117,11 +117,11 @@ namespace Sq {
 
 struct StrArrayMethod : PtrArrayMethod<char*>
 {
-	void   append(const char **strs, int count);
+	void   append(const char **strs, unsigned int count);
 	void   append(const char  *str);
 
-	void   insert(int index, const char **strs, int count);
-	void   insert(int index, const char  *str);
+	void   insert(unsigned int index, const char **strs, unsigned int count);
+	void   insert(unsigned int index, const char  *str);
 };
 
 };  // namespace Sq
@@ -137,10 +137,10 @@ struct SqStrArray : Sq::StrArrayMethod               // <-- 1. inherit C++ membe
 struct SqStrArray
 #endif
 {
-	SQ_PTR_ARRAY_MEMBERS(char*, data, length);       // <-- 2. inherit member variable
+	SQ_ARRAY_MEMBERS(char*, data, length);           // <-- 2. inherit member variable
 /*	// ------ SqPtrArray members ------
-	char    **data;
-	int       length;
+	char         **data;
+	unsigned int   length;
  */
 };
 
@@ -164,17 +164,17 @@ namespace Sq {
 
 /* define StrArrayMethod template functions */
 
-inline void  StrArrayMethod::append(const char **strs, int count) {
+inline void  StrArrayMethod::append(const char **strs, unsigned int count) {
 	sq_str_array_append((SqStrArray*)this, strs, count);
 }
 inline void  StrArrayMethod::append(const char  *str) {
 	sq_str_array_push((SqStrArray*)this, str);
 }
 
-inline void  StrArrayMethod::insert(int index, const char **strs, int count) {
+inline void  StrArrayMethod::insert(unsigned int index, const char **strs, unsigned int count) {
 	sq_str_array_insert((SqStrArray*)this, index, strs, count);
 }
-inline void  StrArrayMethod::insert(int index, const char  *str) {
+inline void  StrArrayMethod::insert(unsigned int index, const char  *str) {
 	sq_str_array_push_to((SqStrArray*)this, index, str);
 }
 
@@ -183,7 +183,7 @@ inline void  StrArrayMethod::insert(int index, const char  *str) {
 struct StrArray : SqStrArray
 {
 	// constructor
-	StrArray(int capacity = 8) {
+	StrArray(unsigned int capacity = 8) {
 		sq_ptr_array_init(this, capacity, free);
 	}
 	// destructor

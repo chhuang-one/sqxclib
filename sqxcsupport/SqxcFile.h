@@ -82,8 +82,8 @@ struct SqxcFile
 
 //	SQ_BUFFER_MEMBERS(buf, buf_size, buf_writed);
 	char        *buf;
-	int          buf_size;
-	int          buf_writed;
+	size_t       buf_size;
+	size_t       buf_writed;
 
 	// ------------------------------------------
 	// properties

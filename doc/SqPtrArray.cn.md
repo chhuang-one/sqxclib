@@ -22,8 +22,8 @@ SqPtrArray 结构定义：
 ```c
 struct SqPtrArray
 {
-	void    **data;
-	int       length;
+	void         **data;
+	unsigned int   length;
 };
 ```
 
@@ -128,7 +128,7 @@ SqPtrArray 仍然为 C 语言定义了一些 sq_ptr_array_xxx() 宏和函数，�
 **插入 Insert**
 
 ```c
-	int   index = 5;
+	unsigned int  index = 5;
 
 	sq_ptr_array_push_to(array, index, NULL);
 	sq_ptr_array_insert(array, index, ptrs, sizeof(ptrs) / sizeof(void*));
@@ -147,7 +147,7 @@ SqPtrArray 仍然为 C 语言定义了一些 sq_ptr_array_xxx() 宏和函数，�
 ```c
 	void **key;
 	void **element;
-	int    insertingIndex;
+	unsigned int  insertingIndex;
 
 	element = sq_ptr_array_find(array, key, compareFunc);
 	element = sq_ptr_array_find_sorted(array, key, compareFunc, &insertingIndex);
