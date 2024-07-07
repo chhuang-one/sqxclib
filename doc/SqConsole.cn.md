@@ -238,6 +238,14 @@ const SqCommand mycommand = {
 
 ## 3 解析命令行
 
+要从控制台解析命令及其选项，请使用 C++ parse() 或 C 函数 sq_console_parse()。
+
+	parse() 有 3 种解析模式：
+
+	如果您需要解析命令、选项和参数，则使用 SQ_CONSOLE_PARSE_ALL。
+	如果您想要解析命令或仅解析选项，则使用 SQ_CONSOLE_PARSE_AUTO。
+	如果您只需要解析选项和参数而不需要命令，则使用 SQ_CONSOLE_PARSE_OPTION。
+
 例如: 使用指定的命令、选项和参数执行程序。
 
 ```console
@@ -252,9 +260,8 @@ program  mycommand  --step=5  argument1  argument2
 int  main(int argc, char **argv)
 {
 	SqCommandValue *commandValue;
-	int             command_in_argv = 1;
 
-	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
+	commandValue = sq_console_parse(console, argc, argv, SQ_CONSOLE_PARSE_ALL);
 }
 ```
 
@@ -264,9 +271,8 @@ int  main(int argc, char **argv)
 int  main(int argc, char **argv)
 {
 	Sq::CommandValue *commandValue;
-	int               command_in_argv = 1;
 
-	commandValue = console->parse(argc, argv, command_in_argv);
+	commandValue = console->parse(argc, argv, SQ_CONSOLE_PARSE_ALL);
 }
 ```
 
@@ -294,19 +300,17 @@ sq_console_parse() 的返回值是 'commandValue'，其成员值应该如下：
 program  --step=5  argument1  argument2
 ```
 
-调用 parse() 并将最后一个参数指定为 0 以解析没有命令的命令行参数。
+调用 parse() 并将最后一个参数指定为 SQ_CONSOLE_PARSE_OPTION 以解析没有命令的命令行参数。
 
 ```c++
-	int  command_in_argv = 0;
-
 	// C 函数
-	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
+	commandValue = sq_console_parse(console, argc, argv, SQ_CONSOLE_PARSE_OPTION);
 
 	// C++ 方法
-	commandValue = console->parse(argc, argv, command_in_argv);
+	commandValue = console->parse(argc, argv, SQ_CONSOLE_PARSE_OPTION);
 ```
 
-如果您想同时解析命令或仅选项，请调用 parse() 并指定 -1 作为最后一个参数。
+如果您想同时解析命令或仅选项，请调用 parse() 并指定 SQ_CONSOLE_PARSE_AUTO 作为最后一个参数。
 如果命令行上只有选项，SqConsole 默认使用第一个添加的命令。  
   
 例如: 打印版本信息（通过第一个添加命令的处理程序）。

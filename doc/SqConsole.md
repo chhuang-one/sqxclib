@@ -238,6 +238,14 @@ Calling pointer() if the option value in C/C++ language is a pointer type.
 
 ## 3 Parse command-line
 
+To parse command and its options from console, use C++ parse() or C function sq_console_parse().
+
+	parse() has 3 parsing mode:
+
+	SQ_CONSOLE_PARSE_ALL    if you need to parse command, options, and arguments.
+	SQ_CONSOLE_PARSE_AUTO   if you want to parse both a command or just options.
+	SQ_CONSOLE_PARSE_OPTION if you only need to parse options and arguments and no command.
+
 e.g. execute program with specified command, options, and arguments.
 
 ```console
@@ -252,9 +260,8 @@ use C language
 int  main(int argc, char **argv)
 {
 	SqCommandValue *commandValue;
-	int             command_in_argv = 1;
 
-	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
+	commandValue = sq_console_parse(console, argc, argv, SQ_CONSOLE_PARSE_ALL);
 }
 ```
 
@@ -264,9 +271,8 @@ use C++ language
 int  main(int argc, char **argv)
 {
 	Sq::CommandValue *commandValue;
-	int               command_in_argv = 1;
 
-	commandValue = console->parse(argc, argv, command_in_argv);
+	commandValue = console->parse(argc, argv, SQ_CONSOLE_PARSE_ALL);
 }
 ```
 
@@ -294,19 +300,17 @@ e.g. Execute the program with only options and parameters, no command specified.
 program  --step=5  argument1  argument2
 ```
 
-Call parse() and specify the last argument as 0 to parse command-line arguments without a command.
+Call parse() and specify the last argument as SQ_CONSOLE_PARSE_OPTION to parse command-line arguments without a command.
 
 ```c++
-	int  command_in_argv = 0;
-
 	// C function
-	commandValue = sq_console_parse(console, argc, argv, command_in_argv);
+	commandValue = sq_console_parse(console, argc, argv, SQ_CONSOLE_PARSE_OPTION);
 
 	// C++ method
-	commandValue = console->parse(argc, argv, command_in_argv);
+	commandValue = console->parse(argc, argv, SQ_CONSOLE_PARSE_OPTION);
 ```
 
-If you want to parse both a command or just options, call parse() and specify -1 as the last argument.
+If you want to parse both a command or just options, call parse() and specify SQ_CONSOLE_PARSE_AUTO as the last argument.
 If there are only options on the command-line, SqConsole use first added command by default.  
   
 e.g. print version information (by handler of first added command).

@@ -142,16 +142,17 @@ void   sq_app_tool_final(SqAppTool *app)
 
 int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
 {
-	SqConsole *console;
+	SqConsole      *console;
 	SqCommandValue *commandValue;
 
 	console = app->console;
-	if (argc <= 1) {
+	// if there is only program name in 'argv'
+	if (argc < 2) {
 		sq_console_print_list(console, NULL);
 		return SQCODE_OK;
 	}
 
-	commandValue = sq_console_parse(console, argc, (char**)argv, 1);
+	commandValue = sq_console_parse(console, argc, argv, SQ_CONSOLE_PARSE_ALL);
 	if (commandValue == NULL) {
 		printf("\n"
 		       "Unknown command '%s'\n\n",
@@ -231,7 +232,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	union {
 		char *snake_case;
 		char *timestr;
-		int   len;
+		unsigned int  len;
 	} temp;
 
 
@@ -253,11 +254,11 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 		// if 'table_name' found and 'table_name' is NOT empty string
 		if (table_name && table_name[1]) {
 			table_name++;
-			temp.len = (int)strcspn(table_name, "_");
+			temp.len = strcspn(table_name, "_");
 			// handle long table name
 			if (table_name[temp.len] != 0) {
 				for (;;) {
-					int cur_len = (int)strcspn(table_name + temp.len + 1, "_");
+					unsigned int cur_len = strcspn(table_name + temp.len + 1, "_");
 					if (table_name[temp.len + 1 + cur_len] == 0)
 						break;
 					temp.len = temp.len + 1 + cur_len;    // temp.len + '_' + cur_len
@@ -298,7 +299,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, migration_name);
 	// strcspn() count length of template file extension
 	sq_buffer_write_len(buf, app->template_extension,
-	                    (int)strcspn(app->template_extension+1, ".") + 1);
+	                    strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	out.path = strdup(buf->mem);
 
@@ -327,7 +328,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, migration_name);
 	// strcspn() count length of template file extension
 	sq_buffer_write_len(buf, app->template_extension,
-	                    (int)strcspn(app->template_extension+1, ".") + 1);
+	                    strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	in.path = strdup(buf->mem);
 
@@ -339,7 +340,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	sq_buffer_write(buf, "migrations-files");
 	// strcspn() count length of template file extension
 	sq_buffer_write_len(buf, app->template_extension,
-	                    (int)strcspn(app->template_extension+1, ".") + 1);
+	                    strcspn(app->template_extension+1, ".") + 1);
 	buf->mem[buf->writed] = 0;
 	out.file = fopen(buf->mem, "a");
 	if (out.file == NULL) {

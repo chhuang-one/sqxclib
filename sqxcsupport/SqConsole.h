@@ -22,6 +22,12 @@
 
 // typedef struct SqConsole         SqConsole;    // declare in SqCommand.h
 
+enum SqConsoleParsingMode {
+	SQ_CONSOLE_PARSE_ALL,
+	SQ_CONSOLE_PARSE_AUTO,
+	SQ_CONSOLE_PARSE_OPTION,
+};
+
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
@@ -39,12 +45,13 @@ void       sq_console_add(SqConsole *console, const SqCommand *command_type);
 
 SqCommand *sq_console_find(SqConsole *console, const char* command_name);
 
-// argv_has_command ==  0  if you only need to parse options and arguments and no command.
-// argv_has_command ==  1  if you need to parse command, options, and arguments.
-// argv_has_command == -1  if you want to parse both a command or just options.
-SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int argv_has_command);
+// The parameter 'parsing_mode' has 3 mode:
+// SQ_CONSOLE_PARSE_ALL    if you need to parse command, options, and arguments.
+// SQ_CONSOLE_PARSE_AUTO   if you want to parse both a command or just options.
+// SQ_CONSOLE_PARSE_OPTION if you only need to parse options and arguments and no command.
+SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int parsing_mode);
 
-void       sq_console_print_options(const SqConsole *console, SqOption **options, int n_options);
+void       sq_console_print_options(const SqConsole *console, SqOption **options, unsigned int n_options);
 
 // if 'command' is NULL, function use first added SqCommand to print help message without name of command.
 void       sq_console_print_help(const SqConsole *console, const SqCommand *command);
@@ -71,14 +78,14 @@ struct ConsoleMethod
 {
 	void  add(const SqCommand *commandType);
 	void  add(const Sq::CommandMethod *commandType);
-	void  printOptions(SqOption **options, int nOptions) const;
-	void  printOptions(Sq::OptionMethod **options, int nOptions) const;
+	void  printOptions(SqOption **options, unsigned int nOptions) const;
+	void  printOptions(Sq::OptionMethod **options, unsigned int nOptions) const;
 	void  printHelp(const SqCommand *command = NULL) const;
 	void  printHelp(const Sq::CommandMethod *command = NULL) const;
 	void  printList(const char *programDescription) const;
 
 	Sq::Command      *find(const char *name);
-	Sq::CommandValue *parse(int argc, char **argv, int argvHasCommand = 1);
+	Sq::CommandValue *parse(int argc, char **argv, int parsingMode = SQ_CONSOLE_PARSE_ALL);
 };
 
 }  // namespace Sq
@@ -140,10 +147,10 @@ inline void  ConsoleMethod::add(const SqCommand *commandType) {
 inline void  ConsoleMethod::add(const Sq::CommandMethod *commandType) {
 	sq_console_add((SqConsole*)this, (const SqCommand*)commandType);
 }
-inline void  ConsoleMethod::printOptions(SqOption **options, int nOptions) const {
+inline void  ConsoleMethod::printOptions(SqOption **options, unsigned int nOptions) const {
 	sq_console_print_options((SqConsole*)this, options, nOptions);
 }
-inline void  ConsoleMethod::printOptions(Sq::OptionMethod **options, int nOptions) const {
+inline void  ConsoleMethod::printOptions(Sq::OptionMethod **options, unsigned int nOptions) const {
 	sq_console_print_options((SqConsole*)this, (SqOption**)options, nOptions);
 }
 inline void  ConsoleMethod::printHelp(const SqCommand *command) const {
@@ -159,8 +166,8 @@ inline void  ConsoleMethod::printList(const char *programDescription) const {
 inline Sq::Command *ConsoleMethod::find(const char *name) {
 	return (Sq::Command*)sq_console_find((SqConsole*)this, name);
 }
-inline Sq::CommandValue *ConsoleMethod::parse(int argc, char **argv, int argvHasCommand) {
-	return (Sq::CommandValue*)sq_console_parse((SqConsole*)this, argc, argv, argvHasCommand);
+inline Sq::CommandValue *ConsoleMethod::parse(int argc, char **argv, int parsingMode) {
+	return (Sq::CommandValue*)sq_console_parse((SqConsole*)this, argc, argv, parsingMode);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */

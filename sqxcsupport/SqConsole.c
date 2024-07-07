@@ -93,7 +93,7 @@ SqCommand  *sq_console_find(SqConsole *console, const char* command_name)
 	return NULL;
 }
 
-SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int argv_has_command)
+SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int parsing_mode)
 {
 	const SqCommand  *type;
 	SqCommandValue   *commandValue;
@@ -106,18 +106,20 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 		int     n_dash;
 	} temp;
 
+	// if there is only program name in 'argv'
 	if (argc < 2)
 		return NULL;
-	if (argv_has_command == -1) {
+	// parsing mode
+	if (parsing_mode == SQ_CONSOLE_PARSE_AUTO) {
 		// if argv[1] is an option, not a command
 		if (argv[1][0] == '-')
-			argv_has_command = 0;
+			parsing_mode = SQ_CONSOLE_PARSE_OPTION;
 		else
-			argv_has_command = 1;
+			parsing_mode = SQ_CONSOLE_PARSE_ALL;
 	}
-
-	if (argv_has_command == 0) {
-		// if argv_has_command == 0, use SqConsole::command_default as command
+	// get command type
+	if (parsing_mode == SQ_CONSOLE_PARSE_OPTION) {
+		// if parsing_mode == SQ_CONSOLE_PARSE_OPTION, use SqConsole::command_default as command
 		type = console->command_default;
 		argc -= 1;
 		argv += 1;
@@ -127,7 +129,7 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 		argc -= 2;
 		argv += 2;
 	}
-
+	// if no command type
 	if (type == NULL)
 		return NULL;
 
@@ -187,7 +189,7 @@ SqCommandValue *sq_console_parse(SqConsole *console, int argc, char **argv, int 
 	return commandValue;
 }
 
-void  sq_console_print_options(const SqConsole *console, SqOption **options, int  n_options)
+void  sq_console_print_options(const SqConsole *console, SqOption **options, unsigned int  n_options)
 {
 	SqBuffer   buffer = {0};
 	SqOption  *option;
@@ -195,14 +197,14 @@ void  sq_console_print_options(const SqConsole *console, SqOption **options, int
 	size_t     length;
 
 	// count max length
-	for (int i = 0;  i < n_options;  i++) {
+	for (unsigned int i = 0;  i < n_options;  i++) {
 		option = options[i];
 		length = sq_option_print(option, NULL, 0);
 		if (option_max_length < length)
 			option_max_length = length;
 	}
 
-	for (int j = 0;  j < n_options;  j++) {
+	for (unsigned int j = 0;  j < n_options;  j++) {
 		option = options[j];
 		buffer.writed = 0;
 		sq_option_print(option, &buffer, option_max_length);
