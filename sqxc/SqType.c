@@ -112,7 +112,7 @@ void  sq_type_final_self(SqType *type)
 		sq_ptr_array_final(sq_type_entry_array(type));
 }
 
-void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
+void *sq_type_init_instance(const SqType *type, void *instance, bool is_pointer)
 {
 	SqTypeFunc  init = type->init;
 	union {
@@ -144,14 +144,14 @@ void *sq_type_init_instance(const SqType *type, void *instance, int is_pointer)
 			if (SQ_TYPE_NOT_BUILTIN(type)) {
 				sq_type_init_instance(type,
 						(char*)instance + entry->offset,
-						entry->bit_field & SQB_POINTER);
+						(entry->bit_field & SQB_POINTER) ? true : false);
 			}
 		}
 	}
 	return instance;
 }
 
-void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
+void  sq_type_final_instance(const SqType *type, void *instance, bool is_pointer)
 {
 	SqTypeFunc  final = type->final;
 	union {
@@ -183,7 +183,7 @@ void  sq_type_final_instance(const SqType *type, void *instance, int is_pointer)
 			if (SQ_TYPE_NOT_ARITHMETIC(type)) {
 				sq_type_final_instance(type,
 						(char*)instance + entry->offset,
-						entry->bit_field & SQB_POINTER);
+						(entry->bit_field & SQB_POINTER) ? true : false);
 			}
 		}
 	}

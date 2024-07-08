@@ -232,7 +232,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	union {
 		char *snake_case;
 		char *timestr;
-		unsigned int  len;
+		size_t  len;
 	} temp;
 
 
@@ -258,7 +258,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 			// handle long table name
 			if (table_name[temp.len] != 0) {
 				for (;;) {
-					unsigned int cur_len = strcspn(table_name + temp.len + 1, "_");
+					size_t cur_len = strcspn(table_name + temp.len + 1, "_");
 					if (table_name[temp.len + 1 + cur_len] == 0)
 						break;
 					temp.len = temp.len + 1 + cur_len;    // temp.len + '_' + cur_len

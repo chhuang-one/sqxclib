@@ -28,8 +28,10 @@
 #define SQ_GET_TYPE_NAME(Type)        #Type
 #endif
 
+#include <stdbool.h>      // bool, true, false
+
 #include <SqPtrArray.h>
-#include <SqEntry.h>       // typedef struct SqType
+#include <SqEntry.h>      // typedef struct SqType
 #include <Sqxc.h>
 
 // ----------------------------------------------------------------------------
@@ -140,8 +142,8 @@ void     sq_type_init_self(SqType *type, unsigned int prealloc_size, SqDestroyFu
 void     sq_type_final_self(SqType *type);
 
 // initialize/finalize instance
-void    *sq_type_init_instance(const SqType *type, void *instance, int is_pointer);
-void     sq_type_final_instance(const SqType *type, void *instance, int is_pointer);
+void    *sq_type_init_instance(const SqType *type, void *instance, bool is_pointer);
+void     sq_type_final_instance(const SqType *type, void *instance, bool is_pointer);
 
 // clear entry from SqEntry array in dynamic SqType.
 void     sq_type_clear_entry(SqType *type);
@@ -305,10 +307,10 @@ struct SqType
 	}
 
 	// initialize/finalize instance
-	void *initInstance(void *instance, int is_pointer = 0) const {
+	void *initInstance(void *instance, bool is_pointer = false) const {
 		return sq_type_init_instance((const SqType*)this, instance, is_pointer);
 	}
-	void  finalInstance(void *instance, int is_pointer = 0) const {
+	void  finalInstance(void *instance, bool is_pointer = false) const {
 		sq_type_final_instance((const SqType*)this, instance, is_pointer);
 	}
 
@@ -652,10 +654,10 @@ struct TypeMethod
 	}
 
 	// initialize/finalize instance
-	void *initInstance(void *instance, int is_pointer = 0) const {
+	void *initInstance(void *instance, bool is_pointer = false) const {
 		return sq_type_init_instance((const SqType*)this, instance, is_pointer);
 	}
-	void  finalInstance(void *instance, int is_pointer = 0) const {
+	void  finalInstance(void *instance, bool is_pointer = false) const {
 		sq_type_final_instance((const SqType*)this, instance, is_pointer);
 	}
 
