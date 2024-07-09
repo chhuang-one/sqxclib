@@ -42,8 +42,9 @@ static int  sqdb_postgre_close(SqdbPostgre *sqdb);
 static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void *reserve);
 static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *schema_next);
 
-static void sqdb_postgre_create_dependent(SqdbPostgre *db, SqBuffer *sql_buf, SqTable *table);
+static void sqdb_postgre_create_table_dep(SqdbPostgre *db, SqBuffer *sql_buf, SqTable *table);
 static void sqdb_postgre_create_trigger(SqdbPostgre *db, SqBuffer *sql_buf, const char *table_name, const char *column_name);
+static void sqdb_postgre_drop_table_dep(SqdbPostgre *db, SqBuffer *sql_buf, SqTable *table);
 static void sqdb_postgre_drop_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, const char *table_name, const char *column_name);
 static void sqdb_postgre_alter_table(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table, SqTable *old_table);
 static int  sqdb_postgre_schema_get_version(SqdbPostgre *sqdb);
@@ -336,6 +337,9 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 				sqdb_postgre_alter_table(sqdb, &sql_buf, table, old_table);
 			}
 			else if (table->name == NULL) {
+				// DROP TRIGGER in current table
+				old_table = sq_schema_find(schema, table->old_name);
+				sqdb_postgre_drop_table_dep(sqdb, &sql_buf, old_table);
 				// DROP TABLE
 				sqdb_sql_drop_table((Sqdb*)sqdb, &sql_buf, table, false);
 			}
@@ -355,7 +359,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 						break;
 				}
 				sql_buf.writed = 0;    // write to start of buffer
-				sqdb_postgre_create_dependent(sqdb, &sql_buf, table);
+				sqdb_postgre_create_table_dep(sqdb, &sql_buf, table);
 			}
 
 			if (sql_buf.writed > 0) {
@@ -394,7 +398,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 
 #define SQDB_MIGRATIONS_TABLE    "sqdb_migrations"
 
-static void sqdb_postgre_create_dependent(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table)
+static void sqdb_postgre_create_table_dep(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table)
 {
 	SqColumn  *column;
 	SqEntry  **cur, **end;
@@ -447,6 +451,20 @@ static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, co
 	sq_buffer_write(sql_buf, "__");
 	sq_buffer_write(sql_buf, column_name);
 	sq_buffer_write(sql_buf, "();");
+}
+
+static void sqdb_postgre_drop_table_dep(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table)
+{
+	SqColumn  *column;
+	SqEntry  **cur, **end;
+
+	end = table->type->entry + table->type->n_entry;
+	for (cur = table->type->entry;  cur < end;  cur++) {
+		column = *(SqColumn**)cur;
+		// DROP TRIGGER
+		if (column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE)
+			sqdb_postgre_drop_trigger(sqdb, sql_buf, table->name, column->name);
+	}
 }
 
 static void sqdb_postgre_drop_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, const char *table_name, const char *column_name)
