@@ -116,7 +116,7 @@ SqRowColumn *sq_row_alloc_column(SqRow *row, unsigned int n_element)
 	if (sq_row_cols_ref_count(row) > 1)
 		return NULL;
 
-	return sq_array_alloc(sq_row_cols(row), 1);
+	return sq_array_alloc(sq_row_cols(row), n_element);
 }
 
 // ----------------------------------------------------------------------------
