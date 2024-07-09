@@ -47,7 +47,7 @@ void  sq_command_value_init(SqCommandValue *commandValue, const SqCommand *comma
 //	sq_ptr_array_init(&cmd->arguments, 8, (SqDestroyFunc)free);
 
 	commandValue->options = calloc(1, commandType->size);
-	sq_type_init_instance((SqType*)commandValue->type, commandValue->options, 0);
+	sq_type_init_instance((SqType*)commandValue->type, commandValue->options, false);
 }
 
 void  sq_command_value_final(SqCommandValue *commandValue)
@@ -122,7 +122,7 @@ SqCommand *sq_command_copy(SqCommand       *commandType_dest,
 	return commandType_dest;
 }
 
-void  sq_command_add_option(SqCommand *commandType, const SqOption *option, int n_option)
+void  sq_command_add_option(SqCommand *commandType, const SqOption *option, unsigned int n_option)
 {
 	sq_type_add_entry((SqType*)commandType, (SqEntry*)option, n_option, sizeof(SqOption));
 }

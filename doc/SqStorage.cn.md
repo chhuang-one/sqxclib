@@ -607,7 +607,7 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来使用 [SqQuery](S
 
 	SqPtrArray *array = sq_storage_query(storage, query, NULL, NULL);
 
-	for (int i = 0;  i < array->length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
 		user = (User*)element[1];    // sq_query_join(query, "users", ...);
@@ -623,7 +623,7 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来使用 [SqQuery](S
 
 	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
 
-	for (int i = 0;  i < array->length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
 		user = (User*)element[1];    // join("users")
@@ -768,7 +768,7 @@ SQ_TYPE_PTR_ARRAY 是内置的容器类型。
 	row = sq_stoarge_get(storage, "users", rowType, 10);
 
 	array = sq_storage_get_all(storage, "users", rowType, arrayType, NULL);
-	for (int i = 0;  i < array.length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		row = array->data[i];
 		// 在这里做点什么
 	}
@@ -785,7 +785,7 @@ SQ_TYPE_PTR_ARRAY 是内置的容器类型。
 	row = (Sq::Row*)storage->get("users", rowType, 10);
 
 	array = (Sq::PtrArray*)storage->getAll("users", rowType, arrayType, NULL);
-	for (int i = 0;  i < array.length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		row = array->data[i];
 		// 在这里做点什么
 	}

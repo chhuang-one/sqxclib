@@ -266,7 +266,7 @@ void user_print(User *user)
 	for (unsigned int i = 0;  i < user->ints.length;  i++) {
 		if (i > 0)
 			printf(",");
-		printf("%d", (int)user->ints.data[i]);
+		printf("%d", user->ints.data[i]);
 	}
 	printf("\n" "user.post = 0x%p\n", user->post);
 	if (user->post) {

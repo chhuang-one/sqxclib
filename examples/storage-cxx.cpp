@@ -91,10 +91,10 @@ struct User
 		          << "user.picture = 0x" << hex_mem << std::endl;
 		free(hex_mem);
 
-		hex_size = (int)this->angleShot.size() * 2;
+		hex_size = this->angleShot.size() * 2;
 		hex_mem  = (char*)malloc(hex_size + 1);
 		hex_mem[hex_size] = 0;
-		sq_bin_to_hex(hex_mem, this->angleShot.data(), (int)this->angleShot.size());
+		sq_bin_to_hex(hex_mem, this->angleShot.data(), this->angleShot.size());
 		std::cout << "user.angleShot has " << this->angleShot.size() << " bytes" << std::endl
 		          << "user.angleShot = 0x" << hex_mem << std::endl;
 		free(hex_mem);
@@ -138,7 +138,7 @@ struct Company
 		}
 		std::cout << std::endl;
 		std::cout << "company.intsCpp[] = ";
-		for (int index = 0;  index < (int)this->intsCpp.size();  index++) {
+		for (size_t index = 0;  index < this->intsCpp.size();  index++) {
 			if (index > 0)
 				std::cout << ",";
 			std::cout << intsCpp[index];

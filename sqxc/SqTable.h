@@ -85,9 +85,9 @@ int       sq_table_get_columns(SqTable *table, SqPtrArray *ptr_array,
 SqColumn *sq_table_get_primary(SqTable *table, const SqType *type_in_table);
 
 // add SqColumn from array (NOT pointer array)
-void      sq_table_add_column(SqTable *table, const SqColumn *column, int n_column);
+void      sq_table_add_column(SqTable *table, const SqColumn *column, unsigned int n_column);
 // add SqColumn from pointer array
-void      sq_table_add_column_ptrs(SqTable *table, const SqColumn **column_ptrs, int n_column_ptrs);
+void      sq_table_add_column_ptrs(SqTable *table, const SqColumn **column_ptrs, unsigned int n_column_ptrs);
 
 SqColumn *sq_table_add_bool(SqTable *table, const char *column_name,
                             size_t offset);
@@ -341,8 +341,8 @@ struct TableMethod
 	void        addColumn(const Sq::ColumnMethod &column);
 	void        addColumn(const Sq::ColumnMethod *column);
 	void        addColumn(const SqColumn &columns);
-	void        addColumn(const SqColumn *columns, int n_columns = 1);
-	void        addColumn(const SqColumn **column_ptrs, int n_column_ptrs = 1);
+	void        addColumn(const SqColumn *columns, unsigned int n_columns = 1);
+	void        addColumn(const SqColumn **column_ptrs, unsigned int n_column_ptrs = 1);
 
 	Sq::Column &boolean(const char *column_name, size_t offset);
 	// alias of boolean()
@@ -659,10 +659,10 @@ inline void  TableMethod::addColumn(const Sq::ColumnMethod *column) {
 inline void  TableMethod::addColumn(const SqColumn &columns) {
 	sq_table_add_column((SqTable*)this, &columns, 1);
 }
-inline void  TableMethod::addColumn(const SqColumn *columns, int n_columns) {
+inline void  TableMethod::addColumn(const SqColumn *columns, unsigned int n_columns) {
 	sq_table_add_column((SqTable*)this, columns, n_columns);
 }
-inline void  TableMethod::addColumn(const SqColumn **column_ptrs, int n_column_ptrs) {
+inline void  TableMethod::addColumn(const SqColumn **column_ptrs, unsigned int n_column_ptrs) {
 	sq_table_add_column_ptrs((SqTable*)this, column_ptrs, n_column_ptrs);
 }
 

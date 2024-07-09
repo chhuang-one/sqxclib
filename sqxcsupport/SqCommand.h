@@ -119,7 +119,7 @@ SqCommand *sq_command_copy(SqCommand       *cmd_dest,
 #define sq_command_copy_static(cmd_dest, cmd_src, option_free_func)    \
         sq_command_copy(cmd_dest, cmd_src, option_free_func, NULL)
 
-void  sq_command_add_option(SqCommand *commandType, const SqOption *option, int n_option);
+void  sq_command_add_option(SqCommand *commandType, const SqOption *option, unsigned int n_option);
 
 // sort options by SqOption::shortcut and save result in array. this function is called by SqConsole
 void  sq_command_sort_shortcuts(const SqCommand *commandType, SqPtrArray *array);
@@ -248,10 +248,10 @@ struct SqCommand
 	}
 
 	// add option from SqOption array (NOT pointer array) to dynamic SqCommand.
-	void  addOption(const SqOption *option, int n_option = 1) {
+	void  addOption(const SqOption *option, unsigned int n_option = 1) {
 		sq_command_add_option((SqCommand*)this, option, n_option);
 	}
-	void  addOption(const Sq::OptionMethod *option, int n_option = 1) {
+	void  addOption(const Sq::OptionMethod *option, unsigned int n_option = 1) {
 		sq_command_add_option((SqCommand*)this, (const SqOption*)option, n_option);
 	}
 
@@ -363,10 +363,10 @@ struct CommandMethod
 	}
 
 	// add option from SqOption array (NOT pointer array) to dynamic SqCommand.
-	void  addOption(const SqOption *option, int n_option = 1) {
+	void  addOption(const SqOption *option, unsigned int n_option = 1) {
 		sq_command_add_option((SqCommand*)this, option, n_option);
 	}
-	void  addOption(const Sq::OptionMethod *option, int n_option = 1) {
+	void  addOption(const Sq::OptionMethod *option, unsigned int n_option = 1) {
 		sq_command_add_option((SqCommand*)this, (const SqOption*)option, n_option);
 	}
 

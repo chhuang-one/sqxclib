@@ -27,9 +27,9 @@
 static void sq_type_ptr_array_init(void *array, const SqType *type);
 static void sq_type_ptr_array_final(void *array, const SqType *type);
 
-static void sq_type_array_clear_element(void *array, const SqType *element_type, int is_pointer)
+static void sq_type_array_clear_element(void *array, const SqType *element_type, bool is_pointer)
 {
-	int      element_size;
+	unsigned int   element_size;
 	uint8_t *cur, *end;
 
 	if (element_type == NULL || SQ_TYPE_IS_ARITHMETIC(element_type))
@@ -49,8 +49,8 @@ static void sq_type_array_clear_element(void *array, const SqType *element_type,
 
 static void sq_type_array_init(void *array, const SqType *type)
 {
-	int  element_size;
-	int  capacity;
+	unsigned int  element_size;
+	unsigned int  capacity;
 
 	if (type->n_entry == -1) {
 		element_size = ((SqType*)type->entry)->size;

@@ -107,7 +107,7 @@ static int  sq_type_std_vector_parse(void *instance, const SqType *type, Sqxc *s
 			// string is hex format:
 			// User can set length of BLOB by calling std::vector<char>::resize() before parsing.
 			if (vector->size() > 0)
-				len = vector->size() << 1;    // len = (int)vector->size() * 2;
+				len = vector->size() << 1;    // len = vector->size() * 2;
 			else
 				len = strlen(src->value.str) - len;
 
@@ -133,7 +133,7 @@ static Sqxc *sq_type_std_vector_write(void *instance, const SqType *type, Sqxc *
 	std::vector<char> *vector = (std::vector<char>*)instance;
 	Sqxc *xc;
 	char *mem = NULL;
-	int   len;
+	size_t  len;
 
 	// use SQXC_TYPE_RAW to send hex (exclude PostgreSQL)
 	dest->type = SQXC_TYPE_RAW;
@@ -152,7 +152,7 @@ static Sqxc *sq_type_std_vector_write(void *instance, const SqType *type, Sqxc *
 #endif
 	if (dest->info == SQXC_INFO_SQL) {
 		// convert binary to HEX
-		len = (int)vector->size() *2 +3;       // + 0x, x'', or \x
+		len = vector->size() *2 +3;       // + 0x, x'', or \x
 		mem = (char*)malloc(len +1);      // + null-terminated
 		// Hex format is x'FF' - SQLite, MySQL
 		if (((SqxcSql*)dest)->db->info->product == SQDB_PRODUCT_SQLITE) {
@@ -175,7 +175,7 @@ static Sqxc *sq_type_std_vector_write(void *instance, const SqType *type, Sqxc *
 			mem[1] = 'x';
 			mem[len-1] = 0;        // null-terminated
 		}
-		sq_bin_to_hex(mem+2, vector->data(), (int)vector->size());
+		sq_bin_to_hex(mem+2, vector->data(), vector->size());
 	}
 
 	dest->value.raw = mem;
@@ -202,7 +202,7 @@ static int  sq_type_std_vector_size_parse(void *instance, const SqType *entrytyp
 
 	switch (src->type) {
 	case SQXC_TYPE_INT:
-		vector->resize((int)src->value.integer);
+		vector->resize(src->value.integer);
 		break;
 
 	case SQXC_TYPE_STR:

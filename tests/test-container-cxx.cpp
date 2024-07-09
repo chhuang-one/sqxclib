@@ -154,7 +154,7 @@ void test_intx3_array()
 	sq_array_init(&array, sizeof(IntX3), 1);
 
 	// print array header
-	printf("element_size = %d, capacity = %d\n",
+	printf("element_size = %u, capacity = %u\n",
 		sq_array_element_size(&array), 
 		sq_array_capacity(&array));
 

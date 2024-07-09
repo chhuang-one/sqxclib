@@ -40,8 +40,8 @@
 #define SQ_STRS_DEFAULT_LEN         4
 #define sq_strs_header(strs)       ((strs) - SQ_STRS_HEADER_LEN)
 
-#define sq_strs_length(strs)      *( (intptr_t*) ((strs)-2) )
-#define sq_strs_capacity(strs)    *( (intptr_t*) ((strs)-1) )
+#define sq_strs_length(strs)      *( (uintptr_t*) ((strs)-2) )
+#define sq_strs_capacity(strs)    *( (uintptr_t*) ((strs)-1) )
 
 #define sq_strs_malloc(n)          ( (char**)malloc(sizeof(char*) *(n+SQ_STRS_HEADER_LEN))    +SQ_STRS_HEADER_LEN )
 #define sq_strs_realloc(strs, n)   ( (char**)realloc(sq_strs_header(strs), sizeof(char*) *(n+SQ_STRS_HEADER_LEN)) +SQ_STRS_HEADER_LEN )
@@ -62,11 +62,11 @@ static void sq_strs_clear(char **strs, bool release_array)
 	}
 }
 
-static char **sq_strs_copy(char **src, int reserve_len)
+static char **sq_strs_copy(char **src, unsigned int reserve_len)
 {
 	char **strs, **cur;
-	int    capacity;
-	int    length = -1;    // number of strings in array before separator
+	unsigned int   capacity;
+	unsigned int   length = -1;    // number of strings in array before separator
 
 	if (src == NULL)
 		return NULL;
@@ -98,12 +98,12 @@ static char **sq_strs_copy(char **src, int reserve_len)
 	return strs;
 }
 
-static char **sq_strs_set_va(char **strs, int reserve_len, va_list arg_list)
+static char **sq_strs_set_va(char **strs, unsigned int reserve_len, va_list arg_list)
 {
-	int    index, capacity;
+	unsigned int  index, capacity;
 
 	if (strs) {
-		capacity = (int) sq_strs_capacity(strs);
+		capacity = (unsigned int)sq_strs_capacity(strs);
 		sq_strs_clear(strs, false);
 	}
 	else {
@@ -133,7 +133,7 @@ static char **sq_strs_set_va(char **strs, int reserve_len, va_list arg_list)
 	return strs;
 }
 
-static char **sq_strs_set(char **strs, int reserve_len, ...)
+static char **sq_strs_set(char **strs, unsigned int reserve_len, ...)
 {
 	va_list   arg_list;
 

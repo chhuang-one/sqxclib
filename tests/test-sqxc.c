@@ -82,9 +82,9 @@ void print_user(User *user)
 		   user->id, user->name, user->email);
 
 	for (index = 0;  index < user->strs.length;  index++)
-		printf("  strs[%d] = %s\n", index, user->strs.data[index]);
+		printf("  strs[%u] = %s\n", index, user->strs.data[index]);
 	for (index = 0;  index < user->ints.length;  index++)
-		printf("  ints[%d] = %d\n", index, (int)user->ints.data[index]);
+		printf("  ints[%u] = %d\n", index, user->ints.data[index]);
 	puts("\n");
 }
 

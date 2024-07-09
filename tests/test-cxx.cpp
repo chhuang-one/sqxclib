@@ -408,7 +408,7 @@ void test_type()
 	// add entry "email" again
 	type->addEntry(entry);
 	type->decideSize();
-	printf("type instance size = %d\n", type->size);
+	printf("type instance size = %u\n", type->size);
 
 	assert(type->size == type_size);
 	delete type;

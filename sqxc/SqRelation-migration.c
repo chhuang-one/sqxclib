@@ -409,7 +409,7 @@ void   sq_table_complete(SqTable *table, bool no_need_to_sync)
 
 	if (table->type->bit_field & SQB_DYNAMIC) {
 		reentries = sq_type_entry_array(table->type);
-		for (int index = 0;  index < reentries->length;  index++) {
+		for (unsigned int index = 0;  index < reentries->length;  index++) {
 			column = reentries->data[index];
 			if (column == NULL)
 				has_null = true;
@@ -815,7 +815,7 @@ void    sq_schema_complete(SqSchema *schema, bool no_need_to_sync)
 	entries = sq_type_entry_array(schema->type);
 	sq_type_sort_entry((SqType*)schema->type);
 
-	for (int index = 0;  index < entries->length;  index++) {
+	for (unsigned int index = 0;  index < entries->length;  index++) {
 		table = entries->data[index];
 		if (table == NULL)
 			has_null = true;

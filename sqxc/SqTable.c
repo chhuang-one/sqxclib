@@ -76,7 +76,7 @@ void  sq_table_final(SqTable *table)
 	}
 }
 
-void  sq_table_add_column(SqTable *table, const SqColumn *column, int n_column)
+void  sq_table_add_column(SqTable *table, const SqColumn *column, unsigned int n_column)
 {
 	SqType *type = (SqType*)table->type;
 
@@ -88,7 +88,7 @@ void  sq_table_add_column(SqTable *table, const SqColumn *column, int n_column)
 	sq_type_add_entry(type, (SqEntry*)column, n_column, sizeof(SqColumn));
 }
 
-void  sq_table_add_column_ptrs(SqTable *table, const SqColumn **column_ptrs, int n_column_ptrs)
+void  sq_table_add_column_ptrs(SqTable *table, const SqColumn **column_ptrs, unsigned int n_column_ptrs)
 {
 	SqType  *type = (SqType*)table->type;
 

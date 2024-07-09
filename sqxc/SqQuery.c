@@ -958,7 +958,7 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 	else {
 		args[2] = va_arg(arg_list, char*);
 		// count length of 2nd argument in arg_list if '%' sign not found
-		mem.length += (int)(temp.cur - args[1]) + 1;      // + ' '
+		mem.length += (ssize_t)(temp.cur - args[1]) + 1;      // + ' '
 	}
 
 	// It is printf format string if 3rd argument in arg_list is not NULL.

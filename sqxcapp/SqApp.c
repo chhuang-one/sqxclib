@@ -189,7 +189,9 @@ int   sq_app_rollback(SqApp *app, int step)
 		// specify schema version number as 'cur' - 1
 		sq_schema_init_ver(schema, cur - 1, NULL);
 		migration->down(schema, app->storage);
+		// current schema version number is changed to 'cur' - 2 before migration
 		app->db->version = cur - 2;
+		// Rollback = do migration from version 'cur' - 2 to 'cur' - 1
 		code = sq_storage_migrate(app->storage, schema);
 		sq_schema_final(schema);
 		if (code != SQCODE_OK)

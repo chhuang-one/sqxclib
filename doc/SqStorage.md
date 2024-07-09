@@ -607,7 +607,7 @@ use C functions
 
 	SqPtrArray *array = sq_storage_query(storage, query, NULL, NULL);
 
-	for (int i = 0;  i < array->length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // sq_query_from(query, "cities");
 		user = (User*)element[1];    // sq_query_join(query, "users", ...);
@@ -623,7 +623,7 @@ use C++ methods
 
 	Sq::PtrArray *array = (Sq::PtrArray*) storage->query(query);
 
-	for (int i = 0;  i < array->length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		void **element = (void**)array->data[i];
 		city = (City*)element[0];    // from("cities")
 		user = (User*)element[1];    // join("users")
@@ -768,7 +768,7 @@ SQ_TYPE_PTR_ARRAY is built-in container type.
 	row = sq_stoarge_get(storage, "users", rowType, 10);
 
 	array = sq_storage_get_all(storage, "users", rowType, arrayType, NULL);
-	for (int i = 0;  i < array.length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		row = array->data[i];
 		// do something here
 	}
@@ -785,7 +785,7 @@ use C++ method
 	row = (Sq::Row*)storage->get("users", rowType, 10);
 
 	array = (Sq::PtrArray*)storage->getAll("users", rowType, arrayType, NULL);
-	for (int i = 0;  i < array.length;  i++) {
+	for (unsigned int i = 0;  i < array->length;  i++) {
 		row = array->data[i];
 		// do something here
 	}
