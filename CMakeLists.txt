@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(sqxclib
-    VERSION 0.11
+    VERSION 1.0
     HOMEPAGE_URL "https://github.com/chhuang-one/sqxclib/"
 #   HOMEPAGE_URL "https://gitee.com/chhuang-one/sqxclib/"
 )
