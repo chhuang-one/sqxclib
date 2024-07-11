@@ -172,9 +172,9 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
                                   SqColumn   *primary_key)
 {
 	SqColumn     *column;
-	unsigned int  index;
-	int   n_columns = 0;    // number of columns have been written
-	bool  has_constraint = false;
+	void **cur, **end;
+	int    n_columns = 0;    // number of columns have been written
+	bool   has_constraint = false;
 
 	sq_buffer_write(buffer, "(");
 
@@ -185,8 +185,10 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
 		n_columns++;
 	}
 
-	for (index = 0;  index < arranged_columns->length;  index++) {
-		column = (SqColumn*)arranged_columns->data[index];
+	cur = arranged_columns->data;
+	end = cur + arranged_columns->length;
+	for (;  cur < end;  cur++) {
+		column = *cur;
 		// skip INDEX
 		if (column->type == SQ_TYPE_INDEX)
 			continue;
@@ -216,8 +218,8 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
 	}
 
 //	if (db->info->product == SQDB_PRODUCT_MYSQL) {
-		for (index = 0;  index < arranged_columns->length;  index++) {
-			column = (SqColumn*)arranged_columns->data[index];
+		for (cur = arranged_columns->data;  cur < end;  cur++) {
+			column = *cur;
 			// Don't output CONSTRAINT and INDEX here
 			if (column->type == SQ_TYPE_CONSTRAINT || column->type == SQ_TYPE_INDEX)
 				continue;
@@ -244,8 +246,8 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
 
 	// write constraints at last
 	if (has_constraint) {
-		for (index = 0;  index < arranged_columns->length;  index++) {
-			column = (SqColumn*)arranged_columns->data[index];
+		for (cur = arranged_columns->data;  cur < end;  cur++) {
+			column = *cur;
 			if (column->type == SQ_TYPE_CONSTRAINT) {
 				sq_buffer_write(buffer, ", ");
 				sqdb_sql_write_constraint(db, buffer, column);

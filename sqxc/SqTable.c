@@ -150,33 +150,39 @@ void  sq_table_rename_column(SqTable *table, const char *from, const char *to)
 int  sq_table_get_columns(SqTable *table, SqPtrArray *ptrarray,
                           const SqType *type, unsigned int bit_field)
 {
-	SqPtrArray  *colarray;
-	SqColumn    *column;
+//	SqColumn   **cur, **end;
+	void       **cur, **end;
 	int          count = 0;
 	int          matched_count;
 	unsigned int bit_field_orig = bit_field;
+	union {
+		SqPtrArray  *colarray;
+		SqColumn    *column;
+	} temp;
 
 	if (ptrarray && ptrarray->data == NULL)
 		sq_ptr_array_init(ptrarray, 4, NULL);
-	colarray = sq_type_entry_array(table->type);
+	temp.colarray = sq_type_entry_array(table->type);
 	// for each columns
-	for (unsigned int index = 0;  index < colarray->length;  index++) {
-		column = colarray->data[index];
+	cur = temp.colarray->data;
+	end = cur + temp.colarray->length;
+	for (;  cur < end;  cur++) {
+		temp.column = *cur;
 		// reset variable
 		matched_count = 0;
 		bit_field = bit_field_orig;
 		// check special case of foreign key
-		if (column->foreign  &&  bit_field & SQB_COLUMN_FOREIGN)
+		if (temp.column->foreign  &&  bit_field & SQB_COLUMN_FOREIGN)
 			bit_field &= ~SQB_COLUMN_FOREIGN;
 		// check 2 conditions
-		if ((column->bit_field & bit_field) == bit_field)
+		if ((temp.column->bit_field & bit_field) == bit_field)
 			matched_count++;
-		if (column->type == type || type == NULL)
+		if (temp.column->type == type || type == NULL)
 			matched_count++;
 		// if matched 2 conditions
 		if (matched_count == 2) {
 			if (ptrarray)
-				sq_ptr_array_push(ptrarray, column);
+				sq_ptr_array_push(ptrarray, temp.column);
 			count++;
 		}
 	}
@@ -185,26 +191,32 @@ int  sq_table_get_columns(SqTable *table, SqPtrArray *ptrarray,
 
 SqColumn *sq_table_get_primary(SqTable *table, const SqType *type_in_table)
 {
-	SqPtrArray *array;
-	SqColumn   *column;
+//	SqColumn  **cur, **end;
+	void      **cur, **end;
+	union {
+		SqPtrArray *array;
+		SqColumn   *column;
+	} temp;
 
 	// return primary key if it cached
 	if (table && table->primary_key)
 		return table->primary_key;
 
 	if (type_in_table)
-		array = sq_type_entry_array(type_in_table);
+		temp.array = sq_type_entry_array(type_in_table);
 	else
-		array = sq_type_entry_array(table->type);
+		temp.array = sq_type_entry_array(table->type);
 
-	for (unsigned int index = 0;  index < array->length;  index++) {
-		column = array->data[index];
-//		if (column->bit_field & SQB_COLUMN_PRIMARY && SQ_TYPE_IS_INT(column->type))
-		if (column->bit_field & SQB_COLUMN_PRIMARY) {
+	cur = temp.array->data;
+	end = cur + temp.array->length;
+	for (;  cur < end;  cur++) {
+		temp.column = *cur;
+//		if (temp.column->bit_field & SQB_COLUMN_PRIMARY && SQ_TYPE_IS_INT(temp.column->type))
+		if (temp.column->bit_field & SQB_COLUMN_PRIMARY) {
 			// update cache
 			if (table)
-				table->primary_key = column;
-			return column;
+				table->primary_key = temp.column;
+			return temp.column;
 		}
 	}
 	return NULL;

@@ -337,7 +337,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 				sqdb_postgre_alter_table(sqdb, &sql_buf, table, old_table);
 			}
 			else if (table->name == NULL) {
-				// DROP TRIGGER in current table
+				// DROP TRIGGER in current table before DROP TABLE
 				old_table = sq_schema_find(schema, table->old_name);
 				sqdb_postgre_drop_table_dep(sqdb, &sql_buf, old_table);
 				// DROP TABLE

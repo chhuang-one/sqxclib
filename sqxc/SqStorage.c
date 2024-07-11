@@ -452,8 +452,9 @@ SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 {
 	SqPtrArray *type_tables;      // sorted by SqType::name
 	SqPtrArray *schema_tables;    // sorted by SqTable::name
-	SqTable   **table_addr;
 	int         count;
+//	SqTable   **addr;
+	void      **addr;
 
 	type_tables = &storage->tables;
 	schema_tables = sq_type_entry_array(storage->schema->type);
@@ -468,10 +469,11 @@ SqTable  *sq_storage_find_by_type(SqStorage *storage, const char *type_name)
 		sq_ptr_array_sort(type_tables, sq_entry_cmp_type_name);
 	}
 	// search storage->tables by SqTable::type::name
-	table_addr = (SqTable**)sq_ptr_array_search(type_tables,
-	                                type_name, sq_entry_cmp_str__type_name);
-	if (table_addr)
-		return *table_addr;
+	addr = sq_ptr_array_search(type_tables,
+	                           type_name,
+	                           sq_entry_cmp_str__type_name);
+	if (addr)
+		return *addr;
 	return NULL;
 }
 
@@ -493,7 +495,8 @@ static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
 {
 	union {
 		const char *name;
-		SqColumn  **column_addr;
+//		SqColumn  **addr;
+		void      **addr;
 		SqColumn   *column;
 	} temp;
 
@@ -502,10 +505,10 @@ static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
 		temp.name = va_arg(arg_list, const char*);
 		if (temp.name == NULL)
 			break;
-		temp.column_addr = (SqColumn**)sq_type_find_entry(table_type, temp.name, NULL);
-		if (temp.column_addr == NULL)
+		temp.addr = sq_type_find_entry(table_type, temp.name, NULL);
+		if (temp.addr == NULL)
 			continue;
-		temp.column = *temp.column_addr;
+		temp.column = *temp.addr;
 		sq_ptr_array_push(&xcsql->columns, temp.column);
 	}
 
@@ -536,7 +539,8 @@ static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
 	SqPtrArray  array;
 	union {
 		size_t      offset;
-		SqColumn  **column_addr;
+//		SqColumn  **addr;
+		void      **addr;
 		SqColumn   *column;
 	} temp;
 
@@ -551,11 +555,12 @@ static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
 		temp.offset = va_arg(arg_list, size_t);
 		if (temp.offset == -1)
 			break;
-		temp.column_addr = (SqColumn**)sq_ptr_array_search(&array,
-		                                       &temp.offset, sq_entry_cmp_size_t__offset);
-		if (temp.column_addr == NULL)
+		temp.addr = sq_ptr_array_search(&array,
+		                                &temp.offset,
+		                                sq_entry_cmp_size_t__offset);
+		if (temp.addr == NULL)
 			continue;
-		temp.column = *temp.column_addr;
+		temp.column = *temp.addr;
 		sq_ptr_array_push(&xcsql->columns, temp.column);
 	}
 

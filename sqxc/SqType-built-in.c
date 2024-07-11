@@ -479,6 +479,8 @@ int  sq_type_object_parse(void *instance, const SqType *type, Sqxc *src)
 
 Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *dest)
 {
+//	SqEntry   **cur, **end;
+	void      **cur, **end;
 	void       *member;
 	SqType     *member_type;
 	const char *object_name = dest->name;
@@ -491,8 +493,10 @@ Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *dest)
 	if (dest->code != SQCODE_OK)
 		return dest;
 
-	for (unsigned int index = 0;  index < type->n_entry;  index++) {
-		SqEntry *entry = type->entry[index];
+	cur = (void**)type->entry;
+	end = cur + type->n_entry;
+	for (;  cur < end;  cur++) {
+		SqEntry *entry = *cur;
 		member_type = (SqType*)entry->type;
 		if (member_type->write == NULL)  // don't write anything if function pointer is NULL
 			continue;

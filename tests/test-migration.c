@@ -405,9 +405,9 @@ void test_sqdb_migrate(Sqdb *db)
 	SqSchema   *schema_v5;
 	SqSchema   *schema_v6;
 
-	schema  = sq_schema_new_ver(0, "current");
+	schema    = sq_schema_new_ver(0, "current");
 
-	schema_v1  = sq_schema_new_ver(1, "ver1");
+	schema_v1 = sq_schema_new_ver(1, "ver1");
 	create_city_table_by_c(schema_v1);
 
 	schema_v2 = sq_schema_new_ver(2, "ver2");
@@ -458,9 +458,9 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 	SqSchema   *schema_v3;
 	SqSchema   *schema_v4;
 
-	schema  = sq_schema_new_ver(0, "current");
+	schema    = sq_schema_new_ver(0, "current");
 
-	schema_v1  = sq_schema_new_ver(1, "ver1");
+	schema_v1 = sq_schema_new_ver(1, "ver1");
 //	create_user_table_by_type(schema_v1);
 //	create_user_table_by_macro(schema_v1);
 	create_user_table_by_c(schema_v1);

@@ -170,7 +170,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 	SqColumn   *column,    *column_src;
 	SqPtrArray *reentries, *reentries_src;
 	// other variable
-	unsigned int  index;
+	void    **src_cur, **src_end;    // address in reentries_src
 	void    **addr;
 	union {
 		unsigned int  index;
@@ -192,11 +192,13 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 			table->bit_field |= SQB_CHANGED;
 	}
 
-	for (index = 0;  index < reentries_src->length;  index++) {
-		column_src = (SqColumn*)reentries_src->data[index];
+	src_cur = reentries_src->data;
+	src_end = src_cur + reentries_src->length;
+	for (;  src_cur < src_end;  src_cur++) {
+		column_src = *src_cur;
 		// steal 'column_src' if 'table_src->type' is not static.
 		if (table_src->type->bit_field & SQB_TYPE_DYNAMIC)
-			reentries_src->data[index] = NULL;
+			*src_cur = NULL;
 
 		if (column_src->bit_field & SQB_CHANGED) {
 			// === ALTER COLUMN ===
@@ -343,7 +345,7 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 				sq_ptr_array_push_to(reentries, temp.index, column_src);
 				// steal 'reentry_src' from 'entry_src->type'.
 //				if (table_src->type->bit_field & SQB_DYNAMIC)
-//					reentries_src->data[index] = NULL;
+//					*src_cur = NULL;
 				// calculate size
 				sq_type_decide_size((SqType*)table->type, (SqEntry*)column_src, false);
 				// set bit_field: column added
@@ -468,7 +470,7 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 	SqTable    *table,     *table_src;
 	SqPtrArray *reentries, *reentries_src;
 	// other variable
-	unsigned int  index;
+	void   **src_cur, **src_end;    // address in reentries_src
 	void   **addr;
 	union {
 		unsigned int  index;
@@ -484,8 +486,10 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 	if ((schema->type->bit_field & SQB_TYPE_SORTED) == 0)
 		sq_type_sort_entry((SqType*)schema->type);
 
-	for (index = 0;  index < reentries_src->length;  index++) {
-		table_src = (SqTable*)reentries_src->data[index];
+	src_cur = reentries_src->data;
+	src_end = src_cur + reentries_src->length;
+	for (;  src_cur < src_end;  src_cur++) {
+		table_src = *src_cur;
 		if (table_src->bit_field & SQB_CHANGED) {
 			// === ALTER TABLE ===
 			// find table if table->name == table_src->name
@@ -617,7 +621,7 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 				sq_ptr_array_push_to(reentries, temp.index, table_src);
 				// steal 'reentry_src' from 'entry_src->type'.
 //				if (table_src->type->bit_field & SQB_DYNAMIC)
-//					reentries_src->data[index] = NULL;
+//					*src_cur = NULL;
 			}
 #ifndef NDEBUG
 			else {
@@ -628,7 +632,7 @@ int   sq_schema_include(SqSchema *schema, SqSchema *schema_src)
 		}
 
 		// steal 'table_src' from 'schema_src->type->entry'.
-		reentries_src->data[index] = NULL;
+		*src_cur = NULL;
 	}
 
 	// update schema version
