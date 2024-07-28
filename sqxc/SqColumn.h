@@ -26,9 +26,6 @@
 typedef struct SqColumn       SqColumn;
 
 
-// deprecated. It replaced by SQ_N_ELEMENTS()
-#define SQ_N_COLUMNS(ColumnArray)    ( sizeof(ColumnArray) / sizeof(ColumnArray[0]) )
-
 // SQL common bit_field
 #define SQB_COLUMN_CHANGED              SQB_CHANGED         // SQL: column has been changed.
 // SQL common bit_field (for internal use only. use it when SQLite recreate)
@@ -84,10 +81,6 @@ void       sq_column_final(SqColumn *column);
 // If 'column_dest' is NULL, it will allocate memory for 'column_dest'.
 // return 'column_dest' or newly created SqColumn.
 SqColumn  *sq_column_copy(SqColumn *column_dest, const SqColumn *column_src);
-// deprecated
-// This function is used to copy SqColumn from static instance.
-//SqColumn  *sq_column_copy_static(const SqColumn *column_src);
-#define sq_column_copy_static(column_src)    sq_column_copy(NULL, column_src)
 
 // void sq_column_reference(column, foreignTableName, foreignColumnName, ..., NULL);
 // Set foreign key references, The last argument of sq_column_reference() must be NULL.
@@ -96,10 +89,6 @@ void       sq_column_reference(SqColumn *column, ...);
 void       sq_column_on_delete(SqColumn *column, const char *action);
 // Set foreign key ON UPDATE action. If 'action' is NULL, remove ON UPDATE action.
 void       sq_column_on_update(SqColumn *column, const char *action);
-
-// deprecated
-// void sq_column_foreign(SqColumn *column, const char *foreign_table_name, const char *foreign_column_name);
-#define sq_column_foreign    sq_column_reference
 
 // the last argument must be NULL
 // sq_column_set_composite(column, colume_name1, column_name2, NULL);

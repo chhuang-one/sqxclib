@@ -100,9 +100,6 @@ typedef Sqxc *(*SqTypeWriteFunc)(void *instance, const SqType *type, Sqxc *xc_de
 
 /* macro for accessing variable of SqType */
 #define sq_type_entry_array(type)         ((SqPtrArray*)&(type)->entry)
-// deprecated
-// sq_type_get_ptr_array(type) is alias of sq_type_get_array(type)
-#define sq_type_get_ptr_array             sq_type_entry_array
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
@@ -127,11 +124,6 @@ void     sq_type_free(SqType *type);
 SqType  *sq_type_copy(SqType *type_dest, const SqType *type_src,
                       SqDestroyFunc entry_free_func,
                       SqCopyFunc    entry_copy_func);
-// deprecated
-// This function is used to copy SqType from static instance.
-//SqType  *sq_type_copy_static(SqType *type_dest, const SqType *type_src, SqDestroyFunc entry_free_func);
-#define sq_type_copy_static(type_dest, type_src, entry_free_func)    \
-        sq_type_copy(type_dest, type_src, entry_free_func, NULL)
 
 // initialize/finalize SqType itself
 // prealloc_size : capacity of SqType::entry (SqType::entry is SqEntry pointer array).
@@ -288,11 +280,6 @@ struct SqType
 	// copy
 	Sq::Type *copy(SqDestroyFunc entry_free_func, SqCopyFunc entry_copy_func = NULL) const {
 		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, entry_copy_func);
-	}
-	// deprecated
-	// This method is only used to copy SqType from static instance.
-	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) const {
-		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, NULL);
 	}
 
 	// initialize/finalize self
@@ -635,11 +622,6 @@ struct TypeMethod
 	// copy
 	Sq::Type *copy(SqDestroyFunc entry_free_func, SqCopyFunc entry_copy_func = NULL) const {
 		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, entry_copy_func);
-	}
-	// deprecated
-	// This method is only used to copy SqType from static instance.
-	Sq::Type *copyStatic(SqDestroyFunc entry_free_func) const {
-		return (Sq::Type*)sq_type_copy(NULL, (const SqType*)this, entry_free_func, NULL);
 	}
 
 	// initialize/finalize self

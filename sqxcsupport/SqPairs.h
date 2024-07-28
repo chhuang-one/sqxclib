@@ -114,6 +114,7 @@ void    sq_pairs_sort(SqPairs *pairs);
 
 /* pair comparison function for SqCompareFunc */
 
+// compare C strings by their address
 // alias of sq_compare_str()
 // int  sq_pairs_cmp_string(const char **key1, const char **key2);
 #define sq_pairs_cmp_string        sq_compare_str

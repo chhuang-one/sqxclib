@@ -68,13 +68,6 @@ typedef struct SqReentry        SqReentry;
 #define SQB_QUERY_ONLY           (SQB_QUERY | SQB_HIDDEN)    // SQL: query-only, JSON: hidden
 #endif
 
-/* deprecated. It replaced by SQ_N_ELEMENTS()
-	SQ_N_PTRS() count number of elements present in an array. for example:
-	SqEntry *FooEntries[] = {...};
-	int  n_entry = SQ_N_PTRS(FooEntries);
- */
-#define SQ_N_PTRS(PointerArray)  ( sizeof(PointerArray)/sizeof(PointerArray[0]) )
-
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
@@ -101,20 +94,24 @@ SqEntry *sq_entry_find(const SqEntry *entry, const void *key, SqCompareFunc comp
 
 /* SqCompareFunc for sorting and finding SqEntry */
 
+// compare C string with SqEntry::name
 // This function is used by find(). Its actual parameter type:
 //int sq_entry_cmp_str__name(const char *str, SqEntry   **entryAddr);
 int   sq_entry_cmp_str__name(const void *str, const void *entryAddr);
 
+// compare SqEntry::name
 // This function is used by sort(). Its actual parameter type:
 //int sq_entry_cmp_name(SqEntry   **entryAddr1, SqEntry   **entryAddr2);
 int   sq_entry_cmp_name(const void *entryAddr1, const void *entryAddr2);
 
 /* SqCompareFunc for sorting and finding SqEntry by SqType::name */
 
+// compare C string with SqEntry::type.name
 // This function is used by find(). Its actual parameter type:
 //int sq_entry_cmp_str__type_name(const char *str, SqEntry   **entryAddr);
 int   sq_entry_cmp_str__type_name(const void *str, const void *entryAddr);
 
+// compare SqEntry::type.name
 // This function is used by sort(). Its actual parameter type:
 //int sq_entry_cmp_type_name(SqEntry   **entryAddr1, SqEntry   **entryAddr2);
 int   sq_entry_cmp_type_name(const void *entryAddr1, const void *entryAddr2);

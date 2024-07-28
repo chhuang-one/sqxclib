@@ -58,10 +58,12 @@ size_t sq_option_print(const SqOption *option, SqBuffer *buffer, size_t opt_max_
 
 /* SqCompareFunc for sorting and finding SqOption by SqOption::shortcut */
 
+// compare C string with SqOption::shortcut
 // This function is used by find(). Its actual parameter type:
 //int sq_option_cmp_str__shortcut(const char *str, SqOption  **option);
 int   sq_option_cmp_str__shortcut(const void *str, const void *option);
 
+// compare SqOption::shortcut
 // This function is used by sort(). Its actual parameter type:
 //int sq_option_cmp_shortcut(SqOption  **option1, SqOption  **option2);
 int   sq_option_cmp_shortcut(const void *option1, const void *option2);

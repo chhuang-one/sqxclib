@@ -208,9 +208,6 @@ struct PtrArrayMethod : ArrayMethod<Type>
 
 /* SqPtrArray is array of pointer */
 
-// deprecated
-#define SQ_PTR_ARRAY_MEMBERS             SQ_ARRAY_MEMBERS
-
 #ifdef __cplusplus
 struct SqPtrArray : Sq::PtrArrayMethod<void*>        // <-- 1. inherit C++ member function(method)
 #else

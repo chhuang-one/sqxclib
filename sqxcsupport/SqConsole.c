@@ -305,6 +305,7 @@ static int  sq_command_cmp_name(const void *commandType1, const void *commandTyp
 #endif
 }
 
+// compare C string with SqCommand::name
 // This function is used by find(). Its actual parameter type:
 //     int  sq_command_cmp_str__name(const char *str, SqCommand **commandType);
 static int  sq_command_cmp_str__name(const void *str, const void *commandType)
