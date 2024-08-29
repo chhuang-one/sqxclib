@@ -70,17 +70,7 @@ executable('sqtool',
            sources,
            dependencies : sqxcapptool)
 
-# --- deprecated 'sqxctool' executable file ---
-executable('sqxctool',
-           sources,
-           dependencies : sqxcapptool)
-
 # --- 'sqtool-cpp' executable file ---
 executable('sqtool-cpp',
-           sources_cpp,
-           dependencies : sqxcapptool)
-
-# --- deprecated 'sqxcpptool' executable file ---
-executable('sqxcpptool',
            sources_cpp,
            dependencies : sqxcapptool)

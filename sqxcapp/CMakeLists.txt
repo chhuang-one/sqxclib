@@ -152,20 +152,10 @@ install(
 add_executable(sqtool  ${SOURCES})
 target_link_libraries(sqtool  ${SQXCAPPTOOL_LIBRARIES})
 
-# --- deprecated 'sqxctool' executable file ---
-add_executable(sqxctool  ${SOURCES})
-target_link_libraries(sqxctool  ${SQXCAPPTOOL_LIBRARIES})
-
 # --- 'sqtool-cpp' executable file ---
 if (DEFINED CMAKE_CXX_COMPILER)
 	add_executable(sqtool-cpp  ${SOURCES_CPP})
 	target_link_libraries(sqtool-cpp  ${SQXCAPPTOOL_LIBRARIES})
-endif (DEFINED CMAKE_CXX_COMPILER)
-
-# --- deprecated 'sqxcpptool' executable file ---
-if (DEFINED CMAKE_CXX_COMPILER)
-	add_executable(sqxcpptool  ${SOURCES_CPP})
-	target_link_libraries(sqxcpptool  ${SQXCAPPTOOL_LIBRARIES})
 endif (DEFINED CMAKE_CXX_COMPILER)
 
 # set SQXCAPP_INCLUDE_DIRS to PARENT_SCOPE
