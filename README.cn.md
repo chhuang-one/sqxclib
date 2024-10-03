@@ -334,7 +334,7 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 	array = sq_storage_get_all(storage, "users", NULL, NULL, "WHERE id > 8 AND id < 20");
 
 	// 使用 SqQuery 获取多行 （在下面的 "查询生成器" 中说明）
-	sq_query_where(query, "id", ">", 8);
+	sq_query_where(query, "id", ">", "%d", 8);
 	sq_query_where_raw(query, "id < %d", 20);
 	array = sq_storage_get_all(storage, "users", NULL, NULL, query->c());
 
