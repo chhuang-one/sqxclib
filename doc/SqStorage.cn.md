@@ -290,26 +290,26 @@ sq_storage_insert() 用于在表中插入一个新记录并返回插入的行 ID
 
 ```c
 	User  user;
-	int   inserted_id;
+	int   row_id;
 
 	user.id   = 0;       // 主键设置为 0 用于自动递增
 	user.name = "xman";
 
-	inserted_id = sq_storage_insert(storage, "users", NULL, &user);
+	row_id = sq_storage_insert(storage, "users", NULL, &user);
 ```
 
 使用 C++ 方法
 
 ```c++
 	User  user;
-	int   inserted_id;
+	int   row_id;
 
 	user.id   = 0;       // 主键设置为 0 用于自动递增
 	user.name = "xman";
 
-	inserted_id = storage->insert("users", &user);
+	row_id = storage->insert("users", &user);
 	// 或调用模板函数： insert<User>(...)
-	inserted_id = storage->insert(user);
+	row_id = storage->insert(user);
 ```
 
 ## 更新 update

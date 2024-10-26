@@ -387,7 +387,7 @@ The container type is specified as std::vector<User>.
 
 #### Insert
 
-The insert() can insert a row into table. It must specify the table name and struct instance. If the primary key is auto-incremented, its value can be set to 0.  
+The insert() can insert a row into table and return inserted row ID. It must specify the table name and struct instance. If the primary key is auto-incremented, its value can be set to 0.  
   
 use C functions
 
@@ -395,7 +395,7 @@ use C functions
 	User  user = {10, "Bob", "bob@server"};
 
 	// insert one row
-	sq_storage_insert(storage, "users", NULL, &user);
+	id = sq_storage_insert(storage, "users", NULL, &user);
 ```
 
 use C++ methods
@@ -404,7 +404,7 @@ use C++ methods
 	User  user = {10, "Bob", "bob@server"};
 
 	// insert one row
-	storage->insert("users", &user);
+	id = storage->insert("users", &user);
 ```
 
 use C++ template functions

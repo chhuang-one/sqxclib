@@ -290,26 +290,26 @@ use C functions
 
 ```c
 	User  user;
-	int   inserted_id;
+	int   row_id;
 
 	user.id   = 0;       // primary key set to 0 for auto increment
 	user.name = "xman";
 
-	inserted_id = sq_storage_insert(storage, "users", NULL, &user);
+	row_id = sq_storage_insert(storage, "users", NULL, &user);
 ```
 
 use C++ methods
 
 ```c++
 	User  user;
-	int   inserted_id;
+	int   row_id;
 
 	user.id   = 0;       // primary key set to 0 for auto increment
 	user.name = "xman";
 
-	inserted_id = storage->insert("users", &user);
+	row_id = storage->insert("users", &user);
 	// or call template function: insert<User>(...)
-	inserted_id = storage->insert(user);
+	row_id = storage->insert(user);
 ```
 
 ## update
