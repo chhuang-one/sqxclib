@@ -161,11 +161,11 @@ void test_intx3_array()
 	ix3[0] = 21;
 	ix3[1] = 32;
 	ix3[2] = 13;
-	SQ_ARRAY_APPEND(&array, IntX3, &ix3, 1);
+	sq_array_append(&array, IntX3, &ix3, 1);
 	ix3[0] = 64;
 	ix3[1] = 75;
 	ix3[2] = 56;
-	SQ_ARRAY_INSERT(&array, IntX3, 0, &ix3, 1);
+	sq_array_insert(&array, IntX3, 0, &ix3, 1);
 
 	pix3 = sq_array_addr(&array, IntX3, 1);
 	assert(pix3[0][0] == 21);
@@ -173,13 +173,13 @@ void test_intx3_array()
 	ix3[0] = 122;
 	ix3[1] = 155;
 	ix3[2] = 130;
-	SQ_ARRAY_APPEND(&array, IntX3, &ix3, 1);
+	sq_array_append(&array, IntX3, &ix3, 1);
 	ix3[0] = 256;
 	ix3[1] = 203;
 	ix3[2] = 286;
-	SQ_ARRAY_INSERT(&array, IntX3, 2, &ix3, 1);
+	sq_array_insert(&array, IntX3, 2, &ix3, 1);
 
-	SQ_ARRAY_STEAL(&array, IntX3, 1, 2);
+	sq_array_steal(&array, IntX3, 1, 2);
 
 	for (unsigned int i = 0;  i < array.length;  i++) {
 		pix3 = sq_array_addr(&array, IntX3, i);

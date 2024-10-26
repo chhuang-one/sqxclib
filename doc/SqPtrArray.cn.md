@@ -130,7 +130,7 @@ SqPtrArray 仍然为 C 语言定义了一些 sq_ptr_array_xxx() 宏和函数，�
 ```c
 	unsigned int  index = 5;
 
-	sq_ptr_array_push_to(array, index, NULL);
+	sq_ptr_array_push_in(array, index, NULL);
 	sq_ptr_array_insert(array, index, ptrs, sizeof(ptrs) / sizeof(void*));
 ```
 

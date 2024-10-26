@@ -71,7 +71,7 @@ extern "C" {
 
 //char **sq_str_array_search(void *array, const char *key, SqCompareFunc compareFunc);
 #define sq_str_array_search(array, key, compareFunc)    \
-		(char**)SQ_ARRAY_SEARCH(array, char*, key, compareFunc)
+		(char**)sq_array_search(array, char*, key, compareFunc)
 
 //char **sq_str_array_find(void *array, const char *key, SqCompareFunc compareFunc);
 #define sq_str_array_find(array, key, compareFunc)      \
@@ -84,7 +84,11 @@ extern "C" {
 /* C functions */
 void  *sq_str_array_init(SqStrArray *array, unsigned int capacity);
 
+void   sq_str_array_push_in(SqStrArray *array, unsigned int index, const char *str);
+
+// deprecated
 void   sq_str_array_push_to(SqStrArray *array, unsigned int index, const char *str);
+
 char **sq_str_array_insert(SqStrArray *array, unsigned int index, const char **strs, unsigned int count);
 
 void   sq_str_array_push(SqStrArray *array, const char *str);
@@ -175,7 +179,7 @@ inline void  StrArrayMethod::insert(unsigned int index, const char **strs, unsig
 	sq_str_array_insert((SqStrArray*)this, index, strs, count);
 }
 inline void  StrArrayMethod::insert(unsigned int index, const char  *str) {
-	sq_str_array_push_to((SqStrArray*)this, index, str);
+	sq_str_array_push_in((SqStrArray*)this, index, str);
 }
 
 /* All derived struct/class must be C++11 standard-layout. */

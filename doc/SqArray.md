@@ -151,7 +151,7 @@ use C language
 	sq_array_push(array, ElementType, elementValue);
 
 	// append multiple elements (You must specify ElementType here)
-	SQ_ARRAY_APPEND(array, ElementType, elements, n_elements);
+	sq_array_append(array, ElementType, elements, n_elements);
 ```
 
 use C++ language
@@ -176,10 +176,10 @@ use C language
 
 	// If ElementType is arithmetic type (or pointer type), you can use this to
 	// insert a element (You must specify ElementType here)
-	sq_array_push_to(array, ElementType, index, elementValue);
+	sq_array_push_in(array, ElementType, index, elementValue);
 
 	// insert multiple elements (You must specify ElementType here)
-	SQ_ARRAY_INSERT(array, ElementType, index, elements, n_elements);
+	sq_array_insert(array, ElementType, index, elements, n_elements);
 ```
 
 use C++ language
@@ -200,12 +200,12 @@ use C language
 
 ```c
 	// remove elements by index (You must specify ElementType here)
-	SQ_ARRAY_STEAL(array, ElementType, index, n_elements);
+	sq_array_steal(array, ElementType, index, n_elements);
 
 	// remove elements by address (You must specify ElementType here)
 	// Warning: Please make sure that address of element is in current array.
 	ElementType *element;
-	SQ_ARRAY_STEAL_ADDR(array, ElementType, element, n_elements);
+	sq_array_steal_addr(array, ElementType, element, n_elements);
 ```
 
 use C++ language
@@ -235,7 +235,7 @@ use C language
 	int   elementCompare(ElementType *element1, ElementType *element2);
 
 	//  You must specify ElementType here
-	SQ_ARRAY_SORT(array, ElementType, elementCompare);
+	sq_array_sort(array, ElementType, elementCompare);
 
 	ElementType  *key = pointerToKey;
 	ElementType  *element;

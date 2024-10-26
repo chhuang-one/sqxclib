@@ -151,7 +151,7 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 	sq_array_push(array, ElementType, elementValue);
 
 	// 添加多个元素 (您必须在此处指定 ElementType)
-	SQ_ARRAY_APPEND(array, ElementType, elements, n_elements);
+	sq_array_append(array, ElementType, elements, n_elements);
 ```
 
 使用 C++ 语言
@@ -176,10 +176,10 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 
 	// 如果 ElementType 是算术类型（或指针类型），您可以使用它来
 	// 插入一个元素 (您必须在此处指定 ElementType)
-	sq_array_push_to(array, ElementType, index, elementValue);
+	sq_array_push_in(array, ElementType, index, elementValue);
 
 	// 插入多个元素 (您必须在此处指定 ElementType)
-	SQ_ARRAY_INSERT(array, ElementType, index, elements, n_elements);
+	sq_array_insert(array, ElementType, index, elements, n_elements);
 ```
 
 使用 C++ 语言
@@ -200,12 +200,12 @@ steal() 从数组中删除元素。
 
 ```c
 	// 按索引删除元素 (您必须在此处指定 ElementType)
-	SQ_ARRAY_STEAL(array, ElementType, index, n_elements);
+	sq_array_steal(array, ElementType, index, n_elements);
 
 	// 按地址删除元素 (您必须在此处指定 ElementType)
 	// 警告：请确认元素的地址在当前数组中。
 	ElementType *element;
-	SQ_ARRAY_STEAL_ADDR(array, ElementType, element, n_elements);
+	sq_array_steal_addr(array, ElementType, element, n_elements);
 ```
 
 使用 C++ 语言
@@ -235,7 +235,7 @@ findSorted() : 使用二分查找在已排序数组中查找元素，如果没�
 	int   elementCompare(ElementType *element1, ElementType *element2);
 
 	// 您必须在此处指定 ElementType
-	SQ_ARRAY_SORT(array, ElementType, elementCompare);
+	sq_array_sort(array, ElementType, elementCompare);
 
 	ElementType  *key = pointerToKey;
 	ElementType  *element;

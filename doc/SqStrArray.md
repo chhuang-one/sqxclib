@@ -45,7 +45,7 @@ use C language
 	sq_str_array_push(&array, "Five");
 
 	// insert a string to index 3 of array
-	sq_str_array_push_to(&array, 3, "Four");
+	sq_str_array_push_in(&array, 3, "Four");
 	// insert multiple strings to index 1 of array
 	sq_str_array_insert(&array, 1, strs, n_strs);
 ```

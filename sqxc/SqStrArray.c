@@ -24,16 +24,22 @@ void  *sq_str_array_init(SqStrArray *array, unsigned int capacity)
 	return sq_ptr_array_init(array, capacity, free);
 }
 
+void   sq_str_array_push_in(SqStrArray *array, unsigned int index, const char *str)
+{
+	sq_ptr_array_push_in(array, index, strdup(str));
+}
+
+// deprecated
 void   sq_str_array_push_to(SqStrArray *array, unsigned int index, const char *str)
 {
-	sq_ptr_array_push_to(array, index, strdup(str));
+	sq_ptr_array_push_in(array, index, strdup(str));
 }
 
 char **sq_str_array_insert(SqStrArray *array, unsigned int index, const char **strs, unsigned int count)
 {
 	char **addr;
 
-	addr = (char**)SQ_ARRAY_INSERT(array, char*, index, strs, count);
+	addr = (char**)sq_array_insert(array, char*, index, strs, count);
 	sq_str_array_strdup(array, index, count);
 	return addr;
 }
@@ -47,7 +53,7 @@ char **sq_str_array_append(SqStrArray *array, const char **strs, unsigned int co
 {
 	char **addr;
 
-	addr = (char**)SQ_ARRAY_APPEND(array, char*, strs, count);
+	addr = (char**)sq_array_append(array, char*, strs, count);
 	sq_str_array_strdup(array, array->length -count, count);
 	return addr;
 }

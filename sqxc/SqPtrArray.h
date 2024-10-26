@@ -91,6 +91,11 @@ extern "C" {
 #define sq_ptr_array_push(array, value)            \
 		*(void**)sq_array_alloc_at(array, sq_array_length(array), 1) = (void*)(value)
 
+// void sq_ptr_array_push_in(void *array, unsigned int index, void *value);
+#define sq_ptr_array_push_in(array, index, value)  \
+		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
+
+// deprecated
 // void sq_ptr_array_push_to(void *array, unsigned int index, void *value);
 #define sq_ptr_array_push_to(array, index, value)  \
 		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
@@ -110,12 +115,12 @@ extern "C" {
 // Quick sort
 // void sq_ptr_array_sort(void *array, SqCompareFunc compareFunc);
 #define sq_ptr_array_sort(array, compareFunc)           \
-		SQ_ARRAY_SORT(array, void*, compareFunc)
+		sq_array_sort(array, void*, compareFunc)
 
 // Binary search for sorted array
 //void **sq_ptr_array_search(void *array, const void *key, SqCompareFunc compareFunc);
 #define sq_ptr_array_search(array, key, compareFunc)    \
-		(void**)SQ_ARRAY_SEARCH(array, void*, key, compareFunc)
+		(void**)sq_array_search(array, void*, key, compareFunc)
 
 //void **sq_ptr_array_find(void *array, const void *key, SqCompareFunc compareFunc);
 #define sq_ptr_array_find(array, key, compareFunc)      \
@@ -129,20 +134,20 @@ extern "C" {
 
 //void **SQ_PTR_ARRAY_APPEND(void *array, const void *values, unsigned int count);
 #define SQ_PTR_ARRAY_APPEND(array, values, count)                \
-		(void**)SQ_ARRAY_APPEND(array, void*, values, count)
+		(void**)sq_array_append(array, void*, values, count)
 
 //void **SQ_PTR_ARRAY_INSERT(void *array, unsigned int index, const void *values, unsigned int count);
 #define SQ_PTR_ARRAY_INSERT(array, index, values, count)         \
-		(void**)SQ_ARRAY_INSERT(array, void*, index, values, count)
+		(void**)sq_array_insert(array, void*, index, values, count)
 
 // Removes a value from array without calling the destroy function.
 // void SQ_PTR_ARRAY_STEAL(void *array, unsigned int index, unsigned int count);
 #define SQ_PTR_ARRAY_STEAL(array, index, count)                  \
-		SQ_ARRAY_STEAL(array, void*, index, count)
+		sq_array_steal(array, void*, index, count)
 
 // void SQ_PTR_ARRAY_STEAL_ADDR(void *array, void **elementAddr, unsigned int count);
 #define SQ_PTR_ARRAY_STEAL_ADDR(array, elementAddr, count)       \
-		SQ_ARRAY_STEAL_ADDR(array, void*, elementAddr, count)
+		sq_array_steal_addr(array, void*, elementAddr, count)
 
 /* C functions */
 

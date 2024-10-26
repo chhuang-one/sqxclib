@@ -111,7 +111,7 @@ SqIntArray still defines some sq_int_array_xxx() macros and functions for C lang
 ```c
 	unsigned int  index = 5;
 
-	sq_int_array_push_to(array, index, 16384);
+	sq_int_array_push_in(array, index, 16384);
 	sq_int_array_insert(array, index, ints, sizeof(ints) / sizeof(int));
 ```
 

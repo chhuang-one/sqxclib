@@ -121,7 +121,7 @@ bool  sq_pairs_erase(SqPairs *pairs, void *key)
 			pairs->key_destroy_func(element->key);
 		if (pairs->value_destroy_func)
 			pairs->value_destroy_func(element->value);
-		SQ_ARRAY_STEAL_ADDR(pairs, SqPair, element, 1);
+		sq_array_steal_addr(pairs, SqPair, element, 1);
 		return true;
 	}
 	return false;
@@ -138,7 +138,7 @@ bool  sq_pairs_steal(SqPairs *pairs, void *key)
 
 	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key, pairs->key_compare_func, NULL);
 	if (element) {
-		SQ_ARRAY_STEAL_ADDR(pairs, SqPair, element, 1);
+		sq_array_steal_addr(pairs, SqPair, element, 1);
 		return true;
 	}
 	return false;
