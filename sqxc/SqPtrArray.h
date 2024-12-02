@@ -120,25 +120,25 @@ extern "C" {
 // Binary search for sorted array
 //void **sq_ptr_array_search(void *array, const void *key, SqCompareFunc compareFunc);
 #define sq_ptr_array_search(array, key, compareFunc)    \
-		(void**)sq_array_search(array, void*, key, compareFunc)
+		sq_array_search(array, void*, key, compareFunc)
 
 //void **sq_ptr_array_find(void *array, const void *key, SqCompareFunc compareFunc);
 #define sq_ptr_array_find(array, key, compareFunc)      \
-		(void**)SQ_ARRAY_FIND(array, void*, key, compareFunc)
+		SQ_ARRAY_FIND(array, void*, key, compareFunc)
 
 //void **sq_array_find_sorted(void *array, const void *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define sq_ptr_array_find_sorted(array, key, compareFunc, insertingIndex)    \
-		(void**)SQ_ARRAY_FIND_SORTED(array, void*, key, compareFunc, insertingIndex)
+		SQ_ARRAY_FIND_SORTED(array, void*, key, compareFunc, insertingIndex)
 
 /* macro for maintaining C/C++ inline functions easily */
 
 //void **SQ_PTR_ARRAY_APPEND(void *array, const void *values, unsigned int count);
 #define SQ_PTR_ARRAY_APPEND(array, values, count)                \
-		(void**)sq_array_append(array, void*, values, count)
+		sq_array_append(array, void*, values, count)
 
 //void **SQ_PTR_ARRAY_INSERT(void *array, unsigned int index, const void *values, unsigned int count);
 #define SQ_PTR_ARRAY_INSERT(array, index, values, count)         \
-		(void**)sq_array_insert(array, void*, index, values, count)
+		sq_array_insert(array, void*, index, values, count)
 
 // Removes a value from array without calling the destroy function.
 // void SQ_PTR_ARRAY_STEAL(void *array, unsigned int index, unsigned int count);

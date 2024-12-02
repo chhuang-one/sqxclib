@@ -58,9 +58,9 @@ bool  sq_pairs_add(SqPairs *pairs, void *key, void *value)
 #if SQ_PAIRS_CHECK_IF_KEY_EXIST
 	unsigned int  index;
 
-	element = (SqPair*)SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key,
-	                                        pairs->key_compare_func,
-	                                        &index);
+	element = SQ_ARRAY_FIND_SORTED(pairs, SqPair, &key,
+	                               pairs->key_compare_func,
+	                               &index);
 	if (element) {
 		if (pairs->key_destroy_func)
 			pairs->key_destroy_func(element->key);

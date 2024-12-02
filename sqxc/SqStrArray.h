@@ -71,15 +71,15 @@ extern "C" {
 
 //char **sq_str_array_search(void *array, const char *key, SqCompareFunc compareFunc);
 #define sq_str_array_search(array, key, compareFunc)    \
-		(char**)sq_array_search(array, char*, key, compareFunc)
+		sq_array_search(array, char*, key, compareFunc)
 
 //char **sq_str_array_find(void *array, const char *key, SqCompareFunc compareFunc);
 #define sq_str_array_find(array, key, compareFunc)      \
-		(char**)SQ_ARRAY_FIND(array, char*, key, compareFunc)
+		SQ_ARRAY_FIND(array, char*, key, compareFunc)
 
 //char **sq_array_find_sorted(void *array, const char *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define sq_str_array_find_sorted(array, key, compareFunc, insertingIndex)   \
-		(char**)SQ_ARRAY_FIND_SORTED(array, char*, key, compareFunc, insertingIndex)
+		SQ_ARRAY_FIND_SORTED(array, char*, key, compareFunc, insertingIndex)
 
 /* C functions */
 void  *sq_str_array_init(SqStrArray *array, unsigned int capacity);
