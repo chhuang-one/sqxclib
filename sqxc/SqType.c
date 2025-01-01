@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -252,7 +252,7 @@ void  sq_type_steal_entry_addr(SqType *type, SqEntry **inner_entry_addr, unsigne
 {
 	if ((type)->bit_field & SQB_TYPE_DYNAMIC) {
 		sq_type_decide_size(type, *inner_entry_addr, true);
-		SQ_PTR_ARRAY_STEAL_ADDR(sq_type_entry_array(type), inner_entry_addr, count);
+		sq_ptr_array_steal_addr(sq_type_entry_array(type), inner_entry_addr, count);
 	}
 }
 

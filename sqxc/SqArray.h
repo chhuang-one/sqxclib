@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -120,6 +120,21 @@ extern "C" {
 #define sq_array_push_to(array, ElementType, index, value)    \
 		*(ElementType*)sq_array_alloc_at(array, index, 1) = (ElementType)(value)
 
+// Quick sort
+// void sq_array_sort(void *array, ElementType, SqCompareFunc compareFunc);
+#define sq_array_sort(array, ElementType, compareFunc)               \
+		qsort(sq_array_data(array), ((SqArray*)(array))->length,     \
+		      sizeof(ElementType), (SqCompareFunc)compareFunc)
+
+// Binary search for sorted array
+//ElementType *sq_array_search(void *array, ElementType, const void *key, SqCompareFunc compareFunc);
+#define sq_array_search(array, ElementType, key, compareFunc)                      \
+		(ElementType*)bsearch((void*)(key),                                        \
+		                      sq_array_data(array), ((SqArray*)(array))->length,   \
+		                      sizeof(ElementType), (SqCompareFunc)compareFunc)
+
+/* macro functions - Macros use parameters multiple times. Do not use the ++ operator in parameters. */
+
 //ElementType *sq_array_append(void *array, ElementType, const void *values, unsigned int count);
 #define sq_array_append(array, ElementType, values, count)                         \
 		(ElementType*)memcpy(sq_array_alloc(array, count), values,                 \
@@ -133,8 +148,8 @@ extern "C" {
 // Removes a value from array without calling the destroy function.
 // void sq_array_steal(void *array, ElementType, unsigned int index, unsigned int count);
 #define sq_array_steal(array, ElementType, index, count)                           \
-		memmove(sq_array_data(array) + sizeof(ElementType) * (index),              \
-		        sq_array_data(array) + sizeof(ElementType) * ((index)+(count)),    \
+		memmove((ElementType*)sq_array_data(array) +  (index),                     \
+		        (ElementType*)sq_array_data(array) + ((index)+(count)),            \
 		        sizeof(ElementType) * ((sq_array_length(array) -= (count)) - (index)) )
 
 // void sq_array_steal_addr(void *array, ElementType, ElementType *elementAddr, unsigned int count);
@@ -142,19 +157,6 @@ extern "C" {
 		memmove(elementAddr,                                         \
 		        (ElementType*)(elementAddr) + (count),               \
 		        sizeof(ElementType) * (sq_array_length(array) -= (count)) - ((uint8_t*)(elementAddr) - sq_array_data(array)) )
-
-// Quick sort
-// void sq_array_sort(void *array, ElementType, SqCompareFunc compareFunc);
-#define sq_array_sort(array, ElementType, compareFunc)               \
-		qsort(sq_array_data(array), ((SqArray*)(array))->length,     \
-		      sizeof(ElementType), (SqCompareFunc)compareFunc)
-
-// Binary search for sorted array
-//ElementType *sq_array_search(void *array, ElementType, const void *key, SqCompareFunc compareFunc);
-#define sq_array_search(array, ElementType, key, compareFunc)                      \
-		(ElementType*)bsearch((void*)(key),                                        \
-		                      sq_array_data(array), ((SqArray*)(array))->length,   \
-		                      sizeof(ElementType), (SqCompareFunc)compareFunc)
 
 /* Alias */
 
@@ -183,6 +185,22 @@ extern "C" {
 #define SQ_ARRAY_SEARCH        sq_array_search
 
 /* macro for maintaining C/C++ inline functions easily */
+
+//void *SQ_ARRAY_NEW(ElementType, unsigned int capacity);
+#define SQ_ARRAY_NEW(ElementType, capacity)                          \
+		sq_array_new(sizeof(ElementType), capacity)
+
+//void *SQ_ARRAY_INIT(void *array, ElementType, unsigned int capacity);
+#define SQ_ARRAY_INIT(array, ElementType, capacity)                  \
+		sq_array_init(array, sizeof(ElementType), capacity)
+
+//ElementType *SQ_ARRAY_ALLOC(void *array, ElementType, unsigned int count);
+#define SQ_ARRAY_ALLOC(array, ElementType, count)                    \
+		(ElementType*)sq_array_alloc_at(array, sq_array_length(array), count)
+
+//ElementType *SQ_ARRAY_ALLOC_AT(void *array, ElementType, unsigned int index, unsigned int count);
+#define SQ_ARRAY_ALLOC_AT(array, ElementType, index, count)          \
+		(ElementType*)sq_array_alloc_at(array, index, count)
 
 // find element in unsorted array
 //ElementType *SQ_ARRAY_FIND(void *array, ElementType, const void *key, SqCompareFunc compareFunc);
@@ -766,6 +784,8 @@ typedef Array<int>    IntArray;
 
 #define sq_int_array_capacity            sq_array_capacity
 
+/* macro functions - parameter used only once in macro (except parameter 'array') */
+
 //void *sq_int_array_init(void *array, unsigned int capacity);
 #define sq_int_array_init(array, capacity)           \
 		sq_array_init(array, sizeof(int), capacity)
@@ -786,39 +806,25 @@ typedef Array<int>    IntArray;
 #define sq_int_array_end(array)          sq_array_end(array, int)
 
 // int *sq_int_array_alloc(void *array, unsigned int count);
-#define sq_int_array_alloc               (int*)sq_array_alloc
+#define sq_int_array_alloc(array, count)             \
+		SQ_ARRAY_ALLOC(array, int, count)
 
 // int *sq_int_array_alloc_at(void *array, unsigned int index, unsigned int count);
-#define sq_int_array_alloc_at            (int*)sq_array_alloc_at
+#define sq_int_array_alloc_at(array, index, count)   \
+		SQ_ARRAY_ALLOC_AT(array, int, index, count)
 
 // void sq_int_array_push(void *array, int value);
 #define sq_int_array_push(array, value)              \
-		*sq_int_array_alloc(array, 1) = (int)(value);
+		sq_array_push(array, int, value)
 
 // void sq_int_array_push_in(void *array, unsigned int index, int value);
 #define sq_int_array_push_in(array, index, value)    \
-		*sq_int_array_alloc_at(array, index, 1) = (int)(value);
+		sq_array_push_in(array, int, index, value)
 
 // deprecated
 // void sq_int_array_push_to(void *array, unsigned int index, int value);
 #define sq_int_array_push_to(array, index, value)    \
-		*sq_int_array_alloc_at(array, index, 1) = (int)(value);
-
-// int *sq_int_array_append(void *array, const int *values, unsigned int count);
-#define sq_int_array_append(array, values, count)    \
-		sq_array_append(array, int, values, count)
-
-// int *sq_int_array_insert(void *array, unsigned int index, const int *values, unsigned int count);
-#define sq_int_array_insert(array, index, values, count)    \
-		sq_array_insert(array, int, index, values, count)
-
-// void sq_int_array_steal(void *array, unsigned int index, unsigned int count);
-#define sq_int_array_steal(array, index, count)             \
-		sq_array_steal(array, int, index, count)
-
-// void sq_int_array_steal_addr(void *array, int *elementAddr, unsigned int count);
-#define sq_int_array_steal_addr(array, elementAddr, count)  \
-		sq_array_steal_addr(array, int, elementAddr, count)
+		sq_array_push_to(array, int, index, value)
 
 // Quick sort
 // void sq_int_array_sort(void *array, SqCompareFunc compareFunc);
@@ -839,6 +845,24 @@ typedef Array<int>    IntArray;
 // int *sq_int_array_find_sorted(void *array, const int *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define sq_int_array_find_sorted(array, key, compareFunc, insertingIndex)    \
 		SQ_ARRAY_FIND_SORTED(array, int, key, compareFunc, insertingIndex)
+
+/* macro functions - Macros use parameters multiple times. Do not use the ++ operator in parameters. */
+
+// int *sq_int_array_append(void *array, const int *values, unsigned int count);
+#define sq_int_array_append(array, values, count)    \
+		sq_array_append(array, int, values, count)
+
+// int *sq_int_array_insert(void *array, unsigned int index, const int *values, unsigned int count);
+#define sq_int_array_insert(array, index, values, count)    \
+		sq_array_insert(array, int, index, values, count)
+
+// void sq_int_array_steal(void *array, unsigned int index, unsigned int count);
+#define sq_int_array_steal(array, index, count)             \
+		sq_array_steal(array, int, index, count)
+
+// void sq_int_array_steal_addr(void *array, int *elementAddr, unsigned int count);
+#define sq_int_array_steal_addr(array, elementAddr, count)  \
+		sq_array_steal_addr(array, int, elementAddr, count)
 
 /*
 	SqArray

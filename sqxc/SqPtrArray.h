@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -71,7 +71,6 @@ extern "C" {
 //void *sq_ptr_array_at(void *array, unsigned int index);
 #define sq_ptr_array_at(array, index)    \
 		((SqPtrArray*)(array))->data[index]
-//		*( ((SqPtrArray*)(array))->data + (index) )
 
 //void *sq_ptr_array_begin(void *array);
 #define sq_ptr_array_begin(array)        \
@@ -82,35 +81,25 @@ extern "C" {
 		( (((SqPtrArray*)(array))->data) + ((SqPtrArray*)(array))->length )
 
 //void **sq_ptr_array_alloc(void *array, unsigned int count);
-#define sq_ptr_array_alloc               (void**)sq_array_alloc
+#define sq_ptr_array_alloc(array, count)                \
+		SQ_ARRAY_ALLOC(array, void*, count)
 
 //void **sq_ptr_array_alloc_at(void *array, unsigned int index, unsigned int count);
-#define sq_ptr_array_alloc_at            (void**)sq_array_alloc_at
+#define sq_ptr_array_alloc_at(array, index, count)      \
+		SQ_ARRAY_ALLOC_AT(array, void*, index, count)
 
 // void sq_ptr_array_push(void *array, void *value);
-#define sq_ptr_array_push(array, value)            \
-		*(void**)sq_array_alloc_at(array, sq_array_length(array), 1) = (void*)(value)
+#define sq_ptr_array_push(array, value)                 \
+		sq_array_push(array, void*, value)
 
 // void sq_ptr_array_push_in(void *array, unsigned int index, void *value);
-#define sq_ptr_array_push_in(array, index, value)  \
-		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
+#define sq_ptr_array_push_in(array, index, value)       \
+		sq_array_push_in(array, void*, index, value)
 
 // deprecated
 // void sq_ptr_array_push_to(void *array, unsigned int index, void *value);
-#define sq_ptr_array_push_to(array, index, value)  \
-		*(void**)sq_array_alloc_at(array, index, 1) = (void*)(value)
-
-// void sq_ptr_array_erase_addr(void *array, void **elementAddr, unsigned int count);
-#define sq_ptr_array_erase_addr(array, elementAddr, count)       \
-		sq_ptr_array_erase(array, (void**)(elementAddr) - sq_ptr_array_data(array), count)
-
-// alias of sq_ptr_array_erase()
-// void sq_ptr_array_remove(void *array, unsigned int index, unsigned int count);
-#define sq_ptr_array_remove              sq_ptr_array_erase
-
-// alias of sq_ptr_array_erase_addr()
-// void sq_ptr_array_remove_addr(void *array, void **elementAddr, unsigned int count);
-#define sq_ptr_array_remove_addr         sq_ptr_array_erase_addr
+#define sq_ptr_array_push_to(array, index, value)       \
+		sq_array_push_to(array, void*, index, value)
 
 // Quick sort
 // void sq_ptr_array_sort(void *array, SqCompareFunc compareFunc);
@@ -130,24 +119,55 @@ extern "C" {
 #define sq_ptr_array_find_sorted(array, key, compareFunc, insertingIndex)    \
 		SQ_ARRAY_FIND_SORTED(array, void*, key, compareFunc, insertingIndex)
 
-/* macro for maintaining C/C++ inline functions easily */
+// void sq_ptr_array_erase_addr(void *array, void **elementAddr, unsigned int count);
+#define sq_ptr_array_erase_addr(array, elementAddr, count)       \
+		sq_ptr_array_erase(array, (void**)(elementAddr) - sq_ptr_array_data(array), count)
 
-//void **SQ_PTR_ARRAY_APPEND(void *array, const void *values, unsigned int count);
-#define SQ_PTR_ARRAY_APPEND(array, values, count)                \
+// alias of sq_ptr_array_erase()
+// void sq_ptr_array_remove(void *array, unsigned int index, unsigned int count);
+#define sq_ptr_array_remove              sq_ptr_array_erase
+
+// alias of sq_ptr_array_erase_addr()
+// void sq_ptr_array_remove_addr(void *array, void **elementAddr, unsigned int count);
+#define sq_ptr_array_remove_addr         sq_ptr_array_erase_addr
+
+/* macro functions - Macros use parameters multiple times. Do not use the ++ operator in parameters. */
+
+//void **sq_ptr_array_append(void *array, const void *values, unsigned int count);
+#define sq_ptr_array_append(array, values, count)                \
 		sq_array_append(array, void*, values, count)
 
-//void **SQ_PTR_ARRAY_INSERT(void *array, unsigned int index, const void *values, unsigned int count);
-#define SQ_PTR_ARRAY_INSERT(array, index, values, count)         \
+//void **sq_ptr_array_insert(void *array, unsigned int index, const void *values, unsigned int count);
+#define sq_ptr_array_insert(array, index, values, count)         \
 		sq_array_insert(array, void*, index, values, count)
 
 // Removes a value from array without calling the destroy function.
-// void SQ_PTR_ARRAY_STEAL(void *array, unsigned int index, unsigned int count);
-#define SQ_PTR_ARRAY_STEAL(array, index, count)                  \
+// void sq_ptr_array_steal(void *array, unsigned int index, unsigned int count);
+#define sq_ptr_array_steal(array, index, count)                  \
 		sq_array_steal(array, void*, index, count)
 
-// void SQ_PTR_ARRAY_STEAL_ADDR(void *array, void **elementAddr, unsigned int count);
-#define SQ_PTR_ARRAY_STEAL_ADDR(array, elementAddr, count)       \
+// void sq_ptr_array_steal_addr(void *array, void **elementAddr, unsigned int count);
+#define sq_ptr_array_steal_addr(array, elementAddr, count)       \
 		sq_array_steal_addr(array, void*, elementAddr, count)
+
+/* deprecated macros */
+
+// deprecated
+//void **SQ_PTR_ARRAY_APPEND(void *array, const void *values, unsigned int count);
+#define SQ_PTR_ARRAY_APPEND        sq_ptr_array_append
+
+// deprecated
+//void **SQ_PTR_ARRAY_INSERT(void *array, unsigned int index, const void *values, unsigned int count);
+#define SQ_PTR_ARRAY_INSERT        sq_ptr_array_insert
+
+// deprecated
+// Removes a value from array without calling the destroy function.
+// void SQ_PTR_ARRAY_STEAL(void *array, unsigned int index, unsigned int count);
+#define SQ_PTR_ARRAY_STEAL         sq_ptr_array_steal
+
+// deprecated
+// void SQ_PTR_ARRAY_STEAL_ADDR(void *array, void **elementAddr, unsigned int count);
+#define SQ_PTR_ARRAY_STEAL_ADDR    sq_ptr_array_steal_addr
 
 /* C functions */
 
@@ -233,53 +253,8 @@ struct SqPtrArray
 #if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
 // define inline functions here if compiler supports inline function.
 
-#ifdef __cplusplus  // C++
-inline
-#else               // C99
-static inline
-#endif
-void **sq_ptr_array_append(void *array, const void *values, unsigned int count)
-{
-	return SQ_PTR_ARRAY_APPEND(array, values, count);
-}
-
-#ifdef __cplusplus  // C++
-inline
-#else               // C99
-static inline
-#endif
-void **sq_ptr_array_insert(void *array, unsigned int index, const void *values, unsigned int count)
-{
-	return SQ_PTR_ARRAY_INSERT(array, index, values, count);
-}
-
-#ifdef __cplusplus  // C++
-inline
-#else               // C99
-static inline
-#endif
-void  sq_ptr_array_steal(void *array, unsigned int index, unsigned int count)
-{
-	SQ_PTR_ARRAY_STEAL(array, index, count);
-}
-
-#ifdef __cplusplus  // C++
-inline
-#else               // C99
-static inline
-#endif
-void  sq_ptr_array_steal_addr(void *array, void **elementAddr, unsigned int count)
-{
-	SQ_PTR_ARRAY_STEAL_ADDR(array, elementAddr, count);
-}
-
 #else   // __STDC_VERSION__ || __cplusplus
 // declare functions here if compiler does NOT support inline function.
-
-void **sq_ptr_array_append(void *array, const void *values, unsigned int count);
-void **sq_ptr_array_insert(void *array, unsigned int index, const void *values, unsigned int count);
-void   sq_ptr_array_steal(void *array, unsigned int index, unsigned int count);
-void   sq_ptr_array_steal_addr(void *array, void **elementAddr, unsigned int count);
 
 #endif  // __STDC_VERSION__ || __cplusplus
 
@@ -369,7 +344,7 @@ struct PtrArray : SqPtrArray
 	// copy constructor
 	PtrArray(const PtrArray &src) {
 		sq_ptr_array_init(this, sq_ptr_array_capacity(&src), sq_ptr_array_clear_func(&src));
-		SQ_PTR_ARRAY_APPEND(this, src.data, src.length);
+		sq_ptr_array_append(this, src.data, src.length);
 	}
 	// move constructor
 	PtrArray(PtrArray &&src) {

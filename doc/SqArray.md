@@ -83,7 +83,7 @@ use C language
 ```c++
 	SqArray *array;
 
-	// C macro (You must specify ElementType here)
+	// C macro (Specify the ElementType in the second parameter)
 	element = sq_array_at(array, ElementType, index);
 
 	// C data member (You must specify ElementType here)
@@ -120,6 +120,13 @@ use C language
 
 	// allocate elements from specified index
 	elements = (ElementType*)sq_array_alloc_at(array, index, count);
+
+	// use C macro to
+	// allocate elements from rear (Specify the ElementType in the second parameter)
+	elements = SQ_ARRAY_ALLOC(array, ElementType, count);
+
+	// allocate elements from specified index (Specify the ElementType in the second parameter)
+	elements = SQ_ARRAY_ALLOC_AT(array, ElementType, index, count);
 ```
 
 use C++ language
@@ -147,10 +154,10 @@ use C language
 	ElementType *elements;
 
 	// If ElementType is arithmetic type (or pointer type), you can use this to
-	// append a element (You must specify ElementType here)
+	// append a element (Specify the ElementType in the second parameter)
 	sq_array_push(array, ElementType, elementValue);
 
-	// append multiple elements (You must specify ElementType here)
+	// append multiple elements (Specify the ElementType in the second parameter)
 	sq_array_append(array, ElementType, elements, n_elements);
 ```
 
@@ -175,10 +182,10 @@ use C language
 	ElementType *elements;
 
 	// If ElementType is arithmetic type (or pointer type), you can use this to
-	// insert a element (You must specify ElementType here)
+	// insert a element (Specify the ElementType in the second parameter)
 	sq_array_push_in(array, ElementType, index, elementValue);
 
-	// insert multiple elements (You must specify ElementType here)
+	// insert multiple elements (Specify the ElementType in the second parameter)
 	sq_array_insert(array, ElementType, index, elements, n_elements);
 ```
 
@@ -199,10 +206,10 @@ steal() removes elements from array.
 use C language
 
 ```c
-	// remove elements by index (You must specify ElementType here)
+	// remove elements by index (Specify the ElementType in the second parameter)
 	sq_array_steal(array, ElementType, index, n_elements);
 
-	// remove elements by address (You must specify ElementType here)
+	// remove elements by address (Specify the ElementType in the second parameter)
 	// Warning: Please make sure that address of element is in current array.
 	ElementType *element;
 	sq_array_steal_addr(array, ElementType, element, n_elements);
@@ -234,14 +241,14 @@ use C language
 	// comparison function
 	int   elementCompare(ElementType *element1, ElementType *element2);
 
-	//  You must specify ElementType here
+	//  Specify the ElementType in the second parameter
 	sq_array_sort(array, ElementType, elementCompare);
 
 	ElementType  *key = pointerToKey;
 	ElementType  *element;
 	unsigned int  insertingIndex;
 
-	//  You must specify ElementType here
+	//  Specify the ElementType in the second parameter
 	element = SQ_ARRAY_FIND(array, ElementType, key, elementCompare);
 	element = SQ_ARRAY_FIND_SORTED(array, ElementType, key, elementCompare, &insertingIndex);
 ```

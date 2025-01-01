@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -37,14 +37,18 @@ extern "C" {
 
 #define sq_str_array_clear_func      sq_array_clear_func
 
+/* macro functions - parameter used only once in macro (except parameter 'array') */
+
 //void *sq_str_array_final(SqStrArray *array);
 #define sq_str_array_final           sq_ptr_array_final
 
 //char **sq_str_array_alloc(SqStrArray *array, unsigned int count);
-#define sq_str_array_alloc           (char**)sq_array_alloc
+#define sq_str_array_alloc(array, count)                 \
+		SQ_ARRAY_ALLOC(array, char*, count)
 
 //char **sq_str_array_alloc_at(SqStrArray *array, unsigned int index, unsigned int count);
-#define sq_str_array_alloc_at        (char**)sq_array_alloc_at
+#define sq_str_array_alloc_at(array, index, count)       \
+		SQ_ARRAY_ALLOC_AT(array, char*, index, count)
 
 // void sq_str_array_erase(SqStrArray *array, unsigned int index, unsigned int count);
 #define sq_str_array_erase           sq_ptr_array_erase
@@ -60,12 +64,6 @@ extern "C" {
 // void sq_str_array_remove_addr(SqStrArray *array, char **elementAddr, unsigned int count);
 #define sq_str_array_remove_addr     sq_ptr_array_erase_addr
 
-// void sq_str_array_steal(SqStrArray *array, unsigned int index, unsigned int count);
-#define sq_str_array_steal           sq_ptr_array_steal
-
-// void sq_str_array_steal_addr(SqStrArray *array, char **elementAddr, unsigned int count);
-#define sq_str_array_steal_addr      sq_ptr_array_steal_addr
-
 // void sq_str_array_sort(void *array, SqCompareFunc compareFunc);
 #define sq_str_array_sort            sq_ptr_array_sort
 
@@ -80,6 +78,14 @@ extern "C" {
 //char **sq_array_find_sorted(void *array, const char *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define sq_str_array_find_sorted(array, key, compareFunc, insertingIndex)   \
 		SQ_ARRAY_FIND_SORTED(array, char*, key, compareFunc, insertingIndex)
+
+/* macro functions - Macros use parameters multiple times. Do not use the ++ operator in parameters. */
+
+// void sq_str_array_steal(SqStrArray *array, unsigned int index, unsigned int count);
+#define sq_str_array_steal           sq_ptr_array_steal
+
+// void sq_str_array_steal_addr(SqStrArray *array, char **elementAddr, unsigned int count);
+#define sq_str_array_steal_addr      sq_ptr_array_steal_addr
 
 /* C functions */
 void  *sq_str_array_init(SqStrArray *array, unsigned int capacity);

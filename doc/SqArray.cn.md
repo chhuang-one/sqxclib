@@ -83,7 +83,7 @@ C 函数 sq_array_init()，C++ 构造函数可以初始化 SqArray 的实例。
 ```c++
 	SqArray *array;
 
-	// C 宏 (您必须在此处指定 ElementType)
+	// C 宏 (在第二个参数指定 ElementType)
 	element = sq_array_at(array, ElementType, index);
 
 	// C 数据成员 (您必须在此处指定 ElementType)
@@ -120,6 +120,13 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 
 	// 从指定索引分配元素
 	elements = (ElementType*)sq_array_alloc_at(array, index, count);
+
+	// 使用 C 宏
+	// 从后面分配元素 (在第二个参数指定 ElementType)
+	elements = SQ_ARRAY_ALLOC(array, ElementType, count);
+
+	// 从指定索引分配元素 (在第二个参数指定 ElementType)
+	elements = SQ_ARRAY_ALLOC_AT(array, ElementType, index, count);
 ```
 
 使用 C++ 语言
@@ -147,10 +154,10 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 	ElementType *elements;
 
 	// 如果 ElementType 是算术类型（或指针类型），您可以使用它来
-	// 添加一个元素 (您必须在此处指定 ElementType)
+	// 添加一个元素 (在第二个参数指定 ElementType)
 	sq_array_push(array, ElementType, elementValue);
 
-	// 添加多个元素 (您必须在此处指定 ElementType)
+	// 添加多个元素 (在第二个参数指定 ElementType)
 	sq_array_append(array, ElementType, elements, n_elements);
 ```
 
@@ -175,10 +182,10 @@ C 函数 sq_array_alloc_at()，C++ 重载方法 alloc() 可以从数组的指定
 	ElementType *elements;
 
 	// 如果 ElementType 是算术类型（或指针类型），您可以使用它来
-	// 插入一个元素 (您必须在此处指定 ElementType)
+	// 插入一个元素 (在第二个参数指定 ElementType)
 	sq_array_push_in(array, ElementType, index, elementValue);
 
-	// 插入多个元素 (您必须在此处指定 ElementType)
+	// 插入多个元素 (在第二个参数指定 ElementType)
 	sq_array_insert(array, ElementType, index, elements, n_elements);
 ```
 
@@ -199,10 +206,10 @@ steal() 从数组中删除元素。
 使用 C 语言
 
 ```c
-	// 按索引删除元素 (您必须在此处指定 ElementType)
+	// 按索引删除元素 (在第二个参数指定 ElementType)
 	sq_array_steal(array, ElementType, index, n_elements);
 
-	// 按地址删除元素 (您必须在此处指定 ElementType)
+	// 按地址删除元素 (在第二个参数指定 ElementType)
 	// 警告：请确认元素的地址在当前数组中。
 	ElementType *element;
 	sq_array_steal_addr(array, ElementType, element, n_elements);
@@ -234,14 +241,14 @@ findSorted() : 使用二分查找在已排序数组中查找元素，如果没�
 	// 比较函数
 	int   elementCompare(ElementType *element1, ElementType *element2);
 
-	// 您必须在此处指定 ElementType
+	// 在第二个参数指定 ElementType
 	sq_array_sort(array, ElementType, elementCompare);
 
 	ElementType  *key = pointerToKey;
 	ElementType  *element;
 	unsigned int  insertingIndex;
 
-	// 您必须在此处指定 ElementType
+	// 在第二个参数指定 ElementType
 	element = SQ_ARRAY_FIND(array, ElementType, key, elementCompare);
 	element = SQ_ARRAY_FIND_SORTED(array, ElementType, key, elementCompare, &insertingIndex);
 ```

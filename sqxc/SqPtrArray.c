@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -67,25 +67,5 @@ void sq_ptr_array_erase(void *array, unsigned int index, unsigned int count)
 
 #else   // __STDC_VERSION__
 // define functions here if compiler does NOT support inline function.
-
-void **sq_ptr_array_append(void *array, const void *values, unsigned int count)
-{
-	return SQ_PTR_ARRAY_APPEND(array, values, count);
-}
-
-void **sq_ptr_array_insert(void *array, unsigned int index, const void *values, unsigned int count)
-{
-	return SQ_PTR_ARRAY_INSERT(array, index, values, count);
-}
-
-void  sq_ptr_array_steal(void *array, unsigned int index, unsigned int count)
-{
-	SQ_PTR_ARRAY_STEAL(array, index, count);
-}
-
-void  sq_ptr_array_steal_addr(void *array, void **element_addr, unsigned int count)
-{
-	SQ_PTR_ARRAY_STEAL_ADDR(array, element_addr, count);
-}
 
 #endif  // __STDC_VERSION__
