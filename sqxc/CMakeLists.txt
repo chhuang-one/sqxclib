@@ -46,7 +46,7 @@ set(HEADERS
     SqSchema-macro.h
     SqStorage.h
     SqQuery.h
-    SqQuery-proxy.h
+    SqQueryMethod.h
     SqQuery-macro.h
     SqRelation.h
     Sqdb.h

@@ -53,7 +53,7 @@ headers = [
     'SqJoint.h',
     'SqSchema.h', 'SqSchema-macro.h',
     'SqStorage.h',
-    'SqQuery.h', 'SqQuery-proxy.h', 'SqQuery-macro.h',
+    'SqQuery.h', 'SqQueryMethod.h', 'SqQuery-macro.h',
     'SqRelation.h',
 
     # Sqdb - Database base structure

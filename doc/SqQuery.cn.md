@@ -5,7 +5,7 @@
 SqQuery 是支持子查询和括号的查询构建器。  
   
 **SqQuery 设计上可以独立运作。**  
-若要单独使用 SqQuery，可将 SqQuery.h、SqQuery.c 和 SqQuery-proxy.h 复制到其他软件项目中，并在 SqQuery.h 头文件中将 SQ_QUERY_USE_ALONE 设置为 1。
+若要单独使用 SqQuery，可将 SqQuery.h、SqQuery.c 和 SqQueryMethod.h 复制到其他软件项目中，并在 SqQuery.h 头文件中将 SQ_QUERY_USE_ALONE 设置为 1。
 它只是删除了 SqQuery 中的 sq_query_get_table_as_names() 和 sq_query_select_table_as() 声明和函数。
 
 ## 创建查询并生成 SQL 语句

@@ -5,7 +5,7 @@
 SqQuery is query builder that supports subquery and brackets.  
   
 **SqQuery is designed to work independently.**  
-You can use SqQuery alone if you copy SqQuery.h, SqQuery.c, and SqQuery-proxy.h to other software projects and set SQ_QUERY_USE_ALONE to 1 in SqQuery.h header file.
+You can use SqQuery alone if you copy SqQuery.h, SqQuery.c, and SqQueryMethod.h to other software projects and set SQ_QUERY_USE_ALONE to 1 in SqQuery.h header file.
 It just removes the sq_query_get_table_as_names() and sq_query_select_table_as() declarations and functions in SqQuery.
 
 ## create query and generate SQL statement
