@@ -259,6 +259,9 @@ namespace Sq {
 template<class Type>
 struct ArrayMethod
 {
+	bool   isInited(void);
+	bool   notInited(void);
+
 	Type  *alloc(unsigned int count = 1);
 	Type  *alloc(unsigned int index, unsigned int count);
 	Type  *allocAt(unsigned int index, unsigned int count = 1);
@@ -484,6 +487,15 @@ struct SqArray
 namespace Sq {
 
 /* define ArrayMethod template functions */
+
+template<class Type>
+inline bool  ArrayMethod<Type>::isInited(void) {
+	return sq_array_is_inited(this);
+}
+template<class Type>
+inline bool  ArrayMethod<Type>::notInited(void) {
+	return sq_array_not_inited(this);
+}
 
 template<class Type>
 inline Type *ArrayMethod<Type>::alloc(unsigned int count) {

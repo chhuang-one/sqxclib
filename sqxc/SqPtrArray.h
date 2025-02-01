@@ -208,9 +208,6 @@ struct PtrArrayMethod : ArrayMethod<Type>
 	void   init(unsigned int capacity = 8, SqClearFunc func = NULL);
 	void   final(void);
 
-	bool   isInited(void);
-	bool   notInited(void);
-
 	// removes elements from array with calling the clear function.
 	void   erase(unsigned int index, unsigned int count = 1);
 	void   erase(Type *addr, unsigned int count = 1);
@@ -283,15 +280,6 @@ inline void  PtrArrayMethod<Type>::init(unsigned int capacity, SqClearFunc func)
 template<class Type>
 inline void  PtrArrayMethod<Type>::final(void) {
 	sq_ptr_array_final(this);
-}
-
-template<class Type>
-inline bool  PtrArrayMethod<Type>::isInited(void) {
-	return sq_ptr_array_is_inited(this);
-}
-template<class Type>
-inline bool  PtrArrayMethod<Type>::notInited(void) {
-	return sq_ptr_array_not_inited(this);
 }
 
 // removes elements from array with calling the clear function.
