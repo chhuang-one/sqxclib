@@ -38,12 +38,14 @@ set(SOURCES_TEST
     SqdbEmpty.c
     SqxcEmpty.c
     SqxcFile.c
+    SqxcMem.c
 )
 
 set(HEADERS_TEST
     SqdbEmpty.h
     SqxcEmpty.h
     SqxcFile.h
+    SqxcMem.h
 )
 
 # all headers

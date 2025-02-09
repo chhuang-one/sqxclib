@@ -38,12 +38,14 @@ sources_test = [
     'SqdbEmpty.c',
     'SqxcEmpty.c',
     'SqxcFile.c',
+    'SqxcMem.c',
 ]
 
 headers_test = [
     'SqdbEmpty.h',
     'SqxcEmpty.h',
     'SqxcFile.h',
+    'SqxcMem.h',
 ]
 
 # --- sqxcsupport ---
