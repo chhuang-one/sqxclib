@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -14,14 +14,15 @@
 
 #include <sqxclib.h>
 #include <SqxcFile.h>     // SqxcFile in sqxcsupport library
+#include <SqxcMem.h>      // SqxcMem  in sqxcsupport library
 
-/*	Sqxc chain data flow for SqxcJsonc Writer
+/*	Use Sqxc chain to output JSON data to file.
 
 	output ---------> SqxcJsonc Writer ---------> SqxcFile Writer
 	     SQXC_TYPE_XXXX              SQXC_TYPE_STR
  */
 
-// create and write JSON file by using C++ language
+// create and write JSON data to file by using C++ language
 void json_file_writer_cpp()
 {
 	Sq::Xc            *xc;
@@ -69,7 +70,7 @@ void json_file_writer_cpp()
 	xcfile->freeChain();
 }
 
-// create and write JSON file by using C language
+// create and write JSON data to file by using C language
 void json_file_writer_c(void)
 {
 	Sqxc       *xc;
@@ -117,7 +118,7 @@ void json_file_writer_c(void)
 	sqxc_free_chain((Sqxc*)xcfile);
 }
 
-/*	Sqxc chain data flow for SqxcJsonc Parser
+/*	Use Sqxc chain to parse JSON data from file.
 
 	input ---------> SqxcJsonc Parser ---------> SqxcValue
 	    SQXC_TYPE_STR               SQXC_TYPE_XXXX
@@ -210,12 +211,75 @@ void json_file_parser_c(void)
 	fclose(file);
 }
 
+// ----------------------------------------------------------------------------
+
+/*	Use Sqxc chain to output JSON data to memory.
+
+	output ---------> SqxcJsonc Writer ---------> SqxcMem Writer
+	     SQXC_TYPE_XXXX              SQXC_TYPE_STR
+ */
+
+// write JSON data to memory by using C++ language
+void json_mem_writer_cpp()
+{
+	Sq::Xc            *xc;
+	Sq::XcMemWriter   *xcmem;
+	Sq::XcJsoncWriter *xcjson;
+
+	xcmem  = new Sq::XcMemWriter();
+	xcjson = new Sq::XcJsoncWriter();
+	xcmem->insert(xcjson);
+
+	// --- Sqxc chain ready to work ---
+	xcmem->ready();
+
+	// Because arguments in xcfile never used in sqxc chain,
+	// I use xcfile as arguments source here.
+	xc = (Sq::Xc*)xcmem;
+
+	xc->name = NULL;
+	xc->type = SQXC_TYPE_OBJECT;
+	xc->value.pointer = NULL;
+	xcjson->send(xc);
+
+	xc->name = "id";
+	xc->type = SQXC_TYPE_INT;
+	xc->value.integer = 10;
+	xcjson->send(xc);
+
+	xc->name = "name";
+	xc->type = SQXC_TYPE_STR;
+	xc->value.str = "bob";
+	xcjson->send(xc);
+
+	xc->name = NULL;
+	xc->type = SQXC_TYPE_OBJECT_END;
+	xc->value.pointer = NULL;
+	xcjson->send(xc);
+
+	// --- Sqxc chain finish work ---
+	xcmem->finish();
+
+	// print JSON data in memory
+	puts(xcmem->buf);
+
+	// free xcfile and xcjson in Sqxc chain
+	xcmem->freeChain();
+}
+
+// ----------------------------------------------------------------------------
+
 int main(void)
 {
+	// JSON data to file
 	json_file_writer_c();
 	json_file_writer_cpp();
 
+	// JSON data from file
 	json_file_parser_c();
+
+	// JSON data to memory
+	json_mem_writer_cpp();
 
 	return EXIT_SUCCESS;
 }
