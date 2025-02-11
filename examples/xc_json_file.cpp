@@ -39,8 +39,8 @@ void json_file_writer_cpp()
 	// --- Sqxc chain ready to work ---
 	xcfile->ready();
 
-	// Because arguments in xcfile never used in sqxc chain,
-	// I use xcfile as arguments source here.
+	// Because arguments in 'xcfile' will not be used in Sqxc chain,
+	// I use 'xcfile' as arguments source here.
 	xc = (Sq::Xc*)xcfile;
 
 	xc->name = NULL;
@@ -87,8 +87,8 @@ void json_file_writer_c(void)
 	// --- Sqxc chain ready to work ---
 	sqxc_ready((Sqxc*)xcfile, NULL);
 
-	// Because arguments in xcfile never used in sqxc chain,
-	// I use xcfile as arguments source here.
+	// Because arguments in 'xcfile' will not be used in Sqxc chain,
+	// I use 'xcfile' as arguments source here.
 	xc = (Sqxc*)xcfile;
 
 	xc->name = NULL;
@@ -177,8 +177,8 @@ void json_file_parser_c(void)
 	// --- Sqxc chain ready to work ---
 	sqxc_ready((Sqxc*)xcvalue, NULL);
 
-	// Because arguments in xcvalue never used in sqxc chain,
-	// I use xcvalue as arguments source here.
+	// Because arguments in 'xcvalue' will not be used in Sqxc chain,
+	// I use 'xcvalue' as arguments source here.
 	xc = (Sqxc*)xcvalue;
 
 	// read file data and send them to SqxcJsonc Parser
@@ -233,8 +233,8 @@ void json_mem_writer_cpp()
 	// --- Sqxc chain ready to work ---
 	xcmem->ready();
 
-	// Because arguments in xcfile never used in sqxc chain,
-	// I use xcfile as arguments source here.
+	// Because arguments in 'xcmem' will not be used in Sqxc chain,
+	// I use 'xcmem' as arguments source here.
 	xc = (Sq::Xc*)xcmem;
 
 	xc->name = NULL;

@@ -10,8 +10,12 @@ Sqxc 在 X 和 C 语言之间转换数据 （X = SQL, JSON 等）。它在一个
 | SqxcSql      | 转换为 SQL (Sqdb) | SqxcSql.c   |
 | SqxcJsonc    | 转换   JSON       | SqxcJsonc.c |
 | SqxcValue    | 转换为 C 结构     | SqxcValue.c |
+| SqxcFile     | 输出到文件        | SqxcFile.c  |
+| SqxcMem      | 输出至内存        | SqxcMem.c   |
 
-Sqxc 转换器的数据类型
+注意: SqxcFile 和 SqxcMem 在 sqxcsupport 库中。示例代码在 [xc_json_file.cpp](../examples/xc_json_file.cpp)
+
+**Sqxc 转换器的数据类型**
 
 | Sqxc 类型名称        | 描述                             |
 | -------------------- | -------------------------------- |
@@ -250,31 +254,71 @@ JSON 看起来像这样：
 
 ## 将数据发送到用户指定的 Sqxc 元素
 
-使用 sqxc_send_to() 将数据（参数）传递给指定的 Sqxc 元素。
+使用 sqxc_send_to() 将数据参数传递给指定的 Sqxc 元素。  
+  
+例如: 创建以下 Sqxc 链，将 JSON 数据输出到文件。
 
-	user output ────> SqxcJsoncWriter ────> SqxcFile ────> fwrite()
+	用户输出 ────> SqxcJsoncWriter ────> SqxcFile ────> fwrite()
 
-注意: SqxcFile 在 sqxcsupport 库中。示例代码在 [xc_json_file.cpp](../examples/xc_json_file.cpp)  
+**步骤 1:** 创建 Sqxc 链。  
   
 使用 C 语言
 
 ```c
+	Sqxc *xcfile;
+	Sqxc *xcjson;
+
+	xcfile = sqxc_new(SQXC_INFO_FILE_WRITER);
+	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
+	/* 另一种创建 Sqxc 元素的方法 */
+//	xcfile = sqxc_file_writer_new();
+//	xcjson = sqxc_jsonc_writer_new();
+
+	// 将 JSON 写入器附加到 Sqxc 链
+	sqxc_insert(xcfile, xcjson, -1);
+```
+
+使用 C++ 语言
+
+```c++
+	Sq::XcFile        *xcfile = new Sq::XcFileWriter();
+	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
+
+	// 将 JSON 写入器附加到 Sqxc 链
+	xcfile->insert(xcjson);
+```
+
+**步骤 2:** 将数据（参数）传递给指定的 Sqxc 元素 - SqxcJsoncWriter。  
+  
+使用 C 语言
+
+```c
+	// 因为 'xcfile' 中的参数不会在 Sqxc 链中使用，
+	// 我在这里使用 'xcfile' 作为参数源。
+	Sqxc *xc = (Sqxc*)xcfile;
+
+	// 在 'xc' 中设置数据参数
 	xc->type = SQXC_TYPE_INT;
 	xc->name = "id";
 	xc->value.integer = 100;
 
-	// 将数据（参数）'xc' 传递给 'xcjson'（类型为 SqxcJsoncWriter）
+	// 将数据参数 'xc' 传递给 'xcjson'
 	sqxc_send_to(xcjson, xc);
 ```
 
 使用 C++ 语言
 
 ```c++
+	// 因为 'xcfile' 中的参数不会在 Sqxc 链中使用，
+	// 我在这里使用 'xcfile' 作为参数源。
+	Sq::Xc *xc = (Sq::Xc*)xcfile;
+
+	// 在 'xc' 中设置数据参数
 	xc->type = SQXC_TYPE_INT;
 	xc->name = "id";
 	xc->value.integer = 100;
 
-	// 将数据（参数）'xc' 传递给 'xcjson'（类型为 SqxcJsoncWriter）
+	// 将数据参数 'xc' 传递给 'xcjson'
 	xcjson->send(xc);
 ```
 
