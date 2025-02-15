@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -55,6 +55,8 @@ extern "C" {
 #define SQCODE_JSON_CONTINUE         (61  + SQCODE_STATUS)
 #define SQCODE_JSON_ERROR            (62  + SQCODE_ERROR)
 
+// FILE
+#define SQCODE_FILE_OPEN_FAILED      (71  + SQCODE_ERROR)
 
 #ifdef __cplusplus
 }

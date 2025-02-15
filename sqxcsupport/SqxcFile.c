@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,6 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+#include <stdio.h>        // fprintf(), stderr
 #include <SqError.h>
 #include <SqxcFile.h>
 
@@ -32,6 +33,14 @@ static int  sqxc_file_writer_send(SqxcFile *xcfile, Sqxc *src)
 		return (src->code = SQCODE_TYPE_NOT_MATCHED);
 	}
 
+#ifndef NDEBUG
+	if (xcfile->file == NULL) {
+		fprintf(stderr, "%s: file '%s' is not opened.\n",
+		        "sqxc_file_writer_send()", xcfile->filename);
+		return (src->code = SQCODE_FILE_OPEN_FAILED);
+	}
+#endif
+
 	fputs(src->value.str, xcfile->file);
 	return (src->code = SQCODE_OK);
 }
@@ -42,6 +51,13 @@ static int  sqxc_file_writer_ctrl(SqxcFile *xcfile, int id, void *data)
 	case SQXC_CTRL_READY:
 		if (xcfile->filename)
 			xcfile->file = fopen(xcfile->filename, "w");
+		if (xcfile->file == NULL) {
+#ifndef NDEBUG
+			fprintf(stderr, "%s: file '%s' is not opened.\n",
+			        "sqxc_file_writer_ctrl()", xcfile->filename);
+#endif
+			return SQCODE_FILE_OPEN_FAILED;
+		}
 		break;
 
 	case SQXC_CTRL_FINISH:
@@ -61,7 +77,6 @@ static int  sqxc_file_writer_ctrl(SqxcFile *xcfile, int id, void *data)
 
 static void  sqxc_file_writer_init(SqxcFile *xcfile)
 {
-	sq_buffer_resize(sqxc_get_buffer(xcfile), 4096);
 	xcfile->file = NULL;
 	xcfile->filename = NULL;
 }
