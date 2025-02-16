@@ -79,6 +79,8 @@ static void  sqxc_file_writer_init(SqxcFile *xcfile)
 {
 	xcfile->file = NULL;
 	xcfile->filename = NULL;
+
+	xcfile->supported_type = SQXC_TYPE_STR;
 }
 
 static void  sqxc_file_writer_final(SqxcFile *xcfile)

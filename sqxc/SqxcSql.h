@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -38,7 +38,7 @@ extern const SqxcInfo      sqxcInfo_SQL;
 
 #define sqxc_sql_new()        sqxc_new(SQXC_INFO_SQL)
 
-// macro for accessing variable of SqxcSqlite
+// macro for accessing variable of SqxcSql
 
 #define sqxc_sql_id(xcsql)         ( ((SqxcSql*)xcsql)->id )
 #define sqxc_sql_changes(xcsql)    ( ((SqxcSql*)xcsql)->changes )

@@ -44,6 +44,7 @@ static int  sqxc_mem_writer_ctrl(SqxcMem *xcmem, int id, void *data)
 	switch(id) {
 	case SQXC_CTRL_READY:
 		xcmem->buf_writed = 0;
+		xcmem->buf[0] = 0;    // NULL-terminated
 		break;
 
 	case SQXC_CTRL_FINISH:
@@ -61,6 +62,9 @@ static int  sqxc_mem_writer_ctrl(SqxcMem *xcmem, int id, void *data)
 static void  sqxc_mem_writer_init(SqxcMem *xcmem)
 {
 	sq_buffer_resize(sqxc_get_buffer(xcmem), 4096);
+	xcmem->buf[0] = 0;    // NULL-terminated
+
+	xcmem->supported_type = SQXC_TYPE_STR;
 }
 
 static void  sqxc_mem_writer_final(SqxcMem *xcmem)

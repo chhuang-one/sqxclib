@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -248,7 +248,7 @@ int64_t sq_storage_insert(SqStorage    *storage,
 	// destination of output
 	temp.xcsql = storage->xc_output;
 	sqxc_sql_set_db(temp.xcsql, storage->db);
-	sqxc_ctrl(temp.xcsql, SQXC_SQL_CTRL_INSERT, (void*)table_name);
+	sqxc_ctrl(temp.xcsql, SQXC_SQL_CTRL_INSERT, table_name);
 
 	sqxc_ready(temp.xcsql, NULL);
 	table_type->write(instance, table_type, temp.xcsql);
