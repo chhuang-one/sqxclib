@@ -13,7 +13,7 @@ User can link multiple Sqxc elements to convert different types of data.
 | SqxcFile     | output to file        | SqxcFile.c  |
 | SqxcMem      | output to memory      | SqxcMem.c   |
 
-Note: SqxcFile and SqxcMem are in sqxcsupport library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)
+Note: [SqxcFile](SqxcFile.md) and [SqxcMem](SqxcMem.md) are in sqxcsupport library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)
 
 **Data type for Sqxc converter**
 
@@ -94,7 +94,7 @@ If SqxcValue can't match current data type, it will forward data to SqxcJsoncPar
 
 
 **Data flow 2:** sqxc_send() send from C value to SQL (column has JSON data)  
-If SqxcSql doesn't support current data type, it will forward data to SqxcJsoncWriter.
+If [SqxcSql](SqxcSql.md) doesn't support current data type, it will forward data to SqxcJsoncWriter.
 
 	output ─>         ┌─> SqxcJsoncWriter ─┐
 	SqType::write() ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()
@@ -154,8 +154,8 @@ If you want to parse/write object or array and reuse Sqxc elements:
 	// pointer to current Sqxc instance
 	Sqxc *xcur;
 
-	sqxc_ready(xc);    // notify Sqxc elements to get ready
-	xcur = xc;         // current Sqxc element
+	sqxc_ready(xc, NULL);    // notify Sqxc elements to get ready
+	xcur = xc;               // current Sqxc element
 
 	xcur->type = SQXC_TYPE_OBJECT;      // {
 	xcur->name = NULL;
@@ -192,10 +192,10 @@ If you want to parse/write object or array and reuse Sqxc elements:
 	xcur->value.pointer = NULL;
 	xcur = sqxc_send(xcur);
 
-	sqxc_finish(xc);    // notify Sqxc elements to finish
+	sqxc_finish(xc, NULL);   // notify Sqxc elements to finish
 ```
 
-SqxcSql will output SQL statement in above example:
+[SqxcSql](SqxcSql.md) will output SQL statement in above example:
 
 ```sql
 INSERT INTO table_name (id, int_array) VALUES (1, '[ 2, 4 ]');
@@ -256,46 +256,14 @@ JSON look like this:
 
 Use sqxc_send_to() to pass data arguments to specified Sqxc elements.  
   
-e.g. create the following Sqxc chain to output JSON data to a file.
-
-	user output ────> SqxcJsoncWriter ────> SqxcFile ────> fwrite()
-
-**Step 1:** create the Sqxc chain.  
+e.g. Pass data(arguments) to specified Sqxc element.  
   
 use C language
 
 ```c
-	Sqxc *xcfile;
-	Sqxc *xcjson;
-
-	xcfile = sqxc_new(SQXC_INFO_FILE_WRITER);
-	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
-	/* another way to create Sqxc elements */
-//	xcfile = sqxc_file_writer_new();
-//	xcjson = sqxc_jsonc_writer_new();
-
-	// append JSON writer to Sqxc chain
-	sqxc_insert(xcfile, xcjson, -1);
-```
-
-use C++ language
-
-```c++
-	Sq::XcFile        *xcfile = new Sq::XcFileWriter();
-	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
-
-	// append JSON writer to Sqxc chain
-	xcfile->insert(xcjson);
-```
-
-**Step 2:** pass data(arguments) to specified Sqxc element - SqxcJsoncWriter.  
-  
-use C language
-
-```c
-	// Because arguments in 'xcfile' will not be used in Sqxc chain,
-	// I use 'xcfile' as arguments source here.
-	Sqxc *xc = (Sqxc*)xcfile;
+	// 'xc' is data source.
+	Sqxc *xc     = data_src;
+	Sqxc *xcjson = json_writer;
 
 	// set data arguments in 'xc'
 	xc->type = SQXC_TYPE_INT;
@@ -309,9 +277,9 @@ use C language
 use C++ language
 
 ```c++
-	// Because arguments in 'xcfile' will not be used in Sqxc chain,
-	// I use 'xcfile' as arguments source here.
-	Sq::Xc *xc = (Sq::Xc*)xcfile;
+	// 'xc' is data source.
+	Sq::Xc *xc     = (Sq::Xc*)data_src;
+	Sq::Xc *xcjson = (Sq::Xc*)json_writer;
 
 	// set data arguments in 'xc'
 	xc->type = SQXC_TYPE_INT;

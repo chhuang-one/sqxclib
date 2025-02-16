@@ -13,7 +13,7 @@ Sqxc 在 X 和 C 语言之间转换数据 （X = SQL, JSON 等）。它在一个
 | SqxcFile     | 输出到文件        | SqxcFile.c  |
 | SqxcMem      | 输出至内存        | SqxcMem.c   |
 
-注意: SqxcFile 和 SqxcMem 在 sqxcsupport 库中。示例代码在 [xc_json_file.cpp](../examples/xc_json_file.cpp)
+注意: [SqxcFile](SqxcFile.cn.md) 和 [SqxcMem](SqxcMem.cn.md) 在 sqxcsupport 库中。示例代码在 [xc_json_file.cpp](../examples/xc_json_file.cpp)
 
 **Sqxc 转换器的数据类型**
 
@@ -94,7 +94,7 @@ sqxc_send() 可以在 Sqxc 元素之间发送数据（参数）并在运行时�
 
 
 **数据流 2：** sqxc_send() 从 C 值发送到 SQL（列有 JSON 数据）  
-如果 SqxcSql 不支持当前数据类型，它会将数据转发给 SqxcJsoncWriter。
+如果 [SqxcSql](SqxcSql.cn.md) 不支持当前数据类型，它会将数据转发给 SqxcJsoncWriter。
 
 	output ─>         ┌─> SqxcJsoncWriter ─┐
 	SqType::write() ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()
@@ -154,8 +154,8 @@ use C++ language
 	// 指向当前 Sqxc 实例的指针
 	Sqxc *xcur;
 
-	sqxc_ready(xc);    // 通知 Sqxc 元素准备好
-	xcur = xc;         // 当前 Sqxc 元素
+	sqxc_ready(xc, NULL);    // 通知 Sqxc 元素准备好
+	xcur = xc;               // 当前 Sqxc 元素
 
 	xcur->type = SQXC_TYPE_OBJECT;      // {
 	xcur->name = NULL;
@@ -192,10 +192,10 @@ use C++ language
 	xcur->value.pointer = NULL;
 	xcur = sqxc_send(xcur);
 
-	sqxc_finish(xc);    // 通知 Sqxc 元素完成
+	sqxc_finish(xc, NULL);   // 通知 Sqxc 元素完成
 ```
 
-SqxcSql 会在上面的例子中输出 SQL 语句：
+[SqxcSql](SqxcSql.cn.md) 会在上面的例子中输出 SQL 语句：
 
 ```sql
 INSERT INTO table_name (id, int_array) VALUES (1, '[ 2, 4 ]');
@@ -256,46 +256,14 @@ JSON 看起来像这样：
 
 使用 sqxc_send_to() 将数据参数传递给指定的 Sqxc 元素。  
   
-例如: 创建以下 Sqxc 链，将 JSON 数据输出到文件。
+例如: 将数据（参数）传递给指定的 Sqxc 元素。  
 
-	用户输出 ────> SqxcJsoncWriter ────> SqxcFile ────> fwrite()
-
-**步骤 1:** 创建 Sqxc 链。  
-  
 使用 C 语言
 
 ```c
-	Sqxc *xcfile;
-	Sqxc *xcjson;
-
-	xcfile = sqxc_new(SQXC_INFO_FILE_WRITER);
-	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
-	/* 另一种创建 Sqxc 元素的方法 */
-//	xcfile = sqxc_file_writer_new();
-//	xcjson = sqxc_jsonc_writer_new();
-
-	// 将 JSON 写入器附加到 Sqxc 链
-	sqxc_insert(xcfile, xcjson, -1);
-```
-
-使用 C++ 语言
-
-```c++
-	Sq::XcFile        *xcfile = new Sq::XcFileWriter();
-	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
-
-	// 将 JSON 写入器附加到 Sqxc 链
-	xcfile->insert(xcjson);
-```
-
-**步骤 2:** 将数据（参数）传递给指定的 Sqxc 元素 - SqxcJsoncWriter。  
-  
-使用 C 语言
-
-```c
-	// 因为 'xcfile' 中的参数不会在 Sqxc 链中使用，
-	// 我在这里使用 'xcfile' 作为参数源。
-	Sqxc *xc = (Sqxc*)xcfile;
+	// 'xc' 是数据源。
+	Sqxc *xc     = data_src;
+	Sqxc *xcjson = json_writer;
 
 	// 在 'xc' 中设置数据参数
 	xc->type = SQXC_TYPE_INT;
@@ -309,9 +277,9 @@ JSON 看起来像这样：
 使用 C++ 语言
 
 ```c++
-	// 因为 'xcfile' 中的参数不会在 Sqxc 链中使用，
-	// 我在这里使用 'xcfile' 作为参数源。
-	Sq::Xc *xc = (Sq::Xc*)xcfile;
+	// 'xc' 是数据源。
+	Sq::Xc *xc     = (Sq::Xc*)data_src;
+	Sq::Xc *xcjson = (Sq::Xc*)json_writer;
 
 	// 在 'xc' 中设置数据参数
 	xc->type = SQXC_TYPE_INT;
