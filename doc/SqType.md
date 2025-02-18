@@ -651,3 +651,29 @@ sq_type_free() can destroy dynamic SqType (SqType::bit_field has SQB_TYPE_DYNAMI
 	/* C++ method */
 	delete type;
 ```
+
+## 6 Output instance to Sqxc chain
+
+User can call SqType::write() to output instance to Sqxc chain.  
+  
+e.g. output MyList (container type defined above) instance to Sqxc chain.  
+  
+use C functions
+
+```c
+	MyList *instance = list;
+	Sqxc   *xc       = (Sqxc*)xcJson;
+	SqType *type     = SQ_TYPE_MY_LIST;
+
+	type->write(instance, type, xc);
+```
+
+use C++ methods
+
+```c++
+	MyList   *instance = list;
+	Sq::Xc   *xc       = (Sq::Xc*)xcJson;
+	Sq::Type *type     = SQ_TYPE_MY_LIST;
+
+	type->write(instance, type, xc);
+```

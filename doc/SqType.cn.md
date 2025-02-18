@@ -651,3 +651,29 @@ sq_type_free() 可以释放动态 SqType（SqType::bit_field 有 SQB_TYPE_DYNAMI
 	/* C++ 方法 */
 	delete type;
 ```
+
+## 6 输出实例到 Sqxc 链
+
+用户可以调用 SqType::write() 将实例输出到 Sqxc 链。  
+  
+例如: 将 MyList（上面定义的容器类型）实例输出到 Sqxc 链。  
+  
+使用 C 函数
+
+```c
+	MyList *instance = list;
+	Sqxc   *xc       = (Sqxc*)xcJson;
+	SqType *type     = SQ_TYPE_MY_LIST;
+
+	type->write(instance, type, xc);
+```
+
+使用 C++ 方法
+
+```c++
+	MyList   *instance = list;
+	Sq::Xc   *xc       = (Sq::Xc*)xcJson;
+	Sq::Type *type     = SQ_TYPE_MY_LIST;
+
+	type->write(instance, type, xc);
+```
