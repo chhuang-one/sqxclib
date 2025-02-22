@@ -172,3 +172,22 @@ Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod 
 	storage->setupQuery(query, typeRow);
 	vector = storage->query<std::vector<Sq::Row>>(query, typeRow);
 ```
+
+## 输出 SqRow 到 Sqxc 链
+
+SqTypeRow 派生自 SqType，所以用户可以调用 SqType::write() 将实例输出到 Sqxc 链。
+
+```c
+	typeRow->write(row, typeRow, sqxcJson);
+```
+
+用户也可以直接调用 sq_type_row_write() 来做同样的事情。  
+SqRow 实例包含足够的信息来输出到 Sqxc 链，因此可以使用或不使用 SqTypeRow 来调用 sq_type_row_write()。
+
+```c
+	// 使用   SqTypeRow 调用 sq_type_row_write()
+	sq_type_row_write(row, typeRow, sqxcJson);
+
+	// 不使用 SqTypeRow 调用 sq_type_row_write()
+	sq_type_row_write(row, NULL,    sqxcJson);
+```

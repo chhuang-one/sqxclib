@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2024 by C.H. Huang
+ *   Copyright (C) 2022-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -122,8 +122,6 @@ SqRowColumn *sq_row_alloc_column(SqRow *row, unsigned int n_element)
 // ----------------------------------------------------------------------------
 
 static void  sq_type_row_init_instance(void *instance, const SqTypeRow *type_row);
-static int   sq_type_row_parse(void *instance, const SqType *type, Sqxc *src);
-static Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest);
 
 SqTypeRow *sq_type_row_new(void)
 {
@@ -225,7 +223,7 @@ static void  sq_type_row_parse_unknown(void *instance, Sqxc *src)
 	type->parse(temp.val, type, src);
 }
 
-static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
+int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 {
 	SqxcValue  *xc_value = (SqxcValue*)src->dest;
 	SqxcNested *nested;
@@ -353,7 +351,7 @@ static int  sq_type_row_parse(void *instance, const SqType *type, Sqxc *src)
 	return type->parse(temp.val, type, src);
 }
 
-static Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest)
+Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest)
 {
 	SqRow        *row = instance;
 	const SqType *member_type;

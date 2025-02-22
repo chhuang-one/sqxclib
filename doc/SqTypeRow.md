@@ -172,3 +172,22 @@ use C++ STL
 	storage->setupQuery(query, typeRow);
 	vector = storage->query<std::vector<Sq::Row>>(query, typeRow);
 ```
+
+## Output SqRow to Sqxc chain
+
+SqTypeRow is derived from SqType, so users can call SqType::write() to output instance to Sqxc chain.
+
+```c
+	typeRow->write(row, typeRow, sqxcJson);
+```
+
+Users can also call sq_type_row_write() directly to do the same thing.  
+A SqRow instance contains enough information to output to Sqxc chain, so sq_type_row_write() can be called with or without a SqTypeRow.
+
+```c
+	// call sq_type_row_write() with    SqTypeRow
+	sq_type_row_write(row, typeRow, sqxcJson);
+
+	// call sq_type_row_write() without SqTypeRow
+	sq_type_row_write(row, NULL,    sqxcJson);
+```

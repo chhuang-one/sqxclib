@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2024 by C.H. Huang
+ *   Copyright (C) 2022-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -79,6 +79,14 @@ void       sq_type_row_free(SqTypeRow *type_row);
 
 void  sq_type_row_init(SqTypeRow *type_row);
 void  sq_type_row_final(SqTypeRow *type_row);
+
+// SqTypeRow::parse()
+//int sq_type_row_parse(SqRow *instance, const SqTypeRow *type, Sqxc *src);
+int   sq_type_row_parse(void *instance, const SqType *type, Sqxc *src);
+
+// SqTypeRow::write()
+//Sqxc *sq_type_row_write(SqRow *instance, const SqTypeRow *type, Sqxc *dest);
+Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest);
 
 // SqTypeRow is derived from SqTypeJoint, it can use these SqTypeJoint functions.
 
