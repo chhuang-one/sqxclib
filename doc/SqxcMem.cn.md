@@ -100,8 +100,8 @@ SqxcMem 无需设置。
 用户可以在 SqxcMem::buf 中获取输出数据，并在 SqxcMem::buf_writed 中获取输出长度。
 
 ```c
-    char   *output_data;
-    size_t  output_len;
+	char   *output_data;
+	size_t  output_len;
 
 	output_data = xcmem->buf;
 	output_len  = xcmem->buf_writed;

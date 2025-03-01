@@ -10,7 +10,8 @@ SqxcSql is derived from [Sqxc](Sqxc.md). It uses SQL to output Sqxc data to a da
 
 ## Setup SqxcSql
 
-SqxcSql can generate INSERT or UPDATE SQL statements, which can be switched using sqxc_ctrl().
+SqxcSql can generate INSERT or UPDATE SQL statements, which can be set using sqxc_ctrl().
+In this case, the parameters of sqxc_ctrl() are control code and SQL table name.
 
 | SQL statement | sqxc_ctrl() control code  |
 | ------------- | ------------------------- |
@@ -18,21 +19,23 @@ SqxcSql can generate INSERT or UPDATE SQL statements, which can be switched usin
 | UPDATE        | SQXC_SQL_CTRL_UPDATE      |
 
 ```c++
-    // use C language
-	sqxc_ctrl(xcsql, SQXC_SQL_CTRL_INSERT, table_name);
+	// use C language
+	// SqxcSql will generate INSERT statement to insert into 'tableName'
+	sqxc_ctrl(xcsql, SQXC_SQL_CTRL_INSERT, tableName);
 
-    // use C++ language
-    xcsql->ctrl(SQXC_SQL_CTRL_UPDATE, table_name);
+	// use C++ language
+	// SqxcSql will generate UPDATE statement to update 'tableName'
+	xcsql->ctrl(SQXC_SQL_CTRL_UPDATE, tableName);
 ```
 
 SqxcSql can specify [Sqdb](Sqdb.md) instance of database and WHERE condition of SQL statement by setting data members.
 
 ```c
-    // SQL Database
-    xcsql->db = sqdb_instance;
+	// SQL Database
+	xcsql->db = sqdb_instance;
 
-    // WHERE condition
-    xcsql->condition = "WHERE id < 100";
+	// WHERE condition
+	xcsql->condition = "WHERE id < 100";
 ```
 
 ## Output
@@ -40,12 +43,12 @@ SqxcSql can specify [Sqdb](Sqdb.md) instance of database and WHERE condition of 
 SqxcSql will execute generated SQL statement in specified Sqdb instance. Some special result like id of inserted row and number of rows changed are set in data members of SqxcSql.
 
 ```c
-    int64_t  inserted_id;
-    int64_t  n_changes;
+	int64_t  inserted_id;
+	int64_t  n_changes;
 
-    // id of inserted row
+	// id of inserted row
 	inserted_id = xcsql->id;
 
-    // number of rows changed
+	// number of rows changed
 	n_changes   = xcsql->changes;
 ```

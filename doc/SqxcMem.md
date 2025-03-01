@@ -100,8 +100,8 @@ use C++ language
 User can get output data in SqxcMem::buf and length of output in SqxcMem::buf_writed.
 
 ```c
-    char   *output_data;
-    size_t  output_len;
+	char   *output_data;
+	size_t  output_len;
 
 	output_data = xcmem->buf;
 	output_len  = xcmem->buf_writed;

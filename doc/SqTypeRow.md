@@ -175,7 +175,7 @@ use C++ STL
 
 ## Output SqRow to Sqxc chain
 
-SqTypeRow is derived from SqType, so users can call SqType::write() to output instance to Sqxc chain.
+SqTypeRow is derived from SqType, so users can call SqType::write() to output SqRow instance to Sqxc chain.
 
 ```c
 	typeRow->write(row, typeRow, sqxcJson);

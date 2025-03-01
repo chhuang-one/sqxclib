@@ -175,7 +175,7 @@ Sq::Type *StorageMethod::setupQuery(Sq::QueryMethod &query, Sq::TypeJointMethod 
 
 ## 输出 SqRow 到 Sqxc 链
 
-SqTypeRow 派生自 SqType，所以用户可以调用 SqType::write() 将实例输出到 Sqxc 链。
+SqTypeRow 派生自 SqType，所以用户可以调用 SqType::write() 将 SqRow 实例输出到 Sqxc 链。
 
 ```c
 	typeRow->write(row, typeRow, sqxcJson);
