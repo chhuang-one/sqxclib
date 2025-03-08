@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -21,7 +21,7 @@
 #include <stdlib.h>       // malloc()
 #include <string.h>
 
-#include <SqUtil.h>
+#include <SqConvert.h>
 
 #ifdef _MSC_VER
 #define snprintf     _snprintf

@@ -5,7 +5,7 @@ set(SOURCES
     SqPtrArray.c
     SqStrArray.c
     SqBuffer.c
-    SqUtil.c
+    SqConvert.c
     SqType.c
     SqType-array.c
     SqType-buffer.c
@@ -35,7 +35,7 @@ set(HEADERS
     SqPtrArray.h
     SqStrArray.h
     SqBuffer.h
-    SqUtil.h
+    SqConvert.h
     SqType.h
     SqTypeMapping.h
     SqEntry.h

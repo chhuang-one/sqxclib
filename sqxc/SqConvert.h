@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,8 +12,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef SQ_UTIL_H
-#define SQ_UTIL_H
+#ifndef SQ_CONVERT_H
+#define SQ_CONVERT_H
 
 #include <time.h>         // time_t, struct tm
 
@@ -76,4 +76,4 @@ int  sq_sql2cstr(char *dest, char *sql_string);
 }  // extern "C"
 #endif
 
-#endif  // SQ_UTIL_H
+#endif  // SQ_CONVERT_H

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -20,12 +20,12 @@
 #include <SqPtrArray.h>
 #include <SqStrArray.h>
 #include <SqBuffer.h>
+#include <SqConvert.h>
 
 #include <SqType.h>
 #include <SqTypeMapping.h>
 #include <SqEntry.h>
 
-#include <SqUtil.h>
 #include <SqColumn.h>
 #include <SqTable.h>
 #include <SqSchema.h>

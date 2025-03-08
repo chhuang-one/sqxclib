@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -20,7 +20,7 @@
 #include <stdlib.h>       // realloc(), strtol()
 #include <string.h>       // strdup()
 
-#include <SqUtil.h>       // sq_time_to_string(), sq_time_from_string()
+#include <SqConvert.h>    // sq_time_to_string(), sq_time_from_string()
 #include <SqError.h>
 #include <SqPtrArray.h>
 #include <SqType.h>
