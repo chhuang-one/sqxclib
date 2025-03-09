@@ -172,6 +172,7 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 {
 	SqxcNested   *nested;
 	json_object  *jobject;
+	int  code;    // used by check_nested_0
 
 	if (src->entry && src->entry->bit_field & SQB_HIDDEN)
 		return (src->code = SQCODE_OK);
@@ -258,18 +259,20 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 	}
 
 check_nested_0:
+	code = SQCODE_OK;
+
 	if (xcjson->nested_count == 0) {
 		Sqxc *xcdest = xcjson->dest;
 		xcjson->type = SQXC_TYPE_STR;
 		xcjson->name = xcjson->jroot_name;
 		xcjson->value.str = (char*)json_object_to_json_string(xcjson->jroot);
-		xcdest->info->send(xcdest, (Sqxc*)xcjson);
+		code = xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		// End of JSON string
 		json_object_put(xcjson->jroot);
 		xcjson->jroot = NULL;
 	}
 
-	return (src->code = SQCODE_OK);
+	return (src->code = code);
 }
 
 static int  sqxc_jsonc_ctrl_out(SqxcJsonc *xcjson, int id, void *data)
