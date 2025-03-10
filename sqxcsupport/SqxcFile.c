@@ -80,7 +80,8 @@ static void  sqxc_file_writer_init(SqxcFile *xcfile)
 	xcfile->file = NULL;
 	xcfile->filename = NULL;
 
-	xcfile->supported_type = SQXC_TYPE_STR;
+	// sqxc_send() will forward data to xcfile->peer
+//	xcfile->supported_type = 0;
 }
 
 static void  sqxc_file_writer_final(SqxcFile *xcfile)

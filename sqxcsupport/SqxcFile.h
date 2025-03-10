@@ -35,6 +35,10 @@ extern const SqxcInfo              sqxcInfo_FileWriter;
 
 #define sqxc_file_writer_new()        sqxc_new(SQXC_INFO_FILE_WRITER)
 
+// macro for accessing variable of SqxcSql
+
+#define sqxc_file_name(xcfile)        ( ((SqxcFile*)xcfile)->filename )
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

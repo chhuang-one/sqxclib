@@ -64,7 +64,8 @@ static void  sqxc_mem_writer_init(SqxcMem *xcmem)
 	sq_buffer_resize(sqxc_get_buffer(xcmem), 4096);
 	xcmem->buf[0] = 0;    // NULL-terminated
 
-	xcmem->supported_type = SQXC_TYPE_STR;
+	// sqxc_send() will forward data to xcmem->peer
+//	xcmem->supported_type = 0;
 }
 
 static void  sqxc_mem_writer_final(SqxcMem *xcmem)
