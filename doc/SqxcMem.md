@@ -9,13 +9,13 @@ Note: SqxcMem is in sqxcsupport library (sqxcsupport.h).
 	│
 	└─── SqxcMem
 
-## Output JSON data to memory
+SqxcMem is usually used with SqxcJsoncWriter.
+
+## Create the Sqxc chain
 
 Create the following Sqxc chain to output JSON data to memory.
 
 	Sqxc data arguments ────> SqxcJsoncWriter ────> SqxcMem
-
-#### create the Sqxc chain
 
 use C language
 
@@ -43,23 +43,72 @@ use C++ language
 	xcmem->insert(xcjson);
 ```
 
-#### Setup SqxcMem
+## Setup SqxcMem
 
 SqxcMem does not require configuration.
 
-#### pass arguments to SqxcJsoncWriter
+## Pass arguments to Sqxc chain
 
-Use sqxc_send_to() to pass data arguments to specified Sqxc elements - SqxcJsoncWriter.  
+Using sqxc_send() to pass data arguments can forward data between Sqxc elements. The following is just part of the code, please refer to the document [Sqxc.md](Sqxc.md) for more details.  
   
 use C language
 
 ```c
 	// Because arguments in 'xcmem' will not be used in Sqxc chain,
-	// I use 'xcmem' as arguments source here.
+	// 'xcmem' is used as initial arguments source here.
 	Sqxc *xc = (Sqxc*)xcmem;
 
-	// notify Sqxc elements to get ready
-	sqxc_ready(xc, NULL);
+	// set data arguments in 'xc'
+	xc->type = SQXC_TYPE_INT;
+	xc->name = "id";
+	xc->value.integer = 100;
+
+	// Pass the data arguments 'xc' to the Sqxc chain,
+	// Return the Sqxc element currently processing the data arguments.
+	xc = sqxc_send(xc);
+
+	// continue to set data arguments in 'xc'
+	xc->type = SQXC_TYPE_STR;
+	xc->name = "name";
+	xc->value.str = "Bob";
+
+	// continue passing data arguments to the Sqxc element that is currently processing data arguments.
+	xc = sqxc_send(xc);
+```
+
+use C++ language
+
+```c++
+	// Because arguments in 'xcmem' will not be used in Sqxc chain,
+	// 'xcmem' is used as initial arguments source here.
+	Sq::Xc *xc = (Sq::Xc*)xcmem;
+
+	// set data arguments in 'xc'
+	xc->type = SQXC_TYPE_INT;
+	xc->name = "id";
+	xc->value.integer = 100;
+
+	// Pass the data arguments 'xc' to the Sqxc chain,
+	// Return the Sqxc element currently processing the data arguments.
+	xc = xc->send();
+
+	// continue to set data arguments in 'xc'
+	xc->type = SQXC_TYPE_STR;
+	xc->name = "name";
+	xc->value.str = "Bob";
+
+	// continue passing data arguments to the Sqxc element that is currently processing data arguments.
+	xc = xc->send();
+```
+
+You can also use sqxc_send_to() to pass data arguments to SqxcJsoncWriter, which then outputs the JSON data to SqxcMem.  
+  
+use C language
+
+```c
+	// Because arguments in 'xcmem' will not be used in Sqxc chain,
+	// 'xcmem' is used as arguments source here.
+	Sqxc *xc = (Sqxc*)xcmem;
 
 	// set data arguments in 'xc'
 	xc->type = SQXC_TYPE_INT;
@@ -68,20 +117,14 @@ use C language
 
 	// pass data arguments 'xc' to 'xcjson'
 	sqxc_send_to(xcjson, xc);
-
-	// notify Sqxc elements to finish
-	sqxc_finish(xc, NULL);
 ```
 
 use C++ language
 
 ```c++
 	// Because arguments in 'xcmem' will not be used in Sqxc chain,
-	// I use 'xcmem' as arguments source here.
+	// 'xcmem' is used as arguments source here.
 	Sq::Xc *xc = (Sq::Xc*)xcmem;
-
-	// notify Sqxc elements to get ready
-	xc->ready();
 
 	// set data arguments in 'xc'
 	xc->type = SQXC_TYPE_INT;
@@ -90,12 +133,9 @@ use C++ language
 
 	// pass data arguments 'xc' to 'xcjson'
 	xcjson->send(xc);
-
-	// notify Sqxc elements to finish
-	xc->finish();
 ```
 
-#### Output
+## Output
 
 User can get output data in SqxcMem::buf and length of output in SqxcMem::buf_writed.
 

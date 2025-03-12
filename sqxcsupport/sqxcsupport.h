@@ -24,9 +24,10 @@
 #include <SqCommand.h>
 #include <SqOption.h>
 
-// test
-#include <SqxcEmpty.h>
-#include <SqdbEmpty.h>
+// Sqxc elements
 #include <SqxcFile.h>
 #include <SqxcMem.h>
 
+// Empty Sqxc and Sqdb for testing
+#include <SqxcEmpty.h>
+#include <SqdbEmpty.h>
