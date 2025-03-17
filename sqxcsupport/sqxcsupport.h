@@ -13,7 +13,7 @@
  */
 
 // helpers
-#include <SqStr.h>
+#include <SqHelpers.h>
 
 // data structure
 #include <SqRow.h>

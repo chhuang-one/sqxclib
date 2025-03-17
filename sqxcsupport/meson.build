@@ -1,10 +1,10 @@
 # helpers sources & headers
 sources_helpers = [
-    'SqStr.c',
+    'SqHelpers.c',
 ]
 
 headers_helpers = [
-    'SqStr.h',
+    'SqHelpers.h',
 ]
 
 # data structs sources & headers

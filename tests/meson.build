@@ -23,7 +23,7 @@ executable('test-storage',
            'test-storage.c',
            dependencies : sqxc)
 
-executable('test-util',
-           'test-util.c',
+executable('test-convert',
+           'test-convert.c',
            dependencies : sqxcsupport)
 

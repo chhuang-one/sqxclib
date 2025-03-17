@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2023 by C.H. Huang
+ *   Copyright (C) 2022-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,8 +12,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef SQ_STR_H
-#define SQ_STR_H
+#ifndef SQ_HELPERS_H
+#define SQ_HELPERS_H
 
 #include <stdbool.h>
 
@@ -111,4 +111,4 @@ namespace Str {
 #endif  // __cplusplus
 
 
-#endif  // SQ_STR_H
+#endif  // SQ_HELPERS_H

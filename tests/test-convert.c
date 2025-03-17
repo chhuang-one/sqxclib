@@ -18,7 +18,7 @@
 #include <stdio.h>
 
 #include <SqConvert.h>
-#include <SqStr.h>        // sqxcsupport
+#include <SqHelpers.h>        // sqxcsupport
 
 
 void test_name_convention()

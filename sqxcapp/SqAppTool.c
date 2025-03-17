@@ -21,7 +21,7 @@
 #include <string.h>           // strchr()
 #include <SqError.h>
 #include <SqConvert.h>        // sq_time_to_string()
-#include <SqStr.h>            // sq_str_type_name()
+#include <SqHelpers.h>        // sq_str_type_name()
 #include <SqBuffer.h>
 #include <SqAppTool.h>
 #include <SqAppTool-config.h>

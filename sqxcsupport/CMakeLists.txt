@@ -1,10 +1,10 @@
 # helpers sources & headers
 set(SOURCES_HELPERS
-    SqStr.c
+    SqHelpers.c
 )
 
 set(HEADERS_HELPERS
-    SqStr.h
+    SqHelpers.h
 )
 
 # data structs sources & headers

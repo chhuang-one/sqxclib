@@ -19,9 +19,9 @@ target_link_libraries(test-sqxc  ${SQXCSUPPORT_LIBRARIES})
 
 add_executable(test-storage  test-storage.c)
 
-add_executable(test-util  test-util.c)
-target_include_directories(test-util  PUBLIC  ${SQXCSUPPORT_INCLUDE_DIRS})
-target_link_libraries(test-util  ${SQXCSUPPORT_LIBRARIES})
+add_executable(test-convert  test-convert.c)
+target_include_directories(test-convert  PUBLIC  ${SQXCSUPPORT_INCLUDE_DIRS})
+target_link_libraries(test-convert  ${SQXCSUPPORT_LIBRARIES})
 
 # --- test ---
 if (DEFINED CMAKE_CXX_COMPILER)
@@ -33,4 +33,4 @@ add_test(NAME test-migration COMMAND test-migration)
 add_test(NAME test-query COMMAND test-query)
 add_test(NAME test-sqxc COMMAND test-sqxc)
 add_test(NAME test-storage COMMAND test-storage)
-add_test(NAME test-util COMMAND test-util)
+add_test(NAME test-convert COMMAND test-convert)
