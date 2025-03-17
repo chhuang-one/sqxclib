@@ -22,6 +22,11 @@
 #include <string.h>
 
 #include <SqHelpers.h>
+#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
+#include <SqxcJsonc.h>
+#include <SqxcFile.h>
+#include <SqxcMem.h>
+#endif
 
 #ifdef _MSC_VER
 #define strcasecmp   _stricmp
@@ -235,3 +240,58 @@ char *sq_str_type_name(const char *src_table_name)
 	free(camel_case);
 	return singular_noun;
 }
+
+// ----------------------------------------------------------------------------
+// use Sqxc elements to output JSON data to memory or file.
+
+#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
+
+int  sq_write_json_mem(void *instance, const SqType *type, char **buf, size_t *len)
+{
+	Sqxc *xcmem;
+	Sqxc *xcjson;
+	int   code;
+
+	xcmem  = sqxc_mem_writer_new();
+	xcjson = sqxc_jsonc_writer_new();
+
+	sqxc_insert(xcmem, xcjson, -1);
+
+//	sqxc_ready(xcmem, NULL);
+	type->write(instance, type, xcmem);
+//	sqxc_finish(xcmem, NULL);
+
+	if (buf)
+		*buf = xcmem->buf;
+	if (len)
+		*len = xcmem->buf_writed;
+
+	xcmem->buf = NULL;
+
+	code = xcmem->code;
+	sqxc_free_chain(xcmem);
+	return code;
+}
+
+int  sq_write_json_file(void *instance, const SqType *type, const char *filename)
+{
+	Sqxc *xcfile;
+	Sqxc *xcjson;
+	int   code;
+
+	xcfile = sqxc_file_writer_new();
+	xcjson = sqxc_jsonc_writer_new();
+
+	sqxc_insert(xcfile, xcjson, -1);
+	sqxc_file_name(xcfile) = filename;
+
+	sqxc_ready(xcfile, NULL);
+	xcjson = type->write(instance, type, xcfile);
+	sqxc_finish(xcfile, NULL);
+
+	code = xcjson->code;
+	sqxc_free_chain(xcfile);
+	return code;
+}
+
+#endif  // SQ_CONFIG_HAVE_JSONC

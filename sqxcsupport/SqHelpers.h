@@ -17,6 +17,9 @@
 
 #include <stdbool.h>
 
+#include <SqConfig.h>
+#include <SqType.h>
+
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.
 
@@ -68,6 +71,17 @@ char* sq_str_plural(const char *singular);
 
 char *sq_str_table_name(const char *src_type_name);
 char *sq_str_type_name(const char *src_table_name);
+
+/* ----------------------------------------------------------------------------
+	use Sqxc elements to output JSON data to memory or file.
+
+	these functions return error code.
+ */
+
+#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
+int  sq_write_json_mem(void *instance, const SqType *type, char **buf, size_t *len);
+int  sq_write_json_file(void *instance, const SqType *type, const char *filename);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"
