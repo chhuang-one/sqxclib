@@ -143,7 +143,8 @@ use C++ language
 	xc = xc->send();
 ```
 
-When using SqxcSql, it is not recommended to use sqxc_send_to() directly to pass data arguments.
+When using SqxcSql and SqxcJsonc at the same time, it is not recommended to use sqxc_send_to() directly to pass data arguments.
+Because user must switch between SqxcSql and SqxcJsonc when users send data arguments.
 
 ## Output
 

@@ -12,9 +12,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <stdio.h>        // fprintf(), stderr
+
 #include <sqxclib.h>
-#include <SqxcFile.h>     // SqxcFile in sqxcsupport library
-#include <SqxcMem.h>      // SqxcMem  in sqxcsupport library
+#include <SqxcFile.h>     // in sqxcsupport library
+#include <SqxcMem.h>      // in sqxcsupport library
+#include <SqHelpers.h>    // in sqxcsupport library
 
 /*	Use Sqxc chain to output JSON data to file.
 
@@ -269,6 +272,37 @@ void json_mem_writer_cpp()
 
 // ----------------------------------------------------------------------------
 
+void  helpers_write_json()
+{
+#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
+
+	JsonTest  instance;
+	char     *buf;
+	size_t    len;
+
+	instance.id = 155;
+	instance.name = (char*)"helpers";
+
+	sq_write_json_file(&instance, SQ_TYPE_JSON_TEST, "writeJsonFile.json");
+
+	printf("%s: write writeJsonFile.json\n",
+		"helpers_write_json()");
+
+	sq_write_json_mem(&instance, SQ_TYPE_JSON_TEST, &buf, &len);
+
+	printf("%s: write JSON to memory. size = %d\n",
+	       "helpers_write_json()", (int)len);
+	puts(buf);
+
+#else
+	fprintf(stderr, "%s: JSON support was not enabled\n"
+	        "helpers_write_json()");
+#endif  // SQ_CONFIG_HAVE_JSONC
+}
+
+
+// ----------------------------------------------------------------------------
+
 int main(void)
 {
 	// JSON data to file
@@ -280,6 +314,9 @@ int main(void)
 
 	// JSON data to memory
 	json_mem_writer_cpp();
+
+	// Write JSON data by calling helper functions
+	helpers_write_json();
 
 	return EXIT_SUCCESS;
 }

@@ -34,7 +34,7 @@ SqxcSql 派生自 [Sqxc](Sqxc.cn.md)。它使用 SQL 将 Sqxc 数据输出到数
 
 如果列有 JSON 数据，请修改上面的 Sqxc 链。
 
-	               ┌─> SqxcJsoncWriter ─┐
+	                ┌─> SqxcJsoncWriter ─┐
 	Sqxc 数据参数 ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()
 
 使用 C 语言
@@ -143,7 +143,8 @@ SqxcSql 可以通过设置数据成员来指定数据库的 [Sqdb](Sqdb.cn.md) �
 	xc = xc->send();
 ```
 
-使用 SqxcSql 时，不建议直接使用 sqxc_send_to() 传递数据参数。
+同时使用 SqxcSql 和 SqxcJsonc 时，不建议直接使用 sqxc_send_to() 传递数据参数。
+因为用户在发送数据参数时必须在 SqxcSql 和 SqxcJsonc 之间切换。
 
 ## 输出
 
