@@ -95,26 +95,36 @@ int  sq_write_json_file(void *instance, const SqType *type, const char *filename
 
 namespace Sq {
 
+#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
+inline int  writeJson(void *instance, const SqType *type, char **buf, size_t *len) {
+	return sq_write_json_mem(instance, type, buf, len);
+}
+
+inline int  writeJson(void *instance, const SqType *type, const char *filename) {
+	return sq_write_json_file(instance, type, filename);
+}
+#endif
+
 namespace Str {
 
 	// naming convention
-	char* camel(const char *snakeName, bool upperCamelCase = true) {
+	inline char* camel(const char *snakeName, bool upperCamelCase = true) {
 		return sq_str_camel(snakeName, upperCamelCase);
 	}
-	char* snake(const char *camelName) {
+	inline char* snake(const char *camelName) {
 		return sq_str_snake(camelName);
 	}
-	char* singular(const char *plural) {
+	inline char* singular(const char *plural) {
 		return sq_str_singular(plural);
 	}
-	char* plural(const char *singular) {
+	inline char* plural(const char *singular) {
 		return sq_str_plural(singular);
 	}
 
-	char *tableName(const char *typeName) {
+	inline char *tableName(const char *typeName) {
 		return sq_str_table_name(typeName);
 	}
-	char *typeName(const char *tableName) {
+	inline char *typeName(const char *tableName) {
 		return sq_str_type_name(tableName);
 	}
 
