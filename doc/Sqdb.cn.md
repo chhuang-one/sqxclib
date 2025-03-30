@@ -2,7 +2,8 @@
 
 # Sqdb
 
-Sqdb 是 SQLite、MySQL 等数据库产品的基础结构。  
+Sqdb 是 SQLite、MySQL 等数据库产品的基础结构。
+以下是已实现的数据库产品：
 
 | 派生结构      | 数据库产品 | 源代码文件     |
 | ------------- | ---------- | -------------- |
@@ -10,64 +11,9 @@ Sqdb 是 SQLite、MySQL 等数据库产品的基础结构。
 | SqdbMysql     | MySQL      | SqdbMysql.c    |
 | SqdbPostgre   | PostgreSQL | SqdbPostgre.c  |
 
-```c
-struct Sqdb
-{
-	// 您可以使用 SQDB_MEMBERS 定义以下成员
-	const SqdbInfo *info;       // 数据与功能接口
-	int             version;    // 当前打开的数据库的架构版本
-};
-```
+## 如何支持新的数据库产品：
 
-# SqdbInfo
-
-SqdbInfo 是数据库产品的接口。
-
-```c
-struct SqdbInfo
-{
-	uintptr_t      size;       // Sqdb 实例大小
-	SqdbProduct    product;    // 数据库产品代码
-
-	struct {
-		unsigned int has_boolean:1;      // 具有布尔数据类型
-		unsigned int use_alter:1;        // 使用 "ALTER COLUMN" 更改列
-		unsigned int use_modify:1;       // 使用 "MODIFY COLUMN" 更改列
-	} column;
-
-	// 用于数据库列和表标识符
-	struct {
-		char         identifier[2];      // SQLite 使用 "", MySQL 使用 ``, SQL Server 使用 []
-	} quote;
-
-	// 初始化 Sqdb 的派生结构
-	void (*init)(Sqdb *db, SqdbConfig *config);
-	// 终结 Sqdb 的派生结构
-	void (*final)(Sqdb *db);
-
-	// 打开数据库文件或建立与数据库服务器的连接
-	int  (*open)(Sqdb *db, const char *name);
-	// 关闭以前打开的文件或连接。
-	int  (*close)(Sqdb *db);
-	// 执行 SQL 语句
-	int  (*exec)(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
-	// 迁移架构。它将 'schema_next' 的更改应用于 'schema_current'
-	int  (*migrate)(Sqdb *db, SqSchema *schema_current, SqSchema *schema_next);
-};
-```
-
-# SqdbConfig
-
-SqdbConfig 是数据库产品的设置。
-
-```c
-struct SqdbConfig
-{
-	// 你可以使用 SQDB_CONFIG_MEMBERS 来定义下面的成员
-	unsigned int    product;      // 保留。枚举 SqdbProduct 的值
-	unsigned int    bit_field;    // 保留。config 的实例是常量还是动态的？
-};
-```
+请参阅文档 [database-interface.cn.md](database-interface.cn.md)。
 
 ## 打开和关闭数据库
 
@@ -79,7 +25,7 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 ```c
 	// 数据库配置
 	SqdbConfigSqlite config = {
-		.folder    = "/home/dir",
+		.folder    = "/home/someone",
 		.extension = "db"
 	};
 	// 数据库实例的指针
@@ -90,7 +36,7 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 	// 结果与上一行相同。
 //	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
 
-	// 打开数据库文件 - "/home/dir/local-base.db"
+	// 打开数据库文件 - "/home/someone/local-base.db"
 	sqdb_open(db, "local-base");
 
 	// 关闭数据库
@@ -102,8 +48,8 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 ```c++
 	// 数据库配置
 	Sq::DbConfigSqlite config = {
-		"/home/dir",   // .folder    = "/home/dir",
-		"db"           // .extension = "db",
+		"/home/someone",   // .folder    = "/home/someone",
+		"db"               // .extension = "db",
 	};
 	// 数据库实例的指针
 	Sq::DbMethod  *db;
@@ -111,7 +57,7 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 	// 使用 'config' 创建 Sq::DbSqlite。如果 config 为 NULL，则使用默认设置。
 	db = new Sq::DbSqlite(config);
 
-	// 打开数据库文件 - "/home/dir/local-base.db"
+	// 打开数据库文件 - "/home/someone/local-base.db"
 	db->open("local-base");
 
 	// 关闭数据库
@@ -120,33 +66,33 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 
 ## 迁移
 
-sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 参数，第一个 'schema_current' 参数是当前版本的架构，第二个 'schema_next' 参数是下一个版本的架构。'schema_next' 的更改将应用​​于 'schema_current'。  
-迁移后您无法重用 'schema_next'，因为此功能可能会将数据从 'schema_next' 移动到 'schema_current'。  
+sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 参数，第一个 'schemaCurrent' 参数是当前版本的架构，第二个 'schemaNext' 参数是下一个版本的架构。'schemaNext' 的更改将应用​​于 'schemaCurrent'。  
+迁移后您无法重用 'schemaNext'，因为此功能可能会将数据从 'schemaNext' 移动到 'schemaCurrent'。  
   
-请不要在第一个 'schema_current' 参数中直接更改、重命名和删除表，而是在第二个 'schema_next' 参数中执行这些操作然后运行 migrate() 将更改应用于 'schema_current'。  
+请不要在第一个 'schemaCurrent' 参数中直接更改、重命名和删除表，而是在第二个 'schemaNext' 参数中执行这些操作然后运行 migrate() 将更改应用于 'schemaCurrent'。  
   
 要通知数据库实例迁移已完成，请调用 sqdb_migrate() 并在最后一个参数中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。  
   
 使用 C 函数
 
 ```c
-	// 将 'schema_next' 的更改应用于 'schema_current'
-	sqdb_migrate(db, schema_current, schema_next);
+	// 将 'schemaNext' 的更改应用于 'schemaCurrent'
+	sqdb_migrate(db, schemaCurrent, schemaNext);
 
 	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
-	// 这将更新和排序 'schema_current' 并且将 'schema_current' 同步到数据库（主要用于 SQLite）。
-	sqdb_migrate(db, schema_current, NULL);
+	// 这将更新和排序 'schemaCurrent' 并且将 'schemaCurrent' 同步到数据库（主要用于 SQLite）。
+	sqdb_migrate(db, schemaCurrent, NULL);
 ```
 
 使用 C++ 方法
 
 ```c++
-	// 将 'schema_next' 的更改应用于 'schema_current'
-	db->migrate(schema_current, schema_next);
+	// 将 'schemaNext' 的更改应用于 'schemaCurrent'
+	db->migrate(schemaCurrent, schemaNext);
 
 	// 要通知数据库实例迁移已完成，传递 NULL 给最后一个参数。
-	// 这将更新和排序 'schema_current' 并且将 'schema_current' 同步到数据库（主要用于 SQLite）。
-	db->migrate(schema_current, NULL);
+	// 这将更新和排序 'schemaCurrent' 并且将 'schemaCurrent' 同步到数据库（主要用于 SQLite）。
+	db->migrate(schemaCurrent, NULL);
 ```
 
 ## 从 SQL 查询中获取结果
@@ -167,42 +113,42 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 
 	xc_input->element   = SQ_TYPE_INT;
 	xc_input->instance  = &integer;
 
-	code = sqdb_exec(db, "SELECT max(id) FROM migrations", (Sqxc*)xc_input, NULL);
+	code = sqdb_exec(db, "SELECT max(id) FROM users", (Sqxc*)xc_input, NULL);
 
 	if (code == SQCODE_OK)
 		return integer;
 ```
 
-#### 从 "migrations" 表中获取一行
+#### 从 "users" 表中获取一行
 
 ```c
-	SqxcValue        *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
-	SqMigrationTable *mtable = calloc(1, sizeof(SqMigrationTable));
+	SqxcValue *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
+	UserTable *utable = calloc(1, sizeof(UserTable));
 	int   code;
 
 	xc_input->container = NULL;
-	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
-	xc_input->instance  = mtable;
+	xc_input->element   = SQ_TYPE_USER_TABLE;
+	xc_input->instance  = utable;
 
 	// 如果要重用 Sqxc 元素，请在 sqdb_exec() 之前调用 sqxc_ready()
 	sqxc_ready(xc_input, NULL);
 
-	code = sqdb_exec(db, "SELECT * FROM migrations WHERE id = 1", (Sqxc*)xc_input, NULL);
+	code = sqdb_exec(db, "SELECT * FROM users WHERE id = 1", (Sqxc*)xc_input, NULL);
 
 	// 如果要重用 Sqxc 元素，请在 sqdb_exec() 之后调用 sqxc_finish()
 	sqxc_finish(xc_input, NULL);
 
 	if (code == SQCODE_OK)
-		return mtable;
+		return utable;
 	else {
-		free(mtable);
+		free(utable);
 		return NULL;
 	}
 ```
 
-#### 从 "migrations" 表中获取多行
+#### 从 "users" 表中获取多行
 
-使用 C 语言从 "migrations" 表中获取多行
+使用 C 语言从 "users" 表中获取多行
 
 ```c
 	SqxcValue  *xc_input = (SqxcValue*)sqxc_new(SQXC_INFO_VALUE);
@@ -210,13 +156,13 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 
 	int         code;
 
 	xc_input->container = SQ_TYPE_PTR_ARRAY;
-	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
+	xc_input->element   = SQ_TYPE_USER_TABLE;
 	xc_input->instance  = array;
 
 	// 如果要重用 Sqxc 元素，请在 sqdb_exec() 之前调用 sqxc_ready()
 	sqxc_ready(xc_input, NULL);
 
-	code = sqdb_exec(db, "SELECT * FROM migrations", (Sqxc*)xc_input, NULL);
+	code = sqdb_exec(db, "SELECT * FROM users", (Sqxc*)xc_input, NULL);
 
 	// 如果要重用 Sqxc 元素，请在 sqdb_exec() 之后调用 sqxc_finish()
 	sqxc_finish(xc_input, NULL);
@@ -229,7 +175,7 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 
 	}
 ```
 
-使用 C++ 语言从 "migrations" 表中获取多行
+使用 C++ 语言从 "users" 表中获取多行
 
 ```c++
 	Sq::XcValue   *xc_input = new Sq::XcValue();
@@ -237,11 +183,11 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 
 	int   code;
 
 	xc_input->container = SQ_TYPE_PTR_ARRAY;
-	xc_input->element   = SQ_TYPE_MIGRATION_TABLE;
+	xc_input->element   = SQ_TYPE_USER_TABLE;
 	xc_input->instance  = array;
 
 	xc_input->ready();
-	code = db->exec("SELECT * FROM migrations", xc_input);
+	code = db->exec("SELECT * FROM users", xc_input);
 	xc_input->finish();
 
 	if (code == SQCODE_OK)
@@ -250,247 +196,4 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 
 		delete array;
 		return NULL;
 	}
-```
-
-## 如何支持新的数据库产品：
-
-用户可以参考 SqdbMysql.h 和 SqdbMysql.c 来支持新的数据库产品。  
-SqdbEmpty.h 和 SqdbEmpty.c 是一个可行的示例，但它什么也不做。
-
-#### 1 定义从 SqdbConfig 和 Sqdb 派生的新结构
-
-所有派生结构必须符合 C++11 标准布局
-
-```c++
-// 这是头文件 - SqdbXxsql.h
-#include <Sqdb.h>
-
-// 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
-typedef struct SqdbXxsql          SqdbXxsql;
-typedef struct SqdbConfigXxsql    SqdbConfigXxsql;
-
-// 定义数据库产品代码
-#define  SQDB_PRODUCT_XXSQL    (SQDB_PRODUCT_CUSTOM + 1)
-
-#ifdef __cplusplus    // 混合 C 和 C++
-extern "C" {
-#endif
-
-// 在 SqdbXxsql.c 中定义
-extern const SqdbInfo        sqdbInfo_XXSQL;
-#define SQDB_INFO_XXSQL    (&sqdbInfo_XXSQL)
-
-#ifdef __cplusplus    // 混合 C 和 C++
-}  // extern "C"
-#endif
-
-// 从 SqdbConfig 派生的配置数据结构
-struct SqdbConfigXxsql
-{
-	SQDB_CONFIG_MEMBERS;                   // <-- 1. 继承成员变量
-
-	int   xxsql_setting;                   // <-- 2. 在派生结构中添加变量和非虚函数。
-};
-
-// 源自 Sqdb 的结构
-#ifdef __cplusplus
-struct SqdbXxsql : Sq::DbMethod            // <-- 1. 继承 C++ 成员函数 (方法)
-#else
-struct SqdbXxsql
-#endif
-{
-	SQDB_MEMBERS;                          // <-- 2. 继承成员变量
-
-	SqdbConfigXxsql *config;               // <-- 3. 在派生结构中添加变量和非虚函数。
-	int            variable;
-
-
-#ifdef __cplusplus
-	// 如果您使用 C++ 语言，请在此处定义 C++ 构造函数和析构函数。
-	SqdbXxsql(const SqdbConfigXxsql *config) {
-		// 调用 Sq::DbMethod::init()
-		init(SQDB_INFO_XXSQL, (SqdbConfig*)config);
-		// 或调用 C 函数：
-		// sqdb_init((Sqdb*)this, SQDB_INFO_XXSQL, (SqdbConfig*)config);
-	}
-	SqdbXxsql(const SqdbConfigXxsql &config) {
-		init(SQDB_INFO_XXSQL, (SqdbConfig&)config);
-	}
-	~SqdbXxsql() {
-		// 调用 Sq::DbMethod::final()
-		final();
-		// 或调用 C 函数：
-		// sqdb_final((Sqdb*)this);
-	}
-#endif
-};
-```
-
-#### 2 实现 SqdbInfo 接口
-
-```c
-// 这是源文件 - SqdbXxsql.c
-#include <SqdbXxsql.h>
-
-// 为 SqdbInfo 声明函数
-static void sqdb_xxsql_init(SqdbXxsql *sqdb, const SqdbConfigXxsql *config);
-static void sqdb_xxsql_final(SqdbXxsql *sqdb);
-static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name);
-static int  sqdb_xxsql_close(SqdbXxsql *sqdb);
-static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
-static int  sqdb_xxsql_migrate(SqdbXxsql *sqdb, SqSchema *schema, SqSchema *schema_next);
-
-// 由 SqdbXxsql.h 使用
-const SqdbInfo sqdbInfo_XXSQL = {
-	.size    = sizeof(SqdbXxsql),
-	.product = SQDB_PRODUCT_XXSQL,
-	.column  = {
-		.has_boolean = 1,
-		.use_alter  = 1,
-		.use_modify = 0,
-	},
-	.quote = {
-		.identifier = {'"', '"'}     // ANSI-SQL 引用标识符是 ""
-	},
-
-	.init    = (void*) sqdb_xxsql_init,
-	.final   = (void*) sqdb_xxsql_final,
-	.open    = (void*) sqdb_xxsql_open,
-	.close   = (void*) sqdb_xxsql_close,
-	.exec    = (void*) sqdb_xxsql_exec,
-	.migrate = (void*) sqdb_xxsql_migrate,
-};
-
-// 在这里实现 SqdbXxsql 的函数
-
-static void sqdb_xxsql_init(SqdbXxsql *sqdb, const SqdbConfigXxsql *config)
-{
-	// 初始化 SqdbXxsql 实例
-	sqdb->version  = 0;
-	sqdb->config   = config;
-}
-
-static void sqdb_xxsql_final(SqdbXxsql *sqdb)
-{
-	// 终结 SqdbXxsql 实例
-}
-
-static int  sqdb_xxsql_open(SqdbXxsql *sqdb, const char *database_name)
-{
-	// 打开数据库并获取它的架构版本
-	sqdb->version = schemaVersion;
-
-	return SQCODE_OK;
-}
-
-static int  sqdb_xxsql_close(SqdbXxsql *sqdb)
-{
-	// 关闭数据库
-	return SQCODE_OK;
-}
-
-static int  sqdb_xxsql_exec(SqdbXxsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
-{
-	if (xc == NULL) {
-		// 执行查询
-	}
-	else {
-		// 根据 SQL 语句中的第一个字符确定命令。
-		switch (sql[0]) {
-		case 'S':    // SELECT
-		case 's':    // select
-			// 从 xxsql 获取行并将它们发送到 'xc'
-			break;
-
-		case 'I':    // INSERT
-		case 'i':    // insert
-			// 将插入的行 id 设置为 SqxcSql::id
-			((SqxcSql*)xc)->id = inserted_id;
-			break;
-
-		case 'U':    // UPDATE
-		case 'u':    // update
-			// 设置 SqxcSql::changes 为更改行数
-			((SqxcSql*)xc)->changes = number_of_rows_changed;
-			break;
-
-		default:
-			// 执行查询
-			break;
-		}
-	}
-
-	if (error_occurred)
-		return SQCODE_EXEC_ERROR;
-	else
-		return SQCODE_OK;
-}
-
-static int  sqdb_xxsql_migrate(SqdbXxsql *db, SqSchema *schema_current, SqSchema *schema_next)
-{
-	// 如果 'schema_next' 为 NULL，则更新并排序 'schema_current'，并
-	// 将 'schema_current' 同步到数据库（主要用于 SQLite）。
-	if (schema_next == NULL) {
-		// 按名称对表和列进行排序
-		sq_schema_sort_table_column(schema);
-		return SQCODE_OK;
-	}
-
-	if (db->version < schema_next->version) {
-		// 通过 'schema_next' 进行迁移
-		for (unsigned int index = 0;  index < schema_next->type->n_entry;  index++) {
-			SqTable *table = (SqTable*)schema_next->type->entry[index];
-			if (table->bit_field & SQB_CHANGED) {
-				// 更改表   ALTER TABLE
-			}
-			else if (table->name == NULL) {
-				// 删除表   DROP TABLE
-			}
-			else if (table->old_name && (table->bit_field & SQB_RENAMED) == 0) {
-				// 重命名表 RENAME TABLE
-			}
-			else {
-				// 创建表   CREATE TABLE
-			}
-		}
-	}
-
-	// 包含并应用来自 'schema_next' 的更改
-	sq_schema_update(schema_current, schema_next);
-	schema_current->version = schema_next->version;
-}
-```
-
-#### 3 使用自定义 Sqdb
-
-使用 C 语言
-
-```c++
-	SqdbConfigXxsql  config = {
-		.xxsql_setting = 0,
-	};
-	Sqdb            *db;
-	SqStorage       *storage;
-
-	// 使用配置数据创建自定义 Sqdb 对象
-	db = sqdb_new(SQDB_INFO_XXSQL, (SqdbConfig*) &config);
-
-	// 创建使用新 Sqdb 的存储对象
-	storage = sq_storage_new(db);
-```
-
-使用 C++ 语言
-
-```c++
-	SqdbConfigXxsql  config = {
-		.xxsql_setting = 0,
-	};
-	SqdbXxsql       *db;
-	Sq::Storage     *storage;
-
-	// 使用配置数据创建自定义 Sqdb 对象
-	db = new SqdbXxsql(config);
-
-	// 创建使用新 Sqdb 的存储对象
-	storage = new Sq::Storage(db);
 ```
