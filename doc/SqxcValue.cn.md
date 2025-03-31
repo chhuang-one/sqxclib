@@ -32,7 +32,7 @@ SqxcValue 派生自 [Sqxc](Sqxc.cn.md)。它将 Sqxc 数据转换为 C 数据类
 	xcvalue = new Sq::XcValue();
 ```
 
-如果某些 C 字符串是 JSON 数据，请修改上面的 Sqxc 链。
+如果某些字段/成员以 JSON 对象或数组形式输入，则修改上面的 Sqxc 链如下:
 
 	                ┌─> SqxcJsoncParser ─┐
 	Sqxc 数据参数 ──┴────────────────────┴──> SqxcValue   ───> SqType::parse()
@@ -97,7 +97,7 @@ SqxcValue 可以设置 3 个字段，其中至少 2 个必须设置。
 ```
 
 转换前自行分配内存:  
-如果是容器，则分配SqType容器的内存。
+如果是容器，则分配 SqType 容器的内存。
 
 ```c++
 	xcvalue->instance = new Sq::Array<int>;

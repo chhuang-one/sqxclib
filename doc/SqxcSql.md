@@ -32,7 +32,7 @@ use C++ language
 	xcsql = new Sq::XcSql();
 ```
 
-If your column has JSON data, modify the Sqxc chain above.
+If you want to write JSON object or array to column, modify the above Sqxc chain as follows:
 
 	                      ┌─> SqxcJsoncWriter ─┐
 	Sqxc data arguments ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()

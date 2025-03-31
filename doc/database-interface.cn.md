@@ -1,5 +1,7 @@
 [English](database-interface.md)
 
+# 数据库接口
+
 Sqdb 系列是用于操作数据库产品的基本结构。如果要支持新的数据库产品，请使用以下结构。
 
 | 结构名称    | 描述                                   |
@@ -8,7 +10,9 @@ Sqdb 系列是用于操作数据库产品的基本结构。如果要支持新的
 | SqdbInfo    | 数据库产品的接口。                     |
 | SqdbConfig  | 数据库产品的设置。                     |
 
-假设我们要支持一个新的数据库产品 Xsql：
+# 支持新的数据库产品
+
+假设要支持一个新的数据库产品 Xsql，需要完成以下步骤：
 
 ## 0 定义
 
@@ -99,45 +103,10 @@ struct SqdbXsql
 
 ## 3 实现 SqdbInfo 接口
 
-以下是 SqdbInfo 各字段说明。
-
-```c++
-struct SqdbInfo
-{
-	uintptr_t      size;       // Sqdb 实例大小
-	SqdbProduct    product;    // 数据库产品代码
-
-	struct {
-		unsigned int has_boolean:1;      // 具有布尔数据类型
-		unsigned int use_alter:1;        // 使用 "ALTER COLUMN" 更改列
-		unsigned int use_modify:1;       // 使用 "MODIFY COLUMN" 更改列
-	} column;
-
-	// 用于数据库列和表标识符
-	struct {
-		char         identifier[2];      // SQLite 使用 "", MySQL 使用 ``, SQL Server 使用 []
-	} quote;
-
-	// 初始化 Sqdb 的派生结构
-	void (*init)(Sqdb *db, SqdbConfig *config);
-	// 终结 Sqdb 的派生结构
-	void (*final)(Sqdb *db);
-
-	// 打开数据库文件或建立与数据库服务器的连接
-	int  (*open)(Sqdb *db, const char *name);
-	// 关闭以前打开的文件或连接。
-	int  (*close)(Sqdb *db);
-	// 执行 SQL 语句
-	int  (*exec)(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
-	// 迁移架构。它将 'schemaNext' 的更改应用于 'schemaCurrent'
-	int  (*migrate)(Sqdb *db, SqSchema *schemaCurrent, SqSchema *schemaNext);
-};
-```
-
-为 Xsql 实现 SqdbInfo。
+为 Xsql 实现 SqdbInfo 接口：
 
 ```c
-// 为 SqdbInfo 声明函数
+// 声明 SqdbInfo 接口的函数
 static void sqdb_xsql_init(SqdbXsql *sqdb, const SqdbConfigXsql *config);
 static void sqdb_xsql_final(SqdbXsql *sqdb);
 static int  sqdb_xsql_open(SqdbXsql *sqdb, const char *databaseName);
@@ -145,29 +114,46 @@ static int  sqdb_xsql_close(SqdbXsql *sqdb);
 static int  sqdb_xsql_exec(SqdbXsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
 static int  sqdb_xsql_migrate(SqdbXsql *sqdb, SqSchema *schema, SqSchema *schemaNext);
 
-// 实现 SqdbInfo，创建 Sqdb 实例时将使用 'sqdbInfoXsql'。
+// 实现 SqdbInfo 接口
+// 创建 Sqdb 实例时将使用全局变量 'sqdbInfoXsql'。
 const SqdbInfo sqdbInfoXsql = {
-	.size    = sizeof(SqdbXsql),
-	.product = SQDB_PRODUCT_XSQL,
+	.size    = sizeof(SqdbXsql),         // Sqdb 实例大小
+	.product = SQDB_PRODUCT_XSQL,        // 数据库产品代码
+
 	.column  = {
-		.has_boolean = 1,
-		.use_alter  = 1,
-		.use_modify = 0,
-	},
-	.quote = {
-		.identifier = {'"', '"'}     // ANSI-SQL 引用标识符是 ""
+		.has_boolean = 1,                // 具有布尔数据类型
+		.use_alter  = 1,                 // 使用 "ALTER COLUMN" 更改列
+		.use_modify = 0,                 // 使用 "MODIFY COLUMN" 更改列
 	},
 
+	// 用于数据库列和表标识符
+	.quote = {
+		.identifier = {'"', '"'}         // ANSI-SQL 引用标识符是 ""
+		                                 // SQLite 使用 "", MySQL 使用 ``, SQL Server 使用 []
+	},
+
+	// 初始化 Sqdb 的派生结构
 	.init    = sqdb_xsql_init,
+	// 终结 Sqdb 的派生结构
 	.final   = sqdb_xsql_final,
+
+	// 打开数据库文件或建立与数据库服务器的连接
 	.open    = sqdb_xsql_open,
+	// 关闭以前打开的文件或连接。
 	.close   = sqdb_xsql_close,
+	// 执行 SQL 语句
 	.exec    = sqdb_xsql_exec,
+	// 迁移架构。它将 'schemaNext' 的更改应用于 'schemaCurrent'
 	.migrate = sqdb_xsql_migrate,
 };
+```
 
-// 在这里实现 SqdbXsql 的函数
+#### 3.1 init / final
 
+调用 SqdbInfo::init()  时，它应该初始化 Sqdb 实例。  
+调用 SqdbInfo::final() 时，它应该终结   Sqdb 实例。
+
+```c
 static void sqdb_xsql_init(SqdbXsql *sqdb, const SqdbConfigXsql *config)
 {
 	// 初始化 SqdbXsql 实例
@@ -179,7 +165,14 @@ static void sqdb_xsql_final(SqdbXsql *sqdb)
 {
 	// 终结 SqdbXsql 实例
 }
+```
 
+#### 3.2 open / close
+
+调用 SqdbInfo::open()  时，它应该执行连接、登录、打开文件或数据库，并从 SQL 表获取架构版本。  
+调用 SqdbInfo::close() 时，它应该执行断开连接、登出、关闭文件或数据库。
+
+```c
 static int  sqdb_xsql_open(SqdbXsql *sqdb, const char *databaseName)
 {
 	// 打开数据库并获取它的架构版本
@@ -193,7 +186,13 @@ static int  sqdb_xsql_close(SqdbXsql *sqdb)
 	// 关闭数据库
 	return SQCODE_OK;
 }
+```
 
+#### 3.3 exec
+
+如果参数 'xc' 为 NULL，则直接执行 SQL 语句 'sql'，否则将 SQL 语句的结果发送给 'xc' 进行转换。
+
+```c
 static int  sqdb_xsql_exec(SqdbXsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
 {
 	if (xc == NULL) {
@@ -230,7 +229,18 @@ static int  sqdb_xsql_exec(SqdbXsql *sqdb, const char *sql, Sqxc *xc, void *rese
 	else
 		return SQCODE_OK;
 }
+```
 
+#### 3.4 migrate
+
+SqdbInfo::migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 参数，第一个 'schemaCurrent' 参数是当前版本的架构，第二个 'schemaNext' 参数是下一个版本的架构。'schemaNext' 的更改将应用​​于 'schemaCurrent'。  
+迁移后您无法重用 'schemaNext'，因为此功能可能会将数据从 'schemaNext' 移动到 'schemaCurrent'。  
+  
+请不要在第一个 'schemaCurrent' 参数中直接更改、重命名和删除表，而是在第二个 'schemaNext' 参数中执行这些操作然后运行 migrate() 将更改应用于 'schemaCurrent'。  
+  
+要通知数据库实例迁移已完成，请调用 SqdbInfo::migrate() 并在最后一个参数中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。
+
+```c
 static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *schemaNext)
 {
 	// 如果 'schemaNext' 为 NULL，则更新并排序 'schemaCurrent'，并
@@ -247,19 +257,23 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 			SqTable *table = (SqTable*)schemaNext->type->entry[index];
 			if (table->bit_field & SQB_CHANGED) {
 				// 更改表   ALTER TABLE
-				// 根据 'table' 的数据执行 SQL 语句
+				// 根据 'table' 中的记录运行迁移。
+				// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
 			}
 			else if (table->name == NULL) {
 				// 删除表   DROP TABLE
-				// 根据 'table' 的数据执行 SQL 语句
+				// 根据 'table' 中的记录运行迁移。
+				// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
 			}
 			else if (table->old_name && (table->bit_field & SQB_RENAMED) == 0) {
 				// 重命名表 RENAME TABLE
-				// 根据 'table' 的数据执行 SQL 语句
+				// 根据 'table' 中的记录运行迁移。
+				// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
 			}
 			else {
 				// 创建表   CREATE TABLE
-				// 根据 'table' 的数据执行 SQL 语句
+				// 根据 'table' 中的记录运行迁移。
+				// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
 			}
 		}
 	}
@@ -270,7 +284,7 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 }
 ```
 
-#### 4 使用自定义 Sqdb
+## 4 使用自定义 Sqdb
 
 使用 C 语言
 

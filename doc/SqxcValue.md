@@ -32,7 +32,7 @@ use C++ language
 	xcvalue = new Sq::XcValue();
 ```
 
-If some of C string is JSON data, modify the Sqxc chain above.
+If some fields/members are input as JSON objects or arrays, modify the above Sqxc chain as follows:
 
 	                      ┌─> SqxcJsoncParser ─┐
 	Sqxc data arguments ──┴────────────────────┴──> SqxcValue   ───> SqType::parse()

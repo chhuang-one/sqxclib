@@ -32,7 +32,7 @@ SqxcSql 派生自 [Sqxc](Sqxc.cn.md)。它使用 SQL 将 Sqxc 数据输出到数
 	xcsql = new Sq::XcSql();
 ```
 
-如果列有 JSON 数据，请修改上面的 Sqxc 链。
+如果要将 JSON 对象或数组写入列，请修改上面的 Sqxc 链如下:
 
 	                ┌─> SqxcJsoncWriter ─┐
 	Sqxc 数据参数 ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()

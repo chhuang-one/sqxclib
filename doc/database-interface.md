@@ -1,5 +1,7 @@
 [中文](database-interface.cn.md)
 
+# Database interface
+
 The Sqdb series are basic structures for operating database products. If you want to support a new database product, use the following structure.
 
 | struct name | description                                                       |
@@ -8,7 +10,9 @@ The Sqdb series are basic structures for operating database products. If you wan
 | SqdbInfo    | Interface of Database product.                                    |
 | SqdbConfig  | Setting of Database product.                                      |
 
-Suppose we want to support a new database product Xsql:
+# Support new database product
+
+Suppose we want to support a new database product Xsql, we need to complete the following steps:
 
 ## 0 Define
 
@@ -99,45 +103,10 @@ struct SqdbXsql
 
 ## 3 Implement SqdbInfo interface
 
-The following is a description of each field in SqdbInfo.
-
-```c++
-struct SqdbInfo
-{
-	uintptr_t      size;       // Sqdb instance size
-	SqdbProduct    product;    // Database product code
-
-	struct {
-		unsigned int has_boolean:1;      // has Boolean Data Type
-		unsigned int use_alter:1;        // use "ALTER COLUMN" to change column
-		unsigned int use_modify:1;       // use "MODIFY COLUMN" to change column
-	} column;
-
-	// for  Database column and table identifiers
-	struct {
-		char         identifier[2];      // SQLite is "", MySQL is ``, SQL Server is []
-	} quote;
-
-	// initialize derived structure of Sqdb
-	void (*init)(Sqdb *db, SqdbConfig *config);
-	// finalize derived structure of Sqdb
-	void (*final)(Sqdb *db);
-
-	// open a database file or establish a connection to a Database server
-	int  (*open)(Sqdb *db, const char *name);
-	// close a previously opened file or connection.
-	int  (*close)(Sqdb *db);
-	// executes the SQL statement
-	int  (*exec)(Sqdb *db, const char *sql, Sqxc *xc, void *reserve);
-	// migrate schema. It apply changes of 'schemaNext' to 'schemaCurrent'
-	int  (*migrate)(Sqdb *db, SqSchema *schemaCurrent, SqSchema *schemaNext);
-};
-```
-
-Implement SqdbInfo for Xsql.
+Implement SqdbInfo interface for Xsql:
 
 ```c
-// declare functions for SqdbInfo
+// declare functions for SqdbInfo interface
 static void sqdb_xsql_init(SqdbXsql *sqdb, const SqdbConfigXsql *config);
 static void sqdb_xsql_final(SqdbXsql *sqdb);
 static int  sqdb_xsql_open(SqdbXsql *sqdb, const char *databaseName);
@@ -145,29 +114,46 @@ static int  sqdb_xsql_close(SqdbXsql *sqdb);
 static int  sqdb_xsql_exec(SqdbXsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
 static int  sqdb_xsql_migrate(SqdbXsql *sqdb, SqSchema *schema, SqSchema *schemaNext);
 
-// Implements SqdbInfo, 'sqdbInfoXsql' will be used when creating a Sqdb instance.
+// Implement SqdbInfo interface
+// Global variable 'sqdbInfoXsql' will be used when creating a Sqdb instance.
 const SqdbInfo sqdbInfoXsql = {
-	.size    = sizeof(SqdbXsql),
-	.product = SQDB_PRODUCT_XSQL,
+	.size    = sizeof(SqdbXsql),         // Sqdb instance size
+	.product = SQDB_PRODUCT_XSQL,        // Database product code
+
 	.column  = {
-		.has_boolean = 1,
-		.use_alter  = 1,
-		.use_modify = 0,
-	},
-	.quote = {
-		.identifier = {'"', '"'}     // ANSI-SQL quote identifier is ""
+		.has_boolean = 1,                // has Boolean Data Type
+		.use_alter  = 1,                 // use "ALTER COLUMN" to change column
+		.use_modify = 0,                 // use "MODIFY COLUMN" to change column
 	},
 
+	// for  Database column and table identifiers
+	.quote = {
+		.identifier = {'"', '"'}         // ANSI-SQL quote identifier is ""
+		                                 // SQLite is "", MySQL is ``, SQL Server is []
+	},
+
+	// initialize derived structure of Sqdb
 	.init    = sqdb_xsql_init,
+	// finalize derived structure of Sqdb
 	.final   = sqdb_xsql_final,
+
+	// open a database file or establish a connection to a Database server
 	.open    = sqdb_xsql_open,
+	// close a previously opened file or connection.
 	.close   = sqdb_xsql_close,
+	// executes the SQL statement
 	.exec    = sqdb_xsql_exec,
+	// migrate schema. It apply changes of 'schemaNext' to 'schemaCurrent'
 	.migrate = sqdb_xsql_migrate,
 };
+```
 
-// implement functions of SqdbXsql here
+#### 3.1 init / final
 
+When calling SqdbInfo::init(),  it should initialize Sqdb instance.  
+When calling SqdbInfo::final(), it should finalize   Sqdb instance.
+
+```c
 static void sqdb_xsql_init(SqdbXsql *sqdb, const SqdbConfigXsql *config)
 {
 	// initialize SqdbXsql instance
@@ -179,7 +165,14 @@ static void sqdb_xsql_final(SqdbXsql *sqdb)
 {
 	// finalize SqdbXsql instance
 }
+```
 
+#### 3.2 open / close
+
+When calling SqdbInfo::open(),  it should do connect, login, open file or database, and get schema version from SQL table.  
+When calling SqdbInfo::close(), it should do disconnect, logout, close file or database.
+
+```c
 static int  sqdb_xsql_open(SqdbXsql *sqdb, const char *databaseName)
 {
 	// open database and get it's schema version
@@ -193,7 +186,13 @@ static int  sqdb_xsql_close(SqdbXsql *sqdb)
 	// close database
 	return SQCODE_OK;
 }
+```
 
+#### 3.3 exec
+
+If the parameter 'xc' is NULL, SQL statement 'sql' is executed directly, otherwise result of SQL statement is sent to 'xc' for conversion.
+
+```c
 static int  sqdb_xsql_exec(SqdbXsql *sqdb, const char *sql, Sqxc *xc, void *reserve);
 {
 	if (xc == NULL) {
@@ -230,7 +229,18 @@ static int  sqdb_xsql_exec(SqdbXsql *sqdb, const char *sql, Sqxc *xc, void *rese
 	else
 		return SQCODE_OK;
 }
+```
 
+#### 3.4 migrate
+
+SqdbInfo::migrate() use schema's version to decide to migrate or not. It has 2 schema parameters, the first 'schemaCurrent' parameter is the current version of the schema, and the second 'schemaNext' parameter is the next version of the schema. Changes of 'schemaNext' will be applied to 'schemaCurrent'.  
+You can't reuse 'schemaNext' after migration because this function may move data from 'schemaNext' to 'schemaCurrent'.  
+  
+Please do not alter, rename, and drop tables directly in the first 'schemaCurrent' parameter, but instead do these operations in the second 'schemaNext' parameter then run migrate() to apply the changes to 'schemaCurrent'.  
+  
+To notify the database instance that the migration is completed, call SqdbInfo::migrate() and pass NULL in the last parameter. This will clear unused data, sort tables and columns, and synchronize current schema to database (mainly for SQLite).
+
+```c
 static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *schemaNext)
 {
 	// If 'schemaNext' is NULL, update and sort 'schemaCurrent' and
@@ -247,19 +257,23 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 			SqTable *table = (SqTable*)schemaNext->type->entry[index];
 			if (table->bit_field & SQB_CHANGED) {
 				// ALTER TABLE
-				// execute SQL statements based on the data in 'table'
+				// Run migrations by records in 'table'.
+				// Table related records is in 'table' and column related records is in 'table->type->entry'.
 			}
 			else if (table->name == NULL) {
 				// DROP TABLE
-				// execute SQL statements based on the data in 'table'
+				// Run migrations by records in 'table'.
+				// Table related records is in 'table' and column related records is in 'table->type->entry'.
 			}
 			else if (table->old_name && (table->bit_field & SQB_RENAMED) == 0) {
 				// RENAME TABLE
-				// execute SQL statements based on the data in 'table'
+				// Run migrations by records in 'table'.
+				// Table related records is in 'table' and column related records is in 'table->type->entry'.
 			}
 			else {
 				// CREATE TABLE
-				// execute SQL statements based on the data in 'table'
+				// Run migrations by records in 'table'.
+				// Table related records is in 'table' and column related records is in 'table->type->entry'.
 			}
 		}
 	}
@@ -270,7 +284,7 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 }
 ```
 
-#### 4 Use custom Sqdb
+## 4 Use custom Sqdb
 
 use C language
 
