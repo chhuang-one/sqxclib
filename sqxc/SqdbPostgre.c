@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2024 by C.H. Huang
+ *   Copyright (C) 2022-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -170,7 +170,7 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 				break;
 			}
 
-			// if Sqxc element prepare for multiple row
+			// If the Sqxc element is prepared to receive multiple rows
 			if (sqxc_value_container(xc)) {
 				xc->type = SQXC_TYPE_ARRAY;
 				xc->name = NULL;
@@ -223,6 +223,14 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 //						break;
 				}
 			}
+
+			// If the Sqxc element is prepared to receive multiple rows
+			if (sqxc_value_container(xc)) {
+				xc->type = SQXC_TYPE_ARRAY_END;
+				xc->name = NULL;
+				xc->value.pointer = NULL;
+				xc = sqxc_send(xc);
+			}			
 			break;
 
 		case 'I':    // INSERT
