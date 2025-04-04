@@ -170,8 +170,9 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 				break;
 			}
 
-			// If the Sqxc element is prepared to receive multiple rows
+			// If SqxcValue is prepared to receive multiple rows
 			if (sqxc_value_container(xc)) {
+				// SQL multiple rows corresponds to SQXC_TYPE_ARRAY
 				xc->type = SQXC_TYPE_ARRAY;
 				xc->name = NULL;
 				xc->value.pointer = NULL;
@@ -179,8 +180,10 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 			}
 
 			for (int i = 0;  i < n_tuples;  i++) {
-				// built-in types are not object
+				// Special case:
+				// Don't send object if user selects only one column and the column type is built-in types (not object).
 				if (SQ_TYPE_NOT_BUILTIN(sqxc_value_element(xc))) {
+					// SQL row corresponds to SQXC_TYPE_OBJECT
 					xc->type = SQXC_TYPE_OBJECT;
 					xc->name = NULL;
 					xc->value.pointer = NULL;
@@ -213,8 +216,10 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 #endif  // NDEBUG
 				}
 
-				// built-in types are not object
+				// Special case:
+				// Don't send object if user selects only one column and the column type is built-in types (not object).
 				if (SQ_TYPE_NOT_BUILTIN(sqxc_value_element(xc))) {
+					// SQL row corresponds to SQXC_TYPE_OBJECT
 					xc->type = SQXC_TYPE_OBJECT_END;
 					xc->name = NULL;
 					xc->value.pointer = NULL;
@@ -224,8 +229,9 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 				}
 			}
 
-			// If the Sqxc element is prepared to receive multiple rows
+			// If SqxcValue is prepared to receive multiple rows
 			if (sqxc_value_container(xc)) {
+				// SQL multiple rows corresponds to SQXC_TYPE_ARRAY
 				xc->type = SQXC_TYPE_ARRAY_END;
 				xc->name = NULL;
 				xc->value.pointer = NULL;

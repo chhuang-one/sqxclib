@@ -66,12 +66,12 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 
 ## 迁移
 
-sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 参数，第一个 'schemaCurrent' 参数是当前版本的架构，第二个 'schemaNext' 参数是下一个版本的架构。'schemaNext' 的更改将应用​​于 'schemaCurrent'。  
+sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 参数，第一个参数 'schemaCurrent' 是当前版本的架构，第二个参数 'schemaNext' 是下一个版本的架构。'schemaNext' 的更改将应用​​于 'schemaCurrent'。
 迁移后您无法重用 'schemaNext'，因为此功能可能会将数据从 'schemaNext' 移动到 'schemaCurrent'。  
   
-请不要在第一个 'schemaCurrent' 参数中直接更改、重命名和删除表，而是在第二个 'schemaNext' 参数中执行这些操作然后运行 migrate() 将更改应用于 'schemaCurrent'。  
+请不要在 'schemaCurrent' 中直接更改、重命名和删除表，而是在 'schemaNext' 中执行这些操作然后运行 migrate() 将更改应用于 'schemaCurrent'。  
   
-要通知数据库实例迁移已完成，请调用 sqdb_migrate() 并在最后一个参数中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。  
+要通知数据库实例迁移已完成，请调用 sqdb_migrate() 并在参数 'schemaNext' 中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。  
   
 使用 C 函数
 

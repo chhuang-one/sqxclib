@@ -66,12 +66,12 @@ use C++ methods
 
 ## Migrate
 
-sqdb_migrate() use schema's version to decide to migrate or not. It has 2 schema parameters, the first 'schemaCurrent' parameter is the current version of the schema, and the second 'schemaNext' parameter is the next version of the schema. Changes of 'schemaNext' will be applied to 'schemaCurrent'.  
+sqdb_migrate() use schema's version to decide to migrate or not. It has 2 schema parameters, the first parameter 'schemaCurrent' is the current version of the schema, and the second parameter 'schemaNext' is the next version of the schema. Changes of 'schemaNext' will be applied to 'schemaCurrent'.
 You can't reuse 'schemaNext' after migration because this function may move data from 'schemaNext' to 'schemaCurrent'.  
   
-Please do not alter, rename, and drop tables directly in the first 'schemaCurrent' parameter, but instead do these operations in the second 'schemaNext' parameter then run migrate() to apply the changes to 'schemaCurrent'.  
+Please do not alter, rename, and drop tables directly in 'schemaCurrent', but instead do these operations in 'schemaNext' then run migrate() to apply the changes to 'schemaCurrent'.  
   
-To notify the database instance that the migration is completed, call sqdb_migrate() and pass NULL in the last parameter. This will clear unused data, sort tables and columns, and synchronize current schema to database (mainly for SQLite).  
+To notify the database instance that the migration is completed, call sqdb_migrate() and pass NULL in parameter 'schemaNext'. This will clear unused data, sort tables and columns, and synchronize current schema to database (mainly for SQLite).  
   
 use C functions
 

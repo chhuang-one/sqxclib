@@ -203,18 +203,22 @@ static int  sqdb_xsql_exec(SqdbXsql *sqdb, const char *sql, Sqxc *xc, void *rese
 		switch (sql[0]) {
 		case 'S':    // SELECT
 		case 's':    // select
+			// 执行 SQL SELECT 语句
 			// 从 Xsql 获取行并将它们发送到 'xc'
+			sqdb_xsql_exec_select(sqdb, sql, (SqxcValue*)xc);
 			break;
 
 		case 'I':    // INSERT
 		case 'i':    // insert
-			// 将插入的行 id 设置为 SqxcSql::id
+			// 执行 SQL INSERT 语句
+			// 将插入行的 ID 存储在 SqxcSql::id 中
 			((SqxcSql*)xc)->id = inserted_id;
 			break;
 
 		case 'U':    // UPDATE
 		case 'u':    // update
-			// 设置 SqxcSql::changes 为更改行数
+			// 执行 SQL UPDATE 语句
+			// 将更改的行数存储在 SqxcSql::changes 中
 			((SqxcSql*)xc)->changes = number_of_rows_changed;
 			break;
 
@@ -231,18 +235,78 @@ static int  sqdb_xsql_exec(SqdbXsql *sqdb, const char *sql, Sqxc *xc, void *rese
 }
 ```
 
+sqdb_xsql_exec_select() 是一個處理 SELECT 语句结果的函式。展示了 SQL 行和列的處理流程。
+
+```c
+int  sqdb_xsql_exec_select(SqdbXsql *sqdb, const char *sql, SqxcValue *xc)
+{
+	// 如果 SqxcValue 准备接收多行
+	if (xc->container != NULL) {
+		// SQL 多行对应 SQXC_TYPE_ARRAY
+		xc->type = SQXC_TYPE_ARRAY;
+		xc->name = NULL;
+		xc->value.pointer = NULL;
+		xc = sqxc_send(xc);
+	}
+
+	// 获取行
+	while (row = xsql_get_row(sqdb)) {
+		// 特殊情况：
+		// 如果用户只选择一列并且该列类型是内置类型（不是对象），则不要发送对象。
+		if (SQ_TYPE_NOT_BUILTIN(xc->element)) {
+			// SQL 行对应于 SQXC_TYPE_OBJECT
+			xc->type = SQXC_TYPE_OBJECT;
+			xc->name = NULL;
+			xc->value.pointer = NULL;
+			xc = sqxc_send(xc);
+		}
+
+		// 获取列
+		while (col = xsql_get_column(sqdb)) {
+			// 将 SQL 列发送到 Sqxc 链
+			xc->type = SQXC_TYPE_STR;
+			xc->name = columnName1;
+			xc->value.str = columnValue1;
+			xc = sqxc_send(xc);
+			if (xc->code != SQCODE_OK) {
+				// 发生错误
+			}
+		}
+
+		// 特殊情况：
+		// 如果用户只选择一列并且该列类型是内置类型（不是对象），则不要发送对象。
+		if (SQ_TYPE_NOT_BUILTIN(xc->element)) {
+			// SQL 行对应于 SQXC_TYPE_OBJECT
+			xc->type = SQXC_TYPE_OBJECT_END;
+			xc->name = NULL;
+			xc->value.pointer = NULL;
+			xc = sqxc_send(xc);
+		}
+	}
+
+	// 如果 SqxcValue 准备接收多行
+	if (xc->container != NULL) {
+		// SQL 多行对应 SQXC_TYPE_ARRAY
+		xc->type = SQXC_TYPE_ARRAY_END;
+		xc->name = NULL;
+//		xc->value.pointer = NULL;
+		xc = sqxc_send(xc);
+	}
+}
+```
+
 #### 3.4 migrate
 
-SqdbInfo::migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 参数，第一个 'schemaCurrent' 参数是当前版本的架构，第二个 'schemaNext' 参数是下一个版本的架构。'schemaNext' 的更改将应用​​于 'schemaCurrent'。  
-迁移后您无法重用 'schemaNext'，因为此功能可能会将数据从 'schemaNext' 移动到 'schemaCurrent'。  
+SqdbInfo::migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 参数，第一个参数 'schemaCurrent' 是当前版本的架构，第二个参数 'schemaNext' 是下一个版本的架构。'schemaNext' 的更改将应用​​于 'schemaCurrent'。
+此功能可以将数据从 'schemaNext' 移动到 'schemaCurrent'，因此用户在迁移后无法重复使用 'schemaNext'。  
   
-请不要在第一个 'schemaCurrent' 参数中直接更改、重命名和删除表，而是在第二个 'schemaNext' 参数中执行这些操作然后运行 migrate() 将更改应用于 'schemaCurrent'。  
-  
-要通知数据库实例迁移已完成，请调用 SqdbInfo::migrate() 并在最后一个参数中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。
+要通知数据库实例迁移已完成，请调用 SqdbInfo::migrate() 并在参数 'schemaNext' 中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。
 
 ```c
 static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *schemaNext)
 {
+	SqBuffer *buffer;
+
 	// 如果 'schemaNext' 为 NULL，则更新并排序 'schemaCurrent'，并
 	// 将 'schemaCurrent' 同步到数据库（主要用于 SQLite）。
 	if (schemaNext == NULL) {
@@ -255,25 +319,29 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 		// 通过 'schemaNext' 进行迁移
 		for (unsigned int index = 0;  index < schemaNext->type->n_entry;  index++) {
 			SqTable *table = (SqTable*)schemaNext->type->entry[index];
+			// 根据 'table' 中的记录运行迁移。
+			// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
+
+			// 确定要执行的操作（ALTER、DROP、RENAME、ADD）。
+			// 这里的处理流程与 'column' 相同。
 			if (table->bit_field & SQB_CHANGED) {
 				// 更改表   ALTER TABLE
-				// 根据 'table' 中的记录运行迁移。
-				// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
+				// table->name 是需要修改的表的名称
+				sqdb_xsql_alter_table(sqdb, buffer, table);
 			}
 			else if (table->name == NULL) {
 				// 删除表   DROP TABLE
-				// 根据 'table' 中的记录运行迁移。
-				// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
+				// table->old_name 是要删除的表的名称
 			}
 			else if (table->old_name && (table->bit_field & SQB_RENAMED) == 0) {
 				// 重命名表 RENAME TABLE
-				// 根据 'table' 中的记录运行迁移。
-				// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
+				// table->old_name 是要重命名的表的名称
+				// table->name     是表的新名称
 			}
 			else {
 				// 创建表   CREATE TABLE
-				// 根据 'table' 中的记录运行迁移。
-				// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
+				// table->name 是要创建的表的名称
+				sqdb_xsql_create_table(sqdb, buffer, table);
 			}
 		}
 	}
@@ -281,6 +349,92 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 	// 包含并应用来自 'schemaNext' 的更改
 	sq_schema_update(schemaCurrent, schemaNext);
 	schemaCurrent->version = schemaNext->version;
+}
+```
+
+sqdb_xsql_alter_table() 是一个修改表的函数。它显示了 'table' 中记录的处理流程。
+请参考 Sqdb.c 中的函数 sqdb_exec_alter_table() 获取更多详细信息。
+
+```c
+int  sqdb_xsql_alter_table(SqdbXsql *db, SqBuffer *buffer, SqTable *table)
+{
+	SqPtrArray *columnArray;
+
+	columnArray = sq_type_entry_array(table->type);
+	for (unsigned int index = 0;  index < columnArray->length;  index++) {
+		SqColumn *column = (SqColumn*)columnArray->data[index];
+
+		// 确定要执行的操作（ALTER、DROP、RENAME、ADD）。
+		// 此处的处理流程与 'table' 相同。
+		if (column->bit_field & SQB_COLUMN_CHANGED) {
+			// 更改列   ALTER COLUMN
+			// column->name 是要修改的列的名称
+		}
+		else if (column->name == NULL) {
+			// 删除列   DROP COLUMN / CONSTRAINT / INDEX / KEY
+			// column->old_name 是要删除的列的名称
+		}
+		else if (column->old_name && (column->bit_field & SQB_COLUMN_RENAMED) == 0) {
+			// 重命名列 RENAME COLUMN
+			// column->old_name 是要重命名的列的名称
+			// column->name     是列的新名称
+		}
+		else {
+			// 添加列   ADD COLUMN / CONSTRAINT / INDEX / KEY
+			// column->name     是要添加的列的名称
+		}
+	}
+}
+```
+
+sqdb_xsql_create_table() 是一个创建表的函数。它根据 'table' 中的记录创建 SQL 表。
+下面的代码有很多遗漏，请参考 Sqdb.c 中的函数 sqdb_sql_write_column() 获取更多详细信息。
+
+```c
+int  sqdb_xsql_create_table(SqdbXsql *db, SqBuffer *buffer, SqTable *table)
+{
+	SqPtrArray *columnArray;
+
+	columnArray = sq_type_entry_array(table->type);
+	for (unsigned int index = 0;  index < columnArray->length;  index++) {
+		SqColumn *column = (SqColumn*)columnArray->data[index];
+
+		// 写入列名
+		sq_buffer_write(buffer, column->name);
+
+		// 写入列类型
+		int sql_type = column->sql_type;
+		if (sql_type == SQ_SQL_TYPE_UNKNOWN) {
+			// 将 column->type 映射到 SqSqlType
+			if (SQ_TYPE_IS_BUILTIN(type))
+				sql_type = (int)SQ_TYPE_BUILTIN_INDEX(type) + 1;
+			else
+				sql_type = SQ_SQL_TYPE_VARCHAR;
+		}
+
+		switch (sql_type) {
+		case SQ_SQL_TYPE_BOOLEAN:
+			if (db->info->column.has_boolean)
+				sq_buffer_write(buffer, "BOOLEAN");
+			else
+				sq_buffer_write(buffer, "TINYINT");
+			break;
+
+		case SQ_SQL_TYPE_INT:
+		case SQ_SQL_TYPE_INT_UNSIGNED:
+			// 省略
+			break;
+
+		// 省略
+		}
+
+		// 写入其他属性
+		if (column->bit_field & SQB_COLUMN_NULLABLE)
+			sq_buffer_write(buffer, " NOT NULL");
+		if (column->bit_field & SQB_COLUMN_AUTOINCREMENT)
+			sq_buffer_write(buffer, " AUTO_INCREMENT");
+		// 省略
+	}
 }
 ```
 

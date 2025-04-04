@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -153,8 +153,9 @@ static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *re
 			return SQCODE_EXEC_ERROR;
 #endif
 /*
-		// if Sqxc element prepare for multiple row
+		// If SqxcValue is prepared to receive multiple rows
 		if (sqxc_value_container(xc)) {
+			// SQL multiple rows corresponds to SQXC_TYPE_ARRAY
 			xc->type = SQXC_TYPE_ARRAY;
 			xc->name = NULL;
 			xc->value.pointer = NULL;
@@ -163,8 +164,9 @@ static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *re
 
 		// get rows from Database product and send them to Sqxc element 'xc'
 
-		// if Sqxc element prepare for multiple row
+		// If SqxcValue is prepared to receive multiple rows
 		if (sqxc_value_container(xc)) {
+			// SQL multiple rows corresponds to SQXC_TYPE_ARRAY
 			xc->type = SQXC_TYPE_ARRAY_END;
 			xc->name = NULL;
 //			xc->value.pointer = NULL;
