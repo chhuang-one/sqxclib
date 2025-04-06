@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -151,7 +151,7 @@ struct DbMethod
 
 struct SqdbInfo
 {
-	uintptr_t      size;       // Sqdb instance size
+	unsigned int   size;       // Sqdb instance size
 	SqdbProduct    product;    // SQL  product code
 
 	struct {
