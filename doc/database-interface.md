@@ -6,9 +6,9 @@ The Sqdb series are basic structures for operating database products. If you wan
 
 | struct name | description                                                       |
 | ----------- | ----------------------------------------------------------------- |
-| Sqdb        | Base structure for Database product such as SQLite, MySQL, etc.   |
-| SqdbInfo    | Interface of Database product.                                    |
-| SqdbConfig  | Setting of Database product.                                      |
+| Sqdb        | Base structure for database product such as SQLite, MySQL, etc.   |
+| SqdbInfo    | Interface of database product.                                    |
+| SqdbConfig  | Setting of database product.                                      |
 
 # Support new database product
 
@@ -19,7 +19,7 @@ Suppose we want to support a new database product Xsql, we need to complete the 
 Add definitions in the header file.
 
 ```c
-// Define Database product code for Xsql.
+// Define database product code for Xsql.
 #define  SQDB_PRODUCT_XSQL    (SQDB_PRODUCT_CUSTOM + 1)
 
 // Define SqdbInfo interface name for Xsql, global variable 'sqdbInfoXsql' will be defined later.
@@ -118,7 +118,7 @@ static int  sqdb_xsql_migrate(SqdbXsql *sqdb, SqSchema *schema, SqSchema *schema
 // Global variable 'sqdbInfoXsql' will be used when creating a Sqdb instance.
 const SqdbInfo sqdbInfoXsql = {
 	.size    = sizeof(SqdbXsql),         // Sqdb instance size
-	.product = SQDB_PRODUCT_XSQL,        // Database product code
+	.product = SQDB_PRODUCT_XSQL,        // database product code
 
 	.column  = {
 		.has_boolean = 1,                // has Boolean Data Type
@@ -126,7 +126,7 @@ const SqdbInfo sqdbInfoXsql = {
 		.use_modify = 0,                 // use "MODIFY COLUMN" to change column
 	},
 
-	// for  Database column and table identifiers
+	// for  database column and table identifiers
 	.quote = {
 		.identifier = {'"', '"'}         // ANSI-SQL quote identifier is ""
 		                                 // SQLite is "", MySQL is ``, SQL Server is []
@@ -137,7 +137,7 @@ const SqdbInfo sqdbInfoXsql = {
 	// finalize derived structure of Sqdb
 	.final   = sqdb_xsql_final,
 
-	// open a database file or establish a connection to a Database server
+	// open a database file or establish a connection to a database server
 	.open    = sqdb_xsql_open,
 	// close a previously opened file or connection.
 	.close   = sqdb_xsql_close,
@@ -305,7 +305,8 @@ To notify the database instance that the migration is completed, call SqdbInfo::
 ```c
 static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *schemaNext)
 {
-	SqBuffer *buffer;
+	SqBuffer   *buffer;
+	SqPtrArray *tableArray;
 
 	// If 'schemaNext' is NULL, update and sort 'schemaCurrent' and
 	// synchronize 'schemaCurrent' to database (mainly for SQLite).
@@ -317,13 +318,17 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 
 	if (db->version < schemaNext->version) {
 		// do migrations by 'schemaNext'
-		for (unsigned int index = 0;  index < schemaNext->type->n_entry;  index++) {
-			SqTable *table = (SqTable*)schemaNext->type->entry[index];
+
+		// get table array from schemaNext->type->entry
+		tableArray = sq_type_entry_array(schemaNext->type);
+		// get each table from array and write SQL statement to change attributes.
+		for (unsigned int index = 0;  index < tableArray->length;  index++) {
+			SqTable *table = (SqTable*)tableArray->data[index];
 			// Run migrations by records in 'table'.
 			// Table related records is in 'table' and column related records is in 'table->type->entry'.
 
 			// Determine the operation to be performed (ALTER, DROP, RENAME, ADD).
-			// The processing flow here is the same as for 'column'.
+			// The following processing flow for tables is the same as that for columns.
 			if (table->bit_field & SQB_CHANGED) {
 				// ALTER TABLE
 				// table->name is the name of the table to be altered
@@ -353,19 +358,21 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 ```
 
 sqdb_xsql_alter_table() is a function that alters table. It shows the processing flow of records in 'table'.
-Please refer to function sqdb_exec_alter_table() in Sqdb.c for more details.
+Please refer to function sqdb_exec_alter_table() in [Sqdb.c](../sqxc/Sqdb.c) for more details.
 
 ```c
 int  sqdb_xsql_alter_table(SqdbXsql *db, SqBuffer *buffer, SqTable *table)
 {
 	SqPtrArray *columnArray;
 
+	// get column array from table->type->entry
 	columnArray = sq_type_entry_array(table->type);
+	// get each column from array and write SQL statement to change attributes.
 	for (unsigned int index = 0;  index < columnArray->length;  index++) {
 		SqColumn *column = (SqColumn*)columnArray->data[index];
 
 		// Determine the operation to be performed (ALTER, DROP, RENAME, ADD).
-		// The processing flow here is the same as for 'table'.
+		// The following processing flow for columns is the same as that for tables.
 		if (column->bit_field & SQB_COLUMN_CHANGED) {
 			// ALTER COLUMN
 			// column->name is the name of the column to be altered
@@ -388,14 +395,16 @@ int  sqdb_xsql_alter_table(SqdbXsql *db, SqBuffer *buffer, SqTable *table)
 ```
 
 sqdb_xsql_create_table() is a function that creates table. It creates SQL table by records in 'table'.
-There are many omissions in the following code, please refer to function sqdb_sql_write_column() in Sqdb.c for more details.
+There are many omissions in the following code, please refer to functions sqdb_sql_create_table() and sqdb_sql_write_column() in [Sqdb.c](../sqxc/Sqdb.c) for more details.
 
 ```c
 int  sqdb_xsql_create_table(SqdbXsql *db, SqBuffer *buffer, SqTable *table)
 {
 	SqPtrArray *columnArray;
 
+	// get column array from table->type->entry
 	columnArray = sq_type_entry_array(table->type);
+	// get each column from array and write their attributes.
 	for (unsigned int index = 0;  index < columnArray->length;  index++) {
 		SqColumn *column = (SqColumn*)columnArray->data[index];
 

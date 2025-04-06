@@ -2,18 +2,18 @@
 
 # Sqdb
 
-Sqdb is base structure for Database product such as SQLite, MySQL, etc.
+Sqdb is base structure for database product such as SQLite, MySQL, etc.
 The following are the implemented database products:
 
-| derived structure | Database product | source file    |
+| Derived structure | Database product | Source file    |
 | ----------------- | ---------------- | -------------- |
 | SqdbSqlite        | SQLite           | SqdbSqlite.c   |
 | SqdbMysql         | MySQL            | SqdbMysql.c    |
 | SqdbPostgre       | PostgreSQL       | SqdbPostgre.c  |
 
-## How to support new Database product:
+## How to support new database product:
 
-Please refer to the document [database-interface.md](database-interface.md).
+This document mainly explains how to use Sqdb. If you want to support new database products, please refer to the document [database-interface.md](database-interface.md).
 
 ## Open and close database
 

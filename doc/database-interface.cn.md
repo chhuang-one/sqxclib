@@ -305,7 +305,8 @@ SqdbInfo::migrate() 使用架构的版本来决定是否迁移。它有 2 个 sc
 ```c
 static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *schemaNext)
 {
-	SqBuffer *buffer;
+	SqBuffer   *buffer;
+	SqPtrArray *tableArray;
 
 	// 如果 'schemaNext' 为 NULL，则更新并排序 'schemaCurrent'，并
 	// 将 'schemaCurrent' 同步到数据库（主要用于 SQLite）。
@@ -317,13 +318,17 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 
 	if (db->version < schemaNext->version) {
 		// 通过 'schemaNext' 进行迁移
-		for (unsigned int index = 0;  index < schemaNext->type->n_entry;  index++) {
-			SqTable *table = (SqTable*)schemaNext->type->entry[index];
+
+		// 从 schemaNext->type->entry 获取表数组
+		tableArray = sq_type_entry_array(schemaNext->type);
+		// 从数组中获取每一表并编写 SQL 语句来更改属性。
+		for (unsigned int index = 0;  index < tableArray->length;  index++) {
+			SqTable *table = (SqTable*)tableArray->data[index];
 			// 根据 'table' 中的记录运行迁移。
 			// 表相关记录在 'table' 中，列相关记录在 'table->type->entry' 中。
 
 			// 确定要执行的操作（ALTER、DROP、RENAME、ADD）。
-			// 这里的处理流程与 'column' 相同。
+			// 下面对于表的处理流程与列的处理流程相同。
 			if (table->bit_field & SQB_CHANGED) {
 				// 更改表   ALTER TABLE
 				// table->name 是需要修改的表的名称
@@ -353,19 +358,21 @@ static int  sqdb_xsql_migrate(SqdbXsql *db, SqSchema *schemaCurrent, SqSchema *s
 ```
 
 sqdb_xsql_alter_table() 是一个修改表的函数。它显示了 'table' 中记录的处理流程。
-请参考 Sqdb.c 中的函数 sqdb_exec_alter_table() 获取更多详细信息。
+请参考 [Sqdb.c](../sqxc/Sqdb.c) 中的函数 sqdb_exec_alter_table() 获取更多详细信息。
 
 ```c
 int  sqdb_xsql_alter_table(SqdbXsql *db, SqBuffer *buffer, SqTable *table)
 {
 	SqPtrArray *columnArray;
 
+	// 从 table->type->entry 获取列数组
 	columnArray = sq_type_entry_array(table->type);
+	// 从数组中获取每一列并编写 SQL 语句来更改属性。
 	for (unsigned int index = 0;  index < columnArray->length;  index++) {
 		SqColumn *column = (SqColumn*)columnArray->data[index];
 
 		// 确定要执行的操作（ALTER、DROP、RENAME、ADD）。
-		// 此处的处理流程与 'table' 相同。
+		// 下面对于列的处理流程与表的处理流程相同。
 		if (column->bit_field & SQB_COLUMN_CHANGED) {
 			// 更改列   ALTER COLUMN
 			// column->name 是要修改的列的名称
@@ -388,14 +395,16 @@ int  sqdb_xsql_alter_table(SqdbXsql *db, SqBuffer *buffer, SqTable *table)
 ```
 
 sqdb_xsql_create_table() 是一个创建表的函数。它根据 'table' 中的记录创建 SQL 表。
-下面的代码有很多遗漏，请参考 Sqdb.c 中的函数 sqdb_sql_write_column() 获取更多详细信息。
+下面的代码有很多遗漏，请参考 [Sqdb.c](../sqxc/Sqdb.c) 中的函数 sqdb_sql_create_table() 和 sqdb_sql_write_column() 获取更多详细信息。
 
 ```c
 int  sqdb_xsql_create_table(SqdbXsql *db, SqBuffer *buffer, SqTable *table)
 {
 	SqPtrArray *columnArray;
 
+	// 从 table->type->entry 获取列数组
 	columnArray = sq_type_entry_array(table->type);
+	// 从数组中获取每一列并写入它们的属性。
 	for (unsigned int index = 0;  index < columnArray->length;  index++) {
 		SqColumn *column = (SqColumn*)columnArray->data[index];
 

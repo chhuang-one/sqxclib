@@ -13,7 +13,7 @@ Sqdb 是 SQLite、MySQL 等数据库产品的基础结构。
 
 ## 如何支持新的数据库产品：
 
-请参阅文档 [database-interface.cn.md](database-interface.cn.md)。
+本文档主要讲解如何使用 Sqdb。如果要支持新的数据库产品，请参考文档 [database-interface.md](database-interface.md)。
 
 ## 打开和关闭数据库
 
