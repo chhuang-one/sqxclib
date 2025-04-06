@@ -96,11 +96,6 @@ extern "C" {
 #define sq_ptr_array_push_in(array, index, value)       \
 		sq_array_push_in(array, void*, index, value)
 
-// deprecated
-// void sq_ptr_array_push_to(void *array, unsigned int index, void *value);
-#define sq_ptr_array_push_to(array, index, value)       \
-		sq_array_push_to(array, void*, index, value)
-
 // Quick sort
 // void sq_ptr_array_sort(void *array, SqCompareFunc compareFunc);
 #define sq_ptr_array_sort(array, compareFunc)           \
@@ -149,25 +144,6 @@ extern "C" {
 // void sq_ptr_array_steal_addr(void *array, void **elementAddr, unsigned int count);
 #define sq_ptr_array_steal_addr(array, elementAddr, count)       \
 		sq_array_steal_addr(array, void*, elementAddr, count)
-
-/* deprecated macros */
-
-// deprecated
-//void **SQ_PTR_ARRAY_APPEND(void *array, const void *values, unsigned int count);
-#define SQ_PTR_ARRAY_APPEND        sq_ptr_array_append
-
-// deprecated
-//void **SQ_PTR_ARRAY_INSERT(void *array, unsigned int index, const void *values, unsigned int count);
-#define SQ_PTR_ARRAY_INSERT        sq_ptr_array_insert
-
-// deprecated
-// Removes a value from array without calling the destroy function.
-// void SQ_PTR_ARRAY_STEAL(void *array, unsigned int index, unsigned int count);
-#define SQ_PTR_ARRAY_STEAL         sq_ptr_array_steal
-
-// deprecated
-// void SQ_PTR_ARRAY_STEAL_ADDR(void *array, void **elementAddr, unsigned int count);
-#define SQ_PTR_ARRAY_STEAL_ADDR    sq_ptr_array_steal_addr
 
 /* C functions */
 

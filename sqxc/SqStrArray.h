@@ -91,10 +91,6 @@ extern "C" {
 void  *sq_str_array_init(SqStrArray *array, unsigned int capacity);
 
 void   sq_str_array_push_in(SqStrArray *array, unsigned int index, const char *str);
-
-// deprecated
-void   sq_str_array_push_to(SqStrArray *array, unsigned int index, const char *str);
-
 char **sq_str_array_insert(SqStrArray *array, unsigned int index, const char **strs, unsigned int count);
 
 void   sq_str_array_push(SqStrArray *array, const char *str);

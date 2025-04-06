@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -25,12 +25,6 @@ void  *sq_str_array_init(SqStrArray *array, unsigned int capacity)
 }
 
 void   sq_str_array_push_in(SqStrArray *array, unsigned int index, const char *str)
-{
-	sq_ptr_array_push_in(array, index, strdup(str));
-}
-
-// deprecated
-void   sq_str_array_push_to(SqStrArray *array, unsigned int index, const char *str)
 {
 	sq_ptr_array_push_in(array, index, strdup(str));
 }

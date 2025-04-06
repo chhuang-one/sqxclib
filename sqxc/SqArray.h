@@ -115,11 +115,6 @@ extern "C" {
 #define sq_array_push_in(array, ElementType, index, value)    \
 		*(ElementType*)sq_array_alloc_at(array, index, 1) = (ElementType)(value)
 
-// deprecated
-// void sq_array_push_to(void *array, ElementType, unsigned int index, ElementType value);
-#define sq_array_push_to(array, ElementType, index, value)    \
-		*(ElementType*)sq_array_alloc_at(array, index, 1) = (ElementType)(value)
-
 // Quick sort
 // void sq_array_sort(void *array, ElementType, SqCompareFunc compareFunc);
 #define sq_array_sort(array, ElementType, compareFunc)               \
@@ -832,11 +827,6 @@ typedef Array<int>    IntArray;
 // void sq_int_array_push_in(void *array, unsigned int index, int value);
 #define sq_int_array_push_in(array, index, value)    \
 		sq_array_push_in(array, int, index, value)
-
-// deprecated
-// void sq_int_array_push_to(void *array, unsigned int index, int value);
-#define sq_int_array_push_to(array, index, value)    \
-		sq_array_push_to(array, int, index, value)
 
 // Quick sort
 // void sq_int_array_sort(void *array, SqCompareFunc compareFunc);
