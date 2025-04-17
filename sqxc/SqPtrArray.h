@@ -110,7 +110,7 @@ extern "C" {
 #define sq_ptr_array_find(array, key, compareFunc)      \
 		SQ_ARRAY_FIND(array, void*, key, compareFunc)
 
-//void **sq_array_find_sorted(void *array, const void *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
+//void **sq_ptr_array_find_sorted(void *array, const void *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define sq_ptr_array_find_sorted(array, key, compareFunc, insertingIndex)    \
 		SQ_ARRAY_FIND_SORTED(array, void*, key, compareFunc, insertingIndex)
 

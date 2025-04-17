@@ -236,7 +236,7 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 				xc->name = NULL;
 				xc->value.pointer = NULL;
 				xc = sqxc_send(xc);
-			}			
+			}
 			break;
 
 		case 'I':    // INSERT

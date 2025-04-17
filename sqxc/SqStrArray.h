@@ -75,7 +75,7 @@ extern "C" {
 #define sq_str_array_find(array, key, compareFunc)      \
 		SQ_ARRAY_FIND(array, char*, key, compareFunc)
 
-//char **sq_array_find_sorted(void *array, const char *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
+//char **sq_str_array_find_sorted(void *array, const char *key, SqCompareFunc compareFunc, unsigned int *insertingIndex);
 #define sq_str_array_find_sorted(array, key, compareFunc, insertingIndex)   \
 		SQ_ARRAY_FIND_SORTED(array, char*, key, compareFunc, insertingIndex)
 

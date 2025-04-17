@@ -127,16 +127,11 @@ void test_time_string()
 		puts(str);
 }
 
-void test_util()
-{
-	test_name_convention();
-	test_time_string();
-}
-
 // ----------------------------------------------------------------------------
 
 int main(int argc, char **argv)
 {
-	test_util();
+	test_name_convention();
+	test_time_string();
 	return EXIT_SUCCESS;
 }
