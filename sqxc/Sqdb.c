@@ -835,13 +835,13 @@ void sqdb_sql_write_composite_columns(Sqdb *db, SqBuffer *sql_buf, SqColumn *col
 // used by sqdb_sql_write_foreign_ref()
 #define FOREIGN_N_EVENTS            2     // ON DELETE, ON UPDATE
 
-static const char *foreign_events[FOREIGN_N_EVENTS] = {
-	" ON DELETE ",
-	" ON UPDATE ",
-};
-
 void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 {
+	const char *foreign_events[FOREIGN_N_EVENTS] = {
+		" ON DELETE ",
+		" ON UPDATE ",
+	};
+
 	char **foreign;
 	union {
 		char        **end_column;
