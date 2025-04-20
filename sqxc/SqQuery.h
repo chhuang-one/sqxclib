@@ -840,10 +840,9 @@ void  sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table
 
 struct SqQueryNode
 {
-	int            type;       // SqQueryNodeType
+	char          *str;
 	SqQueryNode   *next;
 	SqQueryNode   *children;   // arguments, nested, or inserted string
-	char          *value;
 };
 
 /*	SqQuery is Query builder
@@ -852,13 +851,13 @@ struct SqQueryNode
 	SqQueryNode    root;          \
 	SqQueryNode   *used;          \
 	SqQueryNode   *freed;         \
-	void          *node_chunk;    \
-	int            node_count;    \
 	SqQueryNested *nested_cur;    \
-	int            nested_count;  \
+	void          *node_chunk;    \
+	uint16_t       node_count;    \
+	uint16_t       nested_count;  \
 	char          *str;           \
-	size_t         length;        \
-	size_t         allocated
+	uint32_t       length;        \
+	uint32_t       allocated
 
 #ifdef __cplusplus
 struct SqQuery : Sq::QueryMethod             // <-- 1. inherit C++ member function(method)
@@ -871,15 +870,15 @@ struct SqQuery
 	SqQueryNode    root;
 	SqQueryNode   *used;          // used  SqQueryNode in node_chunk
 	SqQueryNode   *freed;         // freed SqQueryNode (recycled)
-	void          *node_chunk;    // The last of allocated chunk
-	int            node_count;    // number of used nodes in chunks
 	SqQueryNested *nested_cur;
-	int            nested_count;
+	void          *node_chunk;    // The last of allocated chunk
+	uint16_t       node_count;    // number of used nodes in chunks
+	uint16_t       nested_count;
 
 	// sq_query_c() and sq_query_to_sql() use these
 	char          *str;
-	size_t         length;
-	size_t         allocated;
+	uint32_t       length;
+	uint32_t       allocated;
  */
 };
 

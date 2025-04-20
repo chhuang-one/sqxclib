@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -48,76 +48,229 @@ static void         sq_query_node_free(SqQueryNode *node, SqQuery *query);
 
 static SqQueryNode *sq_query_node_insert(SqQueryNode *parent, SqQueryNode *prev, SqQueryNode *node);
 static SqQueryNode *sq_query_node_last(SqQueryNode *node);
-static SqQueryNode *sq_query_node_find(SqQueryNode *parent, int sqn_cmd, SqQueryNode **insert_pos);
+static SqQueryNode *sq_query_node_find(SqQueryNode *parent, const char *constString, SqQueryNode **insert_pos);
 
-enum SqQueryNodeType {
-	SQN_NONE,    // 0, empty string
+// ----------------------------------------------------------------------------
+// string will be in constStringGroup
 
-	// --------------------------------
-	// commands
+#define SQN_NONE_STRING           ""
 
-	SQN_CREATE_TABLE,                    // maps to SQ_QUERY_CMD_CREATE_TABLE in SqQuery.h
-	SQN_ALERT_TABLE,
-	SQN_DROP_TABLE,
-	SQN_TRUNCATE_TABLE,
-	SQN_INSERT_INTO,
-	SQN_UPDATE,
-	SQN_DELETE,
-	SQN_SELECT,           // INSERT INTO can use this
+#define SQN_CREATE_TABLE_STRING   "CREATE TABLE"
+#define SQN_ALERT_TABLE_STRING    "ALERT TABLE"
+#define SQN_DROP_TABLE_STRING     "DROP TABLE"
+#define SQN_TRUNCATE_TABLE_STRING "TRUNCATE TABLE"
+#define SQN_INSERT_INTO_STRING    "INSERT INTO"
+#define SQN_UPDATE_STRING         "UPDATE"
+#define SQN_DELETE_STRING         "DELETE"
+#define SQN_SELECT_STRING         "SELECT"
 
-	SQN_COMMAND_BEG = SQN_CREATE_TABLE,
-	SQN_COMMAND_END = SQN_SELECT,
+#define SQN_FROM_STRING           "FROM"
+#define SQN_JOIN_STRING           "JOIN"
+#define SQN_LEFT_JOIN_STRING      "LEFT JOIN"
+#define SQN_RIGHT_JOIN_STRING     "RIGHT JOIN"
+#define SQN_FULL_JOIN_STRING      "FULL JOIN"
+#define SQN_CROSS_JOIN_STRING     "CROSS JOIN"
+// #define SQN_SET_STRING            "SET"        // UPDATE
+#define SQN_WHERE_STRING          "WHERE"      // SELECT, UPDATE, DELETE
+#define SQN_GROUP_BY_STRING       "GROUP BY"
+#define SQN_HAVING_STRING         "HAVING"
+#define SQN_ORDER_BY_STRING       "ORDER BY"
+#define SQN_UNION_STRING          "UNION"
+#define SQN_UNION_ALL_STRING      "UNION ALL"
+#define SQN_LIMIT_STRING          "LIMIT"
 
-	// --------------------------------
-	// SELECT (these must keep order)
+#define SQN_DISTINCT_STRING       "DISTINCT"   // SELECT
+#define SQN_AS_STRING             "AS"         // SELECT: alias name for table or column
+#define SQN_OR_STRING             "OR"         // WHERE, JOIN
+#define SQN_AND_STRING            "AND"        // WHERE, JOIN, BETWEEN
+#define SQN_NOT_STRING            "NOT"        // WHERE
+#define SQN_EXISTS_STRING         "EXISTS"     // WHERE
+#define SQN_ON_STRING             "ON"         // JOIN
+// #define SQN_IN_STRING             "IN"         // WHERE
+// #define SQN_BETWEEN_STRING        "BETWEEN"    // WHERE, JOIN
+// #define SQN_LIKE_STRING           "LIKE"       // WHERE
 
-	SQN_FROM,
-	SQN_JOIN,      // INNER JOIN         // maps to SQ_QUERYJOIN_INNER in SqQuery.h
-	SQN_LEFT_JOIN,
-	SQN_RIGHT_JOIN,
-	SQN_FULL_JOIN,
-	SQN_CROSS_JOIN,
-	SQN_SET,       // UPDATE
-	SQN_WHERE,     // SELECT, UPDATE, DELETE
-	SQN_GROUP_BY,
-	SQN_HAVING,
-	SQN_ORDER_BY,
-	SQN_UNION,
-	SQN_UNION_ALL,
-	SQN_LIMIT,
+#define SQN_ASC_STRING            "ASC"        // ORDER BY
+#define SQN_DESC_STRING           "DESC"       // ORDER BY
 
-	// --------------------------------
+#define SQN_OFFSET_STRING         "OFFSET"     // LIMIT
 
-	SQN_DISTINCT,  // SELECT
-	SQN_AS,        // SELECT xxx AS : alias name for table or column
-	SQN_OR,        // WHERE, JOIN
-	SQN_AND,       // WHERE, JOIN, BETWEEN
-	SQN_NOT,       // WHERE
-	SQN_EXISTS,    // WHERE
-	SQN_ON,        // JOIN
-//	SQN_IN,        // WHERE
-//	SQN_BETWEEN,   // WHERE, JOIN
-	SQN_LIKE,      // WHERE
+// #define SQN_VALUES_STRING         "VALUES"     // INSERT INTO
 
-	SQN_ASC,       // ORDER BY           // maps to SQ_QUERYSORT_ASC in SqQuery.h
-	SQN_DESC,      // ORDER BY
+#define SQN_BRACKETS_L_STRING     "("                 //
+#define SQN_BRACKETS_R_STRING     ")"                 //
+#define SQN_COMMA_STRING          ","                 //
 
-	SQN_OFFSET,    // LIMIT
+// ----------------------------------------------------------------------------
+// string position in constStringGroup
 
-	SQN_VALUES,    // INSERT INTO
+#define SQN_NONE_POS            0
 
-	// --------------------------------
-	SQN_SYMBOL,                   // equal SQN_BRACKETS_L
-	SQN_BRACKETS_L = SQN_SYMBOL,  // (
-	SQN_BRACKETS_R,               // )
-	SQN_COMMA,                    // ,
+#define SQN_CREATE_TABLE_POS    sizeof(SQN_NONE_STRING)           + SQN_NONE_POS
+#define SQN_ALERT_TABLE_POS     sizeof(SQN_CREATE_TABLE_STRING)   + SQN_CREATE_TABLE_POS
+#define SQN_DROP_TABLE_POS      sizeof(SQN_ALERT_TABLE_STRING)    + SQN_ALERT_TABLE_POS
+#define SQN_TRUNCATE_TABLE_POS  sizeof(SQN_DROP_TABLE_STRING)     + SQN_DROP_TABLE_POS
+#define SQN_INSERT_INTO_POS     sizeof(SQN_TRUNCATE_TABLE_STRING) + SQN_TRUNCATE_TABLE_POS
+#define SQN_UPDATE_POS          sizeof(SQN_INSERT_INTO_STRING)    + SQN_INSERT_INTO_POS
+#define SQN_DELETE_POS          sizeof(SQN_UPDATE_STRING)         + SQN_UPDATE_POS
+#define SQN_SELECT_POS          sizeof(SQN_DELETE_STRING)         + SQN_DELETE_POS
 
-	SQN_N_CODE,
+#define SQN_FROM_POS            sizeof(SQN_SELECT_STRING)         + SQN_SELECT_POS
+#define SQN_JOIN_POS            sizeof(SQN_FROM_STRING)           + SQN_FROM_POS
+#define SQN_LEFT_JOIN_POS       sizeof(SQN_JOIN_STRING)           + SQN_JOIN_POS
+#define SQN_RIGHT_JOIN_POS      sizeof(SQN_LEFT_JOIN_STRING)      + SQN_LEFT_JOIN_POS
+#define SQN_FULL_JOIN_POS       sizeof(SQN_RIGHT_JOIN_STRING)     + SQN_RIGHT_JOIN_POS
+#define SQN_CROSS_JOIN_POS      sizeof(SQN_FULL_JOIN_STRING)      + SQN_FULL_JOIN_POS
+// #define SQN_SET_POS
+#define SQN_WHERE_POS           sizeof(SQN_CROSS_JOIN_STRING)     + SQN_CROSS_JOIN_POS
+#define SQN_GROUP_BY_POS        sizeof(SQN_WHERE_STRING)          + SQN_WHERE_POS
+#define SQN_HAVING_POS          sizeof(SQN_GROUP_BY_STRING)       + SQN_GROUP_BY_POS
+#define SQN_ORDER_BY_POS        sizeof(SQN_HAVING_STRING)         + SQN_HAVING_POS
+#define SQN_UNION_POS           sizeof(SQN_ORDER_BY_STRING)       + SQN_ORDER_BY_POS
+#define SQN_UNION_ALL_POS       sizeof(SQN_UNION_STRING)          + SQN_UNION_POS
+#define SQN_LIMIT_POS           sizeof(SQN_UNION_ALL_STRING)      + SQN_UNION_ALL_POS
 
-	// --------------------------------
-	SQN_VALUE      = (1<<16),
-//	SQN_DEFAULT    = (1<<17),
+#define SQN_DISTINCT_POS        sizeof(SQN_LIMIT_STRING)          + SQN_LIMIT_POS
+#define SQN_AS_POS              sizeof(SQN_DISTINCT_STRING)       + SQN_DISTINCT_POS
+#define SQN_OR_POS              sizeof(SQN_AS_STRING)             + SQN_AS_POS
+#define SQN_AND_POS             sizeof(SQN_OR_STRING)             + SQN_OR_POS
+#define SQN_NOT_POS             sizeof(SQN_AND_STRING)            + SQN_AND_POS
+#define SQN_EXISTS_POS          sizeof(SQN_NOT_STRING)            + SQN_NOT_POS
+#define SQN_ON_POS              sizeof(SQN_EXISTS_STRING)         + SQN_EXISTS_POS
+// #define SQN_IN_POS
+// #define SQN_BETWEEN_POS
+// #define SQN_LIKE_POS
+
+#define SQN_ASC_POS             sizeof(SQN_ON_STRING)             + SQN_ON_POS
+#define SQN_DESC_POS            sizeof(SQN_ASC_STRING)            + SQN_ASC_POS
+#define SQN_OFFSET_POS          sizeof(SQN_DESC_STRING)           + SQN_DESC_POS
+
+// #define SQN_VALUES_POS
+
+#define SQN_BRACKETS_L_POS      sizeof(SQN_OFFSET_STRING)         + SQN_OFFSET_POS
+#define SQN_BRACKETS_R_POS      sizeof(SQN_BRACKETS_L_STRING)     + SQN_BRACKETS_L_POS
+#define SQN_COMMA_POS           sizeof(SQN_BRACKETS_R_STRING)     + SQN_BRACKETS_R_POS
+
+// SQN_SYMBOL_POS = SQN_BRACKETS_L
+#define SQN_SYMBOL_POS          SQN_BRACKETS_L_POS
+
+// ----------------------------------------------------------------------------
+// string address in constStringGroup
+
+#define SQN_NONE                (strGroupPtr + SQN_NONE_POS)
+
+#define SQN_CREATE_TABLE        (strGroupPtr + SQN_CREATE_TABLE_POS)
+#define SQN_ALERT_TABLE         (strGroupPtr + SQN_ALERT_TABLE_POS)
+#define SQN_DROP_TABLE          (strGroupPtr + SQN_DROP_TABLE_POS)
+#define SQN_TRUNCATE_TABLE      (strGroupPtr + SQN_TRUNCATE_TABLE_POS)
+#define SQN_INSERT_INTO         (strGroupPtr + SQN_INSERT_INTO_POS)
+#define SQN_UPDATE              (strGroupPtr + SQN_UPDATE_POS)
+#define SQN_DELETE              (strGroupPtr + SQN_DELETE_POS)
+#define SQN_SELECT              (strGroupPtr + SQN_SELECT_POS)
+
+#define SQN_FROM                (strGroupPtr + SQN_FROM_POS)
+#define SQN_JOIN                (strGroupPtr + SQN_JOIN_POS)
+#define SQN_LEFT_JOIN           (strGroupPtr + SQN_LEFT_JOIN_POS)
+#define SQN_RIGHT_JOIN          (strGroupPtr + SQN_RIGHT_JOIN_POS)
+#define SQN_FULL_JOIN           (strGroupPtr + SQN_FULL_JOIN_POS)
+#define SQN_CROSS_JOIN          (strGroupPtr + SQN_CROSS_JOIN_POS)
+// #define SQN_SET                 (strGroupPtr + SQN_SET_POS)
+#define SQN_WHERE               (strGroupPtr + SQN_WHERE_POS)
+#define SQN_GROUP_BY            (strGroupPtr + SQN_GROUP_BY_POS)
+#define SQN_HAVING              (strGroupPtr + SQN_HAVING_POS)
+#define SQN_ORDER_BY            (strGroupPtr + SQN_ORDER_BY_POS)
+#define SQN_UNION               (strGroupPtr + SQN_UNION_POS)
+#define SQN_UNION_ALL           (strGroupPtr + SQN_UNION_ALL_POS)
+#define SQN_LIMIT               (strGroupPtr + SQN_LIMIT_POS)
+
+#define SQN_DISTINCT            (strGroupPtr + SQN_DISTINCT_POS)
+#define SQN_AS                  (strGroupPtr + SQN_AS_POS)
+#define SQN_OR                  (strGroupPtr + SQN_OR_POS)
+#define SQN_AND                 (strGroupPtr + SQN_AND_POS)
+#define SQN_NOT                 (strGroupPtr + SQN_NOT_POS)
+#define SQN_EXISTS              (strGroupPtr + SQN_EXISTS_POS)
+#define SQN_ON                  (strGroupPtr + SQN_ON_POS)
+// #define SQN_IN                  (strGroupPtr + SQN_IN_POS)
+// #define SQN_BETWEEN             (strGroupPtr + SQN_BETWEEN_POS)
+// #define SQN_LIKE                (strGroupPtr + SQN_LIKE_POS)
+
+#define SQN_ASC                 (strGroupPtr + SQN_ASC_POS)
+#define SQN_DESC                (strGroupPtr + SQN_DESC_POS)
+#define SQN_OFFSET              (strGroupPtr + SQN_OFFSET_POS)
+
+// #define SQN_VALUES              (strGroupPtr + SQN_VALUES_POS)
+
+#define SQN_BRACKETS_L          (strGroupPtr + SQN_BRACKETS_L_POS)
+#define SQN_BRACKETS_R          (strGroupPtr + SQN_BRACKETS_R_POS)
+#define SQN_COMMA               (strGroupPtr + SQN_COMMA_POS)
+
+// SQN_SYMBOL = SQN_BRACKETS_L
+#define SQN_SYMBOL              SQN_BRACKETS_L
+
+// ----------------------------------------------------------------------------
+// string group - Make sure all SqQuery words are placed together in memory
+
+static const char constStringGroup[] =
+{
+	SQN_NONE_STRING           "\0"
+
+	SQN_CREATE_TABLE_STRING   "\0"
+	SQN_ALERT_TABLE_STRING    "\0"
+	SQN_DROP_TABLE_STRING     "\0"
+	SQN_TRUNCATE_TABLE_STRING "\0"
+	SQN_INSERT_INTO_STRING    "\0"
+	SQN_UPDATE_STRING         "\0"
+	SQN_DELETE_STRING         "\0"
+	SQN_SELECT_STRING         "\0"
+
+	SQN_FROM_STRING           "\0"
+	SQN_JOIN_STRING           "\0"
+	SQN_LEFT_JOIN_STRING      "\0"
+	SQN_RIGHT_JOIN_STRING     "\0"
+	SQN_FULL_JOIN_STRING      "\0"
+	SQN_CROSS_JOIN_STRING     "\0"
+//	SQN_SET_STRING            "\0"
+	SQN_WHERE_STRING          "\0"
+	SQN_GROUP_BY_STRING       "\0"
+	SQN_HAVING_STRING         "\0"
+	SQN_ORDER_BY_STRING       "\0"
+	SQN_UNION_STRING          "\0"
+	SQN_UNION_ALL_STRING      "\0"
+	SQN_LIMIT_STRING          "\0"
+
+	SQN_DISTINCT_STRING       "\0"
+	SQN_AS_STRING             "\0"
+	SQN_OR_STRING             "\0"
+	SQN_AND_STRING            "\0"
+	SQN_NOT_STRING            "\0"
+	SQN_EXISTS_STRING         "\0"
+	SQN_ON_STRING             "\0"
+//	SQN_IN_STRING             "\0"
+//	SQN_BETWEEN_STRING        "\0"
+//	SQN_LIKE_STRING           "\0"
+
+	SQN_ASC_STRING            "\0"
+	SQN_DESC_STRING           "\0"
+
+	SQN_OFFSET_STRING         "\0"
+
+//	SQN_VALUES_STRING         "\0"
+
+	// SQN_SYMBOL = SQN_BRACKETS_L
+	SQN_BRACKETS_L_STRING     "\0"
+	SQN_BRACKETS_R_STRING     "\0"
+	SQN_COMMA_STRING          "\0"
 };
+
+// 'strGroupPtr' pointer to 'constStringGroup'.
+// Use the variable 'strGroupPtr' instead of using 'constStringGroup' directly. This can reduce binary size.
+const char *strGroupPtr = constStringGroup;
+
+#define IS_CONST_STR(addr)     ((addr) < strGroupPtr+sizeof(constStringGroup) && (addr) > strGroupPtr)
+#define NOT_CONST_STR(addr)    ((addr) > strGroupPtr+sizeof(constStringGroup) || (addr) < strGroupPtr)
+
+// ----------------------------------------------------------------------------
+// SqQueryNested
 
 struct SqQueryNested
 {
@@ -132,9 +285,6 @@ struct SqQueryNested
 	// current condition
 	SqQueryNode    *joinon;     // JOIN table ON  AND  OR
 };
-
-
-static const char  *sqnword[SQN_N_CODE];
 
 // ----------------------------------------------------------------------------
 // SqQuery
@@ -205,7 +355,7 @@ static void sq_query_node_set_raw(SqQueryNode *node, unsigned int raw_args, va_l
 
 	str = va_arg(arg_list, char*);
 	if ((raw_args & SQ_QUERYARGS_N_MASK) == SQ_QUERYARGS_1)
-		node->value = strdup(str);
+		node->str = strdup(str);
 	else {
 		va_copy(arg_copy, arg_list);
 #ifdef _MSC_VER		// for MS C only
@@ -214,10 +364,9 @@ static void sq_query_node_set_raw(SqQueryNode *node, unsigned int raw_args, va_l
 		length = vsnprintf(NULL, 0, str, arg_copy) + 1;
 #endif
 		va_end(arg_copy);
-		node->value = malloc(length);
-		vsnprintf(node->value, length, str, arg_list);
+		node->str = malloc(length);
+		vsnprintf(node->str, length, str, arg_list);
 	}
-	node->type = SQN_VALUE;
 }
 
 void sq_query_append(SqQuery *query, unsigned int raw_args, ...)
@@ -240,10 +389,11 @@ bool sq_query_from(SqQuery *query, const char *table)
 		return false;
 	// insert table node after command node
 	node = sq_query_node_insert(nested->parent, nested->command, sq_query_node_new(query));
-	if (nested->command && nested->command->type < SQN_DELETE)    // not DELETE or SELECT
-		node->type = SQN_NONE;
+	// command exists and is not DELETE or SELECT
+	if (nested->command && nested->command->str < SQN_DELETE)
+		node->str = (char*)SQN_NONE;
 	else
-		node->type = SQN_FROM;
+		node->str = (char*)SQN_FROM;
 	nested->name = node;
 
 	// append table name
@@ -260,14 +410,13 @@ void sq_query_as(SqQuery *query, const char *name)
 		return;
 	// insert AS node
 	sub_node = sq_query_node_new(query);
-	sub_node->type = SQN_AS;
+	sub_node->str = (char*)SQN_AS;
 	sub_node->next = node->next;
 	node->next = sub_node;
 	node = sub_node;
 	// insert alias name in children of above AS node
 	sub_node = sq_query_node_new(query);
-	sub_node->type = SQN_VALUE;
-	sub_node->value = strdup(name);
+	sub_node->str = strdup(name);
 	node->children = sub_node;
 	// clear aliasable
 	query->nested_cur->aliasable = NULL;
@@ -284,14 +433,14 @@ bool sq_query_select_list(SqQuery *query, ...)
 	if (select == NULL) {
 		// insert 'SELECT' node to beginning of list
 		select = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
-		select->type = SQN_SELECT;
+		select->str = (char*)SQN_SELECT;
 		nested->command = select;
 		// The first children node is reserved for DISTINCT
 		sub_node = sq_query_node_new(query);
-		sub_node->type = SQN_NONE;
+		sub_node->str = (char*)SQN_NONE;
 		select->children = sub_node;
 	}
-	else if (select->type != SQN_SELECT) {
+	else if (select->str != SQN_SELECT) {
 #ifndef NDEBUG
 		fprintf(stderr, "%s: current query is not SELECT statement.\n",
 		        "sq_query_select_list()");
@@ -315,7 +464,7 @@ bool sq_query_distinct(SqQuery *query)
 		sq_query_select(query, NULL);
 		command = query->nested_cur->command;
 	}
-	else if (command->type != SQN_SELECT) {
+	else if (command->str != SQN_SELECT) {
 #ifndef NDEBUG
 		fprintf(stderr, "%s: current query is not SELECT statement.\n",
 		        "sq_query_distinct()");
@@ -323,49 +472,54 @@ bool sq_query_distinct(SqQuery *query)
 		return false;
 	}
 	// The first children node is reserved for DISTINCT by sq_query_select()
-	command->children->type = SQN_DISTINCT;
+	command->children->str = (char*)SQN_DISTINCT;
 	return true;
 }
 
-// 'clause_code' can be SQN_WHERE, SQN_HAVING, and SQN_ON.
-// 'logi_args'   can be SQ_QUERYLOGI_OR, SQ_QUERYLOGI_AND, SQ_QUERYLOGI_NOT.
+// 'clauseStr' can be SQN_WHERE, SQN_HAVING, and SQN_ON.
+// 'logi_args' can be SQ_QUERYLOGI_OR, SQ_QUERYLOGI_AND, SQ_QUERYLOGI_NOT.
 // if 'clause_code' is SQN_WHERE, the 'logi_args' can set SQ_QUERYLOGI_NOT.
-static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent, int clause_type, unsigned int logi_args)
+static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent, const char *clauseStr, unsigned int logi_args)
 {
+	// for SQ_QUERYLOGI_X series
+	const uint16_t nodeStrLogiPos[] = {
+		SQN_OR_POS,     // SQ_QUERYLOGI_OR       0
+		SQN_AND_POS,    // SQ_QUERYLOGI_AND      1
+		SQN_NOT_POS,    // SQ_QUERYLOGI_NOT      2
+	};
 	SqQueryNode   *clause = NULL;
 	SqQueryNode   *node;
 
 	if (parent == NULL)
 		parent = query->nested_cur->parent;
 	// insert clause in specify position
-	clause = sq_query_node_find(parent, clause_type, &node);
+	clause = sq_query_node_find(parent, clauseStr, &node);
 	if (clause == NULL) {
 		clause = sq_query_node_insert(parent, node, sq_query_node_new(query));
-		clause->type = clause_type;
+		clause->str = (char*)clauseStr;
 	}
 
 	// append NONE, OR, AND in clause->children
 	node = sq_query_node_new(query);
 	if (clause->children)
-		node->type = SQN_OR + (logi_args & ~(SQ_QUERYLOGI_NOT | SQ_QUERYARGS_MASK));
+		node->str = (char*)strGroupPtr + nodeStrLogiPos[logi_args & ~(SQ_QUERYLOGI_NOT | SQ_QUERYARGS_MASK)];
 	else
-		node->type = SQN_NONE;
+		node->str = (char*)SQN_NONE;
 	sq_query_node_append(clause, node);
 
 	// add or set NOT node.
 	if (logi_args & SQ_QUERYLOGI_NOT) {
-		if (node->type != SQN_NONE) {
+		if (node->str != SQN_NONE) {
 			node->children = sq_query_node_new(query);
 			node = node->children;
 		}
-		node->type = SQN_NOT;
+		node->str = (char*)SQN_NOT;
 	}
 
 	// create & insert node for RAW
 	if (logi_args & SQ_QUERYARGS_RAW) {
 		node->children = sq_query_node_new(query);
 		node = node->children;
-//		node->type = SQN_VALUE;
 	}
 
 	return node;
@@ -394,7 +548,7 @@ void sq_query_where_exists_logical(SqQuery *query, unsigned int logi_args)
 
 	node->children = sq_query_node_new(query);
 	node = node->children;
-	node->type = SQN_EXISTS;
+	node->str = (char*)SQN_EXISTS;
 
 	sq_query_push_nested(query, node);
 }
@@ -496,13 +650,21 @@ void sq_query_where_null_logical(SqQuery *query, const char *column_name, unsign
 	node = node->children;
 
 	if (logi_args & SQ_QUERYLOGI_NOT)
-		node->value = strdup("IS NOT NULL");
+		node->str = strdup("IS NOT NULL");
 	else
-		node->value = strdup("IS NULL");
+		node->str = strdup("IS NULL");
 }
 
 void sq_query_join_full(SqQuery *query, unsigned int join_args, const char *table, ...)
 {
+	// for SQ_QUERYJOIN_X series
+	const uint8_t nodeStrJoinPos[] = {
+		SQN_JOIN_POS,          // SQ_QUERYJOIN_INNER maps to SQN_JOIN
+		SQN_LEFT_JOIN_POS,     // SQ_QUERYJOIN_LEFT
+		SQN_RIGHT_JOIN_POS,    // SQ_QUERYJOIN_RIGHT
+		SQN_FULL_JOIN_POS,     // SQ_QUERYJOIN_FULL
+		SQN_CROSS_JOIN_POS,    // SQ_QUERYJOIN_CROSS
+	};
 	va_list        arg_list;
 	SqQueryNested *nested = query->nested_cur;
 	SqQueryNode   *joinon = nested->joinon;
@@ -515,7 +677,7 @@ void sq_query_join_full(SqQuery *query, unsigned int join_args, const char *tabl
 
 	// insert new JOIN node
 	joinon = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-	joinon->type = SQN_JOIN + (join_args & ~SQ_QUERYARGS_MASK);
+	joinon->str = (char*)strGroupPtr + nodeStrJoinPos[join_args & ~SQ_QUERYARGS_MASK];
 	nested->joinon = joinon;
 	// insert table node.  If table is NULL, it has call sq_query_push_nested()
 	sq_query_insert_table_node(query, joinon, table);
@@ -563,7 +725,7 @@ void sq_query_group_by_list(SqQuery *query, ...)
 	groupby = sq_query_node_find(nested->parent, SQN_GROUP_BY, &node);
 	if (groupby == NULL) {
 		groupby = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-		groupby->type = SQN_GROUP_BY;
+		groupby->str = (char*)SQN_GROUP_BY;
 	}
 
 	va_start(arg_list, query);
@@ -599,7 +761,7 @@ void sq_query_order_by_list(SqQuery *query, ...)
 	orderby = sq_query_node_find(nested->parent, SQN_ORDER_BY, &node);
 	if (orderby == NULL) {
 		orderby = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-		orderby->type = SQN_ORDER_BY;
+		orderby->str = (char*)SQN_ORDER_BY;
 	}
 
 	va_start(arg_list, query);
@@ -627,7 +789,7 @@ void sq_query_order_sorted(SqQuery *query, unsigned int sort_type)
 		// set order node
 		if (node->children == NULL)
 			node->children = sq_query_node_new(query);
-		node->children->type = SQN_ASC + sort_type;
+		node->children->str = (char*) ((sort_type == 0) ? SQN_ASC : SQN_DESC);
 	}
 }
 
@@ -637,7 +799,7 @@ void *sq_query_union(SqQuery *query)
 	SqQueryNode   *union_node;
 
 	union_node = sq_query_node_append(nested->parent, sq_query_node_new(query));
-	union_node->type = SQN_UNION;
+	union_node->str = (char*)SQN_UNION;
 
 	sq_query_push_nested(query, union_node);
 	return union_node;
@@ -645,7 +807,7 @@ void *sq_query_union(SqQuery *query)
 
 void sq_query_union_all(SqQuery *query)
 {
-	((SqQueryNode*)sq_query_union(query))->type = SQN_UNION_ALL;
+	((SqQueryNode*)sq_query_union(query))->str = (char*)SQN_UNION_ALL;
 }
 
 void *sq_query_limit(SqQuery *query, int64_t count)
@@ -653,7 +815,7 @@ void *sq_query_limit(SqQuery *query, int64_t count)
 	SqQueryNested *nested = query->nested_cur;
 	union {
 		SqQueryNode *node;
-		SqQueryNode *count;
+		SqQueryNode *child;    // limit.child->str  will be set to SQL LIMIT count
 	} limit;
 	union {
 		SqQueryNode *node;
@@ -662,21 +824,20 @@ void *sq_query_limit(SqQuery *query, int64_t count)
 
 	limit.node = sq_query_node_find(nested->parent, SQN_LIMIT, &temp.node);
 	if (limit.node) {
-		limit.count = limit.node->children;
-		free(limit.count->value);
+		limit.child = limit.node->children;
+		free(limit.child->str);
 	}
 	else {
 		limit.node = sq_query_node_insert(nested->parent, temp.node, sq_query_node_new(query));
-		limit.node->type = SQN_LIMIT;
+		limit.node->str = (char*)SQN_LIMIT;
 		limit.node->children = sq_query_node_new(query);
-		limit.count = limit.node->children;
-		limit.count->type = SQN_VALUE;
+		limit.child = limit.node->children;
 	}
 	temp.len = snprintf(NULL, 0, "%"PRId64, count) + 1;
-	limit.count->value = malloc(temp.len);
-	snprintf(limit.count->value, temp.len, "%"PRId64, count);
+	limit.child->str = malloc(temp.len);
+	snprintf(limit.child->str, temp.len, "%"PRId64, count);
 
-	return limit.count;
+	return limit.child;
 }
 
 void sq_query_offset(SqQuery *query, int64_t index)
@@ -684,37 +845,36 @@ void sq_query_offset(SqQuery *query, int64_t index)
 	SqQueryNested *nested = query->nested_cur;
 	union {
 		SqQueryNode *node;
-		SqQueryNode *count;
+		SqQueryNode *child;    // limit.child->str  will be set to SQL LIMIT count
 		int          len;
 	} limit;
 	union {
 		SqQueryNode *node;
-		SqQueryNode *index;
+		SqQueryNode *child;    // offset.child->str will be set to SQL OFFSET index
 	} offset;
 
 	limit.node = sq_query_node_find(nested->parent, SQN_LIMIT, NULL);
 	if (limit.node == NULL)
-		limit.count = sq_query_limit(query, 1);
+		limit.child = sq_query_limit(query, 1);
 	else
-		limit.count = limit.node->children;
+		limit.child = limit.node->children;
 
-	if (limit.count->children) {
-		offset.node  = limit.count->children;
-		offset.index = offset.node->children;
-		free(offset.index->value);
+	if (limit.child->children) {
+		offset.node  = limit.child->children;
+		offset.child = offset.node->children;
+		free(offset.child->str);
 	}
 	else {
-		limit.count->children = sq_query_node_new(query);
-		offset.node = limit.count->children;
-		offset.node->type = SQN_OFFSET;
+		limit.child->children = sq_query_node_new(query);
+		offset.node = limit.child->children;
+		offset.node->str = (char*)SQN_OFFSET;
 		offset.node->children = sq_query_node_new(query);
-		offset.index = offset.node->children;
-		offset.index->type = SQN_VALUE;
+		offset.child = offset.node->children;
 	}
 
 	limit.len = snprintf(NULL, 0, "%"PRId64, index) + 1;
-	offset.index->value = malloc(limit.len);
-	snprintf(offset.index->value, limit.len, "%"PRId64, index);
+	offset.child->str = malloc(limit.len);
+	snprintf(offset.child->str, limit.len, "%"PRId64, index);
 }
 
 void sq_query_delete(SqQuery *query)
@@ -724,7 +884,7 @@ void sq_query_delete(SqQuery *query)
 
 	if (node == NULL) {
 		node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
-		node->type = SQN_DELETE;
+		node->str = (char*)SQN_DELETE;
 		nested->command = node;
 	}
 }
@@ -736,22 +896,38 @@ void sq_query_truncate(SqQuery *query)
 
 	if (node == NULL) {
 		node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
-		node->type = SQN_TRUNCATE_TABLE;
+		node->str = (char*)SQN_TRUNCATE_TABLE;
 		nested->command = node;
 	}
 	node = nested->name;
-	if (node && node->type == SQN_FROM)
-		node->type = SQN_NONE;
+	if (node && node->str == SQN_FROM)
+		node->str = (char*)SQN_NONE;
 }
 
 int  sq_query_get_command(SqQuery *query)
 {
+#define SQN_N_CMDS    ( sizeof(nodeStrCmdPos) / sizeof(nodeStrCmdPos[0]) )
+	// for SQ_QUERY_CMD_X series
+	const uint8_t nodeStrCmdPos[] = {
+		SQN_NONE_POS,            // SQ_QUERY_CMD_NONE         maps to SQN_NONE
+		SQN_CREATE_TABLE_POS,    // SQ_QUERY_CMD_CREATE_TABLE maps to SQN_CREATE_TABLE
+		SQN_ALERT_TABLE_POS,     // SQ_QUERY_CMD_ALERT_TABLE
+		SQN_DROP_TABLE_POS,      // SQ_QUERY_CMD_DROP_TABLE
+		SQN_TRUNCATE_TABLE_POS,  // SQ_QUERY_CMD_TRUNCATE_TABLE
+		SQN_INSERT_INTO_POS,     // SQ_QUERY_CMD_INSERT_INTO
+		SQN_UPDATE_POS,          // SQ_QUERY_CMD_UPDATE
+		SQN_DELETE_POS,          // SQ_QUERY_CMD_DELETE
+		SQN_SELECT_POS,          // SQ_QUERY_CMD_SELECT
+	};
 	SqQueryNode   *command = query->nested_cur->command;
 
-	if (command == NULL)
-		return SQ_QUERY_CMD_NONE;
-	else
-		return command->type;
+	// index of nodeStrCmdPos is the same as index of SQ_QUERY_CMD_X series
+	if (command) {
+		for (int i = 0;  i < SQN_N_CMDS;  i++)
+			if (command->str == strGroupPtr + nodeStrCmdPos[i])
+				return i;
+	}
+	return SQ_QUERY_CMD_NONE;
 }
 
 // ------------------------------------
@@ -764,12 +940,10 @@ static void node_to_buf(SqQueryNode *node, SqQuery *query)
 	size_t  value_len;
 
 	for (;  node;  node = node->next) {
-		if (node->type < SQN_N_CODE) {
-			node->value = (char*) sqnword[node->type];
-			if (node->type == SQN_COMMA)
-				query->length--;
-		}
-		src = node->value;
+		// no space before comma
+		if (node->str == SQN_COMMA)
+			query->length--;
+		src = node->str;
 		if (*src) {
 			value_len = strlen(src) + 1;    // + " "
 			if (query->length +value_len >= query->allocated) {
@@ -842,7 +1016,7 @@ static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *node, va_li
 	sub_node = sq_query_node_last(node->children);
 	if (sub_node == NULL) {
 		sub_node = sq_query_node_new(query);
-		sub_node->type = SQN_NONE;
+		sub_node->str = (char*)SQN_NONE;
 		node->children = sub_node;
 	}
 	node = sub_node;
@@ -852,14 +1026,13 @@ static void sq_query_insert_column_list(SqQuery *query, SqQueryNode *node, va_li
 		// if current 'node' was not just created.
 		if (node->children != NULL) {
 			sub_node = sq_query_node_new(query);
-			sub_node->type = SQN_COMMA;
+			sub_node->str = (char*)SQN_COMMA;
 			node->next = sub_node;
 			node = sub_node;
 		}
 		// add column name in children node.
 		sub_node = sq_query_node_new(query);
-		sub_node->type = SQN_VALUE;
-		sub_node->value = strdup(name);
+		sub_node->str = strdup(name);
 		node->children = sub_node;
 		// for sq_query_as()
 		query->nested_cur->aliasable = node;
@@ -871,7 +1044,7 @@ static void sq_query_insert_table_node(SqQuery *query, SqQueryNode *node, const 
 {
 	node->children = sq_query_node_new(query);
 	node = node->children;
-	node->type = SQN_NONE;
+	node->str = (char*)SQN_NONE;
 	query->nested_cur->aliasable = node;    // for sq_query_as()
 
 	// table name
@@ -880,8 +1053,7 @@ static void sq_query_insert_table_node(SqQuery *query, SqQueryNode *node, const 
 	else {
 		node->children = sq_query_node_new(query);
 		node = node->children;
-		node->type = SQN_VALUE;
-		node->value = strdup(table_name);
+		node->str = strdup(table_name);
 	}
 }
 
@@ -893,20 +1065,18 @@ static SqQueryNode *sq_query_column_in(SqQuery *query, const char *column_name, 
 
 	// column node
 	column_node = sq_query_node_new(query);
-	column_node->type = SQN_VALUE;
-	column_node->value = strdup(column_name);
+	column_node->str = strdup(column_name);
 	node = column_node;
 	// NOT node
 	if (logi_args & SQ_QUERYLOGI_NOT) {
 		node->children = sq_query_node_new(query);
 		node = node->children;
-		node->type = SQN_NOT;
+		node->str = (char*)SQN_NOT;
 	}
 	// BETWEEN (or IN) value node
 	node->children = sq_query_node_new(query);
 	node = node->children;
-	node->type = SQN_VALUE;
-	node->value = value_str;
+	node->str = value_str;
 
 	return column_node;
 }
@@ -939,7 +1109,6 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 	mem.length = strlen(args[0]) + 1;              // + ' '
 	// create node for condition
 	node = sq_query_node_new(query);
-	node->type = SQN_VALUE;
 	// ====== args[1] is 2nd argument in arg_list ======
 	args[1] = va_arg(arg_list, char*);
 	if (args[1]) {
@@ -968,8 +1137,8 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 		// 3 arguments special case: "column", ">", "valueStr"    or   "column", ">", "strHas%sign"
 		if (logi_args == 2 || (logi_args == 3 && *temp.cur != '%')) {
 			temp.length = strlen(args[2]) +1;
-			node->value = malloc(mem.length + temp.length);
-			strncpy(node->value + mem.length, args[2], temp.length);
+			node->str = malloc(mem.length + temp.length);
+			strncpy(node->str + mem.length, args[2], temp.length);
 		}
 		else {
 			va_copy(arg_copy, arg_list);
@@ -979,17 +1148,17 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 			temp.length = vsnprintf(NULL, 0, args[2], arg_copy) +1;
 #endif
 			va_end(arg_copy);
-			node->value = malloc(mem.length + temp.length);
-			vsnprintf(node->value + mem.length, temp.length, args[2], arg_list);
+			node->str = malloc(mem.length + temp.length);
+			vsnprintf(node->str + mem.length, temp.length, args[2], arg_list);
 		}
 	}
 	// It is subquery if 3rd argument in arg_list is NULL.
 	else {
-		node->value = malloc(mem.length);
+		node->str = malloc(mem.length);
 		sq_query_push_nested(query, node);
 	}
 
-	mem.dest = node->value;
+	mem.dest = node->str;
 	for (temp.index = 0;  temp.index < 2;  temp.index++) {
 		while (*args[temp.index])
 			*mem.dest++ = *args[temp.index]++;
@@ -1004,17 +1173,17 @@ static SqQueryNode *sq_query_condition(SqQuery *query, SqQueryNode *node, unsign
 // If you set SQ_QUERY_USE_ALONE to 1, you can use SqQuery alone.
 #if SQ_QUERY_USE_ALONE == 0
 
-// parent->type must be SQN_FROM or SQN_JOIN
+// parent->str must be SQN_FROM or SQN_JOIN
 static const char *get_table(SqQueryNode *parent)
 {
 	SqQueryNode  *child;
 
 	// parent pointer to NONE node
 	parent = parent->children;
-	//
+	// child can be table name or nested query
 	child = parent->children;
-	if (child->type == SQN_VALUE)
-		return child->value;
+	if (NOT_CONST_STR(child->str))
+		return child->str;    // return table name
 	else {
 		// nested query
 		child = sq_query_node_find(parent, SQN_FROM, NULL);
@@ -1035,8 +1204,8 @@ int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
 	// FROM table1_name AS table1_as_name
 	// JOIN table2_name AS table2_as_name
 	for (qnode = query->root.children;  qnode;  qnode = qnode->next) {
-		if (qnode->type != SQN_FROM) {
-			if (qnode->type < SQN_JOIN || qnode->type > SQN_CROSS_JOIN)
+		if (qnode->str != SQN_FROM) {
+			if (qnode->str < SQN_JOIN || qnode->str > SQN_CROSS_JOIN)
 				continue;
 		}
 		// table name
@@ -1048,7 +1217,7 @@ int  sq_query_get_table_as_names(SqQuery *query, SqPtrArray *table_and_as_names)
 		// AS name
 		child = sq_query_node_find(qnode, SQN_AS, NULL);
 		if (child && child->children)
-			sq_ptr_array_push(table_and_as_names, child->children->value);
+			sq_ptr_array_push(table_and_as_names, child->children->str);
 		else
 			sq_ptr_array_push(table_and_as_names, NULL);
 	}
@@ -1156,16 +1325,16 @@ void  sq_query_pop_nested(SqQuery *query)
 				if (nested->command == NULL)
 					sq_query_select_list(query, "*", NULL);
 			}
-			else if (node->type >= SQN_WHERE)
-				node->type = SQN_NONE;
+			else if (node->str >= SQN_WHERE)
+				node->str = (char*)SQN_NONE;
 
-			if (nested->parent->type != SQN_UNION && nested->parent->type != SQN_UNION_ALL) {
+			if (nested->parent->str != SQN_UNION && nested->parent->str != SQN_UNION_ALL) {
 				// insert '(' to beginning of list
 				node = sq_query_node_prepend(nested->parent, sq_query_node_new(query));
-				node->type = SQN_BRACKETS_L;
+				node->str = (char*)SQN_BRACKETS_L;
 				// append ')' to ending of list
 				node = sq_query_node_append(nested->parent, sq_query_node_new(query));
-				node->type = SQN_BRACKETS_R;
+				node->str = (char*)SQN_BRACKETS_R;
 			}
 		}
 		// pop nested from stack
@@ -1239,10 +1408,9 @@ static SqQueryNode *sq_query_node_new(SqQuery *query)
 		node = query->used;
 	}
 
-//	node->type = 0;
+//	node->str = NULL;
 	node->next = NULL;
 	node->children = NULL;
-//	node->value = NULL;
 
 	return node;
 }
@@ -1252,8 +1420,8 @@ static void sq_query_node_free(SqQueryNode *node, SqQuery *query)
 	SqQueryNode  *next;
 
 	for (;  node;  node = next) {
-		if (node->type == SQN_VALUE)
-			free(node->value);
+		if (NOT_CONST_STR(node->str))
+			free(node->str);
 		if (node->children)
 			sq_query_node_free(node->children, query);
 		// recycle SqQueryNode by adding it to freed list
@@ -1285,79 +1453,28 @@ static SqQueryNode *sq_query_node_insert(SqQueryNode *parent, SqQueryNode *prev,
 	return node;
 }
 
-// insert_pos: 'sqn_cmd' must insert in this position
-static SqQueryNode *sq_query_node_find(SqQueryNode *node, int sqn_cmd, SqQueryNode **insert_pos)
+// insert_pos: 'constString' must insert in this position
+static SqQueryNode *sq_query_node_find(SqQueryNode *node, const char *constString, SqQueryNode **insert_pos)
 {
 	SqQueryNode *prev = NULL;
 
 	for (node = node->children;  node;  node = node->next) {
-		if (node->type >= sqn_cmd) {
-			if (node->type == sqn_cmd)
-				break;
-			else if (sqn_cmd < SQN_SYMBOL && node->type < SQN_SYMBOL) {
-				node = NULL;
-				break;
-			}
+		// 'strGroup' pointer to 'constStringGroup'
+		// if node->str is not const string or is symbol const string
+		if (node->str < strGroupPtr || node->str >= strGroupPtr + SQN_SYMBOL_POS)
+			continue;
+
+		if (node->str == constString)
+			break;
+		else if (node->str > constString) {
+			node = NULL;
+			break;
 		}
 		prev = node;
 	}
 
-	// if 'sqn_cmd' not found, 'sqn_cmd' must insert in this position
+	// if 'constString' not found, 'constString' must insert in this position
 	if (insert_pos)
 		insert_pos[0] = prev;
 	return node;
 }
-
-// ----------------------------------------------------------------------------
-
-static const char *sqnword[SQN_N_CODE] = {
-	"",                  // SQN_NONE
-
-	"CREATE TABLE",      // SQN_CREATE_TABLE
-	"ALERT TABLE",       // SQN_ALERT_TABLE
-	"DROP TABLE",        // SQN_DROP_TABLE
-	"TRUNCATE TABLE",    // SQN_TRUNCATE_TABLE
-	"INSERT INTO",       // SQN_INSERT_INTO
-	"UPDATE",            // SQN_UPDATE
-	"DELETE",            // SQN_DELETE
-	"SELECT",            // SQN_SELECT
-
-	"FROM",              // SQN_FROM
-	"JOIN",              // SQN_JOIN
-	"LEFT JOIN",         // SQN_LEFT_JOIN
-	"RIGHT JOIN",        // SQN_RIGHT_JOIN
-	"FULL JOIN",         // SQN_FULL_JOIN
-	"CROSS JOIN",        // SQN_CROSS_JOIN
-	"SET",               // SQN_SET        // UPDATE
-	"WHERE",             // SQN_WHERE      // SELECT, UPDATE, DELETE
-	"GROUP BY",          // SQN_GROUP_BY
-	"HAVING",            // SQN_HAVING
-	"ORDER BY",          // SQN_ORDER_BY
-	"UNION",             // SQN_UNION
-	"UNION ALL",         // SQN_UNION_ALL
-	"LIMIT",             // SQN_LIMIT
-
-	"DISTINCT",          // SQN_DISTINCT   // SELECT
-	"AS",                // SQN_AS         // SELECT: alias name for table or column
-	"OR",                // SQN_OR         // WHERE, JOIN
-	"AND",               // SQN_AND        // WHERE, JOIN, BETWEEN
-	"NOT",               // SQN_NOT        // WHERE
-	"EXISTS",            // SQN_EXISTS     // WHERE
-	"ON",                // SQN_ON         // JOIN
-//	"IN",                // SQN_IN         // WHERE
-//	"BETWEEN",           // SQN_BETWEEN    // WHERE, JOIN
-	"LIKE",              // SQN_LIKE       // WHERE
-
-	"ASC",               // SQN_ASC        // ORDER BY
-	"DESC",              // SQN_DESC       // ORDER BY
-
-	"OFFSET",            // SQN_OFFSET     // SQN_LIMIT
-
-	"VALUES",            // SQN_VALUES     // INSERT INTO
-
-	                     // SQN_SYMBOL     // equal SQN_BRACKETS_L
-	"(",                 // SQN_BRACKETS_L
-	")",                 // SQN_BRACKETS_R
-	",",                 // SQN_COMMA
-};
-
