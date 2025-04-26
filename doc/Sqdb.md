@@ -11,53 +11,124 @@ The following are the implemented database products:
 | SqdbMysql         | MySQL            | SqdbMysql.c    |
 | SqdbPostgre       | PostgreSQL       | SqdbPostgre.c  |
 
-## How to support new database product:
+Refer to the document [database-interface.md](database-interface.md) to support new database products.
 
-This document mainly explains how to use Sqdb. If you want to support new database products, please refer to the document [database-interface.md](database-interface.md).
+## Create and free Sqdb instance
+
+When creating Sqdb instance, the database configuration (SqdbConfig) and interface (SqdbInfo) must be specified.
+
+#### Database configuration
+
+SqdbConfig is base structure for database configuration. The following are the derived database configurations:
+
+| Derived configuration | Database product |
+| --------------------- | ---------------- |
+| SqdbConfigSqlite      | SQLite           |
+| SqdbConfigMysql       | MySQL            |
+| SqdbConfigPostgre     | PostgreSQL       |
+
+Sample code: Configure database
+
+```c
+	// SQLite database configuration
+	// set 'folder' and 'extension' in SqdbConfigSqlite can affect database filename and path.
+	SqdbConfigSqlite  sqliteConfig;
+	sqliteConfig.folder    = "/home/user";
+	sqliteConfig.extension = "db";
+
+	// MySQL database configuration
+	SqdbConfigMysql  mysqlConfig;
+	mysqlConfig.host = "localhost";
+	mysqlConfig.port = 3306;
+	mysqlConfig.user = "root";
+	mysqlConfig.password = "";
+
+	// PostgreSQL database configuration
+	SqdbConfigPostgre  postgresConfig;
+	postgresConfig.host = "localhost";
+	postgresConfig.port = 5432;
+	postgresConfig.user = "postgres";
+	postgresConfig.password = "";
+```
+
+#### Database interface
+
+SqdbInfo is database interface. The following are the provided database interfaces:
+
+| SqdbInfo interface | Database product |
+| ------------------ | ---------------- |
+| SQDB_INFO_SQLITE   | SQLite           |
+| SQDB_INFO_MYSQL    | MySQL            |
+| SQDB_INFO_POSTGRE  | PostgreSQL       |
+
+#### Create Sqdb instance
+
+sqdb_new() will create Sqdb instance using the given interface and configuration. If configuration is NULL, use default setting.  
+  
+Sample code: Create Sqdb instance using SqdbConfig defined above.  
+  
+use C language
+
+```c
+	// database instance pointer
+	Sqdb  *db;
+
+	// method 1: use sqdb_new()
+	// create Sqdb for SQLite
+	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &sqliteConfig);
+	// create Sqdb for MySQL
+	db = sqdb_new(SQDB_INFO_MYSQL,  (SqdbConfig*) &mysqlConfig);
+
+	// method 2: use sqdb_xxx_new()
+	// create Sqdb for SQLite
+	db = sqdb_sqlite_new(&sqliteConfig);
+	// create Sqdb for PostgreSQL
+	db = sqdb_postgre_new(&postgresConfig);
+```
+
+use C++ language
+
+```c++
+	// database instance pointer
+	Sq::DbMethod  *db;
+
+	// create Sqdb for SQLite
+	db = new Sq::DbSqlite(sqliteConfig);
+
+	// create Sqdb for PostgreSQL
+	db = new Sq::DbPostgre(postgresConfig);
+```
+
+#### Free Sqdb instance
+
+```c
+	// C language
+	sqdb_free(db);
+
+	// C++ language
+	delete db;
+```
 
 ## Open and close database
 
 sqdb_open() will get current schema version number while opening database.  
-* SQLite user can set 'folder' and 'extension' in SqdbConfigSqlite, these affect database filename and path.
-
-use C functions
+  
+use C language
 
 ```c
-	// database configuration
-	SqdbConfigSqlite config = {
-		.folder    = "/home/someone",
-		.extension = "db"
-	};
-	// database instance pointer
-	Sqdb  *db;
-
-	// create SqdbSqlite with 'config'. use default setting if config is NULL.
-	db = sqdb_sqlite_new(&config);
-	// result is the same as the previous line.
-//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
-
-	// open database file - "/home/someone/local-base.db"
+	// open database.
+	// If 'db' is instance of SqdbSqlite, it will open file - "/home/user/local-base.db"
 	sqdb_open(db, "local-base");
 
 	// close database
 	sqdb_close(db);
 ```
 
-use C++ methods
+use C++ language
 
 ```c++
-	// database configuration
-	Sq::DbConfigSqlite config = {
-		"/home/someone",   // .folder    = "/home/someone",
-		"db"               // .extension = "db",
-	};
-	// database instance pointer
-	Sq::DbMethod  *db;
-
-	// create Sq::DbSqlite with 'config'. use default setting if config is NULL.
-	db = new Sq::DbSqlite(config);
-
-	// open database file - "/home/someone/local-base.db"
+	// open database
+	// If 'db' is instance of SqdbSqlite, it will open file - "/home/user/local-base.db"
 	db->open("local-base");
 
 	// close database

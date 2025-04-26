@@ -11,53 +11,124 @@ Sqdb 是 SQLite、MySQL 等数据库产品的基础结构。
 | SqdbMysql     | MySQL      | SqdbMysql.c    |
 | SqdbPostgre   | PostgreSQL | SqdbPostgre.c  |
 
-## 如何支持新的数据库产品：
+参考文档 [database-interface.cn.md](database-interface.cn.md) 来支持新的数据库产品。
 
-本文档主要讲解如何使用 Sqdb。如果要支持新的数据库产品，请参考文档 [database-interface.md](database-interface.md)。
+## 创建并释放 Sqdb 实例
+
+创建 Sqdb 实例时必须指定数据库配置 (SqdbConfig) 和接口 (SqdbInfo)。
+
+#### 数据库配置
+
+SqdbConfig 是数据库配置的基础结构。以下是派生的数据库配置：
+
+| 派生配置              | 数据库产品       |
+| --------------------- | ---------------- |
+| SqdbConfigSqlite      | SQLite           |
+| SqdbConfigMysql       | MySQL            |
+| SqdbConfigPostgre     | PostgreSQL       |
+
+示例代码：配置数据库
+
+```c
+	// SQLite 数据库配置
+	// 在 SqdbConfigSqlite 中设置 'folder' 和 'extension' 可以影响数据库文件名和路径。
+	SqdbConfigSqlite  sqliteConfig;
+	sqliteConfig.folder    = "/home/user";
+	sqliteConfig.extension = "db";
+
+	// MySQL 数据库配置
+	SqdbConfigMysql  mysqlConfig;
+	mysqlConfig.host = "localhost";
+	mysqlConfig.port = 3306;
+	mysqlConfig.user = "root";
+	mysqlConfig.password = "";
+
+	// PostgreSQL 数据库配置
+	SqdbConfigPostgre  postgresConfig;
+	postgresConfig.host = "localhost";
+	postgresConfig.port = 5432;
+	postgresConfig.user = "postgres";
+	postgresConfig.password = "";
+```
+
+#### 数据库接口
+
+SqdbInfo 是数据库接口。以下是提供的数据库接口：
+
+| SqdbInfo 接口      | 数据库产品       |
+| ------------------ | ---------------- |
+| SQDB_INFO_SQLITE   | SQLite           |
+| SQDB_INFO_MYSQL    | MySQL            |
+| SQDB_INFO_POSTGRE  | PostgreSQL       |
+
+#### 创建 Sqdb 实例
+
+sqdb_new() 将使用给定的接口和配置创建 Sqdb 实例。如果配​​置为 NULL，则使用默认设置。  
+  
+示例代码：使用上面定义的 SqdbConfig 创建 Sqdb 实例。  
+  
+使用 C 语言
+
+```c
+	// 数据库实例的指针
+	Sqdb  *db;
+
+	// 方法 1：使用 sqdb_new()
+	// 为 SQLite 创建 Sqdb
+	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &sqliteConfig);
+	// 为 MySQL  创建 Sqdb
+	db = sqdb_new(SQDB_INFO_MYSQL,  (SqdbConfig*) &mysqlConfig);
+
+	// 方法 2：使用 sqdb_xxx_new()
+	// 为 SQLite 创建 Sqdb
+	db = sqdb_sqlite_new(&sqliteConfig);
+	// 为 PostgreSQL 创建 Sqdb
+	db = sqdb_postgre_new(&postgresConfig);
+```
+
+使用 C++ 语言
+
+```c++
+	// 数据库实例的指针
+	Sq::DbMethod  *db;
+
+	// 为 SQLite 创建 Sqdb
+	db = new Sq::DbSqlite(sqliteConfig);
+
+	// 为 PostgreSQL 创建 Sqdb
+	db = new Sq::DbPostgre(postgresConfig);
+```
+
+#### 释放 Sqdb 实例
+
+```c
+	// C 语言
+	sqdb_free(db);
+
+	// C++ 语言
+	delete db;
+```
 
 ## 打开和关闭数据库
 
 sqdb_open() 将在打开数据库时获取当前架构版本号。  
-* SQLite 用户可以在 SqdbConfigSqlite 中设置 '文件夹' 和 '扩展名'，这些会影响数据库文件名和路径。
-
-使用 C 函数
+  
+使用 C 语言
 
 ```c
-	// 数据库配置
-	SqdbConfigSqlite config = {
-		.folder    = "/home/someone",
-		.extension = "db"
-	};
-	// 数据库实例的指针
-	Sqdb  *db;
-
-	// 使用 'config' 创建 SqdbSqlite。如果 config 为 NULL，则使用默认设置。
-	db = sqdb_sqlite_new(&config);
-	// 结果与上一行相同。
-//	db = sqdb_new(SQDB_INFO_SQLITE, (SqdbConfig*) &config);
-
-	// 打开数据库文件 - "/home/someone/local-base.db"
+	// 打开数据库
+	// 如果 'db' 是 SqdbSqlite 的实例，它将打开文件 - “/home/user/local-base.db”
 	sqdb_open(db, "local-base");
 
 	// 关闭数据库
 	sqdb_close(db);
 ```
 
-使用 C++ 方法
+使用 C++ 语言
 
 ```c++
-	// 数据库配置
-	Sq::DbConfigSqlite config = {
-		"/home/someone",   // .folder    = "/home/someone",
-		"db"               // .extension = "db",
-	};
-	// 数据库实例的指针
-	Sq::DbMethod  *db;
-
-	// 使用 'config' 创建 Sq::DbSqlite。如果 config 为 NULL，则使用默认设置。
-	db = new Sq::DbSqlite(config);
-
-	// 打开数据库文件 - "/home/someone/local-base.db"
+	// 打开数据库
+	// 如果 'db' 是 SqdbSqlite 的实例，它将打开文件 - “/home/user/local-base.db”
 	db->open("local-base");
 
 	// 关闭数据库
