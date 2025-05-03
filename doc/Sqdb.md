@@ -128,7 +128,7 @@ use C++ language
 
 ```c++
 	// open database
-	// If 'db' is instance of SqdbSqlite, it will open file - "/home/user/local-base.db"
+	// If 'db' is instance of Sq::DbSqlite, it will open file - "/home/user/local-base.db"
 	db->open("local-base");
 
 	// close database
@@ -144,7 +144,7 @@ Please do not alter, rename, and drop tables directly in 'schemaCurrent', but in
   
 To notify the database instance that the migration is completed, call sqdb_migrate() and pass NULL in parameter 'schemaNext'. This will clear unused data, sort tables and columns, and synchronize current schema to database (mainly for SQLite).  
   
-use C functions
+use C language
 
 ```c
 	// apply changes of 'schemaNext' to 'schemaCurrent'
@@ -155,7 +155,7 @@ use C functions
 	sqdb_migrate(db, schemaCurrent, NULL);
 ```
 
-use C++ methods
+use C++ language
 
 ```c++
 	// apply changes of 'schemaNext' to 'schemaCurrent'

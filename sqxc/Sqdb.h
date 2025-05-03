@@ -30,8 +30,6 @@ typedef struct Sqdb             Sqdb;
 typedef struct SqdbInfo         SqdbInfo;
 typedef struct SqdbConfig       SqdbConfig;
 
-typedef struct Sqxc             Sqxc;        // define in Sqxc.h
-
 typedef enum SqdbProduct {
 	SQDB_PRODUCT_UNKNOWN,
 	SQDB_PRODUCT_SQLITE,

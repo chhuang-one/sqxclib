@@ -128,7 +128,7 @@ sqdb_open() 将在打开数据库时获取当前架构版本号。
 
 ```c++
 	// 打开数据库
-	// 如果 'db' 是 SqdbSqlite 的实例，它将打开文件 - “/home/user/local-base.db”
+	// 如果 'db' 是 Sq::DbSqlite 的实例，它将打开文件 - “/home/user/local-base.db”
 	db->open("local-base");
 
 	// 关闭数据库
@@ -144,7 +144,7 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 
   
 要通知数据库实例迁移已完成，请调用 sqdb_migrate() 并在参数 'schemaNext' 中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。  
   
-使用 C 函数
+使用 C 语言
 
 ```c
 	// 将 'schemaNext' 的更改应用于 'schemaCurrent'
@@ -155,7 +155,7 @@ sqdb_migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 
 	sqdb_migrate(db, schemaCurrent, NULL);
 ```
 
-使用 C++ 方法
+使用 C++ 语言
 
 ```c++
 	// 将 'schemaNext' 的更改应用于 'schemaCurrent'

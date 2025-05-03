@@ -51,6 +51,15 @@ static SqQueryNode *sq_query_node_last(SqQueryNode *node);
 static SqQueryNode *sq_query_node_find(SqQueryNode *parent, const char *constString, SqQueryNode **insert_pos);
 
 // ----------------------------------------------------------------------------
+// constStringGroup will be defined later
+
+#define STR_GROUP        constStringGroup
+#define STR_GROUP_LEN    sizeof(constStringGroup)
+
+#define IS_CONST_STR(addr)     ((addr) <  STR_GROUP+STR_GROUP_LEN && (addr) >= STR_GROUP)
+#define NOT_CONST_STR(addr)    ((addr) >= STR_GROUP+STR_GROUP_LEN || (addr) <  STR_GROUP)
+
+// ----------------------------------------------------------------------------
 // string will be in constStringGroup
 
 #define SQN_NONE_STRING           ""
@@ -157,52 +166,52 @@ static SqQueryNode *sq_query_node_find(SqQueryNode *parent, const char *constStr
 // ----------------------------------------------------------------------------
 // string address in constStringGroup
 
-#define SQN_NONE                (strGroupPtr + SQN_NONE_POS)
+#define SQN_NONE                (STR_GROUP + SQN_NONE_POS)
 
-#define SQN_CREATE_TABLE        (strGroupPtr + SQN_CREATE_TABLE_POS)
-#define SQN_ALERT_TABLE         (strGroupPtr + SQN_ALERT_TABLE_POS)
-#define SQN_DROP_TABLE          (strGroupPtr + SQN_DROP_TABLE_POS)
-#define SQN_TRUNCATE_TABLE      (strGroupPtr + SQN_TRUNCATE_TABLE_POS)
-#define SQN_INSERT_INTO         (strGroupPtr + SQN_INSERT_INTO_POS)
-#define SQN_UPDATE              (strGroupPtr + SQN_UPDATE_POS)
-#define SQN_DELETE              (strGroupPtr + SQN_DELETE_POS)
-#define SQN_SELECT              (strGroupPtr + SQN_SELECT_POS)
+#define SQN_CREATE_TABLE        (STR_GROUP + SQN_CREATE_TABLE_POS)
+#define SQN_ALERT_TABLE         (STR_GROUP + SQN_ALERT_TABLE_POS)
+#define SQN_DROP_TABLE          (STR_GROUP + SQN_DROP_TABLE_POS)
+#define SQN_TRUNCATE_TABLE      (STR_GROUP + SQN_TRUNCATE_TABLE_POS)
+#define SQN_INSERT_INTO         (STR_GROUP + SQN_INSERT_INTO_POS)
+#define SQN_UPDATE              (STR_GROUP + SQN_UPDATE_POS)
+#define SQN_DELETE              (STR_GROUP + SQN_DELETE_POS)
+#define SQN_SELECT              (STR_GROUP + SQN_SELECT_POS)
 
-#define SQN_FROM                (strGroupPtr + SQN_FROM_POS)
-#define SQN_JOIN                (strGroupPtr + SQN_JOIN_POS)
-#define SQN_LEFT_JOIN           (strGroupPtr + SQN_LEFT_JOIN_POS)
-#define SQN_RIGHT_JOIN          (strGroupPtr + SQN_RIGHT_JOIN_POS)
-#define SQN_FULL_JOIN           (strGroupPtr + SQN_FULL_JOIN_POS)
-#define SQN_CROSS_JOIN          (strGroupPtr + SQN_CROSS_JOIN_POS)
-// #define SQN_SET                 (strGroupPtr + SQN_SET_POS)
-#define SQN_WHERE               (strGroupPtr + SQN_WHERE_POS)
-#define SQN_GROUP_BY            (strGroupPtr + SQN_GROUP_BY_POS)
-#define SQN_HAVING              (strGroupPtr + SQN_HAVING_POS)
-#define SQN_ORDER_BY            (strGroupPtr + SQN_ORDER_BY_POS)
-#define SQN_UNION               (strGroupPtr + SQN_UNION_POS)
-#define SQN_UNION_ALL           (strGroupPtr + SQN_UNION_ALL_POS)
-#define SQN_LIMIT               (strGroupPtr + SQN_LIMIT_POS)
+#define SQN_FROM                (STR_GROUP + SQN_FROM_POS)
+#define SQN_JOIN                (STR_GROUP + SQN_JOIN_POS)
+#define SQN_LEFT_JOIN           (STR_GROUP + SQN_LEFT_JOIN_POS)
+#define SQN_RIGHT_JOIN          (STR_GROUP + SQN_RIGHT_JOIN_POS)
+#define SQN_FULL_JOIN           (STR_GROUP + SQN_FULL_JOIN_POS)
+#define SQN_CROSS_JOIN          (STR_GROUP + SQN_CROSS_JOIN_POS)
+// #define SQN_SET                 (STR_GROUP + SQN_SET_POS)
+#define SQN_WHERE               (STR_GROUP + SQN_WHERE_POS)
+#define SQN_GROUP_BY            (STR_GROUP + SQN_GROUP_BY_POS)
+#define SQN_HAVING              (STR_GROUP + SQN_HAVING_POS)
+#define SQN_ORDER_BY            (STR_GROUP + SQN_ORDER_BY_POS)
+#define SQN_UNION               (STR_GROUP + SQN_UNION_POS)
+#define SQN_UNION_ALL           (STR_GROUP + SQN_UNION_ALL_POS)
+#define SQN_LIMIT               (STR_GROUP + SQN_LIMIT_POS)
 
-#define SQN_DISTINCT            (strGroupPtr + SQN_DISTINCT_POS)
-#define SQN_AS                  (strGroupPtr + SQN_AS_POS)
-#define SQN_OR                  (strGroupPtr + SQN_OR_POS)
-#define SQN_AND                 (strGroupPtr + SQN_AND_POS)
-#define SQN_NOT                 (strGroupPtr + SQN_NOT_POS)
-#define SQN_EXISTS              (strGroupPtr + SQN_EXISTS_POS)
-#define SQN_ON                  (strGroupPtr + SQN_ON_POS)
-// #define SQN_IN                  (strGroupPtr + SQN_IN_POS)
-// #define SQN_BETWEEN             (strGroupPtr + SQN_BETWEEN_POS)
-// #define SQN_LIKE                (strGroupPtr + SQN_LIKE_POS)
+#define SQN_DISTINCT            (STR_GROUP + SQN_DISTINCT_POS)
+#define SQN_AS                  (STR_GROUP + SQN_AS_POS)
+#define SQN_OR                  (STR_GROUP + SQN_OR_POS)
+#define SQN_AND                 (STR_GROUP + SQN_AND_POS)
+#define SQN_NOT                 (STR_GROUP + SQN_NOT_POS)
+#define SQN_EXISTS              (STR_GROUP + SQN_EXISTS_POS)
+#define SQN_ON                  (STR_GROUP + SQN_ON_POS)
+// #define SQN_IN                  (STR_GROUP + SQN_IN_POS)
+// #define SQN_BETWEEN             (STR_GROUP + SQN_BETWEEN_POS)
+// #define SQN_LIKE                (STR_GROUP + SQN_LIKE_POS)
 
-#define SQN_ASC                 (strGroupPtr + SQN_ASC_POS)
-#define SQN_DESC                (strGroupPtr + SQN_DESC_POS)
-#define SQN_OFFSET              (strGroupPtr + SQN_OFFSET_POS)
+#define SQN_ASC                 (STR_GROUP + SQN_ASC_POS)
+#define SQN_DESC                (STR_GROUP + SQN_DESC_POS)
+#define SQN_OFFSET              (STR_GROUP + SQN_OFFSET_POS)
 
-// #define SQN_VALUES              (strGroupPtr + SQN_VALUES_POS)
+// #define SQN_VALUES              (STR_GROUP + SQN_VALUES_POS)
 
-#define SQN_BRACKETS_L          (strGroupPtr + SQN_BRACKETS_L_POS)
-#define SQN_BRACKETS_R          (strGroupPtr + SQN_BRACKETS_R_POS)
-#define SQN_COMMA               (strGroupPtr + SQN_COMMA_POS)
+#define SQN_BRACKETS_L          (STR_GROUP + SQN_BRACKETS_L_POS)
+#define SQN_BRACKETS_R          (STR_GROUP + SQN_BRACKETS_R_POS)
+#define SQN_COMMA               (STR_GROUP + SQN_COMMA_POS)
 
 // SQN_SYMBOL = SQN_BRACKETS_L
 #define SQN_SYMBOL              SQN_BRACKETS_L
@@ -261,13 +270,6 @@ static const char constStringGroup[] =
 	SQN_BRACKETS_R_STRING     "\0"
 	SQN_COMMA_STRING          "\0"
 };
-
-// 'strGroupPtr' pointer to 'constStringGroup'.
-// Use the variable 'strGroupPtr' instead of using 'constStringGroup' directly. This can reduce binary size.
-const char *strGroupPtr = constStringGroup;
-
-#define IS_CONST_STR(addr)     ((addr) < strGroupPtr+sizeof(constStringGroup) && (addr) > strGroupPtr)
-#define NOT_CONST_STR(addr)    ((addr) > strGroupPtr+sizeof(constStringGroup) || (addr) < strGroupPtr)
 
 // ----------------------------------------------------------------------------
 // SqQueryNested
@@ -502,7 +504,7 @@ static SqQueryNode *sq_query_clause_logical(SqQuery *query, SqQueryNode *parent,
 	// append NONE, OR, AND in clause->children
 	node = sq_query_node_new(query);
 	if (clause->children)
-		node->str = (char*)strGroupPtr + nodeStrLogiPos[logi_args & ~(SQ_QUERYLOGI_NOT | SQ_QUERYARGS_MASK)];
+		node->str = (char*)STR_GROUP + nodeStrLogiPos[logi_args & ~(SQ_QUERYLOGI_NOT | SQ_QUERYARGS_MASK)];
 	else
 		node->str = (char*)SQN_NONE;
 	sq_query_node_append(clause, node);
@@ -677,7 +679,7 @@ void sq_query_join_full(SqQuery *query, unsigned int join_args, const char *tabl
 
 	// insert new JOIN node
 	joinon = sq_query_node_insert(nested->parent, node, sq_query_node_new(query));
-	joinon->str = (char*)strGroupPtr + nodeStrJoinPos[join_args & ~SQ_QUERYARGS_MASK];
+	joinon->str = (char*)STR_GROUP + nodeStrJoinPos[join_args & ~SQ_QUERYARGS_MASK];
 	nested->joinon = joinon;
 	// insert table node.  If table is NULL, it has call sq_query_push_nested()
 	sq_query_insert_table_node(query, joinon, table);
@@ -924,7 +926,7 @@ int  sq_query_get_command(SqQuery *query)
 	// index of nodeStrCmdPos is the same as index of SQ_QUERY_CMD_X series
 	if (command) {
 		for (int i = 0;  i < SQN_N_CMDS;  i++)
-			if (command->str == strGroupPtr + nodeStrCmdPos[i])
+			if (command->str == STR_GROUP + nodeStrCmdPos[i])
 				return i;
 	}
 	return SQ_QUERY_CMD_NONE;
@@ -1461,7 +1463,7 @@ static SqQueryNode *sq_query_node_find(SqQueryNode *node, const char *constStrin
 	for (node = node->children;  node;  node = node->next) {
 		// 'strGroup' pointer to 'constStringGroup'
 		// if node->str is not const string or is symbol const string
-		if (node->str < strGroupPtr || node->str >= strGroupPtr + SQN_SYMBOL_POS)
+		if (node->str < STR_GROUP || node->str >= STR_GROUP + SQN_SYMBOL_POS)
 			continue;
 
 		if (node->str == constString)
