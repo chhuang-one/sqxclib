@@ -953,7 +953,7 @@ static void node_to_buf(SqQueryNode *node, SqQuery *query)
 				query->str = realloc(query->str, query->allocated);
 			}
 			dest = query->str + query->length;
-			query->length += value_len; 
+			query->length += (uint32_t)value_len;
 			while (*src)
 				*dest++ = *src++;
 			*dest++ = ' ';

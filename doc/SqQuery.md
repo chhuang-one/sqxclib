@@ -770,7 +770,7 @@ If the 2nd argument is NOT exist, the 1st argument is handled as raw string.
 
 #### raw SQL statement
 
-sq_query_raw() and sq_query_printf() can append raw SQL statement in current nested or subquery.  
+sq_query_raw() can append raw SQL statement in current nested or subquery.  
   
 e.g. generate below SQL statement.
 
@@ -1223,7 +1223,6 @@ There are many functions can specify SQL condition and them also support printf 
 Below C functions support printf format string in 2nd argument:
 
 	sq_query_raw(),
-	sq_query_printf(),
 	sq_query_on_raw(),        sq_query_or_on_raw(),
 	sq_query_where_raw(),     sq_query_or_where_raw(),
 	sq_query_where_not_raw(), sq_query_or_where_not_raw(),

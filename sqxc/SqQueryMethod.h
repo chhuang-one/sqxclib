@@ -83,6 +83,7 @@ struct QueryMethod
 	SQQM_RETURN  &raw(const char *format, const Args... args);
 	SQQM_RETURN  &raw(const char *raw_sql);
 
+	// deprecated
 	template <typename... Args>
 	SQQM_RETURN  &printf(const char *format, const Args... args);
 
@@ -565,7 +566,7 @@ inline SQQM_RETURN  &SQQM_NAME::clear() {
 
 template <typename... Args>
 inline SQQM_RETURN  &SQQM_NAME::raw(const char *format, const Args... args) {
-	sq_query_printf((SqQuery*)SQQM_DATAPTR, format, args...);
+	sq_query_raw((SqQuery*)SQQM_DATAPTR, format, args...);
 	return *(SQQM_RETURN*)this;
 }
 inline SQQM_RETURN  &SQQM_NAME::raw(const char *raw_sql) {
@@ -573,9 +574,10 @@ inline SQQM_RETURN  &SQQM_NAME::raw(const char *raw_sql) {
 	return *(SQQM_RETURN*)this;
 }
 
+// deprecated
 template <typename... Args>
 inline SQQM_RETURN  &SQQM_NAME::printf(const char *format, const Args... args) {
-	sq_query_printf((SqQuery*)SQQM_DATAPTR, format, args...);
+	sq_query_raw((SqQuery*)SQQM_DATAPTR, format, args...);
 	return *(SQQM_RETURN*)this;
 }
 

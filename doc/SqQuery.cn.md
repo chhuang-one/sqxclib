@@ -770,7 +770,7 @@ C++ 方法 groupBy() 具有处理原始字符串的重载函数。
 
 #### 原始 SQL 语句
 
-sq_query_raw() 和 sq_query_printf() 可以在当前嵌套或子查询中附加原始 SQL 语句。  
+sq_query_raw() 可以在当前嵌套或子查询中附加原始 SQL 语句。  
   
 例如: 生成下面的 SQL 语句。
 
@@ -1223,7 +1223,6 @@ C++ 方法 as() 可以在 from(), join(), select() 之後呼叫。
 以下 C 函数在第 2 个参数中支持 printf 格式字符串：
 
 	sq_query_raw(),
-	sq_query_printf(),
 	sq_query_on_raw(),        sq_query_or_on_raw(),
 	sq_query_where_raw(),     sq_query_or_where_raw(),
 	sq_query_where_not_raw(), sq_query_or_where_not_raw(),

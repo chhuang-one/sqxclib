@@ -150,7 +150,6 @@ enum {
 
 	** below C functions support printf format string in 2nd argument:
 		sq_query_raw(),
-		sq_query_printf(),
 		sq_query_on_raw(),        sq_query_or_on_raw(),
 		sq_query_where_raw(),     sq_query_or_where_raw(),
 		sq_query_where_not_raw(), sq_query_or_where_not_raw(),
@@ -281,6 +280,7 @@ void    sq_query_append(SqQuery *query, unsigned int raw_args, ...);
 #define sq_query_raw(query, ...)       \
 		sq_query_append(query, SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
 
+// deprecated
 // append printf format string to SQL statement in current subquery/brackets
 // void sq_query_printf(SqQuery *query, const char *format, ...);
 #define sq_query_printf(query, ...)    \
