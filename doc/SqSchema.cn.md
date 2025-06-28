@@ -2,7 +2,7 @@
 
 # SqSchema
 
-SqSchema 定义数据库架构。它存储表和表的更改记录。
+SqSchema 定义数据库架构。它存储表和表的更改记录。[SqStorage](SqStorage.md) 使用它来进行迁移。
 
 	SqEntry
 	│

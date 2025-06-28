@@ -2,7 +2,7 @@
 
 # SqSchema
 
-SqSchema defines database schema. It store table and changed record of table.
+SqSchema defines database schema. It store table and changed record of table. [SqStorage](SqStorage.md) use it to do migration.
 
 	SqEntry
 	│
