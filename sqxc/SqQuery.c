@@ -1461,7 +1461,7 @@ static SqQueryNode *sq_query_node_find(SqQueryNode *node, const char *constStrin
 	SqQueryNode *prev = NULL;
 
 	for (node = node->children;  node;  node = node->next) {
-		// 'strGroup' pointer to 'constStringGroup'
+		// STR_GROUP pointer to 'constStringGroup'
 		// if node->str is not const string or is symbol const string
 		if (node->str < STR_GROUP || node->str >= STR_GROUP + SQN_SYMBOL_POS)
 			continue;

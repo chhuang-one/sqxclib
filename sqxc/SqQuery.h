@@ -280,12 +280,6 @@ void    sq_query_append(SqQuery *query, unsigned int raw_args, ...);
 #define sq_query_raw(query, ...)       \
 		sq_query_append(query, SQ_QUERYARGS_DECIDE( 0, __VA_ARGS__), __VA_ARGS__)
 
-// deprecated
-// append printf format string to SQL statement in current subquery/brackets
-// void sq_query_printf(SqQuery *query, const char *format, ...);
-#define sq_query_printf(query, ...)    \
-		sq_query_append(query, SQ_QUERYARGS_2, __VA_ARGS__)
-
 // SQL: FROM
 bool    sq_query_from(SqQuery *query, const char *table);
 
