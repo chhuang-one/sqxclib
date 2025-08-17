@@ -27,13 +27,12 @@
 #define strdup       _strdup
 #endif
 
-#define SCHEMA_INITIAL_VERSION       1
-#define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
+#define SQ_SCHEMA_INITIAL_VER        1
 #define SQ_TYPE_N_ENTRY_DEFAULT      SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 
 void  sq_schema_init(SqSchema *schema, const char *name)
 {
-	static int cur_version = SCHEMA_INITIAL_VERSION;
+	static int cur_version = SQ_SCHEMA_INITIAL_VER;
 
 	// generate version number by incrementing 'cur_version'
 	sq_schema_init_ver(schema, cur_version++, name);

@@ -38,7 +38,7 @@
 #define snprintf     _snprintf
 #endif  // _MSC_VER
 
-#define SCHEMA_INITIAL_VERSION       0
+#define SQ_STORAGE_SCHEMA_INITIAL_VER        0
 
 static int  print_where_column(const SqColumn *column, void *instance, SqBuffer *buf, const char quote[2]);
 static int  sqxc_sql_set_columns(SqxcSql      *xcsql,
@@ -55,8 +55,8 @@ static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
 void  sq_storage_init(SqStorage *storage, Sqdb *db)
 {
 	storage->db = db;
-	storage->schema = sq_schema_new_ver(SCHEMA_INITIAL_VERSION, "current");
-	storage->tables_version = SCHEMA_INITIAL_VERSION;
+	storage->schema = sq_schema_new_ver(SQ_STORAGE_SCHEMA_INITIAL_VER, "current");
+	storage->tables_version = SQ_STORAGE_SCHEMA_INITIAL_VER;
 	sq_ptr_array_init(&storage->tables, 16, NULL);
 
 	storage->joint_default     = sq_type_joint_new();
