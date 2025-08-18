@@ -81,10 +81,10 @@ SqStrArray (C++ Sq::StrArray) 在添加和插入时会复制字符串，这一�
 在 C++ 中，它会为 C 字符串生成默认比较函数。
 
 ```c++
-	array->sort((SqCompareFunc)compareFunc);
+	array.sort((SqCompareFunc)compareFunc);
 
 	// 使用默认比较函数。
-	array->sort();
+	array.sort();
 ```
 
 ## 查找 Find
@@ -107,16 +107,16 @@ SqStrArray (C++ Sq::StrArray) 在添加和插入时会复制字符串，这一�
 
 ```c++
 	// 使用字符串指针作为键值
-	element = array->find(key, compareFunc);
-	element = array->findSorted(key, compareFunc, &insertingIndex);
+	element = array.find(key, compareFunc);
+	element = array.findSorted(key, compareFunc, &insertingIndex);
 
 	// 直接使用字符串作为键值
-	element = array->find("key-string", compareFunc);
-	element = array->findSorted("key-string", compareFunc, &insertingIndex);
+	element = array.find("key-string", compareFunc);
+	element = array.findSorted("key-string", compareFunc, &insertingIndex);
 
 	// 使用默认比较函数并直接使用字符串作为键值
-	element = array->find("key-string");
-	element = array->findSorted("key-string", &insertingIndex);
+	element = array.find("key-string");
+	element = array.findSorted("key-string", &insertingIndex);
 ```
 
 ## 其他函数和方法
@@ -133,16 +133,52 @@ SqStrArray 仍然为 C 语言定义了一些 sq_str_array_xxx() 宏和函数，�
 
 **分配 Allocate**
 
+使用 C 语言
+
 ```c
 	char **memory;
+	int    count = 2;
 
+	// 从后面分配元素
 	memory = sq_str_array_alloc(array, count);
+	// 从指定索引分配元素
 	memory = sq_str_array_alloc_at(array, index, count);
+```
+
+使用 C++ 语言
+
+```c++
+	char **memory;
+	int    count = 2;
+
+	// 从后面分配元素
+	memory = array.alloc(count);
+	// 从指定索引分配元素
+	memory = array.allocAt(index, count);
+```
+
+将字符串赋值给刚刚分配的元素
+
+```c
+	memory[0] = strdup("Your 1st C string");
+	memory[1] = strdup("Your 2nd C string");
 ```
 
 **删除 Erase**
 
+erase() 通过调用清除函数从数组中删除字符串。  
+steal() 在不调用清除函数的情况下从数组中删除字符串。  
+  
+使用 C 语言
+
 ```c
 	sq_str_array_erase(array, index, count);
 	sq_str_array_steal(array, index, count);
+```
+
+使用 C++ 语言
+
+```c++
+	array.erase(index, count);
+	array.steal(index, count);
 ```

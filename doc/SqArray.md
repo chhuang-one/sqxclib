@@ -105,7 +105,7 @@ use C++ language
 ## Allocate
 
 C function sq_array_alloc(), C++ method alloc() can allocate elements from rear of array.  
-C function sq_array_alloc_at() and C++ overloaded method alloc() can allocate elements from the specified index of the array.  
+C function sq_array_alloc_at() and C++ method allocAt() can allocate elements from the specified index of the array.  
 SqArray will expand array if it does not have enough space.  
   
 use C language
@@ -141,6 +141,13 @@ use C++ language
 
 	// allocate elements from specified index
 	elements = array->allocAt(index, count);
+```
+
+Assign values to elements just allocated
+
+```c
+	for (int i = 0;  i < count;  i++)
+		elements[i] = values[i];
 ```
 
 ## Append

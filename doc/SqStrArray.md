@@ -81,10 +81,10 @@ use C++ language
 In C++, it will generate default comparison function for C string.
 
 ```c++
-	array->sort((SqCompareFunc)compareFunc);
+	array.sort((SqCompareFunc)compareFunc);
 
 	// use default comparison function.
-	array->sort();
+	array.sort();
 ```
 
 ## Find
@@ -107,16 +107,16 @@ When user sort/find string in C++, it can directly use string as key value and g
 
 ```c++
 	// use string pointer as key value
-	element = array->find(key, compareFunc);
-	element = array->findSorted(key, compareFunc, &insertingIndex);
+	element = array.find(key, compareFunc);
+	element = array.findSorted(key, compareFunc, &insertingIndex);
 
 	// use string as key value directly
-	element = array->find("key-string", compareFunc);
-	element = array->findSorted("key-string", compareFunc, &insertingIndex);
+	element = array.find("key-string", compareFunc);
+	element = array.findSorted("key-string", compareFunc, &insertingIndex);
 
 	// use default comparison function and use string as key value directly
-	element = array->find("key-string");
-	element = array->findSorted("key-string", &insertingIndex);
+	element = array.find("key-string");
+	element = array.findSorted("key-string", &insertingIndex);
 ```
 
 ## Other functions and methods
@@ -133,16 +133,52 @@ SqStrArray still defines some sq_str_array_xxx() macros and functions for C lang
 
 **Allocate**
 
+use C language
+
 ```c
 	char **memory;
+	int    count = 2;
 
+	// allocate elements from rear
 	memory = sq_str_array_alloc(array, count);
+	// allocate elements from specified index
 	memory = sq_str_array_alloc_at(array, index, count);
+```
+
+use C++ language
+
+```c
+	char **memory;
+	int    count = 2;
+
+	// allocate elements from rear
+	memory = array.alloc(count);
+	// allocate elements from specified index
+	memory = array.allocAt(index, count);
+```
+
+Assign strings to elements just allocated
+
+```c
+	memory[0] = strdup("Your 1st C string");
+	memory[1] = strdup("Your 2nd C string");
 ```
 
 **Erase**
 
+erase() removes strings from array with calling the clear function.  
+steal() removes strings from array without calling the clear function.  
+  
+use C language
+
 ```c
 	sq_str_array_erase(array, index, count);
 	sq_str_array_steal(array, index, count);
+```
+
+use C++ language
+
+```c++
+	array.erase(index, count);
+	array.steal(index, count);
 ```
