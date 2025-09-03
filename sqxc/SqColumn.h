@@ -65,6 +65,9 @@ extern "C" {
 #define SQ_COLUMN_SET_DEFAULT(column, default_value_str)    \
 		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->default_value, default_value_str)
 
+#define SQ_COLUMN_SET_COMMENT(column, comment_str)         \
+		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->comments, comment_str)
+
 #define SQ_COLUMN_SET_RAW(column, raw_property_str)         \
 		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->raw, raw_property_str)
 
@@ -141,7 +144,7 @@ struct Column;
 	const char  *default_value; \
 	char       **foreign;       \
 	char       **composite;     \
-	const char  *reserve;       \
+	const char  *comments;      \
 	const char  *raw
 
 struct SqColumn
@@ -177,7 +180,7 @@ struct SqColumn
 	// e.g. { "column1", "column2", ..., NULL }
 	char        **composite;
 
-	const char   *reserve;          // reserve, set it to NULL.
+	const char   *comments;         // add comment to a column
 	const char   *raw;              // raw database column property
 
 	// if column->name is NULL, it will drop column->old_name
@@ -277,6 +280,10 @@ struct SqColumn
 	}
 	Sq::Column &defaultValue(const char *default_val) {
 		SQ_COLUMN_SET_DEFAULT(this, default_val);
+		return *(Sq::Column*)this;
+	}
+	Sq::Column &comment(const char *comment_str) {
+		SQ_COLUMN_SET_COMMENT(this, comment_str);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &raw_(const char *raw_property) {
@@ -429,6 +436,15 @@ inline
 #else               // C99
 static inline
 #endif
+void  sq_column_comment(SqColumn *column, const char *comment_str) {
+	SQ_COLUMN_SET_COMMENT(column, comment_str);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
 void  sq_column_raw(SqColumn *column, const char *raw_property) {
 	SQ_COLUMN_SET_RAW(column, raw_property);
 }
@@ -561,6 +577,10 @@ struct ColumnMethod
 	}
 	Sq::Column &defaultValue(const char *default_val) {
 		SQ_COLUMN_SET_DEFAULT(this, default_val);
+		return *(Sq::Column*)this;
+	}
+	Sq::Column &comment(const char *comment_str) {
+		SQ_COLUMN_SET_COMMENT(this, comment_str);
 		return *(Sq::Column*)this;
 	}
 	Sq::Column &raw_(const char *raw_property) {

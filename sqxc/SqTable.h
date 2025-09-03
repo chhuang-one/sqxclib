@@ -67,6 +67,14 @@ typedef struct SqTable        SqTable;
 extern "C" {
 #endif
 
+/* --- macro functions --- for maintaining C/C++ inline functions easily */
+#define SQ_TABLE_SET_NAME        SQ_ENTRY_SET_NAME
+
+#define SQ_TABLE_SET_COMMENT(table, comment_str)         \
+		sq_entry_set_str_addr((SqEntry*)table, (char**) &((SqTable*)table)->comments, comment_str)
+
+/* SqTable C functions */
+
 // If 'table_type' == NULL, program will create dynamic SqType in it.
 // If 'table_type' is dynamic SqType, it will be freed when program free table.
 SqTable  *sq_table_new(const char *name, const SqType *table_type);
@@ -331,6 +339,7 @@ namespace Sq {
 struct TableMethod
 {
 	void        setName(const char *tableName);
+	void        comment(const char *comment_str);
 	bool        hasColumn(const char *column_name);
 	Sq::Column *findColumn(const char *column_name);
 	void        dropColumn(const char *column_name);
@@ -532,7 +541,8 @@ struct TableMethod
 	SQ_REENTRY_MEMBERS;            \
 	SqColumn       *primary_key;   \
 	SqDestroyFunc   on_destory;    \
-	SqRelation     *relation
+	SqRelation     *relation;      \
+	const char     *comments
 
 #ifdef __cplusplus
 struct SqTable : Sq::TableMethod         // <-- 1. inherit C++ member function(method)
@@ -559,6 +569,8 @@ struct SqTable
 	// sq_schema_trace_name() use these to trace renamed (or dropped) column that was referenced by others.
 	// free it if you don't need to sync table changed to database.
 	SqRelation     *relation;
+
+	const char     *comments;       // add comment to a table
  */
 };
 
@@ -574,7 +586,16 @@ inline
 static inline
 #endif
 void  sq_table_set_name(SqTable *table, const char *name) {
-	SQ_ENTRY_SET_NAME(table, name);
+	SQ_TABLE_SET_NAME(table, name);
+}
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+void  sq_table_comment(SqTable *table, const char *comment_str) {
+	SQ_TABLE_SET_COMMENT(table, comment_str);
 }
 
 #ifdef __cplusplus  // C++
@@ -629,7 +650,10 @@ template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
 	define TableMethod functions.
  */
 inline void  TableMethod::setName(const char *tableName) {
-	SQ_ENTRY_SET_NAME(this, tableName);
+	SQ_TABLE_SET_NAME(this, tableName);
+}
+inline void  TableMethod::comment(const char *comment_str) {
+	SQ_TABLE_SET_COMMENT(this, comment_str);
 }
 inline bool  TableMethod::hasColumn(const char *column_name) {
 	return sq_table_has_column((SqTable*)this, column_name);

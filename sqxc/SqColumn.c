@@ -202,8 +202,7 @@ SqColumn *sq_column_copy(SqColumn *column, const SqColumn *column_src)
 	column->name          = column_src->name ? strdup(column_src->name) : NULL;
 	column->old_name      = column_src->old_name ? strdup(column_src->old_name) : NULL;
 	column->default_value = column_src->default_value ? strdup(column_src->default_value) : NULL;
-	column->reserve       = NULL;
-//	column->reserve       = column_src->reserve ? strdup(column_src->reserve) : NULL;
+	column->comments      = column_src->comments ? strdup(column_src->comments) : NULL;
 	column->raw           = column_src->raw ? strdup(column_src->raw) : NULL;
 
 	column->foreign   = sq_strs_copy(column_src->foreign,   FOREIGN_N_RESERVE);
@@ -377,6 +376,10 @@ void  sq_column_query_only(SqColumn *column) {
 
 void  sq_column_default(SqColumn *column, const char *default_value) {
 	SQ_COLUMN_SET_DEFAULT(column, default_value);
+}
+
+void  sq_column_comment(SqColumn *column, const char *comment_str) {
+	SQ_COLUMN_SET_COMMENT(column, comment_str);
 }
 
 void  sq_column_raw(SqColumn *column, const char *raw_property) {

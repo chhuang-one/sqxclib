@@ -58,6 +58,8 @@ void  sq_table_init(SqTable *table, const char *name, const SqType *table_type)
 	table->on_destory = NULL;
 	// for (SQLite) migration.
 	table->relation = NULL;
+	// table comment
+	table->comments = NULL;
 }
 
 void  sq_table_final(SqTable *table)
@@ -602,7 +604,12 @@ void   sq_table_drop_foreign(SqTable *table, const char *name)
 
 void  sq_table_set_name(SqTable *table, const char *name)
 {
-	SQ_ENTRY_SET_NAME(table, name);
+	SQ_TABLE_SET_NAME(table, name);
+}
+
+void  sq_table_comment(SqTable *table, const char *comment_str)
+{
+	SQ_TABLE_SET_COMMENT(table, comment_str);
 }
 
 bool  sq_table_has_column(SqTable *table, const char *column_name)
