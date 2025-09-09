@@ -65,8 +65,10 @@ extern "C" {
 #define SQ_COLUMN_SET_DEFAULT(column, default_value_str)    \
 		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->default_value, default_value_str)
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 #define SQ_COLUMN_SET_COMMENT(column, comment_str)         \
 		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->comments, comment_str)
+#endif  // SQ_CONFIG_TABLE_COLUMN_COMMENTS
 
 #define SQ_COLUMN_SET_RAW(column, raw_property_str)         \
 		sq_entry_set_str_addr((SqEntry*)column, (char**) &((SqColumn*)column)->raw, raw_property_str)
@@ -282,10 +284,12 @@ struct SqColumn
 		SQ_COLUMN_SET_DEFAULT(this, default_val);
 		return *(Sq::Column*)this;
 	}
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 	Sq::Column &comment(const char *comment_str) {
 		SQ_COLUMN_SET_COMMENT(this, comment_str);
 		return *(Sq::Column*)this;
 	}
+#endif
 	Sq::Column &raw_(const char *raw_property) {
 		SQ_COLUMN_SET_RAW(this, raw_property);
 		return *(Sq::Column*)this;
@@ -431,6 +435,7 @@ void  sq_column_default(SqColumn *column, const char *default_value) {
 	SQ_COLUMN_SET_DEFAULT(column, default_value);
 }
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 #ifdef __cplusplus  // C++
 inline
 #else               // C99
@@ -439,6 +444,7 @@ static inline
 void  sq_column_comment(SqColumn *column, const char *comment_str) {
 	SQ_COLUMN_SET_COMMENT(column, comment_str);
 }
+#endif  // SQ_CONFIG_TABLE_COLUMN_COMMENTS
 
 #ifdef __cplusplus  // C++
 inline
@@ -579,10 +585,12 @@ struct ColumnMethod
 		SQ_COLUMN_SET_DEFAULT(this, default_val);
 		return *(Sq::Column*)this;
 	}
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 	Sq::Column &comment(const char *comment_str) {
 		SQ_COLUMN_SET_COMMENT(this, comment_str);
 		return *(Sq::Column*)this;
 	}
+#endif
 	Sq::Column &raw_(const char *raw_property) {
 		SQ_COLUMN_SET_RAW(this, raw_property);
 		return *(Sq::Column*)this;

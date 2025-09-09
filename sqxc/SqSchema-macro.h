@@ -72,7 +72,9 @@ typedef struct Company
 
 #define SQT_CUR    table_cur_
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 #define SQT_COMMENT(comment_str) sq_table_comment(table_cur_, comment_str)
+#endif
 
 #define SQT_DROP(column_name)    sq_table_drop_column(table_cur_, column_name)
 
@@ -292,8 +294,10 @@ typedef struct Company
 #define SQC_DEFAULT(default_val)   \
 		sq_column_default(column_cur_, default_val)
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 #define SQC_COMMENT(comment_str)   \
 		sq_column_comment(column_cur_, comment_str)
+#endif
 
 #define SQC_RAW(raw_property)   \
 		sq_column_raw(column_cur_, raw_property)

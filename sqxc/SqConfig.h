@@ -108,6 +108,10 @@
  */
 #define SQ_CONFIG_QUERY_ONLY_COLUMN                1
 
+/* Enable it to add comments to database table and column.
+ */
+#define SQ_CONFIG_TABLE_COLUMN_COMMENTS               1
+
 // ----------------------------------------------------------------------------
 // Default length (size)
 

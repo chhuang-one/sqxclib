@@ -70,8 +70,10 @@ extern "C" {
 /* --- macro functions --- for maintaining C/C++ inline functions easily */
 #define SQ_TABLE_SET_NAME        SQ_ENTRY_SET_NAME
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 #define SQ_TABLE_SET_COMMENT(table, comment_str)         \
 		sq_entry_set_str_addr((SqEntry*)table, (char**) &((SqTable*)table)->comments, comment_str)
+#endif  // SQ_CONFIG_TABLE_COLUMN_COMMENTS
 
 /* SqTable C functions */
 
@@ -339,7 +341,9 @@ namespace Sq {
 struct TableMethod
 {
 	void        setName(const char *tableName);
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 	void        comment(const char *comment_str);
+#endif
 	bool        hasColumn(const char *column_name);
 	Sq::Column *findColumn(const char *column_name);
 	void        dropColumn(const char *column_name);
@@ -537,12 +541,20 @@ struct TableMethod
 	C++ user can initialize static structure easily.
  */
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 #define SQ_TABLE_MEMBERS           \
 	SQ_REENTRY_MEMBERS;            \
 	SqColumn       *primary_key;   \
 	SqDestroyFunc   on_destory;    \
 	SqRelation     *relation;      \
 	const char     *comments
+#else
+#define SQ_TABLE_MEMBERS           \
+	SQ_REENTRY_MEMBERS;            \
+	SqColumn       *primary_key;   \
+	SqDestroyFunc   on_destory;    \
+	SqRelation     *relation
+#endif
 
 #ifdef __cplusplus
 struct SqTable : Sq::TableMethod         // <-- 1. inherit C++ member function(method)
@@ -570,7 +582,9 @@ struct SqTable
 	// free it if you don't need to sync table changed to database.
 	SqRelation     *relation;
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 	const char     *comments;       // add comment to a table
+#endif
  */
 };
 
@@ -589,6 +603,7 @@ void  sq_table_set_name(SqTable *table, const char *name) {
 	SQ_TABLE_SET_NAME(table, name);
 }
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 #ifdef __cplusplus  // C++
 inline
 #else               // C99
@@ -597,6 +612,7 @@ static inline
 void  sq_table_comment(SqTable *table, const char *comment_str) {
 	SQ_TABLE_SET_COMMENT(table, comment_str);
 }
+#endif  // SQ_CONFIG_TABLE_COLUMN_COMMENTS
 
 #ifdef __cplusplus  // C++
 inline
@@ -652,9 +668,11 @@ template<typename T, typename U> constexpr size_t offsetOf(U T::*member) {
 inline void  TableMethod::setName(const char *tableName) {
 	SQ_TABLE_SET_NAME(this, tableName);
 }
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 inline void  TableMethod::comment(const char *comment_str) {
 	SQ_TABLE_SET_COMMENT(this, comment_str);
 }
+#endif
 inline bool  TableMethod::hasColumn(const char *column_name) {
 	return sq_table_has_column((SqTable*)this, column_name);
 }
