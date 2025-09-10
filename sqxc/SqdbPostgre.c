@@ -342,8 +342,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 		for (unsigned int index = 0;  index < reentries->length;  index++) {
 			table = (SqTable*)reentries->data[index];
 
-			// clear sql_buf
-			sql_buf.writed = 0;
+			sql_buf.writed = 0;    // reset write position for next statement
 
 			if (table->bit_field & SQB_CHANGED) {
 				// ALTER TABLE
@@ -372,13 +371,12 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 					if (has_error)
 						break;
 				}
-				sql_buf.writed = 0;    // write to start of buffer
+				sql_buf.writed = 0;    // reset write position for next statement
 				sqdb_postgre_create_table_dep(sqdb, &sql_buf, table);
 			}
 
 			if (sql_buf.writed > 0) {
-				// 'sql_buf' must become null-terminated string before executing
-				sq_buffer_write_c(&sql_buf, 0);  
+				sql_buf.mem[sql_buf.writed] = 0;    // NULL-terminated string
 #ifndef NDEBUG
 				fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
@@ -465,6 +463,8 @@ static void sqdb_postgre_create_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, co
 	sq_buffer_write(sql_buf, "__");
 	sq_buffer_write(sql_buf, column_name);
 	sq_buffer_write(sql_buf, "();");
+
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated string
 }
 
 static void sqdb_postgre_drop_table_dep(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table)
@@ -502,6 +502,8 @@ static void sqdb_postgre_drop_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, cons
 	sq_buffer_write(sql_buf, "__");
 	sq_buffer_write(sql_buf, column_name);
 	sq_buffer_write_c(sql_buf, ';');
+
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated string
 }
 
 static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable *table, SqTable *old_table)
@@ -518,18 +520,19 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 
 		if (column->bit_field & SQB_COLUMN_CHANGED) {
 			// ALTER COLUMN
-			// check
+			// check argument
 			if (old_table == NULL) {
 #ifndef NDEBUG
-				fprintf(stderr, "%s: table '%s' not found in current schema.\n",
+				fprintf(stderr, "%s: Can't alter table '%s', it not found in current schema.\n",
 				        "sqdb_postgre_alter_table()", table->name);
 #endif
+				break;
 			}
 
 			old_column = sq_table_find_column(old_table, column->name);
 			if (old_column == NULL) {
 #ifndef NDEBUG
-				fprintf(stderr, "%s: altering column '%s' not found.\n",
+				fprintf(stderr, "%s: Can't alter column '%s', it not found in current schema.\n",
 				        "sqdb_postgre_alter_table()", column->name);
 #endif
 				continue;
@@ -608,7 +611,7 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 				temp = 0;
 			}
 
-			buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+			buffer->mem[buffer->writed] = 0;    // NULL-terminated string
 		}
 		else if (column->name == NULL) {
 			// DROP COLUMN / CONSTRAINT / INDEX / KEY
@@ -638,7 +641,7 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 			}
 		}
 
-		buffer->writed = 0;
+		buffer->writed = 0;    // reset write position for next statement
 #ifndef NDEBUG
 		fprintf(stderr, "SQL: %s\n", buffer->mem);
 #endif
