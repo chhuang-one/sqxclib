@@ -29,6 +29,10 @@
 
 #define SQL_STRING_LENGTH_DEFAULT    SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+static void sqdb_write_mysql_comment(Sqdb *db, SqBuffer *sql_buf, const char *comment);
+#endif
+
 Sqdb   *sqdb_new(const SqdbInfo *info, const SqdbConfig *config)
 {
 	Sqdb *db;
@@ -83,7 +87,7 @@ int  sqdb_exec_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqPtrAr
 	sq_table_get_columns(table, &indexes, SQ_TYPE_INDEX, 0);    // get record of "CREATE INDEX"
 	for (unsigned int idx = 0;  idx < indexes.length;  idx++) {
 		sqdb_sql_create_index(db, sql_buf, table, (SqColumn*)indexes.data[idx]);
-		sql_buf->writed = 0;
+		sql_buf->writed = 0;                  // reset write position for next statement
 #ifndef NDEBUG
 		// Don't run this because sqdb_exec() will output this debug message.
 //		fprintf(stderr, "SQL: %s\n", sql_buf->mem);
@@ -105,7 +109,25 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 		arranged_columns = sq_type_entry_array(table->type);
 	// clear cache
 	table->primary_key = NULL;
-	// ALTER TABLE
+
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	// MySQL & MariaDB
+	// ALTER TABLE tableName COMMENT comments
+	if (db->info->product == SQDB_PRODUCT_MYSQL && table->comments) {
+		sq_buffer_write(buffer, "ALTER TABLE");
+		// write "table name"
+		sqdb_sql_write_identifier(db, buffer, table->name, false);
+		buffer->writed--;    // remove space
+		sqdb_write_mysql_comment(db, buffer, table->comments);
+		buffer->mem[buffer->writed] = 0;    // NULL-terminated string
+		buffer->writed = 0;                 // reset write position for next statement
+		rc = sqdb_exec(db, buffer->mem, NULL, NULL);
+		if (rc != SQCODE_OK)
+			return rc;
+	}
+#endif
+
+	// ALTER TABLE columns
 	for (unsigned int index = 0;  index < arranged_columns->length;  index++) {
 		column = (SqColumn*)arranged_columns->data[index];
 
@@ -130,7 +152,7 @@ int  sqdb_exec_alter_table(Sqdb *db, SqBuffer *buffer, SqTable *table, SqPtrArra
 			sqdb_sql_add_column(db, buffer, table, column);
 		}
 
-		buffer->writed = 0;
+		buffer->writed = 0;                 // reset write position for next statement
 #ifndef NDEBUG
 		// Don't run this because sqdb_exec() will output this debug message.
 //		fprintf(stderr, "SQL: %s\n", buffer->mem);
@@ -163,7 +185,13 @@ int  sqdb_sql_create_table(Sqdb *db, SqBuffer *sql_buf, SqTable *table,
 	n_columns = sqdb_sql_create_table_params(db, sql_buf, arranged_columns,
 			primary_first ? sq_table_get_primary(table, NULL) : NULL);
 
-	sql_buf->mem[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	// MySQL & MariaDB
+	if (db->info->product == SQDB_PRODUCT_MYSQL && table->comments)
+		sqdb_write_mysql_comment(db, sql_buf, table->comments);
+#endif
+
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated is not counted in length
 	return n_columns;
 }
 
@@ -256,7 +284,7 @@ int  sqdb_sql_create_table_params(Sqdb *db, SqBuffer *buffer,
 	}
 
 	sq_buffer_write_c(buffer, ')');
-	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 	return n_columns;  
 }
 
@@ -271,7 +299,7 @@ void sqdb_sql_drop_table(Sqdb *db, SqBuffer *buffer, SqTable *table, bool if_exi
 	// write "table old name"
 	sqdb_sql_write_identifier(db, buffer, table->old_name, false);
 
-	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 }
 
 SqColumn *sqdb_sql_select(Sqdb *db, SqBuffer *sql_buf, const char *table_name, const SqType *table_type)
@@ -301,7 +329,7 @@ SqColumn *sqdb_sql_select(Sqdb *db, SqBuffer *sql_buf, const char *table_name, c
 	sq_buffer_write(sql_buf, " * ");
 	sq_buffer_write(sql_buf, "FROM");
 	sqdb_sql_write_identifier(db, sql_buf, table_name, false);
-	sql_buf->mem[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated is not counted in length
 
 	return primary;
 }
@@ -314,7 +342,7 @@ void sqdb_sql_delete(Sqdb *db, SqBuffer *sql_buf, const char *table_name)
 
 	sqdb_sql_write_identifier(db, sql_buf, table_name, false);
 
-	sql_buf->mem[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated is not counted in length
 }
 
 void sqdb_sql_rename_table(Sqdb *db, SqBuffer *buffer, const char *old_name, const char *new_name)
@@ -338,7 +366,7 @@ void sqdb_sql_rename_table(Sqdb *db, SqBuffer *buffer, const char *old_name, con
 	sqdb_sql_write_identifier(db, buffer, new_name, false);
 	buffer->writed--;    // remove space
 
-	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 }
 
 // ------------------------------------
@@ -362,7 +390,7 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	// ADD CONSTRAINT
 	if (column->type == SQ_TYPE_CONSTRAINT) {
 		sqdb_sql_write_constraint(db, buffer, column);
-		buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+		buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 		return;
 	}
 	// ADD FOREIGN KEY
@@ -380,7 +408,7 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	// ADD COLUMN
 	else {
 		sqdb_sql_write_column(db, buffer, column, NULL);
-		buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+		buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 		return;
 	}
 
@@ -390,7 +418,7 @@ void sqdb_sql_add_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *c
 	if (column->foreign)
 		sqdb_sql_write_foreign_ref(db, buffer, column);
 
-	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 }
 
 void sqdb_sql_alter_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
@@ -413,7 +441,7 @@ void sqdb_sql_alter_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 		sqdb_sql_write_column(db, buffer, column, NULL);
 	}
 
-	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 }
 
 void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column, SqColumn *old_column)
@@ -452,7 +480,7 @@ void sqdb_sql_rename_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn
 		sqdb_sql_write_column(db, buffer, old_column, column->name);
 	}
 
-	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 }
 
 void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
@@ -493,7 +521,7 @@ void  sqdb_sql_drop_column(Sqdb *db, SqBuffer *buffer, SqTable *table, SqColumn 
 		// write "column old name"
 		sqdb_sql_write_identifier(db, buffer, column->old_name, false);
 	}
-	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 }
 
 void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
@@ -512,7 +540,7 @@ void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn
 	sqdb_sql_write_composite_columns(db, sql_buf, column);
 	sql_buf->writed--;
 
-	sql_buf->mem[sql_buf->writed] = 0;    // NULL-termainated is not counted in length
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated is not counted in length
 }
 
 // ----------------------------------------------------------------------------
@@ -789,6 +817,12 @@ void sqdb_sql_write_column(Sqdb *db, SqBuffer *buffer, SqColumn *column, const c
 		sq_buffer_write(buffer, "CURRENT_TIMESTAMP");
 	}
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	// MySQL & MariaDB
+	if (db->info->product == SQDB_PRODUCT_MYSQL && column->comments)
+		sqdb_write_mysql_comment(db, buffer, column->comments);
+#endif
+
 	// raw SQL
 	if (column->raw) {
 		sq_buffer_write_c(buffer, ' ');
@@ -913,3 +947,15 @@ void sqdb_sql_write_foreign_ref(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 		}
 	}
 }
+
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+// MySQL & MariaDB
+static void sqdb_write_mysql_comment(Sqdb *db, SqBuffer *sql_buf, const char *comments)
+{
+	sq_buffer_write(sql_buf, " COMMENT ");
+
+	sq_buffer_write_c(sql_buf, '\'');
+	sq_buffer_write(sql_buf, comments);
+	sq_buffer_write_c(sql_buf, '\'');
+}
+#endif
