@@ -49,6 +49,7 @@ static void sqdb_postgre_drop_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, cons
 static void sqdb_postgre_alter_table(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table, SqTable *old_table);
 static int  sqdb_postgre_schema_get_version(SqdbPostgre *sqdb);
 static void sqdb_postgre_schema_set_version(SqdbPostgre *sqdb, int version);
+static bool sqdb_postgre_handle_result(SqdbPostgre *sqdb, PGresult *result);
 
 static const SqdbConfigPostgre db_default = {
 	.host     = POSTGRE_DEFAULT_HOST,
@@ -285,13 +286,13 @@ static int  sqdb_postgre_exec(SqdbPostgre *sqdb, const char *sql, Sqxc *xc, void
 #endif
 		code = SQCODE_EXEC_ERROR;
 	}
-	PQclear(results);
+	sqdb_postgre_handle_result(sqdb, results);
 
 	return code;
 }
 
 // used by sqdb_postgre_migrate()
-static bool sqdb_postgre_has_error(SqdbPostgre *sqdb, PGresult *result)
+static bool sqdb_postgre_handle_result(SqdbPostgre *sqdb, PGresult *result)
 {
 	bool has_error;
 
@@ -367,7 +368,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 					fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
 					results = PQexec(sqdb->conn, sql_buf.mem);
-					has_error = sqdb_postgre_has_error(sqdb, results);
+					has_error = sqdb_postgre_handle_result(sqdb, results);
 					if (has_error)
 						break;
 				}
@@ -381,7 +382,7 @@ static int  sqdb_postgre_migrate(SqdbPostgre *sqdb, SqSchema *schema, SqSchema *
 				fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
 				results = PQexec(sqdb->conn, sql_buf.mem);
-				has_error = sqdb_postgre_has_error(sqdb, results);
+				has_error = sqdb_postgre_handle_result(sqdb, results);
 				if (has_error)
 					break;
 			}
@@ -646,14 +647,13 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 		fprintf(stderr, "SQL: %s\n", buffer->mem);
 #endif
 		results = PQexec(db->conn, buffer->mem);
+		sqdb_postgre_handle_result(db, results);
 /*
 		if (PQresultStatus(results) == PGRES_COMMAND_OK)
 			temp = SQCODE_OK;
 		else
 			temp = SQCODE_ERROR;
- */
 		PQclear(results);
-/*
 		if (temp == SQCODE_ERROR)
 			break;
  */
@@ -671,17 +671,17 @@ static int  sqdb_postgre_schema_get_version(SqdbPostgre *sqdb)
 	                 "id INT NOT NULL, version INT NOT NULL DEFAULT 0, PRIMARY KEY (id)"
 	                 ")");
 	if (PQresultStatus(results) == PGRES_COMMAND_OK) {
-		PQclear(results);
+		sqdb_postgre_handle_result(sqdb, results);
 		// try to get or set version
 		results = PQexec(sqdb->conn, "SELECT version FROM " SQDB_MIGRATIONS_TABLE " WHERE id = 0");
 		if (PQresultStatus(results) == PGRES_TUPLES_OK && PQntuples(results) > 0)
 			version = strtol(PQgetvalue(results, 0, 0), NULL, 10);
 		else {
-			PQclear(results);
+			sqdb_postgre_handle_result(sqdb, results);
 			results = PQexec(sqdb->conn, "INSERT INTO " SQDB_MIGRATIONS_TABLE " (id) VALUES (0)");
 		}
 	}
-	PQclear(results);
+	sqdb_postgre_handle_result(sqdb, results);
 	return version;
 }
 
@@ -695,7 +695,7 @@ static void sqdb_postgre_schema_set_version(SqdbPostgre *sqdb, int version)
 	buf = malloc(len);
 	snprintf(buf, len, "UPDATE " SQDB_MIGRATIONS_TABLE " SET version=%d WHERE id = 0", version);
 	results = PQexec(sqdb->conn, buf);
-	PQclear(results);
+	sqdb_postgre_handle_result(sqdb, results);
 	free(buf);
 }
 
