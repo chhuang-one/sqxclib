@@ -535,10 +535,10 @@ void sqdb_sql_create_index(Sqdb *db, SqBuffer *sql_buf, SqTable *table, SqColumn
 
 	// write "table name"
 	sqdb_sql_write_identifier(db, sql_buf, table->name, false);
-	sql_buf->writed--;
+	sql_buf->writed--;    // remove space
 	// write columns
 	sqdb_sql_write_composite_columns(db, sql_buf, column);
-	sql_buf->writed--;
+	sql_buf->writed--;    // remove space
 
 	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated is not counted in length
 }
@@ -644,8 +644,12 @@ void sqdb_sql_write_column_type(Sqdb *db, SqBuffer *buffer, SqColumn *column)
 		break;
 
 	case SQ_SQL_TYPE_DOUBLE:
-		if (db->info->product == SQDB_PRODUCT_POSTGRE)
-			sq_buffer_write(buffer, "DOUBLE PRECISION");
+		if (db->info->product == SQDB_PRODUCT_POSTGRE) {
+			if (size > 0 || digits > 0)
+				sq_buffer_write(buffer, "NUMERIC");
+			else
+				sq_buffer_write(buffer, "DOUBLE PRECISION");
+		}
 		else
 			sq_buffer_write(buffer, "DOUBLE");    // FLOAT
 		if (size > 0 || digits > 0) {
