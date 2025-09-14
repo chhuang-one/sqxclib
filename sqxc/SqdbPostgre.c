@@ -50,6 +50,9 @@ static void sqdb_postgre_alter_table(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTab
 static int  sqdb_postgre_schema_get_version(SqdbPostgre *sqdb);
 static void sqdb_postgre_schema_set_version(SqdbPostgre *sqdb, int version);
 static bool sqdb_postgre_handle_result(SqdbPostgre *sqdb, PGresult *result);
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+static void sqdb_postgre_comment(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table, SqColumn *column);
+#endif
 
 static const SqdbConfigPostgre db_default = {
 	.host     = POSTGRE_DEFAULT_HOST,
@@ -416,6 +419,11 @@ static void sqdb_postgre_create_table_dep(SqdbPostgre *sqdb, SqBuffer *sql_buf, 
 	SqColumn  *column;
 	SqEntry  **cur, **end;
 
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	if (table->comments)
+		sqdb_postgre_comment(sqdb, sql_buf, table, NULL);
+#endif
+
 	end = table->type->entry + table->type->n_entry;
 	for (cur = table->type->entry;  cur < end;  cur++) {
 		column = *(SqColumn**)cur;
@@ -427,6 +435,12 @@ static void sqdb_postgre_create_table_dep(SqdbPostgre *sqdb, SqBuffer *sql_buf, 
 		// CREATE TRIGGER
 		else if (column->bit_field & SQB_COLUMN_CURRENT_ON_UPDATE)
 			sqdb_postgre_create_trigger(sqdb, sql_buf, table->name, column->name);
+
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+		// COMMENT
+		if (column->comments)
+			sqdb_postgre_comment(sqdb, sql_buf, table, column);
+#endif
 	}
 }
 
@@ -507,20 +521,47 @@ static void sqdb_postgre_drop_trigger(SqdbPostgre *sqdb, SqBuffer *sql_buf, cons
 	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated string
 }
 
+// used by sqdb_postgre_alter_table()
+static void sqdb_write_postgre_alter_column(SqdbPostgre *db, SqBuffer *buffer, SqTable *table, SqColumn *column)
+{
+	// write ALTER TABLE "table name"
+	sq_buffer_write(buffer, "ALTER TABLE");
+	sqdb_sql_write_identifier((Sqdb*)db, buffer, table->name, false);
+	// write ALTER COLUMN "column name"
+	sq_buffer_write(buffer, "ALTER COLUMN");
+	sqdb_sql_write_identifier((Sqdb*)db, buffer, column->name, false);
+}
+
 static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable *table, SqTable *old_table)
 {
 	const SqType *table_type = table->type;
 	SqColumn *old_column, *column;
 	unsigned int  index;
-	int       temp;
 	PGresult *results;
 
 	// ALTER TABLE
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	if (table->comments) {
+		sqdb_postgre_comment(db, buffer, table, NULL);
+#ifndef NDEBUG
+		fprintf(stderr, "SQL: %s\n", buffer->mem);
+#endif
+		results = PQexec(db->conn, buffer->mem);
+		sqdb_postgre_handle_result(db, results);
+		buffer->writed = 0;    // reset write position for next statement
+	}
+#endif  // SQ_CONFIG_TABLE_COLUMN_COMMENTS
+
+	// ALTER TABLE columns
 	for (index = 0;  index < table_type->n_entry;  index++) {
 		column = (SqColumn*)table_type->entry[index];
 
 		if (column->bit_field & SQB_COLUMN_CHANGED) {
 			// ALTER COLUMN
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+			if (column->comments)
+				sqdb_postgre_comment(db, buffer, table, column);
+#endif
 			// check argument
 			if (old_table == NULL) {
 #ifndef NDEBUG
@@ -539,44 +580,29 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 				continue;
 			}
 
-			temp = 0;
-			// write ALTER TABLE "table name"
-			sq_buffer_write(buffer, "ALTER TABLE");
-			sqdb_sql_write_identifier((Sqdb*)db, buffer, table->name, false);
-
 			if (column->type   != old_column->type ||
 			    column->size   != old_column->size ||
 			    column->digits != old_column->digits)
 			{
-				// write ALTER COLUMN "column name"
-				sq_buffer_write(buffer, "ALTER COLUMN");
-				sqdb_sql_write_identifier((Sqdb*)db, buffer, column->name, false);
+				sqdb_write_postgre_alter_column(db, buffer, table, column);
 				// TYPE new_data_type
 				sq_buffer_write(buffer, "TYPE ");
 				sqdb_sql_write_column_type((Sqdb*)db, buffer, column);
-				temp++;
+				sq_buffer_write_c(buffer, ';');
 			}
 
 			if ((column->bit_field & SQB_COLUMN_NULLABLE) != (old_column->bit_field & SQB_COLUMN_NULLABLE)) {
-				if (temp)
-					sq_buffer_write_c(buffer, ',');
-				// write ALTER COLUMN "column name"
-				sq_buffer_write(buffer, "ALTER COLUMN");
-				sqdb_sql_write_identifier((Sqdb*)db, buffer, column->name, false);
+				sqdb_write_postgre_alter_column(db, buffer, table, column);
 				// DROP NOT NULL or SET NOT NULL
 				if (column->bit_field & SQB_COLUMN_NULLABLE)
 					sq_buffer_write(buffer, "DROP NOT NULL");
 				else
 					sq_buffer_write(buffer, "SET NOT NULL");
-				temp++;
+				sq_buffer_write_c(buffer, ';');
 			}
 
 			if (column->default_value != old_column->default_value) {
-				if (temp)
-					sq_buffer_write_c(buffer, ',');
-				// write ALTER COLUMN "column name"
-				sq_buffer_write(buffer, "ALTER COLUMN");
-				sqdb_sql_write_identifier((Sqdb*)db, buffer, column->name, false);
+				sqdb_write_postgre_alter_column(db, buffer, table, column);
 				if (column->default_value) {
 					sq_buffer_write(buffer, "SET DEFAULT ");
 					sq_buffer_write(buffer, column->default_value);
@@ -585,21 +611,14 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 					sq_buffer_write(buffer, "SET DEFAULT CURRENT_TIMESTAMP");
 				else
 					sq_buffer_write(buffer, "DROP DEFAULT");
-				temp++;
+				sq_buffer_write_c(buffer, ';');
 			}
 
 			// raw SQL
 			if (((column->raw && old_column->raw) && strcasecmp(column->raw, old_column->raw) != 0) ||
 			    ((column->raw != old_column->raw) && (column->raw == NULL || old_column->raw == NULL)) )
 			{
-				if (temp)
-					sq_buffer_write_c(buffer, ';');
-				// write ALTER TABLE "table name"
-				sq_buffer_write(buffer, "ALTER TABLE");
-				sqdb_sql_write_identifier((Sqdb*)db, buffer, table->name, false);
-				// write ALTER COLUMN "column name"
-				sq_buffer_write(buffer, "ALTER COLUMN");
-				sqdb_sql_write_identifier((Sqdb*)db, buffer, column->name, false);
+				sqdb_write_postgre_alter_column(db, buffer, table, column);
 				if (column->raw == NULL) {
 					sq_buffer_write(buffer, "DROP ");
 					sq_buffer_write(buffer, old_column->raw);
@@ -609,7 +628,6 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 					sq_buffer_write(buffer, column->raw);
 				}
 				sq_buffer_write_c(buffer, ';');
-				temp = 0;
 			}
 
 			buffer->mem[buffer->writed] = 0;    // NULL-terminated string
@@ -640,6 +658,12 @@ static void sqdb_postgre_alter_table(SqdbPostgre *db, SqBuffer *buffer, SqTable 
 				sq_buffer_write_c(buffer, ';');
 				sqdb_postgre_create_trigger(db, buffer, table->name, column->name);
 			}
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+			if (column->comments) {
+				sq_buffer_write_c(buffer, ';');
+				sqdb_postgre_comment(db, buffer, table, column);
+			}
+#endif
 		}
 
 		buffer->writed = 0;    // reset write position for next statement
@@ -698,6 +722,36 @@ static void sqdb_postgre_schema_set_version(SqdbPostgre *sqdb, int version)
 	sqdb_postgre_handle_result(sqdb, results);
 	free(buf);
 }
+
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+static void sqdb_postgre_comment(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
+{
+	int  dot_position;
+
+	sq_buffer_write(sql_buf, "COMMENT ON ");
+	if (column == NULL)
+		sq_buffer_write(sql_buf, "TABLE");
+	else
+		sq_buffer_write(sql_buf, "COLUMN");
+
+	sqdb_sql_write_identifier((Sqdb*)sqdb, sql_buf, table->name, false);
+	if (column) {
+		sql_buf->writed--;    // remove space
+		dot_position = sql_buf->writed;
+		sqdb_sql_write_identifier((Sqdb*)sqdb, sql_buf, column->name, false);
+		sql_buf->mem[dot_position] = '.';
+	}
+	sq_buffer_write(sql_buf, "IS '");
+
+	if (column == NULL)
+		sq_buffer_write(sql_buf, table->comments);
+	else
+		sq_buffer_write(sql_buf, column->comments);
+
+	sq_buffer_write(sql_buf, "';");
+	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated string
+}
+#endif  // SQ_CONFIG_TABLE_COLUMN_COMMENTS
 
 // ----------------------------------------------------------------------------
 // If C compiler doesn't support C99 inline function.
