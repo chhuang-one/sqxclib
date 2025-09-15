@@ -388,10 +388,14 @@ static int  sqdb_mysql_schema_get_version(SqdbMysql *sqdb)
 		if ((row = mysql_fetch_row(result)))
 			version = strtol(row[0], NULL, 10);
 		else
-			mysql_query(sqdb->self, "INSERT INTO " SQDB_MIGRATIONS_TABLE " (id) VALUES (0)");
+			rc = mysql_query(sqdb->self, "INSERT INTO " SQDB_MIGRATIONS_TABLE " (id) VALUES (0)");
 		mysql_free_result(result);
 	}
 
+#ifndef NDEBUG
+	if (rc)
+		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->self));
+#endif
 	return version;
 }
 
@@ -399,11 +403,16 @@ static void sqdb_mysql_schema_set_version(SqdbMysql *sqdb, int version)
 {
 	char *buf;
 	int   len;
+	int   rc;
 
 	len = snprintf(NULL, 0, "UPDATE " SQDB_MIGRATIONS_TABLE " SET version=%d WHERE id = 0", version) + 1;
 	buf = malloc(len);
 	snprintf(buf, len, "UPDATE " SQDB_MIGRATIONS_TABLE " SET version=%d WHERE id = 0", version);
-	mysql_query(sqdb->self, buf);
+	rc = mysql_query(sqdb->self, buf);
+#ifndef NDEBUG
+	if (rc)
+		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->self));
+#endif
 	free(buf);
 }
 
