@@ -459,7 +459,7 @@ char *sq_template_write_buffer(const char *template_string, SqPairs *pairs, SqBu
 		template_string = temp_end + 2;
 	}
 
-	buffer->mem[buffer->writed] = 0;    // NULL-termainated is not counted in length
+	buffer->mem[buffer->writed] = 0;    // NULL-terminated is not counted in length
 	return buffer->mem + writed_pos;
 }
 

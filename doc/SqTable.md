@@ -49,6 +49,16 @@ Use C++ language
 	schema->add(table);
 ```
 
+If you would like to add a "comment" to a database table, you may invoke the comment method on the table instance.
+
+```c++
+	// C function
+	sq_table_comment(table, "This is database table comment");
+
+	// C++ method
+	table->comment("This is database table comment");
+```
+
 ## Create column
 
 Below C++ methods (C functions) are correspond to the different types of columns that you can add to table.  

@@ -17,6 +17,8 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 * BLOB support. Supported types are listed in doc/[SqTable.md](doc/SqTable.md).
 
+* It can add comments to tables and columns (only supported by MySQL/MariaDB and PostgreSQL).
+
 * Custom type mapping.
 
 * Query builder that can be used independently. See doc/[SqQuery.md](doc/SqQuery.md)

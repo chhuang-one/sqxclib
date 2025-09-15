@@ -17,6 +17,8 @@ sqxclib 是在 C 语言和 SQL、JSON 等之间转换数据的库。它提供 OR
 
 * BLOB 支持，支持的类型列表位于 doc/[SqTable.cn.md](doc/SqTable.cn.md) 中。
 
+* 可以为表和列添加注释（仅 MySQL / MariaDB 和 PostgreSQL 支持）。
+
 * 自定义类型映射。
 
 * 可以独立使用的查询生成器。见 doc/[SqQuery.cn.md](doc/SqQuery.cn.md)。

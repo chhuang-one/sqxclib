@@ -60,6 +60,7 @@ SqColumn 必须与 [SqTable](SqTable.cn.md) and [SqSchema](SqSchema.cn.md) 一�
 | nullable           | sq_column_nullable              | 允许 NULL 值                       |
 | useCurrent         | sq_column_use_current           | 使用 CURRENT_TIMESTAMP 作为默认值。|
 | useCurrentOnUpdate | sq_column_use_current_on_update | 更新记录时使用 CURRENT_TIMESTAMP。 |
+| comment            | sq_column_comment               | 向列添加注释。                     |
 | queryOnly          | sq_column_query_only            | 列名仅适用于 SQL SELECT 查询。     |
 | default_           | sq_column_default               | 为该列指定一个 "默认" 值。         |
 
@@ -158,7 +159,7 @@ struct SqColumn
 	// 'composite' 是以 NULL 结尾的数组，用于设置复合约束的 列。
 	char        **composite;
 
-	const char   *reserve;          // 保留
+	const char   *comments;         // 向列添加注释
 	const char   *raw;              // 原始数据库列属性
 };
 ```

@@ -60,6 +60,7 @@ Most methods (functions) set a specific bit of SqColumn::bit_field to 1.
 | nullable           | sq_column_nullable              | allow NULL value                                |
 | useCurrent         | sq_column_use_current           | use CURRENT_TIMESTAMP as default value.         |
 | useCurrentOnUpdate | sq_column_use_current_on_update | use CURRENT_TIMESTAMP when a record is updated. |
+| comment            | sq_column_comment               | add comment to a column.                        |
 | queryOnly          | sq_column_query_only            | column name only apply to SQL SELECT query.     |
 | default_           | sq_column_default               | specify a "default" value for the column.       |
 
@@ -158,7 +159,7 @@ struct SqColumn
 	// 'composite' is NULL-terminated array for setting columns of composite constraint.
 	char        **composite;
 
-	const char   *reserve;          // reserve
+	const char   *comments;         // add comment to a column
 	const char   *raw;              // raw database column property
 };
 ```

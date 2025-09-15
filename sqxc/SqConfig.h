@@ -109,8 +109,10 @@
 #define SQ_CONFIG_QUERY_ONLY_COLUMN                1
 
 /* Enable it to add comments to database table and column.
+   Table & column comments are currently only supported by MySQL / MariaDB and PostgreSQL.
+   Affected source : SqTable, SqColumn, Sqdb, SqdbPostgre
  */
-#define SQ_CONFIG_TABLE_COLUMN_COMMENTS               1
+#define SQ_CONFIG_TABLE_COLUMN_COMMENTS            1
 
 // ----------------------------------------------------------------------------
 // Default length (size)

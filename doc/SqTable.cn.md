@@ -49,6 +49,16 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 	schema->add(table);
 ```
 
+如果您想向数据库表添加 "评论"，您可以在表实例上调用 comment() 方法。
+
+```c++
+	// C 函数
+	sq_table_comment(table, "This is database table comment");
+
+	// C++ 方法
+	table->comment("This is database table comment");
+```
+
 ## 创建列
 
 下面的 C++ 方法 (C 函数) 对应于您可以添加到表中的不同类型的列。  
