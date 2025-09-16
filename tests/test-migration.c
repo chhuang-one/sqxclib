@@ -71,6 +71,8 @@ struct Account {
 	int    acc_type;
 	char  *acc_descr;    // CHAR(20),
 	// PRIMARY KEY (acc_num, acc_type)
+
+	int    test_add;
 };
 
 struct SubAccount {
@@ -352,8 +354,14 @@ void change_city_table_by_c(SqSchema *schema)
 
 	// ALTER TABLE
 	table = sq_schema_alter(schema, "cities", NULL);
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	sq_table_comment(table, "This is cities table comments");
+#endif
 	// ALTER COLUMN name
 	column = sq_table_add_string(table, "name", offsetof(City, name), 256);
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	sq_column_comment(column, "This is name column comments");
+#endif
 	sq_column_change(column);
 	// ADD COLUMN chars
 	column = sq_table_add_char(table, "chars", offsetof(City, chars), 20);
@@ -364,6 +372,19 @@ void change_city_table_by_c(SqSchema *schema)
 	column = sq_table_add_timestamp(table, "updated_at", offsetof(City, updated_at));
 	sq_column_use_current(column);
 	sq_column_use_current_on_update(column);
+
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	// Changing an existing table comments
+	table = sq_schema_alter(schema, "accounts", NULL);
+	sq_table_comment(table, "changed accounts table comments");
+	// Changing an existing column comments
+	column = sq_table_add_int(table, "acc_num", offsetof(Account, acc_num));
+	sq_column_comment(column, "changed name column comments");
+	sq_column_change(column);
+	// Adding column with comments
+	column = sq_table_add_int(table, "test_add", offsetof(Account, test_add));
+	sq_column_comment(column, "Adding test_add column with comments");
+#endif
 }
 
 // composite key
@@ -374,7 +395,13 @@ void create_account_table_by_c(SqSchema *schema)
 
 	table = sq_schema_create_full(schema, "accounts",
 			SQ_GET_TYPE_NAME(Account), NULL, sizeof(Account));
-	column = sq_table_add_int(table, "acc_num",  offsetof(Account, acc_num));
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	sq_table_comment(table, "This is accounts table comments");
+#endif
+	column = sq_table_add_int(table, "acc_num", offsetof(Account, acc_num));
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	sq_column_comment(column, "This is acc_num column comments");
+#endif
 	column = sq_table_add_int(table, "acc_type", offsetof(Account, acc_type));
 	column = sq_table_add_char(table, "acc_descr", offsetof(Account, acc_descr), 20);
 	column = sq_table_add_primary(table, "num_type_primary",
