@@ -372,19 +372,6 @@ void change_city_table_by_c(SqSchema *schema)
 	column = sq_table_add_timestamp(table, "updated_at", offsetof(City, updated_at));
 	sq_column_use_current(column);
 	sq_column_use_current_on_update(column);
-
-#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
-	// Changing an existing table comments
-	table = sq_schema_alter(schema, "accounts", NULL);
-	sq_table_comment(table, "changed accounts table comments");
-	// Changing an existing column comments
-	column = sq_table_add_int(table, "acc_num", offsetof(Account, acc_num));
-	sq_column_comment(column, "changed name column comments");
-	sq_column_change(column);
-	// Adding column with comments
-	column = sq_table_add_int(table, "test_add", offsetof(Account, test_add));
-	sq_column_comment(column, "Adding test_add column with comments");
-#endif
 }
 
 // composite key
@@ -418,6 +405,25 @@ void create_account_table_by_c(SqSchema *schema)
 			"ref_num", "ref_type", NULL);
 	sq_column_reference(column, "accounts",
 			"acc_num", "acc_type", NULL);
+}
+
+void change_account_table_by_c(SqSchema *schema)
+{
+	SqTable  *table;
+	SqColumn *column;
+
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	// Changing an existing table comments
+	table = sq_schema_alter(schema, "accounts", NULL);
+	sq_table_comment(table, "changed accounts table comments");
+	// Changing an existing column comments
+	column = sq_table_add_int(table, "acc_num", offsetof(Account, acc_num));
+	sq_column_comment(column, "changed name column comments");
+	sq_column_change(column);
+	// Adding column with comments
+	column = sq_table_add_int(table, "test_add", offsetof(Account, test_add));
+	sq_column_comment(column, "Adding test_add column with comments");
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -454,6 +460,7 @@ void test_sqdb_migrate(Sqdb *db)
 
 	schema_v6 = sq_schema_new_ver(6, "ver6");
 	change_city_table_by_c(schema_v6);
+	change_account_table_by_c(schema_v6);
 	// other testing in 'schema_v6'
 	sq_schema_rename(schema_v6, "cities", "cities2");
 //	sq_schema_drop(schema_v6, "users");
@@ -484,6 +491,7 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 	SqSchema   *schema_v2;
 	SqSchema   *schema_v3;
 	SqSchema   *schema_v4;
+	SqSchema   *schema_v5;
 
 	schema    = sq_schema_new_ver(0, "current");
 
@@ -505,10 +513,14 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 //	sq_schema_drop(schema_v4, "users");
 	create_account_table_by_c(schema_v4);    // composite key
 
+	schema_v5 = sq_schema_new_ver(5, "ver5");
+	change_account_table_by_c(schema_v5);
+
 	sqdb_migrate(db, schema, schema_v1);
 	sqdb_migrate(db, schema, schema_v2);
 	sqdb_migrate(db, schema, schema_v3);
 	sqdb_migrate(db, schema, schema_v4);
+	sqdb_migrate(db, schema, schema_v5);
 	// To notify database instance that migration is completed, pass NULL to the last parameter.
 	// This will update and sort 'schema' and synchronize 'schema' to database (mainly for SQLite).
 	sqdb_migrate(db, schema, NULL);
