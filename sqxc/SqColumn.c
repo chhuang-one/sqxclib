@@ -181,6 +181,9 @@ void  sq_column_final(SqColumn *column)
 //		free((char*)column->reserve);
 		free((char*)column->raw);
 		free((char*)column->old_name);
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+		free((char*)column->comments);
+#endif
 		// free string array
 		sq_strs_clear(column->foreign,   true);
 		sq_strs_clear(column->composite, true);

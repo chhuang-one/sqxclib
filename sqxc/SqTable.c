@@ -74,6 +74,9 @@ void  sq_table_final(SqTable *table)
 		// finalize parent struct - SqEntry
 		sq_entry_final((SqEntry*)table);
 		free((char*)table->old_name);
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+		free((char*)table->comments);
+#endif
 
 		// call on_destory() callback to free 'relation' for SQLite
 		if (table->on_destory)
