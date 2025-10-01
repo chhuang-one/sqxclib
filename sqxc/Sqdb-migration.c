@@ -72,6 +72,7 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 			if (addr) {
 				reentry = *(SqReentry**)addr;
 				if (destroy_func == (SqDestroyFunc)sq_column_free) {
+					// ALTER column
 					// replace old entry by new one
 					*addr = reentry_src;
 					// calculate size
@@ -82,8 +83,14 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 					if (entry_src->type->bit_field & SQB_DYNAMIC)
 						*src_cur = NULL;
 				}
-				else
+				else {
+					// ALTER table
 					sq_entry_update((SqEntry*)reentry, (SqEntry*)reentry_src, (SqDestroyFunc)sq_column_free);
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+					if ( ((SqTable*)reentry_src)->comments )
+						sq_table_comment((SqTable*)reentry, ((SqTable*)reentry_src)->comments);
+#endif
+				}
 			}
 #ifndef NDEBUG
 			else {
@@ -105,7 +112,7 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 				reentry = *(SqReentry**)addr;
 				// remove dropped entry from array
 				sq_ptr_array_steal(reentries, temp.index, 1);
-				// calculate size
+				// calculate size after removing SqColumn from SqTable
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
 					sq_type_decide_size((SqType*)entry->type, (SqEntry*)reentry, true);
 				// free removed entry
@@ -131,6 +138,7 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 			if (addr) {
 				reentry = *(SqReentry**)addr;
 				if (destroy_func == (SqDestroyFunc)sq_column_free) {
+					// Because constant SqColumn cannot be modified, copy the old SqColumn before modifying it.
 					if ((reentry->bit_field & SQB_DYNAMIC) == 0)
 						reentry = (SqReentry*)sq_column_copy(NULL, (SqColumn*)reentry);
 				}
@@ -169,7 +177,8 @@ static int  sq_entry_update(SqEntry *entry, SqEntry *entry_src, SqDestroyFunc de
 				// steal 'reentry_src' from 'entry_src->type'.
 				if (entry_src->type->bit_field & SQB_DYNAMIC)
 					*src_cur = NULL;
-				// calculate size if 'entry' is instance of SqTable
+				// 'entry' is instance of SqTable
+				// calculate size after adding SqColumn to SqTable
 				if (destroy_func == (SqDestroyFunc)sq_column_free)
 					sq_type_decide_size((SqType*)entry->type, (SqEntry*)reentry_src, false);
 			}

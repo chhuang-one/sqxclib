@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -181,6 +181,11 @@ int   sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 		table->type = sq_type_copy(NULL, table->type, (SqDestroyFunc)sq_column_free, NULL);
 	if ((table->type->bit_field & SQB_TYPE_SORTED) == 0)
 		sq_type_sort_entry((SqType*)table->type);
+
+#if SQ_CONFIG_TABLE_COLUMN_COMMENTS
+	if (table_src->comments)
+		sq_table_comment(table, table_src->comments);
+#endif
 
 	reentries = sq_type_entry_array(table->type);
 	reentries_src = sq_type_entry_array(table_src->type);
