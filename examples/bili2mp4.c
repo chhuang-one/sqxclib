@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2023-2024 by C.H. Huang
+ *   Copyright (C) 2023-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -607,11 +607,24 @@ int  bili2mp4_print_list(Bili2Mp4 *b2m, BiliDir *cur)
 
 int  main(int argc, char* argv[])
 {
-	Bili2Mp4  *b2m = malloc(sizeof(Bili2Mp4));
+	Bili2Mp4   *b2m = malloc(sizeof(Bili2Mp4));
+	const char *srcDir  = ".";
+	const char *destDir = ".";
+
+	if (argc == 1) {
+		printf("Usage:"  "\n"  "%*c", 2, ' ');
+		printf("%s [%s] [%s]", "bili2mp4", "source directory", "destination directory");
+		printf("\n\n");
+		printf("If the user does not specify directory, the current directory is used."  "\n\n");
+	}
+	if (argc > 1)
+		srcDir  = argv[1];
+	if (argc > 2)
+		destDir = argv[2];
 
 	bili2mp4_init(b2m);
 
-	bili2mp4_open_dir(b2m, ".", 0);
+	bili2mp4_open_dir(b2m, srcDir, 0);
 	bili2mp4_keep_valid(b2m);
 
 	if (b2m->last == NULL) {
@@ -634,7 +647,7 @@ int  main(int argc, char* argv[])
 #endif
 	bili2mp4_print_list(b2m, NULL);
 	for (BiliDir *cur = b2m->last;  cur;  cur = cur->next)
-		bili2mp4_output(b2m, cur, ".");
+		bili2mp4_output(b2m, cur, destDir);
 
 	bili2mp4_final(b2m);
 
