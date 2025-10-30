@@ -650,5 +650,10 @@ int  main(void)
 	storage_query_join_ptr_array(storage);
 
 	sq_storage_close(storage);
+
+	// free instance
+	sq_storage_free(storage);
+	sqdb_free(db);
+
 	return EXIT_SUCCESS;
 }
