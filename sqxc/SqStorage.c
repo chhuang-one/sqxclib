@@ -77,6 +77,8 @@ void  sq_storage_final(SqStorage *storage)
 	sq_schema_free(storage->schema);
 	sq_ptr_array_final(&storage->tables);
 
+	sq_type_joint_free(storage->joint_default);
+
 	sqxc_free_chain(storage->xc_input);
 	sqxc_free_chain(storage->xc_output);
 }
