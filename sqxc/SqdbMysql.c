@@ -73,18 +73,33 @@ const SqdbInfo sqdbInfo_MySQL = {
 // ----------------------------------------------------------------------------
 // SqdbInfo functions
 
+// MySQL global initialization count
+static unsigned int mysqlInitCount = 0;
+
 static void sqdb_mysql_init(SqdbMysql *sqdb, const SqdbConfigMysql *config_src)
 {
+	// MySQL global initialization count
+	if (mysqlInitCount == 0)
+		mysql_library_init(0, NULL, NULL);
+	mysqlInitCount += 1;
+
 	// Memory allocated by mysql_init() must be freed with mysql_close().
-	sqdb->self = mysql_init(NULL);
+//	sqdb->connection = mysql_init(NULL);
+	sqdb->connection = NULL;
 	sqdb->config = config_src;
 	sqdb->version = 0;
 }
 
 static void sqdb_mysql_final(SqdbMysql *sqdb)
 {
-	if (sqdb->self)
-		mysql_close(sqdb->self);
+//	sqdb_mysql_close() also do this
+	if (sqdb->connection)
+		mysql_close(sqdb->connection);
+
+	// MySQL global initialization count
+	mysqlInitCount -= 1;
+	if (mysqlInitCount == 0)
+		mysql_library_end();
 }
 
 static int  sqdb_mysql_open(SqdbMysql *sqdb, const char *database_name)
@@ -97,16 +112,19 @@ static int  sqdb_mysql_open(SqdbMysql *sqdb, const char *database_name)
 		if (database_name == NULL)
 			return SQCODE_OPEN_FAILED;
 	}
-	if (sqdb->self == NULL)
-		sqdb->self = mysql_init(NULL);
+	if (sqdb->connection == NULL)
+		sqdb->connection = mysql_init(NULL);
 
-	conres = mysql_real_connect(sqdb->self, config->host,
+	conres = mysql_real_connect(sqdb->connection, config->host,
 	                            config->user, config->password,
 	                            database_name, config->port,
 	                            NULL, 0);
 	if (conres == NULL) {
-		mysql_close(sqdb->self);
-		sqdb->self = NULL;
+#ifndef NDEBUG
+		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->connection));
+#endif
+		mysql_close(sqdb->connection);
+		sqdb->connection = NULL;
 		return SQCODE_OPEN_FAILED;
 	}
 	sqdb->version = sqdb_mysql_schema_get_version(sqdb);
@@ -115,8 +133,10 @@ static int  sqdb_mysql_open(SqdbMysql *sqdb, const char *database_name)
 
 static int  sqdb_mysql_close(SqdbMysql *sqdb)
 {
-	mysql_close(sqdb->self);
-	sqdb->self = NULL;
+	if (sqdb->connection) {
+		mysql_close(sqdb->connection);
+		sqdb->connection = NULL;
+	}
 	return SQCODE_OK;
 }
 
@@ -127,7 +147,7 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 	SqPtrArray *reentries;
 	bool        has_error = false;
 
-	if (db->self == NULL)
+	if (db->connection == NULL)
 		return SQCODE_ERROR;
 
 	// If 'schema_next' is NULL, update and sort 'schema' and
@@ -175,10 +195,10 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 #ifndef NDEBUG
 					fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-					if (mysql_query(db->self, sql_buf.mem)) {
+					if (mysql_query(db->connection, sql_buf.mem)) {
 						has_error = true;
 #ifndef NDEBUG
-						fprintf(stderr, "MySQL: %s\n", mysql_error(db->self));
+						fprintf(stderr, "MySQL: %s\n", mysql_error(db->connection));
 #endif
 						break;
 					}
@@ -191,10 +211,10 @@ static int  sqdb_mysql_migrate(SqdbMysql *db, SqSchema *schema, SqSchema *schema
 #ifndef NDEBUG
 				fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-				if (mysql_query(db->self, sql_buf.mem)) {
+				if (mysql_query(db->connection, sql_buf.mem)) {
 					has_error = true;
 #ifndef NDEBUG
-					fprintf(stderr, "MySQL: %s\n", mysql_error(db->self));
+					fprintf(stderr, "MySQL: %s\n", mysql_error(db->connection));
 #endif
 					break;
 				}
@@ -234,7 +254,7 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 #endif
 
 	if (xc == NULL)
-		rc = mysql_query(sqdb->self, sql);
+		rc = mysql_query(sqdb->connection, sql);
 	else {
 		// Determines command based on the first character in SQL statement.
 		switch (sql[0]) {
@@ -247,10 +267,10 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 				return SQCODE_EXEC_ERROR;
 			}
 #endif
-			rc = mysql_query(sqdb->self, sql);
+			rc = mysql_query(sqdb->connection, sql);
 			if (rc)
 				break;
-			result = mysql_use_result(sqdb->self);
+			result = mysql_use_result(sqdb->connection);
 			n_fields = mysql_num_fields(result);
 
 			names = calloc(1, sizeof(char*) * n_fields);
@@ -348,18 +368,18 @@ static int  sqdb_mysql_exec(SqdbMysql *sqdb, const char *sql, Sqxc *xc, void *re
 			// Don't break here
 //			break;
 		default:
-			rc = mysql_query(sqdb->self, sql);
+			rc = mysql_query(sqdb->connection, sql);
 			// set the last inserted row id
-			((SqxcSql*)xc)->id = mysql_insert_id(sqdb->self);
+			((SqxcSql*)xc)->id = mysql_insert_id(sqdb->connection);
 			// set number of rows changed
-			((SqxcSql*)xc)->changes = mysql_affected_rows(sqdb->self);
+			((SqxcSql*)xc)->changes = mysql_affected_rows(sqdb->connection);
 			break;
 		}
 	}
 
 	if (rc) {
 #ifndef NDEBUG
-		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->self));
+		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->connection));
 #endif
 		return SQCODE_EXEC_ERROR;
 	}
@@ -378,23 +398,23 @@ static int  sqdb_mysql_schema_get_version(SqdbMysql *sqdb)
 	int  version = 0;
 	int  rc;
 
-	rc = mysql_query(sqdb->self, "CREATE TABLE IF NOT EXISTS " SQDB_MIGRATIONS_TABLE " ("
+	rc = mysql_query(sqdb->connection, "CREATE TABLE IF NOT EXISTS " SQDB_MIGRATIONS_TABLE " ("
 	                 "id INT NOT NULL, version INT NOT NULL DEFAULT 0, PRIMARY KEY (id)"
 	                 ")");
 	if (rc == 0) {
 		// try to get or set version
-		mysql_query(sqdb->self, "SELECT version FROM " SQDB_MIGRATIONS_TABLE " WHERE id = 0");
-		result = mysql_store_result(sqdb->self);
+		mysql_query(sqdb->connection, "SELECT version FROM " SQDB_MIGRATIONS_TABLE " WHERE id = 0");
+		result = mysql_store_result(sqdb->connection);
 		if ((row = mysql_fetch_row(result)))
 			version = strtol(row[0], NULL, 10);
 		else
-			rc = mysql_query(sqdb->self, "INSERT INTO " SQDB_MIGRATIONS_TABLE " (id) VALUES (0)");
+			rc = mysql_query(sqdb->connection, "INSERT INTO " SQDB_MIGRATIONS_TABLE " (id) VALUES (0)");
 		mysql_free_result(result);
 	}
 
 #ifndef NDEBUG
 	if (rc)
-		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->self));
+		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->connection));
 #endif
 	return version;
 }
@@ -408,10 +428,10 @@ static void sqdb_mysql_schema_set_version(SqdbMysql *sqdb, int version)
 	len = snprintf(NULL, 0, "UPDATE " SQDB_MIGRATIONS_TABLE " SET version=%d WHERE id = 0", version) + 1;
 	buf = malloc(len);
 	snprintf(buf, len, "UPDATE " SQDB_MIGRATIONS_TABLE " SET version=%d WHERE id = 0", version);
-	rc = mysql_query(sqdb->self, buf);
+	rc = mysql_query(sqdb->connection, buf);
 #ifndef NDEBUG
 	if (rc)
-		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->self));
+		fprintf(stderr, "MySQL: %s\n", mysql_error(sqdb->connection));
 #endif
 	free(buf);
 }

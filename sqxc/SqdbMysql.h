@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -75,7 +75,7 @@ struct SqdbMysql
  */
 
 	// ------ SqdbMysql members ------     // <-- 3. Add variable and non-virtual function in derived struct.
-	MYSQL *self;
+	MYSQL *connection;
 	const SqdbConfigMysql *config;
 };
 
