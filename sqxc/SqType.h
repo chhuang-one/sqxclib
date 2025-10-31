@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -466,9 +466,9 @@ extern  const  SqType      sqType_StrArray;
 		( (type)> SQ_TYPE_INTEGER_END || (type)< SQ_TYPE_INTEGER_BEG )
 
 #define SQ_TYPE_IS_ARITHMETIC(type)     \
-		( (type)<=SQ_TYPE_BUILTIN_END && (type)>=SQ_TYPE_ARITHMETIC_BEG )
+		( (type)<=SQ_TYPE_ARITHMETIC_END && (type)>=SQ_TYPE_ARITHMETIC_BEG )
 #define SQ_TYPE_NOT_ARITHMETIC(type)    \
-		( (type)> SQ_TYPE_BUILTIN_END || (type)< SQ_TYPE_ARITHMETIC_BEG )
+		( (type)> SQ_TYPE_ARITHMETIC_END || (type)< SQ_TYPE_ARITHMETIC_BEG )
 
 #define SQ_TYPE_IS_BUILTIN(type)     \
 		( (type)<=SQ_TYPE_BUILTIN_END && (type)>=SQ_TYPE_BUILTIN_BEG )
