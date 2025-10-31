@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -142,7 +142,8 @@ void *sq_storage_query(SqStorage    *storage,
 	sqxc_finish(xcvalue, NULL);
 	if (code != SQCODE_OK) {
 		storage->xc_input->code = code;
-		sq_type_final_instance(table_type, sqxc_value_instance(xcvalue), false);
+		sq_type_final_instance(container_type ? container_type : table_type,
+		                       sqxc_value_instance(xcvalue), false);
 		free(sqxc_value_instance(xcvalue));
 		sqxc_value_instance(xcvalue) = NULL;
 		return NULL;
@@ -186,7 +187,8 @@ void *sq_storage_query_raw(SqStorage    *storage,
 	sqxc_finish(xcvalue, NULL);
 	if (code != SQCODE_OK) {
 		storage->xc_input->code = code;
-		sq_type_final_instance(table_type, sqxc_value_instance(xcvalue), false);
+		sq_type_final_instance(container_type ? container_type : table_type,
+		                       sqxc_value_instance(xcvalue), false);
 		free(sqxc_value_instance(xcvalue));
 		sqxc_value_instance(xcvalue) = NULL;
 		return NULL;
