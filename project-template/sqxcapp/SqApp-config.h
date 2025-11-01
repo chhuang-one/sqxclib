@@ -29,6 +29,7 @@
 // --- Database Configuration ---
 
 // common configuration values
+#define DB_NO_MIGRATION    0
 #define DB_DATABASE    "sqxcapp-example"
 
 // --- MySQL / MariaDB ---
