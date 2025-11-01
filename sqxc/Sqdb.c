@@ -326,7 +326,12 @@ SqColumn *sqdb_sql_select(Sqdb *db, SqBuffer *sql_buf, const char *table_name, c
 	}
 #endif  // SQ_CONFIG_QUERY_ONLY_COLUMN
 
-	sq_buffer_write(sql_buf, " * ");
+	// `tableName`.*
+	sq_buffer_write_c(sql_buf, ' ');
+	sq_buffer_write_c(sql_buf, db->info->quote.identifier[0]);
+	sq_buffer_write(sql_buf, table_name);
+	sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
+	sq_buffer_write(sql_buf, ".* ");
 	sq_buffer_write(sql_buf, "FROM");
 	sqdb_sql_write_identifier(db, sql_buf, table_name, false);
 	sql_buf->mem[sql_buf->writed] = 0;    // NULL-terminated is not counted in length

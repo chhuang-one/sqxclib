@@ -124,7 +124,6 @@ void *sq_storage_get(SqStorage    *storage,
 	SqColumn *primary = NULL;
 	union {
 		SqTable  *table;
-		void     *instance;
 		int       len;
 		int       code;
 	} temp;
@@ -163,14 +162,12 @@ void *sq_storage_get(SqStorage    *storage,
 	temp.code = sqdb_exec(storage->db, buf->mem, xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
 	if (temp.code != SQCODE_OK) {
-		storage->xc_input->code = temp.code;
+//		storage->xc_input->code = temp.code;
 		sq_type_final_instance(table_type, sqxc_value_instance(xcvalue), false);
 		free(sqxc_value_instance(xcvalue));
 		sqxc_value_instance(xcvalue) = NULL;
-		return NULL;
 	}
-	temp.instance = sqxc_value_instance(xcvalue);
-	return temp.instance;
+	return sqxc_value_instance(xcvalue);
 }
 
 void *sq_storage_get_all(SqStorage    *storage,
@@ -183,7 +180,7 @@ void *sq_storage_get_all(SqStorage    *storage,
 	union {
 		SqBuffer *buf;
 		SqTable  *table;
-		void     *instance;
+		int       code;
 	} temp;
 
 	if (table_type == NULL) {
@@ -218,10 +215,15 @@ void *sq_storage_get_all(SqStorage    *storage,
 		sq_buffer_write(temp.buf, sql_where_having);
 
 	sqxc_ready(xcvalue, NULL);
-	sqdb_exec(storage->db, temp.buf->mem, xcvalue, NULL);
+	temp.code = sqdb_exec(storage->db, temp.buf->mem, xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
-	temp.instance = sqxc_value_instance(xcvalue);
-	return temp.instance;
+	if (temp.code != SQCODE_OK) {
+//		storage->xc_input->code = temp.code;
+		sq_type_final_instance(container_type, sqxc_value_instance(xcvalue), false);
+		free(sqxc_value_instance(xcvalue));
+		sqxc_value_instance(xcvalue) = NULL;
+	}
+	return sqxc_value_instance(xcvalue);
 }
 
 int64_t sq_storage_insert(SqStorage    *storage,

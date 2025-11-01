@@ -95,7 +95,14 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 					if (column->bit_field & SQB_COLUMN_QUERY)
 						sq_query_select(query, column->name);
 				}
-				sq_query_select(query, "*");
+				// `tableName`.*
+				char *temp = calloc(1, strlen(table->name) + 5);
+				strncat(temp, storage->db->info->quote.identifier,   1);
+				strcat(temp, table->name);
+				strncat(temp, storage->db->info->quote.identifier+1, 1);
+				strcat(temp, ".*");
+				sq_query_select(query, temp);
+				free(temp);
 			}
 #endif
 		}
@@ -141,15 +148,13 @@ void *sq_storage_query(SqStorage    *storage,
 	code = sqdb_exec(storage->db, sq_query_c(query), xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
 	if (code != SQCODE_OK) {
-		storage->xc_input->code = code;
+//		storage->xc_input->code = code;
 		sq_type_final_instance(container_type ? container_type : table_type,
 		                       sqxc_value_instance(xcvalue), false);
 		free(sqxc_value_instance(xcvalue));
 		sqxc_value_instance(xcvalue) = NULL;
-		return NULL;
 	}
-	instance = sqxc_value_instance(xcvalue);
-	return instance;
+	return sqxc_value_instance(xcvalue);
 }
 
 void *sq_storage_query_raw(SqStorage    *storage,
@@ -186,13 +191,11 @@ void *sq_storage_query_raw(SqStorage    *storage,
 	code = sqdb_exec(storage->db, query_str, xcvalue, NULL);
 	sqxc_finish(xcvalue, NULL);
 	if (code != SQCODE_OK) {
-		storage->xc_input->code = code;
+//		storage->xc_input->code = code;
 		sq_type_final_instance(container_type ? container_type : table_type,
 		                       sqxc_value_instance(xcvalue), false);
 		free(sqxc_value_instance(xcvalue));
 		sqxc_value_instance(xcvalue) = NULL;
-		return NULL;
 	}
-	instance = sqxc_value_instance(xcvalue);
-	return instance;
+	return sqxc_value_instance(xcvalue);
 }
