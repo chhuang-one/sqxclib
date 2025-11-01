@@ -301,6 +301,7 @@ void test_storage(const SqdbInfo *dbinfo, const SqdbConfig *config)
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 SqdbConfigSqlite db_config_sqlite = {
+//	.bit_field = SQDB_CONFIG_NO_MIGRATION,
 //	.folder = "/tmp",
 	.folder = ".",
 	.extension = "db",
@@ -308,18 +309,20 @@ SqdbConfigSqlite db_config_sqlite = {
 
 #elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
 SqdbConfigMysql  db_config_mysql = {
-	.host     = "localhost",
-	.port     = 3306,
-	.user     = "root",
-	.password = "",
+//	.bit_field = SQDB_CONFIG_NO_MIGRATION,
+	.host      = "localhost",
+	.port      = 3306,
+	.user      = "root",
+	.password  = "",
 };
 
 #elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
 SqdbConfigPostgre  db_config_postgre = {
-	.host     = "localhost",
-	.port     = 5432,
-	.user     = "postgres",
-	.password = "",
+//	.bit_field = SQDB_CONFIG_NO_MIGRATION,
+	.host      = "localhost",
+	.port      = 5432,
+	.user      = "postgres",
+	.password  = "",
 };
 
 #endif

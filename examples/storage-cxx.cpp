@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -575,6 +575,15 @@ void check_standard_layout()
 }
 
 // ----------------------------------------------------------------------------
+#if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
+SqdbConfigSqlite   configSqlite;
+
+#elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
+SqdbConfigMysql    configMysql;
+
+#elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
+SqdbConfigPostgre  configPostgre;
+#endif
 
 int  main(int argc, char *argv[])
 {
@@ -586,16 +595,14 @@ int  main(int argc, char *argv[])
 	check_standard_layout();
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-	SqdbConfigSqlite  configSqlite;
-
+//	configSqlite.bit_field = SQDB_CONFIG_NO_MIGRATION;
 	configSqlite.folder    = ".";    // "/tmp"
 	configSqlite.extension = "db";
 
 	db = new Sq::DbSqlite(configSqlite);
 
 #elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
-	SqdbConfigMysql  configMysql;
-
+//	configMysql.bit_field = SQDB_CONFIG_NO_MIGRATION;
 	configMysql.host = "localhost";
 	configMysql.port = 3306;
 	configMysql.user = "root";
@@ -604,8 +611,7 @@ int  main(int argc, char *argv[])
 	db = new Sq::DbMysql(configMysql);
 
 #elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
-	SqdbConfigPostgre  configPostgre;
-
+//	configPostgre.bit_field = SQDB_CONFIG_NO_MIGRATION;
 	configPostgre.host = "localhost";
 	configPostgre.port = 5432;
 	configPostgre.user = "postgres";
@@ -705,6 +711,8 @@ int  main(int argc, char *argv[])
 	storage_query_join_stl_container(storage);
 
 	storage->close();
+
+	// free instance
 	delete storage;
 	delete db;
 

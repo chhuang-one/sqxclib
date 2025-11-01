@@ -39,6 +39,12 @@ typedef enum SqdbProduct {
 	SQDB_PRODUCT_CUSTOM   = 10,
 } SqdbProduct;
 
+/* --- SqdbConfig::bit_field --- */
+#define SQDB_CONFIG_RESERVE_1       (1 << 0)
+#define SQDB_CONFIG_RESERVE_2       (1 << 1)
+#define SQDB_CONFIG_RESERVE_3       (1 << 2)
+#define SQDB_CONFIG_NO_MIGRATION    (1 << 3)
+
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.
 
@@ -222,7 +228,7 @@ struct SqdbConfig
 	SQDB_CONFIG_MEMBERS;                   // <-- 1. inherit member variable
 /*	// ------ SqdbConfig members ------
 	unsigned int    product;      // reserve. value of enum SqdbProduct
-	unsigned int    bit_field;    // reserve. Is the instance of config constant or dynamic?
+	unsigned int    bit_field;    // No migration mode and other setting...etc
  */
 };
 

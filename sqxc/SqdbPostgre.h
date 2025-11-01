@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2024 by C.H. Huang
+ *   Copyright (C) 2022-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -71,6 +71,7 @@ struct SqdbPostgre
 
 	// ------ SqdbPostgre members ------   // <-- 3. Add variable and non-virtual function in derived struct.
 	PGconn         *conn;
+
 	const SqdbConfigPostgre *config;
 };
 

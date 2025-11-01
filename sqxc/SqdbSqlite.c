@@ -15,6 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+#include <limits.h>       // INT_MAX
 #include <stdio.h>        // snprintf(), fprintf(), stderr
 #include <stdbool.h>      // bool, true, false
 
@@ -73,21 +74,16 @@ static int  debug_callback(void *user_data, int argc, char **argv, char **column
 
 static void sqdb_sqlite_init(SqdbSqlite *sqdb, const SqdbConfigSqlite *config_src)
 {
-	if (config_src) {
-		sqdb->extension = config_src->extension ? strdup(config_src->extension) : NULL;
-		sqdb->folder    = config_src->folder    ? strdup(config_src->folder)    : NULL;
-	}
-	else {
-		sqdb->extension = NULL;
-		sqdb->folder = NULL;
-	}
+	sqdb->config = config_src;
 	sqdb->version = 0;
+	sqdb->litedb = NULL;
 }
 
 static void sqdb_sqlite_final(SqdbSqlite *sqdb)
 {
-	free(sqdb->extension);
-	free(sqdb->folder);
+	// sqdb_sqlite_close() also do this
+	if (sqdb->litedb)
+		sqlite3_close(sqdb->litedb);
 }
 
 static int int_callback(void *user_data, int argc, char **argv, char **columnName)
@@ -98,8 +94,8 @@ static int int_callback(void *user_data, int argc, char **argv, char **columnNam
 
 static int  sqdb_sqlite_open(SqdbSqlite *sqdb, const char *database_name)
 {
-	char *ext = sqdb->extension;
-	char *folder = sqdb->folder;
+	const char *ext = sqdb->config->extension;
+	const char *folder = sqdb->config->folder;
 	char *buf;
 	int   len;
 	int   rc;
@@ -112,18 +108,29 @@ static int  sqdb_sqlite_open(SqdbSqlite *sqdb, const char *database_name)
 	buf = malloc(len);
 	snprintf(buf, len, "%s/%s.%s", folder, database_name, ext);
 
-	rc = sqlite3_open(buf, &sqdb->self);
+	rc = sqlite3_open(buf, &sqdb->litedb);
 	free(buf);
 
 	if (rc != SQLITE_OK)
 		return SQCODE_OPEN_FAILED;
-	rc = sqlite3_exec(sqdb->self, "PRAGMA user_version;", int_callback, &sqdb->version, NULL);
+
+	if (sqdb->config->bit_field & SQDB_CONFIG_NO_MIGRATION) {
+		// No migration
+		sqdb->version = INT_MAX;
+	}
+	else {
+		// get schema version
+		rc = sqlite3_exec(sqdb->litedb, "PRAGMA user_version;", int_callback, &sqdb->version, NULL);
+	}
 	return SQCODE_OK;
 }
 
 static int  sqdb_sqlite_close(SqdbSqlite *sqdb)
 {
-	sqlite3_close(sqdb->self);
+	if (sqdb->litedb) {
+		sqlite3_close(sqdb->litedb);
+		sqdb->litedb = NULL;
+	}
 	return SQCODE_OK;
 }
 
@@ -178,7 +185,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 #ifndef NDEBUG
 	fprintf(stderr, "SQLite: BEGIN TRANSACTION ------\n");
 #endif
-	rc = sqlite3_exec(sqdb->self, "PRAGMA foreign_keys=off; BEGIN TRANSACTION", NULL, NULL, &errorMsg);
+	rc = sqlite3_exec(sqdb->litedb, "PRAGMA foreign_keys=off; BEGIN TRANSACTION", NULL, NULL, &errorMsg);
 	has_error = sq_sqlite_has_error(rc, errorMsg);
 
 	// --------- rename and drop table ---------
@@ -206,7 +213,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 #ifndef NDEBUG
 			fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-			rc = sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, &errorMsg);
+			rc = sqlite3_exec(sqdb->litedb, sql_buf.mem, NULL, NULL, &errorMsg);
 			has_error = sq_sqlite_has_error(rc, errorMsg);
 		}
 	}
@@ -240,14 +247,14 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 #ifndef NDEBUG
 			fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-			rc = sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, &errorMsg);
+			rc = sqlite3_exec(sqdb->litedb, sql_buf.mem, NULL, NULL, &errorMsg);
 			has_error = sq_sqlite_has_error(rc, errorMsg);
 		}
 	}
 #ifndef NDEBUG
 	fprintf(stderr, "SQLite: END TRANSACTION ------\n");
 #endif
-	rc = sqlite3_exec(sqdb->self, "COMMIT; PRAGMA foreign_keys=on", NULL, NULL, &errorMsg);
+	rc = sqlite3_exec(sqdb->litedb, "COMMIT; PRAGMA foreign_keys=on", NULL, NULL, &errorMsg);
 	has_error = sq_sqlite_has_error(rc, errorMsg);
 
 	if (schema->relation) {
@@ -267,7 +274,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 #ifndef NDEBUG
 	fprintf(stderr, "SQL: %s\n", sql_buf.mem);
 #endif
-	rc = sqlite3_exec(sqdb->self, sql_buf.mem, NULL, NULL, &errorMsg);
+	rc = sqlite3_exec(sqdb->litedb, sql_buf.mem, NULL, NULL, &errorMsg);
 	has_error = sq_sqlite_has_error(rc, errorMsg);
 
 	// free buffer for SQL statement
@@ -282,7 +289,7 @@ static int  sqdb_sqlite_migrate_sync(SqdbSqlite *sqdb, SqSchema *schema)
 
 static int  sqdb_sqlite_migrate(SqdbSqlite *sqdb, SqSchema *schema, SqSchema *schema_next)
 {
-	if (sqdb->self == NULL)
+	if (sqdb->litedb == NULL)
 		return SQCODE_ERROR;
 
 	// If 'schema_next' is NULL, update and sort 'schema' and
@@ -395,9 +402,9 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 
 	if (xc == NULL) {
 #ifndef NDEBUG
-		rc = sqlite3_exec(sqdb->self, sql, debug_callback, NULL, &errorMsg);
+		rc = sqlite3_exec(sqdb->litedb, sql, debug_callback, NULL, &errorMsg);
 #else
-		rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
+		rc = sqlite3_exec(sqdb->litedb, sql, NULL, NULL, &errorMsg);
 #endif
 	}
 	else {
@@ -423,7 +430,7 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 
 			// set xc->code and call sqlite3_exec()
 			xc->code = SQCODE_NO_DATA;
-			rc = sqlite3_exec(sqdb->self, sql, query_callback, &xc, &errorMsg);
+			rc = sqlite3_exec(sqdb->litedb, sql, query_callback, &xc, &errorMsg);
 			// if the result set is empty.
 			if(xc->code == SQCODE_NO_DATA)
 				code = SQCODE_NO_DATA;
@@ -452,11 +459,11 @@ static int  sqdb_sqlite_exec(SqdbSqlite *sqdb, const char *sql, Sqxc *xc, void *
 			// Don't break here
 //			break;
 		default:
-			rc = sqlite3_exec(sqdb->self, sql, NULL, NULL, &errorMsg);
+			rc = sqlite3_exec(sqdb->litedb, sql, NULL, NULL, &errorMsg);
 			// set the last inserted row id
-			((SqxcSql*)xc)->id = sqlite3_last_insert_rowid(sqdb->self);
+			((SqxcSql*)xc)->id = sqlite3_last_insert_rowid(sqdb->litedb);
 			// set number of rows changed
-			((SqxcSql*)xc)->changes = sqlite3_changes64(sqdb->self);
+			((SqxcSql*)xc)->changes = sqlite3_changes64(sqdb->litedb);
 			break;
 		}
 	}

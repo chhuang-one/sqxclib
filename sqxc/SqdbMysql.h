@@ -76,6 +76,7 @@ struct SqdbMysql
 
 	// ------ SqdbMysql members ------     // <-- 3. Add variable and non-virtual function in derived struct.
 	MYSQL *connection;
+
 	const SqdbConfigMysql *config;
 };
 

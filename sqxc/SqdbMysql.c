@@ -15,6 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+#include <limits.h>       // INT_MAX
 #include <stdio.h>        // snprintf(), fprintf(), stderr
 #include <stdbool.h>      // bool, true, false
 
@@ -397,6 +398,10 @@ static int  sqdb_mysql_schema_get_version(SqdbMysql *sqdb)
 	MYSQL_ROW    row;
 	int  version = 0;
 	int  rc;
+
+	// No migration
+	if (sqdb->config->bit_field & SQDB_CONFIG_NO_MIGRATION)
+		return INT_MAX;
 
 	rc = mysql_query(sqdb->connection, "CREATE TABLE IF NOT EXISTS " SQDB_MIGRATIONS_TABLE " ("
 	                 "id INT NOT NULL, version INT NOT NULL DEFAULT 0, PRIMARY KEY (id)"

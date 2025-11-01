@@ -15,6 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+#include <limits.h>       // INT_MAX
 #include <stdio.h>        // snprintf(), fprintf(), stderr
 #include <stdbool.h>      // bool, true, false
 
@@ -95,6 +96,7 @@ static void sqdb_postgre_init(SqdbPostgre *sqdb, const SqdbConfigPostgre *config
 
 static void sqdb_postgre_final(SqdbPostgre *sqdb)
 {
+	// sqdb_postgre_close() also do this
 	if (sqdb->conn)
 		PQfinish(sqdb->conn);
 }
@@ -128,9 +130,10 @@ static int  sqdb_postgre_open(SqdbPostgre *sqdb, const char *database_name)
 
 static int  sqdb_postgre_close(SqdbPostgre *sqdb)
 {
-	if (sqdb->conn)
+	if (sqdb->conn) {
 		PQfinish(sqdb->conn);
-	sqdb->conn = NULL;
+		sqdb->conn = NULL;
+	}
 	return SQCODE_OK;
 }
 
@@ -690,6 +693,10 @@ static int  sqdb_postgre_schema_get_version(SqdbPostgre *sqdb)
 {
 	PGresult    *results;
 	int  version = 0;
+
+	// No migration
+	if (sqdb->config->bit_field & SQDB_CONFIG_NO_MIGRATION)
+		return INT_MAX;
 
 	results = PQexec(sqdb->conn, "CREATE TABLE IF NOT EXISTS " SQDB_MIGRATIONS_TABLE " ("
 	                 "id INT NOT NULL, version INT NOT NULL DEFAULT 0, PRIMARY KEY (id)"

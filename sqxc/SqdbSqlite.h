@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -70,9 +70,9 @@ struct SqdbSqlite
  */
 
 	// ------ SqdbSqlite members ------    // <-- 3. Add variable and non-virtual function in derived struct.
-	sqlite3        *self;
-	char           *folder;
-	char           *extension;   // optional
+	sqlite3        *litedb;
+
+	const SqdbConfigSqlite *config;
 };
 
 /*	SqdbConfigSqlite - SqdbSqlite use this to configure database connection

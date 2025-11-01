@@ -17,6 +17,15 @@
 #include <SqApp-config.h>
 
 // ----------------------------------------------------------------------------
+// Common setting
+
+#define BIT_FIELD        0
+
+#if defined(DB_NO_MIGRATION) && DB_NO_MIGRATION
+#define BIT_FIELD        BIT_FIELD | SQDB_CONFIG_NO_MIGRATION
+#endif
+
+// ----------------------------------------------------------------------------
 // Database products
 
 /* ------ SQLite ------ */
@@ -27,6 +36,7 @@
 #define DB_CONFIG        ((SqdbConfig*) &db_config_sqlite)
 
 static const SqdbConfigSqlite  db_config_sqlite = {
+	.bit_field = BIT_FIELD,
 	.folder    = DB_FOLDER,
 	.extension = DB_EXTENSION,
 };
@@ -43,10 +53,11 @@ static const SqdbConfigSqlite  db_config_sqlite = {
 #define DB_CONFIG        ((SqdbConfig*) &db_config_mysql)
 
 static const SqdbConfigMysql  db_config_mysql = {
-	.host     = DB_HOST,
-	.port     = DB_PORT,
-	.user     = DB_USERNAME,
-	.password = DB_PASSWORD,
+	.bit_field = BIT_FIELD,
+	.host      = DB_HOST,
+	.port      = DB_PORT,
+	.user      = DB_USERNAME,
+	.password  = DB_PASSWORD,
 };
 
 #elif DB_MYSQL
@@ -61,10 +72,11 @@ static const SqdbConfigMysql  db_config_mysql = {
 #define DB_CONFIG        ((SqdbConfig*) &db_config_postgre)
 
 static const SqdbConfigPostgre  db_config_postgre = {
-	.host     = DB_HOST,
-	.port     = DB_PORT,
-	.user     = DB_USERNAME,
-	.password = DB_PASSWORD,
+	.bit_field = BIT_FIELD,
+	.host      = DB_HOST,
+	.port      = DB_PORT,
+	.user      = DB_USERNAME,
+	.password  = DB_PASSWORD,
 };
 
 #elif DB_POSTGRE
