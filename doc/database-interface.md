@@ -178,6 +178,11 @@ static int  sqdb_xsql_open(SqdbXsql *sqdb, const char *databaseName)
 	// open database and get it's schema version
 	sqdb->version = schemaVersion;
 
+	// No migration mode.
+	// Set schema version to maximum value to avoid syncing migrations to database.
+	if (sqdb->config->bit_field & SQDB_CONFIG_NO_MIGRATION)
+		sqdb->version = INT_MAX;
+
 	return SQCODE_OK;
 }
 

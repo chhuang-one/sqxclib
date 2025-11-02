@@ -27,6 +27,8 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 * Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros and support libraries)
 
+* User can use "no migration mode" if user doesn't need to sync migrations to database.
+
 * Command-line tools can generate migration file and do migrate. See doc/[SqApp.md](doc/SqApp.md)
 
 * Supports SQLite, MySQL / MariaDB, PostgreSQL.
@@ -198,6 +200,7 @@ You can use sq_schema_alter() function to alter a table in schema.
 ## Database products
 
 **Sqdb** is base structure for Database products such as SQLite, MySQL, etc. You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
+If user doesn't need to sync migrations to database, set SQDB_CONFIG_NO_MIGRATION in SqdbConfig::bit_field to use "no migration mode".  
   
 e.g. Create Sqdb instance for SQLite database  
   
@@ -209,6 +212,7 @@ use C functions to create SQLite database instance
 ```c
 	// database configuration
 	SqdbConfigSqlite  config = {
+//		.bit_field = SQDB_CONFIG_NO_MIGRATION,
 		.folder    = "/path",
 		.extension = "db"
 	};
@@ -223,10 +227,10 @@ use C++ methods to create SQLite database instance
 
 ```c++
 	// database configuration
-	Sq::DbConfigSqlite  config = {
-		"/path",        // .folder    = "/path",
-		"db",           // .extension = "db",
-	};
+	Sq::DbConfigSqlite  config = {0};
+//	config.bit_field = SQDB_CONFIG_NO_MIGRATION;
+	config.folder    = "/path";
+	config.extension = "db";
 	// database instance pointer
 	Sq::DbMethod  *db;
 
@@ -241,6 +245,7 @@ MySQL, PostgreSQL must specify host, port, and authentication, etc. in their Sqd
 ```c
 	// database configuration
 	SqdbConfigMysql  config = {
+//		.bit_field = SQDB_CONFIG_NO_MIGRATION,
 		.host = "localhost",
 		.port = 3306,
 		.user = "name",

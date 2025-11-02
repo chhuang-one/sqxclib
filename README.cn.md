@@ -27,6 +27,8 @@ sqxclib 是在 C 语言和 SQL、JSON 等之间转换数据的库。它提供 OR
 
 * 单一头文件 〈 **sqxclib.h** 〉 (注意: 不包含特殊宏和支持库)
 
+* 如果用户不需要将迁移同步到数据库，可以使用 “无迁移模式”。
+
 * 命令行工具可以生成迁移文件并执行迁移。见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
 
 * 支持 SQLite, MySQL / MariaDB, PostgreSQL。
@@ -198,6 +200,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 ## 数据库产品
 
 **Sqdb** 是 SQLite、MySQL 等数据库产品的基础结构。您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
+如果用户不需要将迁移同步到数据库，请在 SqdbConfig::bit_field 中设置 SQDB_CONFIG_NO_MIGRATION 以使用 “无迁移模式”。  
   
 例如: 为 SQLite 数据库创建 Sqdb 实例  
   
@@ -209,6 +212,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 ```c
 	// 数据库配置
 	SqdbConfigSqlite  config = {
+//		.bit_field = SQDB_CONFIG_NO_MIGRATION,
 		.folder    = "/path",
 		.extension = "db"
 	};
@@ -223,10 +227,10 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 
 ```c++
 	// 数据库配置
-	Sq::DbConfigSqlite  config = {
-		"/path",        // .folder    = "/path",
-		"db",           // .extension = "db",
-	};
+	Sq::DbConfigSqlite  config = {0};
+//	config.bit_field = SQDB_CONFIG_NO_MIGRATION;
+	config.folder    = "/path";
+	config.extension = "db";
 	// 数据库实例的指针
 	Sq::DbMethod  *db;
 
@@ -241,6 +245,7 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 ```c
 	// 数据库配置
 	SqdbConfigMysql  config = {
+//		.bit_field = SQDB_CONFIG_NO_MIGRATION,
 		.host = "localhost",
 		.port = 3306,
 		.user = "name",

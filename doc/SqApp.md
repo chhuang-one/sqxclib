@@ -36,18 +36,20 @@ The **first part** of SqApp-config.h can choose Database product:
 
 The **second part** of SqApp-config.h is database configuration values:
 
-	DB_DATABASE  is the default name of the database that SqApp will open.
-	DB_HOST      is settings of connection.
-	DB_PORT      is settings of connection.
-	DB_USERNAME  is settings of authentication.
-	DB_PASSWORD  is settings of authentication.
-	DB_FOLDER    is the folder name. SQLite create or access database files in this folder.
-	DB_EXTENSION is extension name of SQLite database files.
+	DB_NO_MIGRATION  If user doesn't need to sync migrations to database, set it to 1.
+	DB_DATABASE      is the default name of the database that SqApp will open.
+	DB_HOST          is settings of connection.
+	DB_PORT          is settings of connection.
+	DB_USERNAME      is settings of authentication.
+	DB_PASSWORD      is settings of authentication.
+	DB_FOLDER        is the folder name. SQLite create or access database files in this folder.
+	DB_EXTENSION     is extension name of SQLite database files.
 
 * Please make sure that your app and it's sqtool use the same path of database file if you enable SQLite.
 
 ```c++
 // common configuration values
+#define DB_NO_MIGRATION    0
 #define DB_DATABASE    "sqxcapp-example"
 
 // connection configuration values

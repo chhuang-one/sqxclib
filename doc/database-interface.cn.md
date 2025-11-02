@@ -178,6 +178,11 @@ static int  sqdb_xsql_open(SqdbXsql *sqdb, const char *databaseName)
 	// 打开数据库并获取它的架构版本
 	sqdb->version = schemaVersion;
 
+	// 无迁移模式
+	// 将架构版本设置为最大值，以避免将迁移同步到数据库。
+	if (sqdb->config->bit_field & SQDB_CONFIG_NO_MIGRATION)
+		sqdb->version = INT_MAX;
+
 	return SQCODE_OK;
 }
 

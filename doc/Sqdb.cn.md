@@ -19,7 +19,10 @@ Sqdb 是 SQLite、MySQL 等数据库产品的基础结构。
 
 #### 数据库配置
 
-SqdbConfig 是数据库配置的基础结构。以下是派生的数据库配置：
+SqdbConfig 是数据库配置的基础结构。  
+如果用户不需要将迁移同步到数据库，请在 SqdbConfig::bit_field 中设置 SQDB_CONFIG_NO_MIGRATION 以使用 “无迁移模式”。  
+  
+以下是派生的数据库配置：
 
 | 派生配置              | 数据库产品       |
 | --------------------- | ---------------- |
@@ -30,21 +33,29 @@ SqdbConfig 是数据库配置的基础结构。以下是派生的数据库配置
 示例代码：配置数据库
 
 ```c
-	// SQLite 数据库配置
+	// --- SQLite 数据库配置 ---
 	// 在 SqdbConfigSqlite 中设置 'folder' 和 'extension' 可以影响数据库文件名和路径。
 	SqdbConfigSqlite  sqliteConfig;
+
+//	sqliteConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
 	sqliteConfig.folder    = "/home/user";
 	sqliteConfig.extension = "db";
 
-	// MySQL 数据库配置
+
+	// --- MySQL 数据库配置 ---
 	SqdbConfigMysql  mysqlConfig;
+
+//	mysqlConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
 	mysqlConfig.host = "localhost";
 	mysqlConfig.port = 3306;
 	mysqlConfig.user = "root";
 	mysqlConfig.password = "";
 
-	// PostgreSQL 数据库配置
+
+	// --- PostgreSQL 数据库配置 ---
 	SqdbConfigPostgre  postgresConfig;
+
+//	postgresConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
 	postgresConfig.host = "localhost";
 	postgresConfig.port = 5432;
 	postgresConfig.user = "postgres";

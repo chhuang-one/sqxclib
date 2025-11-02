@@ -36,18 +36,20 @@ SqApp-config.h 的**第一部分**可以选择数据库产品：
 
 SqApp-config.h 的**第二部分**是数据库配置值：
 
-	DB_DATABASE  是 SqApp 将打开的数据库的默认名称。
-	DB_HOST      是连接的设置。
-	DB_PORT      是连接的设置。
-	DB_USERNAME  是认证的设置。
-	DB_PASSWORD  是认证的设置。
-	DB_FOLDER    是文件夹名称。SQLite 在此文件夹中创建或访问数据库文件。
-	DB_EXTENSION 是 SQLite 数据库文件的扩展名。
+	DB_NO_MIGRATION 如果用户不需要将迁移同步到数据库，则将其设置为 1。
+	DB_DATABASE     是 SqApp 将打开的数据库的默认名称。
+	DB_HOST         是连接的设置。
+	DB_PORT         是连接的设置。
+	DB_USERNAME     是认证的设置。
+	DB_PASSWORD     是认证的设置。
+	DB_FOLDER       是文件夹名称。SQLite 在此文件夹中创建或访问数据库文件。
+	DB_EXTENSION    是 SQLite 数据库文件的扩展名。
 
 * 如果您启用 SQLite，请确保您的应用程序及其 sqtool 使用相同的数据库文件路径。
 
 ```c++
 // 通用配置值
+#define DB_NO_MIGRATION    0
 #define DB_DATABASE    "sqxcapp-example"
 
 // 连接配置值

@@ -19,7 +19,10 @@ When creating Sqdb instance, the database configuration (SqdbConfig) and interfa
 
 #### Database configuration
 
-SqdbConfig is base structure for database configuration. The following are the derived database configurations:
+SqdbConfig is base structure for database configuration.  
+If user doesn't need to sync migrations to database, set SQDB_CONFIG_NO_MIGRATION in SqdbConfig::bit_field to use "no migration mode".  
+  
+The following are the derived database configurations:
 
 | Derived configuration | Database product |
 | --------------------- | ---------------- |
@@ -30,21 +33,29 @@ SqdbConfig is base structure for database configuration. The following are the d
 Sample code: Configure database
 
 ```c
-	// SQLite database configuration
+	// --- SQLite database configuration ---
 	// set 'folder' and 'extension' in SqdbConfigSqlite can affect database filename and path.
 	SqdbConfigSqlite  sqliteConfig;
+
+//	sqliteConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
 	sqliteConfig.folder    = "/home/user";
 	sqliteConfig.extension = "db";
 
-	// MySQL database configuration
+
+	// --- MySQL database configuration ---
 	SqdbConfigMysql  mysqlConfig;
+
+//	mysqlConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
 	mysqlConfig.host = "localhost";
 	mysqlConfig.port = 3306;
 	mysqlConfig.user = "root";
 	mysqlConfig.password = "";
 
-	// PostgreSQL database configuration
+
+	// --- PostgreSQL database configuration ---
 	SqdbConfigPostgre  postgresConfig;
+
+//	postgresConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
 	postgresConfig.host = "localhost";
 	postgresConfig.port = 5432;
 	postgresConfig.user = "postgres";
