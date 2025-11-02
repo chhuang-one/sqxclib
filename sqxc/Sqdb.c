@@ -314,8 +314,14 @@ SqColumn *sqdb_sql_select(Sqdb *db, SqBuffer *sql_buf, const char *table_name, c
 	if (table_type && table_type->bit_field & SQB_TYPE_QUERY_FIRST) {
 		for (pcur = (SqColumn**)table_type->entry, pend = pcur + table_type->n_entry;  pcur < pend;  pcur++) {
 			if (pcur[0]->bit_field & SQB_COLUMN_QUERY) {
+				// for PostgreSQL: append " AS length(columnName)"
+				// SELECT length(columnName) AS "length(columnName)"
 				sq_buffer_write_c(sql_buf, ' ');
 				sq_buffer_write(sql_buf, pcur[0]->name);
+				sq_buffer_write(sql_buf, " AS ");
+				sq_buffer_write_c(sql_buf, db->info->quote.identifier[0]);
+				sq_buffer_write(sql_buf, pcur[0]->name);
+				sq_buffer_write_c(sql_buf, db->info->quote.identifier[1]);
 				sq_buffer_write_c(sql_buf, ',');
 			}
 			if (primary == NULL) {
@@ -326,7 +332,8 @@ SqColumn *sqdb_sql_select(Sqdb *db, SqBuffer *sql_buf, const char *table_name, c
 	}
 #endif  // SQ_CONFIG_QUERY_ONLY_COLUMN
 
-	// `tableName`.*
+	// for MySQL
+	// SELECT `tableName`.*
 	sq_buffer_write_c(sql_buf, ' ');
 	sq_buffer_write_c(sql_buf, db->info->quote.identifier[0]);
 	sq_buffer_write(sql_buf, table_name);

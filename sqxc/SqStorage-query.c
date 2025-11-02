@@ -27,6 +27,20 @@
 #define snprintf     _snprintf
 #endif
 
+// used by sq_storage_setup_query()
+static char *to_quoted_str(const char *name, const char *quote, const char *tail)
+{
+	char *quotedStr;
+	int   length;
+
+	length = snprintf(NULL, 0, "%c%s%c%s",
+			quote[0], name, quote[1], tail ? tail : "") + 1;
+	quotedStr = malloc(length);
+	snprintf(quotedStr, length, "%c%s%c%s",
+			quote[0], name, quote[1], tail ? tail : "");
+	return quotedStr;
+}
+
 SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *type_joint)
 {
 	SqType     *table_type = NULL;
@@ -92,15 +106,18 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 				// add query-only column in 'query'
 				for (unsigned int index = 0;  index < table_type->n_entry;  index++) {
 					SqColumn *column = (SqColumn*)table_type->entry[index];
-					if (column->bit_field & SQB_COLUMN_QUERY)
+					// for PostgreSQL: append " AS length(columnName)"
+					// SELECT length(columnName) as "length(columnName)"
+					if (column->bit_field & SQB_COLUMN_QUERY) {
 						sq_query_select(query, column->name);
+						char *temp = to_quoted_str(column->name, storage->db->info->quote.identifier, NULL);
+						sq_query_as(query, temp);
+						free(temp);
+					}
 				}
-				// `tableName`.*
-				char *temp = calloc(1, strlen(table->name) + 5);
-				strncat(temp, storage->db->info->quote.identifier,   1);
-				strcat(temp, table->name);
-				strncat(temp, storage->db->info->quote.identifier+1, 1);
-				strcat(temp, ".*");
+				// for MySQL
+				// SELECT `tableName`.*
+				char *temp = to_quoted_str(table->name, storage->db->info->quote.identifier, ".*");
 				sq_query_select(query, temp);
 				free(temp);
 			}
