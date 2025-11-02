@@ -87,12 +87,16 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 //		xcjson->value.pointer = NULL;
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 
+		// This will increase the jsonc array reference count?
 		len = json_object_array_length(value);
 		for (idx = 0;  idx < len;  idx++) {
-			// send array elements
 			jelement = json_object_array_get_idx(value, idx);
+			// send jsonc array elements to Sqxc chain
 			sqxc_jsonc_send_value_in(xcjson, NULL, jelement);
 		}
+		// This will decrease the jsonc array reference count.
+		if (len > 0)
+			json_object_put(value);
 
 		xcjson->type = SQXC_TYPE_ARRAY_END;
 		xcjson->name = name;
@@ -118,14 +122,16 @@ static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 	}
 #endif
 
-	jobject = json_tokener_parse_verbose(src->value.str, &jerror);
+	jobject = json_tokener_parse_ex(xcjson->jtokener, src->value.str, -1);
 	if (jobject == NULL) {
+		jerror = json_tokener_get_error(xcjson->jtokener);
 		// incomplete JSON string
 		if (jerror == json_tokener_continue)
 			return (src->code = SQCODE_JSON_CONTINUE);
 		// parse failed
 		return (src->code = SQCODE_JSON_ERROR);
 	}
+	xcjson->jroot = jobject;
 
 	// send xc data from xcjson to dest
 	// result code to src
@@ -139,6 +145,13 @@ static int  sqxc_jsonc_ctrl_in(SqxcJsonc *xcjson, int id, void *data)
 		break;
 
 	case SQXC_CTRL_FINISH:
+		// jsonc parser reset
+		json_tokener_reset(xcjson->jtokener);
+		// jsonc object decrease reference count
+		if (xcjson->jroot) {
+			json_object_put(xcjson->jroot);
+			xcjson->jroot = NULL;
+		}
 		// clear SqxcNested if problem occurred during processing
 		sqxc_clear_nested((Sqxc*)xcjson);
 		break;
@@ -154,11 +167,15 @@ static void  sqxc_jsonc_init_in(SqxcJsonc *xcjson)
 {
 //	memset(xcjson, 0, sizeof(SqxcJsonc));
 	xcjson->supported_type = SQXC_TYPE_STR;
+
+	// jsonc parser
+	xcjson->jtokener = json_tokener_new();
 }
 
 static void  sqxc_jsonc_final_in(SqxcJsonc *xcjson)
 {
-
+	// jsonc parser
+	json_tokener_free(xcjson->jtokener);
 }
 
 /* ----------------------------------------------------------------------------
@@ -285,6 +302,7 @@ static int  sqxc_jsonc_ctrl_out(SqxcJsonc *xcjson, int id, void *data)
 		break;
 
 	case SQXC_CTRL_FINISH:
+		// jsonc object decrease reference count
 		if (xcjson->jroot) {
 			json_object_put(xcjson->jroot);
 			xcjson->jroot = NULL;

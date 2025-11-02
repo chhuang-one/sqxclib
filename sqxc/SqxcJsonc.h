@@ -121,11 +121,12 @@ struct SqxcJsonc
 
 	// ------ SqxcJsonc members ------   // <-- 3. Add variable and non-virtual function in derived struct.
 
-	// --- output ---
-	const char  *jroot_name;
-	json_object *jroot;
-	json_object *jcur;
-	int16_t      jcur_type;    // SqxcType
+	json_tokener *jtokener;     // input
+
+	const char   *jroot_name;   // output
+	json_object  *jroot;        // input / output
+	json_object  *jcur;         // output
+	int16_t       jcur_type;    // SqxcType
 	/*
 	// at json entry begin from SQL
 	cx->name = database column name
