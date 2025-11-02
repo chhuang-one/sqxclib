@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -87,16 +87,12 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 //		xcjson->value.pointer = NULL;
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 
-		// This will increase the jsonc array reference count?
 		len = json_object_array_length(value);
 		for (idx = 0;  idx < len;  idx++) {
 			jelement = json_object_array_get_idx(value, idx);
 			// send jsonc array elements to Sqxc chain
 			sqxc_jsonc_send_value_in(xcjson, NULL, jelement);
 		}
-		// This will decrease the jsonc array reference count.
-		if (len > 0)
-			json_object_put(value);
 
 		xcjson->type = SQXC_TYPE_ARRAY_END;
 		xcjson->name = name;
@@ -122,6 +118,7 @@ static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 	}
 #endif
 
+	// jsonc parser: If the parsing is incomplete, json_tokener_parse_ex() return NULL.
 	jobject = json_tokener_parse_ex(xcjson->jtokener, src->value.str, -1);
 	if (jobject == NULL) {
 		jerror = json_tokener_get_error(xcjson->jtokener);
@@ -170,6 +167,7 @@ static void  sqxc_jsonc_init_in(SqxcJsonc *xcjson)
 
 	// jsonc parser
 	xcjson->jtokener = json_tokener_new();
+	xcjson->jroot = NULL;
 }
 
 static void  sqxc_jsonc_final_in(SqxcJsonc *xcjson)

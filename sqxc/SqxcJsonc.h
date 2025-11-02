@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -121,18 +121,18 @@ struct SqxcJsonc
 
 	// ------ SqxcJsonc members ------   // <-- 3. Add variable and non-virtual function in derived struct.
 
-	json_tokener *jtokener;     // input
+	json_tokener *jtokener;     // input: JSON parser
 
-	const char   *jroot_name;   // output
+	const char   *jroot_name;   // output: jroot field name
 	json_object  *jroot;        // input / output
 	json_object  *jcur;         // output
-	int16_t       jcur_type;    // SqxcType
+	int16_t       jcur_type;    // output: jcur currently maps to the 
 	/*
 	// at json entry begin from SQL
-	cx->name = database column name
+	xc->name = database column name
 
 	// at json begin from file
-	cx->name = NULL
+	xc->name = NULL
 	 */
 };
 
