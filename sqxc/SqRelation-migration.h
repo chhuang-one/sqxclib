@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -70,8 +70,6 @@ int       sq_table_include(SqTable *table, SqTable *table_src, SqSchema *schema)
 /* erase ernamed & dropped records after calling sq_schema_include() and sq_schema_trace_name()
    if database schema version <  current schema version, pass 'version_comparison' = '<'
    if database schema version == current schema version, pass 'version_comparison' = '='
-
-   return number of old columns after erasing.
  */
 void      sq_table_erase_records(SqTable *table, char version_comparison);
 

@@ -20,8 +20,10 @@
 	Android/data/com.bilibili.app.in/download
 
 	2. run bili2mp4 in directory that has copy of directories and files in step 1.
+	   or specify source directory in the bili2mp4's command line.
 
 	3. bili2mp4 will parse files in downloaded directories and launch ffmpeg to merge files.
+	   User can specify destination directory in the bili2mp4's command line.
  */
 
 // ----------------------------------------------------------------------------
@@ -121,30 +123,30 @@ typedef struct BiliEntryPage    BiliEntryPage;
 /* This struct maps "page_data" field in entry.json */
 struct BiliEntryPage
 {
-    int     page;
-    char   *part;    // part name
-    bool    has_alias;
+	int     page;
+	char   *part;    // part name
+	bool    has_alias;
 
-    int     width;
-    int     height;
-    int     rotate;
+	int     width;
+	int     height;
+	int     rotate;
 
-    char   *download_title;
-    char   *download_subtitle;
+	char   *download_title;
+	char   *download_subtitle;
 };
 
 /* This struct maps fields of entry.json in bilibili download directory. */
 struct BiliEntry
 {
-    char   *title;
+	char   *title;
 
-    int     video_quality;                // 16
-    int     total_time_milli;
+	int     video_quality;                // 16
+	int     total_time_milli;
 
-    char   *quality_pithy_description;    // e.g. "360P"
-    char   *owner_name;
+	char   *quality_pithy_description;    // e.g. "360P"
+	char   *owner_name;
 
-    BiliEntryPage    page_data;
+	BiliEntryPage    page_data;
 };
 
 // ----------------------------------------------------------------------------
