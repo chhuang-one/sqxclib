@@ -295,6 +295,10 @@ void test_storage(const SqdbInfo *dbinfo, const SqdbConfig *config)
 	test_storage_xxx_all(storage);
 
 	sq_storage_close(storage);
+
+	// free instance
+	sq_storage_free(storage);
+	sqdb_free(db);
 }
 
 // ----------------------------------------------------------------------------

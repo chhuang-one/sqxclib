@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -156,7 +156,6 @@ void test_sqxc_joint_input()
 	user = instance[0];
 	printf("tb1.id = %d\n", user->id);
 	assert(user->id == 183);
-	free(user);
 
 	user = instance[1];
 	printf("tb2.id = %d\n", user->id);
@@ -167,7 +166,12 @@ void test_sqxc_joint_input()
 	// program can't parse JSON array string if no JSON parser in sqxc chain
 	assert(user->strs.length == 0);
 #endif
-	free(user);
+
+	// free User instances
+	sq_type_final_instance(&UserType, instance[0], false);
+	sq_type_final_instance(&UserType, instance[1], false);
+	free(instance[0]);
+	free(instance[1]);
 	free(instance);
 
 	sqxc_free_chain(xc);
@@ -316,9 +320,12 @@ void test_sqxc_jsonc_input_user()
 
 	user = (User*)sqxc_value_instance(xcvalue);
 	assert(user->id == 10);
-
 	print_user(user);
+
+	// free User instance
+	sq_type_final_instance(&UserType, user, false);
 	free(user);
+
 	sqxc_free_chain(xcvalue);
 }
 
@@ -375,19 +382,27 @@ void test_sqxc_jsonc_input_unknown()
 
 	user = (User*)sqxc_value_instance(xcvalue);
 	assert(user->id == 99);
-
 	print_user(user);
+
+	// free User instance
+	sq_type_final_instance(&UserType, user, false);
 	free(user);
+
 	sqxc_free_chain(xcvalue);
 }
 
 // ----------------------------------------------------------------------------
 // Sqxc - Output
 
-void test_sqxc_jsonc_output(User *instance)
+void test_sqxc_jsonc_output()
 {
+	User  user = {0};
 	Sqxc *xcjsonc;
 	Sqxc *xcchain;
+
+	user.id = 10;
+	user.name = "Bob";
+	user.email = "guest@";
 
 	xcchain = sqxc_new_chain(SQXC_INFO_EMPTY, SQXC_INFO_JSONC_WRITER, NULL);
 	xcjsonc = sqxc_find(xcchain, SQXC_INFO_JSONC_WRITER);
@@ -400,17 +415,17 @@ void test_sqxc_jsonc_output(User *instance)
 
 	xcjsonc->type = SQXC_TYPE_INT;
 	xcjsonc->name = "id";
-	xcjsonc->value.integer = instance->id;
+	xcjsonc->value.integer = user.id;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
 
 	xcjsonc->type = SQXC_TYPE_STR;
 	xcjsonc->name = "name";
-	xcjsonc->value.str = instance->name;
+	xcjsonc->value.str = user.name;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
 
 	xcjsonc->type = SQXC_TYPE_STR;
 	xcjsonc->name = "email";
-	xcjsonc->value.str = instance->email;
+	xcjsonc->value.str = user.email;
 	xcjsonc->info->send(xcjsonc, xcjsonc);
 
 	xcjsonc->type = SQXC_TYPE_OBJECT_END;
@@ -497,6 +512,7 @@ void test_sqxc_sql_output(bool use_update)
 	sqxc_finish(xcchain, NULL);
 
 	sqxc_free_chain(xcchain);
+	sq_table_free(table);
 }
 
 #endif  // SQ_CONFIG_HAVE_JSONC
@@ -505,28 +521,13 @@ void test_sqxc_sql_output(bool use_update)
 
 int  main(void)
 {
-	SqSchema   *schema;
-	User       *user;
-
-	schema = sq_schema_new("default");
-	create_user_table_by_type(schema);
-
-	user = malloc(sizeof(User));
-	user->id = 10;
-	user->name = "Bob";
-	user->email = "guest@";
-	sq_str_array_init(&user->strs, 8);
-	sq_str_array_push(&user->strs, "first");
-	sq_int_array_init(&user->ints, 8);
-	sq_int_array_push(&user->ints, 1);
-
 	test_sqxc_joint_input();
 	test_sqxc_row_input_output();
 #if SQ_CONFIG_HAVE_JSONC
 	test_sqxc_jsonc_input();
 	test_sqxc_jsonc_input_user();
 	test_sqxc_jsonc_input_unknown();
-	test_sqxc_jsonc_output(user);
+	test_sqxc_jsonc_output();
 	test_sqxc_sql_output(true);
 #endif  // SQ_CONFIG_HAVE_JSONC
 
