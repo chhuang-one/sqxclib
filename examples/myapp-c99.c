@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -47,48 +47,20 @@ void  my_app_free(MyApp *myapp)
 	free(myapp);
 }
 
-
-int  main(void)
+// In database table "users", do Create, Read, Update, Delete.
+int  users_crud(SqStorage *storage)
 {
-	MyApp *myapp;
-
-	myapp = my_app_new();
-
-#if 0
-	// open database that defined in SqApp-config.h
-	if (sq_app_open_database(&myapp->base, NULL) != SQCODE_OK)
-		return EXIT_FAILURE;
-#else
-	// open user specified database
-	if (sq_app_open_database(&myapp->base, "myapp-db") != SQCODE_OK)
-		return EXIT_FAILURE;
-#endif
-
-	/*	If you use command-line program "sqtool" to do migrate,
-		you can remove below 'sq_app_migrate()' code.
-	 */
-	// if the version of schema in database is 0 (no migrations have been done)
-	if (sq_app_make_schema(&myapp->base, 0) == SQCODE_DB_SCHEMA_VERSION_0) {
-		// run migrations that defined in ../database/migrations
-		if (sq_app_migrate(&myapp->base, 0) != SQCODE_OK)
-			return EXIT_FAILURE;
-	}
-
-
-	/*	strcut User is defined in  sqxcapp/CStructs.h
-		Database table "users" is defined in  database/migrations/2021_10_12_000000_create_users_table.c
-		but it is disabled by default.
-
-		To enable the table "users", modify following files:
-			migrations-declarations
-			migrations-elements
-			migrations-files.c
-	 */
-	SqStorage *storage = myapp->base.storage;
+	SqTable *userTable;
+	SqType  *userType;
 	User     user = {0};
 	User    *user_ptr;
 	int64_t  id[2];
 	int64_t  n;
+
+	userTable = sq_schema_find(storage->schema, "users");
+	if (userTable == NULL)
+		return EXIT_FAILURE;
+	userType = (SqType*)userTable->type;
 
 	/* CRUD --- insert, update, get, remove */
 	user.age   = 18;
@@ -118,6 +90,9 @@ int  main(void)
 		       user_ptr->age,
 		       user_ptr->name,
 		       user_ptr->email);
+		// free "User" instance
+		sq_type_final_instance(userType, user_ptr, false);
+		free(user_ptr);
 	}
 
 #if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
@@ -142,10 +117,55 @@ int  main(void)
 		       user_ptr->age,
 		       user_ptr->name,
 		       user_ptr->email);
+		// free "User" instance
+		sq_type_final_instance(userType, user_ptr, false);
+		free(user_ptr);
 	}
 
 	sq_storage_remove_all(storage, "users", NULL);
+	return EXIT_SUCCESS;
+}
 
+int  main(void)
+{
+	MyApp *myapp;
+
+	myapp = my_app_new();
+
+#if 0
+	// open database that defined in SqApp-config.h
+	if (sq_app_open_database(&myapp->base, NULL) != SQCODE_OK)
+		return EXIT_FAILURE;
+#else
+	// open user specified database
+	if (sq_app_open_database(&myapp->base, "myapp-c99") != SQCODE_OK)
+		return EXIT_FAILURE;
+#endif
+
+	/*	If you use command-line program "sqtool" to do migrate,
+		you can remove below 'sq_app_migrate()' code.
+	 */
+	// if the version of schema in database is 0 (no migrations have been done)
+	if (sq_app_make_schema(&myapp->base, 0) == SQCODE_DB_SCHEMA_VERSION_0) {
+		// run migrations that defined in ../database/migrations
+		if (sq_app_migrate(&myapp->base, 0) != SQCODE_OK)
+			return EXIT_FAILURE;
+	}
+
+
+	/*	strcut User is defined in  sqxcapp/CStructs.h
+		Database table "users" is defined in  database/migrations/2021_10_12_000000_create_users_table.c
+		but it is disabled by default.
+
+		To enable the table "users", modify following files:
+			migrations-declarations
+			migrations-elements
+			migrations-files.c
+	 */
+	SqStorage *storage = myapp->base.storage;
+
+	// In database table "users", do Create, Read, Update, Delete.
+	users_crud(storage);
 
 	sq_app_close_database(&myapp->base);
 	my_app_free(myapp);

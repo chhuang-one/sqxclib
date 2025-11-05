@@ -180,8 +180,8 @@ static const SqEntry *BiliEntryPointers[] = {
 	&(SqEntry) {SQ_TYPE_BILI_PAGE,    "page_data",     offsetof(BiliEntry, page_data),         0},
 };
 
-static const SqType   typeBili = SQ_TYPE_INITIALIZER(BiliEntry, BiliEntryPointers, 0);
-#define SQ_TYPE_BILI &typeBili
+static const SqType         typeBiliEntry = SQ_TYPE_INITIALIZER(BiliEntry, BiliEntryPointers, 0);
+#define SQ_TYPE_BILI_ENTRY &typeBiliEntry
 
 // ----------------------------------------------------------------------------
 
@@ -221,6 +221,11 @@ BiliDir *bili_dir_free(BiliDir *bili_dir)
 	if (bili_dir->prev)
 		bili_dir->prev->next = bili_dir->next;
 
+	if (bili_dir->entry) {
+		// free BiliEntry
+		sq_type_final_instance(SQ_TYPE_BILI_ENTRY, bili_dir->entry, false);
+		free(bili_dir->entry);
+	}
 	free(bili_dir->title);
 	free(bili_dir->path);
 	free(bili_dir);
@@ -257,8 +262,8 @@ void  bili2mp4_final(Bili2Mp4 *b2m)
 	// free xcvalue and xcjson in Sqxc chain
 	sqxc_free_chain((Sqxc*)b2m->xcvalue);
 
-	if (b2m->last)
-		bili_dir_free(b2m->last);
+	while (b2m->last)
+		b2m->last = bili_dir_free(b2m->last);
 }
 
 BiliDir *bili2mp4_add(Bili2Mp4 *b2m, BiliDir *parent, BiliEntry *bili_entry)
@@ -317,7 +322,7 @@ BiliEntry *bili2mp4_parse(Bili2Mp4 *b2m, const char *entry_file)
 
 	// setup SqxcValue
 	sqxc_value_container(b2m->xcvalue) = NULL;
-	sqxc_value_element(b2m->xcvalue)  = SQ_TYPE_BILI;
+	sqxc_value_element(b2m->xcvalue)  = SQ_TYPE_BILI_ENTRY;
 	sqxc_value_instance(b2m->xcvalue) = NULL;
 
 	// --- Sqxc chain ready to work ---
@@ -631,6 +636,10 @@ int  main(int argc, char* argv[])
 
 	if (b2m->last == NULL) {
 		printf("No bilibili entry found.\n");
+		// free "Bili2Mp4" instance
+		bili2mp4_final(b2m);
+		free(b2m);
+		// exit
 		return EXIT_SUCCESS;
 	}
 
@@ -651,7 +660,9 @@ int  main(int argc, char* argv[])
 	for (BiliDir *cur = b2m->last;  cur;  cur = cur->next)
 		bili2mp4_output(b2m, cur, destDir);
 
+	// free "Bili2Mp4" instance
 	bili2mp4_final(b2m);
+	free(b2m);
 
 	return EXIT_SUCCESS;
 }

@@ -294,6 +294,8 @@ void  helpers_write_json()
 	       "helpers_write_json()", (int)len);
 	puts(buf);
 
+	// release the buffer returned by sq_write_json_mem()
+	free(buf);
 #else
 	fprintf(stderr, "%s: JSON support was not enabled\n"
 	        "helpers_write_json()");

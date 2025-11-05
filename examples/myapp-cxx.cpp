@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -81,6 +81,88 @@ struct MyApp : Sq::AppMethod                  // <-- 1. inherit C++ member funct
 };
 #endif  // USE_DERVIDED_MYAPP
 
+// In database table "users", do Create, Read, Update, Delete.
+int  usersCrud(Sq::Storage *storage)
+{
+	Sq::Table *userTable;
+	Sq::Type  *userType;
+	User     user = {0};
+	User    *userPtr;
+	int64_t  id[2];
+	int64_t  n;
+
+	/*	If database table "users" is defined in C language but application is written in C++ language,
+		You must change C language type names to C++ type names because
+		template functions of Sq::Storage use type name to get Sq::Table.
+
+		See the documentation  doc/database-migrations.md  for more information on this.
+
+		If your database table "users" is defined in C++, you can remove following code.
+	 */
+	userTable = storage->schema->find("users");
+	if (userTable == NULL)
+		return EXIT_FAILURE;
+	// If userType.name is defined in C language, change type names to C++ type names.
+	userType = (Sq::Type*)userTable->type;
+	userType->setName(typeid(User).name());
+
+
+	/* CRUD --- insert, update, get, remove */
+	user.age   = 18;
+	user.email = (char*)"alex@guest";
+	user.name  = (char*)"Alex";
+	id[0] = storage->insert("users", &user);
+	user.age   = 28;
+	user.name  = (char*)"Alan";
+	user.email = (char*)"alan@guest";
+	id[1] = storage->insert("users", &user);
+
+	// update columns - "age" and "name"
+	user.age   = 21;
+	user.name  = (char*)"Ti";
+	n = storage->updateAll("users", &user,
+	                       "WHERE id > 0",
+	                       "age", "name");
+	std::cout << "number of rows changed : " << n << std::endl;
+
+	userPtr = (User*)storage->get("users", id[0]);
+	if (userPtr) {
+		std::cout << std::endl
+		          << "User::age   = " << userPtr->age   << std::endl
+		          << "User::name  = " << userPtr->name  << std::endl
+		          << "User::email = " << userPtr->email << std::endl;
+		// free "User" instance
+		userType->finalInstance(userPtr);
+		free(userPtr);
+	}
+
+#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+	// update fields - User::email and User::name
+	user.age   = 38;
+	user.name  = (char*)"Sky";
+	user.email = (char*)"sky@host";
+	n = storage->updateField("users", &user,
+	                         "WHERE id > 0",
+	                         &User::name,
+	                         &User::email);
+	std::cout << "number of rows changed : " << n << std::endl;
+#endif // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
+
+	userPtr = (User*)storage->get("users", id[1]);
+	if (userPtr) {
+		std::cout << std::endl
+		          << "User::age   = " << userPtr->age   << std::endl
+		          << "User::name  = " << userPtr->name  << std::endl
+		          << "User::email = " << userPtr->email << std::endl;
+		// free "User" instance
+		userType->finalInstance(userPtr);
+		free(userPtr);
+	}
+
+	storage->removeAll("users");
+	return EXIT_SUCCESS;
+}
+
 int  main(void)
 {
 	MyApp *myapp = new MyApp;
@@ -120,73 +202,9 @@ int  main(void)
 			migrations-files.cpp
 	 */
 	Sq::Storage *storage = myapp->getStorage();
-	User     user = {0};
-	User    *userPtr;
-	int64_t  id[2];
-	int64_t  n;
 
-	/*	If database table "users" is defined in C language but application is written in C++ language,
-		You must change C language type names to C++ type names because
-		template functions of Sq::Storage use type name to get Sq::Table.
-
-		See the documentation  doc/database-migrations.md  for more information on this.
-
-		If your database table "users" is defined in C++, you can remove following code.
-	 */
-	Sq::Table *userTable = storage->schema->find("users");
-	if (userTable) {
-		Sq::Type  *userType = (Sq::Type*)userTable->type;
-		userType->setName(typeid(User).name());
-	}
-
-	/* CRUD --- insert, update, get, remove */
-	user.age   = 18;
-	user.email = (char*)"alex@guest";
-	user.name  = (char*)"Alex";
-	id[0] = storage->insert("users", &user);
-	user.age   = 28;
-	user.name  = (char*)"Alan";
-	user.email = (char*)"alan@guest";
-	id[1] = storage->insert("users", &user);
-
-	// update columns - "age" and "name"
-	user.age   = 21;
-	user.name  = (char*)"Ti";
-	n = storage->updateAll("users", &user,
-	                       "WHERE id > 0",
-	                       "age", "name");
-	std::cout << "number of rows changed : " << n << std::endl;
-
-	userPtr = (User*)storage->get("users", id[0]);
-	if (userPtr) {
-		std::cout << std::endl
-		          << "User::age   = " << userPtr->age   << std::endl
-		          << "User::name  = " << userPtr->name  << std::endl
-		          << "User::email = " << userPtr->email << std::endl;
-	}
-
-#if SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
-	// update fields - User::email and User::name
-	user.age   = 38;
-	user.name  = (char*)"Sky";
-	user.email = (char*)"sky@host";
-	n = storage->updateField("users", &user,
-	                         "WHERE id > 0",
-	                         &User::name,
-	                         &User::email);
-	std::cout << "number of rows changed : " << n << std::endl;
-#endif // SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD
-
-	userPtr = (User*)storage->get("users", id[1]);
-	if (userPtr) {
-		std::cout << std::endl
-		          << "User::age   = " << userPtr->age   << std::endl
-		          << "User::name  = " << userPtr->name  << std::endl
-		          << "User::email = " << userPtr->email << std::endl;
-	}
-
-	storage->removeAll("users");
-
+	// In database table "users", do Create, Read, Update, Delete.
+	usersCrud(storage);
 
 	myapp->closeDatabase();
 	delete myapp;
