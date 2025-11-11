@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -19,20 +19,12 @@
 #if 1    // defined(HAVE_CONFIG_H)
 #include "config.h"
 #else
-#define HAVE_THREAD   1
-#define HAVE_JSONC    1
-#define HAVE_SQLITE   1
-#define HAVE_MYSQL    1
+#define HAVE_JSONC         1
+#define HAVE_SQLITE        1
+#define HAVE_MYSQL         1
+#define HAVE_POSTGRESQL    1
 #endif
 
-
-/* SqStorage.c */
-#if HAVE_THREAD == 1
-#define SQ_CONFIG_HAVE_THREAD        1
-#else
-#define SQ_CONFIG_HAVE_THREAD        0
-#endif
-#undef HAVE_THREAD
 
 /* SqxcJsonc.c, SqxcJsonc.h, SqStorage.c */
 #if HAVE_JSONC == 1

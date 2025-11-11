@@ -54,6 +54,9 @@ find_package(PkgConfig)
 # pkg-config module
 if (PKG_CONFIG_FOUND)
 	pkg_check_modules(JSONC json-c)
+	if (JSONC_FOUND)
+		set(JSONC_PC_FOUND true)
+	endif (JSONC_FOUND)
 
 	pkg_check_modules(SQLite3 sqlite3)
 	if (SQLite3_FOUND)
@@ -81,12 +84,10 @@ if (PKG_CONFIG_FOUND)
 	endif (PostgreSQL_FOUND)
 endif (PKG_CONFIG_FOUND)
 
-## find pthread
-#if (UNIX)
-#	set(THREADS_PREFER_PTHREAD_FLAG ON)
-#	find_package(Threads REQUIRED)
-#	set(Threads_LIBRARIES Threads::Threads)
-#endif (UNIX)
+# Find the json-c package
+if (NOT DEFINED JSONC_FOUND OR NOT JSONC_FOUND)
+	find_package(JSONC)
+endif ()
 
 # find SQLite3 if sqlite3.pc not found
 if (NOT DEFINED SQLite3_FOUND OR NOT SQLite3_FOUND)
@@ -102,24 +103,6 @@ endif ()
 if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
 endif ()
-
-# --- thread ---
-if (Threads_FOUND)
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
-	    ${Threads_INCLUDE_DIRS}
-	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
-	    ${Threads_LIBRARIES}
-	)
-# --- config.h ---
-	set(SQXCLIB_HAVE_THREAD    1)
-elseif (WIN32)
-	set(SQXCLIB_HAVE_THREAD    1)
-else ()
-	set(SQXCLIB_HAVE_THREAD    0)
-endif (Threads_FOUND)
 
 # --- json-c ---
 if (JSONC_FOUND)
@@ -142,6 +125,7 @@ endif (JSONC_FOUND)
 
 # --- SQLite ---
 if (SQLite3_FOUND)
+	# ${SQLite3_INCLUDE_DIRS} and ${SQLite3_LIBRARIES} will be used in sqxc/CMakeLists.txt
 	# --- debug message ---
 	message(STATUS "SQLite include dirs: ${SQLite3_INCLUDE_DIRS}")
 	message(STATUS "SQLite libraries: ${SQLite3_LIBRARIES}")
@@ -153,6 +137,7 @@ endif (SQLite3_FOUND)
 
 # --- MySQL ---
 if (MYSQL_FOUND)
+	# ${MYSQL_INCLUDE_DIRS} and ${MYSQL_LIBRARIES} will be used in sqxc/CMakeLists.txt
 	# --- debug message ---
 	message(STATUS "MySQL include dirs: ${MYSQL_INCLUDE_DIRS}")
 	message(STATUS "MySQL libraries: ${MYSQL_LIBRARIES}")
@@ -164,6 +149,7 @@ endif (MYSQL_FOUND)
 
 # --- PostgreSQL ---
 if (PostgreSQL_FOUND)
+	# ${PostgreSQL_INCLUDE_DIRS} and ${PostgreSQL_LIBRARIES} will be used in sqxc/CMakeLists.txt
 	# --- debug message ---
 	message(STATUS "PostgreSQL include dirs: ${PostgreSQL_INCLUDE_DIRS}")
 	message(STATUS "PostgreSQL libraries: ${PostgreSQL_LIBRARIES}")
@@ -178,7 +164,9 @@ set(SQXCLIB_PC_PREFIX  ${CMAKE_INSTALL_PREFIX})
 set(SQXCLIB_PC_VERSION ${PROJECT_VERSION})
 
 if (DEFINED SQXCLIB_HAVE_JSONC)
-	set(SQXCLIB_PC_REQUIRE_JSONC    "json-c")
+	if (DEFINED JSONC_PC_FOUND)
+		set(SQXCLIB_PC_REQUIRE_JSONC    "json-c")
+	endif ()
 endif ()
 
 if (DEFINED SQXCLIB_HAVE_SQLITE)

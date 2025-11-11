@@ -34,6 +34,11 @@ find_package(PkgConfig)
 if (PKG_CONFIG_FOUND)
 	pkg_check_modules(SQXC sqxclib)
 
+	pkg_check_modules(JSONC json-c)
+	if (JSONC_FOUND)
+		set(JSONC_PC_FOUND true)
+	endif (JSONC_FOUND)
+
 	pkg_check_modules(SQLite3 sqlite3)
 	if (SQLite3_FOUND)
 		set(SQLite3_PC_FOUND true)
@@ -60,6 +65,11 @@ if (PKG_CONFIG_FOUND)
 	endif (PostgreSQL_FOUND)
 endif (PKG_CONFIG_FOUND)
 
+# find json-c if json-c.pc not found
+if (NOT DEFINED JSONC_FOUND OR NOT JSONC_FOUND)
+	find_package(JSONC)
+endif ()
+
 # find SQLite3 if sqlite3.pc not found
 if (NOT DEFINED SQLite3_FOUND OR NOT SQLite3_FOUND)
 	find_package(SQLite3)
@@ -75,8 +85,25 @@ if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
 endif ()
 
+# --- json-c ---
+if (JSONC_FOUND AND NOT DEFINED JSONC_PC_FOUND)
+	# --- pkg-config or it's module not found ---
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${JSONC_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${JSONC_LIBRARIES}
+	)
+	# --- debug message ---
+	message(STATUS "json-c include dirs: ${JSONC_INCLUDE_DIRS}")
+	message(STATUS "json-c libraries: ${JSONC_LIBRARIES}")
+endif (JSONC_FOUND AND NOT DEFINED JSONC_PC_FOUND)
+
 # --- SQLite ---
 if (SQLite3_FOUND AND NOT DEFINED SQLite3_PC_FOUND)
+	# --- pkg-config or it's module not found ---
 	set(SQXC_INCLUDE_DIRS
 	    ${SQXC_INCLUDE_DIRS}
 	    ${SQLite3_INCLUDE_DIRS}
@@ -92,6 +119,7 @@ endif (SQLite3_FOUND AND NOT DEFINED SQLite3_PC_FOUND)
 
 # --- MySQL ---
 if (MYSQL_FOUND AND (NOT DEFINED MYSQLCLIENT_PC_FOUND AND NOT DEFINED MARIADB_PC_FOUND))
+	# --- pkg-config or it's module not found ---
 	set(SQXC_INCLUDE_DIRS
 	    ${SQXC_INCLUDE_DIRS}
 	    ${MYSQL_INCLUDE_DIRS}
@@ -114,6 +142,7 @@ endif (MYSQL_FOUND AND (NOT DEFINED MYSQLCLIENT_PC_FOUND AND NOT DEFINED MARIADB
 
 # --- PostgreSQL ---
 if (PostgreSQL_FOUND AND NOT DEFINED PostgreSQL_PC_FOUND)
+	# --- pkg-config or it's module not found ---
 	set(SQXC_INCLUDE_DIRS
 	    ${SQXC_INCLUDE_DIRS}
 	    ${PostgreSQL_INCLUDE_DIRS}

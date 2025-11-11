@@ -17,19 +17,6 @@ sqxclib_soversion = 0
 
 config_data = configuration_data()
 
-# --- thread ---
-config_data.set('SQXCLIB_HAVE_THREAD',  '0')
-#if host_machine.system() == 'windows'
-#	config_data.set('SQXCLIB_HAVE_THREAD',  '1')
-#else
-#	thread = dependency('threads', required: false)
-#	if thread.found() == true
-#		config_data.set('SQXCLIB_HAVE_THREAD',  '1')
-#	else
-#		config_data.set('SQXCLIB_HAVE_THREAD',  '0')
-#	endif
-#endif
-
 # --- json-c ---
 jsonc = dependency('json-c', required: false)
 if jsonc.found() == true
