@@ -556,7 +556,7 @@ static int  sqxc_sql_set_fields(SqxcSql      *xcsql,
 
 	sqxc_sql_init_columns(xcsql, sql_where_having);
 	for(;;) {
-		temp.offset = va_arg(arg_list, size_t);
+		temp.offset = va_arg(arg_list, int);
 		if (temp.offset == -1)
 			break;
 		temp.addr = sq_ptr_array_search(&array,
