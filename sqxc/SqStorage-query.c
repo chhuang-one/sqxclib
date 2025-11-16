@@ -143,7 +143,6 @@ void *sq_storage_query(SqStorage    *storage,
                        const SqType *container_type)
 {
 	Sqxc       *xcvalue;
-	void       *instance;
 	int         code;
 
 	if (container_type == NULL)
@@ -180,7 +179,6 @@ void *sq_storage_query_raw(SqStorage    *storage,
                            const SqType *container_type)
 {
 	Sqxc       *xcvalue;
-	void       *instance;
 	int         code;
 
 #ifndef NDEBUG

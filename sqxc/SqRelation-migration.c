@@ -20,6 +20,10 @@
 #include <SqSchema.h>
 #include <SqRelation-migration.h>
 
+#ifdef _MSC_VER
+#define strncasecmp  _strnicmp
+#endif
+
 #define SQ_TABLE_RELATION_SIZE          SQ_CONFIG_TABLE_RELATION_SIZE
 #define SQ_SCHEMA_RELATION_SIZE         SQ_CONFIG_SCHEMA_RELATION_SIZE
 #define SQ_SCHEMA_RELATION_POOL_SIZE    SQ_CONFIG_SCHEMA_RELATION_POOL_SIZE
@@ -819,7 +823,7 @@ void    sq_schema_complete(SqSchema *schema, bool no_need_to_sync)
 {
 	SqPtrArray *entries;
 	SqTable    *table;
-	bool        has_null;
+	bool        has_null = false;
 
 	entries = sq_type_entry_array(schema->type);
 	sq_type_sort_entry((SqType*)schema->type);

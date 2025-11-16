@@ -28,7 +28,7 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 {
 	json_object  *jelement;
 	Sqxc *xcdest = xcjson->dest;
-	int   idx, len;
+	size_t   idx, len;
 
 	switch(json_object_get_type(value)) {
 	case json_type_null:
@@ -217,7 +217,7 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 		break;
 
 	case SQXC_TYPE_TIME:
-		jobject = json_object_new_int(src->value.rawtime);
+		jobject = json_object_new_int64(src->value.rawtime);
 		break;
 
 	case SQXC_TYPE_DOUBLE:

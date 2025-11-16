@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -266,7 +266,7 @@ void  sq_relation_remove_empty(SqRelation *relation) {
 		}
 	}
 
-	relation->length = rnode_dest - relation->data;
+	relation->length = (unsigned int)(rnode_dest - relation->data);
 }
 
 SqRelationNode *sq_relation_find(SqRelation *relation, const void *from, const void *to) {
@@ -284,7 +284,7 @@ SqRelationNode *sq_relation_find(SqRelation *relation, const void *from, const v
 
 static int cmp_object__node_object(const void *object, const void *node)
 {
-	return object - ((SqRelationNode*)node)->object;
+	return (int) ((char*)object - (char*)((SqRelationNode*)node)->object);
 }
 
 // ----------------------------------------------------------------------------

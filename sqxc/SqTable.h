@@ -637,6 +637,7 @@ SqColumn *sq_table_find_column(SqTable *table, const char *column_name) {
 
 // C functions
 void      sq_table_set_name(SqTable *table, const char *name);
+void      sq_table_comment(SqTable* table, const char* comment_str);
 bool      sq_table_has_column(SqTable *table, const char *column_name);
 SqColumn *sq_table_find_column(SqTable *table, const char *column_name);
 
