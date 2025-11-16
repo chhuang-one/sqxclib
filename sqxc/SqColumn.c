@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -381,15 +381,15 @@ void  sq_column_query_only(SqColumn *column) {
 }
 #endif
 
-void  sq_column_default(SqColumn *column, const char *default_value) {
-	SQ_COLUMN_SET_DEFAULT(column, default_value);
-}
-
 #if SQ_CONFIG_TABLE_COLUMN_COMMENTS
-void  sq_column_comment(SqColumn *column, const char *comment_str) {
+void  sq_column_comment(SqColumn* column, const char* comment_str) {
 	SQ_COLUMN_SET_COMMENT(column, comment_str);
 }
 #endif
+
+void  sq_column_default(SqColumn *column, const char *default_value) {
+	SQ_COLUMN_SET_DEFAULT(column, default_value);
+}
 
 void  sq_column_raw(SqColumn *column, const char *raw_property) {
 	SQ_COLUMN_SET_RAW(column, raw_property);

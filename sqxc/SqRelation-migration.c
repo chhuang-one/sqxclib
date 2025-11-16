@@ -12,8 +12,11 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <stdio.h>        // fprintf(), stderr
-#include <string.h>
+#include <string.h>       // strdup(), strncasecmp()
 
 #include <SqError.h>
 #include <SqConfig.h>
@@ -21,6 +24,7 @@
 #include <SqRelation-migration.h>
 
 #ifdef _MSC_VER
+#define strdup       _strdup
 #define strncasecmp  _strnicmp
 #endif
 
