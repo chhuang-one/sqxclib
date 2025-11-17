@@ -16,4 +16,4 @@
 // then compile C++ source files in ../database/migrations.
 #define SQ_APP_HAS_MIGRATION_NAME    1
 
-#include "migrations-files.cpp"
+#include "migrations-files-cpp.cpp"

@@ -67,7 +67,12 @@ endif (PKG_CONFIG_FOUND)
 
 # find json-c if json-c.pc not found
 if (NOT DEFINED JSONC_FOUND OR NOT JSONC_FOUND)
-	find_package(JSONC)
+	find_package(json-c)
+	if (json-c_FOUND)
+		set (JSONC_FOUND         json-c_FOUND)
+		set (JSONC_INCLUDE_DIRS  json-c_INCLUDE_DIRS)
+		set (JSONC_LIBRARIES     json-c_LIBRARIES)
+	endif (json-c_FOUND)
 endif ()
 
 # find SQLite3 if sqlite3.pc not found

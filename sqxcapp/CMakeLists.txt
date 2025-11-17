@@ -14,7 +14,7 @@ if (DEFINED CMAKE_CXX_COMPILER)
 	# add 'sqxcapp' C++ source file
 	set(SOURCES_APP_USER
 	    ${SOURCES_APP_USER}
-	    migrations-files.cpp
+	    migrations-files-cpp.cpp
 	)
 endif (DEFINED CMAKE_CXX_COMPILER)
 
@@ -57,7 +57,7 @@ if (DEFINED CMAKE_CXX_COMPILER)
 	# add 'sqxcapptool' C++ source file
 	set(SOURCES_APPTOOL_USER
 	    ${SOURCES_APPTOOL_USER}
-	    SqAppTool-migrations-files.cpp
+	    SqAppTool-migrations-files-cpp.cpp
 	)
 endif (DEFINED CMAKE_CXX_COMPILER)
 
