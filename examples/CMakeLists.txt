@@ -1,12 +1,25 @@
 include_directories(${SQXC_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 
-# bili2mp4 can't compile with MSVC because it uses readdir() series functions.
-if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-	if (JSONC_FOUND)
+# bili2mp4
+if (JSONC_FOUND)
+	# If you want to build bili2mp4 in Visual Studio, download direct.h for MSVC form internet.
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+		# find direct.h in current directory.
+		find_path(MSVC_DIRECT_H
+		    NAMES dirent.h
+		    PATHS ${CMAKE_CURRENT_SOURCE_DIR}
+		)
+		if (DEFINED MSVC_DIRECT_H)
+			message(STATUS "The direct.h file was found in examples directory ${CMAKE_CURRENT_SOURCE_DIR}")
+			message(STATUS "This will build bili2mp4 for MSVC.")
+			add_executable(bili2mp4  bili2mp4.c)
+			target_include_directories(bili2mp4  PUBLIC  ${CMAKE_CURRENT_SOURCE_DIR}  ${SQXC_INCLUDE_DIRS})
+		endif ()
+	else ()
 		add_executable(bili2mp4  bili2mp4.c)
-	endif (JSONC_FOUND)
-endif ()
+	endif ()
+endif (JSONC_FOUND)
 
 add_executable(storage-c99  storage-c99.c)
 

@@ -26,8 +26,15 @@
 	   User can specify destination directory in the bili2mp4's command line.
  */
 
+/*	If you want to build this file in Visual Studio, download dirent.h for MSVC from internet.
+	https://github.com/tronkko/dirent
+ */
+
 // ----------------------------------------------------------------------------
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>      // MultiByteToWideChar(), WideCharToMultiByte()
 #include <fcntl.h>        // _O_U16TEXT
@@ -39,14 +46,14 @@
 wchar_t*
 fromUTF8(
     const char* src,
-    size_t src_length,  /* = 0 */
-    size_t* out_length  /* = NULL */
+    int src_length,  /* = 0 */
+    int* out_length  /* = NULL */
     )
 {
 	if(!src)
 		{ return NULL; }
 
-	if(src_length == 0) { src_length = strlen(src); }
+	if(src_length == 0) { src_length = (int)strlen(src); }
 	int length = MultiByteToWideChar(CP_UTF8, 0, src, src_length, 0, 0);
 	wchar_t *output_buffer = (wchar_t*)malloc((length+1) * sizeof(wchar_t));
 	if(output_buffer) {
@@ -60,14 +67,14 @@ fromUTF8(
 char*
 toUTF8(
     const wchar_t* src,
-    size_t src_length,  /* = 0 */
-    size_t* out_length  /* = NULL */
+    int src_length,  /* = 0 */
+    int* out_length  /* = NULL */
     )
 {
 	if(!src)
 		{ return NULL; }
 
-	if(src_length == 0) { src_length = wcslen(src); }
+	if(src_length == 0) { src_length = (int)wcslen(src); }
 	int length = WideCharToMultiByte(CP_UTF8, 0, src, src_length,
 			0, 0, NULL, NULL);
 	char *output_buffer = (char*)malloc((length+1) * sizeof(char));
@@ -83,9 +90,6 @@ toUTF8(
 #endif  // _WIN32 || _WIN64
 // ----------------------------------------------------------------------------
 
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
 #include <stdio.h>        // snprintf()
 
 #include <stdbool.h>
@@ -100,6 +104,7 @@ toUTF8(
 #include <sqxclib.h>
 
 #ifdef _MSC_VER
+#define strdup       _strdup
 #define snprintf     _snprintf
 #endif
 
@@ -357,7 +362,7 @@ int  bili2mp4_open_dir(Bili2Mp4 *b2m, const char *path, int path_depth)
 	BiliDir   *bili_dir;
 	BiliEntry *bili_entry;
 	SqBuffer   buf = {0};
-	int        buf_pathlen;
+	size_t     buf_pathlen;
 
 #if defined(_WIN32) || defined(_WIN64)
 	_WDIR *dir;
@@ -506,14 +511,14 @@ void bili2mp4_output(Bili2Mp4 *b2m, BiliDir *bili_dir, const char *dest_path)
 			sq_buffer_write_c(&buf, '/');
 
 			// title
-			len = buf.writed;
+			len = (int)buf.writed;
 			sq_buffer_write(&buf, bili_dir->title);
 			// replace invalid characters \/:*?"<>| by _ in title.
 			buf.mem[buf.writed] = 0;
 			str_replace_chars(buf.mem + len, "\\/:*?\"<>|", '_');
 
 #if defined(_WIN32) || defined(_WIN64)
-			wchar_t *wstr = fromUTF8(buf.mem, buf.writed, NULL);
+			wchar_t *wstr = fromUTF8(buf.mem, (int)buf.writed, NULL);
 			_wmkdir(wstr);
 			free(wstr);
 #else
@@ -550,7 +555,7 @@ void bili2mp4_output(Bili2Mp4 *b2m, BiliDir *bili_dir, const char *dest_path)
 		sq_buffer_write(&buf, dest_path);
 		sq_buffer_write_c(&buf, '/');
 		// begin of filename
-		len = buf.writed;
+		len = (int)buf.writed;
 		sq_buffer_write(&buf, bili_dir->entry->page_data.part);
 		sq_buffer_write(&buf, ".mp4");
 		// replace invalid characters \/:*?"<>| by _ in filename.
@@ -562,7 +567,7 @@ void bili2mp4_output(Bili2Mp4 *b2m, BiliDir *bili_dir, const char *dest_path)
 
 #if defined(_WIN32) || defined(_WIN64)
 		printf("%s\n", buf.mem);
-		wchar_t *wstr = fromUTF8(buf.mem, buf.writed, NULL);
+		wchar_t *wstr = fromUTF8(buf.mem, (int)buf.writed, NULL);
 //		wprintf(L"%S\n", wstr);
 		result = _wsystem(wstr);
 		free(wstr);
