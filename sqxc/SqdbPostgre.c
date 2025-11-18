@@ -733,7 +733,7 @@ static void sqdb_postgre_schema_set_version(SqdbPostgre *sqdb, int version)
 #if SQ_CONFIG_TABLE_COLUMN_COMMENTS
 static void sqdb_postgre_comment(SqdbPostgre *sqdb, SqBuffer *sql_buf, SqTable *table, SqColumn *column)
 {
-	int  dot_position;
+	size_t  dot_position;
 
 	sq_buffer_write(sql_buf, "COMMENT ON ");
 	if (column == NULL)
