@@ -12,6 +12,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <stdio.h>        // fprintf(), stderr
+
 #include <SqError.h>
 #include <SqEntry.h>
 #include <SqxcJsonc.h>
@@ -106,7 +108,7 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 
 static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 {
-	json_object *jobject;
+	json_object *jObject;
 	enum json_tokener_error  jerror;
 
 #if 0
@@ -119,20 +121,20 @@ static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 #endif
 
 	// jsonc parser: If the parsing is incomplete, json_tokener_parse_ex() return NULL.
-	jobject = json_tokener_parse_ex(xcjson->jtokener, src->value.str, -1);
-	if (jobject == NULL) {
-		jerror = json_tokener_get_error(xcjson->jtokener);
+	jObject = json_tokener_parse_ex(xcjson->jTokener, src->value.str, -1);
+	if (jObject == NULL) {
+		jerror = json_tokener_get_error(xcjson->jTokener);
 		// incomplete JSON string
 		if (jerror == json_tokener_continue)
 			return (src->code = SQCODE_JSON_CONTINUE);
 		// parse failed
 		return (src->code = SQCODE_JSON_ERROR);
 	}
-	xcjson->jroot = jobject;
+	xcjson->jRoot = jObject;
 
 	// send xc data from xcjson to dest
 	// result code to src
-	return (src->code = sqxc_jsonc_send_value_in(xcjson, src->name, jobject));
+	return (src->code = sqxc_jsonc_send_value_in(xcjson, src->name, jObject));
 }
 
 static int  sqxc_jsonc_ctrl_in(SqxcJsonc *xcjson, int id, void *data)
@@ -143,11 +145,11 @@ static int  sqxc_jsonc_ctrl_in(SqxcJsonc *xcjson, int id, void *data)
 
 	case SQXC_CTRL_FINISH:
 		// jsonc parser reset
-		json_tokener_reset(xcjson->jtokener);
+		json_tokener_reset(xcjson->jTokener);
 		// jsonc object decrease reference count
-		if (xcjson->jroot) {
-			json_object_put(xcjson->jroot);
-			xcjson->jroot = NULL;
+		if (xcjson->jRoot) {
+			json_object_put(xcjson->jRoot);
+			xcjson->jRoot = NULL;
 		}
 		// clear SqxcNested if problem occurred during processing
 		sqxc_clear_nested((Sqxc*)xcjson);
@@ -166,14 +168,17 @@ static void  sqxc_jsonc_init_in(SqxcJsonc *xcjson)
 	xcjson->supported_type = SQXC_TYPE_STR;
 
 	// jsonc parser
-	xcjson->jtokener = json_tokener_new();
-	xcjson->jroot = NULL;
+	xcjson->jTokener = json_tokener_new();
+	xcjson->jRoot = NULL;
 }
 
 static void  sqxc_jsonc_final_in(SqxcJsonc *xcjson)
 {
 	// jsonc parser
-	json_tokener_free(xcjson->jtokener);
+	json_tokener_free(xcjson->jTokener);
+	// jsonc object decrease reference count
+	if (xcjson->jRoot)
+		json_object_put(xcjson->jRoot);
 }
 
 /* ----------------------------------------------------------------------------
@@ -186,7 +191,7 @@ static void  sqxc_jsonc_final_in(SqxcJsonc *xcjson)
 static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 {
 	SqxcNested   *nested;
-	json_object  *jobject;
+	json_object  *jObject;
 	int  code;    // used by check_nested_0
 
 	if (src->entry && src->entry->bit_field & SQB_HIDDEN)
@@ -194,34 +199,34 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 
 	switch(src->type) {
 	case SQXC_TYPE_NULL:
-		jobject = json_object_new_null();
+		jObject = json_object_new_null();
 
 	case SQXC_TYPE_BOOL:
-		jobject = json_object_new_boolean(src->value.boolean);
+		jObject = json_object_new_boolean(src->value.boolean);
 		break;
 
 	case SQXC_TYPE_INT:
-		jobject = json_object_new_int(src->value.integer);
+		jObject = json_object_new_int(src->value.integer);
 		break;
 
 	case SQXC_TYPE_UINT:
-		jobject = json_object_new_uint64(src->value.uint);
+		jObject = json_object_new_uint64(src->value.uint);
 		break;
 
 	case SQXC_TYPE_INT64:
-		jobject = json_object_new_int64(src->value.int64);
+		jObject = json_object_new_int64(src->value.int64);
 		break;
 
 	case SQXC_TYPE_UINT64:
-		jobject = json_object_new_uint64(src->value.uint64);
+		jObject = json_object_new_uint64(src->value.uint64);
 		break;
 
 	case SQXC_TYPE_TIME:
-		jobject = json_object_new_int64(src->value.rawtime);
+		jObject = json_object_new_int64(src->value.rawtime);
 		break;
 
 	case SQXC_TYPE_DOUBLE:
-		jobject = json_object_new_double(src->value.double_);
+		jObject = json_object_new_double(src->value.double_);
 		break;
 
 	case SQXC_TYPE_STR:
@@ -229,48 +234,54 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 		if (src->value.str == NULL) {
 			if (src->entry && src->entry->bit_field & SQB_HIDDEN_NULL)
 				return (src->code = SQCODE_OK);
-			jobject = json_object_new_null();
+			jObject = json_object_new_null();
 		}
 		else
-			jobject = json_object_new_string(src->value.str);
+			jObject = json_object_new_string(src->value.str);
 		break;
 
 	case SQXC_TYPE_OBJECT:
-		jobject = json_object_new_object();
+		jObject = json_object_new_object();
 		break;
 
 	case SQXC_TYPE_ARRAY:
-		jobject = json_object_new_array();
+		jObject = json_object_new_array();
 		break;
 
 	case SQXC_TYPE_OBJECT_END:
 	case SQXC_TYPE_ARRAY_END:
 		sqxc_pop_nested((Sqxc*)xcjson);
-		xcjson->jcur = (json_object*)xcjson->nested->data;
-		xcjson->jcur_type = (SqxcType)(intptr_t)xcjson->nested->data2;
+		xcjson->jNested = (json_object*)xcjson->nested->data;
+		xcjson->jNestedXcType = (SqxcType)(uintptr_t)xcjson->nested->data2;
 		goto check_nested_0;
 //		break;
 
 	default:
-//		jobject = json_object_new_null();
+//		jObject = json_object_new_null();
 		return (src->code = SQCODE_TYPE_NOT_SUPPORTED);
 	}
 
-	if (xcjson->jroot == NULL) {
-		xcjson->jroot = jobject;
-		xcjson->jroot_name = src->name;
+	if (xcjson->jRoot == NULL) {
+		xcjson->jRoot = jObject;
+		xcjson->jRootName = src->name;
 	}
-	else if (xcjson->jcur_type == SQXC_TYPE_ARRAY)
-		json_object_array_add(xcjson->jcur, jobject);
-	else if (xcjson->jcur_type == SQXC_TYPE_OBJECT)
-		json_object_object_add(xcjson->jcur, src->name, jobject);
+	else if (xcjson->jNestedXcType == SQXC_TYPE_ARRAY)
+		json_object_array_add(xcjson->jNested, jObject);
+	else if (xcjson->jNestedXcType == SQXC_TYPE_OBJECT)
+		json_object_object_add(xcjson->jNested, src->name, jObject);
+	else {
+		json_object_put(jObject);
+#ifndef NDEBUG
+		fprintf(stderr, "%s: Error! Only JSON objects/arrays can add new items.", "SqxcJsonc");
+#endif
+	}
 
 	if (src->type & (SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY)) {
 		nested = sqxc_push_nested((Sqxc*)xcjson);
-		nested->data = jobject;
-		nested->data2 = (void*)(intptr_t) src->type;
-		xcjson->jcur = jobject;
-		xcjson->jcur_type = src->type;
+		nested->data = jObject;
+		nested->data2 = (void*)(uintptr_t) src->type;
+		xcjson->jNested = jObject;
+		xcjson->jNestedXcType = src->type;
 	}
 
 check_nested_0:
@@ -279,12 +290,12 @@ check_nested_0:
 	if (xcjson->nested_count == 0) {
 		Sqxc *xcdest = xcjson->dest;
 		xcjson->type = SQXC_TYPE_STR;
-		xcjson->name = xcjson->jroot_name;
-		xcjson->value.str = (char*)json_object_to_json_string(xcjson->jroot);
+		xcjson->name = xcjson->jRootName;
+		xcjson->value.str = (char*)json_object_to_json_string(xcjson->jRoot);
 		code = xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		// End of JSON string
-		json_object_put(xcjson->jroot);
-		xcjson->jroot = NULL;
+		json_object_put(xcjson->jRoot);
+		xcjson->jRoot = NULL;
 	}
 
 	return (src->code = code);
@@ -294,16 +305,16 @@ static int  sqxc_jsonc_ctrl_out(SqxcJsonc *xcjson, int id, void *data)
 {
 	switch(id) {
 	case SQXC_CTRL_READY:
-		xcjson->jroot = NULL;
-		xcjson->jcur = NULL;
-		xcjson->jcur_type = 0;
+		xcjson->jRoot = NULL;
+		xcjson->jNested = NULL;
+		xcjson->jNestedXcType = SQXC_TYPE_UNKNOWN;
 		break;
 
 	case SQXC_CTRL_FINISH:
 		// jsonc object decrease reference count
-		if (xcjson->jroot) {
-			json_object_put(xcjson->jroot);
-			xcjson->jroot = NULL;
+		if (xcjson->jRoot) {
+			json_object_put(xcjson->jRoot);
+			xcjson->jRoot = NULL;
 		}
 		// clear SqxcNested if problem occurred during processing
 		sqxc_clear_nested((Sqxc*)xcjson);

@@ -121,18 +121,19 @@ struct SqxcJsonc
 
 	// ------ SqxcJsonc members ------   // <-- 3. Add variable and non-virtual function in derived struct.
 
-	json_tokener *jtokener;     // input: JSON parser
+	json_tokener *jTokener;        // input: JSON parser
 
-	const char   *jroot_name;   // output: jroot field name
-	json_object  *jroot;        // input / output
-	json_object  *jcur;         // output
-	int16_t       jcur_type;    // output: jcur currently maps to the 
+	const char   *jRootName;       // output: jRoot object or array name (database column name)
+	json_object  *jRoot;           // input / output: json-c root object.
+	json_object  *jNested;         // output: The current JSON nested object or array.
+	uint16_t      jNestedXcType;   // output: jNested currently maps to the SqxcType type.
+
 	/*
 	// at json entry begin from SQL
-	xc->name = database column name
+	xc->name = databaseColumnName;
 
 	// at json begin from file
-	xc->name = NULL
+	xc->name = NULL;
 	 */
 };
 
