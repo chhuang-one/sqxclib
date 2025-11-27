@@ -48,9 +48,15 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 		break;
 
 	case json_type_int:
-		xcjson->type = SQXC_TYPE_INT;
 		xcjson->name = name;
-		xcjson->value.integer = json_object_get_int(value);
+		xcjson->value.int64 = json_object_get_int64(value);
+		if (xcjson->value.int64 > INT32_MAX || xcjson->value.int64 < INT32_MIN)
+			xcjson->type = SQXC_TYPE_INT64;
+		else {
+			xcjson->type = SQXC_TYPE_INT;
+			xcjson->value.integer = (int)xcjson->value.int64;
+//			xcjson->value.integer = json_object_get_int(value);
+		}
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		break;
 
