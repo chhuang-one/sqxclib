@@ -28,11 +28,6 @@
 #include <SqxcSql.h>
 
 #ifdef _MSC_VER
-#ifdef _WIN64
-#define __WORDSIZE 64
-#else
-#define __WORDSIZE 32
-#endif  // _WIN64
 #define strncasecmp  _strnicmp
 #define snprintf     _snprintf
 #define strdup       _strdup

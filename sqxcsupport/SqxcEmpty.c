@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -19,14 +19,6 @@
 
 #include <SqError.h>
 #include <SqxcEmpty.h>
-
-#ifdef _MSC_VER
-#ifdef _WIN64
-#define __WORDSIZE 64
-#else
-#define __WORDSIZE 32
-#endif  // _WIN64
-#endif  // _MSC_VER
 
 // ----------------------------------------------------------------------------
 // SqxcInfo functions

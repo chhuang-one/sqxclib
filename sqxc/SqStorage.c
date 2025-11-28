@@ -30,11 +30,6 @@
 #endif
 
 #ifdef _MSC_VER
-#ifdef _WIN64
-#define __WORDSIZE 64
-#else
-#define __WORDSIZE 32
-#endif  // _WIN64
 #define snprintf     _snprintf
 #endif  // _MSC_VER
 
