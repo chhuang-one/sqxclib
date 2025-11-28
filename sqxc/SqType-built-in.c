@@ -208,11 +208,11 @@ int  sq_type_uint64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	switch (src->type) {
 	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_UINT:
-		*(uint64_t*)instance = src->value.integer;
+		*(uint64_t*)instance = src->value.uinteger;
 		break;
 
 	case SQXC_TYPE_UINT64:
-		*(uint64_t*)instance = src->value.int64;
+		*(uint64_t*)instance = src->value.uint64;
 		break;
 
 	case SQXC_TYPE_STR:
