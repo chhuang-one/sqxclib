@@ -311,6 +311,11 @@ static int  sqxc_jsonc_ctrl_out(SqxcJsonc *xcjson, int id, void *data)
 {
 	switch(id) {
 	case SQXC_CTRL_READY:
+		// This avoid memory leaks if developers use SqxcJsonc incorrectly.
+		// jsonc object decrease reference count
+		if (xcjson->jRoot)
+			json_object_put(xcjson->jRoot);
+
 		xcjson->jRoot = NULL;
 		xcjson->jNested = NULL;
 		xcjson->jNestedXcType = SQXC_TYPE_UNKNOWN;
@@ -341,7 +346,9 @@ static void  sqxc_jsonc_init_out(SqxcJsonc *xcjson)
 
 static void  sqxc_jsonc_final_out(SqxcJsonc *xcjson)
 {
-
+	// jsonc object decrease reference count
+	if (xcjson->jRoot)
+		json_object_put(xcjson->jRoot);
 }
 
 // ----------------------------------------------------------------------------
