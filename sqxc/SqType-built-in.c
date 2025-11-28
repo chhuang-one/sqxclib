@@ -15,6 +15,8 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+#include <limits.h>       // __WORDSIZE
+#include <stdint.h>       // __WORDSIZE  for Apple Developer
 #include <time.h>         // time_t
 #include <stdio.h>        // sprintf(), fprintf(), stderr
 #include <stdlib.h>       // realloc(), strtol()
@@ -91,6 +93,13 @@ int  sq_type_int_parse(void *instance, const SqType *entrytype, Sqxc *src)
 		*(int*)instance = src->value.integer;
 		break;
 
+#if defined(__WORDSIZE) && (__WORDSIZE == 64)
+	// Allows assignment of int64_t to int value in a 64-bit system.
+	case SQXC_TYPE_INT64:
+		*(int*)instance = src->value.int64;
+		break;
+#endif
+
 	case SQXC_TYPE_BOOL:
 		*(int*)instance = src->value.boolean;
 		break;
@@ -130,6 +139,13 @@ int  sq_type_uint_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	case SQXC_TYPE_UINT:
 		*(unsigned int*)instance = src->value.uinteger;
 		break;
+
+#if defined(__WORDSIZE) && (__WORDSIZE == 64)
+	// Allows assignment of uint64_t to unsigned int value in a 64-bit system.
+	case SQXC_TYPE_UINT64:
+		*(unsigned int*)instance = src->value.uint64;
+		break;
+#endif
 
 	case SQXC_TYPE_BOOL:
 		*(unsigned int*)instance = src->value.boolean;
