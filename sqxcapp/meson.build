@@ -13,7 +13,7 @@ sources_app_user = [
     'SqApp-config.c',
     'migrations.c',
     'migrations-files.c',
-    'migrations-files.cpp',
+    'migrations-files-cpp.cpp',
 ]
 
 headers_app_user = [
@@ -39,7 +39,7 @@ sources_apptool_user = [
     'SqApp-config.c',
     'migrations.c',
     'SqAppTool-migrations-files.c',
-    'SqAppTool-migrations-files.cpp'
+    'SqAppTool-migrations-files-cpp.cpp'
 ]
 
 headers_apptool_user = [
