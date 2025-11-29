@@ -58,6 +58,7 @@
 #endif
 #undef HAVE_POSTGRESQL
 
+
 /* Enable SqxcNested::data3 to do fast type match.
    Sqxc can run a bit faster when doing object and array type match.
    Disable it to reduce code size.
@@ -77,8 +78,15 @@
  */
 #define SQ_CONFIG_HAS_STORAGE_UPDATE_FIELD         1
 
-/* If you enable this, sq_time_to_string() will use gmtime() to convert calendar time */
+/* If you enable this, sq_time_to_string() will use gmtime() to convert calendar time.
+   Affected source : SqConvert
+ */
 #define SQ_CONFIG_CONVERT_TIME_TO_GMT              0
+
+/* Enable it to allow SQ_TYPE_INT and SQ_TYPE_UINT series convert signed and unsigned integer each other.
+   Affected source : SqType-built-in
+ */
+#define SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT      1
 
 /* sqxclib is case-insensitive by default when parsing command from console.
    User can enable SQ_CONFIG_COMMAND_CASE_SENSITIVE to change it.

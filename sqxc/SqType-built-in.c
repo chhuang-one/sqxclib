@@ -92,13 +92,23 @@ int  sq_type_int_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	case SQXC_TYPE_INT:
 		*(int*)instance = src->value.integer;
 		break;
+#if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+	case SQXC_TYPE_UINT:
+		*(int*)instance = src->value.uint;
+		break;
+#endif
 
 #if defined(__WORDSIZE) && (__WORDSIZE == 64)
 	// Allows assignment of int64_t to int value in a 64-bit system.
 	case SQXC_TYPE_INT64:
 		*(int*)instance = src->value.int64;
 		break;
-#endif
+#if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+	case SQXC_TYPE_UINT64:
+		*(int*)instance = src->value.uint64;
+		break;
+#endif  // SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+#endif  // defined(__WORDSIZE) && (__WORDSIZE == 64)
 
 	case SQXC_TYPE_BOOL:
 		*(int*)instance = src->value.boolean;
@@ -139,13 +149,23 @@ int  sq_type_uint_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	case SQXC_TYPE_UINT:
 		*(unsigned int*)instance = src->value.uinteger;
 		break;
+#if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+	case SQXC_TYPE_INT:
+		*(unsigned int*)instance = src->value.integer;
+		break;
+#endif
 
 #if defined(__WORDSIZE) && (__WORDSIZE == 64)
 	// Allows assignment of uint64_t to unsigned int value in a 64-bit system.
 	case SQXC_TYPE_UINT64:
 		*(unsigned int*)instance = src->value.uint64;
 		break;
-#endif
+#if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+	case SQXC_TYPE_INT64:
+		*(unsigned int*)instance = src->value.int64;
+		break;
+#endif  // SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+#endif  // defined(__WORDSIZE) && (__WORDSIZE == 64)
 
 	case SQXC_TYPE_BOOL:
 		*(unsigned int*)instance = src->value.boolean;
@@ -186,10 +206,20 @@ int  sq_type_int64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	case SQXC_TYPE_INT:
 		*(int64_t*)instance = src->value.integer;
 		break;
+#if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+	case SQXC_TYPE_UINT:
+		*(int64_t*)instance = src->value.uinteger;
+		break;
+#endif
 
 	case SQXC_TYPE_INT64:
 		*(int64_t*)instance = src->value.int64;
 		break;
+#if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+	case SQXC_TYPE_UINT64:
+		*(int64_t*)instance = src->value.uint64;
+		break;
+#endif
 
 	case SQXC_TYPE_STR:
 		if (src->value.str)
@@ -226,10 +256,20 @@ int  sq_type_uint64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 	case SQXC_TYPE_UINT:
 		*(uint64_t*)instance = src->value.uinteger;
 		break;
+#if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+	case SQXC_TYPE_INT:
+		*(uint64_t*)instance = src->value.integer;
+		break;
+#endif
 
 	case SQXC_TYPE_UINT64:
 		*(uint64_t*)instance = src->value.uint64;
 		break;
+#if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
+	case SQXC_TYPE_INT64:
+		*(uint64_t*)instance = src->value.int64;
+		break;
+#endif
 
 	case SQXC_TYPE_STR:
 		if (src->value.str)
