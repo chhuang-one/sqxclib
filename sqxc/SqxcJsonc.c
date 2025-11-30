@@ -12,6 +12,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
+#include <limits.h>       // __WORDSIZE
+#include <stdint.h>       // __WORDSIZE  for Apple Developer
 #include <stdio.h>        // fprintf(), stderr
 
 #include <SqError.h>
@@ -50,6 +52,9 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 	case json_type_int:
 		xcjson->name = name;
 		xcjson->value.int64 = json_object_get_int64(value);
+#if defined(__WORDSIZE) && (__WORDSIZE == 64)    // integer is 64-bit
+		xcjson->type = SQXC_TYPE_INT;
+#else
 		if (xcjson->value.int64 > INT32_MAX || xcjson->value.int64 < INT32_MIN)
 			xcjson->type = SQXC_TYPE_INT64;
 		else {
@@ -57,6 +62,7 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 			xcjson->value.integer = (int)xcjson->value.int64;
 //			xcjson->value.integer = json_object_get_int(value);
 		}
+#endif
 		xcdest->info->send(xcdest, (Sqxc*)xcjson);
 		break;
 
@@ -126,7 +132,7 @@ static int  sqxc_jsonc_send_in(SqxcJsonc *xcjson, Sqxc *src)
 	}
 #endif
 
-	// jsonc parser: If the parsing is incomplete, json_tokener_parse_ex() return NULL.
+	// json-c: If the parsing is incomplete, json_tokener_parse_ex() return NULL.
 	jObject = json_tokener_parse_ex(xcjson->jTokener, src->value.str, -1);
 	if (jObject == NULL) {
 		jerror = json_tokener_get_error(xcjson->jTokener);
@@ -150,9 +156,9 @@ static int  sqxc_jsonc_ctrl_in(SqxcJsonc *xcjson, int id, void *data)
 		break;
 
 	case SQXC_CTRL_FINISH:
-		// jsonc parser reset
+		// json-c: reset parser.
 		json_tokener_reset(xcjson->jTokener);
-		// jsonc object decrease reference count
+		// json-c: decrease root object reference count.
 		if (xcjson->jRoot) {
 			json_object_put(xcjson->jRoot);
 			xcjson->jRoot = NULL;
@@ -173,16 +179,16 @@ static void  sqxc_jsonc_init_in(SqxcJsonc *xcjson)
 //	memset(xcjson, 0, sizeof(SqxcJsonc));
 	xcjson->supported_type = SQXC_TYPE_STR;
 
-	// jsonc parser
+	// json-c: create parser.
 	xcjson->jTokener = json_tokener_new();
 	xcjson->jRoot = NULL;
 }
 
 static void  sqxc_jsonc_final_in(SqxcJsonc *xcjson)
 {
-	// jsonc parser
+	// json-c: free parser.
 	json_tokener_free(xcjson->jTokener);
-	// jsonc object decrease reference count
+	// json-c: decrease root object reference count.
 	if (xcjson->jRoot)
 		json_object_put(xcjson->jRoot);
 }
@@ -276,10 +282,11 @@ static int  sqxc_jsonc_send_out(SqxcJsonc *xcjson, Sqxc *src)
 	else if (xcjson->jNestedXcType == SQXC_TYPE_OBJECT)
 		json_object_object_add(xcjson->jNested, src->name, jObject);
 	else {
-		json_object_put(jObject);
 #ifndef NDEBUG
 		fprintf(stderr, "%s: Error! Only JSON objects/arrays can add new items.", "SqxcJsonc");
 #endif
+		// json-c: decrease 'jObject' reference count.
+		json_object_put(jObject);
 	}
 
 	if (src->type & (SQXC_TYPE_OBJECT | SQXC_TYPE_ARRAY)) {
@@ -312,7 +319,7 @@ static int  sqxc_jsonc_ctrl_out(SqxcJsonc *xcjson, int id, void *data)
 	switch(id) {
 	case SQXC_CTRL_READY:
 		// This avoid memory leaks if developers use SqxcJsonc incorrectly.
-		// jsonc object decrease reference count
+		// json-c: decrease root object reference count.
 		if (xcjson->jRoot)
 			json_object_put(xcjson->jRoot);
 
@@ -322,7 +329,7 @@ static int  sqxc_jsonc_ctrl_out(SqxcJsonc *xcjson, int id, void *data)
 		break;
 
 	case SQXC_CTRL_FINISH:
-		// jsonc object decrease reference count
+		// json-c: decrease root object reference count.
 		if (xcjson->jRoot) {
 			json_object_put(xcjson->jRoot);
 			xcjson->jRoot = NULL;
@@ -346,7 +353,7 @@ static void  sqxc_jsonc_init_out(SqxcJsonc *xcjson)
 
 static void  sqxc_jsonc_final_out(SqxcJsonc *xcjson)
 {
-	// jsonc object decrease reference count
+	// json-c: decrease root object reference count.
 	if (xcjson->jRoot)
 		json_object_put(xcjson->jRoot);
 }
