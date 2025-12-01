@@ -53,10 +53,15 @@ find_package(PkgConfig)
 
 # pkg-config module
 if (PKG_CONFIG_FOUND)
-	pkg_check_modules(JSONC json-c)
-	if (JSONC_FOUND)
-		set(JSONC_PC_FOUND true)
-	endif (JSONC_FOUND)
+	pkg_check_modules(cjson libcjson)
+	if (cjson_FOUND)
+		set(cjson_PC_FOUND true)
+	endif (cjson_FOUND)
+
+	pkg_check_modules(json-c json-c)
+	if (json-c_FOUND)
+		set(json-c_PC_FOUND true)
+	endif (json-c_FOUND)
 
 	pkg_check_modules(SQLite3 sqlite3)
 	if (SQLite3_FOUND)
@@ -84,14 +89,14 @@ if (PKG_CONFIG_FOUND)
 	endif (PostgreSQL_FOUND)
 endif (PKG_CONFIG_FOUND)
 
+# find cJSON if libcjson.pc not found
+if (NOT DEFINED cjson_FOUND OR NOT cjson_FOUND)
+	find_package(cjson)
+endif ()
+
 # find json-c if json-c.pc not found
-if (NOT DEFINED JSONC_FOUND OR NOT JSONC_FOUND)
+if (NOT DEFINED json-c_FOUND OR NOT json-c_FOUND)
 	find_package(json-c)
-	if (json-c_FOUND)
-		set (JSONC_FOUND         json-c_FOUND)
-		set (JSONC_INCLUDE_DIRS  json-c_INCLUDE_DIRS)
-		set (JSONC_LIBRARIES     json-c_LIBRARIES)
-	endif (json-c_FOUND)
 endif ()
 
 # find SQLite3 if sqlite3.pc not found
@@ -109,24 +114,43 @@ if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
 endif ()
 
-# --- json-c ---
-if (JSONC_FOUND)
+# --- cJSON ---
+if (cjson_FOUND)
 	set(SQXC_INCLUDE_DIRS
 	    ${SQXC_INCLUDE_DIRS}
-	    ${JSONC_INCLUDE_DIRS}
+	    ${cjson_INCLUDE_DIRS}
 	)
 	set(SQXC_LIBRARIES
 	    ${SQXC_LIBRARIES}
-	    ${JSONC_LIBRARIES}
+	    ${cjson_LIBRARIES}
 	)
 	# --- debug message ---
-	message(STATUS "json-c include dirs: ${JSONC_INCLUDE_DIRS}")
-	message(STATUS "json-c libraries: ${JSONC_LIBRARIES}")
+	message(STATUS "cJSON include dirs: ${cjson_INCLUDE_DIRS}")
+	message(STATUS "cJSON libraries: ${cjson_LIBRARIES}")
+	# --- config.h ---
+	set(SQXCLIB_HAVE_CJSON     1)
+else ()
+	set(SQXCLIB_HAVE_CJSON     0)
+endif (cjson_FOUND)
+
+# --- json-c ---
+if (json-c_FOUND)
+	set(SQXC_INCLUDE_DIRS
+	    ${SQXC_INCLUDE_DIRS}
+	    ${json-c_INCLUDE_DIRS}
+	)
+	set(SQXC_LIBRARIES
+	    ${SQXC_LIBRARIES}
+	    ${json-c_LIBRARIES}
+	)
+	# --- debug message ---
+	message(STATUS "json-c include dirs: ${json-c_INCLUDE_DIRS}")
+	message(STATUS "json-c libraries: ${json-c_LIBRARIES}")
 	# --- config.h ---
 	set(SQXCLIB_HAVE_JSONC     1)
 else ()
 	set(SQXCLIB_HAVE_JSONC     0)
-endif (JSONC_FOUND)
+endif (json-c_FOUND)
 
 # --- SQLite ---
 if (SQLite3_FOUND)
@@ -168,8 +192,14 @@ endif (PostgreSQL_FOUND)
 set(SQXCLIB_PC_PREFIX  ${CMAKE_INSTALL_PREFIX})
 set(SQXCLIB_PC_VERSION ${PROJECT_VERSION})
 
+if (DEFINED SQXCLIB_HAVE_CJSON)
+	if (DEFINED cjson_PC_FOUND)
+		set(SQXCLIB_PC_REQUIRE_CJSON    "cjson")
+	endif ()
+endif ()
+
 if (DEFINED SQXCLIB_HAVE_JSONC)
-	if (DEFINED JSONC_PC_FOUND)
+	if (DEFINED json-c_PC_FOUND)
 		set(SQXCLIB_PC_REQUIRE_JSONC    "json-c")
 	endif ()
 endif ()

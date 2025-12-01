@@ -78,12 +78,12 @@ headers_cpp = [
 ]
 install_headers(headers_cpp, subdir: 'sqxc')
 
-# --- thread ---
-#if host_machine.system() != 'windows'
-#	if thread.found() == true
-#		sqxc_dependencies += thread
-#	endif
-#endif
+# --- cJSON ---
+if cjson.found() == true
+	sources += ['SqxcCjson.c']
+	headers += ['SqxcCjson.h']
+	sqxc_dependencies += cjson
+endif
 
 # --- json-c ---
 if jsonc.found() == true

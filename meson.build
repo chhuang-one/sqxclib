@@ -17,6 +17,14 @@ sqxclib_soversion = 0
 
 config_data = configuration_data()
 
+# --- cJSON ---
+cjson = dependency('libcjson', required: false)
+if cjson.found() == true
+	config_data.set('SQXCLIB_HAVE_CJSON',  '1')
+else
+	config_data.set('SQXCLIB_HAVE_CJSON',  '0')
+endif
+
 # --- json-c ---
 jsonc = dependency('json-c', required: false)
 if jsonc.found() == true
@@ -74,10 +82,14 @@ endif
 config_data.set('SQXCLIB_PC_PREFIX', get_option('prefix'))
 config_data.set('SQXCLIB_PC_VERSION', sqxclib_version)
 
+config_data.set('SQXCLIB_PC_REQUIRE_CJSON', '')
 config_data.set('SQXCLIB_PC_REQUIRE_JSONC', '')
 config_data.set('SQXCLIB_PC_REQUIRE_SQLITE', '')
 config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', '')
 config_data.set('SQXCLIB_PC_REQUIRE_POSTGRESQL', '')
+if cjson.found() == true
+	config_data.set('SQXCLIB_PC_REQUIRE_CJSON', 'libcjson')
+endif
 if jsonc.found() == true
 	config_data.set('SQXCLIB_PC_REQUIRE_JSONC', 'json-c')
 endif

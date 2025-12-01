@@ -2,7 +2,7 @@ include_directories(${SQXC_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 
 # bili2mp4
-if (JSONC_FOUND)
+if (json-c_FOUND)
 	# If you want to build bili2mp4 in Visual Studio, download direct.h for MSVC form internet.
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 		# find direct.h in current directory.
@@ -19,7 +19,7 @@ if (JSONC_FOUND)
 	else ()
 		add_executable(bili2mp4  bili2mp4.c)
 	endif ()
-endif (JSONC_FOUND)
+endif (json-c_FOUND)
 
 add_executable(storage-c99  storage-c99.c)
 
@@ -41,9 +41,9 @@ if (DEFINED CMAKE_CXX_COMPILER)
 	target_link_libraries(myapp-cxx  ${SQXCAPP_LIBRARIES})
 
 	# --- json-c is required
-	if (JSONC_FOUND)
+	if (json-c_FOUND)
 		add_executable(xc_json_file  xc_json_file.cpp)
 		target_include_directories(xc_json_file  PUBLIC  ${SQXCSUPPORT_INCLUDE_DIRS})
 		target_link_libraries(xc_json_file  ${SQXCSUPPORT_LIBRARIES})
-	endif (JSONC_FOUND)
+	endif (json-c_FOUND)
 endif (DEFINED CMAKE_CXX_COMPILER)

@@ -19,6 +19,7 @@
 #if 1    // defined(HAVE_CONFIG_H)
 #include "config.h"
 #else
+#define HAVE_CJSON         1
 #define HAVE_JSONC         1
 #define HAVE_SQLITE        1
 #define HAVE_MYSQL         1
@@ -26,7 +27,15 @@
 #endif
 
 
-/* SqxcJsonc.c, SqxcJsonc.h, SqStorage.c */
+/* SqxcCjson.c, SqxcCjson.h */
+#if HAVE_CJSON == 1
+#define SQ_CONFIG_HAVE_CJSON         1
+#else
+#define SQ_CONFIG_HAVE_CJSON         0
+#endif
+#undef HAVE_CJSON
+
+/* SqxcJsonc.c, SqxcJsonc.h */
 #if HAVE_JSONC == 1
 #define SQ_CONFIG_HAVE_JSONC         1
 #else

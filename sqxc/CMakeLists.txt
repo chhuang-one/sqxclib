@@ -64,8 +64,20 @@ set(HEADERS_CPP
     SqType-stl-cpp.h
 )
 
+# --- cJSON ---
+if (cjson_FOUND)      # if (cjson_INCLUDE_DIRS)
+	set(SOURCES
+	    ${SOURCES}
+	    SqxcCjson.c
+	)
+	set(HEADERS
+	    ${HEADERS}
+	    SqxcCjson.h
+	)
+endif()
+
 # --- json-c ---
-if (JSONC_FOUND)    # if (JSONC_INCLUDE_DIRS)
+if (json-c_FOUND)     # if (json-c_INCLUDE_DIRS)
 	set(SOURCES
 	    ${SOURCES}
 	    SqxcJsonc.c
@@ -77,7 +89,7 @@ if (JSONC_FOUND)    # if (JSONC_INCLUDE_DIRS)
 endif()
 
 # --- SQLite ---
-if (SQLite3_FOUND)    #if (SQLite3_INCLUDE_DIRS)
+if (SQLite3_FOUND)    # if (SQLite3_INCLUDE_DIRS)
 	set(SOURCES_SQLITE
 	    SqdbSqlite.c
 	    SqRelation.c

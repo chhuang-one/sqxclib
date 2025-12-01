@@ -54,6 +54,10 @@
 #include <SqxcSql.h>
 #include <SqxcValue.h>
 
+#if SQ_CONFIG_HAVE_CJSON
+#include <SqxcCjson.h>
+#endif
+
 #if SQ_CONFIG_HAVE_JSONC
 #include <SqxcJsonc.h>
 #endif
