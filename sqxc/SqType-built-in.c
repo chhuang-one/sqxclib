@@ -88,19 +88,41 @@ Sqxc *sq_type_bool_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_int_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_INT64:
+#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) )
+		// integer is 32-bit
+		if (src->value.int64 > INT32_MAX)
+			*(int*)instance = INT32_MAX;
+		else if (src->value.int64 < INT32_MIN)
+			*(int*)instance = INT32_MIN;
+		else
+			*(int*)instance = (int)src->value.int64;
+		break;
+#elif !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
+		*(int*)instance = (int)src->value.int64;
+		break;
+#endif
 	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_INT:
-#if defined(__WORDSIZE) && (__WORDSIZE == 64)    // integer is 64-bit
-	case SQXC_TYPE_INT64:
-#endif
 		*(int*)instance = src->value.integer;
 		break;
 
 #if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
-	case SQXC_TYPE_UINT:
-#if defined(__WORDSIZE) && (__WORDSIZE == 64)    // integer is 64-bit
 	case SQXC_TYPE_UINT64:
+#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) )
+		// integer is 32-bit
+		if (src->value.uint64 > UINT32_MAX)
+			*(int*)instance = UINT32_MAX;
+		else
+			*(int*)instance = (int)src->value.uint64;
+		break;
+#elif !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
+		*(int*)instance = (int)src->value.uint64;
+		break;
 #endif
+	case SQXC_TYPE_UINT:
 		*(int*)instance = src->value.uint;
 		break;
 #endif  // SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
@@ -140,19 +162,41 @@ Sqxc *sq_type_int_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_uint_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_UINT64:
+#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) )
+		// integer is 32-bit
+		if (src->value.uint64 > UINT32_MAX)
+			*(unsigned int*)instance = UINT32_MAX;
+		else
+			*(unsigned int*)instance = (unsigned int)src->value.uint64;
+		break;
+#elif !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
+		*(unsigned int*)instance = (unsigned int)src->value.uint64;
+		break;
+#endif
 	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_UINT:
-#if defined(__WORDSIZE) && (__WORDSIZE == 64)    // integer is 64-bit
-	case SQXC_TYPE_UINT64:
-#endif
 		*(unsigned int*)instance = src->value.uinteger;
 		break;
 
 #if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
-	case SQXC_TYPE_INT:
-#if defined(__WORDSIZE) && (__WORDSIZE == 64)    // integer is 64-bit
 	case SQXC_TYPE_INT64:
+#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) )
+		// integer is 32-bit
+		if (src->value.int64 > INT32_MAX)
+			*(unsigned int*)instance = INT32_MAX;
+		else if (src->value.int64 < INT32_MIN)
+			*(unsigned int*)instance = INT32_MIN;
+		else
+			*(unsigned int*)instance = (unsigned int)src->value.int64;
+		break;
+#elif !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
+		*(unsigned int*)instance = (unsigned int)src->value.int64;
+		break;
 #endif
+	case SQXC_TYPE_INT:
 		*(unsigned int*)instance = src->value.integer;
 		break;
 #endif  // SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
@@ -192,22 +236,28 @@ Sqxc *sq_type_uint_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_int64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_INT64:
+#if !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
+		*(int64_t*)instance = src->value.int64;
+		break;
+#endif
 	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_INT:
 		*(int64_t*)instance = src->value.integer;
 		break;
-	case SQXC_TYPE_INT64:
-		*(int64_t*)instance = src->value.int64;
-		break;
 
 #if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
-	case SQXC_TYPE_UINT:
-		*(int64_t*)instance = src->value.uinteger;
-		break;
 	case SQXC_TYPE_UINT64:
+#if !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
 		*(int64_t*)instance = src->value.uint64;
 		break;
 #endif
+	case SQXC_TYPE_UINT:
+		*(int64_t*)instance = src->value.uinteger;
+		break;
+#endif  // SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
 
 	case SQXC_TYPE_STR:
 		if (src->value.str)
@@ -240,22 +290,28 @@ Sqxc *sq_type_int64_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_uint64_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_UINT64:
+#if !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
+		*(uint64_t*)instance = src->value.uint64;
+		break;
+#endif
 	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_UINT:
 		*(uint64_t*)instance = src->value.uinteger;
 		break;
-	case SQXC_TYPE_UINT64:
-		*(uint64_t*)instance = src->value.uint64;
-		break;
 
 #if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
-	case SQXC_TYPE_INT:
-		*(uint64_t*)instance = src->value.integer;
-		break;
 	case SQXC_TYPE_INT64:
+#if !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
 		*(uint64_t*)instance = src->value.int64;
 		break;
 #endif
+	case SQXC_TYPE_INT:
+		*(uint64_t*)instance = src->value.integer;
+		break;
+#endif  // SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
 
 	case SQXC_TYPE_STR:
 		if (src->value.str)
@@ -288,22 +344,28 @@ Sqxc *sq_type_uint64_write(void *instance, const SqType *entrytype, Sqxc *dest)
 int  sq_type_double_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
+	case SQXC_TYPE_INT64:
+#if !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
+		*(double*)instance = (double)src->value.int64;
+		break;
+#endif
 	case SQXC_TYPE_NULL:
 	case SQXC_TYPE_INT:
-		*(double*)instance = src->value.integer;
-		break;
-	case SQXC_TYPE_INT64:
-		*(double*)instance = src->value.int64;
+		*(double*)instance = (double)src->value.integer;
 		break;
 
 #if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
-	case SQXC_TYPE_UINT:
-		*(double*)instance = src->value.uinteger;
-		break;
 	case SQXC_TYPE_UINT64:
-		*(double*)instance = src->value.uint64;
+#if !defined(__WORDSIZE) || (__WORDSIZE != 64)
+		// integer is NOT 64-bit
+		*(double*)instance = (double)src->value.uint64;
 		break;
 #endif
+	case SQXC_TYPE_UINT:
+		*(double*)instance = (double)src->value.uinteger;
+		break;
+#endif  // SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
 
 	case SQXC_TYPE_DOUBLE:
 		*(double*)instance = src->value.double_;
@@ -542,7 +604,7 @@ Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *dest)
 	dest->type = SQXC_TYPE_OBJECT;
 //	dest->name = object_name;     // "name" was set by caller of this function
 //	dest->value.pointer = NULL;
-	dest->entry = NULL;           // SqxcSql and SqxcJsonc will use this
+	dest->entry = NULL;           // SqxcSql and SqxcJson will use this
 	dest = sqxc_send(dest);
 	if (dest->code != SQCODE_OK)
 		return dest;
@@ -556,7 +618,7 @@ Sqxc *sq_type_object_write(void *instance, const SqType *type, Sqxc *dest)
 			continue;
 		member = (char*)instance + entry->offset;
 		dest->name = entry->name;    // set "name" before calling write()
-		dest->entry = entry;         // SqxcSql and SqxcJsonc will use this
+		dest->entry = entry;         // SqxcSql and SqxcJson will use this
 		if (entry->bit_field & SQB_POINTER) {
 			member = *(void**)member;
 			if (member == NULL) {
