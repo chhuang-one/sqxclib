@@ -16,6 +16,10 @@
 #define SQXC_JSONC_H
 
 #include <SqConfig.h>
+#if SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE && SQ_CONFIG_HAVE_CJSON
+#undef  SQ_CONFIG_HAVE_JSONC
+#define SQ_CONFIG_HAVE_JSONC    0
+#endif
 #if SQ_CONFIG_HAVE_JSONC  // defined in SqConfig.h
 
 #include <json-c/json.h>

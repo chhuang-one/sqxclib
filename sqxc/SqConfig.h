@@ -73,6 +73,14 @@
 #undef HAVE_POSTGRESQL
 
 
+/* Sqxc JSON parser/writer has 2 backends - cJSON and json-c library.
+   cJSON is ultralightweight JSON parser, json-c can accept streaming JSON input.
+   When you enable it and cJSON is available,
+   SqxcCjson will be used as the default JSON converter and SqxcJsonc will not be compiled.
+   Affected source : SqStorage, SqConsole
+ */
+#define SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE      0
+
 /* Enable SqxcNested::data3 to do fast type match.
    Sqxc can run a bit faster when doing object and array type match.
    Disable it to reduce code size.
