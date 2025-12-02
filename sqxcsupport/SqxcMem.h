@@ -103,7 +103,7 @@ struct SqxcMem
 	SqValue      value;           // union SqValue defined in SqDefine.h
 
 	// special input arguments
-	SqEntry     *entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	SqEntry     *entry;           // SqxcJson and SqxcSql use it to decide output. this can be NULL (optional).
 
 	// input / output arguments
 	void       **error;

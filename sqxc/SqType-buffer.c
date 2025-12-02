@@ -22,8 +22,8 @@
 #include <SqConvert.h>
 #include <SqxcSql.h>
 
-#if SQ_CONFIG_HAVE_JSONC
-#include <SqxcJsonc.h>
+#if SQ_CONFIG_HAVE_JSON
+#include <SqxcJson.h>
 #endif
 
 static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
@@ -39,8 +39,8 @@ static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)
 		if (src->value.str == NULL)
 			break;
 
-#if SQ_CONFIG_HAVE_JSONC
-		if (src->info == SQXC_INFO_JSONC_PARSER) {
+#if SQ_CONFIG_HAVE_JSON
+		if (src->info == SQXC_INFO_JSON_PARSER) {
 			// TODO:
 			// convert BASE64 to binary
 			len = strlen(src->value.str);
@@ -119,8 +119,8 @@ static Sqxc *sq_type_buffer_write(void *instance, const SqType *type, Sqxc *dest
 	dest->type = SQXC_TYPE_RAW;
 //	dest->name = dest->name;    // "name" was set by caller of this function
 
-#if SQ_CONFIG_HAVE_JSONC
-	if (dest->info == SQXC_INFO_JSONC_WRITER) {
+#if SQ_CONFIG_HAVE_JSON
+	if (dest->info == SQXC_INFO_JSON_WRITER) {
 		// TODO:
 		// convert binary to BASE64
 		len = buf->writed;

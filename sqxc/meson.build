@@ -63,6 +63,7 @@ headers = [
     # Sqxc - Converter base structure
     'Sqxc.h',
     'SqxcValue.h',
+    'SqxcJson.h',
     'SqxcSql.h',
 ]
 install_headers(headers, subdir: 'sqxc')

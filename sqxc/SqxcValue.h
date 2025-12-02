@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -57,7 +57,7 @@ extern const SqxcInfo        sqxcInfo_Value;
 	|
 	`--- SqxcValue
 
-	                 +-> SqxcJsoncParser -+
+	                 +-> SqxcJsonParser --+
 	( input )        |                    |
 	sqdb_exec()    --+--------------------+-> SqxcValue ---> SqType::parse()
 
@@ -115,7 +115,7 @@ struct SqxcValue
 	SqValue      value;           // union SqValue defined in SqDefine.h
 
 	// special input arguments
-	SqEntry     *entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	SqEntry     *entry;           // SqxcJson and SqxcSql use it to decide output. this can be NULL (optional).
 
 	// input / output arguments
 	void       **error;

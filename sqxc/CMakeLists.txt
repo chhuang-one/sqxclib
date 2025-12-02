@@ -53,6 +53,7 @@ set(HEADERS
     Sqdb-migration.h    # Most of the Database products may use this (exclude SQLite)
     Sqxc.h
     SqxcValue.h
+    SqxcJson.h
     SqxcSql.h
 )
 

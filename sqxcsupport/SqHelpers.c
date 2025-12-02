@@ -22,8 +22,8 @@
 #include <string.h>
 
 #include <SqHelpers.h>
-#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
-#include <SqxcJsonc.h>
+#if SQ_CONFIG_HAVE_JSON
+#include <SqxcJson.h>
 #include <SqxcFile.h>
 #include <SqxcMem.h>
 #endif
@@ -244,7 +244,7 @@ char *sq_str_type_name(const char *src_table_name)
 // ----------------------------------------------------------------------------
 // use Sqxc elements to output JSON data to memory or file.
 
-#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
+#if SQ_CONFIG_HAVE_JSON
 
 int  sq_write_json_mem(void *instance, const SqType *type, char **buf, size_t *len)
 {
@@ -253,7 +253,7 @@ int  sq_write_json_mem(void *instance, const SqType *type, char **buf, size_t *l
 	int   code;
 
 	xcmem  = sqxc_mem_writer_new();
-	xcjson = sqxc_jsonc_writer_new();
+	xcjson = sqxc_json_writer_new();
 
 	sqxc_insert(xcmem, xcjson, -1);
 
@@ -280,7 +280,7 @@ int  sq_write_json_file(void *instance, const SqType *type, const char *filename
 	int   code;
 
 	xcfile = sqxc_file_writer_new();
-	xcjson = sqxc_jsonc_writer_new();
+	xcjson = sqxc_json_writer_new();
 
 	sqxc_insert(xcfile, xcjson, -1);
 	sqxc_file_name(xcfile) = filename;
@@ -294,4 +294,4 @@ int  sq_write_json_file(void *instance, const SqType *type, const char *filename
 	return code;
 }
 
-#endif  // SQ_CONFIG_HAVE_JSONC
+#endif  // SQ_CONFIG_HAVE_JSON

@@ -65,7 +65,7 @@ struct User
 	// If you use PostgreSQL to do this, you don't need to care about SQ_CONFIG_QUERY_ONLY_COLUMN.
 	SqBuffer       picture;  // SQL Type: BLOB, BINARY, etc.
 
-	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array/object in database column
+	// make sure that SQ_CONFIG_HAVE_JSON is enabled if you want to store array/object in database column
 	SqIntArray     ints;     // integer array  (JSON array  in database column)
 	Post          *post;     // object pointer (JSON object in database column)
 
@@ -134,7 +134,7 @@ static const SqColumn userColumnsVer1[] = {
 	{SQ_TYPE_BUFFER, "picture",               offsetof(User, picture),                            0,
 		.sql_type = SQ_SQL_TYPE_BLOB},
 
-#if SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSON
 	{SQ_TYPE_INT_ARRAY,    "ints",  offsetof(User, ints),    0},
 	{SQ_TYPE_POST,         "post",  offsetof(User, post),    SQB_POINTER | SQB_NULLABLE},    // User.post is pointer
 #endif

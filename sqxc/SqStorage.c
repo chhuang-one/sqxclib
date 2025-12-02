@@ -25,8 +25,8 @@
 #include <SqStorage.h>
 #include <SqxcSql.h>
 #include <SqxcValue.h>
-#if SQ_CONFIG_HAVE_JSONC
-#include <SqxcJsonc.h>
+#if SQ_CONFIG_HAVE_JSON
+#include <SqxcJson.h>
 #endif
 
 #ifdef _MSC_VER
@@ -60,10 +60,10 @@ void  sq_storage_init(SqStorage *storage, Sqdb *db)
 	storage->xc_input  = sqxc_new(SQXC_INFO_VALUE);
 	storage->xc_output = sqxc_new(SQXC_INFO_SQL);
 
-#if SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSON
 	// append JSON parser/writer to tail of list
-	sqxc_insert(storage->xc_input,  sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
-	sqxc_insert(storage->xc_output, sqxc_new(SQXC_INFO_JSONC_WRITER), -1);
+	sqxc_insert(storage->xc_input,  sqxc_new(SQXC_INFO_JSON_PARSER), -1);
+	sqxc_insert(storage->xc_output, sqxc_new(SQXC_INFO_JSON_WRITER), -1);
 #endif
 }
 

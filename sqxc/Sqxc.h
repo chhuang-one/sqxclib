@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -17,7 +17,9 @@
 	xc is an abbreviation. (sqxc namespace "Sq" + "xc" = Sqxc)
 
 	SqxcSql     - convert to SQL (Sqdb)   - SqxcSql.c
-	SqxcJsonc   - convert to/from JSON    - SqxcJsonc.c
+	SqxcJson    - default JSON converter  - SqxcJson.h  - use SqxcCjson or SqxcJsonc
+	SqxcCjson   - convert to/from JSON    - SqxcCjson.c - use cJSON library
+	SqxcJsonc   - convert to/from JSON    - SqxcJsonc.c - use json-c library
 	SqxcValue   - convert to C structure  - SqxcValue.c
 
 	User can link multiple Sqxc element to convert different types of data.
@@ -40,17 +42,17 @@
 	sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc::dest) at runtime.
 
 	Data flow 1: sqxc_send() send from SQL result (column has JSON data) to C value
-	If SqxcValue can't match current data type, it will forward data to SqxcJsoncParser.
+	If SqxcValue can't match current data type, it will forward data to SqxcJsonParser.
 
-	                  +-> SqxcJsoncParser -+
+	                  +-> SqxcJsonParser --+
 	( input )         |                    |
 	sqdb_exec()     --+--------------------+--> SqxcValue ---> SqType::parse()
 
 
 	Data flow 2: sqxc_send() send from C value to SQL (column has JSON data)
-	If SqxcSql doesn't support current data type, it will forward data to SqxcJsoncWriter.
+	If SqxcSql doesn't support current data type, it will forward data to SqxcJsonWriter.
 
-	                  +-> SqxcJsoncWriter -+
+	                  +-> SqxcJsonWriter --+
 	( output )        |                    |
 	SqType::write() --+--------------------+--> SqxcSql   ---> sqdb_exec()
  */
@@ -351,7 +353,7 @@ int     sqxc_broadcast(Sqxc *xc, int id, void *data);
 		sqxc_broadcast((Sqxc*)xc, SQXC_CTRL_READY, data)
 
 // sqxc_finish() broadcast Sqxc chain to flush data
-// void sqxc_finish(Sqxc *xc, void *error);
+// void sqxc_finish(Sqxc *xc, void *data);
 #define sqxc_finish(xc, data)   \
 		sqxc_broadcast((Sqxc*)xc, SQXC_CTRL_FINISH, data)
 
@@ -567,7 +569,7 @@ struct Sqxc
 	SqValue      value;           // union SqValue defined in SqDefine.h
 
 	// special input arguments
-	SqEntry     *entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	SqEntry     *entry;           // SqxcJson and SqxcSql use it to decide output. this can be NULL (optional).
 
 	// input / output arguments
 	void       **error;

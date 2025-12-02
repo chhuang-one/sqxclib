@@ -101,7 +101,9 @@ toUTF8(
 //#include <stat.h>
 #include <sys/stat.h>     // stat(), mkdir()
 
-#include <sqxclib.h>
+#include <SqType.h>
+#include <SqxcJson.h>
+#include <SqxcValue.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup
@@ -243,7 +245,7 @@ BiliDir *bili_dir_free(BiliDir *bili_dir)
 struct Bili2Mp4
 {
 	SqxcValue   *xcvalue;
-	SqxcJsonc   *xcjson;
+	SqxcJson    *xcjson;
 
 	BiliDir     *last;       // the last BiliDir
 
@@ -256,7 +258,7 @@ struct Bili2Mp4
 
 void  bili2mp4_init(Bili2Mp4 *b2m)
 {
-	b2m->xcjson  = (SqxcJsonc*) sqxc_new(SQXC_INFO_JSONC_PARSER);
+	b2m->xcjson  = (SqxcJson*)  sqxc_new(SQXC_INFO_JSON_PARSER);
 	b2m->xcvalue = (SqxcValue*) sqxc_new(SQXC_INFO_VALUE);
 	sqxc_insert((Sqxc*)b2m->xcvalue, (Sqxc*)b2m->xcjson, -1);
 	b2m->last    = NULL;
@@ -302,9 +304,9 @@ BiliDir *bili2mp4_add(Bili2Mp4 *b2m, BiliDir *parent, BiliEntry *bili_entry)
 BiliEntry *bili2mp4_parse(Bili2Mp4 *b2m, const char *entry_file)
 {
 	Sqxc       *xc;
-	FILE       *file;
 	char       *buf;
-	size_t      count;
+	FILE       *file;
+	size_t      fileSize;
 
 	// open file
 #if 0 // defined(_WIN32) || defined(_WIN64)
@@ -323,7 +325,12 @@ BiliEntry *bili2mp4_parse(Bili2Mp4 *b2m, const char *entry_file)
 
 	if (file == NULL)
 		return NULL;
-	buf = malloc(4096);
+	fseek(file, 0, SEEK_END);
+	fileSize = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	buf = malloc(fileSize + 1);
+	buf[fileSize] = 0;    // Null-terminated string
+	fread(buf, 1, fileSize, file);
 
 	// setup SqxcValue
 	sqxc_value_container(b2m->xcvalue) = NULL;
@@ -336,17 +343,11 @@ BiliEntry *bili2mp4_parse(Bili2Mp4 *b2m, const char *entry_file)
 	// Because arguments in xcvalue never used in sqxc chain,
 	// I use xcvalue as arguments source here.
 	xc = (Sqxc*)b2m->xcvalue;
-
+	// send file data to SqxcJson Parser
 	xc->name = NULL;
-	xc->type = SQXC_TYPE_STRING;
+	xc->type = SQXC_TYPE_STR;
 	xc->value.str = buf;
-	for (;;) {
-		count = fread(buf, 1, 4096-1, file);
-		buf[count] = 0;
-		sqxc_send_to((Sqxc*)b2m->xcjson, xc);
-		if (count < 4096-1)
-			break;
-	}
+	sqxc_send_to((Sqxc*)b2m->xcjson, xc);
 
 	// --- Sqxc chain finish work ---
 	sqxc_finish((Sqxc*)b2m->xcvalue, NULL);
@@ -506,6 +507,7 @@ void bili2mp4_output(Bili2Mp4 *b2m, BiliDir *bili_dir, const char *dest_path)
 		if (bili_dir->title) {
 			// dest_path
 			sq_buffer_write(&buf, dest_path);
+			str_replace_chars(buf.mem, "\\/:*?\"<>|", '_');
 
 			// folder separator character
 			sq_buffer_write_c(&buf, '/');
@@ -556,7 +558,10 @@ void bili2mp4_output(Bili2Mp4 *b2m, BiliDir *bili_dir, const char *dest_path)
 		sq_buffer_write_c(&buf, '/');
 		// begin of filename
 		len = (int)buf.writed;
-		sq_buffer_write(&buf, bili_dir->entry->page_data.part);
+		if (bili_dir->entry->page_data.download_subtitle && bili_dir->entry->page_data.download_subtitle[0])
+			sq_buffer_write(&buf, bili_dir->entry->page_data.download_subtitle);
+		else
+			sq_buffer_write(&buf, bili_dir->entry->page_data.part);
 		sq_buffer_write(&buf, ".mp4");
 		// replace invalid characters \/:*?"<>| by _ in filename.
 		buf.mem[buf.writed] = 0;

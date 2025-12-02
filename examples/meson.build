@@ -1,8 +1,10 @@
 compiler = meson.get_compiler('c')
 
-# bili2mp4 can't compile with MSVC because it uses readdir() series functions.
-if compiler.get_id() != 'msvc'
-	if jsonc.found() == true
+# bili2mp4
+# --- cJSON or json-c is required
+if cjson.found()  or  jsonc.found()
+	# If you want to build bili2mp4 in Visual Studio, download direct.h for MSVC form internet.
+	if compiler.get_id() != 'msvc'
 		executable('bili2mp4',
 		           'bili2mp4.c',
 		           dependencies : [sqxc])
@@ -29,8 +31,8 @@ executable('myapp-cxx',
            'myapp-cxx.cpp',
            dependencies : [sqxcapp])
 
-# --- json-c is required
-if jsonc.found() == true
+# --- cJSON or json-c is required
+if cjson.found()  or  jsonc.found()
 	executable('xc_json_file',
 	           'xc_json_file.cpp',
 	           dependencies : [sqxcsupport])

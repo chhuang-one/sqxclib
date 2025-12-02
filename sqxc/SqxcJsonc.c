@@ -20,6 +20,8 @@
 #include <SqEntry.h>
 #include <SqxcJsonc.h>
 
+#if SQ_CONFIG_HAVE_JSONC  // defined in SqConfig.h
+
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - Middleware of input chain
 
@@ -52,9 +54,11 @@ static int  sqxc_jsonc_send_value_in(SqxcJsonc *xcjson, const char *name, json_o
 	case json_type_int:
 		xcjson->name = name;
 		xcjson->value.int64 = json_object_get_int64(value);
-#if defined(__WORDSIZE) && (__WORDSIZE == 64)    // integer is 64-bit
+#if defined(__WORDSIZE) && (__WORDSIZE == 64)
+		// integer is 64-bit
 		xcjson->type = SQXC_TYPE_INT;
 #else
+		// integer is 32-bit
 		if (xcjson->value.int64 > INT32_MAX || xcjson->value.int64 < INT32_MIN)
 			xcjson->type = SQXC_TYPE_INT64;
 		else {
@@ -378,3 +382,5 @@ const SqxcInfo sqxcInfo_JsoncWriter =
 	(SqxcCtrlFunc)sqxc_jsonc_ctrl_out,
 	(SqxcSendFunc)sqxc_jsonc_send_out,
 };
+
+#endif  // SQ_CONFIG_HAVE_JSONC

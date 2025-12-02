@@ -15,6 +15,9 @@
 #ifndef SQXC_JSONC_H
 #define SQXC_JSONC_H
 
+#include <SqConfig.h>
+#if SQ_CONFIG_HAVE_JSONC  // defined in SqConfig.h
+
 #include <json-c/json.h>
 #include <Sqxc.h>
 
@@ -113,7 +116,7 @@ struct SqxcJsonc
 	SqValue      value;           // union SqValue defined in SqDefine.h
 
 	// special input arguments
-	SqEntry     *entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	SqEntry     *entry;           // SqxcJson and SqxcSql use it to decide output. this can be NULL (optional).
 
 	// input / output arguments
 	void       **error;
@@ -174,4 +177,5 @@ struct XcJsoncWriter : SqxcJsonc
 
 #endif  // __cplusplus
 
+#endif  // SQ_CONFIG_HAVE_JSONC
 #endif  // SQXC_JSONC_H

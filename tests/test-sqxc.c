@@ -24,8 +24,8 @@
 #include <SqxcSql.h>
 #include <SqxcValue.h>
 #include <SqxcEmpty.h>
-#if SQ_CONFIG_HAVE_JSONC
-#include <SqxcJsonc.h>
+#if SQ_CONFIG_HAVE_JSON
+#include <SqxcJson.h>
 #endif
 
 #ifdef _MSC_VER
@@ -111,8 +111,8 @@ void test_sqxc_joint_input()
 	sq_type_joint_add(type, table, "tb2");
 
 	xc = sqxc_new(SQXC_INFO_VALUE);
-#if SQ_CONFIG_HAVE_JSONC
-	sqxc_insert(xc, sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
+#if SQ_CONFIG_HAVE_JSON
+	sqxc_insert(xc, sqxc_new(SQXC_INFO_JSON_PARSER), -1);
 #endif
 
 	sqxc_value_element(xc) = type;
@@ -160,7 +160,7 @@ void test_sqxc_joint_input()
 	user = instance[1];
 	printf("tb2.id = %d\n", user->id);
 	assert(user->id == 233);
-#if SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSON
 	assert(user->strs.length == 3);
 #else
 	// program can't parse JSON array string if no JSON parser in sqxc chain
@@ -192,8 +192,8 @@ void test_sqxc_row_input_output()
 	sq_type_row_add(type, table, "tb2");
 
 	xc = sqxc_new(SQXC_INFO_VALUE);
-#if SQ_CONFIG_HAVE_JSONC
-	sqxc_insert(xc, sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
+#if SQ_CONFIG_HAVE_JSON
+	sqxc_insert(xc, sqxc_new(SQXC_INFO_JSON_PARSER), -1);
 #endif
 	sqxc_value_element(xc) = type;
 
@@ -260,7 +260,7 @@ void test_sqxc_row_input_output()
 	sq_type_row_free(type);
 }
 
-#if SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSON
 
 const char *json_array_string =
 "["
@@ -280,41 +280,45 @@ const char *json_object_string =
 	"\"ints\": [1, 2]"
 "}";
 
-void test_sqxc_jsonc_input()
+void test_sqxc_json_input()
 {
-	Sqxc *xcjsonc;
 	Sqxc *xcchain;
+	Sqxc *xcjson;
 
-	xcchain = sqxc_new_chain(SQXC_INFO_EMPTY, SQXC_INFO_JSONC_PARSER, NULL);
-	xcjsonc = sqxc_find(xcchain, SQXC_INFO_JSONC_PARSER);
+#if SQ_CONFIG_HAVE_JSON
+	xcchain = sqxc_new_chain(SQXC_INFO_EMPTY, SQXC_INFO_JSON_PARSER, NULL);
+	xcjson  = sqxc_find(xcchain, SQXC_INFO_JSON_PARSER);
+#endif
 
 	sqxc_ready(xcchain, NULL);
-	xcjsonc->type = SQXC_TYPE_STR;
-	xcjsonc->name = NULL;
-	xcjsonc->value.str = (char*)json_array_string;
-	xcjsonc->info->send(xcjsonc, xcjsonc);
+	xcjson->type = SQXC_TYPE_STR;
+	xcjson->name = NULL;
+	xcjson->value.str = (char*)json_array_string;
+	xcjson->info->send(xcjson, xcjson);
 	sqxc_finish(xcchain, NULL);
 
 	sqxc_free_chain(xcchain);
 }
 
-void test_sqxc_jsonc_input_user()
+void test_sqxc_json_input_user()
 {
 	Sqxc *xcvalue;
+	Sqxc *xcjson;
 	User *user;
 
-	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
+#if SQ_CONFIG_HAVE_JSON
+	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSON_PARSER, NULL);
+	xcjson  = sqxc_find(xcvalue, SQXC_INFO_JSON_PARSER);
+#endif
 	sqxc_value_element(xcvalue) = &UserType;
 	sqxc_value_container(xcvalue) = NULL;
 
 	sqxc_ready(xcvalue, NULL);
 
-	Sqxc *xcjsonc;
-	xcjsonc = sqxc_find(xcvalue, SQXC_INFO_JSONC_PARSER);
-	xcjsonc->type = SQXC_TYPE_STR;
-	xcjsonc->name = NULL;
-	xcjsonc->value.str = (char*)json_object_string;
-	xcjsonc->info->send(xcjsonc, xcjsonc);
+	xcjson->type = SQXC_TYPE_STR;
+	xcjson->name = NULL;
+	xcjson->value.str = (char*)json_object_string;
+	xcjson->info->send(xcjson, xcjson);
 
 	sqxc_finish(xcvalue, NULL);
 
@@ -329,12 +333,14 @@ void test_sqxc_jsonc_input_user()
 	sqxc_free_chain(xcvalue);
 }
 
-void test_sqxc_jsonc_input_unknown()
+void test_sqxc_json_input_unknown()
 {
 	Sqxc *xcvalue;
 	User *user;
 
-	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSONC_PARSER, NULL);
+#if SQ_CONFIG_HAVE_JSON
+	xcvalue = sqxc_new_chain(SQXC_INFO_VALUE, SQXC_INFO_JSON_PARSER, NULL);
+#endif
 	sqxc_value_element(xcvalue) = &UserType;
 	sqxc_value_container(xcvalue) = NULL;
 
@@ -394,44 +400,46 @@ void test_sqxc_jsonc_input_unknown()
 // ----------------------------------------------------------------------------
 // Sqxc - Output
 
-void test_sqxc_jsonc_output()
+void test_sqxc_json_output()
 {
 	User  user = {0};
-	Sqxc *xcjsonc;
 	Sqxc *xcchain;
+	Sqxc *xcjson;
 
 	user.id = 10;
 	user.name = "Bob";
 	user.email = "guest@";
 
-	xcchain = sqxc_new_chain(SQXC_INFO_EMPTY, SQXC_INFO_JSONC_WRITER, NULL);
-	xcjsonc = sqxc_find(xcchain, SQXC_INFO_JSONC_WRITER);
+#if SQ_CONFIG_HAVE_JSON
+	xcchain = sqxc_new_chain(SQXC_INFO_EMPTY, SQXC_INFO_JSON_WRITER, NULL);
+	xcjson  = sqxc_find(xcchain, SQXC_INFO_JSON_WRITER);
+#endif
 	sqxc_ready(xcchain, NULL);
 
-	xcjsonc->type = SQXC_TYPE_OBJECT;
-	xcjsonc->name = NULL;
-	xcjsonc->value.pointer = NULL;
-	xcjsonc->info->send(xcjsonc, xcjsonc);
+	xcjson->type = SQXC_TYPE_OBJECT;
+	xcjson->name = NULL;
+	xcjson->value.pointer = NULL;
+	xcjson->info->send(xcjson, xcjson);
 
-	xcjsonc->type = SQXC_TYPE_INT;
-	xcjsonc->name = "id";
-	xcjsonc->value.integer = user.id;
-	xcjsonc->info->send(xcjsonc, xcjsonc);
+	xcjson->type = SQXC_TYPE_INT;
+	xcjson->name = "id";
+	xcjson->value.integer = user.id;
+	xcjson->info->send(xcjson, xcjson);
 
-	xcjsonc->type = SQXC_TYPE_STR;
-	xcjsonc->name = "name";
-	xcjsonc->value.str = user.name;
-	xcjsonc->info->send(xcjsonc, xcjsonc);
+	xcjson->type = SQXC_TYPE_STR;
+	xcjson->name = "name";
+	xcjson->value.str = user.name;
+	xcjson->info->send(xcjson, xcjson);
 
-	xcjsonc->type = SQXC_TYPE_STR;
-	xcjsonc->name = "email";
-	xcjsonc->value.str = user.email;
-	xcjsonc->info->send(xcjsonc, xcjsonc);
+	xcjson->type = SQXC_TYPE_STR;
+	xcjson->name = "email";
+	xcjson->value.str = user.email;
+	xcjson->info->send(xcjson, xcjson);
 
-	xcjsonc->type = SQXC_TYPE_OBJECT_END;
-	xcjsonc->name = NULL;
-	xcjsonc->value.pointer = NULL;
-	xcjsonc->info->send(xcjsonc, xcjsonc);
+	xcjson->type = SQXC_TYPE_OBJECT_END;
+	xcjson->name = NULL;
+	xcjson->value.pointer = NULL;
+	xcjson->info->send(xcjson, xcjson);
 
 	sqxc_finish(xcchain, NULL);
 
@@ -440,15 +448,16 @@ void test_sqxc_jsonc_output()
 
 void test_sqxc_sql_output(bool use_update)
 {
-	SqTable *table;
 	Sqxc *xcchain;
 	Sqxc *xcsql;
 	Sqxc *xccur;
+	SqTable *table;
 
-	table = sq_table_new("User", &UserType);
-
-	xcchain = sqxc_new_chain(SQXC_INFO_SQL, SQXC_INFO_JSONC_WRITER, NULL);
+#if SQ_CONFIG_HAVE_JSON
+	xcchain = sqxc_new_chain(SQXC_INFO_SQL, SQXC_INFO_JSON_WRITER, NULL);
+#endif
 	xcsql = sqxc_find(xcchain, SQXC_INFO_SQL);
+	table = sq_table_new("User", &UserType);
 	if (use_update) {
 		sqxc_sql_id(xcsql) = 2333;
 		sqxc_ctrl(xcsql, SQXC_SQL_CTRL_UPDATE, table->name);
@@ -515,7 +524,7 @@ void test_sqxc_sql_output(bool use_update)
 	sq_table_free(table);
 }
 
-#endif  // SQ_CONFIG_HAVE_JSONC
+#endif  // SQ_CONFIG_HAVE_JSON
 
 // ----------------------------------------------------------------------------
 
@@ -523,13 +532,13 @@ int  main(void)
 {
 	test_sqxc_joint_input();
 	test_sqxc_row_input_output();
-#if SQ_CONFIG_HAVE_JSONC
-	test_sqxc_jsonc_input();
-	test_sqxc_jsonc_input_user();
-	test_sqxc_jsonc_input_unknown();
-	test_sqxc_jsonc_output();
+#if SQ_CONFIG_HAVE_JSON
+	test_sqxc_json_input();
+	test_sqxc_json_input_user();
+	test_sqxc_json_input_unknown();
+	test_sqxc_json_output();
 	test_sqxc_sql_output(true);
-#endif  // SQ_CONFIG_HAVE_JSONC
+#endif  // SQ_CONFIG_HAVE_JSON
 
 //	return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 	return EXIT_SUCCESS;

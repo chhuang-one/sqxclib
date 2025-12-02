@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -19,11 +19,11 @@
 #include <string.h>
 
 #include <SqConfig.h>
-#if SQ_CONFIG_HAVE_JSONC
-#include <SqxcJsonc.h>
-#endif
-#include <SqxcValue.h>
 #include <SqConsole.h>
+#include <SqxcValue.h>
+#if SQ_CONFIG_HAVE_JSON
+#include <SqxcJson.h>
+#endif
 
 #ifdef _MSC_VER
 #define strcasecmp   _stricmp
@@ -58,9 +58,9 @@ void  sq_console_init(SqConsole *console)
 
 	console->program_name = NULL;
 	console->xc_input = sqxc_new(SQXC_INFO_VALUE);
-#if SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSON
 	// append JSON parser to tail of list
-	sqxc_insert(console->xc_input,  sqxc_new(SQXC_INFO_JSONC_PARSER), -1);
+	sqxc_insert(console->xc_input,  sqxc_new(SQXC_INFO_JSON_PARSER), -1);
 #endif
 }
 

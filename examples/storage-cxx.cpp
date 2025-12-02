@@ -114,7 +114,7 @@ struct Company
 	time_t        created_at;   // alter table
 	time_t        updated_at;   // alter table
 
-	// make sure that SQ_CONFIG_HAVE_JSONC is enabled if you want to store array (vector) in database column
+	// make sure that SQ_CONFIG_HAVE_JSON is enabled if you want to store array (vector) in database column
 	Sq::IntArray     ints;    // C/C++ array for int
 	Sq::StrArray     strs;    // C/C++ array for char*
 	std::vector<int> intsCpp; // C++ type, it use Sq::TypeStl<std::vector<int>>
@@ -260,7 +260,7 @@ void  storage_make_fixed_schema(Sq::Storage *storage)
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
 	table->stdstring("strCpp", &Company::strCpp);
-#if SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSON
 	table->custom("strs", &Company::strs, SQ_TYPE_STR_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INT_ARRAY);
@@ -314,7 +314,7 @@ void  storage_make_schema(Sq::Storage *storage)
 	table->string("address", &Company::address);
 	table->double_("salary", &Company::salary);
 	table->stdstring("strCpp", &Company::strCpp);
-#if SQ_CONFIG_HAVE_JSONC
+#if SQ_CONFIG_HAVE_JSON
 	table->custom("strs", &Company::strs, SQ_TYPE_STR_ARRAY);
 	table->custom("intsCpp", &Company::intsCpp, SQ_TYPE_INT_VECTOR);
 	table->custom("ints", &Company::ints, SQ_TYPE_INT_ARRAY);

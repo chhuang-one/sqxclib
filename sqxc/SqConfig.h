@@ -27,6 +27,11 @@
 #endif
 
 
+/* SqxcJson.h, SqStorage.c */
+#if HAVE_CJSON || HAVE_JSONC
+#define SQ_CONFIG_HAVE_JSON          1
+#endif
+
 /* SqxcCjson.c, SqxcCjson.h */
 #if HAVE_CJSON == 1
 #define SQ_CONFIG_HAVE_CJSON         1

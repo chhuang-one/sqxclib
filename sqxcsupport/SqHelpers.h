@@ -78,10 +78,10 @@ char *sq_str_type_name(const char *src_table_name);
 	these functions return error code.
  */
 
-#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
+#if SQ_CONFIG_HAVE_JSON
 int  sq_write_json_mem(void *instance, const SqType *type, char **buf, size_t *len);
 int  sq_write_json_file(void *instance, const SqType *type, const char *filename);
-#endif
+#endif  // SQ_CONFIG_HAVE_JSON
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -95,7 +95,7 @@ int  sq_write_json_file(void *instance, const SqType *type, const char *filename
 
 namespace Sq {
 
-#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
+#if SQ_CONFIG_HAVE_JSON
 inline int  writeJson(void *instance, const SqType *type, char **buf, size_t *len) {
 	return sq_write_json_mem(instance, type, buf, len);
 }
@@ -103,7 +103,7 @@ inline int  writeJson(void *instance, const SqType *type, char **buf, size_t *le
 inline int  writeJson(void *instance, const SqType *type, const char *filename) {
 	return sq_write_json_file(instance, type, filename);
 }
-#endif
+#endif  // SQ_CONFIG_HAVE_JSON
 
 namespace Str {
 

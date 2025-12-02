@@ -364,7 +364,7 @@ Sqxc *sq_type_row_write(void *instance, const SqType *type, Sqxc *dest)
 	dest->type = SQXC_TYPE_OBJECT;
 //	dest->name = object_name;     // "name" was set by caller of this function
 	dest->value.pointer = NULL;
-	dest->entry = NULL;           // SqxcSql and SqxcJsonc will use this
+	dest->entry = NULL;           // SqxcSql and SqxcJson will use this
 	dest = sqxc_send(dest);
 	if (dest->code != SQCODE_OK)
 		return dest;

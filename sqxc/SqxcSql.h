@@ -62,7 +62,7 @@ extern const SqxcInfo      sqxcInfo_SQL;
 	|
 	`--- SqxcSql
 
-	                  +-> SqxcJsoncWriter -+
+	                  +-> SqxcJsonWriter --+
 	( output )        |                    |       (SQL statement)
 	SqType::write() --+--------------------+-> SqxcSql   ---> sqdb_exec()
 
@@ -119,7 +119,7 @@ struct SqxcSql
 	SqValue      value;           // union SqValue defined in SqDefine.h
 
 	// special input arguments
-	SqEntry     *entry;           // SqxcJsonc and SqxcSql use it to decide output. this can be NULL (optional).
+	SqEntry     *entry;           // SqxcJson and SqxcSql use it to decide output. this can be NULL (optional).
 
 	// input / output arguments
 	void       **error;

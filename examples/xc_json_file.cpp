@@ -21,7 +21,7 @@
 
 /*	Use Sqxc chain to output JSON data to file.
 
-	output ---------> SqxcJsonc Writer ---------> SqxcFile Writer
+	output ---------> SqxcJson Writer ----------> SqxcFile Writer
 	     SQXC_TYPE_XXXX              SQXC_TYPE_STR
  */
 
@@ -30,10 +30,10 @@ void json_file_writer_cpp()
 {
 	Sq::Xc            *xc;
 	Sq::XcFileWriter  *xcfile;
-	Sq::XcJsoncWriter *xcjson;
+	Sq::XcJsonWriter  *xcjson;
 
 	xcfile = new Sq::XcFileWriter();
-	xcjson = new Sq::XcJsoncWriter();
+	xcjson = new Sq::XcJsonWriter();
 	xcfile->insert(xcjson);
 
 	// specify output filename
@@ -78,10 +78,10 @@ void json_file_writer_c(void)
 {
 	Sqxc       *xc;
 	SqxcFile   *xcfile;
-	SqxcJsonc  *xcjson;
+	SqxcJson   *xcjson;
 
-	xcjson = (SqxcJsonc*) sqxc_new(SQXC_INFO_JSONC_WRITER);
-	xcfile = (SqxcFile*)  sqxc_new(SQXC_INFO_FILE_WRITER);
+	xcjson = (SqxcJson*) sqxc_new(SQXC_INFO_JSON_WRITER);
+	xcfile = (SqxcFile*) sqxc_new(SQXC_INFO_FILE_WRITER);
 	sqxc_insert((Sqxc*)xcfile, (Sqxc*)xcjson, -1);
 
 	// specify output filename
@@ -123,7 +123,7 @@ void json_file_writer_c(void)
 
 /*	Use Sqxc chain to parse JSON data from file.
 
-	input ---------> SqxcJsonc Parser ---------> SqxcValue
+	input ---------> SqxcJson Parser ----------> SqxcValue
 	    SQXC_TYPE_STR               SQXC_TYPE_XXXX
  */
 
@@ -157,18 +157,24 @@ void json_file_parser_c(void)
 {
 	Sqxc       *xc;
 	SqxcValue  *xcvalue;
-	SqxcJsonc  *xcjson;
+	SqxcJson   *xcjson;
 	JsonTest   *instance;
 	FILE       *file;
+	int         fileSize;
 	char       *buf;
-	int         count;
 
 	// open input file
 	file = fopen("xc_json_file_c.json", "r");
 	if (file == NULL)
 		return;
+	fseek(file, 0, SEEK_END);
+	fileSize = ftell(file);
+	fseek(file, 0, SEEK_SET);
+	buf = (char*)malloc(fileSize + 1);
+	buf[fileSize] = 0;    // Null-terminated string
+	fread(buf, 1, fileSize, file);
 
-	xcjson  = (SqxcJsonc*) sqxc_new(SQXC_INFO_JSONC_PARSER);
+	xcjson  = (SqxcJson*)  sqxc_new(SQXC_INFO_JSON_PARSER);
 	xcvalue = (SqxcValue*) sqxc_new(SQXC_INFO_VALUE);
 	sqxc_insert((Sqxc*)xcvalue, (Sqxc*)xcjson, -1);
 
@@ -183,20 +189,11 @@ void json_file_parser_c(void)
 	// Because arguments in 'xcvalue' will not be used in Sqxc chain,
 	// 'xcvalue' is used as arguments source here.
 	xc = (Sqxc*)xcvalue;
-
-	// read file data and send them to SqxcJsonc Parser
-	buf = (char*)malloc(4096);
+	// send file data to SqxcJson Parser
 	xc->name = NULL;
 	xc->type = SQXC_TYPE_STR;
 	xc->value.str = buf;
-	for (;;) {
-		count = fread(buf, 1, 4096-1, file);
-		buf[count] = 0;
-		sqxc_send_to((Sqxc*)xcjson, xc);
-		if (count < 4096-1)
-			break;
-	}
-	free(buf);
+	sqxc_send_to((Sqxc*)xcjson, xc);
 
 	// --- Sqxc chain finish work ---
 	sqxc_finish((Sqxc*)xcvalue, NULL);
@@ -210,6 +207,7 @@ void json_file_parser_c(void)
 	// free xcvalue and xcjson in Sqxc chain
 	sqxc_free_chain((Sqxc*)xcvalue);
 
+	free(buf);
 	// close input file
 	fclose(file);
 }
@@ -218,7 +216,7 @@ void json_file_parser_c(void)
 
 /*	Use Sqxc chain to output JSON data to memory.
 
-	output ---------> SqxcJsonc Writer ---------> SqxcMem Writer
+	output ---------> SqxcJson Writer ----------> SqxcMem Writer
 	     SQXC_TYPE_XXXX              SQXC_TYPE_STR
  */
 
@@ -227,10 +225,10 @@ void json_mem_writer_cpp()
 {
 	Sq::Xc            *xc;
 	Sq::XcMemWriter   *xcmem;
-	Sq::XcJsoncWriter *xcjson;
+	Sq::XcJsonWriter  *xcjson;
 
 	xcmem  = new Sq::XcMemWriter();
-	xcjson = new Sq::XcJsoncWriter();
+	xcjson = new Sq::XcJsonWriter();
 	xcmem->insert(xcjson);
 
 	// --- Sqxc chain ready to work ---
@@ -274,7 +272,7 @@ void json_mem_writer_cpp()
 
 void  helpers_write_json()
 {
-#if defined(SQ_CONFIG_HAVE_JSONC) && (SQ_CONFIG_HAVE_JSONC == 1)
+#if SQ_CONFIG_HAVE_JSON
 
 	JsonTest  instance;
 	char     *buf;
@@ -299,7 +297,7 @@ void  helpers_write_json()
 #else
 	fprintf(stderr, "%s: JSON support was not enabled\n"
 	        "helpers_write_json()");
-#endif  // SQ_CONFIG_HAVE_JSONC
+#endif  // SQ_CONFIG_HAVE_JSON
 }
 
 
