@@ -34,7 +34,7 @@ SqxcValue 派生自 [Sqxc](Sqxc.cn.md)。它将 Sqxc 数据转换为 C 数据类
 
 如果某些字段/成员以 JSON 对象或数组形式输入，则修改上面的 Sqxc 链如下:
 
-	                ┌─> SqxcJsoncParser ─┐
+	                ┌─> SqxcJsonParser ──┐
 	Sqxc 数据参数 ──┴────────────────────┴──> SqxcValue   ───> SqType::parse()
 
 使用 C 语言
@@ -42,9 +42,9 @@ SqxcValue 派生自 [Sqxc](Sqxc.cn.md)。它将 Sqxc 数据转换为 C 数据类
 ```c
 	Sqxc *xcjson;
 
-	xcjson = sqxc_new(SQXC_INFO_JSONC_PARSER);
+	xcjson = sqxc_new(SQXC_INFO_JSON_PARSER);
 	/* 另一种创建 Sqxc 元素的方法 */
-//	xcjson = sqxc_jsonc_parser_new();
+//	xcjson = sqxc_json_parser_new();
 
 	// 将 JSON 解析器附加到 Sqxc 链
 	sqxc_insert(xcvalue, xcjson, -1);
@@ -53,7 +53,7 @@ SqxcValue 派生自 [Sqxc](Sqxc.cn.md)。它将 Sqxc 数据转换为 C 数据类
 使用 C++ 语言
 
 ```c++
-	Sq::XcJsoncParser *xcjson = new Sq::XcJsoncParser();
+	Sq::XcJsonParser  *xcjson = new Sq::XcJsonParser();
 
 	// 将 JSON 解析器附加到 Sqxc 链
 	xcvalue->insert(xcjson);
@@ -157,9 +157,9 @@ SqxcValue 可以设置 3 个字段，其中至少 2 个必须设置。
 	xc = xc->send();
 ```
 
-如果您只是将 JSON 数据类型转换为 C 数据类型，则可以使用 sqxc_send_to() 将 JSON 数据传递给 SqxcJsoncParser，然后 SqxcJsoncParser 再输出数据参数到 SqxcValue。数据流如下所示：
+如果您只是将 JSON 数据类型转换为 C 数据类型，则可以使用 sqxc_send_to() 将 JSON 数据传递给 SqxcJsonParser，然后 SqxcJsonParser 再输出数据参数到 SqxcValue。数据流如下所示：
 
-	Sqxc 数据参数 ───── SqxcJsoncParser ────> SqxcValue   ───> SqType::parse()
+	Sqxc 数据参数 ───── SqxcJsonParser ────> SqxcValue   ───> SqType::parse()
 
 使用 C 语言
 

@@ -9,7 +9,7 @@ sqxclib 是在 C 语言和 SQL、JSON 等之间转换数据的库。它提供 OR
 
 ## 目前的功能:
 
-* 用户可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 定义常量数据库 表、列、迁移，
+* 开发者可以使用 C99 指定初始化(designated initializer) 或 C++ 聚合初始化(aggregate initialization) 定义常量数据库 表、列、迁移，
    这可以减少制作架构时的运行时间，请参阅 doc/[schema-builder-constant.cn.md](doc/schema-builder-constant.cn.md)。
    当然也可以使用 C 函数 或 C++ 方法 动态执行这些操作。
 
@@ -27,9 +27,11 @@ sqxclib 是在 C 语言和 SQL、JSON 等之间转换数据的库。它提供 OR
 
 * 单一头文件 〈 **sqxclib.h** 〉 (注意: 不包含特殊宏和支持库)
 
-* 如果用户不需要将迁移同步到数据库，可以使用 “无迁移模式”。
+* 如果开发者不需要将迁移同步到数据库，可以使用 “无迁移模式”。
 
 * 命令行工具可以生成迁移文件并执行迁移。见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
+
+* 支持使用 cJSON 或 json-c 转换 JSON，开发者可以选择其中一个作为默认的 JSON 转换器。
 
 * 支持 SQLite, MySQL / MariaDB, PostgreSQL。
 

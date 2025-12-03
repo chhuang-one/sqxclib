@@ -9,8 +9,8 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 ## Current features:
 
-* User can use C99 designated initializer or C++ aggregate initialization to define constant database table, column, and migration,
-   this can reduce running time when making schema, see doc/[schema-builder-constant.md](doc/schema-builder-constant.md).
+* Developer can use C99 designated initializer or C++ aggregate initialization to define constant database table, column, and
+   migration, this can reduce running time when making schema, see doc/[schema-builder-constant.md](doc/schema-builder-constant.md).
    You can also use C functions or C++ methods to do these dynamically.
 
 * All defined table and column can use to parse JSON object and field. Program can also parse JSON object and array from database column.
@@ -27,9 +27,11 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 * Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros and support libraries)
 
-* User can use "no migration mode" if user doesn't need to sync migrations to database.
+* Developer can use "no migration mode" if user doesn't need to sync migrations to database.
 
 * Command-line tools can generate migration file and do migrate. See doc/[SqApp.md](doc/SqApp.md)
+
+* Supports converting JSON using cJSON or json-c, and developers can choose one of them as the default JSON converter.
 
 * Supports SQLite, MySQL / MariaDB, PostgreSQL.
 

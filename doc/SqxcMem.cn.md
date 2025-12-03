@@ -9,13 +9,13 @@ SqxcMem 派生自 [Sqxc](Sqxc.cn.md)。它用于将 Sqxc 转换的数据输出�
 	│
 	└─── SqxcMem
 
-SqxcMem 通常与 SqxcJsoncWriter 一起使用。
+SqxcMem 通常与 SqxcJsonWriter 一起使用。
 
 ## 创建 Sqxc 链
 
 创建以下 Sqxc 链，将 JSON 数据输出到内存。
 
-	Sqxc 数据参数 ────> SqxcJsoncWriter ────> SqxcMem
+	Sqxc 数据参数 ────> SqxcJsonWriter ────> SqxcMem
 
 使用 C 语言
 
@@ -24,10 +24,10 @@ SqxcMem 通常与 SqxcJsoncWriter 一起使用。
 	Sqxc *xcjson;
 
 	xcmem  = sqxc_new(SQXC_INFO_MEM_WRITER);
-	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
+	xcjson = sqxc_new(SQXC_INFO_JSON_WRITER);
 	/* 另一种创建 Sqxc 元素的方法 */
 //	xcmem  = sqxc_mem_writer_new();
-//	xcjson = sqxc_jsonc_writer_new();
+//	xcjson = sqxc_json_writer_new();
 
 	// 将 JSON 写入器附加到 Sqxc 链
 	sqxc_insert(xcmem, xcjson, -1);
@@ -37,7 +37,7 @@ SqxcMem 通常与 SqxcJsoncWriter 一起使用。
 
 ```c++
 	Sq::XcMem         *xcmem  = new Sq::XcMemWriter();
-	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
+	Sq::XcJsonWriter  *xcjson = new Sq::XcJsonWriter();
 
 	// 将 JSON 写入器附加到 Sqxc 链
 	xcmem->insert(xcjson);
@@ -101,7 +101,7 @@ SqxcMem 无需设置。
 	xc = xc->send();
 ```
 
-您还可以使用 sqxc_send_to() 将数据参数传递给 SqxcJsoncWriter，然后 SqxcJsoncWriter 再输出 JSON 数据到 SqxcMem。  
+您还可以使用 sqxc_send_to() 将数据参数传递给 SqxcJsonWriter，然后 SqxcJsonWriter 再输出 JSON 数据到 SqxcMem。  
   
 使用 C 语言
 

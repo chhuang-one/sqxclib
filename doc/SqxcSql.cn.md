@@ -34,7 +34,7 @@ SqxcSql 派生自 [Sqxc](Sqxc.cn.md)。它使用 SQL 将 Sqxc 数据输出到数
 
 如果要将 JSON 对象或数组写入列，请修改上面的 Sqxc 链如下:
 
-	                ┌─> SqxcJsoncWriter ─┐
+	                ┌─> SqxcJsonWriter ──┐
 	Sqxc 数据参数 ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()
 
 使用 C 语言
@@ -42,9 +42,9 @@ SqxcSql 派生自 [Sqxc](Sqxc.cn.md)。它使用 SQL 将 Sqxc 数据输出到数
 ```c
 	Sqxc *xcjson;
 
-	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
+	xcjson = sqxc_new(SQXC_INFO_JSON_WRITER);
 	/* 另一种创建 Sqxc 元素的方法 */
-//	xcjson = sqxc_jsonc_writer_new();
+//	xcjson = sqxc_json_writer_new();
 
 	// 将 JSON 写入器附加到 Sqxc 链
 	sqxc_insert(xcsql, xcjson, -1);
@@ -53,7 +53,7 @@ SqxcSql 派生自 [Sqxc](Sqxc.cn.md)。它使用 SQL 将 Sqxc 数据输出到数
 使用 C++ 语言
 
 ```c++
-	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
+	Sq::XcJsonWriter *xcjson = new Sq::XcJsonWriter();
 
 	// 将 JSON 写入器附加到 Sqxc 链
 	xcsql->insert(xcjson);
@@ -143,8 +143,8 @@ SqxcSql 可以通过设置数据成员来指定数据库的 [Sqdb](Sqdb.cn.md) �
 	xc = xc->send();
 ```
 
-同时使用 SqxcSql 和 SqxcJsonc 时，不建议直接使用 sqxc_send_to() 传递数据参数。
-因为用户在发送数据参数时必须在 SqxcSql 和 SqxcJsonc 之间切换。
+同时使用 SqxcSql 和 SqxcJson 时，不建议直接使用 sqxc_send_to() 传递数据参数。
+因为当开发者发送数据参数时，程序必须在 SqxcSql 和 SqxcJson 之间切换。
 
 ## 输出
 

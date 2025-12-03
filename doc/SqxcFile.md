@@ -9,13 +9,13 @@ Note: SqxcFile is in sqxcsupport library (sqxcsupport.h).
 	│
 	└─── SqxcFile
 
-SqxcFile is usually used with SqxcJsoncWriter.
+SqxcFile is usually used with SqxcJsonWriter.
 
 ## Create the Sqxc chain
 
 Create the following Sqxc chain to output JSON data to a file.
 
-	Sqxc data arguments ────> SqxcJsoncWriter ────> SqxcFile ────> fwrite()
+	Sqxc data arguments ────> SqxcJsonWriter ────> SqxcFile ────> fwrite()
 
 use C language
 
@@ -24,10 +24,10 @@ use C language
 	Sqxc *xcjson;
 
 	xcfile = sqxc_new(SQXC_INFO_FILE_WRITER);
-	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
+	xcjson = sqxc_new(SQXC_INFO_JSON_WRITER);
 	/* another way to create Sqxc elements */
 //	xcfile = sqxc_file_writer_new();
-//	xcjson = sqxc_jsonc_writer_new();
+//	xcjson = sqxc_json_writer_new();
 
 	// append JSON writer to Sqxc chain
 	sqxc_insert(xcfile, xcjson, -1);
@@ -37,7 +37,7 @@ use C++ language
 
 ```c++
 	Sq::XcFile        *xcfile = new Sq::XcFileWriter();
-	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
+	Sq::XcJsonWriter  *xcjson = new Sq::XcJsonWriter();
 
 	// append JSON writer to Sqxc chain
 	xcfile->insert(xcjson);
@@ -106,7 +106,7 @@ use C++ language
 	xc = xc->send();
 ```
 
-You can also use sqxc_send_to() to pass data arguments to SqxcJsoncWriter, which then outputs the JSON data to SqxcFile.  
+You can also use sqxc_send_to() to pass data arguments to SqxcJsonWriter, which then outputs the JSON data to SqxcFile.  
   
 use C language
 

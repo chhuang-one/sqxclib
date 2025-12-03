@@ -5,15 +5,18 @@
 Sqxc 在 X 和 C 语言之间转换数据 （X = SQL, JSON 等）。它在一个 C 结构中包含状态、缓冲区和输入/输出参数。  
 用户可以链接多个 Sqxc 元素来转换不同类型的数据。  
 
-| 元素名称     | 描述              | 源代码文件  |
-| ------------ | ----------------- | ----------- |
-| SqxcSql      | 转换为 SQL (Sqdb) | SqxcSql.c   |
-| SqxcJsonc    | 转换   JSON       | SqxcJsonc.c |
-| SqxcValue    | 转换为 C 结构     | SqxcValue.c |
-| SqxcFile     | 输出到文件        | SqxcFile.c  |
-| SqxcMem      | 输出至内存        | SqxcMem.c   |
+| 元素名称     | 描述              | 源代码文件  | 备注                          |
+| ------------ | ----------------- | ----------- | ----------------------------- |
+| SqxcSql      | 转换为 SQL (Sqdb) | SqxcSql.c   |                               |
+| SqxcJson     | 默认   JSON 转换器| SqxcJson.h  | SqxcCjson 或 SqxcJsonc 的别名 |
+| SqxcCjson    | 转换   JSON       | SqxcCjson.c | 使用 cJSON 库                 |
+| SqxcJsonc    | 转换   JSON       | SqxcJsonc.c | 使用 json-c 库                |
+| SqxcValue    | 转换为 C 结构     | SqxcValue.c |                               |
+| SqxcFile     | 输出到文件        | SqxcFile.c  |                               |
+| SqxcMem      | 输出至内存        | SqxcMem.c   |                               |
 
-注意: [SqxcFile](SqxcFile.cn.md) 和 [SqxcMem](SqxcMem.cn.md) 在 sqxcsupport 库中。示例代码在 [xc_json_file.cpp](../examples/xc_json_file.cpp)
+注意 1: [SqxcFile](SqxcFile.cn.md) 和 [SqxcMem](SqxcMem.cn.md) 在 sqxcsupport 库中。示例代码在 [xc_json_file.cpp](../examples/xc_json_file.cpp)  
+注意 2: 开发者可以在 SqConfig.h 中设置 SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE 来禁用 SqxcJsonc（如果 SqxcCjson 可用）。
 
 **Sqxc 转换器的数据类型**
 
@@ -50,10 +53,10 @@ Sqxc 在 X 和 C 语言之间转换数据 （X = SQL, JSON 等）。它在一个
 	Sqxc *xcjson;
 
 	xcsql  = sqxc_new(SQXC_INFO_SQL);
-	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
+	xcjson = sqxc_new(SQXC_INFO_JSON_WRITER);
 	/* 另一种创建 Sqxc 元素的方法 */
 //	xcsql  = sqxc_sql_new();
-//	xcjson = sqxc_jsonc_writer_new();
+//	xcjson = sqxc_json_writer_new();
 
 	// 将 JSON 写入器附加到 Sqxc 链
 	sqxc_insert(xcsql, xcjson, -1);
@@ -63,7 +66,7 @@ Sqxc 在 X 和 C 语言之间转换数据 （X = SQL, JSON 等）。它在一个
 
 ```c++
 	Sq::XcSql         *xcsql  = new Sq::XcSql();
-	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
+	Sq::XcJsonWriter  *xcjson = new Sq::XcJsonWriter();
 
 	// 将 JSON 写入器附加到 Sqxc 链
 	xcsql->insert(xcjson);
@@ -87,16 +90,16 @@ Sqxc 在 X 和 C 语言之间转换数据 （X = SQL, JSON 等）。它在一个
 sqxc_send() 可以在 Sqxc 元素之间发送数据（参数）并在运行时更改数据流（Sqxc::dest）。  
   
 **数据流 1：** sqxc_send() 从 SQL 结果（列有 JSON 数据）发送到 C 值  
-如果 SqxcValue 不能匹配当前数据类型，它会将数据转发给 SqxcJsoncParser。
+如果 SqxcValue 不能匹配当前数据类型，它会将数据转发给 SqxcJsonParser。
 
-	input ─>          ┌─> SqxcJsoncParser ─┐
+	input ─>          ┌─> SqxcJsonParser ──┐
 	sqdb_exec()     ──┴────────────────────┴──> SqxcValue ───> SqType::parse()
 
 
 **数据流 2：** sqxc_send() 从 C 值发送到 SQL（列有 JSON 数据）  
-如果 [SqxcSql](SqxcSql.cn.md) 不支持当前数据类型，它会将数据转发给 SqxcJsoncWriter。
+如果 [SqxcSql](SqxcSql.cn.md) 不支持当前数据类型，它会将数据转发给 SqxcJsonWriter。
 
-	output ─>         ┌─> SqxcJsoncWriter ─┐
+	output ─>         ┌─> SqxcJsonWriter ──┐
 	SqType::write() ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()
 
 sqxc_send() 由数据源端调用。它将数据（参数）发送到 Sqxc 元素并尝试匹配 Sqxc 链中的类型。  
@@ -291,7 +294,7 @@ JSON 看起来像这样：
 ```
 
 ## 如何支持新格式：
-用户可以参考 SqxcJsonc.h 和 SqxcJsonc.c 来支持新的格式。  
+开发者可以参考 SqxcCjsonc.h 和 SqxcCjsonc.c 来支持新的格式。  
 SqxcFile.h 和 SqxcFile.c 是最简单的示例代码，它只是将字符串写入文件。  
 SqxcEmpty.h 和 SqxcEmpty.c 是一个可行的示例，但它什么也不做。  
 
@@ -533,7 +536,7 @@ C++ 方法 popNested() 和 C 函数 sqxc_pop_nested() 可以从堆栈顶部删�
 	sqxc_insert(storage->xc_input, xc_text, 1);
 
 	// 从列表中删除 JSON 解析器，因为它已被新解析器替换。
-	xc_json = sqxc_find(storage->xc_input, SQXC_INFO_JSONC_PARSER);
+	xc_json = sqxc_find(storage->xc_input, SQXC_INFO_JSON_PARSER);
 	if (xc_json) {
 		sqxc_steal(storage->xc_input, xc_json);
 		// 如果不再需要，释放 'xc_json'
@@ -557,7 +560,7 @@ C++ 方法 popNested() 和 C 函数 sqxc_pop_nested() 可以从堆栈顶部删�
 	storage->xc_input->insert(xc_text, 1);
 
 	// 从列表中删除 JSON 解析器，因为它已被新解析器替换。
-	xc_json = storage->xc_input->find(SQXC_INFO_JSONC_PARSER);
+	xc_json = storage->xc_input->find(SQXC_INFO_JSON_PARSER);
 	if (xc_json) {
 		storage->xc_input->steal(xc_json);
 		// 如果不再需要，释放 'xc_json'
@@ -570,7 +573,7 @@ C++ 方法 popNested() 和 C 函数 sqxc_pop_nested() 可以从堆栈顶部删�
 	input ->         ┌─> SqxcTextParser ──┐
 	sqdb_exec()    ──┴────────────────────┴─> SqxcValue ───> SqType::parse()
 
-注意: 您还需要在 SqStorage::xc_output 中将 SqxcJsoncWriter 替换为 SqxcTextWriter。
+注意: 您还需要在 SqStorage::xc_output 中将 SqxcJsonWriter 替换为 SqxcTextWriter。
 
 ## 处理（跳过）未知对象和数组
 

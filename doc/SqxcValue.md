@@ -34,7 +34,7 @@ use C++ language
 
 If some fields/members are input as JSON objects or arrays, modify the above Sqxc chain as follows:
 
-	                      ┌─> SqxcJsoncParser ─┐
+	                      ┌─> SqxcJsonParser ──┐
 	Sqxc data arguments ──┴────────────────────┴──> SqxcValue   ───> SqType::parse()
 
 use C language
@@ -42,9 +42,9 @@ use C language
 ```c
 	Sqxc *xcjson;
 
-	xcjson = sqxc_new(SQXC_INFO_JSONC_PARSER);
+	xcjson = sqxc_new(SQXC_INFO_JSON_PARSER);
 	/* another way to create Sqxc elements */
-//	xcjson = sqxc_jsonc_parser_new();
+//	xcjson = sqxc_json_parser_new();
 
 	// append JSON parser to Sqxc chain
 	sqxc_insert(xcvalue, xcjson, -1);
@@ -53,7 +53,7 @@ use C language
 use C++ language
 
 ```c++
-	Sq::XcJsoncParser *xcjson = new Sq::XcJsoncParser();
+	Sq::XcJsonParser *xcjson = new Sq::XcJsonParser();
 
 	// append JSON parser to Sqxc chain
 	xcvalue->insert(xcjson);
@@ -157,9 +157,9 @@ use C++ language
 	xc = xc->send();
 ```
 
-If you are just converting JSON data types to C data types, you can use sqxc_send_to() to pass JSON data to SqxcJsoncParser, which then outputs data arguments to SqxcValue. The data flow looks like:
+If you are just converting JSON data types to C data types, you can use sqxc_send_to() to pass JSON data to SqxcJsonParser, which then outputs data arguments to SqxcValue. The data flow looks like:
 
-	Sqxc data arguments ───── SqxcJsoncParser ────> SqxcValue   ───> SqType::parse()
+	Sqxc data arguments ───── SqxcJsonParser ────> SqxcValue   ───> SqType::parse()
 
 use C language
 

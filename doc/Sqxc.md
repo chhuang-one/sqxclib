@@ -5,15 +5,18 @@
 Sqxc convert data between X and C language (X = SQL, JSON, etc.). It contain status, buffer, and input/output arguments in one C structure.  
 User can link multiple Sqxc elements to convert different types of data.  
 
-| element name | description           | source file |
-| ------------ | --------------------- | ----------- |
-| SqxcSql      | convert to SQL (Sqdb) | SqxcSql.c   |
-| SqxcJsonc    | convert to/from JSON  | SqxcJsonc.c |
-| SqxcValue    | convert to C struct   | SqxcValue.c |
-| SqxcFile     | output to file        | SqxcFile.c  |
-| SqxcMem      | output to memory      | SqxcMem.c   |
+| element name | description            | source file | Note                           |
+| ------------ | ---------------------- | ----------- | ------------------------------ |
+| SqxcSql      | convert to SQL (Sqdb)  | SqxcSql.c   |                                |
+| SqxcJson     | default JSON converter | SqxcJson.h  | SqxcCjson or SqxcJsonc aliases |
+| SqxcCjson    | convert to/from JSON   | SqxcCjson.c | use cJSON library              |
+| SqxcJsonc    | convert to/from JSON   | SqxcJsonc.c | use json-c library             |
+| SqxcValue    | convert to C struct    | SqxcValue.c |                                |
+| SqxcFile     | output to file         | SqxcFile.c  |                                |
+| SqxcMem      | output to memory       | SqxcMem.c   |                                |
 
-Note: [SqxcFile](SqxcFile.md) and [SqxcMem](SqxcMem.md) are in sqxcsupport library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)
+Note 1: [SqxcFile](SqxcFile.md) and [SqxcMem](SqxcMem.md) are in sqxcsupport library. Sample code is in [xc_json_file.cpp](../examples/xc_json_file.cpp)  
+Note 2: Developer can set SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE in SqConfig.h to disable SqxcJsonc if SqxcCjson is available.
 
 **Data type for Sqxc converter**
 
@@ -50,10 +53,10 @@ use C language
 	Sqxc *xcjson;
 
 	xcsql  = sqxc_new(SQXC_INFO_SQL);
-	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
+	xcjson = sqxc_new(SQXC_INFO_JSON_WRITER);
 	/* another way to create Sqxc elements */
 //	xcsql  = sqxc_sql_new();
-//	xcjson = sqxc_jsonc_writer_new();
+//	xcjson = sqxc_json_writer_new();
 
 	// append JSON writer to Sqxc chain
 	sqxc_insert(xcsql, xcjson, -1);
@@ -63,7 +66,7 @@ use C++ language
 
 ```c++
 	Sq::XcSql         *xcsql  = new Sq::XcSql();
-	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
+	Sq::XcJsonWriter  *xcjson = new Sq::XcJsonWriter();
 
 	// append JSON writer to Sqxc chain
 	xcsql->insert(xcjson);
@@ -87,16 +90,16 @@ user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especi
 sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc::dest) at runtime.  
   
 **Data flow 1:** sqxc_send() send from SQL result (column has JSON data) to C value  
-If SqxcValue can't match current data type, it will forward data to SqxcJsoncParser.
+If SqxcValue can't match current data type, it will forward data to SqxcJsonParser.
 
-	input ─>          ┌─> SqxcJsoncParser ─┐
+	input ─>          ┌─> SqxcJsonParser ──┐
 	sqdb_exec()     ──┴────────────────────┴──> SqxcValue ───> SqType::parse()
 
 
 **Data flow 2:** sqxc_send() send from C value to SQL (column has JSON data)  
-If [SqxcSql](SqxcSql.md) doesn't support current data type, it will forward data to SqxcJsoncWriter.
+If [SqxcSql](SqxcSql.md) doesn't support current data type, it will forward data to SqxcJsonWriter.
 
-	output ─>         ┌─> SqxcJsoncWriter ─┐
+	output ─>         ┌─> SqxcJsonWriter ──┐
 	SqType::write() ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()
 
 sqxc_send() is called by data source side. It send data(arguments) to Sqxc element and try to match type in Sqxc chain.  
@@ -291,7 +294,7 @@ use C++ language
 ```
 
 ## How to support new format:
-User can refer SqxcJsonc.h and SqxcJsonc.c to support new format.  
+Developer can refer SqxcCjson.h and SqxcCjson.c to support new format.  
 SqxcFile.h and SqxcFile.c is the simplest sample code, it just write string to file.  
 SqxcEmpty.h and SqxcEmpty.c is a workable sample, but it do nothing.  
 
@@ -533,7 +536,7 @@ use C language
 	sqxc_insert(storage->xc_input, xc_text, 1);
 
 	// remove JSON parser from list because it is replaced by new one.
-	xc_json = sqxc_find(storage->xc_input, SQXC_INFO_JSONC_PARSER);
+	xc_json = sqxc_find(storage->xc_input, SQXC_INFO_JSON_PARSER);
 	if (xc_json) {
 		sqxc_steal(storage->xc_input, xc_json);
 		// free 'xc_json' if no longer needed
@@ -557,7 +560,7 @@ use C++ language
 	storage->xc_input->insert(xc_text, 1);
 
 	// remove JSON parser from list because it is replaced by new one.
-	xc_json = storage->xc_input->find(SQXC_INFO_JSONC_PARSER);
+	xc_json = storage->xc_input->find(SQXC_INFO_JSON_PARSER);
 	if (xc_json) {
 		storage->xc_input->steal(xc_json);
 		// free 'xc_json' if no longer needed
@@ -570,7 +573,7 @@ The Sqxc input data flow in your [SqStorage](SqStorage.md) object will look like
 	input ->         ┌─> SqxcTextParser ──┐
 	sqdb_exec()    ──┴────────────────────┴─> SqxcValue ───> SqType::parse()
 
-Note: You also need replace SqxcJsoncWriter by SqxcTextWriter in SqStorage::xc_output.
+Note: You also need replace SqxcJsonWriter by SqxcTextWriter in SqStorage::xc_output.
 
 ## Processing (skip) unknown object & array
 

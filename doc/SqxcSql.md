@@ -34,7 +34,7 @@ use C++ language
 
 If you want to write JSON object or array to column, modify the above Sqxc chain as follows:
 
-	                      ┌─> SqxcJsoncWriter ─┐
+	                      ┌─> SqxcJsonWriter ──┐
 	Sqxc data arguments ──┴────────────────────┴──> SqxcSql   ───> sqdb_exec()
 
 use C language
@@ -42,9 +42,9 @@ use C language
 ```c
 	Sqxc *xcjson;
 
-	xcjson = sqxc_new(SQXC_INFO_JSONC_WRITER);
+	xcjson = sqxc_new(SQXC_INFO_JSON_WRITER);
 	/* another way to create Sqxc elements */
-//	xcjson = sqxc_jsonc_writer_new();
+//	xcjson = sqxc_json_writer_new();
 
 	// append JSON writer to Sqxc chain
 	sqxc_insert(xcsql, xcjson, -1);
@@ -53,7 +53,7 @@ use C language
 use C++ language
 
 ```c++
-	Sq::XcJsoncWriter *xcjson = new Sq::XcJsoncWriter();
+	Sq::XcJsonWriter *xcjson = new Sq::XcJsonWriter();
 
 	// append JSON writer to Sqxc chain
 	xcsql->insert(xcjson);
@@ -143,8 +143,8 @@ use C++ language
 	xc = xc->send();
 ```
 
-When using SqxcSql and SqxcJsonc at the same time, it is not recommended to use sqxc_send_to() directly to pass data arguments.
-Because user must switch between SqxcSql and SqxcJsonc when users send data arguments.
+When using SqxcSql and SqxcJson at the same time, it is not recommended to use sqxc_send_to() directly to pass data arguments.
+Because program must switch between SqxcSql and SqxcJson when developers send data arguments.
 
 ## Output
 
