@@ -39,7 +39,7 @@ sqxcapp = declare_dependency(
 
 sqxcapptool = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with : sqxcapptool_user_lib,
+    link_with : sqxcapp_data_lib,
     dependencies : sqxc
 )
 
