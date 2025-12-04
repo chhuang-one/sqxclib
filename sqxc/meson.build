@@ -63,7 +63,6 @@ headers = [
     # Sqxc - Converter base structure
     'Sqxc.h',
     'SqxcValue.h',
-    'SqxcJson.h',
     'SqxcSql.h',
 ]
 install_headers(headers, subdir: 'sqxc')
@@ -79,19 +78,26 @@ headers_cpp = [
 ]
 install_headers(headers_cpp, subdir: 'sqxc')
 
+headers_json = []
+# --- cJSON or json-c ---
+if cjson.found() or jsonc.found()
+	headers_json += ['SqxcJson.h']
+endif
+
 # --- cJSON ---
 if cjson.found() == true
 	sources += ['SqxcCjson.c']
-	headers += ['SqxcCjson.h']
+	headers_json += ['SqxcCjson.h']
 	sqxc_dependencies += cjson
 endif
 
 # --- json-c ---
 if jsonc.found() == true
 	sources += ['SqxcJsonc.c']
-	headers += ['SqxcJsonc.h']
+	headers_json += ['SqxcJsonc.h']
 	sqxc_dependencies += jsonc
 endif
+install_headers(headers_json, subdir: 'sqxc')
 
 # --- SQLite ---
 if sqlite.found() == true
