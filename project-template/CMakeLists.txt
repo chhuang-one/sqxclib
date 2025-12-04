@@ -33,6 +33,9 @@ find_package(PkgConfig)
 # pkg-config module
 if (PKG_CONFIG_FOUND)
 	pkg_check_modules(SQXC sqxclib)
+	if (SQXC_FOUND)
+		set(SQXC_PC_FOUND true)
+	endif (SQXC_FOUND)
 
 	pkg_check_modules(cjson libcjson)
 	if (cjson_FOUND)
@@ -94,6 +97,12 @@ endif ()
 if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
 endif ()
+
+# --- sqxclib ---
+if (NOT SQXC_FOUND)
+    message(FATAL_ERROR "sqxclib not found.")
+    return() # Exit processing of this CMakeLists.txt
+endif (NOT SQXC_FOUND)
 
 # --- cJSON ---
 if (cjson_FOUND AND NOT DEFINED cjson_PC_FOUND)

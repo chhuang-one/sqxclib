@@ -53,7 +53,6 @@ set(HEADERS
     Sqdb-migration.h    # Most of the Database products may use this (exclude SQLite)
     Sqxc.h
     SqxcValue.h
-    SqxcJson.h
     SqxcSql.h
 )
 
@@ -65,8 +64,18 @@ set(HEADERS_CPP
     SqType-stl-cpp.h
 )
 
+# --- cJSON or json-c---
+# if (cjson_INCLUDE_DIRS OR json-c_INCLUDE_DIRS)
+if (cjson_FOUND OR json-c_FOUND)
+	set(HEADERS
+	    ${HEADERS}
+	    SqxcJson.h
+	)
+endif()
+
 # --- cJSON ---
-if (cjson_FOUND)      # if (cjson_INCLUDE_DIRS)
+# if (cjson_INCLUDE_DIRS)
+if (cjson_FOUND)
 	set(SOURCES
 	    ${SOURCES}
 	    SqxcCjson.c
@@ -78,7 +87,8 @@ if (cjson_FOUND)      # if (cjson_INCLUDE_DIRS)
 endif()
 
 # --- json-c ---
-if (json-c_FOUND)     # if (json-c_INCLUDE_DIRS)
+# if (json-c_INCLUDE_DIRS)
+if (json-c_FOUND)
 	set(SOURCES
 	    ${SOURCES}
 	    SqxcJsonc.c
