@@ -1,19 +1,19 @@
-# --- 'sqxcapp-user' sources and headers ---
-set(SOURCES_APP_USER
+# --- 'sqxcapp-data' sources and headers ---
+set(SOURCES_APP_DATA
     SqApp-config.c
     migrations.c
     migrations-files.c
 )
 
 if (DEFINED CMAKE_CXX_COMPILER)
-	# add 'sqxcapp-user' C++ source file
-	set(SOURCES_APP_USER
-	    ${SOURCES_APP_USER}
+	# add 'sqxcapp-data' C++ source file
+	set(SOURCES_APP_DATA
+	    ${SOURCES_APP_DATA}
 	    migrations-files-cpp.cpp
 	)
 endif (DEFINED CMAKE_CXX_COMPILER)
 
-set(HEADERS_APP_USER
+set(HEADERS_APP_DATA
     SqApp-config.h
     migrations.h
 )
@@ -24,27 +24,8 @@ set(SQXCAPP_INCLUDE_DIRS
 )
 
 set(SQXCAPP_LIBRARIES
-    sqxcapp-user
+    sqxcapp-data
     ${SQXC_LIBRARIES}
-)
-
-# --- 'sqxcapptool-user' sources and headers ---
-set(SOURCES_APPTOOL_USER
-    SqApp-config.c
-    migrations.c
-    SqAppTool-migrations-files.c
-)
-
-if (DEFINED CMAKE_CXX_COMPILER)
-	# add 'sqxcapptool-user' C++ source file
-	set(SOURCES_APPTOOL_USER
-	    ${SOURCES_APPTOOL_USER}
-	    SqAppTool-migrations-files-cpp.cpp
-	)
-endif (DEFINED CMAKE_CXX_COMPILER)
-
-set(HEADERS_APPTOOL_USER
-    SqAppTool-config.h
 )
 
 set(SQXCAPPTOOL_INCLUDE_DIRS
@@ -53,7 +34,7 @@ set(SQXCAPPTOOL_INCLUDE_DIRS
 )
 
 set(SQXCAPPTOOL_LIBRARIES
-    sqxcapptool-user
+    sqxcapp-data
     ${SQXC_LIBRARIES}
 )
 
@@ -70,18 +51,11 @@ set(SOURCES_CPP
 include_directories(${SQXCAPPTOOL_INCLUDE_DIRS})
 link_libraries(${SQXC_LIBRARIES})
 
-# 'sqxcapp-user' has database settings and migration data for user application.
-add_library(sqxcapp-user
+# 'sqxcapp-data' has database settings and migration data for user application.
+add_library(sqxcapp-data
             STATIC
-            ${SOURCES_APP_USER}
+            ${SOURCES_APP_DATA}
             ${HEADERS_APP}
-)
-
-# 'sqxcapptool-user' has database settings and migration data for user application.
-add_library(sqxcapptool-user
-            STATIC
-            ${SOURCES_APPTOOL_USER}
-            ${HEADERS_APPTOOL}
 )
 
 # --- 'sqtool' executable file ---

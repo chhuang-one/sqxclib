@@ -4,7 +4,12 @@ set(SOURCES_APP
     SqMigration.c
 )
 
-set(SOURCES_APP_USER
+set(HEADERS_APP
+    SqApp.h
+    SqMigration.h
+)
+
+set(SOURCES_APP_DATA
     SqApp-config.c
     migrations.c
     migrations-files.c
@@ -12,18 +17,13 @@ set(SOURCES_APP_USER
 
 if (DEFINED CMAKE_CXX_COMPILER)
 	# add 'sqxcapp' C++ source file
-	set(SOURCES_APP_USER
-	    ${SOURCES_APP_USER}
+	set(SOURCES_APP_DATA
+	    ${SOURCES_APP_DATA}
 	    migrations-files-cpp.cpp
 	)
 endif (DEFINED CMAKE_CXX_COMPILER)
 
-set(HEADERS_APP
-    SqApp.h
-    SqMigration.h
-)
-
-set(HEADERS_APP_USER
+set(HEADERS_APP_DATA
     SqApp-config.h
     migrations.h
 )
@@ -34,7 +34,7 @@ set(SQXCAPP_INCLUDE_DIRS
 )
 
 set(SQXCAPP_LIBRARIES
-    sqxcapp-user
+    sqxcapp-data
     sqxcapp
     ${SQXC_LIBRARIES}
 )
@@ -47,28 +47,10 @@ set(SOURCES_APPTOOL
     SqAppCommands-make.c
 )
 
-set(SOURCES_APPTOOL_USER
-    SqApp-config.c
-    migrations.c
-    SqAppTool-migrations-files.c
-)
-
-if (DEFINED CMAKE_CXX_COMPILER)
-	# add 'sqxcapptool' C++ source file
-	set(SOURCES_APPTOOL_USER
-	    ${SOURCES_APPTOOL_USER}
-	    SqAppTool-migrations-files-cpp.cpp
-	)
-endif (DEFINED CMAKE_CXX_COMPILER)
-
 set(HEADERS_APPTOOL
     SqAppTool.h
     SqAppOptions.h
     SqAppCommands.h
-)
-
-set(HEADERS_APPTOOL_USER
-    SqAppTool-config.h
 )
 
 set(SQXCAPPTOOL_INCLUDE_DIRS
@@ -77,7 +59,7 @@ set(SQXCAPPTOOL_INCLUDE_DIRS
 )
 
 set(SQXCAPPTOOL_LIBRARIES
-    sqxcapptool-user
+    sqxcapp-data
     sqxcapptool
     sqxcapp
     ${SQXCSUPPORT_LIBRARIES}
@@ -112,10 +94,10 @@ if (BUILD_SHARED_LIBS)
 #	target_link_libraries(sqxcapp ${SQXC_LIBRARIES})
 endif (BUILD_SHARED_LIBS)
 
-# 'sqxcapp-user' has database settings and migration data for user application.
-add_library(sqxcapp-user
+# 'sqxcapp-data' has database settings and migration data for user application.
+add_library(sqxcapp-data
             STATIC
-            ${SOURCES_APP_USER}
+            ${SOURCES_APP_DATA}
             ${HEADERS_APP}
 )
 
@@ -133,13 +115,6 @@ set_target_properties(sqxcapptool
 if (BUILD_SHARED_LIBS)
 	target_link_libraries(sqxcapptool sqxcapp sqxcsupport)
 endif(BUILD_SHARED_LIBS)
-
-# 'sqxcapptool-user' has database settings and migration data for user application.
-add_library(sqxcapptool-user
-            STATIC
-            ${SOURCES_APPTOOL_USER}
-            ${HEADERS_APPTOOL}
-)
 
 # install
 install(

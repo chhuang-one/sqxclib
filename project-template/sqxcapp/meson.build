@@ -1,26 +1,14 @@
-# --- 'sqxcapp-user' sources and headers ---
-sources_app_user = [
+# --- 'sqxcapp-data' sources and headers ---
+sources_app_data = [
     'SqApp-config.c',
     'migrations.c',
     'migrations-files.c',
-    'migrations-files.cpp',
+    'migrations-files-cpp.cpp',
 ]
 
-headers_app_user = [
+headers_app_data = [
     'SqApp-config.h',
     'migrations.h',
-]
-
-# --- 'sqxcapptool-user' sources and headers ---
-sources_apptool_user = [
-    'SqApp-config.c',
-    'migrations.c',
-    'SqAppTool-migrations-files.c',
-    'SqAppTool-migrations-files.cpp'
-]
-
-headers_apptool_user = [
-    'SqAppTool-config.h',
 ]
 
 # --- 'sqtool' sources ---
@@ -33,21 +21,11 @@ sources_cpp = ['sqtool-cpp.cpp']
 sqxcapp_inc = include_directories('./')
 sqxcapptool_inc = sqxcapp_inc
 
-# --- 'sqxcapp-user' library ---
-# 'sqxcapp-user' has database settings and migration data for user application.
-sqxcapp_user_lib = static_library(
-    'sqxcapp-user',
-    sources_app_user,
-    include_directories: sqxcapp_inc,
-    dependencies : sqxc,
-    install: false
-)
-
-# --- 'sqxcapptool-user' library ---
-# 'sqxcapptool-user' has database settings and migration data for user application.
-sqxcapptool_user_lib = static_library(
-    'sqxcapptool-user',
-    sources_apptool_user,
+# --- 'sqxcapp-data' library ---
+# 'sqxcapp-data' has database settings and migration data for user application.
+sqxcapp_data_lib = static_library(
+    'sqxcapp-data',
+    sources_app_data,
     include_directories: sqxcapp_inc,
     dependencies : sqxc,
     install: false
@@ -55,7 +33,7 @@ sqxcapptool_user_lib = static_library(
 
 sqxcapp = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with : sqxcapp_user_lib,
+    link_with : sqxcapp_data_lib,
     dependencies : sqxc
 )
 

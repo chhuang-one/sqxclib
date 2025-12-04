@@ -9,14 +9,14 @@ headers_app = [
     'SqMigration.h',
 ]
 
-sources_app_user = [
+sources_app_data = [
     'SqApp-config.c',
     'migrations.c',
     'migrations-files.c',
     'migrations-files-cpp.cpp',
 ]
 
-headers_app_user = [
+headers_app_data = [
     'SqApp-config.h',
     'migrations.h',
 ]
@@ -33,17 +33,6 @@ headers_apptool = [
     'SqAppTool.h',
     'SqAppOptions.h',
     'SqAppCommands.h',
-]
-
-sources_apptool_user = [
-    'SqApp-config.c',
-    'migrations.c',
-    'SqAppTool-migrations-files.c',
-    'SqAppTool-migrations-files-cpp.cpp'
-]
-
-headers_apptool_user = [
-    'SqAppTool-config.h',
 ]
 
 # --- 'sqtool' sources ---
@@ -79,21 +68,21 @@ sqxcapp_shared_lib = shared_library(
     install: true
 )
 
-# 'sqxcapp-user' has database settings and migration data for user application.
+# 'sqxcapp-data' has database settings and migration data for user application.
 # The difference is that it links STATIC 'sqxc' library.
-sqxcapp_user_lib = static_library(
-    'sqxcapp-user',
-    sources_app_user,
+sqxcapp_data_lib = static_library(
+    'sqxcapp-data',
+    sources_app_data,
     include_directories: sqxcapp_inc,
     dependencies: sqxc,
     install: false
 )
 
-# 'sqxcapp-user-link_shared' has database settings and migration data for user application.
+# 'sqxcapp-data-link_shared' has database settings and migration data for user application.
 # The difference is that it links SHARED 'sqxc' library.
-sqxcapp_user_link_shared_lib = static_library(
-    'sqxcapp-user-link-shared',
-    sources_app_user,
+sqxcapp_data_link_shared_lib = static_library(
+    'sqxcapp-data-link-shared',
+    sources_app_data,
     include_directories: sqxcapp_inc,
     dependencies: sqxc_shared,
     install: false
@@ -119,49 +108,29 @@ sqxcapptool_shared_lib = shared_library(
     install: true
 )
 
-# 'sqxcapptool-user' has database settings and migration data for user application.
-# The difference is that it links STATIC 'sqxc' and 'sqxcsupport' library.
-sqxcapptool_user_lib = static_library(
-    'sqxcapptool-user',
-    sources_apptool_user,
-    include_directories: sqxcapp_inc,
-    dependencies: sqxcsupport,
-    install: false
-)
-
-# 'sqxcapptool-user-link-shared' has database settings and migration data for user application.
-# The difference is that it links SHARED 'sqxc' and 'sqxcsupport' library.
-sqxcapptool_user_link_shared_lib = static_library(
-    'sqxcapptool-user-link-shared',
-    sources_apptool_user,
-    include_directories: sqxcapp_inc,
-    dependencies: sqxcsupport_shared,
-    install: false
-)
-
 # static dependency
 sqxcapp = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with: [sqxcapp_user_lib, sqxcapp_lib],
+    link_with: [sqxcapp_data_lib, sqxcapp_lib],
     dependencies: sqxc
 )
 
 sqxcapptool = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with: [sqxcapptool_user_lib, sqxcapptool_lib, sqxcapp_lib],
+    link_with: [sqxcapp_data_lib, sqxcapptool_lib, sqxcapp_lib],
     dependencies: sqxcsupport
 )
 
 # shared dependency
 sqxcapp_shared = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with: [sqxcapp_user_link_shared_lib, sqxcapp_shared_lib],
+    link_with: [sqxcapp_data_link_shared_lib, sqxcapp_shared_lib],
     dependencies: sqxc_shared
 )
 
 sqxcapptool_shared = declare_dependency(
     include_directories : sqxcapp_inc,
-    link_with: [sqxcapptool_user_link_shared_lib, sqxcapptool_shared_lib, sqxcapp_shared_lib],
+    link_with: [sqxcapp_data_link_shared_lib, sqxcapptool_shared_lib, sqxcapp_shared_lib],
     dependencies: sqxcsupport_shared
 )
 

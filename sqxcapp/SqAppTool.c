@@ -24,13 +24,22 @@
 #include <SqHelpers.h>        // sq_str_type_name()
 #include <SqBuffer.h>
 #include <SqAppTool.h>
-#include <SqAppTool-config.h>
 #include <SqAppOptions.h>
 #include <SqAppCommands.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup
 #endif
+
+// SqAppTool paths
+#ifndef SQ_APP_TOOL_PATH_BASE
+#define SQ_APP_TOOL_PATH_BASE            NULL
+#endif
+
+#define SQ_APP_TOOL_PATH_DATABASE        "/database"
+#define SQ_APP_TOOL_PATH_MIGRATIONS      SQ_APP_TOOL_PATH_DATABASE "/migrations"
+#define SQ_APP_TOOL_PATH_SOURCE          "/sqxcapp"
+#define SQ_APP_TOOL_PATH_TEMPLATES       SQ_APP_TOOL_PATH_SOURCE "/templates"
 
 // ----------------------------------------------------------------------------
 // SqListOptions
@@ -178,7 +187,7 @@ int    sq_app_tool_decide_path(SqAppTool *app)
 {
 	SqBuffer *buf = &app->buffer;
 	FILE     *file = NULL;
-	char     *array[] = {".", "..", "../..", SQ_APP_TOOL_PATH_BASE, NULL};
+	char     *array[] = {".", "..", "../..", "../../..", SQ_APP_TOOL_PATH_BASE, NULL};
 
 	buf->writed = 0;
 	// workspace folder

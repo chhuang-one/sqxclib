@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -17,12 +17,15 @@
 
 #include <SqMigration.h>
 
-/* When user migrate at runtime, column 'migrations.name' in database will be empty string
-   because SqApp does NOT contain SqMigration.name string by default.
+/* Each migration file in the directory database/migrations defines a SqMigration instance.
+   SqMigration::name is the description of the migration.
+
+   If you set SQ_APP_HAS_MIGRATION_NAME to 0, SqMigration::name will not contain a string,
+   and column "migrations.name" in the database will be empty string when user migrates at runtime.
    Disable it to reduce code size of SqApp.
  */
 #ifndef SQ_APP_HAS_MIGRATION_NAME
-#define SQ_APP_HAS_MIGRATION_NAME    0
+#define SQ_APP_HAS_MIGRATION_NAME    1
 #endif
 
 // How to mix C and C++ - https://isocpp.org/wiki/faq/mixing-c-and-cpp
