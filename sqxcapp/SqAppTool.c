@@ -136,6 +136,7 @@ void   sq_app_tool_init(SqAppTool *app, const char *program_name, const struct S
 	sq_buffer_init(&app->buffer);
 
 	app->template_extension = ".c.txt";
+	app->migrations_files_name = NULL;
 	app->path = NULL;
 }
 
@@ -341,18 +342,23 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 	buf->mem[buf->writed] = 0;
 	in.path = strdup(buf->mem);
 
-	// append filename in migrations-files.c (or migrations-files-cpp.cpp)
+	// append filename of migrations-files
 	buf->writed = 0;
 	sq_buffer_write(buf, app->path);    // workspace folder
 	sq_buffer_write(buf, SQ_APP_TOOL_PATH_SOURCE);
 	sq_buffer_write_c(buf, '/');
-	sq_buffer_write(buf, "migrations-files");
-	// C++ filename of "migrations-files" is "migrations-files-cpp"
-	if (strncmp(app->template_extension, ".cpp", 4) == 0)
-		sq_buffer_write(buf, "-cpp");
-	// strcspn() count length of template file extension
-	sq_buffer_write_len(buf, app->template_extension,
-	                    strcspn(app->template_extension+1, ".") + 1);
+
+	if (app->migrations_files_name)
+		sq_buffer_write(buf, app->migrations_files_name);
+	else {
+		sq_buffer_write(buf, "migrations-files");
+		// C++ filename of "migrations-files" is "migrations-files-cpp"
+		if (strncmp(app->template_extension, ".cpp", 4) == 0)
+			sq_buffer_write(buf, "-cpp");
+		// strcspn() count length of template file extension
+		sq_buffer_write_len(buf, app->template_extension,
+		                    strcspn(app->template_extension+1, ".") + 1);
+	}
 	buf->mem[buf->writed] = 0;
 	out.file = fopen(buf->mem, "a");
 	if (out.file == NULL) {

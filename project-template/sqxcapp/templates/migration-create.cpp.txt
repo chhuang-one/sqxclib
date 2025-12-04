@@ -1,8 +1,8 @@
 /* This template file is used by sqtool-cpp
  * Please define structure '{{ struct_name }}' in workspace/sqxcapp/CStructs.h
  *
- * Normally this file should be included in migrations-files-cpp.cpp if you use sqtool-cpp to make migration file.
- * migrations-files-cpp.cpp has included following headers.
+ * Normally this file should be included in migrations-files-cxx.cpp if you use sqtool-cpp to make migration file.
+ * migrations-files-cxx.cpp has included following headers.
  * #include <SqStorage.h>
  * #include <SqMigration.h>
  * #include "CStructs.h"

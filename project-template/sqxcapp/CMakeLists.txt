@@ -9,7 +9,7 @@ if (DEFINED CMAKE_CXX_COMPILER)
 	# add 'sqxcapp-data' C++ source file
 	set(SOURCES_APP_DATA
 	    ${SOURCES_APP_DATA}
-	    migrations-files-cpp.cpp
+	    migrations-files-cxx.cpp
 	)
 endif (DEFINED CMAKE_CXX_COMPILER)
 

@@ -212,13 +212,21 @@ C 迁移文件由 sqtool 创建，C++ 迁移文件由 sqtool-cpp 创建。每个
 	   将迁移数组的元素附加到 sqapp/migrations-elements
 
 	   将迁移文件的相对路径通过 sqtool     附加到 sqapp/migrations-files.c
-	                     或通过 sqtool-cpp 附加到 sqapp/migrations-files.cpp
+	                     或通过 sqtool-cpp 附加到 sqapp/migrations-files-cxx.cpp
 
 	3. 编辑生成的迁移文件 yyyy_MM_dd_HHmmss_create_newbies_table.c    (由 sqtool     生成)
 	                   或 yyyy_MM_dd_HHmmss_create_newbies_table.cpp  (由 sqtool-cpp 生成)
 	   位于文件夹 database/migrations/
 
 最后，您必须在定义表后重新编译迁移代码。
+
+#### 4.1.0 迁移文件
+
+在 database/migrations 目录中的每个迁移文件都定义了一个 SqMigration 实例。SqMigration::name 是迁移的描述。  
+如果 SqMigration::name 不包含字符串，则当用户在运行时迁移时，数据库中的列 'migrations.name' 将为空字符串。
+  
+您可以在 sqapp/migrations.h 中将 SQ_APP_HAS_MIGRATION_NAME 设置为 0，这样 SqApp 将不会在 SqMigration::name 中包含字符串。
+这可以减小应用程序二进制文件的大小。  
 
 #### 4.1.1 使用 sqtool 建表 (C 语言)
 
@@ -288,8 +296,8 @@ sqtool-cpp  make:migration  --table=companies  alter_companies_table
 ```c++
 /* 此模板文件由 sqtool-cpp 使用
  *
- * 如果您使用 sqtool-cpp 制作迁移文件，则通常应将此文件包含在 migrations-files.cpp 中。
- * migrations-files.cpp 已包含以下标头。
+ * 如果您使用 sqtool-cpp 制作迁移文件，则通常应将此文件包含在 migrations-files-cxx.cpp 中。
+ * migrations-files-cxx.cpp 已包含以下标头。
  * #include <SqStorage.h>
  * #include <SqMigration.h>
  * #include "CStructs.h"
@@ -348,8 +356,7 @@ sqtool  migrate:rollback  --step=5
 
 ### 4.2 在运行时迁移
 
-如果用户在运行时进行迁移，数据库中的列 'migrations.name' 将为空字符串，因为 SqApp 默认不包含 SqMigration::name 字符串。这可以减少应用程序二进制大小。  
-要更改默认设置，您可以在 migrations.h 中将 SQ_APP_HAS_MIGRATION_NAME 设置为 1。  
+开发者可以使用 migrate() 和 rollback() 在运行时执行迁移。
 
 #### 4.2.1 运行所有未完成的迁移
 
@@ -411,8 +418,8 @@ sq_app_migrate() 的 'step' 参数如果为 0，将运行所有未完成的迁�
 	             或 yyyy_MM_dd_HHmmss_migration_name.cpp  (由 sqtool-cpp 生成)
 	   位于文件夹 database/migrations/
 
-	2. 移除 sqxcapp/migrations-files.c   中迁移文件的相对路径  (由 sqtool     添加)
-	     或 sqxcapp/migrations-files.cpp 中迁移文件的相对路径  (由 sqtool-cpp 添加)
+	2. 移除 sqxcapp/migrations-files.c   中迁移文件的相对路径      (由 sqtool     添加)
+	     或 sqxcapp/migrations-files-cxx.cpp 中迁移文件的相对路径  (由 sqtool-cpp 添加)
 
 	3. 移除 sqxcapp/migrations-declarations 中的迁移声明
 

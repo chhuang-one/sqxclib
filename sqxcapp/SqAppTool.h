@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -110,7 +110,8 @@ struct AppToolMethod : AppMethod
 	char           *path;                  \
 	SqConsole      *console;               \
 	SqBuffer        buffer;                \
-	SqPairs         pairs
+	SqPairs         pairs;                 \
+	const char     *migrations_files_name
 
 #ifdef __cplusplus
 struct SqAppTool : Sq::AppToolMethod         // <-- 1. inherit C++ member function(method)
@@ -133,6 +134,9 @@ struct SqAppTool
 	SqConsole      *console;
 	SqBuffer        buffer;     // buffer for temporary use
 	SqPairs         pairs;    	// Key-Value pairs for temporary use
+
+	// filename of migrations-files
+	const char     *migrations_files_name;
  */
 };
 

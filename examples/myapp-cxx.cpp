@@ -199,7 +199,7 @@ int  main(void)
 		To enable the table "users", modify following files:
 			migrations-declarations
 			migrations-elements
-			migrations-files.cpp
+			migrations-files-cxx.cpp
 	 */
 	Sq::Storage *storage = myapp->getStorage();
 

@@ -3,7 +3,7 @@ sources_app_data = [
     'SqApp-config.c',
     'migrations.c',
     'migrations-files.c',
-    'migrations-files-cpp.cpp',
+    'migrations-files-cxx.cpp',
 ]
 
 headers_app_data = [

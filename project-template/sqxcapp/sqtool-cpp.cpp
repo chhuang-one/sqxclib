@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2023 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -17,12 +17,11 @@
 #endif
 #include <stdio.h>        // printf()
 
-#include <sqxclib.h>
 #include <SqAppTool.h>
 
-//#define TEST_ARGV
+#define TEST_ARGV    0
 
-#ifdef TEST_ARGV
+#if TEST_ARGV
 const char *test_argv[] = {
 	"sqtool-cpp", "migrate",
 //	"sqtool-cpp", "migrate", "--step", "testarg",
@@ -58,13 +57,17 @@ int  main(int argc, char **argv)
 	// create Sq::AppTool with 'program_name'
 	apptool = new Sq::AppTool(program_name);
 
-	// if 'program_name' contains "cpp", program outputs cpp files.
-	if (strstr(program_name, "cpp"))
+	// if 'program_name' contains "cpp" or "cxx", program outputs cpp files.
+	if (strstr(program_name, "cpp") || strstr(program_name, "cxx")) {
 		apptool->template_extension = ".cpp.txt";
-	else
+		apptool->migrations_files_name = "migrations-files-cxx.cpp";
+	}
+	else {
 		apptool->template_extension = ".c.txt";
+		apptool->migrations_files_name = "migrations-files.c";
+	}
 
-#ifdef TEST_ARGV
+#if TEST_ARGV
 	argc = test_argc;
 	argv = (char**)test_argv;
 #endif
