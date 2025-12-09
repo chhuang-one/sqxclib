@@ -89,7 +89,7 @@ int  sq_type_int_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_INT64:
-#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) )
+#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) || defined(__MINGW32__) )
 		// integer is 32-bit
 		if (src->value.int64 > INT32_MAX)
 			*(int*)instance = INT32_MAX;
@@ -110,7 +110,7 @@ int  sq_type_int_parse(void *instance, const SqType *entrytype, Sqxc *src)
 
 #if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
 	case SQXC_TYPE_UINT64:
-#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) )
+#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) || defined(__MINGW32__) )
 		// integer is 32-bit
 		if (src->value.uint64 > UINT32_MAX)
 			*(int*)instance = UINT32_MAX;
@@ -163,7 +163,7 @@ int  sq_type_uint_parse(void *instance, const SqType *entrytype, Sqxc *src)
 {
 	switch (src->type) {
 	case SQXC_TYPE_UINT64:
-#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) )
+#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) || defined(__MINGW32__) )
 		// integer is 32-bit
 		if (src->value.uint64 > UINT32_MAX)
 			*(unsigned int*)instance = UINT32_MAX;
@@ -182,7 +182,7 @@ int  sq_type_uint_parse(void *instance, const SqType *entrytype, Sqxc *src)
 
 #if SQ_CONFIG_CONVERT_SIGNED_UNSIGNED_INT
 	case SQXC_TYPE_INT64:
-#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) )
+#if 0 // ( defined(__WORDSIZE) && (__WORDSIZE == 32) )  ||  ( defined(_MSC_VER) || defined(__MINGW32__) )
 		// integer is 32-bit
 		if (src->value.int64 > INT32_MAX)
 			*(unsigned int*)instance = INT32_MAX;

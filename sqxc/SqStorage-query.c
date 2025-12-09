@@ -121,7 +121,7 @@ SqType* sq_storage_setup_query(SqStorage *storage, SqQuery *query, SqTypeJoint *
 				sq_query_select(query, temp);
 				free(temp);
 			}
-#endif
+#endif  // SQ_CONFIG_QUERY_ONLY_COLUMN
 		}
 	}
 

@@ -65,7 +65,6 @@ headers = [
     'SqxcValue.h',
     'SqxcSql.h',
 ]
-install_headers(headers, subdir: 'sqxc')
 
 # --- 'sqxcpp' C++ sources and headers ---
 sources_cpp = [
@@ -76,28 +75,25 @@ sources_cpp = [
 headers_cpp = [
     'SqType-stl-cpp.h',
 ]
-install_headers(headers_cpp, subdir: 'sqxc')
 
-headers_json = []
 # --- cJSON or json-c ---
 if cjson.found() or jsonc.found()
-	headers_json += ['SqxcJson.h']
+	headers += ['SqxcJson.h']
 endif
 
 # --- cJSON ---
 if cjson.found() == true
 	sources += ['SqxcCjson.c']
-	headers_json += ['SqxcCjson.h']
+	headers += ['SqxcCjson.h']
 	sqxc_dependencies += cjson
 endif
 
 # --- json-c ---
 if jsonc.found() == true
 	sources += ['SqxcJsonc.c']
-	headers_json += ['SqxcJsonc.h']
+	headers += ['SqxcJsonc.h']
 	sqxc_dependencies += jsonc
 endif
-install_headers(headers_json, subdir: 'sqxc')
 
 # --- SQLite ---
 if sqlite.found() == true
@@ -125,6 +121,9 @@ if postgresql.found() == true
 	headers_postgresql = ['SqdbPostgre.h']
 	install_headers(headers_postgresql, subdir: 'sqxc')
 endif
+
+install_headers(headers, subdir: 'sqxc')
+install_headers(headers_cpp, subdir: 'sqxc')
 
 configure_file(input : 'config.h.in',
                output : 'config.h',

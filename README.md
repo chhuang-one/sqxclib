@@ -31,7 +31,7 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 * Command-line tools can generate migration file and do migrate. See doc/[SqApp.md](doc/SqApp.md)
 
-* Supports converting JSON using cJSON or json-c, and developers can choose one of them as the default JSON converter.
+* Supports converting JSON using [cJSON](https://github.com/DaveGamble/cJSON) or [json-c](https://github.com/json-c/json-c), and developers can choose one of them as the default JSON converter.
 
 * Supports SQLite, MySQL / MariaDB, PostgreSQL.
 
@@ -919,7 +919,7 @@ sqxclib is case-sensitive when searching and sorting database column name and JS
 ```
 
 ## JSON support
-- This library use [json-c](https://github.com/json-c/json-c) to parse/write JSON.
+- This library use [cJSON](https://github.com/DaveGamble/cJSON) or [json-c](https://github.com/json-c/json-c) to parse/write JSON.
 - all defined table and column can use to parse JSON object and field.
 - program can also parse JSON object and array that store in column.
 

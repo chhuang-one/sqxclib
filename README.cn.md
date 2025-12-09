@@ -31,7 +31,7 @@ sqxclib 是在 C 语言和 SQL、JSON 等之间转换数据的库。它提供 OR
 
 * 命令行工具可以生成迁移文件并执行迁移。见 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
 
-* 支持使用 cJSON 或 json-c 转换 JSON，开发者可以选择其中一个作为默认的 JSON 转换器。
+* 支持使用 [cJSON](https://github.com/DaveGamble/cJSON) 或 [json-c](https://github.com/json-c/json-c) 转换 JSON，开发者可以选择其中一个作为默认的 JSON 转换器。
 
 * 支持 SQLite, MySQL / MariaDB, PostgreSQL。
 
@@ -919,7 +919,7 @@ sqxclib 在搜索和排序数据库列名和 JSON 字段名时默认区分大小
 ```
 
 ## JSON 支持
-- 此库使用 [json-c](https://github.com/json-c/json-c) 来解析/写入 JSON。
+- 此库使用 [cJSON](https://github.com/DaveGamble/cJSON) 或 [json-c](https://github.com/json-c/json-c) 来解析/写入 JSON。
 - 所有定义的表和列都可以用来解析 JSON 对象和字段。
 - 程序还可以解析存储在列中的 JSON 对象和数组。
 
