@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -198,10 +198,13 @@ struct StorageMethod
 	void  final(void);
 	*/
 
-	int   open(const char *database_name);
+	int   open(const char *databaseName);
 	int   close(void);
 
 	int   migrate(SqSchema *schema);
+
+	Sq::Table  *find(const char *tableName);
+	Sq::Table  *findByTypeName(const char *typeName);
 
 	// get<StructType>(id)
 	template <typename StructType>
@@ -620,8 +623,8 @@ namespace Sq {
 
 /* define StorageMethod functions. */
 
-inline int   StorageMethod::open(const char *database_name) {
-	return sqdb_open(((SqStorage*)this)->db, database_name);
+inline int   StorageMethod::open(const char *databaseName) {
+	return sqdb_open(((SqStorage*)this)->db, databaseName);
 }
 inline int   StorageMethod::close(void) {
 	return sqdb_close(((SqStorage*)this)->db);
@@ -629,6 +632,13 @@ inline int   StorageMethod::close(void) {
 
 inline int   StorageMethod::migrate(SqSchema *schema) {
 	return sqdb_migrate(((SqStorage*)this)->db, ((SqStorage*)this)->schema, schema);
+}
+
+inline Sq::Table *StorageMethod::find(const char *tableName) {
+	return (Sq::Table*)sq_storage_find((SqStorage*)this, tableName);
+}
+inline Sq::Table *StorageMethod::findByTypeName(const char *typeName) {
+	return (Sq::Table*)sq_storage_find_by_type((SqStorage*)this, typeName);
 }
 
 template <typename StructType>
