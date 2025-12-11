@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -19,11 +19,13 @@
 // ----------------------------------------------------------------------------
 // Common setting
 
-#define BIT_FIELD        0
-
+// No migration mode
 #if defined(DB_NO_MIGRATION) && DB_NO_MIGRATION
-#define BIT_FIELD        BIT_FIELD | SQDB_CONFIG_NO_MIGRATION
+#undef  DB_NO_MIGRATION
+#define DB_NO_MIGRATION    SQDB_CONFIG_NO_MIGRATION
 #endif
+
+#define DB_BIT_FIELD    DB_NO_MIGRATION
 
 // ----------------------------------------------------------------------------
 // Database products
@@ -36,7 +38,7 @@
 #define DB_CONFIG        ((SqdbConfig*) &db_config_sqlite)
 
 static const SqdbConfigSqlite  db_config_sqlite = {
-	.bit_field = BIT_FIELD,
+	.bit_field = DB_BIT_FIELD,
 	.folder    = DB_FOLDER,
 	.extension = DB_EXTENSION,
 };
@@ -53,7 +55,7 @@ static const SqdbConfigSqlite  db_config_sqlite = {
 #define DB_CONFIG        ((SqdbConfig*) &db_config_mysql)
 
 static const SqdbConfigMysql  db_config_mysql = {
-	.bit_field = BIT_FIELD,
+	.bit_field = DB_BIT_FIELD,
 	.host      = DB_HOST,
 	.port      = DB_PORT,
 	.user      = DB_USERNAME,
@@ -72,7 +74,7 @@ static const SqdbConfigMysql  db_config_mysql = {
 #define DB_CONFIG        ((SqdbConfig*) &db_config_postgre)
 
 static const SqdbConfigPostgre  db_config_postgre = {
-	.bit_field = BIT_FIELD,
+	.bit_field = DB_BIT_FIELD,
 	.host      = DB_HOST,
 	.port      = DB_PORT,
 	.user      = DB_USERNAME,

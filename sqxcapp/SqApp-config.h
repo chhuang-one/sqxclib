@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -29,7 +29,7 @@
 // --- Database Configuration ---
 
 // common configuration values
-#define DB_NO_MIGRATION    0
+#define DB_NO_MIGRATION    0                 // No migration mode
 #define DB_DATABASE    "sqxcapp-example"
 
 // --- MySQL / MariaDB ---
