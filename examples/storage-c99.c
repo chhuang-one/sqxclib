@@ -522,7 +522,7 @@ void  storage_query_join_ptr_array(SqStorage *storage)
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 SqdbConfigSqlite db_config_sqlite = {
-//	.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//	.bit_field = SQDB_CONFIG_NO_MIGRATION,    // No migration mode
 //	.folder = "/tmp",
 	.folder = ".",
 	.extension = "db",
@@ -530,7 +530,7 @@ SqdbConfigSqlite db_config_sqlite = {
 
 #elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
 SqdbConfigMysql  db_config_mysql = {
-//	.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//	.bit_field = SQDB_CONFIG_NO_MIGRATION,    // No migration mode
 	.host      = "localhost",
 	.port      = 3306,
 	.user      = "root",
@@ -539,7 +539,7 @@ SqdbConfigMysql  db_config_mysql = {
 
 #elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
 SqdbConfigPostgre  db_config_postgre = {
-//	.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//	.bit_field = SQDB_CONFIG_NO_MIGRATION,    // No migration mode
 	.host      = "localhost",
 	.port      = 5432,
 	.user      = "postgres",

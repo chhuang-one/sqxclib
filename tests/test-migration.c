@@ -536,7 +536,7 @@ void test_sqdb_migrate_sqlite_sync(Sqdb *db)
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
 SqdbConfigSqlite db_config_sqlite = {
-//	.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//	.bit_field = SQDB_CONFIG_NO_MIGRATION,    // No migration mode
 //	.folder = "/tmp",
 	.folder = ".",
 	.extension = "db",
@@ -547,7 +547,7 @@ SqdbConfig     *db_config = (SqdbConfig*) &db_config_sqlite;
 
 #elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
 SqdbConfigMysql  db_config_mysql = {
-//	.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//	.bit_field = SQDB_CONFIG_NO_MIGRATION,    // No migration mode
 	.host      = "localhost",
 	.port      = 3306,
 	.user      = "root",
@@ -559,7 +559,7 @@ SqdbConfig     *db_config = (SqdbConfig*) &db_config_mysql;
 
 #elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
 SqdbConfigPostgre  db_config_postgre = {
-//	.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//	.bit_field = SQDB_CONFIG_NO_MIGRATION,    // No migration mode
 	.host      = "localhost",
 	.port      = 5432,
 	.user      = "postgres",

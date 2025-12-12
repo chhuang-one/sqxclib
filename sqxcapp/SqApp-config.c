@@ -25,6 +25,7 @@
 #define DB_NO_MIGRATION    SQDB_CONFIG_NO_MIGRATION
 #endif
 
+// SqdbConfig::bit_field
 #define DB_BIT_FIELD    DB_NO_MIGRATION
 
 // ----------------------------------------------------------------------------

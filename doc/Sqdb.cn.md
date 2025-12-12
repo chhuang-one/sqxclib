@@ -37,7 +37,7 @@ SqdbConfig 是数据库配置的基础结构。
 	// 在 SqdbConfigSqlite 中设置 'folder' 和 'extension' 可以影响数据库文件名和路径。
 	SqdbConfigSqlite  sqliteConfig;
 
-//	sqliteConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	sqliteConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;     // 无迁移模式
 	sqliteConfig.folder    = "/home/user";
 	sqliteConfig.extension = "db";
 
@@ -45,7 +45,7 @@ SqdbConfig 是数据库配置的基础结构。
 	// --- MySQL 数据库配置 ---
 	SqdbConfigMysql  mysqlConfig;
 
-//	mysqlConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	mysqlConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;      // 无迁移模式
 	mysqlConfig.host = "localhost";
 	mysqlConfig.port = 3306;
 	mysqlConfig.user = "root";
@@ -55,7 +55,7 @@ SqdbConfig 是数据库配置的基础结构。
 	// --- PostgreSQL 数据库配置 ---
 	SqdbConfigPostgre  postgresConfig;
 
-//	postgresConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	postgresConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;   // 无迁移模式
 	postgresConfig.host = "localhost";
 	postgresConfig.port = 5432;
 	postgresConfig.user = "postgres";

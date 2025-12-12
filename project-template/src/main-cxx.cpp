@@ -19,6 +19,7 @@ int  main(void)
 
 	SqdbConfigSqlite  config_sqlite;
 
+//	config_sqlite.bit_field = SQDB_CONFIG_NO_MIGRATION;    // No migration mode
 	config_sqlite.folder    = ".";    // "/tmp"
 	config_sqlite.extension = "db";
 
@@ -28,6 +29,7 @@ int  main(void)
 
 	SqdbConfigMysql  config_mysql;
 
+//	config_mysql.bit_field = SQDB_CONFIG_NO_MIGRATION;     // No migration mode
 	config_mysql.host = "localhost";
 	config_mysql.port = 3306;
 	config_mysql.user = "root";
@@ -39,6 +41,7 @@ int  main(void)
 
 	SqdbConfigPostgre  config_postgre;
 
+//	config_postgre.bit_field = SQDB_CONFIG_NO_MIGRATION;   // No migration mode
 	config_postgre.host = "localhost";
 	config_postgre.port = 5432;
 	config_postgre.user = "postgres";

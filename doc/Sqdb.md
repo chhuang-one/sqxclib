@@ -37,7 +37,7 @@ Sample code: Configure database
 	// set 'folder' and 'extension' in SqdbConfigSqlite can affect database filename and path.
 	SqdbConfigSqlite  sqliteConfig;
 
-//	sqliteConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	sqliteConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;     // No migration mode
 	sqliteConfig.folder    = "/home/user";
 	sqliteConfig.extension = "db";
 
@@ -45,7 +45,7 @@ Sample code: Configure database
 	// --- MySQL database configuration ---
 	SqdbConfigMysql  mysqlConfig;
 
-//	mysqlConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	mysqlConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;      // No migration mode
 	mysqlConfig.host = "localhost";
 	mysqlConfig.port = 3306;
 	mysqlConfig.user = "root";
@@ -55,7 +55,7 @@ Sample code: Configure database
 	// --- PostgreSQL database configuration ---
 	SqdbConfigPostgre  postgresConfig;
 
-//	postgresConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	postgresConfig.bit_field = SQDB_CONFIG_NO_MIGRATION;   // No migration mode
 	postgresConfig.host = "localhost";
 	postgresConfig.port = 5432;
 	postgresConfig.user = "postgres";

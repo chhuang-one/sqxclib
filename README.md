@@ -214,7 +214,7 @@ use C functions to create SQLite database instance
 ```c
 	// database configuration
 	SqdbConfigSqlite  config = {
-//		.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//		.bit_field = SQDB_CONFIG_NO_MIGRATION,      // No migration mode
 		.folder    = "/path",
 		.extension = "db"
 	};
@@ -222,7 +222,7 @@ use C functions to create SQLite database instance
 	Sqdb  *db;
 
 	db = sqdb_sqlite_new(&config);
-//	db = sqdb_sqlite_new(NULL);                // use default setting if config is NULL.
+//	db = sqdb_sqlite_new(NULL);      // use default setting if config is NULL.
 ```
 
 use C++ methods to create SQLite database instance
@@ -230,14 +230,14 @@ use C++ methods to create SQLite database instance
 ```c++
 	// database configuration
 	Sq::DbConfigSqlite  config = {0};
-//	config.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	config.bit_field = SQDB_CONFIG_NO_MIGRATION;    // No migration mode
 	config.folder    = "/path";
 	config.extension = "db";
 	// database instance pointer
 	Sq::DbMethod  *db;
 
 	db = new Sq::DbSqlite(config);
-//	db = new Sq::DbSqlite(NULL);    // use default setting if config is NULL.
+//	db = new Sq::DbSqlite(NULL);     // use default setting if config is NULL.
 ```
 
 use C functions to create MySQL database instance  
@@ -247,7 +247,7 @@ MySQL, PostgreSQL must specify host, port, and authentication, etc. in their Sqd
 ```c
 	// database configuration
 	SqdbConfigMysql  config = {
-//		.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//		.bit_field = SQDB_CONFIG_NO_MIGRATION,      // No migration mode
 		.host = "localhost",
 		.port = 3306,
 		.user = "name",
@@ -257,7 +257,7 @@ MySQL, PostgreSQL must specify host, port, and authentication, etc. in their Sqd
 	Sqdb  *db;
 
 	db = sqdb_mysql_new(&config);
-//	db = sqdb_mysql_new(NULL);               // use default setting if config is NULL.
+//	db = sqdb_mysql_new(NULL);       // use default setting if config is NULL.
 ```
 
 ## Open Database

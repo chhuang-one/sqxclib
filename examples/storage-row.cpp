@@ -393,14 +393,14 @@ int  main(int argc, char *argv[])
 	Sq::Storage  *storage;
 
 #if   SQ_CONFIG_HAVE_SQLITE && USE_SQLITE_IF_POSSIBLE
-//	config_sqlite.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	config_sqlite.bit_field = SQDB_CONFIG_NO_MIGRATION;    // No migration mode
 	config_sqlite.folder    = ".";    // "/tmp"
 	config_sqlite.extension = "db";
 
 	db = new Sq::DbSqlite(&config_sqlite);
 
 #elif SQ_CONFIG_HAVE_MYSQL  && USE_MYSQL_IF_POSSIBLE
-//	config_mysql.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	config_mysql.bit_field = SQDB_CONFIG_NO_MIGRATION;     // No migration mode
 	config_mysql.host = "localhost";
 	config_mysql.port = 3306;
 	config_mysql.user = "root";
@@ -409,7 +409,7 @@ int  main(int argc, char *argv[])
 	db = new Sq::DbMysql(&config_mysql);
 
 #elif SQ_CONFIG_HAVE_POSTGRESQL && USE_POSTGRESQL_IF_POSSIBLE
-//	config_postgre.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	config_postgre.bit_field = SQDB_CONFIG_NO_MIGRATION;   // No migration mode
 	config_postgre.host = "localhost";
 	config_postgre.port = 5432;
 	config_postgre.user = "postgres";

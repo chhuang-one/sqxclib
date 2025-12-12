@@ -214,7 +214,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 ```c
 	// 数据库配置
 	SqdbConfigSqlite  config = {
-//		.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//		.bit_field = SQDB_CONFIG_NO_MIGRATION,      // 无迁移模式
 		.folder    = "/path",
 		.extension = "db"
 	};
@@ -222,7 +222,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 	Sqdb  *db;
 
 	db = sqdb_sqlite_new(&config);
-//	db = sqdb_sqlite_new(NULL);                // 如果 config 为 NULL，则使用默认设置。
+//	db = sqdb_sqlite_new(NULL);      // 如果 config 为 NULL，则使用默认设置。
 ```
 
 使用 C++ 方法创建 SQLite 数据库实例
@@ -230,14 +230,14 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 ```c++
 	// 数据库配置
 	Sq::DbConfigSqlite  config = {0};
-//	config.bit_field = SQDB_CONFIG_NO_MIGRATION;
+//	config.bit_field = SQDB_CONFIG_NO_MIGRATION;    // 无迁移模式
 	config.folder    = "/path";
 	config.extension = "db";
 	// 数据库实例的指针
 	Sq::DbMethod  *db;
 
 	db = new Sq::DbSqlite(config);
-//	db = new Sq::DbSqlite(NULL);    // 如果 config 为 NULL，则使用默认设置。
+//	db = new Sq::DbSqlite(NULL);     // 如果 config 为 NULL，则使用默认设置。
 ```
 
 使用 C 函数创建 MySQL 数据库实例  
@@ -247,7 +247,7 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 ```c
 	// 数据库配置
 	SqdbConfigMysql  config = {
-//		.bit_field = SQDB_CONFIG_NO_MIGRATION,
+//		.bit_field = SQDB_CONFIG_NO_MIGRATION,      // 无迁移模式
 		.host = "localhost",
 		.port = 3306,
 		.user = "name",
@@ -257,7 +257,7 @@ MySQL、PostgreSQL 必须在其 SqdbConfig 中指定主机、端口和身份验�
 	Sqdb  *db;
 
 	db = sqdb_mysql_new(&config);
-//	db = sqdb_mysql_new(NULL);               // 如果 config 为 NULL，则使用默认设置。
+//	db = sqdb_mysql_new(NULL);       // 如果 config 为 NULL，则使用默认设置。
 ```
 
 ## 打开数据库
