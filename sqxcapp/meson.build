@@ -5,6 +5,7 @@ sources_app = [
 ]
 
 headers_app = [
+    'sqxcapp.h',
     'SqApp.h',
     'SqMigration.h',
 ]

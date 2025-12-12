@@ -5,6 +5,7 @@ set(SOURCES_APP
 )
 
 set(HEADERS_APP
+    sqxcapp.h
     SqApp.h
     SqMigration.h
 )
