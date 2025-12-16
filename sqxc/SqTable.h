@@ -18,13 +18,15 @@
 #include <SqType.h>
 #include <SqEntry.h>
 #include <SqColumn.h>
-#include <SqRelation.h>
 #include <SqTypeMapping.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.
 
 typedef struct SqTable        SqTable;
+
+// defined in SqRelation.h, It is mainly used by SqdbSqlite.
+typedef struct SqRelation     SqRelation;
 
 
 // SQL common bit_field

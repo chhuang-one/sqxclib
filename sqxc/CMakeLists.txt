@@ -48,7 +48,6 @@ set(HEADERS
     SqQuery.h
     SqQueryMethod.h
     SqQuery-macro.h
-    SqRelation.h
     Sqdb.h
     Sqdb-migration.h    # Most of the Database products may use this (exclude SQLite)
     Sqxc.h
@@ -108,7 +107,7 @@ if (SQLite3_FOUND)    # if (SQLite3_INCLUDE_DIRS)
 	)
 	set(HEADERS_SQLITE
 	    SqdbSqlite.h
-#	    SqRelation.h
+	    SqRelation.h
 	    SqRelation-migration.h
 	)
 endif()

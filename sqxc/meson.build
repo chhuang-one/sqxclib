@@ -54,7 +54,6 @@ headers = [
     'SqSchema.h', 'SqSchema-macro.h',
     'SqStorage.h',
     'SqQuery.h', 'SqQueryMethod.h', 'SqQuery-macro.h',
-    'SqRelation.h',
 
     # Sqdb - Database base structure
     'Sqdb.h',
@@ -102,7 +101,7 @@ if sqlite.found() == true
 	                  'SqRelation-migration.c',
 	]
 	headers_sqlite = ['SqdbSqlite.h',
-#	                  'SqRelation.h',
+	                  'SqRelation.h',
 	                  'SqRelation-migration.h',
 	]
 	install_headers(headers_sqlite, subdir: 'sqxc')
