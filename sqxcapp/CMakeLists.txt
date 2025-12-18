@@ -29,15 +29,15 @@ set(HEADERS_APP_DATA
     migrations.h
 )
 
-set(SQXCAPP_INCLUDE_DIRS
-    ${SQXC_INCLUDE_DIRS}
+set(SqxcApp_INCLUDE_DIRS
+    ${Sqxc_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(SQXCAPP_LIBRARIES
+set(SqxcApp_LIBRARIES
     sqxcapp-data
     sqxcapp
-    ${SQXC_LIBRARIES}
+    ${Sqxc_LIBRARIES}
 )
 
 # --- 'sqxcapptool' sources and headers ---
@@ -54,16 +54,16 @@ set(HEADERS_APPTOOL
     SqAppCommands.h
 )
 
-set(SQXCAPPTOOL_INCLUDE_DIRS
-    ${SQXCSUPPORT_INCLUDE_DIRS}
+set(SqxcAppTool_INCLUDE_DIRS
+    ${SqxcSupport_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(SQXCAPPTOOL_LIBRARIES
+set(SqxcAppTool_LIBRARIES
     sqxcapp-data
     sqxcapptool
     sqxcapp
-    ${SQXCSUPPORT_LIBRARIES}
+    ${SqxcSupport_LIBRARIES}
 )
 
 # --- 'sqtool' sources ---
@@ -76,7 +76,7 @@ set(SOURCES_CPP
 )
 
 # --- build ---
-include_directories(${SQXCAPPTOOL_INCLUDE_DIRS})
+include_directories(${SqxcAppTool_INCLUDE_DIRS})
 
 # --- 'sqxcapp' library ---
 add_library(sqxcapp
@@ -92,7 +92,7 @@ set_target_properties(sqxcapp
 if (BUILD_SHARED_LIBS)
 	target_link_libraries(sqxcapp sqxc)
 #else ()
-#	target_link_libraries(sqxcapp ${SQXC_LIBRARIES})
+#	target_link_libraries(sqxcapp ${Sqxc_LIBRARIES})
 endif (BUILD_SHARED_LIBS)
 
 # 'sqxcapp-data' has database settings and migration data for user application.
@@ -126,34 +126,34 @@ install(
 
 # --- 'sqtool' executable file ---
 add_executable(sqtool  ${SOURCES})
-target_link_libraries(sqtool  ${SQXCAPPTOOL_LIBRARIES})
+target_link_libraries(sqtool  ${SqxcAppTool_LIBRARIES})
 
 # --- 'sqtool-cpp' executable file ---
 if (DEFINED CMAKE_CXX_COMPILER)
 	add_executable(sqtool-cpp  ${SOURCES_CPP})
-	target_link_libraries(sqtool-cpp  ${SQXCAPPTOOL_LIBRARIES})
+	target_link_libraries(sqtool-cpp  ${SqxcAppTool_LIBRARIES})
 endif (DEFINED CMAKE_CXX_COMPILER)
 
-# set SQXCAPP_INCLUDE_DIRS to PARENT_SCOPE
-set(SQXCAPP_INCLUDE_DIRS
-    ${SQXCAPP_INCLUDE_DIRS}
+# set SqxcApp_INCLUDE_DIRS to PARENT_SCOPE
+set(SqxcApp_INCLUDE_DIRS
+    ${SqxcApp_INCLUDE_DIRS}
     PARENT_SCOPE
 )
 
-# set SQXCAPP_LIBRARIES to PARENT_SCOPE
-set(SQXCAPP_LIBRARIES
-    ${SQXCAPP_LIBRARIES}
+# set SqxcApp_LIBRARIES to PARENT_SCOPE
+set(SqxcApp_LIBRARIES
+    ${SqxcApp_LIBRARIES}
     PARENT_SCOPE
 )
 
-# set SQXCAPPTOOL_INCLUDE_DIRS to PARENT_SCOPE
-set(SQXCAPPTOOL_INCLUDE_DIRS
-    ${SQXCAPPTOOL_INCLUDE_DIRS}
+# set SqxcAppTool_INCLUDE_DIRS to PARENT_SCOPE
+set(SqxcAppTool_INCLUDE_DIRS
+    ${SqxcAppTool_INCLUDE_DIRS}
     PARENT_SCOPE
 )
 
-# set SQXCAPPTOOL_LIBRARIES to PARENT_SCOPE
-set(SQXCAPPTOOL_LIBRARIES
-    ${SQXCAPPTOOL_LIBRARIES}
+# set SqxcAppTool_LIBRARIES to PARENT_SCOPE
+set(SqxcAppTool_LIBRARIES
+    ${SqxcAppTool_LIBRARIES}
     PARENT_SCOPE
 )

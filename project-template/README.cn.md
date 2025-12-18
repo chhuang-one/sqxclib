@@ -38,3 +38,9 @@ CMake 或 meson 会将这些迁移文件编译成静态库 'sqxcapp-user' 和 's
 2. ***main-cxx.cpp***  与 ***main.c*** 相同，但使用 C++ 语言。
 3. ***main-sqxcapp.c***  使用 sqtool 和 'sqxc' 和 'sqxcapp' 共享库。
 4. ***main-sqxcapp-cxx.cpp***  与 ***main-sqxcapp.c*** 相同，但使用 C++ 语言。
+
+#### /cmake
+此目录包含 CMake 模块。
+
+1. ***FindSqxc.cmake***  是用于查找 sqxclib 的 CMake 模块。如果系统已安装此模块，您可以将其删除。
+2. ***FindMYSQL.cmake***  是用于查找 MySQL 的 CMake 模块。

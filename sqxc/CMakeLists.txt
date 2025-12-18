@@ -133,7 +133,7 @@ if (PostgreSQL_FOUND)
 endif()
 
 # --- build ---
-include_directories(${SQXC_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
+include_directories(${Sqxc_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # --- 'sqxc' library ---
 add_library(sqxc
@@ -147,13 +147,13 @@ set_target_properties(sqxc
     PUBLIC_HEADER "${HEADERS}"
 )
 if (BUILD_SHARED_LIBS)
-	target_link_libraries(sqxc ${SQXC_LIBRARIES})
+	target_link_libraries(sqxc ${Sqxc_LIBRARIES})
 endif(BUILD_SHARED_LIBS)
 
-# add 'sqxc' to SQXC_LIBRARIES
-set(SQXC_LIBRARIES
+# add 'sqxc' to Sqxc_LIBRARIES
+set(Sqxc_LIBRARIES
     sqxc
-    ${SQXC_LIBRARIES}
+    ${Sqxc_LIBRARIES}
 )
 # configure file
 configure_file(
@@ -202,10 +202,10 @@ if (DEFINED CMAKE_CXX_COMPILER)
 #	    SOVERSION      ${SQXCLIB_SOVERSION}
 	    PUBLIC_HEADER "${HEADERS_CPP}"
 	)
-	# add 'sqxcpp' to SQXC_LIBRARIES
-	set(SQXC_LIBRARIES
+	# add 'sqxcpp' to Sqxc_LIBRARIES
+	set(Sqxc_LIBRARIES
 	    sqxcpp
-	    ${SQXC_LIBRARIES}
+	    ${Sqxc_LIBRARIES}
 	)
 	# install
 	install(
@@ -223,7 +223,7 @@ if (SQLite3_FOUND)
 	)
 	target_include_directories(sqxc_sqlite
 	    PUBLIC
-	    ${SQXC_INCLUDE_DIRS}
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${SQLite3_INCLUDE_DIRS}
 	)
 	if (BUILD_SHARED_LIBS)
@@ -239,10 +239,10 @@ if (SQLite3_FOUND)
 #	    SOVERSION      ${SQXCLIB_SOVERSION}
 	    PUBLIC_HEADER "${HEADERS_SQLITE}"
 	)
-	# add 'sqxc_sqlite' to SQXC_LIBRARIES
-	set(SQXC_LIBRARIES
+	# add 'sqxc_sqlite' to Sqxc_LIBRARIES
+	set(Sqxc_LIBRARIES
 	    sqxc_sqlite
-	    ${SQXC_LIBRARIES}
+	    ${Sqxc_LIBRARIES}
 	)
 	# install
 	install(
@@ -260,7 +260,7 @@ if (MYSQL_FOUND)
 	)
 	target_include_directories(sqxc_mysql
 	    PUBLIC
-	    ${SQXC_INCLUDE_DIRS}
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${MYSQL_INCLUDE_DIRS}
 	)
 	if (BUILD_SHARED_LIBS)
@@ -276,10 +276,10 @@ if (MYSQL_FOUND)
 #	    SOVERSION      ${SQXCLIB_SOVERSION}
 	    PUBLIC_HEADER "${HEADERS_MYSQL}"
 	)
-	# add 'sqxc_mysql' to SQXC_LIBRARIES
-	set(SQXC_LIBRARIES
+	# add 'sqxc_mysql' to Sqxc_LIBRARIES
+	set(Sqxc_LIBRARIES
 	    sqxc_mysql
-	    ${SQXC_LIBRARIES}
+	    ${Sqxc_LIBRARIES}
 	)
 	# install
 	install(
@@ -297,7 +297,7 @@ if (PostgreSQL_FOUND)
 	)
 	target_include_directories(sqxc_postgre
 	    PUBLIC
-	    ${SQXC_INCLUDE_DIRS}
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${PostgreSQL_INCLUDE_DIRS}
 	)
 	if (BUILD_SHARED_LIBS)
@@ -313,10 +313,10 @@ if (PostgreSQL_FOUND)
 #	    SOVERSION      ${SQXCLIB_SOVERSION}
 	    PUBLIC_HEADER "${HEADERS_POSTGRESQL}"
 	)
-	# add 'sqxc_postgre' to SQXC_LIBRARIES
-	set(SQXC_LIBRARIES
+	# add 'sqxc_postgre' to Sqxc_LIBRARIES
+	set(Sqxc_LIBRARIES
 	    sqxc_postgre
-	    ${SQXC_LIBRARIES}
+	    ${Sqxc_LIBRARIES}
 	)
 	# install
 	install(
@@ -326,56 +326,56 @@ if (PostgreSQL_FOUND)
 	)
 endif (PostgreSQL_FOUND)
 
-# update SQXC_INCLUDE_DIRS and SQXC_LIBRARIES
+# update Sqxc_INCLUDE_DIRS and Sqxc_LIBRARIES
 if (SQLite3_FOUND)
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${SQLite3_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${SQLite3_LIBRARIES}
 	)
 endif (SQLite3_FOUND)
 
 if (MYSQL_FOUND)
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${MYSQL_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${MYSQL_LIBRARIES}
 	)
 	# --- Visual Studio 2015 and later ---
 	if (MSVC AND NOT (MSVC_VERSION LESS 1900))
-		set(SQXC_LIBRARIES
-		    ${SQXC_LIBRARIES}
+		set(Sqxc_LIBRARIES
+		    ${Sqxc_LIBRARIES}
 		    legacy_stdio_definitions.lib
 		)
 	endif ()
 endif (MYSQL_FOUND)
 
 if (PostgreSQL_FOUND)
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${PostgreSQL_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${PostgreSQL_LIBRARIES}
 	)
 endif (PostgreSQL_FOUND)
 
-# set SQXC_INCLUDE_DIRS to PARENT_SCOPE
-set(SQXC_INCLUDE_DIRS
-    ${SQXC_INCLUDE_DIRS}
+# set Sqxc_INCLUDE_DIRS to PARENT_SCOPE
+set(Sqxc_INCLUDE_DIRS
+    ${Sqxc_INCLUDE_DIRS}
     "${CMAKE_CURRENT_SOURCE_DIR}"
     PARENT_SCOPE
 )
 
-# set SQXC_LIBRARIES to PARENT_SCOPE
-set(SQXC_LIBRARIES
-    ${SQXC_LIBRARIES}
+# set Sqxc_LIBRARIES to PARENT_SCOPE
+set(Sqxc_LIBRARIES
+    ${Sqxc_LIBRARIES}
     PARENT_SCOPE
 )

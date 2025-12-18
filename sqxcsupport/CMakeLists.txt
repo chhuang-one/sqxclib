@@ -58,7 +58,7 @@ set(HEADERS
 )
 
 # --- build ---
-include_directories(${SQXC_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
+include_directories(${Sqxc_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # --- sqxcsupport library ---
 add_library(sqxcsupport
@@ -81,7 +81,7 @@ set_target_properties(sqxcsupport
 if (BUILD_SHARED_LIBS)
     target_link_libraries(sqxcsupport sqxc)
 #else ()
-#	target_link_libraries(sqxcsupport ${SQXC_LIBRARIES})
+#	target_link_libraries(sqxcsupport ${Sqxc_LIBRARIES})
 endif (BUILD_SHARED_LIBS)
 
 #install
@@ -91,16 +91,16 @@ install(
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc/support
 )
 
-# set SQXCSUPPORT_INCLUDE_DIRS to PARENT_SCOPE
-set(SQXCSUPPORT_INCLUDE_DIRS
-    ${SQXC_INCLUDE_DIRS}
+# set SqxcSupport_INCLUDE_DIRS to PARENT_SCOPE
+set(SqxcSupport_INCLUDE_DIRS
+    ${Sqxc_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     PARENT_SCOPE
 )
 
-# set SQXCSUPPORT_LIBRARIES to PARENT_SCOPE
-set(SQXCSUPPORT_LIBRARIES
+# set SqxcSupport_LIBRARIES to PARENT_SCOPE
+set(SqxcSupport_LIBRARIES
     sqxcsupport
-    ${SQXC_LIBRARIES}
+    ${Sqxc_LIBRARIES}
     PARENT_SCOPE
 )

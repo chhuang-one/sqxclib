@@ -90,38 +90,38 @@ if (PKG_CONFIG_FOUND)
 endif (PKG_CONFIG_FOUND)
 
 # find cJSON if libcjson.pc not found
-if (NOT DEFINED cjson_FOUND OR NOT cjson_FOUND)
+if (NOT cjson_FOUND)
 	find_package(cjson)
 endif ()
 
 # find json-c if json-c.pc not found
-if (NOT DEFINED json-c_FOUND OR NOT json-c_FOUND)
+if (NOT json-c_FOUND)
 	find_package(json-c)
 endif ()
 
 # find SQLite3 if sqlite3.pc not found
-if (NOT DEFINED SQLite3_FOUND OR NOT SQLite3_FOUND)
+if (NOT SQLite3_FOUND)
 	find_package(SQLite3)
 endif ()
 
 # find MySQL if mysqlclient.pc (or mariadb.pc) not found
-if (NOT DEFINED MYSQL_FOUND OR NOT MYSQL_FOUND)
+if (NOT MYSQL_FOUND)
 	find_package(MYSQL)
 endif ()
 
 # find PostgreSQL if libpq.pc not found
-if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
+if (NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
 endif ()
 
 # --- cJSON ---
 if (cjson_FOUND)
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${cjson_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${cjson_LIBRARIES}
 	)
 	# --- debug message ---
@@ -135,12 +135,12 @@ endif (cjson_FOUND)
 
 # --- json-c ---
 if (json-c_FOUND)
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${json-c_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${json-c_LIBRARIES}
 	)
 	# --- debug message ---
@@ -241,13 +241,18 @@ install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig
 )
+# --- End of pkg-config metadata file ---
+
+# install cmake module
+install(FILES "cmake/FindSqxc.cmake"
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake)
+
+# install project-template
+install(DIRECTORY   "project-template"
+        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/sqxclib)
 
 # Enable testing for the project
 enable_testing()
-
-# install project-template
-install(DIRECTORY   project-template
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/sqxclib)
 
 # --- subdirectory ---
 add_subdirectory(sqxc)
@@ -257,5 +262,5 @@ add_subdirectory(tests)
 add_subdirectory(examples)
 
 # --- debug message ---
-message(STATUS "sqxclib include dirs: ${SQXC_INCLUDE_DIRS}")
-message(STATUS "sqxclib libraries: ${SQXC_LIBRARIES}")
+message(STATUS "sqxclib include dirs: ${Sqxc_INCLUDE_DIRS}")
+message(STATUS "sqxclib libraries: ${Sqxc_LIBRARIES}")

@@ -32,10 +32,10 @@ find_package(PkgConfig)
 
 # pkg-config module
 if (PKG_CONFIG_FOUND)
-	pkg_check_modules(SQXC sqxclib)
-	if (SQXC_FOUND)
-		set(SQXC_PC_FOUND true)
-	endif (SQXC_FOUND)
+	pkg_check_modules(Sqxc sqxclib)
+	if (Sqxc_FOUND)
+		set(Sqxc_PC_FOUND true)
+	endif (Sqxc_FOUND)
 
 	pkg_check_modules(cjson libcjson)
 	if (cjson_FOUND)
@@ -73,128 +73,134 @@ if (PKG_CONFIG_FOUND)
 	endif (PostgreSQL_FOUND)
 endif (PKG_CONFIG_FOUND)
 
+# find Sqxc if sqxclib.pc not found
+if (NOT Sqxc_FOUND)
+	find_package(Sqxc)
+endif ()
+
 # find cJSON if libcjson.pc not found
-if (NOT DEFINED cjson_FOUND OR NOT cjson_FOUND)
+if (NOT cjson_FOUND)
 	find_package(cjson)
 endif ()
 
 # find json-c if json-c.pc not found
-if (NOT DEFINED json-c_FOUND OR NOT json-c_FOUND)
+if (NOT json-c_FOUND)
 	find_package(json-c)
 endif ()
 
 # find SQLite3 if sqlite3.pc not found
-if (NOT DEFINED SQLite3_FOUND OR NOT SQLite3_FOUND)
+if (NOT SQLite3_FOUND)
 	find_package(SQLite3)
 endif ()
 
 # find MySQL if mysqlclient.pc (or mariadb.pc) not found
-if (NOT DEFINED MYSQL_FOUND OR NOT MYSQL_FOUND)
+if (NOT MYSQL_FOUND)
 	find_package(MYSQL)
 endif ()
 
 # find PostgreSQL if libpq.pc not found
-if (NOT DEFINED PostgreSQL_FOUND OR NOT PostgreSQL_FOUND)
+if (NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
 endif ()
 
 # --- sqxclib ---
-if (NOT SQXC_FOUND)
-    message(FATAL_ERROR "sqxclib not found.")
-    return() # Exit processing of this CMakeLists.txt
-endif (NOT SQXC_FOUND)
+if (NOT Sqxc_FOUND)
+	# Exit processing of this CMakeLists.txt
+	message(FATAL_ERROR "sqxclib not found.")
+	return()
+endif (NOT Sqxc_FOUND)
 
 # --- cJSON ---
-if (cjson_FOUND AND NOT DEFINED cjson_PC_FOUND)
+if (cjson_FOUND AND NOT Sqxc_PC_FOUND)
 	# --- pkg-config or it's module not found ---
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${cjson_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${cjson_LIBRARIES}
 	)
 	# --- debug message ---
 	message(STATUS "cJSON include dirs: ${cjson_INCLUDE_DIRS}")
 	message(STATUS "cJSON libraries: ${cjson_LIBRARIES}")
-endif (cjson_FOUND AND NOT DEFINED cjson_PC_FOUND)
+endif (cjson_FOUND AND NOT Sqxc_PC_FOUND)
 
 # --- json-c ---
-if (json-c_FOUND AND NOT DEFINED json-c_PC_FOUND)
+if (json-c_FOUND AND NOT Sqxc_PC_FOUND)
 	# --- pkg-config or it's module not found ---
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${json-c_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${json-c_LIBRARIES}
 	)
 	# --- debug message ---
 	message(STATUS "json-c include dirs: ${json-c_INCLUDE_DIRS}")
 	message(STATUS "json-c libraries: ${json-c_LIBRARIES}")
-endif (json-c_FOUND AND NOT DEFINED json-c_PC_FOUND)
+endif (json-c_FOUND AND NOT Sqxc_PC_FOUND)
 
 # --- SQLite ---
-if (SQLite3_FOUND AND NOT DEFINED SQLite3_PC_FOUND)
+if (SQLite3_FOUND AND NOT Sqxc_PC_FOUND)
 	# --- pkg-config or it's module not found ---
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${SQLite3_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${SQLite3_LIBRARIES}
 	)
 	# --- debug message ---
 	message(STATUS "SQLite include dirs: ${SQLite3_INCLUDE_DIRS}")
 	message(STATUS "SQLite libraries: ${SQLite3_LIBRARIES}")
-endif (SQLite3_FOUND AND NOT DEFINED SQLite3_PC_FOUND)
+endif (SQLite3_FOUND AND NOT Sqxc_PC_FOUND)
 
 # --- MySQL ---
-if (MYSQL_FOUND AND (NOT DEFINED MYSQLCLIENT_PC_FOUND AND NOT DEFINED MARIADB_PC_FOUND))
+if (MYSQL_FOUND AND NOT Sqxc_PC_FOUND)
 	# --- pkg-config or it's module not found ---
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${MYSQL_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${MYSQL_LIBRARIES}
 	)
 	# --- Visual Studio 2015 and later ---
 	if (MSVC AND NOT (MSVC_VERSION LESS 1900))
-		set(SQXC_LIBRARIES
-		    ${SQXC_LIBRARIES}
+		set(Sqxc_LIBRARIES
+		    ${Sqxc_LIBRARIES}
 		    legacy_stdio_definitions.lib
 		)
 	endif ()
 	# --- debug message ---
 	message(STATUS "MySQL include dirs: ${MYSQL_INCLUDE_DIRS}")
 	message(STATUS "MySQL libraries: ${MYSQL_LIBRARIES}")
-endif (MYSQL_FOUND AND (NOT DEFINED MYSQLCLIENT_PC_FOUND AND NOT DEFINED MARIADB_PC_FOUND))
+endif (MYSQL_FOUND AND NOT Sqxc_PC_FOUND)
 
 # --- PostgreSQL ---
-if (PostgreSQL_FOUND AND NOT DEFINED PostgreSQL_PC_FOUND)
+if (PostgreSQL_FOUND AND NOT Sqxc_PC_FOUND)
 	# --- pkg-config or it's module not found ---
-	set(SQXC_INCLUDE_DIRS
-	    ${SQXC_INCLUDE_DIRS}
+	set(Sqxc_INCLUDE_DIRS
+	    ${Sqxc_INCLUDE_DIRS}
 	    ${PostgreSQL_INCLUDE_DIRS}
 	)
-	set(SQXC_LIBRARIES
-	    ${SQXC_LIBRARIES}
+	set(Sqxc_LIBRARIES
+	    ${Sqxc_LIBRARIES}
 	    ${PostgreSQL_LIBRARIES}
 	)
 	# --- debug message ---
 	message(STATUS "PostgreSQL include dirs: ${PostgreSQL_INCLUDE_DIRS}")
 	message(STATUS "PostgreSQL libraries: ${PostgreSQL_LIBRARIES}")
-endif (PostgreSQL_FOUND AND NOT DEFINED PostgreSQL_PC_FOUND)
+endif (PostgreSQL_FOUND AND NOT Sqxc_PC_FOUND)
 
 # --- subdirectory ---
 add_subdirectory(sqxcapp)
 add_subdirectory(src)
 
 # --- debug message ---
-message(STATUS "sqxclib include dirs: ${SQXC_INCLUDE_DIRS}")
-message(STATUS "sqxclib libraries: ${SQXC_LIBRARIES}")
+message(STATUS "sqxclib include dirs: ${Sqxc_INCLUDE_DIRS}")
+message(STATUS "sqxclib libraries: ${Sqxc_LIBRARIES}")

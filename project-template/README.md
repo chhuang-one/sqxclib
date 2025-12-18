@@ -38,3 +38,9 @@ This directory contain 4 kinds of executable target:
 2. ***main-cxx.cpp***  is the same as ***main.c*** but use C++ language.
 3. ***main-sqxcapp.c***  use 'sqxc' and 'sqxcapp' shared libraries with sqtool.
 4. ***main-sqxcapp-cxx.cpp***  is the same as ***main-sqxcapp.c*** but use C++ language.
+
+#### /cmake
+This directory contain CMake modules.
+
+1. ***FindSqxc.cmake***  is cmake module to find sqxclib. You can remove it if system has it.
+2. ***FindMYSQL.cmake***  is cmake module to find MySQL.
