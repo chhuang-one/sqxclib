@@ -240,15 +240,17 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
     @ONLY
 )
+# install pkg-config metadata file
 install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig
 )
 # --- End of pkg-config metadata file ---
 
-# install cmake module
+# install CMake module
+set(MODULE_INSTALL_DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/Modules")
 install(FILES "cmake/FindSqxc.cmake"
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/cmake)
+        DESTINATION "${MODULE_INSTALL_DESTINATION}")
 
 # install project-template
 install(DIRECTORY   "project-template"
@@ -265,5 +267,5 @@ add_subdirectory(tests)
 add_subdirectory(examples)
 
 # --- debug message ---
-message(STATUS "sqxclib include dirs: ${Sqxc_INCLUDE_DIRS}")
-message(STATUS "sqxclib libraries: ${Sqxc_LIBRARIES}")
+message(STATUS "Sqxc (sqxclib) include dirs: ${Sqxc_INCLUDE_DIRS}")
+message(STATUS "Sqxc (sqxclib) libraries: ${Sqxc_LIBRARIES}")
