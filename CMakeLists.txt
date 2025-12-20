@@ -53,10 +53,12 @@ find_package(PkgConfig)
 
 # pkg-config module
 if (PKG_CONFIG_FOUND)
-	pkg_check_modules(cjson libcjson)
-	if (cjson_FOUND)
-		set(cjson_PC_FOUND true)
-	endif (cjson_FOUND)
+	pkg_check_modules(cJSON libcjson)
+	if (cJSON_FOUND)
+		set(cJSON_PC_FOUND true)
+		set(CJSON_INCLUDE_DIRS ${cJSON_INCLUDE_DIRS})
+		set(CJSON_LIBRARIES    ${cJSON_LIBRARIES})
+	endif (cJSON_FOUND)
 
 	pkg_check_modules(json-c json-c)
 	if (json-c_FOUND)
@@ -90,8 +92,8 @@ if (PKG_CONFIG_FOUND)
 endif (PKG_CONFIG_FOUND)
 
 # find cJSON if libcjson.pc not found
-if (NOT cjson_FOUND)
-	find_package(cjson)
+if (NOT cJSON_FOUND)
+	find_package(cJSON)
 endif ()
 
 # find json-c if json-c.pc not found
@@ -115,26 +117,27 @@ if (NOT PostgreSQL_FOUND)
 endif ()
 
 # --- cJSON ---
-if (cjson_FOUND)
+if (cJSON_FOUND)
 	set(Sqxc_INCLUDE_DIRS
 	    ${Sqxc_INCLUDE_DIRS}
-	    ${cjson_INCLUDE_DIRS}
+	    ${CJSON_INCLUDE_DIRS}
 	)
 	set(Sqxc_LIBRARIES
 	    ${Sqxc_LIBRARIES}
-	    ${cjson_LIBRARIES}
+	    ${CJSON_LIBRARIES}
 	)
 	# --- debug message ---
-	message(STATUS "cJSON include dirs: ${cjson_INCLUDE_DIRS}")
-	message(STATUS "cJSON libraries: ${cjson_LIBRARIES}")
+	message(STATUS "cJSON include dirs: ${CJSON_INCLUDE_DIRS}")
+	message(STATUS "cJSON libraries: ${CJSON_LIBRARIES}")
 	# --- config.h ---
 	set(SQXCLIB_HAVE_CJSON     1)
 else ()
 	set(SQXCLIB_HAVE_CJSON     0)
-endif (cjson_FOUND)
+endif (cJSON_FOUND)
 
 # --- json-c ---
 if (json-c_FOUND)
+	set(json-c_LIBRARIES json-c)
 	set(Sqxc_INCLUDE_DIRS
 	    ${Sqxc_INCLUDE_DIRS}
 	    ${json-c_INCLUDE_DIRS}
@@ -193,7 +196,7 @@ set(SQXCLIB_PC_PREFIX  ${CMAKE_INSTALL_PREFIX})
 set(SQXCLIB_PC_VERSION ${PROJECT_VERSION})
 
 if (SQXCLIB_HAVE_CJSON)
-	if (DEFINED cjson_PC_FOUND AND cjson_PC_FOUND)
+	if (DEFINED cJSON_PC_FOUND AND cJSON_PC_FOUND)
 		set(SQXCLIB_PC_REQUIRE_CJSON    "libcjson")
 	endif ()
 endif ()
