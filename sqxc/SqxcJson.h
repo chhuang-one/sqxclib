@@ -20,7 +20,7 @@
  */
 
 #include <SqConfig.h>
-#if SQ_CONFIG_HAVE_CJSON && SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE
+#if SQ_CONFIG_HAVE_CJSON
 
 
 // ----------------------------------------------------------------------------
