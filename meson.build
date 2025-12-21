@@ -87,6 +87,9 @@ config_data.set('SQXCLIB_PC_REQUIRE_JSONC', '')
 config_data.set('SQXCLIB_PC_REQUIRE_SQLITE', '')
 config_data.set('SQXCLIB_PC_REQUIRE_MYSQL', '')
 config_data.set('SQXCLIB_PC_REQUIRE_POSTGRESQL', '')
+config_data.set('SQXCLIB_PC_LIB_SQLITE', '')
+config_data.set('SQXCLIB_PC_LIB_MYSQL', '')
+config_data.set('SQXCLIB_PC_LIB_POSTGRESQL', '')
 if cjson.found() == true
 	config_data.set('SQXCLIB_PC_REQUIRE_CJSON', 'libcjson')
 endif
