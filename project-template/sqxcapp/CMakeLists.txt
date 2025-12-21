@@ -18,6 +18,16 @@ set(HEADERS_APP_DATA
     migrations.h
 )
 
+# --- 'sqtool' sources ---
+set(SOURCES
+    sqtool.c
+)
+
+set(SOURCES_CPP
+    sqtool-cpp.cpp
+)
+
+# --- set 'sqxcapp' include dirs and libraries ---
 set(SqxcApp_INCLUDE_DIRS
     ${Sqxc_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -28,6 +38,7 @@ set(SqxcApp_LIBRARIES
     ${Sqxc_LIBRARIES}
 )
 
+# --- set 'sqxcapptool' include dirs and libraries ---
 set(SqxcAppTool_INCLUDE_DIRS
     ${Sqxc_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -38,20 +49,11 @@ set(SqxcAppTool_LIBRARIES
     ${Sqxc_LIBRARIES}
 )
 
-# --- 'sqtool' sources ---
-set(SOURCES
-    sqtool.c
-)
-
-set(SOURCES_CPP
-    sqtool-cpp.cpp
-)
-
-# --- build library ---
+# --- build 'sqxcapp-data' & 'sqtool' ---
 include_directories(${SqxcAppTool_INCLUDE_DIRS})
-link_libraries(${Sqxc_LIBRARIES})
 
-# 'sqxcapp-data' has database settings and migration data for user application.
+# --- 'sqxcapp-data' static library ---
+# It has database settings and migration data for user application.
 add_library(sqxcapp-data
             STATIC
             ${SOURCES_APP_DATA}
@@ -67,6 +69,8 @@ if (DEFINED CMAKE_CXX_COMPILER)
 	add_executable(sqtool-cpp  ${SOURCES_CPP})
 	target_link_libraries(sqtool-cpp  ${SqxcAppTool_LIBRARIES})
 endif (DEFINED CMAKE_CXX_COMPILER)
+
+# -----------------------------------------------------------------------------
 
 # set SqxcApp_INCLUDE_DIRS to PARENT_SCOPE
 set(SqxcApp_INCLUDE_DIRS

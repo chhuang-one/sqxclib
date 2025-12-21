@@ -12,9 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include "migrations.h"
 #include <SqApp.h>
-#include <SqApp-config.h>
+#include "SqApp-config.h"
+#include "migrations.h"
 
 // ----------------------------------------------------------------------------
 // Common setting

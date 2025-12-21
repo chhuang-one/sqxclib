@@ -124,7 +124,8 @@ install_subdir('project-template', install_dir : get_option('datadir') / 'sqxcli
 
 # --- subdirectory ---
 subdir('sqxc')
-subdir('sqxcsupport')
+subdir('sqxc/support')
+subdir('sqxc/app')
 subdir('sqxcapp')
 subdir('tests')
 subdir('examples')
