@@ -98,9 +98,11 @@ static void sqdb_mysql_final(SqdbMysql *sqdb)
 		mysql_close(sqdb->connection);
 
 	// MySQL global initialization count
-	mysqlInitCount -= 1;
-	if (mysqlInitCount == 0)
-		mysql_library_end();
+	if (mysqlInitCount  > 0) {
+		mysqlInitCount -= 1;
+		if (mysqlInitCount == 0)
+			mysql_library_end();
+	}
 }
 
 static int  sqdb_mysql_open(SqdbMysql *sqdb, const char *database_name)
