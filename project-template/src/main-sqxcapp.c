@@ -2,8 +2,8 @@
  * This program link 'sqxc' and 'sqxcapp' libraries.
  */
 
-#include <sqxclib.h>
-#include <SqApp.h>
+#include <sqxc/sqxclib.h>
+#include <sqxc/app/SqApp.h>
 
 int  main(void)
 {

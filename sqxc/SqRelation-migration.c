@@ -18,10 +18,10 @@
 #include <stdio.h>        // fprintf(), stderr
 #include <string.h>       // strdup(), strncasecmp()
 
-#include <SqError.h>
-#include <SqConfig.h>
-#include <SqSchema.h>
-#include <SqRelation-migration.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqSchema.h>
+#include <sqxc/SqRelation-migration.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

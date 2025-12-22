@@ -3,8 +3,8 @@
  *
  * Normally this file should be included in migrations-files.c if you use sqtool to make migration file.
  * migrations-files.c has included following headers.
- * #include <SqStorage.h>
- * #include <SqMigration.h>
+ * #include <sqxc/SqStorage.h>
+ * #include <sqxc/app/SqMigration.h>
  * #include "CStructs.h"
  */
 

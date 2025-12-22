@@ -21,12 +21,12 @@
 #include <stdio.h>        // snprintf(), fprintf(), stderr
 #include <inttypes.h>     // PRId64, PRIu64
 
-#include <SqError.h>
-#include <SqStorage.h>
-#include <SqxcSql.h>
-#include <SqxcValue.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqStorage.h>
+#include <sqxc/SqxcSql.h>
+#include <sqxc/SqxcValue.h>
 #if SQ_CONFIG_HAVE_JSON
-#include <SqxcJson.h>
+#include <sqxc/SqxcJson.h>
 #endif
 
 #ifdef _MSC_VER

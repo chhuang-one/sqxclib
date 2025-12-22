@@ -131,7 +131,8 @@ configure_file(input : 'config.h.in',
                configuration : config_data
 )
 
-sqxc_inc = include_directories('./')
+# --- 'sqxc' include dirs ---
+sqxc_inc = [sqxc_inc, include_directories('./')]
 
 # --- 'sqxc' static library ---
 sqxc_lib = static_library(

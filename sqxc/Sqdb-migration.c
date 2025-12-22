@@ -13,9 +13,9 @@
  */
 
 #include <stdio.h>        // fprintf(), stderr
-#include <SqError.h>
-#include <SqType.h>
-#include <Sqdb-migration.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqType.h>
+#include <sqxc/Sqdb-migration.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

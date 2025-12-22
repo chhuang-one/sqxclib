@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <SqArray.h>
+#include <sqxc/SqArray.h>
 
 void *sq_array_init(void *array,
                     unsigned int  elementSize,

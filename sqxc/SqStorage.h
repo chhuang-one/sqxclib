@@ -15,13 +15,13 @@
 #ifndef SQ_STORAGE
 #define SQ_STORAGE
 
-#include <SqConfig.h>
-#include <Sqdb.h>
-#include <SqSchema.h>
-#include <SqJoint.h>
-#include <SqQuery.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/Sqdb.h>
+#include <sqxc/SqSchema.h>
+#include <sqxc/SqJoint.h>
+#include <sqxc/SqQuery.h>
 #ifdef __cplusplus
-#include <SqType-stl-cpp.h>
+#include <sqxc/SqType-stl-cpp.h>
 #endif
 
 // ----------------------------------------------------------------------------
@@ -123,13 +123,14 @@ void  sq_storage_remove_all(SqStorage    *storage,
                             const char   *table_name,
                             const char   *sql_where_having);
 
-int      sq_storage_begin_trans(SqStorage *storage);
-int      sq_storage_commit_trans(SqStorage *storage);
-int      sq_storage_rollback_trans(SqStorage *storage);
+int   sq_storage_begin_trans(SqStorage *storage);
+int   sq_storage_commit_trans(SqStorage *storage);
+int   sq_storage_rollback_trans(SqStorage *storage);
 
 // ------------------------------------
 // find table by SqTable.name or SqType::name
 
+// SqTable *sq_storage_find(SqStorage *storage, const char *table_name);
 #define  sq_storage_find(storage, table_name)    sq_schema_find((storage)->schema, table_name)
 
 SqTable *sq_storage_find_by_type(SqStorage *storage, const char *type_name);

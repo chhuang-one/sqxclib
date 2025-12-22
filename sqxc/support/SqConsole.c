@@ -18,11 +18,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <SqConfig.h>
-#include <SqConsole.h>
-#include <SqxcValue.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqxcValue.h>
+#include <sqxc/support/SqConsole.h>
 #if SQ_CONFIG_HAVE_JSON
-#include <SqxcJson.h>
+#include <sqxc/SqxcJson.h>
 #endif
 
 #ifdef _MSC_VER

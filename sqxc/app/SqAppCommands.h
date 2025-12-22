@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,7 +15,7 @@
 #ifndef SQ_APP_COMMANDS_H
 #define SQ_APP_COMMANDS_H
 
-#include <SqCommand.h>
+#include <sqxc/support/SqCommand.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

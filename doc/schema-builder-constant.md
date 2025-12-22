@@ -48,7 +48,7 @@ field 'foreign' has more details in the section **About the field SqColumn::fore
 e.g. use C99 designated initializer to define table and column in schema_v1.
 
 ```c
-#include <sqxclib.h>
+#include <sqxc/sqxclib.h>
 
 static const SqColumn  userColumns[6] = {
 	// PRIMARY KEY
@@ -91,7 +91,7 @@ If your C++ compiler can't use designated initializer, you may use aggregate ini
 e.g. use C++ aggregate initialization to define table and column in schema_v1.
 
 ```c++
-#include <sqxclib.h>
+#include <sqxc/sqxclib.h>
 
 /* define global type for C++ STL
    create new SqType  for C++ std::vector<int> */

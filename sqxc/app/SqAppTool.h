@@ -15,9 +15,9 @@
 #ifndef SQ_APP_TOOL_H
 #define SQ_APP_TOOL_H
 
-#include <SqApp.h>
-#include <SqConsole.h>
-#include <SqPairs.h>
+#include <sqxc/app/SqApp.h>
+#include <sqxc/support/SqConsole.h>
+#include <sqxc/support/SqPairs.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

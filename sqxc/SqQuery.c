@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdio.h>        // vsnprintf(), fprintf(), stderr
 
-#include <SqQuery.h>
+#include <sqxc/SqQuery.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

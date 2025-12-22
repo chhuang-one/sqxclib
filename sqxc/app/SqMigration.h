@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,9 +15,9 @@
 #ifndef SQ_MIGRATION_H
 #define SQ_MIGRATION_H
 
-#include <SqPtrArray.h>
-#include <SqSchema.h>
-#include <SqStorage.h>
+#include <sqxc/SqPtrArray.h>
+#include <sqxc/SqSchema.h>
+#include <sqxc/SqStorage.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

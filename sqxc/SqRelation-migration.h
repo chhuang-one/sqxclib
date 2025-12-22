@@ -15,9 +15,9 @@
 #ifndef SQ_RELATION_MIGRATION_H
 #define SQ_RELATION_MIGRATION_H
 
-#include <SqType.h>
-#include <SqRelation.h>
-#include <SqSchema.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqRelation.h>
+#include <sqxc/SqSchema.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

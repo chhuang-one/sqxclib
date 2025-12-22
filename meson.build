@@ -17,6 +17,9 @@ sqxclib_soversion = 0
 
 config_data = configuration_data()
 
+# --- Sqxc include dirs ---
+sqxc_inc = include_directories('./')
+
 # --- cJSON ---
 cjson = dependency('libcjson', required: false)
 if cjson.found() == true

@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <SqApp.h>
+#include <sqxc/app/SqApp.h>
 #include "SqApp-config.h"
 #include "migrations.h"
 
@@ -34,7 +34,7 @@
 /* ------ SQLite ------ */
 #if   DB_SQLITE && SQ_CONFIG_HAVE_SQLITE
 
-#include <SqdbSqlite.h>
+#include <sqxc/SqdbSqlite.h>
 #define DB_CONNECTION    SQDB_INFO_SQLITE
 #define DB_CONFIG        ((SqdbConfig*) &db_config_sqlite)
 
@@ -51,7 +51,7 @@ static const SqdbConfigSqlite  db_config_sqlite = {
 /* ------ MySQL ------ */
 #if   DB_MYSQL && SQ_CONFIG_HAVE_MYSQL
 
-#include <SqdbMysql.h>
+#include <sqxc/SqdbMysql.h>
 #define DB_CONNECTION    SQDB_INFO_MYSQL
 #define DB_CONFIG        ((SqdbConfig*) &db_config_mysql)
 
@@ -70,7 +70,7 @@ static const SqdbConfigMysql  db_config_mysql = {
 /* ------ PostgreSQL ------ */
 #if   DB_POSTGRE && SQ_CONFIG_HAVE_POSTGRESQL
 
-#include <SqdbPostgre.h>
+#include <sqxc/SqdbPostgre.h>
 #define DB_CONNECTION    SQDB_INFO_POSTGRE
 #define DB_CONFIG        ((SqdbConfig*) &db_config_postgre)
 

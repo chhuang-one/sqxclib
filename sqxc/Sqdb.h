@@ -19,9 +19,9 @@
 #ifndef SQDB_H
 #define SQDB_H
 
-#include <SqBuffer.h>
-#include <SqSchema.h>
-#include <Sqxc.h>
+#include <sqxc/SqBuffer.h>
+#include <sqxc/SqSchema.h>
+#include <sqxc/Sqxc.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

@@ -17,7 +17,7 @@
 
 #include <sqlite3.h>
 
-#include <Sqdb.h>
+#include <sqxc/Sqdb.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

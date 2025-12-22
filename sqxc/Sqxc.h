@@ -62,8 +62,8 @@
 
 #include <stddef.h>
 
-#include <SqDefine.h>
-#include <SqBuffer.h>
+#include <sqxc/SqDefine.h>
+#include <sqxc/SqBuffer.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

@@ -19,13 +19,13 @@
    Developer can set SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE in SqConfig.h to disable SqxcJsonc if SqxcCjson is available.
  */
 
-#include <SqConfig.h>
+#include <sqxc/SqConfig.h>
 #if SQ_CONFIG_HAVE_CJSON
 
 
 // ----------------------------------------------------------------------------
 // SqxcCjson: use cJSON library
-#include <SqxcCjson.h>
+#include <sqxc/SqxcCjson.h>
 
 typedef SqxcCjson        SqxcJson;
 
@@ -59,12 +59,12 @@ namespace Sq {
 #endif  // __cplusplus
 
 
-#elif SQ_CONFIG_HAVE_JSONC    // SQ_CONFIG_HAVE_CJSON && SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE
+#elif SQ_CONFIG_HAVE_JSONC    // SQ_CONFIG_HAVE_CJSON
 
 
 // ----------------------------------------------------------------------------
 // SqxcJsonc: use json-c library
-#include <SqxcJsonc.h>
+#include <sqxc/SqxcJsonc.h>
 
 typedef SqxcJsonc        SqxcJson;
 
@@ -98,6 +98,6 @@ namespace Sq {
 #endif  // __cplusplus
 
 
-#endif  // SQ_CONFIG_HAVE_CJSON && SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE
+#endif  // SQ_CONFIG_HAVE_CJSON
 
 #endif  // SQXC_JSON_H

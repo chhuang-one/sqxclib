@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -21,10 +21,10 @@
 #include <type_traits>  // is_standard_layout<>
 #include <iostream>     // cout
 
-#include <SqArray.h>
-#include <SqPtrArray.h>
-#include <SqStrArray.h>
-#include <SqBuffer.h>
+#include <sqxc/SqArray.h>
+#include <sqxc/SqPtrArray.h>
+#include <sqxc/SqStrArray.h>
+#include <sqxc/SqBuffer.h>
 
 using namespace std;
 

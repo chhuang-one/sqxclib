@@ -14,7 +14,7 @@
 
 #include <stdio.h>        // printf()
 
-#include <SqAppTool.h>
+#include <sqxc/app/SqAppTool.h>
 
 #define TEST_ARGV    0
 

@@ -20,8 +20,8 @@
 #include <iostream>       // cout
 #include <type_traits>    // is_standard_layout<>
 
-#include <sqxclib.h>
-#include <SqApp.h>
+#include <sqxc/sqxclib.h>
+#include <sqxc/app/SqApp.h>
 #include <CStructs.h>     // struct User
 
 #define USE_DERVIDED_MYAPP    0

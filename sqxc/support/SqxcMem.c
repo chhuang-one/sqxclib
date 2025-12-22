@@ -15,8 +15,8 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <SqError.h>
-#include <SqxcMem.h>
+#include <sqxc/SqError.h>
+#include <sqxc/support/SqxcMem.h>
 
 /* ----------------------------------------------------------------------------
 	*** In output chain:

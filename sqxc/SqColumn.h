@@ -17,8 +17,8 @@
 
 #include <stdarg.h>       // va_list
 
-#include <SqType.h>
-#include <SqEntry.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqEntry.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

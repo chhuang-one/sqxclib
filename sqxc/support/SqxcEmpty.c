@@ -17,8 +17,8 @@
 #include <stdio.h>        // printf()
 #include <inttypes.h>     // PRId64, PRIu64
 
-#include <SqError.h>
-#include <SqxcEmpty.h>
+#include <sqxc/SqError.h>
+#include <sqxc/support/SqxcEmpty.h>
 
 // ----------------------------------------------------------------------------
 // SqxcInfo functions

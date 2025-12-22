@@ -16,7 +16,7 @@
 #define SQXC_FILE_H
 
 #include <stdio.h>
-#include <Sqxc.h>
+#include <sqxc/Sqxc.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

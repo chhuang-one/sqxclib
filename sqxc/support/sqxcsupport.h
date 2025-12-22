@@ -13,21 +13,21 @@
  */
 
 // helpers
-#include <SqHelpers.h>
+#include <sqxc/support/SqHelpers.h>
 
 // data structure
-#include <SqRow.h>
-#include <SqPairs.h>
+#include <sqxc/support/SqRow.h>
+#include <sqxc/support/SqPairs.h>
 
 // console
-#include <SqConsole.h>
-#include <SqCommand.h>
-#include <SqOption.h>
+#include <sqxc/support/SqConsole.h>
+#include <sqxc/support/SqCommand.h>
+#include <sqxc/support/SqOption.h>
 
 // Sqxc elements
-#include <SqxcFile.h>
-#include <SqxcMem.h>
+#include <sqxc/support/SqxcFile.h>
+#include <sqxc/support/SqxcMem.h>
 
 // Empty Sqxc and Sqdb for testing
-#include <SqxcEmpty.h>
-#include <SqdbEmpty.h>
+#include <sqxc/support/SqxcEmpty.h>
+#include <sqxc/support/SqdbEmpty.h>

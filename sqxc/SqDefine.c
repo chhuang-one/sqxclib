@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2023 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <SqDefine.h>
+#include <sqxc/SqDefine.h>
 
 // This function is used by SqPairs. Its actual parameter type:
 //int sq_compare_str(const char **strAddr1, const char **strAddr2);

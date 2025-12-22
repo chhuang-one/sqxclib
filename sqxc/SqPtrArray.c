@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <SqPtrArray.h>
+#include <sqxc/SqPtrArray.h>
 
 void *sq_ptr_array_init(void *array, unsigned int capacity, SqClearFunc clear_func)
 {

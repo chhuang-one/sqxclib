@@ -17,12 +17,11 @@
 #endif
 #include <stdio.h>        // fprintf(), stderr
 
-#include <SqError.h>
-#include <Sqdb-migration.h>
-#include <SqdbEmpty.h>
-
-#include <SqxcValue.h>
-#include <SqxcSql.h>
+#include <sqxc/SqError.h>
+#include <sqxc/Sqdb-migration.h>
+#include <sqxc/SqxcValue.h>
+#include <sqxc/SqxcSql.h>
+#include <sqxc/support/SqdbEmpty.h>
 
 static void sqdb_empty_init(SqdbEmpty *sqdb, const SqdbConfigEmpty *config);
 static void sqdb_empty_final(SqdbEmpty *sqdb);

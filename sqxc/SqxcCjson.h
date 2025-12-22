@@ -15,11 +15,11 @@
 #ifndef SQXC_CJSON_H
 #define SQXC_CJSON_H
 
-#include <SqConfig.h>
+#include <sqxc/SqConfig.h>
 #if SQ_CONFIG_HAVE_CJSON  // defined in SqConfig.h
 
 #include <cjson/cJSON.h>
-#include <Sqxc.h>
+#include <sqxc/Sqxc.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

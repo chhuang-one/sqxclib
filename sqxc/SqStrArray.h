@@ -15,7 +15,7 @@
 #ifndef SQ_STR_ARRAY_H
 #define SQ_STR_ARRAY_H
 
-#include <SqPtrArray.h>
+#include <sqxc/SqPtrArray.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

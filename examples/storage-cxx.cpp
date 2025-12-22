@@ -27,7 +27,7 @@
 #include <string>
 #include <iostream>
 
-#include <sqxclib.h>
+#include <sqxc/sqxclib.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

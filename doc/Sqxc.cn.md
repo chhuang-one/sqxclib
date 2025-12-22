@@ -303,7 +303,7 @@ SqxcEmpty.h 和 SqxcEmpty.c 是一个可行的示例，但它什么也不做。
 
 ```c++
 // 这是头文件 - SqxcText.h
-#include <Sqxc.h>
+#include <sqxc/Sqxc.h>
 
 // 如果您使用 C 语言，请使用 'typedef' 为结构类型赋予新名称。
 typedef struct SqxcText   SqxcText;

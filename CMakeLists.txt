@@ -116,6 +116,9 @@ if (NOT PostgreSQL_FOUND)
 	find_package(PostgreSQL)
 endif ()
 
+# --- Sqxc include dirs ---
+set(Sqxc_INCLUDE_DIRS  ${CMAKE_CURRENT_SOURCE_DIR})
+
 # --- cJSON ---
 if (cJSON_FOUND)
 	set(Sqxc_INCLUDE_DIRS

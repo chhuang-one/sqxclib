@@ -27,8 +27,8 @@ struct User {
 宏 SQC_XXXX() 用于设置列属性。
 
 ```c
-#include <sqxclib.h>
-#include <SqSchema-macro.h>    // sqxclib.h 不包含特殊宏
+#include <sqxc/sqxclib.h>
+#include <sqxc/SqSchema-macro.h>    // sqxclib.h 不包含特殊宏
 
 	// 创建架构并指定版本号为 1
 	schema_v1 = sq_schema_new_ver(1, "Ver 1");

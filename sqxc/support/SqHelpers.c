@@ -21,11 +21,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <SqHelpers.h>
+#include <sqxc/support/SqHelpers.h>
 #if SQ_CONFIG_HAVE_JSON
-#include <SqxcJson.h>
-#include <SqxcFile.h>
-#include <SqxcMem.h>
+#include <sqxc/SqxcJson.h>
+#include <sqxc/support/SqxcFile.h>
+#include <sqxc/support/SqxcMem.h>
 #endif
 
 #ifdef _MSC_VER

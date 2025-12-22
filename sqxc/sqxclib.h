@@ -12,60 +12,60 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <SqConfig.h>
-#include <SqDefine.h>
-#include <SqError.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqDefine.h>
+#include <sqxc/SqError.h>
 
-#include <SqArray.h>
-#include <SqPtrArray.h>
-#include <SqStrArray.h>
-#include <SqBuffer.h>
-#include <SqConvert.h>
+#include <sqxc/SqArray.h>
+#include <sqxc/SqPtrArray.h>
+#include <sqxc/SqStrArray.h>
+#include <sqxc/SqBuffer.h>
+#include <sqxc/SqConvert.h>
 
-#include <SqType.h>
-#include <SqTypeMapping.h>
-#include <SqEntry.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqTypeMapping.h>
+#include <sqxc/SqEntry.h>
 
-#include <SqColumn.h>
-#include <SqTable.h>
-#include <SqSchema.h>
-#include <SqStorage.h>
-#include <SqQuery.h>
-#include <SqJoint.h>
+#include <sqxc/SqColumn.h>
+#include <sqxc/SqTable.h>
+#include <sqxc/SqSchema.h>
+#include <sqxc/SqStorage.h>
+#include <sqxc/SqQuery.h>
+#include <sqxc/SqJoint.h>
 
 // ------------------------------------
-#include <Sqdb.h>
+#include <sqxc/Sqdb.h>
 
 #if SQ_CONFIG_HAVE_SQLITE
-#include <SqdbSqlite.h>
+#include <sqxc/SqdbSqlite.h>
 #endif
 
 #if SQ_CONFIG_HAVE_MYSQL
-#include <SqdbMysql.h>
+#include <sqxc/SqdbMysql.h>
 #endif
 
 #if SQ_CONFIG_HAVE_POSTGRESQL
-#include <SqdbPostgre.h>
+#include <sqxc/SqdbPostgre.h>
 #endif
 
 // ------------------------------------
-#include <Sqxc.h>
+#include <sqxc/Sqxc.h>
 
-#include <SqxcSql.h>
-#include <SqxcValue.h>
+#include <sqxc/SqxcSql.h>
+#include <sqxc/SqxcValue.h>
 
 #if SQ_CONFIG_HAVE_JSON
-#include <SqxcJson.h>
+#include <sqxc/SqxcJson.h>
 #endif
 
 #if SQ_CONFIG_HAVE_CJSON
-#include <SqxcCjson.h>
+#include <sqxc/SqxcCjson.h>
 #endif
 
 #if SQ_CONFIG_HAVE_JSONC
-#include <SqxcJsonc.h>
+#include <sqxc/SqxcJsonc.h>
 #endif
 
 // ------------------------------------
 // library: sqxcpp
-#include <SqType-stl-cpp.h>    // Sq::TypeStl<StlContainer>
+#include <sqxc/SqType-stl-cpp.h>    // Sq::TypeStl<StlContainer>

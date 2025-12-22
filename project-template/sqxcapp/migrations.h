@@ -15,7 +15,7 @@
 #ifndef MIGRATIONS_H
 #define MIGRATIONS_H
 
-#include <SqMigration.h>
+#include <sqxc/app/SqMigration.h>
 
 /* Each migration file in the directory database/migrations defines a SqMigration instance.
    SqMigration::name is the description of the migration.

@@ -16,14 +16,14 @@
 #include <stdio.h>        // fprintf(), stderr
 #endif
 
-#include <SqError.h>
-#include <SqType.h>
-#include <SqBuffer.h>
-#include <SqConvert.h>
-#include <SqxcSql.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqBuffer.h>
+#include <sqxc/SqConvert.h>
+#include <sqxc/SqxcSql.h>
 
 #if SQ_CONFIG_HAVE_JSON
-#include <SqxcJson.h>
+#include <sqxc/SqxcJson.h>
 #endif
 
 static int   sq_type_buffer_parse(void *instance, const SqType *type, Sqxc *src)

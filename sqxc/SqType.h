@@ -30,9 +30,9 @@
 
 #include <stdbool.h>      // bool, true, false
 
-#include <SqPtrArray.h>
-#include <SqEntry.h>      // typedef struct SqType
-#include <Sqxc.h>
+#include <sqxc/SqPtrArray.h>
+#include <sqxc/SqEntry.h>      // typedef struct SqType
+#include <sqxc/Sqxc.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.
@@ -606,7 +606,7 @@ extern  const  SqType      sqType_StdVectorSize;   // std::vector<char> resize
 #define SQ_TYPE_STD_VEC_SIZE       SQ_TYPE_STD_VECTOR_SIZE
 
 /*
-#include <SqType-stl-cpp.h>
+#include <sqxc/SqType-stl-cpp.h>
  */
 
 namespace Sq {

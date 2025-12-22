@@ -16,12 +16,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <SqConfig.h>
-#include <SqError.h>
-#include <SqBuffer.h>
-#include <SqConvert.h>
-#include <SqType.h>
-#include <SqSchema.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqBuffer.h>
+#include <sqxc/SqConvert.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqSchema.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

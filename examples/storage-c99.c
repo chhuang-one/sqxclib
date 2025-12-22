@@ -24,7 +24,7 @@
 #endif
 #include <stdio.h>        // printf(), fprintf(), stderr
 
-#include <sqxclib.h>
+#include <sqxc/sqxclib.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

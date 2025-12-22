@@ -3,7 +3,7 @@
 
 # bili2mp4
 # --- cJSON or json-c is required
-if (cjson_FOUND OR json-c_FOUND)
+if (cJSON_FOUND OR json-c_FOUND)
 	# If you want to build bili2mp4 in Visual Studio, download direct.h for MSVC form internet.
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 		# find direct.h in current directory.
@@ -22,7 +22,7 @@ if (cjson_FOUND OR json-c_FOUND)
 		target_include_directories(bili2mp4  PUBLIC  ${Sqxc_INCLUDE_DIRS})
 	endif ()
 	target_link_libraries(bili2mp4  ${Sqxc_LIBRARIES})
-endif (cjson_FOUND OR json-c_FOUND)
+endif (cJSON_FOUND OR json-c_FOUND)
 
 add_executable(storage-c99  storage-c99.c)
 target_include_directories(storage-c99  PUBLIC  ${Sqxc_INCLUDE_DIRS})
@@ -48,9 +48,9 @@ if (DEFINED CMAKE_CXX_COMPILER)
 	target_link_libraries(myapp-cxx  ${SqxcApp_LIBRARIES})
 
 	# --- cJSON or json-c is required
-	if (cjson_FOUND OR json-c_FOUND)
+	if (cJSON_FOUND OR json-c_FOUND)
 		add_executable(xc_json_file  xc_json_file.cpp)
 		target_include_directories(xc_json_file  PUBLIC  ${SqxcSupport_INCLUDE_DIRS})
 		target_link_libraries(xc_json_file  ${SqxcSupport_LIBRARIES})
-	endif (cjson_FOUND OR json-c_FOUND)
+	endif (cJSON_FOUND OR json-c_FOUND)
 endif (DEFINED CMAKE_CXX_COMPILER)

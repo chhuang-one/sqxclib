@@ -19,12 +19,12 @@
 #include <stdio.h>        // snprintf(), fprintf(), stderr
 #include <stdbool.h>      // bool, true, false
 
-#include <SqError.h>
-#include <SqdbSqlite.h>
-#include <SqxcValue.h>
-#include <SqxcSql.h>
-#include <Sqdb-migration.h>
-#include <SqRelation-migration.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqdbSqlite.h>
+#include <sqxc/SqxcValue.h>
+#include <sqxc/SqxcSql.h>
+#include <sqxc/Sqdb-migration.h>
+#include <sqxc/SqRelation-migration.h>
 
 #ifdef _MSC_VER
 #define snprintf     _snprintf

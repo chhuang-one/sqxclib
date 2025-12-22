@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -14,13 +14,13 @@
 
 #include <stdbool.h>
 
-#include <SqConfig.h>
-#include <SqError.h>
-#include <SqPtrArray.h>
-#include <SqStrArray.h>
-#include <SqType.h>
-#include <SqEntry.h>
-#include <SqxcValue.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqPtrArray.h>
+#include <sqxc/SqStrArray.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqEntry.h>
+#include <sqxc/SqxcValue.h>
 
 #define SQ_TYPE_ARRAY_SIZE_DEFAULT    SQ_CONFIG_TYPE_ARRAY_SIZE_DEFAULT
 

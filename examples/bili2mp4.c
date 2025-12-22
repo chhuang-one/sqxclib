@@ -101,9 +101,9 @@ toUTF8(
 //#include <stat.h>
 #include <sys/stat.h>     // stat(), mkdir()
 
-#include <SqType.h>
-#include <SqxcJson.h>
-#include <SqxcValue.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqxcJson.h>
+#include <sqxc/SqxcValue.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

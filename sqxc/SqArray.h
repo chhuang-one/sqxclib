@@ -27,7 +27,7 @@
 #include <stdlib.h>       // qsort(), bsearch(), malloc(), free()
 #include <string.h>       // memcpy(), memmove()
 
-#include <SqDefine.h>     // SqClearFunc, SqCompareFunc
+#include <sqxc/SqDefine.h>     // SqClearFunc, SqCompareFunc
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

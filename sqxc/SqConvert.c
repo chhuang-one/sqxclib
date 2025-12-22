@@ -21,7 +21,7 @@
 #include <stdlib.h>       // malloc()
 #include <string.h>
 
-#include <SqConvert.h>
+#include <sqxc/SqConvert.h>
 
 #ifdef _MSC_VER
 #define snprintf     _snprintf

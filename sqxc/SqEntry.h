@@ -18,8 +18,8 @@
 #include <stddef.h>       // NULL, offsetof()
 #include <stdbool.h>      // bool, true, false
 
-#include <SqConfig.h>
-#include <SqDefine.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqDefine.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

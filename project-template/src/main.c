@@ -3,7 +3,7 @@
  */
 
 #include <stdio.h>
-#include <sqxclib.h>
+#include <sqxc/sqxclib.h>
 
 #define USE_SQLITE_IF_POSSIBLE        1
 #define USE_MYSQL_IF_POSSIBLE         0

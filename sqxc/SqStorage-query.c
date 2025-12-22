@@ -17,11 +17,11 @@
 #endif
 #include <stdio.h>        // snprintf(), fprintf(), stderr
 
-#include <SqError.h>
-#include <SqType.h>
-#include <SqxcValue.h>
-#include <SqStorage.h>
-#include <SqQuery.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqxcValue.h>
+#include <sqxc/SqStorage.h>
+#include <sqxc/SqQuery.h>
 
 #ifdef _MSC_VER
 #define snprintf     _snprintf

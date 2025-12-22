@@ -17,8 +17,8 @@
 #include <assert.h>
 #include <inttypes.h>     // PRId64, PRIu64
 
-#include <sqxclib.h>
-#include <SqSchema-macro.h>
+#include <sqxc/sqxclib.h>
+#include <sqxc/SqSchema-macro.h>
 
 #define USE_SQLITE_IF_POSSIBLE        1
 #define USE_MYSQL_IF_POSSIBLE         0

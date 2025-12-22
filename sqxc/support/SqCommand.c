@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,10 +15,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <SqConfig.h>
-#include <SqError.h>
-#include <SqxcValue.h>
-#include <SqCommand.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqxcValue.h>
+#include <sqxc/support/SqCommand.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

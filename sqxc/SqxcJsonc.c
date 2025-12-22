@@ -16,9 +16,9 @@
 #include <stdint.h>       // __WORDSIZE  for Apple Developer
 #include <stdio.h>        // fprintf(), stderr
 
-#include <SqError.h>
-#include <SqEntry.h>
-#include <SqxcJsonc.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqEntry.h>
+#include <sqxc/SqxcJsonc.h>
 
 #if SQ_CONFIG_HAVE_JSONC  // defined in SqConfig.h
 

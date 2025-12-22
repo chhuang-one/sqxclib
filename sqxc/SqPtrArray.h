@@ -19,7 +19,7 @@
 #include <functional>
 #endif
 
-#include <SqArray.h>
+#include <sqxc/SqArray.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

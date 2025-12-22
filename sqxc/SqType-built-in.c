@@ -22,12 +22,12 @@
 #include <stdlib.h>       // realloc(), strtol()
 #include <string.h>       // strdup()
 
-#include <SqConvert.h>    // sq_time_to_string(), sq_time_from_string()
-#include <SqError.h>
-#include <SqPtrArray.h>
-#include <SqType.h>
-#include <SqEntry.h>
-#include <SqxcValue.h>
+#include <sqxc/SqConvert.h>    // sq_time_to_string(), sq_time_from_string()
+#include <sqxc/SqError.h>
+#include <sqxc/SqPtrArray.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqEntry.h>
+#include <sqxc/SqxcValue.h>
 
 #ifdef _MSC_VER
 #define snprintf     _snprintf

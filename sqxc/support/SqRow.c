@@ -19,10 +19,10 @@
 #include <stdio.h>        // fprintf(), stderr
 #endif
 
-#include <SqConfig.h>
-#include <SqError.h>
-#include <SqRow.h>
-#include <SqxcValue.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqxcValue.h>
+#include <sqxc/support/SqRow.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

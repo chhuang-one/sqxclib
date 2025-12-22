@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com4
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -16,8 +16,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <string>
-#include <SqError.h>
-#include <SqType.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqType.h>
 
 /* ----------------------------------------------------------------------------
 	SqType for std::string

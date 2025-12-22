@@ -40,8 +40,8 @@
 #endif
 
 #if SQ_QUERY_USE_ALONE == 0
-#include <SqPtrArray.h>    // used by sq_query_get_table_as_names()
-#include <SqTable.h>       // used by sq_query_select_table_as()
+#include <sqxc/SqPtrArray.h>    // used by sq_query_get_table_as_names()
+#include <sqxc/SqTable.h>       // used by sq_query_select_table_as()
 #endif
 
 // ----------------------------------------------------------------------------
@@ -727,7 +727,7 @@ void  sq_query_select_table_as(SqQuery *query, SqTable *table, const char *table
 
 #define SQ_QUERY_METHOD_H_DECLARE    1
 #define SQ_QUERY_METHOD_H_DEFINE     0
-#include <SqQueryMethod.h>
+#include <sqxc/SqQueryMethod.h>
 
 // ----------------------------------------------------------------------------
 //  C/C++ structure definition
@@ -885,7 +885,7 @@ struct SqQuery
 
 #define SQ_QUERY_METHOD_H_DECLARE    0
 #define SQ_QUERY_METHOD_H_DEFINE     1
-#include <SqQueryMethod.h>
+#include <sqxc/SqQueryMethod.h>
 
 
 #ifdef __cplusplus
@@ -919,7 +919,7 @@ struct Query : SqQuery
  */
 
 #define SQ_QUERY_METHOD_H_FOR_PROXY    1
-#include <SqQueryMethod.h>
+#include <sqxc/SqQueryMethod.h>
 
 
 #ifdef __cplusplus

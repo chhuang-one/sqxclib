@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,8 +15,8 @@
 #ifndef SQDB_MIGRATION_H
 #define SQDB_MIGRATION_H
 
-#include <SqConfig.h>
-#include <SqSchema.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqSchema.h>
 
 // ----------------------------------------------------------------------------
 // C declarations: declare C data, function, and others.

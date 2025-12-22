@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,7 +15,7 @@
 #ifndef SQ_SCHEMA_MACRO_H
 #define SQ_SCHEMA_MACRO_H
 
-#include <SqSchema.h>
+#include <sqxc/SqSchema.h>
 
 /* C Macro functions to create database table easily, for example:
 

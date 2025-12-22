@@ -15,17 +15,17 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include <SqConfig.h>
-#include <SqPtrArray.h>
-#include <SqStrArray.h>
-#include <SqSchema-macro.h>
-#include <SqJoint.h>
-#include <SqRow.h>
-#include <SqxcSql.h>
-#include <SqxcValue.h>
-#include <SqxcEmpty.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqPtrArray.h>
+#include <sqxc/SqStrArray.h>
+#include <sqxc/SqSchema-macro.h>
+#include <sqxc/SqJoint.h>
+#include <sqxc/SqxcSql.h>
+#include <sqxc/SqxcValue.h>
+#include <sqxc/support/SqxcEmpty.h>
+#include <sqxc/support/SqRow.h>
 #if SQ_CONFIG_HAVE_JSON
-#include <SqxcJson.h>
+#include <sqxc/SqxcJson.h>
 #endif
 
 #ifdef _MSC_VER

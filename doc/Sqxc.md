@@ -303,7 +303,7 @@ All derived structure must conforme C++11 standard-layout
 
 ```c++
 // This is header file - SqxcText.h
-#include <Sqxc.h>
+#include <sqxc/Sqxc.h>
 
 // If you use C language, please use 'typedef' to give a struct type a new name.
 typedef struct SqxcText   SqxcText;

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -14,12 +14,12 @@
 
 #include <stdio.h>
 
-#include <SqError.h>
-#include <SqMigration.h>
+#include <sqxc/SqError.h>
+#include <sqxc/app/SqMigration.h>
 
-#include <SqConsole.h>
-#include <SqApp.h>
-#include <SqAppOptions.h>
+#include <sqxc/support/SqConsole.h>
+#include <sqxc/app/SqApp.h>
+#include <sqxc/app/SqAppOptions.h>
 
 // ----------------------------------------------------------------------------
 static const SqOption option_database = {

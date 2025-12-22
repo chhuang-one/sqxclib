@@ -15,8 +15,8 @@
 #ifndef SQXC_VALUE_H
 #define SQXC_VALUE_H
 
-#include <Sqxc.h>
-#include <SqEntry.h>
+#include <sqxc/Sqxc.h>
+#include <sqxc/SqEntry.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

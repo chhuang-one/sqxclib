@@ -16,8 +16,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <stdio.h>        // fprintf(), stderr
-#include <SqError.h>
-#include <SqxcFile.h>
+#include <sqxc/SqError.h>
+#include <sqxc/support/SqxcFile.h>
 
 /* ----------------------------------------------------------------------------
 	*** In output chain:

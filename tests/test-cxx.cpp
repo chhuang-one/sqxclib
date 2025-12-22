@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -20,13 +20,13 @@
 #include <type_traits>  // is_standard_layout<>
 #include <iostream>     // cout
 
-#include <SqQuery.h>
-#include <SqSchema.h>
-#include <SqStorage.h>
+#include <sqxc/SqQuery.h>
+#include <sqxc/SqSchema.h>
+#include <sqxc/SqStorage.h>
 
-#include <SqPairs.h>
-#include <SqdbEmpty.h>
-#include <SqxcEmpty.h>
+#include <sqxc/support/SqPairs.h>
+#include <sqxc/support/SqdbEmpty.h>
+#include <sqxc/support/SqxcEmpty.h>
 
 using namespace std;
 

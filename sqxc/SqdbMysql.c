@@ -19,11 +19,11 @@
 #include <stdio.h>        // snprintf(), fprintf(), stderr
 #include <stdbool.h>      // bool, true, false
 
-#include <SqError.h>
-#include <Sqdb-migration.h>
-#include <SqdbMysql.h>
-#include <SqxcValue.h>
-#include <SqxcSql.h>
+#include <sqxc/SqError.h>
+#include <sqxc/Sqdb-migration.h>
+#include <sqxc/SqdbMysql.h>
+#include <sqxc/SqxcValue.h>
+#include <sqxc/SqxcSql.h>
 
 #ifdef _MSC_VER
 #define snprintf     _snprintf

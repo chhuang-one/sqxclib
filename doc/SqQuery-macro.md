@@ -5,8 +5,8 @@
 macro SQ_QUERY_DO() is used to build query. The last parameter in macro is like lambda function.
 
 ```c
-#include <sqxclib.h>
-#include <SqQuery-macro.h>    // sqxclib.h doesn't contain special macros
+#include <sqxc/sqxclib.h>
+#include <sqxc/SqQuery-macro.h>    // sqxclib.h doesn't contain special macros
 
 	SQ_QUERY_DO(query, {
 		SQQ_SELECT("id", "age");

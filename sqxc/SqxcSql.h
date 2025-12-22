@@ -17,9 +17,9 @@
 
 #include <stdint.h>
 
-#include <SqPtrArray.h>
-#include <Sqxc.h>
-#include <Sqdb.h>
+#include <sqxc/SqPtrArray.h>
+#include <sqxc/Sqxc.h>
+#include <sqxc/Sqdb.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

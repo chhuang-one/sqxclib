@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <SqColumn.h>
+#include <sqxc/SqColumn.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

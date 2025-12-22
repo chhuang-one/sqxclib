@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <SqStrArray.h>
+#include <sqxc/SqStrArray.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

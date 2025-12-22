@@ -20,12 +20,12 @@
 #include <stdio.h>        // snprintf()
 #include <inttypes.h>     // PRId64, PRIu64
 
-#include <SqError.h>
-#include <SqConfig.h>
-#include <SqBuffer.h>
-#include <SqConvert.h>
-#include <SqTable.h>
-#include <SqxcSql.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqBuffer.h>
+#include <sqxc/SqConvert.h>
+#include <sqxc/SqTable.h>
+#include <sqxc/SqxcSql.h>
 
 #ifdef _MSC_VER
 #define strncasecmp  _strnicmp

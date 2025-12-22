@@ -19,13 +19,14 @@
 #include <stdio.h>            // FILE
 #include <ctype.h>            // toupper()
 #include <string.h>           // strchr()
-#include <SqError.h>
-#include <SqConvert.h>        // sq_time_to_string()
-#include <SqHelpers.h>        // sq_str_type_name()
-#include <SqBuffer.h>
-#include <SqAppTool.h>
-#include <SqAppOptions.h>
-#include <SqAppCommands.h>
+
+#include <sqxc/SqError.h>
+#include <sqxc/SqBuffer.h>
+#include <sqxc/SqConvert.h>                // sq_time_to_string()
+#include <sqxc/support/SqHelpers.h>        // sq_str_type_name()
+#include <sqxc/app/SqAppTool.h>
+#include <sqxc/app/SqAppOptions.h>
+#include <sqxc/app/SqAppCommands.h>
 
 #ifdef _MSC_VER
 #define strdup       _strdup

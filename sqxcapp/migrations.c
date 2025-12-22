@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2022 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,8 +12,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <SqStorage.h>
-#include <SqMigration.h>
+#include <sqxc/SqStorage.h>
+#include <sqxc/app/SqMigration.h>
 #include "migrations.h"
 
 const SqMigration *sqApp_migrations_default[] = {

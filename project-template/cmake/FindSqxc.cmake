@@ -23,9 +23,9 @@
 # Sqxc_LIBRARIES    - The libraries to link against.
 
 find_path(Sqxc_INCLUDE_DIR
-    NAMES "sqxclib.h"
-    PATHS "/usr/include/sqxc"
-          "/usr/local/include/sqxc"
+    NAMES "sqxc/sqxclib.h"
+    PATHS "/usr/include"
+          "/usr/local/include"
 )
 
 find_library(Sqxc_LIBRARY
@@ -49,8 +49,9 @@ find_package_handle_standard_args(
 if (Sqxc_FOUND)
 	set(Sqxc_INCLUDE_DIRS
 	    ${Sqxc_INCLUDE_DIR}
-	    ${Sqxc_INCLUDE_DIR}/app
-	    ${Sqxc_INCLUDE_DIR}/support
+	    ${Sqxc_INCLUDE_DIR}/sqxc
+	    ${Sqxc_INCLUDE_DIR}/sqxc/app
+	    ${Sqxc_INCLUDE_DIR}/sqxc/support
 	)
 
 	set(Sqxc_LIBRARIES

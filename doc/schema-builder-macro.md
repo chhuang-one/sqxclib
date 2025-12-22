@@ -27,8 +27,8 @@ macro SQT_XXXX() are used to add column to table.
 macro SQC_XXXX() are used to set column properties.
 
 ```c
-#include <sqxclib.h>
-#include <SqSchema-macro.h>    // sqxclib.h doesn't contain special macros
+#include <sqxc/sqxclib.h>
+#include <sqxc/SqSchema-macro.h>    // sqxclib.h doesn't contain special macros
 
 	// create schema and specify version number as 1
 	schema_v1 = sq_schema_new_ver(1, "Ver 1");

@@ -14,9 +14,9 @@
 
 // SqAppTool.h will include headers in sqxcsupport.
 
-#include <SqApp.h>
-#include <SqAppTool.h>
-#include <SqMigration.h>
+#include <sqxc/app/SqApp.h>
+#include <sqxc/app/SqAppTool.h>
+#include <sqxc/app/SqMigration.h>
 
-#include <SqAppOptions.h>
-#include <SqAppCommands.h>
+#include <sqxc/app/SqAppOptions.h>
+#include <sqxc/app/SqAppCommands.h>

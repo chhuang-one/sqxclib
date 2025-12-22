@@ -15,10 +15,10 @@
 #ifndef SQ_TABLE_H
 #define SQ_TABLE_H
 
-#include <SqType.h>
-#include <SqEntry.h>
-#include <SqColumn.h>
-#include <SqTypeMapping.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqEntry.h>
+#include <sqxc/SqColumn.h>
+#include <sqxc/SqTypeMapping.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

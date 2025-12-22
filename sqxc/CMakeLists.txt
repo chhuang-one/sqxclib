@@ -64,8 +64,8 @@ set(HEADERS_CPP
 )
 
 # --- cJSON or json-c---
-# if (cjson_INCLUDE_DIRS OR json-c_INCLUDE_DIRS)
-if (cjson_FOUND OR json-c_FOUND)
+# if (cJSON_INCLUDE_DIRS OR json-c_INCLUDE_DIRS)
+if (cJSON_FOUND OR json-c_FOUND)
 	set(HEADERS
 	    ${HEADERS}
 	    SqxcJson.h
@@ -73,8 +73,8 @@ if (cjson_FOUND OR json-c_FOUND)
 endif()
 
 # --- cJSON ---
-# if (cjson_INCLUDE_DIRS)
-if (cjson_FOUND)
+# if (cJSON_INCLUDE_DIRS)
+if (cJSON_FOUND)
 	set(SOURCES
 	    ${SOURCES}
 	    SqxcCjson.c
@@ -133,7 +133,8 @@ if (PostgreSQL_FOUND)
 endif()
 
 # --- build ---
-include_directories(${Sqxc_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
+# include_directories(${Sqxc_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
+include_directories(${Sqxc_INCLUDE_DIRS})
 
 # --- 'sqxc' library ---
 add_library(sqxc

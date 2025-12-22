@@ -14,7 +14,7 @@
 
 #include <stdlib.h>
 
-#include <SqRelation.h>
+#include <sqxc/SqRelation.h>
 
 typedef struct SqRHeader         SqRHeader;
 

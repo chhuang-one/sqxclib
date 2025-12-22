@@ -17,8 +17,8 @@
 #include <stdio.h>
 #include <inttypes.h>     // PRId64, PRIu64
 
-#include <sqxclib.h>
-#include <SqApp.h>
+#include <sqxc/sqxclib.h>
+#include <sqxc/app/SqApp.h>
 #include <CStructs.h>     // struct User
 
 typedef struct MyApp    MyApp;

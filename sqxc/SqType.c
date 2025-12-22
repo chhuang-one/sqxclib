@@ -15,10 +15,10 @@
 #include <stdio.h>        // fprintf(), stderr
 #include <string.h>
 
-#include <SqConfig.h>
-#include <SqPtrArray.h>
-#include <SqType.h>
-#include <SqEntry.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqPtrArray.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqEntry.h>
 
 #define SQ_TYPE_N_ENTRY_DEFAULT    SQ_CONFIG_TYPE_N_ENTRY_DEFAULT
 

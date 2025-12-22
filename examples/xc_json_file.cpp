@@ -14,10 +14,10 @@
 
 #include <stdio.h>        // fprintf(), stderr
 
-#include <sqxclib.h>
-#include <SqxcFile.h>     // in sqxcsupport library
-#include <SqxcMem.h>      // in sqxcsupport library
-#include <SqHelpers.h>    // in sqxcsupport library
+#include <sqxc/sqxclib.h>
+#include <sqxc/support/SqxcFile.h>     // in sqxcsupport library
+#include <sqxc/support/SqxcMem.h>      // in sqxcsupport library
+#include <sqxc/support/SqHelpers.h>    // in sqxcsupport library
 
 /*	Use Sqxc chain to output JSON data to file.
 

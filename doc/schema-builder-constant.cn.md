@@ -48,7 +48,7 @@ struct User {
 例如: 使用 C99 指定初始化程序在 schema_v1 中定义表和列。
 
 ```c
-#include <sqxclib.h>
+#include <sqxc/sqxclib.h>
 
 static const SqColumn  userColumns[6] = {
 	// 主键 PRIMARY KEY
@@ -91,7 +91,7 @@ static const SqColumn  userColumns[6] = {
 例如: 使用 C++ 聚合初始化在 schema_v1 中定义表和列。
 
 ```c++
-#include <sqxclib.h>
+#include <sqxc/sqxclib.h>
 
 /* 为 C++ STL 定义全局类型
    为 C++ std::vector<int> 创建新的 SqType */

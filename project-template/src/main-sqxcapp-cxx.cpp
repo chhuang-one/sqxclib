@@ -3,8 +3,8 @@
  * It will link C++ library 'sqxcpp' if you use SQ_TYPE_STD_STRING (SqType for std::string) or others.
  */
 
-#include <sqxclib.h>
-#include <SqApp.h>
+#include <sqxc/sqxclib.h>
+#include <sqxc/app/SqApp.h>
 
 int  main(void)
 {

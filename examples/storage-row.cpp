@@ -22,8 +22,8 @@
 #include <iostream>
 #include <assert.h>
 
-#include <sqxclib.h>
-#include <SqRow.h>
+#include <sqxc/sqxclib.h>
+#include <sqxc/support/SqRow.h>
 
 #define USE_SQLITE_IF_POSSIBLE        1
 #define USE_MYSQL_IF_POSSIBLE         0

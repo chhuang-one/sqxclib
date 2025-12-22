@@ -17,8 +17,8 @@
 
 #include <stdbool.h>
 
-#include <SqConfig.h>
-#include <SqType.h>
+#include <sqxc/SqConfig.h>
+#include <sqxc/SqType.h>
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

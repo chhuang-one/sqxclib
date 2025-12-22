@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2024 by C.H. Huang
+ *   Copyright (C) 2021-2025 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -17,10 +17,10 @@
 #endif
 #include <stdio.h>        // snprintf()
 
-#include <SqError.h>
-#include <SqType.h>
-#include <SqxcValue.h>
-#include <SqMigration.h>
+#include <sqxc/SqError.h>
+#include <sqxc/SqType.h>
+#include <sqxc/SqxcValue.h>
+#include <sqxc/app/SqMigration.h>
 
 #ifdef _MSC_VER
 #define snprintf     _snprintf
