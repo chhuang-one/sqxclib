@@ -224,19 +224,19 @@ namespace Sq {
 /* define TypeRowMethod functions. */
 
 /* define RowMethod functions. */
-unsigned int  RowMethod::colsCapacity(void) {
+inline unsigned int  RowMethod::colsCapacity(void) {
 	return sq_row_cols_capacity((SqRow*)this);
 }
-void RowMethod::freeColsName(void) {
+inline void RowMethod::freeColsName(void) {
 	sq_row_free_cols_name((SqRow*)this);
 }
-bool RowMethod::shareCols(SqRow *share_to) {
+inline bool RowMethod::shareCols(SqRow *share_to) {
 	return sq_row_share_cols((SqRow*)this, share_to);
 }
-bool RowMethod::shareCols(SqRow &share_to) {
+inline bool RowMethod::shareCols(SqRow &share_to) {
 	return sq_row_share_cols((SqRow*)this, &share_to);
 }
-Sq::RowColumn *RowMethod::allocColumn(unsigned int  n_element) {
+inline Sq::RowColumn *RowMethod::allocColumn(unsigned int  n_element) {
 	return sq_row_alloc_column((SqRow*)this, n_element);
 }
 
