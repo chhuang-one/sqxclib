@@ -2,7 +2,7 @@
 
 [![Donate using PayPal](https://img.shields.io/badge/donate-PayPal-brightgreen.svg)](https://paypal.me/CHHUANGONE)
 
-# 思库可思 sqxclib
+# 思库可思 Sqxc (sqxclib)
 
 sqxclib 是在 C 语言和 SQL、JSON 等之间转换数据的库。它提供 ORM 的功能和 C++ 包装器。  
 项目地址: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
@@ -25,7 +25,7 @@ sqxclib 是在 C 语言和 SQL、JSON 等之间转换数据的库。它提供 OR
 
 * 可以在低端硬件上工作。
 
-* 单一头文件 〈 **sqxclib.h** 〉 (注意: 不包含特殊宏和支持库)
+* 单一头文件 〈 **sqxc/sqxclib.h** 〉 (注意: 不包含特殊宏)
 
 * 如果开发者不需要将迁移同步到数据库，可以使用 “无迁移模式”。
 
@@ -202,7 +202,7 @@ Sq::TypeStl<std::vector<int>> SqTypeIntVector(SQ_TYPE_INT);    // C++ std::vecto
 ## 数据库产品
 
 **Sqdb** 是 SQLite、MySQL 等数据库产品的基础结构。您可以在 doc/[Sqdb.cn.md](doc/Sqdb.cn.md) 中获得更多描述和示例。  
-如果用户不需要将迁移同步到数据库，请在 SqdbConfig::bit_field 中设置 SQDB_CONFIG_NO_MIGRATION 以使用 “无迁移模式”。  
+如果不需要将迁移同步到数据库，请在 SqdbConfig::bit_field 中设置 SQDB_CONFIG_NO_MIGRATION 以使用 “无迁移模式”。  
   
 例如: 为 SQLite 数据库创建 Sqdb 实例  
   
@@ -802,7 +802,7 @@ SQL 语句
 ## 解析未知结果
 
 [SqTypeRow](doc/SqTypeRow.cn.md) 派生自 [SqTypeJoint](doc/SqTypeJoint.cn.md)。它创建 [SqRow](doc/SqRow.cn.md) 的实例并解析未知（或已知）的结果。  
-SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRow.cn.md) 和 SQ_TYPE_ROW 都在 sqxcsupport 库中 (sqxcsupport.h)。  
+SQ_TYPE_ROW 是 SqTypeRow 的内置静态常量类型。[SqTypeRow](doc/SqTypeRow.cn.md) 和 SQ_TYPE_ROW 都在 sqxcsupport 库。  
   
 使用 C 函数
 
@@ -912,7 +912,7 @@ sqxclib 在搜索和排序数据库列名和 JSON 字段名时默认区分大小
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
-/* 如果用户没有指定 SQL 字符串长度，程序将使用默认值。
+/* 如果没有指定 SQL 字符串长度，程序将使用默认值。
    SQL_STRING_LENGTH_DEFAULT
  */
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT      191
@@ -938,7 +938,7 @@ SqSchema 定义数据库架构。它存储表和表的更改记录。
 您可以在 doc/[SqSchema.cn.md](doc/SqSchema.cn.md) 中获得更多描述和示例。
 
 ## SqApp
-SqApp 使用配置文件（SqApp-config.h）来初始化数据库并为用户的应用程序进行迁移。  
+SqApp 使用配置文件 (SqApp-config.h) 初始化数据库，并使用迁移文件进行迁移。  
 它提供命令行程序来生成迁移并进行迁移。  
 请参阅文档 doc/[SqApp.cn.md](doc/SqApp.cn.md)。
 

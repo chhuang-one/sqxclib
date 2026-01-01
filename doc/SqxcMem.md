@@ -3,7 +3,7 @@
 # SqxcMem
 
 SqxcMem is derived from [Sqxc](Sqxc.md). It is used to output Sqxc converted data to memory.  
-Note: SqxcMem is in sqxcsupport library (sqxcsupport.h).
+Note: SqxcMem is in sqxcsupport library.
 
 	Sqxc
 	│

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -28,7 +28,7 @@
 #define SQ_GET_TYPE_NAME(Type)        #Type
 #endif
 
-#include <stdbool.h>      // bool, true, false
+#include <stdbool.h>           // bool, true, false
 
 #include <sqxc/SqPtrArray.h>
 #include <sqxc/SqEntry.h>      // typedef struct SqType
@@ -606,7 +606,7 @@ extern  const  SqType      sqType_StdVectorSize;   // std::vector<char> resize
 #define SQ_TYPE_STD_VEC_SIZE       SQ_TYPE_STD_VECTOR_SIZE
 
 /*
-#include <sqxc/SqType-stl-cpp.h>
+#include <sqxc/SqType-stl-cxx.h>
  */
 
 namespace Sq {

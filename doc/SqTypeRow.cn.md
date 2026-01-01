@@ -4,7 +4,7 @@
 
 SqTypeRow 派生自 [SqTypeJoint](SqTypeJoint.cn.md)。它可以创建 [SqRow](SqRow.cn.md) 的实例并解析未知（或已知）的结果、表和列。  
 SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)  
-注意: SqTypeRow 在 sqxcsupport 库中 (sqxcsupport.h)。  
+注意: SqTypeRow 在 sqxcsupport 库。  
 
 	SqType
 	│
@@ -14,7 +14,7 @@ SqTypeRow 示例代码在 [storage-row.cpp](examples/storage-row.cpp)
 
 ## 无需设置直接使用
 
-SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它来解析未知的结果。
+SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，可以直接用它来解析未知的结果。
 在这种情况下，[SqRow](SqRow.cn.md) 中的所有数据类型都是 C 字符串，因为 SqTypeRow 不知道列的类型。  
   
 使用 C 语言
@@ -48,7 +48,7 @@ SQ_TYPE_ROW 是 SqTypeRow 内置的静态常量类型，用户可以直接用它
 ## 创建和设置
 
 如果你想从 [SqRow](SqRow.cn.md) 获得正确的数据类型，你必须创建动态 SqTypeRow 并设置它。
-因为 SqTypeRow 的解析器必须知道表中列的类型，所以用户必须在 SqTypeRow 中添加、删除、清除表。  
+因为 SqTypeRow 的解析器必须知道表中列的类型，所以必须在 SqTypeRow 中添加、删除、清除表。  
 添加或删除表时，您可以在最后一个参数中指定表别名（由 SQL AS 关键字使用）。如果别名为 NULL，Sqxc 将直接使用表名。  
   
 使用 C 语言

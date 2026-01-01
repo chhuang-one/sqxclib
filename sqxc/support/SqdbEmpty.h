@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -32,8 +32,6 @@ extern "C" {
 
 extern const SqdbInfo        sqdbInfo_Empty;
 #define SQDB_INFO_EMPTY    (&sqdbInfo_Empty)
-
-#define sqdb_empty_new(sqdb_config)    sqdb_new(SQDB_INFO_EMPTY, sqdb_config)
 
 #ifdef __cplusplus
 }  // extern "C"
@@ -86,6 +84,28 @@ struct SqdbConfigEmpty
 	// ------ SqdbConfigEmpty members ------
 	int   debug;
 };
+
+// ----------------------------------------------------------------------------
+// C/C++ common definitions: define global inline function
+
+#if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) || defined(__cplusplus)
+// define inline functions here if compiler supports inline function.
+
+#ifdef __cplusplus  // C++
+inline
+#else               // C99
+static inline
+#endif
+Sqdb *sqdb_empty_new(const SqdbConfigEmpty *config) {
+	return sqdb_new(SQDB_INFO_EMPTY, (SqdbConfig*)config);
+}
+
+#else   // __STDC_VERSION__ || __cplusplus
+// declare functions here if compiler does NOT support inline function.
+
+Sqdb *sqdb_empty_new(const SqdbConfigEmpty *config);
+
+#endif  // __STDC_VERSION__ || __cplusplus
 
 // ----------------------------------------------------------------------------
 // C++ definitions: define C++ data, function, method, and others.

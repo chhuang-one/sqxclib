@@ -1,7 +1,6 @@
-/* This template file is used by sqtool-cpp
- * Please define structure '{{ struct_name }}' in workspace/sqxcapp/CStructs.h
+/* This template file is used by sqtool-cxx
  *
- * Normally this file should be included in migrations-files-cxx.cpp if you use sqtool-cpp to make migration file.
+ * Normally this file should be included in migrations-files-cxx.cpp if you use sqtool-cxx to make migration file.
  * migrations-files-cxx.cpp has included following headers.
  * #include <sqxc/SqStorage.h>
  * #include <sqxc/app/SqMigration.h>
@@ -15,16 +14,16 @@ const SqMigration {{ migration_name_camel }}_{{ timestamp }} = {
 //	.up =
 	[](SqSchema *schema, SqStorage *storage) {
 		SqTable  *table;
-/*
-		table = schema->create<{{ struct_name }}>("{{ table_name }}");
-		table->integer("id", &{{ struct_name }}::id)->primary()->autoIncrement();
- */
+
+		table = schema->alter("{{ table_name }}");
 	},
 
 	// Reverse the migrations.
 //	.down =
 	[](SqSchema *schema, SqStorage *storage) {
-		schema->drop("{{ table_name }}");
+		SqTable  *table;
+
+		table = schema->alter("{{ table_name }}");
 	},
 
 #if SQ_APP_HAS_MIGRATION_NAME

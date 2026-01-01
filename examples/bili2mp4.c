@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2023-2025 by C.H. Huang
+ *   Copyright (C) 2023-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -36,9 +36,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #if defined(_WIN32) || defined(_WIN64)
-#include <windows.h>      // MultiByteToWideChar(), WideCharToMultiByte()
-#include <fcntl.h>        // _O_U16TEXT
-#include <direct.h>       // _mkdir(), _wmkdir() for Windows
+#include <windows.h>           // MultiByteToWideChar(), WideCharToMultiByte()
+#include <fcntl.h>             // _O_U16TEXT
+#include <direct.h>            // _mkdir(), _wmkdir() for Windows
 
 /*	These UTF-8 functions was copied from:
 	https://gist.github.com/xebecnan/6d070c93fb69f40c3673
@@ -90,16 +90,16 @@ toUTF8(
 #endif  // _WIN32 || _WIN64
 // ----------------------------------------------------------------------------
 
-#include <stdio.h>        // snprintf()
+#include <stdio.h>             // snprintf()
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>       // strpbrk()
+#include <string.h>            // strpbrk()
 
 #include <errno.h>
-#include <dirent.h>       // struct dirent
+#include <dirent.h>            // struct dirent
 //#include <stat.h>
-#include <sys/stat.h>     // stat(), mkdir()
+#include <sys/stat.h>          // stat(), mkdir()
 
 #include <sqxc/SqType.h>
 #include <sqxc/SqxcJson.h>
@@ -632,7 +632,7 @@ int  main(int argc, char* argv[])
 		printf("Usage:"  "\n"  "%*c", 2, ' ');
 		printf("%s [%s] [%s]", "bili2mp4", "source directory", "destination directory");
 		printf("\n\n");
-		printf("If the user does not specify directory, the current directory is used."  "\n\n");
+		printf("If no directory is specified, the current directory is used."  "\n\n");
 	}
 	if (argc > 1)
 		srcDir  = argv[1];

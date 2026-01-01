@@ -1,5 +1,5 @@
 /* This template file is used by sqtool
- * Please define structure 'User' in workspace/sqxcapp/CStructs.h
+ * Please define structure 'User' in workspace/sqapp/CStructs.h
  *
  * Normally this file should be included in migrations-files.c if you use sqtool to make migration file.
  * migrations-files.c has included following headers.

@@ -118,7 +118,7 @@ C 函数 sq_storage_migrate() 和 C++ 方法 migrate() 使用架构的版本来�
 
 get() 的参数是 表名、表类型 和 id。  
 如果表类型为 NULL，SqStorage 将尝试在其架构中查找表类型。  
-如果用户同时指定参数 表名 和 表类型，它可以运行得更快一些。  
+如果同时指定参数 表名 和 表类型，它可以运行得更快一些。  
   
 例如: 从数据库表 users 中获取一行。
 
@@ -597,7 +597,7 @@ SqStorage 提供 sq_storage_query() 和 C++ 方法 query() 来使用 [SqQuery](S
 
 #### 使用 JOIN 子句的查询
 
-如果用户在没有指定表类型的情况下执行连接多个表的查询，程序将默认使用 [SqTypeJoint](SqTypeJoint.cn.md) 作为表类型。[SqTypeJoint](SqTypeJoint.cn.md) 可以为查询结果创建指针数组。  
+如果在没有指定表类型的情况下执行连接多个表的查询，程序将默认使用 [SqTypeJoint](SqTypeJoint.cn.md) 作为表类型。[SqTypeJoint](SqTypeJoint.cn.md) 可以为查询结果创建指针数组。  
   
 使用 C 函数
 
@@ -756,7 +756,7 @@ SqStorage 提供 sq_storage_query_raw() 来使用原始字符串进行查询。�
 
 使用 C 函数  
   
-SQ_TYPE_ROW       是内置的类型，位于 sqxcsupport 库 (sqxcsupport.h) 中。  
+SQ_TYPE_ROW       是内置的类型，位于 sqxcsupport 库。  
 SQ_TYPE_PTR_ARRAY 是内置的容器类型。  
 
 ```c

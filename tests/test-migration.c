@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <stdio.h>        // fprintf(), stderr
+#include <stdio.h>             // fprintf(), stderr
 
 #include <sqxc/sqxclib.h>
 #include <sqxc/SqSchema-macro.h>

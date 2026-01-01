@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2025 by C.H. Huang
+ *   Copyright (C) 2025-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -32,7 +32,12 @@ extern "C" {
 extern const SqxcInfo              sqxcInfo_MemWriter;
 #define SQXC_INFO_MEM_WRITER     (&sqxcInfo_MemWriter)
 
+//Sqxc* sqxc_mem_writer_new();
 #define sqxc_mem_writer_new()         sqxc_new(SQXC_INFO_MEM_WRITER)
+
+// get SqBuffer, that is output of SqxcMem.
+//SqBuffer *sqxc_mem_writer_buffer(SqxcMem *sqxc);
+#define sqxc_mem_writer_buffer        sqxc_get_buffer
 
 #ifdef __cplusplus
 }  // extern "C"

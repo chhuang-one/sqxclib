@@ -42,5 +42,5 @@ sqxc = declare_dependency(
 )
 
 # --- subdirectory ---
-subdir('sqxcapp')
+subdir('sqapp')
 subdir('src')

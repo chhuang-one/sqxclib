@@ -60,7 +60,7 @@ use C language
 
 use C++ language  
   
-When user sort/find integer in C++, it can directly use integer as key value and generate default comparison function.
+When sorting/searching integer in C++, it can directly use integer as key value and generate default comparison function.
 
 ```c++
 	// use integer pointer as key value

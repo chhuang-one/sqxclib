@@ -331,7 +331,7 @@ program  --version
 
 使用 C++ 语言  
   
-C++ Sq::CommandValue 已定义析构函数，因此用户可以使用 'delete' 关键字来释放内存。
+C++ Sq::CommandValue 已定义析构函数，因此可以使用 'delete' 关键字来释放内存。
 
 ```c++
 	Sq::CommandValue *commandValue;

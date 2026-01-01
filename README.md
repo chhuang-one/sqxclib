@@ -2,7 +2,7 @@
 
 [![Donate using PayPal](https://img.shields.io/badge/donate-PayPal-brightgreen.svg)](https://paypal.me/CHHUANGONE)
 
-# sqxclib
+# Sqxc (sqxclib)
 
 sqxclib is a library to convert data between C language and SQL, JSON, etc. It provides ORM features and C++ wrapper.  
 Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://gitee.com/chhuang-one/sqxclib)
@@ -25,9 +25,9 @@ Project site: [GitHub](https://github.com/chhuang-one/sqxclib), [Gitee](https://
 
 * It can work in low-end hardware.
 
-* Single header file 〈 **sqxclib.h** 〉  (Note: It doesn't contain special macros and support libraries)
+* Single header file 〈 **sqxc/sqxclib.h** 〉  (Note: It doesn't contain special macros)
 
-* Developer can use "no migration mode" if user doesn't need to sync migrations to database.
+* Developers can use "no migration mode" if migrations do not need to be synchronized to database.
 
 * Command-line tools can generate migration file and do migrate. See doc/[SqApp.md](doc/SqApp.md)
 
@@ -202,7 +202,7 @@ You can use sq_schema_alter() function to alter a table in schema.
 ## Database products
 
 **Sqdb** is base structure for Database products such as SQLite, MySQL, etc. You can get more description and example in doc/[Sqdb.md](doc/Sqdb.md)  
-If user doesn't need to sync migrations to database, set SQDB_CONFIG_NO_MIGRATION in SqdbConfig::bit_field to use "no migration mode".  
+If you doesn't need to sync migrations to database, set SQDB_CONFIG_NO_MIGRATION in SqdbConfig::bit_field to use "no migration mode".  
   
 e.g. Create Sqdb instance for SQLite database  
   
@@ -802,7 +802,7 @@ Here is one of the C++ STL examples:
 ## Parse unknown result
 
 [SqTypeRow](doc/SqTypeRow.md) is derived from [SqTypeJoint](doc/SqTypeJoint.md). It create instance of [SqRow](doc/SqRow.md) and parse unknown (or known) result.  
-SQ_TYPE_ROW is a built-in static constant type of SqTypeRow. Both [SqTypeRow](doc/SqTypeRow.md) and SQ_TYPE_ROW are in sqxcsupport library (sqxcsupport.h).  
+SQ_TYPE_ROW is a built-in static constant type of SqTypeRow. Both [SqTypeRow](doc/SqTypeRow.md) and SQ_TYPE_ROW are in sqxcsupport library.  
   
 use C functions
 
@@ -912,7 +912,7 @@ sqxclib is case-sensitive when searching and sorting database column name and JS
  */
 #define SQ_CONFIG_ENTRY_NAME_CASE_SENSITIVE        1
 
-/* If user doesn't specify SQL string length, program will use it by default.
+/* If SQL string length is not specified, program will use it by default.
    SQL_STRING_LENGTH_DEFAULT
  */
 #define SQ_CONFIG_SQL_STRING_LENGTH_DEFAULT      191
@@ -938,7 +938,7 @@ SqSchema defines database schema. It store table and changed record of table.
 You can get more description and example in doc/[SqSchema.md](doc/SqSchema.md)
 
 ## SqApp
-SqApp use configuration file (SqApp-config.h) to initialize database and do migrations for user's application.  
+SqApp use configuration file (SqApp-config.h) to initialize database and do migrations using migration files.  
 It provide command-line program to generate migration and do migrate.  
 See document in doc/[SqApp.md](doc/SqApp.md)
 

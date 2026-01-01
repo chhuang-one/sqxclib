@@ -1,4 +1,4 @@
-# Don't specify version of the C or C++ language standard for user.
+# Don't specify version of the C or C++ language standard.
 # Note: sqxclib code still compile with C99 and C++11 currently.
 project('sqxclib',
     'c', 'cpp',
@@ -117,7 +117,7 @@ if postgresql.found() == true
 	config_data.set('SQXCLIB_PC_LIB_POSTGRESQL', '-lsqxc_postgre')
 endif
 # has c++ compiler
-config_data.set('SQXCLIB_PC_LIB_CXX', '-lsqxcpp')
+config_data.set('SQXCLIB_PC_LIB_CXX', '-lsqxcxx')
 
 configure_file(input : 'sqxclib.pc.in',
                output : 'sqxclib.pc',
@@ -132,7 +132,7 @@ install_subdir('project-template', install_dir : get_option('datadir') / 'sqxcli
 subdir('sqxc')
 subdir('sqxc/support')
 subdir('sqxc/app')
-subdir('sqxcapp')
+subdir('sqapp')
 subdir('tests')
 subdir('examples')
 

@@ -55,12 +55,12 @@ set(HEADERS
     SqxcSql.h
 )
 
-set(SOURCES_CPP
+set(SOURCES_CXX
     SqType-std-string.cpp
 	SqType-std-vector.cpp
 )
-set(HEADERS_CPP
-    SqType-stl-cpp.h
+set(HEADERS_CXX
+    SqType-stl-cxx.h
 )
 
 # --- cJSON or json-c---
@@ -177,9 +177,9 @@ install(
 #	add_library(sqxc-static
 #	            STATIC
 #	            ${SOURCES}
-#	            ${SOURCES_CPP}
+#	            ${SOURCES_CXX}
 #	            ${HEADERS}
-#	            ${HEADERS_CPP}
+#	            ${HEADERS_CXX}
 #	)
 #	set_target_properties(sqxc-static
 #	    PROPERTIES
@@ -187,30 +187,30 @@ install(
 #	)
 #endif(BUILD_SHARED_LIBS)
 
-# --- 'sqxcpp' library ---
+# --- 'sqxcxx' library ---
 if (DEFINED CMAKE_CXX_COMPILER)
-	add_library(sqxcpp
-	            ${SOURCES_CPP}
-	            ${HEADERS_CPP}
+	add_library(sqxcxx
+	            ${SOURCES_CXX}
+	            ${HEADERS_CXX}
 	)
 	if (BUILD_SHARED_LIBS)
-		target_link_libraries(sqxcpp sqxc)
+		target_link_libraries(sqxcxx sqxc)
 	endif(BUILD_SHARED_LIBS)
 
-	set_target_properties(sqxcpp
+	set_target_properties(sqxcxx
 	    PROPERTIES
 	    VERSION        ${PROJECT_VERSION}
 #	    SOVERSION      ${SQXCLIB_SOVERSION}
-	    PUBLIC_HEADER "${HEADERS_CPP}"
+	    PUBLIC_HEADER "${HEADERS_CXX}"
 	)
-	# add 'sqxcpp' to Sqxc_LIBRARIES
+	# add 'sqxcxx' to Sqxc_LIBRARIES
 	set(Sqxc_LIBRARIES
-	    sqxcpp
+	    sqxcxx
 	    ${Sqxc_LIBRARIES}
 	)
 	# install
 	install(
-	    TARGETS sqxcpp
+	    TARGETS sqxcxx
 	    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 	    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc
 	)

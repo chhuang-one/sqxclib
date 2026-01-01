@@ -257,7 +257,7 @@ int  sqdb_xsql_exec_select(SqdbXsql *sqdb, const char *sql, SqxcValue *xc)
 	// get row
 	while (row = xsql_get_row(sqdb)) {
 		// Special case:
-		// Don't send object if user selects only one column and the column type is built-in types (not object).
+		// Don't send object if only one column is selected and the column type is built-in types (not object).
 		if (SQ_TYPE_NOT_BUILTIN(xc->element)) {
 			// SQL row corresponds to SQXC_TYPE_OBJECT
 			xc->type = SQXC_TYPE_OBJECT;
@@ -279,7 +279,7 @@ int  sqdb_xsql_exec_select(SqdbXsql *sqdb, const char *sql, SqxcValue *xc)
 		}
 
 		// Special case:
-		// Don't send object if user selects only one column and the column type is built-in types (not object).
+		// Don't send object if only one column is selected and the column type is built-in types (not object).
 		if (SQ_TYPE_NOT_BUILTIN(xc->element)) {
 			// SQL row corresponds to SQXC_TYPE_OBJECT
 			xc->type = SQXC_TYPE_OBJECT_END;
@@ -303,7 +303,7 @@ int  sqdb_xsql_exec_select(SqdbXsql *sqdb, const char *sql, SqxcValue *xc)
 #### 3.4 migrate
 
 SqdbInfo::sqdb_migrate() use schema's version to decide to migrate or not. It has 2 schema parameters, the first parameter 'schemaCurrent' is the current version of the schema, and the second parameter 'schemaNext' is the next version of the schema. Changes of 'schemaNext' will be applied to 'schemaCurrent'.
-This function can move data from 'schemaNext' to 'schemaCurrent', so user can't reuse 'schemaNext' after migration.  
+This function may move data from 'schemaNext' to 'schemaCurrent', so 'schemaNext' cannot be reused after migration.  
   
 To notify the database instance that the migration is completed, call SqdbInfo::migrate() and pass NULL in parameter 'schemaNext'. This will clear unused data, sort tables and columns, and synchronize current schema to database (mainly for SQLite).
 

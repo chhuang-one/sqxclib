@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2025 by C.H. Huang
+ *   Copyright (C) 2025-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -16,6 +16,7 @@
 #define SQXC_JSON_H
 
 /* SqxcJson is default JSON converter. It is alias for SqxcCjson or SqxcJsonc.
+   If both exist, Sqxc's default JSON converter uses SqxcCjson, but SqxcJsonc will still compile.
    Developer can set SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE in SqConfig.h to disable SqxcJsonc if SqxcCjson is available.
  */
 

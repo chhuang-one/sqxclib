@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -16,7 +16,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #ifndef NDEBUG
-#include <stdio.h>        // fprintf(), stderr
+#include <stdio.h>             // fprintf(), stderr
 #endif
 #include <stdlib.h>
 #include <string.h>

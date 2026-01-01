@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,12 +12,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef SQ_TYPE_STL_CPP_H
-#define SQ_TYPE_STL_CPP_H
+#ifndef SQ_TYPE_STL_CXX_H
+#define SQ_TYPE_STL_CXX_H
 
 #ifdef __cplusplus
 
-#include <type_traits>    // std::is_pointer, std::is_reference
+#include <type_traits>         // std::is_pointer, std::is_reference
 
 #include <sqxc/SqConfig.h>
 #include <sqxc/SqError.h>
@@ -179,4 +179,4 @@ struct TypeStl : SqType
 
 #undef SQ_TYPE_STL_ENABLE_DYNAMIC
 
-#endif  // SQ_TYPE_STL_CPP_H
+#endif  // SQ_TYPE_STL_CXX_H

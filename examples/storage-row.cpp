@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2025 by C.H. Huang
+ *   Copyright (C) 2022-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -22,8 +22,7 @@
 #include <iostream>
 #include <assert.h>
 
-#include <sqxc/sqxclib.h>
-#include <sqxc/support/SqRow.h>
+#include <sqxc/sqxclib.h>      // sqxclib.h includes sqxc/support headers
 
 #define USE_SQLITE_IF_POSSIBLE        1
 #define USE_MYSQL_IF_POSSIBLE         0

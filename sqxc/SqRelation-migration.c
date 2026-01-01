@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,8 +15,8 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdio.h>        // fprintf(), stderr
-#include <string.h>       // strdup(), strncasecmp()
+#include <stdio.h>             // fprintf(), stderr
+#include <string.h>            // strdup(), strncasecmp()
 
 #include <sqxc/SqError.h>
 #include <sqxc/SqConfig.h>

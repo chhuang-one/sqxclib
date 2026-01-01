@@ -13,7 +13,7 @@ SqQuery 是支持子查询和括号的查询构建器。
 SqQuery 提供 sq_query_to_sql() 和 sq_query_c() 来生成 SQL 语句。
 * sq_query_to_sql() 的结果在您不需要时必须释放。
 * 您不能释放 sq_query_c() 的结果，它由 SqQuery 管理。
-* 调用 sq_query_c() 后，用户可以使用 sq_query_last() 以重用生成的 SQL 语句。
+* 调用 sq_query_c() 后，可以調用 sq_query_last() 来重用生成的 SQL 语句。
   
 例如: 生成下面的 SQL 语句。它从数据库表 "companies" 中选择所有列。
 
@@ -55,7 +55,7 @@ use C++ language
 
 ## 清除和重用查询实例
 
-调用 sql_query_clear() 后，用户可以在现有实例中生成新的 SQL 语句。  
+调用 sq_query_clear() 将删除所有语句。  
   
 使用 C 语言
 
@@ -69,7 +69,7 @@ use C++ language
 	// 生成新的 SQL 语句
 	sql = sq_query_c(query);
 
-	// 调用 sq_query_c() 后，用户可以使用 sq_query_last() 来重用生成的 SQL 语句。
+	// 调用 sq_query_c() 后，可以使用 sq_query_last() 来重用生成的 SQL 语句。
 	sql = sq_query_last(query);
 ```
 
@@ -85,7 +85,7 @@ use C++ language
 	// 生成新的 SQL 语句
 	sql = query->c();
 
-	// 调用 sq_query_c() 后，用户可以使用 last() 来重用生成的 SQL 语句。
+	// 调用 sq_query_c() 后，可以使用 last() 来重用生成的 SQL 语句。
 	sql = query->last();
 ```
 
@@ -95,7 +95,7 @@ use C++ language
 
 from() 和 table() 可以指定数据库表。他们做同样的事情并支持子查询，其他详细信息在标题为 "子查询和括号" 中解释。  
   
-注意: 如果用户没有通过 select() 指定列，则默认选择数据库表中的所有列。  
+注意: 如果没有使用 select() 指定列，则默认选择数据库表中的所有列。  
   
 使用 C 语言
 
@@ -185,7 +185,7 @@ sq_query_select() 可以在参数中指定多个列。
 这些函数/方法用于过滤结果和应用条件。
 
 * 参数的顺序是 列名、运算符、printf 格式字符串、取决于格式字符串的值。
-* 如果用户没有指定格式字符串后面的值，程序将 printf 格式字符串作为原始字符串处理。
+* 如果没有指定格式字符串后面的值，程序将 printf 格式字符串作为原始字符串处理。
 * 不建议：如果运算符的参数是 =，则可以省略 (像 Laravel，但可读性较差)。
 * 条件参数的用法在 where()、join()、on() 和 having() 系列函数中基本相同。
 
@@ -209,7 +209,7 @@ WHERE id > 15 OR city_id = 6 OR name LIKE '%Motor'
 	// OR name LIKE '%Motor'
 	sq_query_or_where(query, "name", "LIKE", "'%Motor'");
 	// 程序在此处将 "'%Motor'" 作为原始字符串处理。
-	// 如果用户没有指定格式字符串后面的值，程序将 printf 格式字符串作为原始字符串处理。
+	// 如果没有指定格式字符串后面的值，程序将 printf 格式字符串作为原始字符串处理。
 ```
 
 使用 C++ 语言  
@@ -322,7 +322,7 @@ whereNotBetween 方法验证列的值是否位于两个值之外。
   
 sq_query_where_in() 必须与 printf 格式字符串一起使用：
 * 第三个参数是 printf 格式字符串后的值的数量。
-* 如果用户将第三个参数指定为 0，它将通过宏计算参数的数量。
+* 如果将第三个参数指定为 0，它将通过宏计算参数的数量。
 
 ```c
 	// SELECT * FROM users WHERE id IN (1,2,4)
@@ -342,7 +342,7 @@ C++ 方法 whereIn() 系列具有省略 printf 格式字符串的重载函数：
 
 当您将 whereIn() 与 printf 格式字符串一起使用时：
 * 第二个参数是 printf 格式字符串之后的值的数量。
-* 如果用户将第二个参数指定为 0，它将由编译器计算。
+* 如果将第二个参数指定为 0，它将由编译器计算。
 
 ```c++
 	// SELECT * FROM users WHERE id IN ('Ray','Alex','Xyz')

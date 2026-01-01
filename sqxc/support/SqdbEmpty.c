@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdio.h>        // fprintf(), stderr
+#include <stdio.h>             // fprintf(), stderr
 
 #include <sqxc/SqError.h>
 #include <sqxc/Sqdb-migration.h>
@@ -204,3 +204,18 @@ static int  sqdb_empty_exec(SqdbEmpty *sqdb, const char *sql, Sqxc *xc, void *re
 
 	return SQCODE_OK;
 }
+
+// ----------------------------------------------------------------------------
+// If C compiler doesn't support C99 inline function.
+
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
+// C99 or C++ inline functions has defined in SqEntry.h
+
+#else   // __STDC_VERSION__
+// define functions here if compiler does NOT support inline function.
+
+Sqdb *sqdb_empty_new(const SqdbConfigEmpty *config) {
+	return sqdb_new(SQDB_INFO_EMPTY, (SqdbConfig*)config);
+}
+
+#endif  // __STDC_VERSION__

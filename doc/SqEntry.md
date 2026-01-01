@@ -39,7 +39,7 @@ Declaring bit_field of SqEntry
 | SQB_HIDDEN      | Converter will not output value of this entry |
 | SQB_HIDDEN_NULL | Converter will not output if value is NULL    |
 
-* When user call function to creates or initializes a SqEntry, SqEntry::bit_field is set to SQB_DYNAMIC.
+* When SqEntry is created or initialized using a function call, SqEntry::bit_field is set to SQB_DYNAMIC.
 * User can NOT change or free SqEntry if SqEntry::bit_field has NOT set SQB_DYNAMIC.
 * User must use bitwise operators to set or clear bits in SqEntry::bit_field.
 * Constant or static SqType must be used with constant or static SqEntry.

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -139,7 +139,7 @@
 // ----------------------------------------------------------------------------
 // Default length (size)
 
-/* If user doesn't specify SQL string length, program will use it by default.
+/* If SQL string length is not specified, program will use it by default.
    Affected source : Sqdb, SqSchema
    SQL_STRING_LENGTH_DEFAULT
  */

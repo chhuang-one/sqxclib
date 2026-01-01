@@ -257,7 +257,7 @@ int  sqdb_xsql_exec_select(SqdbXsql *sqdb, const char *sql, SqxcValue *xc)
 	// 获取行
 	while (row = xsql_get_row(sqdb)) {
 		// 特殊情况：
-		// 如果用户只选择一列并且该列类型是内置类型（不是对象），则不要发送对象。
+		// 如果只选择一列并且该列类型是内置类型（不是对象），则不要发送对象。
 		if (SQ_TYPE_NOT_BUILTIN(xc->element)) {
 			// SQL 行对应于 SQXC_TYPE_OBJECT
 			xc->type = SQXC_TYPE_OBJECT;
@@ -279,7 +279,7 @@ int  sqdb_xsql_exec_select(SqdbXsql *sqdb, const char *sql, SqxcValue *xc)
 		}
 
 		// 特殊情况：
-		// 如果用户只选择一列并且该列类型是内置类型（不是对象），则不要发送对象。
+		// 如果只选择一列并且该列类型是内置类型（不是对象），则不要发送对象。
 		if (SQ_TYPE_NOT_BUILTIN(xc->element)) {
 			// SQL 行对应于 SQXC_TYPE_OBJECT
 			xc->type = SQXC_TYPE_OBJECT_END;
@@ -303,7 +303,7 @@ int  sqdb_xsql_exec_select(SqdbXsql *sqdb, const char *sql, SqxcValue *xc)
 #### 3.4 migrate
 
 SqdbInfo::migrate() 使用架构的版本来决定是否迁移。它有 2 个 schema 参数，第一个参数 'schemaCurrent' 是当前版本的架构，第二个参数 'schemaNext' 是下一个版本的架构。'schemaNext' 的更改将应用​​于 'schemaCurrent'。
-此功能可以将数据从 'schemaNext' 移动到 'schemaCurrent'，因此用户在迁移后无法重复使用 'schemaNext'。  
+此功能可能会将数据从 'schemaNext' 移动到 'schemaCurrent'，因此迁移后无法重复使用 'schemaNext'。  
   
 要通知数据库实例迁移已完成，请调用 SqdbInfo::migrate() 并在参数 'schemaNext' 中传入 NULL。这将清除未使用的数据、对表和列进行排序，并将当前架构同步到数据库（主要用于 SQLite）。
 

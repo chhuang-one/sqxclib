@@ -1,5 +1,5 @@
 #
-#   Copyright (C) 2025 by C.H. Huang
+#   Copyright (C) 2025-2026 by C.H. Huang
 #   plushuang.tw@gmail.com
 #
 # sqxclib is licensed under Mulan PSL v2.
@@ -12,7 +12,7 @@
 # See the Mulan PSL v2 for more details.
 #
 
-# - Try to find Sqxc (sqxclib)
+# This CMake module can try to find Sqxc (sqxclib)
 # Sqxc Project site: https://github.com/chhuang-one/sqxclib/
 #                    https://gitee.com/chhuang-one/sqxclib/
 
@@ -62,7 +62,7 @@ if (Sqxc_FOUND)
 	# find other sqxclib libraries in directory.
 	set(LibList
 #	    sqxc
-	    sqxcpp
+	    sqxcxx
 	    sqxc_sqlite
 	    sqxc_mysql
 	    sqxc_postgre

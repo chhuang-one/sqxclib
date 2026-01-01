@@ -103,7 +103,7 @@ use C language
 
 use C++ language  
   
-When user sort/find string in C++, it can directly use string as key value and generate default comparison function.
+When sorting/searching string in C++, it can directly use string as key value and generate default comparison function.
 
 ```c++
 	// use string pointer as key value

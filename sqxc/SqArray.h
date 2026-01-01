@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -22,10 +22,10 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stddef.h>       // NULL
-#include <stdint.h>       // uint8_t
-#include <stdlib.h>       // qsort(), bsearch(), malloc(), free()
-#include <string.h>       // memcpy(), memmove()
+#include <stddef.h>            // NULL
+#include <stdint.h>            // uint8_t
+#include <stdlib.h>            // qsort(), bsearch(), malloc(), free()
+#include <string.h>            // memcpy(), memmove()
 
 #include <sqxc/SqDefine.h>     // SqClearFunc, SqCompareFunc
 

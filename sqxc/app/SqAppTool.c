@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,10 +15,10 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <time.h>             // time_t, struct tm
-#include <stdio.h>            // FILE
-#include <ctype.h>            // toupper()
-#include <string.h>           // strchr()
+#include <time.h>              // time_t, struct tm
+#include <stdio.h>             // FILE
+#include <ctype.h>             // toupper()
+#include <string.h>            // strchr()
 
 #include <sqxc/SqError.h>
 #include <sqxc/SqBuffer.h>
@@ -39,7 +39,7 @@
 
 #define SQ_APP_TOOL_PATH_DATABASE        "/database"
 #define SQ_APP_TOOL_PATH_MIGRATIONS      SQ_APP_TOOL_PATH_DATABASE "/migrations"
-#define SQ_APP_TOOL_PATH_SOURCE          "/sqxcapp"
+#define SQ_APP_TOOL_PATH_SOURCE          "/sqapp"
 #define SQ_APP_TOOL_PATH_TEMPLATES       SQ_APP_TOOL_PATH_SOURCE "/templates"
 
 // ----------------------------------------------------------------------------
@@ -171,8 +171,13 @@ int    sq_app_tool_run(SqAppTool *app, int argc, char **argv)
 		return SQCODE_ERROR;
 	}
 
-	// decide workspace folder
-	sq_app_tool_decide_path(app);
+	// decide workspace folder if SqApp::path is NULL
+	if (app->path == NULL) {
+		if (sq_app_tool_decide_path(app) == SQCODE_OK)
+			printf("* Message: workspace folder = %s\n", app->path);
+		else
+			printf("* Warning: workspace folder not found.\n");
+	}
 	// handle command
 	commandValue->type->handle(commandValue, console, app);
 	sq_command_value_free(commandValue);
@@ -192,7 +197,7 @@ int    sq_app_tool_decide_path(SqAppTool *app)
 	char     *array[] = {".", "..", "../..", "../../..", SQ_APP_TOOL_PATH_BASE, NULL};
 
 	buf->writed = 0;
-	// workspace folder
+	// Try to find the root directory of the workspace folder.
 	for (int i = 0;  array[i];  i++) {
 		sq_buffer_write(buf, array[i]);
 		sq_buffer_write(buf, SQ_APP_TOOL_PATH_TEMPLATES);
@@ -201,17 +206,17 @@ int    sq_app_tool_decide_path(SqAppTool *app)
 		file = fopen(buf->mem, "r");
 		buf->writed = 0;    // clear app->buffer
 		if (file) {
+			free(app->path);
 			app->path = strdup(array[i]);
 			fclose(file);
 			break;
 		}
 	}
+	// use default path if workspace folder not found
 	if (app->path == NULL) {
 		app->path = strdup(array[0]);
-		puts("workspace folder not found");
 		return SQCODE_ERROR;
 	}
-	printf("workspace folder = %s\n", app->path);
 	return SQCODE_OK;
 }
 
@@ -331,7 +336,7 @@ int    sq_app_tool_make_migration(SqAppTool  *app,
 
 	// relative path of migration file for SqApp
 	buf->writed = 0;
-	sq_buffer_write(buf, "..");    // current dir of sqxcapp is "workspace folder/sqxcapp"
+	sq_buffer_write(buf, "..");    // current dir of sqapp is "workspace folder/sqapp"
 	sq_buffer_write(buf, SQ_APP_TOOL_PATH_MIGRATIONS);
 	sq_buffer_write_c(buf, '/');
 	sq_buffer_write(buf, temp.timestr);

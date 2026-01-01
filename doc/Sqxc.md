@@ -84,7 +84,7 @@ use C++ language
 	        └───────────────────────────────────────────────────┘
 
 Function insert() and steal() only link or unlink 'peer' ('peer' is single linked list),
-user may need link 'dest' ('dest' is data flow) by himself in Sqxc chain, especially custom data flow.
+developers may need link 'dest' ('dest' is data flow) by themselves in Sqxc chain, especially custom data flow.
 
 ## Send data according to data type
 sqxc_send() can send data(arguments) between Sqxc elements and change data flow (Sqxc::dest) at runtime.  

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -67,5 +67,11 @@
 #endif
 
 // ------------------------------------
-// library: sqxcpp
-#include <sqxc/SqType-stl-cpp.h>    // Sq::TypeStl<StlContainer>
+// C++ STL container
+#include <sqxc/SqType-stl-cxx.h>    // Sq::TypeStl<StlContainer>
+
+// --------------------------------------------------------
+// includes headers in sqxc/support
+#include <sqxc/support/sqxcsupport.h>
+// includes headers in sqxc/app
+#include <sqxc/app/sqxcapp.h>

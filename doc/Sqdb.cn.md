@@ -20,7 +20,7 @@ Sqdb 是 SQLite、MySQL 等数据库产品的基础结构。
 #### 数据库配置
 
 SqdbConfig 是数据库配置的基础结构。  
-如果用户不需要将迁移同步到数据库，请在 SqdbConfig::bit_field 中设置 SQDB_CONFIG_NO_MIGRATION 以使用 “无迁移模式”。  
+如果不需要将迁移同步到数据库，请在 SqdbConfig::bit_field 中设置 SQDB_CONFIG_NO_MIGRATION 以使用 “无迁移模式”。  
   
 以下是派生的数据库配置：
 

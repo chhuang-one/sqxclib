@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -30,9 +30,9 @@
 #include <functional>
 #endif
 
-#include <stddef.h>        // NULL, offsetof()
-#include <stdbool.h>       // bool, true, false
-#include <inttypes.h>      // PRId64, PRIu64
+#include <stddef.h>            // NULL, offsetof()
+#include <stdbool.h>           // bool, true, false
+#include <inttypes.h>          // PRId64, PRIu64
 
 // If you set SQ_QUERY_USE_ALONE to 1, you can use SqQuery alone.
 #ifndef SQ_QUERY_USE_ALONE

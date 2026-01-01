@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2025 by C.H. Huang
+ *   Copyright (C) 2022-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,9 +15,9 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <limits.h>       // INT_MAX
-#include <stdio.h>        // snprintf(), fprintf(), stderr
-#include <stdbool.h>      // bool, true, false
+#include <limits.h>            // INT_MAX
+#include <stdio.h>             // snprintf(), fprintf(), stderr
+#include <stdbool.h>           // bool, true, false
 
 #include <sqxc/SqError.h>
 #include <sqxc/Sqdb-migration.h>

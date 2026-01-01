@@ -118,7 +118,7 @@ use C++ language
 
 The arguments of get() are table name, table type, and id.  
 If table type is NULL, SqStorage will try to find table type in its schema.  
-It can run a bit faster if user specify parameter table name and table type at the same time.  
+It can run a bit faster if parameter table name and table type are specified at the same time.  
   
 e.g. get one row from database table "users".
 
@@ -597,7 +597,7 @@ use C++ method
 
 #### query with JOIN clause
 
-If user executes a query that joins multiple tables without specifying table type, program will use [SqTypeJoint](SqTypeJoint.md) as table type by default. [SqTypeJoint](SqTypeJoint.md) can create array of pointers for query result.  
+If a query that joins multiple tables is executed without specifying table type, program will use [SqTypeJoint](SqTypeJoint.md) as table type by default. [SqTypeJoint](SqTypeJoint.md) can create array of pointers for query result.  
   
 use C functions
 
@@ -756,7 +756,7 @@ Note: SqStorage will use default container type if user does NOT specify contain
   
 use C function  
   
-SQ_TYPE_ROW       is built-in type in sqxcsupport library (sqxcsupport.h).  
+SQ_TYPE_ROW       is built-in type in sqxcsupport library.  
 SQ_TYPE_PTR_ARRAY is built-in container type.  
 
 ```c

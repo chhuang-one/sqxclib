@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2025 by C.H. Huang
+ *   Copyright (C) 2022-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -61,7 +61,7 @@ void   sq_row_free_cols_name(SqRow *row);
    Because all rows in the query result have the same column array,
    sharing the column array among these rows reduces memory usage.
 
-   Note1: If column array have been shared, user can not add/remove elements in it.
+   Note1: If column array have been shared, you can not add/remove elements in it.
    Note2: When SqRow gets the shared column array, it frees its own column array.
  */
 bool   sq_row_share_cols(SqRow *row, SqRow *share_to);

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2024 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -18,8 +18,8 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <stdlib.h>       // calloc(), realloc()
-#include <string.h>       // memcpy(), strcpy(), strlen()
+#include <stdlib.h>            // calloc(), realloc()
+#include <string.h>            // memcpy(), strcpy(), strlen()
 
 // ----------------------------------------------------------------------------
 // C/C++ common declarations: declare type, structure, macro, enumeration.

@@ -84,7 +84,7 @@ if (BUILD_SHARED_LIBS)
 #	target_link_libraries(sqxcsupport ${Sqxc_LIBRARIES})
 endif (BUILD_SHARED_LIBS)
 
-#install
+# install
 install(
     TARGETS sqxcsupport
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

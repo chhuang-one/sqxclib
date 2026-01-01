@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <stdio.h>        // printf()
+#include <stdio.h>             // printf()
 
 #include <sqxc/app/SqAppTool.h>
 
@@ -49,15 +49,17 @@ int  main(int argc, char **argv)
 
 	// check program_name
 	if (strncmp(program_name, "sqxc", 4) == 0)
-		printf("\n" "* Warning: %s is deprecated. Please use sqtool or sqtool-cpp instead." "\n", program_name);
+		printf("\n" "* Warning: %s is deprecated. Please use sqtool or sqtool-cxx instead." "\n", program_name);
+	if (strstr(program_name, "cpp"))
+		printf("\n" "* Warning: %s is deprecated. Please use sqtool or sqtool-cxx instead." "\n", program_name);
 
 	// create SqAppTool with 'program_name'
 	apptool = malloc(sizeof(SqAppTool));
-	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+	// 'SQ_APP_DEFAULT' has database settings and migration data for application.
 	sq_app_tool_init(apptool, program_name, SQ_APP_DEFAULT);
 
-	// if 'program_name' contains "cpp" or "cxx", program outputs cpp files.
-	if (strstr(program_name, "cpp") || strstr(program_name, "cxx")) {
+	// if 'program_name' contains "cxx" or "cpp", program outputs cpp files.
+	if (strstr(program_name, "cxx") || strstr(program_name, "cpp")) {
 		apptool->template_extension = ".cpp.txt";
 		apptool->migrations_files_name = "migrations-files-cxx.cpp";
 	}

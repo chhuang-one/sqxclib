@@ -127,7 +127,7 @@ C 函数 sq_column_change()、C++ 方法 change() 允许您修改现有列的类
 
 ## 将 SqColumn 与 SqType 一起使用
 
-要定义常量 SqColumn，用户必须了解 SqColumn 结构定义：
+要定义常量 SqColumn，必须了解 SqColumn 结构定义：
 
 ```c
 struct SqColumn

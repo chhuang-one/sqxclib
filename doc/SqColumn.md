@@ -127,7 +127,7 @@ use C++ language
 
 ## use SqColumn with SqType
 
-To define constant SqColumn, user must know SqColumn structure definition:
+To define constant SqColumn, you must know SqColumn structure definition:
 
 ```c
 struct SqColumn

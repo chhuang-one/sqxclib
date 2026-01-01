@@ -20,7 +20,7 @@ When creating Sqdb instance, the database configuration (SqdbConfig) and interfa
 #### Database configuration
 
 SqdbConfig is base structure for database configuration.  
-If user doesn't need to sync migrations to database, set SQDB_CONFIG_NO_MIGRATION in SqdbConfig::bit_field to use "no migration mode".  
+If you don't need to sync migrations to database, set SQDB_CONFIG_NO_MIGRATION in SqdbConfig::bit_field to use "no migration mode".  
   
 The following are the derived database configurations:
 

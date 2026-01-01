@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2023-2025 by C.H. Huang
+ *   Copyright (C) 2023-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -13,7 +13,7 @@
  */
 
 #ifndef NDEBUG
-#include <stdio.h>        // fprintf(), stderr
+#include <stdio.h>             // fprintf(), stderr
 #endif
 
 #include <sqxc/SqError.h>

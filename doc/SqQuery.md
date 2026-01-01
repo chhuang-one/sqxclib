@@ -13,7 +13,7 @@ It just removes the sq_query_get_table_as_names() and sq_query_select_table_as()
 SqQuery provide sq_query_to_sql() and sq_query_c() to generate SQL statement.
 * The result of sq_query_to_sql() must free when you don't need it.
 * You can NOT free the result of sq_query_c(), it managed by SqQuery.
-* After calling sq_query_c(), user can use sq_query_last() to reuse generated SQL statement.
+* After calling sq_query_c(), you can reuse the generated SQL statement by calling sq_query_last().
   
 e.g. generate below SQL statement. It select all columns from a database table "companies".
 
@@ -55,7 +55,7 @@ use C++ language
 
 ## clear and reuse query instance
 
-After calling sq_query_clear(), user can generate new SQL statement in existed instance.  
+Calling sq_query_clear() will remove all statements.  
   
 use C language
 
@@ -69,7 +69,7 @@ use C language
 	// generate new SQL statement
 	sql = sq_query_c(query);
 
-	// After calling sq_query_c(), user can use sq_query_last() to reuse generated SQL statement.
+	// After calling sq_query_c(), you can use sq_query_last() to reuse generated SQL statement.
 	sql = sq_query_last(query);
 ```
 
@@ -85,7 +85,7 @@ use C++ language
 	// generate new SQL statement
 	sql = query->c();
 
-	// After calling Sq::Query::c(), user can use last() to reuse generated SQL statement.
+	// After calling Sq::Query::c(), you can use last() to reuse generated SQL statement.
 	sql = query->last();
 ```
 
@@ -95,7 +95,7 @@ use C++ language
 
 from() and table() can specify database table. They do the same thing and support subquery, other details are explained in the titled "Subquery and Brackets".  
   
-Note: If user doesn't specify column by select(), it select all columns from a database table by default.  
+Note: If no columns are specified using select(), it select all columns from a database table by default.  
   
 use C language
 
@@ -185,7 +185,7 @@ use C++ Sq::Select (or lower case Sq::select) to generate SQL statement. It can 
 These functions/methods are used to filter the results and apply conditions.
 
 * The order of arguments are - name of column, operator, printf format string, and values that depending on the format string.
-* If user doesn't specify the values following format string, program handle printf format string as raw string.
+* If no value is specified after the format string, program handle printf format string as raw string.
 * Not recommended: If the argument of operator is =, it can be omitted (like Laravel, but less readable).
 * The usage of condition arguments is basically the same in where(), join(), on(), and having() series functions.
 
@@ -209,7 +209,7 @@ use C language
 	// OR name LIKE '%Motor'
 	sq_query_or_where(query, "name", "LIKE", "'%Motor'");
 	// Program handle "'%Motor'" as raw string here.
-	// If user doesn't specify the values following format string, program handle printf format string as raw string.
+	// If no value is specified after the format string, program handle printf format string as raw string.
 ```
 
 use C++ language  
@@ -322,7 +322,7 @@ use C language
   
 sq_query_where_in() must use with printf format string:
 * The 3rd parameter is number of values after printf format string.
-* If user specify 3rd parameter to 0, it will count number of arguments by macro.
+* If the 3rd parameter is specified as 0, it will count number of arguments by macro.
 
 ```c
 	// SELECT * FROM users WHERE id IN (1,2,4)
@@ -341,8 +341,8 @@ C++ methods whereIn() series have overloaded functions to omit printf format str
 ```
 
 When you use whereIn() with printf format string:
-* The second parameter is number of values after printf format string.
-* If user specify second parameter to 0, it will count by compiler.
+* The 2nd parameter is number of values after printf format string.
+* If the 2nd parameter is specified as 0, it will count by compiler.
 
 ```c++
 	// SELECT * FROM users WHERE id IN ('Ray','Alex','Xyz')

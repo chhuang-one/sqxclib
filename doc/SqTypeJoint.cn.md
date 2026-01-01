@@ -11,8 +11,8 @@ SqTypeJoint 是处理多表连接查询的默认类型。它可以为查询结�
 ## 创建和设置
 
 因为 SqStorage 在查询时会设置内置的 SqTypeJoint，所以一般不需要设置。  
-但单独使用时，用户必须在使用前设置 SqTypeJoint。
-因为 SqTypeJoint 的解析器必须知道表中列的类型，所以用户必须在 SqTypeJoint 中添加、删除、清除表。  
+但单独使用时，必须在使用前设置 SqTypeJoint。
+因为 SqTypeJoint 的解析器必须知道表中列的类型，所以必须在 SqTypeJoint 中添加、删除、清除表。  
 添加或删除表时，您可以在最后一个参数中指定表别名（由 SQL AS 关键字使用）。如果别名为 NULL，Sqxc 将直接使用表名。  
   
 使用 C 语言
@@ -47,7 +47,7 @@ SqTypeJoint 是处理多表连接查询的默认类型。它可以为查询结�
 
 ## 容器元素
 
-因为 SqTypeJoint 创建指针数组，用户可以将指向指针的指针（double pointer）指定为容器的元素。
+因为 SqTypeJoint 创建指针数组，可以将指向指针的指针（double pointer）指定为容器的元素。
 元素的值是由查询语句决定的。  
   
 例：构建查询并获得结果：  

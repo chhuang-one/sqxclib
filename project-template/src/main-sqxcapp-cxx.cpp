@@ -1,10 +1,9 @@
 /* main-sqxcapp-cxx.cpp
  * This program link 'sqxc' and 'sqxcapp' libraries.
- * It will link C++ library 'sqxcpp' if you use SQ_TYPE_STD_STRING (SqType for std::string) or others.
+ * It will link C++ library 'sqxcxx' if you use SQ_TYPE_STD_STRING (SqType for std::string) or others.
  */
 
-#include <sqxc/sqxclib.h>
-#include <sqxc/app/SqApp.h>
+#include <sqxc/sqxclib.h>      // sqxclib.h includes sqxc/app headers
 
 int  main(void)
 {
@@ -20,7 +19,7 @@ int  main(void)
 		return EXIT_FAILURE;
 #endif
 
-	/*	If you use command-line program "sqtool-cpp" to do migrate,
+	/*	If you use command-line program "sqtool-cxx" to do migrate,
 		you can remove below migrate() code.
 	 */
 	// if the database vesion is 0 (no migrations have been done)

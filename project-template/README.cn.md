@@ -24,12 +24,12 @@ export LD_LIBRARY_PATH
 
 ## 项目目录
 
-#### /sqxcapp
-此目录包含 sqtool 和静态库 'sqxcapp-user'、'sqxcapptool-user'。
+#### /sqapp
+此目录包含 sqtool 和静态库 'sqapp-data'。
 
 #### /database/migrations
-此目录包含由 sqtool（或 sqtool-cpp）生成的 C 或 C++ 迁移文件。  
-CMake 或 meson 会将这些迁移文件编译成静态库 'sqxcapp-user' 和 'sqxcapptool-user'。
+此目录包含由 sqtool（或 sqtool-cxx）生成的 C 或 C++ 迁移文件。  
+CMake 或 meson 会将这些迁移文件编译成静态库 'sqapp-data'。
 
 #### /src
 该目录包含 4 种可执行目标：
@@ -42,5 +42,5 @@ CMake 或 meson 会将这些迁移文件编译成静态库 'sqxcapp-user' 和 's
 #### /cmake
 此目录包含 CMake 模块。
 
-1. ***FindSqxc.cmake***  是用于查找 sqxclib 的 CMake 模块。如果系统已安装此模块，您可以将其删除。
+1. ***FindSqxc.cmake***  是用于查找 Sqxc (sqxclib) 的 CMake 模块。如果系统已安装此模块，您可以将其删除。
 2. ***FindMYSQL.cmake***  是用于查找 MySQL 的 CMake 模块。

@@ -5,7 +5,7 @@
 This document introduce how to use C99 designated initializer (or C++ aggregate initialization) to define table.
 * This can reduce running time when making schema.
 * Schema can handle both dynamic and constant column/table definitions.
-* If user modify constant column/table, program will copy column/table before modifying it.
+* If constant column/table needs to be modified, program will clone them and modify the cloned data.
 * Program will not free constant columns/tables from memory. It just doesn't use them.
 * If your database table is fixed and not changed in future, you can reduce more running time by using constant [SqType](SqType.md) to define table. see [SqColumn.md](SqColumn.md)
 

@@ -12,9 +12,9 @@ Note: SqApp is declared in SqApp.h of the sqxcapp library.
 
 # SqAppTool
 
-SqAppTool is used by command-line program - **sqtool** and **sqtool-cpp**. It use the same configuration values as SqApp.  
+SqAppTool is used by command-line program - **sqtool** and **sqtool-cxx**. It use the same configuration values as SqApp.  
   
-Both **sqtool** and **sqtool-cpp** can generate separate migration files and use them to do migrate. They can help with the user's application that using SqApp library. The difference is that sqtool generate C migration file and sqtool-cpp generate C++ migration file.
+Both **sqtool** and **sqtool-cxx** can generate separate migration files and use them to do migrate. They can help with the application that using SqApp library. The difference is that sqtool generate C migration file and sqtool-cxx generate C++ migration file.
 
 ## 1 Configurations
 
@@ -36,7 +36,7 @@ The **first part** of SqApp-config.h can choose Database product:
 
 The **second part** of SqApp-config.h is database configuration values:
 
-	DB_NO_MIGRATION  If user doesn't need to sync migrations to database, set it to 1.
+	DB_NO_MIGRATION  If you don't need to sync migrations to database, set it to 1.
 	DB_DATABASE      is the default name of the database that SqApp will open.
 	DB_HOST          is settings of connection.
 	DB_PORT          is settings of connection.
@@ -68,7 +68,7 @@ The **second part** of SqApp-config.h is database configuration values:
 
 User can define macro SQ_APP_CONFIG_FILE to replace SqApp-config.h when compiling.  
   
-e.g. use workspace/myapp-config.h to replace default workspace/sqxcapp/SqApp-config.h  
+e.g. use workspace/myapp-config.h to replace default workspace/sqapp/SqApp-config.h  
   
 If myapp-config.h place in C include directories, enclose the file name in angle brackets.
 
@@ -76,7 +76,7 @@ If myapp-config.h place in C include directories, enclose the file name in angle
 gcc -DSQ_APP_CONFIG_FILE="<myapp-config.h>"
 ```
 
-If the configuration file is in relative path of workspace/sqxcapp, enclose the file name in double-quotes.
+If the configuration file is in relative path of workspace/sqapp, enclose the file name in double-quotes.
 
 ```console
 gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
@@ -86,7 +86,7 @@ gcc -DSQ_APP_CONFIG_FILE="\"../myapp-config.h\""
 
 SqAppSetting contains all settings required by SqApp.  
 SQ_APP_DEFAULT is an instance of SqAppSetting, which uses the values ​​in SqApp-config.h to set its member values.
-So user can edit SqApp-config.h to change values in SQ_APP_DEFAULT.  
+So developer can edit SqApp-config.h to change values in SQ_APP_DEFAULT.  
   
 e.g. create SqAppSetting with default settings.  
   
@@ -112,30 +112,30 @@ e.g. create SqApp with default settings
 use C language
 
 ```c
-#include <SqApp.h>    // sqxclib.h doesn't contain sqxcapp library
+#include <sqxc/sqxclib.h>      // sqxclib.h includes sqxc/app headers
 
 
 	SqApp *sqApp;
 
-	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+	// 'SQ_APP_DEFAULT' has database settings and migration data for application.
 	sqApp = sq_app_new(SQ_APP_DEFAULT);
 ```
 
 use C++ language
 
 ```c++
-#include <SqApp.h>    // sqxclib.h doesn't contain sqxcapp library
+#include <sqxc/sqxclib.h>      // sqxclib.h includes sqxc/app headers
 
 
 	Sq::App *sqApp;
 
-	// 'SQ_APP_DEFAULT' has database settings and migration data for user application.
+	// 'SQ_APP_DEFAULT' has database settings and migration data for application.
 	sqApp = new Sq::App(SQ_APP_DEFAULT);
 ```
 
 ## 3 Open database
 
-C function sq_app_open_database(), C++ method openDatabase() can open database with specified name. If user does not specify name, it will use default name defined in SqApp-config.h to open database.  
+C function sq_app_open_database(), C++ method openDatabase() can open database with specified name. If no name is specified, it will use default name defined in SqApp-config.h to open database.  
   
 use C language
 
@@ -168,7 +168,7 @@ After opening the database, you can get current schema version in the database f
 ## 4 Migrations
 
 C function sq_app_make_schema(), C++ method makeSchema() can produce schema by using migration files.  
-User can specify which version of the schema to generate. If user specify version as 0, program will use default version (version of schema in database).
+Developer can specify which version of the schema to generate. If version 0 is specified, program will use default version (version of schema in database).
 
 	Return value of C function sq_app_make_schema() and C++ makeSchema():
 
@@ -197,7 +197,7 @@ use C++ language
 
 ### 4.1 create migration files
 
-C migration files are created by sqtool, C++ migration files are created by sqtool-cpp. Each migration file has a instance of SqMigration for migration.
+C migration files are created by sqtool, C++ migration files are created by sqtool-cxx. Each migration file has a instance of SqMigration for migration.
 
 	To create new database table:
 
@@ -205,17 +205,17 @@ C migration files are created by sqtool, C++ migration files are created by sqto
 
 	2. Run following command in the console to generate migration file:
 	   $ sqtool      make:migration  create_newbies_table  (generate C   migration file)
-	   $ sqtool-cpp  make:migration  create_newbies_table  (generate C++ migration file)
+	   $ sqtool-cxx  make:migration  create_newbies_table  (generate C++ migration file)
 
 	   This command will:
 	   append declaration of migration to     sqapp/migrations-declarations
 	   append element of migrations array to  sqapp/migrations-elements
 
 	   append relative path of migration file to  sqapp/migrations-files.c        by sqtool
-	                                          or  sqapp/migrations-files-cxx.cpp  by sqtool-cpp
+	                                          or  sqapp/migrations-files-cxx.cpp  by sqtool-cxx
 
 	3. Edit generated migration file  yyyy_MM_dd_HHmmss_create_newbies_table.c    (generated by sqtool)
-	                              or  yyyy_MM_dd_HHmmss_create_newbies_table.cpp  (generated by sqtool-cpp)
+	                              or  yyyy_MM_dd_HHmmss_create_newbies_table.cpp  (generated by sqtool-cxx)
 	   in folder  database/migrations/
 
 Finally, you must recompile migration code after defining table.
@@ -223,7 +223,7 @@ Finally, you must recompile migration code after defining table.
 #### 4.1.0 migration files
 
 Each migration file in the directory database/migrations defines a SqMigration instance. SqMigration::name is the description of the migration.  
-If SqMigration::name does NOT contain string, the column 'migrations.name' in database will be empty string when user migrates at runtime.  
+If SqMigration::name does NOT contain string, the column 'migrations.name' in database will be empty string.  
   
 You can set SQ_APP_HAS_MIGRATION_NAME to 0 in "sqapp/migrations.h", SqApp will NOT contain string in SqMigration::name.
 This can reduce application binary size.  
@@ -237,17 +237,17 @@ sqtool  make:migration  create_companies_table
 ```
 
 Above command will create file yyyy_MM_dd_HHmmss_create_companies_table.c in workspace/database/migrations.  
-It is suggested that user define structure 'Company' in workspace/sqxcapp/CStructs.h in this case.  
+It is recommended to define structure 'Company' in workspace/sqapp/CStructs.h in this case.  
 The file looks like below:
 
 ```c
 /* This template file is used by sqtool
- * Please define structure 'Company' in workspace/sqxcapp/CStructs.h
+ * Please define structure 'Company' in workspace/sqapp/CStructs.h
  *
  * Normally this file should be included in migrations-files.c if you use sqtool to make migration file.
  * migrations-files.c has included following headers.
- * #include <SqStorage.h>
- * #include <SqMigration.h>
+ * #include <sqxc/SqStorage.h>
+ * #include <sqxc/app/SqMigration.h>
  * #include "CStructs.h"
  */
 
@@ -280,26 +280,26 @@ const SqMigration createCompaniesTable_2021_12_12_180000 = {
 };
 ```
 
-#### 4.1.2 alter table by sqtool-cpp (C++ language)
+#### 4.1.2 alter table by sqtool-cxx (C++ language)
 
-To alter a table, you must specify the table name using the --table option of sqtool or sqtool-cpp.  
+To alter a table, you must specify the table name using the --table option of sqtool or sqtool-cxx.  
   
 e.g. generate C++ migration file to alter "companies" table
 
 ```console
-sqtool-cpp  make:migration  --table=companies  alter_companies_table
+sqtool-cxx  make:migration  --table=companies  alter_companies_table
 ```
 
 Above command will create file yyyy_MM_dd_HHmmss_alter_companies_table.cpp in workspace/database/migrations.  
 The file looks like below:
 
 ```c++
-/* This template file is used by sqtool-cpp
+/* This template file is used by sqtool-cxx
  *
- * Normally this file should be included in migrations-files-cxx.cpp if you use sqtool-cpp to make migration file.
+ * Normally this file should be included in migrations-files-cxx.cpp if you use sqtool-cxx to make migration file.
  * migrations-files-cxx.cpp has included following headers.
- * #include <SqStorage.h>
- * #include <SqMigration.h>
+ * #include <sqxc/SqStorage.h>
+ * #include <sqxc/app/SqMigration.h>
  * #include "CStructs.h"
  */
 
@@ -334,7 +334,7 @@ const SqMigration alterCompaniesTable_2021_12_26_191532 = {
 
 ```
 
-#### 4.1.3 migrate by sqtool (or sqtool-cpp)
+#### 4.1.3 migrate by sqtool (or sqtool-cxx)
 
 Run all of your outstanding migrations
 
@@ -415,17 +415,17 @@ use C++ language
 To delete migration that created by sqtool, you must:
 
 	1. delete migration file  yyyy_MM_dd_HHmmss_migration_name.c    (generated by sqtool)
-	                      or  yyyy_MM_dd_HHmmss_migration_name.cpp  (generated by sqtool-cpp)
+	                      or  yyyy_MM_dd_HHmmss_migration_name.cpp  (generated by sqtool-cxx)
 	   in folder  database/migrations/
 
-	2. remove relative path of migration file in  sqxcapp/migrations-files.c        (added by sqtool)
-	                                          or  sqxcapp/migrations-files-cxx.cpp  (added by sqtool-cpp)
+	2. remove relative path of migration file in  sqapp/migrations-files.c        (added by sqtool)
+	                                          or  sqapp/migrations-files-cxx.cpp  (added by sqtool-cxx)
 
-	3. remove declaration of migration in    sqxcapp/migrations-declarations
+	3. remove declaration of migration in    sqapp/migrations-declarations
 
-	4. set element of migrations as NULL in  sqxcapp/migrations-elements
+	4. set element of migrations as NULL in  sqapp/migrations-elements
 
-Example for point 4: edit  sqxcapp/migrations-elements  to delete migration.
+Example for point 4: edit  sqapp/migrations-elements  to delete migration.
 
 ```c
 // Before editing

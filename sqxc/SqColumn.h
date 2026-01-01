@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,7 +15,7 @@
 #ifndef SQ_COLUMN_H
 #define SQ_COLUMN_H
 
-#include <stdarg.h>       // va_list
+#include <stdarg.h>            // va_list
 
 #include <sqxc/SqType.h>
 #include <sqxc/SqEntry.h>

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,8 +15,8 @@
 #ifndef SQ_ENTRY_H
 #define SQ_ENTRY_H
 
-#include <stddef.h>       // NULL, offsetof()
-#include <stdbool.h>      // bool, true, false
+#include <stddef.h>            // NULL, offsetof()
+#include <stdbool.h>           // bool, true, false
 
 #include <sqxc/SqConfig.h>
 #include <sqxc/SqDefine.h>

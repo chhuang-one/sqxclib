@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -44,8 +44,8 @@ struct SqAppSetting
 	const char          *error;
 };
 
-/* 'SQ_APP_DEFAULT' has database settings and migration data for user application.
- * It should define in user's project (static library 'sqxcapp-user' or 'sqxcapptool-user').
+/* 'SQ_APP_DEFAULT' has database settings and migration data for application.
+ * It should define in user's project (static library 'sqapp-data').
  */
 extern const struct SqAppSetting        sqAppSetting_default;
 #define SQ_APP_DEFAULT                (&sqAppSetting_default)

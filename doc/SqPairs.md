@@ -78,7 +78,7 @@ Sq::Pairs use template functions to add key-value pair.
 
 ## Get
 
-The user must specify the key to get the value in the key-value pair. get() will directly returns value in key-value pair.
+When using the get() function, you must specify the key, and it will return the value directly.
 
 * If get() not found the key in the array:
 1. This method will return NULL or 0. If you need to add NULL or 0, you cannot use this to determine whether key is found.
@@ -163,7 +163,7 @@ Sq::Pairs use template functions steal() and erase().
 ## Sort
 
 sort() function can sort key-value pairs in array. It uses the comparison function specified at initialization.  
-In most case, user do not need to call this function because SqPairs sort automatically when calling sq_pairs_get() if array is unsorted.  
+In most case, this function does not need to be called because SqPairs sort automatically when calling sq_pairs_get() if array is unsorted.  
   
 use C language
 

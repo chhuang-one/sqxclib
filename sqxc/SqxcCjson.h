@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2025 by C.H. Huang
+ *   Copyright (C) 2025-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -16,7 +16,7 @@
 #define SQXC_CJSON_H
 
 #include <sqxc/SqConfig.h>
-#if SQ_CONFIG_HAVE_CJSON  // defined in SqConfig.h
+#if SQ_CONFIG_HAVE_CJSON       // defined in SqConfig.h
 
 #include <cjson/cJSON.h>
 #include <sqxc/Sqxc.h>
@@ -38,7 +38,9 @@ extern const SqxcInfo               sqxcInfo_CjsonWriter;
 #define SQXC_INFO_CJSON_PARSER    (&sqxcInfo_CjsonParser)
 #define SQXC_INFO_CJSON_WRITER    (&sqxcInfo_CjsonWriter)
 
+//Sqxc *sqxc_cjson_parser_new();
 #define sqxc_cjson_parser_new()        sqxc_new(SQXC_INFO_CJSON_PARSER)
+//Sqxc *sqxc_cjson_writer_new();
 #define sqxc_cjson_writer_new()        sqxc_new(SQXC_INFO_CJSON_WRITER)
 
 #ifdef __cplusplus

@@ -3,7 +3,7 @@
 # SqxcFile
 
 SqxcFile is derived from [Sqxc](Sqxc.md). It is used to output Sqxc converted data to a file.  
-Note: SqxcFile is in sqxcsupport library (sqxcsupport.h).
+Note: SqxcFile is in sqxcsupport library.
 
 	Sqxc
 	│

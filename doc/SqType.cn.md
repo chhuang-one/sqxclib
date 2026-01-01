@@ -53,7 +53,7 @@ struct SqType
 | SQB_TYPE_SORTED       | SqType::entry 按照 SqEntry::name 排序  |
 | SQB_TYPE_QUERY_FIRST  | SqType::entry 具有仅查询列             |
 
-* 当用户调用函数创建或初始化 SqType 时，SqType::bit_field 设置为 SQB_TYPE_DYNAMIC。
+* 当调用函数创建或初始化 SqType 时，SqType::bit_field 设置为 SQB_TYPE_DYNAMIC。
 * 如果 SqType::bit_field 没有设置 SQB_TYPE_DYNAMIC，用户不能更改或释放 SqType。
 * 用户必须使用位运算符来设置或清除 SqType::bit_field 中的位。
 * 常量 SqType 必须与常量 SqEntry 一起使用。
@@ -78,7 +78,7 @@ struct SqType
 | SQ_TYPE_STRING  | char*        | VARCHAR           | SQ_TYPE_STR 的别名           |
 | SQ_TYPE_CHAR    | char*        | CHAR              | 为 SQL 数据类型 CHAR 定义    |
 
-* 使用上述 SqType 时，用户可以不指定 SQL 数据类型，因为它们默认会映射到特定的 SQL 数据类型。
+* 使用上述 SqType 时，可以不指定 SQL 数据类型，因为它们默认会映射到特定的 SQL 数据类型。
 * 不同的数据库产品可能将这些 C 数据类型对应到不同的 SQL 数据类型。
 
 SqType 及其 C/C++ 容器类型：
@@ -329,8 +329,8 @@ unsigned int  Sq::Type::decideSize(const SqEntry *inner_entry, bool entry_remove
 ```
 
 * 如果 'inner_entry' == NULL，它使用 SqType 中的所有 SqEntry 来重新计算大小。
-* 如果用户将 'inner_entry' 添加到 SqType，则传递参数 'entry_removed' = false。
-* 如果用户从 SqType 中删除 'inner_entry'，则传递参数 'entry_removed' = true。
+* 如果将 'inner_entry' 添加到 SqType，则传递参数 'entry_removed' = false。
+* 如果从 SqType 中删除 'inner_entry'，则传递参数 'entry_removed' = true。
 
 #### 2.4 从动态 SqType 中查找并删除 SqEntry
 

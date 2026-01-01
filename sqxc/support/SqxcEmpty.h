@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -32,6 +32,7 @@ extern "C" {
 extern const SqxcInfo        sqxcInfo_Empty;
 #define SQXC_INFO_EMPTY    (&sqxcInfo_Empty)
 
+//Sqxc* sqxc_empty_new();
 #define sqxc_empty_new()        sqxc_new(SQXC_INFO_EMPTY)
 
 #ifdef __cplusplus

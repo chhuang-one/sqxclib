@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2025 by C.H. Huang
+ *   Copyright (C) 2022-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-// SqAppTool.h will include headers in sqxcsupport.
+// SqAppTool.h will include headers in sqxc/support.
 
 #include <sqxc/app/SqApp.h>
 #include <sqxc/app/SqAppTool.h>

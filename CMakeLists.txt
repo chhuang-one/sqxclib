@@ -8,7 +8,7 @@ project(sqxclib
 
 set(SQXCLIB_SOVERSION      0)
 
-# Don't specify version of the C or C++ language standard for user.
+# Don't specify version of the C or C++ language standard. (Except for macOS.)
 # Note: sqxclib code still compile with C99 and C++11 currently.
 if (DEFINED CMAKE_CXX_COMPILER)
 	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -235,7 +235,7 @@ if (SQXCLIB_HAVE_POSTGRESQL)
 endif ()
 
 if (DEFINED CMAKE_CXX_COMPILER)
-	set(SQXCLIB_PC_LIB_CXX          "-lsqxcpp")
+	set(SQXCLIB_PC_LIB_CXX          "-lsqxcxx")
 endif ()
 
 configure_file(
@@ -266,7 +266,7 @@ enable_testing()
 add_subdirectory(sqxc)
 add_subdirectory(sqxc/support)
 add_subdirectory(sqxc/app)
-add_subdirectory(sqxcapp)
+add_subdirectory(sqapp)
 add_subdirectory(tests)
 add_subdirectory(examples)
 

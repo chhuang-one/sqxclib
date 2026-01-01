@@ -53,7 +53,7 @@ Define bit_field of SqType:
 | SQB_TYPE_SORTED       | SqType::entry is sorted by SqEntry::name |
 | SQB_TYPE_QUERY_FIRST  | SqType::entry has query-only columns     |
 
-* When user call function to creates or initializes a SqType, SqType::bit_field is set to SQB_TYPE_DYNAMIC.
+* When function is called to create or initialize a SqType, SqType::bit_field is set to SQB_TYPE_DYNAMIC.
 * User can NOT change or free SqType if SqType::bit_field has NOT set SQB_TYPE_DYNAMIC.
 * User must use bitwise operators to set or clear bits in SqType::bit_field.
 * Constant SqType must be used with constant SqEntry.
@@ -78,7 +78,7 @@ Built-in SqType with it's data type:
 | SQ_TYPE_STRING  | char*        | VARCHAR           | alias of SQ_TYPE_STR             |
 | SQ_TYPE_CHAR    | char*        | CHAR              | defined for SQL data type CHAR   |
 
-* When using above SqType, user don't need to specify SQL data type because they will map to specific SQL data type by default.
+* When using above SqType, you don't need to specify SQL data type because they will map to specific SQL data type by default.
 * Different Database products may map these C data types to different SQL data types.
 
 SqType with it's C/C++ container type:
@@ -329,8 +329,8 @@ unsigned int  Sq::Type::decideSize(const SqEntry *inner_entry, bool entry_remove
 ```
 
 * if 'inner_entry' == NULL, it use all entries in SqType to recalculate size.
-* if user add 'inner_entry' to SqType, pass argument 'entry_removed' = false.
-* if user remove 'inner_entry' from SqType, pass argument 'entry_removed' = true.
+* if you add 'inner_entry' to SqType, pass argument 'entry_removed' = false.
+* if you remove 'inner_entry' from SqType, pass argument 'entry_removed' = true.
 
 #### 2.4 find & remove entry from dynamic SqType
 
@@ -366,7 +366,7 @@ use C++ language to find & remove SqEntry
 
 #### 2.5 Copy SqType
 
-Because constant SqType can't be modified directly, user must copy it before modifying.  
+Because constant SqType can't be modified directly, it must be copied before modification.  
 function sq_type_copy() can copy SqType. It's declarations:
 
 ```c

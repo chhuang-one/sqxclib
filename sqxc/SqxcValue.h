@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -33,14 +33,19 @@ extern "C" {
 extern const SqxcInfo        sqxcInfo_Value;
 #define SQXC_INFO_VALUE    (&sqxcInfo_Value)
 
+//Sqxc* sqxc_value_new();
 #define sqxc_value_new()        sqxc_new(SQXC_INFO_VALUE)
 
 // macro for accessing variable of SqxcValue
 
-// instance type = (container) ? container : element
+// SqxcValue::element
 #define sqxc_value_element(xcvalue)       ( ((SqxcValue*)xcvalue)->element )
+// SqxcValue::container
 #define sqxc_value_container(xcvalue)     ( ((SqxcValue*)xcvalue)->container )
 
+// SqxcValue::instance
+// ------
+// instance type = (container) ? container : element
 // instance of container (or element)
 #define sqxc_value_instance(xcvalue)      ( ((SqxcValue*)xcvalue)->instance )
 

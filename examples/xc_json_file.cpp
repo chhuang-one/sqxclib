@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,12 +12,9 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <stdio.h>        // fprintf(), stderr
+#include <stdio.h>             // fprintf(), stderr
 
-#include <sqxc/sqxclib.h>
-#include <sqxc/support/SqxcFile.h>     // in sqxcsupport library
-#include <sqxc/support/SqxcMem.h>      // in sqxcsupport library
-#include <sqxc/support/SqHelpers.h>    // in sqxcsupport library
+#include <sqxc/sqxclib.h>      // sqxclib.h includes sqxc/support headers
 
 /*	Use Sqxc chain to output JSON data to file.
 

@@ -47,7 +47,7 @@ if (NOT Sqxc_FOUND)
 endif (NOT Sqxc_FOUND)
 
 # --- subdirectory ---
-add_subdirectory(sqxcapp)
+add_subdirectory(sqapp)
 add_subdirectory(src)
 
 # --- debug message ---

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2025 by C.H. Huang
+ *   Copyright (C) 2025-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -21,6 +21,8 @@
 /* ----------------------------------------------------------------------------
 	*** In output chain:
 	SQXC_TYPE_STR ---> SqxcMem Writer
+
+	All output will write to SqxcMem::buf
  */
 
 static int  sqxc_mem_writer_send(SqxcMem *xcmem, Sqxc *src)

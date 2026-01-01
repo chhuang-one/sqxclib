@@ -4,7 +4,7 @@
 
 SqTypeRow is derived from [SqTypeJoint](SqTypeJoint.md). It can create instance of [SqRow](SqRow.md) and parse unknown (or known) result, table, and column.  
 SqTypeRow sample code is in [storage-row.cpp](examples/storage-row.cpp)  
-Note: SqTypeRow is in sqxcsupport library (sqxcsupport.h).  
+Note: SqTypeRow is in sqxcsupport library.  
 
 	SqType
 	│
@@ -14,7 +14,7 @@ Note: SqTypeRow is in sqxcsupport library (sqxcsupport.h).
 
 ## Directly use without setup
 
-SQ_TYPE_ROW is build-in static constant type for SqTypeRow, user can use it to parse unknown result directly.
+SQ_TYPE_ROW is build-in static constant type for SqTypeRow, you can use it to parse unknown result directly.
 In this case, all data type in [SqRow](SqRow.md) is C string because SqTypeRow don't know type of columns.  
   
 use C language
@@ -48,7 +48,7 @@ use C++ language
 ## Create and setup
 
 If you want get correct data type from [SqRow](SqRow.md), you must create dynamic SqTypeRow and setup it.
-Because the parser of SqTypeRow must know type of columns in table, user must add, remove, clear tables in SqTypeRow.  
+Because the parser of SqTypeRow must know type of columns in table, you must add, remove, clear tables in SqTypeRow.  
 You can specify table alias name (used by SQL AS keyword) in the last argument when you add or remove tables. If alias name is NULL, Sqxc use table name directly.  
   
 use C language

@@ -331,7 +331,7 @@ use C language
 
 use C++ language  
   
-C++ Sq::CommandValue has defined destructor, so user can use 'delete' keyword to free memory.
+C++ Sq::CommandValue has defined destructor, so you can use 'delete' keyword to free memory.
 
 ```c++
 	Sq::CommandValue *commandValue;

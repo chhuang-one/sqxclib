@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -43,7 +43,7 @@ SqRelation *sq_relation_final(SqRelation *relation);
 
 void  sq_relation_clear(SqRelation *relation);
 
-// *** function parameter 'no_reverse' set to 1 if user don't need reverse reference
+// *** function parameter 'no_reverse' set to 1 if reverse references are not needed.
 
 // This function prepend 'to_object' to related list of 'from_object'
 // it does NOT check duplicate 'to_object' in related list of 'from_object'

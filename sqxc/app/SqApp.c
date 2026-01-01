@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -13,7 +13,7 @@
  */
 
 #include <assert.h>
-#include <stdio.h>        // puts()
+#include <stdio.h>             // puts()
 
 #include <sqxc/SqConfig.h>
 #include <sqxc/SqError.h>

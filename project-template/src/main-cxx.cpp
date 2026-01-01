@@ -1,6 +1,6 @@
 /* main-cxx.cpp
  * This program link 'sqxc' library.
- * It will link C++ library 'sqxcpp' if you use SQ_TYPE_STD_STRING (SqType for std::string) or others.
+ * It will link C++ library 'sqxcxx' if you use SQ_TYPE_STD_STRING (SqType for std::string) or others.
  */
 
 #include <iostream>

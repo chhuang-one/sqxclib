@@ -5,7 +5,7 @@
 This document describe how to define database table, column, and migration dynamically. Migration function can handle both dynamic and static column/table definitions.
 You can also use SqApp to run and reverse migrations with command-line tool, see [SqApp.md](SqApp.md).  
 
-Note: Because many users have used Laravel, there are many sqxclib C++ method names are similar to it.
+Note: Because many developers have used Laravel, there are many sqxclib C++ method names are similar to it.
 Actually the design of sqxclib is different from Laravel, so the usage cannot be the same.
 
 ## Schema

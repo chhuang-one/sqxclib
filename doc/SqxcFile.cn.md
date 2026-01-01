@@ -3,7 +3,7 @@
 # SqxcFile
 
 SqxcFile 派生自 [Sqxc](Sqxc.cn.md)。它用于将 Sqxc 转换的数据输出到文件。  
-注意: SqxcFile 在 sqxcsupport 库中 (sqxcsupport.h)。
+注意: SqxcFile 在 sqxcsupport 库。
 
 	Sqxc
 	│

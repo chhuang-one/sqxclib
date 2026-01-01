@@ -65,14 +65,14 @@ headers = [
     'SqxcSql.h',
 ]
 
-# --- 'sqxcpp' C++ sources and headers ---
-sources_cpp = [
+# --- 'sqxcxx' C++ sources and headers ---
+sources_cxx = [
     'SqType-std-string.cpp',
     'SqType-std-vector.cpp',
 ]
 
-headers_cpp = [
-    'SqType-stl-cpp.h',
+headers_cxx = [
+    'SqType-stl-cxx.h',
 ]
 
 # --- cJSON or json-c ---
@@ -122,7 +122,7 @@ if postgresql.found() == true
 endif
 
 install_headers(headers, subdir: 'sqxc')
-install_headers(headers_cpp, subdir: 'sqxc')
+install_headers(headers_cxx, subdir: 'sqxc')
 
 configure_file(input : 'config.h.in',
                output : 'config.h',
@@ -156,20 +156,20 @@ sqxc_shared_lib = shared_library(
 )
 sqxc_shared_link_libs += sqxc_shared_lib
 
-# --- 'sqxcpp' static library ---
-sqxcpp_lib = static_library(
-    'sqxcpp',
-    sources_cpp,
+# --- 'sqxcxx' static library ---
+sqxcxx_lib = static_library(
+    'sqxcxx',
+    sources_cxx,
     include_directories: sqxc_inc,
 #    dependencies: sqxc_dependencies,
     install: true
 )
-sqxc_static_link_libs += sqxcpp_lib
+sqxc_static_link_libs += sqxcxx_lib
 
-# --- 'sqxcpp' shared library ---
-sqxcpp_shared_lib = shared_library(
-    'sqxcpp',
-    sources_cpp,
+# --- 'sqxcxx' shared library ---
+sqxcxx_shared_lib = shared_library(
+    'sqxcxx',
+    sources_cxx,
     include_directories: sqxc_inc,
     link_with: sqxc_shared_lib,
 #    dependencies: sqxc_dependencies,
@@ -177,7 +177,7 @@ sqxcpp_shared_lib = shared_library(
 #    soversion: sqxclib_soversion,
     install: true
 )
-sqxc_shared_link_libs += sqxcpp_shared_lib
+sqxc_shared_link_libs += sqxcxx_shared_lib
 
 # --- 'sqxc_sqlite' library ---
 if sqlite.found() == true

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -17,12 +17,11 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <iostream>       // cout
-#include <type_traits>    // is_standard_layout<>
+#include <iostream>            // cout
+#include <type_traits>         // is_standard_layout<>
 
-#include <sqxc/sqxclib.h>
-#include <sqxc/app/SqApp.h>
-#include <CStructs.h>     // struct User
+#include <sqxc/sqxclib.h>      // sqxclib.h includes sqxc/app headers
+#include <CStructs.h>          // struct User
 
 #define USE_DERVIDED_MYAPP    0
 
@@ -181,7 +180,7 @@ int  main(void)
 		return EXIT_FAILURE;
 #endif
 
-	/*	If you use command-line program "sqtool-cpp" to do migrate,
+	/*	If you use command-line program "sqtool-cxx" to do migrate,
 		you can remove below 'myapp->migrate()' code.
 	 */
 	// if the version of schema in database is 0 (no migrations have been done)
@@ -192,7 +191,7 @@ int  main(void)
 	}
 
 
-	/*	strcut User is defined in  sqxcapp/CStructs.h
+	/*	strcut User is defined in  sqapp/CStructs.h
 		Database table "users" is defined in  database/migrations/2021_10_12_000000_create_users_table.cpp
 		but it is disabled by default.
 

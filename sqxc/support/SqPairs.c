@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <stdlib.h>       // qsort(), bsearch(), malloc(), free()
+#include <stdlib.h>            // qsort(), bsearch(), malloc(), free()
 
 #include <sqxc/support/SqPairs.h>
 

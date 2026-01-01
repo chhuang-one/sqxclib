@@ -198,7 +198,7 @@ use C++ language
 Because all rows in the query result have the same column array, sharing the column array among these rows reduces memory usage.
 The C functions sq_row_share_cols(), C++ methods shareCols() can do this.  
   
-**Note 1**: If column array have been shared, user can not add/remove elements in it.  
+**Note 1**: If column array have been shared, you can not add/remove elements in it.  
 **Note 2**: When SqRow gets the shared column array, it frees its own column array.  
   
 use C language

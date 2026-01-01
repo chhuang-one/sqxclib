@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2025 by C.H. Huang
+ *   Copyright (C) 2025-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,15 +12,15 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <limits.h>       // __WORDSIZE
-#include <stdint.h>       // __WORDSIZE  for Apple Developer
-#include <stdio.h>        // fprintf(), stderr
+#include <limits.h>            // __WORDSIZE
+#include <stdint.h>            // __WORDSIZE  for Apple Developer
+#include <stdio.h>             // fprintf(), stderr
 
 #include <sqxc/SqError.h>
 #include <sqxc/SqEntry.h>
 #include <sqxc/SqxcCjson.h>
 
-#if SQ_CONFIG_HAVE_CJSON  // defined in SqConfig.h
+#if SQ_CONFIG_HAVE_CJSON       // defined in SqConfig.h
 
 /* ----------------------------------------------------------------------------
 	SqxcInfo functions - Middleware of input chain

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -16,10 +16,10 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 #include <stdint.h>
-#include <stdarg.h>       // va_list, va_start, va_end, va_arg, etc.
+#include <stdarg.h>            // va_list, va_start, va_end, va_arg, etc.
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>        // vsnprintf(), fprintf(), stderr
+#include <stdio.h>             // vsnprintf(), fprintf(), stderr
 
 #include <sqxc/SqQuery.h>
 

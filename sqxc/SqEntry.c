@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -12,7 +12,7 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <string.h>       // strdup(), strcasecmp(), strncasecmp()
+#include <string.h>            // strdup(), strcasecmp(), strncasecmp()
 
 #include <sqxc/SqConfig.h>
 #include <sqxc/SqError.h>

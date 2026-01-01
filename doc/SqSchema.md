@@ -13,7 +13,7 @@ SqSchema defines database schema. It store table and changed record of table. [S
 When program create new schema, it will generate version number automatically. The current way to generate the version number is very primitive, it just add 1 to the counter.  
 Because the version number is used to determine whether to do migration. User can manually specify the version number of the schema, it can avoid some problem.  
   
-The name of schema can be NULL when user create new schema.  
+The name of schema can be NULL when creating new schema.  
   
 use C language
 

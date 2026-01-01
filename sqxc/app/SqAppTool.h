@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -97,7 +97,7 @@ struct AppToolMethod : AppMethod
 // ----------------------------------------------------------------------------
 // C/C++ common definitions: define structure
 
-/*	SqAppTool is used by command-line program - sqtool and sqtool-cpp.
+/*	SqAppTool is used by command-line program - sqtool and sqtool-cxx.
 
 	SqApp
 	|

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2022-2025 by C.H. Huang
+ *   Copyright (C) 2022-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,7 +15,7 @@
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-#include <ctype.h>        // tolower(), toupper()
+#include <ctype.h>             // tolower(), toupper()
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>

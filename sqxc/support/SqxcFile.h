@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -33,10 +33,12 @@ extern "C" {
 extern const SqxcInfo              sqxcInfo_FileWriter;
 #define SQXC_INFO_FILE_WRITER    (&sqxcInfo_FileWriter)
 
+//Sqxc *sqxc_file_writer_new();
 #define sqxc_file_writer_new()        sqxc_new(SQXC_INFO_FILE_WRITER)
 
 // macro for accessing variable of SqxcSql
 
+// SqxcFile::filename
 #define sqxc_file_name(xcfile)        ( ((SqxcFile*)xcfile)->filename )
 
 #ifdef __cplusplus

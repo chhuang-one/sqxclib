@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2021-2025 by C.H. Huang
+ *   Copyright (C) 2021-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -15,8 +15,8 @@
 #ifndef SQ_PAIRS_H
 #define SQ_PAIRS_H
 
-#include <stdint.h>       // intptr_t
-#include <stdbool.h>      // bool
+#include <stdint.h>            // intptr_t
+#include <stdbool.h>           // bool
 
 #include <sqxc/SqArray.h>
 
