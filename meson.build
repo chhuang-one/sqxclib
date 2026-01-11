@@ -6,7 +6,7 @@ project('sqxclib',
 #        'c_std=c99',
 #        'cpp_std=c++11',
     ],
-    version: '1.1'
+    version: '1.1.1'
 )
 
 # add_project_arguments('-DHAVE_CONFIG_H', language : ['c', 'cpp'])

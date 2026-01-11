@@ -75,8 +75,7 @@
 
 /* Sqxc JSON parser/writer has 2 backends - cJSON and json-c library.
    cJSON is ultralightweight JSON parser, json-c can accept streaming JSON input.
-   When you enable it and cJSON is available,
-   SqxcCjson will be used as the default JSON converter and SqxcJsonc will not be compiled.
+   When you enable it and cJSON is available, SqxcJsonc (using json-c) will not be compiled.
    Affected source : SqStorage, SqConsole
  */
 #define SQ_CONFIG_SQXC_CJSON_ONLY_IF_POSSIBLE      0

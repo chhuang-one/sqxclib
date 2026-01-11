@@ -76,6 +76,9 @@ union SqValue {
 	time_t        rawtime;     // SQ_TYPE_TIME
 	double        fraction;    // SQ_TYPE_DOUBLE
 	double        double_;     // SQ_TYPE_DOUBLE
+	double        float64;     // SQ_TYPE_DOUBLE
+	float         float32;
+	float         float_;
 	const char   *str;         // SQ_TYPE_STR
 	const char   *string;      // SQ_TYPE_STR
 	const char   *stream;      // Text stream must be null-terminated string

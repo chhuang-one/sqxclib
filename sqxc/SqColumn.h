@@ -138,52 +138,52 @@ struct Column;
 	SqColumn must have no base struct because I need use aggregate initialization with it.
 */
 
-#define SQ_COLUMN_MEMBERS       \
-	SQ_REENTRY_MEMBERS;         \
-	int32_t      sql_type;      \
-	int32_t      size;          \
-	int32_t      digits;        \
-	const char  *default_value; \
-	char       **foreign;       \
-	char       **composite;     \
-	const char  *comments;      \
-	const char  *raw
+#define SQ_COLUMN_MEMBERS          \
+	SQ_REENTRY_MEMBERS;            \
+	int32_t         sql_type;      \
+	int32_t         size;          \
+	int32_t         digits;        \
+	const char     *default_value; \
+	char          **foreign;       \
+	char          **composite;     \
+	const char     *comments;      \
+	const char     *raw
 
 struct SqColumn
 {
 	SQ_COLUMN_MEMBERS;
 /*	// ------ SqEntry members ------
-	const SqType *type;             // data type of column
-	const char   *name;             // name of column
-	size_t        offset;
-	unsigned int  bit_field;
+	const SqType   *type;             // data type of column
+	const char     *name;             // name of column
+	size_t          offset;
+	unsigned int    bit_field;
 
 	// ------ SqReentry members ------
-	const char   *old_name;         // use this when renaming or dropping
+	const char     *old_name;         // use this when renaming or dropping
 
 	// ------ SqColumn members ------
 
 	// It can map type to SQL data type. Don't map if this field is 0.
-	int32_t       sql_type;
+	int32_t         sql_type;
 
 	// It is total number of digits is specified in size, or length of string.
-	int32_t       size;
+	int32_t         size;
 
 	// It is number of digits after the decimal point, or 2nd parameter of SQL type.
-	int32_t       digits;
+	int32_t         digits;
 
-	const char   *default_value;    // DEFAULT
+	const char     *default_value;    // DEFAULT
 
 	// 'foreign'   is NULL-terminated array for setting foreign key references and actions.
 	// e.g. { "table", "column1", "column2", ...,  "",  "CASCADE", "SET DEFAULT", NULL }
-	char        **foreign;
+	char          **foreign;
 
 	// 'composite' is NULL-terminated array for setting columns of composite constraint.
 	// e.g. { "column1", "column2", ..., NULL }
-	char        **composite;
+	char          **composite;
 
-	const char   *comments;         // add comment to a column
-	const char   *raw;              // raw database column property
+	const char     *comments;         // add comment to a column
+	const char     *raw;              // raw database column property
 
 	// if column->name is NULL, it will drop column->old_name
 	// if column->name is NOT NULL, it will rename from column->old_name to column->name

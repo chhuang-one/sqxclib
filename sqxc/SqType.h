@@ -192,6 +192,11 @@ Sqxc *sq_type_time_write(void *instance, const SqType *type, Sqxc *xc_dest);
 int   sq_type_double_parse(void *instance, const SqType *type, Sqxc *xc_src);
 Sqxc *sq_type_double_write(void *instance, const SqType *type, Sqxc *xc_dest);
 
+//int   sq_type_float64_parse(void *instance, const SqType *type, Sqxc *xc_src);
+#define sq_type_float64_parse    sq_type_double_parse
+//Sqxc *sq_type_float64_write(void *instance, const SqType *type, Sqxc *xc_dest);
+#define sq_type_float64_write    sq_type_double_write
+
 void  sq_type_str_final(void *instance, const SqType *type);
 int   sq_type_str_parse(void *instance, const SqType *type, Sqxc *xc_src);
 Sqxc *sq_type_str_write(void *instance, const SqType *type, Sqxc *xc_dest);
@@ -409,15 +414,16 @@ extern "C" {
 
 enum {
 	SQ_TYPE_BOOL_INDEX,
-	SQ_TYPE_BOOLEAN_INDEX = SQ_TYPE_BOOL_INDEX,  // alias of SQ_TYPE_BOOL_INDEX
+	SQ_TYPE_BOOLEAN_INDEX = SQ_TYPE_BOOL_INDEX,   // alias of SQ_TYPE_BOOL_INDEX
 	SQ_TYPE_INT_INDEX,
 	SQ_TYPE_UINT_INDEX,
 	SQ_TYPE_INT64_INDEX,
 	SQ_TYPE_UINT64_INDEX,
 	SQ_TYPE_TIME_INDEX,
 	SQ_TYPE_DOUBLE_INDEX,
+	SQ_TYPE_FLOAT64_INDEX = SQ_TYPE_DOUBLE_INDEX, // alias of SQ_TYPE_DOUBLE_INDEX
 	SQ_TYPE_STR_INDEX,
-	SQ_TYPE_STRING_INDEX = SQ_TYPE_STR_INDEX,    // alias of SQ_TYPE_STR_INDEX
+	SQ_TYPE_STRING_INDEX  = SQ_TYPE_STR_INDEX,    // alias of SQ_TYPE_STR_INDEX
 	SQ_TYPE_CHAR_INDEX,
 
 	SQ_TYPE_N_BUILT_IN,
@@ -440,6 +446,7 @@ extern  const  SqType      sqType_StrArray;
 #define SQ_TYPE_UINT64     (&sqType_BuiltIn[SQ_TYPE_UINT64_INDEX])
 #define SQ_TYPE_TIME       (&sqType_BuiltIn[SQ_TYPE_TIME_INDEX])
 #define SQ_TYPE_DOUBLE     (&sqType_BuiltIn[SQ_TYPE_DOUBLE_INDEX])
+#define SQ_TYPE_FLOAT64    SQ_TYPE_DOUBLE        // alias of SQ_TYPE_DOUBLE
 #define SQ_TYPE_STR        (&sqType_BuiltIn[SQ_TYPE_STR_INDEX])
 #define SQ_TYPE_STRING     SQ_TYPE_STR           // alias of SQ_TYPE_STR
 // ---- SQ_TYPE for SQL ----

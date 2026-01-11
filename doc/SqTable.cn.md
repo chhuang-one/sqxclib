@@ -76,6 +76,7 @@ SqTable 必须与 [SqSchema](SqSchema.cn.md) 和 [SqColumn](SqColumn.cn.md) 一�
 | timestamp   | sq_table_add_timestamp | time_t         | TIMESTAMP         | SQ_TYPE_TIME        |
 | timestamps  | sq_table_add_timestamps| time_t &ensp; x 2 | TIMESTAMP &ensp; x 2 | SQ_TYPE_TIME &ensp; x 2 |
 | double_     | sq_table_add_double    | double         | DOUBLE            | SQ_TYPE_DOUBLE      |
+| float64     | sq_table_add_float64   | double         | DOUBLE            | SQ_TYPE_DOUBLE      |
 | str         | sq_table_add_str       | char*          | VARCHAR           | SQ_TYPE_STR         |
 | string      | sq_table_add_string    | char*          | VARCHAR           | SQ_TYPE_STR         |
 | char_       | sq_table_add_char      | char*          | CHAR              | SQ_TYPE_CHAR        |

@@ -60,7 +60,7 @@ if (Sqxc_FOUND)
 
 	# sqxclib contains several libraries to support different SQL products.
 	# find other sqxclib libraries in directory.
-	set(LibList
+	set(SqxcLibList
 #	    sqxc
 	    sqxcxx
 	    sqxc_sqlite
@@ -71,9 +71,9 @@ if (Sqxc_FOUND)
 	    sqxcapptool
 	)
 
-	foreach(CurLib ${LibList})
-		find_library(CurLibPath
-		    NAMES "${CurLib}"
+	foreach(SqxcLibCur ${SqxcLibList})
+		find_library(SqxcLibCurPath
+		    NAMES "${SqxcLibCur}"
 		    PATHS "/lib"
 		          "/lib64"
 		          "/usr/lib"
@@ -82,24 +82,27 @@ if (Sqxc_FOUND)
 		          "/usr/local/lib64"
 		)
 
-		if (CurLibPath)
+		if (SqxcLibCurPath)
 			set(Sqxc_LIBRARIES
-			    ${CurLib}
+			    ${SqxcLibCur}
 			    ${Sqxc_LIBRARIES}
 			)
 			# find dependency SQL packages
-			if (CurLib STREQUAL "sqxc_sqlite")
+			if (SqxcLibCur STREQUAL "sqxc_sqlite")
 				find_package(SQLite3)
-			elseif (CurLib STREQUAL "sqxc_mysql")
+			elseif (SqxcLibCur STREQUAL "sqxc_mysql")
 				find_package(MYSQL)
-			elseif (CurLib STREQUAL "sqxc_postgre")
+			elseif (SqxcLibCur STREQUAL "sqxc_postgre")
 				find_package(PostgreSQL)
 			endif ()
 		endif ()
 
-		unset(CurLibPath CACHE)
-		unset(CurLibPath)
+		unset(SqxcLibCurPath CACHE)
+		unset(SqxcLibCurPath)
 	endforeach()
+
+	unset(SqxcLibList CACHE)
+	unset(SqxcLibList)
 
 	# set Sqxc_INCLUDE_DIRS and Sqxc_LIBRARIES
 	# --- SQLite ---

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2020-2025 by C.H. Huang
+ *   Copyright (C) 2020-2026 by C.H. Huang
  *   plushuang.tw@gmail.com
  *
  * sqxclib is licensed under Mulan PSL v2.
@@ -154,6 +154,10 @@ SqColumn *sq_table_add_function(SqTable *table, const char *column_name,
 // SqColumn *sq_table_add_integer(SqTable *table, const char *column_name, size_t offset);
 #define sq_table_add_integer    sq_table_add_int
 
+// alias of sq_table_add_double()
+// SqColumn *sq_table_add_float64(SqTable *table, const char *column_name, size_t offset);
+#define sq_table_add_float64    sq_table_add_double
+
 // alias of sq_table_add_string()
 // SqColumn *sq_table_add_str(SqTable *table, const char *column_name, size_t offset, int length);
 #define sq_table_add_str        sq_table_add_string
@@ -194,6 +198,10 @@ SqColumn *sq_table_add_function(SqTable *table, const char *column_name,
 
 // SqColumn *sq_table_add_double_as(SqTable *table, Structure, Member, int precision, int scale)
 #define sq_table_add_double_as(table, Structure, Member, precision, scale)    \
+		sq_table_add_double(table, #Member, offsetof(Structure, Member), precision, scale)
+
+// SqColumn *sq_table_add_float64_as(SqTable *table, Structure, Member, int precision, int scale)
+#define sq_table_add_float64_as(table, Structure, Member, precision, scale)    \
 		sq_table_add_double(table, #Member, offsetof(Structure, Member), precision, scale)
 
 // SqColumn *sq_table_add_timestamp_as(SqTable *table, Structure, Member)
@@ -375,6 +383,7 @@ struct TableMethod
 	                       const char *updated_at_name, size_t updated_at_offset);
 	void        timestamps(size_t created_at_offset, size_t updated_at_offset);
 	Sq::Column &double_(const char *column_name, size_t offset, int precision = 0, int scale = 0);
+	Sq::Column &float64(const char *column_name, size_t offset, int precision = 0, int scale = 0);
 
 	Sq::Column &string(const char *column_name, size_t offset, int length = -1);
 	// alias of string
@@ -433,6 +442,8 @@ struct TableMethod
 	void        timestamps();
 	template<class Store, class Type>
 	Sq::Column &double_(const char *column_name, Type Store::*member, int precision = 0, int scale = 0);
+	template<class Store, class Type>
+	Sq::Column &float64(const char *column_name, Type Store::*member, int precision = 0, int scale = 0);
 
 	template<class Store, class Type>
 	Sq::Column &string(const char *column_name, Type Store::*member, int length = -1);
@@ -749,6 +760,9 @@ inline void  TableMethod::timestamps(size_t created_at_offset, size_t updated_at
 inline Sq::Column &TableMethod::double_(const char *column_name, size_t offset, int precision, int scale) {
 	return *(Sq::Column*)sq_table_add_double((SqTable*)this, column_name, offset, precision, scale);
 }
+inline Sq::Column &TableMethod::float64(const char *column_name, size_t offset, int precision, int scale) {
+	return *(Sq::Column*)sq_table_add_double((SqTable*)this, column_name, offset, precision, scale);
+}
 
 inline Sq::Column &TableMethod::string(const char *column_name, size_t offset, int length) {
 	return *(Sq::Column*)sq_table_add_string((SqTable*)this, column_name, offset, length);
@@ -852,6 +866,10 @@ inline void  TableMethod::timestamps() {
 };
 template<class Store, class Type>
 inline Sq::Column &TableMethod::double_(const char *column_name, Type Store::*member, int precision, int scale) {
+	return *(Sq::Column*)sq_table_add_double((SqTable*)this, column_name, Sq::offsetOf(member), precision, scale);
+};
+template<class Store, class Type>
+inline Sq::Column &TableMethod::float64(const char *column_name, Type Store::*member, int precision, int scale) {
 	return *(Sq::Column*)sq_table_add_double((SqTable*)this, column_name, Sq::offsetOf(member), precision, scale);
 };
 

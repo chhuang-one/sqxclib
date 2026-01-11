@@ -87,6 +87,7 @@ typedef enum {
 	SQXC_TYPE_UINT64   = (1 << 5),    // 0x0020
 	SQXC_TYPE_TIME     = (1 << 6),    // 0x0040    // SQL TIMESTAMP, C time_t
 	SQXC_TYPE_DOUBLE   = (1 << 7),    // 0x0080
+	SQXC_TYPE_FLOAT64  = (1 << 7),    // 0x0080    // alias of SQXC_TYPE_DOUBLE
 
 	SQXC_TYPE_STR      = (1 << 8),    // 0x0100
 	SQXC_TYPE_STRING   = (1 << 8),    // 0x0100    // alias of SQXC_TYPE_STR
@@ -244,6 +245,9 @@ typedef int   (*SqxcSendFunc)(Sqxc *xc, Sqxc *arguments_src);
 			((Sqxc*)(sqxc))->value.double_ = val;        \
 			sqxc = sqxc_send((Sqxc*)(sqxc));             \
 		}
+
+// void sqxc_send_float64(Sqxc **sqxc, const char *entry_name, double value);
+#define SQXC_SEND_FLOAT64       SQXC_SEND_DOUBLE
 
 // void sqxc_send_str(Sqxc **sqxc, const char *entry_name, const char *value);
 #define SQXC_SEND_STR(sqxc, entry_name, val)             \

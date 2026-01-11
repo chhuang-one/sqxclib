@@ -20,6 +20,18 @@ set(SqxcApp_LIBRARIES
     ${Sqxc_LIBRARIES}
 )
 
+# set SqxcApp_INCLUDE_DIRS to PARENT_SCOPE
+set(SqxcApp_INCLUDE_DIRS
+    ${SqxcApp_INCLUDE_DIRS}
+    PARENT_SCOPE
+)
+
+# set SqxcApp_LIBRARIES to PARENT_SCOPE
+set(SqxcApp_LIBRARIES
+    ${SqxcApp_LIBRARIES}
+    PARENT_SCOPE
+)
+
 # --- 'sqxcapptool' sources and headers ---
 set(SOURCES_APPTOOL
     SqAppTool.c
@@ -43,6 +55,18 @@ set(SqxcAppTool_LIBRARIES
     sqxcapptool
     sqxcapp
     ${SqxcSupport_LIBRARIES}
+)
+
+# set SqxcAppTool_INCLUDE_DIRS to PARENT_SCOPE
+set(SqxcAppTool_INCLUDE_DIRS
+    ${SqxcAppTool_INCLUDE_DIRS}
+    PARENT_SCOPE
+)
+
+# set SqxcAppTool_LIBRARIES to PARENT_SCOPE
+set(SqxcAppTool_LIBRARIES
+    ${SqxcAppTool_LIBRARIES}
+    PARENT_SCOPE
 )
 
 # --- build ---
@@ -85,28 +109,4 @@ install(
     TARGETS sqxcapp sqxcapptool
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sqxc/app
-)
-
-# set SqxcApp_INCLUDE_DIRS to PARENT_SCOPE
-set(SqxcApp_INCLUDE_DIRS
-    ${SqxcApp_INCLUDE_DIRS}
-    PARENT_SCOPE
-)
-
-# set SqxcApp_LIBRARIES to PARENT_SCOPE
-set(SqxcApp_LIBRARIES
-    ${SqxcApp_LIBRARIES}
-    PARENT_SCOPE
-)
-
-# set SqxcAppTool_INCLUDE_DIRS to PARENT_SCOPE
-set(SqxcAppTool_INCLUDE_DIRS
-    ${SqxcAppTool_INCLUDE_DIRS}
-    PARENT_SCOPE
-)
-
-# set SqxcAppTool_LIBRARIES to PARENT_SCOPE
-set(SqxcAppTool_LIBRARIES
-    ${SqxcAppTool_LIBRARIES}
-    PARENT_SCOPE
 )

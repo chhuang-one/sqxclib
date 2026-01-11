@@ -77,6 +77,9 @@ union SqValue
 	time_t        rawtime;
 	double        fraction;
 	double        double_;
+	double        float64;
+	float         float32;
+	float         float_;
 	const char   *str;
 	const char   *string;
 	const char   *stream;      // Text stream must be null-terminated string
